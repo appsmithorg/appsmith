@@ -6,7 +6,7 @@ cd "$(dirname "$0")"
 rm -rf dist/
 # This is required for the first time build as node_modules is not present in the image
 yarn install --immutable
-npx tsc && npx tsc-alias
+# npx tsc && npx tsc-alias
 # Keep copy of all dependencies in node_modules_bkp
 mv node_modules node_modules_bkp
 # Install only production dependencies
