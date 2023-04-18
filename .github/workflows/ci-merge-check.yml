@@ -67,7 +67,7 @@ jobs:
           elif [ ${{ steps.suite_status_check.outputs.status1 }} == 0 ]; then
             echo "msg=Hurray!🎉 Proceeding to Merge!!!" >> $GITHUB_OUTPUT
             exit 0
-          elif [ ${{ steps.suite_status_check.outputs.status1 }} == 0 ]
+          elif [ ${{ steps.suite_status_check.outputs.status1 }} == 1 ]
             echo "msg=Either get 'Test Plan Approved' or 'skip-testPlan' added and try again!" >> $GITHUB_OUTPUT
             exit 1
           else
