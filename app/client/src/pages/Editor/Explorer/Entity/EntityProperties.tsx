@@ -22,6 +22,9 @@ import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer"
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { EntityClassNames } from ".";
 import { Button } from "design-system";
+import WidgetFactory from "utils/WidgetFactory";
+
+// const CloseIcon = ControlIcons.CLOSE_CONTROL;
 
 const BindingContainerMaxHeight = 300;
 const EntityHeight = 36;
@@ -188,7 +191,7 @@ export function EntityProperties() {
         | "SKELETON_WIDGET"
         | "TABS_MIGRATOR_WIDGET"
       > = entity.type;
-      config = entityDefinitions[type];
+      config = WidgetFactory.getAutocompleteDefinitions(type);
       if (!config) {
         return null;
       }
