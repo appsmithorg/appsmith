@@ -27,6 +27,7 @@ const Container = styled.div`
   z-index: 100;
   top: 0;
   padding: 24px 24px 15px 24px;
+  border-radius: var(--ads-v2-border-radius) var(--ads-v2-border-radius) 0 0;
   & input {
     font-size: 14px;
     line-height: 19px;

@@ -29,9 +29,15 @@ type Props = {
   modalOpen: boolean;
   toggleShow: () => void;
   children: React.ReactNode;
+  className?: string;
 };
 
-function DocsSearchModal({ children, modalOpen, toggleShow }: Props) {
+function DocsSearchModal({
+  children,
+  className,
+  modalOpen,
+  toggleShow,
+}: Props) {
   return (
     <Modal
       data-testid="t--global-search-modal"
@@ -42,7 +48,7 @@ function DocsSearchModal({ children, modalOpen, toggleShow }: Props) {
       open={modalOpen}
     >
       <ModalContent>
-        <ModalBody>{children}</ModalBody>
+        <ModalBody className={`sss ${className}`}>{children}</ModalBody>
       </ModalContent>
     </Modal>
     // <StyledDocsSearchModal>

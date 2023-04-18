@@ -109,6 +109,9 @@ const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
     flex: 1;
     margin-top: 50px;
     overflow: hidden;
+    &.main-snippet {
+      margin-top: 17px;
+    }
   }
 
   ${algoliaHighlightTag},
@@ -551,11 +554,25 @@ function GlobalSearch() {
     return activeItem ? getItemType(activeItem) : undefined;
   }, [activeItem]);
 
+  const ModalClass = isSnippet(category)
+    ? "modal-snippet"
+    : isDocumentation(category)
+    ? "modal-documentation"
+    : "";
+  const showSnippetRefinementsFilters =
+    isSnippet(category) &&
+    refinements &&
+    refinements.entities &&
+    refinements.entities.length;
   return (
     <ThemeProvider theme={lightTheme}>
       <SearchContext.Provider value={searchContext}>
         <GlobalSearchHotKeys {...hotKeyProps}>
-          <SearchModal modalOpen={modalOpen} toggleShow={toggleShow}>
+          <SearchModal
+            className={ModalClass}
+            modalOpen={modalOpen}
+            toggleShow={toggleShow}
+          >
             <AlgoliaSearchWrapper
               category={category}
               query={query}
@@ -569,11 +586,12 @@ function GlobalSearch() {
                   setCategory={setCategory}
                   setQuery={setQuery}
                 />
-                {isSnippet(category) &&
-                  refinements &&
-                  refinements.entities &&
-                  refinements.entities.length && <SnippetRefinements />}
-                <div className="main">
+                {showSnippetRefinementsFilters && <SnippetRefinements />}
+                <div
+                  className={`main ${
+                    showSnippetRefinementsFilters && "main-snippet"
+                  }`}
+                >
                   {(isMenu(category) || isDocumentation(category)) && (
                     <Index indexName={algolia.indexName}>
                       <SetSearchResults

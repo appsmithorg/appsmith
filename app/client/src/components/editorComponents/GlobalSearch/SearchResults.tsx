@@ -7,7 +7,6 @@ import { getTypographyByKey } from "design-system-old";
 import Highlight from "./Highlight";
 import ActionLink, { StyledActionLink } from "./ActionLink";
 import scrollIntoView from "scroll-into-view-if-needed";
-// import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
 import type { SearchItem, SearchCategory } from "./utils";
 import {
   getItemType,
@@ -81,9 +80,6 @@ export const SearchItemContainer = styled.div<{
         : "unset"};
     ${StyledActionLink} {
       visibility: visible;
-      /* &:hover {
-        transform: scale(1.2);
-      } */
     }
     .operation-desc {
       opacity: 1;
@@ -298,11 +294,6 @@ const StyledSectionTitleContainer = styled.div`
     margin-right: ${(props) => props.theme.spaces[5]}px;
     margin-left: ${(props) => props.theme.spaces[3]}px;
   }
-  /* & .section-title__text {
-    color: ${(props) => props.theme.colors.globalSearch.sectionTitle};
-    font-size: 12px;
-    font-weight: 600;
-  } */
   margin-left: -${(props) => props.theme.spaces[3]}px;
 `;
 
@@ -501,11 +492,11 @@ function SearchItemComponent(props: ItemProps) {
 
 const SearchResultsContainer = styled.div<{ category: SearchCategory }>`
   flex: 1;
-  background: white;
+  background: var(--ads-v2-color-bg);
   position: relative;
   width: 100%;
   .container {
-    overflow: auto;
+    /* overflow: auto; */
     height: 100%;
     width: 100%;
     padding-bottom: ${(props) => (isSnippet(props.category) ? "50px" : "0")};

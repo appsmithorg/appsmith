@@ -1,57 +1,26 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { ClearRefinements, RefinementList } from "react-instantsearch-dom";
 import styled from "styled-components";
-import { ReactComponent as FilterIcon } from "assets/icons/menu/filter.svg";
 import { ReactComponent as CloseFilterIcon } from "assets/icons/menu/close-filter.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getSnippetFilterLabel } from "./utils";
 import { useStore } from "react-redux";
+import { Button } from "design-system";
 
 const SnippetsFilterContainer = styled.div<{
   showFilter: boolean;
   snippetsEmpty: boolean;
   hasRefinements: boolean;
 }>`
-  position: absolute;
+  position: fixed;
   bottom: 20px;
   display: flex;
   width: 220px;
   height: 32px;
   justify-content: center;
   display: ${(props) => (props.snippetsEmpty ? "none" : "flex")};
-  button {
-    background: ${(props) =>
-      !props.hasRefinements
-        ? props.theme.colors.globalSearch.snippets.filterBtnBg
-        : !props.showFilter
-        ? "#4b4848"
-        : props.theme.colors.globalSearch.snippets.filterBtnBg};
-    border-radius: 20px;
-    transition: 0.2s width ease;
-    width: ${(props) => (props.showFilter ? "32" : "75")}px;
-    font-size: ${(props) => props.theme.fontSizes[2]}px;
-    font-weight: ${(props) => props.theme.fontWeights[1]};
-    color: ${(props) =>
-      !props.hasRefinements
-        ? props.theme.colors.globalSearch.snippets.filterBtnText
-        : !props.showFilter
-        ? "white"
-        : props.theme.colors.globalSearch.snippets.filterBtnText};
-    border: none;
-    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
-    height: 100%;
-    cursor: pointer;
-    position: relative;
-    svg {
-      path {
-        fill: ${(props) =>
-          !props.hasRefinements
-            ? props.theme.colors.globalSearch.snippets.filterBtnText
-            : props.showFilter
-            ? props.theme.colors.globalSearch.snippets.filterBtnText
-            : "white"};
-      }
-    }
+  .button-filter {
+    box-shadow: var(--ads-v2-shadow-popovers);
   }
   .filter-list {
     display: block;
@@ -60,11 +29,10 @@ const SnippetsFilterContainer = styled.div<{
     width: ${(props) => (props.showFilter ? "185px" : "0")};
     height: ${(props) => (props.showFilter ? "185px" : "0")};
     bottom: 40px;
-    background: ${(props) =>
-      props.theme.colors.globalSearch.snippets.filterListBackground};
-    border: 1px solid rgba(240, 240, 240, 1);
-    color: ${(props) => props.theme.colors.globalSearch.snippets.filterBtnText};
-    box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+    background: var(--ads-v2-color-bg);
+    border-radius: var(--ads-v2-border-radius);
+    border: 1px solid var(--ads-v2-color-border);
+    box-shadow: var(--ads-v2-shadow-popovers);
     [class^="ais-"] {
       font-size: 12px;
     }
@@ -72,39 +40,59 @@ const SnippetsFilterContainer = styled.div<{
       display: flex;
       justify-content: center;
       .ais-ClearRefinements-button {
-        width: auto;
-        border-radius: none;
-        box-shadow: unset;
+        --button-font-weight: 600;
+        --button-font-size: 14px;
+        --button-padding: var(--ads-v2-spaces-3) var(--ads-v2-spaces-4);
+        --button-gap: var(--ads-v2-spaces-2);
+        --button-color-bg: transparent;
+        --button-color-fg: var(--ads-v2-color-fg);
+        --button-color-border: transparent;
+        --button-font-weight: 600;
+        --button-font-size: 14px;
+        --button-padding: var(--ads-v2-spaces-3) var(--ads-v2-spaces-4);
+        --button-gap: var(--ads-v2-spaces-3);
+        mix-blend-mode: multiply;
+
+        position: relative;
         cursor: pointer;
-        color: ${(props) => props.theme.colors.globalSearch.searchInputBorder};
-        font-weight: ${(props) => props.theme.fontWeights[2]};
-        transition: 0.1s;
-        background: ${(props) =>
-          props.theme.colors.globalSearch.snippets.filterListBackground};
-        &:hover {
-          background: ${(props) =>
-            props.theme.colors.globalSearch.snippets.filterListBackground};
-          font-weight: ${(props) => props.theme.fontWeights[3]};
+        border: none;
+        background-color: transparent;
+        color: var(--button-color-fg);
+        text-decoration: none;
+        height: var(--button-height);
+        box-sizing: border-box;
+        overflow: hidden;
+        min-width: min-content;
+        border-radius: var(--ads-v2-border-radius) !important;
+
+        display: flex;
+        align-self: center;
+        gap: var(--button-gap);
+        background-color: var(--button-color-bg);
+        box-sizing: border-box;
+        padding: var(--button-padding);
+        border-radius: inherit;
+        text-transform: capitalize;
+        :hover:not(.ais-ClearRefinements-button--disabled]) {
+          --button-color-bg: var(--ads-v2-color-bg-subtle);
+          --button-color-fg: var(--ads-v2-color-fg);
         }
         &.ais-ClearRefinements-button--disabled {
-          font-weight: ${(props) => props.theme.fontWeights[1]};
-          &:hover {
-            background: ${(props) =>
-              props.theme.colors.globalSearch.snippets.filterListBackground};
-            cursor: block;
-          }
+          cursor: not-allowed;
+          opacity: var(--ads-v2-opacity-disabled);
         }
       }
     }
     .container {
-      height: calc(100% - 25px);
+      height: calc(100% - 33px);
       overflow: auto;
-      padding: ${(props) => (props.showFilter ? "7px 15px" : "0")};
       .ais-RefinementList-list {
         text-align: left;
         .ais-RefinementList-item {
           font-size: 12px;
-          padding: ${(props) => props.theme.spaces[2]}px 0;
+          padding: 7px 15px;
+          margin: 1px;
+          border-radius: var(--ads-v2-border-radius);
           & > :hover {
             cursor: pointer;
           }
@@ -112,8 +100,8 @@ const SnippetsFilterContainer = styled.div<{
             display: flex;
             align-items: center;
             .ais-RefinementList-checkbox {
-              height: 15px;
-              width: 15px;
+              height: 16px;
+              width: 16px;
             }
             .ais-RefinementList-labelText {
               margin: 0 ${(props) => props.theme.spaces[4]}px;
@@ -121,6 +109,12 @@ const SnippetsFilterContainer = styled.div<{
             .ais-RefinementList-count {
               display: none;
             }
+          }
+          &.ais-RefinementList-item--selected {
+            background-color: var(--ads-v2-color-bg-muted);
+          }
+          &:hover {
+            background-color: var(--ads-v2-color-bg-subtle);
           }
         }
       }
@@ -161,12 +155,12 @@ function SnippetsFilter({ refinements, snippetsEmpty }: any) {
       showFilter={showSnippetFilter}
       snippetsEmpty={snippetsEmpty}
     >
-      <button
-        className="flex items-center justify-center space-x-1 t--filter-button"
+      <Button
+        className="t--filter-button button-filter"
+        kind="secondary"
         onClick={() => toggleSnippetFilter(!showSnippetFilter)}
+        startIcon="filter"
       >
-        {!showSnippetFilter && <FilterIcon />}
-
         {!showSnippetFilter &&
           refinements.entities &&
           refinements.entities &&
@@ -175,7 +169,7 @@ function SnippetsFilter({ refinements, snippetsEmpty }: any) {
           )}
         {!showSnippetFilter && <span> Filter</span>}
         {showSnippetFilter && <CloseFilterIcon />}
-      </button>
+      </Button>
       <div className="filter-list t--filter-list">
         <div
           className="container"
