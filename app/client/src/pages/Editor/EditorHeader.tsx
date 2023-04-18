@@ -46,16 +46,7 @@ import {
   getTypographyByKey,
   TooltipComponent,
 } from "design-system-old";
-import {
-  Button,
-  Icon,
-  // Menu,
-  // MenuItem,
-  // MenuContent,
-  // MenuSeparator,
-  // MenuTrigger,
-  Tooltip,
-} from "design-system";
+import { Button, Tooltip } from "design-system";
 import { Profile } from "pages/common/ProfileImage";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
@@ -403,11 +394,7 @@ export function EditorHeader(props: EditorHeaderProps) {
             </HamburgerContainer>
           )}
 
-          <Tooltip
-            content={createMessage(LOGO_TOOLTIP)}
-            // hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-            placement="bottomLeft"
-          >
+          <Tooltip content={createMessage(LOGO_TOOLTIP)} placement="bottomLeft">
             <AppsmithLink to={APPLICATIONS_URL}>
               <img
                 alt="Appsmith logo"
@@ -491,7 +478,6 @@ export function EditorHeader(props: EditorHeaderProps) {
                           )
                         : createMessage(SHARE_BUTTON_TOOLTIP)
                     }
-                    // hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
                     placement="bottom"
                   >
                     <ShareButtonComponent />
@@ -503,7 +489,6 @@ export function EditorHeader(props: EditorHeaderProps) {
             <DeploySection>
               <Tooltip
                 content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
-                // hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
                 placement="bottomRight"
               >
                 <Button
@@ -519,10 +504,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 </Button>
               </Tooltip>
 
-              <DeployLinkButtonDialog
-                link={deployLink}
-                trigger={<Icon name={"down-arrow"} size="md" />}
-              />
+              <DeployLinkButtonDialog link={deployLink} trigger="" />
             </DeploySection>
           </Boxed>
         </HeaderSection>
