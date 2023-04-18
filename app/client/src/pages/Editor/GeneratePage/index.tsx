@@ -1,10 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import PageContent from "./components/PageContent";
-import { Colors } from "constants/Colors";
-import { Icon } from "@blueprintjs/core";
-import { getTypographyByKey, Text, TextType } from "design-system-old";
-
+import { Text, Link } from "design-system";
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -19,30 +16,13 @@ const HeadingContainer = styled.div`
   padding-top: 50px;
 `;
 
-const Heading = styled.h1`
-  font-size: 40px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 48px;
-  letter-spacing: 0px;
-  text-align: center;
-  margin: 0;
-  font-family: ${(props) => props.theme.fonts.text};
-`;
-
 const SubHeading = styled.p`
-  ${getTypographyByKey("p1")};
-  margin: 20px 0px;
-  color: ${Colors.BLACK};
+  margin: 10px 0px;
   text-align: center;
 `;
 
-const Back = styled.span`
-  height: 30px;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  padding-left: 16px;
+const Back = styled(Link)`
+  margin: 20px 0 20px 8px;
 `;
 
 const Header = styled.div`
@@ -51,26 +31,22 @@ const Header = styled.div`
 
 function GeneratePage() {
   const isGenerateFormPage = window.location.pathname.includes("/form");
-  const heading = isGenerateFormPage ? "Quick Page Wizard" : "New Page";
+  const heading = isGenerateFormPage ? "Quick page wizard" : "New page";
 
   return (
     <Container>
       {isGenerateFormPage ? (
         <Header>
-          <Back onClick={() => history.back()}>
-            <Icon icon="chevron-left" iconSize={16} />
-            <Text
-              style={{ color: Colors.DIESEL, lineHeight: "14px" }}
-              type={TextType.P1}
-            >
-              Back
-            </Text>
+          <Back onClick={() => history.back()} startIcon="arrow-left" to="#">
+            Back
           </Back>
         </Header>
       ) : null}
 
       <HeadingContainer>
-        <Heading> {heading}</Heading>
+        <Text kind="heading-l" renderAs="h1">
+          {heading}
+        </Text>
       </HeadingContainer>
       {isGenerateFormPage ? (
         <SubHeading>

@@ -28,11 +28,11 @@ import type {
 } from "design-system-old";
 import {
   Dropdown,
-  getTypographyByKey,
+  // getTypographyByKey,
   IconSize,
-  TooltipComponent as Tooltip,
+  // TooltipComponent as Tooltip,
 } from "design-system-old";
-import { Button, Icon } from "design-system";
+import { Button, Icon, Text, Select, Option, Tooltip } from "design-system";
 import GoogleSheetForm from "./GoogleSheetForm";
 import {
   GENERATE_PAGE_FORM_TITLE,
@@ -86,8 +86,8 @@ const RoundBg = styled.div`
 `;
 
 const TooltipWrapper = styled.div`
-  margin-top: 2px;
-  margin-left: 6px;
+  /* margin-top: 2px;
+  margin-left: 6px; */
 `;
 
 const Wrapper = styled.div`
@@ -113,12 +113,11 @@ const DescWrapper = styled.div`
   align-items: center;
 `;
 
-const Title = styled.p`
-  ${getTypographyByKey("p1")};
-  font-weight: 500;
-  color: ${Colors.CODE_GRAY};
-  font-size: 24px;
-`;
+// const Title = styled.p`
+//   font-weight: 500;
+//   color: ${Colors.CODE_GRAY};
+//   font-size: 24px;
+// `;
 
 const Row = styled.p`
   display: flex;
@@ -602,12 +601,30 @@ function GeneratePageForm() {
     <div className="space-y-4">
       <Wrapper>
         <DescWrapper>
-          <Title>{GENERATE_PAGE_FORM_TITLE()}</Title>
+          <Text kind="heading-l" renderAs="h2">
+            {GENERATE_PAGE_FORM_TITLE()}
+          </Text>
         </DescWrapper>
       </Wrapper>
       <FormWrapper>
         <SelectWrapper className="space-y-2" width={DROPDOWN_DIMENSION.WIDTH}>
           <Label>{createMessage(GEN_CRUD_DATASOURCE_DROPDOWN_LABEL)}</Label>
+          <Select
+            data-testid="t--datasource-dropdown"
+            // onChange={onSelectDataSource}
+          >
+            {dataSourceOptions.map((option) => {
+              /* eslint-disable no-debugger, no-console */
+              //  eslint-disable-next-line
+              console.log("option", option);
+              return (
+                <Option key={option.value} value={option.value}>
+                  <img src="" />
+                  {option.label}
+                </Option>
+              );
+            })}
+          </Select>
           <Dropdown
             cypressSelector="t--datasource-dropdown"
             dropdownMaxHeight={"300px"}
@@ -677,7 +694,7 @@ function GeneratePageForm() {
                   <TooltipWrapper>
                     <Tooltip
                       content="Only string values are allowed for searchable column"
-                      hoverOpenDelay={200}
+                      // hoverOpenDelay={200}
                     >
                       <RoundBg>
                         <Icon name="help" size="sm" />
