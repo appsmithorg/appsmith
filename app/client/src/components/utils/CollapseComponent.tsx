@@ -15,7 +15,6 @@ const CollapseWrapper = styled.div`
     align-items: center;
     gap: 8px;
     cursor: pointer;
-    //justify-content: space-between;
     .icon {
       transition: transform 0.3s;
       cursor: pointer;
