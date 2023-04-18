@@ -20,7 +20,7 @@ const CollapseWrapper = styled.div`
       transition: transform 0.3s;
       cursor: pointer;
       &.collapse {
-        transform: rotate(-90deg);
+        transform: rotate(-180deg);
       }
     }
   }
@@ -58,7 +58,7 @@ function CollapseComponent(props: {
         <Icon
           className={`icon ${open ? "collapse" : ""}`}
           data-testid="datasource-collapse-icon"
-          name="right-arrow"
+          name="down-arrow"
           size="sm"
         />
       </div>
