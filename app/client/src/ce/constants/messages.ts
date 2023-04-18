@@ -1582,7 +1582,7 @@ export const SAVE_SNAPSHOT_TEXT = () =>
 export const CREATE_SNAPSHOT = () => "Creating a snapshot";
 export const CONVERTING_APP = () => "Converting your app";
 export const RESTORING_SNAPSHOT = () => "Removing changes made";
-export const REFRESH_THE_APP = () => "Refresh The App";
+export const REFRESH_THE_APP = () => "Refresh the app";
 export const CONVERT_ANYWAYS = () => "Convert Anyways";
 export const CONVERSION_SUCCESS_HEADER = () => "All done";
 export const DISCARD_SNAPSHOT_TEXT = () =>
@@ -1607,9 +1607,9 @@ export const USE_SNAPSHOT_TEXT = () =>
 export const SNAPSHOT_WARNING_MESSAGE = () =>
   "Any changes you made after conversion will not be present.";
 export const CONVERT_TO_FIXED_TITLE = () => "Convert to Fixed Layout";
-export const CONVERT_TO_FIXED_BUTTON = () => "Convert To Fixed-Layout";
+export const CONVERT_TO_FIXED_BUTTON = () => "Convert to fixed-layout";
 export const CONVERT_TO_AUTO_TITLE = () => "Convert to Auto Layout";
-export const CONVERT_TO_AUTO_BUTTON = () => "Convert To Auto-Layout";
+export const CONVERT_TO_AUTO_BUTTON = () => "Convert to auto-layout";
 export const SNAPSHOT_BANNER_MESSAGE = () =>
   "Confirm this layout is per expectations before you discard the snapshot. Use the snapshot to go back.";
 export const USE_SNAPSHOT_CTA = () => "Use Snapshot";

@@ -10,7 +10,7 @@ import {
   ModalBody,
 } from "design-system";
 import { ConversionForm } from "./ConversionForm";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getIsAutoLayout } from "selectors/canvasSelectors";
 import {
   CONVERT_TO_AUTO_BUTTON,
@@ -27,7 +27,7 @@ import {
 } from "actions/autoLayoutActions";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { useConversionForm } from "./hooks/useConversionForm";
-// import type { AppState } from "ce/reducers";
+import type { AppState } from "ce/reducers";
 
 const Title = styled.h1`
   color: var(--ads-v2-color-fg-emphasis-plus);
@@ -40,6 +40,10 @@ function ConversionButton() {
   const isAutoLayout = getIsAutoLayout(store.getState());
   const formProps = useConversionForm({ isAutoLayout });
   const dispatch = useDispatch();
+
+  const conversionState = useSelector(
+    (state: AppState) => state.ui.layoutConversion.conversionState,
+  );
 
   //Text base on if it is an Auto layout
   const titleText = isAutoLayout
@@ -61,10 +65,6 @@ function ConversionButton() {
     dispatch(setConversionStart(CONVERSION_STATES.START));
   };
 
-  // const conversionState = useSelector(
-  //   (state: AppState) => state.ui.layoutConversion.conversionState,
-  // );
-
   return (
     <>
       <Button
@@ -80,7 +80,11 @@ function ConversionButton() {
         <ModalContent>
           <ModalHeader>
             <div className="flex items-center gap-3">
-              <Title>{createMessage(titleText)}</Title>
+              <Title>
+                {conversionState === CONVERSION_STATES.COMPLETED_SUCCESS
+                  ? "Conversion Completed"
+                  : createMessage(titleText)}
+              </Title>
               <BetaCard />
             </div>
           </ModalHeader>

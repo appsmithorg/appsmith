@@ -60,9 +60,9 @@ export function SnapShotBannerCTA() {
   const dispatch = useDispatch();
 
   const modalHeader =
-    conversionState === CONVERSION_STATES.SNAPSHOT_START
-      ? createMessage(USE_SNAPSHOT_HEADER)
-      : createMessage(DISCARD_SNAPSHOT_HEADER);
+    conversionState === CONVERSION_STATES.DISCARD_SNAPSHOT
+      ? createMessage(DISCARD_SNAPSHOT_HEADER)
+      : createMessage(USE_SNAPSHOT_HEADER);
 
   const closeModal = (isOpen: boolean) => {
     if (!isOpen) {

@@ -22,6 +22,19 @@ const Label = styled.p`
   font-size: var(--ads-v2-font-size-5);
 `;
 
+const SnapshotContainer = styled.div`
+  height: 3.5rem;
+  display: flex;
+  flex-direction: row;
+  border-width: 1px;
+  align-items: center;
+  gap: var(--ads-v2-spaces-3);
+  padding-left: var(--ads-v2-spaces-3);
+  margin-right: 1px;
+  border: 1px solid var(--ads-v2-color-border);
+  border-radius: var(--ads-v2-border-radius);
+`;
+
 const SnapshotDetails = styled.p`
   color: var(--ads-v2-color-fg-emphasis);
   font-weight: var(--ads-v2-font-weight-bold);
@@ -163,10 +176,7 @@ export function ConversionForm(props: ConversionProps) {
               <Label>{snapShotDetails.labelText}</Label>
             </div>
           )}
-          <div
-            className="h-14 flex flex-row border border-gray-200 items-center gap-2 pl-2"
-            style={snapShotStyles}
-          >
+          <SnapshotContainer style={snapShotStyles}>
             <Icon
               className="mx-3"
               color={Colors.GRAY_600}
@@ -176,7 +186,7 @@ export function ConversionForm(props: ConversionProps) {
               wrapperColor={Colors.GRAY_600_OPAQUE}
             />
             <SnapshotDetails>{snapShotDetails.text}</SnapshotDetails>
-          </div>
+          </SnapshotContainer>
           {snapShotDetails.postText && (
             <div className="pt-2 mb-3">
               <SnapshotPost>{snapShotDetails.postText}</SnapshotPost>
