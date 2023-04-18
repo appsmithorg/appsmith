@@ -347,7 +347,7 @@ export const OAUTH_AUTHORIZATION_APPSMITH_ERROR = "Something went wrong.";
 export const OAUTH_APPSMITH_TOKEN_NOT_FOUND = "Appsmith token not found";
 
 export const GSHEET_AUTHORIZATION_ERROR =
-  "Data source is not authorized, please authorize to continue.";
+  "Authorisation failed, to continue using this data source authorize now.";
 export const GSHEET_FILES_NOT_SELECTED =
   "Datasource does not have access to any files, please authorize google sheets to use this data source";
 

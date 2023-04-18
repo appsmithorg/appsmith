@@ -63,6 +63,7 @@ import SaveOrDiscardDatasourceModal from "../DataSourceEditor/SaveOrDiscardDatas
 import {
   createMessage,
   GOOGLE_SHEETS_INFO_BANNER_MESSAGE,
+  GSHEET_AUTHORIZATION_ERROR,
   SAVE_AND_AUTHORIZE_BUTTON_TEXT,
 } from "ce/constants/messages";
 import { selectFeatureFlags } from "selectors/usersSelectors";
@@ -306,6 +307,11 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       GOOGLE_SHEETS_INFO_BANNER_MESSAGE,
     );
 
+    const hideDatasourceSection =
+      isGoogleSheetPlugin &&
+      !isPluginAuthorized &&
+      authErrorMessage == GSHEET_AUTHORIZATION_ERROR;
+
     return (
       <>
         <form
@@ -365,12 +371,13 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
           )}
           {(!viewMode || datasourceId === TEMP_DATASOURCE_ID) && (
             <>
-              {/* This adds information banner for google sheets datasource,
+              {/* This adds information banner when creating google sheets datasource,
               this info banner explains why appsmith requires permissions from users google account */}
               {!!featureFlags &&
               !!featureFlags?.LIMITING_GOOGLE_SHEET_ACCESS &&
               datasource &&
-              isGoogleSheetPlugin ? (
+              isGoogleSheetPlugin &&
+              datasource?.id === TEMP_DATASOURCE_ID ? (
                 <AuthMessage
                   actionType={ActionType.DOCUMENTATION}
                   calloutType="Notify"
@@ -383,19 +390,17 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                 />
               ) : null}
               {/* This adds error banner for google sheets datasource if the datasource is unauthorised */}
-              {datasource && isGoogleSheetPlugin && !isPluginAuthorized ? (
+              {datasource &&
+              isGoogleSheetPlugin &&
+              !isPluginAuthorized &&
+              datasource?.id !== TEMP_DATASOURCE_ID ? (
                 <AuthMessage
                   datasource={datasource}
                   description={authErrorMessage}
                   pageId={pageId}
-                  style={
-                    !!featureFlags &&
-                    !!featureFlags?.LIMITING_GOOGLE_SHEET_ACCESS
-                      ? {}
-                      : {
-                          paddingTop: "24px",
-                        }
-                  }
+                  style={{
+                    paddingTop: "24px",
+                  }}
                 />
               ) : null}
               {!_.isNil(sections)
@@ -416,6 +421,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                   />
                 ) : null
               }
+              hideDatasourceRenderSection={hideDatasourceSection}
               showDatasourceSavedText={!isGoogleSheetPlugin}
             />
           )}
