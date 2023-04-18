@@ -118,6 +118,7 @@ const Hint = styled.div`
   display: flex;
   align-items: center;
   border: 1px solid var(--ads-v2-color-border);
+  border-radius: var(--ads-v2-border-radius);
 
   .align-vertical {
     flex-direction: column;
@@ -167,9 +168,11 @@ const SuccessMessageWrapper = styled.div`
   background: var(--ads-v2-color-bg);
   flex-direction: column;
   border: 1px solid var(--ads-v2-color-border);
+  border-radius: var(--ads-v2-border-radius);
 
   .wrapper {
-    padding: 0px 12px 0 0;
+    /* padding: 0px 12px 0 0; */
+    padding: var(--ads-v2-spaces-4);
     display: flex;
   }
   .info-wrapper {
@@ -178,8 +181,8 @@ const SuccessMessageWrapper = styled.div`
   }
 
   .lottie-wrapper {
-    height: 47px;
-    width: 47px;
+    height: 40px;
+    width: 40px;
   }
   .title-wrapper {
     display: flex;
@@ -288,7 +291,7 @@ function GuideStepsContent(props: {
               <GuideButton
                 className="t--hint-button"
                 onClick={hintButtonOnClick}
-                size="sm"
+                size="md"
               >
                 {createMessage(PROCEED)}
               </GuideButton>
@@ -385,7 +388,7 @@ function CompletionContent(props: CompletionContentProps) {
               className="t--success-button"
               isVisible={showSuccessButton}
               onClick={onSuccessButtonClick}
-              size="sm"
+              size="md"
             >
               {success?.buttonText ?? createMessage(CONTINUE)}
             </GuideButton>
@@ -399,14 +402,14 @@ function CompletionContent(props: CompletionContentProps) {
         <div className="wrapper info-wrapper">
           <Icon
             color="var(--ads-v2-color-fg-information)"
-            name={info?.icon}
+            name={info?.icon || ""}
             size="lg"
           />
           <Description className="info">{info?.text}</Description>
           <GuideButton
             className="t--info-button"
             onClick={onInfoButtonClick}
-            size="sm"
+            size="md"
           >
             {info?.buttonText ?? createMessage(PROCEED_TO_NEXT_STEP)}
           </GuideButton>
