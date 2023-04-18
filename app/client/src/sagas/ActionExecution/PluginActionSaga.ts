@@ -6,6 +6,8 @@ import {
   runAction,
   updateAction,
 } from "actions/pluginActionActions";
+import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
+
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import type {
   ApplicationPayload,
@@ -1105,5 +1107,6 @@ export function* watchPluginActionExecutionSagas() {
       ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
       executePageLoadActionsSaga,
     ),
+    takeLatest(ReduxActionTypes.EXECUTE_JS_UPDATES, makeUpdateJSCollection),
   ]);
 }
