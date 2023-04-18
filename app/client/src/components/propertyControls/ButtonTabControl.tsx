@@ -2,7 +2,7 @@ import React from "react";
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ToggleGroupOption } from "design-system";
-import { ToggleButtonGroup } from "design-system";
+// import { ToggleButtonGroup } from "design-system";
 import produce from "immer";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
@@ -75,16 +75,17 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
   };
 
   render() {
-    return (
-      <ToggleButtonGroup
-        onSelect={this.selectButton}
-        options={this.props.options}
-        ref={this.componentRef}
-        values={
-          this.props.propertyValue ? this.props.propertyValue.split(",") : []
-        }
-      />
-    );
+    return <div>Hello Button Tab</div>;
+    // return (
+    //   <ToggleButtonGroup
+    //     onSelect={this.selectButton}
+    //     options={this.props.options}
+    //     ref={this.componentRef}
+    //     values={
+    //       this.props.propertyValue ? this.props.propertyValue.split(",") : []
+    //     }
+    //   />
+    // );
   }
 
   static getControlType() {

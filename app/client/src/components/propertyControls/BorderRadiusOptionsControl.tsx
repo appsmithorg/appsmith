@@ -4,7 +4,7 @@ import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { borderRadiusOptions } from "constants/ThemeConstants";
 import type { DSEventDetail } from "utils/AppsmithUtils";
-import { Icon, SegmentedControl } from "design-system";
+import { SegmentedControl, Tooltip } from "design-system";
 import {
   DSEventTypes,
   DS_EVENT,
@@ -17,9 +17,12 @@ export interface BorderRadiusOptionsControlProps extends ControlProps {
 
 const options = Object.keys(borderRadiusOptions).map((optionKey) => ({
   label: (
-    <div className="w-5 h-5">
-      {optionKey === "none" ? <Icon name="close-x" size="8px" /> : optionKey}
-    </div>
+    <Tooltip content={optionKey} key={optionKey}>
+      <div
+        className="w-5 h-5 border-t-2 border-l-2 border-gray-500"
+        style={{ borderTopLeftRadius: borderRadiusOptions[optionKey] }}
+      />
+    </Tooltip>
   ),
   value: borderRadiusOptions[optionKey],
 }));

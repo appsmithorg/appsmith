@@ -29,7 +29,7 @@ function PaneHeader() {
     <StyledHeader className="flex justify-start items-center">
       <Tooltip content={APP_SETTINGS_CLOSE_TOOLTIP()} placement="bottom">
         <Button
-          className="pr-2"
+          className="ml-2 pr-2"
           id="t--close-app-settings-pane"
           isIconButton
           kind="tertiary"

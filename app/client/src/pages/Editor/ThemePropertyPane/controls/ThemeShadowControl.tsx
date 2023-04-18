@@ -1,14 +1,8 @@
 import React, { useCallback } from "react";
 import type { AppTheme } from "entities/AppTheming";
-import { Icon } from "design-system";
+import { Icon, Tooltip } from "design-system";
 import { invertedBoxShadowOptions } from "constants/ThemeConstants";
 import { SegmentedControl } from "design-system";
-
-const optionLabels = {
-  S: "sm",
-  M: "md",
-  L: "lg",
-};
 
 interface ThemeBoxShadowControlProps {
   options: {
@@ -48,14 +42,18 @@ function ThemeBoxShadowControl(props: ThemeBoxShadowControlProps) {
 
   const buttonGroupOptions = Object.keys(options).map((optionKey) => ({
     label: (
-      <div className="w-5 h-5">
+      <Tooltip content={optionKey} key={optionKey}>
         {optionKey === "none" ? (
-          <Icon name="close-x" size="8px" />
+          <div className="flex items-center justify-center w-5 h-5">
+            <Icon name="close-x" size="8px" />
+          </div>
         ) : (
-          // @ts-expect-error: object key type mismatch
-          optionLabels[optionKey]
+          <div
+            className="flex items-center justify-center w-5 h-5 bg-white"
+            style={{ boxShadow: options[optionKey] }}
+          />
         )}
-      </div>
+      </Tooltip>
     ),
     value: optionKey,
   }));

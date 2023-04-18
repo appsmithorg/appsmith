@@ -107,26 +107,23 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       <div className="w-full h-full" ref={this.containerRef}>
         <StyledSelect
           isMultiSelect={this.props.isMultiSelect}
-          onSelect={this.onItemSelect}
+          onDeselect={this.onDeselect}
+          onSelect={this.onSelect}
           placeholder={this.props.placeholderText}
-          // @ts-expect-error: removeItem does not exits
-          removeItem={this.onItemRemove}
           showSearch={this.props.enableSearch}
           value={defaultSelected}
         >
-          {options.map((option) => {
-            return (
-              <Option key={option.value} value={option.value}>
-                {option.label}
-              </Option>
-            );
-          })}
+          {options.map((option) => (
+            <Option key={option.value} value={option.value}>
+              {option.label}
+            </Option>
+          ))}
         </StyledSelect>
       </div>
     );
   }
 
-  onItemSelect = (value?: string): void => {
+  onSelect = (value?: string): void => {
     if (!isNil(value)) {
       let selectedValue: string | string[] = this.props.propertyValue;
       if (this.props.isMultiSelect) {
@@ -150,7 +147,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     }
   };
 
-  onItemRemove = (value?: string) => {
+  onDeselect = (value?: string) => {
     if (!isNil(value)) {
       let selectedValue: string | string[] = this.props.propertyValue;
       if (this.props.isMultiSelect) {
