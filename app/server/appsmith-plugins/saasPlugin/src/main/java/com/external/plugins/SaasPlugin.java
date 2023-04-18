@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.http.HttpMethod;
@@ -46,6 +47,7 @@ import java.util.Set;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+@Slf4j
 public class SaasPlugin extends BasePlugin {
     private static final int MAX_REDIRECTS = 5;
 
@@ -130,7 +132,19 @@ public class SaasPlugin extends BasePlugin {
                         byte[] body = stringResponseEntity.getBody();
                         if (statusCode.is2xxSuccessful()) {
                             try {
-                                return saasObjectMapper.readValue(body, ActionExecutionResult.class);
+                                ActionExecutionResult result = saasObjectMapper.readValue(body, ActionExecutionResult.class);
+                                try {
+                                    //Airtable query result is stringified JSON that is stored in ActionExecutionResult.body.
+                                    //This check is to make sure that the stringified JSON is converted to valid JSON object
+                                    if (result.getBody() instanceof String) {
+                                        result.setBody(saasObjectMapper.readTree(result.getBody().toString()));
+                                    }
+                                } catch (JsonProcessingException e) {
+                                    //Ideally this should not reach here as SaaS plugins are supposed to deal with JSON data only.
+                                    //If in any case the data doesn't conform to a valid JSON, string will be retained as fallback
+                                    log.warn("Body does not contain valid JSON string. body: {}", result.getBody(), e);
+                                }
+                                return result;
                             } catch (IOException e) {
                                 throw Exceptions.propagate(
                                         new AppsmithPluginException(
@@ -144,7 +158,6 @@ public class SaasPlugin extends BasePlugin {
                             throw Exceptions.propagate(
                                     new AppsmithPluginException(
                                             SaaSPluginError.API_EXECUTION_FAILED,
-                                            SaaSErrorMessages.API_EXECUTION_FAILED_ERROR_MSG,
                                             body
                                     )
                             );
