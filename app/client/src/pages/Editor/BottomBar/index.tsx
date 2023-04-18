@@ -10,7 +10,7 @@ import { Icon, IconSize } from "design-system-old";
 import PaneCountSwitcher from "pages/common/PaneCountSwitcher";
 import { useSelector } from "react-redux";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
-import { GPTTrigger } from "ce/components/editorComponents/GPT/trigger";
+import { GPTTrigger } from "@appsmith/components/editorComponents/GPT/trigger";
 
 const Container = styled.div`
   width: 100%;
