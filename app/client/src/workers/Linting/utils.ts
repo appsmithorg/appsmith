@@ -510,14 +510,12 @@ export function getEvaluationContext(
   if (!options.withFunctions)
     return createEvaluationContext({
       dataTree: unevalTree,
-      resolvedFunctions: {},
       isTriggerBased: false,
       removeEntityFunctions: true,
     });
 
   const evalContext = createEvaluationContext({
     dataTree: unevalTree,
-    resolvedFunctions: {},
     isTriggerBased: false,
     removeEntityFunctions: false,
   });

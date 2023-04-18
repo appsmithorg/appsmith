@@ -70,6 +70,7 @@ export function updateRelationships(
   parentId: string,
   onlyUpdateFlexLayers = false,
   isMobile = false,
+  mainCanvasWidth: number,
 ): CanvasWidgetsReduxState {
   const widgets = { ...allWidgets };
   // Check if parent has changed
@@ -113,7 +114,12 @@ export function updateRelationships(
   }
   if (prevParents.length) {
     for (const id of prevParents) {
-      const updatedWidgets = updateWidgetPositions(widgets, id, isMobile);
+      const updatedWidgets = updateWidgetPositions(
+        widgets,
+        id,
+        isMobile,
+        mainCanvasWidth,
+      );
       return updatedWidgets;
     }
   }

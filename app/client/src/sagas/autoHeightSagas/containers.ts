@@ -5,7 +5,6 @@ import log from "loglevel";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { call, put, select } from "redux-saga/effects";
 import { getMinHeightBasedOnChildren, shouldWidgetsCollapse } from "./helpers";
-import { getWidgets } from "sagas/selectors";
 import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
 import type { FlattenedWidgetProps } from "widgets/constants";
 import {
@@ -17,13 +16,16 @@ import { getChildOfContainerLikeWidget } from "./helpers";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import { getLayoutTree } from "./layoutTree";
+import { getWidgetsForBreakpoint } from "selectors/editorSelectors";
 
 export function* dynamicallyUpdateContainersSaga(
   action?: ReduxAction<{ resettingTabs: boolean }>,
 ) {
   const start = performance.now();
 
-  const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const stateWidgets: CanvasWidgetsReduxState = yield select(
+    getWidgetsForBreakpoint,
+  );
   const canvasWidgets: FlattenedWidgetProps[] | undefined = Object.values(
     stateWidgets,
   ).filter((widget: FlattenedWidgetProps) => {
