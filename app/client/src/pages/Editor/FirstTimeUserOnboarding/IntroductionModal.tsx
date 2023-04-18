@@ -104,12 +104,9 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
     });
   }, []);
   return (
-    <Modal open={modalAlwaysOpen}>
+    <Modal onOpenChange={onBuildApp} open={modalAlwaysOpen}>
       <ModalContent>
-        <ModalHeader
-          className="t--how-appsmith-works-modal-header"
-          onClose={onBuildApp}
-        >
+        <ModalHeader className="t--how-appsmith-works-modal-header">
           {createMessage(WELCOME_TO_APPSMITH)}
         </ModalHeader>
         <ModalBody>
