@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import React, { useState } from "react";
+import noop from "lodash/noop";
 
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -41,20 +42,18 @@ function ForkTemplate({
   const [selectedWorkspace, setSelectedWorkspace] = useState(workspaceList[0]);
   const isImportingTemplate = useSelector(isImportingTemplateSelector);
   const dispatch = useDispatch();
+
   const onFork = () => {
     dispatch(importTemplateToWorkspace(templateId, selectedWorkspace.value));
-  };
-
-  const closeModal = (isOpen: boolean) => {
-    if (!isOpen && !isImportingTemplate) {
-      onClose();
-    }
   };
 
   return (
     <>
       {children}
-      <Modal onOpenChange={closeModal} open={showForkModal}>
+      <Modal
+        onOpenChange={isImportingTemplate ? noop : onClose}
+        open={showForkModal}
+      >
         <ModalContent>
           <ModalHeader>
             {/* <Icon name="fork-2" size="lg" /> */}

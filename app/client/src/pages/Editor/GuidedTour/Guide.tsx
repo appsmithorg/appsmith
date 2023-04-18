@@ -438,7 +438,7 @@ function CompletionContent(props: CompletionContentProps) {
         <div className="wrapper info-wrapper">
           <Icon
             color="var(--ads-v2-color-fg-information)"
-            name={info?.icon || "info"}
+            name={info?.icon || ""}
             size="lg"
           />
           <Description className="info">{info?.text}</Description>

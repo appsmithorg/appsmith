@@ -188,8 +188,17 @@ Note that as you have installed Docker Desktop with WSL based engine, you can ex
 The following command will start a MongoDB docker instance locally:
 
 ```console
-docker run -p 127.0.0.1:27017:27017 --name appsmith-mongodb --hostname=localhost -e MONGO_INITDB_DATABASE=appsmith -v /path/to/store/data:/data/db mongo --replSet rs0
+docker run -p 127.0.0.1:27017:27017 --name appsmith-mongodb --hostname=localhost -e MONGO_INITDB_DATABASE=appsmith -v /path/to/store/data:/data/db mongo mongod --replSet rs0
 ```
+
+#### For Apple Silicon
+
+For M1 chip change the base image to [arm64v8 variant](https://hub.docker.com/r/arm64v8/mongo/)
+
+```console
+docker run -p 127.0.0.1:27017:27017 --name appsmith-mongodb --hostname=localhost -e MONGO_INITDB_DATABASE=appsmith -v /path/to/store/data:/data/db arm64v8/mongo mongod --replSet rs0
+```
+
 
 Please change the `/path/to/store/data` to a valid path on your C drive (C:/) of your system (e.g. C:\mongodata). This is where MongoDB will persist it's data across runs of this container.
 
@@ -203,6 +212,14 @@ The following command will start a Redis docker instance locally:
 
 ```console
 docker run -p 127.0.0.1:6379:6379 --name appsmith-redis redis
+```
+
+#### For Apple Silicon
+
+For M1 chip change the base image to [arm64v8 variant](https://hub.docker.com/r/arm64v8/redis/)
+
+```console
+docker run -p 127.0.0.1:6379:6379 --name appsmith-redis arm64v8/redis
 ```
 
 Redis will now be running on `redis://localhost:6379`.
