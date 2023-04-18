@@ -21,7 +21,7 @@ jobs:
         id: find-comment
         with:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
-          body-includes: 'Tests running at:'
+          body-includes: 'Appsmith External Integration Test Workflow'
           comment-author: github-actions[bot]
           direction: last
       
@@ -67,8 +67,11 @@ jobs:
           elif [ ${{ steps.suite_status_check.outputs.status1 }} == 0 ]; then
             echo "msg=Hurray!🎉 Proceeding to Merge!!!" >> $GITHUB_OUTPUT
             exit 0
-          else
+          elif [ ${{ steps.suite_status_check.outputs.status1 }} == 1 ]
             echo "msg=Either get 'Test Plan Approved' or 'skip-testPlan' added and try again!" >> $GITHUB_OUTPUT
+            exit 1
+          else
+            echo "msg=Some checks has failed. Can't merge" >> $GITHUB_OUTPUT
             exit 1
           fi
 
