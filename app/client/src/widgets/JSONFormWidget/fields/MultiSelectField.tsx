@@ -100,6 +100,8 @@ function MultiSelectField({
     onBlur: onBlurDynamicString,
     onFocus: onFocusDynamicString,
   } = schemaItem;
+  // When the options value is invalid after validation, the string value entered
+  // in the property pane is passed down as options here.
   const options = Array.isArray(schemaItem.options) ? schemaItem.options : [];
   const wrapperRef = useRef<HTMLDivElement>(null);
   const { executeAction } = useContext(FormContext);
