@@ -7,8 +7,6 @@ import { Checkbox } from "./";
   component={Checkbox}
   args={{
     children: "Check me",
-    error: "",
-    description: "",
   }}
 />
 
@@ -39,7 +37,7 @@ Checkbox is a component that allows the user to select one or more options from 
     name="State - Default Checked"
     args={{
       defaultSelected: true,
-      qchildren: "Checked",
+      children: "Checked",
     }}
   >
     {Template.bind({})}
@@ -95,7 +93,7 @@ Checkbox is a component that allows the user to select one or more options from 
   </Story>
 </Canvas>
 
-### Label Position and alignment
+### Label Position
 
 <Canvas>
   <Story
@@ -118,29 +116,6 @@ Checkbox is a component that allows the user to select one or more options from 
     args={{
       labelPosition: "right",
       children: "Label Position - Right",
-    }}
-  >
-    {Template.bind({})}
-  </Story>
-  <Story
-    parameters={{
-      width: 250,
-    }}
-    name="Label alignment - Right"
-    args={{
-      labelAlignment: "right",
-    }}
-  >
-    {Template.bind({})}
-  </Story>
-  <Story
-    parameters={{
-      width: 250,
-    }}
-    name="Label alignment - Left"
-    args={{
-      labelAlignment: "right",
-      labelPosition: "left",
     }}
   >
     {Template.bind({})}

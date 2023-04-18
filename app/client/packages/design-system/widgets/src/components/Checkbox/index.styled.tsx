@@ -1,17 +1,35 @@
-import styled from "styled-components";
-
+import styled, { css } from "styled-components";
 import { Checkbox as HeadlessCheckbox } from "@design-system/headless";
-import type { CheckboxProps as HeadlessCheckboxProps } from "@design-system/headless";
 
-export const StyledCheckbox = styled(HeadlessCheckbox)<HeadlessCheckboxProps>`
+import type { CheckboxProps } from ".";
+
+// Note: these styles will shared across radio, checkbox and toggle components
+// so we will be moving the types (labelPosition) and styles to a common place
+export const labelStyles = css<Pick<CheckboxProps, "labelPosition">>`
   position: relative;
-  width: 20px;
-  height: 20px;
+  display: flex;
+  gap: var(--spacing-2);
+  width: 100%;
+
+  ${({ labelPosition }) => css`
+    justify-content: ${labelPosition === "left" ? "space-between" : undefined};
+    flex-direction: ${labelPosition === "left" ? "row-reverse" : "row"};
+  `};
+
+  div {
+    min-height: calc(5 * var(--sizing-root-unit));
+    display: flex;
+    align-items: center;
+  }
+`;
+
+export const StyledCheckbox = styled(HeadlessCheckbox)<CheckboxProps>`
+  ${labelStyles}
 
   .icon {
-    width: 20px;
-    height: 20px;
-    border-width: 1px;
+    width: calc(5 * var(--sizing-root-unit));
+    height: calc(5 * var(--sizing-root-unit));
+    border-width: var(--border-width-1)
     border-style: solid;
     border-radius: var(--border-radius-1);
     border-color: var(--color-bd-neutral);
@@ -19,24 +37,11 @@ export const StyledCheckbox = styled(HeadlessCheckbox)<HeadlessCheckboxProps>`
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    vertical-align: top;
     user-select: none;
     flex-shrink: 0;
   }
 
-  input {
-    border: 0px;
-    inset: 0 0 0 0;
-    height: 100%;
-    width: 100%;
-    padding: 0px;
-    opacity: 0;
-    white-space: nowrap;
-    position: absolute;
-    cursor: default;
-  }
-
-  &:hover input:not(:disabled) + .icon {
+  &.is-hovered:not(.is-disabled) .icon {
     border-color: var(--color-bd-neutral-hover);
   }
 
@@ -45,18 +50,18 @@ export const StyledCheckbox = styled(HeadlessCheckbox)<HeadlessCheckboxProps>`
  * CHECKED  AND INDETERMINATE - BUT NOT DISABLED
  *-----------------------------------------------------------------------------
  */
-  input:checked + .icon,
-  input:indeterminate + .icon {
+  &.is-checked .icon,
+  &.is-indeterminate .icon {
     background-color: var(--color-bg-accent);
     border-color: var(--color-bg-accent);
-    color: white;
+    color: var(--color-fg-on-accent);
   }
 
-  &:hover input:checked:not(:disabled) + .icon,
-  &:hover input:indeterminate:not(:disabled) + .icon {
+  &.is-hovered.is-checked:not(.is-disabled) .icon,
+  &.is-hovered.is-indeterminate:not(.is-disabled) .icon {
     border-color: var(--color-bg-accent-hover);
     background-color: var(--color-bg-accent-hover);
-    color: theme("colors.white");
+    color: var(--color-fg-on-accent);
   }
 
   /**
@@ -64,11 +69,11 @@ export const StyledCheckbox = styled(HeadlessCheckbox)<HeadlessCheckboxProps>`
   * DISABLED
   *-----------------------------------------------------------------------------
   */
-  input:disabled {
+  &.is-disabled {
     cursor: not-allowed;
   }
 
-  input:disabled + .icon {
+  &.is-disabled {
     opacity: var(--opacity-disabled);
   }
 
@@ -77,7 +82,7 @@ export const StyledCheckbox = styled(HeadlessCheckbox)<HeadlessCheckboxProps>`
   * FOCUS
   *-----------------------------------------------------------------------------
   */
-  input.focus-ring + .icon {
+  &.is-focused .icon {
     box-shadow: 0 0 0 2px white, 0 0 0 4px var(--color-bd-focus);
   }
 
@@ -86,11 +91,11 @@ export const StyledCheckbox = styled(HeadlessCheckbox)<HeadlessCheckboxProps>`
  * ERROR ( INVALID )
  *-----------------------------------------------------------------------------
  */
-  input[aria-invalid] + .icon {
+  &.is-invalid .icon {
     border-color: var(--color-bd-negative);
   }
 
-  &:hover input[aria-invalid] + .icon {
+  &.is-hovered.is-invalid .icon {
     border-color: var(--color-bd-negative-hover);
   }
 `;
