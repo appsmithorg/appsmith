@@ -201,6 +201,9 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                 .thenMany(applicationFlux)
                 .flatMap(application -> {
                     application.setWorkspaceId(toWorkspaceId);
+                    //Setting the forkWithConfiguration and exportWithConfiguration to null for newly forked app
+                    application.setForkWithConfiguration(null);
+                    application.setExportWithConfiguration(null);
 
                     final String defaultPageId = application.getPages().stream()
                             .filter(ApplicationPage::isDefault)
