@@ -49,7 +49,7 @@ jobs:
           status_link="https://api.github.com/repos/appsmithorg/appsmith/statuses/${{steps.pr.outputs.sha}}"
           curl --silent "$status_link"|jq -r '.[]'|jq -r 'select(.state | contains("success") | not) | .context' >> ~/check1
           echo "mergefreeze" >> ~/check1
-          echo "status=`grep -c -E 'cypress\|Vercel\|DeepSource' ~/check1`" >> $GITHUB_OUTPUT
+          echo "status=`grep -c -v 'cypress\|Vercel\|DeepSource' ~/check1`" >> $GITHUB_OUTPUT
 
       - name: get status-checks from check suite
         id: suite_status_check
