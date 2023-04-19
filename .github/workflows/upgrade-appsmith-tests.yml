@@ -47,13 +47,13 @@ jobs:
       - name: get status-checks from pr
         id: pr_status_check
         run: |
-          status_link="https://api.github.com/repos/appsmithorg/appsmith/statuses/${{github.event.client_payload.pull_request.head.sha}}"
+          status_link="https://api.github.com/repos/appsmithorg/appsmith/statuses/34742de0b7ea77f17c35804f13c56361fcfd0407"
           echo "status=`curl --silent $status_link | jq -r '[.[] | select( select( .context | contains("mergefreeze")) | .state | contains("success") | not)] | length'`" >> $GITHUB_OUTPUT
 
       - name: get status-checks from check suite
         id: suite_status_check
         run: |
-          check_runs_link="https://api.github.com/repos/appsmithorg/appsmith/commits/${{github.event.client_payload.pull_request.head.sha}}/check-runs"
+          check_runs_link="https://api.github.com/repos/appsmithorg/appsmith/commits/34742de0b7ea77f17c35804f13c56361fcfd0407/check-runs"
           check_run_result=`curl --silent $check_runs_link`
           echo "status1=`echo $check_run_result | jq -r '[.check_runs[]|select (select(.name | contains("Test Plan Approved")) | .conclusion | contains("success") | not)] | length'`" >> $GITHUB_OUTPUT
           echo "status2=`echo $check_run_result | jq -r '[.check_runs[] | select(.name | contains("ci-test-result"))] | length'`" >> $GITHUB_OUTPUT
