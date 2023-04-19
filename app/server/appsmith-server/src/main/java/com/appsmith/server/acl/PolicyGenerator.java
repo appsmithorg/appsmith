@@ -21,6 +21,7 @@ import static com.appsmith.server.acl.AclPermission.DELETE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.INVITE_USERS_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
@@ -50,6 +51,7 @@ import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_DATASOURCE;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXECUTE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
@@ -157,6 +159,7 @@ public class PolicyGenerator extends PolicyGeneratorCE {
         // Remove the edge which gives make public application from manage workspace and replace it with explicit permission
         hierarchyGraph.removeEdge(MANAGE_WORKSPACES, MAKE_PUBLIC_APPLICATIONS);
         hierarchyGraph.addEdge(WORKSPACE_MAKE_PUBLIC_APPLICATIONS, MAKE_PUBLIC_APPLICATIONS);
+        hierarchyGraph.addEdge(WORKSPACE_INVITE_USERS, INVITE_USERS_APPLICATIONS);
 
         lateralGraph.addEdge(APPLICATION_CREATE_PAGES, MANAGE_APPLICATIONS);
         lateralGraph.addEdge(APPLICATION_CREATE_PAGES, READ_APPLICATIONS);
