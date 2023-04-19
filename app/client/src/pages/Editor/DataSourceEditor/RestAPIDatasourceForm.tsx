@@ -64,6 +64,7 @@ import Debugger, {
   ResizerMainContainer,
 } from "./Debugger";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
 interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
@@ -1176,7 +1177,8 @@ const mapStateToProps = (state: AppState, props: any) => {
     (e) => e.id === props.datasourceId,
   ) as Datasource;
 
-  const showDebugger = state.ui.debugger.isOpen;
+  // Debugger render flag
+  const showDebugger = showDebuggerFlag(state);
 
   const plugin = getPlugin(state, datasource?.pluginId || "") || undefined;
 

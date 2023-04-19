@@ -13,9 +13,9 @@ import {
 
 import type {
   EvaluationReduxAction,
-  AnyReduxAction,
   ReduxAction,
   ReduxActionType,
+  AnyReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
@@ -74,7 +74,7 @@ import { validate } from "workers/Evaluation/validations";
 import { diff } from "deep-diff";
 import { REPLAY_DELAY } from "entities/Replay/replayUtils";
 import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
-import { makeUpdateJSCollection } from "sagas/JSPaneSagas";
+
 import type { LogObject } from "entities/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import type { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
@@ -105,6 +105,7 @@ import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
 import { getAppsmithConfigs } from "ce/configs";
 import { toast } from "design-system";
+import { executeJSUpdates } from "actions/pluginActionActions";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -129,6 +130,8 @@ export function* updateDataTreeHandler(
   postEvalActions?: Array<AnyReduxAction>,
 ) {
   const { evalTreeResponse, requiresLogging, unevalTree } = data;
+  const postEvalActionsToDispatch: Array<AnyReduxAction> =
+    postEvalActions || [];
 
   const {
     dataTree,
@@ -191,7 +194,7 @@ export function* updateDataTreeHandler(
 
   if (appMode !== APP_MODE.PUBLISHED) {
     const jsData: Record<string, unknown> = yield select(getAllJSActionsData);
-    yield call(makeUpdateJSCollection, jsUpdates);
+    postEvalActionsToDispatch.push(executeJSUpdates(jsUpdates));
 
     if (requiresLogging) {
       yield fork(
@@ -215,8 +218,8 @@ export function* updateDataTreeHandler(
     );
   }
   yield put(setDependencyMap(dependencies));
-  if (postEvalActions && postEvalActions.length) {
-    yield call(postEvalActionDispatcher, postEvalActions);
+  if (postEvalActionsToDispatch && postEvalActionsToDispatch.length) {
+    yield call(postEvalActionDispatcher, postEvalActionsToDispatch);
   }
 }
 

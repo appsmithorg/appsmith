@@ -1,6 +1,6 @@
 // import React, { JSXElementConstructor } from "react";
 // import { IconProps, IconWrapper } from "constants/IconConstants";
-
+import type React from "react";
 import { Alignment, Classes } from "@blueprintjs/core";
 import { Classes as DTClasses } from "@blueprintjs/datetime";
 import type { IconName } from "@blueprintjs/icons";
@@ -33,12 +33,15 @@ import type { WidgetPositionProps, WidgetProps } from "./BaseWidget";
 import { rgbaMigrationConstantV56 } from "./constants";
 import type { ContainerWidgetProps } from "./ContainerWidget/widget";
 import type { SchemaItem } from "./JSONFormWidget/constants";
+import { WIDGET_COMPONENT_BOUNDARY_CLASS } from "constants/componentClassNameConstants";
 
 const punycode = require("punycode/");
 
 type SanitizeOptions = {
   existingKeys?: string[];
 };
+
+const REACT_ELEMENT_PROPS = "__reactProps$";
 
 export function getDisplayName(WrappedComponent: {
   displayName: any;
@@ -65,6 +68,13 @@ export function getSnapSpaces(props: WidgetPositionProps) {
       : 0,
   };
 }
+
+export const DefaultAutocompleteDefinitions = {
+  isVisible: {
+    "!type": "bool",
+    "!doc": "Boolean value indicating if the widget is in visible state",
+  },
+};
 
 export const hexToRgb = (
   hex: string,
@@ -891,3 +901,40 @@ export const scrollCSS = css`
 
 export const widgetTypeClassname = (widgetType: string): string =>
   `t--widget-${widgetType.split("_").join("").toLowerCase()}`;
+
+const findReactInstanceProps = (domElement: any) => {
+  for (const key in domElement) {
+    if (key.startsWith(REACT_ELEMENT_PROPS)) {
+      return domElement[key];
+    }
+  }
+  return null;
+};
+
+export const checkForOnClick = (e: React.MouseEvent<HTMLElement>) => {
+  let target = e.target as HTMLElement | null;
+  const currentTarget = e.currentTarget as HTMLElement;
+
+  while (
+    !target?.classList.contains(WIDGET_COMPONENT_BOUNDARY_CLASS) &&
+    target &&
+    target !== currentTarget
+  ) {
+    const targetReactProps = findReactInstanceProps(target);
+
+    const hasOnClickableEvent = Boolean(
+      targetReactProps?.onClick ||
+        targetReactProps?.onMouseDownCapture ||
+        targetReactProps?.onMouseDown ||
+        (target.onclick && target.onclick.name !== "noop"),
+    );
+
+    if (hasOnClickableEvent) {
+      return true;
+    }
+
+    target = target.parentElement;
+  }
+
+  return false;
+};

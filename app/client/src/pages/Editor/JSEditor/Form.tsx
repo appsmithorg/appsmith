@@ -68,6 +68,7 @@ import {
 } from "actions/editorContextActions";
 import history from "utils/history";
 import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { Button, Tab, TabPanel, Tabs, TabsList } from "design-system";
 import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
 
@@ -267,10 +268,8 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
 
   const selectedConfigTab = useSelector(getJSPaneConfigSelectedTab);
 
-  // Render debugger flag
-  const showDebugger = useSelector(
-    (state: AppState) => state.ui.debugger.isOpen,
-  );
+  // Debugger render flag
+  const showDebugger = useSelector(showDebuggerFlag);
 
   const setSelectedConfigTab = useCallback((selectedTab: JSEditorTab) => {
     dispatch(setJsPaneConfigSelectedTab(selectedTab));
