@@ -2,25 +2,19 @@ import React from "react";
 import styled from "styled-components";
 import type { InfoBlockProps } from "./InfoBlock";
 import { InfoBlock } from "./InfoBlock";
-import type { DropdownOption } from "design-system-old";
 import { Collapsible } from "design-system-old";
 import type { CalloutKind } from "design-system";
-import { Button, Select, Option, Spinner, Callout, Icon } from "design-system";
-import { Colors } from "constants/Colors";
+import {
+  Button,
+  Select,
+  Option,
+  Spinner,
+  Callout,
+  Icon,
+  Text,
+} from "design-system";
 import type { ConversionCompleteLayoutProps } from "./ConversionCompleteLayout";
 import { ConversionCompleteLayout } from "./ConversionCompleteLayout";
-
-const Title = styled.h4`
-  color: var(--ads-v2-color-fg-emphasis);
-  font-weight: var(--ads-v2-font-weight-bold);
-  font-size: var(--ads-v2-font-size-6);
-`;
-
-const Label = styled.p`
-  color: var(--ads-v2-color-fg-emphasis);
-  font-weight: var(--ads-v2-font-weight-normal);
-  font-size: var(--ads-v2-font-size-5);
-`;
 
 const SnapshotContainer = styled.div`
   height: 3.5rem;
@@ -35,23 +29,11 @@ const SnapshotContainer = styled.div`
   border-radius: var(--ads-v2-border-radius);
 `;
 
-const SnapshotDetails = styled.p`
-  color: var(--ads-v2-color-fg-emphasis);
-  font-weight: var(--ads-v2-font-weight-bold);
-  font-size: var(--ads-v2-font-size-5);
-`;
-
-const SnapshotPost = styled.p`
-  color: var(--ads-v2-color-fg-emphasis);
-  font-weight: var(--ads-v2-font-weight-normal);
-  font-size: var(--ads-v2-font-size-3);
-`;
-
-const BannerText = styled.p`
-  color: var(--ads-v2-color-fg-emphasis);
-  font-weight: var(--ads-v2-font-weight-bold);
-  font-size: var(--ads-v2-font-size-3);
-`;
+type DropdownOption = {
+  label?: string;
+  value?: string;
+  icon?: string;
+};
 
 export type ConversionProps = {
   bannerMessageDetails?: {
@@ -111,7 +93,9 @@ export function ConversionForm(props: ConversionProps) {
     <>
       {bannerMessageDetails && (
         <Callout kind={bannerMessageDetails.kind}>
-          <BannerText>{bannerMessageDetails.message}</BannerText>
+          <Text kind="heading-xs" renderAs="p">
+            {bannerMessageDetails.message}
+          </Text>
         </Callout>
       )}
 
@@ -129,7 +113,9 @@ export function ConversionForm(props: ConversionProps) {
       {spinner && (
         <div className="flex flex-col items-center py-11">
           <Spinner size="lg" />
-          <Label className="pt-4">{spinner}</Label>
+          <Text kind="action-l" renderAs="p">
+            {spinner}
+          </Text>
         </div>
       )}
       {conversionComplete && (
@@ -137,7 +123,9 @@ export function ConversionForm(props: ConversionProps) {
       )}
       {collapsibleMessage && (
         <Collapsible className="px-2" title={collapsibleMessage.title}>
-          <Title>{collapsibleMessage.messageHeader}</Title>
+          <Text kind="heading-s" renderAs="h4">
+            {collapsibleMessage.messageHeader}
+          </Text>
           <ul className="text-sm text-gray-500 list-disc pl-4">
             {collapsibleMessage.messagePoints.map((text, id) => (
               <li key={id}>{text}</li>
@@ -148,10 +136,12 @@ export function ConversionForm(props: ConversionProps) {
       {selectDropDown && (
         <div className="w-2/4">
           <div className="pt-6 pb-2">
-            <Label>{selectDropDown.labelText}</Label>
+            <Text kind="action-l" renderAs="p">
+              {selectDropDown.labelText}
+            </Text>
           </div>
           <Select
-            // @ts-expect-error: type mismatch
+            //@ts-expect-error: onSelect type mismatch
             onSelect={selectDropDown.onSelect}
             value={selectDropDown.selected.value}
           >
@@ -159,7 +149,7 @@ export function ConversionForm(props: ConversionProps) {
               return (
                 <Option key={option.value} value={option.value}>
                   <div className="flex items-center gap-2">
-                    <Icon name={option.icon} size="md" />
+                    <Icon name={option.icon || "info"} size="md" />
                     {option.label}
                   </div>
                 </Option>
@@ -173,23 +163,27 @@ export function ConversionForm(props: ConversionProps) {
         <>
           {snapShotDetails.labelText && (
             <div className="pt-6 pb-2">
-              <Label>{snapShotDetails.labelText}</Label>
+              <Text kind="action-l" renderAs="p">
+                {snapShotDetails.labelText}
+              </Text>
             </div>
           )}
           <SnapshotContainer style={snapShotStyles}>
             <Icon
               className="mx-3"
-              color={Colors.GRAY_600}
+              color="var(--ads-v2-color-black-600)"
               name={snapShotDetails.icon}
-              size="md"
-              withWrapper
-              wrapperColor={Colors.GRAY_600_OPAQUE}
+              size="lg"
             />
-            <SnapshotDetails>{snapShotDetails.text}</SnapshotDetails>
+            <Text kind="heading-xs" renderAs="p">
+              {snapShotDetails.text}
+            </Text>
           </SnapshotContainer>
           {snapShotDetails.postText && (
             <div className="pt-2 mb-3">
-              <SnapshotPost>{snapShotDetails.postText}</SnapshotPost>
+              <Text kind="action-l" renderAs="p">
+                {snapShotDetails.postText}
+              </Text>
             </div>
           )}
         </>

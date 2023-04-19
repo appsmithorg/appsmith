@@ -1,7 +1,5 @@
 import * as Sentry from "@sentry/react";
 import React from "react";
-import styled from "styled-components";
-
 import {
   Button,
   Modal,
@@ -28,12 +26,6 @@ import {
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { useConversionForm } from "./hooks/useConversionForm";
 import type { AppState } from "ce/reducers";
-
-const Title = styled.h1`
-  color: var(--ads-v2-color-fg-emphasis-plus);
-  font-weight: var(--ads-v2-font-weight-bold);
-  font-size: var(--ads-v2-font-size-10);
-`;
 
 function ConversionButton() {
   const [showModal, setShowModal] = React.useState(false);
@@ -79,14 +71,12 @@ function ConversionButton() {
       <Modal onOpenChange={closeModal} open={showModal}>
         <ModalContent>
           <ModalHeader>
-            <div className="flex items-center gap-3">
-              <Title>
-                {conversionState === CONVERSION_STATES.COMPLETED_SUCCESS
-                  ? "Conversion Completed"
-                  : createMessage(titleText)}
-              </Title>
-              <BetaCard />
-            </div>
+            {conversionState !== CONVERSION_STATES.COMPLETED_SUCCESS && (
+              <div className="flex items-center gap-3">
+                {createMessage(titleText)}
+                <BetaCard />
+              </div>
+            )}
           </ModalHeader>
           <ModalBody>
             <ConversionForm {...formProps} />
