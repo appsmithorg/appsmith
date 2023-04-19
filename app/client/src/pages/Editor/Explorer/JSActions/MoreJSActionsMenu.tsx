@@ -31,6 +31,7 @@ import {
   MenuSubContent,
   MenuSubTrigger,
   MenuTrigger,
+  Text,
 } from "design-system";
 
 type EntityContextMenuProps = {
@@ -204,8 +205,18 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
               onSelect={option.onSelect}
               startIcon={option.icon}
             >
-              {option.label}
-              {/*Add sub text for item*/}
+              <div>
+                <Text>{option.label}</Text>
+                {option.subText && (
+                  <Text
+                    color={"var(--ads-v2-color-fg-muted)"}
+                    kind="body-s"
+                    style={{ marginLeft: "7px" }}
+                  >
+                    {option.subText}
+                  </Text>
+                )}
+              </div>
             </MenuItem>
           );
         })}
