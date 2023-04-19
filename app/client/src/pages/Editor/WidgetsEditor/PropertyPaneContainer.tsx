@@ -26,7 +26,7 @@ function PropertyPaneContainer() {
   }, []);
 
   return (
-    <AIWindow windowType="popover">
+    <AIWindow enableOutsideClick windowType="popover">
       <PropertyPaneSidebar
         onDragEnd={onRightSidebarDragEnd}
         onWidthChange={onRightSidebarWidthChange}

@@ -3,9 +3,8 @@ import React from "react";
 export type TAIWrapperProps = {
   windowType: "popover" | "fixed";
   className?: string;
-  outsideClick?: () => void;
+  enableOutsideClick?: boolean;
   children?: React.ReactNode;
-  isOpen?: boolean;
 };
 
 export function AIWindow(props: TAIWrapperProps) {
