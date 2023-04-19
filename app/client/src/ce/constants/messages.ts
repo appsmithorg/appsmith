@@ -588,8 +588,13 @@ export const SKIP_TO_APPLICATION = () => "Skip to Application";
 export const SELECT_A_METHOD_TO_ADD_CREDENTIALS = () =>
   "Select a method to add credentials";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
-export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
-  `You want to remove ${name} from this workspace`;
+export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (
+  name?: string | null,
+  entityType?: string,
+) =>
+  `You want to remove ${name} from this ${
+    entityType === "Application" ? "application" : "workspace"
+  }`;
 export const PARSING_ERROR = () =>
   "Syntax Error: Unable to parse code, please check error logs to debug";
 export const PARSING_WARNING = () =>
