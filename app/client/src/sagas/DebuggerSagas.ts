@@ -479,6 +479,7 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
       });
 
       // Log analytics for new error messages
+      //errorID has timestamp for 1:1 mapping with new and resolved errors
       if (errorMessages.length && errorLog) {
         yield all(
           errorMessages.map((errorMessage) =>
@@ -510,6 +511,7 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
           );
 
           if (exists < 0) {
+            //errorID has timestamp for 1:1 mapping with new and resolved errors
             return put({
               type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
               payload: {
@@ -535,6 +537,7 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
           );
 
           if (exists < 0) {
+            //errorID has timestamp for 1:1 mapping with new and resolved errors
             return put({
               type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
               payload: {
@@ -597,6 +600,7 @@ function* deleteDebuggerErrorLogsSaga(
     });
 
     if (errorMessages) {
+      //errorID has timestamp for 1:1 mapping with new and resolved errors
       yield all(
         errorMessages.map((errorMessage) => {
           return put({
