@@ -22,6 +22,8 @@ import { isEmail, isStrongPassword } from "utils/formhelpers";
 import type { AppState } from "@appsmith/reducers";
 import { SUPER_USER_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
 import { useState } from "react";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { noop } from "utils/AppsmithUtils";
 
 const PageWrapper = styled.div`
   width: 100%;
@@ -158,6 +160,8 @@ function SetupForm(props: SetupFormProps) {
     return true;
   };
 
+  const isAirgappedInstance = !isAirgapped();
+
   const onKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === "Enter") {
       if (props.valid) {
@@ -201,12 +205,17 @@ function SetupForm(props: SetupFormProps) {
           ref={formRef}
         >
           <SetupStep active={showDetailsForm}>
-            <DetailsForm {...props} onNext={onNext} />
+            <DetailsForm
+              {...props}
+              onNext={!isAirgappedInstance ? onNext : () => noop}
+            />
           </SetupStep>
-          <SetupStep active={!showDetailsForm}>
-            <DataCollectionForm />
-            <NewsletterForm />
-          </SetupStep>
+          {!isAirgappedInstance && (
+            <SetupStep active={!showDetailsForm}>
+              <DataCollectionForm />
+              <NewsletterForm />
+            </SetupStep>
+          )}
         </form>
         <SpaceFiller />
       </SetupFormContainer>
