@@ -33,7 +33,7 @@ jobs:
       - name: Get ci-test-result status from the run_id
         id: ci_test_result_status
         run: |
-          run_status=`curl --silent https://api.github.com/repos/appsmithorg/appsmith/actions/runs/${{steps.workflow.outputs.run_id}}/jobs?per_page=100`
+          run_status=`curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/appsmithorg/appsmith/actions/runs/${{steps.workflow.outputs.run_id}}/jobs?per_page=100`
           echo "ci_test_result=`echo $run_status | jq -r '[ .jobs[] | select (select(.name | contains("ci-test-result")) | .conclusion | contains("failure"))] | length'`" >> $GITHUB_OUTPUT                                    
           echo "ci_test_status=`echo $run_status | jq -r '[ .jobs[] | select (select(.name | contains("ci-test ")) | .conclusion | contains("failure"))] | length'`" >> $GITHUB_OUTPUT
           echo "perf_test_status=`echo $run_status | jq -r '[ .jobs[] | select (select(.name | contains("perf-test")) | .conclusion | contains("failure"))] | length'`" >> $GITHUB_OUTPUT
@@ -42,13 +42,13 @@ jobs:
         id: pr_status_check
         run: |
           status_link="https://api.github.com/repos/appsmithorg/appsmith/statuses/${{github.event.client_payload.pull_request.head.sha}}"
-          echo "status=`curl --silent $status_link | jq -r '[.[] | select( select( .context | contains("mergefreeze")) | .state | contains("success") | not)] | length'`" >> $GITHUB_OUTPUT
+          echo "status=`curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" $status_link | jq -r '[.[] | select( select( .context | contains("mergefreeze")) | .state | contains("success") | not)] | length'`" >> $GITHUB_OUTPUT
 
       - name: get status-checks from check suite
         id: suite_status_check
         run: |
           check_runs_link="https://api.github.com/repos/appsmithorg/appsmith/commits/${{github.event.client_payload.pull_request.head.sha}}/check-runs"
-          check_run_result=`curl --silent $check_runs_link`
+          check_run_result=`curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" $check_runs_link`
           echo "status1=`echo $check_run_result | jq -r '[.check_runs[]|select (select(.name | contains("Test Plan Approved")) | .conclusion | contains("success") | not)] | length'`" >> $GITHUB_OUTPUT
           echo "status2=`echo $check_run_result | jq -r '[.check_runs[] | select(.name | contains("ci-test-result"))] | length'`" >> $GITHUB_OUTPUT
 
