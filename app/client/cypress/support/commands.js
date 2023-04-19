@@ -280,9 +280,11 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
         username: uname,
         password: pword,
       },
-    }).then(() => {
-      cy.url().should("eq", loc.origin + "/applications");
-    });
+    })
+      .then(() => cy.location())
+      .then((loc) => {
+        expect(loc.href).to.equal(loc.origin + "/applications");
+      });
   });
 });
 
