@@ -13,6 +13,13 @@ export enum AuthenticationStatus {
   SUCCESS = "SUCCESS",
   FAILURE = "FAILURE",
 }
+
+export enum FilePickerActionStatus {
+  CANCEL = "cancel",
+  PICKED = "picked",
+  LOADED = "loaded",
+}
+
 export interface DatasourceAuthentication {
   authType?: string;
   username?: string;

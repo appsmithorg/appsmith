@@ -57,6 +57,7 @@ import {
 import { Button, Icon } from "design-system";
 import {
   duplicateApplication,
+  setShowAppInviteUsersDialog,
   updateApplication,
 } from "@appsmith/actions/applicationActions";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
@@ -264,10 +265,10 @@ export const WorkspaceShareUsers = styled.div`
     margin-left: 8px;
   }
 
-  & button,
-  & a {
-    padding: 4px 12px;
-  }
+  // & button,
+  // & a {
+  //   padding: 4px 12px;
+  // }
 `;
 
 export const NoAppsFound = styled.div`
@@ -295,6 +296,7 @@ export function Item(props: {
         className={
           !!props.isFetchingApplications ? BlueprintClasses.SKELETON : ""
         }
+        color={"var(--ads-v2-color-fg-emphasis)"}
         type={props.textType}
       >
         {" "}
@@ -431,6 +433,7 @@ export function LeftPane(props: LeftPaneProps) {
         <WorkpsacesNavigator data-cy="t--left-panel">
           {canCreateWorkspace && (
             <MenuItem
+              color="var(--ads-v2-color-fg-emphasis)"
               cypressSelector="t--workspace-new-workspace-auto-create"
               icon="plus"
               onSelect={() =>
@@ -470,6 +473,7 @@ export const CreateNewLabel = styled(Text)`
 export const WorkspaceNameElement = styled(Text)<{ isMobile?: boolean }>`
   max-width: ${({ isMobile }) => (isMobile ? 220 : 500)}px;
   ${truncateTextUsingEllipsis}
+  color: var(--ads-v2-color-fg-emphasis);
 `;
 
 export const WorkspaceNameHolder = styled(Text)`
@@ -643,6 +647,10 @@ export function ApplicationsSection(props: any) {
     });
   };
 
+  const handleFormOpenOrClose = useCallback((isOpen: boolean) => {
+    dispatch(setShowAppInviteUsersDialog(isOpen));
+  }, []);
+
   let updatedWorkspaces;
   if (!isFetchingApplications) {
     updatedWorkspaces = userWorkspaces;
@@ -737,6 +745,7 @@ export function ApplicationsSection(props: any) {
                     <FormDialogComponent
                       Form={WorkspaceInviteUsersForm}
                       canOutsideClickClose
+                      onOpenOrClose={handleFormOpenOrClose}
                       placeholder={createMessage(
                         INVITE_USERS_PLACEHOLDER,
                         cloudHosting,
@@ -792,7 +801,7 @@ export function ApplicationsSection(props: any) {
                           <Button
                             className="t--options-icon"
                             isIconButton
-                            kind="secondary"
+                            kind="tertiary"
                             onClick={() => {
                               setWorkspaceToOpenMenu(workspace.id);
                             }}

@@ -15,15 +15,16 @@ const renderComponent = (
   const showError = componentProps.meta.touched && !componentProps.meta.active;
   return (
     <Input
-      {...componentProps.input}
       {...componentProps}
+      {...componentProps.input}
       errorMessage={
         !componentProps.hideErrorMessage &&
         showError &&
+        componentProps.meta.error &&
         componentProps.meta.error
       }
-      renderAs={"input"}
-      size="md"
+      renderAs="input"
+      size={"md"}
     />
   );
 };

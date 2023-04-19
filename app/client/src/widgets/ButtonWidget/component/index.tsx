@@ -14,7 +14,6 @@ import {
   GOOGLE_RECAPTCHA_DOMAIN_ERROR,
   createMessage,
 } from "@appsmith/constants/messages";
-import { Toaster, Variant } from "design-system-old";
 
 import ReCAPTCHA from "react-google-recaptcha";
 import { Colors } from "constants/Colors";
@@ -35,6 +34,7 @@ import {
 import { DragContainer } from "./DragContainer";
 import { buttonHoverActiveStyles } from "./utils";
 import type { ThemeProp } from "widgets/constants";
+import { toast } from "design-system";
 
 const RecaptchaWrapper = styled.div`
   position: relative;
@@ -118,13 +118,10 @@ const buttonBaseStyle = css<ThemeProp & ButtonStyleProps>`
   }
 
   & > span {
-    max-height: 100%;
-    max-width: 99%;
+    display: inline-block;
     text-overflow: ellipsis;
     overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
+    white-space: nowrap;
     line-height: normal;
 
     color: ${
@@ -399,13 +396,14 @@ function BtnWrapper(
     onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   } & RecaptchaProps,
 ) {
+  const hasOnClick = Boolean(
+    props.onClick && !props.isLoading && !props.isDisabled,
+  );
   if (!props.googleRecaptchaKey) {
     return (
       <Wrapper
         className={props.className}
-        onClick={(e: React.MouseEvent<HTMLElement>) =>
-          props.onClick && !props.isLoading && props.onClick(e)
-        }
+        onClick={hasOnClick ? props.onClick : undefined}
       >
         {props.children}
       </Wrapper>
@@ -415,9 +413,8 @@ function BtnWrapper(
       event: React.MouseEvent<HTMLElement>,
       error: string,
     ) => {
-      Toaster.show({
-        text: error,
-        variant: Variant.danger,
+      toast.show(error, {
+        kind: "error",
       });
       props.onClick && !props.isLoading && props.onClick(event);
     };

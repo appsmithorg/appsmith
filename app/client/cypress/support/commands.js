@@ -19,6 +19,7 @@ const pages = require("../locators/Pages.json");
 const commonlocators = require("../locators/commonlocators.json");
 const widgetsPage = require("../locators/Widgets.json");
 import ApiEditor from "../locators/ApiEditor";
+import { CURRENT_REPO, REPO } from "../fixtures/REPO";
 
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
@@ -29,9 +30,11 @@ const jsEditorLocators = require("../locators/JSEditor.json");
 const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
+import { ObjectsRegistry } from "../support/Objects/Registry";
 
-// import { ObjectsRegistry } from "../support/Objects/Registry";
-// let agHelper = ObjectsRegistry.AggregateHelper;
+const propPane = ObjectsRegistry.PropertyPane;
+const agHelper = ObjectsRegistry.AggregateHelper;
+const locators = ObjectsRegistry.CommonLocators;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -230,8 +233,10 @@ Cypress.Commands.add("LoginUser", (uname, pword, goToLoginPage = true) => {
 Cypress.Commands.add("LogintoApp", (uname, pword) => {
   cy.LogOutUser();
   cy.LoginUser(uname, pword);
-  cy.get(".t--applications-container .createnew").should("be.visible");
-  cy.get(".t--applications-container .createnew").should("be.enabled");
+  if (CURRENT_REPO === REPO.CE) {
+    cy.get(".t--applications-container .createnew").should("be.visible");
+    cy.get(".t--applications-container .createnew").should("be.enabled");
+  }
   initLocalstorage();
 });
 
@@ -439,9 +444,9 @@ Cypress.Commands.add("SearchEntityandOpen", (apiname1) => {
     .clear({ force: true })
     .type(apiname1, { force: true });
   cy.CheckAndUnfoldWidgets();
-  cy.get(
-    commonlocators.entitySearchResult.concat(apiname1).concat("')"),
-  ).scrollIntoView({ easing: "linear" });
+  cy.get(commonlocators.entitySearchResult.concat(apiname1).concat("')"))
+    .first()
+    .scrollIntoView({ easing: "linear" });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(500);
   cy.get(
@@ -806,42 +811,32 @@ Cypress.Commands.add("closePropertyPane", () => {
   cy.get(commonlocators.canvas).click({ force: true });
 });
 
-Cypress.Commands.add("onClickActions", (forSuccess, forFailure, endp) => {
-  cy.EnableAllCodeEditors();
-  // Filling the messages for success/failure in the onClickAction of the button widget.
-  // For Success
-  cy.get(".code-highlight", { timeout: 10000 })
-    .children()
-    .contains("No action")
-    .first()
-    .click({ force: true })
-    .selectOnClickOption("Show message")
-    .get("div.t--property-control-" + endp + " div.CodeMirror-lines")
-    .click()
-    .type(forSuccess)
-    .get("button.t--open-dropdown-Select-type")
-    .first()
-    .click({ force: true })
-    .selectOnClickOption(forSuccess);
+Cypress.Commands.add(
+  "onClickActions",
+  (forSuccess, forFailure, actionType, actionValue) => {
+    propPane.SelectActionByTitleAndValue(actionType, actionValue);
 
-  cy.wait(2000);
-  // For Failure
-  cy.get(".code-highlight")
-    .children()
-    .contains("No action")
-    .last()
-    .click({ force: true })
-    .selectOnClickOption("Show message")
-    .wait(2000)
-    .get("div.t--property-control-" + endp + " div.CodeMirror-lines")
-    .last()
-    .click()
-    .type(forFailure)
-    .get("button.t--open-dropdown-Select-type")
-    .last()
-    .click({ force: true })
-    .selectOnClickOption(forFailure);
-});
+    cy.get(propPane._actionCallbacks).click();
+
+    // add a success callback
+    cy.get(propPane._actionAddCallback("success")).click().wait(500);
+    cy.get(locators._dropDownValue("Show Alert")).click().wait(500);
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Message"),
+      forSuccess,
+    );
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
+
+    // add a failure callback
+    cy.get(propPane._actionAddCallback("failure")).click().wait(500);
+    cy.get(locators._dropDownValue("Show Alert")).click().wait(500);
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Message"),
+      forFailure,
+    );
+    agHelper.GetNClick(propPane._actionSelectorPopupClose);
+  },
+);
 
 Cypress.Commands.add("isSelectRow", (index) => {
   cy.get('.tbody .td[data-rowindex="' + index + '"][data-colindex="' + 0 + '"]')
@@ -1029,6 +1024,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   );
   cy.intercept("PUT", "/api/v1/datasources/*").as("updateDatasource");
   cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as("generateKey");
+  cy.intercept("POST", "/api/v1/applications/snapshot/*").as("snapshotSuccess");
   cy.intercept(
     {
       method: "POST",
@@ -1286,9 +1282,29 @@ Cypress.Commands.add("createSuperUser", () => {
   //cy.get(welcomePage.dataCollection).trigger("mouseover").click();
   //cy.wait(1000); //for toggles to settle
   cy.get(welcomePage.createButton).should("be.visible");
-  //cy.get(welcomePage.createButton).trigger("mouseover").click();
+
+  cy.get(welcomePage.createButton).trigger("mouseover").click();
   //Seeing issue with above also, trying multiple click as below
-  cy.get(welcomePage.createButton).click({ multiple: true });
+  //cy.get(welcomePage.createButton).click({ multiple: true });
+  //cy.get(welcomePage.createButton).trigger("click");
+
+  //Submit also not working
+  //cy.get(welcomePage.createSuperUser).submit();
+  //cy.wait(5000); //waiting a bit before attempting logout
+
+  // cy.get("body").then(($ele) => {
+  //   if ($ele.find(locator._spanButton("Next").length) > 0) {
+  //     agHelper.GetNClick(locator._spanButton("Next"));
+  //   } else agHelper.GetNClick(locator._spanButton("Make your first App"));
+  // });
+
+  //trying jquery way - also not working
+  // cy.get(welcomePage.createButton).then(($createBtn) => {
+  //   const $jQueryButton = Cypress.$($createBtn); // wrap the button element in jQuery
+  //   $jQueryButton.trigger("click"); // click on the button using jQuery
+  // });
+
+  //uncommenting below to analyse
   cy.wait("@createSuperUser").then((interception) => {
     expect(interception.request.body).contains(
       "allowCollectingAnonymousData=true",

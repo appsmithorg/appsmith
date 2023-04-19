@@ -345,7 +345,7 @@ export function EditorHeader(props: EditorHeaderProps) {
   return (
     <ThemeProvider theme={theme}>
       <HeaderWrapper
-        className="pl-1 pr-1"
+        className="pl-1 pr-1 overflow-hidden"
         data-testid="t--appsmith-editor-header"
       >
         <HeaderSection className="space-x-2">
@@ -460,36 +460,38 @@ export function EditorHeader(props: EditorHeaderProps) {
           >
             <RealtimeAppEditors applicationId={applicationId} />
             <ToggleModeButton />
-            <FormDialogComponent
-              Form={AppInviteUsersForm}
-              applicationId={applicationId}
-              canOutsideClickClose
-              isOpen={showAppInviteUsersDialog}
-              noModalBodyMarginTop
-              placeholder={createMessage(
-                INVITE_USERS_PLACEHOLDER,
-                cloudHosting,
-              )}
-              tabs={tabs}
-              trigger={
-                <TooltipComponent
-                  content={
-                    filteredSharedUserList.length
-                      ? createMessage(
-                          SHARE_BUTTON_TOOLTIP_WITH_USER(
-                            filteredSharedUserList.length,
-                          ),
-                        )
-                      : createMessage(SHARE_BUTTON_TOOLTIP)
-                  }
-                  hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-                  position="bottom"
-                >
-                  <ShareButtonComponent />
-                </TooltipComponent>
-              }
-              workspaceId={workspaceId}
-            />
+            {applicationId && (
+              <FormDialogComponent
+                Form={AppInviteUsersForm}
+                applicationId={applicationId}
+                canOutsideClickClose
+                isOpen={showAppInviteUsersDialog}
+                noModalBodyMarginTop
+                placeholder={createMessage(
+                  INVITE_USERS_PLACEHOLDER,
+                  cloudHosting,
+                )}
+                tabs={tabs}
+                trigger={
+                  <TooltipComponent
+                    content={
+                      filteredSharedUserList.length
+                        ? createMessage(
+                            SHARE_BUTTON_TOOLTIP_WITH_USER(
+                              filteredSharedUserList.length,
+                            ),
+                          )
+                        : createMessage(SHARE_BUTTON_TOOLTIP)
+                    }
+                    hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+                    position="bottom"
+                  >
+                    <ShareButtonComponent />
+                  </TooltipComponent>
+                }
+                workspaceId={workspaceId}
+              />
+            )}
             <DeploySection>
               <TooltipComponent
                 content={createMessage(DEPLOY_BUTTON_TOOLTIP)}

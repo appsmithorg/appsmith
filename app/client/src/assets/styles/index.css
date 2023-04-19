@@ -30,6 +30,13 @@ html {
   scrollbar-color: rgba(209, 213, 219, var(--tw-bg-opacity)) white;
 }
 
+/* For some reason, margin-left: -160px; is being added to the react-toastify stylesheet on the .Toastify__toast-container--top-center
+and .Toastify__toast-container--bottom-center classes, which messes with the placement of toast. This line resets that. */
+.Toastify__toast-container--top-center,
+.Toastify__toast-container--bottom-center {
+  margin-left: 0;
+}
+
 ::-webkit-scrollbar {
   height: 6px;
   width: 6px;

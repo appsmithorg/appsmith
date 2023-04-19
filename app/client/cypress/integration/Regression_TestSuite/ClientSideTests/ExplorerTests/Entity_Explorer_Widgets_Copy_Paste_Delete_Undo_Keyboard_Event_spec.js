@@ -12,9 +12,8 @@ before(() => {
 });
 
 describe("Test Suite to validate copy/delete/undo functionalites", function () {
-  it.only("Drag and drop form widget and validate copy widget via toast message", function () {
+  it("Drag and drop form widget and validate copy widget via toast message", function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-
     cy.openPropertyPane("formwidget");
     cy.widgetText(
       "FormTest",
@@ -32,12 +31,15 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
       "response.body.responseMeta.status",
       200,
     );
+    cy.wait(1000);
+    ee.SelectEntityByName("FormTestCopy");
     cy.get("body").type("{del}", { force: true });
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
+    agHelper.WaitUntilAllToastsDisappear();
     agHelper.Sleep(1000);
     cy.get("body").type(`{${modifierKey}}z`, { force: true });
     ee.ExpandCollapseEntity("Widgets");

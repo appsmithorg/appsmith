@@ -34,6 +34,8 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SIDEBAR_ID } from "constants/Explorer";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { EntityClassNames } from "pages/Editor/Explorer/Entity";
+import { getEditingEntityName } from "selectors/entitiesSelector";
 
 type Props = {
   width: number;
@@ -67,6 +69,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
   const isFirstTimeUserOnboardingComplete = useSelector(
     getFirstTimeUserOnboardingComplete,
   );
+  const isEditingEntityName = useSelector(getEditingEntityName);
   PerformanceTracker.startTracking(PerformanceTransactionName.SIDE_BAR_MOUNT);
   useEffect(() => {
     PerformanceTracker.stopTracking();
@@ -79,7 +82,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     return () => {
       document.removeEventListener("mousemove", onMouseMove);
     };
-  }, [active, pinned, resizer.resizing]);
+  }, [active, pinned, resizer.resizing, isEditingEntityName]);
 
   /**
    * passing the event to touch move on mouse move
@@ -91,6 +94,21 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       touches: [{ clientX: event.clientX, clientY: event.clientY }],
     });
     onTouchMove(eventWithTouches);
+  };
+
+  /**
+   * Is a context menu of any of the explorer entities open
+   */
+  const isContextMenuOpen = () => {
+    const menus = document.getElementsByClassName(
+      EntityClassNames.CONTEXT_MENU_CONTENT,
+    );
+    const node = menus[0];
+    if (!document.body.contains(node)) {
+      return false;
+    }
+
+    return true;
   };
 
   /**
@@ -110,7 +128,12 @@ export const EntityExplorerSidebar = memo((props: Props) => {
       if (active) {
         // if user cursor is out of the entity explorer width ( with some extra window = 20px ), make the
         // entity explorer inactive. Also, 20px here is to increase the window in which a user can drag the resizer
-        if (currentX >= props.width + 20 && !resizer.resizing) {
+        if (
+          currentX >= props.width + 20 &&
+          !resizer.resizing &&
+          !isContextMenuOpen() &&
+          !isEditingEntityName
+        ) {
           dispatch(setExplorerActiveAction(false));
         }
       } else {

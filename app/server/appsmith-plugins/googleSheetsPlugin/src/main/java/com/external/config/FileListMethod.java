@@ -3,7 +3,9 @@ package com.external.config;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.external.constants.ErrorMessages;
+import com.external.enums.GoogleSheetMethodEnum;
 import com.external.plugins.exceptions.GSheetsPluginError;
+import static com.external.utils.SheetsUtil.getSpreadsheetData;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpMethod;
@@ -13,6 +15,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -43,7 +47,7 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
     }
 
     @Override
-    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
+    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
         if (response == null) {
             throw new AppsmithPluginException(
                     GSheetsPluginError.QUERY_EXECUTION_FAILED,
@@ -54,12 +58,8 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
         }
         List<Map<String, String>> filesList = StreamSupport
                 .stream(response.get("files").spliterator(), false)
-                .map(file -> {
-                    final String spreadSheetUrl = "https://docs.google.com/spreadsheets/d/" + file.get("id").asText() + "/edit";
-                    return Map.of("id", file.get("id").asText(),
-                            "name", file.get("name").asText(),
-                            "url", spreadSheetUrl);
-                })
+                .map(file -> getSpreadsheetData((JsonNode) file, userAuthorizedSheetIds, GoogleSheetMethodEnum.EXECUTE))
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         return this.objectMapper.valueToTree(filesList);
@@ -77,7 +77,7 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
     }
 
     @Override
-    public JsonNode transformTriggerResponse(JsonNode response, MethodConfig methodConfig) {
+    public JsonNode transformTriggerResponse(JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
         if (response == null) {
             throw new AppsmithPluginException(
                     GSheetsPluginError.QUERY_EXECUTION_FAILED,
@@ -88,11 +88,8 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
         }
         List<Map<String, String>> filesList = StreamSupport
                 .stream(response.get("files").spliterator(), false)
-                .map(file -> {
-                    final String spreadSheetUrl = "https://docs.google.com/spreadsheets/d/" + file.get("id").asText() + "/edit";
-                    return Map.of("label", file.get("name").asText(),
-                            "value", spreadSheetUrl);
-                })
+                .map(file -> getSpreadsheetData((JsonNode) file, userAuthorizedSheetIds, GoogleSheetMethodEnum.TRIGGER))
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         return this.objectMapper.valueToTree(filesList);

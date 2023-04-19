@@ -34,11 +34,9 @@ import {
   MenuItem,
   SavingState,
   Size,
-  Toaster,
   Text,
   TextType,
   TooltipComponent,
-  Variant,
 } from "design-system-old";
 import { Button, Icon } from "design-system";
 import { useSelector } from "react-redux";
@@ -59,6 +57,7 @@ import { CONNECTED_TO_GIT, createMessage } from "@appsmith/constants/messages";
 import { builderURL, viewerURL } from "RouteBuilder";
 import history from "utils/history";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
+import { toast } from "design-system";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { addItemsInContextMenu } from "@appsmith/utils";
 import { selectFeatureFlags } from "selectors/usersSelectors";
@@ -107,37 +106,37 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
                 flex-direction: row;
                 z-index: 1;
 
-                & .t--application-view-link {
-                  border: 2px solid ${Colors.BLACK};
-                  background-color: ${Colors.BLACK};
-                  color: ${Colors.WHITE};
-                }
+                // & .t--application-view-link {
+                //   border: 2px solid ${Colors.BLACK};
+                //   background-color: ${Colors.BLACK};
+                //   color: ${Colors.WHITE};
+                // }
 
-                & .t--application-view-link:hover {
-                  background-color: transparent;
-                  border: 2px solid ${Colors.BLACK};
-                  color: ${Colors.BLACK};
+                // & .t--application-view-link:hover {
+                //   background-color: transparent;
+                //   border: 2px solid ${Colors.BLACK};
+                //   color: ${Colors.BLACK};
 
-                  svg {
-                    path {
-                      fill: currentColor;
-                    }
-                  }
-                }
+                //   svg {
+                //     path {
+                //       fill: currentColor;
+                //     }
+                //   }
+                // }
 
-                & .t--application-edit-link, & .t--application-view-link {
-                  span {
-                    margin-right: 2px;
+                // & .t--application-edit-link, & .t--application-view-link {
+                //   span {
+                //     margin-right: 2px;
 
-                    svg {
-                      width: 16px;
-                      height: 16px;
-                      path {
-                        fill: currentColor;
-                      }
-                    }
-                  }
-                }
+                //     svg {
+                //       width: 16px;
+                //       height: 16px;
+                //       path {
+                //         fill: currentColor;
+                //       }
+                //     }
+                //   }
+                // }
               }`
           }
 
@@ -556,9 +555,8 @@ export function ApplicationCard(props: ApplicationCardProps) {
       link.click();
     }
     setIsMenuOpen(false);
-    Toaster.show({
-      text: `Successfully exported ${props.application.name}`,
-      variant: Variant.success,
+    toast.show(`Successfully exported ${props.application.name}`, {
+      kind: "success",
     });
   };
   const forkApplicationInitiate = () => {
@@ -848,7 +846,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                       href={editModeURL}
                       onClick={editApp}
                       size="md"
-                      startIcon={"edit"}
+                      startIcon={"edit-white"}
                     >
                       Edit
                     </Button>

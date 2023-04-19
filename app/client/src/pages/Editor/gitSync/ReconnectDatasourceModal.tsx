@@ -13,13 +13,11 @@ import TabMenu from "./Menu";
 import { Classes, MENU_HEIGHT } from "./constants";
 import {
   DialogComponent as Dialog,
-  Toaster,
   Text,
   TextType,
   TooltipComponent,
-  Variant,
 } from "design-system-old";
-import { Button } from "design-system";
+import { Button, toast } from "design-system";
 import { Colors } from "constants/Colors";
 
 import styled from "styled-components";
@@ -59,7 +57,10 @@ import { useQuery } from "../utils";
 import ListItemWrapper from "./components/DatasourceListItem";
 import { getDefaultPageId } from "@appsmith/sagas/ApplicationSagas";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { getOAuthAccessToken } from "actions/datasourceActions";
+import {
+  getOAuthAccessToken,
+  loadFilePickerAction,
+} from "actions/datasourceActions";
 import { builderURL } from "RouteBuilder";
 import localStorage from "utils/localStorage";
 
@@ -322,14 +323,13 @@ function ReconnectDatasourceModal() {
     setIsImport(false);
     const status = queryParams.get("response_status");
     const display_message = queryParams.get("display_message");
-    const variant = Variant.danger;
 
     if (status !== AuthorizationStatus.SUCCESS) {
       const message =
         status === AuthorizationStatus.APPSMITH_ERROR
           ? OAUTH_AUTHORIZATION_APPSMITH_ERROR
           : OAUTH_AUTHORIZATION_FAILED;
-      Toaster.show({ text: display_message || message, variant });
+      toast.show(display_message || message, { kind: "error" });
       const oAuthStatus = status;
       AnalyticsUtil.logEvent("UPDATE_DATASOURCE", {
         dsName,
@@ -338,6 +338,7 @@ function ReconnectDatasourceModal() {
         pluginName,
       });
     } else if (queryDatasourceId) {
+      dispatch(loadFilePickerAction());
       dispatch(getOAuthAccessToken(queryDatasourceId));
     }
     AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {

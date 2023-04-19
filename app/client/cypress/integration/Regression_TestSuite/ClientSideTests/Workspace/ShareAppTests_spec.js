@@ -1,5 +1,6 @@
 /// <reference types="Cypress" />
 
+import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 import homePage from "../../../../locators/HomePage";
 const publish = require("../../../../locators/publishWidgetspage.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
@@ -30,7 +31,7 @@ describe("Create new workspace and share with a user", function () {
       );
       cy.get("h2").contains("Drag and drop a widget here");
       cy.get(homePage.shareApp).click({ force: true });
-      HomePage.InviteUserToWorkspaceFromApp(
+      HomePage.InviteUserToApplication(
         Cypress.env("TESTUSERNAME1"),
         "App Viewer",
       );
@@ -44,7 +45,9 @@ describe("Create new workspace and share with a user", function () {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get(homePage.appsContainer).contains(workspaceId);
-    cy.xpath(homePage.ShareBtn).first().should("be.visible");
+    if (CURRENT_REPO === REPO.CE) {
+      cy.xpath(homePage.ShareBtn).first().should("be.visible");
+    }
     cy.get(homePage.applicationCard).trigger("mouseover");
     cy.get(homePage.appEditIcon).should("not.exist");
     cy.launchApp(appid);

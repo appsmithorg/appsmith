@@ -414,7 +414,7 @@ public class FileUtilsImpl implements FileInterface {
             Files.createDirectories(path);
             // Write the user written query to .txt file to make conflict handling easier
             // Body will be null if the action is of type JS
-            if (body != null) {
+            if (StringUtils.hasLength(body)) {
                 Path bodyPath = path.resolve(resourceName + CommonConstants.TEXT_FILE_EXTENSION);
                 writeStringToFile(body, bodyPath);
             }
@@ -697,7 +697,11 @@ public class FileUtilsImpl implements FileInterface {
         if (directory.isDirectory()) {
             for (File dirFile : Objects.requireNonNull(directory.listFiles())) {
                 String resourceName = dirFile.getName();
-                String body = readFileAsString(directoryPath.resolve(resourceName).resolve( resourceName + CommonConstants.TEXT_FILE_EXTENSION));
+                String body = "";
+                Path queryPath = directoryPath.resolve(resourceName).resolve( resourceName + CommonConstants.TEXT_FILE_EXTENSION);
+                if (queryPath.toFile().exists()) {
+                    body = readFileAsString(queryPath);
+                }
                 Object file = readFile(directoryPath.resolve(resourceName).resolve( CommonConstants.METADATA + CommonConstants.JSON_EXTENSION), gson);
                 actionCollectionBodyMap.put(resourceName + keySuffix, body);
                 resource.put(resourceName + keySuffix, file);

@@ -1,8 +1,8 @@
 import type { MutableRefObject } from "react";
 import React, { useCallback, useRef } from "react";
 import styled from "styled-components";
-import { Toaster, TooltipComponent, Variant } from "design-system-old";
-import { Button, Icon, Spinner } from "design-system";
+import { TooltipComponent } from "design-system-old";
+import { Button, Icon, Spinner, toast } from "design-system";
 import { Colors } from "constants/Colors";
 import Entity, { EntityClassNames } from "../Entity";
 import {
@@ -30,6 +30,7 @@ import { getPagePermissions } from "selectors/editorSelectors";
 import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
 import recommendedLibraries from "./recommendedLibraries";
 import { useTransition, animated } from "react-spring";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const docsURLMap = recommendedLibraries.reduce((acc, lib) => {
   acc[lib.url] = lib.docsURL;
@@ -226,9 +227,8 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
 
   const copyToClipboard = useCallback(() => {
     write(lib.accessor[lib.accessor.length - 1]);
-    Toaster.show({
-      text: "Copied to clipboard",
-      variant: Variant.success,
+    toast.show("Copied to clipboard", {
+      kind: "success",
     });
   }, [lib.accessor]);
 
@@ -299,6 +299,8 @@ function JSDependencies() {
 
   const canCreateActions = hasCreateActionPermission(pagePermissions);
 
+  const isAirgappedInstance = isAirgapped();
+
   const openInstaller = useCallback(() => {
     dispatch(toggleInstaller(true));
   }, []);
@@ -328,7 +330,7 @@ function JSDependencies() {
       isDefaultExpanded={isOpen}
       isSticky
       name="Libraries"
-      showAddButton={canCreateActions}
+      showAddButton={canCreateActions && !isAirgappedInstance}
       step={0}
     >
       {dependencyList}

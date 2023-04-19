@@ -29,7 +29,6 @@ import {
   DISCONNECT_SERVICE_WARNING,
   MANDATORY_FIELDS_ERROR,
 } from "@appsmith/constants/messages";
-import { Toaster, Variant } from "design-system-old";
 import {
   connectedMethods,
   saveAllowed,
@@ -45,6 +44,7 @@ import {
   MaxWidthWrapper,
 } from "./components";
 import { BackButton } from "components/utils/helperComponents";
+import { toast } from "design-system";
 
 type FormProps = {
   settings: Record<string, string>;
@@ -95,9 +95,8 @@ export function SettingsForm(
       AnalyticsUtil.logEvent("ADMIN_SETTINGS_ERROR", {
         error: createMessage(MANDATORY_FIELDS_ERROR),
       });
-      Toaster.show({
-        text: createMessage(MANDATORY_FIELDS_ERROR),
-        variant: Variant.danger,
+      toast.show(createMessage(MANDATORY_FIELDS_ERROR), {
+        kind: "error",
       });
     }
   };
@@ -163,9 +162,8 @@ export function SettingsForm(
     AnalyticsUtil.logEvent("ADMIN_SETTINGS_ERROR", {
       error: createMessage(DISCONNECT_AUTH_ERROR),
     });
-    Toaster.show({
-      text: createMessage(DISCONNECT_AUTH_ERROR),
-      variant: Variant.danger,
+    toast.show(createMessage(DISCONNECT_AUTH_ERROR), {
+      kind: "error",
     });
   };
 

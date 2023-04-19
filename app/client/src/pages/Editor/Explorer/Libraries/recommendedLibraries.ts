@@ -1,15 +1,5 @@
 export default [
   {
-    name: "AWS SDK",
-    url: "https://sdk.amazonaws.com/js/aws-sdk-2.410.0.min.js",
-    docsURL:
-      "https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/configuring-the-jssdk.html",
-    description: "AWS SDK for JavaScript",
-    icon: "https://github.com/aws.png?s=20",
-    author: "aws",
-    version: "2.410.0",
-  },
-  {
     name: "jsonwebtoken",
     description: "JSON Web Token implementation (symmetric and asymmetric)",
     author: "auth0",

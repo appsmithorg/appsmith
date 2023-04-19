@@ -13,7 +13,7 @@ import {
   CUSTOM_LINT_ERRORS,
   IDENTIFIER_NOT_DEFINED_LINT_ERROR_CODE,
   INVALID_JSOBJECT_START_STATEMENT,
-  JS_OBJECT_START_STATEMENT,
+  INVALID_JSOBJECT_START_STATEMENT_ERROR_CODE,
 } from "workers/Linting/constants";
 export const getIndexOfRegex = (
   str: string,
@@ -123,33 +123,32 @@ export const getLintAnnotations = (
   const lintErrors = filterInvalidLintErrors(errors, contextData);
   const lines = value.split("\n");
 
-  // The binding position of every valid JS Object is constant, so we need not
-  // waste time checking for position of binding.
-  // For JS Objects not starting with the expected "export default" statement, we return early
-  // with a "invalid start statement" lint error
-  if (
-    isJSObject &&
-    !isEmpty(lines) &&
-    !lines[0].startsWith(JS_OBJECT_START_STATEMENT)
-  ) {
-    return [
-      {
-        from: CODE_EDITOR_START_POSITION,
-        to: getFirstNonEmptyPosition(lines),
-        message: INVALID_JSOBJECT_START_STATEMENT,
-        severity: Severity.ERROR,
-      },
-    ];
-  }
-
   lintErrors.forEach((error) => {
-    const { ch, errorMessage, line, originalBinding, severity, variables } =
-      error;
+    const {
+      ch,
+      code,
+      errorMessage,
+      line,
+      originalBinding,
+      severity,
+      variables,
+    } = error;
 
     if (!originalBinding) {
       return annotations;
     }
-
+    if (code === INVALID_JSOBJECT_START_STATEMENT_ERROR_CODE) {
+      // The binding position of every valid JS Object is constant, so we need not
+      // waste time checking for position of binding.
+      // For JS Objects not starting with the expected "export default" statement, we return early
+      // with a "invalid start statement" lint error
+      return annotations.push({
+        from: CODE_EDITOR_START_POSITION,
+        to: getFirstNonEmptyPosition(lines),
+        message: INVALID_JSOBJECT_START_STATEMENT,
+        severity: Severity.ERROR,
+      });
+    }
     let variableLength = 1;
     // Find the variable with minimal length
     if (variables) {

@@ -20,6 +20,7 @@ import {
   ACTION_NAME_PLACEHOLDER,
   createMessage,
 } from "@appsmith/constants/messages";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const ApiNameWrapper = styled.div<{ page?: string }>`
   min-width: 50%;
@@ -102,7 +103,7 @@ function ActionNameEditor(props: ActionNameEditorProps) {
             {currentPlugin && (
               <ApiIconWrapper
                 alt={currentPlugin.name}
-                src={currentPlugin.iconLocation}
+                src={getAssetUrl(currentPlugin?.iconLocation)}
               />
             )}
             <EditableText

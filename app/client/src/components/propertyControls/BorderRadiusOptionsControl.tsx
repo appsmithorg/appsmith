@@ -1,6 +1,7 @@
 import * as React from "react";
 
-import { ButtonGroup, TooltipComponent } from "design-system-old";
+// import { ButtonGroup, TooltipComponent } from "design-system-old";
+import { SegmentedControl, Tooltip } from "design-system";
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { borderRadiusOptions } from "constants/ThemeConstants";
@@ -21,17 +22,13 @@ export interface BorderRadiusOptionsControlProps extends ControlProps {
 }
 
 const options = Object.keys(borderRadiusOptions).map((optionKey) => ({
-  icon: (
-    <TooltipComponent
-      content={optionKey}
-      key={optionKey}
-      openOnTargetFocus={false}
-    >
+  label: (
+    <Tooltip content={optionKey} key={optionKey}>
       <div
         className="w-5 h-5 border-t-2 border-l-2 border-gray-500"
         style={{ borderTopLeftRadius: borderRadiusOptions[optionKey] }}
       />
-    </TooltipComponent>
+    </Tooltip>
   ),
   value: borderRadiusOptions[optionKey],
 }));
@@ -78,17 +75,19 @@ class BorderRadiusOptionsControl extends BaseControl<BorderRadiusOptionsControlP
 
   public render() {
     return (
-      <ButtonGroup
-        options={options}
-        ref={this.componentRef}
-        selectButton={(value, isUpdatedViaKeyboard = false) => {
+      <SegmentedControl
+        defaultValue={
+          this.props.evaluatedValue ? this.props.evaluatedValue : ""
+        }
+        onClick={(value, isUpdatedViaKeyboard = false) => {
           this.updateProperty(
             this.props.propertyName,
             value,
             isUpdatedViaKeyboard,
           );
         }}
-        values={this.props.evaluatedValue ? [this.props.evaluatedValue] : []}
+        options={options}
+        ref={this.componentRef}
       />
     );
   }

@@ -16,7 +16,6 @@ import {
   setDatasourceViewMode,
   createDatasourceFromForm,
   toggleSaveActionFlag,
-  filePickerCallbackAction,
 } from "actions/datasourceActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
@@ -30,8 +29,7 @@ import {
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
   OAUTH_AUTHORIZATION_FAILED,
 } from "@appsmith/constants/messages";
-import { Toaster, Variant } from "design-system-old";
-import { Button } from "design-system";
+import { Button, toast } from "design-system";
 import {
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
@@ -58,8 +56,6 @@ interface Props {
   triggerSave?: boolean;
   isFormDirty?: boolean;
   datasourceDeleteTrigger: () => void;
-  gsheetToken?: string;
-  gsheetProjectID?: string;
 }
 
 export type DatasourceFormButtonTypes = Record<string, string[]>;
@@ -90,11 +86,14 @@ const SaveButtonContainer = styled.div`
   margin-top: 24px;
   display: flex;
   justify-content: flex-end;
+  gap: 9px;
+  padding-right: 20px;
 `;
 
 const StyledAuthMessage = styled.div`
   color: ${(props) => props.theme.colors.error};
   margin-top: 15px;
+  padding-left: 20px;
   &:after {
     content: " *";
     color: inherit;
@@ -113,8 +112,6 @@ function DatasourceAuth({
   shouldDisplayAuthMessage = true,
   triggerSave,
   isFormDirty,
-  gsheetToken,
-  gsheetProjectID,
 }: Props) {
   const authType =
     formData && "authType" in formData
@@ -148,16 +145,8 @@ function DatasourceAuth({
   const pageId = (pageIdQuery || pageIdProp) as string;
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const [scriptLoadedFlag] = useState<boolean>(
-    (window as any).googleAPIsLoaded,
-  );
-  const [pickerInitiated, setPickerInitiated] = useState<boolean>(false);
   const dsName = datasource?.name;
   const orgId = datasource?.workspaceId;
-
-  // objects gapi and google are set, when google apis script is loaded
-  const gapi: any = (window as any).gapi;
-  const google: any = (window as any).google;
 
   useEffect(() => {
     if (confirmDelete) {
@@ -178,14 +167,13 @@ function DatasourceAuth({
         !queryIsImport || (queryIsImport && queryDatasourceId === datasourceId);
       if (status && shouldNotify) {
         const display_message = search.get("display_message");
-        const variant = Variant.danger;
 
         if (status !== AuthorizationStatus.SUCCESS) {
           const message =
             status === AuthorizationStatus.APPSMITH_ERROR
               ? OAUTH_AUTHORIZATION_APPSMITH_ERROR
               : OAUTH_AUTHORIZATION_FAILED;
-          Toaster.show({ text: display_message || message, variant });
+          toast.show(display_message || message, { kind: "error" });
           const oAuthStatus = status;
           AnalyticsUtil.logEvent("UPDATE_DATASOURCE", {
             dsName,
@@ -293,53 +281,6 @@ function DatasourceAuth({
         ),
       );
     }
-  };
-
-  useEffect(() => {
-    // This loads the picker object in gapi script
-    if (!!gsheetToken && !!gapi && !!gsheetProjectID) {
-      gapi.load("client:picker", async () => {
-        await gapi.client.load(
-          "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",
-        );
-        setPickerInitiated(true);
-      });
-    }
-  }, [scriptLoadedFlag, gsheetToken, gsheetProjectID]);
-
-  useEffect(() => {
-    if (
-      !!gsheetToken &&
-      scriptLoadedFlag &&
-      pickerInitiated &&
-      !!google &&
-      !!gsheetProjectID
-    ) {
-      createPicker(gsheetToken, gsheetProjectID);
-    }
-  }, [gsheetToken, scriptLoadedFlag, pickerInitiated, gsheetProjectID]);
-
-  const createPicker = async (accessToken: string, projectID: string) => {
-    const view = new google.picker.View(google.picker.ViewId.SPREADSHEETS);
-    view.setMimeTypes("application/vnd.google-apps.spreadsheet");
-    const picker = new google.picker.PickerBuilder()
-      .enableFeature(google.picker.Feature.NAV_HIDDEN)
-      .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
-      .setAppId(projectID)
-      .setOAuthToken(accessToken)
-      .addView(view)
-      .setCallback(pickerCallback)
-      .build();
-    picker.setVisible(true);
-  };
-
-  const pickerCallback = async (data: any) => {
-    dispatch(
-      filePickerCallbackAction({
-        action: data.action,
-        datasourceId: datasourceId,
-      }),
-    );
   };
 
   const createMode = datasourceId === TEMP_DATASOURCE_ID;

@@ -3,10 +3,9 @@ import {
   Positioning,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
-import type { FlexLayer } from "./autoLayoutTypes";
+import type { AlignmentInfo, FlexLayer, Row } from "./autoLayoutTypes";
 import { RenderModes } from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { AlignmentInfo, Row } from "./positionUtils";
 import {
   extractAlignmentInfo,
   getAlignmentSizeInfo,
@@ -20,6 +19,8 @@ import {
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 describe("test PositionUtils methods", () => {
+  const mainCanvasWidth = 960;
+
   describe("test extractAlignmentInfo method", () => {
     it("should extract children and required columns for each alignment", () => {
       const widgets = {
@@ -76,26 +77,31 @@ describe("test PositionUtils methods", () => {
           { id: "3", align: FlexLayerAlignment.End },
         ],
       };
-      expect(extractAlignmentInfo(widgets, layer, false)).toEqual({
-        info: [
-          {
-            alignment: FlexLayerAlignment.Start,
-            columns: 40,
-            children: [widgets["1"], widgets["2"]],
-          },
-          {
-            alignment: FlexLayerAlignment.Center,
-            columns: 0,
-            children: [],
-          },
-          {
-            alignment: FlexLayerAlignment.End,
-            columns: 16,
-            children: [widgets["3"]],
-          },
-        ],
-        fillWidgetLength: 64,
-      });
+      expect(extractAlignmentInfo(widgets, layer, false, 64, 1, false)).toEqual(
+        {
+          info: [
+            {
+              alignment: FlexLayerAlignment.Start,
+              columns: 40,
+              children: [
+                { widget: widgets["1"], columns: 16, rows: 4 },
+                { widget: widgets["2"], columns: 24, rows: 7 },
+              ],
+            },
+            {
+              alignment: FlexLayerAlignment.Center,
+              columns: 0,
+              children: [],
+            },
+            {
+              alignment: FlexLayerAlignment.End,
+              columns: 16,
+              children: [{ widget: widgets["3"], columns: 16, rows: 7 }],
+            },
+          ],
+          fillWidgetLength: 64,
+        },
+      );
     });
     it("should calculate columns for fill widgets", () => {
       const widgets = {
@@ -156,7 +162,8 @@ describe("test PositionUtils methods", () => {
         ],
       };
       expect(
-        extractAlignmentInfo(widgets, layer, false).fillWidgetLength,
+        extractAlignmentInfo(widgets, layer, false, 64, 1, false)
+          .fillWidgetLength,
       ).toEqual(24);
     });
   });
@@ -262,44 +269,52 @@ describe("test PositionUtils methods", () => {
         columns: 80,
         children: [
           {
-            widgetId: "1",
-            leftColumn: 0,
-            rightColumn: 16,
-            alignment: FlexLayerAlignment.Start,
-            topRow: 0,
-            bottomRow: 4,
-            type: "",
-            widgetName: "",
-            renderMode: RenderModes.CANVAS,
-            version: 1,
-            parentColumnSpace: 10,
-            parentRowSpace: 10,
-            isLoading: false,
-            mobileTopRow: 0,
-            mobileBottomRow: 4,
-            mobileLeftColumn: 0,
-            mobileRightColumn: 16,
-            responsiveBehavior: ResponsiveBehavior.Hug,
+            widget: {
+              widgetId: "1",
+              leftColumn: 0,
+              rightColumn: 16,
+              alignment: FlexLayerAlignment.Start,
+              topRow: 0,
+              bottomRow: 4,
+              type: "",
+              widgetName: "",
+              renderMode: RenderModes.CANVAS,
+              version: 1,
+              parentColumnSpace: 10,
+              parentRowSpace: 10,
+              isLoading: false,
+              mobileTopRow: 0,
+              mobileBottomRow: 4,
+              mobileLeftColumn: 0,
+              mobileRightColumn: 16,
+              responsiveBehavior: ResponsiveBehavior.Hug,
+            },
+            columns: 16,
+            rows: 4,
           },
           {
-            widgetId: "2",
-            leftColumn: 16,
-            rightColumn: 64,
-            alignment: FlexLayerAlignment.Start,
-            topRow: 0,
-            bottomRow: 7,
-            type: "",
-            widgetName: "",
-            renderMode: RenderModes.CANVAS,
-            version: 1,
-            parentColumnSpace: 10,
-            parentRowSpace: 10,
-            isLoading: false,
-            mobileTopRow: 0,
-            mobileBottomRow: 7,
-            mobileLeftColumn: 16,
-            mobileRightColumn: 80,
-            responsiveBehavior: ResponsiveBehavior.Fill,
+            widget: {
+              widgetId: "2",
+              leftColumn: 16,
+              rightColumn: 64,
+              alignment: FlexLayerAlignment.Start,
+              topRow: 0,
+              bottomRow: 7,
+              type: "",
+              widgetName: "",
+              renderMode: RenderModes.CANVAS,
+              version: 1,
+              parentColumnSpace: 10,
+              parentRowSpace: 10,
+              isLoading: false,
+              mobileTopRow: 0,
+              mobileBottomRow: 7,
+              mobileLeftColumn: 16,
+              mobileRightColumn: 80,
+              responsiveBehavior: ResponsiveBehavior.Fill,
+            },
+            columns: 64,
+            rows: 7,
           },
         ],
       };
@@ -373,7 +388,10 @@ describe("test PositionUtils methods", () => {
         {
           alignment: FlexLayerAlignment.Start,
           columns: 40,
-          children: [widgets["1"], widgets["2"]],
+          children: [
+            { widget: widgets["1"], columns: 16, rows: 4 },
+            { widget: widgets["2"], columns: 24, rows: 7 },
+          ],
         },
         {
           alignment: FlexLayerAlignment.Center,
@@ -383,13 +401,13 @@ describe("test PositionUtils methods", () => {
         {
           alignment: FlexLayerAlignment.End,
           columns: 16,
-          children: [widgets["3"]],
+          children: [{ widget: widgets["3"], columns: 16, rows: 7 }],
         },
       ];
       const result: {
         height: number;
         widgets: CanvasWidgetsReduxState;
-      } = placeWidgetsWithoutWrap(widgets, arr, 0, 64, false, 0);
+      } = placeWidgetsWithoutWrap(widgets, arr, 0, false, 0);
       expect(result.height).toEqual(7);
       expect(result.widgets["2"].leftColumn).toEqual(16);
       expect(result.widgets["2"].rightColumn).toEqual(40);
@@ -453,18 +471,21 @@ describe("test PositionUtils methods", () => {
         {
           alignment: FlexLayerAlignment.Center,
           columns: 16,
-          children: [widgets["1"]],
+          children: [{ widget: widgets["1"], columns: 16, rows: 4 }],
         },
         {
           alignment: FlexLayerAlignment.End,
           columns: 40,
-          children: [widgets["2"], widgets["3"]],
+          children: [
+            { widget: widgets["2"], columns: 24, rows: 7 },
+            { widget: widgets["3"], columns: 16, rows: 7 },
+          ],
         },
       ];
       const result: {
         height: number;
         widgets: CanvasWidgetsReduxState;
-      } = placeWidgetsWithoutWrap(widgets, arr, 0, 64, false, 0);
+      } = placeWidgetsWithoutWrap(widgets, arr, 0, false, 0);
       expect(result.height).toEqual(7);
       expect(result.widgets["1"].leftColumn).toEqual(8);
       expect(result.widgets["1"].rightColumn).toEqual(24);
@@ -545,18 +566,21 @@ describe("test PositionUtils methods", () => {
         {
           alignment: FlexLayerAlignment.Center,
           columns: 16,
-          children: [widgets["1"]],
+          children: [{ widget: widgets["1"], columns: 16, rows: 4 }],
         },
         {
           alignment: FlexLayerAlignment.End,
           columns: 40,
-          children: [widgets["2"], widgets["3"]],
+          children: [
+            { widget: widgets["2"], columns: 24, rows: 7 },
+            { widget: widgets["3"], columns: 16, rows: 7 },
+          ],
         },
       ];
       const result: {
         height: number;
         widgets: CanvasWidgetsReduxState;
-      } = placeWidgetsWithoutWrap(widgets, arr, 0, 64, true, 0);
+      } = placeWidgetsWithoutWrap(widgets, arr, 0, true, 0);
       expect(result.height).toEqual(7);
       expect(result.widgets["1"].mobileLeftColumn).toEqual(8);
       expect(result.widgets["1"].mobileRightColumn).toEqual(24);
@@ -639,10 +663,13 @@ describe("test PositionUtils methods", () => {
         {
           alignment: FlexLayerAlignment.End,
           columns: 96,
-          children: [widgets["1"], widgets["2"], widgets["3"]],
+          children: [
+            { widget: widgets["1"], columns: 16, rows: 4 },
+            { widget: widgets["2"], columns: 64, rows: 7 },
+            { widget: widgets["3"], columns: 16, rows: 7 },
+          ],
         },
         0,
-        64,
         true,
       );
       expect(result.height).toEqual(18);
@@ -761,142 +788,16 @@ describe("test PositionUtils methods", () => {
           ],
         },
       };
-      const result = updateWidgetPositions(widgets, "3", false);
+      const result = updateWidgetPositions(
+        widgets,
+        "3",
+        false,
+        mainCanvasWidth,
+      );
       expect(result["1"].leftColumn).toEqual(24);
       expect(result["1"].rightColumn).toEqual(40);
       expect(result["2"].leftColumn).toEqual(40);
       expect(result["2"].rightColumn).toEqual(64);
-    });
-    it("should update height of parents if required", () => {
-      const widgets = {
-        "1": {
-          widgetId: "1",
-          leftColumn: 0,
-          rightColumn: 16,
-          alignment: FlexLayerAlignment.End,
-          topRow: 0,
-          bottomRow: 4,
-          type: "",
-          widgetName: "",
-          renderMode: RenderModes.CANVAS,
-          version: 1,
-          parentColumnSpace: 10,
-          parentRowSpace: 10,
-          isLoading: false,
-          mobileTopRow: 0,
-          mobileBottomRow: 4,
-          mobileLeftColumn: 0,
-          mobileRightColumn: 16,
-          responsiveBehavior: ResponsiveBehavior.Hug,
-          parentId: "3",
-        },
-        "2": {
-          widgetId: "2",
-          leftColumn: 0,
-          rightColumn: 48,
-          alignment: FlexLayerAlignment.End,
-          topRow: 0,
-          bottomRow: 7,
-          type: "",
-          widgetName: "",
-          renderMode: RenderModes.CANVAS,
-          version: 1,
-          parentColumnSpace: 10,
-          parentRowSpace: 10,
-          isLoading: false,
-          mobileTopRow: 0,
-          mobileBottomRow: 7,
-          mobileLeftColumn: 0,
-          mobileRightColumn: 64,
-          responsiveBehavior: ResponsiveBehavior.Fill,
-          parentId: "3",
-        },
-        "3": {
-          widgetId: "3",
-          leftColumn: 0,
-          rightColumn: 64,
-          alignment: FlexLayerAlignment.Start,
-          topRow: 0,
-          bottomRow: 70,
-          type: "CANVAS_WIDGET",
-          widgetName: "Canvas1",
-          renderMode: RenderModes.CANVAS,
-          version: 1,
-          parentColumnSpace: 1,
-          parentRowSpace: 1,
-          isLoading: false,
-          mobileTopRow: 0,
-          mobileBottomRow: 70,
-          mobileLeftColumn: 0,
-          mobileRightColumn: 640,
-          responsiveBehavior: ResponsiveBehavior.Fill,
-          parentId: "4",
-          flexLayers: [
-            {
-              children: [
-                { id: "1", align: FlexLayerAlignment.End },
-                { id: "2", align: FlexLayerAlignment.End },
-              ],
-            },
-          ],
-          children: ["1", "2"],
-        },
-        "4": {
-          widgetId: "4",
-          leftColumn: 0,
-          rightColumn: 64,
-          alignment: FlexLayerAlignment.Start,
-          topRow: 0,
-          bottomRow: 7,
-          type: "CONTAINER_WIDGET",
-          widgetName: "Container1",
-          renderMode: RenderModes.CANVAS,
-          version: 1,
-          parentColumnSpace: 10,
-          parentRowSpace: 10,
-          isLoading: false,
-          mobileTopRow: 0,
-          mobileBottomRow: 7,
-          mobileLeftColumn: 0,
-          mobileRightColumn: 64,
-          responsiveBehavior: ResponsiveBehavior.Fill,
-          parentId: "0",
-          children: ["3"],
-        },
-        "0": {
-          widgetId: "0",
-          leftColumn: 0,
-          rightColumn: 64,
-          alignment: FlexLayerAlignment.Start,
-          topRow: 0,
-          bottomRow: 700,
-          type: "CANVAS_WIDGET",
-          widgetName: "MainContainer",
-          renderMode: RenderModes.CANVAS,
-          version: 1,
-          parentColumnSpace: 1,
-          parentRowSpace: 1,
-          isLoading: false,
-          mobileTopRow: 0,
-          mobileBottomRow: 700,
-          mobileLeftColumn: 0,
-          mobileRightColumn: 640,
-          responsiveBehavior: ResponsiveBehavior.Fill,
-          parentId: "4",
-          flexLayers: [
-            {
-              children: [{ id: "4", align: FlexLayerAlignment.Start }],
-            },
-          ],
-          children: ["4"],
-          positioning: Positioning.Vertical,
-          appPositioningType: AppPositioningTypes.AUTO,
-          useAutoLayout: true,
-        },
-      };
-      const result = updateWidgetPositions(widgets, "3", true);
-      expect(result["3"].mobileBottomRow).toEqual(120);
-      expect(result["4"].mobileBottomRow).toEqual(13);
     });
   });
 });

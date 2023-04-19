@@ -1,15 +1,11 @@
 import React, { useEffect } from "react";
 import { connect, useDispatch } from "react-redux";
 import type { RouteComponentProps } from "react-router-dom";
-import { withRouter, Link } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import type { InjectedFormProps } from "redux-form";
 import { change, reduxForm, formValueSelector } from "redux-form";
 import StyledForm from "components/editorComponents/Form";
-import {
-  FormActions,
-  BlackAuthCardNavLink,
-  FormMessagesContainer,
-} from "./StyledComponents";
+import { FormActions, FormMessagesContainer } from "./StyledComponents";
 import {
   FORGOT_PASSWORD_PAGE_EMAIL_INPUT_LABEL,
   FORGOT_PASSWORD_PAGE_EMAIL_INPUT_PLACEHOLDER,
@@ -24,16 +20,13 @@ import {
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { FORGOT_PASSWORD_FORM_NAME } from "@appsmith/constants/forms";
 import FormTextField from "components/utils/ReduxFormTextField";
-import { FormGroup, FormMessage } from "design-system-old";
-import { Button } from "design-system";
-import { Icon } from "@blueprintjs/core";
+import { FormGroup } from "design-system-old";
+import { Button, Link, Callout } from "design-system";
 import { isEmail, isEmptyString } from "utils/formhelpers";
 import type { ForgotPasswordFormValues } from "./helpers";
 import { forgotPasswordSubmitHandler } from "./helpers";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import Container from "./Container";
-import { useTheme } from "styled-components";
-import type { Theme } from "constants/DefaultTheme";
 
 const { mailEnabled } = getAppsmithConfigs();
 
@@ -56,7 +49,6 @@ type ForgotPasswordProps = InjectedFormProps<
 export const ForgotPassword = (props: ForgotPasswordProps) => {
   const { error, handleSubmit, submitFailed, submitSucceeded, submitting } =
     props;
-  const theme = useTheme() as Theme;
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -69,50 +61,39 @@ export const ForgotPassword = (props: ForgotPasswordProps) => {
   return (
     <Container
       subtitle={
-        <BlackAuthCardNavLink className="text-sm" to={AUTH_LOGIN_URL}>
-          <Icon icon="arrow-left" style={{ marginRight: theme.spaces[3] }} />
+        <Link
+          className="text-sm justify-center"
+          startIcon="arrow-left-line"
+          target="_self"
+          to={AUTH_LOGIN_URL}
+        >
           {createMessage(FORGOT_PASSWORD_PAGE_LOGIN_LINK)}
-        </BlackAuthCardNavLink>
+        </Link>
       }
       title={createMessage(FORGOT_PASSWORD_PAGE_TITLE)}
     >
       <FormMessagesContainer>
         {submitSucceeded && (
-          <FormMessage
-            intent="lightSuccess"
-            message={createMessage(
-              FORGOT_PASSWORD_SUCCESS_TEXT,
-              props.emailValue,
-            )}
-          />
+          <Callout kind="success">
+            {createMessage(FORGOT_PASSWORD_SUCCESS_TEXT, props.emailValue)}
+          </Callout>
         )}
         {!mailEnabled && (
-          <FormMessage
-            actions={[
+          <Callout
+            kind="warning"
+            links={[
               {
-                linkElement: (
-                  <a
-                    href="https://docs.appsmith.com/v/v1.2.1/setup/docker/email"
-                    rel="noreferrer"
-                    target="_blank"
-                  >
-                    Configure Email service
-                  </a>
-                ),
-                text: "Configure Email service",
-                intent: "primary",
+                to: "https://docs.appsmith.com/v/v1.2.1/setup/docker/email",
+                target: "_blank",
+                children: "Configure Email service",
               },
             ]}
-            intent="warning"
-            linkAs={Link}
-            message={
-              "You haven’t setup any email service yet. Please configure your email service to receive a reset link"
-            }
-          />
+          >
+            You haven’t setup any email service yet. Please configure your email
+            service to receive a reset link
+          </Callout>
         )}
-        {submitFailed && error && (
-          <FormMessage intent="warning" message={error} />
-        )}
+        {submitFailed && error && <Callout kind="warning">{error}</Callout>}
       </FormMessagesContainer>
       <StyledForm onSubmit={handleSubmit(forgotPasswordSubmitHandler)}>
         <FormGroup

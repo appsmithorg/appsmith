@@ -1,8 +1,8 @@
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 import type { SetProgress } from "design-system-old";
-import { FilePickerV2, FileType, Toaster, Variant } from "design-system-old";
-import { Button } from "design-system";
+import { FilePickerV2, FileType } from "design-system-old";
+import { Button, toast } from "design-system";
 import { StyledDialog } from "./ForkModalStyles";
 import { useDispatch, useSelector } from "react-redux";
 import { importApplication } from "@appsmith/actions/applicationActions";
@@ -55,9 +55,8 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
 
   const onImportApplication = useCallback(() => {
     if (!appFileToBeUploaded) {
-      Toaster.show({
-        text: "Please choose a valid application file!",
-        variant: Variant.danger,
+      toast.show("Please choose a valid application file!", {
+        kind: "error",
       });
       return;
     }

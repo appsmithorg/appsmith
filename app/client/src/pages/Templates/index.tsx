@@ -1,14 +1,15 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
-import { ControlGroup } from "@blueprintjs/core";
+// import { ControlGroup } from "@blueprintjs/core";
 import { debounce, noop, isEmpty } from "lodash";
 import { Switch, Route, useRouteMatch } from "react-router-dom";
-import {
-  getTypographyByKey,
-  SearchInput,
-  SearchVariant,
-} from "design-system-old";
+// import {
+//   // getTypographyByKey,
+//   // SearchInput,
+//   // SearchVariant,
+// } from "design-system-old";
+import { SearchInput, Text } from "design-system";
 import TemplateList from "./TemplateList";
 import TemplateView from "./TemplateView";
 import Filters from "pages/Templates/Filters";
@@ -73,16 +74,16 @@ export const TemplateListWrapper = styled.div`
   margin-left: ${(props) => props.theme.homePage.sidebar}px;
 `;
 
-export const ResultsCount = styled.div`
-  ${getTypographyByKey("h1")}
-  color: ${Colors.CODE_GRAY};
-  margin-top: ${(props) => props.theme.spaces[5]}px;
+export const ResultsCount = styled(Text)`
+  color: var(--ads-v2-color-fg-emphasis);
+  margin-top: 20px;
   margin-left: ${(props) => props.theme.spaces[12] - 8}px;
-  padding-bottom: ${(props) => props.theme.spaces[11]}px;
+  padding-bottom: 20px;
 `;
 
 const SearchWrapper = styled.div<{ sticky?: boolean }>`
   margin-left: ${(props) => props.theme.spaces[11]}px;
+  max-width: 250px;
   ${(props) =>
     props.sticky &&
     `position: sticky;
@@ -189,18 +190,20 @@ export function TemplatesContent(props: TemplatesContentProps) {
   return (
     <>
       <SearchWrapper sticky={props.stickySearchBar}>
-        <ControlGroup>
-          <SearchInput
-            cypressSelector={"t--application-search-input"}
-            defaultValue={templateSearchQuery}
-            disabled={isLoading}
-            onChange={debouncedOnChange || noop}
-            placeholder={createMessage(SEARCH_TEMPLATES)}
-            variant={SearchVariant.BACKGROUND}
-          />
-        </ControlGroup>
+        {/* <ControlGroup> */}
+        <SearchInput
+          data-test-id={"t--application-search-input"}
+          // isDisabled={isLoading}
+          onChange={debouncedOnChange || noop}
+          placeholder={createMessage(SEARCH_TEMPLATES)}
+          value={templateSearchQuery}
+          // variant={SearchVariant.BACKGROUND}
+        />
+        {/* </ControlGroup> */}
       </SearchWrapper>
-      <ResultsCount>{resultsText}</ResultsCount>
+      <ResultsCount kind="heading-m" renderAs="h1">
+        {resultsText}
+      </ResultsCount>
       <TemplateList
         isForkingEnabled={props.isForkingEnabled}
         onForkTemplateClick={props.onForkTemplateClick}

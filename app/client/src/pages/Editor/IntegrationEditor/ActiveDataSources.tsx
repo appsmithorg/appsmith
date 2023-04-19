@@ -30,10 +30,12 @@ const QueryHomePage = styled.div`
 `;
 
 const EmptyActiveDatasource = styled.div`
-  flex: 1;
   display: flex;
+  flex-direction: column;
+  flex: 1;
   align-items: center;
   justify-content: center;
+  gap: 1rem;
 `;
 
 type ActiveDataSourcesProps = {
@@ -68,11 +70,15 @@ function ActiveDataSources(props: ActiveDataSourcesProps) {
     return (
       <EmptyActiveDatasource>
         <Text cypressSelector="t--empty-datasource-list" type={TextType.H3}>
-          {createMessage(EMPTY_ACTIVE_DATA_SOURCES)}&nbsp;
-          <Button isDisabled={!canCreateDatasource} onClick={props.onCreateNew}>
-            Create New
-          </Button>
+          {createMessage(EMPTY_ACTIVE_DATA_SOURCES)}
         </Text>
+        <Button
+          isDisabled={!canCreateDatasource}
+          onClick={props.onCreateNew}
+          size="md"
+        >
+          Create New
+        </Button>
       </EmptyActiveDatasource>
     );
   }
