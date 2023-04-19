@@ -54,9 +54,14 @@ function DisconnectGitModal() {
     isRevoking;
 
   return (
-    <Modal open={isModalOpen}>
+    <Modal
+      onOpenChange={(open: boolean) => {
+        if (!open) handleClose();
+      }}
+      open={isModalOpen}
+    >
       <ModalContent>
-        <ModalHeader onClose={handleClose}>
+        <ModalHeader>
           <Text kind="heading-l">
             {createMessage(GIT_REVOKE_ACCESS, disconnectingApp.name)}
           </Text>

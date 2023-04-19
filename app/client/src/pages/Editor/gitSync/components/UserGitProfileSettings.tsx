@@ -19,24 +19,10 @@ import {
 } from "selectors/gitSyncSelectors";
 import { Checkbox, Input } from "design-system";
 
-const LabelContainer = styled.div`
+const InputContainer = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 4px;
-`;
-
-const InputContainer = styled.div<{ isValid: boolean }>`
-  display: flex;
-  align-items: center;
-  margin-bottom: ${(props) => props.theme.spaces[props.isValid ? 5 : 10]}px;
-
-  & > div {
-    ${(props) =>
-      !props.isValid ? `border: 1px solid ${Colors.ERROR_RED};` : ""}
-    input {
-      ${(props) => (!props.isValid ? `color: ${Colors.ERROR_RED};` : "")}
-    }
-  }
+  margin-bottom: ${(props) => props.theme.spaces[5]}px;
 `;
 
 const MainContainer = styled.div`
@@ -163,6 +149,8 @@ function UserGitProfileSettings({
           <Checkbox
             data-test-id="t--use-global-config-checkbox"
             isSelected={useGlobalConfig}
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             onChange={toggleUseDefaultConfig}
           >
             {createMessage(USE_DEFAULT_CONFIGURATION)}
@@ -171,19 +159,16 @@ function UserGitProfileSettings({
       ) : null}
 
       <Space size={5} />
-
       <>
-        <LabelContainer>
-          <span className="label">{createMessage(AUTHOR_NAME)}</span>
-        </LabelContainer>
-
-        <InputContainer isValid={!nameInvalid}>
+        <InputContainer>
           <Input
             className="t--git-config-name-input"
             errorMessage={
               nameInvalid ? createMessage(AUTHOR_NAME_CANNOT_BE_EMPTY) : ""
             }
             isDisabled={disableInput}
+            isValid={!nameInvalid}
+            label={createMessage(AUTHOR_NAME)}
             // isLoading={isFetchingConfig}
             onBlur={() => setNameInputFocused(false)}
             onChange={(value: string) =>
@@ -196,16 +181,15 @@ function UserGitProfileSettings({
             value={authorInfo.authorName}
           />
         </InputContainer>
-        <LabelContainer>
-          <span className="label">{createMessage(AUTHOR_EMAIL)}</span>
-        </LabelContainer>
-        <InputContainer isValid={!emailInvalid}>
+        <InputContainer>
           <Input
             className="t--git-config-email-input"
             errorMessage={
               emailInvalid ? createMessage(FORM_VALIDATION_INVALID_EMAIL) : ""
             }
             isDisabled={disableInput}
+            isValid={!emailInvalid}
+            label={createMessage(AUTHOR_EMAIL)}
             // isLoading={isFetchingConfig}
             onBlur={() => setEmailInputFocused(false)}
             onChange={(value: string) =>

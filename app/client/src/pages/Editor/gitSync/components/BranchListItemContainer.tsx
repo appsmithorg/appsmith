@@ -9,7 +9,7 @@ export const BranchListItemContainer = styled.div<{
   padding: ${(props) =>
     `${props.theme.spaces[5]}px ${props.theme.spaces[5]}px`};
   margin: ${(props) => `${props.theme.spaces[1]} 0`};
-  color: var(--ads-v2-color-fg-brand-emphasis);
+  color: var(--ads-v2-color-fg-emphasis);
   ${getTypographyByKey("p1")};
   cursor: pointer;
 
@@ -19,7 +19,7 @@ export const BranchListItemContainer = styled.div<{
   overflow: hidden;
   text-overflow: ellipsis;
   background-color: ${(props) =>
-    props.selected || props.active ? "var(--ads-v2-color-bg-emphasis)" : ""};
+    props.selected || props.active ? "var(--ads-v2-color-bg-muted)" : ""};
 
   ${(props) =>
     !props.active &&
@@ -47,4 +47,5 @@ background-color: var(--ads-v2-color-bg-subtle);
   }
 
   height: 45px;
+  border-radius: var(--ads-v2-border-radius);
 `;

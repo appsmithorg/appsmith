@@ -100,9 +100,6 @@ const ActionsContainer = styled.div`
   flex: 1;
   align-items: center;
   gap: ${(props) => props.theme.spaces[7]}px;
-
-  & a.discard-changes-link {
-  }
 `;
 
 function Deploy() {
@@ -352,22 +349,6 @@ function Deploy() {
             </Button>
           )}
 
-          {showCommitButton && (
-            <Tooltip
-              content={createMessage(GIT_NO_UPDATED_TOOLTIP)}
-              placement="top"
-            >
-              <Button
-                className="t--commit-button"
-                isDisabled={commitButtonDisabled}
-                isLoading={commitButtonLoading}
-                onClick={() => handleCommit(true)}
-                size="md"
-              >
-                {commitButtonText}
-              </Button>
-            </Tooltip>
-          )}
           {showDiscardChangesButton && (
             <Button
               className="t--discard-button discard-changes-link"
@@ -387,6 +368,22 @@ function Deploy() {
                 ? createMessage(ARE_YOU_SURE)
                 : createMessage(DISCARD_CHANGES)}
             </Button>
+          )}
+          {showCommitButton && (
+            <Tooltip
+              content={createMessage(GIT_NO_UPDATED_TOOLTIP)}
+              placement="top"
+            >
+              <Button
+                className="t--commit-button"
+                isDisabled={commitButtonDisabled}
+                isLoading={commitButtonLoading}
+                onClick={() => handleCommit(true)}
+                size="md"
+              >
+                {commitButtonText}
+              </Button>
+            </Tooltip>
           )}
         </ActionsContainer>
         {isConflicting && (

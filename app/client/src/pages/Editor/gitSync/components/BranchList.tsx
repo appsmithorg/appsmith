@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { getTypographyByKey } from "design-system-old";
 import styled, { useTheme } from "styled-components";
-import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
@@ -48,6 +47,7 @@ import { BranchListItemContainer } from "./BranchListItemContainer";
 import { RemoteBranchList } from "./RemoteBranchList";
 import { LocalBranchList } from "./LocalBranchList";
 import type { Theme } from "constants/DefaultTheme";
+import { Space } from "./StyledComponents";
 
 const ListContainer = styled.div`
   flex: 1;
@@ -88,12 +88,12 @@ const CreateNewBranchContainer = styled.div`
 
   & .large-text {
     ${getTypographyByKey("p1")};
-    color: ${Colors.BLACK};
+    color: var(--ads-v2-color-fg);
   }
 
   & .small-text {
     ${getTypographyByKey("p3")};
-    color: ${Colors.GREY_7};
+    color: var(--ads-v2-color-fg-muted);
   }
 `;
 
@@ -131,8 +131,9 @@ function CreateNewBranch({
         alignItems: "flex-start",
         cursor: isCreatingNewBranch ? "not-allowed" : "pointer",
         display: "flex",
-        background: hovered ? Colors.GREY_3 : "unset",
+        background: hovered ? "var(--ads-v2-color-bg-muted)" : "unset",
         padding: get(theme, "spaces[5]"),
+        borderRadius: "var(--ads-v2-border-radius)",
       }}
     >
       <Icon
@@ -342,6 +343,7 @@ export default function BranchList(props: {
           }}
           fetchBranches={pruneAndFetchBranches}
         />
+        <Space size={3} />
         <div style={{ width: 300 }}>
           {fetchingBranches && (
             <div style={{ width: "100%", height: textInputHeight }}>
@@ -359,6 +361,7 @@ export default function BranchList(props: {
             />
           )}
         </div>
+        <Space size={3} />
         {fetchingBranches && <BranchesLoading />}
         {!fetchingBranches && (
           <ListContainer>

@@ -120,7 +120,7 @@ function GitSyncModal(props: { isImport?: boolean }) {
       >
         <ModalContent>
           <BodyContainer className={Classes.GIT_SYNC_MODAL}>
-            <ModalHeader onClose={handleClose}>
+            <ModalHeader>
               {MENU_ITEMS_MAP[activeTabKey]?.modalTitle ?? ""}
             </ModalHeader>
             <Menu
