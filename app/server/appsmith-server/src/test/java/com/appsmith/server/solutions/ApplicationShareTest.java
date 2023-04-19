@@ -83,6 +83,7 @@ import static com.appsmith.server.acl.AclPermission.DELETE_PAGES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.INVITE_USERS_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
@@ -297,6 +298,9 @@ public class ApplicationShareTest {
                 assertThat(policy.getPermissionGroups()).doesNotContain(devApplicationRole.getId());
             }
             if (policy.getPermission().equals(APPLICATION_CREATE_PAGES.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(INVITE_USERS_APPLICATIONS.getValue())) {
                 assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
             }
         });
@@ -538,6 +542,9 @@ public class ApplicationShareTest {
                 assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
                 assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
             }
+            if (policy.getPermission().equals(INVITE_USERS_APPLICATIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId(), viewApplicationRole.getId());
+            }
         });
 
         datasourcePolicies.forEach(policy -> {
@@ -735,6 +742,9 @@ public class ApplicationShareTest {
             if (policy.getPermission().equals(APPLICATION_CREATE_PAGES.getValue())) {
                 assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
             }
+            if (policy.getPermission().equals(INVITE_USERS_APPLICATIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(viewApplicationRole.getId());
+            }
         });
 
         /*
@@ -923,6 +933,9 @@ public class ApplicationShareTest {
             if (policy.getPermission().equals(APPLICATION_CREATE_PAGES.getValue())) {
                 assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId());
                 assertThat(policy.getPermissionGroups()).doesNotContain(viewApplicationRole.getId());
+            }
+            if (policy.getPermission().equals(INVITE_USERS_APPLICATIONS.getValue())) {
+                assertThat(policy.getPermissionGroups()).contains(devApplicationRole.getId(), viewApplicationRole.getId());
             }
         });
 

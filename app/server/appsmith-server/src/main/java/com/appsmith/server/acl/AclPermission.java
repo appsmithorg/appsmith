@@ -113,6 +113,9 @@ public enum AclPermission {
     @Deprecated
     COMMENT_ON_APPLICATIONS("canComment:applications", Application.class),
 
+    // Gives users permission to invite users to application.
+    INVITE_USERS_APPLICATIONS("inviteUsers:applications", Application.class),
+
     APPLICATION_CREATE_PAGES("create:pages", Application.class),
 
     MANAGE_PAGES("manage:pages", Page.class),
