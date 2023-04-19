@@ -223,8 +223,8 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                         .context(Map.of(
                             "userAgent", userAgent
                         ));
-                    // For Installation Setup Complete event we are using `instanceId` as tracking id and passed as
-                    // userId and as this does not satisfy the email validation it's not getting hashed
+                    // For Installation Setup Complete event we are using `instanceId` as tracking id
+                    // As this does not satisfy the email validation it's not getting hashed correctly
                     if (!StringUtils.isEmpty(instanceId) && instanceId.equals(immutableUserId)) {
                         analyticsProperties.put(EMAIL_DOMAIN_HASH, hash(immutableUserId));
                     } else {
