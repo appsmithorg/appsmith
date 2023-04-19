@@ -1,3 +1,5 @@
+export const SNAPSHOT_EXPIRY_IN_DAYS = 5;
+
 export enum LayoutDirection {
   Horizontal = "Horizontal",
   Vertical = "Vertical",

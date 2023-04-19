@@ -19,6 +19,7 @@ import {
   FlexLayerAlignment,
   Positioning,
   ResponsiveBehavior,
+  SNAPSHOT_EXPIRY_IN_DAYS,
 } from "utils/autoLayout/constants";
 import {
   updatePositionsOfParentAndSiblings,
@@ -613,7 +614,8 @@ export function getReadableSnapShotDetails(
   if (Date.now() - lastUpdatedDate.getTime() <= 0) return;
 
   const millisecondsPerHour = 60 * 60 * 1000;
-  const ExpirationInMilliseconds = 5 * 24 * millisecondsPerHour;
+  const ExpirationInMilliseconds =
+    SNAPSHOT_EXPIRY_IN_DAYS * 24 * millisecondsPerHour;
   const timePassedSince = Date.now() - lastUpdatedDate.getTime();
 
   const timeSince: string = getHumanizedTime(timePassedSince);
