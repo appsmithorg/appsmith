@@ -57,6 +57,9 @@ function ConversionButton() {
     dispatch(setConversionStart(CONVERSION_STATES.START));
   };
 
+  const isConversionCompleted =
+    conversionState === CONVERSION_STATES.COMPLETED_SUCCESS;
+
   return (
     <>
       <Button
@@ -70,8 +73,8 @@ function ConversionButton() {
       </Button>
       <Modal onOpenChange={closeModal} open={showModal}>
         <ModalContent>
-          <ModalHeader>
-            {conversionState !== CONVERSION_STATES.COMPLETED_SUCCESS && (
+          <ModalHeader isCloseButtonVisible={!isConversionCompleted}>
+            {!isConversionCompleted && (
               <div className="flex items-center gap-3">
                 {createMessage(titleText)}
                 <BetaCard />

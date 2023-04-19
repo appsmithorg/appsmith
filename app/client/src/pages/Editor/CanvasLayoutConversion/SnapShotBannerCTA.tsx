@@ -35,6 +35,9 @@ export function SnapShotBannerCTA() {
     (state: AppState) => state.ui.layoutConversion.conversionState,
   );
 
+  const isConversionCompleted =
+    conversionState === CONVERSION_STATES.COMPLETED_SUCCESS;
+
   const readableSnapShotDetails = useSelector(getReadableSnapShotDetails);
 
   const formProps = useSnapShotForm();
@@ -95,10 +98,8 @@ export function SnapShotBannerCTA() {
       </Callout>
       <Modal onOpenChange={closeModal} open={showModal}>
         <ModalContent>
-          <ModalHeader>
-            {conversionState !== CONVERSION_STATES.COMPLETED_SUCCESS
-              ? modalHeader
-              : ""}
+          <ModalHeader isCloseButtonVisible={!isConversionCompleted}>
+            {!isConversionCompleted ? modalHeader : ""}
           </ModalHeader>
           <ModalBody>
             <ConversionForm {...formProps} />
