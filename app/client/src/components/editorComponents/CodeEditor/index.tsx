@@ -432,26 +432,6 @@ class CodeEditor extends Component<Props, State> {
     window.addEventListener("keyup", this.handleKeyUp);
   }
 
-  handleScrollCursorIntoView(cm: CodeMirror.Editor, event: any) {
-    event.preventDefault();
-
-    const delayedWork = () => {
-      if (!cm.getWrapperElement().classList.contains("CodeMirror-focused"))
-        return;
-
-      const cursorElement = cm
-        .getScrollerElement()
-        .getElementsByClassName("CodeMirror-cursor")[0];
-      if (cursorElement) {
-        scrollIntoView(cursorElement, {
-          block: "nearest",
-        });
-      }
-    };
-
-    setTimeout(delayedWork, 0);
-  }
-
   shouldComponentUpdate(nextProps: Props, nextState: State) {
     if (this.props.dynamicData !== nextProps.dynamicData) {
       // check if isFocused as the other components that are not focused don't need a rerender (perf)
@@ -607,6 +587,29 @@ class CodeEditor extends Component<Props, State> {
     (ev) => this.handleMouseOver(ev),
     PEEK_OVERLAY_DELAY,
   );
+
+  handleScrollCursorIntoView = (cm: CodeMirror.Editor, event: Event) => {
+    event.preventDefault();
+
+    const delayedWork = () => {
+      if (!cm.getWrapperElement().classList.contains("CodeMirror-focused"))
+        return;
+
+      const cursorElement = cm
+        .getScrollerElement()
+        .getElementsByClassName("CodeMirror-cursor")[0];
+      if (cursorElement) {
+        scrollIntoView(cursorElement, {
+          block: "nearest",
+        });
+      }
+    };
+
+    // We need to delay this because CodeMirror can fire scrollCursorIntoView as a view is being blurred
+    // and another is being focused. The blurred editor still has the focused state when this event fires.
+    // We don't want to scroll the blurred editor into view, only the focused editor.
+    setTimeout(delayedWork, 0);
+  };
 
   handleMouseOver = (event: MouseEvent) => {
     if (
