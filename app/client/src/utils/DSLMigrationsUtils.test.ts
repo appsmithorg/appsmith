@@ -10,6 +10,7 @@ describe("correctly migrate dsl", () => {
   it("transformDSL for private widget", () => {
     const currentVersion = 49; // before adding privateWidgets to all List widgets
     const nextVersion = LATEST_PAGE_VERSION; // It runs Two Migrations, Always Update as migration increases
+
     const currentDSL: ContainerWidgetProps<WidgetProps> = {
       backgroundColor: "none",
       bottomRow: 740,
@@ -3094,5 +3095,116 @@ describe("correctly migrate dsl", () => {
 
     const actualNextDSL = migrateRadioGroupAlignmentProperty(currentDSL);
     expect(actualNextDSL).toEqual(expectedNextDSL);
+  });
+
+  it("correctly migrates currentIndex/currentRow properties for validations in table view", () => {
+    const currentVersion = 78;
+    const currentDSL: ContainerWidgetProps<WidgetProps> = {
+      bottomRow: 740,
+      containerStyle: "none",
+      detachFromLayout: true,
+      dynamicBindingPathList: [],
+      dynamicTriggerPathList: [],
+      leftColumn: 0,
+      minHeight: 640,
+      parentColumnSpace: 1,
+      parentRowSpace: 1,
+      rightColumn: 912,
+      snapColumns: 64,
+      snapRows: 125,
+      topRow: 0,
+      type: "CANVAS_WIDGET",
+      version: currentVersion,
+      widgetId: "0",
+      widgetName: "MainContainer",
+      renderMode: "CANVAS",
+      isLoading: false,
+      children: [
+        {
+          widgetName: "Table1",
+          type: "TABLE_WIDGET_V2",
+          widgetId: "123",
+
+          renderMode: "CANVAS",
+          version: 1,
+          parentColumnSpace: 15.0623,
+          leftColumn: 1,
+          rightColumn: 1,
+          topRow: 1,
+          bottomRow: 1,
+          parentRowSpace: 10,
+          isLoading: false,
+
+          primaryColumns: {
+            column1: {
+              validation: {
+                min: "{{\n  (\n    (isNewRow) => (\nisNewRow ? 1 : 0\n    ))\n    (\n      Table2.isAddRowInProgress\n    )\n  }}\n ",
+                max: "{{\n  (\n    (isNewRow) => (\nisNewRow ? 1 : 0\n    ))\n    (\n      Table2.isAddRowInProgress\n    )\n  }}\n ",
+                regex:
+                  "{{\n  (\n    (isNewRow) => (\nisNewRow ? 1 : 0\n    ))\n    (\n      Table2.isAddRowInProgress\n    )\n  }}\n ",
+                errorMessage: "",
+                isColumnEditableCellRequired:
+                  "{{\n  (\n    (isNewRow) => (\nisNewRow ? true : false\n    ))\n    (\n      Table2.isAddRowInProgress\n    )\n  }}\n  ",
+                randomValidation: "hello",
+                isColumnEditableCellValid: `
+                {{
+                  (
+                    (editedValue, currentRow, currentIndex, isNewRow) => (
+                isNewRow ? true : false
+                    ))
+                    (
+                      (Table2.isAddRowInProgress ? Table2.newRow.orderAmount : Table2.columnEditableCellValue.orderAmount) || "",
+                      Table2.isAddRowInProgress ? Table2.newRow : (Table2.processedTableData[Table2.editableCell.index] ||
+                        Object.keys(Table2.processedTableData[0])
+                          .filter(key => ["__originalIndex__", "__primaryKey__"].indexOf(key) === -1)
+                          .reduce((prev, curr) => {
+                            prev[curr] = "";
+                            return prev;
+                          }, {})),
+                      Table2.isAddRowInProgress ? -1 : Table2.editableCell.index,
+                      Table2.isAddRowInProgress
+                    )
+                  }}
+                `,
+              },
+            },
+          },
+        },
+      ],
+    };
+    const nextDSL = transformDSL(currentDSL);
+
+    const validations = (nextDSL.children || [])[0].primaryColumns.column1
+      .validation;
+    console.log("new validations are ", validations);
+
+    for (const validationName in validations) {
+      const validation = validations[validationName];
+      if (
+        validationName == "min" ||
+        validationName == "max" ||
+        validationName == "regex"
+      ) {
+        expect(
+          validation.indexOf("(isNewRow, currentIndex, currentRow)"),
+        ).toBeGreaterThan(-1);
+      }
+      if (validationName == "errorMessage") {
+        expect(validation.length).toEqual(0);
+      }
+      if (validationName == "isColumnEditableCellValid") {
+        expect(
+          validation.indexOf(
+            "(editedValue, currentRow, currentIndex, isNewRow)",
+          ),
+        ).toBeGreaterThan(-1);
+      }
+
+      if (validationName == "isColumnEditableCellRequired") {
+        expect(
+          validation.indexOf("(isNewRow, currentIndex, currentRow)"),
+        ).toBeGreaterThan(-1);
+      }
+    }
   });
 });
