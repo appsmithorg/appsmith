@@ -41,8 +41,8 @@ jobs:
           echo "perf_test_status=`echo $run_status | jq -r '[ .jobs[] | select (select(.name | contains("perf-test")) | .conclusion | contains("failure"))] | length'`" >> $GITHUB_OUTPUT
       - run: |
           echo ${{ steps.ci_test_result_status.outputs.ci_test_result }}
-          ${{ steps.ci_test_result_status.outputs.ci_test_status }}
-          ${{ steps.ci_test_result_status.outputs.perf_test_status }}
+          echo ${{ steps.ci_test_result_status.outputs.ci_test_status }}
+          echo ${{ steps.ci_test_result_status.outputs.perf_test_status }}
 
       - name: get status-checks from pr
         id: pr_status_check
