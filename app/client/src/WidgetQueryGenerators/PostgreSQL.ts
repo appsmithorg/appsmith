@@ -1,73 +1,128 @@
 import { BaseQueryGenerator } from "./BaseQueryGenerator";
 import type { CombinedConfig } from "./types";
+import { format } from "sql-formatter";
 
 export default abstract class PostgreSQL extends BaseQueryGenerator {
   private static buildSelect(combinedConfig: CombinedConfig) {
     const { config, select } = combinedConfig;
-
-    if (!select) return;
+    //if no table name do not build query
+    if (!select || !config.tableName) {
+      return;
+    }
 
     const { limit, offset, orderBy, sortOrder, where } = select;
 
     const querySegments = [
       {
         isValuePresent: config.tableName,
-        template: `SELECT * FROM ${config.tableName}`,
+        template: "SELECT * FROM $1",
+        params: {
+          1: config.tableName,
+        },
       },
       {
         isValuePresent: config.searchableColumn && where,
-        template: `WHERE "${config.searchableColumn}" ilike '%${where}%'`,
+        template: "WHERE $2 ilike $3",
+        params: {
+          2: `"${config.searchableColumn}"`,
+          3: `'%${where}%'`,
+        },
       },
       {
         isValuePresent: orderBy,
-        template: `ORDER BY "${orderBy}" ${sortOrder || ""}`,
+        template: "ORDER BY $4 $5",
+        params: {
+          4: `"${orderBy}"`,
+          5: sortOrder || "",
+        },
       },
       {
         isValuePresent: limit,
-        template: `LIMIT ${limit}`,
+        template: "LIMIT $6",
+        params: {
+          6: limit,
+        },
       },
       {
         isValuePresent: offset,
-        template: `OFFSET ${offset}`,
+        template: "OFFSET $7",
+        params: {
+          7: offset,
+        },
       },
     ];
 
-    const consolidatedQuery = querySegments
+    const { params, template } = querySegments
+      //we need to filter out query segments which are not defined
       .filter(({ isValuePresent }) => !!isValuePresent)
-      .reduce((acc, curr, index) => {
-        return acc + (index ? "\n" : "") + curr.template;
-      }, "");
-
+      .reduce(
+        (acc, curr) => {
+          const { params, template } = curr;
+          return {
+            template: acc.template + " " + template,
+            params: { ...acc.params, ...params },
+          };
+        },
+        { template: "", params: {} },
+      );
+    //formats sql string
+    const res = format(template, {
+      params,
+      language: "postgresql",
+    });
     return {
       actionTitle: "Find_query",
       actionPayload: {
-        body: consolidatedQuery,
+        body: res,
       },
     };
   }
 
   private static buildUpdate(combinedConfig: CombinedConfig) {
     const { config, insert } = combinedConfig;
+    //if no table name do not build query
+    if (!insert || !insert.where || !config.tableName) {
+      return;
+    }
 
-    if (!insert || !insert.where) return;
     const { value, where } = insert;
+
+    const res = format("UPDATE $1 SET $2 WHERE $3", {
+      params: {
+        1: config.tableName,
+        2: value,
+        3: where,
+      },
+      language: "postgresql",
+    });
+
     return {
       actionTitle: "Update_query",
       actionPayload: {
-        body: `UPDATE ${config.tableName} SET\n${value}\nWHERE ${where}`,
+        body: res,
       },
     };
   }
 
   private static buildInsert(combinedConfig: CombinedConfig) {
     const { config, create } = combinedConfig;
+    //if no table name do not build query
+    if (!create || !create.value || !config.tableName) {
+      return;
+    }
 
-    if (!create || !create.value) return;
+    const res = format("INSERT INTO $1 $2", {
+      params: {
+        1: config.tableName,
+        2: create.value,
+      },
+      language: "postgresql",
+    });
 
     return {
       actionTitle: "Insert_query",
       actionPayload: {
-        body: `INSERT INTO ${config.tableName}\n${create.value}`,
+        body: res,
       },
     };
   }

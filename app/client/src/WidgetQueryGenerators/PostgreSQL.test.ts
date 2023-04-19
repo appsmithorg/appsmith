@@ -1,6 +1,6 @@
 import PostgreSQL from "./PostgreSQL";
 
-describe("WidgetQueryGenerator", () => {
+describe("PostgreSQL WidgetQueryGenerator", () => {
   const initialValues = {
     actionConfiguration: {
       pluginSpecifiedTemplates: [{ value: true }],
@@ -29,11 +29,18 @@ describe("WidgetQueryGenerator", () => {
       },
       initialValues,
     );
-    const res = `SELECT * FROM someTable
-WHERE "title" ilike '%{{data_table.searchText || ""}}%'
-ORDER BY "{{data_table.sortOrder.column || 'genres'}}" {{data_table.sortOrder.order || 'ASC'}}
-LIMIT {{data_table.pageSize}}
-OFFSET {{(data_table.pageNo - 1) * data_table.pageSize}}`;
+    const res = `SELECT
+  *
+FROM
+  someTable
+WHERE
+  \"title\" ilike '%{{data_table.searchText || \"\"}}%'
+ORDER BY
+  \"{{data_table.sortOrder.column || 'genres'}}\" {{data_table.sortOrder.order || 'ASC'}}
+LIMIT
+  {{data_table.pageSize}}
+OFFSET
+  {{(data_table.pageNo - 1) * data_table.pageSize}}`;
     expect(expr).toEqual([
       {
         actionTitle: "Find_query",
@@ -71,10 +78,12 @@ OFFSET {{(data_table.pageNo - 1) * data_table.pageSize}}`;
       {
         actionTitle: "Update_query",
         actionPayload: {
-          body: `UPDATE someTable SET
-\"email\" = '{{update_form.fieldState.email.isVisible ? update_form.formData.email : update_form.sourceData.email}}',
+          body: `UPDATE someTable
+SET
+  \"email\" = '{{update_form.fieldState.email.isVisible ? update_form.formData.email : update_form.sourceData.email}}',
           \"gender\" = '{{update_form.fieldState.gender.isVisible ? update_form.formData.gender : update_form.sourceData.gender}}'
-WHERE \"id\" = {{data_table.selectedRow.id}}`,
+WHERE
+  \"id\" = {{data_table.selectedRow.id}}`,
           pluginSpecifiedTemplates: [{ value: true }],
         },
       },
@@ -108,8 +117,8 @@ VALUES (
       {
         actionTitle: "Insert_query",
         actionPayload: {
-          body: `INSERT INTO someTable
-(
+          body: `INSERT INTO
+  someTable (
 "email",
 "gender")
 VALUES (
