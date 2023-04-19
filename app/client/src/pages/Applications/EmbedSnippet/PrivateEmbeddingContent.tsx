@@ -90,6 +90,7 @@ function PrivateEmbeddingContent(props: {
           >
             {createMessage(IN_APP_EMBED_SETTING.appsmithBusinessEdition)}
           </StyledAnchor>
+          .
         </StyledText>
       </SubContainer>
       <SubContainer className={`flex`} isAppSettings={isAppSettings}>

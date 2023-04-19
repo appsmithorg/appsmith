@@ -1539,7 +1539,7 @@ export const IN_APP_EMBED_SETTING = {
   upgradeHeadingForInviteModal: () =>
     "Make your app public in share settings to embed",
   upgradeContent: () => "Private embedding is now available in",
-  appsmithBusinessEdition: () => "Appsmith Business Edition.",
+  appsmithBusinessEdition: () => "Appsmith Business Edition",
 };
 
 export const APP_NAVIGATION_SETTING = {
