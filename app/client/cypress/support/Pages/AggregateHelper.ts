@@ -1034,7 +1034,7 @@ export class AggregateHelper {
   AssertHeight(selector: ElementType, height: number) {
     return this.GetElement(selector)
       .invoke("height")
-      .should("be.approximately", height);
+      .should("be.closeTo", height, 1);
   }
 
   public AssertText(
