@@ -9,6 +9,8 @@ import type { TActionBlock, VariantType } from "../../types";
 import { chainableFns } from "../../utils";
 import ActionCard from "./ActionCard";
 import ActionSelector from "./ActionSelector";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getActionTypeLabel } from "../ActionBlockTree/utils";
 
 const EMPTY_ACTION_BLOCK: TActionBlock = {
   code: "",
@@ -230,11 +232,38 @@ export default function ActionTree(props: {
                             isDummyBlockDelete =
                               blocks[index].actionType ===
                               AppsmithFunction.none;
-                            blocks.splice(index, 1);
+
+                            const deletedBlock = blocks.splice(index, 1)[0];
+                            AnalyticsUtil.logEvent("ACTION_DELETED", {
+                              actionType: getActionTypeLabel(
+                                deletedBlock.actionType,
+                              ),
+                              code: deletedBlock.code,
+                              callback: blockType,
+                            });
                           } else {
+                            const prevActionType = blocks[index].actionType;
+                            const newActionType = childActionBlock.actionType;
+                            const newActionCode = childActionBlock.code;
                             blocks[index].code = childActionBlock.code;
                             blocks[index].actionType =
                               childActionBlock.actionType;
+
+                            const actionTypeLabel =
+                              getActionTypeLabel(newActionType);
+                            if (prevActionType === AppsmithFunction.none) {
+                              AnalyticsUtil.logEvent("ACTION_ADDED", {
+                                actionType: actionTypeLabel,
+                                code: newActionCode,
+                                callback: blockType,
+                              });
+                            } else {
+                              AnalyticsUtil.logEvent("ACTION_MODIFIED", {
+                                actionType: actionTypeLabel,
+                                code: newActionCode,
+                                callback: blockType,
+                              });
+                            }
                           }
                           if (isDummyBlockDelete) {
                             setActionBlock(newActionBlock);
