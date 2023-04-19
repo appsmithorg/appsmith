@@ -35,11 +35,14 @@ jobs:
         id: ci-test-result-status
         run: |
           run_status=$(curl --silent https://api.github.com/repos/appsmithorg/appsmith/actions/runs/${{steps.workflow.outputs.run_id}}/jobs?per_page=100)
-          ci_test_result=$(echo "$run_status" | jq '[ .jobs[] | select(.name | contains("ci-test-result")) | select(.conclusion | contains("success") | not) ] | length') 
+          ci_test_result=$(echo "$run_status" | jq '[ .jobs[] | select(.name | contains("ci-test-result")) | select(.conclusion | contains("success") | not) ] | length')
+          echo $ci_test_result
           echo "ci_test_result=$ci_test_result" >> $GITHUB_OUTPUT
           ci_test_status=$(echo "$run_status" | jq '[ .jobs[] | select(.name | contains("ci-test ")) | select(.conclusion | contains("success") | not) ] | length')
+          echo $ci_test_status
           echo "ci_test_status=$ci_test_status" >> $GITHUB_OUTPUT
           perf_test_status=$(echo "$run_status" | jq '[ .jobs[] | select(.name | contains("perf-test")) | select(.conclusion | contains("success") | not) ] | length')
+          echo $perf_test_status
           echo "perf_test_status=$perf_test_status" >> $GITHUB_OUTPUT
       - run: |
           echo ${{ steps.ci_test_result_status.outputs.ci_test_result }}
