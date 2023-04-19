@@ -262,7 +262,7 @@ export const generateQuickCommands = (
           },
         }),
     });
-    actionCommands.unshift(askGPT);
+    actionCommands.push(askGPT);
   }
 
   suggestionsMatchingSearchText.push(
