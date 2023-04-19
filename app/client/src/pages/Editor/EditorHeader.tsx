@@ -78,14 +78,14 @@ import {
   SHARE_BUTTON_TOOLTIP_WITH_USER,
 } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import { ReactComponent as MenuIcon } from "assets/icons/header/hamburger.svg";
+// import { ReactComponent as MenuIcon } from "assets/icons/header/hamburger.svg";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import {
   setExplorerActiveAction,
   setExplorerPinnedAction,
 } from "actions/explorerActions";
-import { ReactComponent as UnpinIcon } from "assets/icons/ads/double-arrow-right.svg";
-import { ReactComponent as PinIcon } from "assets/icons/ads/double-arrow-left.svg";
+// import { ReactComponent as UnpinIcon } from "assets/icons/ads/double-arrow-right.svg";
+// import { ReactComponent as PinIcon } from "assets/icons/ads/double-arrow-left.svg";
 import { modText } from "utils/helpers";
 import Boxed from "./GuidedTour/Boxed";
 import EndTour from "./GuidedTour/EndTour";
@@ -95,7 +95,7 @@ import { useHref } from "./utils";
 import EmbedSnippetForm from "pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
-import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+// import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -191,14 +191,14 @@ const BindingBanner = styled.div`
   z-index: 9999;
 `;
 
-const HamburgerContainer = styled.div`
-  height: ${(props) => props.theme.smallHeaderHeight};
-  width: 34px;
+// const HamburgerContainer = styled.div`
+//   height: ${(props) => props.theme.smallHeaderHeight};
+//   width: 34px;
 
-  :hover {
-    background-color: ${Colors.GEYSER_LIGHT};
-  }
-`;
+//   :hover {
+//     background-color: ${Colors.GEYSER_LIGHT};
+//   }
+// `;
 
 type EditorHeaderProps = {
   pageSaveError?: boolean;
@@ -255,11 +255,11 @@ export function EditorHeader(props: EditorHeaderProps) {
   const isPreviewMode = useSelector(previewModeSelector);
   const deployLink = useHref(viewerURL, { pageId });
   const isMultiPane = useSelector(isMultiPaneActive);
-  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
-    getIsAppSettingsPaneWithNavigationTabOpen,
-  );
-  const isPreviewingApp =
-    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
+  // const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+  //   getIsAppSettingsPaneWithNavigationTabOpen,
+  // );
+  // const isPreviewingApp =
+  //   isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
 
@@ -349,13 +349,13 @@ export function EditorHeader(props: EditorHeaderProps) {
       >
         <HeaderSection className="space-x-2">
           {!isMultiPane && (
-            <HamburgerContainer
-              className={classNames({
-                "relative flex items-center justify-center p-0 text-gray-800 transition-all transform duration-400":
-                  true,
-                "-translate-x-full opacity-0": isPreviewingApp,
-                "translate-x-0 opacity-100": !isPreviewingApp,
-              })}
+            <Button
+              kind="tertiary"
+              onClick={onPin}
+              size="md"
+              startIcon={`hamburger, ${
+                pinned ? "double-arrow-left" : "double-arrow-right"
+              }`}
             >
               <TooltipComponent
                 content={
@@ -373,25 +373,11 @@ export function EditorHeader(props: EditorHeaderProps) {
                 position="bottom-left"
               >
                 <div
-                  className="relative w-4 h-4 text-trueGray-600 group t--pin-entity-explorer"
+                  className="t--pin-entity-explorer"
                   onMouseEnter={onMenuHover}
-                >
-                  <MenuIcon className="absolute w-3.5 h-3.5 transition-opacity cursor-pointer fill-current group-hover:opacity-0" />
-                  {!pinned && (
-                    <UnpinIcon
-                      className="absolute w-3.5 h-3.5 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
-                      onClick={onPin}
-                    />
-                  )}
-                  {pinned && (
-                    <PinIcon
-                      className="absolute w-3.5 h-3.5 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
-                      onClick={onPin}
-                    />
-                  )}
-                </div>
+                />
               </TooltipComponent>
-            </HamburgerContainer>
+            </Button>
           )}
 
           <Tooltip content={createMessage(LOGO_TOOLTIP)} placement="bottomLeft">
