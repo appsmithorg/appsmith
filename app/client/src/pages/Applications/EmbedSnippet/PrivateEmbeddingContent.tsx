@@ -6,8 +6,9 @@ import {
   IN_APP_EMBED_SETTING,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "ce/configs";
-
-const appsmithConfigs = getAppsmithConfigs();
+import { PRICING_PAGE_URL } from "constants/ThirdPartyConstants";
+import { useSelector } from "react-redux";
+import { getInstanceId } from "ce/selectors/tenantSelectors";
 
 const Container = styled.div<{ isAppSettings: boolean }>`
   ${({ isAppSettings }) =>
@@ -63,6 +64,8 @@ function PrivateEmbeddingContent(props: {
   isAppSettings?: boolean;
 }) {
   const { canMakeAppPublic = false, changeTab, isAppSettings = false } = props;
+  const appsmithConfigs = getAppsmithConfigs();
+  const instanceId = useSelector(getInstanceId);
 
   return (
     <Container data-testid="t--upgrade-content" isAppSettings={isAppSettings}>
@@ -77,9 +80,13 @@ function PrivateEmbeddingContent(props: {
         <StyledText type={TextType.P2}>
           {createMessage(IN_APP_EMBED_SETTING.upgradeContent)}&nbsp;
           <StyledAnchor
-            href={appsmithConfigs.pricingUrl}
+            onClick={() => {
+              window.open(
+                PRICING_PAGE_URL(appsmithConfigs.pricingUrl, "CE", instanceId),
+                "_blank",
+              );
+            }}
             rel="noreferrer"
-            target="_blank"
           >
             {createMessage(IN_APP_EMBED_SETTING.appsmithBusinessEdition)}
           </StyledAnchor>
