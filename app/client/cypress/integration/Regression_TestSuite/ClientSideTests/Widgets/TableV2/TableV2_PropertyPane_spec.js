@@ -372,4 +372,38 @@ describe("Table Widget V2 property pane feature validation", function () {
       "customColumn99",
     );
   });
+
+  it.only("14. It provides currentRow and currentIndex properties in min validation field", function () {
+    cy.openPropertyPane("tablewidgetv2");
+    cy.makeColumnEditable("orderAmount");
+    cy.editColumn("orderAmount");
+
+    propPane.UpdatePropertyFieldValue("Computed Value", "{{currentIndex}}");
+    cy.changeColumnType("Number");
+
+    propPane.UpdatePropertyFieldValue("Min", "{{currentIndex}}");
+    cy.get(".t--evaluatedPopup-error").should("not.exist");
+
+    // Update cell with row : 0, column : orderAmount
+    cy.editTableCell(4, 0);
+    cy.enterTableCellValue(4, 0, -1);
+
+    cy.get(".bp3-popover-content").contains("Invalid input");
+    cy.enterTableCellValue(4, 0, 0);
+    cy.get(".bp3-popover-content").should("not.exist");
+
+    // Check if currentRow works
+    cy.editColumn("orderAmount");
+    propPane.UpdatePropertyFieldValue("Min", "{{currentRow.id}}");
+    cy.get(".t--evaluatedPopup-error").should("not.exist");
+
+    // Update cell with row : 0, column : orderAmount. The min is set to 231224 (i.e value of cell in id column)
+    cy.editTableCell(4, 0);
+    cy.enterTableCellValue(4, 0, 231225);
+    cy.get(".t--evaluatedPopup-error").should("not.exist");
+    cy.enterTableCellValue(4, 0, 231223);
+    cy.get(".bp3-popover-content").contains("Invalid input");
+    cy.enterTableCellValue(4, 0, 231225);
+    cy.get(".t--evaluatedPopup-error").should("not.exist");
+  });
 });
