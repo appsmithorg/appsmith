@@ -209,6 +209,22 @@ function renderDropdown(
         selectedValue = tempValues;
         props.input?.onChange(tempValues);
       }
+
+      const isOptionDynamic = options.some((opt) => "disabled" in opt);
+      if (isOptionDynamic && !!props?.isRequired) {
+        const isCurrentOptionDisabled = options.some(
+          (opt) => opt?.value === selectedValue && opt.disabled,
+        );
+        if (!tempSelectedValues || isCurrentOptionDisabled) {
+          const firstEnabledOption = props?.options.find(
+            (opt) => !opt?.disabled,
+          );
+          if (firstEnabledOption) {
+            selectedValue = firstEnabledOption?.value as string;
+            props.input?.onChange(firstEnabledOption?.value);
+          }
+        }
+      }
     }
   }
 

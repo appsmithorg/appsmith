@@ -392,6 +392,7 @@ function* logDebuggerErrorAnalyticsSaga(
       AnalyticsUtil.logEvent(payload.eventName, {
         entityType: widgetType,
         propertyPath,
+        errorId: payload.errorId,
         errorMessages: payload.errorMessages,
         pageId: currentPageId,
         errorMessage: payload.errorMessage,
@@ -415,6 +416,7 @@ function* logDebuggerErrorAnalyticsSaga(
       AnalyticsUtil.logEvent(payload.eventName, {
         entityType: pluginName,
         propertyPath,
+        errorId: payload.errorId,
         errorMessages: payload.errorMessages,
         pageId: currentPageId,
         errorMessage: payload.errorMessage,
@@ -433,6 +435,7 @@ function* logDebuggerErrorAnalyticsSaga(
       // Sending plugin name for actions
       AnalyticsUtil.logEvent(payload.eventName, {
         entityType: pluginName,
+        errorId: payload.errorId,
         propertyPath: payload.propertyPath,
         errorMessages: payload.errorMessages,
         pageId: currentPageId,
@@ -537,6 +540,7 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
               payload: {
                 ...analyticsPayload,
                 eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
+                errorId: currentDebuggerErrors[id].id,
                 errorMessage: existingErrorMessage.message,
                 errorType: existingErrorMessage.type,
                 errorSubType: existingErrorMessage.subType,
@@ -590,10 +594,6 @@ function* deleteDebuggerErrorLogsSaga(
     });
 
     if (errorMessages) {
-      const appsmithErrorCode = get(
-        error,
-        "pluginErrorDetails.appsmithErrorCode",
-      );
       yield all(
         errorMessages.map((errorMessage) => {
           return put({
@@ -601,11 +601,10 @@ function* deleteDebuggerErrorLogsSaga(
             payload: {
               ...analyticsPayload,
               eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
+              errorId: error.id,
               errorMessage: errorMessage.message,
               errorType: errorMessage.type,
               errorSubType: errorMessage.subType,
-              appsmithErrorCode,
-              tat: Date.now() - new Date(parseInt(error.timestamp)).getTime(),
             },
           });
         }),
