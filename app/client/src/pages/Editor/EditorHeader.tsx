@@ -30,10 +30,7 @@ import {
 } from "@appsmith/selectors/workspaceSelectors";
 import { connect, useDispatch, useSelector } from "react-redux";
 import DeployLinkButtonDialog from "components/designSystems/appsmith/header/DeployLinkButton";
-import {
-  setShowAppInviteUsersDialog,
-  updateApplication,
-} from "@appsmith/actions/applicationActions";
+import { updateApplication } from "@appsmith/actions/applicationActions";
 import {
   getApplicationList,
   getIsSavingAppName,
@@ -371,10 +368,6 @@ export function EditorHeader(props: EditorHeaderProps) {
     ];
   }, []);
 
-  const handleFormOpenOrClose = useCallback((isOpen: boolean) => {
-    dispatch(setShowAppInviteUsersDialog(isOpen));
-  }, []);
-
   return (
     <ThemeProvider theme={theme}>
       <HeaderWrapper
@@ -493,37 +486,38 @@ export function EditorHeader(props: EditorHeaderProps) {
           >
             <RealtimeAppEditors applicationId={applicationId} />
             <ToggleModeButton />
-            <FormDialogComponent
-              Form={AppInviteUsersForm}
-              applicationId={applicationId}
-              canOutsideClickClose
-              isOpen={showAppInviteUsersDialog}
-              noModalBodyMarginTop
-              onOpenOrClose={handleFormOpenOrClose}
-              placeholder={createMessage(
-                INVITE_USERS_PLACEHOLDER,
-                cloudHosting,
-              )}
-              tabs={tabs}
-              trigger={
-                <TooltipComponent
-                  content={
-                    filteredSharedUserList.length
-                      ? createMessage(
-                          SHARE_BUTTON_TOOLTIP_WITH_USER(
-                            filteredSharedUserList.length,
-                          ),
-                        )
-                      : createMessage(SHARE_BUTTON_TOOLTIP)
-                  }
-                  hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-                  position="bottom"
-                >
-                  <ShareButtonComponent />
-                </TooltipComponent>
-              }
-              workspaceId={workspaceId}
-            />
+            {applicationId && (
+              <FormDialogComponent
+                Form={AppInviteUsersForm}
+                applicationId={applicationId}
+                canOutsideClickClose
+                isOpen={showAppInviteUsersDialog}
+                noModalBodyMarginTop
+                placeholder={createMessage(
+                  INVITE_USERS_PLACEHOLDER,
+                  cloudHosting,
+                )}
+                tabs={tabs}
+                trigger={
+                  <TooltipComponent
+                    content={
+                      filteredSharedUserList.length
+                        ? createMessage(
+                            SHARE_BUTTON_TOOLTIP_WITH_USER(
+                              filteredSharedUserList.length,
+                            ),
+                          )
+                        : createMessage(SHARE_BUTTON_TOOLTIP)
+                    }
+                    hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+                    position="bottom"
+                  >
+                    <ShareButtonComponent />
+                  </TooltipComponent>
+                }
+                workspaceId={workspaceId}
+              />
+            )}
             <DeploySection>
               <TooltipComponent
                 content={createMessage(DEPLOY_BUTTON_TOOLTIP)}

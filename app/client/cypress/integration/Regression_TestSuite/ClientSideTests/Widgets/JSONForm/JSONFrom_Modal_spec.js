@@ -55,7 +55,8 @@ describe("JSONForm in Modal", () => {
       },
     ];
     cy.addDsl(jsonFormInModalDsl);
-
+    cy.get(".t--widget-tablewidget .tableWrap").should("be.visible");
+    cy.wait(1000);
     cy.PublishtheApp();
 
     // Click action button of first row
