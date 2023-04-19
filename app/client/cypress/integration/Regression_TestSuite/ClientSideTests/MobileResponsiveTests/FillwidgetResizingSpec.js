@@ -1,35 +1,27 @@
 const dsl = require("../../../../fixtures/inputWidgetMobileDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper;
 let theight;
 let twidth;
 
-describe("Validating Mobile Views", function () {
-  afterEach(() => {
-    agHelper.SaveLocalStorageCache();
-  });
+describe("Validating Mobile Views with Fill Widgets", function () {
+  it("Validate change with height width for Fill widgets", function () {
+    cy.get(commonlocators.autoConvert).should("be.visible").click({
+      force: true,
+    });
+    cy.get(commonlocators.convert).should("be.visible").click({
+      force: true,
+    });
+    cy.get(commonlocators.refreshApp).should("be.visible").click({
+      force: true,
+    });
+        cy.wait(2000);
 
-  beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
-  });
-  it("Validate change with height width for widgets", function () {
-    cy.wait(5000);
-    cy.get(commonlocators.autoConvert).click({
-      force: true,
-    });
-    cy.wait(2000);
-    cy.get(commonlocators.convert).click({
-      force: true,
-    });
-    cy.wait(2000);
-    cy.get(commonlocators.refreshApp).click({
-      force: true,
-    });
-    cy.wait(2000);
+    cy.get("canvas").should("be.visible");
     cy.addDsl(dsl);
     cy.wait(5000); //for dsl to settle
-    //cy.openPropertyPane("containerwidget");
+    cy.get(".t--widget-inputwidgetv2")
+      .first()
+      .should("be.visible")
     cy.PublishtheApp();
     cy.wait(2000);
     cy.get(".t--widget-inputwidgetv2")
@@ -43,7 +35,8 @@ describe("Validating Mobile Views", function () {
         twidth = newwidth;
       });
   });
-
+  //[390,844]: latest iphone14 viewport
+  //[360,780]: latest samsung galaxy s22 tablet viewport
   let phones = ["iphone-4", "samsung-s10", [390, 844], [360, 780]];
   phones.forEach((phone) => {
     it(`${phone} port execution`, function () {
@@ -52,7 +45,10 @@ describe("Validating Mobile Views", function () {
       } else {
         cy.viewport(phone);
       }
-      cy.wait(2000);
+      cy.wait(2000); //for view to settle
+      cy.get(".t--widget-inputwidgetv2")
+        .first()
+        .should("be.visible")
       cy.get(".t--widget-inputwidgetv2")
         .invoke("css", "height")
         .then((newheight) => {

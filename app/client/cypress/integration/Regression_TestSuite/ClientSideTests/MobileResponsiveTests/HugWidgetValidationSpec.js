@@ -1,37 +1,28 @@
 const dsl = require("../../../../fixtures/ImageHugWidgetDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper;
 
-describe("Validating Mobile Views", function () {
-  afterEach(() => {
-    agHelper.SaveLocalStorageCache();
-  });
-
-  beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
-  });
-  it("Validate change with height width for widgets", function () {
-    cy.wait(5000);
+describe("Validating Mobile Views with Hug Widgets", function () {
+  it("Validate change with height width for widgets for hug widgets", function () {
     cy.get(commonlocators.autoConvert).click({
       force: true,
     });
-    cy.wait(2000);
     cy.get(commonlocators.convert).click({
       force: true,
     });
-    cy.wait(2000);
     cy.get(commonlocators.refreshApp).click({
       force: true,
     });
     cy.wait(2000);
-    cy.addDsl(dsl);
+    cy.get("canvas").should("be.visible");
+    cy.addDsl(dsl); //for dsl to settle
+    cy.get(".t--widget-imagewidget").first().should("be.visible");
     cy.wait(5000); //for dsl to settle
     cy.PublishtheApp();
     cy.wait(2000);
     cy.get(".t--widget-imagewidget").first().should("be.visible");
   });
-  //Added viewports of iphone14 and samsung galaxy s22 for testing purpose
+  //[390,844]: latest iphone14 viewport
+  //[360,780]: latest samsung galaxy s22 tablet viewport
   let phones = ["iphone-4", "samsung-s10", [390, 844], [360, 780]];
   phones.forEach((phone) => {
     it(`${phone} port execution`, function () {
@@ -40,7 +31,8 @@ describe("Validating Mobile Views", function () {
       } else {
         cy.viewport(phone);
       }
-      cy.wait(2000);
+      cy.wait(2000); //for view to settle
+      cy.get(".t--widget-imagewidget").first().should("be.visible");
       cy.get(".t--widget-imagewidget")
         .first()
         .invoke("css", "width")
