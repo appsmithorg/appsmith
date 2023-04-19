@@ -241,11 +241,6 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
     }
 
     @Override
-    public Mono<Void> sendInstanceEvent(String event, String instanceId, Map<String, ?> properties, boolean hashUserId) {
-        return null;
-    }
-
-    @Override
     public <T extends BaseDomain> Mono<T> sendObjectEvent(AnalyticsEvents event, T object) {
         return sendObjectEvent(event, object, null);
     }
