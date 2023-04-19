@@ -120,6 +120,7 @@ export type SetupFormProps = DetailsFormValues & {
   >;
 
 function SetupForm(props: SetupFormProps) {
+  const isAirgappedInstance = isAirgapped();
   const signupURL = `/api/v1/${SUPER_USER_SUBMIT_PATH}`;
   const [showDetailsForm, setShowDetailsForm] = useState(true);
   const formRef = useRef<HTMLFormElement>(null);
@@ -159,8 +160,6 @@ function SetupForm(props: SetupFormProps) {
     form.appendChild(useCaseInput);
     return true;
   };
-
-  const isAirgappedInstance = !isAirgapped();
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === "Enter") {
