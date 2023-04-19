@@ -408,6 +408,13 @@ export const filePickerCallbackAction = (data: {
   };
 };
 
+// This action triggers google sheet file picker to load on blank page
+export const loadFilePickerAction = () => {
+  return {
+    type: ReduxActionTypes.LOAD_FILE_PICKER_ACTION,
+  };
+};
+
 export default {
   fetchDatasources,
   initDatasourcePane,

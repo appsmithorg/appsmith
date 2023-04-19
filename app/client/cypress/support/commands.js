@@ -312,6 +312,8 @@ Cypress.Commands.add("LogOut", () => {
     headers: {
       "X-Requested-By": "Appsmith",
     },
+  }).then((response) => {
+    expect(response.status).equal(200); //Verifying logout is success
   });
 });
 
@@ -1024,6 +1026,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   );
   cy.intercept("PUT", "/api/v1/datasources/*").as("updateDatasource");
   cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as("generateKey");
+  cy.intercept("POST", "/api/v1/applications/snapshot/*").as("snapshotSuccess");
   cy.intercept(
     {
       method: "POST",
