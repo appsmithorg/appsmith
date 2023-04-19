@@ -845,4 +845,36 @@ public class ApplicationForkingServiceTests {
                     assertThat(forkedApplication.getPages().size()).isEqualTo(1);
                 }).verifyComplete();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void forkApplication_WhenContainsInternalFields_InternalFieldsNotForked() {
+        Workspace targetWorkspace = new Workspace();
+        targetWorkspace.setName("fork-internal-fields-target-org");
+        targetWorkspace = workspaceService.create(targetWorkspace).block();
+        assert targetWorkspace != null;
+        final String targetWorkspaceId = targetWorkspace.getId();
+
+        Workspace srcWorkspace = new Workspace();
+        srcWorkspace.setName("fork-internal-fields-src-org");
+        srcWorkspace = workspaceService.create(srcWorkspace).block();
+
+        Application application = new Application();
+        application.setName("fork-internal-fields-app");
+        assert srcWorkspace != null;
+        Application srcApp = applicationPageService.createApplication(application, srcWorkspace.getId()).block();
+        srcApp.setForkWithConfiguration(true);
+        srcApp.setExportWithConfiguration(true);
+        Application resultApplication = applicationForkingService.forkApplicationToWorkspace(srcApp.getId(), targetWorkspaceId).block().getApplication();
+        final Mono<Application> resultMono = Mono.just(resultApplication);
+
+        StepVerifier.create(resultMono)
+                .assertNext(forkedApplication -> {
+
+                    assertThat(forkedApplication).isNotNull();
+                    assertThat(forkedApplication.getForkWithConfiguration()).isNull();
+                    assertThat(forkedApplication.getExportWithConfiguration()).isNull();
+                })
+                .verifyComplete();
+    }
 }
