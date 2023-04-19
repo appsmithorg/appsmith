@@ -32,7 +32,7 @@ jobs:
           echo "run_id=$(echo '${{ steps.find-comment.outputs.comment-body }}' | grep -o 'runs/[0-9]\+' | cut -d/ -f2)" >> $GITHUB_OUTPUT
       
       - name: Get ci-test-result status from the run_id
-        id: ci-test-result-status
+        id: ci_test_result_status
         run: |
           run_status=$(curl --silent https://api.github.com/repos/appsmithorg/appsmith/actions/runs/${{steps.workflow.outputs.run_id}}/jobs?per_page=100)
           ci_test_result=$(echo "$run_status" | jq '[ .jobs[] | select(.name | contains("ci-test-result")) | select(.conclusion | contains("success") | not) ] | length')
