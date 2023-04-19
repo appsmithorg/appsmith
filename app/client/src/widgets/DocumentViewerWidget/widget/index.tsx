@@ -5,6 +5,8 @@ import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import DocumentViewerComponent from "../component";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 export function documentUrlValidation(value: unknown): ValidationResponse {
   // applied validations if value exist
@@ -130,6 +132,15 @@ class DocumentViewerWidget extends BaseWidget<
         ],
       },
     ];
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc": "Document viewer widget is used to show documents on a page",
+      "!url": "https://docs.appsmith.com/reference/widgets/document-viewer",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      docUrl: "string",
+    };
   }
 
   getPageView() {

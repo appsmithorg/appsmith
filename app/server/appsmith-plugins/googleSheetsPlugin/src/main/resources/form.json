@@ -73,10 +73,9 @@
           "initialValue": "authorization_code"
         },
         {
-          "label": "Scope",
+          "label": "Permissions | Scope",
           "configProperty": "datasourceConfiguration.authentication.scopeString",
           "controlType": "DROP_DOWN",
-          "isRequired": true,
           "options": [
             {
               "label": "Read/Write | Selected Google Sheets",
@@ -87,7 +86,7 @@
               "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive"
             },
             {
-              "label": "Read Files | All Google Sheets",
+              "label": "Read | All Google Sheets",
               "value": "https://www.googleapis.com/auth/spreadsheets.readonly,https://www.googleapis.com/auth/drive.readonly"
             }
           ],
