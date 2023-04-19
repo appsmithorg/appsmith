@@ -25,10 +25,7 @@ import {
 import { setCanvasSelectionFromEditor } from "actions/canvasSelectionActions";
 import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSelect";
-import {
-  getIsOnboardingTasksView,
-  inGuidedTour,
-} from "selectors/onboardingSelectors";
+import { inGuidedTour } from "selectors/onboardingSelectors";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import Guide from "../GuidedTour/Guide";
 import CanvasContainer from "./CanvasContainer";
@@ -63,7 +60,7 @@ function WidgetsEditor() {
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
   const currentApp = useSelector(getCurrentApplication);
-  const showOnboardingTasks = useSelector(getIsOnboardingTasksView);
+  const showOnboardingTasks = true;
   const guidedTourEnabled = useSelector(inGuidedTour);
   const isMultiPane = useSelector(isMultiPaneActive);
   const isPreviewMode = useSelector(previewModeSelector);
@@ -197,7 +194,7 @@ function WidgetsEditor() {
                 {showNavigation()}
 
                 <PageViewContainer
-                  className="relative flex flex-row w-full justify-center overflow-hidden"
+                  className="relative flex flex-row justify-center w-full overflow-hidden"
                   hasPinnedSidebar={
                     isPreviewingNavigation && !isMobile
                       ? currentApplicationDetails?.applicationDetail
@@ -211,7 +208,7 @@ function WidgetsEditor() {
                   sidebarWidth={isPreviewingNavigation ? sidebarWidth : 0}
                 >
                   {shouldShowSnapShotBanner && (
-                    <div className="absolute top-0 z-1 w-full">
+                    <div className="absolute top-0 w-full z-1">
                       <BannerMessage
                         backgroundColor={Colors.WARNING_ORANGE}
                         ctaChildren={<SnapShotBannerCTA />}

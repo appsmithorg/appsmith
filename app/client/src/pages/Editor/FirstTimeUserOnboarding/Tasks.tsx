@@ -33,13 +33,12 @@ import {
   getDatasources,
   getPageActions,
 } from "selectors/entitiesSelector";
-import { getFirstTimeUserOnboardingModal } from "selectors/onboardingSelectors";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
-import IntroductionModal from "./IntroductionModal";
 import { integrationEditorURL } from "RouteBuilder";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import AnonymousDataPopup from "./AnonymousDataPopup";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -106,7 +105,7 @@ export default function OnboardingTasks() {
   const actions = useSelector(getPageActions(pageId));
   const widgets = useSelector(getCanvasWidgets);
   const dispatch = useDispatch();
-  const showModal = useSelector(getFirstTimeUserOnboardingModal);
+
   if (!datasources.length && !actions.length) {
     content = (
       <CenteredContainer>
@@ -268,16 +267,7 @@ export default function OnboardingTasks() {
   return (
     <Wrapper data-testid="onboarding-tasks-wrapper">
       {content}
-      {showModal && (
-        <IntroductionModal
-          close={() => {
-            dispatch({
-              type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
-              payload: false,
-            });
-          }}
-        />
-      )}
+      <AnonymousDataPopup />
     </Wrapper>
   );
 }
