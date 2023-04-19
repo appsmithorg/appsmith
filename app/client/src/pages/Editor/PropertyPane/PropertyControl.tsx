@@ -4,7 +4,8 @@ import equal from "fast-deep-equal/es6";
 import * as log from "loglevel";
 
 import { ControlWrapper } from "components/propertyControls/StyledControls";
-import { Icon, JSToggleButton } from "design-system-old";
+import { Icon } from "design-system-old";
+import { ToggleButton } from "design-system";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
@@ -763,12 +764,12 @@ const PropertyControl = memo((props: Props) => {
                 openOnTargetFocus={false}
                 position="auto"
               >
-                <JSToggleButton
-                  handleClick={() =>
-                    toggleDynamicProperty(propertyName, isDynamic)
-                  }
-                  isActive={isDynamic}
-                  isToggleDisabled={isToggleDisabled}
+                <ToggleButton
+                  icon="js-toggle-v2"
+                  isDisabled={isToggleDisabled}
+                  isSelected={isDynamic}
+                  onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
+                  size="sm"
                 />
               </TooltipComponent>
             )}
