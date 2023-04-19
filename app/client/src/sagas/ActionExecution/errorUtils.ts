@@ -138,8 +138,8 @@ export const getErrorAsString = (error: unknown): string => {
 
 export const getDisplayMessageFromError = (errorMessage: string) => {
   if (errorMessage.indexOf(":") > 0) {
-    return errorMessage.split(":")[1];
+    return errorMessage.split(":")[1].trimStart();
   } else {
-    return errorMessage;
+    return errorMessage.trimStart();
   }
 };
