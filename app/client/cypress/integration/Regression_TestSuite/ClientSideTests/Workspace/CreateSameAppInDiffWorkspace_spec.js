@@ -23,7 +23,6 @@ describe("Create app same name in different workspace", function () {
   });
   it("1. create app with same name in a different workspace", function () {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.wait("@applications").should(
       "have.nested.property",
       "response.body.responseMeta.status",
