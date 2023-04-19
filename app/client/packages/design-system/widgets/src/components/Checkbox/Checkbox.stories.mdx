@@ -1,6 +1,7 @@
 import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
 import EmotionHappyLineIcon from "remixicon-react/EmotionHappyLineIcon";
 import { Checkbox } from "./";
+import { CheckboxGroup } from "@design-system/headless";
 
 <Meta
   title="Design-system/widgets/Checkbox"
@@ -12,6 +13,9 @@ import { Checkbox } from "./";
 
 export const Template = (args, { globals: { fontFamily } }) => (
   <Checkbox {...args} />
+);
+export const TemplateGroup = (args, { globals: { fontFamily } }) => (
+  <CheckboxGroup {...args} />
 );
 
 # Checkbox
@@ -126,12 +130,33 @@ Checkbox is a component that allows the user to select one or more options from 
 
 <Canvas>
   <Story
-    name="State - Custom Icon"
+    name="Custom Icon"
     args={{
       children: "Custom Icon",
       icon: <EmotionHappyLineIcon />,
     }}
   >
     {Template.bind({})}
+  </Story>
+</Canvas>
+
+### Group
+
+<Canvas>
+  <Story
+    name="Checkbox Group"
+    args={{
+      label: "Checkbox Group",
+      defaultValue: ["value-1"],
+      isRequired: true,
+      children: (
+        <>
+          <Checkbox value="value-1">Value 1</Checkbox>
+          <Checkbox value="value-2">Value 2</Checkbox>
+        </>
+      ),
+    }}
+  >
+    {TemplateGroup.bind({})}
   </Story>
 </Canvas>
