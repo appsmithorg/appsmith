@@ -13,7 +13,7 @@ const Back = styled(Link)`
   display: flex;
   align-items: center;
   cursor: pointer;
-  padding-left: 16px;
+  margin-left: 16px;
 `;
 
 function BackButton() {
