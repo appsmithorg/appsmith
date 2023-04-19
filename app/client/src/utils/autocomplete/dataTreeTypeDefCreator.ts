@@ -1,6 +1,6 @@
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { uniqueId, get, isFunction, isObject } from "lodash";
+import { uniqueId, isFunction, isObject } from "lodash";
 import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
 import { getType, Types } from "utils/TypeHelpers";
 import type { Def } from "tern";
@@ -17,6 +17,7 @@ export type ExtraDef = Record<string, Def | string>;
 
 import type { JSActionEntityConfig } from "entities/DataTree/types";
 import type { Variable } from "entities/JSCollection";
+import WidgetFactory from "utils/WidgetFactory";
 
 // Def names are encoded with information about the entity
 // This so that we have more info about them
@@ -41,12 +42,14 @@ export const dataTreeTypeDefCreator = (
   Object.entries(dataTree).forEach(([entityName, entity]) => {
     if (isWidget(entity)) {
       const widgetType = entity.type;
-      if (widgetType in entityDefinitions) {
-        const definition = get(entityDefinitions, widgetType);
-        if (isFunction(definition)) {
-          def[entityName] = definition(entity, extraDefsToDefine);
+      const autocompleteDefinitions =
+        WidgetFactory.getAutocompleteDefinitions(widgetType);
+
+      if (autocompleteDefinitions) {
+        if (isFunction(autocompleteDefinitions)) {
+          def[entityName] = autocompleteDefinitions(entity, extraDefsToDefine);
         } else {
-          def[entityName] = definition;
+          def[entityName] = autocompleteDefinitions;
         }
         flattenDef(def, entityName);
         entityMap.set(entityName, {

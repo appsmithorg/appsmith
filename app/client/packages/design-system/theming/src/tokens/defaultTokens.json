@@ -1,8 +1,7 @@
 {
   "seedColor": "#553de9",
-  "focusColor": "#2a82ea",
   "rootUnit": 4,
-  "isDarkMode": false,
+  "colorMode": "light",
   "borderRadius": {
     "1": "0px"
   },

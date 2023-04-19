@@ -12,6 +12,7 @@
 
 # production
 /build
+/build_airgap
 
 # misc
 .DS_Store

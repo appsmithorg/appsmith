@@ -69,8 +69,9 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
   }
 
   // we don't use :focus-visible because not all browsers (safari) have it yet
-  &:not([data-loading]).focus-ring {
-    box-shadow: 0 0 0 2px white, 0 0 0 4px var(--color-bd-focus);
+  &:not([data-loading]).focus-ring,
+  &[data-focus="true"] {
+    box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-bd-focus);
   }
 
   &.is-disabled {
