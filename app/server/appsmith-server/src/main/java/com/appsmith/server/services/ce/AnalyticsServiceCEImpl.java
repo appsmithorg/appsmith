@@ -29,6 +29,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.AnalyticsConstants.EMAIL_DOMAIN_HASH;
+import static com.appsmith.external.constants.AnalyticsConstants.GOAL;
+import static com.appsmith.external.constants.AnalyticsConstants.IP;
+import static com.appsmith.server.constants.ce.FieldNameCE.EMAIL;
+import static com.appsmith.server.constants.ce.FieldNameCE.NAME;
+import static com.appsmith.server.constants.ce.FieldNameCE.ROLE;
+
 @Slf4j
 public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
 
@@ -134,7 +141,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                 });
     }
 
-    public void identifyInstance(String instanceId, String role, String useCase) {
+    public void identifyInstance(String instanceId, String role, String useCase, String adminEmail, String adminFullName, String ip) {
         if (!isActive()) {
             return;
         }
@@ -143,8 +150,11 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                 .userId(instanceId)
                 .traits(Map.of(
                         "isInstance", true,  // Is this "identify" data-point for a user or an instance?
-                        "role", ObjectUtils.defaultIfNull(role, ""),
-                        "goal", ObjectUtils.defaultIfNull(useCase, "")
+                        ROLE, ObjectUtils.defaultIfNull(role, ""),
+                        GOAL, ObjectUtils.defaultIfNull(useCase, ""),
+                        EMAIL, ObjectUtils.defaultIfNull(adminEmail, ""),
+                        NAME, ObjectUtils.defaultIfNull(adminFullName, ""),
+                        IP, ObjectUtils.defaultIfNull(ip, "unknown")
                 ))
         );
         analytics.flush();
@@ -167,7 +177,8 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         // at java.base/java.util.ImmutableCollections$AbstractImmutableMap.put(ImmutableCollections.java)
         Map<String, Object> analyticsProperties = properties == null ? new HashMap<>() : new HashMap<>(properties);
 
-        final String emailDomainHash = getEmailDomainHash(userId);
+        final String immutableUserId = userId;
+        final String emailDomainHash = getEmailDomainHash(immutableUserId);
 
         // Hash usernames at all places for self-hosted instance
         if (userId != null
@@ -212,15 +223,26 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                         .context(Map.of(
                             "userAgent", userAgent
                         ));
+                    // For Installation Setup Complete event we are using `instanceId` as tracking id and passed as
+                    // userId and as this does not satisfy the email validation it's not getting hashed
+                    if (!StringUtils.isEmpty(instanceId) && instanceId.equals(immutableUserId)) {
+                        analyticsProperties.put(EMAIL_DOMAIN_HASH, hash(immutableUserId));
+                    } else {
+                        analyticsProperties.put(EMAIL_DOMAIN_HASH, emailDomainHash);
+                    }
                     analyticsProperties.put("originService", "appsmith-server");
                     analyticsProperties.put("instanceId", instanceId);
                     analyticsProperties.put("version", projectProperties.getVersion());
-                    analyticsProperties.put("emailDomainHash", emailDomainHash);
                     messageBuilder = messageBuilder.properties(analyticsProperties);
                     analytics.enqueue(messageBuilder);
                     return instanceId;
                 })
                 .then();
+    }
+
+    @Override
+    public Mono<Void> sendInstanceEvent(String event, String instanceId, Map<String, ?> properties, boolean hashUserId) {
+        return null;
     }
 
     @Override
