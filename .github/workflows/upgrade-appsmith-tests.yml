@@ -2,8 +2,7 @@ name: Debug ci-merge-check
 
 on:
   #This workflow is only triggered by the ok to test command dispatch
-  repository_dispatch:
-      types: [ ci-merge-check-command ]
+  workflow_dispatch:
     
 jobs:
    ci-merge-check:
