@@ -3,6 +3,7 @@
   "workspaces": [
     "shared/*",
     "rts",
+    "client/cypress",
     "client/packages/**/*",
     "client"
   ],

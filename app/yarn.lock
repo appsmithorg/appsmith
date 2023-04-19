@@ -1809,6 +1809,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@blueprintjs/colors@npm:^4.0.0-alpha.3":
+  version: 4.1.21
+  resolution: "@blueprintjs/colors@npm:4.1.21"
+  checksum: b6e852b18b87f33d24fdc5b17139bfb9cb324ca7d5dfc1c916d7f3f0a35ad2410ed20570a88765b079afa0eb7259a6a6e1f7f29e4b8d9031c3862880b2e8ac78
+  languageName: node
+  linkType: hard
+
 "@blueprintjs/core@npm:3.47.0":
   version: 3.47.0
   resolution: "@blueprintjs/core@npm:3.47.0"
@@ -1831,6 +1838,32 @@ __metadata:
     upgrade-blueprint-2.0.0-rename: scripts/upgrade-blueprint-2.0.0-rename.sh
     upgrade-blueprint-3.0.0-rename: scripts/upgrade-blueprint-3.0.0-rename.sh
   checksum: 54ca7ae7574847468eb39d7ae1925662990bd36d241f96e424ddb5f616e27059d89a61b12209c005b6cf5e0a73a42d6be61849c269b1e82515cdcedc23a0e879
+  languageName: node
+  linkType: hard
+
+"@blueprintjs/core@npm:^3.36.0":
+  version: 3.54.0
+  resolution: "@blueprintjs/core@npm:3.54.0"
+  dependencies:
+    "@blueprintjs/colors": ^4.0.0-alpha.3
+    "@blueprintjs/icons": ^3.33.0
+    "@juggle/resize-observer": ^3.3.1
+    "@types/dom4": ^2.0.1
+    classnames: ^2.2
+    dom4: ^2.1.5
+    normalize.css: ^8.0.1
+    popper.js: ^1.16.1
+    react-lifecycles-compat: ^3.0.4
+    react-popper: ^1.3.7
+    react-transition-group: ^2.9.0
+    tslib: ~2.3.1
+  peerDependencies:
+    react: ^15.3.0 || 16 || 17
+    react-dom: ^15.3.0 || 16 || 17
+  bin:
+    upgrade-blueprint-2.0.0-rename: scripts/upgrade-blueprint-2.0.0-rename.sh
+    upgrade-blueprint-3.0.0-rename: scripts/upgrade-blueprint-3.0.0-rename.sh
+  checksum: 97b8811bfc32284bb36e62a44210e84d5abe164ef553670866e0628718db4a98c79b9665f73014b1474f534a3d3260e94af274e669fb0ebfeb323305a81b5375
   languageName: node
   linkType: hard
 
@@ -1875,7 +1908,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@blueprintjs/icons@npm:^3.10.0, @blueprintjs/icons@npm:^3.27.0":
+"@blueprintjs/icons@npm:^3.10.0, @blueprintjs/icons@npm:^3.27.0, @blueprintjs/icons@npm:^3.33.0":
   version: 3.33.0
   resolution: "@blueprintjs/icons@npm:3.33.0"
   dependencies:
@@ -8680,6 +8713,36 @@ __metadata:
   checksum: d4b1653fc60b6465b982bf5a88b12051ed2d807d70609386a809306e1c636496f53522d61fa30f9f98c71aaae34f34e1651889cf17d81a44e3dafd2859d495ad
   languageName: node
   linkType: hard
+
+"appsmith-ci-test@workspace:client/cypress":
+  version: 0.0.0-use.local
+  resolution: "appsmith-ci-test@workspace:client/cypress"
+  dependencies:
+    "@blueprintjs/core": ^3.36.0
+    "@blueprintjs/datetime": ^3.23.6
+    "@blueprintjs/icons": ^3.10.0
+    "@blueprintjs/popover2": ^0.5.0
+    "@blueprintjs/select": ^3.10.0
+    "@faker-js/faker": ^7.4.0
+    "@typescript-eslint/eslint-plugin": ^5.25.0
+    "@typescript-eslint/parser": ^5.25.0
+    chalk: ^4.1.1
+    cy-verify-downloads: ^0.0.5
+    cypress: 9.7.0
+    cypress-file-upload: ^4.1.1
+    cypress-image-snapshot: ^4.0.1
+    cypress-log-to-output: ^1.1.2
+    cypress-multi-reporters: ^1.2.4
+    cypress-real-events: ^1.7.1
+    cypress-wait-until: ^1.7.2
+    cypress-xpath: ^1.4.0
+    diff: ^5.0.0
+    dotenv: ^8.1.0
+    eslint-plugin-cypress: ^2.11.2
+    tinycolor2: ^1.4.2
+    typescript: 4.5.5
+  languageName: unknown
+  linkType: soft
 
 "appsmith-rts@workspace:rts":
   version: 0.0.0-use.local
