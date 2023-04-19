@@ -10,14 +10,10 @@ import log from "loglevel";
 import type { SnapShotDetails } from "reducers/uiReducers/layoutConversionReducer";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import {
-  getAppPositioningType,
-  getCurrentApplicationId,
-} from "selectors/editorSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { getLogToSentryFromResponse } from "utils/helpers";
 import { validateResponse } from "./ErrorSagas";
 import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 //Saga to create application snapshot
 export function* createSnapshotSaga() {
@@ -79,10 +75,6 @@ function* restoreApplicationFromSnapshotSaga() {
       applicationId,
     });
 
-    const currentAppPositioningType: AppPositioningTypes = yield select(
-      getAppPositioningType,
-    );
-
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
@@ -103,13 +95,13 @@ function* restoreApplicationFromSnapshotSaga() {
       });
     }
 
-    //update layout positioning type from
-    yield call(
-      updateApplicationLayoutType,
-      currentAppPositioningType === AppPositioningTypes.FIXED
-        ? AppPositioningTypes.AUTO
-        : AppPositioningTypes.FIXED,
-    );
+    if (response?.data?.applicationDetail?.appPositioning?.type) {
+      //update layout positioning type from response
+      yield call(
+        updateApplicationLayoutType,
+        response.data.applicationDetail.appPositioning.type,
+      );
+    }
 
     if (isValidResponse) {
       //update conversion form state to success
@@ -128,7 +120,7 @@ function* restoreApplicationFromSnapshotSaga() {
 }
 
 //Saga to delete application snapshot
-function* deleteApplicationSnapshotSaga() {
+export function* deleteApplicationSnapshotSaga() {
   let response: ApiResponse | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);

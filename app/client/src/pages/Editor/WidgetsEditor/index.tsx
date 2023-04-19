@@ -43,7 +43,6 @@ import {
 } from "selectors/appSettingsPaneSelectors";
 import { AppSettingsTabs } from "../AppSettingsPane/AppSettings";
 import PropertyPaneContainer from "./PropertyPaneContainer";
-import { getReadableSnapShotDetails } from "selectors/autoLayoutSelectors";
 import { BannerMessage, IconSize } from "design-system-old";
 import { Colors } from "constants/Colors";
 import {
@@ -55,6 +54,8 @@ import SnapShotBannerCTA from "../CanvasLayoutConversion/SnapShotBannerCTA";
 import { APP_MODE } from "entities/App";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
+import { getReadableSnapShotDetails } from "utils/autoLayout/AutoLayoutUtils";
 
 function WidgetsEditor() {
   const { deselectAll, focusWidget } = useWidgetSelection();
@@ -66,7 +67,8 @@ function WidgetsEditor() {
   const guidedTourEnabled = useSelector(inGuidedTour);
   const isMultiPane = useSelector(isMultiPaneActive);
   const isPreviewMode = useSelector(previewModeSelector);
-  const readableSnapShotDetails = useSelector(getReadableSnapShotDetails);
+  const lastUpdatedTime = useSelector(getSnapshotUpdatedTime);
+  const readableSnapShotDetails = getReadableSnapShotDetails(lastUpdatedTime);
 
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const isAppSidebarPinned = useSelector(getAppSidebarPinned);

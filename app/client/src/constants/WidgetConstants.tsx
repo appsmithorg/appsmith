@@ -207,3 +207,8 @@ export const WIDGET_PROPS_TO_SKIP_FROM_EVAL = {
  * It is also used to calculate widget positions and highlight placements.
  */
 export const FLEXBOX_PADDING = 4;
+
+/**
+ * max width of modal widget constant as a multiplier of Main canvasWidth
+ */
+export const MAX_MODAL_WIDTH_FROM_MAIN_WIDTH = 0.95;

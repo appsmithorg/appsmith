@@ -13,6 +13,7 @@ import {
   Positioning,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
+import { isPathDynamicTrigger } from "utils/DynamicBindingUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { DSLWidget } from "widgets/constants";
@@ -230,8 +231,11 @@ function getNextLayer(currWidgets: DSLWidget[]): {
       maxBottomRow,
     );
 
+    const modifiedCurrentWidget =
+      removeNullValuesFromObject<DSLWidget>(currWidget);
+
     modifiedWidgetsInLayer.push({
-      ...currWidget,
+      ...modifiedCurrentWidget,
       ...propUpdates,
       alignment,
       flexVerticalAlignment,
@@ -774,4 +778,25 @@ function handleSpecialCaseWidgets(dsl: DSLWidget): DSLWidget {
   }
 
   return dsl;
+}
+/**
+ * Removes null values from object
+ * @param object
+ * @returns
+ */
+function removeNullValuesFromObject<T extends { [key: string]: any }>(
+  object: T,
+): T {
+  const copiedObject: T = { ...object };
+
+  //remove null values and dynamic trigger paths which have "null" values
+  Object.keys(copiedObject).forEach(
+    (k) =>
+      copiedObject[k] == null ||
+      (isPathDynamicTrigger(copiedObject, k) &&
+        copiedObject[k] === "null" &&
+        delete copiedObject[k]),
+  );
+
+  return copiedObject;
 }

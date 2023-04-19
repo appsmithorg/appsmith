@@ -7,6 +7,7 @@ import {
   WIDGET_PADDING,
   CONTAINER_GRID_PADDING,
   DefaultDimensionMap,
+  MAX_MODAL_WIDTH_FROM_MAIN_WIDTH,
 } from "constants/WidgetConstants";
 import type {
   CanvasWidgetsReduxState,
@@ -29,6 +30,13 @@ import {
   getWidgetWidth,
 } from "./flexWidgetUtils";
 import type { DSLWidget } from "widgets/constants";
+import { getHumanizedTime, getReadableDateInFormat } from "utils/dayJsUtils";
+
+export type ReadableSnapShotDetails = {
+  timeSince: string;
+  timeTillExpiration: string;
+  readableDate: string;
+};
 
 export function updateFlexLayersOnDelete(
   allWidgets: CanvasWidgetsReduxState,
@@ -485,7 +493,10 @@ function getCanvasWidth(
 
   //modal will be the total width instead of the mainCanvasWidth
   if (widget.type === "MODAL_WIDGET") {
-    width = widget.width;
+    width = Math.min(
+      widget.width,
+      mainCanvasWidth * MAX_MODAL_WIDTH_FROM_MAIN_WIDTH,
+    );
   }
 
   while (stack.length) {
@@ -590,4 +601,34 @@ export function getNewFlexLayers(
 
 export function checkIsDSLAutoLayout(dsl: DSLWidget): boolean {
   return dsl.useAutoLayout && dsl.positioning === Positioning.Vertical;
+}
+
+export function getReadableSnapShotDetails(
+  dateString: string | undefined,
+): ReadableSnapShotDetails | undefined {
+  if (!dateString) return;
+
+  const lastUpdatedDate = new Date(dateString);
+
+  if (Date.now() - lastUpdatedDate.getTime() <= 0) return;
+
+  const millisecondsPerHour = 60 * 60 * 1000;
+  const ExpirationInMilliseconds = 5 * 24 * millisecondsPerHour;
+  const timePassedSince = Date.now() - lastUpdatedDate.getTime();
+
+  const timeSince: string = getHumanizedTime(timePassedSince);
+  const timeTillExpiration: string = getHumanizedTime(
+    ExpirationInMilliseconds - timePassedSince,
+  );
+
+  const readableDate = getReadableDateInFormat(
+    lastUpdatedDate,
+    "Do MMMM, YYYY h:mm a",
+  );
+
+  return {
+    timeSince,
+    timeTillExpiration,
+    readableDate,
+  };
 }
