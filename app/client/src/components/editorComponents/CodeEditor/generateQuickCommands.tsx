@@ -105,7 +105,7 @@ const iconsByType = {
   ),
   [Shortcuts.ASK_AI]: (
     <EntityIcon noBorder>
-      <MagicIcon />
+      <MagicIcon className="magic" />
     </EntityIcon>
   ),
 };
