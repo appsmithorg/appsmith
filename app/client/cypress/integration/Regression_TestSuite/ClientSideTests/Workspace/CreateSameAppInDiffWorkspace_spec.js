@@ -1,5 +1,6 @@
 /// <reference types="Cypress" />
 import homePage from "../../../../locators/HomePage";
+import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 const application = require("../../../../locators/Applications.json");
 
 describe("Create app same name in different workspace", function () {
@@ -41,7 +42,11 @@ describe("Create app same name in different workspace", function () {
       .click({ force: true });
     cy.xpath(homePage.members).click({ force: true });
     cy.get(homePage.inviteUserMembersPage).click({ force: true });
-    cy.xpath(application.placeholderTxt).should("be.visible");
+    if (CURRENT_REPO === REPO.CE) {
+      cy.xpath(application.placeholderTxt).should("be.visible");
+    } else {
+      cy.xpath(application.placeholderTxtEE).should("be.visible");
+    }
     cy.reload();
     cy.NavigateToHome();
     cy.createWorkspace();
