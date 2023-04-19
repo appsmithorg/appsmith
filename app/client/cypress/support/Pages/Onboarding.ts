@@ -74,6 +74,10 @@ export class Onboarding {
   }
 
   skipSignposting() {
-    this._aggregateHelper.GetNClick(OnboardingLocator.statusbarClose);
+    cy.get("body").then(($body) => {
+      if ($body.find(OnboardingLocator.statusbarClose).length) {
+        this._aggregateHelper.GetNClick(OnboardingLocator.statusbarClose);
+      }
+    });
   }
 }

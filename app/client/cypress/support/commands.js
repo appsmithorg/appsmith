@@ -2095,9 +2095,5 @@ Cypress.Commands.add("SelectFromMultiSelect", (options) => {
 
 Cypress.Commands.add("skipSignposting", () => {
   onboarding.closeIntroModal();
-  cy.get("body").then(($body) => {
-    if ($body.find(onboardingLocators.statusbarClose).length) {
-      onboarding.skipSignposting();
-    }
-  });
+  onboarding.skipSignposting();
 });

@@ -15,6 +15,7 @@ import {
 import {
   getFirstTimeUserOnboardingApplicationIds,
   removeAllFirstTimeUserOnboardingApplicationIds,
+  removeFirstTimeUserOnboardingApplicationId,
   setEnableStartSignposting,
   setFirstTimeUserOnboardingApplicationId as storeFirstTimeUserOnboardingApplicationId,
   setFirstTimeUserOnboardingIntroModalVisibility as storeFirstTimeUserOnboardingIntroModalVisibility,
@@ -37,7 +38,7 @@ import {
   enableGuidedTour,
   focusWidgetProperty,
   loadGuidedTour,
-  removeFirstTimeUserOnboardingApplicationId,
+  removeFirstTimeUserOnboardingApplicationId as removeFirstTimeUserOnboardingApplicationIdAction,
   setCurrentStep,
   toggleLoader,
 } from "actions/onboardingActions";
@@ -390,7 +391,7 @@ function* setFirstTimeUserOnboardingApplicationId(action: ReduxAction<string>) {
 function* removeFirstTimeUserOnboardingApplicationIdSaga(
   action: ReduxAction<string>,
 ) {
-  yield removeFirstTimeUserOnboardingApplicationId(action.payload);
+  yield call(removeFirstTimeUserOnboardingApplicationId, action.payload);
 
   const applicationIds: string[] =
     yield getFirstTimeUserOnboardingApplicationIds();
@@ -411,7 +412,9 @@ function* endFirstTimeUserOnboardingSaga() {
     getCurrentApplicationId,
   );
   yield put(
-    removeFirstTimeUserOnboardingApplicationId(firstTimeUserExperienceAppId),
+    removeFirstTimeUserOnboardingApplicationIdAction(
+      firstTimeUserExperienceAppId,
+    ),
   );
   Toaster.show({
     text: createMessage(ONBOARDING_SKIPPED_FIRST_TIME_USER),

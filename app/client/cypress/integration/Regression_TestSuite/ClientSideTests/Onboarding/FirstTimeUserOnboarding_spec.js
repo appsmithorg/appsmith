@@ -168,7 +168,7 @@ describe("FirstTimeUserOnboarding", function () {
     cy.get(OnboardingLocator.taskDatasourceBtn).should("be.visible");
 
     _.homePage.NavigateToHome();
-    _.homePage.CreateNewApplication();
+    _.homePage.CreateNewApplication(false);
 
     cy.get(OnboardingLocator.taskDatasourceBtn).should("be.visible");
   });
@@ -178,7 +178,7 @@ describe("FirstTimeUserOnboarding", function () {
 
     _.homePage.NavigateToHome();
     _.agHelper.RefreshPage();
-    _.homePage.CreateNewApplication();
+    _.homePage.CreateNewApplication(false);
 
     _.agHelper.AssertElementExist(_.locators._dropHere);
     _.agHelper.AssertElementAbsence(OnboardingLocator.statusbar);
