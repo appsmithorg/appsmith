@@ -134,3 +134,12 @@ ff4j:
         param:
           - name: emails
             value: balaji@appsmith.com,vamsi@appsmith.com
+
+    - uid: CHAT_AI
+      enable: true
+      description: Enable code generation using OpenAI
+      flipstrategy:
+        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        param:
+          - name: emails
+            value: chatai@appsmith.com
