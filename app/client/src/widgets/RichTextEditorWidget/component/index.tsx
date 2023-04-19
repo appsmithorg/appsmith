@@ -31,8 +31,6 @@ import type { TextSize } from "constants/WidgetConstants";
 
 // @ts-expect-error: loader types not available
 import cssVariables from "!!raw-loader!theme/wds.css";
-// @ts-expect-error: loader types not available
-import contentStyle from "!!raw-loader!tinymce/skins/content/default/content.min.css";
 import { isMacOs } from "utils/AppsmithUtils";
 import LabelWithTooltip, {
   labelLayoutStyles,
@@ -377,7 +375,6 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
             resize: false,
             browser_spellcheck: true,
             content_style: `
-              ${contentStyle}
               ${cssVariables}
               ${
                 props.isDisabled
