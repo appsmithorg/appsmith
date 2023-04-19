@@ -33,7 +33,7 @@ describe("Reconnect Datasource Modal validation while importing application", fu
               "Untitled Datasource",
             );
             // not configured yet
-            cy.get(".t--ds-list .cs-icon")
+            cy.get(".t--ds-list .t--ds-list-icon")
               .invoke("attr", "name")
               .should("eq", "info");
             // check db type

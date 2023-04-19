@@ -2160,18 +2160,18 @@ __metadata:
   resolution: "@design-system/headless@workspace:client/packages/design-system/headless"
   dependencies:
     "@react-aria/button": ^3.7.0
+    "@react-aria/checkbox": ^3.9.0
     "@react-aria/focus": ^3.11.0
     "@react-aria/interactions": ^3.14.0
-    "@react-aria/utils": ^3.15.0
+    "@react-aria/utils": ^3.16.0
+    "@react-aria/visually-hidden": ^3.8.0
     "@react-spectrum/utils": ^3.9.0
+    "@react-stately/toggle": ^3.5.1
     "@react-types/button": ^3.7.1
+    "@react-types/checkbox": ^3.4.3
     "@react-types/shared": ^3.17.0
-    "@types/react": "*"
-    "@types/react-dom": "*"
     classnames: "*"
     eslint: ^8.38.0
-    react: "*"
-    react-dom: "*"
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
   languageName: unknown
@@ -2203,7 +2203,6 @@ __metadata:
     babel-loader: ^8.3.0
     colorjs.io: ^0.4.3
     postcss: ^8
-    re-resizable: ^6.9.9
     react: ^17.0.2
     react-docgen-typescript: ^2.2.2
     react-dom: ^17.0.2
@@ -2235,6 +2234,7 @@ __metadata:
     "@capsizecss/metrics": ^1.0.1
     "@design-system/headless": "*"
     "@design-system/theming": "*"
+    "@react-aria/utils": ^3.16.0
     "@types/react": "*"
     "@types/react-dom": "*"
     colorjs.io: ^0.4.3
@@ -3834,6 +3834,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-aria/checkbox@npm:^3.9.0":
+  version: 3.9.0
+  resolution: "@react-aria/checkbox@npm:3.9.0"
+  dependencies:
+    "@react-aria/label": ^3.5.1
+    "@react-aria/toggle": ^3.6.0
+    "@react-aria/utils": ^3.16.0
+    "@react-stately/checkbox": ^3.4.1
+    "@react-stately/toggle": ^3.5.1
+    "@react-types/checkbox": ^3.4.3
+    "@react-types/shared": ^3.18.0
+    "@swc/helpers": ^0.4.14
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
+  checksum: f8876d24aa21309546c520046cc89430397267ba375d5d817e0b5307fb1d731b5101de7d3eeb0a46966af380a5f8c7e9c8d39a4a6dbd3be7bbb76f7b49eee78f
+  languageName: node
+  linkType: hard
+
 "@react-aria/focus@npm:^3.11.0, @react-aria/focus@npm:^3.12.0":
   version: 3.12.0
   resolution: "@react-aria/focus@npm:3.12.0"
@@ -3881,6 +3899,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-aria/label@npm:^3.5.1":
+  version: 3.5.1
+  resolution: "@react-aria/label@npm:3.5.1"
+  dependencies:
+    "@react-aria/utils": ^3.16.0
+    "@react-types/label": ^3.7.3
+    "@react-types/shared": ^3.18.0
+    "@swc/helpers": ^0.4.14
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
+  checksum: 1210d091ef16ff05338bdc968a4f90015ee61351ff245eb961f86e3a131cb86e3a581a42098b6119d0977d059fcc42c86385df997a0444165180e8430fbb4ce5
+  languageName: node
+  linkType: hard
+
 "@react-aria/ssr@npm:^3.6.0":
   version: 3.6.0
   resolution: "@react-aria/ssr@npm:3.6.0"
@@ -3892,7 +3924,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-aria/utils@npm:^3.15.0, @react-aria/utils@npm:^3.16.0":
+"@react-aria/toggle@npm:^3.6.0":
+  version: 3.6.0
+  resolution: "@react-aria/toggle@npm:3.6.0"
+  dependencies:
+    "@react-aria/focus": ^3.12.0
+    "@react-aria/interactions": ^3.15.0
+    "@react-aria/utils": ^3.16.0
+    "@react-stately/toggle": ^3.5.1
+    "@react-types/checkbox": ^3.4.3
+    "@react-types/shared": ^3.18.0
+    "@react-types/switch": ^3.3.1
+    "@swc/helpers": ^0.4.14
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
+  checksum: 60deddc95eb8c7aabcfb5775712ae63d0c7ecc511645b218ac387c907df0097c850f80ebceec23fef4add984a00d2dc364a7bce8013c1da8fa6cd20f2fafeacf
+  languageName: node
+  linkType: hard
+
+"@react-aria/utils@npm:^3.16.0":
   version: 3.16.0
   resolution: "@react-aria/utils@npm:3.16.0"
   dependencies:
@@ -3904,6 +3954,21 @@ __metadata:
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
   checksum: e2ad55088d77fad425cb812eef77171cebba128759e12d85dba3bcf57fdb635a52075410238561ded049393744f0e7deac5bd0faf1db3a043663c202012c3a69
+  languageName: node
+  linkType: hard
+
+"@react-aria/visually-hidden@npm:^3.8.0":
+  version: 3.8.0
+  resolution: "@react-aria/visually-hidden@npm:3.8.0"
+  dependencies:
+    "@react-aria/interactions": ^3.15.0
+    "@react-aria/utils": ^3.16.0
+    "@react-types/shared": ^3.18.0
+    "@swc/helpers": ^0.4.14
+    clsx: ^1.1.1
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
+  checksum: f73aeb3df18ae0f033456f451821c9794145e6dc06b48964ebbe0ad87ab09eca606fb6ddaa6d46e90bbd20860a96272126a912e6f1073a7f3b397ca7b3d7b2e2
   languageName: node
   linkType: hard
 
@@ -4054,6 +4119,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-stately/checkbox@npm:^3.4.1":
+  version: 3.4.1
+  resolution: "@react-stately/checkbox@npm:3.4.1"
+  dependencies:
+    "@react-stately/toggle": ^3.5.1
+    "@react-stately/utils": ^3.6.0
+    "@react-types/checkbox": ^3.4.3
+    "@react-types/shared": ^3.18.0
+    "@swc/helpers": ^0.4.14
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
+  checksum: cdee995f2588b1152a01399893cacde23b32cfa1bca05163a46507ebc113c6eabd02f596841c5cc748ae0e7ddebf23ae6433c1a9da948a764997f7af6ff8ae4f
+  languageName: node
+  linkType: hard
+
 "@react-stately/toggle@npm:^3.5.1":
   version: 3.5.1
   resolution: "@react-stately/toggle@npm:3.5.1"
@@ -4101,12 +4181,35 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-types/label@npm:^3.7.3":
+  version: 3.7.3
+  resolution: "@react-types/label@npm:3.7.3"
+  dependencies:
+    "@react-types/shared": ^3.18.0
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
+  checksum: 8b8167a51e8a869fcb67e106545a0a576b64b6c45fb9414ee355a0a764340d53043bffb1a95d4599f8ac41481e3ece6bebde9cef7febb43e9f50828d17391588
+  languageName: node
+  linkType: hard
+
 "@react-types/shared@npm:^3.17.0, @react-types/shared@npm:^3.18.0":
   version: 3.18.0
   resolution: "@react-types/shared@npm:3.18.0"
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
   checksum: 8fc56701e91f4f943f5b7c7cf968f103527c8dd5803430bd46e9210c24d3b410132fb3ded63841cf3c5cb20558385746b2705ba61204ff425c30fb1f0a64e342
+  languageName: node
+  linkType: hard
+
+"@react-types/switch@npm:^3.3.1":
+  version: 3.3.1
+  resolution: "@react-types/switch@npm:3.3.1"
+  dependencies:
+    "@react-types/checkbox": ^3.4.3
+    "@react-types/shared": ^3.18.0
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
+  checksum: 41ac4578d3f7f8bbb058c74a958f837b56f53467386972d57a5e4b558ac92ffd5312e2791651b35a416f90568d697606201cf0bd57f825eaec5be14e189e2525
   languageName: node
   linkType: hard
 
@@ -23379,16 +23482,6 @@ __metadata:
   peerDependencies:
     reselect: ">1.0.0"
   checksum: ead25756ba1c607a100f9110fe501a6dbeb29deaf5b4a22ad678f7ca2a7b3492fcccf62cbd02316ca2aa622640e57c939b63077cfacbf67389eedceae6d73df3
-  languageName: node
-  linkType: hard
-
-"re-resizable@npm:^6.9.9":
-  version: 6.9.9
-  resolution: "re-resizable@npm:6.9.9"
-  peerDependencies:
-    react: ^16.13.1 || ^17.0.0 || ^18.0.0
-    react-dom: ^16.13.1 || ^17.0.0 || ^18.0.0
-  checksum: a2c8bfe86646fb02d5c9c624b1da26f9e6a5e2f552cd96ce4db690588bee6b21177065ce8e98646c6ca0b1a9c4ce233824b75eb346800d8248ac8a87b40f1b28
   languageName: node
   linkType: hard
 

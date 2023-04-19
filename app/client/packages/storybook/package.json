@@ -30,7 +30,6 @@
     "autoprefixer": "^9.0.0",
     "babel-loader": "^8.3.0",
     "postcss": "^8",
-    "re-resizable": "^6.9.9",
     "storybook-addon-pseudo-states": "^1.15.2",
     "storybook-color-picker": "^3.1.0",
     "tsconfig-paths-webpack-plugin": "^3.5.2"

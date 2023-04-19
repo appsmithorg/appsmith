@@ -13,6 +13,7 @@
     "@capsizecss/metrics": "^1.0.1",
     "@design-system/headless": "*",
     "@design-system/theming": "*",
+    "@react-aria/utils": "^3.16.0",
     "colorjs.io": "^0.4.3",
     "eslint-plugin-storybook": "^0.6.10",
     "react": "*",
