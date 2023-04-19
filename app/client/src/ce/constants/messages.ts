@@ -197,7 +197,7 @@ export const SHARE_APP = () => `Share app`;
 export const EDITOR_HEADER = {
   saving: () => "Saving",
   saveFailed: () => "Save failed",
-  share: () => "SHARE",
+  share: () => "Share",
   previewTooltip: {
     text: () => "Preview",
     shortcut: () => "P",

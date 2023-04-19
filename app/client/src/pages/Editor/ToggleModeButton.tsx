@@ -1,7 +1,6 @@
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { TooltipComponent } from "design-system-old";
-import { Button } from "design-system";
+import { Button, Tooltip } from "design-system";
 
 import type { AppState } from "@appsmith/reducers";
 import { APP_MODE } from "entities/App";
@@ -29,18 +28,17 @@ function ToggleModeButton() {
   if (isExploring || isViewMode) return null;
 
   return (
-    <TooltipComponent
+    <Tooltip
       content={
         <>
           {createMessage(EDITOR_HEADER.previewTooltip.text)}
-          <span style={{ color: "#fff", marginLeft: 20 }}>
+          <span style={{ marginLeft: 20 }}>
             {createMessage(EDITOR_HEADER.previewTooltip.shortcut)}
           </span>
         </>
       }
-      disabled={appMode !== APP_MODE.EDIT}
-      hoverOpenDelay={1000}
-      position="bottom"
+      placement="bottom"
+      visible={appMode !== APP_MODE.EDIT}
     >
       <Button
         data-cy={`${isPreviewMode ? "preview" : "edit"}-mode`}
@@ -50,9 +48,9 @@ function ToggleModeButton() {
         size="md"
         startIcon="play-circle-line"
       >
-        {createMessage(EDITOR_HEADER.previewTooltip.text).toUpperCase()}
+        {createMessage(EDITOR_HEADER.previewTooltip.text)}
       </Button>
-    </TooltipComponent>
+    </Tooltip>
   );
 }
 

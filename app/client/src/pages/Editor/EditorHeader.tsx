@@ -44,9 +44,8 @@ import {
   EditInteractionKind,
   SavingState,
   getTypographyByKey,
-  TooltipComponent,
 } from "design-system-old";
-import { Button, Tooltip } from "design-system";
+import { Button, Icon, Tooltip } from "design-system";
 import { Profile } from "pages/common/ProfileImage";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
@@ -77,15 +76,11 @@ import {
   SHARE_BUTTON_TOOLTIP,
   SHARE_BUTTON_TOOLTIP_WITH_USER,
 } from "@appsmith/constants/messages";
-import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-// import { ReactComponent as MenuIcon } from "assets/icons/header/hamburger.svg";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import {
   setExplorerActiveAction,
   setExplorerPinnedAction,
 } from "actions/explorerActions";
-// import { ReactComponent as UnpinIcon } from "assets/icons/ads/double-arrow-right.svg";
-// import { ReactComponent as PinIcon } from "assets/icons/ads/double-arrow-left.svg";
 import { modText } from "utils/helpers";
 import Boxed from "./GuidedTour/Boxed";
 import EndTour from "./GuidedTour/EndTour";
@@ -95,7 +90,7 @@ import { useHref } from "./utils";
 import EmbedSnippetForm from "pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
-// import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -191,6 +186,18 @@ const BindingBanner = styled.div`
   z-index: 9999;
 `;
 
+const SidebarNavButton = styled(Button)`
+  .ads-v2-button__content {
+    padding: 0;
+  }
+  .group {
+    height: 36px;
+    width: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+`;
 // const HamburgerContainer = styled.div`
 //   height: ${(props) => props.theme.smallHeaderHeight};
 //   width: 34px;
@@ -221,19 +228,6 @@ const GlobalSearch = lazy(() => {
   return retryPromise(() => import("components/editorComponents/GlobalSearch"));
 });
 
-export function ShareButtonComponent() {
-  return (
-    <Button
-      className="t--application-share-btn"
-      kind="tertiary"
-      size="md"
-      startIcon={"share-line"}
-    >
-      {createMessage(EDITOR_HEADER.share)}
-    </Button>
-  );
-}
-
 const theme = getTheme(ThemeMode.LIGHT);
 
 export function EditorHeader(props: EditorHeaderProps) {
@@ -255,11 +249,11 @@ export function EditorHeader(props: EditorHeaderProps) {
   const isPreviewMode = useSelector(previewModeSelector);
   const deployLink = useHref(viewerURL, { pageId });
   const isMultiPane = useSelector(isMultiPaneActive);
-  // const isAppSettingsPaneWithNavigationTabOpen = useSelector(
-  //   getIsAppSettingsPaneWithNavigationTabOpen,
-  // );
-  // const isPreviewingApp =
-  //   isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
+  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+    getIsAppSettingsPaneWithNavigationTabOpen,
+  );
+  const isPreviewingApp =
+    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
 
@@ -341,6 +335,29 @@ export function EditorHeader(props: EditorHeaderProps) {
     ];
   }, []);
 
+  function ShareButtonComponent() {
+    return (
+      <Tooltip
+        content={
+          filteredSharedUserList.length
+            ? createMessage(
+                SHARE_BUTTON_TOOLTIP_WITH_USER(filteredSharedUserList.length),
+              )
+            : createMessage(SHARE_BUTTON_TOOLTIP)
+        }
+        placement="bottom"
+      >
+        <Button
+          className="t--application-share-btn"
+          kind="tertiary"
+          size="md"
+          startIcon={"share-line"}
+        >
+          {createMessage(EDITOR_HEADER.share)}
+        </Button>
+      </Tooltip>
+    );
+  }
   return (
     <ThemeProvider theme={theme}>
       <HeaderWrapper
@@ -349,35 +366,57 @@ export function EditorHeader(props: EditorHeaderProps) {
       >
         <HeaderSection className="space-x-2">
           {!isMultiPane && (
-            <Button
-              kind="tertiary"
-              onClick={onPin}
-              size="md"
-              startIcon={`hamburger, ${
-                pinned ? "double-arrow-left" : "double-arrow-right"
-              }`}
+            <Tooltip
+              content={
+                <div className="flex items-center justify-between">
+                  <span>
+                    {!pinned
+                      ? createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)
+                      : createMessage(CLOSE_ENTITY_EXPLORER_MESSAGE)}
+                  </span>
+                  <span className="ml-4">{modText()} /</span>
+                </div>
+              }
+              placement="bottomLeft"
             >
-              <TooltipComponent
-                content={
-                  <div className="flex items-center justify-between">
-                    <span>
-                      {!pinned
-                        ? createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)
-                        : createMessage(CLOSE_ENTITY_EXPLORER_MESSAGE)}
-                    </span>
-                    <span className="ml-4 text-xs text-gray-300">
-                      {modText()} /
-                    </span>
-                  </div>
-                }
-                position="bottom-left"
+              <SidebarNavButton
+                className={classNames({
+                  "transition-all transform duration-400": true,
+                  "-translate-x-full opacity-0": isPreviewingApp,
+                  "translate-x-0 opacity-100": !isPreviewingApp,
+                })}
+                kind="tertiary"
+                onClick={onPin}
+                size="md"
               >
                 <div
-                  className="t--pin-entity-explorer"
+                  className="t--pin-entity-explorer group relative"
                   onMouseEnter={onMenuHover}
-                />
-              </TooltipComponent>
-            </Button>
+                >
+                  <Icon
+                    className="absolute transition-opacity group-hover:opacity-0"
+                    name="hamburger"
+                    size="md"
+                  />
+                  {!pinned && (
+                    <Icon
+                      className="absolute transition-opacity opacity-0 group-hover:opacity-100"
+                      name="double-arrow-left"
+                      onClick={onPin}
+                      size="md"
+                    />
+                  )}
+                  {pinned && (
+                    <Icon
+                      className="absolute transition-opacity opacity-0 group-hover:opacity-100"
+                      name="double-arrow-right"
+                      onClick={onPin}
+                      size="md"
+                    />
+                  )}
+                </div>
+              </SidebarNavButton>
+            </Tooltip>
           )}
 
           <Tooltip content={createMessage(LOGO_TOOLTIP)} placement="bottomLeft">
@@ -390,13 +429,10 @@ export function EditorHeader(props: EditorHeaderProps) {
             </AppsmithLink>
           </Tooltip>
 
-          <TooltipComponent
-            autoFocus={false}
+          <Tooltip
             content={createMessage(RENAME_APPLICATION_TOOLTIP)}
-            disabled={isPopoverOpen}
-            hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-            openOnTargetFocus={false}
-            position="bottom"
+            placement="bottom"
+            visible={isPopoverOpen}
           >
             <EditorAppName
               applicationId={applicationId}
@@ -421,7 +457,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               }
               setIsPopoverOpen={setIsPopoverOpen}
             />
-          </TooltipComponent>
+          </Tooltip>
           <EditorSaveIndicator />
         </HeaderSection>
         <HeaderSection
@@ -453,22 +489,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                   cloudHosting,
                 )}
                 tabs={tabs}
-                trigger={
-                  <Tooltip
-                    content={
-                      filteredSharedUserList.length
-                        ? createMessage(
-                            SHARE_BUTTON_TOOLTIP_WITH_USER(
-                              filteredSharedUserList.length,
-                            ),
-                          )
-                        : createMessage(SHARE_BUTTON_TOOLTIP)
-                    }
-                    placement="bottom"
-                  >
-                    <ShareButtonComponent />
-                  </Tooltip>
-                }
+                trigger={<ShareButtonComponent />}
                 workspaceId={workspaceId}
               />
             )}
