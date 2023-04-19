@@ -6,6 +6,7 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
     const { config, select } = combinedConfig;
 
     if (!select) return;
+
     const { limit, offset, orderBy, sortOrder, where } = select;
 
     const querySegments = [
@@ -30,6 +31,7 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
         template: `OFFSET ${offset}`,
       },
     ];
+
     const consolidatedQuery = querySegments
       .filter(({ isValuePresent }) => !!isValuePresent)
       .reduce((acc, curr, index) => {
@@ -47,7 +49,6 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
   private static buildUpdate(combinedConfig: CombinedConfig) {
     const { config, insert } = combinedConfig;
 
-    if (!insert) return;
     if (!insert || !insert.where) return;
     const { value, where } = insert;
     return {
@@ -57,6 +58,7 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
       },
     };
   }
+
   private static buildInsert(combinedConfig: CombinedConfig) {
     const { config, create } = combinedConfig;
 

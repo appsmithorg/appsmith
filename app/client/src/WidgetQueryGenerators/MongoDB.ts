@@ -108,6 +108,7 @@ export default abstract class MongoDB extends BaseQueryGenerator {
       actionTitle,
     };
   }
+
   static build(
     combinedConfig: CombinedConfig,
     pluginInitalValues: { actionConfiguration: any },
