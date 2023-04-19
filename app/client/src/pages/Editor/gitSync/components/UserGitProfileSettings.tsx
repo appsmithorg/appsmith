@@ -149,8 +149,6 @@ function UserGitProfileSettings({
           <Checkbox
             data-test-id="t--use-global-config-checkbox"
             isSelected={useGlobalConfig}
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
             onChange={toggleUseDefaultConfig}
           >
             {createMessage(USE_DEFAULT_CONFIGURATION)}
