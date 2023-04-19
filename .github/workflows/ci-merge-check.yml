@@ -56,14 +56,14 @@ jobs:
         id: verify_checks
         run: |
           if [ ${{ steps.ci_test_result_status.outputs.ci_test_result }} == 1 ]; then
-            if [ ${{ steps.ci_test_result_status.outputs.ci_test_status }} > 0 ]; then
+            if [ ${{ steps.ci_test_result_status.outputs.ci_test_status }} -gt 0 ]; then
               echo "msg=Looks like there are some Cypress failures. Can't Merge" >> $GITHUB_OUTPUT
               exit 1
-            elif [ ${{ steps.ci_test_result_status.outputs.perf_test_status }} > 0 ]; then
+            elif [ ${{ steps.ci_test_result_status.outputs.perf_test_status }} -gt 0 ]; then
               echo "msg=Looks like Perf-Test is failed. Contact perf team to get their confirmation. Can't Merge" >> $GITHUB_OUTPUT
               exit 1
             fi
-          elif [ ${{ steps.suite_status_check.outputs.status2 }} > 0 ]; then
+          elif [ ${{ steps.suite_status_check.outputs.status2 }} == 0 ]; then
             echo "msg=Looks like you forgot to run /ok-to-test on the latest commit. Can't Merge" >> $GITHUB_OUTPUT
             exit 1
           elif [ ${{ steps.pr_status_check.outputs.status }} != 0 ]; then
