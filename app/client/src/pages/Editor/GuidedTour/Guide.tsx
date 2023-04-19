@@ -67,7 +67,7 @@ const Description = styled.span<{ addLeftSpacing?: boolean }>`
   line-height: 16px;
 
   /* letter-spacing: -0.24px; */
-  padding-left: ${(props) => (props.addLeftSpacing ? `20px` : "0px")};
+  padding-left: ${(props) => (props.addLeftSpacing ? `20px` : "5px")};
   margin-top: var(--ads-v2-spaces-2);
   flex: 1;
   display: flex;
@@ -400,11 +400,7 @@ function CompletionContent(props: CompletionContentProps) {
     return (
       <SuccessMessageWrapper>
         <div className="wrapper info-wrapper">
-          <Icon
-            color="var(--ads-v2-color-fg-information)"
-            name={info?.icon || ""}
-            size="lg"
-          />
+          <Icon name={info?.icon || ""} size="lg" />
           <Description className="info">{info?.text}</Description>
           <GuideButton
             className="t--info-button"

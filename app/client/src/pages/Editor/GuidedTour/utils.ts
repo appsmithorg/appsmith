@@ -20,8 +20,8 @@ class IndicatorHelper {
   constructor() {
     // The lottie animation has empty content around it.
     // These offsets are to compensate for the same to help with positioning it correctly.
-    this.indicatorHeightOffset = 23;
-    this.indicatorWidthOffset = 58;
+    this.indicatorHeightOffset = 18;
+    this.indicatorWidthOffset = 48;
   }
 
   async calculate(
