@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import webfontloader from "webfontloader";
 import styled, { createGlobalStyle } from "styled-components";
-import { ThemeProvider, TokensAccessor } from "@design-system/theming";
+import {
+  ThemeProvider,
+  TokensAccessor,
+  defaultTokens,
+  parse,
+} from "@design-system/theming";
 import { createGlobalFontStack } from "@design-system/widgets";
 
 const StyledThemeProvider = styled(ThemeProvider)`
@@ -20,7 +25,7 @@ const GlobalStyles = createGlobalStyle`
    ${fontFaces}
 `;
 
-const tokensAccessor = new TokensAccessor();
+const tokensAccessor = new TokensAccessor(defaultTokens);
 
 export const theming = (Story, args) => {
   const [theme, setTheme] = useState(tokensAccessor.getAllTokens());
@@ -41,7 +46,30 @@ export const theming = (Story, args) => {
 
   useEffect(() => {
     if (args.globals.accentColor) {
-      tokensAccessor.updateSeedColor(args.globals.accentColor);
+      let color;
+
+      try {
+        color = parse(args.globals.accentColor);
+      } catch (error) {
+        console.error(error);
+      }
+
+      if (color) {
+        tokensAccessor.updateSeedColor(args.globals.accentColor);
+
+        setTheme((prevState) => {
+          return {
+            ...prevState,
+            ...tokensAccessor.getColors(),
+          };
+        });
+      }
+    }
+  }, [args.globals.accentColor]);
+
+  useEffect(() => {
+    if (args.globals.colorMode) {
+      tokensAccessor.updateColorMode(args.globals.colorMode);
 
       setTheme((prevState) => {
         return {
@@ -50,7 +78,7 @@ export const theming = (Story, args) => {
         };
       });
     }
-  }, [args.globals.accentColor]);
+  }, [args.globals.colorMode]);
 
   useEffect(() => {
     if (args.globals.colorScheme) {
