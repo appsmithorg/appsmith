@@ -484,6 +484,7 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
               payload: {
                 ...analyticsPayload,
                 eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
+                errorId: errorLog.id,
                 errorMessage: errorMessage.message,
                 errorType: errorMessage.type,
                 errorSubType: errorMessage.subType,
@@ -511,6 +512,7 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
               payload: {
                 ...analyticsPayload,
                 eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
+                errorId: errorLog.id,
                 errorMessage: updatedErrorMessage.message,
                 errorType: updatedErrorMessage.type,
                 errorSubType: updatedErrorMessage.subType,
