@@ -51,6 +51,7 @@ import { ReactComponent as MicrophoneMutedIcon } from "assets/icons/widget/camer
 import { ReactComponent as FullScreenIcon } from "assets/icons/widget/camera/fullscreen.svg";
 import { ReactComponent as ExitFullScreenIcon } from "assets/icons/widget/camera/exit-fullscreen.svg";
 import type { ThemeProp } from "widgets/constants";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const overlayerMixin = css`
   position: absolute;
@@ -866,6 +867,8 @@ function CameraComponent(props: CameraComponentProps) {
   });
   const fullScreenHandle = useFullScreenHandle();
 
+  const isAirgappedInstance = isAirgapped();
+
   useEffect(() => {
     if (webcamRef.current && webcamRef.current.stream) {
       updateMediaTracksEnabled(webcamRef.current.stream);
@@ -1101,7 +1104,7 @@ function CameraComponent(props: CameraComponentProps) {
         <>
           <CameraOfflineIcon />
           <span className="error-text">{error}</span>
-          {error === "Permission denied" && (
+          {error === "Permission denied" && !isAirgappedInstance && (
             <a
               href="https://help.sprucehealth.com/article/386-changing-permissions-for-video-and-audio-on-your-internet-browser"
               rel="noreferrer"
