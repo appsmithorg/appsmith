@@ -171,7 +171,7 @@ export function ConversionForm(props: ConversionProps) {
           <SnapshotContainer style={snapShotStyles}>
             <Icon
               className="mx-3"
-              color="var(--ads-v2-color-black-600)"
+              color="var(--ads-v2-color-gray-600)"
               name={snapShotDetails.icon}
               size="lg"
             />
