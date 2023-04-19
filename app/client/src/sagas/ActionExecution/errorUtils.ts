@@ -87,7 +87,7 @@ export const logActionExecutionError = (
   // }
 
   Toaster.show({
-    text: errorMessage,
+    text: getDisplayMessageFromError(errorMessage) as string,
     variant: Variant.danger,
     showDebugButton: !!triggerPropertyName && {
       component: DebugButton,
@@ -134,4 +134,12 @@ export class UncaughtPromiseError extends Error {
 
 export const getErrorAsString = (error: unknown): string => {
   return isString(error) ? error : JSON.stringify(error);
+};
+
+export const getDisplayMessageFromError = (errorMessage: string) => {
+  if (errorMessage.indexOf(":") > 0) {
+    return errorMessage.split(":")[1];
+  } else {
+    return errorMessage;
+  }
 };

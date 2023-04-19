@@ -338,13 +338,10 @@ export function* evaluateAndExecuteDynamicTrigger(
       errors[0].errorMessage !==
       "UncaughtPromiseRejection: User cancelled action execution"
     ) {
-      // TODO - remove
-      // const errorMessage =
-      //   `${errors[0].errorMessage.name}: ${errors[0].errorMessage.message}` ||
-      //   errors[0].message;
-      throw new UncaughtPromiseError(
-        errors[0].errorMessage.message || errors[0].message,
-      );
+      const errorMessage =
+        `${errors[0].errorMessage.name}: ${errors[0].errorMessage.message}` ||
+        errors[0].message;
+      throw new UncaughtPromiseError(errorMessage);
     }
   }
   return response;
@@ -426,7 +423,6 @@ function* executeAsyncJSFunction(
     );
   } catch (e) {
     if (e instanceof UncaughtPromiseError) {
-      // TODO - check if this has error name attached
       logActionExecutionError(e.message);
     }
     response = { errors: [e], result: undefined };
@@ -454,7 +450,6 @@ export function* executeJSFunction(
     );
   } catch (e) {
     if (e instanceof UncaughtPromiseError) {
-      // TODO - check if this has error name attached
       logActionExecutionError(e.message);
     }
     response = { errors: [e], result: undefined };

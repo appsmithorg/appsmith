@@ -154,7 +154,6 @@ function* initiateActionTriggerExecution(
     }
   } catch (e) {
     if (e instanceof UncaughtPromiseError || e instanceof TriggerFailureError) {
-      // TODO - check if this has error name attached
       logActionExecutionError(e.message, source, triggerPropertyName);
     }
     // handle errors here
