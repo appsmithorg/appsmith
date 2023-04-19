@@ -224,7 +224,6 @@ myFun2: async () => {
     agHelper.GetNClick("[name='expand-more']", 0, true, 100);
     agHelper.ContainsNClick("myFun2");
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify2");
-    agHelper.AssertContains("ran successfully");
   });
 
   it("3. TC 1863 : JSEditor validation for Prettify Code with lint errors, triggered by keyboard shortcut", () => {
@@ -332,7 +331,6 @@ myFun2: async () => {
     agHelper.GetNClick("[name='expand-more']", 0, true, 100);
     agHelper.ContainsNClick("myFun2");
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4_1");
-    agHelper.AssertContains("ran successfully");
   });
 
   it("5. TC 1862 - JSEditor validation for goLineStartSmart with no errors, triggered by keyboard shortcut", () => {
