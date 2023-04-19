@@ -63,6 +63,7 @@ export const generateDataTreeAction = (
       config: action.config.actionConfiguration,
       ENTITY_TYPE: ENTITY_TYPE.ACTION,
       datasourceUrl,
+      name: action.config.name,
     },
     configEntity: {
       actionId: action.config.id,
