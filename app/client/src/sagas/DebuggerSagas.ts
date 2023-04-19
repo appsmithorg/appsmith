@@ -487,7 +487,7 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
               payload: {
                 ...analyticsPayload,
                 eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
-                errorId: errorLog.id,
+                errorId: errorLog.id + "_" + errorLog.timestamp,
                 errorMessage: errorMessage.message,
                 errorType: errorMessage.type,
                 errorSubType: errorMessage.subType,
@@ -515,7 +515,7 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
               payload: {
                 ...analyticsPayload,
                 eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
-                errorId: errorLog.id,
+                errorId: errorLog.id + "_" + errorLog.timestamp,
                 errorMessage: updatedErrorMessage.message,
                 errorType: updatedErrorMessage.type,
                 errorSubType: updatedErrorMessage.subType,
@@ -540,7 +540,10 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
               payload: {
                 ...analyticsPayload,
                 eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
-                errorId: currentDebuggerErrors[id].id,
+                errorId:
+                  currentDebuggerErrors[id].id +
+                  "_" +
+                  currentDebuggerErrors[id].timestamp,
                 errorMessage: existingErrorMessage.message,
                 errorType: existingErrorMessage.type,
                 errorSubType: existingErrorMessage.subType,
@@ -601,7 +604,7 @@ function* deleteDebuggerErrorLogsSaga(
             payload: {
               ...analyticsPayload,
               eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
-              errorId: error.id,
+              errorId: error.id + "_" + error.timestamp,
               errorMessage: errorMessage.message,
               errorType: errorMessage.type,
               errorSubType: errorMessage.subType,
