@@ -261,7 +261,6 @@ function* formValueChangeSaga(
       getDatasource,
       values.datasource.id,
     );
-    console.log(datasource);
 
     // Editing form fields triggers evaluations.
     // We pass the action to run form evaluations when the dataTree evaluation is complete
