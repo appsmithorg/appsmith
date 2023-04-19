@@ -34,6 +34,9 @@ type EditorAppNameProps = CommonComponentProps & {
 const Container = styled.div`
   display: flex;
   cursor: pointer;
+  &:hover {
+    background-color: var(--ads-v2-color-bg);
+  }
   & .${Classes.EDITABLE_TEXT} {
     height: ${(props) => props.theme.smallHeaderHeight} !important;
     display: block;
@@ -155,30 +158,25 @@ export function EditorAppName(props: EditorAppNameProps) {
     }
   }, [isEditing]);
 
-  // const handleOnInteraction = useCallback((nextOpenState: boolean) => {
-  //   if (!nextOpenState) {
-  //     setIsPopoverOpen(false);
-  //   }
-  // }, []);
+  const handleOnInteraction = useCallback((nextOpenState: boolean) => {
+    if (!nextOpenState) {
+      setIsPopoverOpen(false);
+    }
+  }, []);
 
   const NavigationMenuData = GetNavigationMenuData({
     editMode,
     theme,
   });
 
-  // const NavigationMenuItems = (
-  //   <Menu className="t--application-edit-menu">
-  //     <NavigationMenu
-  //       menuItems={NavigationMenuData}
-  //       setIsPopoverOpen={setIsPopoverOpen}
-  //     />
-  //   </Menu>
-  // );
-
   return defaultValue !== "" ? (
-    <Menu className="t--application-edit-menu">
-      <MenuTrigger>
-        <Container onClick={handleAppNameClick}>
+    <Menu
+      className="t--application-edit-menu"
+      onOpenChange={handleOnInteraction}
+      open={isPopoverOpen}
+    >
+      <MenuTrigger disabled={isEditing}>
+        <Container className="sdfsdfsdfsdA" onClick={handleAppNameClick}>
           <EditableAppName
             className={props.className}
             defaultSavingState={defaultSavingState}
@@ -208,7 +206,7 @@ export function EditorAppName(props: EditorAppNameProps) {
       </MenuTrigger>
       <NavigationMenu
         menuItems={NavigationMenuData}
-        // setIsPopoverOpen={setIsPopoverOpen}
+        setIsPopoverOpen={setIsPopoverOpen}
       />
     </Menu>
   ) : null;
