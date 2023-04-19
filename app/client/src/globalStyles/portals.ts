@@ -53,8 +53,8 @@ export const PortalStyles = createGlobalStyle`
     position: fixed;
     z-index: 3;
     pointer-events: none;
-    height: 87px;
-    width: 116px;
+    height: 50px;
+    width: 90px;
     transition: all 1s;
   }
 `;
