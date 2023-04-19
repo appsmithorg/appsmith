@@ -35,9 +35,9 @@ jobs:
         id: ci-test-result-status
         run: |
           run_status=`curl --silent https://api.github.com/repos/appsmithorg/appsmith/actions/runs/${{steps.workflow.outputs.run_id}}/jobs?per_page=100`
-          echo "ci_test_result=`echo $run_status | jq -r '[ .jobs[] | select (select(.name | contains("ci-test-result")) | .conclusion | contains("failure"))] | length'`" >> $GITHUB_OUTPUT                                    
-          echo "ci_test_status=`echo $run_status | jq -r '[ .jobs[] | select (select(.name | contains("ci-test ")) | .conclusion | contains("failure"))] | length'`" >> $GITHUB_OUTPUT
-          echo "perf_test_status=`echo $run_status | jq -r '[ .jobs[] | select (select(.name | contains("perf-test")) | .conclusion | contains("failure"))] | length'`" >> $GITHUB_OUTPUT
+          echo "ci_test_result=`echo $run_status | jq -r '[ .jobs[] | select (select(.name | contains("ci-test-result")) | .conclusion | contains("success") | not)] | length'`" >> $GITHUB_OUTPUT                                    
+          echo "ci_test_status=`echo $run_status | jq -r '[ .jobs[] | select (select(.name | contains("ci-test ")) | .conclusion | contains("success") | not)] | length'`" >> $GITHUB_OUTPUT
+          echo "perf_test_status=`echo $run_status | jq -r '[ .jobs[] | select (select(.name | contains("perf-test")) | .conclusion | contains("success") | not)] | length'`" >> $GITHUB_OUTPUT
       - run: |
           echo ${{ steps.ci_test_result_status.outputs.ci_test_result }}
           echo ${{ steps.ci_test_result_status.outputs.ci_test_status }}
