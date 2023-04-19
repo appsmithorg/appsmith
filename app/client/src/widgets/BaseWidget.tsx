@@ -69,6 +69,8 @@ import {
 import AutoLayoutDimensionObserver from "components/designSystems/appsmith/autoLayout/AutoLayoutDimensionObeserver";
 import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import WidgetComponentBoundary from "components/editorComponents/WidgetComponentBoundary";
+import type { AutocompletionDefinitions } from "./constants";
 
 /***
  * BaseWidget
@@ -119,6 +121,10 @@ abstract class BaseWidget<
   }
 
   static getStylesheetConfig(): Stylesheet {
+    return {};
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {};
   }
 
@@ -583,6 +589,15 @@ abstract class BaseWidget<
       </FlexComponent>
     );
   }
+  addWidgetComponentBoundary = (
+    content: ReactNode,
+    widgetProps: WidgetProps,
+  ) => (
+    <WidgetComponentBoundary widgetType={widgetProps.type}>
+      {content}
+    </WidgetComponentBoundary>
+  );
+
   getWidgetComponent = () => {
     const { renderMode, type } = this.props;
 
@@ -599,7 +614,7 @@ abstract class BaseWidget<
       return <Skeleton />;
     }
 
-    const content =
+    let content =
       renderMode === RenderModes.CANVAS
         ? this.getCanvasView()
         : this.getPageView();
@@ -652,6 +667,8 @@ abstract class BaseWidget<
         </AutoLayoutDimensionObserver>
       );
     }
+
+    content = this.addWidgetComponentBoundary(content, this.props);
     return this.addErrorBoundary(content);
   };
 

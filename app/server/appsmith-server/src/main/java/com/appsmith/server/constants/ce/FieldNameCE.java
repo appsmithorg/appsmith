@@ -150,6 +150,7 @@ public class FieldNameCE {
     public static final String ACTION_EXECUTION_TIME = "actionExecutionTime";
     public static final String WEBSITE = "website";
     public static final String TEMPLATE_APPLICATION_NAME = "templateAppName";
+    public static final String IS_SUPPORTED_FOR_AIR_GAP = "isSupportedForAirGap";
 
     // this key will present in the analytics as a diff b/w server and user invoked flows
     public static final String IS_DATASOURCE_UPDATE_USER_INVOKED_KEY = "isDatasourceUpdateUserInvoked";
