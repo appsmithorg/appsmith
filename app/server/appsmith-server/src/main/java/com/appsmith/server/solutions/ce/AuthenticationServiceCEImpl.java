@@ -469,15 +469,16 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
 
                                 return featureFlagService.check(FeatureFlagEnum.LIMITING_GOOGLE_SHEET_ACCESS)
                                         .flatMap(isFeatureFlag -> {
-                                            if (Boolean.FALSE.equals(isFeatureFlag)) {
-                                                return Mono.zip(Mono.just(datasource), accessTokenMono, projectIdMono);
+                                            if (Boolean.TRUE.equals(isFeatureFlag)) {
+
+                                                return pluginExecutorHelper
+                                                        .getPluginExecutor(pluginService.findById(datasource.getPluginId()))
+                                                        .flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
+                                                                .getDatasourceMetadata(datasource.getDatasourceConfiguration()))
+                                                        .then(Mono.zip(Mono.just(datasource), accessTokenMono, projectIdMono));
                                             }
 
-                                            return pluginExecutorHelper
-                                                    .getPluginExecutor(pluginService.findById(datasource.getPluginId()))
-                                                    .flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
-                                                            .getDatasourceMetadata(datasource.getDatasourceConfiguration()))
-                                                    .then(Mono.zip(Mono.just(datasource), accessTokenMono, projectIdMono));
+                                            return Mono.zip(Mono.just(datasource), accessTokenMono, projectIdMono);
                                         });
                             });
                 })

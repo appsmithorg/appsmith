@@ -401,7 +401,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceConfiguration> getDatasourceMetadata(DatasourceConfiguration datasourceConfiguration) {
-            return new GetDatasourceMetadataMethod().getDatasourceMetadata(datasourceConfiguration);
+            return GetDatasourceMetadataMethod.getDatasourceMetadata(datasourceConfiguration);
         }
 
     }

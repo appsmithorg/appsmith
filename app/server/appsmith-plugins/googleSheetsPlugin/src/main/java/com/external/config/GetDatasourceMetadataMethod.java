@@ -10,8 +10,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -24,12 +22,15 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.util.CollectionUtils.isEmpty;
+import static org.springframework.util.StringUtils.hasLength;
+
 @Slf4j
 public class GetDatasourceMetadataMethod {
 
     protected static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public Mono<DatasourceConfiguration> getDatasourceMetadata(DatasourceConfiguration datasourceConfiguration) {
+    public static Mono<DatasourceConfiguration> getDatasourceMetadata(DatasourceConfiguration datasourceConfiguration) {
 
         // verifying the presence of Oauth Token for now making call to fetch email address
         if (datasourceConfiguration.getAuthentication() == null
@@ -42,7 +43,7 @@ public class GetDatasourceMetadataMethod {
                 .getAuthenticationResponse()
                 .getToken();
 
-        if (!StringUtils.hasLength(accessToken)) {
+        if (!hasLength(accessToken)) {
             return Mono.just(datasourceConfiguration);
         }
 
@@ -54,32 +55,26 @@ public class GetDatasourceMetadataMethod {
                 });
     }
 
-    private List<Property> setPropertiesWithEmailAddress(List<Property> properties, String emailAddress) {
-        if (CollectionUtils.isEmpty(properties)) {
+    public static List<Property> setPropertiesWithEmailAddress(List<Property> properties, String emailAddress) {
+        if (isEmpty(properties)) {
             properties = new ArrayList<>();
             properties.add(new Property(FieldName.EMAIL_ADDRESS, emailAddress));
-            return properties;
+
+        } else if (!FieldName.EMAIL_ADDRESS.equals(properties.get(0).getKey())) {
+            properties.set(0, new Property(FieldName.EMAIL_ADDRESS, emailAddress));
+        } else {
+            properties.get(0).setValue(emailAddress);
         }
 
-        for (Property property: properties) {
-            if (!FieldName.EMAIL_ADDRESS.equals(property.getKey())) {
-                continue;
-            }
-            property.setValue(emailAddress);
-            return properties;
-        }
-
-        // If we have properties without the emailAddress key, then we create the property for the same
-        properties.add(new Property(FieldName.EMAIL_ADDRESS, emailAddress));
         return properties;
     }
 
-    public Mono<String> fetchEmailAddressFromGoogleAPI(String accessToken) {
+    public static Mono<String> fetchEmailAddressFromGoogleAPI(String accessToken) {
 
         WebClient client = WebClientUtils.builder().build();
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.newInstance();
         try {
-            uriBuilder.uri(new URI("https://www.googleapis.com/drive/v3/about"))
+            uriBuilder.uri(new URI(FieldName.GOOGLE_API_BASE_URL +"/drive/v3/about"))
                     .queryParam("fields", "user");
         } catch (URISyntaxException e) {
             // since the datasource authorisation doesn't get affected if this flow fails,
