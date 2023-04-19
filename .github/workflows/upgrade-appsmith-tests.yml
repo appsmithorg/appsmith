@@ -39,7 +39,7 @@ jobs:
           echo "ci_test_result=$ci_test_result" >> $GITHUB_OUTPUT
           ci_test_status=$(echo "$run_status" | jq '[ .jobs[] | select(.name | contains("ci-test ")) | select(.conclusion | contains("success") | not) ] | length')
           echo "ci_test_status=$ci_test_status" >> $GITHUB_OUTPUT
-          perf_test_status=$(echo "$run_status" | jq '[ .jobs[] | select(.name | contains("perf-test")) | select(.conclusion | contains("success") | not) ] | length'`)
+          perf_test_status=$(echo "$run_status" | jq '[ .jobs[] | select(.name | contains("perf-test")) | select(.conclusion | contains("success") | not) ] | length')
           echo "perf_test_status=$perf_test_status" >> $GITHUB_OUTPUT
       - run: |
           echo ${{ steps.ci_test_result_status.outputs.ci_test_result }}
