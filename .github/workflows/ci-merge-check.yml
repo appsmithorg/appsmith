@@ -49,7 +49,7 @@ jobs:
         run: |
           check_runs_link="https://api.github.com/repos/appsmithorg/appsmith/commits/${{github.event.client_payload.pull_request.head.sha}}/check-runs"
           check_run_result=`curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" $check_runs_link`
-          echo "status1=`echo $check_run_result | jq -r '[.check_runs[]|select (select(.name | contains("Test Plan Approved")) | .conclusion | contains("success") | not)] | length'`" >> $GITHUB_OUTPUT
+          echo "status1=`echo $check_run_result | jq -r '[[.check_runs[]|select(.name | contains("Test Plan Approved"))][0] | select( .conclusion | contains("success") | not)] | length'`" >> $GITHUB_OUTPUT
           echo "status2=`echo $check_run_result | jq -r '[.check_runs[] | select(.name | contains("ci-test-result"))] | length'`" >> $GITHUB_OUTPUT
 
       - name: Verify all the checks
@@ -63,18 +63,18 @@ jobs:
               echo "msg=Looks like Perf-Test is failed. Contact perf team to get their confirmation. Can't Merge" >> $GITHUB_OUTPUT
               exit 1
             fi
-          elif [ ${{ steps.suite_status_check.outputs.status2 }} == 0 ]; then
+          elif [ ${{ steps.suite_status_check.outputs.status2 }} > 0 ]; then
             echo "msg=Looks like you forgot to run /ok-to-test on the latest commit. Can't Merge" >> $GITHUB_OUTPUT
             exit 1
           elif [ ${{ steps.pr_status_check.outputs.status }} != 0 ]; then
             echo "msg=There's merge freeze. Can't Merge, please try after merge-freeze is lifted" >> $GITHUB_OUTPUT
             exit 1
-          elif [ ${{ steps.suite_status_check.outputs.status1 }} == 0 ]; then
-            echo "msg=Hurray!🎉 Proceeding to Merge!!!" >> $GITHUB_OUTPUT
-            exit 0
           elif [ ${{ steps.suite_status_check.outputs.status1 }} == 1 ]; then
             echo "msg=Either get 'Test Plan Approved' or 'skip-testPlan' added and try again!" >> $GITHUB_OUTPUT
             exit 1
+          elif [ ${{ steps.suite_status_check.outputs.status1 }} == 0 ]; then
+            echo "msg=Hurray!🎉 Proceeding to Merge!!!" >> $GITHUB_OUTPUT
+            exit 0
           else
             echo "msg=Some checks have failed. Can't merge" >> $GITHUB_OUTPUT
             exit 1
