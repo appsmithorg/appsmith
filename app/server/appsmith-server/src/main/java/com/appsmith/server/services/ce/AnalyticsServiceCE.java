@@ -22,8 +22,6 @@ public interface AnalyticsServiceCE {
 
     Mono<Void> sendEvent(String event, String userId, Map<String, ?> properties, boolean hashUserId);
 
-    Mono<Void> sendInstanceEvent(String event, String instanceId, Map<String, ?> properties, boolean hashUserId);
-
     <T extends BaseDomain> Mono<T> sendObjectEvent(AnalyticsEvents event, T object, Map<String, Object> extraProperties);
 
     <T extends BaseDomain> Mono<T> sendObjectEvent(AnalyticsEvents event, T object);
