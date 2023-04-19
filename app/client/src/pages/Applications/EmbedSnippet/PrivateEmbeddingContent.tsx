@@ -1,20 +1,11 @@
 import React from "react";
 import styled from "styled-components";
-import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import {
-  Button,
-  Category,
-  IconPositions,
-  Text,
-  TextType,
-} from "design-system-old";
-import { getAppsmithConfigs } from "@appsmith/configs";
+import { Button, Text, TextType } from "design-system-old";
 import {
   createMessage,
   IN_APP_EMBED_SETTING,
-  UPGRADE,
 } from "@appsmith/constants/messages";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAppsmithConfigs } from "ce/configs";
 
 const appsmithConfigs = getAppsmithConfigs();
 
@@ -22,11 +13,10 @@ const Container = styled.div<{ isAppSettings: boolean }>`
   ${({ isAppSettings }) =>
     isAppSettings
       ? `
-      padding: 16px; 
       text-align: left; 
       `
       : `
-      text-align: center;
+      text-align: left;
 
       .no-sub-img {
         margin: auto;
@@ -34,20 +24,37 @@ const Container = styled.div<{ isAppSettings: boolean }>`
   `}
 `;
 
-const SubContainer = styled.div`
-  margin: 16px 0;
+const SubContainer = styled.div<{ isAppSettings: boolean }>`
+  ${({ isAppSettings }) =>
+    isAppSettings
+      ? `
+      > span {
+        margin: 8px;
+      }
+      `
+      : `
+      > span {
+        margin: 8px 0px;
+      }
 
-  > span {
-    margin: 8px 0;
-  }
+      > span:nth-child(2) {
+        margin-bottom: 16px;
+      }
+  `}
 `;
 
 const StyledText = styled(Text)`
   display: block;
+  font-size: 14px;
 
   &.upgrade-heading {
     font-weight: 600;
+    font-size: 16px;
   }
+`;
+
+const StyledAnchor = styled.a`
+  text-decoration: underline;
 `;
 
 function PrivateEmbeddingContent(props: {
@@ -59,31 +66,28 @@ function PrivateEmbeddingContent(props: {
 
   return (
     <Container data-testid="t--upgrade-content" isAppSettings={isAppSettings}>
-      <img
-        alt={"Upgrade"}
-        className="no-sub-img"
-        height="108px"
-        src={getAssetUrl(`${ASSETS_CDN_URL}/upgrade-box.svg`)}
-        width="119px"
-      />
-      <SubContainer>
+      <SubContainer isAppSettings={isAppSettings}>
         <StyledText className="upgrade-heading" type={TextType.P1}>
-          {createMessage(IN_APP_EMBED_SETTING.upgradeHeading)}
-        </StyledText>
-        <StyledText type={TextType.P2}>
           {canMakeAppPublic
             ? isAppSettings
-              ? createMessage(IN_APP_EMBED_SETTING.upgradeContentForAppSettings)
-              : createMessage(IN_APP_EMBED_SETTING.upgradeContentForInviteModal)
-            : createMessage(IN_APP_EMBED_SETTING.upgradeContent)}
+              ? createMessage(IN_APP_EMBED_SETTING.upgradeHeadingForAppSettings)
+              : createMessage(IN_APP_EMBED_SETTING.upgradeHeadingForInviteModal)
+            : createMessage(IN_APP_EMBED_SETTING.upgradeHeading)}
+        </StyledText>
+        <StyledText type={TextType.P2}>
+          {createMessage(IN_APP_EMBED_SETTING.upgradeContent)}&nbsp;
+          <StyledAnchor
+            href={appsmithConfigs.pricingUrl}
+            rel="noreferrer"
+            target="_blank"
+          >
+            {createMessage(IN_APP_EMBED_SETTING.appsmithBusinessEdition)}
+          </StyledAnchor>
         </StyledText>
       </SubContainer>
-      <SubContainer
-        className={`flex gap-4 ${!isAppSettings && "justify-center"}`}
-      >
+      <SubContainer className={`flex`} isAppSettings={isAppSettings}>
         {canMakeAppPublic && !isAppSettings && (
           <Button
-            category={Category.secondary}
             data-testid="t--share-settings-btn"
             height="36"
             onClick={changeTab}
@@ -91,15 +95,6 @@ function PrivateEmbeddingContent(props: {
             type="button"
           />
         )}
-        <Button
-          data-testid="t--upgrade-btn"
-          height="36"
-          href={`${appsmithConfigs.customerPortalUrl}/plans`}
-          icon="external-link-line"
-          iconPosition={IconPositions.left}
-          target="_blank"
-          text={createMessage(UPGRADE)}
-        />
       </SubContainer>
     </Container>
   );

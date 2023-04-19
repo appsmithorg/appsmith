@@ -1534,13 +1534,12 @@ export const IN_APP_EMBED_SETTING = {
   sectionHeaderDesc: () => "Make public, embed properties",
   showNavigationBar: () => "Show navigation bar",
   upgradeHeading: () =>
-    "Private embedding is only available on self-hosted Business Edition of Appsmith",
-  upgradeContent: () =>
-    "Please contact your workspace admin to make the app public.",
-  upgradeContentForAppSettings: () =>
-    "To embed your app, make it public by toggling the switch above.",
-  upgradeContentForInviteModal: () =>
-    "To embed your app, make it public in the share settings.",
+    "Please contact your workspace admin to make the app public before embedding",
+  upgradeHeadingForAppSettings: () => "Make your app public to embed",
+  upgradeHeadingForInviteModal: () =>
+    "Make your app public in share settings to embed",
+  upgradeContent: () => "Private embedding is now available in",
+  appsmithBusinessEdition: () => "Appsmith Business Edition",
 };
 
 export const APP_NAVIGATION_SETTING = {
