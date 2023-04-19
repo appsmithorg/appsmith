@@ -112,7 +112,7 @@ export default function (request: EvalWorkerSyncRequest) {
           allActionValidationConfig,
         );
       }
-      if (shouldReplay) {
+      if (shouldReplay && replayMap) {
         replayMap[CANVAS]?.update({ widgets, theme });
       }
       dataTreeEvaluator = new DataTreeEvaluator(
@@ -169,7 +169,7 @@ export default function (request: EvalWorkerSyncRequest) {
         );
       }
       isCreateFirstTree = false;
-      if (shouldReplay) {
+      if (shouldReplay && replayMap) {
         replayMap[CANVAS]?.update({ widgets, theme });
       }
       const setupUpdateTreeResponse = dataTreeEvaluator.setupUpdateTree(
@@ -231,7 +231,7 @@ export default function (request: EvalWorkerSyncRequest) {
     errors = dataTreeEvaluator.errors;
     dataTreeEvaluator.clearErrors();
     logs = dataTreeEvaluator.logs;
-    if (shouldReplay) {
+    if (shouldReplay && replayMap) {
       if (replayMap[CANVAS]?.logs) logs = logs.concat(replayMap[CANVAS]?.logs);
       replayMap[CANVAS]?.clearLogs();
     }
