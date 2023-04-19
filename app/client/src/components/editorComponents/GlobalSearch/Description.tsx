@@ -80,16 +80,40 @@ const Container = styled.div`
   }
 
   .documentation-cta {
-    ${getTypographyByKey("p3")}
-    white-space: nowrap;
-    background: ${(props) =>
-      props.theme.colors.globalSearch.documentationCtaBackground};
-    color: ${(props) => props.theme.colors.globalSearch.documentationCtaText};
-    padding: ${(props) => props.theme.spaces[2]}px;
-    margin: 0 ${(props) => props.theme.spaces[2]}px;
+    --button-font-weight: 600;
+    --button-font-size: 12px;
+    --button-padding: var(--ads-v2-spaces-2) var(--ads-v2-spaces-3);
+    --button-gap: var(--ads-v2-spaces-2);
+    --button-color-bg: transparent;
+    --button-color-fg: var(--ads-v2-color-fg);
+    mix-blend-mode: multiply;
+
     position: relative;
-    bottom: 3px;
-    float: right;
+    font-size: var(--button-font-size);
+    cursor: pointer;
+    border: none;
+    background-color: transparent;
+    color: var(--button-color-fg);
+    text-decoration: none;
+    height: var(--button-height);
+    box-sizing: border-box;
+    overflow: hidden;
+    min-width: min-content;
+    border-radius: var(--ads-v2-border-radius) !important;
+
+    display: inline-flex;
+    align-self: center;
+    gap: var(--button-gap);
+    background-color: var(--button-color-bg);
+    border: 1px solid var(--ads-v2-color-border);
+    box-sizing: border-box;
+    padding: var(--button-padding);
+    /* border-radius: inherit; */
+    text-transform: capitalize;
+    &:hover {
+      --button-color-bg: var(--ads-v2-color-bg-subtle);
+      --button-color-fg: var(--ads-v2-color-fg);
+    }
   }
 
   & a {
@@ -130,6 +154,8 @@ const Container = styled.div`
 const StyledDocumentationDescription = styled.div`
   h1 {
     margin: 0.5rem 0;
+    display: flex;
+    justify-content: space-between;
     /* font-size: 1.5rem; */
   }
   h2 {

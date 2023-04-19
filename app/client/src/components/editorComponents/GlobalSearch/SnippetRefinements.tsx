@@ -27,6 +27,7 @@ const RefinementListContainer = styled.div`
       display: flex;
       align-items: center;
       margin-left: var(--ads-v2-spaces-3);
+      margin-bottom: var(--ads-v2-spaces-3);
       svg {
         cursor: pointer;
       }

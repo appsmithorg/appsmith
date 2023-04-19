@@ -21,6 +21,9 @@ const SnippetsFilterContainer = styled.div<{
   display: ${(props) => (props.snippetsEmpty ? "none" : "flex")};
   .button-filter {
     box-shadow: var(--ads-v2-shadow-popovers);
+    span + span {
+      margin-left: 4px;
+    }
   }
   .filter-list {
     display: block;
@@ -34,7 +37,7 @@ const SnippetsFilterContainer = styled.div<{
     border: 1px solid var(--ads-v2-color-border);
     box-shadow: var(--ads-v2-shadow-popovers);
     [class^="ais-"] {
-      font-size: 12px;
+      font-size: 14px;
     }
     .ais-ClearRefinements {
       display: flex;
@@ -86,6 +89,98 @@ const SnippetsFilterContainer = styled.div<{
     .container {
       height: calc(100% - 33px);
       overflow: auto;
+      --checkbox-color-label: var(--ads-v2-color-fg);
+      --checkbox-color-border: var(--ads-v2-color-border);
+      --checkbox-color-background: var(--ads-v2-color-bg);
+      --checkbox-color-background-checkmark: var(
+        --ads-v2-color-fg-on-brand-secondary
+      );
+      .ais-RefinementList-checkbox {
+        opacity: 0;
+        position: absolute;
+        left: 0;
+      }
+
+      .ais-RefinementList-label {
+        cursor: pointer;
+        position: relative;
+        padding-left: var(--ads-v2-spaces-7);
+        font-family: var(--ads-v2-font-family);
+        color: var(--checkbox-color-label);
+        display: flex;
+        align-items: center;
+        justify-content: left;
+        &::before {
+          content: "";
+          position: absolute;
+          left: 0;
+          top: 2px;
+          width: 16px;
+          height: 16px;
+          border: 1px solid var(--ads-v2-color-border);
+          border-radius: var(--ads-v2-border-radius);
+          box-sizing: border-box;
+          background-color: var(--checkbox-color-background);
+        }
+
+        &::after {
+          content: "";
+          position: absolute;
+          left: 0;
+          top: 2px;
+          width: 16px;
+          height: 16px;
+          border-radius: var(--ads-v2-border-radius);
+          background-color: var(--ads-v2-color-bg-brand-secondary);
+          border: 1px solid var(--ads-v2-color-bg-brand-secondary);
+          box-sizing: border-box;
+          transform: scale(0);
+          transition: transform 0.2s ease;
+          z-index: 1;
+        }
+      }
+      .ais-RefinementList-checkbox + span:before {
+        content: "";
+        opacity: 0;
+        position: absolute;
+        left: 3px;
+        top: 11px;
+        width: 5px;
+        height: var(--ads-v2-spaces-1);
+        border-radius: 4px;
+        background-color: var(--checkbox-color-background-checkmark);
+        transform: rotateZ(48deg);
+        z-index: 2;
+      }
+
+      .ais-RefinementList-checkbox + span:after {
+        content: "";
+        opacity: 0;
+        position: absolute;
+        left: 4px;
+        top: 9px;
+        width: 10px;
+        height: var(--ads-v2-spaces-1);
+        border-radius: 4px;
+        background-color: var(--checkbox-color-background-checkmark);
+        transform: rotateZ(304deg);
+        z-index: 2;
+      }
+
+      /* Style for the custom checkbox when it is checked */
+      .ais-RefinementList-checkbox:checked + span:before {
+        opacity: 1;
+      }
+      .ais-RefinementList-checkbox:checked + span:after {
+        opacity: 1;
+      }
+
+      .ais-RefinementList-labelText {
+        /* align the label text */
+        display: inline-block;
+        vertical-align: middle;
+      }
+
       .ais-RefinementList-list {
         text-align: left;
         .ais-RefinementList-item {
@@ -97,21 +192,17 @@ const SnippetsFilterContainer = styled.div<{
             cursor: pointer;
           }
           .ais-RefinementList-label {
-            display: flex;
-            align-items: center;
-            .ais-RefinementList-checkbox {
-              height: 16px;
-              width: 16px;
-            }
-            .ais-RefinementList-labelText {
-              margin: 0 ${(props) => props.theme.spaces[4]}px;
-            }
             .ais-RefinementList-count {
               display: none;
             }
           }
           &.ais-RefinementList-item--selected {
             background-color: var(--ads-v2-color-bg-muted);
+            .ais-RefinementList-label {
+              &::after {
+                transform: scale(1);
+              }
+            }
           }
           &:hover {
             background-color: var(--ads-v2-color-bg-subtle);
