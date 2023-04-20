@@ -106,9 +106,9 @@ export const combineDynamicBindings = (
   return stringSegments
     .map((segment, index) => {
       if (jsSnippets[index] && jsSnippets[index].length > 0) {
-        return jsSnippets[index];
+        return `(${jsSnippets[index]})`;
       } else {
-        return `'${segment}'`;
+        return `${JSON.stringify(segment)}`;
       }
     })
     .join(" + ");
