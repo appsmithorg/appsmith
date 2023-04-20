@@ -188,7 +188,8 @@ function WidgetsEditor() {
                   isAppSettingsPaneWithNavigationTabOpen,
               })}
             >
-              <CanvasTopSection />
+              {!isAppSettingsPaneWithNavigationTabOpen && <CanvasTopSection />}
+
               <div
                 className="relative flex flex-row w-full overflow-hidden"
                 data-testid="widgets-editor"

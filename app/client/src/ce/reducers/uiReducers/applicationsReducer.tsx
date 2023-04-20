@@ -26,6 +26,7 @@ import type { ConnectToGitResponse } from "actions/gitSyncActions";
 import type { AppIconName } from "design-system-old";
 import type { NavigationSetting } from "constants/AppConstants";
 import { defaultNavigationSetting } from "constants/AppConstants";
+import produce from "immer";
 
 export const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
@@ -602,35 +603,17 @@ export const handlers = {
   }),
   [ReduxActionTypes.UPLOAD_NAVIGATION_LOGO_SUCCESS]: (
     state: ApplicationsReduxState,
-    action: ReduxAction<UpdateApplicationRequest>,
+    action: ReduxAction<NavigationSetting["logoAssetId"]>,
   ) => {
-    const updatedNavigationSetting = Object.assign(
-      {},
-      state.currentApplication?.applicationDetail?.navigationSetting,
-      {
-        logoAssetId: action.payload,
-      },
-    );
+    return produce(state, (draftState: ApplicationsReduxState) => {
+      draftState.isUploadingNavigationLogo = false;
 
-    const updatedApplicationDetail = Object.assign(
-      {},
-      state.currentApplication?.applicationDetail,
-      {
-        navigationSetting: updatedNavigationSetting,
-      },
-    );
-
-    const updatedCurrentApplication = Object.assign(
-      {},
-      state.currentApplication,
-      {
-        applicationDetail: updatedApplicationDetail,
-      },
-    );
-
-    return Object.assign({}, state, {
-      isUploadingNavigationLogo: false,
-      currentApplication: updatedCurrentApplication,
+      if (
+        draftState?.currentApplication?.applicationDetail?.navigationSetting
+      ) {
+        draftState.currentApplication.applicationDetail.navigationSetting.logoAssetId =
+          action.payload;
+      }
     });
   },
   [ReduxActionErrorTypes.UPLOAD_NAVIGATION_LOGO_ERROR]: (
