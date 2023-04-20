@@ -197,7 +197,7 @@ init_replica_set() {
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
   fi
 
-  if [[ $isUriLocal -gt 0 ]]; then
+  if ! [[ $isUriLocal -gt 0 ]]; then
     echo "Checking Replica Set of external MongoDB"
 
     if appsmithctl check-replica-set; then
