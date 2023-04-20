@@ -26,6 +26,7 @@ export const redshiftIcon = `${ASSETS_CDN_URL}/logo/aws-redshift.svg`;
 export const hubspotIcon = `${ASSETS_CDN_URL}/integrations/HubSpot.png`;
 export const airtableIcon = `${ASSETS_CDN_URL}/integrations/airtable.svg`;
 export const twilioIcon = `${ASSETS_CDN_URL}/integrations/twilio_24.png`;
+export const twilioIcon1 = `${ASSETS_CDN_URL}/integrations/twilio_1.png`;
 export const sendgridTwilioIcon = `${ASSETS_CDN_URL}/integrations/sendgrid_twilio.jpg`;
 export const huggingFaceLogo = `${ASSETS_CDN_URL}/integrations/Hugging-Face-Logo.png`;
 export const dropboxIcon = `${ASSETS_CDN_URL}/integrations/dropbox.png`;

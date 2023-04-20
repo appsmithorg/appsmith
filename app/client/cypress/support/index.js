@@ -90,7 +90,6 @@ before(function () {
   const username = Cypress.env("USERNAME");
   const password = Cypress.env("PASSWORD");
   cy.LoginFromAPI(username, password);
-  cy.visit("/applications");
   cy.wait("@getMe");
   cy.wait(3000);
   cy.get(".t--applications-container .createnew")

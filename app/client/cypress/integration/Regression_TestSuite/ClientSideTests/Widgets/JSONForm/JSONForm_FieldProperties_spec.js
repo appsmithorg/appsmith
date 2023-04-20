@@ -277,7 +277,29 @@ describe("Text Field Property Control", () => {
     cy.togglebarDisable(`.t--property-control-disabled input`);
   });
 
-  it("30. Radio group Field Property Control - pre condition", () => {
+  it("30. Invalid options should not crash the widget", () => {
+    // clear Options
+    cy.testJsonTextClearMultiline("options");
+    // enter invalid options
+    cy.testJsontext("options", '{{[{ label: "asd", value: "zxc"}, null ]}}');
+
+    // wait for eval to update
+    cy.wait(2000);
+    // Check if the multiselect field exist
+    cy.get(`${fieldPrefix}-hobbies`).should("exist");
+
+    // clear Default Selected Values
+    cy.testJsonTextClearMultiline("defaultselectedvalues");
+    // enter default value
+    cy.testJsontext("defaultselectedvalues", '["zxc"]');
+
+    // wait for eval to update
+    cy.wait(2000);
+    // Check if the multiselect field exist
+    cy.get(`${fieldPrefix}-hobbies`).should("exist");
+  });
+
+  it("31. Radio group Field Property Control - pre condition", () => {
     const sourceData = {
       radio: "Y",
     };
@@ -288,7 +310,7 @@ describe("Text Field Property Control", () => {
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Radio Group");
   });
 
-  it("31. has valid default value", () => {
+  it("32. has valid default value", () => {
     cy.get(".t--property-control-defaultselectedvalue").contains(
       "{{sourceData.radio}}",
     );
@@ -296,7 +318,7 @@ describe("Text Field Property Control", () => {
     cy.get(`${fieldPrefix}-radio input`).should("have.value", "Y");
   });
 
-  it("32. hides field when visible switched off", () => {
+  it("33. hides field when visible switched off", () => {
     cy.togglebarDisable(`.t--property-control-visible input`);
     cy.get(`${fieldPrefix}-radio`).should("not.exist");
     cy.wait(500);
