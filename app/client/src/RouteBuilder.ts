@@ -44,7 +44,7 @@ export function getQueryStringfromObject(
   const queryParams: string[] = [];
   if (paramKeys) {
     paramKeys.forEach((paramKey: string) => {
-      const value = params[paramKey];
+      const value = encodeURIComponent(params[paramKey]);
       if (paramKey && value) {
         queryParams.push(`${paramKey}=${value}`);
       }
