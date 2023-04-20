@@ -17,7 +17,6 @@ describe("Validating Mobile Views with Fill Widgets", function () {
     cy.wait(2000);
     cy.get("canvas").should("be.visible");
     cy.addDsl(dsl);
-    cy.wait(5000); //for dsl to settle
     cy.get(".t--widget-inputwidgetv2").first().should("be.visible");
     cy.PublishtheApp();
     cy.wait(2000);

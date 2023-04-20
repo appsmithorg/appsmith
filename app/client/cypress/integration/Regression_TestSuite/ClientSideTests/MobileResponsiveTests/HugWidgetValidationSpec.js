@@ -15,7 +15,6 @@ describe("Validating Mobile Views with Hug Widgets", function () {
     cy.wait(2000);
     cy.get("canvas").should("be.visible");
     cy.addDsl(dsl); //for dsl to settle
-    cy.wait(5000); //for dsl to settle
     cy.get(".t--widget-imagewidget").first().should("be.visible");
     cy.PublishtheApp();
     cy.wait(2000);
