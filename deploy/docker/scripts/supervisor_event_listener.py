@@ -20,16 +20,19 @@ def write_stderr(s):
 def wait_until_backend_healthy():
     sleep_sec = 3
     timeout_sec = 120
-    for _ in range(timeout_sec//sleep_sec):
-        if requests.get(BACKEND_HEALTH_ENDPOINT).ok:
-            write_stderr('\nBackend is healthy\n')
-            break
-        time.sleep(sleep_sec)
+    try:
+        for _ in range(timeout_sec//sleep_sec):
+            if requests.get(BACKEND_HEALTH_ENDPOINT, verify=False).ok:
+                write_stderr('\nBackend is healthy\n')
+                break
+            time.sleep(sleep_sec)
 
-    else:
-        write_stderr('\nBackend health check timed out\n')
-
-    remove_loading_page()
+        else:
+            write_stderr('\nBackend health check timed out\n')
+    except Exception as ex:
+        write_stderr(ex)
+    finally:
+        remove_loading_page()
 
 def remove_loading_page():
     if os.path.exists(LOADING_PAGE_EDITOR):
