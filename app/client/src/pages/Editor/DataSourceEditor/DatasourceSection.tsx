@@ -35,7 +35,7 @@ const FieldWrapper = styled.div`
 export default class RenderDatasourceInformation extends React.Component<{
   config: any;
   datasource: Datasource;
-  viewMode: boolean;
+  viewMode?: boolean;
 }> {
   renderKVArray = (children: Array<any>) => {
     try {
@@ -131,6 +131,15 @@ export default class RenderDatasourceInformation extends React.Component<{
                     value = option.label;
                   }
                 }
+              }
+
+              if (
+                !value &&
+                !!viewMode &&
+                "comparison" in section.hidden &&
+                section.hidden.comparison === "VIEW_MODE"
+              ) {
+                value = section.initialValue;
               }
 
               if (!value || (isArray(value) && value.length < 1)) {

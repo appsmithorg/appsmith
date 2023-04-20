@@ -79,7 +79,7 @@
           "isRequired": false,
           "hidden": {
             "comparison": "VIEW_MODE",
-            "value": true
+            "value": false
           },
           "initialValue": "Authorize datasource to fetch account name"
         },
