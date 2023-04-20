@@ -90,7 +90,7 @@
               "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive.readonly"
             },
             {
-              "label": "Read Only | All Google Sheets",
+              "label": "Read | All Google Sheets",
               "value": "https://www.googleapis.com/auth/spreadsheets.readonly,https://www.googleapis.com/auth/drive.readonly"
             }
           ],
