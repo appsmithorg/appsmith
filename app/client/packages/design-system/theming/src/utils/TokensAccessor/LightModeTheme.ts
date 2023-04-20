@@ -82,15 +82,23 @@ export class LightModeTheme implements ColorModeTheme {
   private get bgAccentSubtle() {
     let currentColor = this.seedColor;
 
-    if (this.seedLightness < 0.9) {
+    if (this.seedLightness < 0.94) {
       currentColor = setLch(currentColor, {
-        l: 0.9,
+        l: 0.94,
       });
     }
 
-    if (this.seedChroma > 0.16 && !this.seedIsAchromatic) {
+    if (this.seedIsAchromatic) {
       currentColor = setLch(currentColor, {
-        c: 0.16,
+        c: 0,
+      });
+    } else if (this.seedChroma > 0.1 && this.seedIsCold) {
+      currentColor = setLch(currentColor, {
+        c: 0.17,
+      });
+    } else {
+      currentColor = setLch(currentColor, {
+        c: 0.06,
       });
     }
 
