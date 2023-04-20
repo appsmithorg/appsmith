@@ -129,7 +129,7 @@ export const EditorWrapper = styled.div<{
       }
     }
     .cm-s-duotone-light .CodeMirror-gutters {
-      background: ${Colors.Gallery};
+      background: var(--ads-v2-color-bg-subtle);
     }
     .cm-s-duotone-dark.CodeMirror {
       border-radius: 0;

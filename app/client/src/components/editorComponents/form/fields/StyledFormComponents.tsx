@@ -12,7 +12,7 @@ export const StyledFormInfo = styled.span<{ config?: ControlProps }>`
       ? "block;"
       : "inline-block;"}
   font-weight: normal;
-  color: ${Colors.DOVE_GRAY};
+  color: var(--ads-v2-color-fg-muted);
   font-size: 12px;
   margin-left: ${(props) =>
     //SWITCH and CHECKBOX display label text and form input aligned side by side
@@ -32,7 +32,7 @@ display: ${(props) =>
     ? "block;"
     : "inline;"}
 font-weight: normal;
-color: ${Colors.DOVE_GRAY};
+color: var(--ads-v2-color-fg-muted);
 font-size: 12px;
 `;
 
@@ -111,7 +111,6 @@ const StyledFormLabel = styled.label<{
   font-size: 14px;
   line-height: 16px;
   letter-spacing: 0.02em;
-  color: ${Colors.CHARCOAL};
   margin-bottom: ${(props) =>
     props.extraStyles?.marginBottom
       ? props.extraStyles?.marginBottom
@@ -128,9 +127,10 @@ const StyledFormLabel = styled.label<{
     margin-bottom: 0;
     display: flex;
     align-items: center;
+    /* color: var(--ads-v2-color-fg); */
   }
   .label-icon-wrapper svg path {
-    fill: #939090;
+    fill: var(--ads-v2-color-fg);;
   }
 `;
 

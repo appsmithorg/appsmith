@@ -12,7 +12,7 @@ import {
   CodeEditorBorder,
   EditorSize,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Case, Classes, Text, TextType } from "design-system-old";
+import { Classes } from "design-system-old";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import DynamicDropdownField from "./DynamicDropdownField";
 import {
@@ -20,17 +20,14 @@ import {
   MULTI_PART_DROPDOWN_OPTIONS,
 } from "constants/ApiEditorConstants/CommonApiConstants";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
-import { Button, Option } from "design-system";
+import { Button, Option, Text } from "design-system";
 
 type CustomStack = {
   removeTopPadding?: boolean;
 };
 
 const KeyValueStackContainer = styled.div<CustomStack>`
-  padding: ${(props) => (props.removeTopPadding ? 0 : props.theme.spaces[4])}px
-    ${(props) => props.theme.spaces[14]}px
-    ${(props) => props.theme.spaces[11] + 1}px
-    ${(props) => props.theme.spaces[11] + 2}px;
+  padding: 0 0 var(--ads-v2-spaces-7) 0;
 `;
 const FormRowWithLabel = styled(FormRow)`
   flex-wrap: wrap;
@@ -53,7 +50,7 @@ const Flex = styled.div<{ size: number }>`
   ${(props) =>
     props.size === 3
       ? `
-    margin-left: ${props.theme.spaces[4]}px;
+    margin-left: 5px;
   `
       : null};
 `;
@@ -64,16 +61,14 @@ const FlexContainer = styled.div`
   width: calc(100% - 30px);
 
   .key-value {
-    padding: ${(props) => props.theme.spaces[2]}px 0px
-      ${(props) => props.theme.spaces[2]}px
-      ${(props) => props.theme.spaces[1]}px;
+    padding: 6px 0px 6px 0px;
     .${Classes.TEXT} {
       color: var(--ads-v2-color-fg);
     }
     border-bottom: 0px;
   }
   .key-value:nth-child(2) {
-    margin-left: ${(props) => props.theme.spaces[4]}px;
+    margin-left: 0;
   }
 `;
 
@@ -128,14 +123,10 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
       {!props.hideHeader && (
         <FlexContainer>
           <Flex className="key-value" size={1}>
-            <Text case={Case.CAPITALIZE} type={TextType.H6}>
-              Key
-            </Text>
+            <Text kind="body-m">Key</Text>
           </Flex>
           <Flex className="key-value" size={3}>
-            <Text case={Case.CAPITALIZE} type={TextType.H6}>
-              Value
-            </Text>
+            <Text kind="body-m">Value</Text>
           </Flex>
         </FlexContainer>
       )}
@@ -264,8 +255,8 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                     isIconButton
                     kind="tertiary"
                     onClick={() => props.fields.remove(index)}
-                    size="sm"
-                    startIcon="delete"
+                    size="md"
+                    startIcon="delete-bin-line"
                   />
                 )}
               </FormRowWithLabel>

@@ -21,7 +21,7 @@ export const StyledInfo = styled.span`
 const FieldWrapper = styled.div`
   position: relative;
   min-width: 380px;
-  max-width: 520px;
+  max-width: 545px;
 `;
 
 const SecretDisplayIndicator = styled.input`

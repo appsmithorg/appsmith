@@ -33,20 +33,23 @@ const DatasourceContainer = styled.div`
   // to account for the divider
   min-width: calc(${(props) => props.theme.actionSidePane.width}px - 2px);
   color: var(--ads-v2-color-fg);
+  .tab-container-right-sidebar {
+    padding: 0 0 0 var(--ads-v2-spaces-7);
+  }
 `;
 
 const DataSourceListWrapper = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 10px;
+  /* padding: 10px; */
   overflow: auto;
 `;
 
 const DatasourceCard = styled.div`
   margin-bottom: 10px;
   width: 100%;
-  padding: 10px;
+  padding: var(--ads-v2-spaces-4);
   border-radius: var(--ads-v2-border-radius);
 
   display: flex;
@@ -91,17 +94,6 @@ const DataSourceNameContainer = styled.div`
   }
   .cs-text {
     color: var(--ads-v2-color-fg);
-  }
-  .cs-icon {
-    flex-shrink: 0;
-    svg {
-      path {
-        fill: #4b4848;
-      }
-    }
-    &:hover {
-      background-color: ${(props) => props.theme.colors.apiPane.iconHoverBg};
-    }
   }
 `;
 
@@ -221,7 +213,7 @@ function ApiRightPane(props: any) {
     <>
       <Divider orientation="vertical" />
       <DatasourceContainer>
-        <TabbedViewContainer>
+        <TabbedViewContainer className="tab-container-right-sidebar">
           <Tabs
             data-testid={"api-right-pane"}
             onValueChange={setSelectedTab}
@@ -285,7 +277,7 @@ function ApiRightPane(props: any) {
                                 );
                               }}
                               size="sm"
-                              startIcon="pencil-fill-icon"
+                              startIcon="pencil-line"
                             />
                           </TagContainer>
                         </DataSourceNameContainer>

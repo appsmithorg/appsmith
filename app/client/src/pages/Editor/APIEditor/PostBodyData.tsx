@@ -30,15 +30,15 @@ const PostBodyContainer = styled.div`
   background-color: var(--ads-v2-color-bg);
   height: 100%;
   .ads-v2-segmented-control {
-    max-width: fit-content;
-    margin-left: 30px;
+    /* max-width: fit-content;
+    margin-left: 30px; */
     margin-bottom: 12px;
   }
 `;
 
 const JSONEditorFieldWrapper = styled.div`
-  margin: 0 30px;
-  width: 65%;
+  /* margin: 0 30px;
+  width: 65%; */
   .CodeMirror {
     height: auto;
     min-height: 250px;

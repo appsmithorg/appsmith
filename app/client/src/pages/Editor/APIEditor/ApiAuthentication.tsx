@@ -3,7 +3,6 @@ import type { Datasource, EmbeddedRestDatasource } from "entities/Datasource";
 import { get, merge } from "lodash";
 import styled from "styled-components";
 import { connect, useSelector } from "react-redux";
-import { Text, TextType } from "design-system-old";
 import { AuthType } from "entities/Datasource/RestAPIForm";
 import { formValueSelector } from "redux-form";
 import type { AppState } from "@appsmith/reducers";
@@ -20,7 +19,7 @@ import {
   hasCreateDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
-import { Icon } from "design-system";
+import { Icon, Text } from "design-system";
 interface ReduxStateProps {
   datasource: EmbeddedRestDatasource | Datasource;
 }
@@ -113,7 +112,7 @@ function ApiAuthentication(props: Props): JSX.Element {
   return (
     <AuthContainer>
       {authType === AuthType.OAuth2 && <OAuthLabel hasError={hasError} />}
-      <DescriptionText type={TextType.P1}>
+      <DescriptionText kind="body-m">
         {shouldSave
           ? createMessage(SAVE_DATASOURCE_MESSAGE)
           : createMessage(EDIT_DATASOURCE_MESSAGE)}

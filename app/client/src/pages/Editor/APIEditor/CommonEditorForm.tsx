@@ -25,13 +25,7 @@ import RequestDropdownField from "components/editorComponents/form/fields/Reques
 import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import {
-  Case,
-  Classes,
-  SearchSnippet,
-  Text,
-  TextType,
-} from "design-system-old";
+import { Classes, SearchSnippet } from "design-system-old";
 import {
   Button,
   Callout,
@@ -41,6 +35,7 @@ import {
   TabsList,
   TabPanel,
   Tooltip,
+  Text,
 } from "design-system";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import {
@@ -59,7 +54,6 @@ import equal from "fast-deep-equal/es6";
 
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import ApiAuthentication from "./ApiAuthentication";
-import { Classes as BluePrintClasses } from "@blueprintjs/core";
 import { replayHighlightClass } from "globalStyles/portals";
 import { getPlugin } from "selectors/entitiesSelector";
 import {
@@ -97,9 +91,7 @@ const Form = styled.form`
 
 const MainConfiguration = styled.div`
   z-index: 7;
-  padding: ${(props) => props.theme.spaces[4]}px
-    ${(props) => props.theme.spaces[10]}px 0px
-    ${(props) => props.theme.spaces[10]}px;
+  padding: var(--ads-v2-spaces-4) 0 0;
   .api-info-row {
     .ads-v2-select > .rc-select-selector {
       min-width: 110px;
@@ -119,9 +111,7 @@ const ActionButtons = styled.div`
 `;
 
 const HelpSection = styled.div`
-  padding: ${(props) => props.theme.spaces[4]}px
-    ${(props) => props.theme.spaces[12]}px ${(props) => props.theme.spaces[6]}px
-    ${(props) => props.theme.spaces[12]}px;
+  padding: var(--ads-v2-spaces-4) 0 var(--ads-v2-spaces-7) 0;
 `;
 
 const DatasourceWrapper = styled.div`
@@ -135,9 +125,6 @@ const SecondaryWrapper = styled.div`
   flex-grow: 1;
   height: 100%;
   width: 100%;
-  ${HelpSection} {
-    margin-bottom: 10px;
-  }
 `;
 
 export const TabbedViewContainer = styled.div`
@@ -145,6 +132,7 @@ export const TabbedViewContainer = styled.div`
   overflow: auto;
   position: relative;
   height: 100%;
+  padding-right: var(--ads-v2-spaces-7);
   ${FormRow} {
     min-height: auto;
     padding: ${(props) => props.theme.spaces[0]}px;
@@ -155,7 +143,7 @@ export const TabbedViewContainer = styled.div`
 `;
 
 const SettingsWrapper = styled.div`
-  padding: 18px 30px;
+  padding: var(--ads-v2-spaces-4) 0;
   height: 100%;
   ${FormLabel} {
     padding: 0px;
@@ -167,6 +155,14 @@ const Wrapper = styled.div`
   flex-direction: row;
   height: calc(100% - 135px);
   position: relative;
+`;
+
+const MainContainer = styled.div`
+  display: flex;
+  position: relative;
+  height: 100%;
+  flex-direction: column;
+  padding: var(--ads-v2-spaces-7);
 `;
 export interface CommonFormProps {
   pluginId: string;
@@ -224,15 +220,9 @@ const Flex = styled.div<{
   isInvalid?: boolean;
 }>`
   flex: ${(props) => props.size};
-  ${(props) =>
-    props.size === 3
-      ? `
-    margin-left: ${props.theme.spaces[4]}px;
-  `
-      : null};
   width: 100%;
   position: relative;
-  min-height: 32px;
+  min-height: 36px;
   height: auto;
   border-color: var(--ads-v2-color-border);
   border-bottom: 1px solid var(--ads-v2-color-border);
@@ -242,49 +232,23 @@ const Flex = styled.div<{
   align-items: center;
   justify-content: space-between;
 
-  &.possible-overflow-key {
+  &.possible-overflow-key,
+  &.possible-overflow {
     overflow: hidden;
     text-overflow: ellipsis;
     width: fit-content;
     max-width: 100%;
-
-    .${BluePrintClasses.POPOVER_WRAPPER} {
-      width: fit-content;
-      max-width: 100%;
-    }
-
-    .${BluePrintClasses.POPOVER_TARGET} > span {
-      display: block;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      width: fit-content;
-      max-width: 100%;
-      padding-right: 8px;
+    div {
+      padding: 0 6px;
     }
   }
 
   &.possible-overflow {
     width: 0;
-    max-height: 32px;
+    max-height: 36px;
 
     & > span.cs-text {
       width: 100%;
-    }
-
-    .${BluePrintClasses.POPOVER_TARGET} {
-      width: fit-content;
-      max-width: 100%;
-    }
-
-    .${BluePrintClasses.POPOVER_TARGET} > span {
-      max-height: 32px;
-      padding: 6px 12px;
-      display: block;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      padding-left: 2px;
-      width: fit-content;
-      max-width: 100%;
     }
   }
 
@@ -299,7 +263,7 @@ const Flex = styled.div<{
 const FlexContainer = styled.div`
   display: flex;
   align-items: center;
-  width: calc(100% - 30px);
+  width: calc(100% - 50px);
 
   .key-value {
     .${Classes.TEXT} {
@@ -313,9 +277,12 @@ const FlexContainer = styled.div`
   .key-value-header {
     color: var(--ads-v2-color-fg);
     border-bottom: 0px;
+    &:nth-child(2) {
+      margin-left: 5px;
+    }
   }
   .key-value:nth-child(2) {
-    margin-left: ${(props) => props.theme.spaces[4]}px;
+    margin-left: 5px;
   }
   .disabled {
     background: var(--ads-v2-color-bg-subtle);
@@ -325,9 +292,7 @@ const FlexContainer = styled.div`
 `;
 
 const KeyValueStackContainer = styled.div`
-  padding: ${(props) => props.theme.spaces[1]}px
-    ${(props) => props.theme.spaces[14]}px 0
-    ${(props) => props.theme.spaces[11] + 2}px;
+  padding: 0;
 `;
 
 const KeyValueFlexContainer = styled.div`
@@ -387,10 +352,19 @@ function ImportedKeyValue(props: {
                 isInvalid={data?.isInvalid}
                 size={1}
               >
-                <Tooltip content={tooltipContentKey} placement="bottomLeft">
+                <Tooltip
+                  content={tooltipContentKey}
+                  onVisibleChange={
+                    tooltipContentKey?.length > 0 ? tooltipContentKey : false
+                  }
+                  placement="bottom"
+                  visible={
+                    tooltipContentKey?.length > 0 ? tooltipContentKey : false
+                  }
+                >
                   <Text
                     className={`t--${props?.keyValueName}-key-${index}`}
-                    type={TextType.H6}
+                    kind="body-s"
                   >
                     <div>{data.key}</div>
                   </Text>
@@ -398,7 +372,7 @@ function ImportedKeyValue(props: {
                 {"isInvalid" in data && !data?.isInvalid && (
                   <Tooltip
                     content={createMessage(API_PANE_AUTO_GENERATED_HEADER)}
-                    placement="bottomLeft"
+                    placement="bottom"
                   >
                     <CenteredIcon
                       className={`t--auto-generated-${data.key}-info`}
@@ -415,9 +389,22 @@ function ImportedKeyValue(props: {
               >
                 <Text
                   className={`t--${props?.keyValueName}-value-${index}`}
-                  type={TextType.H6}
+                  kind="body-s"
                 >
-                  <Tooltip content={tooltipContentValue} placement="bottomLeft">
+                  <Tooltip
+                    content={tooltipContentValue}
+                    onVisibleChange={
+                      tooltipContentValue?.length > 0
+                        ? tooltipContentValue
+                        : false
+                    }
+                    placement="bottom"
+                    visible={
+                      tooltipContentValue?.length > 0
+                        ? tooltipContentValue
+                        : false
+                    }
+                  >
                     <div>{data.value}</div>
                   </Tooltip>
                 </Text>
@@ -466,7 +453,7 @@ function renderHelpSection(
         kind="info"
         links={[
           {
-            children: "Learn How",
+            children: "Learn how",
             endIcon: "right-arrow",
             onClick: handleClickLearnHow,
             to: "",
@@ -518,14 +505,10 @@ function ImportedDatas(props: {
         <FormRowWithLabel>
           <FlexContainer className="header">
             <Flex className="key-value-header" size={1}>
-              <Text case={Case.CAPITALIZE} type={TextType.H6}>
-                Key
-              </Text>
+              <Text kind="body-m">Key</Text>
             </Flex>
             <Flex className="key-value-header" size={3}>
-              <Text case={Case.CAPITALIZE} type={TextType.H6}>
-                Value
-              </Text>
+              <Text kind="body-m">Value</Text>
             </Flex>
           </FlexContainer>
         </FormRowWithLabel>
@@ -628,7 +611,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
   }
 
   return (
-    <>
+    <MainContainer>
       <CloseEditor />
       <Form onSubmit={props.handleSubmit}>
         <MainConfiguration>
@@ -802,7 +785,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
           />
         </Wrapper>
       </Form>
-    </>
+    </MainContainer>
   );
 }
 
