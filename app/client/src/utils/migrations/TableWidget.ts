@@ -26,10 +26,6 @@ import {
   type ColumnProperties as ColumnPropertiesV2,
   StickyType,
 } from "widgets/TableWidgetV2/component/Constants";
-import {
-  ORIGINAL_INDEX_KEY,
-  PRIMARY_COLUMN_KEY_VALUE,
-} from "widgets/TableWidgetV2/constants";
 
 export const isSortableMigration = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
@@ -747,7 +743,7 @@ export const migrateBindingPrefixSuffixForInlineEditValidationControl = (
   currentDSL: DSLWidget,
 ) => {
   return traverseDSLAndMigrate(currentDSL, (widget: WidgetProps) => {
-    if (widget.type == "TABLE_WIDGET_V2") {
+    if (widget.type === "TABLE_WIDGET_V2") {
       const tableId = widget.widgetName;
 
       const oldBindingPrefix = `{{((isNewRow)=>(`;
@@ -764,7 +760,7 @@ export const migrateBindingPrefixSuffixForInlineEditValidationControl = (
         ${tableId}.isAddRowInProgress ? -1 : ${tableId}.editableCell.index,
         ${tableId}.isAddRowInProgress ? ${tableId}.newRow : (${tableId}.processedTableData[${tableId}.editableCell.index] ||
           Object.keys(${tableId}.processedTableData[0])
-            .filter(key => ["${ORIGINAL_INDEX_KEY}", "${PRIMARY_COLUMN_KEY_VALUE}"].indexOf(key) === -1)
+            .filter(key => ["__originalIndex__", "__primaryKey__"].indexOf(key) === -1)
             .reduce((prev, curr) => {
               prev[curr] = "";
               return prev;
@@ -780,6 +776,7 @@ export const migrateBindingPrefixSuffixForInlineEditValidationControl = (
         "isColumnEditableCellRequired",
       ];
       const primaryColumns = widget?.primaryColumns as ColumnPropertiesV2;
+
       Object.values(primaryColumns).forEach((column) => {
         if (column.hasOwnProperty("validation")) {
           const validations = column.validation;
@@ -793,11 +790,11 @@ export const migrateBindingPrefixSuffixForInlineEditValidationControl = (
             }
 
             let compressedValidationValue = validationValue.replace(/\s/g, "");
-            compressedValidationValue = compressedValidationValue.replaceAll(
+            compressedValidationValue = compressedValidationValue.replace(
               oldBindingPrefix,
               newBindingPrefix,
             );
-            compressedValidationValue = compressedValidationValue.replaceAll(
+            compressedValidationValue = compressedValidationValue.replace(
               oldBindingSuffix,
               newBindingSuffix,
             );

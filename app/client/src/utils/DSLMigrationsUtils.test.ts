@@ -3176,7 +3176,6 @@ describe("correctly migrate dsl", () => {
 
     const validations = (nextDSL.children || [])[0].primaryColumns.column1
       .validation;
-    console.log("new validations are ", validations);
 
     for (const validationName in validations) {
       const validation = validations[validationName];

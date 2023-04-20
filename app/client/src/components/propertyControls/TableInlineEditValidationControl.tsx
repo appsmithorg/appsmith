@@ -96,8 +96,7 @@ const getBindingSuffix = (tableId: string) => {
           .reduce((prev, curr) => {
             prev[curr] = "";
             return prev;
-          }, {})),
-      ${tableId}.isAddRowInProgress ? -1 : ${tableId}.editableCell.index
+          }, {}))
     )
   }}
   `;
