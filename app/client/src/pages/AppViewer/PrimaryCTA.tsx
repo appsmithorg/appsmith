@@ -140,6 +140,7 @@ function PrimaryCTA(props: Props) {
           }}
           primaryColor={primaryColor}
           text={createMessage(FORK_APP)}
+          varient={ButtonVariantTypes.SECONDARY}
         />
       );
     }
@@ -163,6 +164,7 @@ function PrimaryCTA(props: Props) {
                 navColorStyle={navColorStyle}
                 primaryColor={primaryColor}
                 text={createMessage(FORK_APP)}
+                varient={ButtonVariantTypes.SECONDARY}
               />
             }
           />
