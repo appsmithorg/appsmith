@@ -15,6 +15,7 @@ import { Colors } from "constants/Colors";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import MagicIcon from "remixicon-react/MagicLineIcon";
 import { addAISlashCommand } from "@appsmith/components/editorComponents/GPT/trigger";
+import type FeatureFlags from "entities/FeatureFlags";
 
 enum Shortcuts {
   PLUS = "PLUS",
@@ -130,6 +131,7 @@ export const generateQuickCommands = (
   {
     datasources,
     executeCommand,
+    featureFlags,
     pluginIdToImageLocation,
     recentEntities,
   }: {
@@ -137,6 +139,7 @@ export const generateQuickCommands = (
     executeCommand: (payload: SlashCommandPayload) => void;
     pluginIdToImageLocation: Record<string, string>;
     recentEntities: string[];
+    featureFlags: FeatureFlags;
   },
   expectedType: string,
   entityId: any,
@@ -246,7 +249,7 @@ export const generateQuickCommands = (
 
   // Adding this hack in the interest of time.
   // TODO: Refactor slash commands generation for easier code splitting
-  if (addAISlashCommand) {
+  if (addAISlashCommand && featureFlags.CHAT_AI) {
     const askGPT: CommandsCompletion = generateCreateNewCommand({
       text: "",
       displayText: "Ask AI",
