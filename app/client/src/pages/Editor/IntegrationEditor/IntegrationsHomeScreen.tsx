@@ -161,23 +161,34 @@ const PRIMARY_MENU_IDS = {
   CREATE_NEW: "CREATE_NEW",
 };
 
-const SECONDARY_MENU = [
+const SECONDARY_MENU_IDS = {
+  API: "API",
+  DATABASE: "DATABASE",
+  MOCK_DATABASE: "MOCK_DATABASE",
+};
+
+const SECONDARY_MENU: TabProp[] = [
   {
-    key: 0,
+    key: "API",
     title: "API",
-    href: "#",
+    panelComponent: <div />,
   },
   {
-    key: 1,
+    key: "DATABASE",
     title: "Database",
-    href: "#",
-  },
-  {
-    key: 2,
-    title: "Sample Databases",
-    href: "#",
+    panelComponent: <div />,
   },
 ];
+const getSecondaryMenu = (hasActiveSources: boolean) => {
+  const mockDbMenu = {
+    key: "MOCK_DATABASE",
+    title: "Sample Databases",
+    panelComponent: <div />,
+  };
+  return hasActiveSources
+    ? [...SECONDARY_MENU, mockDbMenu]
+    : [mockDbMenu, ...SECONDARY_MENU];
+};
 
 const getSecondaryMenuIds = (hasActiveSources = false) => {
   return {
@@ -564,18 +575,32 @@ class IntegrationsHomeScreen extends React.Component<
                 {currentScreen}
                 {activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW && (
                   <VerticalMenu>
-                    {SECONDARY_MENU.map((item) => (
-                      <VerticalMenuItem
-                        aria-selected={
-                          this.state.activeSecondaryMenuId === item.key
-                        }
-                        href={item.href}
-                        key={item.key}
-                        onClick={() => this.onSelectSecondaryMenu(item.key)}
-                      >
-                        {item.title}
-                      </VerticalMenuItem>
-                    ))}
+                    {getSecondaryMenu(dataSources.length > 0).map((item) => {
+                      return (
+                        <VerticalMenuItem
+                          aria-selected={
+                            this.state.activeSecondaryMenuId ===
+                            getSecondaryMenuIds(dataSources.length > 0)[
+                              item.key as keyof typeof SECONDARY_MENU_IDS
+                            ]
+                          }
+                          key={
+                            getSecondaryMenuIds(dataSources.length > 0)[
+                              item.key as keyof typeof SECONDARY_MENU_IDS
+                            ]
+                          }
+                          onClick={() =>
+                            this.onSelectSecondaryMenu(
+                              getSecondaryMenuIds(dataSources.length > 0)[
+                                item.key as keyof typeof SECONDARY_MENU_IDS
+                              ],
+                            )
+                          }
+                        >
+                          {item.title}
+                        </VerticalMenuItem>
+                      );
+                    })}
                   </VerticalMenu>
                 )}
               </ResizerContentContainer>
