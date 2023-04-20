@@ -73,6 +73,17 @@
           "initialValue": "authorization_code"
         },
         {
+          "label": "Account",
+          "configProperty": "datasourceConfiguration.authentication.emailAddress",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "hidden": {
+            "comparison": "VIEW_MODE",
+            "value": true
+          },
+          "initialValue": "Authorize datasource to fetch account name"
+        },
+        {
           "label": "Permissions | Scope",
           "configProperty": "datasourceConfiguration.authentication.scopeString",
           "controlType": "DROP_DOWN",
