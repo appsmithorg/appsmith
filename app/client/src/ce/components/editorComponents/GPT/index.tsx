@@ -1,4 +1,4 @@
-import React from "react";
+import type React from "react";
 
 export type TAIWrapperProps = {
   windowType: "popover" | "fixed";
@@ -10,8 +10,7 @@ export type TAIWrapperProps = {
 export function AIWindow(props: TAIWrapperProps) {
   const { children, windowType } = props;
   if (windowType === "popover") {
-    /* eslint-disable-next-line */
-    return <>{children}</>;
+    return children;
   } else {
     return null;
   }

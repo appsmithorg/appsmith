@@ -60,6 +60,7 @@ import LogHelper from "./Debugger/ErrorLogs/components/LogHelper";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { SourceEntity, Log } from "entities/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { Colors } from "constants/Colors";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -74,7 +75,7 @@ const ResponseContainer = styled.div`
     overflow-y: auto;
     height: calc(100% - ${TAB_MIN_HEIGHT});
   }
-  border-top: 1px solid #e8e8e8;
+  border-top: 1px solid ${Colors.GREY_4};
 `;
 
 const ResponseTabWrapper = styled.div`
