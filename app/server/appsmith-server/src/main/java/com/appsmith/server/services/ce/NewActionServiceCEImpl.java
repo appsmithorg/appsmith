@@ -113,7 +113,15 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.CommonFieldName.REDACTED_DATA;
-import static com.appsmith.external.constants.spans.ActionSpans.*;
+import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_CACHED_ACTION;
+import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_CACHED_DATASOURCE;
+import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_CACHED_PLUGIN;
+import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_DATASOURCE_CONTEXT;
+import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_DATASOURCE_CONTEXT_REMOTE;
+import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_EDITOR_CONFIG;
+import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_REQUEST_PARSING;
+import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_SERVER_EXECUTION;
+import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_VALIDATE_AUTHENTICATION;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
@@ -1610,7 +1618,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
                     return Mono.just(action);
                 })
-                .flatMap(this::sanitizeAction);
+                .collectList()
+                .flatMapMany(this::sanitizeAction);
     }
 
     @Override
@@ -1898,19 +1907,27 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return pluginService.getDefaultPlugins()
                 .collectMap(Plugin::getId)
                 .flatMapMany(defaultPluginMap -> {
+                    Plugin jsPlugin = new Plugin();
+                    defaultPluginMap.forEach((pluginId, plugin) -> {
+                        if (JS_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName())) {
+                            jsPlugin.setId(pluginId);
+                        }
+                    });
+
                     return Flux.fromIterable(actionList)
                             .flatMap(action-> {
-                                if (isPluginTypeOrPluginIdMissing(action)) {
-                                    return providePluginTypeAndIdToNewActionObjectUsingJSTypeOrDatasource(action, defaultPluginMap);
+                                if (!isPluginTypeOrPluginIdMissing(action)) {
+                                    return Mono.just(action);
                                 }
 
-                                return Mono.just(action);
+                                return providePluginTypeAndIdToNewActionObjectUsingJSTypeOrDatasource(action, defaultPluginMap, jsPlugin);
                             });
                 });
     }
 
     private Mono<NewAction> providePluginTypeAndIdToNewActionObjectUsingJSTypeOrDatasource(NewAction action,
-                                                                                           Map<String, Plugin> pluginMap) {
+                                                                                           Map<String, Plugin> pluginMap,
+                                                                                           Plugin jsPlugin) {
         ActionDTO actionDTO = action.getUnpublishedAction();
         if (actionDTO == null) {
             return Mono.just(action);
@@ -1918,7 +1935,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         Datasource datasource = actionDTO.getDatasource();
         if (actionDTO.getCollectionId() != null) {
-            return setPluginIdAndTypeForJSAction(action);
+            action.setPluginType(JS_PLUGIN_TYPE);
+            action.setPluginId(jsPlugin.getId());
+            return Mono.just(action);
 
         } else if (datasource != null && datasource.getPluginId() != null) {
             String pluginId = datasource.getPluginId();
