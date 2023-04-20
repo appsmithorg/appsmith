@@ -57,6 +57,10 @@ const StyledText = styled(Text)`
     font-weight: 500;
     text-[color:var(--appsmith-color-black-800)];
   }
+  &.secondary-heading {
+    font-weight: 500;
+    text-[color:var(--appsmith-color-black-800)];
+  }
 `;
 
 const StyledAnchor = styled.a`
@@ -90,10 +94,7 @@ function PrivateEmbeddingContent(props: {
             : createMessage(IN_APP_EMBED_SETTING.upgradeHeading)}
         </StyledText>
         {isAppSettings && (
-          <StyledText
-            className="text-[color:var(--appsmith-color-black-800)]"
-            type={TextType.P2}
-          >
+          <StyledText className="secondary-heading" type={TextType.P2}>
             {canMakeAppPublic
               ? createMessage(
                   IN_APP_EMBED_SETTING.secondaryHeadingForAppSettings,
@@ -106,7 +107,11 @@ function PrivateEmbeddingContent(props: {
           <StyledAnchor
             onClick={() => {
               window.open(
-                PRICING_PAGE_URL(appsmithConfigs.pricingUrl, "CE", instanceId),
+                PRICING_PAGE_URL(
+                  appsmithConfigs.pricingUrl,
+                  appsmithConfigs.cloudHosting ? "Cloud" : "CE",
+                  instanceId,
+                ),
                 "_blank",
               );
             }}
