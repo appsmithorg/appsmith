@@ -1,23 +1,26 @@
 import { contrast, lighten, setLch } from "../colorUtils";
-import type { ColorTypes } from "colorjs.io/types/src/color";
 import { ColorsAccessor } from "../ColorsAccessor";
 
-export class DarkScheme {
+import type { ColorTypes } from "colorjs.io/types/src/color";
+import type { ColorModeTheme } from "./types";
+
+export class DarkModeTheme implements ColorModeTheme {
   private readonly seedColor: string;
   private readonly seedLightness: number;
   private readonly seedChroma: number;
   private readonly seedHue: number;
   private readonly seedIsVeryDark: boolean;
+  private readonly seedIsAchromatic: boolean;
 
   constructor(private color: ColorTypes) {
-    const { chroma, hex, hue, isVeryDark, lightness } = new ColorsAccessor(
-      color,
-    );
+    const { chroma, hex, hue, isAchromatic, isVeryDark, lightness } =
+      new ColorsAccessor(color);
     this.seedColor = hex;
     this.seedLightness = lightness;
     this.seedChroma = chroma;
     this.seedHue = hue;
     this.seedIsVeryDark = isVeryDark;
+    this.seedIsAchromatic = isAchromatic;
   }
 
   public getColors = () => {
@@ -44,6 +47,13 @@ export class DarkScheme {
    * Background colors
    */
   private get bg() {
+    if (this.seedIsAchromatic) {
+      return setLch(this.seedColor, {
+        l: 0.15,
+        c: 0,
+      });
+    }
+
     return setLch(this.seedColor, {
       l: 0.15,
       c: 0.064,
@@ -78,7 +88,7 @@ export class DarkScheme {
       });
     }
 
-    if (this.seedChroma > 0.112) {
+    if (this.seedChroma > 0.112 && !this.seedIsAchromatic) {
       currentColor = setLch(currentColor, {
         c: 0.112,
       });
@@ -99,6 +109,13 @@ export class DarkScheme {
    * Foreground colors
    */
   private get fg() {
+    if (this.seedIsAchromatic) {
+      return setLch(this.seedColor, {
+        l: 0.965,
+        c: 0,
+      });
+    }
+
     return setLch(this.seedColor, {
       l: 0.965,
       c: 0.024,
@@ -107,6 +124,13 @@ export class DarkScheme {
 
   private get fgAccent() {
     if (contrast(this.seedColor, this.bg) <= 60) {
+      if (this.seedIsAchromatic) {
+        return setLch(this.seedColor, {
+          l: 0.79,
+          c: 0,
+        });
+      }
+
       return setLch(this.seedColor, {
         l: 0.79,
         c: 0.136,
@@ -118,9 +142,23 @@ export class DarkScheme {
 
   private get fgOnAccent() {
     if (contrast(this.seedColor, this.bg) <= 40) {
+      if (this.seedIsAchromatic) {
+        return setLch(this.seedColor, {
+          l: 0.985,
+          c: 0,
+        });
+      }
+
       return setLch(this.seedColor, {
         l: 0.985,
         c: 0.016,
+      });
+    }
+
+    if (this.seedIsAchromatic) {
+      return setLch(this.seedColor, {
+        l: 0.15,
+        c: 0,
       });
     }
 
@@ -132,6 +170,13 @@ export class DarkScheme {
 
   private get bdAccent() {
     if (contrast(this.seedColor, this.bg) <= 15) {
+      if (this.seedIsAchromatic) {
+        return setLch(this.seedColor, {
+          l: 0.985,
+          c: 0,
+        });
+      }
+
       return setLch(this.seedColor, {
         l: 0.985,
         c: 0.016,
@@ -142,9 +187,16 @@ export class DarkScheme {
   }
 
   private get bdNeutral() {
-    if (contrast(this.seedColor, this.bg) >= -25) {
+    if (contrast(this.seedColor, this.bg) >= -25 && !this.seedIsAchromatic) {
       return setLch(this.seedColor, {
         c: 0.008,
+      });
+    }
+
+    if (this.seedIsAchromatic) {
+      return setLch(this.seedColor, {
+        l: 0.15,
+        c: 0,
       });
     }
 
