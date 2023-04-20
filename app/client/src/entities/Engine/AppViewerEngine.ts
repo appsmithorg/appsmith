@@ -88,7 +88,7 @@ export default class AppViewerEngine extends AppEngine {
       fetchAppThemesAction(applicationId), // change to pageId
 
       // no appId
-      // uses pageList to update permissions (updateCurrentPage)
+      // uses pageList to update permissions (updateCurrentPage) -> can be dealt with
       fetchPublishedPage(toLoadPageId, true, true),
     ];
 

@@ -86,18 +86,18 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
 
     // can be called later
     // application/:applicationId -> append with default pageid
-    // maybe git branches
+    // maybe git branches??
     yield call(engine.loadAppURL, toLoadPageId, action.payload.pageId);
 
     /* 
     View mode:
       - currentApplicationData for logs (appId, applicationVersion)
-      - pagesList (for updateCurrentPage -> userPermissions) + logs
+      - pagesList (for updateCurrentPage -> userPermissions -> can be dealt with) + logs
 
     Edit mode:
-      - pagesList (for populating all page dsl’s, updateCurrentPage -> userPermissions) + logs
+      - pagesList (for populating all page dsl’s (pageId), updateCurrentPage -> userPermissions -> can be dealt with) + logs
       - currentApplicationData for logs (appId, applicationVersion)
-      - workspaceId for fetching plugins and datasources
+      - workspaceId for fetching plugins and datasources (use pageId)
       - currentApplicationData for initialising git
     */
     // gitbranch is being sent form API interceptor (from store if not the query params)
