@@ -143,7 +143,6 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
       showDebugger,
       viewMode,
     } = this.props;
-    console.log("heree", formConfig);
 
     const createFlow = datasourceId === TEMP_DATASOURCE_ID;
     return (
