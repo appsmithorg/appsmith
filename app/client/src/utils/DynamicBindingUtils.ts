@@ -108,7 +108,7 @@ export const combineDynamicBindings = (
       if (jsSnippets[index] && jsSnippets[index].length > 0) {
         return `(${jsSnippets[index]})`;
       } else {
-        return `${JSON.stringify(segment)}`;
+        return JSON.stringify(segment);
       }
     })
     .join(" + ");
