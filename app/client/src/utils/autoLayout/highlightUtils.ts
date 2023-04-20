@@ -441,7 +441,7 @@ function generateHorizontalHighlights(
   offsetTop =
     previousOffset === -1
       ? offsetTop
-      : offsetTop - (rowGap - DEFAULT_HIGHLIGHT_SIZE / 2) / 2;
+      : offsetTop - (rowGap - DEFAULT_HIGHLIGHT_SIZE);
   [
     FlexLayerAlignment.Start,
     FlexLayerAlignment.Center,
