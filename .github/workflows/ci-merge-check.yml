@@ -113,8 +113,9 @@ jobs:
         with:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
           body: |
-            Auto merge has been failed. Probably for the below reasons:
+            Auto merge has been failed. Probably for the following reasons:
             1. The minimum approval requirement has not been met.
-            2. There are some failed checks.
+            2. There might be some merge conflicts.
+            3. There are some failed checks.
 
             Please ask someone with merge access to review and merge.
