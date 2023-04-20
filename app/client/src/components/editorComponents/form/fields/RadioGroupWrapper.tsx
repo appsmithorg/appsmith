@@ -40,14 +40,14 @@ function RadioGroupWrapper(props: RadioGroupWrapperProps) {
   return (
     <RadioGroup
       className={props.className}
-      // columns={props.columns}
+      columns={props.columns}
       defaultValue={selectedOption}
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       onChange={(value: string) => onSelectHandler(value)}
-      // options={props.options}
-      // rows={props.rows}
-      // selectedOptionElements={props.selectedOptionElements}
+      options={props.options}
+      rows={props.rows}
+      selectedOptionElements={props.selectedOptionElements}
     >
       {props.options.map((option) => (
         <Radio key={option.value} value={option.value}>
