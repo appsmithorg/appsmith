@@ -1,7 +1,5 @@
-import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Button, Size, Spinner } from "design-system-old";
-import React, { memo, useEffect, useRef, useState } from "react";
-import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
+import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import {
   getIsDeletingNavigationLogo,
@@ -122,15 +120,4 @@ export const ImageInput = (props: ImageInputProps) => {
   );
 };
 
-function FieldImageInput() {
-  return function FieldCheckbox(
-    componentProps: FormTextFieldProps & {
-      meta: Partial<WrappedFieldMetaProps>;
-      input: Partial<WrappedFieldInputProps>;
-    },
-  ) {
-    return <ImageInput value={componentProps.input.value} />;
-  };
-}
-
-export default memo(FieldImageInput());
+export default ImageInput;
