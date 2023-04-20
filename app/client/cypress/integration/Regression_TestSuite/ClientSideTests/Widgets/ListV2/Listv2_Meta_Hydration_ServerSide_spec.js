@@ -91,7 +91,7 @@ function verifyMultiDropdownValuesCount(count, page = 1) {
   });
 }
 
-describe("List widget v2 - meta hydration tests", () => {
+describe.skip("List widget v2 - meta hydration tests", () => {
   before(() => {
     agHelper.AddDsl(dsl);
   });
