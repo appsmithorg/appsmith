@@ -341,6 +341,7 @@ function* handleJSObjectNameChangeSuccessSaga(
   }
 }
 
+//isExecuteJSFunc is used to check if the function is called on the JS Function execution.
 export function* handleExecuteJSFunctionSaga(data: {
   collectionName: string;
   action: JSAction;
