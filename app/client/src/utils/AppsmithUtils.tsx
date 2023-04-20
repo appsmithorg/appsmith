@@ -339,10 +339,7 @@ export const isBlobUrl = (url: string) => {
  */
 export const createBlobUrl = (data: Blob | MediaSource, type: string) => {
   let url = URL.createObjectURL(data);
-  url = url.replace(
-    `${window.location.protocol}//${window.location.hostname}/`,
-    "",
-  );
+  url = url.replace(`${window.location.origin}/`, "");
 
   return `${url}?type=${type}`;
 };
@@ -353,9 +350,7 @@ export const createBlobUrl = (data: Blob | MediaSource, type: string) => {
  * @returns [string,string] [blobUrl, type]
  */
 export const parseBlobUrl = (blobId: string) => {
-  const url = `blob:${window.location.protocol}//${
-    window.location.hostname
-  }/${blobId.substring(5)}`;
+  const url = `blob:${window.location.origin}/${blobId.substring(5)}`;
   return url.split("?type=");
 };
 
