@@ -181,7 +181,13 @@ function WidgetsEditor() {
           {guidedTourEnabled && <Guide />}
 
           <div className="relative flex flex-row w-full overflow-hidden">
-            <div className="relative flex flex-col w-full overflow-hidden">
+            <div
+              className={classNames({
+                "relative flex flex-col w-full overflow-hidden": true,
+                "m-8 border border-gray-200":
+                  isAppSettingsPaneWithNavigationTabOpen,
+              })}
+            >
               <CanvasTopSection />
               <div
                 className="relative flex flex-row w-full overflow-hidden"
