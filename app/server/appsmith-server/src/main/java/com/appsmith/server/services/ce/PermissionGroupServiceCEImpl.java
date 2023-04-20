@@ -326,17 +326,17 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     protected Mono<PermissionGroup> sendEventUserRemovedFromRole(PermissionGroup permissionGroup,
                                                                  List<String> usernames) {
-        Mono<PermissionGroup> sendAssignedUsersToPermissionGroupEvent = Mono.just(permissionGroup);
+        Mono<PermissionGroup> sendUnAssignedUsersToPermissionGroupEvent = Mono.just(permissionGroup);
         if (CollectionUtils.isNotEmpty(usernames)) {
             Map<String, Object> eventData = Map.of(FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS, usernames);
             Map<String, Object> extraPropsForCloudHostedInstance = Map.of(FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS, usernames);
             Map<String, Object> analyticsProperties = Map.of(FieldName.NUMBER_OF_UNASSIGNED_USERS, usernames.size(),
                     FieldName.EVENT_DATA, eventData,
                     FieldName.CLOUD_HOSTED_EXTRA_PROPS, extraPropsForCloudHostedInstance);
-            sendAssignedUsersToPermissionGroupEvent = analyticsService.sendObjectEvent(
+            sendUnAssignedUsersToPermissionGroupEvent = analyticsService.sendObjectEvent(
                     AnalyticsEvents.UNASSIGNED_USERS_FROM_PERMISSION_GROUP, permissionGroup, analyticsProperties);
         }
-        return sendAssignedUsersToPermissionGroupEvent;
+        return sendUnAssignedUsersToPermissionGroupEvent;
     }
 
     @Override
