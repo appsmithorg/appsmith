@@ -57,17 +57,17 @@ jobs:
         run: |
           if [ ${{ steps.ci_test_result_status.outputs.ci_test_result }} == 1 ]; then
             if [ ${{ steps.ci_test_result_status.outputs.ci_test_status }} -gt 0 ]; then
-              echo "msg=Looks like there are some Cypress failures. Can't Merge" >> $GITHUB_OUTPUT
+              echo "msg=Looks like there are some Cypress failures. Can't Merge." >> $GITHUB_OUTPUT
               exit 1
             elif [ ${{ steps.ci_test_result_status.outputs.perf_test_status }} -gt 0 ]; then
-              echo "msg=Looks like Perf-Test is failed. Contact perf team to get their confirmation. Can't Merge" >> $GITHUB_OUTPUT
+              echo "msg=Looks like Perf-Tests failed. Contact perf team to get their confirmation. Can't Merge." >> $GITHUB_OUTPUT
               exit 1
             fi
           elif [ ${{ steps.suite_status_check.outputs.status2 }} == 0 ]; then
-            echo "msg=Looks like you forgot to run /ok-to-test on the latest commit. Can't Merge" >> $GITHUB_OUTPUT
+            echo "msg=Looks like you forgot to run /ok-to-test on the latest commit. Can't Merge." >> $GITHUB_OUTPUT
             exit 1
           elif [ ${{ steps.pr_status_check.outputs.status }} != 0 ]; then
-            echo "msg=There's merge freeze. Can't Merge, please try after merge-freeze is lifted" >> $GITHUB_OUTPUT
+            echo "msg=There's merge freeze. Can't Merge, please try after merge-freeze is lifted." >> $GITHUB_OUTPUT
             exit 1
           elif [ ${{ steps.suite_status_check.outputs.status1 }} == 1 ]; then
             echo "msg=Either get 'Test Plan Approved' or 'skip-testPlan' added and try again!" >> $GITHUB_OUTPUT
@@ -76,7 +76,7 @@ jobs:
             echo "msg=Hurray!🎉 Proceeding to Merge!!!" >> $GITHUB_OUTPUT
             exit 0
           else
-            echo "msg=Some checks have failed. Can't merge" >> $GITHUB_OUTPUT
+            echo "msg=Some checks have failed. Can't merge." >> $GITHUB_OUTPUT
             exit 1
           fi
 
@@ -96,6 +96,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PULL_REQUEST: ${{ github.event.client_payload.pull_request.number }}
           MERGE_REQUIRED_APPROVALS: 1
+          MERGE_LABELS: ""
+          MERGE_READY_STATE: "clean,has_hooks,unknown,unstable,blocked"
 
       - name: Add comment once merge is success-full
         if: steps.automerge.outputs.mergeResult == 'merged'
@@ -111,4 +113,9 @@ jobs:
         with:
           issue-number: ${{ github.event.client_payload.pull_request.number }}
           body: |
-            Please try /ci-merge-check after at-least 1 peer approval. Can't merge this now.
+            Auto merge has been failed. Probably for the following reasons:
+            1. The minimum approval requirement has not been met.
+            2. There might be some merge conflicts.
+            3. There are some failed checks.
+
+            Please ask someone with merge access to review and merge.
