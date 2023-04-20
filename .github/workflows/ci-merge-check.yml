@@ -42,15 +42,15 @@ jobs:
         id: pr_status_check
         run: |
           status_link="https://api.github.com/repos/appsmithorg/appsmith/statuses/${{github.event.client_payload.pull_request.head.sha}}"
-          echo "status=`curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" $status_link | jq -r '[.[] | select( select( .context | contains("mergefreeze")) | .state | contains("success") | not)] | length'`" >> $GITHUB_OUTPUT
+          echo "merge_freeze_status=`curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" $status_link | jq -r '[.[] | select( select( .context | contains("mergefreeze")) | .state | contains("success") | not)] | length'`" >> $GITHUB_OUTPUT
 
       - name: get status-checks from check suite
         id: suite_status_check
         run: |
           check_runs_link="https://api.github.com/repos/appsmithorg/appsmith/commits/${{github.event.client_payload.pull_request.head.sha}}/check-runs"
           check_run_result=`curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" $check_runs_link`
-          echo "status1=`echo $check_run_result | jq -r '[[.check_runs[]|select(.name | contains("Test Plan Approved"))][0] | select( .conclusion | contains("success") | not)] | length'`" >> $GITHUB_OUTPUT
-          echo "status2=`echo $check_run_result | jq -r '[.check_runs[] | select(.name | contains("ci-test-result"))] | length'`" >> $GITHUB_OUTPUT
+          echo "test_plan_approval_status=`echo $check_run_result | jq -r '[[.check_runs[]|select(.name | contains("Test Plan Approved"))][0] | select( .conclusion | contains("success") | not)] | length'`" >> $GITHUB_OUTPUT
+          echo "ci_test_available=`echo $check_run_result | jq -r '[.check_runs[] | select(.name | contains("ci-test-result"))] | length'`" >> $GITHUB_OUTPUT
 
       - name: Verify all the checks
         id: verify_checks
@@ -63,16 +63,16 @@ jobs:
               echo "msg=Looks like Perf-Tests failed. Contact perf team to get their confirmation. Can't Merge." >> $GITHUB_OUTPUT
               exit 1
             fi
-          elif [ ${{ steps.suite_status_check.outputs.status2 }} == 0 ]; then
+          elif [ ${{ steps.suite_status_check.outputs.ci_test_available }} == 0 ]; then
             echo "msg=Looks like you forgot to run /ok-to-test on the latest commit. Can't Merge." >> $GITHUB_OUTPUT
             exit 1
-          elif [ ${{ steps.pr_status_check.outputs.status }} != 0 ]; then
+          elif [ ${{ steps.pr_status_check.outputs.merge_freeze_status }} != 0 ]; then
             echo "msg=There's merge freeze. Can't Merge, please try after merge-freeze is lifted." >> $GITHUB_OUTPUT
             exit 1
-          elif [ ${{ steps.suite_status_check.outputs.status1 }} == 1 ]; then
+          elif [ ${{ steps.suite_status_check.outputs.test_plan_approval_status }} == 1 ]; then
             echo "msg=Either get 'Test Plan Approved' or 'skip-testPlan' added and try again!" >> $GITHUB_OUTPUT
             exit 1
-          elif [ ${{ steps.suite_status_check.outputs.status1 }} == 0 ]; then
+          elif [ ${{ steps.suite_status_check.outputs.test_plan_approval_status }} == 0 ]; then
             echo "msg=Hurray!🎉 Proceeding to Merge!!!" >> $GITHUB_OUTPUT
             exit 0
           else
@@ -97,7 +97,9 @@ jobs:
           PULL_REQUEST: ${{ github.event.client_payload.pull_request.number }}
           MERGE_REQUIRED_APPROVALS: 1
           MERGE_LABELS: ""
+          UPDATE_LABELS: ""
           MERGE_READY_STATE: "clean,has_hooks,unknown,unstable,blocked"
+          LOG: "TRACE"
 
       - name: Add comment once merge is success-full
         if: steps.automerge.outputs.mergeResult == 'merged'
