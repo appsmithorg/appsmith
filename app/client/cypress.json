@@ -14,7 +14,7 @@
     "json": false
   },
   "ignoreTestFiles": [
-    "**/Regression_TestSuite/ClientSideTests/Widgets/ListV2/Listv2_Meta_Hydration_ServerSide_spec.js"
+    "**/Regression_TestSuite/ClientSideTests/Widgets/ListV2/Listv2_Meta_Hydration_ServerSide_spec*.js"
   ],
   "chromeWebSecurity": false,
   "viewportHeight": 1100,
