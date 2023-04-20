@@ -34,7 +34,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       AssertJSOnPageLoad(
         "runWorldCountries",
         false,
-        "ReferenceError: getWorldCountries is not defined",
+        "getWorldCountries is not defined",
       );
     });
   });
@@ -53,7 +53,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     AssertJSOnPageLoad(
       "runWorldCountries",
       false,
-      "ReferenceError: getWorldCountries is not defined",
+      "getWorldCountries is not defined",
     );
   });
 
