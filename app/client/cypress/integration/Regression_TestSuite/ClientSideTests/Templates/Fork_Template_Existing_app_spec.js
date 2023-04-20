@@ -75,4 +75,11 @@ describe("Fork a template to the current app from new page popover", () => {
       "template added successfully",
     );
   });
+
+  it("Fork template button should take user to 'select pages from template' page", () => {
+    _.agHelper.RefreshPage();
+    cy.AddPageFromTemplate();
+    cy.get(_.templates.locators._forkApp).first().click();
+    cy.get(template.templateViewForkButton).should("be.visible");
+  });
 });
