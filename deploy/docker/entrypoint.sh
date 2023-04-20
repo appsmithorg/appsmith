@@ -366,6 +366,9 @@ configure_supervisord() {
   fi
 
   cp -f "$SUPERVISORD_CONF_PATH/application_process/"*.conf /etc/supervisor/conf.d
+  
+  # Copy Supervisor Listiner confs to conf.d
+  cp -f "$SUPERVISORD_CONF_PATH/event_listeners/"*.conf /etc/supervisor/conf.d
 
   # Disable services based on configuration
   if [[ -z "${DYNO}" ]]; then
@@ -487,7 +490,20 @@ runEmbeddedPostgres=1
 init_postgres || runEmbeddedPostgres=0
 }
 
+init_loading_pages(){
+  local starting_page="/opt/appsmith/templates/appsmith_starting.html"
+  local initializing_page="/opt/appsmith/templates/appsmith_initializing.html"
+  local editor_load_page="/opt/appsmith/editor/loading.html" 
+  # Update default nginx page for initializing page
+  cp "$initializing_page" /var/www/html/index.nginx-debian.html
+  # Start nginx page to display the Appsmith is Initializing page
+  nginx
+  # Update editor nginx page for starting page
+  cp "$starting_page" "$editor_load_page"
+}
+
 # Main Section
+init_loading_pages
 init_env_file
 setup_proxy_variables
 unset_unused_variables
@@ -527,7 +543,11 @@ fi
 mkdir -p /appsmith-stacks/data/{backup,restore,keycloak}
 
 # Create sub-directory to store services log in the container mounting folder
-mkdir -p /appsmith-stacks/logs/{backend,cron,editor,rts,mongodb,redis,postgres,keycloak}
+mkdir -p /appsmith-stacks/logs/{backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
+mkdir -p /appsmith-stacks/logs/keycloak
+
+# Stop nginx gracefully
+nginx -s quit
 
 # Handle CMD command
 exec "$@"
