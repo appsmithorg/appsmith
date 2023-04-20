@@ -77,7 +77,7 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
   render() {
     return (
       <ToggleButtonGroup
-        onSelect={this.selectButton}
+        onClick={this.selectButton}
         options={this.props.options}
         ref={this.componentRef}
         values={

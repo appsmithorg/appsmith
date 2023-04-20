@@ -212,7 +212,6 @@ export function DraggableListCard(props: RenderComponentProps) {
             }`}
             isDisabled={item.isCheckboxDisabled}
             isSelected={item.isChecked}
-            // @ts-expect-error: onChange FormEvent type error
             onChange={(isSelected: boolean) =>
               toggleCheckbox && toggleCheckbox(index, isSelected)
             }

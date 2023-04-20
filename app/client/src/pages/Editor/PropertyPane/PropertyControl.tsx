@@ -5,7 +5,7 @@ import * as log from "loglevel";
 
 import { ControlWrapper } from "components/propertyControls/StyledControls";
 import { Icon } from "design-system-old";
-import { ToggleButton } from "design-system";
+import { ToggleButton, Tooltip } from "design-system";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
@@ -43,7 +43,6 @@ import { getExpectedValue } from "utils/validation/common";
 import type { ControlData } from "components/propertyControls/BaseControl";
 import type { AppState } from "@appsmith/reducers";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { TooltipComponent } from "design-system-old";
 import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
 import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
 import {
@@ -64,7 +63,7 @@ type Props = PropertyPaneControlConfig & {
 };
 
 const SHOULD_NOT_REJECT_DYNAMIC_BINDING_LIST_FOR = ["COLOR_PICKER"];
-const tooltipModifier = { preventOverflow: { enabled: true } };
+// const tooltipModifier = { preventOverflow: { enabled: true } };
 
 const PropertyControl = memo((props: Props) => {
   const dispatch = useDispatch();
@@ -749,20 +748,16 @@ const PropertyControl = memo((props: Props) => {
           }
           ref={controlRef}
         >
-          <div className="gap-1 flex justify-between items-center">
+          <div className="gap-1 flex items-center">
             <PropertyHelpLabel
               label={label}
               theme={props.theme}
               tooltip={helpText}
             />
             {isConvertible && (
-              <TooltipComponent
+              <Tooltip
                 content={JS_TOGGLE_DISABLED_MESSAGE}
-                disabled={!isToggleDisabled}
-                hoverOpenDelay={200}
-                modifiers={tooltipModifier}
-                openOnTargetFocus={false}
-                position="auto"
+                // disabled={!isToggleDisabled}
               >
                 <ToggleButton
                   icon="js-toggle-v2"
@@ -771,28 +766,20 @@ const PropertyControl = memo((props: Props) => {
                   onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
                   size="sm"
                 />
-              </TooltipComponent>
+              </Tooltip>
             )}
             {isPropertyDeviatedFromTheme && (
               <>
-                <TooltipComponent
-                  content="Value deviated from theme"
-                  openOnTargetFocus={false}
-                >
+                <Tooltip content="Value deviated from theme">
                   <div className="w-2 h-2 rounded-full bg-primary-500" />
-                </TooltipComponent>
+                </Tooltip>
                 <button
                   className="hidden ml-auto focus:ring-2 group-hover:block reset-button"
                   onClick={resetPropertyValueToTheme}
                 >
-                  <TooltipComponent
-                    boundary="viewport"
-                    content="Reset value"
-                    openOnTargetFocus={false}
-                    position="top-right"
-                  >
+                  <Tooltip content="Reset value" placement="topRight">
                     <ResetIcon className="w-5 h-5" />
-                  </TooltipComponent>
+                  </Tooltip>
                 </button>
               </>
             )}
