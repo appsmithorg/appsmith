@@ -709,7 +709,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   function updateNVerify(
     rowIndex: number,
     colIndex: number,
-    expectedTableData: string,
+    expectedTableData?: string,
   ) {
     agHelper.ClickButton("Update"); //Update does not work, Bug 14063
     agHelper.AssertElementAbsence(locator._toastMsg); //Validating fix for Bug 14063 - for common table columns

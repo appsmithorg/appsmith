@@ -119,7 +119,7 @@ describe("Migration Validate", function () {
           .eq(1)
           .invoke("text")
           .then((cardNo) => {
-            var format = /^\d{4}-\d{4}-\d{4}(-\d{4})?$/;
+            let format = /^\d{4}-\d{4}-\d{4}(-\d{4})?$/;
             expect(cardNumber).match(format);
             expect(cardNumber).to.be.equal(cardNo);
           });
@@ -295,7 +295,7 @@ describe("Migration Validate", function () {
           .eq(1)
           .invoke("text")
           .then((cardNo) => {
-            var format = /^\d{4}-\d{4}-\d{4}(-\d{4})?$/;
+            let format = /^\d{4}-\d{4}-\d{4}(-\d{4})?$/;
             expect(cardNumber).match(format);
             expect(cardNumber).to.be.equal(cardNo);
           });

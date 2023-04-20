@@ -24,7 +24,7 @@ describe("Chart Widget Functionality around custom chart data", function () {
     );
   });
 
-  function enterAndTest(widgetName, text, expected) {
+  function enterAndTest(widgetName, text, expected?) {
     cy.get(`.t--widget-${widgetName} input`).clear();
     cy.wait(300);
     if (text) {

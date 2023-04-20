@@ -5,7 +5,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const fieldPrefix = ".t--jsonformfield";
 const backBtn = ".t--property-pane-back-btn";
 
-function hideAndVerifyProperties(fieldName, fieldValue, resolveFieldValue) {
+function hideAndVerifyProperties(fieldName, fieldValue, resolveFieldValue?) {
   // Check if visible
   cy.get(`${fieldPrefix}-${fieldName}`).should("exist");
 
