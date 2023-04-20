@@ -84,8 +84,8 @@ describe("Validate Mongo CRUD with JSON Form", () => {
   function GenerateCRUDNValidateDeployPage(
     col1Text: string,
     col2Text: string,
-    col3Text: string,
-    idIndex: number,
+    col3Text?: string,
+    idIndex?: number,
   ) {
     agHelper.GetNClick(dataSources._generatePageBtn);
     agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);

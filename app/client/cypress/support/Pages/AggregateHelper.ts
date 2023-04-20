@@ -17,6 +17,9 @@ const DEFAULT_ENTERVALUE_OPTIONS = {
   inputFieldName: "",
 };
 export class AggregateHelper {
+	public directInput: any;
+	public inputFieldName: any;
+	public propFieldName: any;
   private locator = ObjectsRegistry.CommonLocators;
   public isMac = Cypress.platform === "darwin";
   private selectLine = `${

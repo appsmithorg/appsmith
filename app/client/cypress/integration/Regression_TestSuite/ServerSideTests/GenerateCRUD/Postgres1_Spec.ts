@@ -114,8 +114,8 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   function GenerateCRUDNValidateDeployPage(
     col1Text: string,
     col2Text: string,
-    col3Text: string,
-    jsonFromHeader: string,
+    col3Text?: string,
+    jsonFromHeader?: string,
   ) {
     agHelper.GetNClick(dataSources._generatePageBtn);
     agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
