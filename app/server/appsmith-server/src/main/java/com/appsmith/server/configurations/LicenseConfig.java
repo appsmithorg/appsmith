@@ -7,8 +7,8 @@ import com.appsmith.server.solutions.OnlineLicenseValidatorImpl;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.google.gson.Gson;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,21 +16,18 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 @Setter
 @Configuration
+@RequiredArgsConstructor
 public class LicenseConfig {
 
-    @Autowired
-    Gson gson;
+    private final Gson gson;
 
-    @Autowired
-    CloudServicesConfig cloudServicesConfig;
+    private final CloudServicesConfig cloudServicesConfig;
 
-    @Autowired
-    ReleaseNotesService releaseNotesService;
+    private final ReleaseNotesService releaseNotesService;
 
-    @Autowired
-    ConfigService configService;
-    @Autowired
-    AirgapInstanceConfig airgapInstanceConfig;
+    private final ConfigService configService;
+
+    private final AirgapInstanceConfig airgapInstanceConfig;
 
     @Value("${appsmith.license.key}")
     private String licenseKey;
@@ -42,7 +39,7 @@ public class LicenseConfig {
     @Bean
     public LicenseValidator licenseValidatorInstance() {
         return airgapInstanceConfig.isAirgapEnabled()
-            ? new OfflineLicenseValidatorImpl(this, gson)
-            : new OnlineLicenseValidatorImpl(cloudServicesConfig, configService, releaseNotesService);
+                ? new OfflineLicenseValidatorImpl(releaseNotesService, configService, this, gson)
+                : new OnlineLicenseValidatorImpl(releaseNotesService, configService, cloudServicesConfig);
     }
 }
