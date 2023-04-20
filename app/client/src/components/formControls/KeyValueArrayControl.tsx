@@ -29,14 +29,19 @@ const FormRowWithLabel = styled.div`
   flex: 1;
   flex-direction: row;
   align-items: center;
+  margin-bottom: 5px;
   & svg {
     cursor: pointer;
+  }
+  .form-input-field {
+    width: 270px;
+    + .form-input-field {
+      margin-left: 5px;
+    }
   }
 `;
 
 const StyledTextInput = styled(Input)`
-  min-width: 66px;
-  margin-bottom: 8px;
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
@@ -45,8 +50,9 @@ const StyledTextInput = styled(Input)`
 `;
 
 const StyledButton = styled(Button)`
-  margin-left: 15px;
+  margin-left: 5px;
 `;
+const AddMoreButton = styled(Button)``;
 
 function KeyValueRow(
   props: KeyValueArrayControlProps & WrappedFieldArrayProps,
@@ -117,8 +123,8 @@ function KeyValueRow(
         return (
           <FormRowWithLabel key={index}>
             <div
+              className="form-input-field"
               data-replay-id={btoa(keyTextFieldName)}
-              style={{ width: "20vw" }}
             >
               <Field
                 component={renderTextInput}
@@ -136,7 +142,7 @@ function KeyValueRow(
               />
             </div>
             {!props.actionConfig && (
-              <div style={{ marginLeft: "16px", width: "20vw" }}>
+              <div className="form-input-field">
                 <div
                   data-replay-id={btoa(valueTextFieldName)}
                   style={{ display: "flex", flexDirection: "row" }}
@@ -182,15 +188,15 @@ function KeyValueRow(
           </FormRowWithLabel>
         );
       })}
-      <Button
-        className="t--add-field"
+      <AddMoreButton
+        className="t--add-field btn-add-more"
         kind="tertiary"
         onClick={addRow}
         size="md"
         startIcon="add-more"
       >
         Add more
-      </Button>
+      </AddMoreButton>
     </>
   ) : null;
 }

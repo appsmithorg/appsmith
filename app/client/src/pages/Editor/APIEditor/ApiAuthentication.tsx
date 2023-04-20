@@ -24,14 +24,14 @@ interface ReduxStateProps {
   datasource: EmbeddedRestDatasource | Datasource;
 }
 
-const AuthContainer = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-`;
+// const AuthContainer = styled.div`
+//   width: 100%;
+//   height: 100%;
+//   display: flex;
+//   flex-direction: column;
+//   align-items: center;
+//   justify-content: center;
+// `;
 
 const OAuthContainer = styled.div`
   background: #ffffff;
@@ -39,7 +39,13 @@ const OAuthContainer = styled.div`
   flex-direction: row;
   padding: 12px 5px;
 `;
-
+const MainContainer = styled.div`
+  display: flex;
+  position: relative;
+  height: 100%;
+  flex-direction: column;
+  padding: var(--ads-v2-spaces-7);
+`;
 interface ErrorProps {
   hasError: boolean;
 }
@@ -110,7 +116,7 @@ function ApiAuthentication(props: Props): JSX.Element {
     (shouldSave && canCreateDatasource) || (!shouldSave && canManageDatasource);
 
   return (
-    <AuthContainer>
+    <MainContainer>
       {authType === AuthType.OAuth2 && <OAuthLabel hasError={hasError} />}
       <DescriptionText kind="body-m">
         {shouldSave
@@ -122,7 +128,7 @@ function ApiAuthentication(props: Props): JSX.Element {
         enable={isEnabled}
         shouldSave={shouldSave}
       />
-    </AuthContainer>
+    </MainContainer>
   );
 }
 

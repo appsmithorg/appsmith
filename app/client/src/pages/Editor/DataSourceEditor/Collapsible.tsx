@@ -26,18 +26,18 @@ const SectionContainer = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  width: 240px;
+  width: 270px;
   cursor: pointer;
   margin-bottom: 5;
 `;
 
 const TopBorder = styled(Divider)`
   margin-top: 24px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 `;
 
 const SectionContentWrapper = styled.div`
-  padding: 0 20px;
+  /* padding: 0 20px; */
 `;
 
 interface ComponentProps {

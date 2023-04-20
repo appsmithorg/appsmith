@@ -116,7 +116,7 @@ const StyledFormLabel = styled.label<{
       ? props.extraStyles?.marginBottom
       : props.config?.controlType === "CHECKBOX"
       ? "0;"
-      : "8px;"} 
+      : "4px;"} 
   &:first-child {
     margin-left: 0;
   }

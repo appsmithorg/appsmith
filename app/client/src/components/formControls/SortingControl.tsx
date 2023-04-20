@@ -25,7 +25,7 @@ const columnFieldConfig: any = {
   inputType: "TEXT",
   placeholderText: "Column name",
   customStyles: {
-    width: "280px",
+    // width: "280px",
   },
 };
 

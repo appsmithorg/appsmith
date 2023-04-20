@@ -19,7 +19,6 @@ import {
   DEFAULT_MULTI_PART_DROPDOWN_PLACEHOLDER,
   MULTI_PART_DROPDOWN_OPTIONS,
 } from "constants/ApiEditorConstants/CommonApiConstants";
-import { Classes as BlueprintClasses } from "@blueprintjs/core";
 import { Button, Option, Text } from "design-system";
 
 type CustomStack = {
@@ -29,6 +28,9 @@ type CustomStack = {
 const KeyValueStackContainer = styled.div<CustomStack>`
   padding: 0 0 var(--ads-v2-spaces-7) 0;
 `;
+// const AddMoreButton = styled(Button)`
+//   margin-top: 5px;
+// `;
 const FormRowWithLabel = styled(FormRow)`
   flex-wrap: wrap;
   margin-bottom: ${(props) => props.theme.spaces[2] - 1}px;
@@ -42,7 +44,7 @@ const FormRowWithLabel = styled(FormRow)`
 
 const CenteredButton = styled(Button)`
   align-self: center;
-  margin-left: 15px;
+  margin-left: 5px;
 `;
 
 const Flex = styled.div<{ size: number }>`
@@ -75,14 +77,6 @@ const FlexContainer = styled.div`
 const DynamicTextFieldWithDropdownWrapper = styled.div`
   display: flex;
   position: relative;
-
-  &
-    .${BlueprintClasses.POPOVER_TARGET},
-    &
-    .${BlueprintClasses.POPOVER_TARGET}
-    > div {
-    height: 100%;
-  }
 `;
 
 const DynamicDropdownFieldWrapper = styled.div`
@@ -265,6 +259,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
         </>
       )}
       <Button
+        className="btn-add-more"
         kind="tertiary"
         onClick={() => props.fields.push({ key: "", value: "" })}
         size="md"

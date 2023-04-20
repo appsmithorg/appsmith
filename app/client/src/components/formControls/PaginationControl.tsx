@@ -36,7 +36,7 @@ const valueFieldConfig: any = {
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
   placeholderText: "value",
   customStyles: {
-    width: "280px",
+    // width: "280px",
   },
 };
 
@@ -84,7 +84,7 @@ export function Pagination(props: {
   );
 
   const defaultStyles = {
-    width: "280px",
+    // width: "280px",
     ...customStyles,
   };
 

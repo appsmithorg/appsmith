@@ -1,14 +1,11 @@
 import type { Datasource } from "entities/Datasource";
 import React from "react";
 import { map, get, isArray } from "lodash";
-import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { isHidden, isKVArray } from "components/formControls/utils";
 import log from "loglevel";
 
 const Key = styled.div`
-  color: ${Colors.DOVE_GRAY};
-  font-size: 14px;
   display: inline-block;
 `;
 

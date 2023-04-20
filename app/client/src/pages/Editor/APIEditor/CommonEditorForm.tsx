@@ -263,7 +263,7 @@ const Flex = styled.div<{
 const FlexContainer = styled.div`
   display: flex;
   align-items: center;
-  width: calc(100% - 50px);
+  width: calc(100% - 42px);
 
   .key-value {
     .${Classes.TEXT} {

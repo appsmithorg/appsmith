@@ -31,7 +31,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   border-bottom: 1px solid var(--ads-v2-color-border);
-  padding: 24px 20px;
+  padding: 12px 0;
 `;
 
 function Connected({
@@ -74,7 +74,7 @@ function Connected({
           <ConnectedText>
             <Icon
               color="var(--ads-v2-color-fg-success)"
-              name="close-circle"
+              name="success"
               size="lg"
             />
             <div style={{ marginLeft: "12px" }}>Datasource Saved</div>
@@ -88,7 +88,7 @@ function Connected({
         </Header>
       )}
       {errorComponent}
-      <div style={{ marginTop: showDatasourceSavedText ? "30px" : "" }}>
+      <div style={{ marginTop: showDatasourceSavedText ? "20px" : "" }}>
         {!isNil(currentFormConfig) && !isNil(datasource) ? (
           <RenderDatasourceInformation
             config={currentFormConfig[0]}
