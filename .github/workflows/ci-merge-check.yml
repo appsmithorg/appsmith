@@ -60,7 +60,7 @@ jobs:
               echo "msg=Looks like there are some Cypress failures. Can't Merge." >> $GITHUB_OUTPUT
               exit 1
             elif [ ${{ steps.ci_test_result_status.outputs.perf_test_status }} -gt 0 ]; then
-              echo "msg=Looks like Perf-Test is failed. Contact perf team to get their confirmation. Can't Merge." >> $GITHUB_OUTPUT
+              echo "msg=Looks like Perf-Tests failed. Contact perf team to get their confirmation. Can't Merge." >> $GITHUB_OUTPUT
               exit 1
             fi
           elif [ ${{ steps.suite_status_check.outputs.status2 }} == 0 ]; then
