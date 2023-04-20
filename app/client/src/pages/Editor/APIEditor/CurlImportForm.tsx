@@ -23,12 +23,7 @@ import Debugger, {
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
 const MainConfiguration = styled.div`
-  padding: ${(props) => props.theme.spaces[7]}px
-    ${(props) => props.theme.spaces[10]}px 0px
-    ${(props) => props.theme.spaces[10]}px;
-  ${FormRow} {
-    align-items: flex-start;
-  }
+  padding: var(--ads-v2-spaces-4) 0;
 `;
 
 const ActionButtons = styled.div`
@@ -55,30 +50,24 @@ const CurlIconWrapper = styled.div`
 const CurlImportText = styled.p`
   max-width: 100%;
   flex: 0 1 auto;
-  font-size: ${(props) => props.theme.fontSizes[5]}px;
-  font-weight: ${(props) => props.theme.fontWeights[1]};
+  font-size: 17px;
+  font-weight: 500;
   color: var(--ads-v2-color-fg);
+  font-size: 17px;
+  line-height: 22px;
+  letter-spacing: -0.204px;
 `;
 
 const StyledForm = styled(Form)`
   flex: 1;
   overflow: auto;
-  padding: ${(props) => props.theme.spaces[7]}px
-    ${(props) => props.theme.spaces[10]}px 0px
-    ${(props) => props.theme.spaces[10]}px;
   color: var(--ads-v2-color-fg);
-  label {
-    font-size: ${(props) => props.theme.fontSizes[4]}px;
-    font-weight: ${(props) => props.theme.fontWeights[1]};
-  }
 `;
 
 const CurlHintText = styled.div`
-  font-size: ${(props) => props.theme.fontSizes[3]}px;
-  font-weight: ${(props) => props.theme.fontWeights[1]};
-  margin: ${(props) => props.theme.spaces[2]}px 0px
-    ${(props) => props.theme.spaces[9]}px 0px;
-  color: var(--ads-v2-color-fg);
+  font-size: 12px;
+  margin: 0 0 var(--ads-v2-spaces-4);
+  color: var(--ads-v2-color-fg-muted);
 `;
 
 const CurlImportFormContainer = styled.div`
@@ -100,7 +89,13 @@ const CurlImportFormContainer = styled.div`
     font-size: ${(props) => props.theme.fontSizes[3]}px;
   }
 `;
-
+const MainContainer = styled.div`
+  display: flex;
+  position: relative;
+  height: 100%;
+  flex-direction: column;
+  padding: var(--ads-v2-spaces-7);
+`;
 interface ReduxStateProps {
   actions: ActionDataState;
   initialValues: Record<string, unknown>;
@@ -118,7 +113,7 @@ class CurlImportForm extends React.Component<Props> {
   render() {
     const { handleSubmit, isImportingCurl, showDebugger } = this.props;
     return (
-      <>
+      <MainContainer>
         <CloseEditor />
         <MainConfiguration>
           <FormRow className="form-row-header">
@@ -168,7 +163,7 @@ class CurlImportForm extends React.Component<Props> {
           </ResizerContentContainer>
           {showDebugger && <Debugger />}
         </ResizerMainContainer>
-      </>
+      </MainContainer>
     );
   }
 }
