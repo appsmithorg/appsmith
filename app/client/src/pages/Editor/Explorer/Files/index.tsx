@@ -15,7 +15,6 @@ import {
 } from "selectors/editorSelectors";
 import { ExplorerActionEntity } from "../Actions/ActionEntity";
 import ExplorerJSCollectionEntity from "../JSActions/JSActionEntity";
-import { Colors } from "constants/Colors";
 import { selectFilesForExplorer } from "selectors/entitiesSelector";
 import {
   getExplorerStatus,
@@ -24,7 +23,7 @@ import {
 import { AddEntity, EmptyComponent } from "../common";
 import ExplorerSubMenu from "./Submenu";
 import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
-import { Icon } from "design-system";
+import { Icon, Text } from "design-system";
 
 function Files() {
   const applicationId = useSelector(getCurrentApplicationId);
@@ -66,12 +65,13 @@ function Files() {
       files.map(({ entity, type }: any) => {
         if (type === "group") {
           return (
-            <div
-              className={`text-sm text-[${Colors.CODE_GRAY}] pl-8 bg-trueGray-50 overflow-hidden overflow-ellipsis whitespace-nowrap`}
+            <Text
+              className="pl-8 overflow-hidden overflow-ellipsis whitespace-nowrap"
               key={entity.name || "Queries"}
+              kind="heading-xs"
             >
               {entity.name}
-            </div>
+            </Text>
           );
         } else if (type === "JS") {
           return (

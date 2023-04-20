@@ -1,10 +1,9 @@
 import type { MutableRefObject } from "react";
 import React, { useCallback, useRef } from "react";
 import styled from "styled-components";
-import { TooltipComponent } from "design-system-old";
-import { Button, Icon, Spinner, toast } from "design-system";
+import { Button, Icon, Spinner, toast, Tooltip } from "design-system";
 import { Colors } from "constants/Colors";
-import Entity, { EntityClassNames } from "../Entity";
+import Entity, { AddButtonWrapper, EntityClassNames } from "../Entity";
 import {
   createMessage,
   customJSLibraryMessages,
@@ -17,14 +16,13 @@ import {
 } from "selectors/entitiesSelector";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import { Collapse } from "@blueprintjs/core";
-import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
+// import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import useClipboard from "utils/hooks/useClipboard";
 import {
   toggleInstaller,
   uninstallLibraryInit,
 } from "actions/JSLibraryActions";
 import EntityAddButton from "../Entity/AddButton";
-import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import type { TJSLibrary } from "workers/common/JSLibrary";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
@@ -40,7 +38,7 @@ const docsURLMap = recommendedLibraries.reduce((acc, lib) => {
 const Library = styled.li`
   list-style: none;
   flex-direction: column;
-  color: ${Colors.GRAY_700};
+  color: var(--ads-v2-color-fg);
   font-weight: 400;
   display: flex;
   justify-content: space-between;
@@ -53,38 +51,18 @@ const Library = styled.li`
     height: 36px;
   }
 
-  .share {
-    display: none;
-    width: 30px;
-    height: 36px;
-    background: transparent;
-    margin-left: 8px;
-    flex-shrink: 0;
-  }
-
   &:hover {
-    background: ${Colors.SEA_SHELL};
+    background: var(--ads-v2-color-bg-subtle);
 
     & .t--open-new-tab {
       display: block;
     }
 
     & .delete,
-    .share {
+    .open-link {
       display: flex;
       align-items: center;
       justify-content: center;
-      background: transparent;
-      &:hover {
-        background: black;
-        .uninstall-library,
-        .open-link {
-          color: white;
-          svg > path {
-            fill: white;
-          }
-        }
-      }
     }
   }
 
@@ -105,11 +83,13 @@ const Library = styled.li`
     display: none;
   }
 
-  .delete {
+  .delete,
+  .open-link {
     display: none;
     width: 30px;
     height: 36px;
-    background: transparent;
+    margin-left: 4px;
+    /* background: transparent; */
     flex-shrink: 0;
   }
 
@@ -126,7 +106,7 @@ const Library = styled.li`
     font-size: 12px;
     font-weight: 400;
     padding: 4px 8px;
-    color: ${Colors.GRAY_700};
+    color: var(--ads-v2-color-fg);
     display: flex;
     align-items: center;
     gap: 4px;
@@ -135,7 +115,7 @@ const Library = styled.li`
     .accessor {
       padding-left: 8px;
       flex-grow: 1;
-      outline: 1px solid #b3b3b3 !important;
+      outline: 1px solid var(--ads-v2-color-border) !important;
       font-size: 12px;
       font-family: monospace;
       background: white;
@@ -144,7 +124,8 @@ const Library = styled.li`
       width: calc(100% - 80px);
       justify-content: space-between;
       align-items: center;
-      color: ${Colors.ENTERPRISE_DARK};
+      color: var(--ads-v2-color-fg-emphasis);
+      border-radius: var(--ads-v2-border-radius);
       > div {
         height: 100%;
         display: flex;
@@ -153,9 +134,9 @@ const Library = styled.li`
         background: transparent;
         width: 25px;
         &:hover {
-          background: ${Colors.SHARK2};
+          background: var(--ads-v2-color-bg-muted);
           > svg > path {
-            fill: ${Colors.WHITE};
+            fill: var(--ads-v2-color-fg);
           }
         }
       }
@@ -204,6 +185,7 @@ const PrimaryCTA = function ({ lib }: { lib: TJSLibrary }) {
       <Button
         className="delete uninstall-library t--uninstall-library"
         isIconButton
+        kind="error"
         onClick={uninstallLibrary}
         size="sm"
         startIcon="trash-outline"
@@ -244,17 +226,19 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
           className={isOpen ? "open-collapse" : ""}
           color={Colors.GREY_7}
           name="right-arrow-2"
-          size="lg"
+          size={"md"}
         />
         <div className="flex items-center flex-start flex-1 overflow-hidden">
           <Name>{lib.name}</Name>
           {docsURL && (
-            <div className="share" onClick={openDocs(docsURL)}>
-              <Icon
+            <div className="share">
+              <Button
                 className="open-link"
-                color={Colors.GRAY_700}
-                name="share-2"
+                isIconButton
+                kind="tertiary"
+                onClick={openDocs(docsURL)}
                 size="sm"
+                startIcon="share-box-line"
               />
             </div>
           )}
@@ -269,9 +253,14 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
           Available as{" "}
           <div className="accessor">
             {lib.accessor[lib.accessor.length - 1]}{" "}
-            <div>
-              <CopyIcon onClick={copyToClipboard} />
-            </div>
+            <Button
+              // className="open-link"
+              isIconButton
+              kind="tertiary"
+              onClick={copyToClipboard}
+              size="sm"
+              startIcon="copy-control"
+            />
           </div>
         </div>
       </Collapse>
@@ -309,21 +298,20 @@ function JSDependencies() {
     <Entity
       className={"libraries"}
       customAddButton={
-        <TooltipComponent
-          boundary="viewport"
-          className={EntityClassNames.TOOLTIP}
+        <Tooltip
           content={createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
-          disabled={isOpen}
-          hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-          position="right"
+          placement="right"
+          {...(isOpen ? { visible: false } : {})}
         >
-          <EntityAddButton
-            className={`${EntityClassNames.ADD_BUTTON} group libraries h-100 ${
-              isOpen ? "selected" : ""
-            }`}
-            onClick={openInstaller}
-          />
-        </TooltipComponent>
+          <AddButtonWrapper>
+            <EntityAddButton
+              className={`${
+                EntityClassNames.ADD_BUTTON
+              } group libraries h-100 ${isOpen ? "selected" : ""}`}
+              onClick={openInstaller}
+            />
+          </AddButtonWrapper>
+        </Tooltip>
       }
       entityId="library_section"
       icon={null}

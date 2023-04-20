@@ -249,13 +249,14 @@ const EntityIconWrapper = styled.div<{
     noBorder
       ? "none"
       : `${parseInt(height ? height : "18px") * 0.0845}px solid ${
-          borderColor ?? Colors.SCORPION
+          borderColor ?? "var(--ads-v2-color-border)"
         }`};
   box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
+  border-radius: var(--ads-v2-border-radius);
 
   svg,
   img {

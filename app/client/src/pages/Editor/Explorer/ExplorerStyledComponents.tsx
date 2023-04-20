@@ -18,7 +18,7 @@ export const EntityTogglesWrapper = styled.div`
     }
 
     &:hover {
-      background: ${Colors.SHARK2};
+      background: var(--ads-v2-color-bg-subtle);
       svg,
       svg path {
         fill: ${Colors.WHITE};

@@ -1,13 +1,12 @@
 import React from "react";
-import { Popover, Position, PopoverInteractionKind } from "@blueprintjs/core";
 import {
   DATASOURCE_FIELD_ICONS_MAP,
   datasourceColumnIcon,
 } from "../ExplorerIcons";
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
 import type { DatasourceColumns, DatasourceKeys } from "entities/Datasource";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
+import { Menu, MenuContent, MenuTrigger } from "design-system";
 
 const Wrapper = styled.div<{ step: number }>`
   padding-left: ${(props) =>
@@ -17,14 +16,14 @@ const Wrapper = styled.div<{ step: number }>`
   height: 30px;
   width: 100%;
   &:hover {
-    background: ${Colors.Gallery};
+    background: var(--ads-v2-color-bg-subtle);
   }
   align-items: center;
   cursor: pointer;
 `;
 
 const FieldName = styled.div`
-  color: ${Colors.GREY_9};
+  color: var(--ads-v2-color-fg);
   flex: 1;
   font-size: 12px;
   white-space: nowrap;
@@ -38,7 +37,6 @@ const FieldValue = styled.div`
   text-align: right;
   font-size: 10px;
   line-height: 12px;
-  color: #777777;
   font-weight: 300;
 `;
 
@@ -64,17 +62,16 @@ const PopoverContent = styled.div`
 const Container = styled.div`
   display: flex;
   flex-direction: row;
-  background-color: ${Colors.WHITE};
+  background-color: var(--ads-v2-color-bg);
   padding: 11px;
 `;
 
 const PopupValue = styled.div`
-  color: ${Colors.GREY_9};
+  color: var(--ads-v2-color-fg);
   font-size: 12px;
   :nth-child(2) {
     text-align: right;
     font-size: 10px;
-    color: #777777;
     padding-top: 3px;
     font-weight: 300;
   }
@@ -102,22 +99,18 @@ export function DatabaseColumns(props: DatabaseFieldProps) {
   );
 
   return (
-    <Popover
-      boundary={"viewport"}
-      hoverCloseDelay={0}
-      interactionKind={PopoverInteractionKind.HOVER}
-      minimal
-      position={Position.RIGHT_TOP}
-    >
-      {content}
-      <Container className={EntityClassNames.CONTEXT_MENU_CONTENT}>
-        {icon}
-        <PopoverContent>
-          <PopupValue>{fieldName}</PopupValue>
-          <PopupValue>{fieldType}</PopupValue>
-        </PopoverContent>
-      </Container>
-    </Popover>
+    <Menu>
+      <MenuTrigger>{content}</MenuTrigger>
+      <MenuContent align="start" side="right">
+        <Container className={EntityClassNames.CONTEXT_MENU_CONTENT}>
+          {icon}
+          <PopoverContent>
+            <PopupValue>{fieldName}</PopupValue>
+            <PopupValue>{fieldType}</PopupValue>
+          </PopoverContent>
+        </Container>
+      </MenuContent>
+    </Menu>
   );
 }
 

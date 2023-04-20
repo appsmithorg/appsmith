@@ -19,8 +19,6 @@ import { noop } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import useClick from "utils/hooks/useClick";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { TooltipComponent } from "design-system-old";
-import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import Boxed from "pages/Editor/GuidedTour/Boxed";
@@ -28,6 +26,7 @@ import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { getEntityCollapsibleState } from "selectors/editorContextSelectors";
 import type { AppState } from "@appsmith/reducers";
 import { setEntityCollapsibleState } from "actions/editorContextActions";
+import { Tooltip } from "design-system";
 
 export enum EntityClassNames {
   CONTEXT_MENU = "entity-context-menu",
@@ -42,7 +41,7 @@ export enum EntityClassNames {
   TOOLTIP = "t--entity-tooltp",
 }
 
-const ContextMenuWrapper = styled.div`
+export const ContextMenuWrapper = styled.div`
   height: 100%;
 `;
 
@@ -86,23 +85,27 @@ export const EntityItem = styled.div<{
   user-select: none;
   padding-left: ${(props) => `calc(0.25rem + (0.25 * ${props.step}rem))`};
   background: ${(props) =>
-    props.active ? Colors.GREY_2 : props.isSticky ? Colors.WHITE : "none"};
+    props.active
+      ? `var(--ads-v2-color-bg-muted)`
+      : props.isSticky
+      ? Colors.WHITE
+      : "none"};
   height: 36px;
   width: 100%;
   display: inline-grid;
   grid-template-columns: 20px auto 1fr auto auto auto;
   grid-auto-flow: column dense;
   border-radius: 0;
-  color: ${Colors.GRAY_800};
+  color: var(--ads-v2-color-fg);
   font-weight: 500;
   cursor: pointer;
   align-items: center;
   &:hover {
-    background: ${Colors.GREY_2};
+    background: var(--ads-v2-color-bg-subtle);
   }
 
   .${Classes.COLLAPSE_BODY} & {
-    color: ${Colors.GRAY_700};
+    color: var(--ads-v2-color-fg);
     font-weight: 400;
   }
 
@@ -123,7 +126,7 @@ export const EntityItem = styled.div<{
   & .${EntityClassNames.COLLAPSE_TOGGLE} {
     svg {
       path {
-        fill: ${Colors.GRAY};
+        fill: var(--ads-v2-color-fg);
       }
     }
   }
@@ -153,7 +156,9 @@ export const EntityItem = styled.div<{
 
   & .${EntityClassNames.RIGHT_ICON}:hover {
     background: ${(props) =>
-      props.rightIconClickable ? Colors.SHARK2 : "initial"};
+      props.rightIconClickable
+        ? "var(--ads-v2-color-bg-brand-secondary-emphasis)"
+        : "initial"};
     svg {
       path {
         fill: ${(props) =>
@@ -173,7 +178,7 @@ export const EntityItem = styled.div<{
 
 const IconWrapper = styled.span`
   line-height: ${(props) => props.theme.lineHeights[0]}px;
-  color: ${Colors.CHARCOAL};
+  color: var(--ads-v2-color-fg);
   display: flex;
   align-items: center;
 
@@ -186,6 +191,11 @@ const IconWrapper = styled.span`
     height: 16px;
   }
   margin-right: 4px;
+`;
+
+export const AddButtonWrapper = styled.div`
+  height: 100%;
+  width: 100%;
 `;
 
 export type EntityProps = {
@@ -212,7 +222,7 @@ export type EntityProps = {
   onToggle?: (isOpen: boolean) => void;
   alwaysShowRightIcon?: boolean;
   onClickRightIcon?: () => void;
-  addButtonHelptext?: JSX.Element | string;
+  addButtonHelptext?: string;
   isBeta?: boolean;
   preRightIcon?: ReactNode;
   onClickPreRightIcon?: () => void;
@@ -301,19 +311,14 @@ export const Entity = forwardRef(
     useClick(itemRef, handleClick, noop);
 
     const addButton = props.customAddButton || (
-      <TooltipComponent
-        boundary="viewport"
-        className={EntityClassNames.TOOLTIP}
-        content={props.addButtonHelptext || ""}
-        disabled={!props.addButtonHelptext}
-        hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-        position="right"
-      >
-        <AddButton
-          className={`${EntityClassNames.ADD_BUTTON} ${props.className}`}
-          onClick={props.onCreate}
-        />
-      </TooltipComponent>
+      <Tooltip content={props.addButtonHelptext || ""} placement="right">
+        <AddButtonWrapper>
+          <AddButton
+            className={`${EntityClassNames.ADD_BUTTON} ${props.className}`}
+            onClick={props.onCreate}
+          />
+        </AddButtonWrapper>
+      </Tooltip>
     );
 
     return (

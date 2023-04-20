@@ -1,6 +1,7 @@
 import React, { useRef, useCallback, useEffect } from "react";
 import styled from "styled-components";
 import { Divider } from "design-system";
+// import Search from "./ExplorerSearch";
 import { NonIdealState, Classes } from "@blueprintjs/core";
 import JSDependencies from "./Libraries";
 import PerformanceTracker, {

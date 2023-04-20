@@ -1,12 +1,7 @@
 import type { ReactNode } from "react";
 import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import type { TreeDropdownOption } from "pages/Editor/Explorer/TreeDropdown";
-import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
-import { noop } from "lodash";
-import ContextMenuTrigger from "../ContextMenuTrigger";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { ContextMenuPopoverModifiers } from "@appsmith/pages/Editor/Explorer/helpers";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import {
   clonePageInit,
@@ -35,6 +30,8 @@ import {
 import { getPageById } from "selectors/editorSelectors";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import type { AppState } from "@appsmith/reducers";
+import ContextMenu from "pages/Editor/Explorer/ContextMenu";
+import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
 
 const CustomLabel = styled.div`
   display: flex;
@@ -189,15 +186,10 @@ export function PageContextMenu(props: {
   ].filter(Boolean);
 
   return optionsTree?.length > 0 ? (
-    <TreeDropdown
+    <ContextMenu
       className={props.className}
-      defaultText=""
-      modifiers={ContextMenuPopoverModifiers}
-      onSelect={noop}
       optionTree={optionsTree as TreeDropdownOption[]}
-      selectedValue=""
       setConfirmDelete={setConfirmDelete}
-      toggle={<ContextMenuTrigger className="t--context-menu" />}
     />
   ) : null;
 }
