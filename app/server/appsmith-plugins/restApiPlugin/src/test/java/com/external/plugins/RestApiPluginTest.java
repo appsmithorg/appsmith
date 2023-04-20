@@ -8,7 +8,6 @@ import com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.ApiContentType;
 import com.appsmith.external.models.ApiKeyAuth;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -1563,6 +1562,34 @@ public class RestApiPluginTest {
                 .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-RST"))
                 .collect(Collectors.toList()).size() == 0);
 
+    }
+
+    @Test
+    public void whenAPIReturnsNon200_doNotStringifyResponseBody() throws IOException {
+        // Generate a mock response which generates a non 200 HTTP status code e.g. HTTP 500
+        MockWebServer mockWebServer = new MockWebServer();
+        MockResponse mockRedirectResponse = new MockResponse()
+                .setResponseCode(500)
+                .addHeader("Content-Type", "application/json")
+                .setBody("{\"statusCode\":500,\"description\":\"Internal Server Error");
+        mockWebServer.enqueue(mockRedirectResponse);
+
+        mockWebServer.start();
+
+        HttpUrl mockHttpUrl = mockWebServer.url("/mock.codes/500");
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl(mockHttpUrl.toString());
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHttpMethod(HttpMethod.GET);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertTrue(result.getBody() instanceof JsonNode);
+                })
+                .verifyComplete();
     }
 }
 
