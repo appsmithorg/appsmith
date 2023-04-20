@@ -21,6 +21,7 @@ jobs:
             env: `${{ github.event.client_payload.slash_command.args.named.env }}`.
             PR: ${{ github.event.client_payload.pull_request.number }}.
             recreate: ${{ github.event.client_payload.slash_command.args.named.recreate }}.
+            airgap-enabled: ${{ github.event.client_payload.slash_command.args.named.airgap-enabled }}.
 
   server-build:
     name: server-build
@@ -39,6 +40,7 @@ jobs:
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
       skip-tests: ${{ github.event.client_payload.slash_command.args.named.skip-tests }}
+      airgap-enabled: ${{ github.event.client_payload.slash_command.args.named.airgap-enabled }}
 
   rts-build:
     name: rts-build
@@ -96,6 +98,9 @@ jobs:
   push-image:
     needs: [client-build, rts-build, server-build]
     runs-on: ubuntu-latest
+    env:
+      CLIENT_BUILD_NAME: ${{ if(inputs.airgap-enabled == "true", 'client-build-airgap', 'client-build') }}
+      CLIENT_BUILD_PATH: ${{ if(inputs.airgap-enabled == "true", 'app/client/build_airgap', 'app/client/build') }}
     if: success()
     steps:
       - name: Set up Depot CLI
@@ -118,8 +123,8 @@ jobs:
       - name: Download the react build artifact
         uses: actions/download-artifact@v3
         with:
-          name: client-build
-          path: app/client/build
+          name: ${{ env.CLIENT_BUILD_NAME }}
+          path: ${{ env.CLIENT_BUILD_PATH }}
 
       - name: Download the server build artifact
         uses: actions/download-artifact@v3

@@ -9,10 +9,18 @@ on:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
         type: number
+      airgap-enabled:
+        description: "This is a boolean value in case the workflow is building for airgap"
+        required: false
+        type: string
+        default: "false"
 
 jobs:
   build-docker:
     runs-on: ubuntu-latest
+    env:
+      CLIENT_BUILD_NAME: ${{ if(inputs.airgap-enabled == "true", 'client-build-airgap', 'client-build') }}
+      CLIENT_BUILD_PATH: ${{ if(inputs.airgap-enabled == "true", 'app/client/build_airgap', 'app/client/build') }}
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||
       github.event_name == 'push' ||
@@ -50,8 +58,8 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/download-artifact@v3
         with:
-          name: client-build
-          path: app/client/build
+          name: ${{ env.CLIENT_BUILD_NAME }}
+          path: ${{ env.CLIENT_BUILD_PATH }}
 
       - name: Download the server build artifact
         if: steps.run_result.outputs.run_result != 'success'
@@ -96,4 +104,3 @@ jobs:
 
       - name: Save the status of the run
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
-        
