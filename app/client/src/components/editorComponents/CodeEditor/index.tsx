@@ -592,8 +592,7 @@ class CodeEditor extends Component<Props, State> {
     event.preventDefault();
 
     const delayedWork = () => {
-      if (!cm.getWrapperElement().classList.contains("CodeMirror-focused"))
-        return;
+      if (!this.state.isFocused) return;
 
       const cursorElement = cm
         .getScrollerElement()
