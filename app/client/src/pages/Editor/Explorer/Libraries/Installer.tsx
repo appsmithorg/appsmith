@@ -6,7 +6,6 @@ import React, {
   useState,
 } from "react";
 import styled from "styled-components";
-import { FormGroup, TextInput } from "design-system-old";
 import {
   Button,
   Icon,
@@ -351,6 +350,7 @@ export function Installer(props: { left: number }) {
   const { left } = props;
   const [URL, setURL] = useState("");
   const [isValid, setIsValid] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
   const dispatch = useDispatch();
   const installedLibraries = useSelector(selectInstalledLibraries);
   const queuedLibraries = useSelector(selectQueuedLibraries);
@@ -382,6 +382,8 @@ export function Installer(props: { left: number }) {
 
   const updateURL = useCallback((value: string) => {
     setURL(value);
+
+    setErrorMessage(validate(value).message);
   }, []);
 
   const validate = useCallback((text) => {
@@ -451,7 +453,8 @@ export function Installer(props: { left: number }) {
         <div className="search-area t--library-container">
           <div className="flex flex-row gap-2 justify-between items-end">
             <Input
-              // isValid={validate}
+              errorMessage={errorMessage}
+              isValid={isValid}
               label={"Library URL"}
               labelPosition="top"
               onChange={updateURL}
@@ -460,20 +463,7 @@ export function Installer(props: { left: number }) {
               startIcon="link-2"
               type="text"
             />
-            <FormGroup className="flex-1" label={"Library URL"}>
-              <TextInput
-                $padding="12px"
-                data-testid="library-url"
-                height="30px"
-                label={"Library URL"}
-                leftIcon="link-2"
-                onChange={updateURL}
-                padding="12px"
-                placeholder="https://cdn.jsdelivr.net/npm/example@1.1.1/example.min.js"
-                validator={validate}
-                width="100%"
-              />
-            </FormGroup>
+
             <Button
               data-testid="install-library-btn"
               isDisabled={!(URL && isValid)}
