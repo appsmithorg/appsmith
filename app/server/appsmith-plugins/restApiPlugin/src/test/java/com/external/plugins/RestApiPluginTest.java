@@ -1571,7 +1571,7 @@ public class RestApiPluginTest {
         MockResponse mockRedirectResponse = new MockResponse()
                 .setResponseCode(500)
                 .addHeader("Content-Type", "application/json")
-                .setBody("{\"statusCode\":500,\"description\":\"Internal Server Error");
+                .setBody("{\"statusCode\":500,\"description\":\"Internal Server Error\"}");
         mockWebServer.enqueue(mockRedirectResponse);
 
         mockWebServer.start();
