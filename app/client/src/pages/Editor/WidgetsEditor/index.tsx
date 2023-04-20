@@ -55,6 +55,7 @@ import SnapShotBannerCTA from "../CanvasLayoutConversion/SnapShotBannerCTA";
 import { APP_MODE } from "entities/App";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+import classNames from "classnames";
 
 function WidgetsEditor() {
   const { deselectAll, focusWidget } = useWidgetSelection();
@@ -196,7 +197,12 @@ function WidgetsEditor() {
                 {showNavigation()}
 
                 <PageViewContainer
-                  className="relative flex flex-row w-full justify-center overflow-hidden"
+                  className={classNames({
+                    "relative flex flex-row w-full justify-center overflow-hidden":
+                      true,
+                    "select-none pointer-events-none":
+                      isAppSettingsPaneWithNavigationTabOpen,
+                  })}
                   hasPinnedSidebar={
                     isPreviewingNavigation && !isMobile
                       ? currentApplicationDetails?.applicationDetail

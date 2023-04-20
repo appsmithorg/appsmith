@@ -82,7 +82,7 @@ function BackToHomeButton(props: BackToHomeButtonProps) {
     <TooltipComponent content="Back to apps" position="bottom-left">
       <StyledLink
         className={classNames({
-          "flex items-center gap-2 group t--back-to-home hover:no-underline mr-3":
+          "flex items-center gap-2 group t--back-to-home hover:no-underline mr-4":
             true,
           "mb-2": forSidebar,
         })}
