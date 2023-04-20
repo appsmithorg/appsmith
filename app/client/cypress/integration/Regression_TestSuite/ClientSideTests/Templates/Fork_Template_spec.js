@@ -75,7 +75,9 @@ describe("Fork a template to an workspace", () => {
     });
     cy.get(templateLocators.dialogForkButton).click();
     cy.get(reconnectDatasourceLocators.Modal).should("be.visible");
-    cy.get(reconnectDatasourceLocators.ListItemIcon)
+    cy.get(reconnectDatasourceLocators.ListItemIcon, {
+      withinSubject: null,
+    })
       .first()
       .trigger("mouseover");
     cy.get("[class$='popover-open']").should("be.visible");
