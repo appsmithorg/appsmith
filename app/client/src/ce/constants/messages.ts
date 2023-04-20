@@ -1535,11 +1535,14 @@ export const IN_APP_EMBED_SETTING = {
   showNavigationBar: () => "Show navigation bar",
   upgradeHeading: () =>
     "Please contact your workspace admin to make the app public before embedding",
-  upgradeHeadingForAppSettings: () => "Make your app public to embed",
+  upgradeHeadingForAppSettings: () => "Embed",
   upgradeHeadingForInviteModal: () =>
     "Make your app public in share settings to embed",
   upgradeContent: () => "Private embedding is now available in",
   appsmithBusinessEdition: () => "Appsmith Business Edition",
+  secondaryHeadingForAppSettings: () => "Make your app public to embed",
+  secondaryHeading: () =>
+    "Please contact your workspace admin to make the app public before embedding",
 };
 
 export const APP_NAVIGATION_SETTING = {

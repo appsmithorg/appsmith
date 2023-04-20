@@ -30,7 +30,7 @@ const SubContainer = styled.div<{ isAppSettings: boolean }>`
     isAppSettings
       ? `
       > span {
-        margin: 8px;
+        margin: 1rem;
       }
       `
       : `
@@ -52,6 +52,11 @@ const StyledText = styled(Text)`
     font-weight: 600;
     font-size: 16px;
   }
+
+  &.upgrade-heading-inapp {
+    font-weight: 500;
+    text-[color:var(--appsmith-color-black-800)];
+  }
 `;
 
 const StyledAnchor = styled.a`
@@ -70,13 +75,32 @@ function PrivateEmbeddingContent(props: {
   return (
     <Container data-testid="t--upgrade-content" isAppSettings={isAppSettings}>
       <SubContainer isAppSettings={isAppSettings}>
-        <StyledText className="upgrade-heading" type={TextType.P1}>
+        <StyledText
+          className={
+            !isAppSettings ? "upgrade-heading" : "upgrade-heading-inapp "
+          }
+          type={TextType.P1}
+        >
           {canMakeAppPublic
             ? isAppSettings
               ? createMessage(IN_APP_EMBED_SETTING.upgradeHeadingForAppSettings)
               : createMessage(IN_APP_EMBED_SETTING.upgradeHeadingForInviteModal)
+            : isAppSettings
+            ? createMessage(IN_APP_EMBED_SETTING.upgradeHeadingForAppSettings)
             : createMessage(IN_APP_EMBED_SETTING.upgradeHeading)}
         </StyledText>
+        {isAppSettings && (
+          <StyledText
+            className="text-[color:var(--appsmith-color-black-800)]"
+            type={TextType.P2}
+          >
+            {canMakeAppPublic
+              ? createMessage(
+                  IN_APP_EMBED_SETTING.secondaryHeadingForAppSettings,
+                )
+              : createMessage(IN_APP_EMBED_SETTING.secondaryHeading)}
+          </StyledText>
+        )}
         <StyledText type={TextType.P2}>
           {createMessage(IN_APP_EMBED_SETTING.upgradeContent)}&nbsp;
           <StyledAnchor
