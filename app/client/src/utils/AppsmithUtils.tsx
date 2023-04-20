@@ -237,27 +237,38 @@ export const convertToString = (value: any): string => {
   return value.toString();
 };
 
-export const getInitialsAndColorCode = (
-  fullName: any,
-  colorPalette: string[],
-): string[] => {
+export const getInitialsFromName = (fullName: string) => {
   let inits = "";
   // if name contains space. eg: "Full Name"
   if (fullName && fullName.includes(" ")) {
     const namesArr = fullName.split(" ");
-    let initials = namesArr.map((name: string) => name.charAt(0));
-    initials = initials.join("").toUpperCase();
+    let initials = namesArr
+      .map((name: string) => name.charAt(0))
+      .join("")
+      .toUpperCase();
+    initials = initials;
     inits = initials.slice(0, 2);
   } else {
     // handle for camelCase
     const str = fullName ? fullName.replace(/([a-z])([A-Z])/g, "$1 $2") : "";
     const namesArr = str.split(" ");
-    let initials = namesArr.map((name: string) => name.charAt(0));
-    initials = initials.join("").toUpperCase();
+    const initials = namesArr
+      .map((name: string) => name.charAt(0))
+      .join("")
+      .toUpperCase();
     inits = initials.slice(0, 2);
   }
-  const colorCode = getColorCode(inits, colorPalette);
-  return [inits, colorCode];
+
+  return inits;
+};
+
+export const getInitialsAndColorCode = (
+  fullName = "",
+  colorPalette: string[],
+): string[] => {
+  const initials = getInitialsFromName(fullName);
+  const colorCode = getColorCode(initials, colorPalette);
+  return [initials, colorCode];
 };
 
 export const getColorCode = (

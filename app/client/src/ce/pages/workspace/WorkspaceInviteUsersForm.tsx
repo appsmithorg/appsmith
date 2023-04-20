@@ -1,19 +1,7 @@
-import React, {
-  Fragment,
-  useContext,
-  useEffect,
-  useState,
-  useMemo,
-  useRef,
-} from "react";
-import styled, {
-  createGlobalStyle,
-  css,
-  ThemeContext,
-} from "styled-components";
+import React, { useEffect, useState, useMemo } from "react";
+import styled, { createGlobalStyle } from "styled-components";
 import TagListField from "components/editorComponents/form/fields/TagListField";
 import { reduxForm, SubmissionError } from "redux-form";
-import SelectField from "components/editorComponents/form/fields/SelectField";
 import { connect, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import {
@@ -21,7 +9,6 @@ import {
   getAllUsers,
   getCurrentAppWorkspace,
 } from "@appsmith/selectors/workspaceSelectors";
-import Spinner from "components/editorComponents/Spinner";
 import type { InviteUsersToWorkspaceFormValues } from "@appsmith/pages/workspace/helpers";
 import { inviteUsersToWorkspace } from "@appsmith/pages/workspace/helpers";
 import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
@@ -43,30 +30,29 @@ import {
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-configured.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import type { DropdownOption, TextProps } from "design-system-old";
-import { Classes, Callout, Text, TextType, Variant } from "design-system-old";
-import { Button, Icon } from "design-system";
-import { getInitialsAndColorCode } from "utils/AppsmithUtils";
-import ProfileImage from "pages/common/ProfileImage";
+import type { DropdownOption } from "design-system-old";
+import {
+  Callout,
+  Avatar,
+  Button,
+  Icon,
+  Select,
+  Spinner,
+  Text,
+  Option,
+} from "design-system";
+import { getInitialsFromName } from "utils/AppsmithUtils";
 import ManageUsers from "pages/workspace/ManageUsers";
-import { Colors } from "constants/Colors";
 import {
   fetchRolesForWorkspace,
   fetchUsersForWorkspace,
   fetchWorkspace,
 } from "@appsmith/actions/workspaceActions";
 import { useHistory } from "react-router-dom";
-import { Tooltip } from "@blueprintjs/core";
-import { isEllipsisActive } from "utils/helpers";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
 
 const { cloudHosting } = getAppsmithConfigs();
-
-export const CommonTitleTextStyle = css`
-  color: ${Colors.CHARCOAL};
-  font-weight: normal;
-`;
 
 export const WorkspaceInviteWrapper = styled.div`
   > div {
@@ -155,10 +141,7 @@ export const UserInfo = styled.div`
 export const UserRole = styled.div`
   flex-basis: 40%;
   flex-shrink: 0;
-  .${Classes.TEXT} {
-    color: ${Colors.COD_GRAY};
-    display: inline-block;
-    width: 100%;
+  span {
     word-break: break-word;
   }
 `;
@@ -173,23 +156,7 @@ export const UserName = styled.div`
     &:nth-child(1) {
       margin-bottom: 1px;
     }
-
-    &[type="h5"] {
-      color: ${Colors.COD_GRAY};
-    }
-
-    &[type="p2"] {
-      color: ${Colors.GRAY};
-    }
   }
-`;
-
-export const Loading = styled(Spinner)`
-  padding-top: 10px;
-  margin: auto;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
 `;
 
 export const MailConfigContainer = styled.div`
@@ -204,47 +171,6 @@ export const MailConfigContainer = styled.div`
     font-size: 14px;
   }
 `;
-
-export const LabelText = styled(Text)`
-  font-size: 14px;
-  color: ${Colors.GREY_7};
-  margin: 8px 0;
-  line-height: 1.31;
-  letter-spacing: -0.24px;
-  display: flex;
-  font-weight: var(--ads-font-weight-normal);
-
-  .cs-icon {
-    margin-right: 8px;
-  }
-`;
-
-export const StyledText = styled(Text)`
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`;
-
-export function TooltipWrappedText(
-  props: TextProps & {
-    label: string;
-  },
-) {
-  const { label, ...textProps } = props;
-  const targetRef = useRef<HTMLDivElement | null>(null);
-  return (
-    <Tooltip
-      boundary="window"
-      content={label}
-      disabled={!isEllipsisActive(targetRef.current)}
-      position="top"
-    >
-      <StyledText ref={targetRef} {...textProps}>
-        {label}
-      </StyledText>
-    </Tooltip>
-  );
-}
 
 const validateFormValues = (values: {
   users: string;
@@ -376,8 +302,6 @@ function WorkspaceInviteUsersForm(props: any) {
           };
         });
 
-  const theme = useContext(ThemeContext);
-
   const allUsersProfiles = React.useMemo(
     () =>
       allUsers.map(
@@ -387,45 +311,36 @@ function WorkspaceInviteUsersForm(props: any) {
           permissionGroupId: string;
           permissionGroupName: string;
           name: string;
-        }) => {
-          const details = getInitialsAndColorCode(
-            user.name || user.username,
-            theme.colors.appCardColors,
-          );
-          return {
-            ...user,
-            initials: details[0],
-          };
-        },
+        }) => ({
+          ...user,
+          initials: getInitialsFromName(user.name || user.username),
+        }),
       ),
-    [allUsers, theme],
+    [allUsers],
   );
 
-  const onSelect = (_value?: string, option?: any) => {
+  const onSelect = (_value: string, option: any) => {
     if (option.link) {
       history.push(option.link);
     }
-    setSelectedOption(isMultiSelectDropdown ? option : [option]);
-  };
 
-  const onRemoveOptions = (updatedItems: any) => {
-    setSelectedOption(updatedItems);
-  };
-
-  const getLabel = (selectedOption: Partial<DropdownOption>[]) => {
-    return (
-      <span data-testid="t--dropdown-label" style={{ width: "100%" }}>
-        <Text type={TextType.P1}>{`${
-          selected
-            ? selectedOption[0].label
-            : `${selectedOption?.length} Selected`
-        }`}</Text>
-      </span>
-    );
+    if (isMultiSelectDropdown) {
+      setSelectedOption((selectedOptions) => [...selectedOptions, option]);
+    } else {
+      setSelectedOption([option]);
+    }
   };
 
   const errorHandler = (error: string) => {
     setEmailError(error);
+  };
+
+  const onRemoveOptions = (value: string) => {
+    if (isMultiSelectDropdown) {
+      setSelectedOption((selectedOptions) =>
+        selectedOptions.filter((option) => option.value !== value),
+      );
+    }
   };
 
   return (
@@ -471,24 +386,26 @@ function WorkspaceInviteUsersForm(props: any) {
               placeholder={placeholder || "Enter email address(es)"}
               type="email"
             />
-            <SelectField
-              allowDeselection={isMultiSelectDropdown}
+            <Select
               data-cy="t--invite-role-input"
               disabled={props.disableDropdown}
-              dropdownMaxHeight={props.dropdownMaxHeight}
               isMultiSelect={isMultiSelectDropdown}
-              labelRenderer={(selected: Partial<DropdownOption>[]) =>
-                getLabel(selected)
-              }
-              name={"role"}
+              // @ts-expect-error: Select name prop
+              name="role"
+              onDeselect={onRemoveOptions}
               onSelect={(value, option) => onSelect(value, option)}
-              options={styledRoles}
-              outline={false}
               placeholder="Select a role"
-              removeSelectedOption={onRemoveOptions}
-              showLabelOnly={isMultiSelectDropdown}
-              size="small"
-            />
+              value={selectedOption.map(({ value }) => value)}
+            >
+              {styledRoles.map((role: any) => (
+                <Option key={role.id} value={role.value}>
+                  <div className="flex flex-col gap-1">
+                    <Text kind="heading-xs">{role.value}</Text>
+                    <Text kind="body-s">{role.label}</Text>
+                  </div>
+                </Option>
+              ))}
+            </Select>
           </div>
           <Button
             className="t--invite-user-btn"
@@ -499,18 +416,24 @@ function WorkspaceInviteUsersForm(props: any) {
             Invite
           </Button>
         </StyledInviteFieldGroup>
-        <LabelText data-testid="helper-message" type={TextType.P0}>
+
+        <div className="flex gap-2 mt-2">
           <Icon name="user-3-line" size="sm" />
-          {createMessage(USERS_HAVE_ACCESS_TO_ALL_APPS)}
-        </LabelText>
+          <Text data-testid="helper-message" kind="action-m">
+            {createMessage(USERS_HAVE_ACCESS_TO_ALL_APPS)}
+          </Text>
+        </div>
+
         {isLoading ? (
-          <Loading size={30} />
+          <div className="p-4">
+            <Spinner size="lg" />
+          </div>
         ) : (
           <>
             {allUsers.length === 0 && (
               <MailConfigContainer data-testid="no-users-content">
                 <NoEmailConfigImage />
-                <span>{createMessage(NO_USERS_INVITED)}</span>
+                <Text kind="action-s">{createMessage(NO_USERS_INVITED)}</Text>
               </MailConfigContainer>
             )}
             {!disableUserList && (
@@ -527,29 +450,31 @@ function WorkspaceInviteUsersForm(props: any) {
                     photoId?: string;
                   }) => {
                     return (
-                      <Fragment key={user.username}>
-                        <User isApplicationInvite={isApplicationInvite}>
-                          <UserInfo>
-                            <ProfileImage
-                              source={
-                                user.photoId
-                                  ? `/api/${USER_PHOTO_ASSET_URL}/${user.photoId}`
-                                  : undefined
-                              }
-                              userName={user.name || user.username}
-                            />
-                            <UserName>
-                              <Text type={TextType.H5}>{user.name}</Text>
-                              <Text type={TextType.P2}>{user.username}</Text>
-                            </UserName>
-                          </UserInfo>
-                          <UserRole>
-                            <Text type={TextType.P1}>
-                              {user.roles?.[0]?.name?.split(" - ")[0] || ""}
-                            </Text>
-                          </UserRole>
-                        </User>
-                      </Fragment>
+                      <User
+                        isApplicationInvite={isApplicationInvite}
+                        key={user.username}
+                      >
+                        <UserInfo>
+                          <Avatar
+                            firstLetter={user.initials}
+                            image={
+                              user.photoId
+                                ? `/api/${USER_PHOTO_ASSET_URL}/${user.photoId}`
+                                : undefined
+                            }
+                            label={user.name || user.username}
+                          />
+                          <UserName>
+                            <Text kind="heading-xs">{user.name}</Text>
+                            <Text kind="body-s">{user.username}</Text>
+                          </UserName>
+                        </UserInfo>
+                        <UserRole>
+                          <Text kind="action-m">
+                            {user.roles?.[0]?.name?.split(" - ")[0] || ""}
+                          </Text>
+                        </UserRole>
+                      </User>
                     );
                   },
                 )}
@@ -559,18 +484,14 @@ function WorkspaceInviteUsersForm(props: any) {
         )}
         <ErrorBox message={submitSucceeded || submitFailed}>
           {submitSucceeded && (
-            <Callout
-              fill
-              text={
-                numberOfUsersInvited > 1
-                  ? createMessage(INVITE_USERS_SUBMIT_SUCCESS)
-                  : createMessage(INVITE_USER_SUBMIT_SUCCESS)
-              }
-              variant={Variant.success}
-            />
+            <Callout kind="success">
+              {numberOfUsersInvited > 1
+                ? createMessage(INVITE_USERS_SUBMIT_SUCCESS)
+                : createMessage(INVITE_USER_SUBMIT_SUCCESS)}
+            </Callout>
           )}
           {((submitFailed && error) || emailError) && (
-            <Callout fill text={error || emailError} variant={Variant.danger} />
+            <Callout kind="error">{error || emailError}</Callout>
           )}
         </ErrorBox>
         {canManage && !disableManageUsers && (

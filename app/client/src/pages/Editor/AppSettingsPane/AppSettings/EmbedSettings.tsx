@@ -165,11 +165,13 @@ function EmbedSettings() {
         </Text>
         <div className="flex gap-2 pt-1 pb-4">
           <DimensionsInput
+            icon="w-line"
             onChange={(width: string) => embedSnippet.onChange({ width })}
             prefix="W"
             value={embedSnippet.currentEmbedSetting?.width}
           />
           <DimensionsInput
+            icon="h-line"
             onChange={(height: string) => embedSnippet.onChange({ height })}
             prefix="H"
             value={embedSnippet.currentEmbedSetting.height}

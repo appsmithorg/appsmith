@@ -1,47 +1,18 @@
-import {
-  TextType,
-  Text,
-  Switch,
-  Case,
-  TooltipComponent,
-  Classes,
-} from "design-system-old";
 import React from "react";
-import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import SwitchWrapper from "pages/Editor/AppSettingsPane/Components/SwitchWrapper";
 import useUpdateEmbedSnippet from "./EmbedSnippet/useUpdateEmbedSnippet";
 import DimensionsInput from "./EmbedSnippet/DimensionsInput";
 import EmbedCodeSnippet from "./EmbedSnippet/Snippet";
-import TooltipWrapper from "./EmbedSnippet/TooltipWrapper";
 import {
   createMessage,
   IN_APP_EMBED_SETTING,
 } from "@appsmith/constants/messages";
 import classNames from "classnames";
-import { PopoverPosition } from "@blueprintjs/core";
-import { Icon } from "design-system";
-
-const StyledLink = styled.a`
-  position: relative;
-  top: 1px;
-  :hover {
-    text-decoration: none;
-  }
-
-  .${Classes.TEXT} {
-    border-bottom: 1px solid ${Colors.GRAY_700};
-  }
-`;
-
-const StyledPreviewLink = styled.a`
-  :hover {
-    text-decoration: none;
-  }
-`;
+import { Icon, Link, Switch, Text, Tooltip } from "design-system";
 
 function EmbedSnippetTab() {
   const embedSnippet = useUpdateEmbedSnippet();
+
   return (
     <div>
       <div className="flex gap-3">
@@ -54,34 +25,23 @@ function EmbedSnippetTab() {
                     name={embedSnippet.embedSettingContent.icon}
                     size="md"
                   />
-                  <Text type={TextType.P1}>
+                  <Text kind="action-m">
                     {embedSnippet.embedSettingContent.label}
                   </Text>
 
-                  <TooltipComponent
-                    boundary="viewport"
-                    content={
-                      <TooltipWrapper className="text-center max-h-11">
-                        {embedSnippet.embedSettingContent.tooltip}
-                      </TooltipWrapper>
-                    }
-                    position={PopoverPosition.TOP}
+                  <Tooltip
+                    content={embedSnippet.embedSettingContent.tooltip}
+                    placement="top"
                   >
                     <Icon className={`ml-1`} name={"question-fill"} size="md" />
-                  </TooltipComponent>
+                  </Tooltip>
                 </div>
-                <StyledLink
-                  href="https://docs.appsmith.com/getting-started/setup/instance-configuration/frame-ancestors#why-should-i-control-this"
+                <Link
                   target="_blank"
+                  to="https://docs.appsmith.com/getting-started/setup/instance-configuration/frame-ancestors#why-should-i-control-this"
                 >
-                  <Text
-                    case={Case.UPPERCASE}
-                    color={Colors.GRAY_700}
-                    type={TextType.BUTTON_SMALL}
-                  >
-                    {createMessage(IN_APP_EMBED_SETTING.change)}
-                  </Text>
-                </StyledLink>
+                  {createMessage(IN_APP_EMBED_SETTING.change)}
+                </Link>
               </div>
             </div>
           )}
@@ -93,39 +53,37 @@ function EmbedSnippetTab() {
             })}
           >
             <div className="flex justify-between items-center">
-              <Text type={TextType.P1}>
+              <Switch
+                className="mb-0"
+                data-cy={"show-navigation-bar-toggle"}
+                defaultSelected={
+                  embedSnippet.currentEmbedSetting?.showNavigationBar
+                }
+                onChange={() =>
+                  embedSnippet.onChange({
+                    showNavigationBar:
+                      !embedSnippet.currentEmbedSetting.showNavigationBar,
+                  })
+                }
+              >
                 {createMessage(IN_APP_EMBED_SETTING.showNavigationBar)}
-              </Text>
-              <SwitchWrapper>
-                <Switch
-                  className="mb-0"
-                  data-cy={"show-navigation-bar-toggle"}
-                  defaultChecked={
-                    embedSnippet.currentEmbedSetting?.showNavigationBar
-                  }
-                  large
-                  onChange={() =>
-                    embedSnippet.onChange({
-                      showNavigationBar:
-                        !embedSnippet.currentEmbedSetting.showNavigationBar,
-                    })
-                  }
-                />
-              </SwitchWrapper>
+              </Switch>
             </div>
           </div>
 
           <div className="flex justify-between pt-3.5">
-            <Text className="self-center" type={TextType.P1}>
+            <Text className="self-center" kind="action-m">
               {createMessage(IN_APP_EMBED_SETTING.embedSize)}
             </Text>
             <div className="flex gap-2">
               <DimensionsInput
+                icon="w-line"
                 onChange={(width: string) => embedSnippet.onChange({ width })}
                 prefix="W"
                 value={embedSnippet.currentEmbedSetting?.width}
               />
               <DimensionsInput
+                icon="h-line"
                 onChange={(height: string) => embedSnippet.onChange({ height })}
                 prefix="H"
                 value={embedSnippet.currentEmbedSetting?.height}
@@ -141,18 +99,17 @@ function EmbedSnippetTab() {
       <div
         className={`flex justify-end border-t-2 mt-6 pt-5 border-[${Colors.GRAY_200}]`}
       >
-        {/* TODO (tanvi): replace with Link*/}
-        <StyledPreviewLink
-          className="flex gap-1 items-center self-end"
-          data-cy="preview-embed"
-          href={embedSnippet.appViewEndPoint}
-          target={"_blank"}
-        >
-          <Icon name="external-link-line" size="md" />
-          <Text color={Colors.GRAY_700} type={TextType.P4}>
+        <div className="flex gap-1 items-center">
+          <Icon name="link" size="md" />
+          <Link
+            data-cy="preview-embed"
+            kind="secondary"
+            target={"_blank"}
+            to={embedSnippet.appViewEndPoint}
+          >
             {createMessage(IN_APP_EMBED_SETTING.previewEmbeddedApp)}
-          </Text>
-        </StyledPreviewLink>
+          </Link>
+        </div>
       </div>
     </div>
   );
