@@ -1,6 +1,6 @@
 import React from "react";
 import { Collapsible } from ".";
-import { Classes, getTypographyByKey, Text, TextType } from "design-system-old";
+import { Text, TextType } from "design-system-old";
 import styled from "styled-components";
 import LongArrowSVG from "assets/images/long-arrow-bottom.svg";
 import { useEntityLink } from "../Debugger/hooks/debuggerHooks";
@@ -30,9 +30,6 @@ const NoConnections = styled.div`
   border-radius: var(--ads-v2-border-radius);
   border: 1px solid var(--ads-v2-color-border);
   color: var(--ads-v2-color-fg);
-
-  .${Classes.TEXT} {
-  }
 `;
 
 const ConnectionFlow = styled.div`
@@ -60,12 +57,10 @@ const ConnectionsContainer = styled.span`
   .connection {
     padding: ${(props) => props.theme.spaces[0] + 2}px
       ${(props) => props.theme.spaces[1]}px;
-    ${getTypographyByKey("p3")}
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     cursor: pointer;
-
     border-radius: var(--ads-v2-border-radius);
     border: 1px solid var(--ads-v2-color-border);
     color: var(--ads-v2-color-fg);

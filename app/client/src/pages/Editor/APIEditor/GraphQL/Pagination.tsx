@@ -61,8 +61,7 @@ const PaginationTypeView = styled.div`
 const PaginationContainer = styled.div`
   display: flex;
   width: 100%;
-  padding: ${(props) => props.theme.spaces[8]}px
-    ${(props) => props.theme.spaces[12]}px;
+  padding: var(--ads-v2-spaces-4) 0;
 `;
 
 const PaginationSection = styled.div`

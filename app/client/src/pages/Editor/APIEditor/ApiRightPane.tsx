@@ -135,19 +135,20 @@ const NoEntityFoundWrapper = styled.div`
   width: 144px;
   height: 36px;
   margin-bottom: 20px;
-  box-shadow: 0px 4px 15px 0px rgb(0 0 0 / 10%);
+  box-shadow: var(--ads-v2-shadow-popovers);
   padding: 10px 9px;
+  border-radius: var(--ads-v2-border-radius);
   .lines {
     height: 4px;
-    border-radius: 2px;
-    background: #bbbbbb;
+    border-radius: var(--ads-v2-border-radius);
+    background: var(--ads-v2-color-bg-muted);
     &.first-line {
       width: 33%;
       margin-bottom: 8px;
     }
     &.second-line {
       width: 66%;
-      background: #eeeeee;
+      background: var(--ads-v2-color-bg-subtle);
     }
   }
 `;

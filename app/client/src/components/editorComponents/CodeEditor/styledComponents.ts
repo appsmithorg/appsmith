@@ -145,7 +145,7 @@ export const EditorWrapper = styled.div<{
     }
     .cm-s-duotone-light .CodeMirror-linenumber,
     .cm-s-duotone-dark .CodeMirror-linenumber {
-      color: ${Colors.DOVE_GRAY};
+      color: var(--ads-v2-color-fg);
     }
     .cm-s-duotone-dark .CodeMirror-gutters {
       background: ${Colors.SHARK2};

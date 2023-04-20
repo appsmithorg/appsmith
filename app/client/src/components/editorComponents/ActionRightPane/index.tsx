@@ -33,8 +33,7 @@ import { builderURL } from "RouteBuilder";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 
 const SideBar = styled.div`
-  padding: ${(props) => props.theme.spaces[0]}px
-    ${(props) => props.theme.spaces[3]}px ${(props) => props.theme.spaces[4]}px;
+  padding: 0 0 var(--ads-v2-spaces-4);
   overflow: auto;
   height: 100%;
   width: 100%;
@@ -52,7 +51,7 @@ const SideBar = styled.div`
 
   .icon-text {
     display: flex;
-    margin-left: ${(props) => props.theme.spaces[2] + 1}px;
+    /* margin-left: ${(props) => props.theme.spaces[2] + 1}px; */
 
     .connection-type {
       ${getTypographyByKey("p1")}
