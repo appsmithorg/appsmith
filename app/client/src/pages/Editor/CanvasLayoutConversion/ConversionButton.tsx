@@ -1,7 +1,5 @@
 import * as Sentry from "@sentry/react";
 import React from "react";
-import styled from "styled-components";
-
 import {
   Button,
   Modal,
@@ -10,7 +8,7 @@ import {
   ModalBody,
 } from "design-system";
 import { ConversionForm } from "./ConversionForm";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getIsAutoLayout } from "selectors/canvasSelectors";
 import {
   CONVERT_TO_AUTO_BUTTON,
@@ -27,19 +25,17 @@ import {
 } from "actions/autoLayoutActions";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { useConversionForm } from "./hooks/useConversionForm";
-// import type { AppState } from "ce/reducers";
-
-const Title = styled.h1`
-  color: var(--ads-v2-color-fg-emphasis-plus);
-  font-weight: var(--ads-v2-font-weight-bold);
-  font-size: var(--ads-v2-font-size-10);
-`;
+import type { AppState } from "ce/reducers";
 
 function ConversionButton() {
   const [showModal, setShowModal] = React.useState(false);
   const isAutoLayout = getIsAutoLayout(store.getState());
   const formProps = useConversionForm({ isAutoLayout });
   const dispatch = useDispatch();
+
+  const conversionState = useSelector(
+    (state: AppState) => state.ui.layoutConversion.conversionState,
+  );
 
   //Text base on if it is an Auto layout
   const titleText = isAutoLayout
@@ -61,9 +57,8 @@ function ConversionButton() {
     dispatch(setConversionStart(CONVERSION_STATES.START));
   };
 
-  // const conversionState = useSelector(
-  //   (state: AppState) => state.ui.layoutConversion.conversionState,
-  // );
+  const isConversionCompleted =
+    conversionState === CONVERSION_STATES.COMPLETED_SUCCESS;
 
   return (
     <>
@@ -78,11 +73,13 @@ function ConversionButton() {
       </Button>
       <Modal onOpenChange={closeModal} open={showModal}>
         <ModalContent>
-          <ModalHeader>
-            <div className="flex items-center gap-3">
-              <Title>{createMessage(titleText)}</Title>
-              <BetaCard />
-            </div>
+          <ModalHeader isCloseButtonVisible={!isConversionCompleted}>
+            {!isConversionCompleted && (
+              <div className="flex items-center gap-3">
+                {createMessage(titleText)}
+                <BetaCard />
+              </div>
+            )}
           </ModalHeader>
           <ModalBody>
             <ConversionForm {...formProps} />

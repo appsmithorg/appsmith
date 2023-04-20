@@ -45,16 +45,13 @@ function ForkTemplate({
     dispatch(importTemplateToWorkspace(templateId, selectedWorkspace.value));
   };
 
-  const closeModal = (isOpen: boolean) => {
-    if (!isOpen && !isImportingTemplate) {
-      onClose();
-    }
-  };
-
   return (
     <>
       {children}
-      <Modal onOpenChange={closeModal} open={showForkModal}>
+      <Modal
+        onOpenChange={isImportingTemplate ? noop : onClose}
+        open={showForkModal}
+      >
         <ModalContent>
           <ModalHeader>
             {/* <Icon name="fork-2" size="lg" /> */}

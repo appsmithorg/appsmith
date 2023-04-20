@@ -1,6 +1,5 @@
 import * as Sentry from "@sentry/react";
 import React, { useState } from "react";
-import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
@@ -26,25 +25,8 @@ import {
   ModalHeader,
   ModalBody,
   Callout,
+  Text,
 } from "design-system";
-
-const Title = styled.h4`
-  color: var(--ads-v2-color-fg-emphasis);
-  font-weight: var(--ads-v2-font-weight-bold);
-  font-size: var(--ads-v2-font-size-5);
-`;
-
-const SubText = styled.p`
-  color: var(--ads-v2-color-fg-emphasis);
-  font-weight: var(--ads-v2-font-weight-normal);
-  font-size: var(--ads-v2-font-size-4);
-`;
-
-const ModalTitle = styled.h1`
-  color: var(--ads-v2-color-fg-emphasis-plus);
-  font-weight: var(--ads-v2-font-weight-bold);
-  font-size: var(--ads-v2-font-size-10);
-`;
 
 export function SnapShotBannerCTA() {
   const [showModal, setShowModal] = useState(false);
@@ -53,6 +35,9 @@ export function SnapShotBannerCTA() {
     (state: AppState) => state.ui.layoutConversion.conversionState,
   );
 
+  const isConversionCompleted =
+    conversionState === CONVERSION_STATES.COMPLETED_SUCCESS;
+
   const readableSnapShotDetails = useSelector(getReadableSnapShotDetails);
 
   const formProps = useSnapShotForm();
@@ -60,9 +45,9 @@ export function SnapShotBannerCTA() {
   const dispatch = useDispatch();
 
   const modalHeader =
-    conversionState === CONVERSION_STATES.SNAPSHOT_START
-      ? createMessage(USE_SNAPSHOT_HEADER)
-      : createMessage(DISCARD_SNAPSHOT_HEADER);
+    conversionState === CONVERSION_STATES.DISCARD_SNAPSHOT
+      ? createMessage(DISCARD_SNAPSHOT_HEADER)
+      : createMessage(USE_SNAPSHOT_HEADER);
 
   const closeModal = (isOpen: boolean) => {
     if (!isOpen) {
@@ -98,21 +83,23 @@ export function SnapShotBannerCTA() {
         ]}
       >
         <div className="flex flex-col">
-          <Title>
+          <Text kind="heading-s" renderAs="h4">
             {readableSnapShotDetails
               ? createMessage(
                   SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE,
                   readableSnapShotDetails.timeTillExpiration,
                 )
               : ""}
-          </Title>
-          <SubText>{createMessage(SNAPSHOT_BANNER_MESSAGE)}</SubText>
+          </Text>
+          <Text kind="body-m" renderAs="p">
+            {createMessage(SNAPSHOT_BANNER_MESSAGE)}
+          </Text>
         </div>
       </Callout>
       <Modal onOpenChange={closeModal} open={showModal}>
         <ModalContent>
-          <ModalHeader>
-            <ModalTitle>{modalHeader}</ModalTitle>
+          <ModalHeader isCloseButtonVisible={!isConversionCompleted}>
+            {!isConversionCompleted ? modalHeader : ""}
           </ModalHeader>
           <ModalBody>
             <ConversionForm {...formProps} />

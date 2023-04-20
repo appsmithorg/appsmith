@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { Icon } from "design-system";
+import { Icon, Text } from "design-system";
 import { AlertType } from "reducers/uiReducers/layoutConversionReducer";
 
 const AlertIcons = {
@@ -33,21 +33,6 @@ const StyledHugeIcon = styled(Icon)`
   }
 `;
 
-const Title = styled.h4`
-  color: var(--ads-v2-color-fg-emphasis);
-  font-weight: var(--ads-v2-font-weight-bold);
-  font-size: var(--ads-v2-font-size-6);
-`;
-
-const SubText = styled.p<{ isError?: boolean }>`
-  color: ${({ isError }) =>
-    isError
-      ? "var(--ads-v2-color-bg-error-emphasis)"
-      : "var(--ads-v2-color-fg)"};
-  font-weight: var(--ads-v2-font-weight-normal);
-  font-size: var(--ads-v2-font-size-4);
-`;
-
 export const ConversionCompleteLayout = (
   props: ConversionCompleteLayoutProps,
 ) => {
@@ -56,9 +41,17 @@ export const ConversionCompleteLayout = (
   return (
     <div className="flex flex-col items-center justify-center h-39">
       <StyledHugeIcon color={icon.color} name={icon.name} />
-      <Title className="pt-4 pb-1">{props.headerText}</Title>
-      {props.errorText && <SubText isError>{props.errorText}</SubText>}
-      <SubText>{props.infoText}</SubText>
+      <Text className="pt-4 pb-1" kind="heading-m" renderAs="h4">
+        {props.headerText}
+      </Text>
+      {props.errorText && (
+        <Text kind="action-l" renderAs="p">
+          {props.errorText}
+        </Text>
+      )}
+      <Text kind="action-l" renderAs="p">
+        {props.infoText}
+      </Text>
     </div>
   );
 };

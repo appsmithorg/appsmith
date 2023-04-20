@@ -14,7 +14,10 @@ import type { ConversionProps } from "../ConversionForm";
 
 import type { Dispatch } from "redux";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
-import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
+import {
+  setConversionStop,
+  setLayoutConversionStateAction,
+} from "actions/autoLayoutActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { ReadableSnapShotDetails } from "selectors/autoLayoutSelectors";
 import { getReadableSnapShotDetails } from "selectors/autoLayoutSelectors";
@@ -82,6 +85,7 @@ export const snapShotFlow = (
       primaryButton: {
         text: createMessage(DISCARD),
         onClick: () => {
+          dispatch(setConversionStop());
           dispatch({
             type: ReduxActionTypes.DELETE_SNAPSHOT,
           });

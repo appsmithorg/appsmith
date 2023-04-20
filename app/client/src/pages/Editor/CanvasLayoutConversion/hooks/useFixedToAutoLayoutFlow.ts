@@ -20,7 +20,6 @@ import { commonConversionFlows } from "./CommonConversionFlows";
 //returns props for Fixed to Auto layout conversion flows based on which the Conversion Form can be rendered
 export const useFixedToAutoLayoutFlow = (
   dispatch: Dispatch<any>,
-  // onCancel: () => void,
 ): {
   [key: string]: ConversionProps;
 } => {
