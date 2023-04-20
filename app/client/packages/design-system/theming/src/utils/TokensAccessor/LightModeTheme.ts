@@ -106,11 +106,11 @@ export class LightModeTheme implements ColorModeTheme {
   }
 
   private get bgAccentSubtleHover() {
-    return lighten(this.bgAccentSubtle, 1.06);
+    return lighten(this.bgAccentSubtle, 1.02);
   }
 
   private get bgAccentSubtleActive() {
-    return lighten(this.bgAccentSubtle, 0.9);
+    return lighten(this.bgAccentSubtle, 0.99);
   }
 
   /*
