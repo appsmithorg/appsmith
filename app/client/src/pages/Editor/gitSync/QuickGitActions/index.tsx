@@ -22,7 +22,6 @@ import {
 
 import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
-import { ReactComponent as GitCommitLine } from "assets/icons/ads/git-commit-line.svg";
 import {
   gitPullInit,
   setIsGitSyncModalOpen,
@@ -39,11 +38,8 @@ import {
 } from "selectors/gitSyncSelectors";
 import SpinnerLoader from "pages/common/SpinnerLoader";
 import { inGuidedTour } from "selectors/onboardingSelectors";
-import {
-  getTypographyByKey,
-  TooltipComponent as Tooltip,
-} from "design-system-old";
-import { Button, Icon } from "design-system";
+import { getTypographyByKey } from "design-system-old";
+import { Button, Icon, Tooltip } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 type QuickActionButtonProps = {
@@ -104,7 +100,7 @@ function QuickActionButton({
   const content = capitalizeFirstLetter(tooltipText);
 
   return (
-    <Tooltip content={content} hoverOpenDelay={10}>
+    <Tooltip content={content}>
       <QuickActionButtonContainer
         className={className}
         disabled={disabled}
@@ -205,13 +201,8 @@ const Container = styled.div`
   align-items: center;
 `;
 
-const StyledIcon = styled(GitCommitLine)`
+const StyledIcon = styled(Icon)`
   cursor: default;
-
-  & path {
-    fill: ${Colors.DARK_GRAY};
-  }
-
   margin-right: ${(props) => props.theme.spaces[3]}px;
 `;
 
@@ -228,8 +219,6 @@ const PlaceholderButton = styled.div`
 function ConnectGitPlaceholder() {
   const dispatch = useDispatch();
   const isInGuidedTour = useSelector(inGuidedTour);
-
-  const isTooltipEnabled = isInGuidedTour;
   const tooltipContent = !isInGuidedTour ? (
     <>
       <div>{createMessage(NOT_LIVE_FOR_YOU_YET)}</div>
@@ -245,17 +234,13 @@ function ConnectGitPlaceholder() {
 
   return (
     <Container>
-      <Tooltip
-        autoFocus={false}
-        content={tooltipContent}
-        disabled={!isTooltipEnabled}
-        modifiers={{
-          preventOverflow: { enabled: true },
-        }}
-        openOnTargetFocus={false}
-      >
+      <Tooltip content={tooltipContent}>
         <Container style={{ marginLeft: 0, cursor: "pointer" }}>
-          <StyledIcon />
+          <StyledIcon
+            color="var(--ads-v2-color-fg-muted)"
+            name="git-commit"
+            size="lg"
+          />
           {isGitConnectionEnabled ? (
             <Button
               className="t--connect-git-bottom-bar"
