@@ -11,6 +11,9 @@ const renderDropdown = (props: SelectOptionProps) => {
     <Select>
       {props.options.map((option: SelectOptionProps) => (
         <Option key={option.value} value={option.value}>
+          {option.image && (
+            <img alt="Datasource" className="plugin-image" src={option.image} />
+          )}
           {option.label}
         </Option>
       ))}
