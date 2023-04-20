@@ -22,6 +22,33 @@ declare global {
   }
 }
 
+const airGapConfigVars = () => {
+  const { segment, sentry, smartLook } = CE_getAppsmithConfigs();
+  return {
+    ...CE_getAppsmithConfigs(),
+    sentry: {
+      ...sentry,
+      enabled: false,
+      dsn: "",
+      release: "",
+      environment: "",
+      integrations: [],
+    },
+    segment: {
+      ...segment,
+      enabled: false,
+      apiKey: "",
+      ceKey: "",
+    },
+    enableMixpanel: false,
+    smartLook: {
+      ...smartLook,
+      enabled: false,
+      id: "",
+    },
+  };
+};
+
 export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
   return {
     ...CE_getConfigsFromEnvVars(),
@@ -40,13 +67,17 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
 export const getAppsmithConfigs = (): AppsmithUIConfigs => {
   const { APPSMITH_FEATURE_CONFIGS } = window;
   const ENV_CONFIG = getConfigsFromEnvVars();
+
+  const airGapped = ENV_CONFIG.airGapped || APPSMITH_FEATURE_CONFIGS.airGapped;
+  const airGappedConfigs = airGapped ? airGapConfigVars() : {};
   return {
     ...CE_getAppsmithConfigs(),
+    ...airGappedConfigs,
     enableSamlOAuth:
       ENV_CONFIG.enableSamlOAuth || APPSMITH_FEATURE_CONFIGS.enableSamlOAuth,
     enableOidcOAuth:
       ENV_CONFIG.enableOidcOAuth || APPSMITH_FEATURE_CONFIGS.enableOidcOAuth,
     enableAuditLogs: false,
-    airGapped: ENV_CONFIG.airGapped || APPSMITH_FEATURE_CONFIGS.airGapped,
+    airGapped,
   };
 };

@@ -42,7 +42,7 @@ import {
 } from "@appsmith/selectors/tenantSelectors";
 import { LicenseForm } from "../setup/LicenseForm";
 import { showLicenseModal } from "@appsmith/actions/tenantActions";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const headerProps = {
   title: createMessage(ADMIN_BILLING_SETTINGS_TITLE),
@@ -160,7 +160,7 @@ export function Billing() {
           <DialogHeaderImg
             className="no-sub-img"
             loading="lazy"
-            src={`${ASSETS_CDN_URL}/upgrade-box.svg`}
+            src={getAssetUrl(`${ASSETS_CDN_URL}/upgrade-box.svg`)}
           />
           <Text type={TextType.H1}>{createMessage(UPDATE_LICENSE)}</Text>
           <LicenseForm

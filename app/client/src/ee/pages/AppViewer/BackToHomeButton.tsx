@@ -16,6 +16,7 @@ import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import styled from "styled-components";
 import { TooltipComponent } from "design-system-old";
 import classNames from "classnames";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 type BackToHomeButtonProps = {
   primaryColor: string;
@@ -98,7 +99,7 @@ function BackToHomeButton({
           }}
         />
         {tenantConfig.brandLogoUrl && (
-          <img alt="Logo" src={tenantConfig.brandLogoUrl} />
+          <img alt="Logo" src={getAssetUrl(tenantConfig.brandLogoUrl)} />
         )}
       </StyledLink>
     </TooltipComponent>

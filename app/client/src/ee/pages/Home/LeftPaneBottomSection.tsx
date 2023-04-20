@@ -74,7 +74,7 @@ function LeftPaneBottomSection() {
 
   return (
     <StyledWrapper>
-      {isTrial && isAdmin && (
+      {isTrial && isAdmin && !isAirgappedInstance && (
         <MenuItem
           className="business-plan-menu-option"
           data-testid="t--upgrade-to-business"
