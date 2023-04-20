@@ -10,14 +10,13 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
-import { emailValidator, getTypographyByKey } from "design-system-old";
-import { Colors } from "constants/Colors";
+import { emailValidator } from "design-system-old";
 import { useSelector } from "react-redux";
 import {
   getIsFetchingGlobalGitConfig,
   getIsFetchingLocalGitConfig,
 } from "selectors/gitSyncSelectors";
-import { Checkbox, Input } from "design-system";
+import { Checkbox, Input, Text } from "design-system";
 
 const InputContainer = styled.div`
   display: flex;
@@ -33,12 +32,6 @@ const DefaultConfigContainer = styled.div`
   display: flex;
   align-items: flex-start;
   margin-top: ${(props) => props.theme.spaces[3]}px;
-`;
-
-const SectionTitle = styled.span`
-  ${getTypographyByKey("u1")};
-  text-transform: uppercase;
-  color: ${Colors.GRAY_900};
 `;
 
 type AuthorInfo = { authorName: string; authorEmail: string };
@@ -141,9 +134,9 @@ function UserGitProfileSettings({
 
   return (
     <MainContainer>
-      <SectionTitle className="label">
-        {createMessage(USER_PROFILE_SETTINGS_TITLE)}
-      </SectionTitle>
+      <Text className="label" kind="heading-s">
+        {createMessage(USER_PROFILE_SETTINGS_TITLE).toUpperCase()}
+      </Text>
       {showDefaultConfig ? (
         <DefaultConfigContainer>
           <Checkbox

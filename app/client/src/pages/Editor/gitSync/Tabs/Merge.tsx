@@ -43,7 +43,6 @@ import { getIsStartingWithRemoteBranches } from "pages/Editor/gitSync/utils";
 import { Classes } from "../constants";
 import SuccessTick from "pages/common/SuccessTick";
 import { Button, Option, Select, Text, Icon } from "design-system";
-import { Colors } from "constants/Colors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { Theme } from "constants/DefaultTheme";
 
@@ -132,10 +131,11 @@ export default function Merge() {
 
       index++;
     }
-    branchOptions.unshift({
-      label: "Local branches",
-      isSectionHeader: true,
-    });
+    // TODO add bellow header if dropdown supports section header
+    // branchOptions.unshift({
+    //   label: "Local branches",
+    //   isSectionHeader: true,
+    // });
     return branchOptions;
   }, [gitBranches]);
 
@@ -218,7 +218,6 @@ export default function Merge() {
   const showMergeButton =
     !isConflicting && !mergeError && !isFetchingGitStatus && !isMerging;
   const gitConflictDocumentUrl = useSelector(getConflictFoundDocUrlMerge);
-
   return (
     <Container>
       <Space size={2} />
@@ -243,7 +242,7 @@ export default function Merge() {
         </Select>
 
         <Space horizontal size={3} />
-        <Icon color={Colors.GREY_9} name="arrow-left" size="md" />
+        <Icon color={"var(--ads-v2-color-fg)"} name="arrow-left" size="md" />
         <Space horizontal size={3} />
         <Select
           className="textInput"

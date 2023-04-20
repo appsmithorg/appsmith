@@ -13,9 +13,9 @@ import {
   PULL_CHANGES,
   READ_DOCUMENTATION,
 } from "@appsmith/constants/messages";
-import styled, { useTheme } from "styled-components";
+import styled from "styled-components";
 import { ScrollIndicator } from "design-system-old";
-import { Button, Icon, Input, Text, Tooltip } from "design-system";
+import { Button, Callout, Input, Text, Tooltip } from "design-system";
 import {
   getConflictFoundDocUrlDeploy,
   getDiscardDocUrl,
@@ -31,7 +31,6 @@ import {
   getUpstreamErrorDocUrl,
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
-import { Colors } from "constants/Colors";
 
 import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
 import DeployPreview from "../components/DeployPreview";
@@ -49,8 +48,6 @@ import Statusbar, {
   StatusbarWrapper,
 } from "pages/Editor/gitSync/components/Statusbar";
 import GitChangesList from "../components/GitChangesList";
-import InfoWrapper from "../components/InfoWrapper";
-import Link from "../components/Link";
 import ConflictInfo from "../components/ConflictInfo";
 
 import { isMacOrIOS } from "utils/helpers";
@@ -65,7 +62,6 @@ import DiscardChangesWarning from "../components/DiscardChangesWarning";
 import { changeInfoSinceLastCommit } from "../utils";
 import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 import PushFailedWarning from "../components/PushFailedWarning";
-import type { Theme } from "constants/DefaultTheme";
 import DiscardFailedWarning from "../components/DiscardChangesError";
 
 const Section = styled.div`
@@ -207,8 +203,6 @@ function Deploy() {
     ? commitMessage
     : NO_CHANGES_TO_COMMIT;
 
-  const theme = useTheme() as Theme;
-
   useEffect(() => {
     if (!commitInputDisabled && commitInputRef.current) {
       commitInputRef.current.focus();
@@ -318,24 +312,26 @@ function Deploy() {
         )}
         <Space size={11} />
         {pullRequired && !isConflicting && (
-          <InfoWrapper>
-            <Icon color={Colors.YELLOW_LIGHT} name="info" size="lg" />
-            <div style={{ display: "block" }}>
-              <Text style={{ marginRight: theme.spaces[2] }}>
-                {createMessage(GIT_UPSTREAM_CHANGES)}
-              </Text>
-              <Link
-                link={upstreamErrorDocumentUrl}
-                onClick={() => {
-                  AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
-                    source: "UPSTREAM_CHANGES_LINK_ON_GIT_DEPLOY_MODAL",
-                  });
-                  window.open(upstreamErrorDocumentUrl, "_blank");
-                }}
-                text={createMessage(READ_DOCUMENTATION)}
-              />
-            </div>
-          </InfoWrapper>
+          <>
+            <Callout
+              kind="warning"
+              links={[
+                {
+                  children: createMessage(READ_DOCUMENTATION),
+                  onClick: (e) => {
+                    e.preventDefault();
+                    AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
+                      source: "UPSTREAM_CHANGES_LINK_ON_GIT_DEPLOY_MODAL",
+                    });
+                    window.open(upstreamErrorDocumentUrl, "_blank");
+                  },
+                },
+              ]}
+            >
+              {createMessage(GIT_UPSTREAM_CHANGES)}
+            </Callout>
+            <Space size={3} />
+          </>
         )}
         <ActionsContainer>
           {showPullButton && (
