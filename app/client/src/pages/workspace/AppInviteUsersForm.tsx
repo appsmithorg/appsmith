@@ -1,24 +1,20 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { connect, useSelector } from "react-redux";
-import { PopoverPosition } from "@blueprintjs/core";
 import type { AppState } from "@appsmith/reducers";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { TooltipComponent } from "design-system-old";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { Text, TextType, Toggle } from "design-system-old";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { Colors } from "constants/Colors";
 import { viewerURL } from "RouteBuilder";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import useWorkspace from "utils/hooks/useWorkspace";
-import TooltipWrapper from "pages/Applications/EmbedSnippet/TooltipWrapper";
 import {
   createMessage,
   INVITE_USERS_PLACEHOLDER,
@@ -28,13 +24,18 @@ import {
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { hasInviteUserToApplicationPermission } from "@appsmith/utils/permissionHelpers";
-import { Button, Icon } from "design-system";
+import { Button, Icon, Tooltip, Text, Switch } from "design-system";
 
 const { cloudHosting } = getAppsmithConfigs();
 
 const ShareToggle = styled.div`
   flex-basis: 46px;
   height: 23px;
+
+  .ads-v2-switch__label {
+    justify-content: flex-end;
+    min-width: 0px;
+  }
 `;
 
 const BottomContainer = styled.div<{ canInviteToApplication?: boolean }>`
@@ -131,25 +132,20 @@ function AppInviteUsersForm(props: any) {
         </Button>
         {canShareWithPublic && (
           <div className="flex flex-1 items-center justify-end">
-            <Text color={Colors.GRAY_800} type={TextType.P1}>
+            <Text kind="action-m">
               {createMessage(MAKE_APPLICATION_PUBLIC)}
             </Text>
-            <TooltipComponent
-              content={
-                <TooltipWrapper className="text-center">
-                  {createMessage(MAKE_APPLICATION_PUBLIC_TOOLTIP)}
-                </TooltipWrapper>
-              }
-              position={PopoverPosition.TOP_RIGHT}
+            <Tooltip
+              content={createMessage(MAKE_APPLICATION_PUBLIC_TOOLTIP)}
+              placement="topRight"
             >
               <Icon className="pl-1" name="question-fill" size="md" />
-            </TooltipComponent>
+            </Tooltip>
             <ShareToggle className="ml-4 t--share-public-toggle">
               {currentApplicationDetails && (
-                <Toggle
-                  disabled={isChangingViewAccess || isFetchingApplication}
-                  isLoading={isChangingViewAccess || isFetchingApplication}
-                  onToggle={() => {
+                <Switch
+                  isDisabled={isChangingViewAccess || isFetchingApplication}
+                  onChange={() => {
                     changeAppViewAccess(
                       applicationId,
                       !currentApplicationDetails.isPublic,
