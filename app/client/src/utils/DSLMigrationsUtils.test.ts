@@ -3138,13 +3138,13 @@ describe("correctly migrate dsl", () => {
           primaryColumns: {
             column1: {
               validation: {
-                min: "{{\n  (\n    (isNewRow) => (\nisNewRow ? 1 : 0\n    ))\n    (\n      Table2.isAddRowInProgress\n    )\n  }}\n ",
-                max: "{{\n  (\n    (isNewRow) => (\nisNewRow ? 1 : 0\n    ))\n    (\n      Table2.isAddRowInProgress\n    )\n  }}\n ",
+                min: "{{\n  (\n    (isNewRow) => (\nisNewRow ? 1 : 0\n    ))\n    (\n      Table1.isAddRowInProgress\n    )\n  }}\n ",
+                max: 1,
                 regex:
-                  "{{\n  (\n    (isNewRow) => (\nisNewRow ? 1 : 0\n    ))\n    (\n      Table2.isAddRowInProgress\n    )\n  }}\n ",
-                errorMessage: "",
+                  "{{\n  (\n    (isNewRow) => (\nisNewRow ? 1 : 0\n    ))\n    (\n      Table1.isAddRowInProgress\n    )\n  }}\n ",
+                errorMessage: true,
                 isColumnEditableCellRequired:
-                  "{{\n  (\n    (isNewRow) => (\nisNewRow ? true : false\n    ))\n    (\n      Table2.isAddRowInProgress\n    )\n  }}\n  ",
+                  "{{\n  (\n    (isNewRow) => (\nisNewRow ? true : false\n    ))\n    (\n      Table1.isAddRowInProgress\n    )\n  }}\n  ",
                 randomValidation: "hello",
                 isColumnEditableCellValid: `
                 {{
@@ -3153,16 +3153,16 @@ describe("correctly migrate dsl", () => {
                 isNewRow ? true : false
                     ))
                     (
-                      (Table2.isAddRowInProgress ? Table2.newRow.orderAmount : Table2.columnEditableCellValue.orderAmount) || "",
-                      Table2.isAddRowInProgress ? Table2.newRow : (Table2.processedTableData[Table2.editableCell.index] ||
-                        Object.keys(Table2.processedTableData[0])
+                      (Table1.isAddRowInProgress ? Table1.newRow.orderAmount : Table1.columnEditableCellValue.orderAmount) || "",
+                      Table1.isAddRowInProgress ? Table1.newRow : (Table1.processedTableData[Table1.editableCell.index] ||
+                        Object.keys(Table1.processedTableData[0])
                           .filter(key => ["__originalIndex__", "__primaryKey__"].indexOf(key) === -1)
                           .reduce((prev, curr) => {
                             prev[curr] = "";
                             return prev;
                           }, {})),
-                      Table2.isAddRowInProgress ? -1 : Table2.editableCell.index,
-                      Table2.isAddRowInProgress
+                      Table1.isAddRowInProgress ? -1 : Table1.editableCell.index,
+                      Table1.isAddRowInProgress
                     )
                   }}
                 `,
@@ -3182,27 +3182,38 @@ describe("correctly migrate dsl", () => {
       const validation = validations[validationName];
       if (
         validationName == "min" ||
-        validationName == "max" ||
-        validationName == "regex"
+        validationName == "regex" ||
+        validationName == "isColumnEditableCellRequired"
       ) {
         expect(
           validation.indexOf("(isNewRow, currentIndex, currentRow)"),
         ).toBeGreaterThan(-1);
+        expect(
+          validation.indexOf(
+            `.filter(key => ["__originalIndex__", "__primaryKey__"].indexOf(key) === -1)`,
+          ),
+        ).toBeGreaterThan(-1);
       }
+
       if (validationName == "errorMessage") {
-        expect(validation.length).toEqual(0);
+        expect(validation).toEqual(true);
       }
+
+      if (validationName == "max") {
+        expect(validation).toEqual(1);
+      }
+
       if (validationName == "isColumnEditableCellValid") {
         expect(
           validation.indexOf(
             "(editedValue, currentRow, currentIndex, isNewRow)",
           ),
         ).toBeGreaterThan(-1);
-      }
 
-      if (validationName == "isColumnEditableCellRequired") {
         expect(
-          validation.indexOf("(isNewRow, currentIndex, currentRow)"),
+          validation.indexOf(
+            `.filter(key => ["__originalIndex__", "__primaryKey__"].indexOf(key) === -1)`,
+          ),
         ).toBeGreaterThan(-1);
       }
     }

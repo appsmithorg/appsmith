@@ -788,6 +788,10 @@ export const migrateBindingPrefixSuffixForInlineEditValidationControl = (
               continue;
             }
             const validationValue = validations[validationName];
+            if (typeof validationValue !== "string") {
+              continue;
+            }
+
             let compressedValidationValue = validationValue.replace(/\s/g, "");
             compressedValidationValue = compressedValidationValue.replaceAll(
               oldBindingPrefix,
