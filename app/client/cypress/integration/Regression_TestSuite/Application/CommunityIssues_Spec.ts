@@ -106,7 +106,7 @@ describe("AForce - Community Issues page validations", function () {
 
   it("3. Validate table navigation with Server Side pagination disabled with Default selected row selection", () => {
     deployMode.NavigateBacktoEditor();
-    agHelper.Sleep(500)
+    agHelper.Sleep(500);
     table.WaitUntilTableLoad();
     ee.SelectEntityByName("Table1", "Widgets");
     propPane.ToggleOnOrOff("serversidepagination", "Off");
@@ -130,7 +130,7 @@ describe("AForce - Community Issues page validations", function () {
     table.AssertPageNumber(2);
     table.AssertSelectedRow(1);
     deployMode.NavigateBacktoEditor();
-    agHelper.Sleep(500)
+    agHelper.Sleep(500);
     table.WaitUntilTableLoad();
   });
 
