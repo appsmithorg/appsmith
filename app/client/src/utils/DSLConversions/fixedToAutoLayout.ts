@@ -225,11 +225,7 @@ function getNextLayer(currWidgets: DSLWidget[]): {
 
     //Get Alignment of the Widget
     alignment = alignmentMap[currWidget.widgetId] || FlexLayerAlignment.Start;
-    const flexVerticalAlignment = getWidgetVerticalAlignment(
-      currWidget,
-      minTopRow,
-      maxBottomRow,
-    );
+    const flexVerticalAlignment = getWidgetVerticalAlignment(currWidget);
 
     const modifiedCurrentWidget =
       removeNullValuesFromObject<DSLWidget>(currWidget);
@@ -690,27 +686,14 @@ function createAlignmentMapFromGroupedWidgets(
 }
 
 /**
- * Method to get Vertical Alignment based on score
+ * Method to get Vertical Alignment of widget
  * @param widget
- * @param minTopRow
- * @param maxBottomRow
  * @returns
  */
-function getWidgetVerticalAlignment(
-  widget: DSLWidget,
-  minTopRow: number,
-  maxBottomRow: number,
-): FlexVerticalAlignment {
-  const alignmentScore = getAlignmentScore(
-    widget.topRow,
-    widget.bottomRow,
-    minTopRow,
-    maxBottomRow,
-  );
+function getWidgetVerticalAlignment(widget: DSLWidget): FlexVerticalAlignment {
+  const widgetConfig = WidgetFactory.widgetConfigMap.get(widget.type);
 
-  if (alignmentScore < -0.3) return FlexVerticalAlignment.Top;
-  else if (alignmentScore > 0.3) return FlexVerticalAlignment.Bottom;
-  else return FlexVerticalAlignment.Center;
+  return widgetConfig?.flexVerticalAlignment || FlexVerticalAlignment.Bottom;
 }
 
 function areWidgetsOverlapping(r1: DSLWidget, r2: DSLWidget) {

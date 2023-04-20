@@ -1,4 +1,8 @@
-import type { FlexLayer, LayerChild } from "./autoLayoutTypes";
+import type {
+  AlignmentColumnData,
+  FlexLayer,
+  LayerChild,
+} from "./autoLayoutTypes";
 import {
   FLEXBOX_PADDING,
   layoutConfigurations,
@@ -604,6 +608,100 @@ export function checkIsDSLAutoLayout(dsl: DSLWidget): boolean {
   return dsl.useAutoLayout && dsl.positioning === Positioning.Vertical;
 }
 
+/**
+ * Find out which alignment is placed in which row upon flex wrap.
+ *
+ * In case of flex wrap,
+ * - alignments within a FlexLayer are placed in multiple rows.
+ * Logic:
+ *  - for each alignment in arr
+ *    - if alignment.columns < 64
+ *      -  add it to the current row (res[resIndex])
+ *      - and track the total occupied columns in this row (total)
+ *    - else
+ *     - add the current row to the output rows
+ *    - and start a new row to repeat the process recursively.
+ * @param arr | AlignmentColumnData[]: array of alignment and its columns.
+ * @param res | FlexLayerAlignment[][]: array of rows of alignments.
+ * @param resIndex | number: index of the current row.
+ * @returns FlexLayerAlignment[][]
+ */
+export function getLayerWrappingInfo(
+  arr: AlignmentColumnData[],
+  res: FlexLayerAlignment[][] = [[], [], []],
+  resIndex = 0,
+): FlexLayerAlignment[][] {
+  if (arr.length === 0) return res;
+  if (arr.length === 1) {
+    res[resIndex].push(arr[0].alignment);
+    return res;
+  }
+  let index = 0;
+  let total = 0;
+  for (const each of arr) {
+    if (total + each.columns > GridDefaults.DEFAULT_GRID_COLUMNS) {
+      let x = index;
+      if (!res[resIndex].length) {
+        res[resIndex].push(arr[0].alignment);
+        x += 1;
+      }
+      return getLayerWrappingInfo(arr.slice(x), res, resIndex + 1);
+    }
+    total += each.columns;
+    index += 1;
+    res[resIndex].push(each.alignment);
+  }
+  return res;
+}
+
+/**
+ * If a layer is flex wrapped, then individual sub-wrappers will have bottom margins, except the last sub-wrapper.
+ * @param arr | AlignmentColumnData[]: array of alignment and its columns.
+ * @param res | FlexLayerAlignment[][]: array of rows of alignments.
+ * @param resIndex | number: index of the current row.
+ * @returns boolean[]
+ */
+export function getAlignmentMarginInfo(
+  arr: AlignmentColumnData[],
+  res: FlexLayerAlignment[][] = [[], [], []],
+  resIndex = 0,
+): boolean[] {
+  if (!arr.length) return [];
+  const wrapInfo: FlexLayerAlignment[][] = getLayerWrappingInfo(
+    arr,
+    res,
+    resIndex,
+  );
+  const marginInfo: {
+    [key: string]: (arr: AlignmentColumnData[]) => boolean[];
+  } = {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    "300": (arr): boolean[] => [false, false, false],
+    "120": (arr): boolean[] => [
+      arr[0].columns > 0 && arr[1].columns + arr[2].columns > 0,
+      false,
+      false,
+    ],
+    "210": (arr): boolean[] => [
+      arr[0].columns > 0 && arr[2].columns > 0,
+      arr[1].columns > 0 && arr[2].columns > 0,
+      false,
+    ],
+    "111": (arr): boolean[] => [
+      arr[0].columns > 0,
+      arr[1].columns > 0 && arr[2].columns > 0,
+      false,
+    ],
+  };
+
+  return marginInfo[wrapInfo.map((x) => x.length).join("")](arr);
+}
+
+/**
+ * Gets readable values from the date String arguments
+ * @param dateString
+ * @returns
+ */
 export function getReadableSnapShotDetails(
   dateString: string | undefined,
 ): ReadableSnapShotDetails | undefined {
