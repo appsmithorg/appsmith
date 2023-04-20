@@ -57,17 +57,17 @@ jobs:
         run: |
           if [ ${{ steps.ci_test_result_status.outputs.ci_test_result }} == 1 ]; then
             if [ ${{ steps.ci_test_result_status.outputs.ci_test_status }} -gt 0 ]; then
-              echo "msg=Looks like there are some Cypress failures. Can't Merge" >> $GITHUB_OUTPUT
+              echo "msg=Looks like there are some Cypress failures. Can't Merge." >> $GITHUB_OUTPUT
               exit 1
             elif [ ${{ steps.ci_test_result_status.outputs.perf_test_status }} -gt 0 ]; then
-              echo "msg=Looks like Perf-Test is failed. Contact perf team to get their confirmation. Can't Merge" >> $GITHUB_OUTPUT
+              echo "msg=Looks like Perf-Test is failed. Contact perf team to get their confirmation. Can't Merge." >> $GITHUB_OUTPUT
               exit 1
             fi
           elif [ ${{ steps.suite_status_check.outputs.status2 }} == 0 ]; then
-            echo "msg=Looks like you forgot to run /ok-to-test on the latest commit. Can't Merge" >> $GITHUB_OUTPUT
+            echo "msg=Looks like you forgot to run /ok-to-test on the latest commit. Can't Merge." >> $GITHUB_OUTPUT
             exit 1
           elif [ ${{ steps.pr_status_check.outputs.status }} != 0 ]; then
-            echo "msg=There's merge freeze. Can't Merge, please try after merge-freeze is lifted" >> $GITHUB_OUTPUT
+            echo "msg=There's merge freeze. Can't Merge, please try after merge-freeze is lifted." >> $GITHUB_OUTPUT
             exit 1
           elif [ ${{ steps.suite_status_check.outputs.status1 }} == 1 ]; then
             echo "msg=Either get 'Test Plan Approved' or 'skip-testPlan' added and try again!" >> $GITHUB_OUTPUT
@@ -76,7 +76,7 @@ jobs:
             echo "msg=Hurray!🎉 Proceeding to Merge!!!" >> $GITHUB_OUTPUT
             exit 0
           else
-            echo "msg=Some checks have failed. Can't merge" >> $GITHUB_OUTPUT
+            echo "msg=Some checks have failed. Can't merge." >> $GITHUB_OUTPUT
             exit 1
           fi
 
