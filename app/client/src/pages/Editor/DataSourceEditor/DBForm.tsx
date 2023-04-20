@@ -35,6 +35,7 @@ import Debugger, {
 } from "./Debugger";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
+import DatasourceInformation from "./DatasourceSection";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -87,6 +88,13 @@ export const Form = styled.form`
   flex: 1;
 `;
 
+const ViewModeWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid #d0d7dd;
+  padding: 24px 20px;
+`;
+
 class DatasourceDBEditor extends JSONtoForm<Props> {
   componentDidUpdate(prevProps: Props) {
     if (prevProps.datasourceId !== this.props.datasourceId) {
@@ -128,12 +136,14 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
       datasourceButtonConfiguration,
       datasourceDeleteTrigger,
       datasourceId,
+      formConfig,
       formData,
       messages,
       pluginType,
       showDebugger,
       viewMode,
     } = this.props;
+    console.log("heree", formConfig);
 
     const createFlow = datasourceId === TEMP_DATASOURCE_ID;
     return (
@@ -203,7 +213,20 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
                 {""}
               </>
             )}
-            {viewMode && <Connected />}
+            {viewMode && (
+              <ViewModeWrapper>
+                <Connected />
+                <div style={{ marginTop: "30px" }}>
+                  {!_.isNil(formConfig) && !_.isNil(datasource) ? (
+                    <DatasourceInformation
+                      config={formConfig[0]}
+                      datasource={datasource}
+                      viewMode={viewMode}
+                    />
+                  ) : undefined}
+                </div>
+              </ViewModeWrapper>
+            )}
             {/* Render datasource form call-to-actions */}
             {datasource && (
               <DatasourceAuth

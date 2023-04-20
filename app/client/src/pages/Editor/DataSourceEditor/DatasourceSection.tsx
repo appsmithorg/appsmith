@@ -35,6 +35,7 @@ const FieldWrapper = styled.div`
 export default class RenderDatasourceInformation extends React.Component<{
   config: any;
   datasource: Datasource;
+  viewMode: boolean;
 }> {
   renderKVArray = (children: Array<any>) => {
     try {
@@ -85,11 +86,20 @@ export default class RenderDatasourceInformation extends React.Component<{
   };
 
   renderDatasourceSection(section: any) {
-    const { datasource } = this.props;
+    const { datasource, viewMode } = this.props;
     return (
       <React.Fragment key={datasource.id}>
         {map(section.children, (section) => {
-          if (isHidden(datasource, section.hidden)) return null;
+          if (!!section) {
+            console.log(
+              "here",
+              section,
+              isHidden(datasource, section.hidden),
+              viewMode,
+            );
+          }
+          if (isHidden(datasource, section.hidden, undefined, viewMode))
+            return null;
           if ("children" in section) {
             if (isKVArray(section.children)) {
               return this.renderKVArray(section.children);
