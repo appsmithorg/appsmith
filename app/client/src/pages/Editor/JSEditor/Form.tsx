@@ -91,6 +91,12 @@ const SecondaryWrapper = styled.div`
   flex-direction: column;
   flex: 1;
   overflow: hidden;
+  &&& {
+    .react-tabs__tab-panel {
+      height: calc(100% - 30px);
+      padding-top: 1px;
+    }
+  }
 `;
 
 function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
