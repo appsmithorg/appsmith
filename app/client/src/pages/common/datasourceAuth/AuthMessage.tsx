@@ -9,11 +9,11 @@ import styled from "styled-components";
 
 const StyledAuthMessage = styled.div`
   width: fit-content;
-  margin-bottom: 16px;
-  padding: 0 20px;
-  & > div {
+  margin-bottom: var(--ads-v2-space-4);
+  /* padding: 0 20px; */
+  /* & > div {
     margin: 0;
-  }
+  } */
 `;
 
 type AuthMessageProps = {

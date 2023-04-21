@@ -2,7 +2,6 @@ import React, { useEffect, useRef } from "react";
 import type { ControlProps } from "components/formControls/BaseControl";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
-import { TooltipComponent as Tooltip } from "design-system-old";
 import {
   FormLabel,
   FormInputHelperText,
@@ -24,7 +23,7 @@ import {
 } from "utils/editorContextUtils";
 import { getIsInputFieldFocused } from "selectors/editorContextSelectors";
 import { setFocusableInputField } from "actions/editorContextActions";
-import { Icon } from "design-system";
+import { Icon, Tooltip } from "design-system";
 
 const FlexWrapper = styled.div`
   display: flex;
@@ -38,6 +37,9 @@ const FlexWrapper = styled.div`
 
 const LabelWrapper = styled.div`
   display: flex;
+  .label-icon-wrapper {
+    cursor: help;
+  }
 `;
 
 const LabelIconWrapper = styled.span`
@@ -197,9 +199,7 @@ function renderFormConfigTop(props: {
                 <LabelWrapper>
                   <Tooltip
                     content={tooltipText as string}
-                    disabled={!tooltipText}
-                    hoverOpenDelay={200}
-                    underline={!!tooltipText}
+                    isDisabled={!tooltipText}
                   >
                     <p className="label-icon-wrapper">{label}</p>
                   </Tooltip>

@@ -377,6 +377,9 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
     }
   }
   border-radius: var(--ads-v2-border-radius);
+  .ur--has-border {
+    border-radius: var(--ads-v2-border-radius);
+  }
   .lightning-menu {
     z-index: 1 !important;
   }

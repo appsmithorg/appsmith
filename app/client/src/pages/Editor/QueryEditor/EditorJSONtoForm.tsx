@@ -143,12 +143,12 @@ const QueryFormContainer = styled.form`
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: 20px 0px 0px 0px;
+  padding: var(--ads-v2-spaces-4) 0 0;
   width: 100%;
   .statementTextArea {
     font-size: 14px;
     line-height: 20px;
-    color: #2e3d49;
+    /* color: #2e3d49; */
     margin-top: 5px;
   }
   .queryInput {
@@ -161,7 +161,19 @@ const QueryFormContainer = styled.form`
     margin-top: 10px;
   }
 `;
-
+const MainContainer = styled.div`
+  display: flex;
+  position: relative;
+  height: 100%;
+  flex-direction: column;
+  padding: var(--ads-v2-spaces-7);
+  .tab-panel {
+    margin: var(--ads-v2-spaces-7) 0;
+    height: calc(100vh - 270px);
+    overflow: auto;
+    ${thinScrollbar};
+  }
+`;
 const ErrorMessage = styled.p`
   font-size: 14px;
   color: var(--ads-v2-color-fg-error);
@@ -185,9 +197,14 @@ export const TabbedViewContainer = styled.div`
 `;
 
 const SettingsWrapper = styled.div`
-  padding: 16px 30px;
+  /* padding: var(--ads-v2-spaces-4) 0; */
   height: 100%;
-  ${thinScrollbar};
+
+  /* a {
+    font-size: 14px;
+    line-height: 20px;
+    margin-top: 12px;
+  } */
 `;
 
 const ResultsCount = styled.div`
@@ -198,7 +215,8 @@ const ResultsCount = styled.div`
 `;
 
 const FieldWrapper = styled.div`
-  margin-top: 15px;
+  margin-bottom: var(--ads-v2-spaces-4);
+  /* overflow: hidden; */
 `;
 
 const SecondaryWrapper = styled.div`
@@ -221,7 +239,7 @@ const ResponseContentWrapper = styled.div<{ isError: boolean }>`
 `;
 
 export const StyledFormRow = styled(FormRow)`
-  padding: 0px 20px;
+  /* padding: 0px 20px; */
   flex: 0;
 `;
 
@@ -324,7 +342,6 @@ const NoDataSourceContainer = styled.div`
     margin-bottom: 23px;
     font-size: 18px;
     // TODO: What does this become?
-    color: #2e3d49;
   }
 `;
 
@@ -332,13 +349,7 @@ const TabContainerView = styled.div`
   display: flex;
   align-items: start;
   flex: 1;
-  overflow: auto;
-  ${thinScrollbar}
-  a {
-    font-size: 14px;
-    line-height: 20px;
-    margin-top: 12px;
-  }
+  padding-right: var(--ads-v2-spaces-7);
   position: relative;
 `;
 
@@ -350,7 +361,7 @@ const Wrapper = styled.div`
 `;
 
 const SidebarWrapper = styled.div<{ show: boolean }>`
-  border: 1px solid var(--ads-v2-border-radius);
+  border: 1px solid var(--ads-v2-color-border);
   border-bottom: 0;
   display: ${(props) => (props.show ? "flex" : "none")};
   width: ${(props) => props.theme.actionSidePane.width}px;
@@ -913,7 +924,7 @@ export function EditorJSONtoForm(props: Props) {
   }
 
   return (
-    <>
+    <MainContainer>
       {!guidedTourEnabled && <CloseEditor />}
       {guidedTourEnabled && <Guide className="query-page" />}
       <QueryFormContainer onSubmit={handleSubmit}>
@@ -983,7 +994,7 @@ export function EditorJSONtoForm(props: Props) {
                   <Tab value={EDITOR_TABS.QUERY}>Query</Tab>
                   <Tab value={EDITOR_TABS.SETTINGS}>Settings</Tab>
                 </TabsList>
-                <TabPanel value={EDITOR_TABS.QUERY}>
+                <TabPanel className="tab-panel" value={EDITOR_TABS.QUERY}>
                   <SettingsWrapper>
                     {editorConfig && editorConfig.length > 0 ? (
                       renderConfig(editorConfig)
@@ -1130,6 +1141,6 @@ export function EditorJSONtoForm(props: Props) {
           </SidebarWrapper>
         </Wrapper>
       </QueryFormContainer>
-    </>
+    </MainContainer>
   );
 }
