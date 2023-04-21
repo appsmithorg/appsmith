@@ -49,6 +49,7 @@ export default class AppViewerEngine extends AppEngine {
     yield put({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
     });
+    // uses pages list
     if ("serviceWorker" in navigator) {
       yield put({
         type: ReduxActionTypes.FETCH_ALL_PUBLISHED_PAGES,
