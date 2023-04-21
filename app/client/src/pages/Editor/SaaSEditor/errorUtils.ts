@@ -31,12 +31,14 @@ export function isAuthorisedFilesEmptyGsheet(
     datasource?.datasourceConfiguration?.authentication?.authenticationStatus;
   const isAuthFailure =
     !!authStatus && authStatus === AuthenticationStatus.FAILURE;
+  const gapiLoadSuccess = (window as any).googleAPIsLoaded;
 
   return (
     !!authorisedFileIds &&
     authorisedFileIds.length === 0 &&
     scopeValue.includes(GOOGLE_SHEET_SPECIFIC_SHEETS_SCOPE) &&
-    isAuthFailure
+    isAuthFailure &&
+    !!gapiLoadSuccess
   );
 }
 
