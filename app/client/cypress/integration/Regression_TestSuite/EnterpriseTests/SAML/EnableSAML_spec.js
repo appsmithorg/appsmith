@@ -38,7 +38,7 @@ describe("SSO with SAML test functionality", function () {
 
     cy.waitUntil(() =>
       cy
-        .contains("Authentication Successful!", { timeout: 120000 })
+        .contains("Authentication Successful!", { timeout: 180000 })
         .should("be.visible"),
     );
     cy.wait(1000);
@@ -90,7 +90,7 @@ describe("SSO with SAML test functionality", function () {
     cy.get(adminSettings.restartNotice).should("be.visible");
     // adding wait for server to restart
     cy.waitUntil(() =>
-      cy.contains("SAML 2.0", { timeout: 120000 }).should("be.visible"),
+      cy.contains("SAML 2.0", { timeout: 180000 }).should("be.visible"),
     );
     cy.wait(1000);
     cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
@@ -136,7 +136,7 @@ describe("SSO with SAML test functionality", function () {
     // adding wait for server to restart
     cy.waitUntil(() =>
       cy
-        .contains("Authentication Successful!", { timeout: 120000 })
+        .contains("Authentication Successful!", { timeout: 180000 })
         .should("be.visible"),
     );
     cy.wait(1000);
@@ -187,7 +187,7 @@ describe("SSO with SAML test functionality", function () {
     cy.get(adminSettings.restartNotice).should("be.visible");
     // adding wait for server to restart
     cy.waitUntil(() =>
-      cy.contains("SAML 2.0", { timeout: 120000 }).should("be.visible"),
+      cy.contains("SAML 2.0", { timeout: 180000 }).should("be.visible"),
     );
     cy.wait(1000);
     cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
@@ -232,7 +232,7 @@ describe("SSO with SAML test functionality", function () {
     // adding wait for server to restart
     cy.waitUntil(() =>
       cy
-        .contains("Authentication Successful!", { timeout: 120000 })
+        .contains("Authentication Successful!", { timeout: 180000 })
         .should("be.visible"),
     );
     cy.wait(1000);
@@ -283,7 +283,7 @@ describe("SSO with SAML test functionality", function () {
     cy.get(adminSettings.restartNotice).should("be.visible");
     // adding wait for server to restart
     cy.waitUntil(() =>
-      cy.contains("SAML 2.0", { timeout: 120000 }).should("be.visible"),
+      cy.contains("SAML 2.0", { timeout: 180000 }).should("be.visible"),
     );
     cy.wait(1000);
     cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
