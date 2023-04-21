@@ -12,6 +12,15 @@ describe("List widget v2 Evaluated Popup", () => {
       ["{{currentItem.name}}_{{currentIndex}}", "Blue_0"],
       ["{{1000}}", "1000"],
       ['{{(() => "Text Widget")()}}', "Text Widget"],
+      ["NewLine\n{{currentItem.name}}", "NewLine\nBlue"],
+      [`\{{currentItem.name}}`, `\Blue`],
+      [
+        `{{
+          (function(){return true;})
+          ()}}
+        `,
+        "true",
+      ],
     ].forEach(([input, expected]) => {
       cy.updateCodeInput(".t--property-control-text", input);
       cy.wait(500);

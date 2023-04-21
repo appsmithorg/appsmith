@@ -23,6 +23,12 @@ export type FormSettingsConfigs = Record<string, any[]>;
 export type FormDependencyConfigs = Record<string, DependencyMap>;
 export type FormDatasourceButtonConfigs = Record<string, string[]>;
 
+function hasNonStringSemicolons(stringifiedJS: string) {
+  // This regex pattern matches semicolons that are not inside single or double quotes
+  const regex = /;(?=(?:[^']*'[^']*')*[^']*$)(?=(?:[^"]*"[^"]*")*[^"]*$)/g;
+  return regex.test(stringifiedJS);
+}
+
 // referencing DATA_BIND_REGEX fails for the value "{{Table1.tableData[Table1.selectedRowIndex]}}" if you run it multiple times and don't recreate
 export const isDynamicValue = (value: string): boolean =>
   DATA_BIND_REGEX.test(value);
@@ -106,13 +112,24 @@ export const combineDynamicBindings = (
   return stringSegments
     .map((segment, index) => {
       if (jsSnippets[index] && jsSnippets[index].length > 0) {
-        return `(${jsSnippets[index]})`;
+        return addOperatorPrecedenceIfNeeded(jsSnippets[index]);
       } else {
         return JSON.stringify(segment);
       }
     })
     .join(" + ");
 };
+
+// Operator precedence example: JSCode =  code  {{ currentItem.noExist || "Blue"}}  PS: currentItem.noExist is undefined
+// if JS code is evaluated it'd be evaluated as "code undefined" rather than "code Blue"
+//Now "code " + {{(undefined || "Blue")}} = "code Blue"  because the parentheses change the order of evaluation, giving addition higher precedence in this case
+function addOperatorPrecedenceIfNeeded(stringifiedJS: string) {
+  if (!hasNonStringSemicolons(stringifiedJS)) {
+    return `(${stringifiedJS})`;
+  }
+
+  return stringifiedJS;
+}
 
 export enum EvalErrorTypes {
   CYCLICAL_DEPENDENCY_ERROR = "CYCLICAL_DEPENDENCY_ERROR",
