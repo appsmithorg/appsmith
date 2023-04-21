@@ -8,18 +8,22 @@ import type { AuditLogsReduxState } from "./auditLogsReducer";
 import auditLogsReducer from "./auditLogsReducer";
 import type { EnvironmentsReduxState } from "./environmentReducer";
 import environmentReducer from "./environmentReducer";
+import type { AIReduxState } from "./AIReducer";
+import AIReducer from "./AIReducer";
 
 const appReducer = combineReducers({
   ...CE_AppReducer,
   acl: aclReducer,
   auditLogs: auditLogsReducer,
   environments: environmentReducer,
+  ai: AIReducer,
 });
 
 export interface AppState extends CE_AppState {
   acl: AclReduxState;
   auditLogs: AuditLogsReduxState;
   environments: EnvironmentsReduxState;
+  ai: AIReduxState;
 }
 
 export default appReducer;
