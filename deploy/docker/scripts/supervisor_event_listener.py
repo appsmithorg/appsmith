@@ -5,8 +5,6 @@ import sys
 import shutil
 import time
 
-
-
 LOADING_TEMPLATE_PAGE = r'/opt/appsmith/templates/appsmith_starting.html'
 LOADING_PAGE_EDITOR = r'/opt/appsmith/editor/loading.html'
 BACKEND_HEALTH_ENDPOINT = "http://localhost:8080/api/v1/health"
