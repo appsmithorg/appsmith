@@ -231,7 +231,6 @@ function renderDropdown(
   return (
     <Select
       data-cy={`t--dropdown-${props?.configProperty}`}
-      defaultValue={options[0]}
       isDisabled={props.disabled}
       isMultiSelect={props?.isMultiSelect}
       onDeselect={onRemoveOptions}
