@@ -360,11 +360,20 @@ const Wrapper = styled.div`
   width: 100%;
 `;
 
+const DocumentationButton = styled(Button)`
+  position: absolute !important;
+  right: 24px;
+  margin: 7px 0px 0px;
+`;
+
 const SidebarWrapper = styled.div<{ show: boolean }>`
-  border: 1px solid var(--ads-v2-color-border);
+  border-left: 1px solid var(--ads-v2-color-border);
+  padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-7);
+  overflow: auto;
   border-bottom: 0;
   display: ${(props) => (props.show ? "flex" : "none")};
   width: ${(props) => props.theme.actionSidePane.width}px;
+  margin-top: 38px;
 `;
 
 type QueryFormProps = {
@@ -1046,7 +1055,7 @@ export function EditorJSONtoForm(props: Props) {
                   content={createMessage(DOCUMENTATION_TOOLTIP)}
                   placement="top"
                 >
-                  <Button
+                  <DocumentationButton
                     className="t--datasource-documentation-link"
                     kind="tertiary"
                     onClick={(e: React.MouseEvent) =>
@@ -1056,7 +1065,7 @@ export function EditorJSONtoForm(props: Props) {
                     startIcon="book-line"
                   >
                     {createMessage(DOCUMENTATION)}
-                  </Button>
+                  </DocumentationButton>
                 </Tooltip>
               )}
             </TabContainerView>

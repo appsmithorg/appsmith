@@ -33,8 +33,9 @@ import { builderURL } from "RouteBuilder";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 
 const SideBar = styled.div`
-  padding: 0 0 var(--ads-v2-spaces-4);
-  overflow: auto;
+  padding: var(--ads-v2-spaces-7) 0 0;
+  /* overflow: auto; */
+  border-top: 1px solid var(--ads-v2-color-border);
   height: 100%;
   width: 100%;
   -webkit-animation: slide-left 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
