@@ -12,10 +12,10 @@ describe("Validating Mobile Views with Hug Widgets", function () {
     cy.get(commonlocators.refreshApp).click({
       force: true,
     });
-    cy.wait(2000);
+    cy.wait(4000);
     cy.get("canvas").should("be.visible");
     cy.addDsl(dsl);
-    cy.wait(4000); //for dsl to settle
+    cy.wait(5000); //for dsl to settle
     cy.get(".t--widget-imagewidget").first().should("be.visible");
     cy.PublishtheApp();
     cy.wait(2000);
