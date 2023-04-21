@@ -24,12 +24,14 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -147,9 +149,9 @@ public class OracleDatasourceUtils {
     public static Mono<DatasourceStructure> getStructure(HikariDataSource connectionPool,
                                                    DatasourceConfiguration datasourceConfiguration) {
         // 1. -done- Figure out role of each query
-        // 2. -wip- Run query and fetch all data
-        // 3. Return schema info
-        // 4. Return query templates
+        // 2. -done- Run query and fetch all data
+        // 3. -done- Return schema info
+        // 4. -wip- Return query templates
         // 5. Update static templates
 
         final DatasourceStructure structure = new DatasourceStructure();
@@ -161,12 +163,9 @@ public class OracleDatasourceUtils {
                         connectionFromPool = getConnectionFromConnectionPool(connectionPool);
                     } catch (SQLException | StaleConnectionException e) {
                         // The function can throw either StaleConnectionException or SQLException. The
-                        // underlying hikari
-                        // library throws SQLException in case the pool is closed or there is an issue
-                        // initializing
-                        // the connection pool which can also be translated in our world to
-                        // StaleConnectionException
-                        // and should then trigger the destruction and recreation of the pool.
+                        // underlying hikari library throws SQLException in case the pool is closed or there is an issue
+                        // initializing the connection pool which can also be translated in our world to
+                        // StaleConnectionException and should then trigger the destruction and recreation of the pool.
                         return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
                     }
 
@@ -188,7 +187,7 @@ public class OracleDatasourceUtils {
                                 if (!tableNameToTableMap.containsKey(tableName)) {
                                     tableNameToTableMap.put(tableName, new DatasourceStructure.Table(
                                             DatasourceStructure.TableType.TABLE,
-                                            null,
+                                            "",
                                             tableName,
                                             new ArrayList<>(),
                                             new ArrayList<>(),
@@ -282,11 +281,83 @@ public class OracleDatasourceUtils {
                         }
                     }
 
+                    // Set SQL query templates
+                    tableNameToTableMap.values().stream()
+                                    .forEach(table -> {
+                                        LinkedHashMap<String, String> columnNameToSampleColumnDataMap =
+                                                new LinkedHashMap<>();
+                                        table.getColumns().stream()
+                                                .forEach(column -> {
+                                                    columnNameToSampleColumnDataMap.put(column.getName(),
+                                                            getSampleColumnData(column.getType()));
+                                                });
+
+                                        String selectQueryTemplate = MessageFormat.format("SELECT * FROM {0} LIMIT 10",
+                                                table.getName());
+                                        String insertQueryTemplate = MessageFormat.format("INSERT INTO {0} ({1}) " +
+                                                        "VALUES ({2})", table.getName(),
+                                                getSampleColumnNamesCSVString(columnNameToSampleColumnDataMap),
+                                                getSampleColumnDataCSVString(columnNameToSampleColumnDataMap));
+                                        String updateQueryTemplate = MessageFormat.format("UPDATE {0} SET {1} WHERE " +
+                                                "1=0; -- Specify a valid condition here. Removing the condition may " +
+                                                "update every row in the table!", table.getName(),
+                                                getSampleOneColumnUpdateString(columnNameToSampleColumnDataMap));
+                                        String deleteQueryTemplate = MessageFormat.format("DELETE FROM {0} WHERE 1=0;" +
+                                                " -- Specify a valid condition here. Removing the condition may " +
+                                                "delete everything in the table!", table.getName());
+
+                                        table.getTemplates().add(new DatasourceStructure.Template("SELECT",
+                                                selectQueryTemplate));
+                                        table.getTemplates().add(new DatasourceStructure.Template("INSERT",
+                                                insertQueryTemplate));
+                                        table.getTemplates().add(new DatasourceStructure.Template("UPDATE",
+                                                updateQueryTemplate));
+                                        table.getTemplates().add(new DatasourceStructure.Template("DELETE",
+                                                deleteQueryTemplate));
+                                    });
+
                     structure.setTables(new ArrayList<>(tableNameToTableMap.values()));
                     return structure;
                 })
                 .map(resultStructure -> (DatasourceStructure) resultStructure)
                 .subscribeOn(scheduler);
+    }
+
+    private static String getSampleOneColumnUpdateString(LinkedHashMap<String, String> columnNameToSampleColumnDataMap) {
+        return MessageFormat.format("{0}={1}", columnNameToSampleColumnDataMap.keySet().stream().findFirst(),
+                columnNameToSampleColumnDataMap.values().stream().findFirst());
+    }
+
+    private static String getSampleColumnNamesCSVString(LinkedHashMap<String, String> columnNameToSampleColumnDataMap) {
+        return String.join(", ", columnNameToSampleColumnDataMap.keySet());
+    }
+
+    private static String getSampleColumnDataCSVString(LinkedHashMap<String, String> columnNameToSampleColumnDataMap) {
+        return String.join(", ", columnNameToSampleColumnDataMap.values());
+    }
+
+    private static String getSampleColumnData(String type) {
+        if (type == null) {
+            return "NULL";
+        }
+
+        switch (type.toUpperCase()) {
+            case "NUMBER":
+                return "1";
+            case "FLOAT":   /* Fall through */
+            case "DOUBLE":
+                return "1.0";
+            case "CHAR":    /* Fall through */
+            case "NCHAR":   /* Fall through */
+            case "VARCHAR": /* Fall through */
+            case "VARCHAR2":/* Fall through */
+            case "NVARCHAR":/* Fall through */
+            case "NVARCHAR2":
+                return "'text'";
+            case "NULL":    /* Fall through */
+            default:
+                return "NULL";
+        }
     }
 
     public static HikariDataSource createConnectionPool(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
