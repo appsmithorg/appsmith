@@ -1,7 +1,9 @@
+import { DEFAULT_HIGHLIGHT_SIZE } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import { FLEXBOX_PADDING, RenderModes } from "constants/WidgetConstants";
 import {
   FlexLayerAlignment,
   ResponsiveBehavior,
+  ROW_GAP,
 } from "utils/autoLayout/constants";
 import type { HighlightInfo } from "./autoLayoutTypes";
 import { getWidgetHeight } from "./flexWidgetUtils";
@@ -103,6 +105,7 @@ describe("test HighlightUtils methods", () => {
           parentId: "1",
         },
       };
+      const offsetTop = (ROW_GAP - DEFAULT_HIGHLIGHT_SIZE / 2) / 2;
       const highlights: HighlightInfo[] = deriveHighlightsFromLayers(
         widgets,
         "1",
@@ -124,7 +127,9 @@ describe("test HighlightUtils methods", () => {
       expect(highlights[7].posY).toEqual(
         highlights[0].posY +
           (widgets["2"].bottomRow - widgets["2"].topRow) *
-            widgets["2"].parentRowSpace,
+            widgets["2"].parentRowSpace +
+          ROW_GAP -
+          offsetTop,
       );
 
       expect(highlights[0].layerIndex).toEqual(0);
