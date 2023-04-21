@@ -92,9 +92,7 @@ export class LightModeTheme implements ColorModeTheme {
       currentColor = setLch(currentColor, {
         c: 0,
       });
-    }
-
-    if (this.seedChroma > 0.1 && this.seedIsCold) {
+    } else if (this.seedChroma > 0.1 && this.seedIsCold) {
       currentColor = setLch(currentColor, {
         c: 0.1,
       });
