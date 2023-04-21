@@ -20,6 +20,14 @@ export class InviteModal {
     _restrictionChange: "[data-testid='t--change-embedding-restriction']",
   };
 
+  public locatorsEE = {
+    _inputOIDC: "input[value='oidc']",
+    _inputSAML: "input[value='saml']",
+    _inputGoogle: "input[value='google']",
+    _docLink: "[data-testid='t--documentation-link']",
+    _ssoMethods: "[data-testid='t--sso-methods]",
+  };
+
   public SelectInviteTab() {
     this.agHelper.GetNClick(this.locators._inviteTab);
   }
