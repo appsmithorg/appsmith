@@ -424,7 +424,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
               </SecondaryWrapper>
             </div>
             <AIWindow
-              className="border-t h-full w-80 border-l"
+              className="border-t h-full w-[400px] border-l"
               windowType="fixed"
             />
           </Wrapper>
