@@ -1565,18 +1565,18 @@ export const GSHEET_AUTHORISED_FILE_IDS_KEY = () =>
   "Google sheets authorised file ids key";
 
 //Layout Conversion flow
-export const CONVERT = () => "Convert";
-export const BUILD_RESPONSIVE = () => "Build Responsive Apps";
+export const CONVERT = () => "Convert layout";
+export const BUILD_RESPONSIVE = () => "Build responsive apps";
 export const BUILD_RESPONSIVE_TEXT = () =>
   "Appsmith will convert your application's UI to auto layout, a new mode designed for building mobile-friendly apps in no time";
-export const BUILD_FIXED_LAYOUT = () => "Use Fixed Layout";
+export const BUILD_FIXED_LAYOUT = () => "Use fixed-layout";
 export const BUILD_FIXED_LAYOUT_TEXT = () =>
   "Appsmith will convert your application’s UI to fixed layout, the default mode.";
 export const USE_SNAPSHOT = () => "Use snapshot";
 export const USE_SNAPSHOT_HEADER = () => "Use Snapshot";
 export const DISCARD_SNAPSHOT_HEADER = () => "Discarding a Snapshot";
 export const SAVE_SNAPSHOT = () =>
-  "Save a Snapshot of your Current Layout for 5 days";
+  "Save a snapshot of your current layout for 5 days";
 export const SAVE_SNAPSHOT_TEXT = () =>
   "We save a snapshot of your current layout so you can go back if auto-layout doesn't work for you in this beta.";
 export const CREATE_SNAPSHOT = () => "Creating a snapshot";
@@ -1606,9 +1606,9 @@ export const USE_SNAPSHOT_TEXT = () =>
   "Your app will look and work exactly like it used to before the conversion. Widgets, datasources, queries, JS objects added and any changes you made after conversion will not be present.";
 export const SNAPSHOT_WARNING_MESSAGE = () =>
   "Any changes you made after conversion will not be present.";
-export const CONVERT_TO_FIXED_TITLE = () => "Convert to Fixed Layout";
+export const CONVERT_TO_FIXED_TITLE = () => "Convert to Fixed-Layout";
 export const CONVERT_TO_FIXED_BUTTON = () => "Convert to fixed-layout";
-export const CONVERT_TO_AUTO_TITLE = () => "Convert to Auto Layout";
+export const CONVERT_TO_AUTO_TITLE = () => "Convert to Auto-Layout";
 export const CONVERT_TO_AUTO_BUTTON = () => "Convert to auto-layout";
 export const SNAPSHOT_BANNER_MESSAGE = () =>
   "Confirm this layout is per expectations before you discard the snapshot. Use the snapshot to go back.";

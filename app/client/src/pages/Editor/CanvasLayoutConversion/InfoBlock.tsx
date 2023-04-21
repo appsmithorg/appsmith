@@ -9,7 +9,7 @@ export type InfoBlockProps = {
 
 export const InfoBlock = (props: InfoBlockProps) => {
   return (
-    <div className="flex flex-row items-start gap-2 pt-3">
+    <div className="flex flex-row items-start gap-3 pt-3">
       <Icon color="var(--ads-v2-color-gray-600)" name={props.icon} size="lg" />
       <div>
         <Text className="pb-1" kind="heading-s" renderAs="h4">

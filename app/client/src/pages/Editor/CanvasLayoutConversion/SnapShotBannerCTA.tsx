@@ -99,7 +99,7 @@ export function SnapShotBannerCTA() {
       <Modal onOpenChange={closeModal} open={showModal}>
         <ModalContent>
           <ModalHeader isCloseButtonVisible={!isConversionCompleted}>
-            {!isConversionCompleted ? modalHeader : ""}
+            {modalHeader}
           </ModalHeader>
           <ModalBody>
             <ConversionForm {...formProps} />

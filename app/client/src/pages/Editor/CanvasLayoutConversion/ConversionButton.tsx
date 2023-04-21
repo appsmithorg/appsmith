@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/react";
-import React from "react";
+import React, { useRef } from "react";
 import {
   Button,
   Modal,
@@ -29,8 +29,8 @@ import type { AppState } from "ce/reducers";
 
 function ConversionButton() {
   const [showModal, setShowModal] = React.useState(false);
-  const isAutoLayout = getIsAutoLayout(store.getState());
-  const formProps = useConversionForm({ isAutoLayout });
+  const isAutoLayout = useRef(getIsAutoLayout(store.getState()));
+  const formProps = useConversionForm({ isAutoLayout: isAutoLayout.current });
   const dispatch = useDispatch();
 
   const conversionState = useSelector(
@@ -38,10 +38,10 @@ function ConversionButton() {
   );
 
   //Text base on if it is an Auto layout
-  const titleText = isAutoLayout
+  const titleText = isAutoLayout.current
     ? CONVERT_TO_FIXED_TITLE
     : CONVERT_TO_AUTO_TITLE;
-  const buttonText = isAutoLayout
+  const buttonText = isAutoLayout.current
     ? CONVERT_TO_FIXED_BUTTON
     : CONVERT_TO_AUTO_BUTTON;
 
@@ -74,12 +74,10 @@ function ConversionButton() {
       <Modal onOpenChange={closeModal} open={showModal}>
         <ModalContent>
           <ModalHeader isCloseButtonVisible={!isConversionCompleted}>
-            {!isConversionCompleted && (
-              <div className="flex items-center gap-3">
-                {createMessage(titleText)}
-                <BetaCard />
-              </div>
-            )}
+            <div className="flex items-center gap-3">
+              {createMessage(titleText)}
+              <BetaCard />
+            </div>
           </ModalHeader>
           <ModalBody>
             <ConversionForm {...formProps} />
@@ -92,4 +90,4 @@ function ConversionButton() {
 
 ConversionButton.displayName = "ConversionButton";
 
-export default React.memo(Sentry.withProfiler(ConversionButton));
+export default Sentry.withProfiler(ConversionButton);
