@@ -117,6 +117,7 @@ public enum AppsmithErrorCode {
     // New EE-only errors below this line:
     SAML_CONFIGURATION_FAILURE("AE-SML-4000", "SAML configuration failed"),
     SAML_ALREADY_CONFIGURED("AE-SML-4009", "SAML already configured"),
+    MIGRATION_FAILED("AE-APP-5043", "Migration failed")
     ;
     private final String code;
     private final String description;
