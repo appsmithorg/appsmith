@@ -21,6 +21,7 @@ function testJsontextClear(endp) {
 }
 
 const verifyDefaultItem = () => {
+  cy.wait(1000);
   cy.waitUntil(() =>
     cy
       .get(
