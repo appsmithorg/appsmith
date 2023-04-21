@@ -452,19 +452,22 @@ export function Installer(props: { left: number }) {
       <div className="search-body overflow-auto">
         <div className="search-area t--library-container">
           <div className="flex flex-row gap-2 justify-between items-end">
-            <Input
-              errorMessage={errorMessage}
-              isValid={isValid}
-              label={"Library URL"}
-              labelPosition="top"
-              onChange={updateURL}
-              placeholder="https://cdn.jsdelivr.net/npm/example@1.1.1/example.min.js"
-              size="md"
-              startIcon="link-2"
-              type="text"
-            />
+            <div className="w-full h-[83px]">
+              <Input
+                errorMessage={errorMessage}
+                isValid={isValid}
+                label={"Library URL"}
+                labelPosition="top"
+                onChange={updateURL}
+                placeholder="https://cdn.jsdelivr.net/npm/example@1.1.1/example.min.js"
+                size="md"
+                startIcon="link-2"
+                type="text"
+              />
+            </div>
 
             <Button
+              className="mb-[22px]"
               data-testid="install-library-btn"
               isDisabled={!(URL && isValid)}
               isLoading={queuedLibraries.length > 0}
