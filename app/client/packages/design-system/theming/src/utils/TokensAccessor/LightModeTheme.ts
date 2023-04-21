@@ -88,20 +88,23 @@ export class LightModeTheme implements ColorModeTheme {
       });
     }
 
-    if (this.seedIsAchromatic) {
-      currentColor = setLch(currentColor, {
-        c: 0,
-      });
-    } else if (this.seedChroma > 0.1 && this.seedIsCold) {
+    if (this.seedChroma > 0.1 && this.seedIsCold) {
       currentColor = setLch(currentColor, {
         c: 0.1,
       });
-    } else {
+    }
+
+    if (this.seedChroma > 0.06 && !this.seedIsCold) {
       currentColor = setLch(currentColor, {
         c: 0.06,
       });
     }
 
+    if (this.seedIsAchromatic) {
+      currentColor = setLch(currentColor, {
+        c: 0,
+      });
+    }
     return currentColor;
   }
 
