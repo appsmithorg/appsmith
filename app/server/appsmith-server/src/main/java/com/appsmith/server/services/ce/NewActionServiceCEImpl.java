@@ -1619,7 +1619,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     return Mono.just(action);
                 })
                 .collectList()
-                .flatMapMany(this::sanitizeAction);
+                .flatMapMany(this::sanitizeListOfActions);
     }
 
     @Override
@@ -1838,7 +1838,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
             return repository.findByApplicationIdAndViewMode(params.getFirst(FieldName.APPLICATION_ID), false, actionPermission.getReadPermission())
                     .collectList()
-                    .flatMapMany(this::sanitizeAction)
+                    .flatMapMany(this::sanitizeListOfActions)
                     .flatMap(this::setTransientFieldsInUnpublishedAction);
         }
         return repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false, actionPermission.getReadPermission(), sort)
@@ -1903,7 +1903,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return actionMono;
     }
 
-    public Flux<NewAction> sanitizeAction(List<NewAction> actionList) {
+    public Flux<NewAction> sanitizeListOfActions(List<NewAction> actionList) {
         return pluginService.getDefaultPlugins()
                 .collectMap(Plugin::getId)
                 .flatMapMany(defaultPluginMap -> {
@@ -1920,7 +1920,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                     return Mono.just(action);
                                 }
 
-                                return providePluginTypeAndIdToNewActionObjectUsingJSTypeOrDatasource(action, defaultPluginMap, jsPlugin);
+                                return providePluginTypeAndIdToNewActionObjectUsingJSTypeOrDatasource(action,
+                                                                                                      defaultPluginMap,
+                                                                                                      jsPlugin);
                             });
                 });
     }
