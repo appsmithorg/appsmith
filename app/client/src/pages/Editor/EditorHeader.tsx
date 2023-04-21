@@ -97,7 +97,7 @@ import EndTour from "./GuidedTour/EndTour";
 import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
 import { viewerURL } from "RouteBuilder";
 import { useHref } from "./utils";
-import EmbedSnippetForm from "pages/Applications/EmbedSnippetTab";
+import EmbedSnippetForm from "@appsmith/pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
@@ -364,6 +364,9 @@ export function EditorHeader(props: EditorHeaderProps) {
         key: "EMBED",
         title: createMessage(IN_APP_EMBED_SETTING.embed),
         component: EmbedSnippetForm,
+        customProps: {
+          changeTabIndex: 0,
+        },
       },
     ];
   }, []);
@@ -486,36 +489,38 @@ export function EditorHeader(props: EditorHeaderProps) {
           >
             <RealtimeAppEditors applicationId={applicationId} />
             <ToggleModeButton />
-            <FormDialogComponent
-              Form={AppInviteUsersForm}
-              applicationId={applicationId}
-              canOutsideClickClose
-              isOpen={showAppInviteUsersDialog}
-              noModalBodyMarginTop
-              placeholder={createMessage(
-                INVITE_USERS_PLACEHOLDER,
-                cloudHosting,
-              )}
-              tabs={tabs}
-              trigger={
-                <TooltipComponent
-                  content={
-                    filteredSharedUserList.length
-                      ? createMessage(
-                          SHARE_BUTTON_TOOLTIP_WITH_USER(
-                            filteredSharedUserList.length,
-                          ),
-                        )
-                      : createMessage(SHARE_BUTTON_TOOLTIP)
-                  }
-                  hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-                  position="bottom"
-                >
-                  <ShareButtonComponent />
-                </TooltipComponent>
-              }
-              workspaceId={workspaceId}
-            />
+            {applicationId && (
+              <FormDialogComponent
+                Form={AppInviteUsersForm}
+                applicationId={applicationId}
+                canOutsideClickClose
+                isOpen={showAppInviteUsersDialog}
+                noModalBodyMarginTop
+                placeholder={createMessage(
+                  INVITE_USERS_PLACEHOLDER,
+                  cloudHosting,
+                )}
+                tabs={tabs}
+                trigger={
+                  <TooltipComponent
+                    content={
+                      filteredSharedUserList.length
+                        ? createMessage(
+                            SHARE_BUTTON_TOOLTIP_WITH_USER(
+                              filteredSharedUserList.length,
+                            ),
+                          )
+                        : createMessage(SHARE_BUTTON_TOOLTIP)
+                    }
+                    hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+                    position="bottom"
+                  >
+                    <ShareButtonComponent />
+                  </TooltipComponent>
+                }
+                workspaceId={workspaceId}
+              />
+            )}
             <DeploySection>
               <TooltipComponent
                 content={createMessage(DEPLOY_BUTTON_TOOLTIP)}

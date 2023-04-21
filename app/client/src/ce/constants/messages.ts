@@ -588,8 +588,13 @@ export const SKIP_TO_APPLICATION = () => "Skip to Application";
 export const SELECT_A_METHOD_TO_ADD_CREDENTIALS = () =>
   "Select a method to add credentials";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
-export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
-  `You want to remove ${name} from this workspace`;
+export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (
+  name?: string | null,
+  entityType?: string,
+) =>
+  `You want to remove ${name} from this ${
+    entityType === "Application" ? "application" : "workspace"
+  }`;
 export const PARSING_ERROR = () =>
   "Syntax Error: Unable to parse code, please check error logs to debug";
 export const PARSING_WARNING = () =>
@@ -1519,7 +1524,7 @@ export const IN_APP_EMBED_SETTING = {
   disableEmbeddingTooltip: () =>
     "This app cannot be embedded anywhere on the Internet",
   embed: () => "Embed",
-  embedSnippetTitle: () => "Copy embed code",
+  embedSnippetTitle: () => "Embed URL",
   change: () => "Change",
   copiedEmbedCode: () => "Embed code copied to clipboard",
   embedSize: () => "Embed size",
@@ -1528,6 +1533,16 @@ export const IN_APP_EMBED_SETTING = {
   sectionContentHeader: () => "Share",
   sectionHeaderDesc: () => "Make public, embed properties",
   showNavigationBar: () => "Show navigation bar",
+  upgradeHeading: () =>
+    "Please contact your workspace admin to make the app public before embedding",
+  upgradeHeadingForAppSettings: () => "Embed",
+  upgradeHeadingForInviteModal: () =>
+    "Make your app public in share settings to embed",
+  upgradeContent: () => "Private embedding is now available in",
+  appsmithBusinessEdition: () => "Appsmith Business Edition",
+  secondaryHeadingForAppSettings: () => "Make your app public to embed",
+  secondaryHeading: () =>
+    "Please contact your workspace admin to make the app public before embedding",
 };
 
 export const APP_NAVIGATION_SETTING = {

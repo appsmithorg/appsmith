@@ -58,9 +58,9 @@ async function restoreDockerEnvFile(restoreContentsPath, backupName) {
   await utils.execCommand(['cp', restoreContentsPath + '/docker.env', dockerEnvFile]);
 
   if (encryptionPwd && encryptionSalt) {
-    const input = readlineSync.question('Existing encryption env values of the previous instance were found.\n\
-    Press Enter to continue with existing encryption values\n\
-    Or Type "n"/"No" to provide encryption key & password for the new restore instance.\n');
+    const input = readlineSync.question('If you are restoring to the same Appsmith deployment which generated the backup archive, you can use the existing encryption keys on the instance.\n\
+    Press Enter to continue with existing encryption keys\n\
+    Or Type "n"/"No" to provide encryption key & password corresponding to the original Appsmith instance that is being restored.\n');
     const answer = input && input.toLocaleUpperCase();
     if (answer === 'N' || answer === 'NO') {
       encryptionPwd = readlineSync.question('Enter the APPSMITH_ENCRYPTION_PASSWORD: ', {
@@ -84,7 +84,8 @@ async function restoreDockerEnvFile(restoreContentsPath, backupName) {
   }
 
   await fsPromises.appendFile(dockerEnvFile, '\nAPPSMITH_ENCRYPTION_PASSWORD=' + encryptionPwd +
-    '\nAPPSMITH_ENCRYPTION_SALT=' + encryptionSalt);
+    '\nAPPSMITH_ENCRYPTION_SALT=' + encryptionSalt + '\nAPPSMITH_MONGODB_URI=' + process.env.APPSMITH_MONGODB_URI +
+    '\nAPPSMITH_MONGODB_USER=' + process.env.APPSMITH_MONGODB_USER + '\nAPPSMITH_MONGODB_PASSWORD=' + process.env.APPSMITH_MONGODB_PASSWORD ) ;
 
   console.log('Restoring docker environment file completed');
 }
