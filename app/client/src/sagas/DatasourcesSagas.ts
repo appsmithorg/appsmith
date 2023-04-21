@@ -754,6 +754,9 @@ function* createDatasourceFromFormSaga(
         createDatasourceSuccess(response.data, true, !!actionRouteInfo.apiId),
       );
 
+      // fetch the datasource structure.
+      yield put(fetchDatasourceStructure(response?.data?.id, true));
+
       Toaster.show({
         text: createMessage(DATASOURCE_CREATE, response.data.name),
         variant: Variant.success,

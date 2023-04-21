@@ -62,6 +62,9 @@ export const CONFIG = {
       labelPosition: LabelPosition.Top,
       labelTextSize: "0.875rem",
     },
+    defaults: {
+      rows: 6.6,
+    },
     autoDimension: {
       height: true,
     },
