@@ -1,8 +1,11 @@
+from requests.exceptions import ConnectionError
 import os
 import requests
 import sys
 import shutil
 import time
+
+
 
 LOADING_TEMPLATE_PAGE = r'/opt/appsmith/templates/appsmith_starting.html'
 LOADING_PAGE_EDITOR = r'/opt/appsmith/editor/loading.html'
@@ -20,20 +23,22 @@ def write_stderr(s):
 def wait_until_backend_healthy():
     sleep_sec = 3
     timeout_sec = 120
-    try:
-        for _ in range(timeout_sec//sleep_sec):
+    for _ in range(timeout_sec//sleep_sec):
+        try:
             if requests.get(BACKEND_HEALTH_ENDPOINT).ok:
                 write_stderr('\nBackend is healthy\n')
                 break
+        except ConnectionError:
+            pass # retry after sleep_sec
+        except Exception as ex:
+            write_stderr(ex)
+            continue
+        finally:
             time.sleep(sleep_sec)
-
-        else:
-            write_stderr('\nBackend health check timed out\n')
-    except Exception as ex:
-        write_stderr(ex)
-    finally:
-        remove_loading_page()
-
+    else:
+        write_stderr('\nError: Backend health check timeout.\n')
+    remove_loading_page()
+      
 def remove_loading_page():
     if os.path.exists(LOADING_PAGE_EDITOR):
         os.remove(LOADING_PAGE_EDITOR)
