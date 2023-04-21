@@ -1,6 +1,6 @@
 import MongoDB from "./MongoDB";
 
-describe("WidgetQueryGenerator", () => {
+describe("MongoDB WidgetQueryGenerator", () => {
   const initialValues = {
     actionConfiguration: {
       formData: {
