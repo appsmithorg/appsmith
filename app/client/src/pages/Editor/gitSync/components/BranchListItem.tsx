@@ -5,6 +5,7 @@ import DefaultTag from "./DefaultTag";
 import { useHover } from "../hooks";
 import BranchMoreMenu from "./BranchMoreMenu";
 import { Tooltip, Text } from "design-system";
+import { isEllipsisActive } from "utils/helpers";
 
 export function BranchListItem({
   active,
@@ -17,6 +18,7 @@ export function BranchListItem({
 }: any) {
   const itemRef = React.useRef<HTMLDivElement>(null);
   const [hover] = useHover(itemRef);
+  const textRef = React.useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     if (itemRef.current && shouldScrollIntoView) {
@@ -37,8 +39,12 @@ export function BranchListItem({
       ref={itemRef}
       selected={selected}
     >
-      <Tooltip content={branch} placement="top">
-        <span className="branch-list-item-text">
+      <Tooltip
+        content={branch}
+        isDisabled={!isEllipsisActive(textRef.current)}
+        placement="top"
+      >
+        <span className="branch-list-item-text" ref={textRef}>
           <Text kind={"body-m"} onClick={onClick}>
             {branch}
           </Text>

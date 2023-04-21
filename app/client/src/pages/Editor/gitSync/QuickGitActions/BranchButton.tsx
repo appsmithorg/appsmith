@@ -11,6 +11,7 @@ import { fetchBranchesInit } from "actions/gitSyncActions";
 import { getGitStatus } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Button, Tooltip } from "design-system";
+import { isEllipsisActive } from "../../../../utils/helpers";
 
 const ButtonContainer = styled(Button)`
   display: flex;
@@ -49,7 +50,11 @@ function BranchButton() {
       }}
       placement="top-start"
     >
-      <Tooltip content={currentBranch || ""} placement="topLeft">
+      <Tooltip
+        content={currentBranch || ""}
+        isDisabled={!isEllipsisActive(labelTarget.current)}
+        placement="topLeft"
+      >
         <ButtonContainer
           className="t--branch-button"
           data-testid={"t--branch-button-currentBranch"}

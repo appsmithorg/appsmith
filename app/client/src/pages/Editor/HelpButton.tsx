@@ -36,7 +36,7 @@ function HelpButton() {
   return (
     <Tooltip
       content={createMessage(HELP_RESOURCE_TOOLTIP)}
-      // disabled={isHelpOpen}
+      isDisabled={isHelpOpen}
       placement="bottom"
     >
       <Popover

@@ -420,6 +420,7 @@ function Deploy() {
         {showCommitButton && (
           <Tooltip
             content={createMessage(GIT_NO_UPDATED_TOOLTIP)}
+            isDisabled={showCommitButton && !commitButtonLoading}
             placement="top"
           >
             <Button
