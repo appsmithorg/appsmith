@@ -359,7 +359,7 @@ export function Table(props: TableProps) {
                 columns={tableHeadercolumns}
                 currentPageIndex={currentPageIndex}
                 delimiter={props.delimiter}
-                disableAddNewRow={!!props.editableCell.column}
+                disableAddNewRow={!!props.editableCell?.column}
                 disabledAddNewRowSave={props.disabledAddNewRowSave}
                 filters={props.filters}
                 isAddRowInProgress={props.isAddRowInProgress}
