@@ -188,7 +188,7 @@ jobs:
       - name: Upload react build bundle
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.client_build_name }}}
+          name: ${{ env.client_build_name }}
           path: ${{ env.client_build_path }}
 
       # Set status = success
