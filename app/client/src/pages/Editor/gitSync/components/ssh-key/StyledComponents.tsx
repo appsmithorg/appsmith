@@ -46,7 +46,7 @@ export const KeyText = styled.span<{ keyType: string }>`
   font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
-  color: var(--appsmith-color-black-900);
+  color: var(--ads-v2-color-gray-600);
   direction: rtl;
   margin-right: 8px;
 `;

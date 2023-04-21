@@ -61,10 +61,10 @@ const BranchDropdownContainer = styled.div`
   display: flex;
   flex-direction: column;
 
-  & .title {
-    ${getTypographyByKey("p1")};
-    color: var(--ads-v2-color-fg-emphasis-plus);
-  }
+  // & .title {
+  //   ${getTypographyByKey("h3")};
+  //   color: var(--ads-v2-color-fg-emphasis-plus);
+  // }
 
   padding: ${(props) => props.theme.spaces[5]}px;
   min-height: 0;
@@ -190,7 +190,7 @@ export function Header({
       }}
     >
       <div style={{ display: "flex", alignItems: "center" }}>
-        <Text className="title" color={"var(--ads-v2-color-fg-emphasis)"}>
+        <Text color={"var(--ads-v2-color-fg-emphasis-plus)"} kind="heading-s">
           {title}
         </Text>
         <span

@@ -384,16 +384,14 @@ function GitConnection({ isImport }: Props) {
         />
         {isGitConnected && (
           <Tooltip content="Disconnect Git">
-            <ButtonContainer topMargin={1}>
-              <Button
-                className="t--git-disconnect-icon"
-                isIconButton
-                kind="tertiary"
-                onClick={openDisconnectGitModal}
-                size="md"
-                startIcon="delete"
-              />
-            </ButtonContainer>
+            <Button
+              className="t--git-disconnect-icon"
+              isIconButton
+              kind="tertiary"
+              onClick={openDisconnectGitModal}
+              size="md"
+              startIcon="delete"
+            />
           </Tooltip>
         )}
       </UrlContainer>

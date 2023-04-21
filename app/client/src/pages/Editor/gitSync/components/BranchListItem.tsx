@@ -38,10 +38,12 @@ export function BranchListItem({
       selected={selected}
     >
       <Tooltip content={branch} placement="top">
-        <Text kind={"body-m"} onClick={onClick}>
-          {branch}
+        <span className="branch-list-item-text">
+          <Text kind={"body-m"} onClick={onClick}>
+            {branch}
+          </Text>
           {isDefault && <DefaultTag />}
-        </Text>
+        </span>
       </Tooltip>
       {hover && <BranchMoreMenu branchName={branch} />}
     </BranchListItemContainer>

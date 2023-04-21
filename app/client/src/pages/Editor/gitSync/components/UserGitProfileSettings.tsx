@@ -32,6 +32,7 @@ const DefaultConfigContainer = styled.div`
   display: flex;
   align-items: flex-start;
   margin-top: ${(props) => props.theme.spaces[3]}px;
+  margin-left: 3px;
 `;
 
 type AuthorInfo = { authorName: string; authorEmail: string };

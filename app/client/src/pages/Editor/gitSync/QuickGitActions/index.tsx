@@ -71,7 +71,7 @@ const QuickActionButtonContainer = styled.div<{ disabled?: boolean }>`
     justify-content: center;
     align-items: center;
     color: ${Colors.WHITE};
-    background-color: ${Colors.BLACK};
+    background-color: var(--ads-v2-color-gray-700);
     top: ${(props) => -1 * props.theme.spaces[3]}px;
     left: ${(props) => props.theme.spaces[8]}px;
     border-radius: ${(props) => props.theme.spaces[3]}px;

@@ -242,7 +242,11 @@ export default function Merge() {
         </Select>
 
         <Space horizontal size={3} />
-        <Icon color={"var(--ads-v2-color-fg)"} name="arrow-left" size="md" />
+        <Icon
+          color={"var(--ads-v2-color-fg-subtle)"}
+          name="arrow-left-s-line"
+          size="lg"
+        />
         <Space horizontal size={3} />
         <Select
           className="textInput"

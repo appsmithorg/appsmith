@@ -15,7 +15,14 @@ import {
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
 import { ScrollIndicator } from "design-system-old";
-import { Button, Callout, Input, Text, Tooltip } from "design-system";
+import {
+  Button,
+  Callout,
+  Input,
+  ModalFooter,
+  Text,
+  Tooltip,
+} from "design-system";
 import {
   getConflictFoundDocUrlDeploy,
   getDiscardDocUrl,
@@ -90,13 +97,6 @@ function SubmitWrapper(props: {
 
   return <div onKeyDown={onKeyDown}>{props.children}</div>;
 }
-
-const ActionsContainer = styled.div`
-  display: flex;
-  flex: 1;
-  align-items: center;
-  gap: ${(props) => props.theme.spaces[7]}px;
-`;
 
 function Deploy() {
   const lastDeployedAt = useSelector(getApplicationLastDeployedAt);
@@ -333,55 +333,6 @@ function Deploy() {
             <Space size={3} />
           </>
         )}
-        <ActionsContainer>
-          {showPullButton && (
-            <Button
-              className="t--pull-button"
-              isLoading={isPullingProgress}
-              onClick={handlePull}
-              size="md"
-            >
-              {createMessage(PULL_CHANGES)}
-            </Button>
-          )}
-
-          {showDiscardChangesButton && (
-            <Button
-              className="t--discard-button discard-changes-link"
-              isDisabled={!showDiscardChangesButton}
-              isLoading={
-                isPullingProgress ||
-                isFetchingGitStatus ||
-                isCommittingInProgress
-              }
-              kind="error"
-              onClick={() =>
-                shouldDiscard ? onDiscardChanges() : onDiscardInit()
-              }
-              size="md"
-            >
-              {showDiscardWarning
-                ? createMessage(ARE_YOU_SURE)
-                : createMessage(DISCARD_CHANGES)}
-            </Button>
-          )}
-          {showCommitButton && (
-            <Tooltip
-              content={createMessage(GIT_NO_UPDATED_TOOLTIP)}
-              placement="top"
-            >
-              <Button
-                className="t--commit-button"
-                isDisabled={commitButtonDisabled}
-                isLoading={commitButtonLoading}
-                onClick={() => handleCommit(true)}
-                size="md"
-              >
-                {commitButtonText}
-              </Button>
-            </Tooltip>
-          )}
-        </ActionsContainer>
         {isConflicting && (
           <ConflictInfo
             browserSupportedRemoteUrl={
@@ -436,6 +387,53 @@ function Deploy() {
         <DeployPreview showSuccess={isCommitAndPushSuccessful} />
       )}
       <ScrollIndicator containerRef={scrollWrapperRef} mode="DARK" top="37px" />
+      <ModalFooter>
+        {showPullButton && (
+          <Button
+            className="t--pull-button"
+            isLoading={isPullingProgress}
+            onClick={handlePull}
+            size="md"
+          >
+            {createMessage(PULL_CHANGES)}
+          </Button>
+        )}
+
+        {showDiscardChangesButton && (
+          <Button
+            className="t--discard-button discard-changes-link"
+            isDisabled={!showDiscardChangesButton}
+            isLoading={
+              isPullingProgress || isFetchingGitStatus || isCommittingInProgress
+            }
+            kind="error"
+            onClick={() =>
+              shouldDiscard ? onDiscardChanges() : onDiscardInit()
+            }
+            size="md"
+          >
+            {showDiscardWarning
+              ? createMessage(ARE_YOU_SURE)
+              : createMessage(DISCARD_CHANGES)}
+          </Button>
+        )}
+        {showCommitButton && (
+          <Tooltip
+            content={createMessage(GIT_NO_UPDATED_TOOLTIP)}
+            placement="top"
+          >
+            <Button
+              className="t--commit-button"
+              isDisabled={commitButtonDisabled}
+              isLoading={commitButtonLoading}
+              onClick={() => handleCommit(true)}
+              size="md"
+            >
+              {commitButtonText}
+            </Button>
+          </Tooltip>
+        )}
+      </ModalFooter>
     </Container>
   );
 }
