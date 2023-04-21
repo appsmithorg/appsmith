@@ -10,6 +10,7 @@ import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.ApplicationMode;
+import com.segment.analytics.Analytics;
 
 import java.util.Map;
 
@@ -82,7 +83,9 @@ public class AuditLogEvents {
             entry(AnalyticsEvents.LOGIN.getEventName(), FieldName.LOGGED_IN),
             entry(AnalyticsEvents.LOGOUT.getEventName(), FieldName.LOGGED_OUT),
             entry(AnalyticsEvents.FIRST_LOGIN.getEventName(), FieldName.SIGNED_UP),
-            entry(AnalyticsEvents.EXECUTE_INVITE_USERS.getEventName(), FieldName.INVITED),
+//            Note: This change signifies that the event Analytics event: `EXECUTE_INVITE_USERS` will not be translated
+//            into an action event in the AuditLogs. Hence, this event will not be logged as part of Audit Logs.
+//            entry(AnalyticsEvents.EXECUTE_INVITE_USERS.getEventName(), FieldName.INVITED),
             entry(AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.getEventName(), FieldName.UPDATED),
             entry(AnalyticsEvents.INSTANCE_SETTING_UPDATED.getEventName(), FieldName.UPDATED),
             entry(AnalyticsEvents.INVITE_USERS_TO_USER_GROUPS.getEventName(), FieldName.INVITE_USERS_TO_USER_GROUPS),

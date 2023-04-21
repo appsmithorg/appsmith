@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
@@ -46,6 +47,7 @@ import reactor.core.scheduler.Scheduler;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -82,6 +84,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
     private final UserService userService;
     private final UserGroupRepository userGroupRepository;
     private final ApplicationPermission applicationPermission;
+    private final SessionUserService sessionUserService;
 
     public ApplicationServiceImpl(Scheduler scheduler,
                                   Validator validator,
@@ -118,6 +121,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
         this.userService = userService;
         this.userGroupRepository = userGroupRepository;
         this.applicationPermission = applicationPermission;
+        this.sessionUserService = sessionUserService;
     }
     /**
      * <p>
@@ -648,6 +652,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.APPLICATION));
         }
 
+        Mono<Application> applicationMono = findById(applicationId);
         Mono<PermissionGroup> defaultAppRoleMono = getOrCreateDefaultAppRole(applicationId, appRoleType);
 
         /*
@@ -656,6 +661,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
          */
         Mono<List<User>> userListMono = Mono.just(List.of());
         Mono<List<UserGroup>> groupListMono = Mono.just(List.of());
+        Mono<Long> sendInviteUsersToApplicationEvent = Mono.just(1L);
 
         if (CollectionUtils.isNotEmpty(usernames)) {
             userListMono = Flux.fromIterable(usernames)
@@ -674,6 +680,9 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                     })
                     .collectList()
                     .cache();
+            sendInviteUsersToApplicationEvent = Mono.zip(applicationMono, sessionUserService.getCurrentUser())
+                    .flatMap(tuple -> sendEventInviteUsersToApplication(tuple.getT2(), usernames, tuple.getT1()))
+                    .thenReturn(1L);
         }
 
         if (CollectionUtils.isNotEmpty(groupIds)) {
@@ -684,7 +693,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                 .flatMap(tuple -> permissionGroupService.bulkAssignToUsersAndGroups(tuple.getT1(), tuple.getT2(), tuple.getT3()));
 
 
-        return Mono.zip(roleAfterInvitation, userListMono, groupListMono)
+        Mono<List<MemberInfoDTO>> invitedMembersListMono = Mono.zip(roleAfterInvitation, userListMono, groupListMono)
                 .map(tuple -> {
                     PermissionGroup role = tuple.getT1();
                     PermissionGroupInfoDTO roleInfoDTO = new PermissionGroupInfoDTO(role.getId(), role.getName(),
@@ -701,6 +710,22 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                     return Stream.of(userMembers, groupMembers)
                             .flatMap(Collection::stream).toList();
                 });
+
+        return invitedMembersListMono
+                .flatMap(sendInviteUsersToApplicationEvent::thenReturn);
+    }
+
+    private Mono<User> sendEventInviteUsersToApplication(User currentUser, Set<String> invitedUserEmails, Application application) {
+        Map<String, Object> analyticsProperties = new HashMap<>();
+        long numberOfUsers = invitedUserEmails.size();
+        analyticsProperties.put(FieldName.NUMBER_OF_USERS_INVITED, numberOfUsers);
+        Map<String, Object> eventData = Map.of(FieldName.USER_EMAILS, invitedUserEmails,
+                FieldName.APPLICATION, application.getName());
+        Map<String, Object> extraPropsForCloudHostedInstance = Map.of(FieldName.USER_EMAILS, invitedUserEmails,
+                FieldName.APPLICATION, application.getName());
+        analyticsProperties.put(FieldName.EVENT_DATA, eventData);
+        analyticsProperties.put(FieldName.CLOUD_HOSTED_EXTRA_PROPS, extraPropsForCloudHostedInstance);
+        return analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_INVITE_USERS, currentUser, analyticsProperties);
     }
 
     /**
@@ -801,7 +826,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                         memberInfoForUnassignedMember.setUserId(user.getId());
                         memberInfoForUnassignedMember.setUsername(user.getUsername());
                         memberInfoForUnassignedMember.setName(user.getName());
-                        return permissionGroupService.unassignFromUser(pair.getT1(), pair.getT2());
+                        return permissionGroupService.unAssignFromUserAndSendEvent(pair.getT1(), pair.getT2());
                     })
                     .flatMap(this::deleteDefaultRoleIfNoUserOrUserGroupAssigned);
         } else if (StringUtils.isNotEmpty(groupId)) {
@@ -817,7 +842,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCEImpl implements 
                         UserGroup userGroup = pair.getT2();
                         memberInfoForUnassignedMember.setUserGroupId(userGroup.getId());
                         memberInfoForUnassignedMember.setName(userGroup.getName());
-                        return permissionGroupService.unassignFromUserGroup(pair.getT1(), pair.getT2());
+                        return permissionGroupService.unAssignFromUserGroupAndSendEvent(pair.getT1(), pair.getT2());
                     })
                     .flatMap(this::deleteDefaultRoleIfNoUserOrUserGroupAssigned);
         }
