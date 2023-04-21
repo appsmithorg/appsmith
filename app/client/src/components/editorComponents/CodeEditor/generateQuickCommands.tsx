@@ -256,7 +256,7 @@ export const generateQuickCommands = (
   ) {
     const askGPT: CommandsCompletion = generateCreateNewCommand({
       text: "",
-      displayText: "Ask AI (Beta)",
+      displayText: "Ask AI",
       shortcut: Shortcuts.ASK_AI,
       action: () =>
         executeCommand({
