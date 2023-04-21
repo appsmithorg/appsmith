@@ -233,7 +233,12 @@ export const PropertyPaneContentConfig = [
         inputType: "ARRAY",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: { type: ValidationTypes.ARRAY },
+        validation: {
+          type: ValidationTypes.ARRAY,
+          params: {
+            default: [],
+          },
+        },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       },
       {
