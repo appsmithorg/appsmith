@@ -22,7 +22,8 @@ describe("In-app embed settings", () => {
       _.agHelper.AssertElementAbsence(
         _.inviteModal.locators._shareSettingsButton,
       );
-      cy.get(_.inviteModal.locators._upgradeContent).contains(
+      _.agHelper.GetNAssertContains(
+        _.inviteModal.locators._upgradeContent,
         "Appsmith Business Edition",
       );
       _.appSettings.ClosePane();
@@ -37,7 +38,9 @@ describe("In-app embed settings", () => {
       _.agHelper.AssertElementExist(
         _.inviteModal.locators._shareSettingsButton,
       );
-      cy.get(_.inviteModal.locators._upgradeContent).contains(
+
+      _.agHelper.GetNAssertContains(
+        _.inviteModal.locators._upgradeContent,
         "Appsmith Business Edition",
       );
       _.inviteModal.enablePublicAccessViaShareSettings("true");
