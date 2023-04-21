@@ -3,7 +3,6 @@ import homePage from "../../../../locators/HomePage";
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 const application = require("../../../../locators/Applications.json");
 
-
 describe("Create workspace and a new app / delete and recreate app", function () {
   let workspaceId;
   let appid;
