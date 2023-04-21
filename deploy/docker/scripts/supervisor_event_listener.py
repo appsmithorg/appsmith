@@ -6,7 +6,7 @@ import time
 
 LOADING_TEMPLATE_PAGE = r'/opt/appsmith/templates/appsmith_starting.html'
 LOADING_PAGE_EDITOR = r'/opt/appsmith/editor/loading.html'
-BACKEND_HEALTH_ENDPOINT = "http://localhost/api/v1/health"
+BACKEND_HEALTH_ENDPOINT = "http://localhost:8080/api/v1/health"
 
 def write_stdout(s):
     # only eventlistener protocol messages may be sent to stdout
@@ -22,7 +22,7 @@ def wait_until_backend_healthy():
     timeout_sec = 120
     try:
         for _ in range(timeout_sec//sleep_sec):
-            if requests.get(BACKEND_HEALTH_ENDPOINT, verify=False).ok:
+            if requests.get(BACKEND_HEALTH_ENDPOINT).ok:
                 write_stderr('\nBackend is healthy\n')
                 break
             time.sleep(sleep_sec)
