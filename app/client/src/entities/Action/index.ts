@@ -190,6 +190,7 @@ export enum SlashCommand {
   NEW_API,
   NEW_QUERY,
   NEW_INTEGRATION,
+  ASK_AI,
 }
 
 export type SlashCommandPayload = {
