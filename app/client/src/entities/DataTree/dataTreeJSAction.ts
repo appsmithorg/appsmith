@@ -54,7 +54,6 @@ export const generateDataTreeJSAction = (js: JSCollectionData): any => {
       body: removeThisReference,
       ENTITY_TYPE: ENTITY_TYPE.JSACTION,
       actionId: js.config.id,
-      name: js.config.name,
     },
     configEntity: {
       actionId: js.config.id,

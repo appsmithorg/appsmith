@@ -36,7 +36,6 @@ export interface ActionEntity {
   ENTITY_TYPE: ENTITY_TYPE.ACTION;
   config: Partial<ActionConfig>;
   datasourceUrl: string;
-  name: string;
 }
 
 export interface ActionEntityConfig {
