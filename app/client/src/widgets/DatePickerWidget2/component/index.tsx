@@ -48,7 +48,7 @@ const StyledControlGroup = styled(ControlGroup)<{
 
   /**
     When the label is on the left it is not center aligned
-    here set height to auto and not 100% because the input 
+    here set height to auto and not 100% because the input
     has fixed height and stretch the container.
   */
     ${({ labelPosition }) => {
@@ -386,7 +386,7 @@ class DatePickerComponent extends React.Component<
                 canEscapeKeyClose: true,
                 portalClassName: `${DATEPICKER_POPUP_CLASSNAME}-${this.props.widgetId}`,
                 onClose: this.props.onPopoverClosed,
-                /* 
+                /*
                   Conditional popover props are the popover props that should not be sent to
                   DateInput in any way if they are not applicable.
                   Here isOpen prop if sent in any way will interfere with the normal functionality

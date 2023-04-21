@@ -135,6 +135,7 @@ export const EditorWrapper = styled.div<{
               return Colors.GREY_5;
           }
         }};
+      ${(props) => props.border === "none" && "border: none"};
       background: ${(props) => props.theme.colors.apiPane.bg};
       color: ${Colors.CHARCOAL};
       & {
@@ -362,6 +363,7 @@ export const EditorWrapper = styled.div<{
     .cm-tab {
       border-right: 1px dotted #ccc;
     }
+    height: 100%;
   `}
 
   .bp3-popover-target {
@@ -520,6 +522,7 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
     font-style: italic;
     padding: 0 0 3px;
     margin: 0 !important;
+    top: -2px;
     &:hover {
       background: #f86a2b;
       color: white;

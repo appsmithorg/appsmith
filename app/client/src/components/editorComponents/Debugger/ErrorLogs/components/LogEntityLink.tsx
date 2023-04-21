@@ -14,6 +14,7 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { PluginType } from "entities/Action";
 import { getPlugins } from "selectors/entitiesSelector";
 import EntityLink, { DebuggerLinkUI } from "../../EntityLink";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const EntityLinkWrapper = styled.div`
   display: flex;
@@ -65,7 +66,7 @@ export default function LogEntityLink(props: LogItemProps) {
             <EntityIcon height={"16px"} width={"16px"}>
               <img
                 alt="entityIcon"
-                src={pluginGroups[props.iconId].iconLocation}
+                src={getAssetUrl(pluginGroups[props.iconId].iconLocation)}
               />
             </EntityIcon>
           );

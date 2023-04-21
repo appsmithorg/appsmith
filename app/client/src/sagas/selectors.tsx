@@ -44,8 +44,9 @@ export const getWidgetsMeta = (state: AppState) => state.entities.meta;
 
 export const getWidgetMetaProps = createSelector(
   [getWidgetsMeta, (_state: AppState, widget: WidgetProps) => widget],
-  (metaState, widget: WidgetProps) =>
-    metaState[widget.metaWidgetId || widget.widgetId],
+  (metaState, widget: WidgetProps) => {
+    return metaState[widget.metaWidgetId || widget.widgetId];
+  },
 );
 
 export const getWidgetByID = (widgetId: string) => {
@@ -83,14 +84,10 @@ export const getDataTreeForActionCreator = memoize((state: AppState) => {
   const dataTree: DataTreeForActionCreator = {};
   Object.keys(state.evaluations.tree).forEach((key) => {
     const value: any = state.evaluations.tree[key];
-    if (value.meta)
-      dataTree[key] = {
-        meta: value.meta,
-      };
-    if (value.ENTITY_TYPE)
-      dataTree[key] = {
-        ENTITY_TYPE: value.ENTITY_TYPE,
-      };
+    dataTree[key] = {
+      meta: value?.meta || null,
+      ENTITY_TYPE: value?.ENTITY_TYPE || null,
+    };
   });
   return dataTree;
 });
