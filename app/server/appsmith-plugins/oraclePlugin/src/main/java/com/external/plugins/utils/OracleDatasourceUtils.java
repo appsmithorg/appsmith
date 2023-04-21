@@ -151,8 +151,10 @@ public class OracleDatasourceUtils {
         // 1. -done- Figure out role of each query
         // 2. -done- Run query and fetch all data
         // 3. -done- Return schema info
-        // 4. -wip- Return query templates
-        // 5. Update static templates
+        // 4. -done- Return query templates
+        // 5. -wip- Update static templates
+        // 6. Refactor code
+        // 7. Add comments
 
         final DatasourceStructure structure = new DatasourceStructure();
         final Map<String, DatasourceStructure.Table> tableNameToTableMap = new LinkedHashMap<>();
@@ -292,8 +294,8 @@ public class OracleDatasourceUtils {
                                                             getSampleColumnData(column.getType()));
                                                 });
 
-                                        String selectQueryTemplate = MessageFormat.format("SELECT * FROM {0} LIMIT 10",
-                                                table.getName());
+                                        String selectQueryTemplate = MessageFormat.format("SELECT * FROM {0} WHERE " +
+                                                        "ROWNUM < 10", table.getName());
                                         String insertQueryTemplate = MessageFormat.format("INSERT INTO {0} ({1}) " +
                                                         "VALUES ({2})", table.getName(),
                                                 getSampleColumnNamesCSVString(columnNameToSampleColumnDataMap),
@@ -306,14 +308,14 @@ public class OracleDatasourceUtils {
                                                 " -- Specify a valid condition here. Removing the condition may " +
                                                 "delete everything in the table!", table.getName());
 
-                                        table.getTemplates().add(new DatasourceStructure.Template("SELECT",
-                                                selectQueryTemplate));
-                                        table.getTemplates().add(new DatasourceStructure.Template("INSERT",
-                                                insertQueryTemplate));
-                                        table.getTemplates().add(new DatasourceStructure.Template("UPDATE",
-                                                updateQueryTemplate));
-                                        table.getTemplates().add(new DatasourceStructure.Template("DELETE",
-                                                deleteQueryTemplate));
+                                        table.getTemplates().add(new DatasourceStructure.Template("SELECT", null,
+                                                Map.of("body", Map.of("data", selectQueryTemplate))));
+                                        table.getTemplates().add(new DatasourceStructure.Template("INSERT", null,
+                                                Map.of("body", Map.of("data", insertQueryTemplate))));
+                                        table.getTemplates().add(new DatasourceStructure.Template("UPDATE", null,
+                                                Map.of("body", Map.of("data", updateQueryTemplate))));
+                                        table.getTemplates().add(new DatasourceStructure.Template("DELETE", null,
+                                                Map.of("body", Map.of("data", deleteQueryTemplate))));
                                     });
 
                     structure.setTables(new ArrayList<>(tableNameToTableMap.values()));
@@ -324,8 +326,8 @@ public class OracleDatasourceUtils {
     }
 
     private static String getSampleOneColumnUpdateString(LinkedHashMap<String, String> columnNameToSampleColumnDataMap) {
-        return MessageFormat.format("{0}={1}", columnNameToSampleColumnDataMap.keySet().stream().findFirst(),
-                columnNameToSampleColumnDataMap.values().stream().findFirst());
+        return MessageFormat.format("{0}={1}", columnNameToSampleColumnDataMap.keySet().stream().findFirst().orElse(
+                "id"), columnNameToSampleColumnDataMap.values().stream().findFirst().orElse("'uid'"));
     }
 
     private static String getSampleColumnNamesCSVString(LinkedHashMap<String, String> columnNameToSampleColumnDataMap) {
