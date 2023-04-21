@@ -6,9 +6,9 @@ import { getPluginTemplates } from "selectors/entitiesSelector";
 
 const Container = styled.div`
   display: flex;
-  padding: 16px 24px;
+  /* padding: 16px 24px; */
   flex: 1;
-  border-radius: 4px;
+  border-radius: var(--ads-v2-border-radius);
   flex-direction: column;
   color: var(--ads-v2-color-fg);
 `;
@@ -30,8 +30,9 @@ const Row = styled.div`
   display: flex;
   align-items: center;
   flex-direction: row;
-  padding: 9px;
+  padding: var(--ads-v2-spaces-4);
   width: 108px;
+  margin-top: var(--ads-v2-spaces-2);
   cursor: pointer;
 
   :hover {
@@ -83,10 +84,8 @@ class TemplateMenu extends React.Component<Props> {
         }}
         tabIndex={0}
       >
-        <div style={{ fontSize: 14 }}>
-          Click here to start with a blank state or select a template.
-        </div>
-        <div style={{ marginTop: "6px" }}>
+        <div>Click here to start with a blank state or select a template.</div>
+        <div>
           {Object.entries(pluginTemplates).map((template) => {
             const templateKey = template[0];
 
