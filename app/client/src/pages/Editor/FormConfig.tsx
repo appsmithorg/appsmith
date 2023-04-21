@@ -38,7 +38,9 @@ const FlexWrapper = styled.div`
 const LabelWrapper = styled.div`
   display: flex;
   .label-icon-wrapper {
-    cursor: help;
+    &.help {
+      cursor: help;
+    }
   }
 `;
 
@@ -201,7 +203,11 @@ function renderFormConfigTop(props: {
                     content={tooltipText as string}
                     isDisabled={!tooltipText}
                   >
-                    <p className="label-icon-wrapper">{label}</p>
+                    <p
+                      className={`label-icon-wrapper ${tooltipText && "help"}`}
+                    >
+                      {label}
+                    </p>
                   </Tooltip>
                   <LabelIconWrapper>
                     {isRequired && (
