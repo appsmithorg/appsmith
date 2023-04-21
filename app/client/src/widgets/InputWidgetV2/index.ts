@@ -51,7 +51,7 @@ export const CONFIG = {
       height: props.inputType !== "MULTI_LINE_TEXT",
     }),
     defaults: {
-      rows: 7,
+      rows: 6.6,
     },
     widgetSize: [
       {

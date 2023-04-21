@@ -11,6 +11,7 @@ import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEditor/codeEditorUtils";
 import type { SlashCommandPayload } from "entities/Action";
+import type FeatureFlags from "entities/FeatureFlags";
 
 export const commandsHelper: HintHelper = (editor, data: DataTree) => {
   let entitiesForSuggestions: any[] = [];
@@ -32,6 +33,7 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
       {
         datasources,
         executeCommand,
+        featureFlags,
         pluginIdToImageLocation,
         recentEntities,
         update,
@@ -42,6 +44,7 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
         recentEntities: string[];
         update: (value: string) => void;
         entityId: string;
+        featureFlags: FeatureFlags;
       },
     ): boolean => {
       const currentEntityType =
@@ -66,6 +69,7 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
             executeCommand,
             pluginIdToImageLocation,
             recentEntities,
+            featureFlags,
           },
           expectedType || "string",
           entityId,

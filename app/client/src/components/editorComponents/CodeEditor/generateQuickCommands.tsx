@@ -13,11 +13,15 @@ import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import AddDatasourceIcon from "remixicon-react/AddBoxLineIcon";
 import { Colors } from "constants/Colors";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import MagicIcon from "remixicon-react/MagicLineIcon";
+import { addAISlashCommand } from "@appsmith/components/editorComponents/GPT/trigger";
+import type FeatureFlags from "entities/FeatureFlags";
 
 enum Shortcuts {
   PLUS = "PLUS",
   BINDING = "BINDING",
   FUNCTION = "FUNCTION",
+  ASK_AI = "ASK_AI",
 }
 
 const matchingCommands = (
@@ -100,6 +104,11 @@ const iconsByType = {
       <Snippet className="snippet-icon shortcut" />
     </EntityIcon>
   ),
+  [Shortcuts.ASK_AI]: (
+    <EntityIcon noBorder>
+      <MagicIcon className="magic" />
+    </EntityIcon>
+  ),
 };
 
 function Command(props: { icon: any; name: string }) {
@@ -122,6 +131,7 @@ export const generateQuickCommands = (
   {
     datasources,
     executeCommand,
+    featureFlags,
     pluginIdToImageLocation,
     recentEntities,
   }: {
@@ -129,6 +139,7 @@ export const generateQuickCommands = (
     executeCommand: (payload: SlashCommandPayload) => void;
     pluginIdToImageLocation: Record<string, string>;
     recentEntities: string[];
+    featureFlags: FeatureFlags;
   },
   expectedType: string,
   entityId: any,
@@ -235,6 +246,27 @@ export const generateQuickCommands = (
     5,
   );
   const actionCommands = [newBinding, insertSnippet];
+
+  // Adding this hack in the interest of time.
+  // TODO: Refactor slash commands generation for easier code splitting
+  if (addAISlashCommand && featureFlags.CHAT_AI) {
+    const askGPT: CommandsCompletion = generateCreateNewCommand({
+      text: "",
+      displayText: "Ask AI",
+      shortcut: Shortcuts.ASK_AI,
+      action: () =>
+        executeCommand({
+          actionType: SlashCommand.ASK_AI,
+          args: {
+            entityType: currentEntityType,
+            expectedType: expectedType,
+            entityId: entityId,
+            propertyPath: propertyPath,
+          },
+        }),
+    });
+    actionCommands.push(askGPT);
+  }
 
   suggestionsMatchingSearchText.push(
     ...matchingCommands(actionCommands, searchText, []),
