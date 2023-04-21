@@ -166,15 +166,20 @@ export const useRenderBlocksOnCanvas = (
         canvasCtx.strokeStyle = Colors.HIGHLIGHT_OUTLINE;
         canvasCtx.setLineDash([]);
         const { height, posX, posY, width } = highlight;
-        let val = scrollParent?.scrollTop || 0;
+        const isWidgetScrolling =
+          scrollParent?.className.includes("appsmith_widget_");
+        let val =
+          isMainContainer || isWidgetScrolling
+            ? scrollParent?.scrollTop || 0
+            : 0;
         if (
           !isMainContainer &&
+          isWidgetScrolling &&
           totalScrollTop &&
           parentOffsetTop &&
           totalScrollTop > parentOffsetTop
         )
           val += totalScrollTop - parentOffsetTop;
-
         // roundRect is not currently supported in firefox.
         if (canvasCtx.roundRect)
           canvasCtx.roundRect(posX, posY - val, width, height, 4);
