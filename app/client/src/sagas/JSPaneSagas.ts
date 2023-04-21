@@ -62,6 +62,7 @@ import {
   JS_FUNCTION_CREATE_SUCCESS,
   JS_FUNCTION_DELETE_SUCCESS,
   JS_FUNCTION_UPDATE_SUCCESS,
+  JS_EXECUTION_SUCCESS_TOASTER,
 } from "@appsmith/constants/messages";
 import { validateResponse } from "./ErrorSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
@@ -78,6 +79,8 @@ import { shouldBeDefined } from "utils/helpers";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
+import { APP_MODE } from "entities/App";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import type { EventLocation } from "utils/AnalyticsUtil";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
@@ -350,6 +353,7 @@ export function* handleExecuteJSFunctionSaga(data: {
 }): any {
   const { action, collectionId, collectionName, isExecuteJSFunc } = data;
   const actionId = action.id;
+  const appMode: APP_MODE = yield select(getAppMode);
   yield put(
     executeJSFunctionInit({
       collectionName,
@@ -375,8 +379,8 @@ export function* handleExecuteJSFunctionSaga(data: {
       collectionId,
       isExecuteJSFunc,
     );
-    // open response tab in debugger on runnning js action.
-    if (window.location.pathname.includes(collectionId) && !isExecuteJSFunc) {
+    // open response tab in debugger on runnning or page load js action.
+    if (window.location.pathname.includes(collectionId)) {
       yield put(showDebugger(true));
       yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
     }
@@ -397,6 +401,15 @@ export function* handleExecuteJSFunctionSaga(data: {
       },
       state: { response: result },
     });
+    console.log("ondhu ", window.location.pathname, collectionId);
+    const showSuccessToast = appMode === APP_MODE.EDIT && !isDirty;
+    showSuccessToast &&
+      isExecuteJSFunc &&
+      !window.location.pathname.includes(collectionId) &&
+      Toaster.show({
+        text: createMessage(JS_EXECUTION_SUCCESS_TOASTER, action.name),
+        variant: Variant.success,
+      });
   } catch (error) {
     // open response tab in debugger on runnning js action.
     if (window.location.pathname.includes(collectionId)) {
@@ -461,6 +474,7 @@ export function* handleStartExecuteJSFunctionSaga(
     num_params: action.actionConfiguration?.jsArguments?.length,
     from: from,
   });
+  console.log("ondhu sync");
   yield call(handleExecuteJSFunctionSaga, {
     collectionName: collectionName,
     action: action,
