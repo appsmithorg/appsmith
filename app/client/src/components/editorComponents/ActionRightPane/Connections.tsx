@@ -53,18 +53,6 @@ const ConnectionsContainer = styled.span`
   border-radius: var(--ads-v2-border-radius);
   border: 1px solid var(--ads-v2-color-border);
   color: var(--ads-v2-color-fg);
-
-  .connection {
-    padding: ${(props) => props.theme.spaces[0] + 2}px
-      ${(props) => props.theme.spaces[1]}px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    cursor: pointer;
-    border-radius: var(--ads-v2-border-radius);
-    border: 1px solid var(--ads-v2-color-border);
-    color: var(--ads-v2-color-fg);
-  }
 `;
 
 function Dependencies(props: any) {
