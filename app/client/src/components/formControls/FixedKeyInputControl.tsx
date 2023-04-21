@@ -18,15 +18,14 @@ class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
     return (
       <Wrapper>
         <TextField
-          disabled={disabled}
           format={(value) => {
             // Get the value property
             if (value) {
               return value.value;
             }
-
             return "";
           }}
+          isDisabled={disabled}
           name={configProperty}
           parse={(value) => {
             // Store the value in this field as {key: fixedKey, value: <user-input>}
@@ -36,7 +35,6 @@ class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
             };
           }}
           placeholder={placeholderText}
-          showError
           type={this.getType(dataType)}
         />
       </Wrapper>
