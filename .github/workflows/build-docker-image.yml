@@ -9,6 +9,11 @@ on:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
         type: number
+      airgap-enabled:
+        description: "This is a boolean value in case the workflow is building for airgap"
+        required: false
+        type: string
+        default: "false"
 
 jobs:
   build-docker:
@@ -46,12 +51,27 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Set the client build path env vars
+        run: |
+         if [[ '${{ inputs.airgap-enabled }}' == 'true' ]]; then
+          echo 'client_build_name=client-build-airgap' >> "$GITHUB_ENV"
+          echo 'client_build_path=app/client/build_airgap' >> "$GITHUB_ENV"
+         else
+          echo 'client_build_name=client-build' >> "$GITHUB_ENV"
+          echo 'client_build_path=app/client/build' >> "$GITHUB_ENV"
+          fi
+
+      - name: Log the client build env vars
+        run: |
+          echo "client_build_name: ${{ env.client_build_name }}"
+          echo "client_build_path: ${{ env.client_build_path }}"
+
       - name: Download the client build artifact
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/download-artifact@v3
         with:
-          name: client-build
-          path: app/client/build
+          name: ${{ env.client_build_name }}
+          path: ${{ env.client_build_path }}
 
       - name: Download the server build artifact
         if: steps.run_result.outputs.run_result != 'success'
