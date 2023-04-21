@@ -16,7 +16,7 @@ export function RemoteBranchList(
     <div data-testid="t--git-remote-branch-list-container">
       {remoteBranches?.length > 0 && (
         <Text
-          color="var(--ads-v2-color-fg-emphasis)"
+          color="var(--ads-v2-color-fg-muted)"
           data-testid="t--branch-list-header-local"
           kind="heading-xs"
         >

@@ -25,7 +25,7 @@ export function LocalBranchList(
     <div data-testid="t--git-local-branch-list-container">
       {localBranches?.length > 0 && (
         <Text
-          color="var(--ads-v2-color-fg-emphasis)"
+          color="var(--ads-v2-color-fg-muted)"
           data-testid="t--branch-list-header-local"
           kind="heading-xs"
         >
