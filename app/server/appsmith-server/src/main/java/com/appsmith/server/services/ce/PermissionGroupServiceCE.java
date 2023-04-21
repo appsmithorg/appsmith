@@ -53,4 +53,12 @@ public interface PermissionGroupServiceCE extends CrudService<PermissionGroup, S
     Mono<String> getPublicPermissionGroupId();
 
     boolean isEntityAccessible(BaseDomain object, String permission, String publicPermissionGroupId);
+
+    Mono<PermissionGroup> assignToUserAndSendEvent(PermissionGroup permissionGroup, User user);
+
+    Mono<PermissionGroup> bulkAssignToUserAndSendEvent(PermissionGroup permissionGroup, List<User> users);
+
+    Mono<PermissionGroup> unAssignFromUserAndSendEvent(PermissionGroup permissionGroup, User user);
+
+    Mono<PermissionGroup> bulkUnAssignFromUserAndSendEvent(PermissionGroup permissionGroup, List<User> users);
 }
