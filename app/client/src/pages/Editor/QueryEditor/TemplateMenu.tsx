@@ -10,14 +10,14 @@ const Container = styled.div`
   flex: 1;
   border-radius: 4px;
   flex-direction: column;
-  color: #4e5d78;
+  color: var(--ads-v2-color-fg);
 `;
 
 const BulletPoint = styled.div`
   height: 4px;
   width: 4px;
   border-radius: 2px;
-  background-color: #c4c4c4;
+  background-color: var(--ads-v2-color-fg);
 `;
 
 const Item = styled.div`
@@ -35,7 +35,8 @@ const Row = styled.div`
   cursor: pointer;
 
   :hover {
-    background-color: #ebeff2;
+    background-color: var(--ads-v2-color-bg-subtle);
+    border-radius: var(--ads-v2-border-radius);
   }
 `;
 
