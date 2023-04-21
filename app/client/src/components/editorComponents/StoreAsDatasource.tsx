@@ -51,7 +51,7 @@ function StoreAsDatasource(props: storeDataSourceProps) {
     <Button
       className="t--store-as-datasource"
       isDisabled={!props.enable}
-      kind="tertiary"
+      kind="secondary"
       onClick={saveOrEditDatasource}
       size="md"
       startIcon={props.shouldSave ? "cloud" : "edit-2-line"}
