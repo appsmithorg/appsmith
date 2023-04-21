@@ -30,7 +30,7 @@ def wait_until_backend_healthy():
             pass # retry after sleep_sec
         except Exception as ex:
             write_stderr(ex)
-            continue
+            break
         finally:
             time.sleep(sleep_sec)
     else:
