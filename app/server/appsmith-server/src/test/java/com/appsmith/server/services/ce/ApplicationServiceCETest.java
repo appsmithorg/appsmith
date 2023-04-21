@@ -396,6 +396,24 @@ public class ApplicationServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void createApplicationWithDuplicateName() {
+       // Creating first App with name "ApplicationServiceTest TestApp"
+        this.createValidApplication();
+
+        // Creating second App with same name "ApplicationServiceTest TestApp"
+        Application testApplication = new Application();
+        testApplication.setName("ApplicationServiceTest TestApp");
+        Mono<Application> secondApplicationMono = applicationPageService.createApplication(testApplication, workspaceId);
+
+        StepVerifier
+                .create(secondApplicationMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.DUPLICATE_KEY_OBJECT_CREATION.getMessage(testApplication.getName())))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void defaultPageCreateOnCreateApplicationTest() {
         Application testApplication = new Application();
         testApplication.setName("ApplicationServiceTest TestAppForTestingPage");

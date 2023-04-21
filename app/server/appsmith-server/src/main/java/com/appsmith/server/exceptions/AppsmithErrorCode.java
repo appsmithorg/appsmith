@@ -108,6 +108,7 @@ public enum AppsmithErrorCode {
     TOO_MANY_REQUESTS("AE-TMR-4029", "Too many requests"),
     USER_NOT_FOUND("AE-USR-4004", "User not found"),
     CSRF_TOKEN_INVALID("AE-APP-4039", "CSRF token missing/invalid"),
+    DUPLICATE_KEY_OBJECT_CREATION("AE-APP-5043", "Duplicate key object creation"),
     ;
     private final String code;
     private final String description;

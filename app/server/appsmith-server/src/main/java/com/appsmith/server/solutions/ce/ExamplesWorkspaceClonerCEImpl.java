@@ -571,10 +571,8 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
         final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
         application.setName(actualName);
         return applicationService.createDefault(application)
-                .onErrorResume(DuplicateKeyException.class, error -> {
-                    if (error.getMessage() != null
-                            // workspace_application_deleted_gitApplicationMetadata_compound_index
-                            && error.getMessage().contains("workspace_application_deleted_gitApplicationMetadata_compound_index")) {
+                .onErrorResume(AppsmithException.class, error -> {
+                    if (AppsmithError.DUPLICATE_KEY_OBJECT_CREATION.getAppErrorCode().equals(error.getAppErrorCode())){
                         // The duplicate key error is because of the `name` field.
                         return createSuffixedApplication(application, name, 1 + suffix);
                     }

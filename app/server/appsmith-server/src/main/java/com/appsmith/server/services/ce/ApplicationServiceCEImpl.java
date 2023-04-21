@@ -1,6 +1,8 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Policy;
@@ -43,6 +45,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.mongodb.MongoWriteException;
 import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -64,6 +67,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeoutException;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
@@ -223,7 +227,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         if (!StringUtils.hasLength(application.getColor())) {
             application.setColor(getRandomAppCardColor());
         }
-        return super.create(application);
+        return super.create(application).onErrorMap(DuplicateKeyException.class, error ->
+                new AppsmithException(AppsmithError.DUPLICATE_KEY_OBJECT_CREATION,
+                        application.getName()));
     }
 
     @Override
