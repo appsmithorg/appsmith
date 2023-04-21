@@ -22,11 +22,9 @@ describe("In-app embed settings", () => {
       _.agHelper.AssertElementAbsence(
         _.inviteModal.locators._shareSettingsButton,
       );
-      _.agHelper.AssertElementExist(_.inviteModal.locators._upgradeButton);
-      cy.get(_.inviteModal.locators._upgradeButton).should(
-        "have.attr",
-        "href",
-        "https://customer.appsmith.com/plans",
+      _.agHelper.GetNAssertContains(
+        _.inviteModal.locators._upgradeContent,
+        "Appsmith Business Edition",
       );
       _.appSettings.ClosePane();
     }
@@ -40,11 +38,10 @@ describe("In-app embed settings", () => {
       _.agHelper.AssertElementExist(
         _.inviteModal.locators._shareSettingsButton,
       );
-      _.agHelper.AssertElementExist(_.inviteModal.locators._upgradeButton);
-      cy.get(_.inviteModal.locators._upgradeButton).should(
-        "have.attr",
-        "href",
-        "https://customer.appsmith.com/plans",
+
+      _.agHelper.GetNAssertContains(
+        _.inviteModal.locators._upgradeContent,
+        "Appsmith Business Edition",
       );
       _.inviteModal.enablePublicAccessViaShareSettings("true");
     }
