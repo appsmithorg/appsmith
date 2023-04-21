@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 export * from "ce/utils/permissionHelpers";
 import {
   isPermitted,
@@ -63,19 +64,9 @@ export const hasDeleteWorkspacePermission = (permissions: string[] = []) => {
 };
 
 export const hasInviteUserToApplicationPermission = (
-  workspacePermissions: string[] = [],
-  applicationPermissions: string[] = [],
+  permissions: string[] = [],
 ) => {
-  return (
-    isPermitted(
-      workspacePermissions,
-      PERMISSION_TYPE.INVITE_USER_TO_WORKSPACE,
-    ) ||
-    isPermitted(
-      applicationPermissions,
-      PERMISSION_TYPE.INVITE_USER_TO_APPLICATION,
-    )
-  );
+  return isPermitted(permissions, PERMISSION_TYPE.INVITE_USER_TO_APPLICATION);
 };
 
 export const hasCreateWorkspacePermission = (permissions: string[] = []) => {
