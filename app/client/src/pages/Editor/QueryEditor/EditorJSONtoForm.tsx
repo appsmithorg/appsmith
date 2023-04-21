@@ -349,7 +349,7 @@ const TabContainerView = styled.div`
   display: flex;
   align-items: start;
   flex: 1;
-  padding-right: var(--ads-v2-spaces-7);
+  /* padding-right: var(--ads-v2-spaces-7); */
   position: relative;
 `;
 
@@ -362,7 +362,7 @@ const Wrapper = styled.div`
 
 const DocumentationButton = styled(Button)`
   position: absolute !important;
-  right: 24px;
+  right: 0;
   margin: 7px 0px 0px;
 `;
 
@@ -374,6 +374,7 @@ const SidebarWrapper = styled.div<{ show: boolean }>`
   display: ${(props) => (props.show ? "flex" : "none")};
   width: ${(props) => props.theme.actionSidePane.width}px;
   margin-top: 38px;
+  margin-left: var(--ads-v2-spaces-7);
 `;
 
 type QueryFormProps = {

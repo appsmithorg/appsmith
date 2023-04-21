@@ -24,13 +24,13 @@ export const PluginImageWrapper = styled.div`
     width: auto;
   }
 `;
-const MainContainer = styled.div`
-  display: flex;
-  position: relative;
-  height: 100%;
-  flex-direction: column;
-  padding: var(--ads-v2-spaces-7);
-`;
+// const MainContainer = styled.div`
+//   display: flex;
+//   position: relative;
+//   height: 100%;
+//   flex-direction: column;
+//   padding: var(--ads-v2-spaces-7);
+// `;
 export const PluginImage = (props: any) => {
   return (
     <PluginImageWrapper>
@@ -215,14 +215,14 @@ export class JSONtoForm<
 
   renderForm = (formContent: any) => {
     return (
-      <MainContainer>
-        <FormContainer className="t--json-to-form-wrapper">
-          <CloseEditor />
-          <FormContainerBody className="t--json-to-form-body">
-            {formContent}
-          </FormContainerBody>
-        </FormContainer>
-      </MainContainer>
+      // <MainContainer>
+      <FormContainer className="t--json-to-form-wrapper">
+        <CloseEditor />
+        <FormContainerBody className="t--json-to-form-body">
+          {formContent}
+        </FormContainerBody>
+      </FormContainer>
+      // </MainContainer>
     );
   };
 
