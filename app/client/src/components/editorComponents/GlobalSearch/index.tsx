@@ -108,9 +108,10 @@ const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
     display: flex;
     flex: 1;
     margin-top: 50px;
-    overflow: hidden;
+    /* overflow: hidden; */
     &.main-snippet {
       margin-top: 17px;
+      overflow: hidden;
     }
   }
 

@@ -11,6 +11,9 @@ const StyledDocsSearchModal = styled(ModalContent)`
     .container {
       overflow: auto;
     }
+    .main {
+      overflow: hidden;
+    }
   }
 `;
 

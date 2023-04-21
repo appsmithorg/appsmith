@@ -169,7 +169,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
     dataType,
     language,
   } = item;
-  const [selectedIndex, setSelectedIndex] = useState("0"),
+  const [selectedTab, setSelectedTab] = useState("Snippet"),
     [selectedArgs, setSelectedArgs] = useState<any>({}),
     dispatch = useDispatch(),
     evaluatedSnippet = useSelector(
@@ -210,7 +210,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
   );
 
   useEffect(() => {
-    setSelectedIndex("0");
+    setSelectedTab("Snippet");
     dispatch(setEvaluatedSnippet(""));
     setSelectedArgs({});
     dispatch(unsetEvaluatedArgument());
@@ -387,7 +387,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
         <span>{title}</span>
         <span className="action-msg">
           {createMessage(
-            selectedIndex === "0"
+            selectedTab === "Snippet"
               ? onEnter === SnippetAction.INSERT
                 ? SNIPPET_INSERT
                 : SNIPPET_COPY
@@ -400,41 +400,34 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
       </Text>
       <TabbedViewContainer className="tab-container">
         <Tabs
-          defaultValue={`${selectedIndex}`}
-          onValueChange={(selectedIndex: string) => {
-            if (selectedIndex === "1") {
-              AnalyticsUtil.logEvent("SNIPPET_CUSTOMIZE", { title });
-            }
-            setSelectedIndex(selectedIndex);
-          }}
+          defaultValue={selectedTab}
+          onValueChange={setSelectedTab}
+          // onValueChange={() => {
+          //   setSelectedTab(
+          //     selectedTab === "Customize" ? "Snippet" : "Customize",
+          //   );
+          //   if (selectedTab === "Customize") {
+          //     AnalyticsUtil.logEvent("SNIPPET_CUSTOMIZE", { title });
+          //   }
+          // }}
         >
           <TabsList>
-            {tabs.map((tab, index) => {
+            {tabs.map((tab) => {
               return (
-                <Tab key={tab.key} value={`${index}`}>
+                <Tab key={tab.key} value={tab.key}>
                   {tab.title}
                 </Tab>
               );
             })}
           </TabsList>
-          {tabs.map((tab, index) => {
+          {tabs.map((tab) => {
             return (
-              <TabPanel key={tab.key} value={`${index}`}>
+              <TabPanel key={tab.key} value={tab.key}>
                 {tab.panelComponent}
               </TabPanel>
             );
           })}
         </Tabs>
-        {/* <TabComponent
-          onSelect={(selectedIndex: number) => {
-            if (selectedIndex === 1) {
-              AnalyticsUtil.logEvent("SNIPPET_CUSTOMIZE", { title });
-            }
-            setSelectedIndex(selectedIndex);
-          }}
-          selectedIndex={selectedIndex}
-          tabs={tabs}
-        /> */}
       </TabbedViewContainer>
     </SnippetContainer>
   );
