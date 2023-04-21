@@ -61,8 +61,7 @@ export function DebuggerTrigger() {
     <Tooltip content={tooltipContent}>
       <Button
         className="t--debugger-count"
-        color={"red"}
-        kind="tertiary"
+        kind={totalMessageCount > 0 ? "error" : "tertiary"}
         onClick={onClick}
         size="md"
         startIcon={totalMessageCount ? "close-circle" : "close-circle-line"}

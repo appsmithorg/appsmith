@@ -219,6 +219,7 @@ const PlaceholderButton = styled.div`
 function ConnectGitPlaceholder() {
   const dispatch = useDispatch();
   const isInGuidedTour = useSelector(inGuidedTour);
+  const isTooltipEnabled = isInGuidedTour;
   const tooltipContent = !isInGuidedTour ? (
     <>
       <div>{createMessage(NOT_LIVE_FOR_YOU_YET)}</div>
@@ -234,7 +235,7 @@ function ConnectGitPlaceholder() {
 
   return (
     <Container>
-      <Tooltip content={tooltipContent}>
+      <Tooltip content={tooltipContent} isDisabled={!isTooltipEnabled}>
         <Container style={{ marginLeft: 0, cursor: "pointer" }}>
           <StyledIcon
             color="var(--ads-v2-color-fg-muted)"

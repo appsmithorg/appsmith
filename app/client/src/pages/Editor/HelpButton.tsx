@@ -21,7 +21,6 @@ import {
 import { getAppsmithConfigs } from "@appsmith/configs";
 import moment from "moment/moment";
 import styled from "styled-components";
-import { Colors } from "../../constants/Colors";
 
 const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -29,10 +28,10 @@ const HelpFooter = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-top: 1px solid ${Colors.ALTO};
+  border-top: 1px solid var(--ads-v2-color-border);
   padding: 5px 10px;
   height: 30px;
-  color: ${Colors.DOVE_GRAY2};
+  color: var(--ads-v2-color-fg);
   font-size: 6pt;
 `;
 type HelpItem = {
@@ -76,11 +75,7 @@ function HelpButton() {
   }, [user?.email]);
 
   return (
-    <Tooltip
-      content={createMessage(HELP_RESOURCE_TOOLTIP)}
-      // disabled={isHelpOpen}
-      placement="bottom"
-    >
+    <Tooltip content={createMessage(HELP_RESOURCE_TOOLTIP)} placement="bottom">
       <Menu
         onOpenChange={(open) => {
           if (open) {
