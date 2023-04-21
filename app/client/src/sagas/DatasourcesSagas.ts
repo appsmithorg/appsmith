@@ -64,6 +64,7 @@ import { FilePickerActionStatus } from "entities/Datasource";
 import {
   INTEGRATION_EDITOR_MODES,
   INTEGRATION_TABS,
+  RESPONSE_STATUS,
   SHOW_FILE_PICKER_KEY,
 } from "constants/routes";
 import history from "utils/history";
@@ -124,6 +125,7 @@ import {
 import { getUntitledDatasourceSequence } from "utils/DatasourceSagaUtils";
 import { fetchPluginFormConfig } from "actions/pluginActions";
 import { addClassToDocumentBody } from "pages/utils";
+import { AuthorizationStatus } from "pages/common/datasourceAuth";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -1425,8 +1427,14 @@ function* loadFilePickerSaga() {
   const className = "overlay";
   const appsmithToken = localStorage.getItem(APPSMITH_TOKEN_STORAGE_KEY);
   const search = new URLSearchParams(window.location.search);
-  const status = search.get(SHOW_FILE_PICKER_KEY);
-  if (!!status && !!appsmithToken) {
+  const isShowFilePicker = search.get(SHOW_FILE_PICKER_KEY);
+  const authStatus = search.get(RESPONSE_STATUS);
+  if (
+    !!isShowFilePicker &&
+    !!authStatus &&
+    authStatus === AuthorizationStatus.SUCCESS &&
+    !!appsmithToken
+  ) {
     addClassToDocumentBody(className);
   }
 }
