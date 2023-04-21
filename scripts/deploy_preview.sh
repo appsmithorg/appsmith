@@ -74,3 +74,6 @@ helm upgrade -i $CHARTNAME appsmith/appsmith -n $NAMESPACE \
   --set applicationConfig.APPSMITH_SENTRY_ENVIRONMENT="$NAMESPACE" \
   --set applicationConfig.APPSMITH_MONGODB_URI="mongodb+srv://$DB_USERNAME:$DB_PASSWORD@$DB_URL/$DBNAME?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin" \
   --version $HELMCHART_VERSION
+
+## When the deploy-preview is built again.
+kubectl rollout restart statefulset $CHARTNAME-appsmith -n $NAMESPACE
