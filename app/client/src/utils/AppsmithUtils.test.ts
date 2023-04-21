@@ -1,4 +1,9 @@
-import { areArraysEqual, getCamelCaseString } from "utils/AppsmithUtils";
+import {
+  areArraysEqual,
+  createBlobUrl,
+  getCamelCaseString,
+  parseBlobUrl,
+} from "utils/AppsmithUtils";
 import { isURL } from "./TypeHelpers";
 
 describe("getCamelCaseString", () => {
@@ -54,5 +59,37 @@ describe("isURL", () => {
     expect(isURL("http://localhost:port")).toBe(false);
     expect(isURL("notAURL")).toBe(false);
     expect(isURL("httpsnotAURL")).toBe(false);
+  });
+});
+
+describe("createBlobUrl", () => {
+  beforeEach(() => {
+    URL.createObjectURL = jest
+      .fn()
+      .mockReturnValue(`blob:${window.location.origin}/123-123-123-123-123`);
+  });
+
+  it("should test that it created correct blob URL", () => {
+    expect(createBlobUrl(new Blob(), "base64")).toMatch(
+      /blob:[a-z0-9-]*\?type=base64/,
+    );
+
+    expect(createBlobUrl(new Blob(), "raw")).toMatch(
+      /blob:[a-z0-9-]*\?type=raw/,
+    );
+  });
+});
+
+describe("parseBlobUrl", () => {
+  it("should test that it created correct blob URL", () => {
+    expect(parseBlobUrl("blob:123-123?type=base")).toEqual([
+      `blob:${window.location.origin}/123-123`,
+      "base",
+    ]);
+
+    expect(parseBlobUrl("blob:123-123?type=raw")).toEqual([
+      `blob:${window.location.origin}/123-123`,
+      "raw",
+    ]);
   });
 });

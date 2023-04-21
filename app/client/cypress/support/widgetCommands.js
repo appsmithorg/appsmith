@@ -1592,6 +1592,17 @@ Cypress.Commands.add("freezeColumnFromDropdown", (columnName, direction) => {
   cy.wait(500);
 });
 
+Cypress.Commands.add("sortColumn", (columnName, direction) => {
+  cy.get(`[data-header=${columnName}] .header-menu .bp3-popover2-target`).click(
+    { force: true },
+  );
+  cy.get(".bp3-menu")
+    .contains(`Sort column ${direction}`)
+    .click({ force: true });
+
+  cy.wait(500);
+});
+
 Cypress.Commands.add("checkIfColumnIsFrozenViaCSS", (rowNum, coumnNum) => {
   cy.getTableV2DataSelector(rowNum, coumnNum).then((selector) => {
     cy.get(selector).should("have.css", "position", "sticky");
