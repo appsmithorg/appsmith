@@ -44,8 +44,8 @@ import { useIsMobileDevice } from "./useDeviceDetect";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import { scrollbarWidth } from "utils/helpers";
 import { useWindowSizeHooks } from "./dragResizeHooks";
-import type { AppState } from "ce/reducers";
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import type { AppState } from "@appsmith/reducers";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 const BORDERS_WIDTH = 2;
 const GUTTER_WIDTH = 72;

@@ -61,7 +61,7 @@ import SaveOrDiscardDatasourceModal from "../DataSourceEditor/SaveOrDiscardDatas
 import {
   createMessage,
   SAVE_AND_AUTHORIZE_BUTTON_TEXT,
-} from "ce/constants/messages";
+} from "@appsmith/constants/messages";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import { getDatasourceErrorMessage } from "./errorUtils";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";

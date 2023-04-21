@@ -1,24 +1,20 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { Button, Text, TextType } from "design-system-old";
+import { PRICING_PAGE_URL } from "constants/ThirdPartyConstants";
 import {
   createMessage,
   IN_APP_EMBED_SETTING,
 } from "@appsmith/constants/messages";
-import { getAppsmithConfigs } from "ce/configs";
-import { PRICING_PAGE_URL } from "constants/ThirdPartyConstants";
-import { useSelector } from "react-redux";
-import { getInstanceId } from "ce/selectors/tenantSelectors";
+import { getAppsmithConfigs } from "@appsmith/configs";
+import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 
 const Container = styled.div<{ isAppSettings: boolean }>`
+  text-align: left;
   ${({ isAppSettings }) =>
-    isAppSettings
-      ? `
-      text-align: left; 
-      `
-      : `
-      text-align: left;
-
+    !isAppSettings &&
+    `
       .no-sub-img {
         margin: auto;
       }
@@ -53,13 +49,14 @@ const StyledText = styled(Text)`
     font-size: 16px;
   }
 
-  &.upgrade-heading-inapp {
+  &.upgrade-heading-in-app {
     font-weight: 500;
-    text-[color:var(--appsmith-color-black-800)];
+    text-color: var(--appsmith-color-black-800);
   }
+
   &.secondary-heading {
     font-weight: 500;
-    text-[color:var(--appsmith-color-black-800)];
+    text-color: var(--appsmith-color-black-800);
   }
 `;
 
@@ -81,7 +78,7 @@ function PrivateEmbeddingContent(props: {
       <SubContainer isAppSettings={isAppSettings}>
         <StyledText
           className={
-            !isAppSettings ? "upgrade-heading" : "upgrade-heading-inapp "
+            !isAppSettings ? "upgrade-heading" : "upgrade-heading-in-app"
           }
           type={TextType.P1}
         >
@@ -122,7 +119,7 @@ function PrivateEmbeddingContent(props: {
           .
         </StyledText>
       </SubContainer>
-      <SubContainer className={`flex`} isAppSettings={isAppSettings}>
+      <SubContainer className="flex" isAppSettings={isAppSettings}>
         {canMakeAppPublic && !isAppSettings && (
           <Button
             data-testid="t--share-settings-btn"
