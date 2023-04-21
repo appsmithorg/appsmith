@@ -18,6 +18,7 @@ const RefinementListContainer = styled.div`
     align-items: center;
     justify-content: flex-start;
     flex-wrap: wrap;
+    gap: 4px;
     .refinement-pill {
       color: var(--ads-v2-color-fg);
       border-radius: var(--ads-v2-border-radius);
@@ -26,8 +27,6 @@ const RefinementListContainer = styled.div`
       padding: var(--ads-v2-spaces-3);
       display: flex;
       align-items: center;
-      margin-left: var(--ads-v2-spaces-3);
-      margin-bottom: var(--ads-v2-spaces-3);
       svg {
         cursor: pointer;
       }

@@ -59,8 +59,6 @@ const SnippetContainer = styled.div`
   .snippet-container {
     margin-top: var(--ads-v2-spaces-3);
     position: relative;
-    border: 1px solid var(--ads-v2-color-border);
-    border-radius: var(--ads-v2-border-radius);
     .action-icons {
       position: absolute;
       top: 4px;
@@ -87,6 +85,8 @@ const SnippetContainer = styled.div`
       background: var(--ads-v2-color-bg) !important;
       white-space: pre-wrap;
       border: none;
+      border: 1px solid var(--ads-v2-color-border);
+      border-radius: var(--ads-v2-border-radius);
     }
   }
   .snippet-title {

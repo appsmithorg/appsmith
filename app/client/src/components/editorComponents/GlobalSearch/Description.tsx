@@ -30,7 +30,7 @@ const Container = styled.div`
     `${props.theme.spaces[5]}px ${props.theme.spaces[7]}px 0`};
   color: var(--ads-v2-color-fg);
   overflow: auto;
-
+  border-left: 1px solid var(--ads-v2-color-border);
   font-size: 13px;
   [class^="ais-"] {
     ${getTypographyByKey("spacedOutP1")};
@@ -130,7 +130,8 @@ const Container = styled.div`
     white-space: pre-wrap;
     overflow: hidden;
     border-left: 3px solid var(--ads-v2-color-bg-brand);
-    padding: 13px;
+    padding: var(--ads-v2-spaces-4);
+    border-radius: var(--ads-v2-border-radius);
   }
   .CodeMirror {
     pre {
