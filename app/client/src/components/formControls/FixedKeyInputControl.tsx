@@ -7,7 +7,7 @@ import TextField from "components/editorComponents/form/fields/TextField";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
-  width: 35vw;
+  width: 545px;
 `;
 
 class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {

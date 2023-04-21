@@ -28,7 +28,7 @@ import { Icon, Tooltip } from "design-system";
 const FlexWrapper = styled.div`
   display: flex;
   width: fit-content;
-  margin-right: 16px;
+  margin-right: 5px;
 
   & .t--js-toggle {
     margin-bottom: 0px;

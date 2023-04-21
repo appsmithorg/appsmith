@@ -106,7 +106,7 @@ const StyledFormLabel = styled.label<{
       : props.config?.controlType === "SWITCH" ||
         props.config?.controlType === "CHECKBOX"
       ? "auto;"
-      : "20vw;"} 
+      : "270px;"} 
   font-weight: 400;
   font-size: 14px;
   line-height: 16px;
