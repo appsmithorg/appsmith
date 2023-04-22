@@ -41,13 +41,11 @@ const Container = styled.div`
   }
 
   h1 {
-    /* font-weight: var(--ads-font-weight-bold); */
     word-break: break-word;
     color: var(--ads-v2-color-fg-emphasis-plus) !important;
     font-size: 16px !important;
     font-weight: var(--ads-v2-font-weight-bold);
     letter-spacing: var(--ads-v2-p-letter-spacing);
-    /* margin: 0 !important; */
   }
 
   h2,
@@ -108,7 +106,6 @@ const Container = styled.div`
     border: 1px solid var(--ads-v2-color-border);
     box-sizing: border-box;
     padding: var(--button-padding);
-    /* border-radius: inherit; */
     text-transform: capitalize;
     &:hover {
       --button-color-bg: var(--ads-v2-color-bg-subtle);
@@ -157,19 +154,13 @@ const StyledDocumentationDescription = styled.div`
     margin: 0.5rem 0;
     display: flex;
     justify-content: space-between;
-    /* font-size: 1.5rem; */
   }
   h2 {
-    /* font-size: 1.25rem; */
     margin: 0.5rem 0 0.25rem;
   }
   h3 {
-    /* font-size: 1rem; */
     margin: 0.5rem 0 0.25rem;
   }
-  /* p {
-    margin: 0.25rem 0;
-  } */
   img,
   pre {
     margin: 0.25rem 0;
