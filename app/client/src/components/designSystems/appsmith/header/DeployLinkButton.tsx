@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import React from "react";
-import styled from "styled-components";
 import { Menu, MenuItem, MenuContent, MenuTrigger } from "design-system";
 import { useSelector, useDispatch } from "react-redux";
 import { getIsGitConnected } from "selectors/gitSyncSelectors";
@@ -13,13 +12,6 @@ import {
 } from "@appsmith/constants/messages";
 import { Button } from "design-system";
 
-const StyledLink = styled.a`
-  text-decoration: none;
-  &:hover {
-    color: inherit;
-    text-decoration: none;
-  }
-`;
 type Props = {
   trigger: ReactNode;
   link: string;
@@ -64,11 +56,14 @@ export const DeployLinkButton = (props: Props) => {
         )}
         <MenuItem
           className="t--current-deployed-preview-btn"
+          onClick={() => {
+            if (window) {
+              window.open(props.link, "_blank")?.focus();
+            }
+          }}
           startIcon="share-box-line"
         >
-          <StyledLink href={props.link} rel="noreferrer" target="_blank">
-            {CURRENT_DEPLOY_PREVIEW_OPTION()}
-          </StyledLink>
+          {CURRENT_DEPLOY_PREVIEW_OPTION()}
         </MenuItem>
       </MenuContent>
     </Menu>

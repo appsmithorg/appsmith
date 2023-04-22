@@ -37,12 +37,12 @@ function ToggleModeButton() {
           </span>
         </>
       }
+      isDisabled={appMode !== APP_MODE.EDIT}
       placement="bottom"
-      visible={appMode !== APP_MODE.EDIT}
     >
       <Button
         data-cy={`${isPreviewMode ? "preview" : "edit"}-mode`}
-        isDisabled={!isPreviewMode}
+        // isDisabled={isPreviewMode}
         kind="tertiary"
         onClick={onClickPreviewModeButton}
         size="md"
