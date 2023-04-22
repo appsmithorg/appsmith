@@ -2,16 +2,17 @@ import type { ReactNode } from "react";
 import React, { useState, useEffect } from "react";
 import { isPermitted } from "@appsmith/utils/permissionHelpers";
 import type { TabProp } from "design-system-old";
-import {
-  DialogComponent as Dialog,
-  TabComponent,
-  Text,
-  TextType,
-} from "design-system-old";
+import { TabComponent, Text, TextType } from "design-system-old";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
-import { Icon } from "design-system";
+import {
+  Icon,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+} from "design-system";
 
 const LabelText = styled(Text)`
   font-size: 14px;
@@ -138,52 +139,43 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
     return null;
 
   return (
-    <Dialog
-      canEscapeKeyClose={!!props.canEscapeKeyClose}
-      canOutsideClickClose={!!props.canOutsideClickClose}
-      getHeader={props.getHeader}
-      headerIcon={props.headerIcon}
-      isCloseButtonShown={props.isCloseButtonShown}
-      isOpen={isOpen}
-      noModalBodyMarginTop={props.noModalBodyMarginTop}
-      onClose={onCloseHandler}
-      onOpening={() => setIsOpen(true)}
-      setMaxWidth={props.setMaxWidth}
-      setModalClose={() => setIsOpen(false)}
-      title={props.title}
-      trigger={props.trigger}
-    >
-      {updatedTabs && updatedTabs.length > 0 ? (
-        <TabWrapper hasMessage={!!props.message}>
-          {!props.message && (
-            <TabCloseBtnContainer
-              className="t--close-form-dialog"
-              onClick={onCloseHandler}
-            >
-              <Icon name="close-modal" size="lg" />
-            </TabCloseBtnContainer>
+    <Modal onOpenChange={() => setIsOpen(true)} open={isOpen}>
+      <ModalContent>
+        <ModalHeader>{props.title}</ModalHeader>
+        <ModalBody>
+          {updatedTabs && updatedTabs.length > 0 ? (
+            <TabWrapper hasMessage={!!props.message}>
+              {!props.message && (
+                <TabCloseBtnContainer
+                  className="t--close-form-dialog"
+                  onClick={onCloseHandler}
+                >
+                  <Icon name="close-modal" size="lg" />
+                </TabCloseBtnContainer>
+              )}
+              {props.message && (
+                <LabelText type={TextType.P0}>{props.message}</LabelText>
+              )}
+              <TabComponent
+                onSelect={setSelectedTabIndex}
+                selectedIndex={selectedTabIndex}
+                tabs={updatedTabs}
+              />
+            </TabWrapper>
+          ) : (
+            <Form
+              {...props.customProps}
+              applicationId={props.applicationId}
+              message={props.message}
+              onCancel={() => setIsOpen(false)}
+              placeholder={props.placeholder}
+              selected={props.selected}
+              workspaceId={props.workspaceId}
+            />
           )}
-          {props.message && (
-            <LabelText type={TextType.P0}>{props.message}</LabelText>
-          )}
-          <TabComponent
-            onSelect={setSelectedTabIndex}
-            selectedIndex={selectedTabIndex}
-            tabs={updatedTabs}
-          />
-        </TabWrapper>
-      ) : (
-        <Form
-          {...props.customProps}
-          applicationId={props.applicationId}
-          message={props.message}
-          onCancel={() => setIsOpen(false)}
-          placeholder={props.placeholder}
-          selected={props.selected}
-          workspaceId={props.workspaceId}
-        />
-      )}
-    </Dialog>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
   );
 }
 

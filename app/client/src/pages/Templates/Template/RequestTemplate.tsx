@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { Text, TextType } from "design-system-old";
 import { Button } from "design-system";
 import RequestTemplateSvg from "assets/images/request-template.svg";
-import { Colors } from "constants/Colors";
 import {
   COULDNT_FIND_TEMPLATE,
   createMessage,
@@ -12,11 +11,12 @@ import {
 } from "@appsmith/constants/messages";
 
 const Wrapper = styled.div`
-  border: 1px solid ${Colors.GEYSER_LIGHT};
+  border: 1px solid var(--ads-v2-color-border);
+  border-radius: var(--ads-v2-border-radius);
   display: flex;
   flex-direction: column;
   padding: ${(props) => props.theme.spaces[11]}px;
-  background-color: ${Colors.SEA_SHELL};
+  background-color: var(--ads-v2-color-bg-subtle);
   transition: all 1s ease-out;
   margin-bottom: ${(props) => props.theme.spaces[12]}px;
 
@@ -26,25 +26,25 @@ const Wrapper = styled.div`
   }
 
   .title {
+    color: var(--ads-v2-color-fg-emphasis-plus);
     margin-top: ${(props) => props.theme.spaces[9]}px;
   }
 
   .description {
+    color: var(--ads-v2-color-fg);
     margin-top: ${(props) => props.theme.spaces[2]}px;
   }
 
   .button {
     margin-top: ${(props) => props.theme.spaces[8]}px;
     max-width: 229px;
-    height: ${(props) => props.theme.spaces[13]}px;
-    padding: ${(props) =>
-      `${props.theme.spaces[0]}px ${props.theme.spaces[6]}px`};
   }
 `;
 
 const StyledImage = styled.img`
   height: 168px;
   object-fit: cover;
+  border-radius: var(--ads-v2-border-radius);
 `;
 
 const REQUEST_TEMPLATE_URL =

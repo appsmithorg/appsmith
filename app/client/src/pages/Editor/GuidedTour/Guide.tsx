@@ -439,7 +439,7 @@ function CompletionContent(props: CompletionContentProps) {
           {info?.icon && (
             <Icon
               color="var(--ads-v2-color-fg-information)"
-              name={info.icon || ""}
+              name={info.icon}
               size="lg"
             />
           )}
