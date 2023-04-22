@@ -29,7 +29,6 @@ import {
   getUserApplicationsWorkspacesList,
 } from "@appsmith/selectors/applicationSelectors";
 import { getAllApplications } from "@appsmith/actions/applicationActions";
-import { Colors } from "constants/Colors";
 import { createMessage, SEARCH_TEMPLATES } from "@appsmith/constants/messages";
 import LeftPaneBottomSection from "@appsmith/pages/Home/LeftPaneBottomSection";
 import type { Template } from "api/TemplatesApi";
@@ -49,7 +48,7 @@ const SidebarWrapper = styled.div`
   display: flex;
   padding-top: ${(props) => props.theme.spaces[11]}px;
   flex-direction: column;
-  box-shadow: 1px 0px 0px ${Colors.GALLERY_2};
+  border-right: 1px solid var(--ads-v2-color-border);
   position: fixed;
 `;
 
@@ -83,7 +82,7 @@ const SearchWrapper = styled.div<{ sticky?: boolean }>`
   top: 0;
   position: -webkit-sticky;
   z-index: 1;
-  background-color: white;`}
+  background-color: var(--ads-v2-color-bg)`}
 `;
 
 function TemplateRoutes() {
