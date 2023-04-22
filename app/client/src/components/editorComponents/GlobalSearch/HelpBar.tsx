@@ -24,7 +24,7 @@ const StyledHelpBar = styled.div`
   max-width: 205px;
   border: 1px solid var(--ads-v2-color-border);
   border-radius: var(--ads-v2-border-radius);
-  cursor: default;
+  cursor: pointer;
   &:hover {
     border: 1px solid var(--ads-v2-color-border-emphasis);
   }

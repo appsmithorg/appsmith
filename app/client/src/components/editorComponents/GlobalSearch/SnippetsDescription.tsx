@@ -92,7 +92,9 @@ const SnippetContainer = styled.div`
     display: flex;
     justify-content: space-between;
     .action-msg {
-      /* color: #a9a7a7; */
+      display: flex;
+      align-items: center;
+      color: var(--ads-v2-color-fg-muted);
       font-size: 11px;
       font-weight: 400;
       flex-shrink: 0;
