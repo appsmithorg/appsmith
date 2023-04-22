@@ -26,7 +26,7 @@ describe("Create workspace and a new app / delete and recreate app", function ()
       } else {
         cy.xpath(application.placeholderTxtEE).should("be.visible");
       }
-      cy.reload();
+      cy.get(application.closeModalPopup).click({ force: true });
       cy.CreateAppForWorkspace(workspaceId, appid);
       cy.get(homePage.shareApp).click({ force: true });
       if (CURRENT_REPO === REPO.CE) {
@@ -34,7 +34,7 @@ describe("Create workspace and a new app / delete and recreate app", function ()
       } else {
         cy.xpath(application.placeholderTxtEE).should("be.visible");
       }
-      cy.reload();
+      cy.get(application.closeModalPopupMember).click({ force: true });
       cy.DeleteAppByApi();
       cy.NavigateToHome();
       cy.CreateAppForWorkspace(workspaceId, appid);

@@ -3,6 +3,7 @@
     "forkButton": ".t--fork-app",
     "shareButton": "button:contains('Share')",
     "placeholderTxt": "//input[@placeholder='Enter email address(es)']",
-    "placeholderTxtEE": "//input[@placeholder='Enter email address(es) or group(s)']"
-
+    "placeholderTxtEE": "//input[@placeholder='Enter email address(es) or group(s)']",
+    "closeModalPopup": ".bp3-dialog-close-button span svg",
+    "closeModalPopupMember": ".t--close-form-dialog span svg"
 }

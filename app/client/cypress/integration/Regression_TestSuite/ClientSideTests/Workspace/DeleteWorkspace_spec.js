@@ -1,8 +1,6 @@
 /// <reference types="Cypress" />
 import homePage from "../../../../locators/HomePage";
-import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 import * as _ from "../../../../support/Objects/ObjectsCore";
-const application = require("../../../../locators/Applications.json");
 
 describe("Delete workspace test spec", function () {
   let newWorkspaceName;
