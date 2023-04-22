@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import React, { useCallback, useEffect, useState } from "react";
-import styled, { useTheme } from "styled-components";
+import styled, { useTheme, css } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
   importApplication,
@@ -19,54 +19,15 @@ import {
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
 import type { SetProgress } from "design-system-old";
-import {
-  DialogComponent as Dialog,
-  FilePickerV2,
-  FileType,
-  Text,
-  TextType,
-} from "design-system-old";
+import { FilePickerV2, FileType } from "design-system-old";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { getIsImportingApplication } from "@appsmith/selectors/applicationSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { Classes } from "@blueprintjs/core";
 import Statusbar from "pages/Editor/gitSync/components/Statusbar";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { Theme } from "constants/DefaultTheme";
-import { Icon } from "design-system";
-
-const StyledDialog = styled(Dialog)`
-  && .${Classes.DIALOG_HEADER} {
-    min-height: unset;
-
-    & .${Classes.DIALOG_CLOSE_BUTTON} {
-      margin-top: -2px;
-    }
-
-    & .${Classes.ICON} {
-      &:hover {
-        & svg path {
-          fill: ${Colors.GREY_800};
-        }
-      }
-
-      & svg {
-        margin-right: ${(props) => props.theme.spaces[3]}px;
-
-        & path {
-          fill: ${Colors.GREY_7};
-        }
-      }
-    }
-  }
-
-  && .${Classes.DIALOG_BODY} {
-    padding: 0;
-    margin-bottom: 0;
-    margin-top: 8px;
-  }
-`;
+import { Icon, Modal, ModalContent, ModalHeader, Text } from "design-system";
 
 const TextWrapper = styled.div`
   padding: 0;
@@ -78,16 +39,15 @@ const Row = styled.div`
   display: flex;
   padding: 0;
   margin: 0;
-  justify-content: space-between;
-  &.t-import-app-progress-wrapper {
-    justify-content: center;
-  }
+  justify-content: center;
+  gap: 16px;
 `;
 
-const FileImportCard = styled.div`
+const CardStyles = css`
   width: 320px;
   height: 200px;
-  border: 1px solid ${Colors.GREY_4};
+  border: 1px solid var(--ads-v2-color-border);
+  border-radius: var(--ads-v2-border-radius);
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -95,9 +55,12 @@ const FileImportCard = styled.div`
   position: relative;
 
   &:hover {
-    background: ${Colors.GREY_4};
+    background: var(--ads-v2-color-bg-subtle);
   }
+`;
 
+const FileImportCard = styled.div`
+  ${CardStyles}
   & > div {
     background: transparent none;
 
@@ -114,7 +77,7 @@ const FileImportCard = styled.div`
         border-radius: 50%;
         width: ${(props) => props.theme.spaces[12] + 2}px;
         height: ${(props) => props.theme.spaces[12] + 2}px;
-        background: ${Colors.GREY_4};
+        background: var(--ads-v2-color-bg-muted);
         display: flex;
         justify-content: center;
         margin-top: 35px;
@@ -138,11 +101,11 @@ const FileImportCard = styled.div`
         font-size: ${(props) => props.theme.typography.p1.fontSize}px;
 
         &.drag-drop-text {
-          color: ${Colors.OXFORD_BLUE};
+          color: var(--ads-v2-color-fg);
         }
 
         &.drag-drop-description {
-          color: ${Colors.GREY_800};
+          color: var(--ads-v2-color-fg-muted);
         }
       }
     }
@@ -150,33 +113,25 @@ const FileImportCard = styled.div`
 `;
 
 const CardWrapper = styled.div`
-  width: 320px;
-  height: 200px;
-  border: 1px solid ${Colors.GREY_4};
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  cursor: pointer;
-  position: relative;
-
-  &:hover {
-    background: ${Colors.GREY_4};
-  }
-
-  .cs-icon {
+  ${CardStyles}
+  .ads-v2-icon {
     border-radius: 50%;
     width: 32px;
     height: 32px;
-    background: ${Colors.GREY_4};
+    background: var(--ads-v2-color-bg-muted);
     display: flex;
     justify-content: center;
     margin-top: 35px;
     margin-bottom: 32px;
   }
 
-  .cs-text {
+  .ads-v2-text {
     max-width: 250px;
     text-align: center;
+  }
+
+  .ads-v2-text:last-child {
+    color: var(--ads-v2-color-fg-muted);
   }
 `;
 
@@ -185,7 +140,7 @@ const StatusbarWrapper = styled.div`
   height: 199px;
   .cs-icon {
     margin: auto;
-    border-radius: 50%;
+    border-radius: var(--ads-v2-border-radius-circle);
     width: 32px;
     height: 32px;
     display: flex;
@@ -197,7 +152,7 @@ const StatusbarWrapper = styled.div`
       height: 20px;
     }
   }
-  .cs-text.importing-app-name {
+  .ads-v2-text.importing-app-name {
     display: flex;
     justify-content: center;
   }
@@ -214,16 +169,10 @@ function GitImportCard(props: { children?: ReactNode; handler?: () => void }) {
   return (
     <CardWrapper onClick={onClick}>
       <Icon name={"fork"} size="md" />
-      <Text
-        color={Colors.OXFORD_BLUE}
-        style={{ marginBottom: theme.spaces[4] }}
-        type={TextType.P1}
-      >
+      <Text kind="body-m" style={{ marginBottom: theme.spaces[4] }}>
         {title}
       </Text>
-      <Text color={Colors.GREY_800} type={TextType.P1}>
-        {message}
-      </Text>
+      <Text kind="body-m">{message}</Text>
       {props.children}
     </CardWrapper>
   );
@@ -293,62 +242,64 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
 
   const onRemoveFile = useCallback(() => setAppFileToBeUploaded(null), []);
 
+  const handleModalClose = (open: boolean) => {
+    if (!open) {
+      onClose && onClose();
+    }
+  };
+
   return (
-    <StyledDialog
-      canOutsideClickClose
-      className={"t--import-application-modal"}
-      headerIcon={{
-        name: "right-arrow",
-        bgColor: Colors.GEYSER_LIGHT,
-      }}
-      isOpen={isModalOpen}
-      maxHeight={"540px"}
-      setModalClose={onClose}
-      title={createMessage(IMPORT_APPLICATION_MODAL_TITLE)}
-      width="710px"
-    >
-      <TextWrapper>
-        <Text color={Colors.COD_GRAY} type={TextType.P1}>
-          {createMessage(
-            importingApplication
-              ? UPLOADING_JSON
-              : IMPORT_APPLICATION_MODAL_LABEL,
-          )}
-        </Text>
-      </TextWrapper>
-      {!importingApplication && (
-        <Row>
-          <FileImportCard className="t--import-json-card">
-            <FilePickerV2
-              containerClickable
-              description={createMessage(IMPORT_APP_FROM_FILE_MESSAGE)}
-              fileType={FileType.JSON}
-              fileUploader={FileUploader}
-              iconFillColor={Colors.GREY_800}
-              onFileRemoved={onRemoveFile}
-              title={createMessage(IMPORT_APP_FROM_FILE_TITLE)}
-              uploadIcon="file-line"
-            />
-          </FileImportCard>
-          <GitImportCard handler={onGitImport} />
-        </Row>
-      )}
-      {importingApplication && (
-        <Row className="t-import-app-progress-wrapper">
-          <StatusbarWrapper className="t--importing-app-statusbar">
-            <Icon name="file-line" size="md" />
-            <Text className="importing-app-name" type={TextType.P2}>
-              {appFileToBeUploaded?.file?.name || "filename.json"}
-            </Text>
-            <Statusbar
-              completed={!importingApplication}
-              message={createMessage(UPLOADING_APPLICATION)}
-              period={4}
-            />
-          </StatusbarWrapper>
-        </Row>
-      )}
-    </StyledDialog>
+    <Modal onOpenChange={handleModalClose} open={isModalOpen}>
+      <ModalContent
+        className={"t--import-application-modal"}
+        style={{ width: "fit-content" }}
+      >
+        <ModalHeader>
+          {createMessage(IMPORT_APPLICATION_MODAL_TITLE)}
+        </ModalHeader>
+        <TextWrapper>
+          <Text kind="body-m">
+            {createMessage(
+              importingApplication
+                ? UPLOADING_JSON
+                : IMPORT_APPLICATION_MODAL_LABEL,
+            )}
+          </Text>
+        </TextWrapper>
+        {!importingApplication && (
+          <Row>
+            <FileImportCard className="t--import-json-card">
+              <FilePickerV2
+                containerClickable
+                description={createMessage(IMPORT_APP_FROM_FILE_MESSAGE)}
+                fileType={FileType.JSON}
+                fileUploader={FileUploader}
+                iconFillColor={Colors.GREY_800}
+                onFileRemoved={onRemoveFile}
+                title={createMessage(IMPORT_APP_FROM_FILE_TITLE)}
+                uploadIcon="file-line"
+              />
+            </FileImportCard>
+            <GitImportCard handler={onGitImport} />
+          </Row>
+        )}
+        {importingApplication && (
+          <Row className="t-import-app-progress-wrapper">
+            <StatusbarWrapper className="t--importing-app-statusbar">
+              <Icon name="file-line" size="md" />
+              <Text className="importing-app-name" kind="body-m">
+                {appFileToBeUploaded?.file?.name || "filename.json"}
+              </Text>
+              <Statusbar
+                completed={!importingApplication}
+                message={createMessage(UPLOADING_APPLICATION)}
+                period={4}
+              />
+            </StatusbarWrapper>
+          </Row>
+        )}
+      </ModalContent>
+    </Modal>
   );
 }
 

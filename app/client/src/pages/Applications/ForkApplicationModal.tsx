@@ -7,11 +7,17 @@ import {
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { AppState } from "@appsmith/reducers";
-import { Dropdown } from "design-system-old";
-import { Button, Spinner } from "design-system";
-import { StyledDialog, ButtonWrapper, SpinnerWrapper } from "./ForkModalStyles";
+import {
+  Button,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  Spinner,
+  Select,
+  Option,
+} from "design-system";
+import { ButtonWrapper, SpinnerWrapper } from "./ForkModalStyles";
 import { useLocation } from "react-router";
-import { Colors } from "constants/Colors";
 import {
   CANCEL,
   createMessage,
@@ -108,67 +114,72 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
     }
   };
 
-  return (
-    <StyledDialog
-      canOutsideClickClose
-      className={"fork-modal"}
-      headerIcon={{ name: "fork-2", bgColor: Colors.GEYSER_LIGHT }}
-      isOpen={isModalOpen || queryParams.has("fork")}
-      onClose={handleClose}
-      onOpening={handleOpen}
-      setModalClose={setModalClose}
-      title={modalHeading}
-      trigger={props.trigger}
-    >
-      {isFetchingApplications ? (
-        <SpinnerWrapper>
-          <Spinner size="lg" />
-        </SpinnerWrapper>
-      ) : (
-        !!workspaceList.length && (
-          <>
-            <Dropdown
-              boundary="viewport"
-              dropdownMaxHeight={"200px"}
-              fillOptions
-              onSelect={(
-                _: string,
-                dropdownOption: React.SetStateAction<{
-                  label: string;
-                  value: string;
-                }>,
-              ) => selectWorkspace(dropdownOption)}
-              options={workspaceList}
-              selected={workspace}
-              showLabelOnly
-              width={"100%"}
-            />
+  const handleOnOpenChange = (isOpen: boolean) => {
+    if (isOpen) {
+      handleOpen();
+    } else {
+      setModalClose && setModalClose(false);
+      handleClose();
+    }
+  };
 
-            <ButtonWrapper>
-              <Button
-                isDisabled={forkingApplication}
-                kind="secondary"
-                onClick={() => {
-                  setModalClose && setModalClose(false);
-                  handleClose();
-                }}
-                size="md"
+  return (
+    <Modal
+      onOpenChange={handleOnOpenChange}
+      open={isModalOpen || queryParams.has("fork")}
+    >
+      <ModalContent className={"fork-modal"}>
+        <ModalHeader>{modalHeading}</ModalHeader>
+        {isFetchingApplications ? (
+          <SpinnerWrapper>
+            <Spinner size="lg" />
+          </SpinnerWrapper>
+        ) : (
+          !!workspaceList.length && (
+            <>
+              <Select
+                dropdownMatchSelectWidth
+                onSelect={(_, dropdownOption) =>
+                  // ignoring this because rc-select label and value types are not compatible
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                  // @ts-ignore
+                  selectWorkspace(dropdownOption)
+                }
+                value={workspace.value}
               >
-                {createMessage(CANCEL)}
-              </Button>
-              <Button
-                className="t--fork-app-to-workspace-button"
-                isLoading={forkingApplication}
-                onClick={forkApplication}
-                size="md"
-              >
-                {createMessage(FORK)}
-              </Button>
-            </ButtonWrapper>
-          </>
-        )
-      )}
-    </StyledDialog>
+                {workspaceList.map((option) => (
+                  <Option key={option.value} value={option.value}>
+                    {option.label}
+                  </Option>
+                ))}
+              </Select>
+
+              <ButtonWrapper>
+                <Button
+                  isDisabled={forkingApplication}
+                  kind="secondary"
+                  onClick={() => {
+                    setModalClose && setModalClose(false);
+                    handleClose();
+                  }}
+                  size="md"
+                >
+                  {createMessage(CANCEL)}
+                </Button>
+                <Button
+                  className="t--fork-app-to-workspace-button"
+                  isLoading={forkingApplication}
+                  onClick={forkApplication}
+                  size="md"
+                >
+                  {createMessage(FORK)}
+                </Button>
+              </ButtonWrapper>
+            </>
+          )
+        )}
+      </ModalContent>
+    </Modal>
   );
 }
 

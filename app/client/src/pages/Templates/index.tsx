@@ -1,14 +1,8 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
-// import { ControlGroup } from "@blueprintjs/core";
 import { debounce, noop, isEmpty } from "lodash";
 import { Switch, Route, useRouteMatch } from "react-router-dom";
-// import {
-//   // getTypographyByKey,
-//   // SearchInput,
-//   // SearchVariant,
-// } from "design-system-old";
 import { SearchInput, Text } from "design-system";
 import TemplateList from "./TemplateList";
 import TemplateView from "./TemplateView";
@@ -35,7 +29,6 @@ import {
   getUserApplicationsWorkspacesList,
 } from "@appsmith/selectors/applicationSelectors";
 import { getAllApplications } from "@appsmith/actions/applicationActions";
-import { Colors } from "constants/Colors";
 import { createMessage, SEARCH_TEMPLATES } from "@appsmith/constants/messages";
 import LeftPaneBottomSection from "@appsmith/pages/Home/LeftPaneBottomSection";
 import type { Template } from "api/TemplatesApi";
@@ -53,10 +46,9 @@ const SidebarWrapper = styled.div`
   width: ${(props) => props.theme.homePage.sidebar}px;
   height: 100%;
   display: flex;
-  padding-left: ${(props) => props.theme.spaces[7]}px;
   padding-top: ${(props) => props.theme.spaces[11]}px;
   flex-direction: column;
-  box-shadow: 1px 0px 0px ${Colors.GALLERY_2};
+  border-right: 1px solid var(--ads-v2-color-border);
   position: fixed;
 `;
 
@@ -90,7 +82,7 @@ const SearchWrapper = styled.div<{ sticky?: boolean }>`
   top: 0;
   position: -webkit-sticky;
   z-index: 1;
-  background-color: white;`}
+  background-color: var(--ads-v2-color-bg)`}
 `;
 
 function TemplateRoutes() {
@@ -190,16 +182,13 @@ export function TemplatesContent(props: TemplatesContentProps) {
   return (
     <>
       <SearchWrapper sticky={props.stickySearchBar}>
-        {/* <ControlGroup> */}
         <SearchInput
           data-test-id={"t--application-search-input"}
-          // isDisabled={isLoading}
+          isDisabled={isLoading}
           onChange={debouncedOnChange || noop}
           placeholder={createMessage(SEARCH_TEMPLATES)}
           value={templateSearchQuery}
-          // variant={SearchVariant.BACKGROUND}
         />
-        {/* </ControlGroup> */}
       </SearchWrapper>
       <ResultsCount kind="heading-m" renderAs="h1">
         {resultsText}

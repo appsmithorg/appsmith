@@ -7,7 +7,6 @@ import {
   Text,
   TextType,
 } from "design-system-old";
-import { StyledSeparator } from "pages/Applications/ProductUpdatesModal/ReleaseComponent";
 import history from "utils/history";
 import { TabbedViewContainer } from "./CommonEditorForm";
 import get from "lodash/get";
@@ -22,7 +21,7 @@ import { setApiRightPaneSelectedTab } from "actions/apiPaneActions";
 import { useDispatch, useSelector } from "react-redux";
 import { getApiRightPaneSelectedTab } from "selectors/apiPaneSelectors";
 import isUndefined from "lodash/isUndefined";
-import { Button } from "design-system";
+import { Divider, Button } from "design-system";
 
 const EmptyDatasourceContainer = styled.div`
   display: flex;
@@ -293,7 +292,7 @@ function ApiRightPane(props: any) {
                           </DatasourceURL>
                           {dataSourceInfo && (
                             <>
-                              <StyledSeparator />
+                              <Divider />
                               <PadTop>
                                 <Text
                                   type={TextType.P3}
