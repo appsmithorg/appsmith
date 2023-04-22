@@ -3,12 +3,12 @@ import styled from "styled-components";
 import { Position } from "@blueprintjs/core";
 import type { DebouncedFunc } from "lodash";
 import type { MenuItemProps } from "design-system-old";
-import { Menu, MenuItem, SearchVariant } from "design-system-old";
-import { Button } from "design-system";
+import { Menu, MenuItem } from "design-system-old";
+import { Button, SearchInput } from "design-system";
 import { HeaderWrapper } from "pages/Settings/components";
 import {
   HelpPopoverStyle,
-  StyledSearchInput,
+  // StyledSearchInput,
   SettingsHeader,
 } from "components/utils/helperComponents";
 import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";
@@ -43,11 +43,6 @@ const Container = styled.div<{ isMobile?: boolean }>`
       color: var(--appsmith-color-black-700);
     }
   }
-`;
-
-const StyledButton = styled(Button)`
-  flex: 1 0 auto;
-  min-width: 88px;
 `;
 
 const SearchWrapper = styled.div`
@@ -114,25 +109,26 @@ export function SettingsPageHeader(props: PageHeaderProps) {
       <Container isMobile={isMobile}>
         <SearchWrapper>
           {onSearch && showSearchNButton && (
-            <StyledSearchInput
+            <SearchInput
+              UNSAFE_width={isMobile ? "100%" : "376px"}
               className="search-input"
               data-testid={"t--search-input"}
               onChange={handleSearch}
               placeholder={searchPlaceholder}
-              variant={SearchVariant.BACKGROUND}
-              width={isMobile ? "100%" : "376px"}
+              size="md"
             />
           )}
         </SearchWrapper>
         {/* <VerticalDelimeter /> */}
         <ActionsWrapper>
           {buttonText && showSearchNButton && (
-            <StyledButton
+            <Button
               data-testid={"t--page-header-input"}
               onClick={props.onButtonClick}
+              size="md"
             >
               {buttonText}
-            </StyledButton>
+            </Button>
           )}
           {showMoreOptions && (
             <Menu

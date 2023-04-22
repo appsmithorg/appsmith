@@ -64,12 +64,12 @@ export const MembersWrapper = styled.div<{
     thead {
       z-index: 1;
       tr {
-        border-bottom: 1px solid #e8e8e8;
+        border-bottom: 1px solid var(--ads-v2-color-border);
         th {
           font-size: 14px;
           font-weight: 500;
           line-height: 1.5;
-          color: var(--appsmith-color-black-700);
+          color: var(--ads-v2-color-fg);
           padding: 8px 20px;
 
           &:last-child {
@@ -126,7 +126,7 @@ export const MembersWrapper = styled.div<{
             .cs-text {
               width: 100%;
               margin-right: 10px;
-              color: var(--ads-text-color);
+              color: var(--ads-v2-color-fg);
             }
           }
 
@@ -176,28 +176,6 @@ export const UserCard = styled(Card)`
   justify-content: center;
   position: relative;
 
-  .avatar {
-    min-height: 71px;
-
-    .${AppClass.TEXT} {
-      margin: auto;
-    }
-  }
-
-  .${AppClass.TEXT} {
-    color: ${Colors.GREY_10};
-    margin-top: ${(props) => props.theme.spaces[1]}px;
-    &.user-name {
-      margin-top: ${(props) => props.theme.spaces[4]}px;
-    }
-    &.user-email {
-      color: ${Colors.GREY_7};
-    }
-    &.user-role {
-      margin-bottom: ${(props) => props.theme.spaces[3]}px;
-    }
-  }
-
   .approve-btn {
     padding: ${(props) =>
       `${props.theme.spaces[1]}px ${props.theme.spaces[3]}px`};
@@ -225,11 +203,6 @@ export const EachUser = styled.div`
 
   .user-icons {
     margin-right: 8px;
-    cursor: initial;
-
-    span {
-      color: var(--appsmith-color-black-0);
-    }
   }
 `;
 
@@ -398,7 +371,7 @@ export default function MemberSettings(props: PageProps) {
             <>
               <ProfileImage
                 className="user-icons"
-                size={20}
+                size="md"
                 source={
                   member.photoId
                     ? `/api/${USER_PHOTO_ASSET_URL}/${member.photoId}`
@@ -485,7 +458,6 @@ export default function MemberSettings(props: PageProps) {
               deletingUserInfo.username === cellProps.cell.row.original.username
             }
             kind="error"
-            name="trash-outline"
             onClick={() => {
               onConfirmMemberDeletion(
                 cellProps.cell.row.original.username,
@@ -493,7 +465,8 @@ export default function MemberSettings(props: PageProps) {
                 workspaceId,
               );
             }}
-            size="md"
+            size="sm"
+            startIcon="delete-control"
           />
         );
       },
@@ -544,7 +517,7 @@ export default function MemberSettings(props: PageProps) {
                   <>
                     <ProfileImage
                       className="avatar"
-                      size={71}
+                      size="md"
                       source={
                         member.photoId
                           ? `/api/${USER_PHOTO_ASSET_URL}/${member.photoId}`

@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-// import { Collapse } from "@blueprintjs/core";
 import { Checkbox, Text } from "design-system";
 import { filterTemplates } from "actions/templateActions";
 import { createMessage, FILTERS } from "@appsmith/constants/messages";
@@ -11,7 +10,10 @@ import {
 } from "selectors/templatesSelectors";
 import { thinScrollbar } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-// import { Colors } from "constants/Colors";
+
+const FilterMainContainer = styled.div`
+  padding-left: 16px;
+`;
 
 const FilterWrapper = styled.div`
   overflow: auto;
@@ -47,9 +49,6 @@ const StyledFilterCategory = styled(Text)`
   &.title {
     margin-bottom: ${(props) => props.theme.spaces[12] - 10}px;
     color: var(--ads-v2-color-fg-emphasis);
-    // display: inline-block;
-    // text-transform: uppercase;
-    // font-size: 14px;
   }
 `;
 
@@ -190,7 +189,7 @@ function Filters() {
   const selectedFilters = useSelector(getTemplateFilterSelector);
 
   return (
-    <div>
+    <FilterMainContainer>
       <StyledFilterCategory className={"title"} kind="heading-s" renderAs="h3">
         {createMessage(FILTERS)}
       </StyledFilterCategory>
@@ -206,7 +205,7 @@ function Filters() {
           );
         })}
       </FilterWrapper>
-    </div>
+    </FilterMainContainer>
   );
 }
 

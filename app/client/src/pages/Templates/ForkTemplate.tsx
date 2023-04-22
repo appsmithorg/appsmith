@@ -82,11 +82,15 @@ function ForkTemplate({
           <ModalBody>
             <Select
               dropdownMatchSelectWidth
+              // TODO: (Albin) Fix this
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              //@ts-ignore
               onSelect={(
-                dropdownOption: React.SetStateAction<{
-                  value: string;
+                dropdownOptionValue: string,
+                dropdownOption: {
                   label: string;
-                }>,
+                  value: string;
+                },
               ) => setSelectedWorkspace(dropdownOption)}
               options={workspaceList}
               placeholder={createMessage(SELECT_WORKSPACE)}

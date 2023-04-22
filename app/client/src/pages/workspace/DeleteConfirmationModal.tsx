@@ -1,33 +1,17 @@
 import React from "react";
-import styled from "styled-components";
-import { DialogComponent as Dialog, Text, TextType } from "design-system-old";
-import { Button } from "design-system";
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  Text,
+} from "design-system";
 import {
   DELETE_CONFIRMATION_MODAL_TITLE,
   DELETE_CONFIRMATION_MODAL_SUBTITLE,
 } from "@appsmith/constants/messages";
-import { Classes } from "@blueprintjs/core";
-import { Colors } from "constants/Colors";
-
-const StyledDialog = styled(Dialog)`
-  && .${Classes.DIALOG_BODY} {
-    padding-top: 0px;
-  }
-`;
-
-const LeftContainer = styled.div`
-  text-align: left;
-`;
-
-const ButtonWrapper = styled.div`
-  display: flex;
-  justify-content: end;
-  margin-top: 20px;
-
-  & > a {
-    margin: 0 4px;
-  }
-`;
 
 type DeleteConfirmationProps = {
   userToBeDeleted: {
@@ -48,35 +32,23 @@ function DeleteConfirmationModal(props: DeleteConfirmationProps) {
   const { isDeletingUser, isOpen, onClose, onConfirm, userToBeDeleted } = props;
   const { entityType, name, username } = userToBeDeleted;
 
+  const onOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+      onClose();
+    }
+  };
+
   return (
-    <StyledDialog
-      canOutsideClickClose
-      className={"t--member-delete-confirmation-modal"}
-      headerIcon={{
-        name: "delete",
-        fillColor: Colors.DANGER_SOLID,
-        hoverColor: Colors.DANGER_SOLID_HOVER,
-      }}
-      isOpen={isOpen}
-      maxHeight={"540px"}
-      setModalClose={onClose}
-      title={DELETE_CONFIRMATION_MODAL_TITLE()}
-    >
-      <LeftContainer>
-        <Text textAlign="center" type={TextType.P1}>
-          {DELETE_CONFIRMATION_MODAL_SUBTITLE(name || username, entityType)}
-        </Text>
-        <ButtonWrapper>
+    <Modal onOpenChange={onOpenChange} open={isOpen}>
+      <ModalContent className={"t--member-delete-confirmation-modal"}>
+        <ModalHeader>{DELETE_CONFIRMATION_MODAL_TITLE()}</ModalHeader>
+        <ModalBody>
+          <Text kind="body-m">
+            {DELETE_CONFIRMATION_MODAL_SUBTITLE(name || username, entityType)}
+          </Text>
+        </ModalBody>
+        <ModalFooter>
           <Button
-            className=".button-item"
-            kind="error"
-            onClick={onClose}
-            size="md"
-          >
-            Cancel
-          </Button>
-          <Button
-            className=".button-item"
             isLoading={isDeletingUser}
             kind="error"
             onClick={onConfirm}
@@ -84,9 +56,12 @@ function DeleteConfirmationModal(props: DeleteConfirmationProps) {
           >
             Remove
           </Button>
-        </ButtonWrapper>
-      </LeftContainer>
-    </StyledDialog>
+          <Button kind="secondary" onClick={onClose} size="md">
+            Cancel
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 }
 
