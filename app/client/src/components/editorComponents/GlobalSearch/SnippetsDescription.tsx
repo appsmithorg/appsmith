@@ -12,7 +12,6 @@ import {
   TabBehaviour,
 } from "../CodeEditor/EditorConfig";
 import CodeEditor from "../CodeEditor";
-// import { TabComponent } from "design-system-old";
 import {
   evaluateArgument,
   evaluateSnippet,
@@ -400,16 +399,15 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
       </Text>
       <TabbedViewContainer className="tab-container">
         <Tabs
-          defaultValue={selectedTab}
-          onValueChange={setSelectedTab}
-          // onValueChange={() => {
-          //   setSelectedTab(
-          //     selectedTab === "Customize" ? "Snippet" : "Customize",
-          //   );
-          //   if (selectedTab === "Customize") {
-          //     AnalyticsUtil.logEvent("SNIPPET_CUSTOMIZE", { title });
-          //   }
-          // }}
+          onValueChange={() => {
+            setSelectedTab(
+              selectedTab === "Customize" ? "Snippet" : "Customize",
+            );
+            if (selectedTab === "Customize") {
+              AnalyticsUtil.logEvent("SNIPPET_CUSTOMIZE", { title });
+            }
+          }}
+          value={selectedTab}
         >
           <TabsList>
             {tabs.map((tab) => {
