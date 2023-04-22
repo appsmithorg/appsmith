@@ -281,6 +281,7 @@
     "eslint-plugin-react": "^7.30.0",
     "eslint-plugin-react-hooks": "^2.3.0",
     "eslint-plugin-sort-destructure-keys": "^1.3.5",
+    "eslint-plugin-storybook": "^0.6.11",
     "factory.ts": "^0.5.1",
     "husky": "^8.0.0",
     "jest-canvas-mock": "^2.3.1",

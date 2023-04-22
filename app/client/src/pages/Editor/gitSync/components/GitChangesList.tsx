@@ -134,7 +134,9 @@ export function Change(props: Partial<GitStatusProps>) {
 
   return (
     <Wrapper>
-      <Icon color={"var(--ads-v2-color-fg)"} name={iconName || ""} size="md" />
+      {iconName && (
+        <Icon color={"var(--ads-v2-color-fg)"} name={iconName} size="md" />
+      )}
       <Text color={"var(--ads-v2-color-fg)"} kind="body-s">
         {message}
       </Text>
