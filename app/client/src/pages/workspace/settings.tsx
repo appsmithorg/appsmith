@@ -62,7 +62,7 @@ const SettingsWrapper = styled.div<{
 `;
 
 const StyledStickyHeader = styled(StickyHeader)<{ isMobile?: boolean }>`
-  padding-top: 24px;
+  /* padding-top: 24px; */
   ${({ isMobile }) =>
     !isMobile &&
     `

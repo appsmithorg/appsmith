@@ -2,9 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import moment from "moment";
 import "@github/g-emoji-element";
-import { Colors } from "constants/Colors";
-import { Case, Classes, Text, TextType } from "design-system-old";
-import { Divider, Icon } from "design-system";
+import { Divider, Text, Button } from "design-system";
 
 const StyledContainer = styled.div`
   color: ${(props) => props.theme.colors.text.normal};
@@ -24,11 +22,12 @@ const Tag = styled.div`
   padding: 4px 8px;
   font-size: 13px;
   font-weight: 600;
-  background-color: var(--appsmith-color-black-100);
+  background-color: var(--ads-v2-color-bg-subtle);
   margin-right: 8px;
   text-transform: uppercase;
   letter-spacing: 0.6px;
-  color: var(--appsmith-color-black);
+  color: var(--ads-v2-color-fg);
+  border-radius: var(--ads-v2-border-radius);
 `;
 
 const StyledDate = styled.div`
@@ -37,7 +36,7 @@ const StyledDate = styled.div`
   line-height: ${(props) => props.theme.typography.releaseList.lineHeight}px;
   letter-spacing: ${(props) =>
     props.theme.typography.releaseList.letterSpacing}px;
-  color: var(--appsmith-color-black-700);
+  color: var(--ads-v2-color-fg);
   margin-top: ${(props) => props.theme.spaces[3]}px;
 `;
 
@@ -49,16 +48,16 @@ const StyledContent = styled.div<{ maxHeight: number }>`
     line-height: ${(props) => props.theme.typography.releaseList.lineHeight}px;
     letter-spacing: ${(props) =>
       props.theme.typography.releaseList.letterSpacing}px;
-    color: var(--appsmith-color-black-700);
+    color: var(--ads-v2-color-fg);
   }
   a {
-    color: ${(props) => props.theme.colors.modal.link};
+    color: var(--ads-v2-color-fg-brand);
   }
   h1,
   h2,
   h3,
   h4 {
-    color: ${(props) => props.theme.colors.modal.title};
+    color: var(--ads-v2-color-fg-emphasis-plus);
   }
 
   h2 {
@@ -69,7 +68,7 @@ const StyledContent = styled.div<{ maxHeight: number }>`
     margin-inline-start: 0px;
     margin-inline-end: 0px;
     font-weight: 500;
-    color: var(--appsmith-color-black);
+    color: var(--ads-v2-color-fg-emphasis-plus);
   }
 
   ul {
@@ -103,18 +102,6 @@ enum ReleaseComponentViewState {
   "expanded",
 }
 
-const StyledReadMore = styled.div`
-  padding: ${(props) => props.theme.spaces[2]}px;
-  &:hover {
-    background-color: ${(props) => props.theme.colors.modal.hoverState};
-  }
-  display: flex;
-  cursor: pointer;
-  .${Classes.TEXT} {
-    margin-right: ${(props) => props.theme.spaces[3]}px;
-  }
-`;
-
 const ReadMoreContainer = styled.div`
   display: flex;
   padding: ${(props) => props.theme.spaces[8]}px 0;
@@ -128,21 +115,21 @@ const ReadMore = ({
   onClick: () => void;
 }) => (
   <ReadMoreContainer>
-    <StyledReadMore onClick={onClick}>
-      <Text case={Case.UPPERCASE} color={Colors.GREY_8} type={TextType.P2}>
-        {currentState === ReleaseComponentViewState.collapsed
-          ? "read more"
-          : "read less"}
-      </Text>
-      <Icon
-        name={
-          currentState === ReleaseComponentViewState.collapsed
-            ? "view-all"
-            : "view-less"
-        }
-        size="sm"
-      />
-    </StyledReadMore>
+    <Button
+      endIcon={
+        currentState === ReleaseComponentViewState.collapsed
+          ? "view-all"
+          : "view-less"
+      }
+      kind="tertiary"
+      onClick={onClick}
+      renderAs="button"
+      startIcon=""
+    >
+      {currentState === ReleaseComponentViewState.collapsed
+        ? "read more"
+        : "read less"}
+    </Button>
   </ReadMoreContainer>
 );
 
@@ -180,9 +167,7 @@ function ReleaseComponent({ release }: ReleaseProps) {
         <Tag>{tagName}</Tag>
         <StyledDate>{moment(publishedAt).format("D MMM YYYY")}</StyledDate>
       </TagContainer>
-      <Text color={Colors.BLACK} type={TextType.H1}>
-        {name}
-      </Text>
+      <Text kind="heading-m">{name}</Text>
       <StyledContent
         dangerouslySetInnerHTML={{ __html: descriptionHtml }}
         maxHeight={getHeight()}

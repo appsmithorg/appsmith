@@ -142,7 +142,7 @@ export function Change(props: GitStatusProps) {
 
   return (
     <Wrapper>
-      <Icon name={iconName || ""} size="md" />
+      {iconName && <Icon name={iconName} size="md" />}
       <Text type={TextType.P3}>{message}</Text>
     </Wrapper>
   );
