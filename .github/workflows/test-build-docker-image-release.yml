@@ -1,0 +1,118 @@
+name: Test, build and push Docker Image for release branch
+
+on:
+  # This line enables manual triggering of this workflow.
+  workflow_dispatch:
+
+  # trigger for pushes to release
+  push:
+    branches: [release]
+    paths:
+      - "app/client/**"
+      - "app/server/**"
+      - "app/rts/**"
+      - "!app/client/cypress/manual_TestSuite/**"
+
+jobs:
+
+  server-build:
+    name: server-build
+    uses: ./.github/workflows/server-build.yml
+    secrets: inherit
+    with:
+      pr: 0
+
+  client-build:
+    name: client-build
+    uses: ./.github/workflows/client-build.yml
+    secrets: inherit
+    with:
+      pr: 0
+
+  rts-build:
+    name: rts-build
+    uses: ./.github/workflows/rts-build.yml
+    secrets: inherit
+    with:
+      pr: 0
+
+  package:
+    needs: [ client-build, server-build, rts-build ]
+    runs-on: ubuntu-latest
+    # Set permissions since we're using OIDC token authentication between Depot and GitHub
+    permissions:
+      contents: read
+      id-token: write
+      
+    steps:
+      # Checkout the code
+      - name: Checkout the head commit of the branch
+        uses: actions/checkout@v3
+
+      - name: Download the react build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: client-build
+          path: app/client/build
+
+      - name: Download the server build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: server-build
+          path: app/server/dist
+
+      - name: Download the rts build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: rts-dist
+          path: app/rts/dist
+
+      - name: Untar the rts folder
+        run: |
+          tar -xvf app/rts/dist/rts-dist.tar -C app/rts/
+          echo "Cleaning up the tar files"
+          rm app/rts/dist/rts-dist.tar
+
+      - name: Set up Depot CLI
+        uses: depot/setup-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      # Build release Docker image and push to Docker Hub
+      - name: Push client release image to Docker Hub
+        if: success()
+        uses: depot/build-push-action@v1
+        with:
+          context: app/client
+          push: true
+          tags: |
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:release
+
+      # Build release Docker image and push to Docker Hub
+      - name: Build and push release image to Docker Hub
+        if: success()
+        uses: depot/build-push-action@v1
+        with:
+          context: .
+          push: true
+          platforms: linux/arm64,linux/amd64
+          build-args: |
+            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
+          tags: |
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:release
+
+      # Build release Docker image and push to Docker Hub
+      - name: Push server release image to Docker Hub
+        if: success()
+        uses: depot/build-push-action@v1
+        with:
+          context: app/server
+          push: true
+          build-args: |
+            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
+          tags: |
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-server:release
