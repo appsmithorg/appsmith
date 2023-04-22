@@ -32,6 +32,10 @@ const FilterWrapper = styled.div`
 const FilterItemWrapper = styled.div<{ selected: boolean }>`
   padding: ${(props) =>
     `${props.theme.spaces[4]}px 0px 0px ${props.theme.spaces[11] - 10}px `};
+
+  .ads-v2-checkbox__label {
+    line-height: 16px;
+  }
 `;
 
 const StyledFilterCategory = styled(Text)`

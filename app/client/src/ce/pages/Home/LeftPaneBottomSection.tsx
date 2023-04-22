@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { MenuItem } from "design-system-old";
@@ -33,17 +33,8 @@ export const Wrapper = styled.div`
   background-color: ${Colors.WHITE};
   width: 100%;
   margin-top: auto;
-
-  & .ads-dialog-trigger {
-    margin-top: ${(props) => props.theme.spaces[1]}px;
-  }
-
-  & .ads-dialog-trigger > div {
-    position: initial;
-    width: 92%;
-    padding: ${(props) =>
-      `${props.theme.spaces[0]}px ${props.theme.spaces[6]}px`};
-  }
+  padding-left: 16px;
+  border-top: 1px solid var(--ads-v2-color-border);
 `;
 
 export const LeftPaneVersionData = styled.div`
@@ -63,6 +54,9 @@ function LeftPaneBottomSection() {
   const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
   const user = useSelector(getCurrentUser);
   const tenantPermissions = useSelector(getTenantPermissions);
+  const [isProductUpdatesModalOpen, setIsProductUpdatesModalOpen] =
+    useState(false);
+
   return (
     <Wrapper>
       {showAdminSettings(user) && !isFetchingApplications && (
@@ -106,8 +100,19 @@ function LeftPaneBottomSection() {
         }}
         text={createMessage(WELCOME_TOUR)}
       />
-
-      <ProductUpdatesModal />
+      <MenuItem
+        containerClassName={"t--product-updates-btn"}
+        data-testid="t--product-updates-btn"
+        icon="updates"
+        onSelect={() => {
+          setIsProductUpdatesModalOpen(true);
+        }}
+        text="What's New?"
+      />
+      <ProductUpdatesModal
+        isOpen={isProductUpdatesModalOpen}
+        onClose={() => setIsProductUpdatesModalOpen(false)}
+      />
       <LeftPaneVersionData>
         <span>
           {createMessage(

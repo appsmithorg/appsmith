@@ -1432,7 +1432,7 @@ export const FORK_APP_MODAL_EMPTY_TITLE = () =>
   "No workspace available to fork to";
 export const FORK_APP_MODAL_SUCCESS_TITLE = () =>
   "Choose where to fork the app";
-export const FORK = () => `FORK`;
+export const FORK = () => `Fork`;
 
 export const CLEAN_URL_UPDATE = {
   name: () => "Update URLs",
