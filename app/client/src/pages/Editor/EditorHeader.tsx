@@ -198,14 +198,6 @@ const SidebarNavButton = styled(Button)`
     justify-content: center;
   }
 `;
-// const HamburgerContainer = styled.div`
-//   height: ${(props) => props.theme.smallHeaderHeight};
-//   width: 34px;
-
-//   :hover {
-//     background-color: ${Colors.GEYSER_LIGHT};
-//   }
-// `;
 
 type EditorHeaderProps = {
   pageSaveError?: boolean;

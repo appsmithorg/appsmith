@@ -28,17 +28,9 @@ const ApplicationName = (props: ApplicationNameProps) => {
 
   return (
     <Tooltip
-      // boundary="viewport"
       content={appName || ""}
       placement="bottom"
       visible={!ellipsisActive}
-      // maxWidth={`${APPLICATION_TITLE_MAX_WIDTH}px`}
-      // modifiers={{
-      //   preventOverflow: {
-      //     enabled: true,
-      //     boundariesElement: "viewport",
-      //   },
-      // }}
     >
       <StyledApplicationName
         className="overflow-hidden text-base overflow-ellipsis whitespace-nowrap t--app-viewer-application-name"

@@ -63,50 +63,6 @@ const StyledIcon = styled(Icon)`
   align-self: center;
 `;
 
-// const StyledMenu = styled(Menu)`
-//   background: ${(props) =>
-//     props.theme.colors.navigationMenu.backgroundInactive};
-//   color: ${(props) => props.theme.colors.navigationMenu.contentInactive};
-//   ${getTypographyByKey("p1")};
-//   border-radius: 0;
-//   padding: 0;
-
-//   &&& .${Classes.MENU}, &&& .${Classes.MENU_SUBMENU} {
-//     background: ${(props) =>
-//       props.theme.colors.navigationMenu.backgroundInactive};
-//     color: ${(props) => props.theme.colors.navigationMenu.contentInactive};
-//     border-radius: 0;
-//     padding: 0;
-
-//     .${Classes.TRANSITION_CONTAINER} {
-//       margin-top: -4px;
-//     }
-
-//     .${Classes.ICON} {
-//       color: ${(props) => props.theme.colors.navigationMenu.contentInactive};
-//       height: 100%;
-//       margin-top: 0;
-//       > svg {
-//         height: 100%;
-//       }
-//     }
-
-//     .${Classes.POPOVER_TARGET}.${Classes.POPOVER_OPEN} > .${Classes.MENU_ITEM} {
-//       color: ${(props) => props.theme.colors.navigationMenu.contentActive};
-//       background: ${(props) =>
-//         props.theme.colors.navigationMenu.backgroundActive};
-//       background-color: ${(props) =>
-//         props.theme.colors.navigationMenu.backgroundActive};
-//     }
-//   }
-
-//   &&& .${Classes.MENU_SUBMENU}:hover {
-//     .${Classes.ICON} {
-//       color: ${(props) => props.theme.colors.navigationMenu.contentActive};
-//     }
-//   }
-// `;
-
 export function EditorAppName(props: EditorAppNameProps) {
   const {
     defaultSavingState,

@@ -145,8 +145,6 @@ export const TabbedViewContainer = styled.div`
   overflow: auto;
   position: relative;
   height: 100%;
-  /* border-top: 1px solid ${(props) =>
-    props.theme.colors.apiPane.dividerBg}; */
   ${FormRow} {
     min-height: auto;
     padding: ${(props) => props.theme.spaces[0]}px;
@@ -400,7 +398,6 @@ const CenteredIcon = styled(Icon)`
   align-self: center;
   margin-right: 5px;
 `;
-
 function ImportedKeyValue(props: {
   datas: { key: string; value: string; isInvalid?: boolean }[];
   keyValueName: string;

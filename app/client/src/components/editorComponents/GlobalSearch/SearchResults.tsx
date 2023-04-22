@@ -364,17 +364,6 @@ function CategoryItem({
 const FlexWrapper = styled.div`
   display: flex;
   align-items: center;
-  /* && svg {
-    width: 14px;
-    height: 14px;
-    path {
-      fill: #716e6e !important;
-    }
-  } */
-  /* && svg.snippet-icon {
-    width: 18px;
-    height: 18px;
-  } */
 `;
 
 function SnippetItem({ item: { body } }: any) {
@@ -405,7 +394,6 @@ const ActionOperation = styled.div<{ isActive: boolean }>`
     white-space: nowrap;
   }
   .operation-desc {
-    /* color: gray; */
     font-size: 12px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -496,7 +484,6 @@ const SearchResultsContainer = styled.div<{ category: SearchCategory }>`
   position: relative;
   width: 100%;
   .container {
-    /* overflow: auto; */
     height: 100%;
     width: 100%;
     padding-bottom: ${(props) => (isSnippet(props.category) ? "50px" : "0")};

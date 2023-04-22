@@ -62,22 +62,7 @@ const SnippetContainer = styled.div`
       position: absolute;
       top: 4px;
       right: 4px;
-      /* display: flex;
-      transition: 0.2s opacity ease;
-      background: ${(props) =>
-        props.theme.colors.globalSearch.documentationCodeBackground};
-      justify-content: space-between; */
     }
-    /* .action-icons > * {
-      height: 12px;
-      width: 12px;
-      cursor: pointer;
-      transition: 0.2s all ease;
-      &:hover {
-        transform: scale(1.2);
-      }
-      margin: ${(props) => props.theme.spaces[2]}px;
-    } */
     pre {
       padding: var(--ads-v2-spaces-7) var(--ads-v2-spaces-5) !important;
       margin: 0 !important;

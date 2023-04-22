@@ -11,7 +11,6 @@ const RefinementListContainer = styled.div`
   padding: 5px 5px 0;
   justify-content: flex-start;
   align-items: center;
-  /* font-size: 12px; */
   margin-top: 45px;
   .pill-container {
     display: flex;

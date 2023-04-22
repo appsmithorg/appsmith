@@ -85,12 +85,6 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { toast } from "design-system";
 
 const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
-  /* width: ${({ category, query }) =>
-    isSnippet(category) ||
-    isDocumentation(category) ||
-    (isMenu(category) && query)
-      ? "785px"
-      : "500px"}; */
   max-height: 530px;
   max-height: 530px;
   transition: height 0.1s ease, width 0.1s ease;
@@ -108,7 +102,6 @@ const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
     display: flex;
     flex: 1;
     margin-top: 50px;
-    /* overflow: hidden; */
     &.main-snippet {
       margin-top: 17px;
       overflow: hidden;

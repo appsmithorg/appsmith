@@ -3,7 +3,6 @@ import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { connectSearchBox } from "react-instantsearch-dom";
 import type { SearchBoxProvided } from "react-instantsearch-core";
-// import { getTypographyByKey } from "design-system-old";
 import type { AppState } from "@appsmith/reducers";
 import {
   createMessage,
@@ -15,8 +14,6 @@ import {
 } from "@appsmith/constants/messages";
 import type { SearchCategory } from "./utils";
 import { isMenu, SEARCH_CATEGORY_ID } from "./utils";
-// import { ReactComponent as CloseIcon } from "assets/icons/help/close_blue.svg";
-// import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
 import { Button, Icon } from "design-system";
 
 const Container = styled.div`
