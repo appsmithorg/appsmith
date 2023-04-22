@@ -25,7 +25,7 @@ const Wrapper = styled.span<{
 
 const CurlyBraces = styled.span`
   color: var(--ads-v2-color-fg);
-  background-color: var(--ads-v2-color-bg-subtle);
+  background-color: var(--ads-v2-color-bg);
 `;
 
 function BindingPrompt(props: {
