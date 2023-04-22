@@ -176,6 +176,7 @@ export const LoadingOverlayContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: var(--ads-v2-spaces-3);
   background-color: transparent;
   position: relative;
   z-index: 20;
@@ -636,21 +637,19 @@ function ApiResponseView(props: Props) {
         <>
           <LoadingOverlayScreen theme={props.theme} />
           <LoadingOverlayContainer>
-            <div>
-              <Text textAlign={"center"} type={TextType.P1}>
-                {createMessage(ACTION_EXECUTION_MESSAGE, "API")}
-              </Text>
-              <Button
-                className={`t--cancel-action-button`}
-                kind="secondary"
-                onClick={() => {
-                  handleCancelActionExecution();
-                }}
-                size="md"
-              >
-                Cancel Request
-              </Button>
-            </div>
+            <Text textAlign={"center"} type={TextType.P1}>
+              {createMessage(ACTION_EXECUTION_MESSAGE, "API")}
+            </Text>
+            <Button
+              className={`t--cancel-action-button`}
+              kind="secondary"
+              onClick={() => {
+                handleCancelActionExecution();
+              }}
+              size="md"
+            >
+              Cancel Request
+            </Button>
           </LoadingOverlayContainer>
         </>
       )}
