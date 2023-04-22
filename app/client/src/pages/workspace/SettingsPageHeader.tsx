@@ -45,11 +45,6 @@ const Container = styled.div<{ isMobile?: boolean }>`
   }
 `;
 
-// const StyledButton = styled(Button)`
-//   flex: 1 0 auto;
-//   min-width: 88px;
-// `;
-
 const SearchWrapper = styled.div`
   width: 100%;
 `;

@@ -27,10 +27,6 @@ const GeneralWrapper = styled.div<{
   isMobile?: boolean;
   isPortrait?: boolean;
 }>`
-  /* width: ${(props) => (props.isPortrait ? "336px" : "383px")};
-  margin: ${(props) =>
-    props.isMobile ? (props.isPortrait ? "auto" : "120px") : null};
-  padding: 0 20px; */
   width: 340px;
   padding: 20px 20px;
   margin: 0 auto;
@@ -42,7 +38,6 @@ const GeneralWrapper = styled.div<{
       border: 1px solid var(--ads-v2-color-border);
       width: 100%;
       height: 100%;
-      /* box-sizing: border-box; */
       padding: var(--button-padding);
       border-radius: var(--ads-v2-border-radius);
       text-transform: capitalize;
@@ -51,11 +46,6 @@ const GeneralWrapper = styled.div<{
         color: var(--ads-v2-color-fg);
         border-color: var(--ads-v2-color-border);
       }
-    }
-  }
-  .upload-form-container {
-    svg path {
-      fill: var(--ads-v2-color-fg);
     }
   }
 `;

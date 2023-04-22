@@ -31,14 +31,6 @@ function DatasourceChip(props: DatasourceChipProps) {
   if (!plugin) return null;
 
   return (
-    // <StyledDatasourceChip className={props.className}>
-    //   <img className="image" src={getAssetUrl(plugin.iconLocation)} />
-    //   <span>{plugin.name}</span>
-    // </StyledDatasourceChip>
-    // <StyledDatasourceChip kind="secondary" size="sm">
-    //   <img className="image" src={plugin.iconLocation} />
-    //   <span className="text">{plugin.name}</span>
-    // </StyledDatasourceChip>
     <StyledDatasourceChip isClosable={false} size="md">
       <img className="image" src={plugin.iconLocation} />
       {plugin.name}

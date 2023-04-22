@@ -176,20 +176,6 @@ export const UserCard = styled(Card)`
   justify-content: center;
   position: relative;
 
-  .${AppClass.TEXT} {
-    color: ${Colors.GREY_10};
-    margin-top: ${(props) => props.theme.spaces[1]}px;
-    &.user-name {
-      margin-top: ${(props) => props.theme.spaces[4]}px;
-    }
-    &.user-email {
-      color: ${Colors.GREY_7};
-    }
-    &.user-role {
-      margin-bottom: ${(props) => props.theme.spaces[3]}px;
-    }
-  }
-
   .approve-btn {
     padding: ${(props) =>
       `${props.theme.spaces[1]}px ${props.theme.spaces[3]}px`};

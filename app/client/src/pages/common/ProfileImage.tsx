@@ -1,6 +1,5 @@
 import React, { useContext } from "react";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
-// import { Text, TextType } from "design-system-old";
 import styled, { ThemeContext } from "styled-components";
 import { Colors } from "constants/Colors";
 import { Avatar } from "design-system";
@@ -42,13 +41,6 @@ export default function ProfileImage(props: {
     theme.colors.appCardColors,
   );
 
-  // const [hasErrorLoadingImage, setHasErrorLoadingImage] = useState(false);
-
-  // const shouldRenderImage = props.source && !hasErrorLoadingImage;
-  // const backgroundColor = shouldRenderImage
-  //   ? "transparent"
-  //   : initialsAndColorCode[1];
-
   return (
     <Avatar
       className={props.className}
@@ -57,22 +49,5 @@ export default function ProfileImage(props: {
       label={props.commonName || initialsAndColorCode[0]}
       size={props.size}
     />
-    // <Profile
-    //   backgroundColor={backgroundColor}
-    //   className={props.className}
-    //   size={props.size} // size since it's a square
-    // >
-    //   {!shouldRenderImage ? (
-    //     <Text highlight type={TextType.H6}>
-    //       {props.commonName || initialsAndColorCode[0]}
-    //     </Text>
-    //   ) : (
-    //     <img
-    //       onError={() => setHasErrorLoadingImage(true)}
-    //       onLoad={() => setHasErrorLoadingImage(false)}
-    //       src={props.source}
-    //     />
-    //   )}
-    // </Profile>
   );
 }

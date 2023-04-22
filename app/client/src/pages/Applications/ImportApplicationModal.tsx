@@ -140,7 +140,7 @@ const StatusbarWrapper = styled.div`
   height: 199px;
   .cs-icon {
     margin: auto;
-    border-radius: 50%;
+    border-radius: var(--ads-v2-border-radius-circle);
     width: 32px;
     height: 32px;
     display: flex;

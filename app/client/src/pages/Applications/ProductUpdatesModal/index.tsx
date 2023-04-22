@@ -8,7 +8,7 @@ import { resetReleasesCount } from "actions/releasesActions";
 import type { Release } from "./ReleaseComponent";
 import ReleaseComponent from "./ReleaseComponent";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { Modal, ModalContent, ModalHeader } from "design-system";
+import { Modal, ModalBody, ModalContent, ModalHeader } from "design-system";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const Container = styled.div`
@@ -67,11 +67,13 @@ function ProductUpdatesModal(props: ProductUpdatesModalProps) {
     <Modal onOpenChange={handleOnOpenChange} open={isOpen}>
       <ModalContent style={{ width: "580px" }}>
         <ModalHeader>Product Updates</ModalHeader>
-        <Container>
-          {releaseItems.map((release: Release, index: number) => (
-            <ReleaseComponent key={index} release={release} />
-          ))}
-        </Container>
+        <ModalBody>
+          <Container>
+            {releaseItems.map((release: Release, index: number) => (
+              <ReleaseComponent key={index} release={release} />
+            ))}
+          </Container>
+        </ModalBody>
       </ModalContent>
     </Modal>
   ) : null;

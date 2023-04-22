@@ -6,7 +6,6 @@ import General from "./General";
 import GitConfig from "./GitConfig";
 import { useLocation } from "react-router";
 import { GIT_PROFILE_ROUTE } from "constants/routes";
-// import { createMessage, GO_BACK } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
 
 const ProfileWrapper = styled.div`
@@ -54,10 +53,7 @@ function UserProfile() {
             {tabs.map((tab) => {
               return (
                 <Tab key={tab.key} value={tab.key}>
-                  <div className="tab-item">
-                    {/* <Icon name={tab.icon} /> */}
-                    {tab.title}
-                  </div>
+                  <div className="tab-item">{tab.title}</div>
                 </Tab>
               );
             })}
