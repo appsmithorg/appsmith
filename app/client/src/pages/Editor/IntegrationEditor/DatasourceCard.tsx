@@ -293,7 +293,7 @@ function DatasourceCard(props: DatasourceCardProps) {
                   kind="secondary"
                   onClick={
                     datasource.isConfigured
-                      ? () => routeToGeneratePage
+                      ? (e) => routeToGeneratePage(e)
                       : editDatasource
                   }
                   size="md"
