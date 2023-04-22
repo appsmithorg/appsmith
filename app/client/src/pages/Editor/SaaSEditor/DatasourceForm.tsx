@@ -29,7 +29,6 @@ import {
 } from "../DataSourceEditor/JSONtoForm";
 import { getConfigInitialValues } from "components/formControls/utils";
 import Connected from "../DataSourceEditor/Connected";
-
 import {
   getCurrentApplicationId,
   getGsheetProjectID,
@@ -279,9 +278,9 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       datasource,
       datasourceButtonConfiguration,
       datasourceId,
-      formConfig,
       documentationLink,
       featureFlags,
+      formConfig,
       formData,
       gsheetProjectID,
       gsheetToken,
@@ -432,11 +431,12 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                     />
                   ) : null
                 }
-                hideDatasourceRenderSection={hideDatasourceSection}
                 showDatasourceSavedText={!isGoogleSheetPlugin}
               />
               <div style={{ marginTop: "30px" }}>
-                {!_.isNil(formConfig) && !_.isNil(datasource) ? (
+                {!_.isNil(formConfig) &&
+                !_.isNil(datasource) &&
+                !hideDatasourceSection ? (
                   <DatasourceInformation
                     config={formConfig[1]} // using index of 1 here, to show formConfig hidden behind feature flag for google sheets.
                     datasource={datasource}

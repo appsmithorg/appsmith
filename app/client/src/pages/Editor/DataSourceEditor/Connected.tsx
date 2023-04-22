@@ -28,7 +28,6 @@ const Header = styled.div`
 
 function Connected({
   errorComponent,
-  hideDatasourceRenderSection = false,
   showDatasourceSavedText = true,
 }: {
   errorComponent?: JSX.Element | null;
@@ -75,6 +74,7 @@ function Connected({
         </Header>
       )}
       {errorComponent}
+    </>
   );
 }
 
