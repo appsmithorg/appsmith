@@ -160,7 +160,7 @@ function DebuggerEntityLink(props: {
   uiComponent: DebuggerLinkUI;
 }) {
   const onClick = (e: React.MouseEvent<HTMLElement>) => {
-    e.stopPropagation();
+    e.preventDefault();
     props.onClick();
   };
 
