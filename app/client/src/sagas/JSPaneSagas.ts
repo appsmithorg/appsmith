@@ -401,7 +401,6 @@ export function* handleExecuteJSFunctionSaga(data: {
       },
       state: { response: result },
     });
-    console.log("ondhu ", window.location.pathname, collectionId);
     const showSuccessToast = appMode === APP_MODE.EDIT && !isDirty;
     showSuccessToast &&
       isExecuteJSFunc &&
@@ -474,7 +473,6 @@ export function* handleStartExecuteJSFunctionSaga(
     num_params: action.actionConfiguration?.jsArguments?.length,
     from: from,
   });
-  console.log("ondhu sync");
   yield call(handleExecuteJSFunctionSaga, {
     collectionName: collectionName,
     action: action,
