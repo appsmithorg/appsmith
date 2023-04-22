@@ -46,7 +46,7 @@ describe("Create app same name in different workspace", function () {
     } else {
       cy.xpath(application.placeholderTxtEE).should("be.visible");
     }
-    cy.get(application.closeModalPopupMember).click({ force: true });
+    cy.get(application.closeModalPopup).click({ force: true });
     cy.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
