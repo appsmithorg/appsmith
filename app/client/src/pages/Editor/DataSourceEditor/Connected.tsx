@@ -28,9 +28,11 @@ const Header = styled.div`
 
 function Connected({
   errorComponent,
+  hideDatasourceRenderSection = false,
   showDatasourceSavedText = true,
 }: {
   errorComponent?: JSX.Element | null;
+  hideDatasourceRenderSection?: boolean;
   showDatasourceSavedText?: boolean;
 }) {
   const params = useParams<{ datasourceId: string }>();
@@ -73,7 +75,6 @@ function Connected({
         </Header>
       )}
       {errorComponent}
-    </>
   );
 }
 
