@@ -312,7 +312,6 @@ const CenteredIcon = styled(Icon)`
   align-self: center;
   margin-right: 5px;
 `;
-
 const StyledTabPanel = styled(TabPanel)`
   height: calc(100% - 50px);
   overflow: auto;
