@@ -1,7 +1,7 @@
 import React from "react";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import Button from "../../AppViewerButton";
-import { Icon } from "design-system-old";
+import { Icon } from "design-system";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import { useSelector } from "react-redux";
 import { showAppInviteUsersDialogSelector } from "@appsmith/selectors/applicationSelectors";
@@ -67,12 +67,9 @@ const ShareButton = (props: ShareButtonProps) => {
           data-cy="viewmode-share"
           icon={
             <Icon
-              fillColor={getApplicationNameTextColor(
-                primaryColor,
-                navColorStyle,
-              )}
+              color={getApplicationNameTextColor(primaryColor, navColorStyle)}
               name="share-line"
-              size="extraLarge"
+              size="md"
             />
           }
           insideSidebar={insideSidebar}
