@@ -26,7 +26,7 @@ import styled from "styled-components";
 import { emailValidator, ScrollIndicator } from "design-system-old";
 import UserGitProfileSettings from "../components/UserGitProfileSettings";
 import { AUTH_TYPE_OPTIONS } from "../constants";
-import { Colors } from "constants/Colors";
+// import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import copy from "copy-to-clipboard";
 import {
@@ -60,8 +60,8 @@ import Statusbar, {
 } from "pages/Editor/gitSync/components/Statusbar";
 import Keys from "../components/ssh-key";
 import GitConnectError from "../components/GitConnectError";
-import Link from "../components/Link";
-import { Button, Input, Text, Tooltip } from "design-system";
+// import Link from "../components/Link";
+import { Button, Input, Text, Tooltip, Link } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { GIT_DOC_URLs, isValidGitRemoteUrl } from "../utils";
 import { useGitConnect, useSSHKeyPair } from "../hooks";
@@ -82,8 +82,13 @@ const ButtonContainer = styled.div<{ topMargin: number }>`
 `;
 
 const RemoteUrlInfoWrapper = styled.div`
-  margin-bottom: ${(props) => props.theme.spaces[3]}px;
+  margin-bottom: 4px;
   display: flex;
+  .learn-more-link {
+    > span {
+      font-size: 12px;
+    }
+  }
 `;
 
 // v1 only support SSH
@@ -350,23 +355,27 @@ function GitConnection({ isImport }: Props) {
       </UrlOptionContainer>
       {!SSHKeyPair ? (
         <RemoteUrlInfoWrapper>
-          <Text color={Colors.GREY_9} kind="body-s">
+          <Text kind="body-s">
             {createMessage(isImport ? IMPORT_URL_INFO : REMOTE_URL_INFO)}
           </Text>
-          <Space horizontal size={1} />
+          {/* <Space horizontal size={1} /> */}
           <Link
-            className="t--learn-more-ssh-url"
-            color={"var(--ads-v2-color-fg-brand)"}
-            hasIcon={false}
-            link={RepoUrlDocumentUrl}
+            className="t--learn-more-ssh-url learn-more-link"
+            kind="primary"
+            // color={"var(--ads-v2-color-fg-brand)"}
+            // hasIcon={false}
             onClick={() => {
               AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
                 source: "REMOTE_URL_ON_GIT_CONNECTION_MODAL",
               });
               window.open(RepoUrlDocumentUrl, "_blank");
             }}
-            text={createMessage(LEARN_MORE)}
-          />
+            target={"_blank"}
+            to={RepoUrlDocumentUrl}
+            // text={createMessage(LEARN_MORE)}
+          >
+            {createMessage(LEARN_MORE)}
+          </Link>
         </RemoteUrlInfoWrapper>
       ) : null}
       <UrlContainer>
@@ -383,7 +392,7 @@ function GitConnection({ isImport }: Props) {
           value={remoteUrl}
         />
         {isGitConnected && (
-          <Tooltip content="Disconnect Git">
+          <Tooltip content="Disconnect git">
             <Button
               className="t--git-disconnect-icon"
               isIconButton

@@ -23,10 +23,10 @@ import {
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useGitConnect } from "./hooks";
-import { Modal, ModalContent, ModalHeader } from "design-system";
+import { Modal, ModalBody, ModalContent, ModalHeader } from "design-system";
 
-const BodyContainer = styled.div`
-  height: 650px;
+const ModalContentContainer = styled(ModalContent)`
+  min-height: 650px;
 `;
 
 const ComponentsByTab = {
@@ -118,11 +118,11 @@ function GitSyncModal(props: { isImport?: boolean }) {
         }}
         open={isModalOpen}
       >
-        <ModalContent>
-          <BodyContainer className={Classes.GIT_SYNC_MODAL}>
-            <ModalHeader>
-              {MENU_ITEMS_MAP[activeTabKey]?.modalTitle ?? ""}
-            </ModalHeader>
+        <ModalContentContainer>
+          <ModalHeader>
+            {MENU_ITEMS_MAP[activeTabKey]?.modalTitle ?? ""}
+          </ModalHeader>
+          <ModalBody className={Classes.GIT_SYNC_MODAL}>
             <Menu
               activeTabKey={activeTabKey}
               onSelect={(tabKey: string) =>
@@ -136,8 +136,8 @@ function GitSyncModal(props: { isImport?: boolean }) {
             {activeTabKey !== GitSyncModalTab.GIT_CONNECTION && (
               <BodyComponent />
             )}
-          </BodyContainer>
-        </ModalContent>
+          </ModalBody>
+        </ModalContentContainer>
       </Modal>
       <GitErrorPopup />
     </>
