@@ -24,10 +24,7 @@ import com.external.plugins.exceptions.OraclePluginError;
 import com.external.plugins.utils.OracleDatasourceUtils;
 import com.external.plugins.utils.OracleSpecificDataTypes;
 import com.zaxxer.hikari.HikariDataSource;
-import com.zaxxer.hikari.HikariPoolMXBean;
-import com.zaxxer.hikari.pool.HikariProxyConnection;
 import lombok.extern.slf4j.Slf4j;
-import oracle.jdbc.OraclePreparedStatement;
 import org.apache.commons.io.IOUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -47,7 +44,7 @@ import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.time.Duration;
+import java.text.MessageFormat;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,6 +68,7 @@ import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuest
 import static com.external.plugins.utils.OracleDatasourceUtils.JDBC_DRIVER;
 import static com.external.plugins.utils.OracleDatasourceUtils.createConnectionPool;
 import static com.external.plugins.utils.OracleDatasourceUtils.getConnectionFromConnectionPool;
+import static com.external.plugins.utils.OracleDatasourceUtils.logHikariCPStatus;
 import static com.external.plugins.utils.OracleExecuteUtils.closeConnectionPostExecution;
 import static com.external.plugins.utils.OracleExecuteUtils.isPLSQL;
 import static com.external.plugins.utils.OracleExecuteUtils.populateRowsAndColumns;
@@ -78,7 +76,6 @@ import static com.external.plugins.utils.OracleExecuteUtils.removeSemicolonFromQ
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Slf4j
 public class OraclePlugin extends BasePlugin {
@@ -194,7 +191,7 @@ public class OraclePlugin extends BasePlugin {
             return Mono.fromCallable(() -> {
                         Connection connectionFromPool;
 
-                        try {
+                        try {   
                             connectionFromPool = getConnectionFromConnectionPool(connectionPool);
                         } catch (SQLException | StaleConnectionException e) {
                             // The function can throw either StaleConnectionException or SQLException. The underlying hikari
@@ -214,15 +211,10 @@ public class OraclePlugin extends BasePlugin {
                         PreparedStatement preparedQuery = null;
                         boolean isResultSet;
 
-                        HikariPoolMXBean poolProxy = connectionPool.getHikariPoolMXBean();
+                        // Log HikariCP status
+                        logHikariCPStatus(MessageFormat.format("Before executing Oracle query [{0}]", query),
+                                connectionPool);
 
-                        int idleConnections = poolProxy.getIdleConnections();
-                        int activeConnections = poolProxy.getActiveConnections();
-                        int totalConnections = poolProxy.getTotalConnections();
-                        int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                        log.debug("Before executing Oracle query [{}] : Hikari Pool stats : active - {} , idle - {}, " +
-                                        "awaiting - {} , total - {}", query, activeConnections, idleConnections,
-                                threadsAwaitingConnection, totalConnections);
                         try {
                             if (FALSE.equals(preparedStatement)) {
                                 statement = connectionFromPool.createStatement();
@@ -257,13 +249,9 @@ public class OraclePlugin extends BasePlugin {
                                     OracleErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, e.getMessage(),
                                     "SQLSTATE: " + e.getSQLState()));
                         } finally {
-                            idleConnections = poolProxy.getIdleConnections();
-                            activeConnections = poolProxy.getActiveConnections();
-                            totalConnections = poolProxy.getTotalConnections();
-                            threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                            log.debug("After executing Oracle query [{}] : Hikari Pool stats : active - {} , idle - " +
-                                            "{}, awaiting - {} , total - {}", query, activeConnections, idleConnections,
-                                    threadsAwaitingConnection, totalConnections);
+                            // Log HikariCP status
+                            logHikariCPStatus(MessageFormat.format("After executing Oracle query [{0}]", query),
+                                    connectionPool);
 
                             closeConnectionPostExecution(resultSet, statement, preparedQuery, connectionFromPool);
                         }

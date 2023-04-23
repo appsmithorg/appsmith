@@ -1,6 +1,5 @@
 package com.external.plugins.utils;
 
-import com.appsmith.external.constants.DataType;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import oracle.jdbc.OracleArray;
 import oracle.sql.Datum;
@@ -12,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
+import static com.appsmith.external.helpers.PluginUtils.safelyCloseConnectionFromHikariCP;
 import static java.lang.Boolean.FALSE;
 
 public class OracleExecuteUtils implements SmartSubstitutionInterface {
@@ -29,14 +30,6 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
     public static final String TIMESTAMPTZ_TYPE_NAME = "TIMESTAMP WITH TIME ZONE";
     public static final String INTERVAL_TYPE_NAME = "interval";
     public static final String AFFECTED_ROWS_KEY = "affectedRows";
-    public static final String INT8 = "int8";
-    public static final String INT4 = "int4";
-    public static final String DECIMAL = "decimal";
-    public static final String VARCHAR = "varchar";
-    public static final String BOOL = "bool";
-    public static final String DATE = "date";
-    public static final String TIME = "time";
-    public static final String FLOAT8 = "float8";
 
     /**
      * Every PL/SQL block must have `BEGIN` and `END` keywords to define the block. Apart from these they could also
@@ -83,15 +76,8 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
             }
         }
 
-        if (connectionFromPool != null) {
-            try {
-                // Return the connection back to the pool
-                connectionFromPool.close();
-            } catch (SQLException e) {
-                System.out.println(Thread.currentThread().getName() +
-                        ": Execute Error returning Oracle connection to pool" + e.getMessage());
-            }
-        }
+        safelyCloseConnectionFromHikariCP(connectionFromPool, MessageFormat.format("{0}: Execute Error returning " +
+                "Oracle connection to pool", Thread.currentThread().getName()));
     }
 
     /**

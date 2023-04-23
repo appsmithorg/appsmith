@@ -16,8 +16,6 @@ import com.zaxxer.hikari.HikariPoolMXBean;
 import com.zaxxer.hikari.pool.HikariPool;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.sql.Connection;
@@ -26,17 +24,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+import static com.appsmith.external.helpers.PluginUtils.safelyCloseConnectionFromHikariCP;
 import static com.external.plugins.OraclePlugin.OraclePluginExecutor.scheduler;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.util.CollectionUtils.isEmpty;
@@ -49,6 +45,8 @@ public class OracleDatasourceUtils {
     public static final String JDBC_DRIVER = "oracle.jdbc.driver.OracleDriver";
     public static final String ORACLE_URL_PREFIX = "jdbc:oracle:thin:@tcp://";
     public static final int ORACLE_URL_PREFIX_TCPS_OFFSET = 21;
+
+    public static final String ORACLE_PRIMARY_KEY_INDICATOR = "P";
 
     /**
      * Example output:
@@ -97,10 +95,10 @@ public class OracleDatasourceUtils {
             "    cols.table_name, " +
             "    cols.position";
 
-    public static void datasourceDestroy(HikariDataSource connection) {
-        if (connection != null) {
+    public static void datasourceDestroy(HikariDataSource connectionPool) {
+        if (connectionPool != null) {
             System.out.println(Thread.currentThread().getName() + ": Closing Oracle DB Connection Pool");
-            connection.close();
+            connectionPool.close();
         }
     }
 
@@ -148,14 +146,6 @@ public class OracleDatasourceUtils {
 
     public static Mono<DatasourceStructure> getStructure(HikariDataSource connectionPool,
                                                    DatasourceConfiguration datasourceConfiguration) {
-        // 1. -done- Figure out role of each query
-        // 2. -done- Run query and fetch all data
-        // 3. -done- Return schema info
-        // 4. -done- Return query templates
-        // 5. -wip- Update static templates
-        // 6. Refactor code
-        // 7. Add comments
-
         final DatasourceStructure structure = new DatasourceStructure();
         final Map<String, DatasourceStructure.Table> tableNameToTableMap = new LinkedHashMap<>();
 
@@ -171,158 +161,153 @@ public class OracleDatasourceUtils {
                         return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
                     }
 
-                    HikariPoolMXBean poolProxy = connectionPool.getHikariPoolMXBean();
-                    int idleConnections = poolProxy.getIdleConnections();
-                    int activeConnections = poolProxy.getActiveConnections();
-                    int totalConnections = poolProxy.getTotalConnections();
-                    int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                    log.debug("Before getting DB structure: Hikari Pool stats : active - {} , idle - {}, " +
-                                    "awaiting - {} , total - {}", activeConnections, idleConnections,
-                            threadsAwaitingConnection, totalConnections);
+                    logHikariCPStatus("Before getting Oracle DB schema", connectionPool);
 
                     try (Statement statement = connectionFromPool.createStatement()) {
-                        // Get table names. For each table get its column names and column types.
-                        try (ResultSet columnsResultSet =
-                                     statement.executeQuery(ORACLE_SQL_QUERY_TO_GET_ALL_TABLE_COLUMN_TYPE)) {
-                            while (columnsResultSet.next()) {
-                                final String tableName = columnsResultSet.getString("TABLE_NAME");
-                                if (!tableNameToTableMap.containsKey(tableName)) {
-                                    tableNameToTableMap.put(tableName, new DatasourceStructure.Table(
-                                            DatasourceStructure.TableType.TABLE,
-                                            "",
-                                            tableName,
-                                            new ArrayList<>(),
-                                            new ArrayList<>(),
-                                            new ArrayList<>()));
-                                }
-                                final DatasourceStructure.Table table = tableNameToTableMap.get(tableName);
-                                table.getColumns().add(new DatasourceStructure.Column(
-                                        columnsResultSet.getString("COLUMN_NAME"),
-                                        columnsResultSet.getString("DATA_TYPE"),
-                                        null,
-                                        false));
-                            }
-                        }
+                        // Set table names. For each table set its column names and column types.
+                        setTableNamesAndColumnNamesAndColumnTypes(statement, tableNameToTableMap);
 
-                        Map<String, String> primaryKeyConstraintNameToTableNameMap = new HashMap<>();
-                        Map<String, String> primaryKeyConstraintNameToColumnNameMap = new HashMap<>();
-                        Map<String, String> foreignKeyConstraintNameToTableNameMap = new HashMap<>();
-                        Map<String, String> foreignKeyConstraintNameToColumnNameMap = new HashMap<>();
-                        Map<String, String> foreignKeyConstraintNameToRemoteConstraintNameMap = new HashMap<>();
+                        // Set primary key and foreign key constraints.
+                        setPrimaryAndForeignKeyInfoInTables(statement, tableNameToTableMap);
 
-                        // Get all key constraints
-                        try (ResultSet columnsResultSet =
-                                     statement.executeQuery(ORACLE_SQL_QUERY_TO_GET_ALL_TABLE_COLUMN_KEY_CONSTRAINTS)) {
-                            while (columnsResultSet.next()) {
-                                final String tableName = columnsResultSet.getString("TABLE_NAME");
-                                final String columnName = columnsResultSet.getString("COLUMN_NAME");
-                                final String constraintType = columnsResultSet.getString("CONSTRAINT_TYPE");
-                                final String constraintName = columnsResultSet.getString("CONSTRAINT_NAME");
-                                final String remoteConstraintName = columnsResultSet.getString("R_CONSTRAINT_NAME");
-
-                                if ("P".equalsIgnoreCase(constraintType)) {
-                                    primaryKeyConstraintNameToTableNameMap.put(constraintName, tableName);
-                                    primaryKeyConstraintNameToColumnNameMap.put(constraintName, columnName);
-                                }
-                                else {
-                                    foreignKeyConstraintNameToTableNameMap.put(constraintName, tableName);
-                                    foreignKeyConstraintNameToColumnNameMap.put(constraintName, columnName);
-                                    foreignKeyConstraintNameToRemoteConstraintNameMap.put(constraintName, remoteConstraintName);
-                                }
-                            }
-
-                            primaryKeyConstraintNameToColumnNameMap.keySet().stream()
-                                    .filter(constraintName -> {
-                                        String tableName = primaryKeyConstraintNameToTableNameMap.get(constraintName);
-                                        return tableNameToTableMap.keySet().contains(tableName);
-                                    })
-                                    .forEach(constraintName -> {
-                                        String tableName = primaryKeyConstraintNameToTableNameMap.get(constraintName);
-                                        DatasourceStructure.Table table = tableNameToTableMap.get(tableName);
-                                        String columnName = primaryKeyConstraintNameToColumnNameMap.get(constraintName);
-                                        table.getKeys().add(new DatasourceStructure.PrimaryKey(constraintName,
-                                                List.of(columnName)));
-                                    });
-
-                            foreignKeyConstraintNameToColumnNameMap.keySet().stream()
-                                    .filter(constraintName -> {
-                                        String tableName = foreignKeyConstraintNameToTableNameMap.get(constraintName);
-                                        return tableNameToTableMap.keySet().contains(tableName);
-                                    })
-                                    .forEach(constraintName -> {
-                                        String tableName = foreignKeyConstraintNameToTableNameMap.get(constraintName);
-                                        DatasourceStructure.Table table = tableNameToTableMap.get(tableName);
-                                        String columnName = foreignKeyConstraintNameToColumnNameMap.get(constraintName);
-                                        String remoteConstraintName =
-                                                foreignKeyConstraintNameToRemoteConstraintNameMap.get(constraintName);
-                                        String remoteColumn = primaryKeyConstraintNameToColumnNameMap.get(remoteConstraintName);
-                                        table.getKeys().add(new DatasourceStructure.ForeignKey(constraintName,
-                                                List.of(columnName), List.of(remoteColumn)));
-                                    });
-                        }
                     } catch (SQLException throwable) {
                         return Mono.error(new AppsmithPluginException( AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
                                 OracleErrorMessages.GET_STRUCTURE_ERROR_MSG, throwable.getCause(),
                                 "SQLSTATE: " + throwable.getSQLState()));
                     } finally {
-                        idleConnections = poolProxy.getIdleConnections();
-                        activeConnections = poolProxy.getActiveConnections();
-                        totalConnections = poolProxy.getTotalConnections();
-                        threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                        log.debug( "After Oracle db structure, Hikari Pool stats active - {} , idle - {} , awaiting -" +
-                                        " {}  , total - {} ", activeConnections, idleConnections,
-                                threadsAwaitingConnection, totalConnections);
-
-                        if (connectionFromPool != null) {
-                            try {
-                                // Return the connection back to the pool
-                                connectionFromPool.close();
-                            } catch (SQLException e) {
-                                log.debug("Error returning Oracle connection to pool during get structure", e);
-                            }
-                        }
+                        logHikariCPStatus("After getting Oracle DB schema", connectionPool);
+                        safelyCloseConnectionFromHikariCP(connectionFromPool, "Error returning Oracle connection to pool " +
+                                "during get structure");
                     }
 
                     // Set SQL query templates
-                    tableNameToTableMap.values().stream()
-                                    .forEach(table -> {
-                                        LinkedHashMap<String, String> columnNameToSampleColumnDataMap =
-                                                new LinkedHashMap<>();
-                                        table.getColumns().stream()
-                                                .forEach(column -> {
-                                                    columnNameToSampleColumnDataMap.put(column.getName(),
-                                                            getSampleColumnData(column.getType()));
-                                                });
-
-                                        String selectQueryTemplate = MessageFormat.format("SELECT * FROM {0} WHERE " +
-                                                        "ROWNUM < 10", table.getName());
-                                        String insertQueryTemplate = MessageFormat.format("INSERT INTO {0} ({1}) " +
-                                                        "VALUES ({2})", table.getName(),
-                                                getSampleColumnNamesCSVString(columnNameToSampleColumnDataMap),
-                                                getSampleColumnDataCSVString(columnNameToSampleColumnDataMap));
-                                        String updateQueryTemplate = MessageFormat.format("UPDATE {0} SET {1} WHERE " +
-                                                "1=0; -- Specify a valid condition here. Removing the condition may " +
-                                                "update every row in the table!", table.getName(),
-                                                getSampleOneColumnUpdateString(columnNameToSampleColumnDataMap));
-                                        String deleteQueryTemplate = MessageFormat.format("DELETE FROM {0} WHERE 1=0;" +
-                                                " -- Specify a valid condition here. Removing the condition may " +
-                                                "delete everything in the table!", table.getName());
-
-                                        table.getTemplates().add(new DatasourceStructure.Template("SELECT", null,
-                                                Map.of("body", Map.of("data", selectQueryTemplate))));
-                                        table.getTemplates().add(new DatasourceStructure.Template("INSERT", null,
-                                                Map.of("body", Map.of("data", insertQueryTemplate))));
-                                        table.getTemplates().add(new DatasourceStructure.Template("UPDATE", null,
-                                                Map.of("body", Map.of("data", updateQueryTemplate))));
-                                        table.getTemplates().add(new DatasourceStructure.Template("DELETE", null,
-                                                Map.of("body", Map.of("data", deleteQueryTemplate))));
-                                    });
+                    setSQLQueryTemplates(tableNameToTableMap);
 
                     structure.setTables(new ArrayList<>(tableNameToTableMap.values()));
                     return structure;
                 })
                 .map(resultStructure -> (DatasourceStructure) resultStructure)
                 .subscribeOn(scheduler);
+    }
+
+    private static void setPrimaryAndForeignKeyInfoInTables(Statement statement, Map<String,
+            DatasourceStructure.Table> tableNameToTableMap) throws SQLException {
+        Map<String, String> primaryKeyConstraintNameToTableNameMap = new HashMap<>();
+        Map<String, String> primaryKeyConstraintNameToColumnNameMap = new HashMap<>();
+        Map<String, String> foreignKeyConstraintNameToTableNameMap = new HashMap<>();
+        Map<String, String> foreignKeyConstraintNameToColumnNameMap = new HashMap<>();
+        Map<String, String> foreignKeyConstraintNameToRemoteConstraintNameMap = new HashMap<>();
+
+        try (ResultSet columnsResultSet =
+                     statement.executeQuery(ORACLE_SQL_QUERY_TO_GET_ALL_TABLE_COLUMN_KEY_CONSTRAINTS)) {
+            while (columnsResultSet.next()) {
+                final String tableName = columnsResultSet.getString("TABLE_NAME");
+                final String columnName = columnsResultSet.getString("COLUMN_NAME");
+                final String constraintType = columnsResultSet.getString("CONSTRAINT_TYPE");
+                final String constraintName = columnsResultSet.getString("CONSTRAINT_NAME");
+                final String remoteConstraintName = columnsResultSet.getString("R_CONSTRAINT_NAME");
+
+                if (ORACLE_PRIMARY_KEY_INDICATOR.equalsIgnoreCase(constraintType)) {
+                    primaryKeyConstraintNameToTableNameMap.put(constraintName, tableName);
+                    primaryKeyConstraintNameToColumnNameMap.put(constraintName, columnName);
+                }
+                else {
+                    foreignKeyConstraintNameToTableNameMap.put(constraintName, tableName);
+                    foreignKeyConstraintNameToColumnNameMap.put(constraintName, columnName);
+                    foreignKeyConstraintNameToRemoteConstraintNameMap.put(constraintName, remoteConstraintName);
+                }
+            }
+
+            primaryKeyConstraintNameToColumnNameMap.keySet().stream()
+                    .filter(constraintName -> {
+                        String tableName = primaryKeyConstraintNameToTableNameMap.get(constraintName);
+                        return tableNameToTableMap.keySet().contains(tableName);
+                    })
+                    .forEach(constraintName -> {
+                        String tableName = primaryKeyConstraintNameToTableNameMap.get(constraintName);
+                        DatasourceStructure.Table table = tableNameToTableMap.get(tableName);
+                        String columnName = primaryKeyConstraintNameToColumnNameMap.get(constraintName);
+                        table.getKeys().add(new DatasourceStructure.PrimaryKey(constraintName,
+                                List.of(columnName)));
+                    });
+
+            foreignKeyConstraintNameToColumnNameMap.keySet().stream()
+                    .filter(constraintName -> {
+                        String tableName = foreignKeyConstraintNameToTableNameMap.get(constraintName);
+                        return tableNameToTableMap.keySet().contains(tableName);
+                    })
+                    .forEach(constraintName -> {
+                        String tableName = foreignKeyConstraintNameToTableNameMap.get(constraintName);
+                        DatasourceStructure.Table table = tableNameToTableMap.get(tableName);
+                        String columnName = foreignKeyConstraintNameToColumnNameMap.get(constraintName);
+                        String remoteConstraintName =
+                                foreignKeyConstraintNameToRemoteConstraintNameMap.get(constraintName);
+                        String remoteColumn = primaryKeyConstraintNameToColumnNameMap.get(remoteConstraintName);
+                        table.getKeys().add(new DatasourceStructure.ForeignKey(constraintName,
+                                List.of(columnName), List.of(remoteColumn)));
+                    });
+        }
+    }
+
+    private static void setTableNamesAndColumnNamesAndColumnTypes(Statement statement, Map<String,
+            DatasourceStructure.Table> tableNameToTableMap) throws SQLException {
+        try (ResultSet columnsResultSet =
+                     statement.executeQuery(ORACLE_SQL_QUERY_TO_GET_ALL_TABLE_COLUMN_TYPE)) {
+            while (columnsResultSet.next()) {
+                final String tableName = columnsResultSet.getString("TABLE_NAME");
+                if (!tableNameToTableMap.containsKey(tableName)) {
+                    tableNameToTableMap.put(tableName, new DatasourceStructure.Table(
+                            DatasourceStructure.TableType.TABLE,
+                            "",
+                            tableName,
+                            new ArrayList<>(),
+                            new ArrayList<>(),
+                            new ArrayList<>()));
+                }
+                final DatasourceStructure.Table table = tableNameToTableMap.get(tableName);
+                table.getColumns().add(new DatasourceStructure.Column(
+                        columnsResultSet.getString("COLUMN_NAME"),
+                        columnsResultSet.getString("DATA_TYPE"),
+                        null,
+                        false));
+            }
+        }
+    }
+
+    private static void setSQLQueryTemplates(Map<String, DatasourceStructure.Table> tableNameToTableMap) {
+        tableNameToTableMap.values().stream()
+                .forEach(table -> {
+                    LinkedHashMap<String, String> columnNameToSampleColumnDataMap =
+                            new LinkedHashMap<>();
+                    table.getColumns().stream()
+                            .forEach(column -> {
+                                columnNameToSampleColumnDataMap.put(column.getName(),
+                                        getSampleColumnData(column.getType()));
+                            });
+
+                    String selectQueryTemplate = MessageFormat.format("SELECT * FROM {0} WHERE " +
+                            "ROWNUM < 10", table.getName());
+                    String insertQueryTemplate = MessageFormat.format("INSERT INTO {0} ({1}) " +
+                                    "VALUES ({2})", table.getName(),
+                            getSampleColumnNamesCSVString(columnNameToSampleColumnDataMap),
+                            getSampleColumnDataCSVString(columnNameToSampleColumnDataMap));
+                    String updateQueryTemplate = MessageFormat.format("UPDATE {0} SET {1} WHERE " +
+                                    "1=0; -- Specify a valid condition here. Removing the condition may " +
+                                    "update every row in the table!", table.getName(),
+                            getSampleOneColumnUpdateString(columnNameToSampleColumnDataMap));
+                    String deleteQueryTemplate = MessageFormat.format("DELETE FROM {0} WHERE 1=0;" +
+                            " -- Specify a valid condition here. Removing the condition may " +
+                            "delete everything in the table!", table.getName());
+
+                    table.getTemplates().add(new DatasourceStructure.Template("SELECT", null,
+                            Map.of("body", Map.of("data", selectQueryTemplate))));
+                    table.getTemplates().add(new DatasourceStructure.Template("INSERT", null,
+                            Map.of("body", Map.of("data", insertQueryTemplate))));
+                    table.getTemplates().add(new DatasourceStructure.Template("UPDATE", null,
+                            Map.of("body", Map.of("data", updateQueryTemplate))));
+                    table.getTemplates().add(new DatasourceStructure.Template("DELETE", null,
+                            Map.of("body", Map.of("data", deleteQueryTemplate))));
+                });
     }
 
     private static String getSampleOneColumnUpdateString(LinkedHashMap<String, String> columnNameToSampleColumnDataMap) {
@@ -452,5 +437,15 @@ public class OracleDatasourceUtils {
         }
 
         return connectionPool.getConnection();
+    }
+
+    public static void logHikariCPStatus(String logPrefix, HikariDataSource connectionPool) {
+        HikariPoolMXBean poolProxy = connectionPool.getHikariPoolMXBean();
+        int idleConnections = poolProxy.getIdleConnections();
+        int activeConnections = poolProxy.getActiveConnections();
+        int totalConnections = poolProxy.getTotalConnections();
+        int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
+        log.debug("{0}: Hikari Pool stats : active - {1} , idle - {2}, awaiting - {3} , total - {4}", logPrefix,
+                activeConnections, idleConnections, threadsAwaitingConnection, totalConnections);
     }
 }
