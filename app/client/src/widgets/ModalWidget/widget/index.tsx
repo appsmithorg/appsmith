@@ -30,12 +30,22 @@ import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
 import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
 import ModalComponent from "../component";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 const minSize = 100;
 
 export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -75,7 +85,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when the modal is closed",
+            helpText: "when the modal is closed",
             propertyName: "onClose",
             label: "onClose",
             controlType: "ACTION_SELECTOR",

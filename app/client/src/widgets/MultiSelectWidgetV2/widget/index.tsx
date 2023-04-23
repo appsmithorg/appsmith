@@ -17,9 +17,13 @@ import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
 import MultiSelectComponent from "../component";
 import derivedProperties from "./parseDerivedProperties";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -199,6 +203,34 @@ class MultiSelectWidget extends BaseWidget<
   MultiSelectWidgetProps,
   WidgetState
 > {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "MultiSelect is used to capture user input/s from a specified list of permitted inputs. A MultiSelect captures multiple choices from a list of options",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      filterText: {
+        "!type": "string",
+        "!doc": "The filter text for Server side filtering",
+      },
+      selectedOptionValues: {
+        "!type": "[string]",
+        "!doc": "The array of values selected in a multi select dropdown",
+        "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+      },
+      selectedOptionLabels: {
+        "!type": "[string]",
+        "!doc":
+          "The array of selected option labels in a multi select dropdown",
+        "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+      },
+      isDisabled: "bool",
+      isValid: "bool",
+      isDirty: "bool",
+      options: "[$__dropdownOption__$]",
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -467,7 +499,7 @@ class MultiSelectWidget extends BaseWidget<
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when a user selects an option",
+            helpText: "when a user selects an option",
             propertyName: "onOptionChange",
             label: "onOptionChange",
             controlType: "ACTION_SELECTOR",
@@ -476,7 +508,7 @@ class MultiSelectWidget extends BaseWidget<
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the dropdown opens",
+            helpText: "when the dropdown opens",
             propertyName: "onDropdownOpen",
             label: "onDropdownOpen",
             controlType: "ACTION_SELECTOR",
@@ -485,7 +517,7 @@ class MultiSelectWidget extends BaseWidget<
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the dropdown closes",
+            helpText: "when the dropdown closes",
             propertyName: "onDropdownClose",
             label: "onDropdownClose",
             controlType: "ACTION_SELECTOR",

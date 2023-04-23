@@ -42,9 +42,9 @@ const StyledContainerComponent = styled.div<
   }
 `;
 
-const StyledRowComponent = styled.div`
+const StyledRowComponent = styled.div<{ isMobile: boolean }>`
   display: flex;
-  flex-direction: row;
+  flex-direction: ${({ isMobile }) => (isMobile ? "column" : "row")};
   justify-content: flex-start;
   align-items: flex-start;
   height: 100%;
@@ -61,6 +61,7 @@ interface ContainerWrapperProps {
   type: WidgetType;
   dropDisabled?: boolean;
   $noScroll: boolean;
+  isMobile: boolean;
 }
 function ContainerComponentWrapper(
   props: PropsWithChildren<ContainerWrapperProps>,
@@ -141,6 +142,7 @@ function ContainerComponentWrapper(
       }`}
       data-widgetId={props.widgetId}
       dropDisabled={props.dropDisabled}
+      isMobile={props.isMobile}
       onClick={props.onClick}
       onClickCapture={props.onClickCapture}
       onMouseOver={onMouseOver}
@@ -150,7 +152,9 @@ function ContainerComponentWrapper(
       tabIndex={props.shouldScrollContents ? undefined : 0}
       type={props.type}
     >
-      <StyledRowComponent>{props.children}</StyledRowComponent>
+      <StyledRowComponent isMobile={props.isMobile}>
+        {props.children}
+      </StyledRowComponent>
     </StyledContainerComponent>
   );
 }
@@ -161,6 +165,7 @@ function ContainerComponent(props: ContainerComponentProps) {
       <ContainerComponentWrapper
         $noScroll={!!props.noScroll}
         dropDisabled={props.dropDisabled}
+        isMobile={props.isMobile}
         onClick={props.onClick}
         onClickCapture={props.onClickCapture}
         resizeDisabled={props.resizeDisabled}
@@ -188,6 +193,7 @@ function ContainerComponent(props: ContainerComponentProps) {
         $noScroll={!!props.noScroll}
         backgroundColor={props.backgroundColor}
         dropDisabled={props.dropDisabled}
+        isMobile={props.isMobile}
         onClick={props.onClick}
         onClickCapture={props.onClickCapture}
         resizeDisabled={props.resizeDisabled}
@@ -221,6 +227,7 @@ export interface ContainerComponentProps extends WidgetStyleContainerProps {
   justifyContent?: string;
   alignItems?: string;
   dropDisabled?: boolean;
+  isMobile: boolean;
 }
 
 export default ContainerComponent;

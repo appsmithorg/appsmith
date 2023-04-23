@@ -119,7 +119,7 @@ const Map = (props: MapProps) => {
   const MarkersOrCluster = allowClustering ? Clusterer : Markers;
 
   return (
-    <Wrapper onMouseLeave={enableDrag}>
+    <Wrapper onClick={(e) => e.stopPropagation()} onMouseLeave={enableDrag}>
       <StyledMap
         borderRadius={borderRadius}
         boxShadow={boxShadow}

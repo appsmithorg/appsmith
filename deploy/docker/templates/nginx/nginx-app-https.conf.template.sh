@@ -87,7 +87,12 @@ server {
   }
 
   location / {
-    try_files \$uri /index.html =404;
+    try_files /loading.html \$uri /index.html =404;
+  }
+
+  location ~ ^/static/(js|css|media)\b {
+    # Files in these folders are hashed, so we can set a long cache time.
+    add_header Cache-Control "max-age=31104000, immutable";  # 360 days
   }
 
   # If the path has an extension at the end, then respond with 404 status if the file not found.

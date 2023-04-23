@@ -314,7 +314,7 @@ export const contentConfig = [
     sectionName: "Events",
     children: [
       {
-        helpText: "Triggers an action when the chart data point is clicked",
+        helpText: "when the chart data point is clicked",
         propertyName: "onDataPointClick",
         label: "onDataPointClick",
         controlType: "ACTION_SELECTOR",

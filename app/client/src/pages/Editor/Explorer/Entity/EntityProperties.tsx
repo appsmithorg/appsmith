@@ -22,6 +22,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { EntityClassNames } from ".";
+import WidgetFactory from "utils/WidgetFactory";
 
 const CloseIcon = ControlIcons.CLOSE_CONTROL;
 
@@ -190,7 +191,7 @@ export function EntityProperties() {
         | "SKELETON_WIDGET"
         | "TABS_MIGRATOR_WIDGET"
       > = entity.type;
-      config = entityDefinitions[type];
+      config = WidgetFactory.getAutocompleteDefinitions(type);
       if (!config) {
         return null;
       }

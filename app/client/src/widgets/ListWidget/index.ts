@@ -10,6 +10,8 @@ import type { FlattenedWidgetProps } from "widgets/constants";
 import { BlueprintOperationTypes } from "widgets/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -89,17 +91,17 @@ export const CONFIG = {
       {
         id: "001",
         name: "Blue",
-        img: "https://assets.appsmith.com/widgets/default.png",
+        img: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
       },
       {
         id: "002",
         name: "Green",
-        img: "https://assets.appsmith.com/widgets/default.png",
+        img: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
       },
       {
         id: "003",
         name: "Red",
-        img: "https://assets.appsmith.com/widgets/default.png",
+        img: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
       },
     ],
     widgetName: "List",
@@ -157,8 +159,9 @@ export const CONFIG = {
                                   },
                                   position: { top: 0, left: 0 },
                                   props: {
-                                    defaultImage:
-                                      "https://assets.appsmith.com/widgets/default.png",
+                                    defaultImage: getAssetUrl(
+                                      `${ASSETS_CDN_URL}/widgets/default.png`,
+                                    ),
                                     imageShape: "RECTANGLE",
                                     maxZoomLevel: 1,
                                     image: "{{currentItem.img}}",
@@ -415,6 +418,7 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
+    autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
   autoLayout: {
     widgetSize: [

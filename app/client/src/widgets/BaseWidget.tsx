@@ -32,7 +32,7 @@ import {
 } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import type { Stylesheet } from "entities/AppTheming";
-import { get, memoize } from "lodash";
+import { get, isFunction, memoize } from "lodash";
 import type { Context, ReactNode, RefObject } from "react";
 import React, { Component } from "react";
 import type {
@@ -69,6 +69,8 @@ import {
 import AutoLayoutDimensionObserver from "components/designSystems/appsmith/autoLayout/AutoLayoutDimensionObeserver";
 import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import WidgetComponentBoundary from "components/editorComponents/WidgetComponentBoundary";
+import type { AutocompletionDefinitions } from "./constants";
 
 /***
  * BaseWidget
@@ -119,6 +121,10 @@ abstract class BaseWidget<
   }
 
   static getStylesheetConfig(): Stylesheet {
+    return {};
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {};
   }
 
@@ -583,6 +589,15 @@ abstract class BaseWidget<
       </FlexComponent>
     );
   }
+  addWidgetComponentBoundary = (
+    content: ReactNode,
+    widgetProps: WidgetProps,
+  ) => (
+    <WidgetComponentBoundary widgetType={widgetProps.type}>
+      {content}
+    </WidgetComponentBoundary>
+  );
+
   getWidgetComponent = () => {
     const { renderMode, type } = this.props;
 
@@ -599,7 +614,7 @@ abstract class BaseWidget<
       return <Skeleton />;
     }
 
-    const content =
+    let content =
       renderMode === RenderModes.CANVAS
         ? this.getCanvasView()
         : this.getPageView();
@@ -628,8 +643,12 @@ abstract class BaseWidget<
         this.props.type,
       ).autoDimension;
 
-      const shouldObserveWidth = autoDimensionConfig?.width;
-      const shouldObserveHeight = autoDimensionConfig?.height;
+      const shouldObserveWidth = isFunction(autoDimensionConfig)
+        ? autoDimensionConfig(this.props).width
+        : autoDimensionConfig?.width;
+      const shouldObserveHeight = isFunction(autoDimensionConfig)
+        ? autoDimensionConfig(this.props).height
+        : autoDimensionConfig?.height;
 
       if (!shouldObserveHeight && !shouldObserveWidth) return content;
 
@@ -648,6 +667,8 @@ abstract class BaseWidget<
         </AutoLayoutDimensionObserver>
       );
     }
+
+    content = this.addWidgetComponentBoundary(content, this.props);
     return this.addErrorBoundary(content);
   };
 
@@ -692,9 +713,9 @@ abstract class BaseWidget<
       // return this.getCanvasView();
       case RenderModes.PAGE:
         content = this.getWidgetComponent();
-        if (this.props.isFlexChild) content = this.makeFlex(content);
-        else if (!this.props.detachFromLayout) {
-          content = this.makePositioned(content);
+        if (!this.props.detachFromLayout) {
+          if (this.props.isFlexChild) content = this.makeFlex(content);
+          else content = this.makePositioned(content);
         }
         return content;
       default:

@@ -9,11 +9,15 @@ import showdown from "showdown";
 import { retryPromise } from "utils/AppsmithUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 
 import type { Stylesheet } from "entities/AppTheming";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 export enum RTEFormats {
   MARKDOWN = "markdown",
@@ -31,6 +35,14 @@ class RichTextEditorWidget extends BaseWidget<
   RichTextEditorWidgetProps,
   WidgetState
 > {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      text: "string",
+      isDisabled: "string",
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -218,7 +230,7 @@ class RichTextEditorWidget extends BaseWidget<
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when the text is changed",
+            helpText: "when the text is changed",
             propertyName: "onTextChange",
             label: "onTextChanged",
             controlType: "ACTION_SELECTOR",

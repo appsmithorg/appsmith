@@ -20,9 +20,11 @@ export const FAKE_DATASOURCE_OPTION = {
 };
 
 export const useDatasourceOptions = ({
+  canCreateDatasource,
   datasources,
   generateCRUDSupportedPlugin,
 }: {
+  canCreateDatasource: boolean;
   datasources: Datasource[];
   generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap;
 }) => {
@@ -35,9 +37,11 @@ export const useDatasourceOptions = ({
     const unSupportedDatasourceOptions: DropdownOptions = [];
     const supportedDatasourceOptions: DropdownOptions = [];
     let newDataSourceOptions: DropdownOptions = [];
-    newDataSourceOptions.push(
-      FAKE_DATASOURCE_OPTION.CONNECT_NEW_DATASOURCE_OPTION,
-    );
+    if (canCreateDatasource) {
+      newDataSourceOptions.push(
+        FAKE_DATASOURCE_OPTION.CONNECT_NEW_DATASOURCE_OPTION,
+      );
+    }
     datasources.forEach(({ id, isValid, name, pluginId }) => {
       const datasourceObject = {
         id,

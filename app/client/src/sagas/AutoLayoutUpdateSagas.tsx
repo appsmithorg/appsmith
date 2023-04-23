@@ -298,6 +298,7 @@ function* processAutoLayoutDimensionUpdatesSaga() {
       widgets,
       mainCanvasWidth,
       isMobile,
+      widgets[parentId]?.canvasSplitRatio || 1,
     );
 
     //get row space

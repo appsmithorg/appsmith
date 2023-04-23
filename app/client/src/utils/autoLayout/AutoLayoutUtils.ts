@@ -445,6 +445,7 @@ export function getCanvasDimensions(
   widgets: CanvasWidgetsReduxState,
   mainCanvasWidth: number,
   isMobile: boolean,
+  canvasSplitRatio = 1,
 ): { canvasWidth: number; columnSpace: number } {
   const canvasWidth: number = getCanvasWidth(
     canvas,
@@ -453,7 +454,8 @@ export function getCanvasDimensions(
     isMobile,
   );
 
-  const columnSpace: number = canvasWidth / GridDefaults.DEFAULT_GRID_COLUMNS;
+  const columnSpace: number =
+    (canvasWidth / GridDefaults.DEFAULT_GRID_COLUMNS) * canvasSplitRatio;
 
   return { canvasWidth: canvasWidth, columnSpace };
 }

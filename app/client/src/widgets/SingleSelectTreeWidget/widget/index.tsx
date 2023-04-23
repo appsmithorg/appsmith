@@ -16,9 +16,13 @@ import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
 import SingleSelectTreeComponent from "../component";
 import derivedProperties from "./parseDerivedProperties";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
@@ -306,7 +310,7 @@ class SingleSelectTreeWidget extends BaseWidget<
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when a user selects an option",
+            helpText: "when a user selects an option",
             propertyName: "onOptionChange",
             label: "onOptionChange",
             controlType: "ACTION_SELECTOR",
@@ -315,7 +319,7 @@ class SingleSelectTreeWidget extends BaseWidget<
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the dropdown opens",
+            helpText: "when the dropdown opens",
             propertyName: "onDropdownOpen",
             label: "onDropdownOpen",
             controlType: "ACTION_SELECTOR",
@@ -324,7 +328,7 @@ class SingleSelectTreeWidget extends BaseWidget<
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the dropdown closes",
+            helpText: "when the dropdown closes",
             propertyName: "onDropdownClose",
             label: "onDropdownClose",
             controlType: "ACTION_SELECTOR",
@@ -465,6 +469,28 @@ class SingleSelectTreeWidget extends BaseWidget<
         ],
       },
     ];
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "TreeSelect is used to capture user input from a specified list of permitted inputs/Nested Inputs.",
+      "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      selectedOptionValue: {
+        "!type": "string",
+        "!doc": "The value selected in a treeselect dropdown",
+        "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+      },
+      selectedOptionLabel: {
+        "!type": "string",
+        "!doc": "The selected option label in a treeselect dropdown",
+        "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+      },
+      isDisabled: "bool",
+      isValid: "bool",
+      options: "[$__dropdownOption__$]",
+    };
   }
 
   static getDerivedPropertiesMap() {

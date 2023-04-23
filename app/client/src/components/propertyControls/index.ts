@@ -59,6 +59,8 @@ import type { MenuButtonDynamicItemsControlProps } from "components/propertyCont
 import MenuButtonDynamicItemsControl from "components/propertyControls/MenuButtonDynamicItemsControl";
 import type { ListComputeControlProps } from "./ListComputeControl";
 import ListComputeControl from "./ListComputeControl";
+import type { OneClickBindingControlProps } from "./OneClickBindingControl";
+import OneClickBindingControl from "./OneClickBindingControl";
 import CanvasSplitOptionsControl from "./CanvasSplitOptionControl";
 import type { CanvasSplitOptionsControlProps } from "./CanvasSplitOptionControl";
 
@@ -103,6 +105,7 @@ export const PropertyControls = {
   TableInlineEditValidationControl,
   TableInlineEditValidPropertyControl,
   ListComputeControl,
+  OneClickBindingControl,
   CanvasSplitOptionsControl,
 };
 
@@ -127,6 +130,8 @@ export type PropertyControlPropsType =
   | PrimaryColumnColorPickerControlPropsV2
   | SelectDefaultValueControlProps
   | TableInlineEditValidationControlProps
+  | ListComputeControlProps
+  | OneClickBindingControlProps
   | ListComputeControlProps
   | CanvasSplitOptionsControlProps;
 

@@ -22,6 +22,7 @@ import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { triggerWelcomeTour } from "./Utils";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const Wrapper = styled.div`
   display: flex;
@@ -130,6 +131,7 @@ const getPublishAppsImg = () => `${ASSETS_CDN_URL}/PublishApps-v2.svg`;
 
 export default function IntroductionModal({ close }: IntroductionModalProps) {
   const dispatch = useDispatch();
+  const isAirgappedInstance = isAirgapped();
   const onBuildApp = () => {
     AnalyticsUtil.logEvent("SIGNPOSTING_BUILD_APP_CLICK");
     close();
@@ -170,7 +172,10 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
                   </ModalContent>
                 </ModalContentTextWrapper>
                 <StyledImgWrapper>
-                  <StyledImg src={getConnectDataImg()} />
+                  <StyledImg
+                    alt="connect-data-image"
+                    src={getAssetUrl(getConnectDataImg())}
+                  />
                 </StyledImgWrapper>
               </ModalContentRow>
               <ModalContentRow border>
@@ -186,7 +191,10 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
                   </ModalContent>
                 </ModalContentTextWrapper>
                 <StyledImgWrapper>
-                  <StyledImg src={getDragAndDropImg()} />
+                  <StyledImg
+                    alt="drag-and-drop-img"
+                    src={getAssetUrl(getDragAndDropImg())}
+                  />
                 </StyledImgWrapper>
               </ModalContentRow>
               <ModalContentRow className="border-b-0">
@@ -202,7 +210,10 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
                   </ModalContent>
                 </ModalContentTextWrapper>
                 <StyledImgWrapper>
-                  <StyledImg src={getPublishAppsImg()} />
+                  <StyledImg
+                    alt="publish-image"
+                    src={getAssetUrl(getPublishAppsImg())}
+                  />
                 </StyledImgWrapper>
               </ModalContentRow>
             </ModalContentWrapper>
@@ -212,14 +223,16 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
               {createMessage(ONBOARDING_INTRO_FOOTER)}
             </ModalFooterText>
             <div>
-              <StyledButton
-                category={Category.secondary}
-                className="t--introduction-modal-welcome-tour-button my-6"
-                onClick={() => triggerWelcomeTour(dispatch)}
-                size={Size.large}
-                tag="button"
-                text={createMessage(START_TUTORIAL)}
-              />
+              {!isAirgappedInstance && (
+                <StyledButton
+                  category={Category.secondary}
+                  className="t--introduction-modal-welcome-tour-button my-6"
+                  onClick={() => triggerWelcomeTour(dispatch)}
+                  size={Size.large}
+                  tag="button"
+                  text={createMessage(START_TUTORIAL)}
+                />
+              )}
               <StyledButton
                 category={Category.primary}
                 className="t--introduction-modal-build-button my-6 ml-5"

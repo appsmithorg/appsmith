@@ -47,6 +47,7 @@ import {
   getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
 import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
+import { isFunction } from "lodash";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -79,8 +80,6 @@ function* getChildWidgetProps(
   ]);
   const themeDefaultConfig =
     WidgetFactory.getWidgetStylesheetConfigMap(type) || {};
-  const { disableResizeHandles } =
-    WidgetFactory.getWidgetAutoLayoutConfig(type);
   const mainCanvasWidth: number = yield select(getCanvasWidth);
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
 
@@ -151,6 +150,11 @@ function* getChildWidgetProps(
     widgetProps,
     restDefaultConfig.version,
   );
+
+  let { disableResizeHandles } = WidgetFactory.getWidgetAutoLayoutConfig(type);
+  if (isFunction(disableResizeHandles)) {
+    disableResizeHandles = disableResizeHandles(widget);
+  }
 
   if (isAutoLayout) {
     // For hug widgets with horizontal resizing enabled, set the initial value for widthInPercentage

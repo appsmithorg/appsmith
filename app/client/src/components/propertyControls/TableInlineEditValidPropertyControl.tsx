@@ -10,10 +10,7 @@ import TableInlineEditValidationControlProperty, {
   InputText,
 } from "./TableInlineEditValidationControl";
 import { isString } from "lodash";
-import {
-  JSToString,
-  stringToJS,
-} from "components/editorComponents/ActionCreator/utils";
+import { JSToString, stringToJS } from "./utils";
 
 const bindingPrefix = `{{
   (

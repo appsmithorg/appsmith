@@ -14,14 +14,19 @@ import type {
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
 import type { WidgetProps } from "./BaseWidget";
+import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 
 export type WidgetSizeConfig = {
   viewportMinWidth: number;
   configuration: (props: any) => Record<string, string | number>;
 };
 
-type ResizeableOptions = { vertical?: boolean; horizontal?: boolean };
-type AutoDimensionOptions = { width?: boolean; height?: boolean };
+type ResizableValues = { vertical?: boolean; horizontal?: boolean };
+type ResizableOptions = ResizableValues | ((props: any) => ResizableValues);
+type AutoDimensionValues = { width?: boolean; height?: boolean };
+type AutoDimensionOptions =
+  | AutoDimensionValues
+  | ((props: any) => AutoDimensionValues);
 
 export type AutoLayoutConfig = {
   // Indicates if a widgets dimensions should be auto adjusted according to content inside it
@@ -29,7 +34,7 @@ export type AutoLayoutConfig = {
   // min/max sizes for the widget
   widgetSize?: Array<WidgetSizeConfig>;
   // Indicates if the widgets resize handles should be disabled
-  disableResizeHandles?: ResizeableOptions;
+  disableResizeHandles?: ResizableOptions;
   // default values for the widget specifi to auto layout
   defaults?: Partial<WidgetConfigProps>;
   // default values for the properties that are hidden/disabled in auto layout
@@ -61,6 +66,7 @@ export interface WidgetConfiguration {
     derived: DerivedPropertiesMap;
     loadingProperties?: Array<RegExp>;
     stylesheetConfig?: Stylesheet;
+    autocompleteDefinitions?: AutocompletionDefinitions;
   };
 }
 
@@ -91,6 +97,15 @@ interface LayoutProps {
   isFlexChild?: boolean;
   responsiveBehavior?: ResponsiveBehavior;
 }
+
+export type AutocompleteDefinitionFunction = (
+  widgetProps: WidgetProps,
+  extraDefsToDefine?: ExtraDef,
+) => Record<string, any>;
+
+export type AutocompletionDefinitions =
+  | Record<string, any>
+  | AutocompleteDefinitionFunction;
 
 const staticProps = omit(
   WIDGET_STATIC_PROPS,

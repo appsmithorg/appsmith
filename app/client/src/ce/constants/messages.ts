@@ -1,3 +1,5 @@
+import type { PageErrorMessageProps } from "pages/common/ErrorPages/Components/PageErrorMessage";
+
 export function createMessage(
   format: (...strArgs: any[]) => string,
   ...args: any[]
@@ -346,6 +348,8 @@ export const OAUTH_APPSMITH_TOKEN_NOT_FOUND = "Appsmith token not found";
 
 export const GSHEET_AUTHORIZATION_ERROR =
   "Data source is not authorized, please authorize to continue.";
+export const GSHEET_FILES_NOT_SELECTED =
+  "Datasource does not have access to any files, please authorize google sheets to use this data source";
 
 export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE = () =>
   "Error saving a key in localStorage. You have exceeded the allowed storage size limit";
@@ -372,11 +376,6 @@ export const BACK_TO_HOMEPAGE = () => "Go back to homepage";
 // error pages
 export const PAGE_NOT_FOUND_TITLE = () => "404";
 export const PAGE_NOT_FOUND = () => "Page not found";
-export const PAGE_SERVER_UNAVAILABLE_ERROR_CODE = () => "503";
-export const PAGE_SERVER_UNAVAILABLE_TITLE = () =>
-  "Appsmith server is unavailable";
-export const PAGE_SERVER_UNAVAILABLE_DESCRIPTION = () =>
-  "Please try again later";
 export const PAGE_SERVER_TIMEOUT_ERROR_CODE = () => "504";
 export const PAGE_SERVER_TIMEOUT_TITLE = () =>
   "Appsmith server is taking too long to respond";
@@ -385,6 +384,64 @@ export const PAGE_SERVER_TIMEOUT_DESCRIPTION = () =>
 export const PAGE_CLIENT_ERROR_TITLE = () => "Whoops something went wrong!";
 export const PAGE_CLIENT_ERROR_DESCRIPTION = () =>
   "This is embarrassing, please contact Appsmith support for help";
+
+export const PAGE_SERVER_UNAVAILABLE_ERROR_CODE = () => "503";
+
+// cloudHosting used in EE
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const PAGE_SERVER_UNAVAILABLE_TITLE = (cloudHosting: boolean) =>
+  "Appsmith server unavailable";
+
+export const PAGE_SERVER_UNAVAILABLE_DESCRIPTION = () =>
+  "Please try again later";
+
+export const PAGE_SERVER_UNAVAILABLE_ERROR_MESSAGES = (
+  cloudHosting: boolean,
+): PageErrorMessageProps[] => {
+  if (cloudHosting) {
+    return [
+      {
+        text: "If the problem persists, please contact customer support",
+        links: [
+          {
+            from: 40,
+            to: 56,
+            href: "mailto: support@appsmith.com?subject=Appsmith 503 Server Error",
+          },
+        ],
+        addNewLine: true,
+      },
+    ];
+  } else {
+    return [
+      {
+        text: "If the problem persists, please contact your admin",
+        addNewLine: true,
+      },
+      {
+        text: "You can find more information on how to debug and access the logs here",
+        links: [
+          {
+            from: 66,
+            to: 70,
+            href: "https://docs.appsmith.com/learning-and-resources/how-to-guides/how-to-get-container-logs",
+          },
+        ],
+        addNewLine: true,
+      },
+      {
+        text: "A quick view of the server logs is accessible here",
+        links: [
+          {
+            from: 46,
+            to: 50,
+            href: "/supervisor/logtail/backend",
+          },
+        ],
+      },
+    ];
+  }
+};
 
 // comments
 export const POST = () => "Post";
@@ -435,8 +492,8 @@ export const DEBUGGER_APPSMITH_SUPPORT = () => "Get Appsmith support";
 export const NO_ACTION = () => `No action`;
 export const EXECUTE_A_QUERY = () => `Execute a query`;
 export const NAVIGATE_TO = () => `Navigate to`;
-export const SHOW_MESSAGE = () => `Show message`;
-export const OPEN_MODAL = () => `Open modal`;
+export const SHOW_ALERT = () => `Show Alert`;
+export const SHOW_MODAL = () => `Show modal`;
 export const CLOSE_MODAL = () => `Close modal`;
 export const CLOSE = () => `CLOSE`;
 export const STORE_VALUE = () => `Store value`;
@@ -531,8 +588,13 @@ export const SKIP_TO_APPLICATION = () => "Skip to Application";
 export const SELECT_A_METHOD_TO_ADD_CREDENTIALS = () =>
   "Select a method to add credentials";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
-export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
-  `You want to remove ${name} from this workspace`;
+export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (
+  name?: string | null,
+  entityType?: string,
+) =>
+  `You want to remove ${name} from this ${
+    entityType === "Application" ? "application" : "workspace"
+  }`;
 export const PARSING_ERROR = () =>
   "Syntax Error: Unable to parse code, please check error logs to debug";
 export const PARSING_WARNING = () =>

@@ -54,6 +54,23 @@ export const getDatasourcesStructure = (
   return state.entities.datasources.structure;
 };
 
+export const getDatasourceStructureById =
+  (id: string) =>
+  (state: AppState): DatasourceStructure => {
+    return state.entities.datasources.structure[id];
+  };
+
+export const getDatasourceTableColumns =
+  (datasourceId: string, tableName: string) => (state: AppState) => {
+    const structure = getDatasourceStructureById(datasourceId)(state);
+
+    if (structure) {
+      const table = structure.tables?.find((d) => d.name === tableName);
+
+      return table?.columns;
+    }
+  };
+
 export const getIsFetchingDatasourceStructure = (state: AppState): boolean => {
   return state.entities.datasources.fetchingDatasourceStructure;
 };
@@ -309,11 +326,9 @@ export const getDatasourcePlugins = createSelector(getPlugins, (plugins) => {
 
 export const getPluginImages = createSelector(getPlugins, (plugins) => {
   const pluginImages: Record<string, string> = {};
-
   plugins.forEach((plugin) => {
     pluginImages[plugin.id] = plugin?.iconLocation ?? ImageAlt;
   });
-
   return pluginImages;
 });
 
@@ -370,6 +385,17 @@ export const getGenerateCRUDEnabledPluginMap = createSelector(
       }
     });
     return pluginIdGenerateCRUDPageEnabled;
+  },
+);
+
+export const getPluginIdPackageNamesMap = createSelector(
+  getPlugins,
+  (plugins) => {
+    return plugins.reduce((obj: Record<string, string>, plugin) => {
+      obj[plugin.id] = plugin.packageName;
+
+      return obj;
+    }, {});
   },
 );
 

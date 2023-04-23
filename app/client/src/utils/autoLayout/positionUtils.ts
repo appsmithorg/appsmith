@@ -30,6 +30,7 @@ import {
 import { getCanvasDimensions } from "./AutoLayoutUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
+import { isFunction } from "lodash";
 
 /**
  * Calculate widget position on canvas.
@@ -61,6 +62,7 @@ export function updateWidgetPositions(
       widgets,
       mainCanvasWidth,
       isMobile,
+      parent?.canvasSplitRatio || 1,
     );
 
     let height = 0;
@@ -322,9 +324,13 @@ export function extractAlignmentInfo(
       : GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
     const isFillWidget = widget.responsiveBehavior === ResponsiveBehavior.Fill;
-    const { disableResizeHandles } = WidgetFactory.getWidgetAutoLayoutConfig(
+
+    let { disableResizeHandles } = WidgetFactory.getWidgetAutoLayoutConfig(
       widget.type,
     );
+    if (isFunction(disableResizeHandles)) {
+      disableResizeHandles = disableResizeHandles(widget);
+    }
 
     // For hug widgets with horizontal resizing enabled,
     // make sure the width is not getting greater than user defined width

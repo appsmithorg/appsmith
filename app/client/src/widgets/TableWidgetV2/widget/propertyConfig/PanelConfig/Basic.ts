@@ -216,7 +216,7 @@ export default {
                 dependencies: ["primaryColumns", "columnOrder"],
               },
               {
-                helpText: "Triggers an action when the menu item is clicked",
+                helpText: "when the menu item is clicked",
                 propertyName: "onClick",
                 label: "onClick",
                 controlType: "ACTION_SELECTOR",
@@ -361,7 +361,7 @@ export default {
       },
     },
     {
-      helpText: "Triggers an action when the button is clicked",
+      helpText: "when the button is clicked",
       propertyName: "onClick",
       label: "onClick",
       controlType: "ACTION_SELECTOR",
