@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-// import { Overlay, Classes } from "@blueprintjs/core";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { ModalBody, ModalContent, Modal } from "design-system";
 
