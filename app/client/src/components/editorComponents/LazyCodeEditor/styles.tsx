@@ -38,13 +38,14 @@ export const HighlighedCodeContainer = styled("div")<{
 `;
 
 export const LazyEditorWrapper = styled("div")`
-  position: relative;
+  display: contents;
 `;
 
 export const ContentWrapper = styled("div")<{
   contentKind: ContentKind;
 }>`
   overflow: hidden;
+  width: 100%;
   height: ${({ contentKind }) =>
     contentKind === ContentKind.PLACEHOLDER ? "36px" : "auto"};
   min-height: 34px;
