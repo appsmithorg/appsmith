@@ -550,13 +550,15 @@ class DatasourceRestAPIEditor extends React.Component<
     if (connection?.ssl.authType === SSLType.SELF_SIGNED_CERTIFICATE) {
       return (
         <Collapsible defaultIsOpen title="Certificate Details">
-          {this.renderFilePickerControlViaFormControl(
-            "connection.ssl.certificateFile",
-            "Upload Certificate",
-            "",
-            false,
-            true,
-          )}
+          <div style={{ marginTop: "16px" }}>
+            {this.renderFilePickerControlViaFormControl(
+              "connection.ssl.certificateFile",
+              "Upload Certificate",
+              "",
+              false,
+              true,
+            )}
+          </div>
         </Collapsible>
       );
     }

@@ -20,8 +20,9 @@ import { NavigationMethod } from "../../utils/history";
 import { useHistory } from "react-router-dom";
 
 const StyledLink = styled(Link)`
-  margin-left: 16px;
-  margin-top: 8px;
+  /* margin-left: 16px;
+  margin-top: 8px; */
+  width: fit-content;
 `;
 
 function CloseEditor() {
@@ -73,6 +74,7 @@ function CloseEditor() {
 
   return (
     <StyledLink
+      className="t--close-editor"
       kind="secondary"
       onClick={handleClose}
       startIcon="arrow-left-line"

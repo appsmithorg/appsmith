@@ -3,9 +3,7 @@ import { connect } from "react-redux";
 import styled from "styled-components";
 import _ from "lodash";
 import { DATASOURCE_DB_FORM } from "@appsmith/constants/forms";
-import { Icon } from "@blueprintjs/core";
 import FormTitle from "./FormTitle";
-import { Callout, Variant } from "design-system-old";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import Connected from "./Connected";
 import type { Datasource } from "entities/Datasource";
@@ -33,7 +31,7 @@ import Debugger, {
   ResizerMainContainer,
 } from "./Debugger";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { Button } from "design-system";
+import { Button, Callout } from "design-system";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
 const { cloudHosting } = getAppsmithConfigs();
@@ -62,17 +60,6 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
 
 type Props = DatasourceDBEditorProps &
   InjectedFormProps<Datasource, DatasourceDBEditorProps>;
-
-const StyledOpenDocsIcon = styled(Icon)`
-  svg {
-    width: 12px;
-    height: 18px;
-  }
-`;
-
-const CalloutWrapper = styled.div`
-  padding: 0 20px;
-`;
 
 const CollapsibleWrapper = styled.div`
   width: max-content;
@@ -120,7 +107,6 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
     const content = this.renderDataSourceConfigForm(formConfig);
     return this.renderForm(content);
   }
-
   renderDataSourceConfigForm = (sections: any) => {
     const {
       canManageDatasource,
@@ -171,29 +157,30 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
         <ResizerMainContainer>
           <ResizerContentContainer className="db-form-resizer-content">
             {messages &&
-              messages.map((msg, i) => (
-                <CalloutWrapper key={i}>
-                  <Callout
-                    addMarginTop
-                    fill
-                    text={msg}
-                    variant={Variant.warning}
-                  />
-                </CalloutWrapper>
-              ))}
+              messages.map((msg, i) => {
+                return (
+                  <Callout key={i} kind="warning">
+                    {msg}
+                  </Callout>
+                );
+              })}
             {!this.props.hiddenHeader &&
               cloudHosting &&
               pluginType === PluginType.DB &&
               !viewMode && (
                 <CollapsibleWrapper>
-                  <CollapsibleHelp>
-                    <span>{`Whitelist the IP ${convertArrayToSentence(
+                  <CollapsibleHelp
+                    links={[
+                      {
+                        children: "Learn more",
+                        onClick: () => this.openOmnibarReadMore,
+                        endIcon: "share-box",
+                      },
+                    ]}
+                  >
+                    {`Whitelist the IP ${convertArrayToSentence(
                       APPSMITH_IP_ADDRESSES,
-                    )}  on your database instance to connect to it. `}</span>
-                    <a onClick={this.openOmnibarReadMore}>
-                      {"Learn more "}
-                      <StyledOpenDocsIcon icon="document-open" />
-                    </a>
+                    )}  on your database instance to connect to it. `}
                   </CollapsibleHelp>
                 </CollapsibleWrapper>
               )}

@@ -10,12 +10,10 @@ import type { ControlProps, ControlData } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import { Colors } from "constants/Colors";
 import type { TextInputProps } from "design-system-old";
-import { Case, Classes, Text, TextInput, TextType } from "design-system-old";
 import { setDefaultKeyValPairFlag } from "actions/datasourceActions";
 import { useDispatch } from "react-redux";
-import { Button, Icon } from "design-system";
+import { Button, Input } from "design-system";
 export interface KeyValueArrayControlProps extends ControlProps {
   name: string;
   label: string;
@@ -30,13 +28,20 @@ const FormRowWithLabel = styled.div`
   display: flex;
   flex: 1;
   flex-direction: row;
+  align-items: center;
+  margin-bottom: 5px;
   & svg {
     cursor: pointer;
   }
+  .form-input-field {
+    width: 270px;
+    + .form-input-field {
+      margin-left: 5px;
+    }
+  }
 `;
 
-const StyledTextInput = styled(TextInput)`
-  min-width: 66px;
+const StyledTextInput = styled(Input)`
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
@@ -44,37 +49,10 @@ const StyledTextInput = styled(TextInput)`
   }
 `;
 
-const CenteredButton = styled(Button)`
-  align-self: center;
-  margin-left: 15px;
+const StyledButton = styled(Button)`
+  margin-left: 5px;
 `;
-
-const AddMoreAction = styled.div`
-  width: fit-content;
-  cursor: pointer;
-  display: flex;
-  margin-top: 16px;
-  margin-left: 12px;
-  .${Classes.TEXT} {
-    margin-left: 8px;
-    color: ${Colors.GRAY};
-  }
-  svg {
-    fill: ${Colors.GRAY};
-    path {
-      fill: none;
-    }
-  }
-
-  &:hover {
-    .${Classes.TEXT} {
-      color: ${Colors.CHARCOAL};
-    }
-    svg {
-      fill: ${Colors.CHARCOAL};
-    }
-  }
-`;
+const AddMoreButton = styled(Button)``;
 
 function KeyValueRow(
   props: KeyValueArrayControlProps & WrappedFieldArrayProps,
@@ -143,13 +121,10 @@ function KeyValueRow(
           valueTextFieldName = `${field}.${valueName[1]}`;
 
         return (
-          <FormRowWithLabel
-            key={index}
-            style={{ marginTop: index > 0 ? "16px" : "0px" }}
-          >
+          <FormRowWithLabel key={index}>
             <div
+              className="form-input-field"
               data-replay-id={btoa(keyTextFieldName)}
-              style={{ width: "20vw" }}
             >
               <Field
                 component={renderTextInput}
@@ -167,7 +142,7 @@ function KeyValueRow(
               />
             </div>
             {!props.actionConfig && (
-              <div style={{ marginLeft: "16px", width: "20vw" }}>
+              <div className="form-input-field">
                 <div
                   data-replay-id={btoa(valueTextFieldName)}
                   style={{ display: "flex", flexDirection: "row" }}
@@ -185,16 +160,18 @@ function KeyValueRow(
                       isRequired: extraData[1]?.isRequired,
                     }}
                   />
-                  <CenteredButton
-                    className="t--delete-field"
-                    isIconButton
-                    kind="tertiary"
-                    onClick={() => props.fields.remove(index)}
-                    size="sm"
-                    startIcon="delete"
-                  />
                 </div>
               </div>
+            )}
+            {!props.actionConfig && (
+              <StyledButton
+                className="t--delete-field"
+                isIconButton
+                kind="tertiary"
+                onClick={() => props.fields.remove(index)}
+                size="md"
+                startIcon="delete"
+              />
             )}
 
             {props.actionConfig && (
@@ -211,12 +188,15 @@ function KeyValueRow(
           </FormRowWithLabel>
         );
       })}
-      <AddMoreAction className="t--add-field" onClick={addRow}>
-        <Icon className="t--addApiHeader" name="add-more" size="md" />
-        <Text case={Case.UPPERCASE} type={TextType.H5}>
-          Add more
-        </Text>
-      </AddMoreAction>
+      <AddMoreButton
+        className="t--add-field btn-add-more"
+        kind="tertiary"
+        onClick={addRow}
+        size="md"
+        startIcon="add-more"
+      >
+        Add more
+      </AddMoreButton>
     </>
   ) : null;
 }
@@ -269,18 +249,22 @@ function renderTextInput(
     input: Partial<WrappedFieldInputProps>;
   },
 ): JSX.Element {
+  //  TODO (tanvi): use number or text inout based on data type
   return (
     <StyledTextInput
-      dataType={props.dataType}
+      // dataType={props.dataType}
+      aria-label={
+        props.helperText || props.defaultValue || props.placeholder || "label"
+      }
       defaultValue={props.defaultValue}
-      errorMsg={props.errorMsg}
-      helperText={props.helperText}
-      name={props.input?.name}
+      description={props.helperText}
+      errorMessage={props.errorMsg}
+      // name={props.input?.name}
       onChange={props.input.onChange}
       placeholder={props.placeholder}
-      validator={props.keyFieldValidate}
+      size="md"
+      // validator={props.keyFieldValidate}
       value={props.input.value}
-      width="100%"
     />
   );
 }

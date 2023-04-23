@@ -332,6 +332,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                         }),
                       );
                     }}
+                    size="md"
                   >
                     Edit
                   </Button>
@@ -357,7 +358,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                   description={authErrorMessage}
                   pageId={pageId}
                   style={{
-                    paddingTop: "24px",
+                    paddingTop: "12px",
                   }}
                 />
               ) : null}

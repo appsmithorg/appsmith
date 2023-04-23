@@ -1,11 +1,7 @@
 import React from "react";
-import styled from "styled-components";
-import { Classes as BPClasses, Position } from "@blueprintjs/core";
-import type { IPopover2Props } from "@blueprintjs/popover2";
-import { Popover2 } from "@blueprintjs/popover2";
+import { Classes as BPClasses } from "@blueprintjs/core";
 import type { Dispatch } from "redux";
 import { useDispatch } from "react-redux";
-import { Classes, Text, FontWeight, TextType } from "design-system-old";
 import type { Message, SourceEntity } from "entities/AppsmithConsole";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -22,7 +18,7 @@ import {
   DEBUGGER_OPEN_DOCUMENTATION,
   DEBUGGER_SEARCH_SNIPPET,
 } from "@appsmith/constants/messages";
-import { Icon } from "design-system";
+import { Menu, MenuContent, MenuItem, MenuTrigger } from "design-system";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { SlashCommand } from "entities/Action";
 import type { FieldEntityInformation } from "../CodeEditor/EditorConfig";
@@ -106,8 +102,6 @@ const getSnippetArgs = function (
 type ContextualMenuProps = {
   error: Message;
   children: JSX.Element;
-  position?: Position;
-  modifiers?: IPopover2Props["modifiers"];
   entity?: FieldEntityInformation | SourceEntity;
 };
 
@@ -182,104 +176,41 @@ const searchAction: Record<
   },
 };
 
-const IconContainer = styled.span`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const MenuItem = styled.a`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  text-decoration: none;
-  padding: 8px ${(props) => props.theme.spaces[7]}px;
-  height: 36px;
-
-  .${Classes.TEXT} {
-    color: ${(props) => props.theme.colors.menuItem.hoverText};
-  }
-
-  &:hover {
-    text-decoration: none;
-    cursor: pointer;
-    background-color: ${(props) => props.theme.colors.menuItem.hoverBg};
-
-    .${Classes.TEXT} {
-      color: ${(props) => props.theme.colors.menuItem.hoverText};
-    }
-    .${Classes.ICON} {
-      path {
-        fill: ${(props) => props.theme.colors.menuItem.hoverIcon};
-      }
-    }
-  }
-`;
-
-const MenuWrapper = styled.div<{ width: string }>`
-  width: ${(props) => props.width};
-  background: ${(props) => props.theme.colors.menu.background};
-  box-shadow: ${(props) =>
-    `${props.theme.spaces[0]}px ${props.theme.spaces[5]}px ${
-      props.theme.spaces[12] - 2
-    }px ${props.theme.colors.menu.shadow}`};
-`;
-
-export default function ContextualMenu(props: ContextualMenuProps) {
+const ContextualMenu = (props: ContextualMenuProps) => {
   const options = getOptions(props.error.type, props.error.subType);
   const dispatch = useDispatch();
 
   return (
-    <Popover2
-      className="t--debugger-contextual-error-menu"
-      content={
-        <MenuWrapper width={"200px"}>
-          {options.map((e) => {
-            const menuProps = searchAction[e];
-            const onSelect = () => {
-              menuProps.onSelect(props.error, dispatch, props.entity);
-            };
+    <Menu className="t--debugger-contextual-error-menu">
+      <MenuTrigger>{props.children}</MenuTrigger>
+      <MenuContent>
+        {options.map((e) => {
+          const menuProps = searchAction[e];
+          const onSelect = () => {
+            menuProps.onSelect(props.error, dispatch, props.entity);
+          };
 
-            if (
-              e === CONTEXT_MENU_ACTIONS.INTERCOM &&
-              !(intercomAppID && window.Intercom)
-            ) {
-              return null;
-            }
+          if (
+            e === CONTEXT_MENU_ACTIONS.INTERCOM &&
+            !(intercomAppID && window.Intercom)
+          ) {
+            return null;
+          }
 
-            return (
-              <MenuItem
-                className={`${BPClasses.POPOVER_DISMISS} t--debugger-contextual-menuitem`}
-                key={e}
-                onClick={onSelect}
-              >
-                <IconContainer>
-                  <Icon color="#858282" name={menuProps.icon} size="md" />
-                  <Text type={TextType.P3} weight={FontWeight.NORMAL}>
-                    {menuProps.text}
-                  </Text>
-                </IconContainer>
-              </MenuItem>
-            );
-          })}
-        </MenuWrapper>
-      }
-      modifiers={
-        props.modifiers || {
-          offset: {
-            enabled: true,
-            options: {
-              offset: [25, 5],
-            },
-          },
-          arrow: {
-            enabled: false,
-          },
-        }
-      }
-      position={props.position || Position.RIGHT}
-    >
-      {props.children}
-    </Popover2>
+          return (
+            <MenuItem
+              className={`${BPClasses.POPOVER_DISMISS} t--debugger-contextual-menuitem`}
+              key={e}
+              onClick={onSelect}
+              startIcon={menuProps.icon}
+            >
+              {menuProps.text}
+            </MenuItem>
+          );
+        })}
+      </MenuContent>
+    </Menu>
   );
-}
+};
+
+export default ContextualMenu;

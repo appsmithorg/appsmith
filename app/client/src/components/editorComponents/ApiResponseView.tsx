@@ -1,5 +1,5 @@
-import type { RefObject, PropsWithChildren } from "react";
-import React, { useRef, useCallback } from "react";
+import type { PropsWithChildren, RefObject } from "react";
+import React, { useCallback, useRef } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 import { withRouter } from "react-router";
@@ -7,6 +7,7 @@ import ReactJson from "react-json-view";
 import styled from "styled-components";
 import type { AppState } from "@appsmith/reducers";
 import type { ActionResponse } from "api/ActionAPI";
+import ActionAPI from "api/ActionAPI";
 import { formatBytes } from "utils/helpers";
 import type { APIEditorRouteParams } from "constants/routes";
 import type { SourceEntity } from "entities/AppsmithConsole";
@@ -17,32 +18,25 @@ import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { getActionResponses } from "selectors/entitiesSelector";
 import { isArray, isEmpty, isString } from "lodash";
 import {
+  ACTION_EXECUTION_MESSAGE,
   CHECK_REQUEST_BODY,
   createMessage,
   DEBUGGER_LOGS,
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_RESPONSE_LAST_HALF,
   INSPECT_ENTITY,
-  ACTION_EXECUTION_MESSAGE,
   DEBUGGER_ERRORS,
 } from "@appsmith/constants/messages";
 import { Text as BlueprintText } from "@blueprintjs/core";
 import type { EditorTheme } from "./CodeEditor/EditorConfig";
+import NoResponseSVG from "assets/images/no-response.svg";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { DebugButton } from "./Debugger/DebugCTA";
 import EntityDeps from "./Debugger/EntityDependecies";
-import {
-  Callout,
-  Classes,
-  TAB_MIN_HEIGHT,
-  Text,
-  TextType,
-  Variant,
-} from "design-system-old";
-import { Button, Icon } from "design-system";
+import { Classes, TAB_MIN_HEIGHT, Text, TextType } from "design-system-old";
+import { Button, Callout, Icon } from "design-system";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import Table from "pages/Editor/QueryEditor/Table";
@@ -50,7 +44,6 @@ import { API_RESPONSE_TYPE_OPTIONS } from "constants/ApiEditorConstants/CommonAp
 import type { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 import { setActionResponseDisplayFormat } from "actions/pluginActionActions";
 import { isHtml } from "./utils";
-import ActionAPI from "api/ActionAPI";
 import {
   getDebuggerSelectedTab,
   getResponsePaneHeight,
@@ -76,11 +69,12 @@ type TextStyleProps = {
 export const BaseText = styled(BlueprintText)<TextStyleProps>``;
 
 const ResponseContainer = styled.div`
-  ${ResizerCSS}
+  ${ResizerCSS};
   width: 100%;
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
-  background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
+  background-color: var(--ads-v2-color-bg);
+  border-top: 1px solid var(--ads-v2-color-border);
 
   .react-tabs__tab-panel {
     overflow: hidden;
@@ -92,7 +86,7 @@ const ResponseContainer = styled.div`
 const ResponseMetaInfo = styled.div`
   display: flex;
   ${BaseText} {
-    color: #768896;
+    color: var(--ads-v2-color-fg);
     margin-left: ${(props) => props.theme.spaces[9]}px;
   }
 `;
@@ -124,7 +118,7 @@ const TabbedViewWrapper = styled.div`
 
   &&& {
     ul.react-tabs__tab-list {
-      margin: 0px ${(props) => props.theme.spaces[11]}px;
+      margin: 0 ${(props) => props.theme.spaces[11]}px;
       height: ${TAB_MIN_HEIGHT};
     }
   }
@@ -134,12 +128,6 @@ const TabbedViewWrapper = styled.div`
       height: calc(100% - ${TAB_MIN_HEIGHT});
     }
   }
-`;
-
-export const SectionDivider = styled.div`
-  height: 1px;
-  width: 100%;
-  background: ${(props) => props.theme.colors.apiPane.dividerBg};
 `;
 
 const Flex = styled.div`
@@ -160,7 +148,7 @@ const NoResponseContainer = styled.div`
   justify-content: center;
   flex-direction: column;
   .${Classes.ICON} {
-    margin-right: 0px;
+    margin-right: 0;
     svg {
       width: 150px;
       height: 150px;
@@ -169,27 +157,6 @@ const NoResponseContainer = styled.div`
 
   .${Classes.TEXT} {
     margin-top: ${(props) => props.theme.spaces[9]}px;
-  }
-`;
-
-const FailedMessage = styled.div`
-  display: flex;
-  align-items: center;
-  margin-left: 5px;
-
-  .api-debugcta {
-    margin-top: 0px;
-    height: 26px;
-  }
-`;
-
-const StyledCallout = styled(Callout)`
-  .${Classes.TEXT} {
-    line-height: normal;
-    font-size: 12px;
-  }
-  .${Classes.ICON} {
-    width: 16px;
   }
 `;
 
@@ -209,6 +176,7 @@ export const LoadingOverlayContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: var(--ads-v2-spaces-3);
   background-color: transparent;
   position: relative;
   z-index: 20;
@@ -344,6 +312,35 @@ export const responseTabComponent = (
 export const handleCancelActionExecution = () => {
   ActionAPI.abortActionExecutionTokenSource.cancel();
 };
+
+const StyledText = styled(Text)`
+  &&&& {
+    margin-top: 0;
+  }
+`;
+
+interface NoResponseProps {
+  isButtonDisabled: boolean | undefined;
+  isQueryRunning: boolean;
+  onRunClick: () => void;
+}
+export const NoResponse = (props: NoResponseProps) => (
+  <NoResponseContainer>
+    <img alt="no-response-yet" src={NoResponseSVG} />
+    <div className="flex gap-2 items-center mt-4">
+      <StyledText type={TextType.P1}>{EMPTY_RESPONSE_FIRST_HALF()}</StyledText>
+      <Button
+        isDisabled={props.isButtonDisabled}
+        isLoading={props.isQueryRunning}
+        onClick={props.onRunClick}
+        size="md"
+      >
+        Run
+      </Button>
+      <StyledText type={TextType.P1}>{EMPTY_RESPONSE_LAST_HALF()}</StyledText>
+    </div>
+  </NoResponseContainer>
+);
 
 function ApiResponseView(props: Props) {
   const {
@@ -483,7 +480,9 @@ function ApiResponseView(props: Props) {
           {Array.isArray(messages) && messages.length > 0 && (
             <HelpSection>
               {messages.map((msg, i) => (
-                <Callout fill key={i} text={msg} variant={Variant.warning} />
+                <Callout key={i} kind="warning">
+                  {msg}
+                </Callout>
               ))}
             </HelpSection>
           )}
@@ -525,21 +524,11 @@ function ApiResponseView(props: Props) {
           ) : (
             <ResponseDataContainer>
               {isEmpty(response.statusCode) ? (
-                <NoResponseContainer>
-                  <Icon name="no-response" />
-                  <Text type={TextType.P1}>
-                    {EMPTY_RESPONSE_FIRST_HALF()}
-                    <Button
-                      isDisabled={disabled}
-                      isLoading={isRunning}
-                      onClick={onRunClick}
-                      size="md"
-                    >
-                      Run
-                    </Button>
-                    {EMPTY_RESPONSE_LAST_HALF()}
-                  </Text>
-                </NoResponseContainer>
+                <NoResponse
+                  isButtonDisabled={disabled}
+                  isQueryRunning={isRunning}
+                  onRunClick={onRunClick}
+                />
               ) : (
                 <ResponseBodyContainer>
                   {isString(response?.body) && isHtml(response?.body) ? (
@@ -574,32 +563,27 @@ function ApiResponseView(props: Props) {
       panelComponent: (
         <ResponseTabWrapper>
           {hasFailed && !isRunning && (
-            <StyledCallout
-              fill
-              label={
-                <FailedMessage>
-                  <DebugButton
-                    className="api-debugcta"
-                    onClick={onDebugClick}
-                  />
-                </FailedMessage>
-              }
-              text={createMessage(CHECK_REQUEST_BODY)}
-              variant={Variant.danger}
-            />
+            <Callout
+              kind="error"
+              links={[
+                {
+                  children: "Debug",
+                  endIcon: "bug",
+                  onClick: () => onDebugClick,
+                  to: "",
+                },
+              ]}
+            >
+              {createMessage(CHECK_REQUEST_BODY)}
+            </Callout>
           )}
           <ResponseDataContainer>
             {isEmpty(response.statusCode) ? (
-              <NoResponseContainer>
-                <Icon name="no-response" />
-                <Text type={TextType.P1}>
-                  {EMPTY_RESPONSE_FIRST_HALF()}
-                  <Button isLoading={isRunning} onClick={onRunClick} size="md">
-                    Run
-                  </Button>
-                  {EMPTY_RESPONSE_LAST_HALF()}
-                </Text>
-              </NoResponseContainer>
+              <NoResponse
+                isButtonDisabled={disabled}
+                isQueryRunning={isRunning}
+                onRunClick={onRunClick}
+              />
             ) : (
               <ReadOnlyEditor
                 folding
@@ -649,26 +633,23 @@ function ApiResponseView(props: Props) {
         panelRef={panelRef}
         snapToHeight={ActionExecutionResizerHeight}
       />
-      <SectionDivider />
       {isRunning && (
         <>
           <LoadingOverlayScreen theme={props.theme} />
           <LoadingOverlayContainer>
-            <div>
-              <Text textAlign={"center"} type={TextType.P1}>
-                {createMessage(ACTION_EXECUTION_MESSAGE, "API")}
-              </Text>
-              <Button
-                className={`t--cancel-action-button`}
-                kind="secondary"
-                onClick={() => {
-                  handleCancelActionExecution();
-                }}
-                size="md"
-              >
-                Cancel Request
-              </Button>
-            </div>
+            <Text textAlign={"center"} type={TextType.P1}>
+              {createMessage(ACTION_EXECUTION_MESSAGE, "API")}
+            </Text>
+            <Button
+              className={`t--cancel-action-button`}
+              kind="secondary"
+              onClick={() => {
+                handleCancelActionExecution();
+              }}
+              size="md"
+            >
+              Cancel Request
+            </Button>
           </LoadingOverlayContainer>
         </>
       )}

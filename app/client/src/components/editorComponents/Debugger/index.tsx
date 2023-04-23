@@ -15,10 +15,10 @@ import {
   hideDebuggerIconSelector,
   showDebuggerFlag,
 } from "selectors/debuggerSelectors";
-import { getTypographyByKey, TooltipComponent } from "design-system-old";
+import { getTypographyByKey } from "design-system-old";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
 import { BottomBarCTAStyles } from "pages/Editor/BottomBar/styles";
-import { Button } from "design-system";
+import { Button, Tooltip } from "design-system";
 import { Colors } from "constants/Colors";
 
 function Debugger() {
@@ -113,12 +113,7 @@ export function DebuggerTrigger() {
   if (hideDebuggerIcon) return null;
 
   return (
-    <TooltipComponent
-      content={tooltipContent}
-      modifiers={{
-        preventOverflow: { enabled: true },
-      }}
-    >
+    <Tooltip content={tooltipContent}>
       <TriggerContainer
         className="t--debugger"
         errorCount={messageCounters.errors}
@@ -136,7 +131,7 @@ export function DebuggerTrigger() {
           {totalMessageCount > 99 ? "99+" : totalMessageCount}
         </div>
       </TriggerContainer>
-    </TooltipComponent>
+    </Tooltip>
   );
 }
 
