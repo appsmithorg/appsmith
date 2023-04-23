@@ -69,7 +69,7 @@ export const NEW_TO_APPSMITH = () => `Don't have an account?`;
 export const LOGIN_PAGE_TITLE = () => `Sign in`;
 export const LOGIN_PAGE_SUBTITLE = () => `Sign in to your account`;
 
-export const LOGIN_PAGE_LOGIN_BUTTON_TEXT = () => `sign in`;
+export const LOGIN_PAGE_LOGIN_BUTTON_TEXT = () => `Sign in`;
 export const LOGIN_PAGE_FORGOT_PASSWORD_TEXT = () => `Forgot Password`;
 export const LOGIN_PAGE_REMEMBER_ME_LABEL = () => `Remember`;
 export const LOGIN_PAGE_SIGN_UP_LINK_TEXT = () => `Sign up`;
@@ -83,7 +83,7 @@ export const SIGNUP_PAGE_PASSWORD_INPUT_LABEL = () => `Password`;
 export const SIGNUP_PAGE_PASSWORD_INPUT_PLACEHOLDER = () => `Password`;
 export const SIGNUP_PAGE_LOGIN_LINK_TEXT = () => `Sign in`;
 export const SIGNUP_PAGE_NAME_INPUT_SUBTEXT = () => `How should we call you?`;
-export const SIGNUP_PAGE_SUBMIT_BUTTON_TEXT = () => `Sign Up`;
+export const SIGNUP_PAGE_SUBMIT_BUTTON_TEXT = () => `Sign up`;
 export const ALREADY_HAVE_AN_ACCOUNT = () => `Already have an account?`;
 
 export const SIGNUP_PAGE_SUCCESS = () =>
@@ -993,7 +993,7 @@ export const CHOOSE_ACCESS_CONTROL_ROLES = () =>
 export const BUILD_MY_FIRST_APP = () => "Build on my own";
 export const ONBOARDING_INTRO_FOOTER = () =>
   "Let’s start building your first application";
-export const START_TUTORIAL = () => "START TUTORIAL";
+export const START_TUTORIAL = () => "Start tutorial";
 export const WELCOME_TO_APPSMITH = () => "Welcome to Appsmith!";
 export const QUERY_YOUR_DATABASE = () =>
   "Query your own database or API inside Appsmith. Write JS to construct dynamic queries.";
