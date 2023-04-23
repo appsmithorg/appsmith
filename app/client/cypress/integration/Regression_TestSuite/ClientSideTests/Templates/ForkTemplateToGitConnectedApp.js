@@ -38,6 +38,7 @@ describe("Fork a template to the current app", () => {
       .scrollIntoView()
       .wait(500)
       .click();
+    cy.get(template.templateViewForkButton).first().click();
     cy.waitUntil(() => cy.xpath("//span[text()='Setting up the template']"), {
       errorMsg: "Setting Templates did not finish even after 75 seconds",
       timeout: 950000,
