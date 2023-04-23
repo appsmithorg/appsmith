@@ -126,6 +126,10 @@ public class OracleDatasourceUtils {
                 invalids.add(OracleErrorMessages.DS_MISSING_USERNAME_ERROR_MSG);
             }
 
+            if (isBlank(authentication.getPassword())) {
+                invalids.add(OracleErrorMessages.DS_MISSING_PASSWORD_ERROR_MSG);
+            }
+
             if (isBlank(authentication.getDatabaseName())) {
                 invalids.add(OracleErrorMessages.DS_MISSING_SERVICE_NAME_ERROR_MSG);
             }

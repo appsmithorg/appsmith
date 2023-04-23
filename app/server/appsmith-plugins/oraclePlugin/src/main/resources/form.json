@@ -12,7 +12,8 @@
               "configProperty": "datasourceConfiguration.endpoints[*].host",
               "controlType": "KEYVALUE_ARRAY",
               "validationMessage": "Please enter a valid host",
-              "validationRegex": "^((?![/:]).)*$"
+              "validationRegex": "^((?![/:]).)*$",
+              "isRequired": true
             },
             {
               "label": "Port",
@@ -26,7 +27,8 @@
           "label": "Service Name",
           "configProperty": "datasourceConfiguration.authentication.databaseName",
           "controlType": "INPUT_TEXT",
-          "placeholderText": "gfb284db6bcee33_testdb_high.adb.oraclecloud.com"
+          "placeholderText": "gfb284db6bcee33_testdb_high.adb.oraclecloud.com",
+          "isRequired": true
         }
       ]
     },
@@ -41,7 +43,8 @@
               "label": "Username",
               "configProperty": "datasourceConfiguration.authentication.username",
               "controlType": "INPUT_TEXT",
-              "placeholderText": "admin"
+              "placeholderText": "admin",
+              "isRequired": true
             },
             {
               "label": "Password",
@@ -49,7 +52,8 @@
               "dataType": "PASSWORD",
               "controlType": "INPUT_TEXT",
               "placeholderText": "password",
-              "encrypted": true
+              "encrypted": true,
+              "isRequired": true
             }
           ]
         }
