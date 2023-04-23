@@ -2,6 +2,7 @@ package com.external.plugins.utils;
 
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import oracle.jdbc.OracleArray;
+import oracle.sql.CLOB;
 import oracle.sql.Datum;
 import org.apache.commons.lang.ObjectUtils;
 
@@ -28,7 +29,9 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
     public static final String DATE_COLUMN_TYPE_NAME = "date";
     public static final String TIMESTAMP_TYPE_NAME = "timestamp";
     public static final String TIMESTAMPTZ_TYPE_NAME = "TIMESTAMP WITH TIME ZONE";
-    public static final String INTERVAL_TYPE_NAME = "interval";
+    public static final String TIMESTAMPLTZ_TYPE_NAME = "TIMESTAMP WITH LOCAL TIME ZONE";
+    public static final String CLOB_TYPE_NAME = "CLOB";
+    public static final String NCLOB_TYPE_NAME = "NCLOB";
     public static final String AFFECTED_ROWS_KEY = "affectedRows";
 
     /**
@@ -141,27 +144,18 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
                                 )
                         ) + "Z";
 
-                    } else if (TIMESTAMPTZ_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                    } else if (TIMESTAMPTZ_TYPE_NAME.equalsIgnoreCase(typeName) || TIMESTAMPLTZ_TYPE_NAME.equalsIgnoreCase(typeName)) {
                         value = DateTimeFormatter.ISO_DATE_TIME.format(
                                 resultSet.getObject(i, OffsetDateTime.class)
                         );
 
-                    } else if (INTERVAL_TYPE_NAME.equalsIgnoreCase(typeName)) {
-                        value = resultSet.getObject(i).toString();
-
+                    } else if (CLOB_TYPE_NAME.equalsIgnoreCase(typeName) || NCLOB_TYPE_NAME.equals(typeName)) {
+                        value = String.valueOf(((CLOB)resultSet.getObject(i)).getTarget().getPrefetchedData());
                     } else if (resultSet.getObject(i) instanceof OracleArray) {
                         value = ((OracleArray)resultSet.getObject(i)).getArray();
                     }
                     else {
-                        value = resultSet.getObject(i);
-
-                        /**
-                         * 'Datum' class is the root of Oracle native datatype hierarchy.
-                         * Ref: https://docs.oracle.com/cd/A97329_03/web.902/q20224/oracle/sql/Datum.html
-                         */
-                        if (value instanceof Datum) {
-                            value = new String(((Datum) value).getBytes());
-                        }
+                        value = resultSet.getObject(i).toString();
                     }
 
                     row.put(metaData.getColumnName(i), value);

@@ -39,5 +39,5 @@ public class OracleErrorMessages {
 
     public static final String DS_MISSING_USERNAME_ERROR_MSG = "Missing username for authentication.";
 
-    public static final String DS_MISSING_DATABASE_NAME_ERROR_MSG = "Missing database name.";
+    public static final String DS_MISSING_SERVICE_NAME_ERROR_MSG = "Missing service name.";
 }

@@ -106,28 +106,28 @@ public class OracleDatasourceUtils {
         Set<String> invalids = new HashSet<>();
 
         if (isEmpty(datasourceConfiguration.getEndpoints())) {
-            invalids.add("Missing endpoint.");
+            invalids.add(OracleErrorMessages.DS_MISSING_ENDPOINT_ERROR_MSG);
         } else {
             for (final Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
                 if (isBlank(endpoint.getHost())) {
-                    invalids.add("Missing hostname.");
+                    invalids.add(OracleErrorMessages.DS_MISSING_HOSTNAME_ERROR_MSG);
                 } else if (endpoint.getHost().contains("/") || endpoint.getHost().contains(":")) {
-                    invalids.add("Host value cannot contain `/` or `:` characters. Found `" + endpoint.getHost() + "`.");
+                    invalids.add(String.format(OracleErrorMessages.DS_INVALID_HOSTNAME_ERROR_MSG, endpoint.getHost()));
                 }
             }
         }
 
         if (datasourceConfiguration.getAuthentication() == null) {
-            invalids.add("Missing authentication details.");
+            invalids.add(OracleErrorMessages.DS_MISSING_AUTHENTICATION_DETAILS_ERROR_MSG);
 
         } else {
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
             if (isBlank(authentication.getUsername())) {
-                invalids.add("Missing username for authentication.");
+                invalids.add(OracleErrorMessages.DS_MISSING_USERNAME_ERROR_MSG);
             }
 
             if (isBlank(authentication.getDatabaseName())) {
-                invalids.add("Missing database name.");
+                invalids.add(OracleErrorMessages.DS_MISSING_SERVICE_NAME_ERROR_MSG);
             }
         }
 
@@ -137,8 +137,7 @@ public class OracleDatasourceUtils {
         if (datasourceConfiguration.getConnection() == null
                 || datasourceConfiguration.getConnection().getSsl() == null
                 || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
-            invalids.add("Appsmith server has failed to fetch SSL configuration from datasource configuration form. " +
-                    "Please reach out to Appsmith customer support to resolve this.");
+            invalids.add(OracleErrorMessages.SSL_CONFIGURATION_ERROR_MSG);
         }
 
         return invalids;
@@ -190,6 +189,13 @@ public class OracleDatasourceUtils {
                 .subscribeOn(scheduler);
     }
 
+    /**
+     * Run a SQL query to fetch all user accessible tables along with their column names and if the column is a
+     * primary or foreign key. Since the remote table relationship for a foreign key column is not explicitly defined
+     * we create a 1:1 map here for primary_key -> table, and foreign_key -> table so that we can find both the
+     * tables to which a foreign key is related to.
+     * Please check the SQL query macro definition to find a sample response as comment.
+     */
     private static void setPrimaryAndForeignKeyInfoInTables(Statement statement, Map<String,
             DatasourceStructure.Table> tableNameToTableMap) throws SQLException {
         Map<String, String> primaryKeyConstraintNameToTableNameMap = new HashMap<>();
@@ -249,6 +255,11 @@ public class OracleDatasourceUtils {
         }
     }
 
+    /**
+     * Run a SQL query to fetch all tables accessible to user along with their columns and data  type of each column.
+     * Then read the response and populate Appsmith's Table object with the same.
+     * Please check the SQL query macro definition to find a sample response as comment.
+     */
     private static void setTableNamesAndColumnNamesAndColumnTypes(Statement statement, Map<String,
             DatasourceStructure.Table> tableNameToTableMap) throws SQLException {
         try (ResultSet columnsResultSet =
