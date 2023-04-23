@@ -6,12 +6,15 @@ import { isHidden, isKVArray } from "components/formControls/utils";
 import log from "loglevel";
 
 const Key = styled.div`
+  color: var(--ads-v2-color-fg-muted);
+  font-size: 14px;
   display: inline-block;
 `;
 
 const Value = styled.div`
   font-size: 14px;
   font-weight: 500;
+  color: var(--ads-v2-color-fg);
   display: inline-block;
   margin-left: 5px;
 `;
@@ -24,7 +27,7 @@ const ValueWrapper = styled.div`
 `;
 
 const FieldWrapper = styled.div`
-  &:not(:first-child) {
+  &:first-child {
     margin-top: 9px;
   }
 `;
