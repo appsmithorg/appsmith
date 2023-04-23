@@ -1,3 +1,4 @@
+from requests.exceptions import ConnectionError
 import os
 import requests
 import sys
@@ -6,7 +7,7 @@ import time
 
 LOADING_TEMPLATE_PAGE = r'/opt/appsmith/templates/appsmith_starting.html'
 LOADING_PAGE_EDITOR = r'/opt/appsmith/editor/loading.html'
-BACKEND_HEALTH_ENDPOINT = "http://localhost/api/v1/health"
+BACKEND_HEALTH_ENDPOINT = "http://localhost:8080/api/v1/health"
 
 def write_stdout(s):
     # only eventlistener protocol messages may be sent to stdout
@@ -21,16 +22,21 @@ def wait_until_backend_healthy():
     sleep_sec = 3
     timeout_sec = 120
     for _ in range(timeout_sec//sleep_sec):
-        if requests.get(BACKEND_HEALTH_ENDPOINT).ok:
-            write_stderr('\nBackend is healthy\n')
+        try:
+            if requests.get(BACKEND_HEALTH_ENDPOINT).ok:
+                write_stderr('\nBackend is healthy\n')
+                break
+        except ConnectionError:
+            pass # retry after sleep_sec
+        except Exception as ex:
+            write_stderr(ex)
             break
-        time.sleep(sleep_sec)
-
+        finally:
+            time.sleep(sleep_sec)
     else:
-        write_stderr('\nBackend health check timed out\n')
-
+        write_stderr('\nError: Backend health check timeout.\n')
     remove_loading_page()
-
+      
 def remove_loading_page():
     if os.path.exists(LOADING_PAGE_EDITOR):
         os.remove(LOADING_PAGE_EDITOR)
