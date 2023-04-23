@@ -4,7 +4,7 @@ import type { JSAction, JSCollection } from "entities/JSCollection";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import MoreJSCollectionsMenu from "../Explorer/JSActions/MoreJSActionsMenu";
 import type { DropdownOnSelect } from "design-system-old";
-import { SearchSnippet, TabComponent } from "design-system-old";
+import { TabComponent } from "design-system-old";
 import CodeEditor from "components/editorComponents/CodeEditor";
 import {
   EditorModes,
@@ -70,6 +70,7 @@ import {
 import history from "utils/history";
 import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
+import SearchSnippets from "../../common/SearchSnippets";
 
 interface JSFormProps {
   jsCollection: JSCollection;
@@ -298,7 +299,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                 name={currentJSCollection.name}
                 pageId={pageId}
               />
-              <SearchSnippet
+              <SearchSnippets
                 entityId={currentJSCollection?.id}
                 entityType={ENTITY_TYPE.JSACTION}
                 onClick={() => {
