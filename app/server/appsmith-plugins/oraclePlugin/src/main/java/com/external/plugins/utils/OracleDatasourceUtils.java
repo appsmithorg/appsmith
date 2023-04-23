@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.helpers.PluginUtils.safelyCloseConnectionFromHikariCP;
+import static com.appsmith.external.helpers.PluginUtils.safelyCloseSingleConnectionFromHikariCP;
 import static com.external.plugins.OraclePlugin.OraclePluginExecutor.scheduler;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.util.CollectionUtils.isEmpty;
@@ -176,7 +176,7 @@ public class OracleDatasourceUtils {
                                 "SQLSTATE: " + throwable.getSQLState()));
                     } finally {
                         logHikariCPStatus("After getting Oracle DB schema", connectionPool);
-                        safelyCloseConnectionFromHikariCP(connectionFromPool, "Error returning Oracle connection to pool " +
+                        safelyCloseSingleConnectionFromHikariCP(connectionFromPool, "Error returning Oracle connection to pool " +
                                 "during get structure");
                     }
 

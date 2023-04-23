@@ -454,7 +454,7 @@ public class PluginUtils {
         return propertyValue.toString();
     }
 
-    public static void safelyCloseConnectionFromHikariCP(Connection connection, String logOnError) {
+    public static void safelyCloseSingleConnectionFromHikariCP(Connection connection, String logOnError) {
         if (connection != null) {
             try {
                 // Return the connection back to the pool

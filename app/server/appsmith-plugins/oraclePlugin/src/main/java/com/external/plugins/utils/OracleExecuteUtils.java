@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
-import static com.appsmith.external.helpers.PluginUtils.safelyCloseConnectionFromHikariCP;
+import static com.appsmith.external.helpers.PluginUtils.safelyCloseSingleConnectionFromHikariCP;
 import static java.lang.Boolean.FALSE;
 
 public class OracleExecuteUtils implements SmartSubstitutionInterface {
@@ -76,7 +76,7 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
             }
         }
 
-        safelyCloseConnectionFromHikariCP(connectionFromPool, MessageFormat.format("{0}: Execute Error returning " +
+        safelyCloseSingleConnectionFromHikariCP(connectionFromPool, MessageFormat.format("{0}: Execute Error returning " +
                 "Oracle connection to pool", Thread.currentThread().getName()));
     }
 
