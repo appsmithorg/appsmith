@@ -58,7 +58,7 @@ export function* addNewCanvas(
     type: "CANVAS_WIDGET",
     leftColumn: existingCanvas.rightColumn,
     topRow: 0,
-    columns: existingCanvas.rightColumn + existingCanvasWidth * ratios[1],
+    columns: existingCanvasWidth * ratios[1],
     rows: existingCanvas.bottomRow - existingCanvas.topRow,
     canExtend: true,
     parentRowSpace: 1,

@@ -493,10 +493,11 @@ function getCanvasWidth(
     if (!widget) continue;
     const columns = getWidgetWidth(widget, isMobile);
     const padding = getPadding(widget);
+    const splitRatio = widget.canvasSplitRatio || 1;
     const factor = widget.detachFromLayout
       ? 1
       : columns / GridDefaults.DEFAULT_GRID_COLUMNS;
-    width = width * factor - padding;
+    width = (width * factor - padding) * splitRatio;
   }
 
   return width;
@@ -514,6 +515,10 @@ function getPadding(canvas: FlattenedWidgetProps): number {
 
   if (canvas.noPad) {
     padding -= WIDGET_PADDING;
+  }
+
+  if (canvas.canvasSplitType && canvas.canvasSplitType !== "1-column") {
+    padding += (CONTAINER_GRID_PADDING + FLEXBOX_PADDING) * 2;
   }
 
   return padding;
