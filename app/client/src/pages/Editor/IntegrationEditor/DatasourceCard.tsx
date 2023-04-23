@@ -344,6 +344,8 @@ function DatasourceCard(props: DatasourceCardProps) {
                       <MenuItem
                         className="t--datasource-option-delete"
                         disabled={isDeletingDatasource}
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore
                         onSelect={(e: Event) => {
                           e.preventDefault();
                           e.stopPropagation();
