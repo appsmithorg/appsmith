@@ -15,7 +15,9 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Link } from "design-system";
 import styled from "styled-components";
+import type { AppsmithLocationState } from "../../utils/history";
 import { NavigationMethod } from "../../utils/history";
+import { useHistory } from "react-router-dom";
 
 const StyledLink = styled(Link)`
   margin-left: 16px;
@@ -23,6 +25,7 @@ const StyledLink = styled(Link)`
 `;
 
 function CloseEditor() {
+  const history = useHistory<AppsmithLocationState>();
   const params: string = location.search;
   const searchParamsInstance = new URLSearchParams(params);
   const redirectTo = searchParamsInstance.get("from");
@@ -38,7 +41,7 @@ function CloseEditor() {
     integrationTab = INTEGRATION_TABS.NEW;
   }
 
-  const getURL = () => {
+  const handleClose = (e: React.MouseEvent) => {
     PerformanceTracker.startTracking(
       PerformanceTransactionName.CLOSE_SIDE_PANE,
       { path: location.pathname },
@@ -59,21 +62,21 @@ function CloseEditor() {
             params: getQueryParams(),
           })
         : redirectURL;
-
+    e.preventDefault();
     AnalyticsUtil.logEvent("BACK_BUTTON_CLICK", {
       type: "BACK_BUTTON",
       fromUrl: location.pathname,
       toUrl: URL,
     });
-    return `${URL}?invokedBy=${NavigationMethod.ActionBackButton}`;
+    history.push(URL, { invokedBy: NavigationMethod.ActionBackButton });
   };
 
   return (
     <StyledLink
       kind="secondary"
+      onClick={handleClose}
       startIcon="arrow-left-line"
       target="_self"
-      to={getURL()}
     >
       Back
     </StyledLink>
