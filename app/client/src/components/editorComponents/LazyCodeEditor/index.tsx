@@ -206,7 +206,10 @@ function LazyCodeEditor({ input, placeholder, ...otherProps }: EditorProps) {
       );
 
     return (
-      <LazyEditorWrapper ref={editorWrapperRef}>
+      <LazyEditorWrapper
+        className="t--renderedCodeEditor"
+        ref={editorWrapperRef}
+      >
         <CachedCodeEditor
           input={input}
           placeholder={placeholder}
