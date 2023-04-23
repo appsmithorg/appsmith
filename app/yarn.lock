@@ -7496,6 +7496,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/to-json-schema@npm:^0.2.1":
+  version: 0.2.1
+  resolution: "@types/to-json-schema@npm:0.2.1"
+  dependencies:
+    "@types/json-schema": "*"
+  checksum: caffc8ab0f7b41a054a9f487408775dd2bce76e24a1b977e832002efba38c239d6bf8263a786b63768db61ed3dc0e0893d5ba69e587dc75309c06e1d80473c90
+  languageName: node
+  linkType: hard
+
 "@types/toposort@npm:^2.0.3":
   version: 2.0.3
   resolution: "@types/toposort@npm:2.0.3"
@@ -8843,6 +8852,7 @@ __metadata:
     "@types/styled-components": ^5.1.26
     "@types/tern": 0.22.0
     "@types/tinycolor2": ^1.4.2
+    "@types/to-json-schema": ^0.2.1
     "@types/toposort": ^2.0.3
     "@types/webfontloader": 1.6.33
     "@types/zipcelx": ^1.5.0
@@ -9027,6 +9037,7 @@ __metadata:
     styled-components: ^5.3.6
     tern: ^0.21.0
     tinycolor2: ^1.4.2
+    to-json-schema: ^0.2.5
     toposort: ^2.0.2
     ts-jest: 27.0.0
     ts-jest-mock-import-meta: ^0.12.0
@@ -19477,6 +19488,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lodash.keys@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "lodash.keys@npm:4.2.0"
+  checksum: 055576c8c4a0bacc0c1da9bcbb520e6e70dcf94c609495263686c62c8242a440293e9ab8387a7398dda529cb05b76e8f783c3fd3d6ba7bc6d5d6d2e08e8512ae
+  languageName: node
+  linkType: hard
+
 "lodash.memoize@npm:4.x, lodash.memoize@npm:^4.1.2":
   version: 4.1.2
   resolution: "lodash.memoize@npm:4.1.2"
@@ -19488,6 +19506,13 @@ __metadata:
   version: 4.6.2
   resolution: "lodash.merge@npm:4.6.2"
   checksum: ad580b4bdbb7ca1f7abf7e1bce63a9a0b98e370cf40194b03380a46b4ed799c9573029599caebc1b14e3f24b111aef72b96674a56cfa105e0f5ac70546cdc005
+  languageName: node
+  linkType: hard
+
+"lodash.omit@npm:^4.5.0":
+  version: 4.5.0
+  resolution: "lodash.omit@npm:4.5.0"
+  checksum: 434645e49fe84ab315719bd5a9a3a585a0f624aa4160bc09157dd041a414bcc287c15840365c1379476a3f3eda41fbe838976c3f7bdecbbf4c5478e86c471a30
   languageName: node
   linkType: hard
 
@@ -19523,6 +19548,20 @@ __metadata:
   version: 4.5.0
   resolution: "lodash.uniq@npm:4.5.0"
   checksum: a4779b57a8d0f3c441af13d9afe7ecff22dd1b8ce1129849f71d9bbc8e8ee4e46dfb4b7c28f7ad3d67481edd6e51126e4e2a6ee276e25906d10f7140187c392d
+  languageName: node
+  linkType: hard
+
+"lodash.without@npm:^4.4.0":
+  version: 4.4.0
+  resolution: "lodash.without@npm:4.4.0"
+  checksum: 8cef752edd4ed4065be2a8fd30ea52c0bb27b0cb6c34742f595263c72ee0c3a188572affb477ef18a4dd4d0347fe1a4e580b70d4e36f37323d7924d2e6046bd6
+  languageName: node
+  linkType: hard
+
+"lodash.xor@npm:^4.5.0":
+  version: 4.5.0
+  resolution: "lodash.xor@npm:4.5.0"
+  checksum: af4df3638cad1fd565ce440c10956938c27f90e6fc7e2f9fa7cd405c8f0aae706a1bdb3fa006b51fa9cbe82427461c42d9bea67304b37aba20d77a37adc3faf8
   languageName: node
   linkType: hard
 
@@ -27522,6 +27561,20 @@ __metadata:
   version: 2.0.0
   resolution: "to-fast-properties@npm:2.0.0"
   checksum: be2de62fe58ead94e3e592680052683b1ec986c72d589e7b21e5697f8744cdbf48c266fa72f6c15932894c10187b5f54573a3bcf7da0bfd964d5caf23d436168
+  languageName: node
+  linkType: hard
+
+"to-json-schema@npm:^0.2.5":
+  version: 0.2.5
+  resolution: "to-json-schema@npm:0.2.5"
+  dependencies:
+    lodash.isequal: ^4.5.0
+    lodash.keys: ^4.2.0
+    lodash.merge: ^4.6.2
+    lodash.omit: ^4.5.0
+    lodash.without: ^4.4.0
+    lodash.xor: ^4.5.0
+  checksum: eaedd574b067985946614bfab10d211c6ff1cfdd97e852e04636693e3b771f2785e992a31528ef2e55e498ef307e7aac9daf01d23151e4e45cacb6cfc4357552
   languageName: node
   linkType: hard
 
