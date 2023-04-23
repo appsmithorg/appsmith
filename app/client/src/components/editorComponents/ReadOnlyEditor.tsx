@@ -3,6 +3,7 @@ import React from "react";
 import type { EditorProps } from "components/editorComponents/CodeEditor";
 import CodeEditor from "components/editorComponents/CodeEditor";
 import {
+  CodeEditorBorder,
   EditorModes,
   EditorSize,
   EditorTheme,
@@ -41,6 +42,7 @@ function ReadOnlyEditor(props: Props) {
     isReadOnly: props.isReadOnly,
     isRawView: props.isRawView,
     containerHeight: props.containerHeight,
+    border: CodeEditorBorder.NONE,
   };
   return <CodeEditor {...editorProps} />;
 }

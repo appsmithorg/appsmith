@@ -43,6 +43,16 @@ const editorBackground = (theme?: EditorTheme) => {
   return bg;
 };
 
+const codeMirrorColors = {
+  KEYWORD: "#304eaa",
+  FOLD_MARKER: "#442334",
+  STRING: "#1659df",
+  OPERATOR: "#009595",
+  NUMBER: "#555",
+  COMMENT: "#008000",
+  FUNCTION_ARGS: "hsl(288, 44%, 44%)",
+};
+
 export const EditorWrapper = styled.div<{
   editorTheme?: EditorTheme;
   hasError: boolean;
@@ -116,7 +126,6 @@ export const EditorWrapper = styled.div<{
           : props.theme.colors.textDefault} !important;
     }
     .cm-s-duotone-light.CodeMirror {
-      padding: 0 6px;
       border-radius: 0px;
       font-family: ${(props) => props.theme.fonts.code};
       font-size: 13px;
@@ -140,7 +149,7 @@ export const EditorWrapper = styled.div<{
       color: ${Colors.CHARCOAL};
       & {
         span.cm-operator {
-          color: ${(props) => props.theme.colors.textDefault};
+          color: ${codeMirrorColors.OPERATOR};
         }
       }
       .cm-property {
@@ -150,9 +159,18 @@ export const EditorWrapper = styled.div<{
         color: #304eaa;
       }
 
+      .CodeMirror-foldgutter {
+        width: 0.9em;
+      }
+
       /* gutter arrow to collapse or expand code */
       .CodeMirror-guttermarker-subtle {
-        color: #442334;
+        color: #442334 !important;
+        &:after {
+          font-size: 14px;
+          position: absolute;
+          right: 4px;
+        }
       }
 
       /* Text selection */
@@ -161,7 +179,7 @@ export const EditorWrapper = styled.div<{
       }
       .cm-string,
       .token.string {
-        color: #1659df;
+        color: ${codeMirrorColors.STRING};
       }
 
       /* json response in the debugger */
@@ -169,12 +187,10 @@ export const EditorWrapper = styled.div<{
         color: hsl(21, 70%, 53%);
       }
 
-      /* +, =>, -, etc. operators */
-      span.cm-operator {
-        /*color: #3676F2;*/
-        /* color: #689dd5; */
-        color: #009595;
-      }
+      // /* +, =>, -, etc. operators */
+      // span.cm-operator {
+      //   color: #009595;
+      // }A
 
       /* function arguments */
       .cm-def {
@@ -190,14 +206,8 @@ export const EditorWrapper = styled.div<{
       .cm-def,
       .cm-property + span + .cm-def,
       .cm-def + span + .cm-def {
-        /* color: peru; */
-        color: hsl(288, 44%, 44%);
+        color: ${codeMirrorColors.FUNCTION_ARGS};
       }
-
-      /* object keys */
-      /* .cm-variable + span+ .cm-property, .cm-property + span + .cm-property {
-          color: #364562;
-      } */
 
       .cm-atom + span + .cm-property,
       .cm-variable-2 + span + .cm-property {
@@ -215,7 +225,7 @@ export const EditorWrapper = styled.div<{
       }
 
       span.cm-number {
-        color: #555;
+        color: ${codeMirrorColors.NUMBER};
       }
 
       .cm-s-duotone-light span.cm-variable-2,
@@ -242,7 +252,7 @@ export const EditorWrapper = styled.div<{
       }
 
       .binding-brackets {
-        letter-spacing: -1.8px;
+        // letter-spacing: -1.8px;
         color: hsl(222, 70%, 77%);
       }
 
@@ -250,6 +260,10 @@ export const EditorWrapper = styled.div<{
       .cm-m-sql.cm-keyword {
         font-weight: 600;
         text-transform: uppercase;
+      }
+
+      .CodeMirror-activeline-background {
+        background-color: #ececec;
       }
     }
     .cm-s-duotone-light .CodeMirror-gutters {
