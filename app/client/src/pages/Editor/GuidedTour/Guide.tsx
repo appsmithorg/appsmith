@@ -66,7 +66,6 @@ const Description = styled.span<{ addLeftSpacing?: boolean }>`
   font-size: 14px;
   line-height: 16px;
 
-  /* letter-spacing: -0.24px; */
   padding-left: ${(props) => (props.addLeftSpacing ? `20px` : "5px")};
   margin-top: var(--ads-v2-spaces-2);
   flex: 1;
@@ -171,7 +170,6 @@ const SuccessMessageWrapper = styled.div`
   border-radius: var(--ads-v2-border-radius);
 
   .wrapper {
-    /* padding: 0px 12px 0 0; */
     padding: var(--ads-v2-spaces-4);
     display: flex;
   }
