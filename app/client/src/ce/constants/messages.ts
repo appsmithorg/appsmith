@@ -197,7 +197,7 @@ export const SHARE_APP = () => `Share app`;
 export const EDITOR_HEADER = {
   saving: () => "Saving",
   saveFailed: () => "Save failed",
-  share: () => "SHARE",
+  share: () => "Share",
   previewTooltip: {
     text: () => "Preview",
     shortcut: () => "P",
@@ -359,12 +359,12 @@ export const LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED = () =>
   "LocalStorage is not supported on your device. Some features including the Appsmith store won't work.";
 
 export const OMNIBAR_PLACEHOLDER = () =>
-  `Search Widgets, Queries, Documentation`;
+  `Search widgets, queries, documentation`;
 export const OMNIBAR_PLACEHOLDER_SNIPPETS = () => "Search code snippets";
 export const OMNIBAR_PLACEHOLDER_NAV = () => "Search widgets and queries";
 export const OMNIBAR_PLACEHOLDER_DOC = () => "Search documentation";
 export const CREATE_NEW_OMNIBAR_PLACEHOLDER = () =>
-  "Create a new Query, API or JS Object";
+  "Create a new query, API or JS object";
 export const HELPBAR_PLACEHOLDER = () => "Search";
 export const NO_SEARCH_DATA_TEXT = () => "No results found";
 
@@ -903,7 +903,7 @@ export const DOC_DESCRIPTION = () =>
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
 export const ACTION_OPERATION_DESCRIPTION = () =>
-  `Create a new Query, API or JS Object`;
+  `Create a new query, API or JS object`;
 
 export const TRIGGER_ACTION_VALIDATION_ERROR = (
   functionName: string,
@@ -931,7 +931,7 @@ export const SNIPING_NOT_SUPPORTED = () =>
 //Checklist page
 export enum ONBOARDING_CHECKLIST_ACTIONS {
   CONNECT_A_DATASOURCE = "CONNECT DATASOURCE",
-  CREATE_A_QUERY = "CREATE A QUERY",
+  CREATE_A_QUERY = "Create a query",
   ADD_WIDGETS = "ADD WIDGETS",
   CONNECT_DATA_TO_WIDGET = "CONNECT DATA TO WIDGET",
   DEPLOY_APPLICATIONS = "DEPLOY APPLICATION",
@@ -1385,7 +1385,7 @@ export const MORE = () => "MORE";
 export const SHOW_LESS = () => "SHOW LESS";
 export const CHOOSE_WHERE_TO_FORK = () => "Choose where to fork the template";
 export const SELECT_WORKSPACE = () => "Select Workspace";
-export const FORK_TEMPLATE = () => "FORK TEMPLATE";
+export const FORK_TEMPLATE = () => "Fork template";
 export const TEMPLATES = () => "TEMPLATES";
 export const FORK_THIS_TEMPLATE = () => "Use template";
 export const COULDNT_FIND_TEMPLATE = () =>
@@ -1432,7 +1432,7 @@ export const FORK_APP_MODAL_EMPTY_TITLE = () =>
   "No workspace available to fork to";
 export const FORK_APP_MODAL_SUCCESS_TITLE = () =>
   "Choose where to fork the app";
-export const FORK = () => `FORK`;
+export const FORK = () => `Fork`;
 
 export const CLEAN_URL_UPDATE = {
   name: () => "Update URLs",

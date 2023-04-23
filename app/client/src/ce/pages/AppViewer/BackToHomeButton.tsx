@@ -10,7 +10,7 @@ import {
   getMenuItemTextColor,
 } from "pages/AppViewer/utils";
 import styled from "styled-components";
-import { TooltipComponent } from "design-system-old";
+import { Tooltip } from "design-system";
 import classNames from "classnames";
 
 type BackToHomeButtonProps = {
@@ -74,7 +74,7 @@ function BackToHomeButton(props: BackToHomeButtonProps) {
   }, []);
 
   return (
-    <TooltipComponent content="Back to apps" position="bottom-left">
+    <Tooltip content="Back to apps" placement="bottomLeft">
       <StyledLink
         className={classNames({
           "flex items-center gap-2 group t--back-to-home hover:no-underline":
@@ -94,7 +94,7 @@ function BackToHomeButton(props: BackToHomeButtonProps) {
           primaryColor={primaryColor}
         />
       </StyledLink>
-    </TooltipComponent>
+    </Tooltip>
   );
 }
 

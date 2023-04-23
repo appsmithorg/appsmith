@@ -46,7 +46,7 @@ export enum SEARCH_CATEGORY_ID {
   DOCUMENTATION = "Documentation",
   NAVIGATION = "Navigate",
   INIT = "INIT",
-  ACTION_OPERATION = "Create New",
+  ACTION_OPERATION = "Create new",
 }
 
 export enum SEARCH_ITEM_TYPES {
@@ -155,19 +155,19 @@ export const filterCategories: Record<SEARCH_CATEGORY_ID, SearchCategory> = {
     desc: createMessage(NAV_DESCRIPTION),
   },
   [SEARCH_CATEGORY_ID.ACTION_OPERATION]: {
-    title: "Create New",
+    title: "Create new",
     kind: SEARCH_ITEM_TYPES.category,
     id: SEARCH_CATEGORY_ID.ACTION_OPERATION,
     desc: createMessage(ACTION_OPERATION_DESCRIPTION),
   },
   [SEARCH_CATEGORY_ID.SNIPPETS]: {
-    title: "Use Snippets",
+    title: "Use snippets",
     kind: SEARCH_ITEM_TYPES.category,
     id: SEARCH_CATEGORY_ID.SNIPPETS,
     desc: createMessage(SNIPPET_DESCRIPTION),
   },
   [SEARCH_CATEGORY_ID.DOCUMENTATION]: {
-    title: "Search Documentation",
+    title: "Search documentation",
     kind: SEARCH_ITEM_TYPES.category,
     id: SEARCH_CATEGORY_ID.DOCUMENTATION,
     desc: createMessage(DOC_DESCRIPTION),
