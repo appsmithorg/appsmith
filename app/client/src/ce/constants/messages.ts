@@ -930,11 +930,11 @@ export const SNIPING_NOT_SUPPORTED = () =>
 //First Time User Onboarding
 //Checklist page
 export enum ONBOARDING_CHECKLIST_ACTIONS {
-  CONNECT_A_DATASOURCE = "CONNECT DATASOURCE",
+  CONNECT_A_DATASOURCE = "Connect datasource",
   CREATE_A_QUERY = "Create a query",
-  ADD_WIDGETS = "ADD WIDGETS",
-  CONNECT_DATA_TO_WIDGET = "CONNECT DATA TO WIDGET",
-  DEPLOY_APPLICATIONS = "DEPLOY APPLICATION",
+  ADD_WIDGETS = "Add widgets",
+  CONNECT_DATA_TO_WIDGET = "Connect data to widget",
+  DEPLOY_APPLICATIONS = "Deploy application",
 }
 
 export const ONBOARDING_CHECKLIST_BANNER_HEADER = () =>
@@ -1009,7 +1009,7 @@ export const ONBOARDING_STATUS_STEPS_FOURTH = () =>
 export const ONBOARDING_STATUS_STEPS_FIVETH = () =>
   "Next: Deploy your application";
 export const ONBOARDING_STATUS_STEPS_SIXTH = () => "Completed 🎉";
-export const ONBOARDING_STATUS_GET_STARTED = () => "GET STARTED";
+export const ONBOARDING_STATUS_GET_STARTED = () => "Get started";
 
 //Tasks
 //1. datasource
@@ -1017,21 +1017,21 @@ export const ONBOARDING_TASK_DATASOURCE_HEADER = () =>
   "Start by adding your first Datasource";
 export const ONBOARDING_TASK_DATASOURCE_BODY = () =>
   "Adding a datasource makes creating applications more powerful. Don’t worry if you don’t have any data on hand, we have a sample dataset that you can use.";
-export const ONBOARDING_TASK_DATASOURCE_BUTTON = () => "+ Add a datasource";
-export const ONBOARDING_TASK_DATASOURCE_FOOTER_ACTION = () => "Add a widget";
+export const ONBOARDING_TASK_DATASOURCE_BUTTON = () => "Add a datasource";
+export const ONBOARDING_TASK_DATASOURCE_FOOTER_ACTION = () => "add a widget";
 export const ONBOARDING_TASK_DATASOURCE_FOOTER = () => "first.";
 //2. query
 export const ONBOARDING_TASK_QUERY_HEADER = () => "Next, create a query";
 export const ONBOARDING_TASK_QUERY_BODY = () =>
   "Great job adding a datasource! The next thing you can do is create a query on your data.";
-export const ONBOARDING_TASK_QUERY_BUTTON = () => "+ Create a query";
-export const ONBOARDING_TASK_QUERY_FOOTER_ACTION = () => "Add a widget";
+export const ONBOARDING_TASK_QUERY_BUTTON = () => "Create a query";
+export const ONBOARDING_TASK_QUERY_FOOTER_ACTION = () => "add a widget";
 //2. widget
 export const ONBOARDING_TASK_WIDGET_HEADER = () =>
   "Next, add a widget to start displaying data";
 export const ONBOARDING_TASK_WIDGET_BODY = () =>
   "Great job adding a datasource! The next thing you can do is add widget to start visualizing your data.";
-export const ONBOARDING_TASK_WIDGET_BUTTON = () => "+ Add a widget";
+export const ONBOARDING_TASK_WIDGET_BUTTON = () => "Add a widget";
 export const ONBOARDING_TASK_WIDGET_FOOTER_ACTION = () =>
   "deploy your application";
 export const ONBOARDING_TASK_FOOTER = () => "Alternatively, you can also";
