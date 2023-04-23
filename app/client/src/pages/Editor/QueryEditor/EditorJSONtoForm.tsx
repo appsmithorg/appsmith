@@ -227,7 +227,7 @@ const FieldWrapper = styled.div`
   margin-top: 15px;
 `;
 
-const DocumentationLink = styled.a`
+export const DocumentationLink = styled.a`
   position: absolute;
   right: 23px;
   top: -6px;
