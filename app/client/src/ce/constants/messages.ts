@@ -1596,7 +1596,7 @@ export const CONVERSION_WARNING_TEXT = () =>
 export const CONVERSION_ERROR_HEADER = () => "Conversion Failed";
 export const CONVERSION_ERROR = () =>
   "Appsmith ran into a critical error while trying to convert to auto layout";
-export const SEND_REPORT = () => "SEND US A REPORT";
+export const SEND_REPORT = () => "Send us a report";
 export const CONVERSION_ERROR_TEXT = () => "No changes were made to your app";
 export const DROPDOWN_LABEL_TEXT = () => "Target canvas size";
 export const CONVERSION_WARNING = () => "Conversion will change your layout";

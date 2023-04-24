@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { Icon, Text } from "design-system";
+import { Callout, Icon, Text } from "design-system";
 import { AlertType } from "reducers/uiReducers/layoutConversionReducer";
 
 const AlertIcons = {
@@ -37,6 +37,23 @@ export const ConversionCompleteLayout = (
   props: ConversionCompleteLayoutProps,
 ) => {
   const icon = AlertIcons[props.alertType];
+
+  if (props.alertType === AlertType.ERROR) {
+    return (
+      <Callout className="mb-3" kind="error">
+        <div className="flex flex-col">
+          <Text kind="heading-s" renderAs="h4">
+            {props.headerText}
+          </Text>
+          {props.errorText && (
+            <Text kind="action-m" renderAs="p">
+              {props.errorText}. {props.infoText}
+            </Text>
+          )}
+        </div>
+      </Callout>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center justify-center h-39">

@@ -45,10 +45,14 @@ function ConversionButton() {
     ? CONVERT_TO_FIXED_BUTTON
     : CONVERT_TO_AUTO_BUTTON;
 
-  const closeModal = (isOpen: boolean) => {
+  const closeModal = () => {
+    setShowModal(false);
+    dispatch(setConversionStop());
+  };
+
+  const onOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
-      setShowModal(false);
-      dispatch(setConversionStop());
+      closeModal();
     }
   };
 
@@ -71,8 +75,13 @@ function ConversionButton() {
       >
         {createMessage(buttonText)}
       </Button>
-      <Modal onOpenChange={closeModal} open={showModal}>
-        <ModalContent>
+      <Modal onOpenChange={onOpenChange} open={showModal}>
+        <ModalContent
+          // Don't close Modal on escape key press
+          onEscapeKeyDown={(e) => e.preventDefault()}
+          // Don't close Modal when pressed outside
+          onInteractOutside={(e) => e.preventDefault()}
+        >
           <ModalHeader isCloseButtonVisible={!isConversionCompleted}>
             <div className="flex items-center gap-3">
               {createMessage(titleText)}
@@ -80,7 +89,7 @@ function ConversionButton() {
             </div>
           </ModalHeader>
           <ModalBody>
-            <ConversionForm {...formProps} />
+            <ConversionForm closeModal={closeModal} {...formProps} />
           </ModalBody>
         </ModalContent>
       </Modal>

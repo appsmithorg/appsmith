@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 import type { InfoBlockProps } from "./InfoBlock";
 import { InfoBlock } from "./InfoBlock";
-import { Collapsible } from "design-system-old";
 import type { CalloutKind } from "design-system";
 import {
   Button,
@@ -35,6 +34,8 @@ type DropdownOption = {
   icon?: string;
 };
 
+type ButtonInfo = { text: string; closeModal?: boolean; onClick: () => void };
+
 export type ConversionProps = {
   bannerMessageDetails?: {
     message: string;
@@ -43,8 +44,8 @@ export type ConversionProps = {
   cancelButtonText?: string;
   infoBlocks?: InfoBlockProps[];
   spinner?: string;
-  primaryButton?: { text: string; onClick: () => void };
-  secondaryButton?: { text: string; onClick: () => void };
+  primaryButton?: ButtonInfo;
+  secondaryButton?: ButtonInfo;
   conversionComplete?: ConversionCompleteLayoutProps;
   collapsibleMessage?: {
     title: string;
@@ -65,9 +66,12 @@ export type ConversionProps = {
   };
 };
 
-export function ConversionForm(props: ConversionProps) {
+export function ConversionForm(
+  props: ConversionProps & { closeModal: () => void },
+) {
   const {
     bannerMessageDetails,
+    closeModal,
     collapsibleMessage,
     conversionComplete,
     infoBlocks,
@@ -88,6 +92,13 @@ export function ConversionForm(props: ConversionProps) {
       snapShotStyles.marginBottom = "16px";
     }
   }
+
+  const onPrimaryButtonClick = (primaryButton: ButtonInfo) => {
+    primaryButton.onClick();
+    if (primaryButton.closeModal) {
+      closeModal();
+    }
+  };
 
   return (
     <>
@@ -122,16 +133,18 @@ export function ConversionForm(props: ConversionProps) {
         <ConversionCompleteLayout {...conversionComplete} />
       )}
       {collapsibleMessage && (
-        <Collapsible className="px-2" title={collapsibleMessage.title}>
+        <div className="px-2" title={collapsibleMessage.title}>
           <Text kind="heading-s" renderAs="h4">
             {collapsibleMessage.messageHeader}
           </Text>
-          <ul className="text-sm text-gray-500 list-disc pl-4">
+          <ul className="list-disc pl-4 mt-1">
             {collapsibleMessage.messagePoints.map((text, id) => (
-              <li key={id}>{text}</li>
+              <li key={id}>
+                <Text kind="action-m">{text}</Text>
+              </li>
             ))}
           </ul>
-        </Collapsible>
+        </div>
       )}
       {selectDropDown && (
         <div className="w-2/4">
@@ -202,9 +215,7 @@ export function ConversionForm(props: ConversionProps) {
           {primaryButton && (
             <Button
               kind="primary"
-              onClick={() => {
-                primaryButton.onClick();
-              }}
+              onClick={() => onPrimaryButtonClick(primaryButton)}
               size="md"
             >
               {primaryButton.text}

@@ -21,7 +21,6 @@ import {
   CONVERSION_STATES,
 } from "reducers/uiReducers/layoutConversionReducer";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { setConversionStop } from "actions/autoLayoutActions";
 
 //returns props for common conversion flows based on which the Conversion Form can be rendered
 export const commonConversionFlows = (
@@ -39,7 +38,6 @@ export const commonConversionFlows = (
       primaryButton: {
         text: createMessage(REFRESH_THE_APP),
         onClick: () => {
-          dispatch(setConversionStop());
           dispatch({ type: ReduxActionTypes.REFRESH_THE_APP });
         },
       },
@@ -62,8 +60,8 @@ export const commonConversionFlows = (
       },
       primaryButton: {
         text: createMessage(SEND_REPORT),
+        closeModal: true,
         onClick: () => {
-          dispatch(setConversionStop());
           dispatch({
             type: ReduxActionTypes.LOG_LAYOUT_CONVERSION_ERROR,
           });
