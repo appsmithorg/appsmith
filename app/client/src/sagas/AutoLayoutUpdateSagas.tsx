@@ -49,6 +49,9 @@ import { updateApplication } from "@appsmith/actions/applicationActions";
 import { getIsCurrentlyConvertingLayout } from "selectors/autoLayoutSelectors";
 import { getIsResizing } from "selectors/widgetSelectors";
 import type { AppState } from "ce/reducers";
+import { isEmpty } from "lodash";
+import { mutation_setPropertiesToUpdate } from "./autoHeightSagas/helpers";
+import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
 
 export function* updateLayoutForMobileCheckpoint(
   actionPayload: ReduxAction<{
@@ -76,18 +79,62 @@ export function* updateLayoutForMobileCheckpoint(
     } = actionPayload.payload;
 
     let allWidgets: CanvasWidgetsReduxState;
+    const widgetsOld: CanvasWidgetsReduxState = yield select(getWidgets);
 
     if (payloadWidgets) {
       allWidgets = payloadWidgets;
     } else {
-      allWidgets = yield select(getWidgets);
+      allWidgets = { ...widgetsOld };
     }
 
     const mainCanvasWidth: number = yield select(getMainCanvasWidth);
-    const updatedWidgets: CanvasWidgetsReduxState = isMobile
+    const processedWidgets: CanvasWidgetsReduxState = isMobile
       ? alterLayoutForMobile(allWidgets, parentId, canvasWidth, mainCanvasWidth)
       : alterLayoutForDesktop(allWidgets, parentId, mainCanvasWidth);
-    yield put(updateAndSaveLayout(updatedWidgets));
+    let widgetsToUpdate: any = {};
+
+    /**
+     * Iterate over all widgets and check if any of their dimensions have changed
+     * If they have, add them to the list of widgets to update
+     * Note: We need to iterate through all widgets since changing dimension of one widget might affect the dimensions of other widgets
+     */
+    for (const widgetId of Object.keys(processedWidgets)) {
+      const widget = processedWidgets[widgetId];
+      const oldWidget = widgetsOld[widgetId];
+      const propertiesToUpdate: Record<string, any> = {};
+
+      const positionProperties = [
+        "topRow",
+        "bottomRow",
+        "leftColumn",
+        "rightColumn",
+        "mobileTopRow",
+        "mobileBottomRow",
+        "mobileLeftColumn",
+        "mobileRightColumn",
+      ];
+
+      for (const prop of positionProperties) {
+        if (widget[prop] !== oldWidget[prop]) {
+          propertiesToUpdate[prop] = widget[prop];
+        }
+      }
+
+      if (isEmpty(propertiesToUpdate)) continue;
+
+      widgetsToUpdate = mutation_setPropertiesToUpdate(
+        widgetsToUpdate,
+        widgetId,
+        propertiesToUpdate,
+      );
+    }
+
+    // Push all updates to the CanvasWidgetsReducer.
+    // Note that we're not calling `UPDATE_LAYOUT`
+    // as we don't need to trigger an eval
+    if (!isEmpty(widgetsToUpdate)) {
+      yield put(updateMultipleWidgetPropertiesAction(widgetsToUpdate));
+    }
     log.debug(
       "Auto Layout : updating layout for mobile viewport took",
       performance.now() - start,
@@ -315,85 +362,6 @@ function* processAutoLayoutDimensionUpdatesFn(
   }
   return widgets;
 }
-/**
- * This saga is responsible for updating the bounding box of the widget
- * when the widget component get resized internally.
- * It also updates the position of other affected widgets as well.
- */
-// function* processAutoLayoutDimensionUpdatesSaga() {
-//   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-//   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
-//   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
-
-//   let widgets = allWidgets;
-//   const widgetsOld = { ...widgets };
-//   const parentIds = new Set<string>();
-//   let processedWidgets: CanvasWidgetsReduxState = yield call(
-//     processAutoLayoutDimensionUpdatesFn,
-//     widgets,
-//     parentIds,
-//     isMobile,
-//     mainCanvasWidth,
-//   );
-
-//   // Update the position of all the widgets
-//   for (const parentId of parentIds) {
-//     processedWidgets = updateWidgetPositions(
-//       processedWidgets,
-//       parentId,
-//       isMobile,
-//       mainCanvasWidth,
-//     );
-//   }
-
-//   let widgetsToUpdate: any = {};
-
-//   /**
-//    * Iterate over all widgets and check if any of their dimensions have changed
-//    * If they have, add them to the list of widgets to update
-//    * Note: We need to iterate through all widgets since changing dimension of one widget might affect the dimensions of other widgets
-//    */
-//   for (const widgetId of Object.keys(processedWidgets)) {
-//     const widget = processedWidgets[widgetId];
-//     const oldWidget = widgetsOld[widgetId];
-//     const propertiesToUpdate: Record<string, any> = {};
-
-//     const positionProperties = [
-//       "topRow",
-//       "bottomRow",
-//       "leftColumn",
-//       "rightColumn",
-//       "mobileTopRow",
-//       "mobileBottomRow",
-//       "mobileLeftColumn",
-//       "mobileRightColumn",
-//     ];
-
-//     for (const prop of positionProperties) {
-//       if (widget[prop] !== oldWidget[prop]) {
-//         propertiesToUpdate[prop] = widget[prop];
-//       }
-//     }
-
-//     if (isEmpty(propertiesToUpdate)) continue;
-
-//     widgetsToUpdate = mutation_setPropertiesToUpdate(
-//       widgetsToUpdate,
-//       widgetId,
-//       propertiesToUpdate,
-//     );
-//   }
-
-//   // Push all updates to the CanvasWidgetsReducer.
-//   // Note that we're not calling `UPDATE_LAYOUT`
-//   // as we don't need to trigger an eval
-//   if (!isEmpty(widgetsToUpdate)) {
-//     yield put(updateMultipleWidgetPropertiesAction(widgetsToUpdate));
-//   }
-
-//   // clear the batch after processing
-//   autoLayoutWidgetDimensionUpdateBatch = {};
-// }
 
 export function* updateApplicationLayoutType(
   positioningType: AppPositioningTypes,
