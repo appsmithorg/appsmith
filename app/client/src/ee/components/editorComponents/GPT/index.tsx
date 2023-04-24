@@ -33,6 +33,7 @@ export function AIWindow(props: TAIWrapperProps) {
     return (
       <div
         className={classNames({
+          "h-full w-[400px]": true,
           [className || ""]: true,
           hidden: !isAIWindowOpen,
         })}

@@ -9,9 +9,10 @@ const examplePrompts = {
     "Run get_users api and display a toast message 'Success' on success and 'Error' on error?",
   ],
   [GPTTask.JS_FUNCTION]: [
-    "Executes get_users api, filters users by age > 30 and returns the result",
+    "Executes get_users api and filters the results by age > 30",
+    "Setup a timer to execute get_users api after 5 seconds",
     "Calls getUserName function from get_users_utils js object and capitalizes the result",
-    "sets up a timer to run get_users every 5 seconds",
+    "Setup a timer to run get_users every 5 seconds",
   ],
   [GPTTask.SQL_QUERY]: [],
 };

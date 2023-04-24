@@ -144,13 +144,11 @@ export function AskAI() {
       </div>
       <div
         className="flex flex-col justify-start gap-2 px-4 pb-2 overflow-auto"
+        ref={messageContainerRef}
         style={{ height: "calc(100% - 150px)" }}
       >
         {messages.length ? (
-          <div
-            className="flex flex-col gap-2 w-full justify-start"
-            ref={messageContainerRef}
-          >
+          <div className="flex flex-col gap-2 w-full justify-start">
             {messages.map((r: any, idx: number) => (
               <GPTPrompt done key={idx} response={r.content} role={r.role} />
             ))}
