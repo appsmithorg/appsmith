@@ -4,14 +4,15 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { User } from "constants/userConstants";
 import type { APP_MODE } from "entities/App";
 
-/**
- * LEGACY: This was the evaluation version before we have to start branching out.
- * NO_UNESCAPED_CHARS: This is the version where we stopped using unescape on script before evaluation.
- * FIX_THIS_KEYWORD: Version where we fixed this keyword to work like native javascript.
- */
 export enum EvaluationVersion {
+  /* LEGACY: This was the evaluation version before we had to start branching out. */
   LEGACY = 1,
+  /*
+   *NO_UNESCAPED_CHARS: Version where we stopped using unescape on user script before evaluation.
+   *This was done to solve \\n and \\t issues.
+   */
   NO_UNESCAPED_CHARS = 2,
+  /**FIX_THIS_KEYWORD: Version where we fixed this keyword in JS objects to work like native javascript. */
   FIX_THIS_KEYWORD = 3,
 }
 

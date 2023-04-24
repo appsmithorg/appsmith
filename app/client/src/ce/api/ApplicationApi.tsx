@@ -12,7 +12,7 @@ import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
 import type { Datasource } from "entities/Datasource";
 import type { NavigationSetting } from "constants/AppConstants";
 import type { EvaluationVersion } from "reducers/entityReducers/appReducer";
-import { getSnapShotAPIRoute } from "ce/constants/ApiConstants";
+import { getSnapShotAPIRoute } from "@appsmith/constants/ApiConstants";
 
 export interface PublishApplicationRequest {
   applicationId: string;
