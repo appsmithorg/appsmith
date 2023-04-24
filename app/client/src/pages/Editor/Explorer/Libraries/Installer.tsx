@@ -23,7 +23,6 @@ import {
   createMessage,
   customJSLibraryMessages,
 } from "@appsmith/constants/messages";
-// import ProfileImage from "pages/common/ProfileImage";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectInstallationStatus,
@@ -58,7 +57,7 @@ const Wrapper = styled.div<{ left: number }>`
   width: 400px;
   max-height: 80vh;
   flex-direction: column;
-  padding: 0 20px 4px 24px;
+  padding: 0 20px 4px 22px;
   position: absolute;
   background: white;
   z-index: 25;
@@ -77,6 +76,7 @@ const Wrapper = styled.div<{ left: number }>`
   .search-body {
     display: flex;
     padding-right: 4px;
+    padding-left: 2px;
     flex-direction: column;
     .search-area {
       margin-bottom: 16px;
