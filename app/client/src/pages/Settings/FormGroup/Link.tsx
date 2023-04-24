@@ -10,7 +10,7 @@ import type { SettingComponentProps } from "./Common";
 const LinkWrapper = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[16]}px;
   margin-top: 3px;
-  background: ${(props) => props.theme.settings.linkBg};
+  background: var(--ads-v2-color-black-75);
   padding: ${(props) => props.theme.spaces[3]}px
     ${(props) => props.theme.spaces[7]}px;
   display: inline-block;

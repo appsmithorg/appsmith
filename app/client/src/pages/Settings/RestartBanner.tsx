@@ -52,7 +52,7 @@ const RestartContainer = styled.div`
   height: ${(props) => props.theme.settings.footerHeight}px;
   z-index: 20;
   padding: 0px ${(props) => props.theme.spaces[11]}px 0px 276px;
-  background: var(--appsmith-color-black-0);
+  background: var(--ads-v2-color-white);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -89,7 +89,7 @@ const AppIconWrapper = styled.div`
     height: 18px;
 
     path {
-      fill: var(--appsmith-color-red-500);
+      fill: var(--ads-v2-color-fg-error);
     }
   }
 `;

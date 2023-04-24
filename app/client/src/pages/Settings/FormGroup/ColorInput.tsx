@@ -36,12 +36,12 @@ export const StyledInputGroup = styled(InputGroup)`
   &&& input {
     padding-left: 36px;
     height: 36px;
-    border: 1px solid var(--appsmith-color-black-500);
+    border: 1px solid var(--ads-v2-color-black-500);
     background: ${(props) =>
       props.theme.colors.propertyPane.multiDropdownBoxHoverBg};
     color: ${(props) => props.theme.colors.propertyPane.label};
     &:focus {
-      border: 1px solid var(--appsmith-color-black-900);
+      border: 1px solid var(--ads-v2-color-black-900);
     }
   }
 `;
@@ -63,7 +63,7 @@ const StyledColorInputIcon = styled.input`
   border: red;
   z-index: 1;
   display: flex;
-  border: 1px solid var(--ads-text-input-text-box-default-border-color);
+  border: 1px solid var(--ads-v2-color-black-250);
   border-radius: 100%;
   &::-webkit-color-swatch {
     border-radius: 15px;
