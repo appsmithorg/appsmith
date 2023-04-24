@@ -12,7 +12,6 @@
 #### PR fixes following issue(s)
 
 Fixes # (issue number)
-Fixes # (issue number)
 
 > if no issue exists, please create an issue and ask the maintainers about this first
 
