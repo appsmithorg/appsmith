@@ -10397,10 +10397,10 @@ depd@~1.1.2:
   dependencies:
     emoji-mart "3.0.1"
 
-"design-system@npm:@appsmithorg/design-system@2.1.5-alpha.30":
-  version "2.1.5-alpha.30"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-2.1.5-alpha.30.tgz#1fd952cc5eaba72b76cbe3df380c898a267fc79a"
-  integrity sha512-s7aHf1/eixMpWHQqEB8VM78I5Gx1gUqIHXxNiTyMygf4Onx1SZdT9AWdrLLW7rxgaRNKgRMbJgEuPJ6lcP8/1w==
+"design-system@npm:@appsmithorg/design-system@2.1.5-alpha.37":
+  version "2.1.5-alpha.37"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-2.1.5-alpha.37.tgz#e3a9b20b709c1ad257ead6634ea8d16b41a340db"
+  integrity sha512-YqjKWa6ZTIV4bF3s4u8DYLjQ+pmtT5/QWiXEsXhIQ8CNJSG5yNrsNsr8xEdOInOaXplYUp6FemDzwd9iXJTBuQ==
   dependencies:
     "@radix-ui/react-dialog" "^1.0.2"
     "@radix-ui/react-dropdown-menu" "^2.0.4"
@@ -10418,7 +10418,6 @@ depd@~1.1.2:
     rc-select "^14.3.0"
     rc-tooltip "^5.3.1"
     react-datepicker "^4.10.0"
-    react-merge-refs "^2.0.1"
     react-toastify "9.0.3"
 
 destroy@1.2.0:
@@ -18711,11 +18710,6 @@ react-merge-refs@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/react-merge-refs/-/react-merge-refs-1.1.0.tgz#73d88b892c6c68cbb7a66e0800faa374f4c38b06"
   integrity sha512-alTKsjEL0dKH/ru1Iyn7vliS2QRcBp9zZPGoWxUOvRGWPUYgjo+V01is7p04It6KhgrzhJGnIj9GgX8W4bZoCQ==
-
-react-merge-refs@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/react-merge-refs/-/react-merge-refs-2.0.1.tgz#a1f8c2dadefa635333e9b91ec59f30b65228b006"
-  integrity sha512-pywF6oouJWuqL26xV3OruRSIqai31R9SdJX/I3gP2q8jLxUnA1IwXcLW8werUHLZOrp4N7YOeQNZrh/BKrHI4A==
 
 react-modal@^3.15.1:
   version "3.15.1"
