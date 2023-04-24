@@ -533,7 +533,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
       onSelect: deleteApp,
       children: "Are you sure?",
       key: "areyousure",
-      startIcon: "delete-blank",
+      startIcon: "delete-bin-line",
       "data-testid": "t--delete",
     });
     setMoreActionItems(updatedActionItems);
@@ -541,7 +541,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const addDeleteOption = () => {
     if (props.delete && hasDeletePermission) {
       const index = moreActionItems.findIndex(
-        (el) => el.startIcon === "delete-blank",
+        (el) => el.startIcon === "delete-bin-line",
       );
       if (index >= 0) {
         moreActionItems.pop();
@@ -550,7 +550,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
         onSelect: askForConfirmation,
         children: "Delete",
         key: "delete",
-        startIcon: "delete-blank",
+        startIcon: "delete-bin-line",
         "data-testid": "t--delete-confirm",
       });
       setMoreActionItems(moreActionItems);
@@ -662,7 +662,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
               <MenuItem
                 {...restMenuItem}
                 className={
-                  item.startIcon === "delete-blank" ? "error-menuitem" : ""
+                  item.startIcon === "delete-bin-line" ? "error-menuitem" : ""
                 }
                 key={key}
               >
@@ -814,7 +814,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                       href={editModeURL}
                       onClick={editApp}
                       size="md"
-                      startIcon={"edit-white"}
+                      startIcon={"pencil-line"}
                     >
                       Edit
                     </Button>

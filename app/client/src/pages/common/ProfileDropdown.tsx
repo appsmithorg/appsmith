@@ -109,7 +109,7 @@ export default function ProfileDropdown(props: TagProps) {
                 path: PROFILE,
               });
             }}
-            startIcon="edit-underline"
+            startIcon="pencil-line"
           >
             Edit Profile
           </MenuItem>
