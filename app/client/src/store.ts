@@ -8,7 +8,10 @@ import { composeWithDevTools } from "redux-devtools-extension/logOnlyInProductio
 import * as Sentry from "@sentry/react";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import routeParamsMiddleware from "RouteParamsMiddleware";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import blockActionsMiddleware from "blockActionsMiddleware";
 
+const isAirgappedInstance = isAirgapped();
 const sagaMiddleware = createSagaMiddleware();
 const ignoredSentryActionTypes = [
   ReduxActionTypes.SET_EVALUATED_TREE,
@@ -25,11 +28,17 @@ const sentryReduxEnhancer = Sentry.createReduxEnhancer({
   },
 });
 
+const middleWares = [sagaMiddleware, routeParamsMiddleware];
+
+if (isAirgappedInstance) {
+  middleWares.push(blockActionsMiddleware);
+}
+
 export default createStore(
   appReducer,
   composeWithDevTools(
     reduxBatch,
-    applyMiddleware(sagaMiddleware, routeParamsMiddleware),
+    applyMiddleware(...middleWares),
     reduxBatch,
     sentryReduxEnhancer,
   ),
@@ -39,11 +48,7 @@ export const testStore = (initialState: Partial<AppState>) =>
   createStore(
     appReducer,
     initialState,
-    compose(
-      reduxBatch,
-      applyMiddleware(sagaMiddleware, routeParamsMiddleware),
-      reduxBatch,
-    ),
+    compose(reduxBatch, applyMiddleware(...middleWares), reduxBatch),
   );
 
 // We don't want to run the saga middleware in tests, so exporting it from here
