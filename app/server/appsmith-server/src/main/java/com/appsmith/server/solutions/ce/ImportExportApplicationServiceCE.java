@@ -48,7 +48,9 @@ public interface ImportExportApplicationServiceCE {
                                                                                Part filePart,
                                                                                String applicationId,
                                                                                String branchName) {
-        return null;
+
+        // Returning empty mono for ImportExportServiceV2 as this method is not needed for git execution
+        return Mono.empty();
     }
 
     Mono<Application> mergeApplicationJsonWithApplication(String workspaceId,
