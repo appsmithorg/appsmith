@@ -159,7 +159,10 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
           // TODO (tanvi): this delete does not work as expected. Debug
           <MenuItem
             className="t--apiFormDeleteBtn"
-            onSelect={() => {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            //@ts-ignore
+            onSelect={(e: Event) => {
+              e.preventDefault();
               confirmDelete
                 ? deleteActionFromPage(props.id, props.name)
                 : setConfirmDelete(true);
