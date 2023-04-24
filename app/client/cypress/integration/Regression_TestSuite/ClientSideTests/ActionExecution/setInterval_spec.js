@@ -20,7 +20,7 @@ describe("Test Create Api and Bind to Button widget", function () {
     });
   });
 
-  it("1. Selects set interval function, Fill setInterval action creator and test code generated & verify in deploy mode", () => {
+  it("1. Selects set interval function, Fill setInterval action creator and test code generated ", () => {
     cy.SearchEntityandOpen("Button1");
     propPane.SelectPlatformFunction("onClick", "Set interval");
     agHelper.EnterActionValue("Callback function", "{{() => { Api1.run() }}}");
@@ -29,7 +29,6 @@ describe("Test Create Api and Bind to Button widget", function () {
       "onClick",
       "{{setInterval(() => {  Api1.run();}, 5000, 'myInterval');}}",
     );
-  });
     cy.PublishtheApp();
     cy.wait(3000);
     cy.get("span:contains('Submit')").closest("div").click();
