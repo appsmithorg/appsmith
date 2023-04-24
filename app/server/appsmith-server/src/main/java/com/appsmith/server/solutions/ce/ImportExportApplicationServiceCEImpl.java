@@ -569,12 +569,28 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      * @return saved application in DB
      */
     public Mono<ApplicationImportDTO> extractFileAndSaveApplication(String workspaceId, Part filePart) {
+        return this.extractFileAndUpdateExistingApplication(workspaceId, filePart, null,null);
+    }
 
+    /**
+     * This function will take the Json filepart and updates/creates the application in workspace depending on presence
+     * of applicationId field
+     *
+     * @param workspaceId   Workspace to which the application needs to be hydrated
+     * @param filePart      Json file which contains the entire application object
+     * @param applicationId Optional field for application ref which needs to be overridden by the incoming JSON file
+     * @param branchName    If application is connected to git update the branched app
+     * @return saved application in DB
+     */
+    @Override
+    public Mono<ApplicationImportDTO> extractFileAndUpdateExistingApplication(String workspaceId,
+                                                                              Part filePart,
+                                                                              String applicationId,
+                                                                              String branchName) {
         /*
             1. Check the validity of file part
-            2. Save application to workspace
+            2. Depending upon availability of applicationId update/save application to workspace
          */
-
         final MediaType contentType = filePart.headers().getContentType();
 
         if (workspaceId == null || workspaceId.isEmpty()) {
@@ -610,7 +626,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     Type fileType = new TypeToken<ApplicationJson>() {
                     }.getType();
                     ApplicationJson jsonFile = gson.fromJson(data, fileType);
-                    return importApplicationInWorkspace(workspaceId, jsonFile)
+                    return importApplicationInWorkspace(workspaceId, jsonFile, applicationId, branchName)
                             .onErrorResume(error -> {
                                 if (error instanceof AppsmithException) {
                                     return Mono.error(error);
@@ -749,7 +765,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 .flatMap(workspace -> {
                     // Check if the request is to hydrate the application to DB for particular branch
                     // Application id will be present for GIT sync
-                    if (applicationId != null) {
+                    if (!StringUtils.isEmpty(applicationId)) {
                         // No need to hydrate the datasource as we expect user will configure the datasource
                         return existingDatasourceFlux.collectList();
                     }
@@ -1223,9 +1239,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 })
                 .onErrorResume(throwable -> {
                     log.error("Error while importing the application, reason: {}", throwable.getMessage());
-                    return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, ""));
-                })
-                .as(transactionalOperator::transactional);
+                    return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, throwable.getMessage()));
+                });
+                //.as(transactionalOperator::transactional);
 
         // Import Application is currently a slow API because it needs to import and create application, pages, actions
         // and action collection. This process may take time and the client may cancel the request. This leads to the flow
