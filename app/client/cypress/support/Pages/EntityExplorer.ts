@@ -129,12 +129,12 @@ export class EntityExplorer {
     );
     cy.xpath(this._expandCollapseArrow(entityName))
       .eq(index)
+      .wait(500)
       .invoke("attr", "name")
       .then((arrow) => {
         if (expand && arrow == "arrow-right") {
           cy.xpath(this._expandCollapseArrow(entityName))
             .eq(index)
-            .wait(500)
             .trigger("click", { force: true })
             .wait(500);
           // this.agHelper
@@ -152,7 +152,6 @@ export class EntityExplorer {
         } else if (!expand && arrow == "arrow-down") {
           cy.xpath(this._expandCollapseArrow(entityName))
             .eq(index)
-            .wait(500)
             .trigger("click", { force: true })
             .wait(500);
           // this.agHelper
