@@ -3,14 +3,13 @@
 > Use this template to quickly create a well written pull request. Delete all quotes before creating the pull request.
 
 ## Description
+> Add a TL;DR when description is extra long (helps content team)
 
 > Please include a summary of the changes and which issue has been fixed. Please also include relevant motivation
 > and context. List any dependencies that are required for this change
 > Links to Notion, Figma or any other documents that might be relevant to the PR
 
-> Add a TL;DR when description is extra long (helps content team)
-
-#### Fixes # (issue)
+#### PR fixes following issue(s)
 > if no issue exists, please create an issue and ask the maintainers about this first
 
 
@@ -31,13 +30,12 @@
 ## Testing
 
 #### How Has This Been Tested?
-> Please describe the tests that you ran to verify your changes. Provide instructions, so we can reproduce.
-> Please also list any relevant details for your test configuration.
-> Delete anything that is not important
+> Please describe the tests that you ran to verify your changes. Also list any relevant details for your test configuration.
+> Delete anything that is not relevant
 
-- Manual
-- Jest
-- Cypress
+- [ ] Manual
+- [ ] Jest
+- [ ] Cypress
 
 #### Test Plan
 > Add Testsmith test cases links that relate to this PR
