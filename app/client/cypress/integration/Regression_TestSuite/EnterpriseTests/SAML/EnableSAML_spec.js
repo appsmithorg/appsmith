@@ -6,7 +6,6 @@ describe("SSO with SAML test functionality", function () {
   it("1. Go to admin settings and enable SAML via Metadata URL", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
@@ -57,7 +56,6 @@ describe("SSO with SAML test functionality", function () {
   it("2. Go to admin settings and disable SAML", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
@@ -105,7 +103,6 @@ describe("SSO with SAML test functionality", function () {
   it("3. Go to admin settings and enable SAML via Metadata XML", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
@@ -154,7 +151,6 @@ describe("SSO with SAML test functionality", function () {
   it("4. Go to admin settings and disable SAML", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
@@ -201,7 +197,6 @@ describe("SSO with SAML test functionality", function () {
   it("5. Go to admin settings and enable SAML via IDP data", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
@@ -250,7 +245,6 @@ describe("SSO with SAML test functionality", function () {
   it("6. Go to admin settings and disable SAML", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");

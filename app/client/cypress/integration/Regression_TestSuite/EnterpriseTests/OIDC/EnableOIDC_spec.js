@@ -7,7 +7,6 @@ describe("SSO with OIDC test functionality", function () {
   it("1. Go to admin settings and enable OIDC with not all mandatory fields filled", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
@@ -31,7 +30,6 @@ describe("SSO with OIDC test functionality", function () {
   it("2. Go to admin settings and enable OIDC", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
@@ -71,7 +69,6 @@ describe("SSO with OIDC test functionality", function () {
   it("3. Go to admin settings and disable OIDC", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
