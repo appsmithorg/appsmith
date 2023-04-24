@@ -996,3 +996,15 @@ export const getAllJSActionsData = (state: AppState) => {
   });
   return jsActionsData;
 };
+
+export const selectActionByName = (actionName: string) =>
+  createSelector(getActionsForCurrentPage, (actions) => {
+    return actions.find((action) => action.config.name === actionName);
+  });
+
+export const selectJSCollectionByName = (collectionName: string) =>
+  createSelector(getJSCollectionsForCurrentPage, (collections) => {
+    return collections.find(
+      (collection) => collection.config.name === collectionName,
+    );
+  });
