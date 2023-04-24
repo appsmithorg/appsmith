@@ -62,10 +62,10 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     ${getTypographyByKey("p3")}
     &.CodeMirror-hint-active {
       .shortcut {
-        color: #ffffff;
+        color: var(--ads-v2-color-bg);
       }
       .add-datasource-icon {
-        background: white;
+        background: var(--ads-v2-color-bg);
       }
     }
     .command-container {
@@ -108,15 +108,15 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    background: #FAFAFA;
-    color: black;
+    background: var(--ads-v2-color-bg);
+    color: var(--ads-v2-color-fg);
     &.custom {
       height: unset;
       background-color: var(--ads-v2-color-bg);
       width: 600px;
       &:hover{
         background-color: var(--ads-v2-color-bg-subtle);
-        color: black;
+        color: var(--ads-v2-color-fg);
       }
       &.CodeMirror-hint-active {
         background-color: var(--ads-v2-color-bg-muted);
@@ -211,17 +211,17 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     z-index: 20 !important;
   }
   li.CodeMirror-hint-active {
-    background: #6A86CE;
+    background-color: var(--ads-v2-color-bg-muted);
     border-radius: var(--ads-v2-border-radius);
-    color: var(--ads-v2-color-fg-on-brand);
+    color: var(--ads-v2-color-fg);
     &:after {
-      color: var(--ads-v2-color-fg-on-brand);
+      color: var(--ads-v2-color-fg);
     }
     &:hover {
-      background: #6A86CE;
-      color: var(--ads-v2-color-fg-on-brand);
+      background-color: var(--ads-v2-color-bg-muted);
+      color: var(--ads-v2-color-fg);
       &:after {
-        color: var(--ads-v2-color-fg-on-brand);
+        color: var(--ads-v2-color-fg);
       }
     }
   }

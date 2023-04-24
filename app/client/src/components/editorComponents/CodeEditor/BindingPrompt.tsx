@@ -23,11 +23,6 @@ const Wrapper = styled.span<{
   z-index: 3;
 `;
 
-const CurlyBraces = styled.span`
-  color: var(--ads-v2-color-fg);
-  background-color: var(--ads-v2-color-bg);
-`;
-
 function BindingPrompt(props: {
   promptMessage?: React.ReactNode | string;
   isOpen: boolean;
@@ -51,10 +46,7 @@ function BindingPrompt(props: {
         props.promptMessage
       ) : (
         <>
-          Type{" "}
-          <CurlyBraces>
-            {props.showLightningMenu === false ? "{{" : "/"}
-          </CurlyBraces>{" "}
+          Type <span>{props.showLightningMenu === false ? "{{" : "/"}</span>{" "}
           {props.showLightningMenu === false
             ? "to see a list of variables"
             : "to access quick commands"}
