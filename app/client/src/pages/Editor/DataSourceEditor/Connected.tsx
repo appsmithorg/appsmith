@@ -37,9 +37,11 @@ const Wrapper = styled.div`
 
 function Connected({
   errorComponent,
+  hideDatasourceRenderSection = false,
   showDatasourceSavedText = true,
 }: {
   errorComponent?: JSX.Element | null;
+  hideDatasourceRenderSection?: boolean;
   showDatasourceSavedText?: boolean;
 }) {
   const params = useParams<{ datasourceId: string }>();
@@ -90,7 +92,9 @@ function Connected({
       )}
       {errorComponent}
       <div style={{ marginTop: showDatasourceSavedText ? "30px" : "" }}>
-        {!isNil(currentFormConfig) && !isNil(datasource) ? (
+        {!isNil(currentFormConfig) &&
+        !isNil(datasource) &&
+        !hideDatasourceRenderSection ? (
           <RenderDatasourceInformation
             config={currentFormConfig[0]}
             datasource={datasource}
