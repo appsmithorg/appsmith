@@ -10,6 +10,8 @@
 > Links to Notion, Figma or any other documents that might be relevant to the PR
 
 #### PR fixes following issue(s)
+
+Fixes # (issue number)
 Fixes # (issue number)
 
 > if no issue exists, please create an issue and ask the maintainers about this first
