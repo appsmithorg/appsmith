@@ -1,4 +1,5 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import { Widgets } from "../../../../support/Pages/DataSources";
 
 import {
   ERROR_ACTION_EXECUTE_FAIL,
@@ -10,7 +11,7 @@ describe("API Bugs", function () {
     _.apiPage.CreateAndFillApi("https://mock-api.appsmith.com/users", "Api1");
     _.apiPage.RunAPI();
 
-    _.apiPage.AddSuggestedWidget("TABLE_WIDGET_V2");
+    _.dataSources.AddSuggesstedWidget(Widgets.Table);
 
     _.debuggerHelper.AssertErrorCount(0);
   });
