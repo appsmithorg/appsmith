@@ -110,6 +110,9 @@ Cypress.Commands.add("stubPostHeaderReq", () => {
   cy.intercept("POST", "/api/v1/users/invite", (req) => {
     req.headers["origin"] = "Cypress";
   }).as("mockPostInvite");
+  cy.intercept("POST", "/api/v1/applications/invite", (req) => {
+    req.headers["origin"] = "Cypress";
+  }).as("mockPostAppInvite");
 });
 
 Cypress.Commands.add(
@@ -268,21 +271,23 @@ Cypress.Commands.add("Signup", (uname, pword) => {
 });
 
 Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
-  cy.request({
-    method: "POST",
-    url: "api/v1/login",
-    headers: {
-      "content-type": "application/x-www-form-urlencoded",
-    },
-    followRedirect: false,
-    form: true,
-    body: {
-      username: uname,
-      password: pword,
-    },
-  }).then((response) => {
-    expect(response.status).equal(302);
-    //cy.log(response.body);
+  cy.location().then((loc) => {
+    cy.visit({
+      method: "POST",
+      url: "api/v1/login",
+      headers: {
+        origin: loc.origin,
+      },
+      followRedirect: true,
+      body: {
+        username: uname,
+        password: pword,
+      },
+    })
+      .then(() => cy.location())
+      .then((loc) => {
+        expect(loc.href).to.equal(loc.origin + "/applications");
+      });
   });
 });
 
@@ -312,6 +317,8 @@ Cypress.Commands.add("LogOut", () => {
     headers: {
       "X-Requested-By": "Appsmith",
     },
+  }).then((response) => {
+    expect(response.status).equal(200); //Verifying logout is success
   });
 });
 

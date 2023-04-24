@@ -172,7 +172,6 @@ function CanvasContainer(props: CanvasContainerProps) {
   // calculating exact height to not allow scroll at this component,
   // calculating total height minus margin on top, top bar and bottom bar and scrollbar height at the bottom
   const heightWithTopMargin = `calc(100vh - 2rem - ${topMargin} - ${smallHeaderHeight} - ${bottomBarHeight} - ${scrollBarHeight} - ${navigationHeight}px)`;
-  const resizerTop = `calc(2rem + ${topMargin} + ${smallHeaderHeight})`;
   return (
     <>
       <Container
@@ -219,7 +218,6 @@ function CanvasContainer(props: CanvasContainerProps) {
       <CanvasResizer
         heightWithTopMargin={heightWithTopMargin}
         isPageInitiated={!isPageInitializing && !!widgetsStructure}
-        resizerTop={resizerTop}
         shouldHaveTopMargin={shouldHaveTopMargin}
       />
     </>
