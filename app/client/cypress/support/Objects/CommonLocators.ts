@@ -180,4 +180,9 @@ export class CommonLocators {
   _canvas = "[data-testid=widgets-editor]";
   _enterPreviewMode = "[data-cy='edit-mode']";
   _exitPreviewMode = "[data-cy='preview-mode']";
+  _paramsTab = "[data-cy='t--tab-PARAMS']";
+  _queryParamsKey = (index: number) =>
+    `div[class*='t--actionConfiguration.queryParameters[${index}].key']`;
+  _queryParamsValue = (index: number) =>
+    `div[class*='t--actionConfiguration.queryParameters[${index}].value']`;
 }

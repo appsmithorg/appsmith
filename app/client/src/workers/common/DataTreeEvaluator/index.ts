@@ -914,7 +914,7 @@ export default class DataTreeEvaluator {
           const { entityName, propertyPath } =
             getEntityNameAndPropertyPath(fullPropertyPath);
           const entity = currentTree[entityName] as WidgetEntity | ActionEntity;
-          const unEvalPropertyValue = get(currentTree as any, fullPropertyPath);
+          let unEvalPropertyValue = get(currentTree as any, fullPropertyPath);
           const entityConfig = oldConfigTree[entityName];
 
           const isADynamicBindingPath =
@@ -942,9 +942,27 @@ export default class DataTreeEvaluator {
 
             const contextData: EvaluateContext = {};
             if (isAction(entity)) {
+              const evaluatedExecutionParams = this.getDynamicValue(
+                `{{${JSON.stringify(
+                  (entity.config.queryParameters &&
+                    entity.config.queryParameters[0]) ||
+                    {},
+                )}}}`,
+                this.evalTree,
+                this.oldConfigTree,
+                EvaluationSubstitutionType.TEMPLATE,
+              );
               contextData.thisContext = {
-                params: {},
+                [THIS_DOT_PARAMS_KEY]: evaluatedExecutionParams,
               };
+              contextData.globalContext = {
+                [EXECUTION_PARAM_KEY]: evaluatedExecutionParams,
+              };
+
+              unEvalPropertyValue = unEvalPropertyValue.replace(
+                EXECUTION_PARAM_REFERENCE_REGEX,
+                EXECUTION_PARAM_KEY,
+              );
             }
             try {
               evalPropertyValue = this.getDynamicValue(
