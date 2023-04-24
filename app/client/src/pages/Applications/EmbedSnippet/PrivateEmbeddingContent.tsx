@@ -13,31 +13,30 @@ import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 const Container = styled.div<{ isAppSettings: boolean }>`
   text-align: left;
   ${({ isAppSettings }) =>
-    !isAppSettings &&
-    `
-      .no-sub-img {
-        margin: auto;
-      }
-  `}
-`;
-
-const SubContainer = styled.div<{ isAppSettings: boolean }>`
-  ${({ isAppSettings }) =>
     isAppSettings
       ? `
-      > span {
-        margin: 1rem;
-      }
+      padding: 0 16px;
       `
       : `
       > span {
-        margin: 8px 0px;
+        margin: 0px 0px 8px;
       }
 
       > span:nth-child(2) {
         margin-bottom: 16px;
       }
   `}
+`;
+
+const SubContainer = styled.div<{ isAppSettings?: boolean }>`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  &.button-wrapper {
+    display: inline-block;
+    margin-top: 8px;
+  }
 `;
 
 const StyledText = styled(Text)`
@@ -75,7 +74,13 @@ function PrivateEmbeddingContent(props: {
 
   return (
     <Container data-testid="t--upgrade-content" isAppSettings={isAppSettings}>
-      <SubContainer isAppSettings={isAppSettings}>
+      {isAppSettings ? (
+        <div>
+          <div className="pt-3 pb-3 font-medium text-[color:var(--appsmith-color-black-800)]">
+            {createMessage(IN_APP_EMBED_SETTING.embed)}
+          </div>
+        </div>
+      ) : (
         <StyledText
           className={
             !isAppSettings ? "upgrade-heading" : "upgrade-heading-in-app"
@@ -83,13 +88,11 @@ function PrivateEmbeddingContent(props: {
           type={TextType.P1}
         >
           {canMakeAppPublic
-            ? isAppSettings
-              ? createMessage(IN_APP_EMBED_SETTING.upgradeHeadingForAppSettings)
-              : createMessage(IN_APP_EMBED_SETTING.upgradeHeadingForInviteModal)
-            : isAppSettings
-            ? createMessage(IN_APP_EMBED_SETTING.upgradeHeadingForAppSettings)
+            ? createMessage(IN_APP_EMBED_SETTING.upgradeHeadingForInviteModal)
             : createMessage(IN_APP_EMBED_SETTING.upgradeHeading)}
         </StyledText>
+      )}
+      <SubContainer className="flex flex-col">
         {isAppSettings && (
           <StyledText className="secondary-heading" type={TextType.P2}>
             {canMakeAppPublic
@@ -119,7 +122,7 @@ function PrivateEmbeddingContent(props: {
           .
         </StyledText>
       </SubContainer>
-      <SubContainer className="flex" isAppSettings={isAppSettings}>
+      <SubContainer className="button-wrapper">
         {canMakeAppPublic && !isAppSettings && (
           <Button
             data-testid="t--share-settings-btn"
