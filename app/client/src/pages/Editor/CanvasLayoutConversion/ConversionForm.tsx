@@ -2,11 +2,10 @@ import React from "react";
 import styled from "styled-components";
 import type { InfoBlockProps } from "./InfoBlock";
 import { InfoBlock } from "./InfoBlock";
-import type { CalloutKind } from "design-system";
+import type { CalloutKind, SegmentedControlOption } from "design-system";
 import {
   Button,
-  Select,
-  Option,
+  SegmentedControl,
   Spinner,
   Callout,
   Icon,
@@ -28,12 +27,6 @@ const SnapshotContainer = styled.div`
   border-radius: var(--ads-v2-border-radius);
 `;
 
-type DropdownOption = {
-  label?: string;
-  value?: string;
-  icon?: string;
-};
-
 type ButtonInfo = { text: string; closeModal?: boolean; onClick: () => void };
 
 export type ConversionProps = {
@@ -53,9 +46,9 @@ export type ConversionProps = {
     messagePoints: string[];
   };
   selectDropDown?: {
-    selected: DropdownOption;
-    onSelect: (value: string, option: DropdownOption) => void;
-    options: DropdownOption[];
+    selected: string;
+    onSelect: (value: string) => void;
+    options: SegmentedControlOption[];
     labelText: string;
   };
   snapShotDetails?: {
@@ -153,7 +146,12 @@ export function ConversionForm(
               {selectDropDown.labelText}
             </Text>
           </div>
-          <Select
+          <SegmentedControl
+            defaultValue={selectDropDown.selected}
+            onChange={selectDropDown.onSelect}
+            options={selectDropDown.options}
+          />
+          {/* <Select
             //@ts-expect-error: onSelect type mismatch
             onSelect={selectDropDown.onSelect}
             value={selectDropDown.selected.value}
@@ -168,7 +166,7 @@ export function ConversionForm(
                 </Option>
               );
             })}
-          </Select>
+          </Select> */}
         </div>
       )}
 

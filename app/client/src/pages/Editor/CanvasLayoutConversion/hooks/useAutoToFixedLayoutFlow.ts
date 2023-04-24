@@ -20,7 +20,6 @@ import type { ConversionProps } from "../ConversionForm";
 
 import type { Dispatch } from "redux";
 import { useState } from "react";
-import type { DropdownOption } from "design-system-old";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
 import { useSelector } from "react-redux";
@@ -35,11 +34,7 @@ export const useAutoToFixedLayoutFlow = (
 ): {
   [key: string]: ConversionProps;
 } => {
-  const [selectedLayout, setSelectedLayout] = useState<DropdownOption>({
-    label: "Desktop",
-    value: "DESKTOP",
-    icon: "desktop",
-  });
+  const [selectedLayout, setSelectedLayout] = useState<string>("DESKTOP");
 
   const readableSnapShotDetails = useSelector(getReadableSnapShotDetails);
 
@@ -63,17 +58,17 @@ export const useAutoToFixedLayoutFlow = (
           {
             label: "Desktop",
             value: "DESKTOP",
-            icon: "desktop",
+            startIcon: "desktop",
           },
           {
             label: "Mobile Device",
             value: "MOBILE",
-            icon: "mobile",
+            startIcon: "mobile",
           },
         ],
         selected: selectedLayout,
-        onSelect: (value: string, option: DropdownOption) => {
-          setSelectedLayout(option);
+        onSelect: (value: string) => {
+          setSelectedLayout(value);
         },
         labelText: createMessage(DROPDOWN_LABEL_TEXT),
       },
@@ -94,7 +89,7 @@ export const useAutoToFixedLayoutFlow = (
             );
             dispatch({
               type: ReduxActionTypes.CONVERT_AUTO_TO_FIXED,
-              payload: selectedLayout.value,
+              payload: selectedLayout,
             });
           }
         },
@@ -137,7 +132,7 @@ export const useAutoToFixedLayoutFlow = (
           );
           dispatch({
             type: ReduxActionTypes.CONVERT_AUTO_TO_FIXED,
-            payload: selectedLayout.value,
+            payload: selectedLayout,
           });
         },
       },
