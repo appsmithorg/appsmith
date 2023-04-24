@@ -48,7 +48,7 @@ describe("SSO with Google test functionality", function () {
     // adding wait for server to restart
     cy.waitUntil(() =>
       cy
-        .contains("Authentication Successful!", { timeout: 180000 })
+        .contains("Google Authentication", { timeout: 180000 })
         .should("be.visible"),
     );
     cy.wait(1000);
@@ -90,7 +90,7 @@ describe("SSO with Google test functionality", function () {
     // adding wait for server to restart
     cy.waitUntil(() =>
       cy
-        .contains("Authentication Successful!", { timeout: 180000 })
+        .contains("Google Authentication", { timeout: 180000 })
         .should("be.visible"),
     );
     cy.wait(1000);
