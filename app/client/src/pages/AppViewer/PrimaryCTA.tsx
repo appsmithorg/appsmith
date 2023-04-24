@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import Button from "./AppViewerButton";
 import { AUTH_LOGIN_URL } from "constants/routes";
@@ -24,7 +24,7 @@ import { viewerURL } from "RouteBuilder";
 import { useHistory } from "react-router";
 import { useHref } from "pages/Editor/utils";
 import type { NavigationSetting } from "constants/AppConstants";
-import { Icon } from "design-system-old";
+import { Icon } from "design-system";
 import { getApplicationNameTextColor } from "./utils";
 import { ButtonVariantTypes } from "components/constants";
 
@@ -65,6 +65,7 @@ function PrimaryCTA(props: Props) {
   const permissionRequired = PERMISSION_TYPE.MANAGE_APPLICATION;
   const userPermissions = currentApplication?.userPermissions ?? [];
   const canEdit = isPermitted(userPermissions, permissionRequired);
+  const [isForkModalOpen, setIsForkModalOpen] = useState(false);
 
   const appViewerURL = useHref(viewerURL, {
     pageId: currentPageID,
@@ -100,12 +101,9 @@ function PrimaryCTA(props: Props) {
           className={className}
           icon={
             <Icon
-              fillColor={getApplicationNameTextColor(
-                primaryColor,
-                navColorStyle,
-              )}
+              color={getApplicationNameTextColor(primaryColor, navColorStyle)}
               name="edit-line"
-              size="extraLarge"
+              size="md"
             />
           }
           insideSidebar={insideSidebar}
@@ -147,24 +145,22 @@ function PrimaryCTA(props: Props) {
     if (currentApplication?.forkingEnabled && currentApplication?.isPublic) {
       return (
         <div className="header__application-fork-btn-wrapper t--fork-btn-wrapper">
+          <Button
+            borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
+            buttonColor={selectedTheme.properties.colors.primaryColor}
+            buttonVariant="PRIMARY"
+            className={`t--fork-app w-full md:w-auto ${className}`}
+            data-testid="fork-modal-trigger"
+            icon="fork"
+            insideSidebar={insideSidebar}
+            navColorStyle={navColorStyle}
+            primaryColor={primaryColor}
+            text={createMessage(FORK_APP)}
+          />
           <ForkApplicationModal
             applicationId={currentApplication?.id || ""}
-            trigger={
-              <Button
-                borderRadius={
-                  selectedTheme.properties.borderRadius.appBorderRadius
-                }
-                buttonColor={selectedTheme.properties.colors.primaryColor}
-                buttonVariant="PRIMARY"
-                className={`t--fork-app w-full md:w-auto ${className}`}
-                data-testid="fork-modal-trigger"
-                icon="fork"
-                insideSidebar={insideSidebar}
-                navColorStyle={navColorStyle}
-                primaryColor={primaryColor}
-                text={createMessage(FORK_APP)}
-              />
-            }
+            isModalOpen={isForkModalOpen}
+            setModalClose={() => setIsForkModalOpen(false)}
           />
         </div>
       );
