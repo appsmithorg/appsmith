@@ -91,8 +91,7 @@ function verifyMultiDropdownValuesCount(count, page = 1) {
   });
 }
 
-// Skipping this test due to regression, issue id to track this regression https://github.com/appsmithorg/appsmith/issues/22534
-describe.skip("List widget v2 - meta hydration tests", () => {
+describe("List widget v2 - meta hydration tests", () => {
   before(() => {
     agHelper.AddDsl(dsl);
   });
