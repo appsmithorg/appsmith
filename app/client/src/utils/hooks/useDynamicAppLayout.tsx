@@ -334,15 +334,6 @@ export const useDynamicAppLayout = () => {
     if (isAutoCanvasResizing) setIsCanvasResizing(true);
     else if (isCanvasResizing) {
       setIsCanvasResizing(false);
-      dispatch(
-        updateLayoutForMobileBreakpointAction(
-          MAIN_CONTAINER_WIDGET_ID,
-          appPositioningType === AppPositioningTypes.AUTO
-            ? mainCanvasProps?.isMobile
-            : false,
-          calculateCanvasWidth(),
-        ),
-      );
       dispatch({
         type: ReduxActionTypes.PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES,
       });
