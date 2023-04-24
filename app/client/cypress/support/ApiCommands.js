@@ -146,10 +146,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("EditSourceDetail", (baseUrl, v1method) => {
-  // Wait for LazyCodeEditor to finish initializing
-  cy.get(`${apiwidget.editResourceUrl} ${apiwidget.renderedCodeEditor}`).should(
-    "exist",
-  );
+  cy.EnableAllCodeEditors();
   cy.get(apiwidget.editResourceUrl)
     .first()
     .click({ force: true })
@@ -397,10 +394,8 @@ Cypress.Commands.add("createAndFillApi", (url, parameters) => {
         expect(someText).to.equal(response.response.body.data.name);
       });
   });
-  // Wait for LazyCodeEditor to finish initializing
-  cy.get(`${apiwidget.editResourceUrl} ${apiwidget.renderedCodeEditor}`).should(
-    "exist",
-  );
+
+  cy.EnableAllCodeEditors();
   cy.get(apiwidget.editResourceUrl)
     .first()
     .click({ force: true })
