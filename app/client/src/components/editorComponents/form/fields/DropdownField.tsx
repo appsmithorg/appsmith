@@ -12,6 +12,8 @@ import { useDispatch } from "react-redux";
 const Container = styled.div`
   display: flex;
   gap: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 const renderDropdown = (props: any) => {
   return (
@@ -30,6 +32,7 @@ const renderDropdown = (props: any) => {
           </Container>
         </Option>
       ))}
+      {props.children}
     </Select>
   );
 };

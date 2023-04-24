@@ -4,13 +4,6 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import type { InjectedFormProps } from "redux-form";
 import { Tag } from "@blueprintjs/core";
 import { isString } from "lodash";
-import type {
-  MenuListComponentProps,
-  OptionProps,
-  OptionTypeBase,
-  SingleValueProps,
-} from "react-select";
-import { components } from "react-select";
 import type { Datasource } from "entities/Datasource";
 import { getPluginImages } from "selectors/entitiesSelector";
 import FormControl from "../FormControl";
@@ -28,6 +21,7 @@ import {
   Callout,
   Divider,
   Icon,
+  Option,
   Spinner,
   Tab,
   TabPanel,
@@ -137,7 +131,6 @@ import { getUpdateTimestamp } from "components/editorComponents/Debugger/ErrorLo
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import SearchSnippets from "pages/common/SearchSnippets";
 import { change } from "redux-form";
 
@@ -285,34 +278,9 @@ const DropdownSelect = styled.div`
 `;
 
 const CreateDatasource = styled.div`
-  height: 44px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 500;
+  gap: 8px;
   border-top: 1px solid var(--ads-v2-border-radius);
-  :hover {
-    cursor: pointer;
-  }
-  .createIcon {
-    margin-right: 6px;
-  }
-`;
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  .plugin-image {
-    height: 20px;
-    width: auto;
-  }
-  .selected-value {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    margin-left: 6px;
-  }
 `;
 
 const StyledSpinner = styled(Spinner)`
@@ -506,50 +474,6 @@ export function EditorJSONtoForm(props: Props) {
   }
 
   const dispatch = useDispatch();
-
-  function MenuList(props: MenuListComponentProps<{ children: Node }>) {
-    return (
-      <>
-        <components.MenuList {...props}>{props.children}</components.MenuList>
-        {canCreateDatasource ? (
-          <CreateDatasource onClick={() => onCreateDatasourceClick()}>
-            <Icon className="createIcon" name="plus" size="sm" />
-            {createMessage(CREATE_NEW_DATASOURCE)}
-          </CreateDatasource>
-        ) : null}
-      </>
-    );
-  }
-
-  function SingleValue(props: SingleValueProps<OptionTypeBase>) {
-    return (
-      <components.SingleValue {...props}>
-        <Container>
-          <img
-            alt="Datasource"
-            className="plugin-image"
-            src={getAssetUrl(props.data.image)}
-          />
-          <div className="selected-value">{props.children}</div>
-        </Container>
-      </components.SingleValue>
-    );
-  }
-
-  function CustomOption(props: OptionProps<OptionTypeBase>) {
-    return (
-      <components.Option {...props}>
-        <Container className="t--datasource-option">
-          <img
-            alt="Datasource"
-            className="plugin-image"
-            src={getAssetUrl(props.data.image)}
-          />
-          <div style={{ marginLeft: "6px" }}>{props.children}</div>
-        </Container>
-      </components.Option>
-    );
-  }
 
   const handleDocumentationClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -976,14 +900,22 @@ export function EditorJSONtoForm(props: Props) {
             <DropdownSelect>
               <DropdownField
                 className={"t--switch-datasource"}
-                components={{ MenuList, Option: CustomOption, SingleValue }}
                 // defaultValue={defaultValue}
                 formName={formName}
                 isDisabled={!isChangePermitted}
                 name="datasource.id"
                 options={DATASOURCES_OPTIONS}
                 placeholder="Datasource"
-              />
+              >
+                <Option>
+                  {canCreateDatasource && (
+                    <CreateDatasource onClick={() => onCreateDatasourceClick()}>
+                      <Icon className="createIcon" name="plus" size="sm" />
+                      {createMessage(CREATE_NEW_DATASOURCE)}
+                    </CreateDatasource>
+                  )}
+                </Option>
+              </DropdownField>
             </DropdownSelect>
             <Button
               className="t--run-query"
