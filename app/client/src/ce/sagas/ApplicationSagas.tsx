@@ -679,16 +679,16 @@ export function* forkApplicationSaga(
       const isEditorInitialized: boolean = yield select(getIsEditorInitialized);
       if (!isEditorInitialized) {
         yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
-        if (response.data.isPartialImport) {
-          yield put(
-            showReconnectDatasourceModal({
-              application: response.data?.application,
-              unConfiguredDatasourceList:
-                response?.data.unConfiguredDatasourceList,
-              workspaceId: action.payload.workspaceId,
-            }),
-          );
-        }
+      }
+      if (response.data.isPartialImport) {
+        yield put(
+          showReconnectDatasourceModal({
+            application: response.data?.application,
+            unConfiguredDatasourceList:
+              response?.data.unConfiguredDatasourceList,
+            workspaceId: action.payload.workspaceId,
+          }),
+        );
       }
     }
   } catch (error) {
