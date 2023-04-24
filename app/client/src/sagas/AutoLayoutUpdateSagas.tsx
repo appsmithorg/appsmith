@@ -37,7 +37,6 @@ import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import convertDSLtoAuto from "utils/DSLConversions/fixedToAutoLayout";
 import { convertNormalizedDSLToFixed } from "utils/DSLConversions/autoToFixedLayout";
-import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
 import { getCanvasWidth as getMainCanvasWidth } from "selectors/editorSelectors";
 import {
   getLeftColumn,
@@ -46,13 +45,9 @@ import {
   setBottomRow,
   setRightColumn,
 } from "utils/autoLayout/flexWidgetUtils";
-import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
-import { isEmpty } from "lodash";
-import { mutation_setPropertiesToUpdate } from "./autoHeightSagas/helpers";
 import { updateApplication } from "@appsmith/actions/applicationActions";
 import { getIsCurrentlyConvertingLayout } from "selectors/autoLayoutSelectors";
 import { getIsResizing } from "selectors/widgetSelectors";
-import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { AppState } from "ce/reducers";
 
 export function* updateLayoutForMobileCheckpoint(
@@ -93,7 +88,6 @@ export function* updateLayoutForMobileCheckpoint(
       ? alterLayoutForMobile(allWidgets, parentId, canvasWidth, mainCanvasWidth)
       : alterLayoutForDesktop(allWidgets, parentId, mainCanvasWidth);
     yield put(updateAndSaveLayout(updatedWidgets));
-    yield put(generateAutoHeightLayoutTreeAction(true, true));
     log.debug(
       "Auto Layout : updating layout for mobile viewport took",
       performance.now() - start,
@@ -265,21 +259,21 @@ function* updateWidgetDimensionsSaga(
 }
 
 /**
- * This saga is responsible for updating the bounding box of the widget
- * when the widget component get resized internally.
- * It also updates the position of other affected widgets as well.
+ *
+ * processAutoLayoutDimensionUpdatesSaga(widgets, queue) => widgets
  */
-function* processAutoLayoutDimensionUpdatesSaga() {
-  if (Object.keys(autoLayoutWidgetDimensionUpdateBatch).length === 0) return;
 
-  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const mainCanvasWidth: number = yield select(getMainCanvasWidth);
-  const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
-
-  let widgets = allWidgets;
-  const widgetsOld = { ...widgets };
-  const parentIds = new Set<string>();
+function* processAutoLayoutDimensionUpdatesFn(
+  allWidgets: CanvasWidgetsReduxState,
+  parentIds: Set<string>,
+  isMobile: boolean,
+  mainCanvasWidth: number,
+) {
+  if (Object.keys(autoLayoutWidgetDimensionUpdateBatch).length === 0) {
+    return allWidgets;
+  }
   // Iterate through the batch and update the new dimensions
+  let widgets = { ...allWidgets };
   for (const widgetId in autoLayoutWidgetDimensionUpdateBatch) {
     const { height, width } = autoLayoutWidgetDimensionUpdateBatch[widgetId];
     const widget = allWidgets[widgetId];
@@ -319,65 +313,87 @@ function* processAutoLayoutDimensionUpdatesSaga() {
       [widgetId]: widgetToBeUpdated,
     };
   }
-
-  // Update the position of all the widgets
-  for (const parentId of parentIds) {
-    widgets = updateWidgetPositions(
-      widgets,
-      parentId,
-      isMobile,
-      mainCanvasWidth,
-    );
-  }
-
-  let widgetsToUpdate: any = {};
-
-  /**
-   * Iterate over all widgets and check if any of their dimensions have changed
-   * If they have, add them to the list of widgets to update
-   * Note: We need to iterate through all widgets since changing dimension of one widget might affect the dimensions of other widgets
-   */
-  for (const widgetId of Object.keys(widgets)) {
-    const widget = widgets[widgetId];
-    const oldWidget = widgetsOld[widgetId];
-    const propertiesToUpdate: Record<string, any> = {};
-
-    const positionProperties = [
-      "topRow",
-      "bottomRow",
-      "leftColumn",
-      "rightColumn",
-      "mobileTopRow",
-      "mobileBottomRow",
-      "mobileLeftColumn",
-      "mobileRightColumn",
-    ];
-
-    for (const prop of positionProperties) {
-      if (widget[prop] !== oldWidget[prop]) {
-        propertiesToUpdate[prop] = widget[prop];
-      }
-    }
-
-    if (isEmpty(propertiesToUpdate)) continue;
-
-    widgetsToUpdate = mutation_setPropertiesToUpdate(
-      widgetsToUpdate,
-      widgetId,
-      propertiesToUpdate,
-    );
-  }
-
-  // Push all updates to the CanvasWidgetsReducer.
-  // Note that we're not calling `UPDATE_LAYOUT`
-  // as we don't need to trigger an eval
-  if (!isEmpty(widgetsToUpdate)) {
-    yield put(updateMultipleWidgetPropertiesAction(widgetsToUpdate));
-  }
-
-  // clear the batch after processing
-  autoLayoutWidgetDimensionUpdateBatch = {};
+  return widgets;
 }
+/**
+ * This saga is responsible for updating the bounding box of the widget
+ * when the widget component get resized internally.
+ * It also updates the position of other affected widgets as well.
+ */
+// function* processAutoLayoutDimensionUpdatesSaga() {
+//   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+//   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
+//   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
+
+//   let widgets = allWidgets;
+//   const widgetsOld = { ...widgets };
+//   const parentIds = new Set<string>();
+//   let processedWidgets: CanvasWidgetsReduxState = yield call(
+//     processAutoLayoutDimensionUpdatesFn,
+//     widgets,
+//     parentIds,
+//     isMobile,
+//     mainCanvasWidth,
+//   );
+
+//   // Update the position of all the widgets
+//   for (const parentId of parentIds) {
+//     processedWidgets = updateWidgetPositions(
+//       processedWidgets,
+//       parentId,
+//       isMobile,
+//       mainCanvasWidth,
+//     );
+//   }
+
+//   let widgetsToUpdate: any = {};
+
+//   /**
+//    * Iterate over all widgets and check if any of their dimensions have changed
+//    * If they have, add them to the list of widgets to update
+//    * Note: We need to iterate through all widgets since changing dimension of one widget might affect the dimensions of other widgets
+//    */
+//   for (const widgetId of Object.keys(processedWidgets)) {
+//     const widget = processedWidgets[widgetId];
+//     const oldWidget = widgetsOld[widgetId];
+//     const propertiesToUpdate: Record<string, any> = {};
+
+//     const positionProperties = [
+//       "topRow",
+//       "bottomRow",
+//       "leftColumn",
+//       "rightColumn",
+//       "mobileTopRow",
+//       "mobileBottomRow",
+//       "mobileLeftColumn",
+//       "mobileRightColumn",
+//     ];
+
+//     for (const prop of positionProperties) {
+//       if (widget[prop] !== oldWidget[prop]) {
+//         propertiesToUpdate[prop] = widget[prop];
+//       }
+//     }
+
+//     if (isEmpty(propertiesToUpdate)) continue;
+
+//     widgetsToUpdate = mutation_setPropertiesToUpdate(
+//       widgetsToUpdate,
+//       widgetId,
+//       propertiesToUpdate,
+//     );
+//   }
+
+//   // Push all updates to the CanvasWidgetsReducer.
+//   // Note that we're not calling `UPDATE_LAYOUT`
+//   // as we don't need to trigger an eval
+//   if (!isEmpty(widgetsToUpdate)) {
+//     yield put(updateMultipleWidgetPropertiesAction(widgetsToUpdate));
+//   }
+
+//   // clear the batch after processing
+//   autoLayoutWidgetDimensionUpdateBatch = {};
+// }
 
 export function* updateApplicationLayoutType(
   positioningType: AppPositioningTypes,
@@ -392,6 +408,31 @@ export function* updateApplicationLayoutType(
       },
     }),
   );
+}
+
+function* processWidgetDimensionsSaga() {
+  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const mainCanvasWidth: number = yield select(getMainCanvasWidth);
+  const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
+
+  const parentIds = new Set<string>();
+  const processedWidgets: CanvasWidgetsReduxState = yield call(
+    processAutoLayoutDimensionUpdatesFn,
+    allWidgets,
+    parentIds,
+    isMobile,
+    mainCanvasWidth,
+  );
+  // clear the batch after processing
+  autoLayoutWidgetDimensionUpdateBatch = {};
+  return processedWidgets;
+}
+
+function* processWidgetDimensionsAndPositions() {
+  const processedWidgets: CanvasWidgetsReduxState = yield call(
+    processWidgetDimensionsSaga,
+  );
+  yield call(recalculateAutoLayoutColumnsAndSave, processedWidgets);
 }
 
 export default function* layoutUpdateSagas() {
@@ -410,8 +451,11 @@ export default function* layoutUpdateSagas() {
     ),
     debounce(
       50,
-      ReduxActionTypes.PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES,
-      processAutoLayoutDimensionUpdatesSaga,
+      [
+        ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
+        ReduxActionTypes.PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES,
+      ],
+      processWidgetDimensionsAndPositions,
     ),
   ]);
 }
