@@ -1,5 +1,6 @@
+/* eslint-disable */
 import type { RefObject } from "react";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import type { InjectedFormProps } from "redux-form";
 import { Tag } from "@blueprintjs/core";
 import { isString } from "lodash";
@@ -138,6 +139,7 @@ import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import SearchSnippets from "pages/common/SearchSnippets";
+import { change } from "redux-form";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -149,7 +151,6 @@ const QueryFormContainer = styled.form`
   .statementTextArea {
     font-size: 14px;
     line-height: 20px;
-    /* color: #2e3d49; */
     margin-top: 5px;
   }
   .queryInput {
@@ -198,14 +199,7 @@ export const TabbedViewContainer = styled.div`
 `;
 
 const SettingsWrapper = styled.div`
-  /* padding: var(--ads-v2-spaces-4) 0; */
   height: 100%;
-
-  /* a {
-    font-size: 14px;
-    line-height: 20px;
-    margin-top: 12px;
-  } */
 `;
 
 const ResultsCount = styled.div`
@@ -217,7 +211,6 @@ const ResultsCount = styled.div`
 
 const FieldWrapper = styled.div`
   margin-bottom: var(--ads-v2-spaces-4);
-  /* overflow: hidden; */
 `;
 
 const SecondaryWrapper = styled.div`
@@ -240,7 +233,6 @@ const ResponseContentWrapper = styled.div<{ isError: boolean }>`
 `;
 
 export const StyledFormRow = styled(FormRow)`
-  /* padding: 0px 20px; */
   flex: 0;
 `;
 
@@ -350,7 +342,6 @@ const TabContainerView = styled.div`
   display: flex;
   align-items: start;
   flex: 1;
-  /* padding-right: var(--ads-v2-spaces-7); */
   position: relative;
 `;
 
@@ -909,6 +900,20 @@ export function EditorJSONtoForm(props: Props) {
       [],
     );
 
+  // DATASOURCES_OPTIONS[0].value,
+  // const [defaultValue, setDefaultValue] = useState("");
+  //
+  // useEffect(() => {
+  //   if (
+  //     (DATASOURCES_OPTIONS &&
+  //       DATASOURCES_OPTIONS[0] &&
+  //       DATASOURCES_OPTIONS[0]?.value) !== defaultValue
+  //   ) {
+  //     dispatch(change(formName, "datasource.id", DATASOURCES_OPTIONS[0].value)); // Dispatch a change action to update form state
+  //     setDefaultValue(DATASOURCES_OPTIONS[0].value);
+  //   }
+  // }, [DATASOURCES_OPTIONS]);
+
   const selectedConfigTab = useSelector(getQueryPaneConfigSelectedTabIndex);
 
   // Debugger render flag
@@ -969,13 +974,11 @@ export function EditorJSONtoForm(props: Props) {
               }}
             />
             <DropdownSelect>
-              {/* TODO: children should not be necessary because the underlying component is taking care of it */}
-              {/* TODO: Need to implement the create a datasource menu item (why is it not showing up here?) */}
-              {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-              {/*@ts-ignore*/}
               <DropdownField
                 className={"t--switch-datasource"}
                 components={{ MenuList, Option: CustomOption, SingleValue }}
+                // defaultValue={defaultValue}
+                formName={formName}
                 isDisabled={!isChangePermitted}
                 name="datasource.id"
                 options={DATASOURCES_OPTIONS}
