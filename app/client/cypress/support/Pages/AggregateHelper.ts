@@ -25,6 +25,7 @@ export class AggregateHelper {
   private removeLine = "{backspace}";
   private selectAll = `${this.isMac ? "{cmd}{a}" : "{ctrl}{a}"}`;
   private lazyCodeEditorFallback = ".t--lazyCodeEditor-fallback";
+  private lazyCodeEditorRendered = ".t--lazyCodeEditor-editor";
 
   private selectChars = (noOfChars: number) =>
     `${"{leftArrow}".repeat(noOfChars) + "{shift}{cmd}{leftArrow}{backspace}"}`;
@@ -1176,6 +1177,9 @@ export class AggregateHelper {
   // with the same name.
   public EnableAllCodeEditors() {
     cy.get(this.lazyCodeEditorFallback, { timeout: 60000 }).should("not.exist");
+    cy.get(this.lazyCodeEditorRendered).each(($el) => {
+      cy.wrap($el).find(".CodeMirror").should("exist");
+    });
   }
 
   //Not used:

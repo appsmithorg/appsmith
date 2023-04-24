@@ -1415,6 +1415,9 @@ Cypress.Commands.add("EnableAllCodeEditors", () => {
   cy.get(commonlocators.lazyCodeEditorFallback, { timeout: 60000 }).should(
     "not.exist",
   );
+  cy.get(commonlocators.lazyCodeEditorRendered).each(($el) => {
+    cy.wrap($el).find(".CodeMirror").should("exist");
+  });
 });
 
 Cypress.Commands.add("getTableCellHeight", (x, y) => {
