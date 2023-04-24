@@ -1240,8 +1240,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 .onErrorResume(throwable -> {
                     log.error("Error while importing the application, reason: {}", throwable.getMessage());
                     return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, throwable.getMessage()));
-                });
-                //.as(transactionalOperator::transactional);
+                })
+                .as(transactionalOperator::transactional);
 
         // Import Application is currently a slow API because it needs to import and create application, pages, actions
         // and action collection. This process may take time and the client may cancel the request. This leads to the flow
