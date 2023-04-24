@@ -559,10 +559,12 @@ Cypress.Commands.add(
       .first()
       .then((ins) => {
         const input = ins[0].CodeMirror;
-        expect(input.hasFocus()).to.be.true;
-        const editorCursor = input.getCursor();
-        expect(editorCursor.ch).to.equal(cursor.ch);
-        expect(editorCursor.line).to.equal(cursor.line);
+        // The input gets focused with a slight delay so we need to wait for it
+        cy.waitUntil(() => input.hasFocus()).then(() => {
+          const editorCursor = input.getCursor();
+          expect(editorCursor.ch).to.equal(cursor.ch);
+          expect(editorCursor.line).to.equal(cursor.line);
+        });
       });
   },
 );
