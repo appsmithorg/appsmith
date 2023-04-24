@@ -352,16 +352,7 @@ function ImportedKeyValue(props: {
                 isInvalid={data?.isInvalid}
                 size={1}
               >
-                <Tooltip
-                  content={tooltipContentKey}
-                  onVisibleChange={
-                    tooltipContentKey?.length > 0 ? tooltipContentKey : false
-                  }
-                  placement="bottom"
-                  visible={
-                    tooltipContentKey?.length > 0 ? tooltipContentKey : false
-                  }
-                >
+                <Tooltip content={tooltipContentKey} placement="bottom">
                   <Text
                     className={`t--${props?.keyValueName}-key-${index}`}
                     kind="body-s"
@@ -391,20 +382,7 @@ function ImportedKeyValue(props: {
                   className={`t--${props?.keyValueName}-value-${index}`}
                   kind="body-s"
                 >
-                  <Tooltip
-                    content={tooltipContentValue}
-                    onVisibleChange={
-                      tooltipContentValue?.length > 0
-                        ? tooltipContentValue
-                        : false
-                    }
-                    placement="bottom"
-                    visible={
-                      tooltipContentValue?.length > 0
-                        ? tooltipContentValue
-                        : false
-                    }
-                  >
+                  <Tooltip content={tooltipContentValue} placement="bottom">
                     <div>{data.value}</div>
                   </Tooltip>
                 </Text>
