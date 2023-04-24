@@ -83,54 +83,57 @@ describe("Theme validation usecases", function () {
             `${$childElem.children().last().text()}, sans-serif`,
           );
           themeFont = `${$childElem.children().last().text()}, sans-serif`;
+
+          cy.contains("Font").click({ force: true });
+
+          //Color
+          //cy.contains("Color").click({ force: true });
+          cy.wait(2000);
+          cy.colorMouseover(0, "Primary Color");
+          cy.validateColor(0, "#553DE9");
+          cy.colorMouseover(1, "Background Color");
+          cy.validateColor(1, "#F8FAFC");
+
+          cy.get(themelocator.inputColor).click({ force: true });
+          cy.chooseColor(0, themelocator.greenColor);
+
+          cy.get(themelocator.inputColor).should("have.value", "#15803d");
+          cy.get(themelocator.inputColor).clear({ force: true });
+          cy.wait(2000);
+          cy.get(themelocator.inputColor).type("red");
+          cy.get(themelocator.inputColor).should("have.value", "red");
+          cy.wait(2000);
+
+          cy.get(themelocator.inputColor).eq(0).click({ force: true });
+          cy.get(themelocator.inputColor).click({ force: true });
+          cy.get('[data-testid="color-picker"]').first().click({ force: true });
+          cy.get("[style='background-color: rgb(21, 128, 61);']")
+            .last()
+            .click();
+          cy.wait(2000);
+          cy.get(themelocator.inputColor).should("have.value", "#15803d");
+          cy.get(themelocator.inputColor).clear({ force: true });
+          cy.wait(2000);
+          cy.get(themelocator.inputColor).click().type("Black");
+          cy.get(themelocator.inputColor).should("have.value", "Black");
+          cy.wait(2000);
+          cy.contains("Color").click({ force: true });
+          appSettings.ClosePane();
+
+          //Publish the App and validate Font across the app
+          cy.PublishtheApp();
+          cy.get(".bp3-button:contains('Sub')").should(
+            "have.css",
+            "font-family",
+            themeFont,
+          );
+          cy.get(".bp3-button:contains('Reset')").should(
+            "have.css",
+            "font-family",
+            themeFont,
+          );
         });
     });
-    cy.contains("Font").click({ force: true });
-
-    //Color
-    //cy.contains("Color").click({ force: true });
-    cy.wait(2000);
-    cy.colorMouseover(0, "Primary Color");
-    cy.validateColor(0, "#553DE9");
-    cy.colorMouseover(1, "Background Color");
-    cy.validateColor(1, "#F8FAFC");
-
-    cy.get(themelocator.inputColor).click({ force: true });
-    cy.chooseColor(0, themelocator.greenColor);
-
-    cy.get(themelocator.inputColor).should("have.value", "#15803d");
-    cy.get(themelocator.inputColor).clear({ force: true });
-    cy.wait(2000);
-    cy.get(themelocator.inputColor).type("red");
-    cy.get(themelocator.inputColor).should("have.value", "red");
-    cy.wait(2000);
-
-    cy.get(themelocator.inputColor).eq(0).click({ force: true });
-    cy.get(themelocator.inputColor).click({ force: true });
-    cy.get('[data-testid="color-picker"]').first().click({ force: true });
-    cy.get("[style='background-color: rgb(21, 128, 61);']").last().click();
-    cy.wait(2000);
-    cy.get(themelocator.inputColor).should("have.value", "#15803d");
-    cy.get(themelocator.inputColor).clear({ force: true });
-    cy.wait(2000);
-    cy.get(themelocator.inputColor).click().type("Black");
-    cy.get(themelocator.inputColor).should("have.value", "Black");
-    cy.wait(2000);
-    cy.contains("Color").click({ force: true });
-    appSettings.ClosePane();
-
-    //Publish the App and validate Font across the app
-    cy.PublishtheApp();
-    cy.get(".bp3-button:contains('Sub')").should(
-      "have.css",
-      "font-family",
-      themeFont,
-    );
-    cy.get(".bp3-button:contains('Reset')").should(
-      "have.css",
-      "font-family",
-      themeFont,
-    );
   });
 
   it("2. Validate Default Theme change across application", function () {
