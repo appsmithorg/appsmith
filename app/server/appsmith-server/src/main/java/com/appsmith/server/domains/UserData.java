@@ -74,7 +74,7 @@ public class UserData extends BaseDomain {
     private List<String> recentlyUsedTemplateIds;
 
     // Status of user's consent on sharing email for Intercom communications
-    @JsonView(Views.Public.class)
+    @JsonView(Views.Internal.class)
     private boolean isIntercomConsentGiven;
 
     @JsonView(Views.Public.class)
