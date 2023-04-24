@@ -20,14 +20,10 @@ import { INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
 import { getQueryParams } from "utils/URLUtils";
 import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
-import DataSourceOption from "../DataSourceOption";
+import DataSourceOption, { DatasourceImage } from "../DataSourceOption";
 import { getQueryStringfromObject } from "RouteBuilder";
-import type {
-  DropdownOption,
-  RenderDropdownOptionType,
-} from "design-system-old";
+import type { DropdownOption } from "design-system-old";
 import {
-  Dropdown,
   // getTypographyByKey,
   IconSize,
   // TooltipComponent as Tooltip,
@@ -72,6 +68,9 @@ import { datasourcesEditorIdURL, integrationEditorURL } from "RouteBuilder";
 import { PluginPackageName } from "entities/Action";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { hasCreateDatasourcePermission } from "@appsmith/utils/permissionHelpers";
+import { Icon as IconOld } from "design-system-old";
+import { getPluginImages } from "selectors/entitiesSelector";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 //  ---------- Styles ----------
 
@@ -83,6 +82,7 @@ const RoundBg = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-left: 8px;
 `;
 
 const TooltipWrapper = styled.div`
@@ -104,6 +104,18 @@ const FormWrapper = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+
+  &&& .ads-v2-select.has-error {
+    border: 1px solid var(--ads-old-color-pomegranate);
+  }
+
+  &&& .ads-v2-select.has-error .rc-select-selection-item {
+    color: var(--ads-old-color-pomegranate);
+  }
+
+  &&& .ads-v2-select.has-error .rc-select-arrow {
+    color: var(--ads-old-color-pomegranate);
+  }
 `;
 
 const DescWrapper = styled.div`
@@ -123,9 +135,43 @@ const Row = styled.p`
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
+  align-items: center;
   white-space: nowrap;
 `;
 
+const ErrorMsg = styled.span`
+  font-weight: normal;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: -0.221538px;
+  color: var(--ads-old-color-pomegranate);
+  margin-top: var(--ads-spaces-3);
+`;
+
+const HelperMsg = styled.span`
+  font-weight: normal;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: -0.221538px;
+  color: var(--ads-dropdown-default-menu-subtext-text-color);
+  margin: 6px 0px 10px;
+`;
+
+const StyledIcon = styled(IconOld)``;
+
+const StyledIconWrapper = styled.div`
+  height: 20px;
+  width: auto;
+  display: flex;
+  align-items: center;
+  margin: 0px 8px 0px 0px;
+`;
+
+const OptionWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+`;
 // Constants
 
 const datasourceIcon = "tables";
@@ -154,11 +200,45 @@ function GeneratePageSubmitBtn({
       isLoading={isLoading}
       kind="secondary"
       onClick={() => !disabled && onSubmit()}
+      size={"md"}
     >
       Generate Page
     </Button>
   ) : null;
 }
+
+enum GeneratePageSelectedViewIconEnum {
+  PLUGIN_ICON = "plugin-icon",
+  ADS_ICON = "ads-icon",
+}
+
+const DatasourceOptionSelectedView = (props: any) => {
+  const { iconType, option, pluginImages } = props;
+  return (
+    <OptionWrapper>
+      <StyledIconWrapper>
+        {props.iconType === GeneratePageSelectedViewIconEnum.PLUGIN_ICON && (
+          <DatasourceImage
+            alt=""
+            className="dataSourceImage"
+            src={getAssetUrl(
+              pluginImages[(option as DropdownOption)?.data?.pluginId],
+            )}
+          />
+        )}
+        {iconType === GeneratePageSelectedViewIconEnum.ADS_ICON && (
+          <StyledIcon
+            fillColor={option?.iconColor}
+            hoverFillColor={option?.iconColor}
+            name={option.icon}
+            size={option.iconSize || IconSize.XL}
+          />
+        )}
+      </StyledIconWrapper>
+      <Text renderAs="p">{option.label} </Text>
+    </OptionWrapper>
+  );
+};
 
 // ---------- GeneratePageForm Component ----------
 
@@ -167,6 +247,8 @@ function GeneratePageForm() {
   const querySearch = useLocation().search;
 
   const { pageId: currentPageId } = useParams<ExplorerURLParams>();
+
+  const pluginImages = useSelector(getPluginImages);
 
   const applicationId = useSelector(getCurrentApplicationId);
   const workspace = useSelector(getCurrentAppWorkspace);
@@ -295,7 +377,10 @@ function GeneratePageForm() {
   );
 
   const onSelectTable = useCallback(
-    (table: string | undefined, TableObj: DatasourceTableDropdownOption) => {
+    (
+      table: string | undefined,
+      TableObj: DatasourceTableDropdownOption | undefined,
+    ) => {
       if (table && TableObj) {
         AnalyticsUtil.logEvent("GEN_CRUD_PAGE_SELECT_TABLE");
         selectTable(TableObj);
@@ -611,7 +696,27 @@ function GeneratePageForm() {
           <Label>{createMessage(GEN_CRUD_DATASOURCE_DROPDOWN_LABEL)}</Label>
           <Select
             data-testid="t--datasource-dropdown"
-            // onChange={onSelectDataSource}
+            onChange={(value) =>
+              onSelectDataSource(
+                value,
+                dataSourceOptions.find((ds) => ds.value === value),
+              )
+            }
+            style={{ width: DROPDOWN_DIMENSION.WIDTH }}
+            value={
+              selectedDatasource?.label !== DEFAULT_DROPDOWN_OPTION?.label
+                ? {
+                    key: selectedDatasource?.value,
+                    label: (
+                      <DatasourceOptionSelectedView
+                        iconType={GeneratePageSelectedViewIconEnum.PLUGIN_ICON}
+                        option={selectedDatasource}
+                        pluginImages={pluginImages}
+                      />
+                    ),
+                  }
+                : selectedDatasource
+            }
           >
             {dataSourceOptions.map((option) => {
               /* eslint-disable no-debugger, no-console */
@@ -619,40 +724,17 @@ function GeneratePageForm() {
               console.log("option", option);
               return (
                 <Option key={option.value} value={option.value}>
-                  <img src="" />
-                  {option.label}
+                  <DataSourceOption
+                    cypressSelector="t--datasource-dropdown-option"
+                    extraProps={{ routeToCreateNewDatasource }}
+                    key={(option as DropdownOption).id}
+                    option={option}
+                    optionWidth={DROPDOWN_DIMENSION.WIDTH}
+                  />
                 </Option>
               );
             })}
           </Select>
-          <Dropdown
-            cypressSelector="t--datasource-dropdown"
-            dropdownMaxHeight={"300px"}
-            height={DROPDOWN_DIMENSION.HEIGHT}
-            onSelect={onSelectDataSource}
-            optionWidth={DROPDOWN_DIMENSION.WIDTH}
-            options={dataSourceOptions}
-            renderOption={({
-              isHighlighted,
-              isSelectedNode,
-              option,
-              optionClickHandler,
-            }: RenderDropdownOptionType) => (
-              <DataSourceOption
-                cypressSelector="t--datasource-dropdown-option"
-                extraProps={{ routeToCreateNewDatasource }}
-                isHighlighted={isHighlighted}
-                isSelectedNode={isSelectedNode}
-                key={(option as DropdownOption).id}
-                option={option}
-                optionClickHandler={optionClickHandler}
-                optionWidth={DROPDOWN_DIMENSION.WIDTH}
-              />
-            )}
-            selected={selectedDatasource}
-            showLabelOnly
-            width={DROPDOWN_DIMENSION.WIDTH}
-          />
         </SelectWrapper>
         {selectedDatasource.value ? (
           <SelectWrapper className="space-y-2" width={DROPDOWN_DIMENSION.WIDTH}>
@@ -660,19 +742,66 @@ function GeneratePageForm() {
               Select {pluginField.TABLE} from{" "}
               <Bold>{selectedDatasource.label}</Bold>
             </Label>
-            <Dropdown
-              cypressSelector="t--table-dropdown"
-              dropdownMaxHeight={"300px"}
-              errorMsg={tableDropdownErrorMsg}
-              height={DROPDOWN_DIMENSION.HEIGHT}
+
+            <Select
+              className={tableDropdownErrorMsg ? "has-error" : ""}
+              data-testid="t--table-dropdown"
+              isDisabled={!!tableDropdownErrorMsg}
               isLoading={fetchingDatasourceConfigs}
-              onSelect={onSelectTable}
-              optionWidth={DROPDOWN_DIMENSION.WIDTH}
-              options={datasourceTableOptions}
-              selected={selectedTable}
-              showLabelOnly
-              width={DROPDOWN_DIMENSION.WIDTH}
-            />
+              onChange={(value) =>
+                onSelectTable(
+                  value,
+                  datasourceTableOptions.find(
+                    (table) => table.value === value,
+                  ) as DatasourceTableDropdownOption,
+                )
+              }
+              value={
+                selectedTable?.label !== DEFAULT_DROPDOWN_OPTION?.label
+                  ? {
+                      key: selectedTable?.value,
+                      label: (
+                        <DatasourceOptionSelectedView
+                          iconType={GeneratePageSelectedViewIconEnum.ADS_ICON}
+                          option={selectedTable}
+                        />
+                      ),
+                    }
+                  : selectedTable
+              }
+            >
+              {datasourceTableOptions.map((table) => {
+                console.log("option table", table);
+                return (
+                  <Option key={table.value} value={table.value}>
+                    <OptionWrapper>
+                      <StyledIconWrapper>
+                        <StyledIcon
+                          fillColor={
+                            tableDropdownErrorMsg
+                              ? "var(--ads-old-color-pomegranate)"
+                              : table?.iconColor
+                          }
+                          hoverFillColor={
+                            tableDropdownErrorMsg
+                              ? "var(--ads-old-color-pomegranate)"
+                              : table?.iconColor
+                          }
+                          name={table.icon}
+                          size={table.iconSize || IconSize.XL}
+                        />
+                      </StyledIconWrapper>
+                      <Text renderAs="p">{table.label}</Text>
+                    </OptionWrapper>
+                  </Option>
+                );
+              })}
+            </Select>
+            {tableDropdownErrorMsg && (
+              <ErrorMsg className="ads-dropdown-errorMsg">
+                {tableDropdownErrorMsg}
+              </ErrorMsg>
+            )}
           </SelectWrapper>
         ) : null}
         {showEditDatasourceBtn && (
@@ -702,22 +831,57 @@ function GeneratePageForm() {
                     </Tooltip>
                   </TooltipWrapper>
                 </Row>
-                <Dropdown
-                  cypressSelector="t--searchColumn-dropdown"
-                  disabled={selectedTableColumnOptions.length === 0}
-                  dropdownMaxHeight={"300px"}
-                  helperText={
-                    selectedTableColumnOptions.length === 0
-                      ? `* Optional (No searchable ${pluginField.COLUMN} to select)`
-                      : "* Optional"
+                <Select
+                  data-testid="t--table-dropdown"
+                  isDisabled={selectedTableColumnOptions.length === 0}
+                  onChange={(value) =>
+                    onSelectColumn(
+                      value,
+                      selectedTableColumnOptions.find(
+                        (column) => column.value === value,
+                      ),
+                    )
                   }
-                  onSelect={onSelectColumn}
-                  optionWidth={DROPDOWN_DIMENSION.WIDTH}
-                  options={selectedTableColumnOptions}
-                  selected={selectedColumn}
-                  showLabelOnly
-                  width={DROPDOWN_DIMENSION.WIDTH}
-                />
+                  value={
+                    selectedColumn?.label !== DEFAULT_DROPDOWN_OPTION?.label
+                      ? {
+                          key: selectedColumn?.value,
+                          label: (
+                            <DatasourceOptionSelectedView
+                              iconType={
+                                GeneratePageSelectedViewIconEnum.ADS_ICON
+                              }
+                              option={selectedColumn}
+                            />
+                          ),
+                        }
+                      : selectedColumn
+                  }
+                >
+                  {selectedTableColumnOptions.map((column) => {
+                    console.log("option column", column);
+                    return (
+                      <Option key={column.value} value={column.value}>
+                        <OptionWrapper>
+                          <StyledIconWrapper>
+                            <StyledIcon
+                              fillColor={column?.iconColor}
+                              hoverFillColor={column?.iconColor}
+                              name={column.icon}
+                              size={column.iconSize || IconSize.XL}
+                            />
+                          </StyledIconWrapper>
+                          <Text renderAs="p">{column.label}</Text>
+                        </OptionWrapper>
+                      </Option>
+                    );
+                  })}
+                </Select>
+                <HelperMsg>
+                  {selectedTableColumnOptions.length === 0
+                    ? `* Optional (No searchable ${pluginField.COLUMN} to select)`
+                    : "* Optional"}
+                </HelperMsg>
               </SelectWrapper>
             )}
             <div className="mt-4">

@@ -23,9 +23,6 @@ const OptionWrapper = styled.div<{
   selected?: boolean;
   width?: string;
 }>`
-  padding: ${(props) =>
-    `${props.theme.spaces[3]}px ${props.theme.spaces[5]}px`};
-  ${(props) => (!props.disabled ? "cursor: pointer" : "")};
   display: flex;
   align-items: center;
   user-select: none;
@@ -50,25 +47,6 @@ const OptionWrapper = styled.div<{
       }
     }
   }
-
-  &:hover,
-  &.highlight-option {
-    background-color: ${Colors.GALLERY_1};
-
-    &&& svg {
-      rect {
-        fill: ${(props) => props.theme.colors.textOnDarkBG};
-      }
-    }
-
-    .${Classes.ICON} {
-      svg {
-        path {
-          fill: ${(props) => props.theme.colors.dropdown.hovered.icon};
-        }
-      }
-    }
-  }
 `;
 
 const CreateIconWrapper = styled.div`
@@ -85,7 +63,7 @@ const ImageWrapper = styled.div`
   margin: 0px 8px 0px 0px;
 `;
 
-const DatasourceImage = styled.img`
+export const DatasourceImage = styled.img`
   height: 20px;
   width: auto;
 `;
@@ -109,8 +87,8 @@ function DataSourceOption({
   const isConnectNewDataSourceBtn =
     CONNECT_NEW_DATASOURCE_OPTION_ID === (dropdownOption as DropdownOption).id;
 
-  const isSupportedForTemplate = (dropdownOption as DropdownOption).data
-    .isSupportedForTemplate;
+  const isSupportedForTemplate = (dropdownOption as DropdownOption)?.data
+    ?.isSupportedForTemplate;
   const isNotSupportedDatasource =
     !isSupportedForTemplate && !isSelectedNode && !isConnectNewDataSourceBtn;
 
@@ -153,13 +131,15 @@ function DataSourceOption({
           <CreateIconWrapper>
             <Icon name="plus" size="md" />
           </CreateIconWrapper>
-        ) : pluginImages[(dropdownOption as DropdownOption).data.pluginId] ? (
+        ) : pluginImages[(dropdownOption as DropdownOption)?.data?.pluginId] ? (
           <ImageWrapper>
             <DatasourceImage
               alt=""
               className="dataSourceImage"
               src={getAssetUrl(
-                pluginImages[(dropdownOption as DropdownOption).data.pluginId],
+                pluginImages[
+                  (dropdownOption as DropdownOption)?.data?.pluginId
+                ],
               )}
             />
           </ImageWrapper>

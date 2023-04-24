@@ -16,17 +16,28 @@ const HeadingContainer = styled.div`
   padding-top: 50px;
 `;
 
-const SubHeading = styled.p`
+const SubHeading = styled(Text)`
   margin: 10px 0px;
   text-align: center;
 `;
 
 const Back = styled(Link)`
-  margin: 20px 0 20px 8px;
+  margin: 20px 0 20px 10px;
 `;
 
 const Header = styled.div`
   width: 100%;
+`;
+
+const HeaderText = styled.h1`
+  font-size: 40px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 48px;
+  letter-spacing: 0px;
+  text-align: center;
+  margin: 0px;
+  color: black;
 `;
 
 function GeneratePage() {
@@ -44,12 +55,10 @@ function GeneratePage() {
       ) : null}
 
       <HeadingContainer>
-        <Text kind="heading-l" renderAs="h1">
-          {heading}
-        </Text>
+        <HeaderText>{heading}</HeaderText>
       </HeadingContainer>
       {isGenerateFormPage ? (
-        <SubHeading>
+        <SubHeading renderAs="p">
           Auto create a simple CRUD interface on top of your data
         </SubHeading>
       ) : null}

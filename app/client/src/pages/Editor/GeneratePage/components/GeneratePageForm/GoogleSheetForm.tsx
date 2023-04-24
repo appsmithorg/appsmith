@@ -15,12 +15,10 @@ import type {
 } from "./hooks";
 import type { DropdownOption } from "design-system-old";
 import {
-  Dropdown,
   FontWeight,
   getTypographyByKey,
   Text,
   TextType,
-  TextInput,
   TooltipComponent as Tooltip,
 } from "design-system-old";
 import { Colors } from "constants/Colors";
@@ -32,7 +30,7 @@ import {
   GEN_CRUD_NO_COLUMNS,
   GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC,
 } from "@appsmith/constants/messages";
-import { Icon } from "design-system";
+import { Icon, Option, Select, Input } from "design-system";
 
 type Props = {
   googleSheetPluginId: string;
@@ -301,18 +299,25 @@ function GoogleSheetForm(props: Props) {
           <Label>
             Select sheet from <Bold>{selectedSpreadsheet.label}</Bold>
           </Label>
-          <Dropdown
-            cypressSelector="t--sheetName-dropdown"
-            dropdownMaxHeight={"300px"}
-            height={DROPDOWN_DIMENSION.HEIGHT}
+
+          <Select
             isLoading={isFetchingSheetsList}
-            onSelect={onSelectSheetOption}
-            optionWidth={DROPDOWN_DIMENSION.WIDTH}
-            options={sheetsList}
-            selected={selectedSheet}
-            showLabelOnly
-            width={DROPDOWN_DIMENSION.WIDTH}
-          />
+            onChange={(value) =>
+              onSelectSheetOption(
+                value,
+                sheetsList.find((sheet) => sheet.value === value),
+              )
+            }
+            value={selectedSheet}
+          >
+            {sheetsList.map((sheet) => {
+              return (
+                <Option key={sheet.label} value={sheet.label}>
+                  {sheet?.label}
+                </Option>
+              );
+            })}
+          </Select>
         </SelectWrapper>
       ) : null}
 
@@ -334,12 +339,12 @@ function GoogleSheetForm(props: Props) {
                 </Tooltip>
               </TooltipWrapper>
             </Row>
-            <TextInput
-              cypressSelector="t--tableHeaderIndex"
-              dataType="text"
-              fill
+            <Input
+              className="t--tableHeaderIndex" // using className in place of cypressSelectors.
               onChange={tableHeaderIndexChangeHandler}
               placeholder="Table Header Index"
+              size="md"
+              type="text"
               value={tableHeaderIndex}
             />
           </SelectWrapper>
