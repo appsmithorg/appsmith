@@ -84,6 +84,7 @@ export const snapShotFlow = (
       cancelButtonText: createMessage(CANCEL_DIALOG),
       primaryButton: {
         text: createMessage(DISCARD),
+        closeModal: true,
         onClick: () => {
           dispatch(setConversionStop());
           dispatch({

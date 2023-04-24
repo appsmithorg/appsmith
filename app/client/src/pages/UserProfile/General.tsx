@@ -46,16 +46,12 @@ function General() {
   return (
     <Wrapper>
       <FieldWrapper>
-        {/* <LabelWrapper>
-          <Text kind="body-m" renderAs="span">
-            Display Picture
-          </Text>
-        </LabelWrapper> */}
         <UserProfileImagePicker />
       </FieldWrapper>
       <FieldWrapper>
         <Input
           data-test-id="t--display-name"
+          defaultValue={user?.name}
           isRequired
           label="Display name"
           labelPosition="top"
@@ -64,12 +60,12 @@ function General() {
           renderAs="input"
           size="md"
           type="text"
-          value={user?.name}
         />
       </FieldWrapper>
       <FieldWrapper>
         <Input
           data-test-id="t--display-name"
+          defaultValue={user?.email}
           isDisabled
           isReadOnly
           label="Email"
@@ -78,7 +74,6 @@ function General() {
           renderAs="input"
           size="md"
           type="text"
-          value={user?.email}
         />
       </FieldWrapper>
       <FieldWrapper>
@@ -101,17 +96,6 @@ function General() {
           )}
         </div>
       </FieldWrapper>
-      {/* <InputWrapper>
-        <LabelWrapper>
-          <Text type={TextType.H4}>Website</Text>
-        </LabelWrapper>
-        <TextInput
-          placeholder="Your website"
-          onChange={() => null}
-          defaultValue={""}
-          cypressSelector="t--profile-website"
-        />
-      </InputWrapper> */}
     </Wrapper>
   );
 }

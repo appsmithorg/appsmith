@@ -2,12 +2,10 @@ import React from "react";
 import styled from "styled-components";
 import type { InfoBlockProps } from "./InfoBlock";
 import { InfoBlock } from "./InfoBlock";
-import { Collapsible } from "design-system-old";
-import type { CalloutKind } from "design-system";
+import type { CalloutKind, SegmentedControlOption } from "design-system";
 import {
   Button,
-  Select,
-  Option,
+  SegmentedControl,
   Spinner,
   Callout,
   Icon,
@@ -29,11 +27,7 @@ const SnapshotContainer = styled.div`
   border-radius: var(--ads-v2-border-radius);
 `;
 
-type DropdownOption = {
-  label?: string;
-  value?: string;
-  icon?: string;
-};
+type ButtonInfo = { text: string; closeModal?: boolean; onClick: () => void };
 
 export type ConversionProps = {
   bannerMessageDetails?: {
@@ -43,8 +37,8 @@ export type ConversionProps = {
   cancelButtonText?: string;
   infoBlocks?: InfoBlockProps[];
   spinner?: string;
-  primaryButton?: { text: string; onClick: () => void };
-  secondaryButton?: { text: string; onClick: () => void };
+  primaryButton?: ButtonInfo;
+  secondaryButton?: ButtonInfo;
   conversionComplete?: ConversionCompleteLayoutProps;
   collapsibleMessage?: {
     title: string;
@@ -52,9 +46,9 @@ export type ConversionProps = {
     messagePoints: string[];
   };
   selectDropDown?: {
-    selected: DropdownOption;
-    onSelect: (value: string, option: DropdownOption) => void;
-    options: DropdownOption[];
+    selected: string;
+    onSelect: (value: string) => void;
+    options: SegmentedControlOption[];
     labelText: string;
   };
   snapShotDetails?: {
@@ -65,9 +59,12 @@ export type ConversionProps = {
   };
 };
 
-export function ConversionForm(props: ConversionProps) {
+export function ConversionForm(
+  props: ConversionProps & { closeModal: () => void },
+) {
   const {
     bannerMessageDetails,
+    closeModal,
     collapsibleMessage,
     conversionComplete,
     infoBlocks,
@@ -88,6 +85,13 @@ export function ConversionForm(props: ConversionProps) {
       snapShotStyles.marginBottom = "16px";
     }
   }
+
+  const onPrimaryButtonClick = (primaryButton: ButtonInfo) => {
+    primaryButton.onClick();
+    if (primaryButton.closeModal) {
+      closeModal();
+    }
+  };
 
   return (
     <>
@@ -122,16 +126,18 @@ export function ConversionForm(props: ConversionProps) {
         <ConversionCompleteLayout {...conversionComplete} />
       )}
       {collapsibleMessage && (
-        <Collapsible className="px-2" title={collapsibleMessage.title}>
+        <div className="px-2" title={collapsibleMessage.title}>
           <Text kind="heading-s" renderAs="h4">
             {collapsibleMessage.messageHeader}
           </Text>
-          <ul className="text-sm text-gray-500 list-disc pl-4">
+          <ul className="list-disc pl-4 mt-1">
             {collapsibleMessage.messagePoints.map((text, id) => (
-              <li key={id}>{text}</li>
+              <li key={id}>
+                <Text kind="action-m">{text}</Text>
+              </li>
             ))}
           </ul>
-        </Collapsible>
+        </div>
       )}
       {selectDropDown && (
         <div className="w-2/4">
@@ -140,7 +146,12 @@ export function ConversionForm(props: ConversionProps) {
               {selectDropDown.labelText}
             </Text>
           </div>
-          <Select
+          <SegmentedControl
+            defaultValue={selectDropDown.selected}
+            onChange={selectDropDown.onSelect}
+            options={selectDropDown.options}
+          />
+          {/* <Select
             //@ts-expect-error: onSelect type mismatch
             onSelect={selectDropDown.onSelect}
             value={selectDropDown.selected.value}
@@ -155,7 +166,7 @@ export function ConversionForm(props: ConversionProps) {
                 </Option>
               );
             })}
-          </Select>
+          </Select> */}
         </div>
       )}
 
@@ -202,9 +213,7 @@ export function ConversionForm(props: ConversionProps) {
           {primaryButton && (
             <Button
               kind="primary"
-              onClick={() => {
-                primaryButton.onClick();
-              }}
+              onClick={() => onPrimaryButtonClick(primaryButton)}
               size="md"
             >
               {primaryButton.text}

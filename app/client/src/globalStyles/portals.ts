@@ -37,8 +37,8 @@ export const PortalStyles = createGlobalStyle`
 
   .${GuidedTourClasses.GUIDED_TOUR_BORDER} {
     position:fixed;
-    border: 4px solid rgba(191, 65, 9, 0);
-    border-radius: 4px;
+    border: 4px solid transparent;
+    border-radius: var(--ads-v2-border-radius);
     filter: drop-shadow(0px 1px 3px rgba(16, 24, 40, 0.1)) drop-shadow(0px 1px 2px rgba(16, 24, 40, 0.06));
     transition: all 1s;
     z-index: 3;
@@ -46,15 +46,15 @@ export const PortalStyles = createGlobalStyle`
   }
 
   .${GuidedTourClasses.GUIDED_TOUR_SHOW_BORDER} {
-    border-color: rgba(191, 65, 9, 1);
+    border-color: var(--ads-v2-color-border-brand-emphasis-plus);
   }
 
   .${GuidedTourClasses.GUIDED_TOUR_INDICATOR} {
     position: fixed;
     z-index: 3;
     pointer-events: none;
-    height: 87px;
-    width: 116px;
+    height: 50px;
+    width: 90px;
     transition: all 1s;
   }
 `;

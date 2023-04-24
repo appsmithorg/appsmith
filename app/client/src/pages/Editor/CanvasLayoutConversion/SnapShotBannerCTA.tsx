@@ -49,10 +49,14 @@ export function SnapShotBannerCTA() {
       ? createMessage(DISCARD_SNAPSHOT_HEADER)
       : createMessage(USE_SNAPSHOT_HEADER);
 
-  const closeModal = (isOpen: boolean) => {
+  const closeModal = () => {
+    setShowModal(false);
+    dispatch(setConversionStop());
+  };
+
+  const onOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
-      setShowModal(false);
-      dispatch(setConversionStop());
+      closeModal();
     }
   };
 
@@ -96,13 +100,18 @@ export function SnapShotBannerCTA() {
           </Text>
         </div>
       </Callout>
-      <Modal onOpenChange={closeModal} open={showModal}>
-        <ModalContent>
+      <Modal onOpenChange={onOpenChange} open={showModal}>
+        <ModalContent
+          // Don't close Modal on escape key press
+          onEscapeKeyDown={(e) => e.preventDefault()}
+          // Don't close Modal when pressed outside
+          onInteractOutside={(e) => e.preventDefault()}
+        >
           <ModalHeader isCloseButtonVisible={!isConversionCompleted}>
-            {!isConversionCompleted ? modalHeader : ""}
+            {modalHeader}
           </ModalHeader>
           <ModalBody>
-            <ConversionForm {...formProps} />
+            <ConversionForm closeModal={closeModal} {...formProps} />
           </ModalBody>
         </ModalContent>
       </Modal>
