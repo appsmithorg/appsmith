@@ -3,12 +3,16 @@ import type { ApiResponse } from "api/ApiResponses";
 import type { AxiosPromise } from "axios";
 import type { AppColorCode } from "constants/DefaultTheme";
 import type { AppIconName } from "design-system-old";
-import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
+import type {
+  AppLayoutConfig,
+  AppPositioningTypeConfig,
+} from "reducers/entityReducers/pageListReducer";
 import type { APP_MODE } from "entities/App";
 import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
 import type { Datasource } from "entities/Datasource";
 import type { NavigationSetting } from "constants/AppConstants";
 import type { EvaluationVersion } from "reducers/entityReducers/appReducer";
+import { getSnapShotAPIRoute } from "ce/constants/ApiConstants";
 
 export interface PublishApplicationRequest {
   applicationId: string;
@@ -113,6 +117,7 @@ export type UpdateApplicationPayload = {
   embedSetting?: AppEmbedSetting;
   applicationDetail?: {
     navigationSetting?: NavigationSetting;
+    appPositioning?: AppPositioningTypeConfig;
   };
 };
 
@@ -214,6 +219,9 @@ export interface PageDefaultMeta {
   default: boolean;
 }
 
+export interface snapShotApplicationRequest {
+  applicationId: string;
+}
 export class ApplicationApi extends Api {
   static baseURL = "v1/applications";
   static publishURLPath = (applicationId: string) =>
@@ -342,6 +350,22 @@ export class ApplicationApi extends Api {
         onUploadProgress: request.progress,
       },
     );
+  }
+
+  static createApplicationSnapShot(request: snapShotApplicationRequest) {
+    return Api.post(getSnapShotAPIRoute(request.applicationId));
+  }
+
+  static getSnapShotDetails(request: snapShotApplicationRequest) {
+    return Api.get(getSnapShotAPIRoute(request.applicationId));
+  }
+
+  static restoreApplicationFromSnapshot(request: snapShotApplicationRequest) {
+    return Api.post(getSnapShotAPIRoute(request.applicationId) + "/restore");
+  }
+
+  static deleteApplicationSnapShot(request: snapShotApplicationRequest) {
+    return Api.delete(getSnapShotAPIRoute(request.applicationId));
   }
 }
 

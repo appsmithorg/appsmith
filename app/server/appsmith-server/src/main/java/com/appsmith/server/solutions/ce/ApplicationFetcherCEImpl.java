@@ -224,8 +224,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
             releaseNotesService.getReleaseNodes()
                 // In case of an error or empty response from CS Server, continue without this data.
                 .onErrorResume(error -> Mono.empty())
-                .defaultIfEmpty(Collections.emptyList()),
-            userDataMono)
+                .defaultIfEmpty(Collections.emptyList()), userDataMono)
         ).flatMap(tuple -> {
             User user = tuple.getT1();
             final List<ReleaseNode> releaseNodes = tuple.getT2();

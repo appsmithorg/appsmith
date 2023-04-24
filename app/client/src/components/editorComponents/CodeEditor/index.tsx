@@ -125,15 +125,19 @@ import { getCodeCommentKeyMap, handleCodeComment } from "./utils/codeComment";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
 import { getEntitiesForNavigation } from "selectors/navigationSelectors";
 import history, { NavigationMethod } from "utils/history";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import type { PeekOverlayStateProps } from "./PeekOverlayPopup/PeekOverlayPopup";
 import {
   PeekOverlayPopUp,
   PEEK_OVERLAY_DELAY,
 } from "./PeekOverlayPopup/PeekOverlayPopup";
 import ConfigTreeActions from "utils/configTree";
+import {
+  getSaveAndAutoIndentKey,
+  saveAndAutoIndentCode,
+} from "./utils/saveAndAutoIndent";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -142,6 +146,7 @@ export type CodeEditorExpected = {
   type: string;
   example: ExpectedValueExample;
   autocompleteDataType: AutocompleteDataType;
+  openExampleTextByDefault?: boolean;
 };
 
 export type EditorStyleProps = {
@@ -248,6 +253,7 @@ class CodeEditor extends Component<Props, State> {
   };
   // this is the higlighted element for any highlighted text in the codemirror
   highlightedUrlElement: HTMLElement | undefined;
+  // this is the outer element encompassing the editor
   codeEditorTarget = React.createRef<HTMLDivElement>();
   editor!: CodeMirror.Editor;
   hinters: Hinter[] = [];
@@ -316,14 +322,17 @@ class CodeEditor extends Component<Props, State> {
         options.scrollbarStyle = "null";
       }
 
-      const moveCursorLeftKey = getMoveCursorLeftKey();
       options.extraKeys = {
-        [moveCursorLeftKey]: "goLineStartSmart",
+        [getMoveCursorLeftKey()]: "goLineStartSmart",
         [getCodeCommentKeyMap()]: handleCodeComment(
           // We've provided the default props value for lineCommentString
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           this.props.lineCommentString!,
         ),
+        [getSaveAndAutoIndentKey()]: (editor) => {
+          saveAndAutoIndentCode(editor);
+          AnalyticsUtil.logEvent("PRETTIFY_AND_SAVE_KEYBOARD_SHORTCUT");
+        },
       };
 
       if (this.props.tabBehaviour === TabBehaviour.INPUT) {
@@ -689,7 +698,7 @@ class CodeEditor extends Component<Props, State> {
         }
         break;
       case "Escape":
-        if (this.state.isFocused) {
+        if (this.state.isFocused && !this.state.hinterOpen) {
           this.codeEditorTarget.current?.focus();
           this.codeEditorTarget.current?.dispatchEvent(
             interactionAnalyticsEvent({ key: e.key }),
@@ -770,11 +779,6 @@ class CodeEditor extends Component<Props, State> {
                 history.push(navigationData.url, {
                   invokedBy: NavigationMethod.CommandClick,
                 });
-
-                // TODO fix the widget navigation issue to remove this
-                if (navigationData.type === ENTITY_TYPE.WIDGET) {
-                  this.props.selectWidget(navigationData.id);
-                }
                 this.hidePeekOverlay();
               }
             }
@@ -1052,6 +1056,7 @@ class CodeEditor extends Component<Props, State> {
         datasources: this.props.datasources.list,
         pluginIdToImageLocation: this.props.pluginIdToImageLocation,
         recentEntities: this.props.recentEntities,
+        featureFlags: this.props.featureFlags,
         update: this.props.input.onChange?.bind(this),
         executeCommand: (payload: any) => {
           this.props.executeCommand({
@@ -1088,16 +1093,24 @@ class CodeEditor extends Component<Props, State> {
     const cursor = cm.getCursor();
     const line = cm.getLine(cursor.line);
     let showAutocomplete = false;
+    const prevChar = line[cursor.ch - 1];
+
     /* Check if the character before cursor is completable to show autocomplete which backspacing */
     if (key === "/" && !isCtrlOrCmdPressed) {
       showAutocomplete = true;
     } else if (event.code === "Backspace") {
-      const prevChar = line[cursor.ch - 1];
       showAutocomplete = !!prevChar && /[a-zA-Z_0-9.]/.test(prevChar);
     } else if (key === "{") {
       /* Autocomplete for { should show up only when a user attempts to write {{}} and not a code block. */
-      const prevChar = line[cursor.ch - 1];
       showAutocomplete = prevChar === "{";
+    } else if (key === "'" || key === '"') {
+      /* Autocomplete for [ should show up only when a user attempts to write {['']} for Object property suggestions. */
+      showAutocomplete = prevChar === "[";
+
+      if (!showAutocomplete) {
+        // @ts-expect-error: Types are not available
+        cm.closeHint();
+      }
     } else if (key.length == 1) {
       showAutocomplete = /[a-zA-Z_0-9.]/.test(key);
       /* Autocomplete should be triggered only for characters that make up valid variable names */
@@ -1318,7 +1331,7 @@ class CodeEditor extends Component<Props, State> {
               <img
                 alt="img"
                 className="leftImageStyles"
-                src={this.props.leftImage}
+                src={getAssetUrl(this.props.leftImage)}
               />
             )}
             <div
@@ -1376,6 +1389,7 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
     state,
     props.dataTreePath?.split(".")[0],
   ),
+  featureFlags: selectFeatureFlags(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -1384,8 +1398,6 @@ const mapDispatchToProps = (dispatch: any) => ({
   startingEntityUpdate: () => dispatch(startingEntityUpdate()),
   setCodeEditorLastFocus: (payload: CodeEditorFocusState) =>
     dispatch(setEditorFieldFocusAction(payload)),
-  selectWidget: (widgetId: string) =>
-    dispatch(selectWidgetInitAction(SelectionRequestType.One, [widgetId])),
 });
 
 export default Sentry.withProfiler(

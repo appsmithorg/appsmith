@@ -8,7 +8,7 @@ import log from "loglevel";
 import history from "utils/history";
 import type { ApiResponse } from "api/ApiResponses";
 import { Toaster, Variant } from "design-system-old";
-import { flushErrors } from "actions/errorActions";
+import { flushErrors, safeCrashApp } from "actions/errorActions";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import type { User } from "constants/userConstants";
 import {
@@ -98,12 +98,15 @@ export function* validateResponse(
   if (!response.responseMeta && !response.status) {
     throw Error(getErrorMessage(0));
   }
+
   if (!response.responseMeta && response.status) {
     throw Error(getErrorMessage(response.status, response.resourceType));
   }
+
   if (response.responseMeta.success) {
     return true;
   }
+
   if (
     SERVER_ERROR_CODES.INCORRECT_BINDING_LIST_OF_WIDGET.includes(
       response.responseMeta.error.code,
@@ -151,7 +154,7 @@ export function extractClientDefinedErrorMetadata(
   }
 }
 
-type ErrorPayloadType = {
+export type ErrorPayloadType = {
   code?: number | string;
   message?: string;
   crash?: boolean;
@@ -225,7 +228,7 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
         break;
       }
       case ErrorEffectTypes.SAFE_CRASH: {
-        yield call(crashAppSaga, error);
+        yield put(safeCrashApp(error));
         break;
       }
       case ErrorEffectTypes.LOG_TO_SENTRY: {
@@ -253,17 +256,10 @@ function showAlertAboutError(message: string) {
   Toaster.show({ text: message, variant: Variant.danger });
 }
 
-function* crashAppSaga(error: ErrorPayloadType) {
-  yield put({
-    type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
-    payload: error,
-  });
-}
-
 /**
  * this saga do some logic before actually setting safeCrash to true
  */
-function* safeCrashSagaRequest(action: ReduxAction<{ code?: string }>) {
+function* safeCrashSagaRequest(action: ReduxAction<{ code?: ERROR_CODES }>) {
   const user: User | undefined = yield select(getCurrentUser);
   const code = get(action, "payload.code");
 
@@ -294,12 +290,7 @@ function* safeCrashSagaRequest(action: ReduxAction<{ code?: string }>) {
   }
 
   // if there is no action to be done, just calling the safe crash action
-  yield put({
-    type: ReduxActionTypes.SAFE_CRASH_APPSMITH,
-    payload: {
-      code,
-    },
-  });
+  yield put(safeCrashApp({ code }));
 }
 
 /**

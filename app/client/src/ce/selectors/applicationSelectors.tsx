@@ -218,7 +218,7 @@ export const getSidebarWidth = (state: AppState) => {
 };
 
 const DEFAULT_EVALUATION_VERSION = EvaluationVersion.FIX_THIS_KEYWORD;
-export const selectEvaluationVersion = createSelector(
-  getCurrentApplication,
-  (app) => app?.evaluationVersion || DEFAULT_EVALUATION_VERSION,
-);
+
+export const selectEvaluationVersion = (state: AppState) =>
+  state.ui.applications.currentApplication?.evaluationVersion ||
+  DEFAULT_EVALUATION_VERSION;

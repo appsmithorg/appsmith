@@ -392,6 +392,7 @@ function* logDebuggerErrorAnalyticsSaga(
       AnalyticsUtil.logEvent(payload.eventName, {
         entityType: widgetType,
         propertyPath,
+        errorId: payload.errorId,
         errorMessages: payload.errorMessages,
         pageId: currentPageId,
         errorMessage: payload.errorMessage,
@@ -415,6 +416,7 @@ function* logDebuggerErrorAnalyticsSaga(
       AnalyticsUtil.logEvent(payload.eventName, {
         entityType: pluginName,
         propertyPath,
+        errorId: payload.errorId,
         errorMessages: payload.errorMessages,
         pageId: currentPageId,
         errorMessage: payload.errorMessage,
@@ -433,6 +435,7 @@ function* logDebuggerErrorAnalyticsSaga(
       // Sending plugin name for actions
       AnalyticsUtil.logEvent(payload.eventName, {
         entityType: pluginName,
+        errorId: payload.errorId,
         propertyPath: payload.propertyPath,
         errorMessages: payload.errorMessages,
         pageId: currentPageId,
@@ -476,6 +479,7 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
       });
 
       // Log analytics for new error messages
+      //errorID has timestamp for 1:1 mapping with new and resolved errors
       if (errorMessages.length && errorLog) {
         yield all(
           errorMessages.map((errorMessage) =>
@@ -484,6 +488,7 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
               payload: {
                 ...analyticsPayload,
                 eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
+                errorId: errorLog.id + "_" + errorLog.timestamp,
                 errorMessage: errorMessage.message,
                 errorType: errorMessage.type,
                 errorSubType: errorMessage.subType,
@@ -506,11 +511,13 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
           );
 
           if (exists < 0) {
+            //errorID has timestamp for 1:1 mapping with new and resolved errors
             return put({
               type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
               payload: {
                 ...analyticsPayload,
                 eventName: "DEBUGGER_NEW_ERROR_MESSAGE",
+                errorId: errorLog.id + "_" + errorLog.timestamp,
                 errorMessage: updatedErrorMessage.message,
                 errorType: updatedErrorMessage.type,
                 errorSubType: updatedErrorMessage.subType,
@@ -530,11 +537,16 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
           );
 
           if (exists < 0) {
+            //errorID has timestamp for 1:1 mapping with new and resolved errors
             return put({
               type: ReduxActionTypes.DEBUGGER_ERROR_ANALYTICS,
               payload: {
                 ...analyticsPayload,
                 eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
+                errorId:
+                  currentDebuggerErrors[id].id +
+                  "_" +
+                  currentDebuggerErrors[id].timestamp,
                 errorMessage: existingErrorMessage.message,
                 errorType: existingErrorMessage.type,
                 errorSubType: existingErrorMessage.subType,
@@ -588,10 +600,7 @@ function* deleteDebuggerErrorLogsSaga(
     });
 
     if (errorMessages) {
-      const appsmithErrorCode = get(
-        error,
-        "pluginErrorDetails.appsmithErrorCode",
-      );
+      //errorID has timestamp for 1:1 mapping with new and resolved errors
       yield all(
         errorMessages.map((errorMessage) => {
           return put({
@@ -599,11 +608,10 @@ function* deleteDebuggerErrorLogsSaga(
             payload: {
               ...analyticsPayload,
               eventName: "DEBUGGER_RESOLVED_ERROR_MESSAGE",
+              errorId: error.id + "_" + error.timestamp,
               errorMessage: errorMessage.message,
               errorType: errorMessage.type,
               errorSubType: errorMessage.subType,
-              appsmithErrorCode,
-              tat: Date.now() - new Date(parseInt(error.timestamp)).getTime(),
             },
           });
         }),
@@ -625,6 +633,7 @@ export function* storeLogs(logs: LogObject[]) {
         severity: log.severity,
         timestamp: log.timestamp,
         category: LOG_CATEGORY.USER_GENERATED,
+        isExpanded: false,
       };
     }),
   );

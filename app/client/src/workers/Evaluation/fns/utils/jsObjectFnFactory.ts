@@ -1,6 +1,7 @@
 import { isPromise } from "workers/Evaluation/JSObject/utils";
 import { postJSFunctionExecutionLog } from "@appsmith/workers/Evaluation/JSObject/postJSFunctionExecution";
 import TriggerEmitter, { BatchKey } from "./TriggerEmitter";
+import ExecutionMetaData from "./ExecutionMetaData";
 
 declare global {
   interface Window {
@@ -31,6 +32,9 @@ export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
   ],
 ) {
   return function (this: unknown, ...args: P) {
+    if (!ExecutionMetaData.getExecutionMetaData().enableJSFnPostProcessors) {
+      return fn.call(this, ...args);
+    }
     try {
       const result = fn.call(this, ...args);
       if (isPromise(result)) {

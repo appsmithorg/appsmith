@@ -1,0 +1,70 @@
+name: Close Labeler
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - release
+
+jobs:
+  apply:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.CLOSE_LABELER_GITHUB_TOKEN }}
+          script: |
+            console.log("PR Details", context.issue)
+
+            const result = await github.graphql(
+              `
+                query($owner: String!, $name: String!, $prNum: Int!) {
+                  repository(owner: $owner, name: $name) {
+                    pullRequest(number: $prNum) {
+                      closingIssuesReferences(first: 10) {
+                        nodes {
+                          number
+                          repository {
+                            name
+                            owner {
+                              login
+                            }
+                          }
+                          labels(first: 50) {
+                            edges {
+                              node {
+                                name
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              `,
+              {
+                owner: context.issue.owner,
+                name: context.issue.repo,
+                prNum: context.issue.number,
+              },
+            )
+            console.log("GraphQL result", JSON.stringify(result, null, 2));
+
+            for (const node of result.repository.pullRequest.closingIssuesReferences.nodes) {
+              const shouldQA = node.labels.edges.find(edge => edge.node.name === "Enhancement" || edge.node.name === "Bug") != null
+              if (!shouldQA) {
+                break
+              }
+              console.log("Adding QA to", node.repository.owner.login, node.repository.name, node.number)
+              github.rest.issues.addLabels({
+                issue_number: node.number,
+                owner: node.repository.owner.login,
+                repo: node.repository.name,
+                labels: ["QA"],
+              })
+            }
+
+            console.log("Fin")

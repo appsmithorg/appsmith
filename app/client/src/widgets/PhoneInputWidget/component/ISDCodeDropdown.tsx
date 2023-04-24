@@ -277,7 +277,7 @@ export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
         enableSearch
         height="36px"
         onSelect={props.onISDCodeChange}
-        optionWidth="340px"
+        optionWidth="360px"
         options={props.options}
         portalClassName={`country-type-filter-dropdown-${props.widgetId}`}
         portalContainer={document.getElementById("art-board") || undefined}

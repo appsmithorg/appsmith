@@ -6,7 +6,8 @@ const dsl = require("../../../../fixtures/replay.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const ee = ObjectsRegistry.EntityExplorer,
-  appSettings = ObjectsRegistry.AppSettings;
+  appSettings = ObjectsRegistry.AppSettings,
+  agHelper = ObjectsRegistry.AggregateHelper;
 
 const containerShadowElement = `${widgetsPage.containerWidget} [data-testid^="container-wrapper-"]`;
 
@@ -161,7 +162,7 @@ describe("App Theming funtionality", function () {
           cy.get(widgetsPage.widgetBtn).should(
             "have.css",
             "font-family",
-            $childElem.children().last().text(),
+            `${$childElem.children().last().text()}, sans-serif`,
           );
         });
     });
@@ -220,12 +221,12 @@ describe("App Theming funtionality", function () {
           cy.get(widgetsPage.iconWidgetBtn).should(
             "have.css",
             "font-family",
-            $childElem.children().last().text(),
+            `${$childElem.children().last().text()}, sans-serif`,
           );
           cy.get(widgetsPage.widgetBtn).should(
             "have.css",
             "font-family",
-            $childElem.children().last().text(),
+            `${$childElem.children().last().text()}, sans-serif`,
           );
         });
     });
@@ -700,7 +701,7 @@ describe("App Theming funtionality", function () {
 
     //cy.wait(4000); //for theme to settle
 
-    cy.get("body").should("have.css", "font-family", "Montserrat"); //Font
+    cy.get("body").should("have.css", "font-family", "Montserrat, sans-serif"); //Font
 
     cy.xpath("//div[@id='root']//section/parent::div").should(
       "have.css",
@@ -857,6 +858,7 @@ describe("App Theming funtionality", function () {
 
     //Resetting back to theme
     ee.NavigateToSwitcher("explorer");
+    //agHelper.Sleep(2500);
     ee.ExpandCollapseEntity("Widgets"); //to expand widgets
     ee.SelectEntityByName("Button2");
     cy.moveToStyleTab();
@@ -884,7 +886,7 @@ describe("App Theming funtionality", function () {
     cy.PublishtheApp();
 
     cy.wait(4000); //for theme to settle
-    cy.get("body").should("have.css", "font-family", "Montserrat"); //Font
+    cy.get("body").should("have.css", "font-family", "Montserrat, sans-serif"); //Font
 
     cy.xpath("//div[@id='root']//section/parent::div").should(
       "have.css",
@@ -1113,7 +1115,7 @@ describe("App Theming funtionality", function () {
     cy.PublishtheApp();
 
     cy.wait(4000); //for theme to settle
-    cy.get("body").should("have.css", "font-family", "Rubik"); //Font for Rounded theme
+    cy.get("body").should("have.css", "font-family", "Rubik, sans-serif"); //Font for Rounded theme
 
     cy.xpath("//div[@id='root']//section/parent::div").should(
       "have.css",

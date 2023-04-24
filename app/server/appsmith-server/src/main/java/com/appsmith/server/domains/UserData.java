@@ -66,10 +66,6 @@ public class UserData extends BaseDomain {
     @JsonView(Views.Internal.class)
     Map<String, GitProfile> gitProfiles;
 
-    // JWT tokens
-    @JsonView(Views.Internal.class)
-    String accessToken;
-
     @JsonView(Views.Public.class)
     Map<String, Object> userClaims;
 

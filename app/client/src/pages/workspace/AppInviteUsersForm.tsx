@@ -39,7 +39,10 @@ const ShareToggle = styled.div`
 const BottomContainer = styled.div<{ canInviteToApplication?: boolean }>`
   ${({ canInviteToApplication }) =>
     canInviteToApplication ? `border-top: 1px solid ${Colors.GREY_200}` : ``};
-  margin-top: 12px;
+
+  .self-center {
+    line-height: normal;
+  }
 `;
 
 function AppInviteUsersForm(props: any) {
@@ -58,10 +61,10 @@ function AppInviteUsersForm(props: any) {
   const currentWorkspace = useWorkspace(currentWorkspaceId);
   const userWorkspacePermissions = currentWorkspace.userPermissions ?? [];
   const userAppPermissions = currentApplicationDetails?.userPermissions ?? [];
-  const canInviteToApplication = hasInviteUserToApplicationPermission(
-    userWorkspacePermissions,
-    userAppPermissions,
-  );
+  const canInviteToApplication = hasInviteUserToApplicationPermission([
+    ...userWorkspacePermissions,
+    ...userAppPermissions,
+  ]);
   const canShareWithPublic = isPermitted(
     userAppPermissions,
     PERMISSION_TYPE.MAKE_PUBLIC_APPLICATION,

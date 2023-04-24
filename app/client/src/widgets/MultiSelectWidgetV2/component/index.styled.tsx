@@ -394,7 +394,7 @@ export const MultiSelectContainer = styled.div<{
 
   /**
     When the label is on the left it is not center aligned
-    here set height to auto and not 100% because the input 
+    here set height to auto and not 100% because the input
     has fixed height and stretch the container.
   */
   ${({ labelPosition }) => {
