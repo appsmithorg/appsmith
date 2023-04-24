@@ -39,7 +39,7 @@ import {
   Size,
 } from "design-system-old";
 import { updateIntercomProperties } from "utils/bootIntercom";
-import { getInstanceId } from "ce/selectors/tenantSelectors";
+import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { updateIntercomConsent, updateUserDetails } from "actions/userActions";
 
 const { algolia, appVersion, cloudHosting, intercomAppID } =
@@ -301,7 +301,7 @@ const ConsentText = styled.div`
   font-weight: 400;
   font-size: 12px;
   line-height: 16px;
-  color: ${Colors.GRAY_700};
+  color: var(--appsmith-color-black-700);
 `;
 const ConsentButton = styled(Button)`
   font-size: 11px;
