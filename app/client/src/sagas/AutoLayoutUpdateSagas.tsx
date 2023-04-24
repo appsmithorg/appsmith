@@ -5,7 +5,10 @@ import {
   ReduxActionTypes,
 } from "ce/constants/ReduxActionConstants";
 import log from "loglevel";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type {
+  CanvasWidgetsReduxState,
+  UpdateWidgetsPayload,
+} from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   all,
   call,
@@ -53,88 +56,116 @@ import { isEmpty } from "lodash";
 import { mutation_setPropertiesToUpdate } from "./autoHeightSagas/helpers";
 import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
 
+function* recalculatePositionsOfWidgets({
+  canvasWidth,
+  isMobile,
+  parentId,
+  widgets: payloadWidgets,
+}: {
+  parentId: string;
+  isMobile: boolean;
+  canvasWidth: number;
+  widgets?: CanvasWidgetsReduxState;
+}) {
+  const isAutoLayout: boolean = yield select(getIsAutoLayout);
+  if (!isAutoLayout) return;
+  //Do not recalculate columns and update layout while converting layout
+  const isCurrentlyConvertingLayout: boolean = yield select(
+    getIsCurrentlyConvertingLayout,
+  );
+  if (isCurrentlyConvertingLayout) return;
+
+  let allWidgets: CanvasWidgetsReduxState;
+  const widgetsOld: CanvasWidgetsReduxState = yield select(getWidgets);
+
+  if (payloadWidgets) {
+    allWidgets = payloadWidgets;
+  } else {
+    allWidgets = { ...widgetsOld };
+  }
+
+  const mainCanvasWidth: number = yield select(getMainCanvasWidth);
+  const processedWidgets: CanvasWidgetsReduxState = isMobile
+    ? alterLayoutForMobile(allWidgets, parentId, canvasWidth, mainCanvasWidth)
+    : alterLayoutForDesktop(allWidgets, parentId, mainCanvasWidth);
+  return processedWidgets;
+}
+
+function* getWidgetsWithDimensionChanges(
+  processedWidgets: CanvasWidgetsReduxState,
+) {
+  const widgetsOld: CanvasWidgetsReduxState = yield select(getWidgets);
+  let widgetsToUpdate: UpdateWidgetsPayload = {};
+  /**
+   * Iterate over all widgets and check if any of their dimensions have changed
+   * If they have, add them to the list of widgets to update
+   * Note: We need to iterate through all widgets since changing dimension of one widget might affect the dimensions of other widgets
+   */
+  for (const widgetId of Object.keys(processedWidgets)) {
+    const widget = processedWidgets[widgetId];
+    const oldWidget = widgetsOld[widgetId];
+    const propertiesToUpdate: Record<string, any> = {};
+
+    const positionProperties = [
+      "topRow",
+      "bottomRow",
+      "leftColumn",
+      "rightColumn",
+      "mobileTopRow",
+      "mobileBottomRow",
+      "mobileLeftColumn",
+      "mobileRightColumn",
+    ];
+
+    for (const prop of positionProperties) {
+      if (widget[prop] !== oldWidget[prop]) {
+        propertiesToUpdate[prop] = widget[prop];
+      }
+    }
+
+    if (isEmpty(propertiesToUpdate)) continue;
+
+    widgetsToUpdate = mutation_setPropertiesToUpdate(
+      widgetsToUpdate,
+      widgetId,
+      propertiesToUpdate,
+    );
+  }
+  return widgetsToUpdate;
+}
+
 export function* updateLayoutForMobileCheckpoint(
   actionPayload: ReduxAction<{
     parentId: string;
     isMobile: boolean;
     canvasWidth: number;
     widgets?: CanvasWidgetsReduxState;
+    saveLayout?: boolean;
   }>,
 ) {
   try {
     const start = performance.now();
-    const isAutoLayout: boolean = yield select(getIsAutoLayout);
-    if (!isAutoLayout) return;
-    //Do not recalculate columns and update layout while converting layout
-    const isCurrentlyConvertingLayout: boolean = yield select(
-      getIsCurrentlyConvertingLayout,
+    const processedWidgets: CanvasWidgetsReduxState = yield call(
+      recalculatePositionsOfWidgets,
+      actionPayload.payload,
     );
-    if (isCurrentlyConvertingLayout) return;
-
-    const {
-      canvasWidth,
-      isMobile,
-      parentId,
-      widgets: payloadWidgets,
-    } = actionPayload.payload;
-
-    let allWidgets: CanvasWidgetsReduxState;
-    const widgetsOld: CanvasWidgetsReduxState = yield select(getWidgets);
-
-    if (payloadWidgets) {
-      allWidgets = payloadWidgets;
+    // save layout in cases like DnD where it creates new entities
+    if (actionPayload.payload.saveLayout) {
+      yield put(updateAndSaveLayout(processedWidgets));
     } else {
-      allWidgets = { ...widgetsOld };
-    }
-
-    const mainCanvasWidth: number = yield select(getMainCanvasWidth);
-    const processedWidgets: CanvasWidgetsReduxState = isMobile
-      ? alterLayoutForMobile(allWidgets, parentId, canvasWidth, mainCanvasWidth)
-      : alterLayoutForDesktop(allWidgets, parentId, mainCanvasWidth);
-    let widgetsToUpdate: any = {};
-
-    /**
-     * Iterate over all widgets and check if any of their dimensions have changed
-     * If they have, add them to the list of widgets to update
-     * Note: We need to iterate through all widgets since changing dimension of one widget might affect the dimensions of other widgets
-     */
-    for (const widgetId of Object.keys(processedWidgets)) {
-      const widget = processedWidgets[widgetId];
-      const oldWidget = widgetsOld[widgetId];
-      const propertiesToUpdate: Record<string, any> = {};
-
-      const positionProperties = [
-        "topRow",
-        "bottomRow",
-        "leftColumn",
-        "rightColumn",
-        "mobileTopRow",
-        "mobileBottomRow",
-        "mobileLeftColumn",
-        "mobileRightColumn",
-      ];
-
-      for (const prop of positionProperties) {
-        if (widget[prop] !== oldWidget[prop]) {
-          propertiesToUpdate[prop] = widget[prop];
-        }
-      }
-
-      if (isEmpty(propertiesToUpdate)) continue;
-
-      widgetsToUpdate = mutation_setPropertiesToUpdate(
-        widgetsToUpdate,
-        widgetId,
-        propertiesToUpdate,
+      const widgetsToUpdate: UpdateWidgetsPayload = yield call(
+        getWidgetsWithDimensionChanges,
+        processedWidgets,
       );
+
+      // Push all updates to the CanvasWidgetsReducer.
+      // Note that we're not calling `UPDATE_LAYOUT`
+      // as we don't need to trigger an eval
+      if (!isEmpty(widgetsToUpdate)) {
+        yield put(updateMultipleWidgetPropertiesAction(widgetsToUpdate));
+      }
     }
 
-    // Push all updates to the CanvasWidgetsReducer.
-    // Note that we're not calling `UPDATE_LAYOUT`
-    // as we don't need to trigger an eval
-    if (!isEmpty(widgetsToUpdate)) {
-      yield put(updateMultipleWidgetPropertiesAction(widgetsToUpdate));
-    }
     log.debug(
       "Auto Layout : updating layout for mobile viewport took",
       performance.now() - start,
@@ -209,6 +240,7 @@ export function* updateLayoutPositioningSaga(
 //This Method is used to re calculate Positions based on canvas width
 export function* recalculateAutoLayoutColumnsAndSave(
   widgets?: CanvasWidgetsReduxState,
+  saveLayout = false,
 ) {
   const appPositioningType: AppPositioningTypes = yield select(
     getCurrentAppPositioningType,
@@ -225,6 +257,7 @@ export function* recalculateAutoLayoutColumnsAndSave(
         : false,
       mainCanvasProps.width,
       widgets,
+      saveLayout,
     ),
   );
 }

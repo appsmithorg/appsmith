@@ -16,6 +16,7 @@ export const updateLayoutForMobileBreakpointAction = (
   isMobile: boolean,
   canvasWidth: number,
   widgets?: CanvasWidgetsReduxState,
+  saveLayout?: boolean,
 ) => {
   return {
     type: ReduxActionTypes.RECALCULATE_COLUMNS,
@@ -24,6 +25,7 @@ export const updateLayoutForMobileBreakpointAction = (
       isMobile,
       canvasWidth,
       widgets,
+      saveLayout,
     },
   };
 };

@@ -105,7 +105,7 @@ export function updateWidgetPositions(
     const paddingBufferForCanvas = parent.parentRowSpace === 1 ? 2 : 0;
     const parentHeight = getWidgetRows(parent, isMobile);
     const computedHeight = height + paddingBufferForCanvas;
-    if (parentHeight < computedHeight) {
+    if (parentHeight !== computedHeight) {
       /**
        * if children height is greater than parent height,
        * update the parent height to match the children height
