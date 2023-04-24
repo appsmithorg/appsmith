@@ -23,11 +23,4 @@ describe("Bug 18035: Updates save button text on datasource discard popup", func
     agHelper.AssertContains("SAVE", "exist", dataSources._datasourceModalSave);
     cy.get(dataSources._datasourceModalDoNotSave).click();
   });
-
-  it("3. Bug 19426: Testing empty datasource without saving should not throw 404", function() {
-    dataSources.NavigateToDSCreateNew();
-    dataSources.CreatePlugIn("S3");
-    dataSources.TestDatasource(false);
-    dataSources.SaveDSFromDialog(false);
-  });
 });

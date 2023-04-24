@@ -12,18 +12,21 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   appSettings = ObjectsRegistry.AppSettings;
 
 describe("Bug #14299 - The data from the query does not show up on the widget", function() {
-  before("Select Theme, Create Postgress DS", () => {
+  before(() => {
     cy.fixture("/Bugs/14299dsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
     appSettings.OpenPaneAndChangeThemeColors(13, 22);
+  });
+
+  it("1. Create Postgress DS", function() {
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
   });
 
-  it("1. Creating query & JSObject", () => {
+  it("2. Creating query & JSObject", () => {
     query = `SELECT id, name, date_of_birth, date_of_death, nationality FROM public."astronauts" LIMIT 20;`;
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
@@ -62,7 +65,7 @@ describe("Bug #14299 - The data from the query does not show up on the widget", 
     );
   });
 
-  it("2. Deploy & Verify table is populated even when moment returns Null", () => {
+  it("3. Deploy & Verify table is populated even when moment returns Null", () => {
     deployMode.DeployApp();
     table.WaitUntilTableLoad();
     table.AssertSelectedRow(0);
@@ -109,7 +112,7 @@ describe("Bug #14299 - The data from the query does not show up on the widget", 
       .then(($date) => expect($date).to.eq("Date: Invalid date"));
   });
 
-  it("3. Verify Deletion of the datasource after all created queries are Deleted", () => {
+  it("4. Verify Deletion of the datasource after all created queries are Deleted", () => {
     deployMode.NavigateBacktoEditor();
     agHelper.AssertContains("ran successfully"); //runAstros triggered on PageLaoad of Edit page!
     ee.ExpandCollapseEntity("Queries/JS");
