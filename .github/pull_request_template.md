@@ -10,18 +10,17 @@
 
 > Add a TL;DR when description is extra long (helps content team)
 
-Fixes # (issue)
+#### Fixes # (issue)
 > if no issue exists, please create an issue and ask the maintainers about this first
 
 
-Media
+#### Media
 > A video or a GIF is preferred. when using Loom, don’t embed because it looks like it’s a GIF. instead, just link to the video
 
 
-## Type of change
+#### Type of change
 
 > Please delete options that are not relevant.
-
 - Bug fix (non-breaking change which fixes an issue)
 - New feature (non-breaking change which adds functionality)
 - Breaking change (fix or feature that would cause existing functionality to not work as expected)
@@ -29,7 +28,9 @@ Media
 - This change requires a documentation update
 
 
-## How Has This Been Tested?
+## Testing
+
+#### How Has This Been Tested?
 > Please describe the tests that you ran to verify your changes. Provide instructions, so we can reproduce.
 > Please also list any relevant details for your test configuration.
 > Delete anything that is not important
@@ -38,15 +39,15 @@ Media
 - Jest
 - Cypress
 
-### Test Plan
+#### Test Plan
 > Add Testsmith test cases links that relate to this PR
 
-### Issues raised during DP testing
+#### Issues raised during DP testing
 > Link issues raised during DP testing for better visiblity and tracking (copy link from comments dropped on this PR)
 
 
 ## Checklist:
-### Dev activity
+#### Dev activity
 - [ ] My code follows the style guidelines of this project
 - [ ] I have performed a self-review of my own code
 - [ ] I have commented my code, particularly in hard-to-understand areas
@@ -57,7 +58,7 @@ Media
 - [ ] PR is being merged under a feature flag
 
 
-### QA activity:
+#### QA activity:
 - [ ] Test plan has been approved by relevant developers
 - [ ] Test plan has been peer reviewed by QA
 - [ ] Cypress test cases have been added and approved by either SDET or manual QA
