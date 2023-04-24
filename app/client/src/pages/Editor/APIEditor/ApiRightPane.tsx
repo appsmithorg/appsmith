@@ -121,7 +121,6 @@ const SelectedDatasourceInfoContainer = styled.div`
     align-items: center;
     text-align: center;
     letter-spacing: 0.4px;
-    text-transform: uppercase;
     color: var(--ads-v2-color-fg-success);
     white-space: nowrap;
   }
@@ -261,7 +260,7 @@ function ApiRightPane(props: any) {
                           <TagContainer>
                             {d?.id === props.currentActionDatasourceId && (
                               <SelectedDatasourceInfoContainer>
-                                <p>In use</p>
+                                <p>In Use</p>
                               </SelectedDatasourceInfoContainer>
                             )}
                             <Button

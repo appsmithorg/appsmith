@@ -156,7 +156,6 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
           </MenuSub>
         )}
         {isDeletePermitted && (
-          // TODO (tanvi): this delete does not work as expected. Debug
           <MenuItem
             className="t--apiFormDeleteBtn"
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment

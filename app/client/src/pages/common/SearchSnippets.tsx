@@ -21,6 +21,7 @@ type Props = {
 
 const StyledButton = styled(Button)`
   padding: 0 10px;
+  margin-left: 16px;
 `;
 
 export default function SearchSnippets(props: Props) {
