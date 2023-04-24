@@ -31,4 +31,15 @@ describe("Property Pane Suggestions", () => {
 
     PropertyPane.ValidatePropertyFieldValue("Label", "{{appsmith}}");
   });
+
+  it("2. Should add Autocomplete Suggestions on Tab press", () => {
+    EntityExplorer.SelectEntityByName("Button1", "Widgets");
+    PropertyPane.TypeTextIntoField("Label", "{{");
+    AggregateHelper.GetNAssertElementText(CommonLocators._hints, "appsmith");
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    cy.get("body").tab();
+
+    PropertyPane.ValidatePropertyFieldValue("Label", "{{appsmith}}");
+  });
 });
