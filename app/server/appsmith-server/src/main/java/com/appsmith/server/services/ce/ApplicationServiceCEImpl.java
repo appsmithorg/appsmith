@@ -223,9 +223,15 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         if (!StringUtils.hasLength(application.getColor())) {
             application.setColor(getRandomAppCardColor());
         }
-        return super.create(application).onErrorMap(DuplicateKeyException.class, error ->
-                new AppsmithException(AppsmithError.DUPLICATE_KEY_OBJECT_CREATION,
-                        application.getName()));
+        return super.create(application)
+                .onErrorMap(DuplicateKeyException.class, error -> {
+                    if (error.getMessage() != null
+                            // Catch only if error message contains workspace_application_deleted_gitApplicationMetadata_compound_index mongo error
+                            && error.getMessage().contains("workspace_application_deleted_gitApplicationMetadata_compound_index")) {
+                        return new AppsmithException(AppsmithError.DUPLICATE_KEY_OBJECT_CREATION, application.getName());
+                    }
+                    throw error;
+                });
     }
 
     @Override
