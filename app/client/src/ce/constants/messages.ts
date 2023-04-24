@@ -1406,8 +1406,8 @@ export const NOTE = () => "Note:";
 export const NOTE_MESSAGE = () => "You can add your datasources as well";
 export const WIDGET_USED = () => "Widgets";
 export const SIMILAR_TEMPLATES = () => "Similar Templates";
-export const VIEW_ALL_TEMPLATES = () => "VIEW ALL TEMPLATES";
-export const FILTERS = () => "FILTERS";
+export const VIEW_ALL_TEMPLATES = () => "View all templates";
+export const FILTERS = () => "Filters";
 export const TEMPLATE_CARD_TITLE = () => "Start from a template";
 export const TEMPLATE_CARD_DESCRIPTION = () =>
   "Create app from template by selecting pages";
