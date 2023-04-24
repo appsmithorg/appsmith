@@ -47,11 +47,11 @@ describe("SSO with Google test functionality", function () {
     cy.get(adminSettings.restartNotice).should("be.visible");
     // adding wait for server to restart
     cy.waitUntil(() =>
-    cy
-      .contains("Authentication Successful!", { timeout: 180000 })
-      .should("be.visible"),
-  );
-  cy.wait(1000);
+      cy
+        .contains("Authentication Successful!", { timeout: 180000 })
+        .should("be.visible"),
+    );
+    cy.wait(1000);
     cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
     cy.get(homePage.profileMenu).click();
     cy.get(homePage.signOutIcon).click();
@@ -89,11 +89,11 @@ describe("SSO with Google test functionality", function () {
     cy.get(adminSettings.restartNotice).should("be.visible");
     // adding wait for server to restart
     cy.waitUntil(() =>
-    cy
-      .contains("Authentication Successful!", { timeout: 180000 })
-      .should("be.visible"),
-  );
-  cy.wait(1000);
+      cy
+        .contains("Authentication Successful!", { timeout: 180000 })
+        .should("be.visible"),
+    );
+    cy.wait(1000);
     cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
     cy.get(homePage.profileMenu).click();
     cy.get(homePage.signOutIcon).click();
