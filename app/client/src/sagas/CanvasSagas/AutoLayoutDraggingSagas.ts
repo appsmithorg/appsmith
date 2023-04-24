@@ -101,7 +101,7 @@ function* addWidgetAndReorderSaga(
       },
     );
 
-    yield call(recalculateAutoLayoutColumnsAndSave, updatedWidgetsOnMove);
+    yield call(recalculateAutoLayoutColumnsAndSave, updatedWidgetsOnMove, true);
     log.debug(
       "Auto Layout : add new widget took",
       performance.now() - start,
