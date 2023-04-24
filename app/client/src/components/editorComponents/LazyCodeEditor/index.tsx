@@ -9,7 +9,7 @@ import { CODE_EDITOR_LOADING_ERROR } from "ce/constants/messages";
 import assertNever from "assert-never/index";
 import log from "loglevel";
 
-let CachedCodeEditor: typeof CodeEditor | null = null;
+let CachedCodeEditor: typeof CodeEditor | undefined;
 
 type LazyCodeEditorState =
   // The initial state when the state machine is initialized
@@ -188,16 +188,19 @@ function LazyCodeEditor({ input, placeholder, ...otherProps }: EditorProps) {
     stateMachine.current.transition("RENDERED");
   }, []);
 
-  const editorWrapperRef = useCallback((editorWrapper: HTMLDivElement) => {
-    if (editorWrapper && renderTarget === "editor-focused") {
-      const editor = editorWrapper.querySelector(
-        ".CodeEditorTarget",
-      ) as HTMLElement | null;
-      if (editor) {
-        editor.focus();
+  const editorWrapperRef = useCallback(
+    (editorWrapper: HTMLDivElement) => {
+      if (editorWrapper && renderTarget === "editor-focused") {
+        const editor = editorWrapper.querySelector(
+          ".CodeEditorTarget",
+        ) as HTMLElement | null;
+        if (editor) {
+          editor.focus();
+        }
       }
-    }
-  }, []);
+    },
+    [renderTarget],
+  );
 
   if (renderTarget === "editor" || renderTarget === "editor-focused") {
     if (!CachedCodeEditor)
