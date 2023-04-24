@@ -1,11 +1,13 @@
-import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
 export const metaWidgetState: MetaWidgetsReduxState = {
   baowuczcgg: {
     isVisible: true,
     parentColumnSpace: 1,
     parentRowSpace: 1,
-    defaultImage: "https://assets.appsmith.com/widgets/default.png",
+    defaultImage: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
     imageShape: "RECTANGLE",
     maxZoomLevel: 1,
     enableRotation: false,
@@ -268,8 +270,7 @@ export const metaWidgetState: MetaWidgetsReduxState = {
     ],
 
     gap: 0,
-    data:
-      "{{\n      {\n        \n          Image1: { image: Image1.image,isVisible: Image1.isVisible }\n        ,\n          Text1: { isVisible: Text1.isVisible,text: Text1.text }\n        ,\n          Text2: { isVisible: Text2.isVisible,text: Text2.text }\n        \n      }\n    }}",
+    data: "{{\n      {\n        \n          Image1: { image: Image1.image,isVisible: Image1.isVisible }\n        ,\n          Text1: { isVisible: Text1.isVisible,text: Text1.text }\n        ,\n          Text2: { isVisible: Text2.isVisible,text: Text2.text }\n        \n      }\n    }}",
     currentIndex: 0,
     referencedWidgetId: "e3bqqc9oid",
     isMetaWidget: true,
@@ -279,7 +280,7 @@ export const metaWidgetState: MetaWidgetsReduxState = {
     parentColumnSpace: 1,
     parentRowSpace: 1,
     isVisible: true,
-    defaultImage: "https://assets.appsmith.com/widgets/default.png",
+    defaultImage: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
     imageShape: "RECTANGLE",
     maxZoomLevel: 1,
     enableRotation: false,
@@ -348,8 +349,7 @@ export const metaWidgetState: MetaWidgetsReduxState = {
     parentColumnSpace: 1,
     parentRowSpace: 1,
     isVisible: true,
-    text:
-      "{{((currentItem) => currentItem.name)(List1_Text1_pawh54e2lk.currentItem)}}",
+    text: "{{((currentItem) => currentItem.name)(List1_Text1_pawh54e2lk.currentItem)}}",
     fontSize: "1rem",
     fontStyle: "BOLD",
     textAlign: "LEFT",
@@ -423,8 +423,7 @@ export const metaWidgetState: MetaWidgetsReduxState = {
     parentColumnSpace: 1,
     parentRowSpace: 1,
     isVisible: true,
-    text:
-      "{{((currentItem) => currentItem.id)(List1_Text2_o6yxt84kj5.currentItem)}}",
+    text: "{{((currentItem) => currentItem.id)(List1_Text2_o6yxt84kj5.currentItem)}}",
     fontSize: "1rem",
     fontStyle: "BOLD",
     textAlign: "LEFT",
@@ -602,8 +601,7 @@ export const metaWidgetState: MetaWidgetsReduxState = {
     ],
 
     gap: 0,
-    data:
-      "{{\n      {\n        \n          Image1: { image: List1_Image1_u2jvh7h1f1.image,isVisible: List1_Image1_u2jvh7h1f1.isVisible }\n        ,\n          Text1: { isVisible: List1_Text1_pawh54e2lk.isVisible,text: List1_Text1_pawh54e2lk.text }\n        ,\n          Text2: { isVisible: List1_Text2_o6yxt84kj5.isVisible,text: List1_Text2_o6yxt84kj5.text }\n        \n      }\n    }}",
+    data: "{{\n      {\n        \n          Image1: { image: List1_Image1_u2jvh7h1f1.image,isVisible: List1_Image1_u2jvh7h1f1.isVisible }\n        ,\n          Text1: { isVisible: List1_Text1_pawh54e2lk.isVisible,text: List1_Text1_pawh54e2lk.text }\n        ,\n          Text2: { isVisible: List1_Text2_o6yxt84kj5.isVisible,text: List1_Text2_o6yxt84kj5.text }\n        \n      }\n    }}",
     resizeDisabled: true,
     dropDisabled: true,
     ignoreCollision: true,
@@ -665,7 +663,7 @@ export const metaWidgetState: MetaWidgetsReduxState = {
     parentColumnSpace: 1,
     parentRowSpace: 1,
     isVisible: true,
-    defaultImage: "https://assets.appsmith.com/widgets/default.png",
+    defaultImage: getAssetUrl(`${ASSETS_CDN_URL}/widgets/default.png`),
     imageShape: "RECTANGLE",
     maxZoomLevel: 1,
     enableRotation: false,
@@ -733,8 +731,7 @@ export const metaWidgetState: MetaWidgetsReduxState = {
     parentColumnSpace: 1,
     parentRowSpace: 1,
     isVisible: true,
-    text:
-      "{{((currentItem) => currentItem.name)(List1_Text1_squbljzvqv.currentItem)}}",
+    text: "{{((currentItem) => currentItem.name)(List1_Text1_squbljzvqv.currentItem)}}",
     fontSize: "1rem",
     fontStyle: "BOLD",
     textAlign: "LEFT",
@@ -808,8 +805,7 @@ export const metaWidgetState: MetaWidgetsReduxState = {
     parentColumnSpace: 1,
     parentRowSpace: 1,
     isVisible: true,
-    text:
-      "{{((currentItem) => currentItem.id)(List1_Text2_zoq1nw5wke.currentItem)}}",
+    text: "{{((currentItem) => currentItem.id)(List1_Text2_zoq1nw5wke.currentItem)}}",
     fontSize: "1rem",
     fontStyle: "BOLD",
     textAlign: "LEFT",
@@ -985,8 +981,7 @@ export const metaWidgetState: MetaWidgetsReduxState = {
     ],
 
     gap: 0,
-    data:
-      "{{\n      {\n        \n          Image1: { image: List1_Image1_3vmg2xwodp.image,isVisible: List1_Image1_3vmg2xwodp.isVisible }\n        ,\n          Text1: { isVisible: List1_Text1_squbljzvqv.isVisible,text: List1_Text1_squbljzvqv.text }\n        ,\n          Text2: { isVisible: List1_Text2_zoq1nw5wke.isVisible,text: List1_Text2_zoq1nw5wke.text }\n        \n      }\n    }}",
+    data: "{{\n      {\n        \n          Image1: { image: List1_Image1_3vmg2xwodp.image,isVisible: List1_Image1_3vmg2xwodp.isVisible }\n        ,\n          Text1: { isVisible: List1_Text1_squbljzvqv.isVisible,text: List1_Text1_squbljzvqv.text }\n        ,\n          Text2: { isVisible: List1_Text2_zoq1nw5wke.isVisible,text: List1_Text2_zoq1nw5wke.text }\n        \n      }\n    }}",
     resizeDisabled: true,
     dropDisabled: true,
     ignoreCollision: true,

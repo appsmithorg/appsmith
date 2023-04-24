@@ -62,13 +62,8 @@ describe("Fork a template to the current app from new page popover", () => {
       "response.body.responseMeta.status",
       200,
     );
-    cy.xpath(template.selectAllPages)
-      .next()
-      .click();
-    cy.xpath("//span[text()='CALENDAR MOBILE']")
-      .parent()
-      .next()
-      .click();
+    cy.xpath(template.selectAllPages).next().click();
+    cy.xpath("//span[text()='CALENDAR MOBILE']").parent().next().click();
     cy.get(template.templateViewForkButton).click();
     cy.wait("@fetchTemplate").should(
       "have.nested.property",

@@ -1,8 +1,8 @@
 import { routeChanged } from "actions/focusHistoryActions";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { useLocation } from "react-router-dom";
-import { AppsmithLocationState } from "utils/history";
+import { useLocation } from "react-router";
+import type { AppsmithLocationState } from "utils/history";
 
 export default function RouteChangeListener() {
   const location = useLocation<AppsmithLocationState>();

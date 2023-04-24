@@ -1,4 +1,5 @@
-import { Action, PluginType } from "entities/Action";
+import type { Action } from "entities/Action";
+import { PluginType } from "entities/Action";
 import equal from "fast-deep-equal/es6";
 import { getPropertyPath } from "./DynamicBindingUtils";
 import {

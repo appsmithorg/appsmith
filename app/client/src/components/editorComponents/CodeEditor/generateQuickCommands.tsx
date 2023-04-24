@@ -1,23 +1,27 @@
-import { Datasource } from "entities/Datasource";
+import type { Datasource } from "entities/Datasource";
 import React from "react";
-import {
-  AutocompleteDataType,
-  CommandsCompletion,
-} from "utils/autocomplete/CodemirrorTernService";
+import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import ReactDOM from "react-dom";
 import sortBy from "lodash/sortBy";
-import { PluginType, SlashCommand, SlashCommandPayload } from "entities/Action";
+import type { SlashCommandPayload } from "entities/Action";
+import { PluginType, SlashCommand } from "entities/Action";
 import { ReactComponent as Binding } from "assets/icons/menu/binding.svg";
 import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import AddDatasourceIcon from "remixicon-react/AddBoxLineIcon";
 import { Colors } from "constants/Colors";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import MagicIcon from "remixicon-react/MagicLineIcon";
+import { addAISlashCommand } from "@appsmith/components/editorComponents/GPT/trigger";
+import type FeatureFlags from "entities/FeatureFlags";
 
 enum Shortcuts {
   PLUS = "PLUS",
   BINDING = "BINDING",
   FUNCTION = "FUNCTION",
+  ASK_AI = "ASK_AI",
 }
 
 const matchingCommands = (
@@ -100,6 +104,11 @@ const iconsByType = {
       <Snippet className="snippet-icon shortcut" />
     </EntityIcon>
   ),
+  [Shortcuts.ASK_AI]: (
+    <EntityIcon noBorder>
+      <MagicIcon className="magic" />
+    </EntityIcon>
+  ),
 };
 
 function Command(props: { icon: any; name: string }) {
@@ -117,11 +126,12 @@ function Command(props: { icon: any; name: string }) {
 
 export const generateQuickCommands = (
   entitiesForSuggestions: any[],
-  currentEntityType: string,
+  currentEntityType: ENTITY_TYPE,
   searchText: string,
   {
     datasources,
     executeCommand,
+    featureFlags,
     pluginIdToImageLocation,
     recentEntities,
   }: {
@@ -129,6 +139,7 @@ export const generateQuickCommands = (
     executeCommand: (payload: SlashCommandPayload) => void;
     pluginIdToImageLocation: Record<string, string>;
     recentEntities: string[];
+    featureFlags: FeatureFlags;
   },
   expectedType: string,
   entityId: any,
@@ -169,7 +180,7 @@ export const generateQuickCommands = (
     shortcut: Shortcuts.PLUS,
   });
   const suggestions = entitiesForSuggestions.map((suggestion: any) => {
-    const name = suggestion.name || suggestion.widgetName;
+    const name = suggestion.entityName;
     return {
       text:
         suggestion.ENTITY_TYPE === ENTITY_TYPE.ACTION
@@ -189,7 +200,9 @@ export const generateQuickCommands = (
         } else if (pluginIdToImageLocation[data.data.pluginId]) {
           icon = (
             <EntityIcon>
-              <img src={pluginIdToImageLocation[data.data.pluginId]} />
+              <img
+                src={getAssetUrl(pluginIdToImageLocation[data.data.pluginId])}
+              />
             </EntityIcon>
           );
         }
@@ -214,7 +227,9 @@ export const generateQuickCommands = (
       render: (element: HTMLElement, self: any, data: any) => {
         const icon = (
           <EntityIcon>
-            <img src={pluginIdToImageLocation[data.data.pluginId]} />
+            <img
+              src={getAssetUrl(pluginIdToImageLocation[data.data.pluginId])}
+            />
           </EntityIcon>
         );
         ReactDOM.render(
@@ -231,6 +246,31 @@ export const generateQuickCommands = (
     5,
   );
   const actionCommands = [newBinding, insertSnippet];
+
+  // Adding this hack in the interest of time.
+  // TODO: Refactor slash commands generation for easier code splitting
+  if (
+    addAISlashCommand &&
+    featureFlags.CHAT_AI &&
+    currentEntityType !== ENTITY_TYPE.ACTION
+  ) {
+    const askGPT: CommandsCompletion = generateCreateNewCommand({
+      text: "",
+      displayText: "Ask AI",
+      shortcut: Shortcuts.ASK_AI,
+      action: () =>
+        executeCommand({
+          actionType: SlashCommand.ASK_AI,
+          args: {
+            entityType: currentEntityType,
+            expectedType: expectedType,
+            entityId: entityId,
+            propertyPath: propertyPath,
+          },
+        }),
+    });
+    actionCommands.push(askGPT);
+  }
 
   suggestionsMatchingSearchText.push(
     ...matchingCommands(actionCommands, searchText, []),

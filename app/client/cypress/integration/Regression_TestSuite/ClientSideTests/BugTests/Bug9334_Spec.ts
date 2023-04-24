@@ -8,12 +8,12 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   table = ObjectsRegistry.Table,
   appSettings = ObjectsRegistry.AppSettings;
 
-describe("Bug 9334: The Select widget value is sent as null when user switches between the pages", function() {
+describe("Bug 9334: The Select widget value is sent as null when user switches between the pages", function () {
   before(() => {
     appSettings.OpenPaneAndChangeTheme("Pampas");
   });
 
-  it("1. Create Postgress DS", function() {
+  it("1. Create Postgress DS", function () {
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;

@@ -1,24 +1,26 @@
 import React, { memo, useMemo, useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { useDispatch, useSelector } from "react-redux";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import {
   isAction,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type {
+  DefaultDropDownValueNodeProps,
+  DropdownOption,
+  RenderDropdownOptionType,
+} from "design-system-old";
 import {
   Classes,
   Dropdown,
-  DefaultDropDownValueNodeProps,
-  DropdownOption,
   getTypographyByKey,
   Icon,
   IconSize,
   Text,
   TextType,
   TooltipComponent as Tooltip,
-  RenderDropdownOptionType,
 } from "design-system-old";
 import { useEntityLink } from "components/editorComponents/Debugger/hooks/debuggerHooks";
 import { useGetEntityInfo } from "components/editorComponents/Debugger/hooks/useGetEntityInfo";
@@ -27,18 +29,19 @@ import {
   getDependenciesFromInverseDependencies,
 } from "components/editorComponents/Debugger/helpers";
 import { getFilteredErrors } from "selectors/debuggerSelectors";
-import { ENTITY_TYPE, Log } from "entities/AppsmithConsole";
+import type { Log } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { DebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { showDebugger } from "actions/debuggerActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
 import { inGuidedTour } from "selectors/onboardingSelectors";
+import type { InteractionAnalyticsEventDetail } from "utils/AppsmithUtils";
 import {
   interactionAnalyticsEvent,
-  InteractionAnalyticsEventDetail,
   INTERACTION_ANALYTICS_EVENT,
 } from "utils/AppsmithUtils";
-import { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover/popoverSharedProps";
+import type { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover/popoverSharedProps";
 import equal from "fast-deep-equal";
 import { mapValues, pick } from "lodash";
 import { createSelector } from "reselect";

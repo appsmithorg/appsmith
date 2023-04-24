@@ -134,6 +134,9 @@ public class ApplicationSnapshotServiceUnitTest {
         Mockito.when(importExportApplicationService.importApplicationInWorkspace(eq(application.getWorkspaceId()), argThat(matchApplicationJson), eq(branchedAppId), eq(branch)))
                 .thenReturn(Mono.just(application));
 
+        Mockito.when(applicationSnapshotRepository.deleteAllByApplicationId(branchedAppId))
+                .thenReturn(Mono.just("application").then());
+
         StepVerifier.create(applicationSnapshotService.restoreSnapshot(defaultAppId, branch))
                 .assertNext(application1 -> {
                     assertThat(application1.getName()).isEqualTo(application.getName());

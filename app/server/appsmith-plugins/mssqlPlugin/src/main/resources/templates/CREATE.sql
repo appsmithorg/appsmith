@@ -4,5 +4,5 @@ VALUES
   (
     {{ nameInput.text }},
     {{ genderDropdown.selectedOptionValue }},
-    {{ nameInput.text }}
+    {{ emailInput.text }}
   );

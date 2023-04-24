@@ -5,7 +5,7 @@ const commonLocators = require("../../../../locators/commonlocators.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let ee = ObjectsRegistry.EntityExplorer;
 
-describe("Validate API Panel CSS Styles", function() {
+describe("Validate API Panel CSS Styles", function () {
   const backgroundColorGray200 = "rgb(231, 231, 231)";
   const backgroundColorwhite = "rgb(255, 255, 255)";
   const fontColorGray800 = "rgb(57, 57, 57)";
@@ -16,19 +16,17 @@ describe("Validate API Panel CSS Styles", function() {
     cy.CreateAPI("test_styles");
   });
 
-  it("1.Quick access command background color", function() {
+  it("1.Quick access command background color", function () {
     //Get the first key component (can be any of key value component)
     //eq(1) is used because eq(0) is API serach bar.
-    cy.get(ApiEditor.codeEditorWrapper)
-      .eq(1)
-      .click();
+    cy.get(ApiEditor.codeEditorWrapper).eq(1).click();
     //Check color and background-color of binding prompt
     cy.get(DynamicInput.bindingPrompt)
       .should("have.css", "color", fontColorGray800)
       .should("have.css", "background-color", backgroundColorGray200);
   });
 
-  it("2.HTTP method dropdown hover and selected background should be gray", function() {
+  it("2.HTTP method dropdown hover and selected background should be gray", function () {
     //Click on API http selector
     cy.get(ApiEditor.ApiVerb).click();
     //Default selection GET background-color check
@@ -45,12 +43,10 @@ describe("Validate API Panel CSS Styles", function() {
       .click();
   });
 
-  it("3.Commands help button center align", function() {
+  it("3.Commands help button center align", function () {
     //Get the first key component (can be any of key value component)
     //eq(1) is used because eq(0) is API serach bar.
-    cy.get(ApiEditor.codeEditorWrapper)
-      .eq(1)
-      .realHover();
+    cy.get(ApiEditor.codeEditorWrapper).eq(1).realHover();
     //Get the slash icon component and check background
     //Check center alignment
     //Get width and height (have use inner function because values are not accessible outside functional scope);
@@ -77,20 +73,16 @@ describe("Validate API Panel CSS Styles", function() {
       );
   });
 
-  it("4.Select Datasource dropdown binding prompt background color", function() {
+  it("4.Select Datasource dropdown binding prompt background color", function () {
     cy.generateUUID().then((appName1) => {
       cy.generateUUID().then((appName2) => {
         //Create two datasource for testing binding prompt background-color
         cy.createNewAuthApiDatasource(appName1);
         cy.createNewAuthApiDatasource(appName2);
         ee.ExpandCollapseEntity("Queries/JS");
-        cy.get(commonLocators.entityName)
-          .contains("test_styles")
-          .click();
+        cy.get(commonLocators.entityName).contains("test_styles").click();
         //Click on API search editor
-        cy.get(ApiEditor.codeEditorWrapper)
-          .first()
-          .click();
+        cy.get(ApiEditor.codeEditorWrapper).first().click();
         //First hint for search background-color test
         cy.get(ApiEditor.apiSearchHint)
           .first()
@@ -122,8 +114,6 @@ describe("Validate API Panel CSS Styles", function() {
     cy.get(".t--application-edit-menu li")
       .contains("Delete Application")
       .click();
-    cy.get(".t--application-edit-menu li")
-      .contains("Are you sure?")
-      .click();
+    cy.get(".t--application-edit-menu li").contains("Are you sure?").click();
   });
 });

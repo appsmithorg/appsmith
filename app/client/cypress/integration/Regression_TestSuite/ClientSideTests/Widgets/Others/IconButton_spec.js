@@ -4,12 +4,12 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
 
-describe("Icon Button Widget Functionality", function() {
+describe("Icon Button Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("1. check default buttonVariant with isJSConvertible", function() {
+  it("1. check default buttonVariant with isJSConvertible", function () {
     cy.openPropertyPane("iconbuttonwidget");
     cy.moveToStyleTab();
     cy.get(formWidgetsPage.toggleButtonVariant).click();
@@ -20,7 +20,7 @@ describe("Icon Button Widget Functionality", function() {
     );
   });
 
-  it("2. add space into buttonVariant and validate", function() {
+  it("2. add space into buttonVariant and validate", function () {
     cy.get(".t--property-control-buttonvariant .CodeMirror  textarea")
       .first()
       .focus()
@@ -45,7 +45,7 @@ describe("Icon Button Widget Functionality", function() {
     );
   });
 
-  it("3. show alert on button click", function() {
+  it("3. show alert on button click", function () {
     cy.moveToContentTab();
     cy.get(".t--property-control-onclick")
       .find(".t--js-toggle")
@@ -65,7 +65,7 @@ describe("Icon Button Widget Functionality", function() {
     cy.goToEditFromPublish();
   });
 
-  it("4. should not show alert onclick if button is disabled", function() {
+  it("4. should not show alert onclick if button is disabled", function () {
     cy.openPropertyPane("iconbuttonwidget");
     cy.CheckWidgetProperties(commonlocators.disableCheckbox);
     cy.get(widgetsPage.iconWidgetBtn).click({ force: true });

@@ -206,9 +206,7 @@ describe("JSON Form Hidden fields", () => {
     // hide education field
     cy.openFieldConfiguration("education");
     cy.togglebarDisable(".t--property-control-visible input");
-    cy.get(backBtn)
-      .click({ force: true })
-      .wait(500);
+    cy.get(backBtn).click({ force: true }).wait(500);
     // hide name field
     cy.openFieldConfiguration("name");
     cy.togglebarDisable(".t--property-control-visible input");

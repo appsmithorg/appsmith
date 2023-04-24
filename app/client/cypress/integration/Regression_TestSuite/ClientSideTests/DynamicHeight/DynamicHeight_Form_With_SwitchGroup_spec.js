@@ -1,8 +1,8 @@
 const dsl = require("../../../../fixtures/dynamicHeightFormSwitchdsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
-describe("Dynamic Height Width validation", function() {
-  it("Validate change with auto height width for Form/Switch", function() {
+describe("Dynamic Height Width validation", function () {
+  it("Validate change with auto height width for Form/Switch", function () {
     cy.addDsl(dsl);
     cy.wait(3000); //for dsl to settle
     cy.openPropertyPane("formwidget");
@@ -82,9 +82,7 @@ describe("Dynamic Height Width validation", function() {
       .click({ force: true });
     cy.wait(3000);
     cy.get(".t--modal-widget").should("have.length", 1);
-    cy.get(".t--widget-propertypane-toggle")
-      .first()
-      .click({ force: true });
+    cy.get(".t--widget-propertypane-toggle").last().click({ force: true });
     //cy.changeLayoutHeight(commonlocators.autoHeightWithLimits);
     //cy.checkMinDefaultValue(commonlocators.minHeight,"4")
     //cy.checkMaxDefaultValue(commonlocators.maxHeight,"24")

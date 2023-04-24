@@ -11,6 +11,7 @@ import com.appsmith.server.domains.UserState;
 import com.appsmith.server.dtos.UserSignupRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.NetworkUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.CaptchaService;
@@ -37,13 +38,21 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.appsmith.external.constants.AnalyticsConstants.DISABLE_TELEMETRY;
+import static com.appsmith.external.constants.AnalyticsConstants.GOAL;
+import static com.appsmith.external.constants.AnalyticsConstants.IP;
+import static com.appsmith.external.constants.AnalyticsConstants.SUBSCRIBE_MARKETING;
 import static com.appsmith.server.constants.Appsmith.DEFAULT_ORIGIN_HEADER;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_DISABLE_TELEMETRY;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_INSTANCE_NAME;
+import static com.appsmith.server.constants.ce.FieldNameCE.EMAIL;
+import static com.appsmith.server.constants.ce.FieldNameCE.NAME;
+import static com.appsmith.server.constants.ce.FieldNameCE.ROLE;
 import static com.appsmith.server.helpers.RedirectHelper.REDIRECT_URL_QUERY_PARAM;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
@@ -101,7 +110,7 @@ public class UserSignupCEImpl implements UserSignupCE {
     public Mono<User> signupAndLogin(User user, ServerWebExchange exchange) {
 
         if (!validateEmail(user.getUsername())) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.EMAIL));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, EMAIL));
         }
 
         if (!validateLoginPassword(user.getPassword())) {
@@ -164,7 +173,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                 })
                 .map(formData -> {
                     final User user = new User();
-                    user.setEmail(formData.getFirst(FieldName.EMAIL));
+                    user.setEmail(formData.getFirst(EMAIL));
                     user.setPassword(formData.getFirst(FieldName.PASSWORD));
                     if (formData.containsKey(FieldName.NAME)) {
                         user.setName(formData.getFirst(FieldName.NAME));
@@ -224,20 +233,34 @@ public class UserSignupCEImpl implements UserSignupCE {
 
                     return Mono.when(
                             userDataService.updateForUser(user, userData),
-                            configService.getInstanceId()
-                                    .flatMap(instanceId -> {
+                            Mono.zip(configService.getInstanceId(), NetworkUtils.getExternalAddress().defaultIfEmpty("unknown"))
+                                    .flatMap(tuple -> {
+                                        final String instanceId = tuple.getT1();
+                                        final String ip = tuple.getT2();
                                         log.debug("Installation setup complete.");
-                                        analyticsService.identifyInstance(instanceId, userData.getRole(), userData.getUseCase());
+                                        String newsletterSignedUpUserEmail = userFromRequest.isSignupForNewsletter() ? user.getEmail() : "";
+                                        String newsletterSignedUpUserName = userFromRequest.isSignupForNewsletter() ? user.getName() : "";
+                                        Map<String, Object> analyticsProps = new HashMap<>();
+                                        analyticsProps.put(DISABLE_TELEMETRY, !userFromRequest.isAllowCollectingAnonymousData());
+                                        analyticsProps.put(SUBSCRIBE_MARKETING, userFromRequest.isSignupForNewsletter());
+                                        analyticsProps.put(EMAIL, newsletterSignedUpUserEmail);
+                                        analyticsProps.put(ROLE, ObjectUtils.defaultIfNull(userData.getRole(), ""));
+                                        analyticsProps.put(GOAL, ObjectUtils.defaultIfNull(userData.getUseCase(), ""));
+                                        analyticsProps.put(IP, ip);
+                                        analyticsProps.put(NAME, ObjectUtils.defaultIfNull(newsletterSignedUpUserName, ""));
+
+                                        analyticsService.identifyInstance(
+                                                    instanceId,
+                                                    userData.getRole(),
+                                                    userData.getUseCase(),
+                                                    newsletterSignedUpUserEmail,
+                                                    newsletterSignedUpUserName,
+                                                    ip);
+
                                         return analyticsService.sendEvent(
                                                 AnalyticsEvents.INSTALLATION_SETUP_COMPLETE.getEventName(),
                                                 instanceId,
-                                                Map.of(
-                                                        "disable-telemetry", !userFromRequest.isAllowCollectingAnonymousData(),
-                                                        "subscribe-marketing", userFromRequest.isSignupForNewsletter(),
-                                                        "email", userFromRequest.isSignupForNewsletter() ? user.getEmail() : "",
-                                                        "role", ObjectUtils.defaultIfNull(userData.getRole(), ""),
-                                                        "goal", ObjectUtils.defaultIfNull(userData.getUseCase(), "")
-                                                ),
+                                                analyticsProps,
                                                 false
                                         );
                                     }),
@@ -258,7 +281,7 @@ public class UserSignupCEImpl implements UserSignupCE {
         return exchange.getFormData()
                 .map(formData -> {
                     final UserSignupRequestDTO user = new UserSignupRequestDTO();
-                    user.setEmail(formData.getFirst(FieldName.EMAIL));
+                    user.setEmail(formData.getFirst(EMAIL));
                     user.setPassword(formData.getFirst(FieldName.PASSWORD));
                     user.setSource(LoginSource.FORM);
                     user.setState(UserState.ACTIVATED);

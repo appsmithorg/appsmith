@@ -1,11 +1,15 @@
 {
+  "extends": ["../.eslintrc.json"],
   "env": {
     "cypress/globals": true
   },
   "rules": {
-    "cypress/no-unnecessary-waiting": 0
-  },
-  "extends": [
-    "plugin:cypress/recommended"
-  ]
+    "@typescript-eslint/no-array-constructor": "off",
+    "@typescript-eslint/no-namespace": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "cypress/no-unnecessary-waiting": "off",
+    "no-console": "off",
+    "prefer-const": "off",
+    "@typescript-eslint/no-non-null-assertion": "error"
+  }
 }

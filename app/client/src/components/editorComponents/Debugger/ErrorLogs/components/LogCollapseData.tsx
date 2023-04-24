@@ -1,4 +1,5 @@
-import React, { PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
+import React from "react";
 import { Collapse } from "@blueprintjs/core";
 import styled from "styled-components";
 import { LOG_CATEGORY } from "entities/AppsmithConsole";
@@ -11,7 +12,7 @@ const StyledCollapse = styled(Collapse)<StyledCollapseProps>`
   padding-top: ${(props) =>
     props.isOpen && props.category === LOG_CATEGORY.USER_GENERATED
       ? " -20px"
-      : " 4px"};
+      : " 8px"};
   padding-left: 87px;
 `;
 
@@ -33,11 +34,10 @@ const MessageWrapper = styled.div`
   cpadding-bottom: 4px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
 `;
 
-const JsonWrapper = styled.div`
-  padding-top: ${(props) => props.theme.spaces[1]}px;
+export const JsonWrapper = styled.div`
   svg {
     color: ${(props) => props.theme.colors.debugger.jsonIcon} !important;
     height: 12px !important;
@@ -46,25 +46,25 @@ const JsonWrapper = styled.div`
   }
 `;
 
+// This is the props that are passed to the react-json-view component.
+export const reactJsonProps = {
+  name: null,
+  enableClipboard: false,
+  displayObjectSize: false,
+  displayDataTypes: false,
+  style: {
+    fontFamily:
+      "-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue",
+    fontSize: "11px",
+    fontWeight: "400",
+    letterSpacing: "-0.195px",
+    lineHeight: "13px",
+  },
+  collapsed: 1,
+};
+
 // This component is used to render the collapsed information in the error logs.
 export default function LogCollapseData(props: any) {
-  // This is the props that are passed to the react-json-view component.
-  const reactJsonProps = {
-    name: null,
-    enableClipboard: false,
-    displayObjectSize: false,
-    displayDataTypes: false,
-    style: {
-      fontFamily:
-        "-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue",
-      fontSize: "11px",
-      fontWeight: "400",
-      letterSpacing: "-0.195px",
-      lineHeight: "13px",
-    },
-    collapsed: 1,
-  };
-
   return (
     <StyledCollapse
       category={props.category}
@@ -76,7 +76,6 @@ export default function LogCollapseData(props: any) {
           <MessageInfo>
             <LogAdditionalInfo
               text={props.pluginErrorDetails.appsmithErrorCode}
-              width="90px"
             />
             <span>{props.pluginErrorDetails.appsmithErrorMessage}</span>
           </MessageInfo>
@@ -90,7 +89,6 @@ export default function LogCollapseData(props: any) {
                       ? props.pluginErrorDetails.downstreamErrorCode
                       : "DownstreamError"
                   }
-                  width="90px"
                 />
                 <span data-cy="t--debugger-downStreamErrorMsg">
                   {props.pluginErrorDetails.downstreamErrorMessage}
@@ -98,15 +96,15 @@ export default function LogCollapseData(props: any) {
               </>
             )}
           </MessageInfo>
+          {props.state && (
+            <JsonWrapper
+              className="t--debugger-log-state"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ReactJson src={props.state} {...reactJsonProps} />
+            </JsonWrapper>
+          )}
         </MessageWrapper>
-      )}
-      {props.state && (
-        <JsonWrapper
-          className="t--debugger-log-state"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <ReactJson src={props.state} {...reactJsonProps} />
-        </JsonWrapper>
       )}
     </StyledCollapse>
   );

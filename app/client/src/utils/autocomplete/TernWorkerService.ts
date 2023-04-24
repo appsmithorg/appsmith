@@ -1,5 +1,6 @@
-import { Def, Server } from "tern";
-import { CallbackFn, TernWorkerAction } from "./types";
+import type { Def, Server } from "tern";
+import type { CallbackFn } from "./types";
+import { TernWorkerAction } from "./types";
 
 const ternWorker = new Worker(
   new URL("../../workers/Tern/tern.worker.ts", import.meta.url),
@@ -39,11 +40,11 @@ function TernWorkerServer(this: any, ts: any) {
     }
     worker.postMessage(data);
   }
-  worker.onmessage = function(e) {
+  worker.onmessage = function (e) {
     const data = e.data;
     if (data) {
       if (data.type == TernWorkerAction.GET_FILE) {
-        getFile(ts, data.name, function(err, text) {
+        getFile(ts, data.name, function (err, text) {
           send({
             type: TernWorkerAction.GET_FILE,
             err: String(err),
@@ -59,24 +60,24 @@ function TernWorkerServer(this: any, ts: any) {
       }
     }
   };
-  worker.onerror = function(e) {
+  worker.onerror = function (e) {
     for (const id in pending) pending[id](e);
     pending = {};
   };
 
-  this.addFile = function(name: string, text: string) {
+  this.addFile = function (name: string, text: string) {
     send({ type: TernWorkerAction.ADD_FILE, name: name, text: text });
   };
-  this.delFile = function(name: string) {
+  this.delFile = function (name: string) {
     send({ type: TernWorkerAction.DELETE_FILE, name: name });
   };
-  this.request = function(body: any, c: CallbackFn) {
+  this.request = function (body: any, c: CallbackFn) {
     send({ type: TernWorkerAction.REQUEST, body: body }, c);
   };
-  this.addDefs = function(defs: Def) {
+  this.addDefs = function (defs: Def) {
     send({ type: TernWorkerAction.ADD_DEF, defs });
   };
-  this.deleteDefs = function(name: string) {
+  this.deleteDefs = function (name: string) {
     send({ type: TernWorkerAction.DELETE_DEF, name });
   };
 }

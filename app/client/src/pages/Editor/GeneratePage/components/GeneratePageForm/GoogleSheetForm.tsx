@@ -1,20 +1,21 @@
-import React, { useState, useEffect, ReactElement, useCallback } from "react";
+import type { ReactElement } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { getEditorConfig } from "selectors/entitiesSelector";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { fetchPluginFormConfig } from "actions/pluginActions";
 import { DROPDOWN_DIMENSION, DEFAULT_DROPDOWN_OPTION } from "../constants";
 import { SelectWrapper, Label, Bold } from "./styles";
-import { GeneratePagePayload } from "./types";
+import type { GeneratePagePayload } from "./types";
 import styled from "styled-components";
-import {
+import type {
   UseSheetListReturn,
   UseSpreadSheetsReturn,
   UseSheetColumnHeadersReturn,
 } from "./hooks";
+import type { DropdownOption } from "design-system-old";
 import {
   Dropdown,
-  DropdownOption,
   FontWeight,
   getTypographyByKey,
   Icon,

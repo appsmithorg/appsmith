@@ -1,5 +1,6 @@
 import ReactPlayer from "react-player";
-import React, { Ref } from "react";
+import type { Ref } from "react";
+import React from "react";
 import styled from "styled-components";
 import { createMessage, ENTER_VIDEO_URL } from "@appsmith/constants/messages";
 export interface VideoComponentProps {

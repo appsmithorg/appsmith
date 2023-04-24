@@ -1,5 +1,5 @@
 import React from "react";
-import { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
+import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import {
   ORIGINAL_INDEX_KEY,
@@ -10,10 +10,7 @@ import TableInlineEditValidationControlProperty, {
   InputText,
 } from "./TableInlineEditValidationControl";
 import { isString } from "lodash";
-import {
-  JSToString,
-  stringToJS,
-} from "components/editorComponents/ActionCreator/utils";
+import { JSToString, stringToJS } from "./utils";
 
 const bindingPrefix = `{{
   (

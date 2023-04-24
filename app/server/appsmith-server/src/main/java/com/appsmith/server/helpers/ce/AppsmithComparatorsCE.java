@@ -1,10 +1,16 @@
 package com.appsmith.server.helpers.ce;
 
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
-import com.appsmith.server.dtos.WorkspaceMemberInfoDTO;
+import com.appsmith.server.dtos.MemberInfoDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 
 public class AppsmithComparatorsCE {
 
@@ -17,33 +23,46 @@ public class AppsmithComparatorsCE {
         };
     }
 
-    public static Comparator<WorkspaceMemberInfoDTO> getWorkspaceMemberComparator() {
+    public static Comparator<MemberInfoDTO> workspaceMembersComparator() {
         return new Comparator<>() {
             @Override
-            public int compare(WorkspaceMemberInfoDTO o1, WorkspaceMemberInfoDTO o2) {
-                int order1 = getOrder(o1.getPermissionGroupName());
-                int order2 = getOrder(o2.getPermissionGroupName());
-
-                // Administrator > Developer > App viewer
-                int permissionGroupSortOrder = order1 - order2;
-
-                if (permissionGroupSortOrder != 0) {
-                    return permissionGroupSortOrder;
+            public int compare(MemberInfoDTO o1, MemberInfoDTO o2) {
+                if (CollectionUtils.isEmpty(o1.getRoles()) || CollectionUtils.isEmpty(o2.getRoles())) {
+                    throw new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR);
                 }
 
-                if (o1.getUsername() == null || o2.getUsername() == null)
-                    return o1.getName().compareTo(o2.getName());
-                return o1.getUsername().compareTo(o2.getUsername());
+                boolean workspaceRolePresent1 = o1.getRoles().stream().anyMatch(role -> Workspace.class.getSimpleName().equals(role.getEntityType()));
+                boolean workspaceRolePresent2 = o1.getRoles().stream().anyMatch(role -> Workspace.class.getSimpleName().equals(role.getEntityType()));
+
+                if (! workspaceRolePresent1 || ! workspaceRolePresent2) {
+                    throw new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR);
+                }
+
+                // Order based on the workspace default role (Administrator > Developer > App Viewer)
+                int order1 = getOrderBasedOnWorkspaceRole(o1);
+                int order2 = getOrderBasedOnWorkspaceRole(o2);
+
+                if (order1 - order2 != 0) {
+                    return order1 - order2;
+                }
+                if (o1.getUsername() == null || o2.getUsername() == null) {
+                    return o1.getName().compareToIgnoreCase(o2.getName());
+                }
+                return o1.getUsername().compareToIgnoreCase(o2.getUsername());
             }
 
-            private int getOrder(String name) {
-                if (name.startsWith(FieldName.ADMINISTRATOR)) {
+            private int getOrderBasedOnWorkspaceRole(MemberInfoDTO member) {
+                PermissionGroupInfoDTO role = member.getRoles().stream()
+                        .filter(role1 -> Workspace.class.getSimpleName().equals(role1.getEntityType()))
+                        .findFirst().get();
+                if (Objects.nonNull(role.getName()) && role.getName().startsWith(FieldName.ADMINISTRATOR)) {
                     return 0;
-                } else if (name.startsWith(FieldName.DEVELOPER)) {
+                } else if (Objects.nonNull(role.getName()) && role.getName().startsWith(FieldName.DEVELOPER)) {
                     return 1;
-                } else {
+                } else if (Objects.nonNull(role.getName()) && role.getName().startsWith(FieldName.VIEWER)) {
                     return 2;
                 }
+                return 3;
             }
         };
     }

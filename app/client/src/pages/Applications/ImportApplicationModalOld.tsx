@@ -1,19 +1,19 @@
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
+import type { SetProgress } from "design-system-old";
 import {
   Button,
   FilePickerV2,
   FileType,
-  SetProgress,
   Size,
   Toaster,
   Variant,
 } from "design-system-old";
 import { StyledDialog } from "./ForkModalStyles";
 import { useDispatch, useSelector } from "react-redux";
-import { importApplication } from "actions/applicationActions";
+import { importApplication } from "@appsmith/actions/applicationActions";
 import { IMPORT_APPLICATION_MODAL_TITLE } from "@appsmith/constants/messages";
-import { getIsImportingApplication } from "selectors/applicationSelectors";
+import { getIsImportingApplication } from "@appsmith/selectors/applicationSelectors";
 
 const ImportButton = styled(Button)<{ disabled?: boolean }>`
   height: 30px;

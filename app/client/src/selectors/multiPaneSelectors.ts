@@ -1,4 +1,4 @@
-import { AppState } from "ce/reducers";
+import type { AppState } from "ce/reducers";
 
 export const getTabsPaneWidth = (state: AppState) =>
   state.ui.multiPaneConfig.tabsPaneWidth;

@@ -6,6 +6,7 @@ import {
   getEntities,
   getPluginNameFromId,
   getPluginTypeFromDatasourceId,
+  getPluginPackageFromDatasourceId,
 } from "selectors/entitiesSelector";
 import {
   testDatasource,
@@ -20,13 +21,10 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { useParams, useLocation } from "react-router";
-import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
-import { AppState } from "@appsmith/reducers";
-import {
-  AuthType,
-  Datasource,
-  AuthenticationStatus,
-} from "entities/Datasource";
+import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
+import type { AppState } from "@appsmith/reducers";
+import type { Datasource } from "entities/Datasource";
+import { AuthType, AuthenticationStatus } from "entities/Datasource";
 import {
   CONFIRM_CONTEXT_DELETING,
   OAUTH_AUTHORIZATION_APPSMITH_ERROR,
@@ -39,7 +37,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { debounce } from "lodash";
-import { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
+import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 import {
@@ -63,7 +61,7 @@ interface Props {
 
 export type DatasourceFormButtonTypes = Record<string, string[]>;
 
-enum AuthorizationStatus {
+export enum AuthorizationStatus {
   SUCCESS = "success",
   APPSMITH_ERROR = "appsmith_error",
 }
@@ -96,11 +94,14 @@ const SaveButtonContainer = styled.div`
   margin-top: 24px;
   display: flex;
   justify-content: flex-end;
+  gap: 9px;
+  padding-right: 20px;
 `;
 
 const StyledAuthMessage = styled.div`
   color: ${(props) => props.theme.colors.error};
   margin-top: 15px;
+  padding-left: 20px;
   &:after {
     content: " *";
     color: inherit;
@@ -130,6 +131,9 @@ function DatasourceAuth({
   const pluginName = useSelector((state: AppState) =>
     getPluginNameFromId(state, pluginId),
   );
+  const pluginPackageName = useSelector((state: AppState) =>
+    getPluginPackageFromDatasourceId(state, datasource?.id || ""),
+  );
 
   const datasourcePermissions = datasource.userPermissions || [];
 
@@ -148,6 +152,7 @@ function DatasourceAuth({
 
   const pageId = (pageIdQuery || pageIdProp) as string;
   const [confirmDelete, setConfirmDelete] = useState(false);
+
   const dsName = datasource?.name;
   const orgId = datasource?.workspaceId;
 
@@ -248,6 +253,8 @@ function DatasourceAuth({
     AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
       pageId: pageId,
       appId: applicationId,
+      pluginName: pluginName || "",
+      pluginPackageName: pluginPackageName || "",
     });
     // After saving datasource, only redirect to the 'new integrations' page
     // if datasource is not used to generate a page

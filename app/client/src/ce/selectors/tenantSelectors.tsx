@@ -1,4 +1,4 @@
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 
 export const getTenantPermissions = (state: AppState) => {
   return state.tenant?.userPermissions;

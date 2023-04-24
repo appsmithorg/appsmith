@@ -107,6 +107,7 @@ public enum AppsmithErrorCode {
     SIGNUP_DISABLED("AE-SGN-4033", "Signup disabled"),
     TOO_MANY_REQUESTS("AE-TMR-4029", "Too many requests"),
     USER_NOT_FOUND("AE-USR-4004", "User not found"),
+    CSRF_TOKEN_INVALID("AE-APP-4039", "CSRF token missing/invalid"),
     ;
     private final String code;
     private final String description;

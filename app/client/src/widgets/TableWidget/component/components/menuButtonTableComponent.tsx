@@ -10,7 +10,7 @@ import {
   Classes as BClasses,
 } from "@blueprintjs/core";
 import { Classes, Popover2 } from "@blueprintjs/popover2";
-import { IconName } from "@blueprintjs/icons";
+import type { IconName } from "@blueprintjs/icons";
 import {
   getCustomBackgroundColor,
   getCustomBorderColor,
@@ -19,12 +19,13 @@ import {
   getComplementaryGrayscaleColor,
 } from "widgets/WidgetUtils";
 import { darkenActive, darkenHover } from "constants/DefaultTheme";
-import { ButtonVariant, ButtonVariantTypes } from "components/constants";
-import { MenuItems } from "../Constants";
+import type { ButtonVariant } from "components/constants";
+import { ButtonVariantTypes } from "components/constants";
+import type { MenuItems } from "../Constants";
 import tinycolor from "tinycolor2";
 import { Colors } from "constants/Colors";
 import orderBy from "lodash/orderBy";
-import { ThemeProp } from "widgets/constants";
+import type { ThemeProp } from "widgets/constants";
 
 const MenuButtonContainer = styled.div`
   width: 100%;
@@ -235,18 +236,14 @@ function PopoverContent(props: PopoverContentProps) {
         icon={
           iconAlign !== Alignment.RIGHT ? (
             <Icon color={iconColor} icon={iconName} />
-          ) : (
-            undefined
-          )
+          ) : undefined
         }
         isCompact={isCompact}
         key={id}
         labelElement={
           iconAlign === Alignment.RIGHT ? (
             <Icon color={iconColor} icon={iconName} />
-          ) : (
-            undefined
-          )
+          ) : undefined
         }
         onClick={() => onItemClicked(onClick)}
         text={label}

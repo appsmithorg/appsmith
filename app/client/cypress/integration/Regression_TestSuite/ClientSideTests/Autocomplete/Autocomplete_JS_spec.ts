@@ -163,28 +163,30 @@ describe("Autocomplete tests", () => {
   });
 
   it("5. Api data with array of object autocompletion test", () => {
-    _.apiPage.CreateAndFillApi(_.agHelper.mockApiUrl);
-    _.agHelper.Sleep(2000);
-    _.apiPage.RunAPI();
-    // Using same js object
-    _.entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
-    _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(5), 0, true);
-    _.agHelper.SelectNRemoveLineText(_.locators._codeMirrorTextArea);
-    //_.agHelper.GetNClick(_.jsEditor._lineinJsEditor(5));
-    _.agHelper.TypeText(_.locators._codeMirrorTextArea, "Api1.d");
-    _.agHelper.GetNAssertElementText(_.locators._hints, "data");
-    _.agHelper.Sleep();
-    _.agHelper.TypeText(_.locators._codeMirrorTextArea, "ata[0].e");
-    _.agHelper.GetNAssertElementText(_.locators._hints, "email");
-    _.agHelper.Sleep();
-    _.agHelper.TypeText(_.locators._codeMirrorTextArea, "mail");
-    _.entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
-    _.entityExplorer.ActionContextMenuByEntityName(
-      "JSObject1",
-      "Delete",
-      "Are you sure?",
-      true,
-    );
+    cy.fixture("datasources").then((datasourceFormData: any) => {
+      _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"]);
+      _.agHelper.Sleep(2000);
+      _.apiPage.RunAPI();
+      // Using same js object
+      _.entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+      _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(5), 0, true);
+      _.agHelper.SelectNRemoveLineText(_.locators._codeMirrorTextArea);
+      //_.agHelper.GetNClick(_.jsEditor._lineinJsEditor(5));
+      _.agHelper.TypeText(_.locators._codeMirrorTextArea, "Api1.d");
+      _.agHelper.GetNAssertElementText(_.locators._hints, "data");
+      _.agHelper.Sleep();
+      _.agHelper.TypeText(_.locators._codeMirrorTextArea, "ata[0].e");
+      _.agHelper.GetNAssertElementText(_.locators._hints, "email");
+      _.agHelper.Sleep();
+      _.agHelper.TypeText(_.locators._codeMirrorTextArea, "mail");
+      _.entityExplorer.SelectEntityByName(jsName as string, "Queries/JS");
+      _.entityExplorer.ActionContextMenuByEntityName(
+        "JSObject1",
+        "Delete",
+        "Are you sure?",
+        true,
+      );
+    });
   });
 
   it("6. Local variables & complex data autocompletion test", () => {
@@ -242,7 +244,11 @@ describe("Autocomplete tests", () => {
         true,
       );
     });
-    _.entityExplorer.ActionContextMenuByEntityName("Api1", "Delete", "Are you sure?");
+    _.entityExplorer.ActionContextMenuByEntityName(
+      "Api1",
+      "Delete",
+      "Are you sure?",
+    );
   });
 
   it("7. Autocompletion for bindings inside array and objects", () => {

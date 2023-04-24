@@ -394,7 +394,7 @@ export const MultiSelectContainer = styled.div<{
 
   /**
     When the label is on the left it is not center aligned
-    here set height to auto and not 100% because the input 
+    here set height to auto and not 100% because the input
     has fixed height and stretch the container.
   */
   ${({ labelPosition }) => {
@@ -627,10 +627,10 @@ export const MultiSelectContainer = styled.div<{
             : "var(--wds-color-border-danger)"};
       &:hover {
         border: 1px solid
-        ${(props) =>
-          props.isValid
-            ? "var(--wds-color-border-hover)"
-            : "var(--wds-color-border-danger-hover)"};
+          ${(props) =>
+            props.isValid
+              ? "var(--wds-color-border-hover)"
+              : "var(--wds-color-border-danger-hover)"};
       }
     }
   }

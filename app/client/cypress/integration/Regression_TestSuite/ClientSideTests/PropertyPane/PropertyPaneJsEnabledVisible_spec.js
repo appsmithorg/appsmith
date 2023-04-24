@@ -1,11 +1,11 @@
 const dsl = require("../../../../fixtures/jsonFormDslWithSchema.json");
 
-describe("Property pane js enabled field", function() {
+describe("Property pane js enabled field", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Ensure text is visible for js enabled field when a section is collapsed by default", function() {
+  it("Ensure text is visible for js enabled field when a section is collapsed by default", function () {
     cy.openPropertyPane("jsonformwidget");
     cy.moveToStyleTab();
     cy.wait(500);

@@ -10,15 +10,15 @@ import { TextSizes } from "constants/WidgetConstants";
 import { clone, get, has, set } from "lodash";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { traverseDSLAndMigrate } from "utils/WidgetMigrationUtils";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { DSLWidget } from "widgets/constants";
 import {
   BUTTON_GROUP_CHILD_STYLESHEET,
-  DSLWidget,
   JSON_FORM_WIDGET_CHILD_STYLESHEET,
   rgbaMigrationConstantV56,
   TABLE_WIDGET_CHILD_STYLESHEET,
 } from "widgets/constants";
-import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { ROOT_SCHEMA_KEY } from "widgets/JSONFormWidget/constants";
 import { parseSchemaItem } from "widgets/WidgetUtils";
 
@@ -71,28 +71,33 @@ export const migrateStylingPropertiesForTheming = (
 
     switch (child.boxShadow) {
       case BoxShadowTypes.VARIANT1:
-        child.boxShadow = `0px 0px 4px 3px ${child.boxShadowColor ||
-          "rgba(0, 0, 0, 0.25)"}`;
+        child.boxShadow = `0px 0px 4px 3px ${
+          child.boxShadowColor || "rgba(0, 0, 0, 0.25)"
+        }`;
         addPropertyToDynamicPropertyPathList("boxShadow", child);
         break;
       case BoxShadowTypes.VARIANT2:
-        child.boxShadow = `3px 3px 4px ${child.boxShadowColor ||
-          "rgba(0, 0, 0, 0.25)"}`;
+        child.boxShadow = `3px 3px 4px ${
+          child.boxShadowColor || "rgba(0, 0, 0, 0.25)"
+        }`;
         addPropertyToDynamicPropertyPathList("boxShadow", child);
         break;
       case BoxShadowTypes.VARIANT3:
-        child.boxShadow = `0px 1px 3px ${child.boxShadowColor ||
-          "rgba(0, 0, 0, 0.25)"}`;
+        child.boxShadow = `0px 1px 3px ${
+          child.boxShadowColor || "rgba(0, 0, 0, 0.25)"
+        }`;
         addPropertyToDynamicPropertyPathList("boxShadow", child);
         break;
       case BoxShadowTypes.VARIANT4:
-        child.boxShadow = `2px 2px 0px ${child.boxShadowColor ||
-          "rgba(0, 0, 0, 0.25)"}`;
+        child.boxShadow = `2px 2px 0px ${
+          child.boxShadowColor || "rgba(0, 0, 0, 0.25)"
+        }`;
         addPropertyToDynamicPropertyPathList("boxShadow", child);
         break;
       case BoxShadowTypes.VARIANT5:
-        child.boxShadow = `-2px -2px 0px ${child.boxShadowColor ||
-          "rgba(0, 0, 0, 0.25)"}`;
+        child.boxShadow = `-2px -2px 0px ${
+          child.boxShadowColor || "rgba(0, 0, 0, 0.25)"
+        }`;
         addPropertyToDynamicPropertyPathList("boxShadow", child);
         break;
       default:

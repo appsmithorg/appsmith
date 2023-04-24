@@ -1,11 +1,12 @@
 import React from "react";
 import styled from "styled-components";
 import { Classes as BPClasses, Position } from "@blueprintjs/core";
-import { Popover2, IPopover2Props } from "@blueprintjs/popover2";
-import { Dispatch } from "redux";
+import type { IPopover2Props } from "@blueprintjs/popover2";
+import { Popover2 } from "@blueprintjs/popover2";
+import type { Dispatch } from "redux";
 import { useDispatch } from "react-redux";
 import { Text, FontWeight, TextType } from "design-system-old";
-import { Message, SourceEntity } from "entities/AppsmithConsole";
+import type { Message, SourceEntity } from "entities/AppsmithConsole";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -21,10 +22,11 @@ import {
   DEBUGGER_OPEN_DOCUMENTATION,
   DEBUGGER_SEARCH_SNIPPET,
 } from "@appsmith/constants/messages";
-import { Classes, Icon, IconName, IconSize } from "design-system-old";
+import type { IconName } from "design-system-old";
+import { Classes, Icon, IconSize } from "design-system-old";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { SlashCommand } from "entities/Action";
-import { FieldEntityInformation } from "../CodeEditor/EditorConfig";
+import type { FieldEntityInformation } from "../CodeEditor/EditorConfig";
 const { intercomAppID } = getAppsmithConfigs();
 
 enum CONTEXT_MENU_ACTIONS {
@@ -85,7 +87,7 @@ const isFieldEntityInformation = (
   return entity.hasOwnProperty("entityType");
 };
 
-const getSnippetArgs = function(
+const getSnippetArgs = function (
   entity?: FieldEntityInformation | SourceEntity,
 ) {
   if (!entity) return {};
@@ -184,10 +186,7 @@ const searchAction: Record<
 const IconContainer = styled.span`
   display: flex;
   align-items: center;
-
-  .${Classes.ICON} {
-    margin-right: ${(props) => props.theme.spaces[5]}px;
-  }
+  gap: 8px;
 `;
 
 const MenuItem = styled.a`
@@ -222,8 +221,9 @@ const MenuWrapper = styled.div<{ width: string }>`
   width: ${(props) => props.width};
   background: ${(props) => props.theme.colors.menu.background};
   box-shadow: ${(props) =>
-    `${props.theme.spaces[0]}px ${props.theme.spaces[5]}px ${props.theme
-      .spaces[12] - 2}px ${props.theme.colors.menu.shadow}`};
+    `${props.theme.spaces[0]}px ${props.theme.spaces[5]}px ${
+      props.theme.spaces[12] - 2
+    }px ${props.theme.colors.menu.shadow}`};
 `;
 
 export default function ContextualMenu(props: ContextualMenuProps) {

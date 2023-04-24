@@ -1,5 +1,6 @@
 import equal from "fast-deep-equal/es6";
-import React, { PropsWithChildren, useEffect, useRef } from "react";
+import type { PropsWithChildren } from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { debounce, isEmpty } from "lodash";
 import { FormProvider, useForm } from "react-hook-form";
@@ -7,13 +8,12 @@ import { Text } from "@blueprintjs/core";
 import { klona } from "klona";
 
 import useFixedFooter from "./useFixedFooter";
-import {
-  BaseButton as Button,
-  ButtonStyleProps,
-} from "widgets/ButtonWidget/component";
+import type { ButtonStyleProps } from "widgets/ButtonWidget/component";
+import { BaseButton as Button } from "widgets/ButtonWidget/component";
 import { Colors } from "constants/Colors";
 import { FORM_PADDING_Y, FORM_PADDING_X } from "./styleConstants";
-import { ROOT_SCHEMA_KEY, Schema } from "../constants";
+import type { Schema } from "../constants";
+import { ROOT_SCHEMA_KEY } from "../constants";
 import { convertSchemaItemToFormData, schemaItemDefaultValue } from "../helper";
 
 export type FormProps<TValues = any> = PropsWithChildren<{

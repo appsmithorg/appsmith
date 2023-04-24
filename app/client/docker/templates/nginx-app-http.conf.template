@@ -1,6 +1,5 @@
 server {
     listen 80;
-    listen [::]:80;
     server_name $APPSMITH_DOMAIN;
 
     client_max_body_size 150m;

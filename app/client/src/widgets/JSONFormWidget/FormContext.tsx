@@ -1,8 +1,8 @@
 import React, { createContext, useMemo } from "react";
 
-import { RenderMode } from "constants/WidgetConstants";
-import { Action, JSONFormWidgetState } from "./widget";
-import { DebouncedExecuteActionPayload } from "widgets/MetaHOC";
+import type { RenderMode } from "constants/WidgetConstants";
+import type { Action, JSONFormWidgetState } from "./widget";
+import type { DebouncedExecuteActionPayload } from "widgets/MetaHOC";
 
 type FormContextProps<TValues = any> = React.PropsWithChildren<{
   executeAction: (action: Action) => void;

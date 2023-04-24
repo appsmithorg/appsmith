@@ -12,5 +12,6 @@
   "nextButton": ".t--welcome-form-next-button",
   "dataCollection": ".t--welcome-form-datacollection",
   "newsLetter": ".t--welcome-form-newsletter",
-  "createButton": ".t--welcome-form-create-button"
+  "createButton": ".t--welcome-form-create-button",
+  "createSuperUser" :"#super-user-form"
 }

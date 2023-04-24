@@ -12,8 +12,6 @@ import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import static com.appsmith.server.acl.AppsmithRole.APPLICATION_ADMIN;
-import static com.appsmith.server.acl.AppsmithRole.APPLICATION_VIEWER;
 import static com.appsmith.server.acl.AppsmithRole.ORGANIZATION_ADMIN;
 import static com.appsmith.server.acl.AppsmithRole.ORGANIZATION_DEVELOPER;
 import static com.appsmith.server.acl.AppsmithRole.ORGANIZATION_VIEWER;
@@ -36,7 +34,6 @@ public class RoleGraphCE {
 
         hierarchyGraph.addEdge(ORGANIZATION_ADMIN, ORGANIZATION_DEVELOPER);
         hierarchyGraph.addEdge(ORGANIZATION_DEVELOPER, ORGANIZATION_VIEWER);
-        hierarchyGraph.addEdge(APPLICATION_ADMIN, APPLICATION_VIEWER);
     }
 
     public Set<AppsmithRole> generateHierarchicalRoles(String roleName) {

@@ -1,10 +1,6 @@
 import React, { useState } from "react";
-import {
-  MenuItem,
-  Classes,
-  Button as BButton,
-  Alignment,
-} from "@blueprintjs/core";
+import type { Alignment } from "@blueprintjs/core";
+import { MenuItem, Classes, Button as BButton } from "@blueprintjs/core";
 import {
   CellWrapper,
   CellCheckboxWrapper,
@@ -13,16 +9,18 @@ import {
   DraggableHeaderWrapper,
   IconButtonWrapper,
 } from "./TableStyledWrappers";
-import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
+import type { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 
-import {
-  ColumnTypes,
-  CellAlignmentTypes,
-  VerticalAlignmentTypes,
+import type {
   ColumnProperties,
   CellLayoutProperties,
   TableStyles,
   MenuItems,
+} from "./Constants";
+import {
+  ColumnTypes,
+  CellAlignmentTypes,
+  VerticalAlignmentTypes,
 } from "./Constants";
 import { isString, isEmpty, findIndex, isNil, isNaN, get, set } from "lodash";
 import PopoverVideo from "widgets/VideoWidget/component/PopoverVideo";
@@ -31,16 +29,18 @@ import { ControlIcons } from "icons/ControlIcons";
 
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { DropdownOption } from "widgets/DropdownWidget/constants";
-import { IconName, IconNames } from "@blueprintjs/icons";
-import { Select, IItemRendererProps } from "@blueprintjs/select";
+import type { DropdownOption } from "widgets/DropdownWidget/constants";
+import type { IconName } from "@blueprintjs/icons";
+import { IconNames } from "@blueprintjs/icons";
+import type { IItemRendererProps } from "@blueprintjs/select";
+import { Select } from "@blueprintjs/select";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { noop } from "utils/AppsmithUtils";
 
 import { ReactComponent as CheckBoxLineIcon } from "assets/icons/widget/table/checkbox-line.svg";
 import { ReactComponent as CheckBoxCheckIcon } from "assets/icons/widget/table/checkbox-check.svg";
 
-import { ButtonVariant } from "components/constants";
+import type { ButtonVariant } from "components/constants";
 
 //TODO(abstraction leak)
 import { StyledButton } from "widgets/IconButtonWidget/component";
@@ -84,7 +84,8 @@ export const renderCell = (
       }
       // better regex: /(?<!base64),/g ; can't use due to safari incompatibility
       const imageSplitRegex = /[^(base64)],/g;
-      const imageUrlRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
+      const imageUrlRegex =
+        /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
       const base64ImageRegex = /^data:image\/.*;base64/;
       return (
         <CellWrapper
@@ -126,7 +127,8 @@ export const renderCell = (
         </CellWrapper>
       );
     case ColumnTypes.VIDEO:
-      const youtubeRegex = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
+      const youtubeRegex =
+        /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
       if (!value) {
         return (
           <CellWrapper
@@ -840,9 +842,7 @@ export const renderDropdown = (props: {
  */
 export const getSelectedRowBgColor = (accentColor: string) => {
   const tinyAccentColor = tinycolor(accentColor);
-  const brightness = tinycolor(accentColor)
-    .greyscale()
-    .getBrightness();
+  const brightness = tinycolor(accentColor).greyscale().getBrightness();
 
   const percentageBrightness = (brightness / 255) * 100;
   let nextBrightness = 0;

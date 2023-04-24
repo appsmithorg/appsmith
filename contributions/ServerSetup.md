@@ -61,7 +61,7 @@ This document doesn't provide instructions to install Java and Maven because the
 The following command will start a MongoDB docker instance locally:
 
 ```console
-docker run -p 127.0.0.1:27017:27017 --name appsmith-mongodb -e MONGO_INITDB_DATABASE=appsmith -v /path/to/store/data:/data/db mongo
+docker run -p 127.0.0.1:27017:27017 --name appsmith-mongodb --hostname=localhost -e MONGO_INITDB_DATABASE=appsmith -v /path/to/store/data:/data/db mongo --replSet rs0
 ```
 
 Please change the `/path/to/store/data` to a valid path on your system. This is where MongoDB will persist it's data across runs of this container.
@@ -73,11 +73,11 @@ MongoDB will now be running on `mongodb://localhost:27017/appsmith`.
 Please follow the below steps for enabling the replica set with mongo running inside the docker
 1. Connect to the mongo db running with a mongo shell. Use the below command
 ```
-mongo
+mongosh
 ```
 2. Once you are inside the mongo shell run the below command. 
 ```
-rs.initiate()
+rs.initiate({"_id": "rs0", "members" : [{"_id":0 , "host": "localhost:27017" }]})
 ```
 
 ### Convert a standalone MongoDB node to a replica set for non docker based set up
@@ -114,7 +114,9 @@ mvn clean compile
 
 This generates a bunch of classes required by IntelliJ for compiling the rest of the source code. Without this step, your IDE may complain about missing classes and will be unable to compile the code.
 
-4. Create a copy of the `envs/dev.env.example`
+#### 4. Setup Environment file
+
+Create a copy of the `envs/dev.env.example`
 
 ```console
 cp envs/dev.env.example .env
@@ -122,17 +124,22 @@ cp envs/dev.env.example .env
 
 This command creates a `.env` file in the `app/server` folder. All run scripts pick up environment configuration from this file.
 
-5. Ensure that the environment variables `APPSMITH_MONGODB_URI` and `APPSMITH_REDIS_URI` in the file `.env` point to your local running instances of MongoDB and Redis. Also please make sure to update the replica set name with correct value in the mongo connection string. 
+5. Ensure that the environment variables `APPSMITH_MONGODB_URI` and `APPSMITH_REDIS_URI` in the file `.env` point to your local running instances of MongoDB and Redis.
 
-6. Run the following command to create the final JAR for the Appsmith server:
+6.  **Update the replica set name with correct value in the mongo connection string in the [.env](#setup-environment-file) file.** The replica name is the same as passed [here](#setting-up-a-local-mongodb-instance)
+```bash
+APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith?replicaSet=<replica-set-name>"
+```
+
+7. Run the following command to create the final JAR for the Appsmith server:
 
 ```console
-./build.sh
+./build.sh -DskipTests
 ```
 This command will create a `dist` folder which contains the final packaged jar along with multiple jars for plugins as well.
 
 Note:
-- If you want to skip tests, you can pass `-DskipTests` flag to the build cmd.
+- If you want to run the tests, you can remove `-DskipTests` flag from the build cmd.
 - On Ubuntu Linux environment docker needs root privilege, hence ./build.sh script needs to be run with root privilege as well.
 - On Ubuntu Linux environment, the script may not be able to read .env file, so it is advised that you run the cmd like:
 ```console
@@ -181,8 +188,17 @@ Note that as you have installed Docker Desktop with WSL based engine, you can ex
 The following command will start a MongoDB docker instance locally:
 
 ```console
-docker run -p 127.0.0.1:27017:27017 --name appsmith-mongodb -e MONGO_INITDB_DATABASE=appsmith -v /path/to/store/data:/data/db mongo --replSet rs0
+docker run -p 127.0.0.1:27017:27017 --name appsmith-mongodb --hostname=localhost -e MONGO_INITDB_DATABASE=appsmith -v /path/to/store/data:/data/db mongo mongod --replSet rs0
 ```
+
+#### For Apple Silicon
+
+For M1 chip change the base image to [arm64v8 variant](https://hub.docker.com/r/arm64v8/mongo/)
+
+```console
+docker run -p 127.0.0.1:27017:27017 --name appsmith-mongodb --hostname=localhost -e MONGO_INITDB_DATABASE=appsmith -v /path/to/store/data:/data/db arm64v8/mongo mongod --replSet rs0
+```
+
 
 Please change the `/path/to/store/data` to a valid path on your C drive (C:/) of your system (e.g. C:\mongodata). This is where MongoDB will persist it's data across runs of this container.
 
@@ -196,6 +212,14 @@ The following command will start a Redis docker instance locally:
 
 ```console
 docker run -p 127.0.0.1:6379:6379 --name appsmith-redis redis
+```
+
+#### For Apple Silicon
+
+For M1 chip change the base image to [arm64v8 variant](https://hub.docker.com/r/arm64v8/redis/)
+
+```console
+docker run -p 127.0.0.1:6379:6379 --name appsmith-redis arm64v8/redis
 ```
 
 Redis will now be running on `redis://localhost:6379`.
@@ -238,12 +262,12 @@ This command creates a `.env` file in the `app/server` folder. All run scripts p
 6. Run the following command to create the final JAR for the Appsmith server:
 
 ```console
-./build.sh
+./build.sh -DskipTests
 ```
 This command will create a `dist` folder which contains the final packaged jar along with multiple jars for plugins as well.
 
 Note:
-- If you want to skip tests, you can pass `-DskipTests` flag to the build cmd.
+- If you want to run the tests, you can remove `-DskipTests` flag from the build cmd.
 - On Ubuntu Linux environment docker needs root privilege, hence ./build.sh script needs to be run with root privilege as well.
 - On Ubuntu Linux environment, the script may not be able to read .env file, so it is advised that you run the cmd like:
 ```console

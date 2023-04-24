@@ -2,7 +2,8 @@ import styled from "styled-components";
 import React, { forwardRef } from "react";
 import { LabelPosition } from "components/constants";
 
-import { SliderSizes, sizeMap } from "../utils";
+import type { SliderSizes } from "../utils";
+import { sizeMap } from "../utils";
 
 export interface SliderRootProps extends React.ComponentPropsWithoutRef<"div"> {
   disabled: boolean;

@@ -1,19 +1,21 @@
 import { css } from "styled-components";
-import { Colors, Color } from "./Colors";
+import type { Color } from "./Colors";
+import { Colors } from "./Colors";
 import * as FontFamilies from "./Fonts";
 import tinycolor from "tinycolor2";
 import { Alignment, Classes } from "@blueprintjs/core";
 import { AlertIcons } from "icons/AlertIcons";
-import { IconProps } from "constants/IconConstants";
-import { JSXElementConstructor } from "react";
-import { typography, Typography, TypographyKeys } from "./typography";
+import type { IconProps } from "constants/IconConstants";
+import type { JSXElementConstructor } from "react";
+import type { Typography, TypographyKeys } from "./typography";
+import { typography } from "./typography";
 
-import { LabelPosition } from "components/constants";
+import type { LabelPosition } from "components/constants";
 import {
   TABLE_SCROLLBAR_HEIGHT,
   TABLE_SCROLLBAR_WIDTH,
 } from "widgets/TableWidgetV2/component/Constants";
-export type FontFamily = typeof FontFamilies[keyof typeof FontFamilies];
+export type FontFamily = (typeof FontFamilies)[keyof typeof FontFamilies];
 
 export const IntentColors: Record<string, Color> = {
   primary: Colors.GREEN,
@@ -25,7 +27,7 @@ export const IntentColors: Record<string, Color> = {
   successLight: Colors.GREEN,
 };
 
-export type Intent = typeof IntentColors[keyof typeof IntentColors];
+export type Intent = (typeof IntentColors)[keyof typeof IntentColors];
 
 export const IntentIcons: Record<Intent, JSXElementConstructor<IconProps>> = {
   primary: AlertIcons.SUCCESS,
@@ -639,7 +641,7 @@ export const appColors = [
   "#FFEBFB",
 ] as const;
 
-export type AppColorCode = typeof appColors[number];
+export type AppColorCode = (typeof appColors)[number];
 
 const darkShades = [
   "#1A191C",
@@ -682,7 +684,7 @@ const lightShades = [
   "#E7E7E7",
 ] as const;
 
-type ShadeColor = typeof darkShades[number] | typeof lightShades[number];
+type ShadeColor = (typeof darkShades)[number] | (typeof lightShades)[number];
 
 type buttonVariant = {
   main: string;

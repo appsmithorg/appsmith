@@ -7,7 +7,7 @@ import React, {
   useState,
 } from "react";
 import styled from "styled-components";
-import { Alignment, IconName } from "@blueprintjs/core";
+import type { Alignment, IconName } from "@blueprintjs/core";
 import { isNil } from "lodash";
 import { useController } from "react-hook-form";
 
@@ -22,19 +22,20 @@ import {
   INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
   INPUT_TEXT_MAX_CHAR_ERROR,
 } from "@appsmith/constants/messages";
-import {
-  ActionUpdateDependency,
+import type {
   BaseFieldComponentProps,
   FieldComponentBaseProps,
   FieldEventProps,
-  FieldType,
-  INPUT_FIELD_TYPE,
   INPUT_TYPES,
   SchemaItem,
 } from "../constants";
-import BaseInputComponent, {
-  InputHTMLType,
-} from "widgets/BaseInputWidget/component";
+import {
+  ActionUpdateDependency,
+  FieldType,
+  INPUT_FIELD_TYPE,
+} from "../constants";
+import type { InputHTMLType } from "widgets/BaseInputWidget/component";
+import BaseInputComponent from "widgets/BaseInputWidget/component";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 
 export type BaseInputComponentProps = FieldComponentBaseProps &
@@ -61,17 +62,16 @@ export type OnValueChangeOptions = {
   isValueValid: boolean;
 };
 
-type BaseInputFieldProps<
-  TSchemaItem extends SchemaItem = SchemaItem
-> = BaseFieldComponentProps<BaseInputComponentProps & TSchemaItem> & {
-  inputHTMLType?: InputHTMLType;
-  leftIcon?: IconName | JSX.Element;
-  transformValue: (
-    newValue: string,
-    oldValue: string,
-  ) => { text: string; value?: number | string | null | undefined };
-  isValid: (schemaItem: TSchemaItem, value?: string | null) => boolean;
-};
+type BaseInputFieldProps<TSchemaItem extends SchemaItem = SchemaItem> =
+  BaseFieldComponentProps<BaseInputComponentProps & TSchemaItem> & {
+    inputHTMLType?: InputHTMLType;
+    leftIcon?: IconName | JSX.Element;
+    transformValue: (
+      newValue: string,
+      oldValue: string,
+    ) => { text: string; value?: number | string | null | undefined };
+    isValid: (schemaItem: TSchemaItem, value?: string | null) => boolean;
+  };
 
 type IsValidOptions = {
   fieldType: FieldType;
@@ -174,10 +174,8 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     name,
   });
 
-  const {
-    onBlur: onBlurDynamicString,
-    onFocus: onFocusDynamicString,
-  } = schemaItem;
+  const { onBlur: onBlurDynamicString, onFocus: onFocusDynamicString } =
+    schemaItem;
 
   useEffect(() => {
     const stringifiedValue = isNil(inputDefaultValue)
@@ -246,7 +244,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
   });
 
   const inputType =
-    INPUT_FIELD_TYPE[schemaItem.fieldType as typeof INPUT_TYPES[number]];
+    INPUT_FIELD_TYPE[schemaItem.fieldType as (typeof INPUT_TYPES)[number]];
 
   const keyDownHandler = useCallback(
     (

@@ -7,12 +7,12 @@ const locator = ObjectsRegistry.CommonLocators,
   agHelper = ObjectsRegistry.AggregateHelper,
   propPane = ObjectsRegistry.PropertyPane;
 
-describe("Binding the Button widget with Text widget using Recpatcha v3", function() {
+describe("Binding the Button widget with Text widget using Recpatcha v3", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it.only("1. Validate the Button binding with Text Widget with Recaptcha token with empty key", function() {
+  it.only("1. Validate the Button binding with Text Widget with Recaptcha token with empty key", function () {
     agHelper.ClickButton("Submit");
     agHelper
       .GetText(locator._widgetInCanvas("textwidget") + " span")
@@ -27,7 +27,7 @@ describe("Binding the Button widget with Text widget using Recpatcha v3", functi
   });
 
   //This test to be enabled once the product bug is fixed
-  it("Validate the Button binding with Text Widget with Recaptcha Token with invalid key before using valid key", function() {
+  it("Validate the Button binding with Text Widget with Recaptcha Token with invalid key before using valid key", function () {
     cy.get("button")
       .contains("Submit")
       .should("be.visible")
@@ -65,7 +65,7 @@ describe("Binding the Button widget with Text widget using Recpatcha v3", functi
       });
   });
 
-  it.only("2. Validate the Button binding with Text Widget with Recaptcha Token with v2Key & upward compatibilty doesnt work", function() {
+  it.only("2. Validate the Button binding with Text Widget with Recaptcha Token with v2Key & upward compatibilty doesnt work", function () {
     ee.SelectEntityByName("Button1");
     propPane.UpdatePropertyFieldValue("Google reCAPTCHA Key", testdata.v2Key);
     agHelper.ClickButton("Submit");
@@ -85,7 +85,7 @@ describe("Binding the Button widget with Text widget using Recpatcha v3", functi
     agHelper.Sleep();
   });
 
-  it.only("3. Validate the Button binding with Text Widget with Recaptcha Token with v3Key & v2key for backward compatible", function() {
+  it.only("3. Validate the Button binding with Text Widget with Recaptcha Token with v3Key & v2key for backward compatible", function () {
     ee.SelectEntityByName("Button1");
     propPane.UpdatePropertyFieldValue("Google reCAPTCHA Key", testdata.v3Key);
     agHelper.SelectDropdownList("Google reCAPTCHA Version", "reCAPTCHA v3");
@@ -93,6 +93,7 @@ describe("Binding the Button widget with Text widget using Recpatcha v3", functi
     agHelper.Sleep();
     agHelper.AssertElementAbsence(
       locator._specificToast("Google Re-Captcha token generation failed!"),
+      5000,
     );
     agHelper
       .GetText(locator._widgetInCanvas("textwidget") + " span")
@@ -104,7 +105,7 @@ describe("Binding the Button widget with Text widget using Recpatcha v3", functi
   });
 
   //This test to be enabled once the product bug is fixed
-  it("Validate the Button binding with Text Widget with Recaptcha Token with invalid key", function() {
+  it("Validate the Button binding with Text Widget with Recaptcha Token with invalid key", function () {
     cy.get("button")
       .contains("Submit")
       .should("be.visible")

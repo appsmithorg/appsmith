@@ -1,4 +1,4 @@
-import {
+import type {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
   PropertyPaneSectionConfig,
@@ -7,12 +7,15 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { memoize } from "lodash";
 import log from "loglevel";
 import { generateReactKey } from "./generators";
-import WidgetFactory, { WidgetType } from "./WidgetFactory";
+import type { WidgetType } from "./WidgetFactory";
+import WidgetFactory from "./WidgetFactory";
+import type {
+  RegisteredWidgetFeatures,
+  WidgetFeatures,
+} from "./WidgetFeatures";
 import {
   PropertyPaneConfigTemplates,
-  RegisteredWidgetFeatures,
   WidgetFeaturePropertyPaneEnhancements,
-  WidgetFeatures,
 } from "./WidgetFeatures";
 
 export enum PropertyPaneConfigTypes {
@@ -172,9 +175,8 @@ export function enhancePropertyPaneConfig(
     (configType === undefined || configType === PropertyPaneConfigTypes.CONTENT)
   ) {
     Object.keys(features).forEach((registeredFeature: string) => {
-      const { sectionIndex } = features[
-        registeredFeature as RegisteredWidgetFeatures
-      ];
+      const { sectionIndex } =
+        features[registeredFeature as RegisteredWidgetFeatures];
       const sectionName = (config[sectionIndex] as PropertyPaneSectionConfig)
         ?.sectionName;
       if (!sectionName || sectionName !== "General") {
@@ -221,7 +223,8 @@ export function convertFunctionsToString(config: PropertyPaneConfig[]) {
       controlConfig.validation?.params &&
       controlConfig.validation?.params.fn
     ) {
-      controlConfig.validation.params.fnString = controlConfig.validation.params.fn.toString();
+      controlConfig.validation.params.fnString =
+        controlConfig.validation.params.fn.toString();
       delete controlConfig.validation.params.fn;
       return sectionOrControlConfig;
     }

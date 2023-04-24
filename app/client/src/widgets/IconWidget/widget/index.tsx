@@ -1,12 +1,12 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
+import type { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget from "../../BaseWidget";
 import styled from "styled-components";
-import IconComponent, { IconType } from "../component";
-import {
-  EventType,
-  ExecutionResult,
-} from "constants/AppsmithActionConstants/ActionConstants";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { IconType } from "../component";
+import IconComponent from "../component";
+import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 const IconWrapper = styled.div`
   display: flex;
@@ -70,7 +70,7 @@ export const IconSizes: { [key: string]: number } = {
   DEFAULT: 16,
 };
 
-export type IconSize = typeof IconSizes[keyof typeof IconSizes] | undefined;
+export type IconSize = (typeof IconSizes)[keyof typeof IconSizes] | undefined;
 
 export interface IconWidgetProps extends WidgetProps {
   iconName: IconType;

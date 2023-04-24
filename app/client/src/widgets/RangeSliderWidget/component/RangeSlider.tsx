@@ -2,15 +2,15 @@ import React, { useEffect, useRef, useState } from "react";
 import throttle from "lodash/throttle";
 
 import LabelWithTooltip from "widgets/components/LabelWithTooltip";
-import { LabelPosition } from "components/constants";
-import { Alignment } from "@blueprintjs/core";
-import { TextSize } from "constants/WidgetConstants";
+import type { LabelPosition } from "components/constants";
+import type { Alignment } from "@blueprintjs/core";
+import type { TextSize } from "constants/WidgetConstants";
 import { useMove } from "../../NumberSliderWidget/use-move";
+import type { SliderSizes } from "../../NumberSliderWidget/utils";
 import {
   getClientPosition,
   getPosition,
   getChangeValue,
-  SliderSizes,
   getSliderStyles,
 } from "../../NumberSliderWidget/utils";
 import { Thumb } from "../../NumberSliderWidget/component/Thumb";

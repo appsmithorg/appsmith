@@ -18,12 +18,8 @@ describe("Update Application", () => {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
 
-    cy.get(homePage.applicationCard)
-      .first()
-      .trigger("mouseover");
-    cy.get(homePage.appMoreIcon)
-      .first()
-      .click({ force: true });
+    cy.get(homePage.applicationCard).first().trigger("mouseover");
+    cy.get(homePage.appMoreIcon).first().click({ force: true });
     cy.get(homePage.applicationName).type(`${appname} updated` + "{enter}");
     cy.wait("@updateApplication").should(
       "have.nested.property",
@@ -34,9 +30,7 @@ describe("Update Application", () => {
   });
 
   it("Open the application menu and update icon and then check whether update is reflected in the application card", () => {
-    cy.get(homePage.applicationIconSelector)
-      .first()
-      .click();
+    cy.get(homePage.applicationIconSelector).first().click();
     cy.wait("@updateApplication")
       .then((xhr) => {
         iconname = xhr.response.body.data.icon;
@@ -45,9 +39,7 @@ describe("Update Application", () => {
     cy.get(homePage.applicationCard)
       .first()
       .within(() => {
-        cy.get("a")
-          .invoke("attr", "name")
-          .should("equal", iconname);
+        cy.get("a").invoke("attr", "name").should("equal", iconname);
       });
   });
 
@@ -57,12 +49,8 @@ describe("Update Application", () => {
     cy.get(homePage.searchInput).type(appname);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.get(homePage.applicationCard)
-      .first()
-      .trigger("mouseover");
-    cy.get(homePage.appEditIcon)
-      .first()
-      .click({ force: true });
+    cy.get(homePage.applicationCard).first().trigger("mouseover");
+    cy.get(homePage.appEditIcon).first().click({ force: true });
     cy.get("#loading").should("not.exist");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
@@ -89,12 +77,8 @@ describe("Update Application", () => {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
 
-    cy.get(homePage.applicationCard)
-      .first()
-      .trigger("mouseover");
-    cy.get(homePage.appMoreIcon)
-      .first()
-      .click({ force: true });
+    cy.get(homePage.applicationCard).first().trigger("mouseover");
+    cy.get(homePage.appMoreIcon).first().click({ force: true });
     cy.get(homePage.applicationName).type(veryLongAppName + "{enter}");
     cy.get(homePage.appsContainer).click({ force: true });
     cy.wait("@updateApplication").should(

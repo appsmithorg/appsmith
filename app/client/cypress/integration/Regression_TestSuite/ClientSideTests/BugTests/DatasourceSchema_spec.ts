@@ -6,7 +6,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 
 let guid;
 let dataSourceName: string;
-describe("Datasource form related tests", function() {
+describe("Datasource form related tests", function () {
   it("1. Bug - 17238 Verify datasource structure refresh on save - invalid datasource", () => {
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {

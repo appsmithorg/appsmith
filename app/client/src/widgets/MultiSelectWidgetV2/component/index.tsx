@@ -1,25 +1,27 @@
 /* eslint-disable no-console */
+import type { ChangeEvent } from "react";
 import React, {
   useEffect,
   useState,
   useCallback,
   useRef,
-  ChangeEvent,
   useMemo,
 } from "react";
-import Select, { SelectProps } from "rc-select";
-import { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
+import type { SelectProps } from "rc-select";
+import Select from "rc-select";
+import type { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
 import MenuItemCheckBox, {
   DropdownStyles,
   MultiSelectContainer,
   StyledCheckbox,
   InputContainer,
 } from "./index.styled";
-import { RenderMode, TextSize } from "constants/WidgetConstants";
-import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
+import type { RenderMode, TextSize } from "constants/WidgetConstants";
+import type { Alignment } from "@blueprintjs/core";
+import { Button, Classes, InputGroup } from "@blueprintjs/core";
 import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
 import { Colors } from "constants/Colors";
-import { LabelPosition } from "components/constants";
+import type { LabelPosition } from "components/constants";
 import { uniqBy } from "lodash";
 import { Icon } from "design-system-old";
 import useDropdown from "widgets/useDropdown";
@@ -113,19 +115,13 @@ function MultiSelectComponent({
   const labelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const {
-    BackDrop,
-    getPopupContainer,
-    isOpen,
-    onKeyDown,
-    onOpen,
-    selectRef,
-  } = useDropdown({
-    inputRef,
-    renderMode,
-    onDropdownOpen,
-    onDropdownClose,
-  });
+  const { BackDrop, getPopupContainer, isOpen, onKeyDown, onOpen, selectRef } =
+    useDropdown({
+      inputRef,
+      renderMode,
+      onDropdownOpen,
+      onDropdownClose,
+    });
 
   // SelectAll if all options are in Value
   useEffect(() => {
@@ -159,12 +155,9 @@ function MultiSelectComponent({
       }
       const filtered = options.filter((option) => {
         return (
-          String(option.label)
-            .toLowerCase()
-            .indexOf(filter.toLowerCase()) >= 0 ||
-          String(option.value)
-            .toLowerCase()
-            .indexOf(filter.toLowerCase()) >= 0
+          String(option.label).toLowerCase().indexOf(filter.toLowerCase()) >=
+            0 ||
+          String(option.value).toLowerCase().indexOf(filter.toLowerCase()) >= 0
         );
       });
       setFilteredOptions(filtered);

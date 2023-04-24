@@ -1,4 +1,10 @@
-import React, { createRef, useCallback, useEffect, useState } from "react";
+import React, {
+  createRef,
+  useCallback,
+  useEffect,
+  useState,
+  memo,
+} from "react";
 import { MenuItem, Tooltip, Menu } from "@blueprintjs/core";
 import Check from "remixicon-react/CheckFillIcon";
 import ArrowDownIcon from "remixicon-react/ArrowDownSLineIcon";
@@ -6,8 +12,8 @@ import ArrowDownIcon from "remixicon-react/ArrowDownSLineIcon";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
+import type { CellAlignment } from "../Constants";
 import {
-  CellAlignment,
   HEADER_MENU_PORTAL_CLASS,
   JUSTIFY_CONTENT,
   MENU_CONTENT_CLASS,
@@ -145,7 +151,7 @@ type HeaderProps = {
   ) => void;
 };
 
-export const HeaderCell = (props: HeaderProps) => {
+const HeaderCellComponent = (props: HeaderProps) => {
   const { column, editMode, isSortable } = props;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -335,3 +341,4 @@ export const HeaderCell = (props: HeaderProps) => {
     </div>
   );
 };
+export const HeaderCell = memo(HeaderCellComponent);

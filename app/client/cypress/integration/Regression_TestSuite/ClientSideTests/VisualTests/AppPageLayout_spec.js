@@ -11,9 +11,7 @@ describe("Visual regression tests", () => {
     cy.visit("/applications");
     cy.wait(3000);
     cy.get(".t--applications-container .createnew").should("be.visible");
-    cy.get(".t--applications-container .createnew")
-      .first()
-      .click();
+    cy.get(".t--applications-container .createnew").first().click();
     cy.wait(3000);
     // taking screenshot of app home page in edit mode
     cy.get("#root").matchImageSnapshot("apppage");
@@ -54,16 +52,10 @@ describe("Visual regression tests", () => {
     cy.wait(500);
     // validating all the fields on login page
     cy.xpath("//h1").should("have.text", "Sign in");
-    cy.get(".bp3-label")
-      .first()
-      .should("have.text", "Email ");
-    cy.get(".bp3-label")
-      .last()
-      .should("have.text", "Password ");
+    cy.get(".bp3-label").first().should("have.text", "Email ");
+    cy.get(".bp3-label").last().should("have.text", "Password ");
     cy.xpath('//span[text()="sign in"]').should("be.visible");
-    cy.get(".bp3-label")
-      .first()
-      .click();
+    cy.get(".bp3-label").first().click();
     cy.matchImageSnapshot("loginpage");
   });
 });

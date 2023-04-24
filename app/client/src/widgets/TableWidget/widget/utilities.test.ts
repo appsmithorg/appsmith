@@ -121,8 +121,8 @@ describe("getOriginalRowIndex", () => {
     const newTableData = undefined;
     const selectedRowIndex = 1;
     const result = getOriginalRowIndex(
-      (oldTableData as any) as Array<Record<string, unknown>>,
-      (newTableData as any) as Array<Record<string, unknown>>,
+      oldTableData as any as Array<Record<string, unknown>>,
+      newTableData as any as Array<Record<string, unknown>>,
       selectedRowIndex,
     );
     const expected = undefined;

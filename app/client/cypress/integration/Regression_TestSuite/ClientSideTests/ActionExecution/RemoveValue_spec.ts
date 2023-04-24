@@ -14,7 +14,7 @@ describe("removeValue Action test", () => {
     ee.NavigateToSwitcher("explorer");
   });
 
-  it("1. Feature 11639 : Remove store value", function() {
+  it("1. Feature 11639 : Remove store value", function () {
     const JS_OBJECT_BODY = `export default {
         storeValue: async () => {
             await storeValue('val1', 'value 1');

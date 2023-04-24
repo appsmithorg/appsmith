@@ -3,7 +3,7 @@ const dsl = require("../../../../fixtures/MultipleInput.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 
-describe("Binding the multiple input Widget", function() {
+describe("Binding the multiple input Widget", function () {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -14,7 +14,7 @@ describe("Binding the multiple input Widget", function() {
     return false;
   });
 
-  it("1. Cyclic depedancy error message validation", function() {
+  it("1. Cyclic depedancy error message validation", function () {
     cy.openPropertyPane("inputwidgetv2");
     cy.testJsontext("defaultvalue", testdata.defaultMoustacheData + "}}");
 
@@ -26,7 +26,7 @@ describe("Binding the multiple input Widget", function() {
     cy.get(commonlocators.toastmsg).contains("Cyclic dependency");
   });
 
-  it("2. Binding input widget1 and validating", function() {
+  it("2. Binding input widget1 and validating", function () {
     cy.openPropertyPane("inputwidgetv2");
     cy.testJsontext("defaultvalue", testdata.defaultdata);
 
@@ -41,7 +41,7 @@ describe("Binding the multiple input Widget", function() {
       .should("contain", testdata.defaultdata);
   });
 
-  it("3. Binding second input widget with first input widget and validating", function() {
+  it("3. Binding second input widget with first input widget and validating", function () {
     cy.selectEntityByName("Input2");
     cy.testJsontext("defaultvalue", testdata.defaultMoustacheData + "}}");
 
@@ -64,7 +64,7 @@ describe("Binding the multiple input Widget", function() {
     cy.get(publish.backToEditor).click();
   });
 
-  it("4. Binding third input widget with first input widget and validating", function() {
+  it("4. Binding third input widget with first input widget and validating", function () {
     cy.CheckAndUnfoldWidgets();
     cy.selectEntityByName("Input3");
     cy.testJsontext("defaultvalue", testdata.defaultMoustacheData + "}}");

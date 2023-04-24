@@ -10,7 +10,7 @@ import {
   RadioComponent,
   TooltipComponent,
 } from "design-system-old";
-import { JSAction } from "entities/JSCollection";
+import type { JSAction } from "entities/JSCollection";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
@@ -88,8 +88,6 @@ const SettingColumn = styled.div<{ grow?: boolean; isHeading?: boolean }>`
 const JSFunctionSettingsWrapper = styled.div`
   display: flex;
   height: 100%;
-  border-bottom: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
-  border-top: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   overflow: auto;
 `;
 

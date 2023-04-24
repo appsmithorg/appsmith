@@ -3,11 +3,11 @@ const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/formSwitchDsl.json");
 
-describe("Switch Widget within Form widget Functionality", function() {
+describe("Switch Widget within Form widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Switch Widget Functionality check with success message", function() {
+  it("Switch Widget Functionality check with success message", function () {
     //Open switch widget
     cy.openPropertyPane("switchwidget");
     // Change name of switch widget
@@ -23,25 +23,17 @@ describe("Switch Widget within Form widget Functionality", function() {
     // Check the toggler button
     cy.togglebar(widgetsPage.defaultcheck);
     // Type in message field and verify
-    cy.getAlert(commonlocators.optionchangetextSwitch);
+    cy.getAlert("onChange");
     cy.closePropertyPane();
   });
 
-  it("Form reset button valdiation with switch widget", function() {
+  it("Form reset button validation with switch widget", function () {
     // Open form button
     cy.SearchEntityandOpen("FormButton2");
     // Click on reset widget action
-    cy.get(widgetsPage.actionSelect).click();
-    cy.get(commonlocators.chooseAction)
-      .children()
-      .contains("Reset widget")
-      .click();
+    cy.selectResetWidget("onClick");
     // click on toggler from actions
-    cy.get(widgetsPage.selectWidget).click({ force: true });
-    cy.get(commonlocators.chooseAction)
-      .children()
-      .contains("Toggler")
-      .click();
+    cy.selectWidgetForReset("Toggler");
     cy.closePropertyPane();
     // Uncheck the switch
     cy.get(widgetsPage.switchWidget).click();

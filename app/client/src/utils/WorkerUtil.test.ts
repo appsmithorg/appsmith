@@ -1,5 +1,5 @@
 import { GracefulWorkerService } from "./WorkerUtil";
-import { channel, runSaga } from "redux-saga";
+import { runSaga } from "redux-saga";
 
 const MessageType = "message";
 interface extraWorkerProperties {

@@ -5,22 +5,29 @@
 @import "theme/colors.css";
 @import "theme/defaultTheme.css";
 @import "theme/wds.css";
+@import "assets/fonts/custom/index.css";
+@import "assets/fonts/google/index.css";
 
 body {
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #FFF !important;
+  background-color: #fff !important;
 }
 
 body.dragging * {
   cursor: grabbing !important;
 }
 
+body.overlay {
+  opacity: 0;
+  pointer-events: none;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-  monospace;
+    monospace;
 }
 
 * {
@@ -38,6 +45,16 @@ span.bp3-popover-target {
 
 span.bp3-popover-target > * {
   flex-grow: 1;
+}
+
+.action-selector-popup span.bp3-popover-target > * {
+  max-width: 100%;
+}
+
+.action-selector-popup .bp3-button-text {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  min-width: 0;
 }
 
 div.bp3-popover-arrow {
@@ -87,6 +104,10 @@ div.bp3-popover-arrow {
   margin-top: 8px !important;
 }
 
+.bp3-popover.bp3-minimal.action-selector-dropdown {
+  margin-top: 0px !important;
+}
+
 .layout-control.bp3-popover.bp3-minimal {
   margin-top: 8px !important;
 }
@@ -100,9 +121,9 @@ div.bp3-popover-arrow {
   border-radius: 0 !important;
 }
 
-
 /* making both the Modal layer and the Dropdown layer */
-.bp3-modal-widget, .appsmith_widget_0 > .bp3-portal {
+.bp3-modal-widget,
+.appsmith_widget_0 > .bp3-portal {
   z-index: 2 !important;
 }
 
@@ -110,11 +131,11 @@ div.bp3-popover-arrow {
 .bp3-modal-widget .bp3-portal {
   z-index: 21 !important;
 }
-.widget-name-popper{
+.widget-name-popper {
   box-shadow: none !important;
 }
 
-.widget-name-popper > .bp3-popover2-content{
+.widget-name-popper > .bp3-popover2-content {
   border-radius: 4px !important;
 }
 .bp3-overlay-backdrop {

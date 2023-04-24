@@ -233,7 +233,6 @@ http {
 $(if [[ $use_https == 1 ]]; then echo "
     server {
         listen $http_listen_port default_server;
-        listen [::]:$http_listen_port default_server;
         server_name $domain;
         return 301 https://\$host$(if [[ $https_listen_port != 443 ]]; then echo ":$https_listen_port"; fi)\$request_uri;
     }
@@ -242,13 +241,11 @@ $(if [[ $use_https == 1 ]]; then echo "
     server {
 $(if [[ $use_https == 1 ]]; then echo "
         listen $https_listen_port ssl http2 default_server;
-        listen [::]:$https_listen_port ssl http2 default_server;
         server_name $domain;
         ssl_certificate '$cert_file';
         ssl_certificate_key '$key_file';
 "; else echo "
         listen $http_listen_port default_server;
-        listen [::]:$http_listen_port default_server;
         server_name _;
 "; fi)
 
@@ -264,6 +261,11 @@ $(if [[ $use_https == 1 ]]; then echo "
 
         # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
         add_header Content-Security-Policy \"frame-ancestors ${APPSMITH_ALLOWED_FRAME_ANCESTORS-'self' *}\";
+
+        # Disable caching completely. This is dev-time config, caching causes more problems than it solves.
+        # Taken from <https://stackoverflow.com/a/2068407/151048>.
+        add_header Cache-Control 'no-store, must-revalidate' always;
+        proxy_hide_header Cache-Control;  # Hide it, if present in upstream's response.
 
         sub_filter_once off;
         location / {

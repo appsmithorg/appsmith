@@ -4,10 +4,10 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 let dataSet;
 
-describe("Test Create Api and Bind to Button widget", function() {
+describe("Test Create Api and Bind to Button widget", function () {
   before("Test_Add users api and execute api", () => {
     cy.addDsl(dsl);
-    cy.fixture("example").then(function(data) {
+    cy.fixture("example").then(function (data) {
       dataSet = data;
       cy.createAndFillApi(dataSet.userApi, "/random");
       cy.RunAPI();
@@ -32,9 +32,7 @@ describe("Test Create Api and Bind to Button widget", function() {
     cy.PublishtheApp();
 
     cy.wait(3000);
-    cy.get("span:contains('Submit')")
-      .closest("div")
-      .click();
+    cy.get("span:contains('Submit')").closest("div").click();
 
     cy.wait("@postExecute").should(
       "have.nested.property",
@@ -58,9 +56,7 @@ describe("Test Create Api and Bind to Button widget", function() {
     cy.PublishtheApp();
 
     cy.wait(3000);
-    cy.get("span:contains('Submit')")
-      .closest("div")
-      .click();
+    cy.get("span:contains('Submit')").closest("div").click();
 
     cy.wait("@postExecute").should(
       "have.nested.property",

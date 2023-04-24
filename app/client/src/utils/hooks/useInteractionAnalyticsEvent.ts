@@ -1,4 +1,5 @@
-import { RefObject, useRef } from "react";
+import type { RefObject } from "react";
+import { useRef } from "react";
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 
 export default function useInteractionAnalyticsEvent<T extends HTMLElement>(

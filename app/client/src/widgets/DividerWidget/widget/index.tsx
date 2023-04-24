@@ -1,12 +1,29 @@
-import { WidgetType } from "constants/WidgetConstants";
+import type { WidgetType } from "constants/WidgetConstants";
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import DividerComponent from "../component";
 
 import { ValidationTypes } from "constants/WidgetValidation";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 
 class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc": "Divider is a simple UI widget used as a separator",
+      "!url": "https://docs.appsmith.com/widget-reference/divider",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      orientation: "string",
+      capType: "string",
+      capSide: "number",
+      strokeStyle: "string",
+      dividerColor: "string",
+      thickness: "number",
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -35,7 +52,6 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
     ];
   }
 
@@ -60,6 +76,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
                 value: "vertical",
               },
             ],
+            hidden: isAutoLayout,
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,

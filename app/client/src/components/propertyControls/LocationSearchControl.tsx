@@ -5,7 +5,8 @@ import { Wrapper, Status } from "@googlemaps/react-wrapper";
 
 import { StyledInputGroup } from "./StyledControls";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import BaseControl, { ControlData, ControlProps } from "./BaseControl";
+import type { ControlData, ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 
 const MapStatusText = styled.span`
   font-size: 14px;

@@ -4,6 +4,7 @@ const {
   AggregateHelper,
   CommonLocators,
   EntityExplorer,
+  JSEditor,
   PropertyPane,
 } = ObjectsRegistry;
 
@@ -34,5 +35,18 @@ describe("Property Pane Suggestions", () => {
     AggregateHelper.GetNClickByContains(CommonLocators._hints, "appsmith");
 
     PropertyPane.ValidatePropertyFieldValue("Label", "{{appsmith}}");
+  });
+
+  it("2. [Bug]-[2040]: undefined binding on / command dropdown", () => {
+    // Create js object
+    JSEditor.CreateJSObject("");
+    EntityExplorer.SelectEntityByName("Button1", "Widgets");
+    PropertyPane.TypeTextIntoField("Label", "/");
+    AggregateHelper.GetNAssertElementText(
+      CommonLocators._hints,
+      "JSObject1",
+      "have.text",
+      1,
+    );
   });
 });

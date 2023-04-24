@@ -1,7 +1,9 @@
-import React, { CSSProperties, JSXElementConstructor } from "react";
+import type { CSSProperties, JSXElementConstructor } from "react";
+import React from "react";
 import { Icon } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
-import { IconProps, IconWrapper } from "constants/IconConstants";
+import type { IconProps } from "constants/IconConstants";
+import { IconWrapper } from "constants/IconConstants";
 import { ReactComponent as InfoIcon } from "assets/icons/form/info-outline.svg";
 import { ReactComponent as HelpIcon } from "assets/icons/form/help-outline.svg";
 import { ReactComponent as AddNewIcon } from "assets/icons/form/add-new.svg";

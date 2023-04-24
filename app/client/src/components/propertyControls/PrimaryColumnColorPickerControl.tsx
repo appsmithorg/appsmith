@@ -4,12 +4,11 @@ import {
   getDynamicBindings,
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
-import BaseControl, { ControlData, ControlProps } from "./BaseControl";
+import type { ControlData, ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 import ColorPickerComponent from "components/propertyControls/ColorPickerComponentV2";
 
-class PrimaryColumnsColorPickerControl extends BaseControl<
-  PrimaryColumnColorPickerControlProps
-> {
+class PrimaryColumnsColorPickerControl extends BaseControl<PrimaryColumnColorPickerControlProps> {
   handleChangeColor = (color: string) => {
     let computedColor = color;
 
