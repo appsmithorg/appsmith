@@ -118,9 +118,8 @@ describe("Theme validation usecases", function () {
     cy.wait(2000);
     cy.contains("Color").click({ force: true });
     appSettings.ClosePane();
-  });
 
-  it("2. Publish the App and validate Font across the app", function () {
+    //Publish the App and validate Font across the app
     cy.PublishtheApp();
     cy.get(".bp3-button:contains('Sub')").should(
       "have.css",
@@ -134,7 +133,7 @@ describe("Theme validation usecases", function () {
     );
   });
 
-  it("3. Validate Default Theme change across application", function () {
+  it("2. Validate Default Theme change across application", function () {
     cy.goToEditFromPublish();
     cy.get(formWidgetsPage.formD).click();
     cy.widgetText(
@@ -171,7 +170,7 @@ describe("Theme validation usecases", function () {
       });
   });
 
-  it("4. Validate Theme change across application", function () {
+  it("3. Validate Theme change across application", function () {
     cy.goToEditFromPublish();
     cy.get(formWidgetsPage.formD).click();
     cy.widgetText(
@@ -252,9 +251,8 @@ describe("Theme validation usecases", function () {
     cy.get(formWidgetsPage.formD)
       .should("have.css", "background-color")
       .and("eq", "rgb(126, 34, 206)");
-  });
 
-  it("5. Publish the App and validate Theme across the app", function () {
+    //Publish the App and validate Theme across the app
     cy.PublishtheApp();
     //Bug Form backgroud colour reset in Publish mode
     cy.get(formWidgetsPage.formD)
