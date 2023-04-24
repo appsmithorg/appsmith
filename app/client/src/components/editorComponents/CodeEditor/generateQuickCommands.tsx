@@ -126,7 +126,7 @@ function Command(props: { icon: any; name: string }) {
 
 export const generateQuickCommands = (
   entitiesForSuggestions: any[],
-  currentEntityType: string,
+  currentEntityType: ENTITY_TYPE,
   searchText: string,
   {
     datasources,
@@ -249,7 +249,11 @@ export const generateQuickCommands = (
 
   // Adding this hack in the interest of time.
   // TODO: Refactor slash commands generation for easier code splitting
-  if (addAISlashCommand && featureFlags.CHAT_AI) {
+  if (
+    addAISlashCommand &&
+    featureFlags.CHAT_AI &&
+    currentEntityType !== ENTITY_TYPE.ACTION
+  ) {
     const askGPT: CommandsCompletion = generateCreateNewCommand({
       text: "",
       displayText: "Ask AI",

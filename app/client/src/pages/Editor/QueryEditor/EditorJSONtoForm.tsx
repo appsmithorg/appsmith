@@ -227,7 +227,7 @@ const FieldWrapper = styled.div`
   margin-top: 15px;
 `;
 
-const DocumentationLink = styled.a`
+export const DocumentationLink = styled.a`
   position: absolute;
   right: 23px;
   top: -6px;
@@ -1216,10 +1216,7 @@ export function EditorJSONtoForm(props: Props) {
                 </TabbedViewContainer>
               )}
             </SecondaryWrapper>
-            <AIWindow
-              className="border-t h-full w-96 border-l"
-              windowType="fixed"
-            />
+            <AIWindow className="border-t border-l" windowType="fixed" />
           </div>
           <SidebarWrapper
             show={(hasDependencies || !!output) && !guidedTourEnabled}

@@ -20,6 +20,11 @@ export enum FilePickerActionStatus {
   LOADED = "loaded",
 }
 
+export enum ActionType {
+  AUTHORIZE = "authorize",
+  DOCUMENTATION = "picked",
+}
+
 export interface DatasourceAuthentication {
   authType?: string;
   username?: string;
