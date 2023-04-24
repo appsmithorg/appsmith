@@ -7,6 +7,7 @@ import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
 
 import type { SettingComponentProps } from "./Common";
 import { FormGroup } from "./Common";
+import { ContentBox } from "../components";
 
 type ImageInputProps = {
   value?: any;
@@ -54,7 +55,7 @@ export const ImageInput = (props: ImageInputProps) => {
   }, [defaultValue]);
 
   return (
-    <div
+    <ContentBox
       className={`relative flex items-center justify-center w-full border h-28 group ${
         className ? className : ""
       }`}
@@ -73,7 +74,7 @@ export const ImageInput = (props: ImageInputProps) => {
         ref={fileInputRef}
         type="file"
       />
-    </div>
+    </ContentBox>
   );
 };
 

@@ -72,7 +72,7 @@ export const StyledLink = styled(Link)<{ $active: boolean }>`
   }
   &:hover {
     text-decoration: none;
-    background-color: var(--ads-v2-color-bg-muted);
+    background-color: var(--ads-v2-color-bg-subtle);
   }
 
   & div {

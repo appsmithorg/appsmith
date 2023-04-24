@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "design-system";
-
+import { ContentBox } from "pages/Settings/components";
 import {
   ADMIN_BRANDING_SETTINGS_SUBTITLE,
   ADMIN_BRANDING_SETTINGS_TITLE,
@@ -21,15 +21,24 @@ const UpgradeBanner = () => {
 
   return (
     <div className="pb-4 pr-7">
-      <div className="flex items-center justify-between p-6 border">
+      <ContentBox className="flex items-center justify-between p-6 border">
         <main>
           <div className="inline-block px-1 text-xs text-blue-900 uppercase bg-blue-100">
             Business
           </div>
-          <SettingsHeader className="mt-1">
+          <SettingsHeader
+            className="mt-1"
+            color="var(--ads-v2-color-fg-emphasis-plus)"
+            kind="heading-l"
+            renderAs="h2"
+          >
             {createMessage(ADMIN_BRANDING_SETTINGS_TITLE)}
           </SettingsHeader>
-          <SettingsSubHeader className="w-7/12 mt-1">
+          <SettingsSubHeader
+            className="w-7/12 mt-1"
+            color="var(--ads-v2-color-fg-emphasis)"
+            renderAs="p"
+          >
             {createMessage(ADMIN_BRANDING_SETTINGS_SUBTITLE)}
           </SettingsSubHeader>
         </main>
@@ -38,7 +47,7 @@ const UpgradeBanner = () => {
             Upgrade
           </Button>
         </aside>
-      </div>
+      </ContentBox>
     </div>
   );
 };

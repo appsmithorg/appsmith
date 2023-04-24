@@ -1,4 +1,5 @@
 import React from "react";
+import { ContentBox } from "pages/Settings/components";
 
 type PreviewBoxProps = {
   title?: string;
@@ -11,7 +12,7 @@ const PreviewBox = (props: PreviewBoxProps) => {
   const { children, className, title, ...rest } = props;
 
   return (
-    <div
+    <ContentBox
       className={`flex justify-center h-full border relative ${
         className ?? ""
       }`}
@@ -23,7 +24,7 @@ const PreviewBox = (props: PreviewBoxProps) => {
           {title}
         </p>
       )}
-    </div>
+    </ContentBox>
   );
 };
 

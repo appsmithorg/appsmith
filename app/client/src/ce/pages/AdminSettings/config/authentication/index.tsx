@@ -219,7 +219,7 @@ export const OidcAuthCallout: AuthMethodType = {
   id: "APPSMITH_OIDC_AUTH",
   category: "oidc",
   label: "OIDC",
-  subText: `Enable your workspace to sign in with Open ID Connect.`,
+  subText: `Enable your workspace to sign in with your preferred OIDC compliant provider.`,
   image: OIDC,
   needsUpgrade: true,
 };

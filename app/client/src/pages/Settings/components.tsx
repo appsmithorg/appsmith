@@ -52,3 +52,7 @@ export const LoaderContainer = styled.div`
   width: 100%;
   align-items: center;
 `;
+
+export const ContentBox = styled.div`
+  border-radius: var(--ads-v2-border-radius);
+`;

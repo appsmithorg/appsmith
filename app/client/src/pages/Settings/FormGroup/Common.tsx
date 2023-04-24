@@ -3,7 +3,6 @@ import React from "react";
 import styled from "styled-components";
 import { Tooltip, Text } from "design-system";
 import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
-import { Colors } from "constants/Colors";
 import { Icon } from "design-system";
 
 type FieldHelperProps = {
@@ -32,10 +31,8 @@ export const StyledFormGroup = styled.div`
   }
 `;
 
-export const StyledLabel = styled(Text)`
-  margin-bottom: ${(props) => props.theme.spaces[3]}px;
-  display: inline-block;
-  color: var(--ads-v2-color-fg);
+export const StyledLabel = styled.div`
+  margin-bottom: 8px;
 `;
 
 export const StyledSubtext = styled.p`
@@ -44,7 +41,7 @@ export const StyledSubtext = styled.p`
 `;
 
 export const StyledAsterisk = styled.span`
-  color: ${Colors.ERROR_RED};
+  color: var(--ads-v2-color-fg-error);
   margin-left: 2px;
 `;
 
@@ -54,26 +51,28 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
       className={className}
       data-testid="admin-settings-form-group"
     >
-      {/*Since we have label in ds component */}
-      {setting.label && (
-        <StyledLabel
-          data-testid="admin-settings-form-group-label"
-          renderAs="label"
-        >
-          {createMessage(() => setting.label || "")}
-        </StyledLabel>
-      )}
-      {setting.isRequired && <StyledAsterisk>*</StyledAsterisk>}
-      {setting.helpText && (
-        <Tooltip content={createMessage(() => setting.helpText || "")}>
-          <Icon
-            color="white"
-            data-testid="admin-settings-form-group-helptext"
-            name="help"
-            size="sm"
-          />
-        </Tooltip>
-      )}
+      <StyledLabel>
+        {setting.label && (
+          <Text
+            color="var(--ads-v2-color-fg-emphasis)"
+            data-testid="admin-settings-form-group-label"
+            renderAs="span"
+          >
+            {createMessage(() => setting.label || "")}
+          </Text>
+        )}
+        {setting.isRequired && <StyledAsterisk>*</StyledAsterisk>}
+        {setting.helpText && (
+          <Tooltip content={createMessage(() => setting.helpText || "")}>
+            <Icon
+              color="white"
+              data-testid="admin-settings-form-group-helptext"
+              name="help"
+              size="sm"
+            />
+          </Tooltip>
+        )}
+      </StyledLabel>
       {children}
       {setting.subText && (
         <StyledSubtext data-testid="admin-settings-form-group-subtext">

@@ -2,10 +2,9 @@ import React from "react";
 import styled from "styled-components";
 import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
 import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
-import { StyledLabel } from "./Common";
 import TextInput from "./TextInput";
 import Toggle from "./Toggle";
-import Text from "./Text";
+import TextComponent from "./Text";
 import Button from "./Button";
 import { getFormValues } from "redux-form";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
@@ -15,13 +14,12 @@ import {
   LEARN_MORE,
   REDIRECT_URL_TOOLTIP,
 } from "@appsmith/constants/messages";
-import { Callout } from "design-system";
+import { Callout, Text } from "design-system";
 import CopyUrlForm from "./CopyUrlForm";
 import Accordion from "./Accordion";
 import TagInputField from "./TagInputField";
 import Dropdown from "./Dropdown";
 import { Classes } from "@blueprintjs/core";
-import { Colors } from "constants/Colors";
 import Checkbox from "./Checkbox";
 import Radio from "./Radio";
 import { useDispatch } from "react-redux";
@@ -43,11 +41,12 @@ const GroupWrapper = styled.div`
   }
 `;
 
-const GroupHeader = styled(StyledLabel)`
+const GroupHeader = styled(Text)`
   text-transform: capitalize;
   margin-bottom: ${(props) => props.theme.spaces[9]}px;
   font-size: 20px;
   font-weight: 500;
+  margin-bottom: 8px;
 `;
 
 const GroupBody = styled.div`
@@ -68,11 +67,13 @@ const GroupBody = styled.div`
 
     .tag-input .${Classes.TAG_INPUT} {
       box-shadow: none;
+      border-radius: var(--ads-v2-border-radius);
+      border: 1px solid var(--ads-v2-color-border);
     }
 
     .tag-input .${Classes.TAG} {
-      color: ${Colors.GRAY_700};
-      background-color: ${Colors.GRAY_200};
+      color: var(--ads-v2-color-black-700);
+      background-color: var(--ads-v2-color-black-200);
       ${(props) => getTypographyByKey(props, "h5")}
       // Cursor on close icon need to be a pointer
       svg:hover {
@@ -81,7 +82,7 @@ const GroupBody = styled.div`
     }
 
     .tag-input .${Classes.TAG_INPUT}.${Classes.ACTIVE} {
-      border: 1.2px solid var(--appsmith-color-black-900);
+      border: 1px solid var(--ads-v2-color-border-emphasis-plus);
     }
   }
 `;
@@ -99,7 +100,15 @@ export default function Group({
 
   return (
     <GroupWrapper data-testid="admin-settings-group-wrapper">
-      {name && <GroupHeader>{createMessage(() => name)}</GroupHeader>}
+      {name && (
+        <GroupHeader
+          color="var(--ads-v2-color-fg-emphasis)"
+          data-testid="admin-settings-form-group-label"
+          renderAs="span"
+        >
+          {createMessage(() => name)}
+        </GroupHeader>
+      )}
       <GroupBody>
         {settings &&
           settings.map((setting) => {
@@ -192,7 +201,7 @@ export default function Group({
                     data-testid="admin-settings-group-text"
                     key={setting.name || setting.id}
                   >
-                    <Text setting={setting} />
+                    <TextComponent setting={setting} />
                   </div>
                 );
               case SettingTypes.BUTTON:

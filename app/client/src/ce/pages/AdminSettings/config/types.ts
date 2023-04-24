@@ -2,7 +2,7 @@ import type React from "react";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { Dispatch } from "react";
 import type { EventName } from "utils/AnalyticsUtil";
-import type { RadioProps } from "pages/Settings/FormGroup/Radio";
+import type { RadioOptionProps } from "pages/Settings/FormGroup/Radio";
 
 type ControlType = {
   [K in keyof ControlPropsType]: {
@@ -12,7 +12,7 @@ type ControlType = {
 }[keyof ControlPropsType];
 
 type ControlPropsType = {
-  [SettingTypes.RADIO]: RadioProps;
+  [SettingTypes.RADIO]: RadioOptionProps;
   [SettingTypes.TEXTINPUT]: unknown;
   [SettingTypes.TOGGLE]: unknown;
   [SettingTypes.LINK]: unknown;

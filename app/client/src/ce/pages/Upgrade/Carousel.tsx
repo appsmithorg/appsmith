@@ -9,7 +9,7 @@ const CarouselContainer = styled.div`
   flex: 1 1;
   gap: 64px;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   padding: 16px 52px;
 
   & .carousel-triggers {
@@ -27,8 +27,11 @@ const CarouselContainer = styled.div`
       height: 56px;
       cursor: pointer;
 
-      .icon-container .cs-icon svg {
-        fill: var(--ads-color-black-700);
+      .icon-container {
+        margin-top: 4px;
+        svg path {
+          fill: var(--ads-v2-color-fg-emphasis);
+        }
       }
 
       & .trigger {
@@ -43,13 +46,8 @@ const CarouselContainer = styled.div`
           align-content: flex-start;
 
           & .trigger-heading {
-            /* This is a hack to bring text up,
-             * and thus meet the design expectations.
-             */
-            margin-top: -2px;
-
             span {
-              color: var(--ads-color-black-700);
+              color: var(--ads-v2-color-fg-muted);
             }
           }
 
@@ -58,7 +56,7 @@ const CarouselContainer = styled.div`
               color: var(--ads-v2-color-fg);
 
               span {
-                color: var(--ads-color-orange-500);
+                color: var(--ads-v2-color-orange-500);
                 font-weight: 500;
               }
             }
@@ -72,17 +70,18 @@ const CarouselContainer = styled.div`
         box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.06),
           0 4px 8px -2px rgba(0, 0, 0, 0.1);
 
-        background-color: var(--ads-color-black-0);
+        background-color: var(--ads-v2-color-white);
+        border-radius: var(--ads-v2-border-radius);
 
-        & .icon-container .cs-icon svg {
-          fill: var(--ads-color-orange-500);
+        & .icon-container svg path {
+          fill: var(--ads-v2-color-orange-500);
         }
 
         & .trigger {
           & .trigger-content {
             & .trigger-heading {
               span {
-                color: var(--ads-text-heading-color);
+                color: var(--ads-v2-color-fg-emphasis);
               }
             }
           }

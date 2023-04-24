@@ -7,23 +7,10 @@ export const HeaderContainer = styled.div`
   padding: 32px 32px 20px;
   margin: auto;
   text-align: center;
-  & .header-heading-container {
-    & .cs-text {
-      font-size: 32px;
-      line-height: 38px;
-      color: var(--ads-v2-color-fg-emphasis-plus);
-    }
-  }
 
   & .header-subHeadings-container {
     margin: 8px auto;
     max-width: 720px;
-    & .header-subHeading-container {
-      & .cs-text {
-        font-size: 16px;
-        color: var(--ads-v2-color-fg-emphasis);
-      }
-    }
   }
 `;
 
@@ -34,7 +21,13 @@ export function HeaderComponent(props: HeaderProps) {
       data-testid={`t--header-subHeading-container-${index}`}
       key={`subHeading-${index}`}
     >
-      <Text renderAs="p">{sub}</Text>
+      <Text
+        color="var(--ads-v2-color-fg-emphasis)"
+        kind="action-l"
+        renderAs="p"
+      >
+        {sub}
+      </Text>
     </div>
   ));
   return (
@@ -46,7 +39,11 @@ export function HeaderComponent(props: HeaderProps) {
         className="header-heading-container"
         data-testid="t--header-heading-container"
       >
-        <Text kind="heading-xl" renderAs="h1">
+        <Text
+          color="var(--ads-v2-color-fg-emphasis-plus)"
+          kind="heading-xl"
+          renderAs="h1"
+        >
           {props.heading}
         </Text>
       </div>

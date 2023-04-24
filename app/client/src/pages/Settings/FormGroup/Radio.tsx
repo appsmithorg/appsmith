@@ -6,7 +6,6 @@ import type { SettingComponentProps } from "./Common";
 import { FormGroup } from "./Common";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
-import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { Position } from "@blueprintjs/core";
 import type { RadioProps } from "design-system";
@@ -159,7 +158,11 @@ function RadioFieldWrapper(
             </Radio>
             {item.node && isSelected && item.nodeInputPath && (
               <NodeWrapper className={item.nodeParentClass}>
-                <Text color={Colors.GRAY_700} kind="body-s" renderAs="span">
+                <Text
+                  color="var(--ads-v2-color-fg)"
+                  kind="body-s"
+                  renderAs="span"
+                >
                   {item.nodeLabel}
                 </Text>
                 {React.cloneElement(item.node, {

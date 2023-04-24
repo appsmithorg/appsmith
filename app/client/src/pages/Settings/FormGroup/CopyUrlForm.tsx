@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Icon, Input, toast, Tooltip } from "design-system";
+import { Icon, Input, Text, toast, Tooltip } from "design-system";
 
 export const BodyContainer = styled.div`
   width: 100%;
@@ -13,21 +13,10 @@ const HeaderWrapper = styled.div`
   display: flex;
   align-items: center;
   margin-bottom: 8px;
-  color: var(--ads-v2-color-fg);
   .help-icon {
     margin-left: 8px;
     cursor: pointer;
   }
-`;
-
-export const HeaderSecondary = styled.h3`
-  font-size: 20px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 24px;
-  letter-spacing: -0.23999999463558197px;
-  text-align: left;
-  color: var(--ads-v2-color-fg-emphasis);
 `;
 
 function CopyUrlForm(props: {
@@ -52,7 +41,9 @@ function CopyUrlForm(props: {
   return (
     <div>
       <HeaderWrapper>
-        <HeaderSecondary>{props.title}</HeaderSecondary>
+        <Text color="var(--ads-v2-color-fg-emphasis)" renderAs="span">
+          {props.title}
+        </Text>
         {props.tooltip && (
           <Tooltip content={props.tooltip} placement="right" trigger="hover">
             <Icon
@@ -66,7 +57,7 @@ function CopyUrlForm(props: {
       </HeaderWrapper>
       <BodyContainer>
         <Input
-          description={props.helpText}
+          description={`* ${props.helpText}`}
           endIcon="copy-control"
           endIconProps={{
             onClick: handleCopy,

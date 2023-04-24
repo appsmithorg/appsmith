@@ -12,8 +12,7 @@ import {
   UPGRADE_TO_EE,
   AUTHENTICATION_METHOD_ENABLED,
 } from "@appsmith/constants/messages";
-import { Colors } from "constants/Colors";
-import { Button, Callout, Icon, Tooltip } from "design-system";
+import { Button, Callout, Icon, Tag, Text, Tooltip } from "design-system";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
@@ -27,19 +26,11 @@ export const Wrapper = styled.div`
 
 export const SettingsFormWrapper = styled.div``;
 
-export const SettingsHeader = styled.h2`
-  font-size: 24px;
-  font-weight: 500;
+export const SettingsHeader = styled(Text)`
   text-transform: capitalize;
-  margin-bottom: 0;
-  color: var(--ads-v2-color-fg-emphasis-plus);
 `;
 
-export const SettingsSubHeader = styled.div`
-  font-size: 14px;
-  margin-bottom: 0;
-  color: var(--ads-v2-color-fg-emphasis);
-`;
+export const SettingsSubHeader = styled(Text)``;
 
 const MethodCard = styled.div`
   display: flex;
@@ -51,7 +42,7 @@ const Image = styled.img`
   width: 32px;
   height: 32px;
   margin-right: 8px;
-  background: #f0f0f0;
+  background: var(--ads-v2-color-black-75);
   object-fit: cover;
   border-radius: 50%;
   padding: 5px;
@@ -64,13 +55,10 @@ const MethodDetailsWrapper = styled.div`
   margin-right: 60px;
 `;
 
-const MethodTitle = styled.div`
-  font-weight: 500;
-  font-size: 16px;
+const MethodTitle = styled(Text)`
   display: flex;
   align-items: center;
   margin: 0 0 4px;
-  color: var(--ads-v2-color-fg);
 
   svg {
     width: 14px;
@@ -79,11 +67,7 @@ const MethodTitle = styled.div`
   }
 `;
 
-const MethodDets = styled.div`
-  font-size: 12px;
-  line-height: 16px;
-  color: var(--ads-v2-color-fg);
-`;
+const MethodDets = styled(Text)``;
 
 export type banner = {
   actionLabel: string;
@@ -101,21 +85,12 @@ export type AuthMethodType = {
   calloutBanner?: banner;
 };
 
-const Label = styled.span<{ business?: boolean }>`
-  display: inline;
+const Label = styled(Tag)<{ business?: boolean }>`
   ${(props) =>
-    props.business
-      ? `
-    border: 1px solid ${Colors.COD_GRAY};
-    color: ${Colors.COD_GRAY};
-    background: #fff;
-  `
-      : `
-    color: ${Colors.GREEN};
-    background: #E5F6EC;
+    props.business &&
+    `
+    color: var(--ads-v2-color-fg);
   `};
-  padding: 0px 4px;
-  font-size: 12px;
 `;
 
 const StyledButton = styled(Button)`
@@ -172,10 +147,14 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
   return (
     <Wrapper>
       <SettingsFormWrapper>
-        <SettingsHeader>
+        <SettingsHeader
+          color="var(--ads-v2-color-fg-emphasis-plus)"
+          kind="heading-l"
+          renderAs="h2"
+        >
           {createMessage(ADMIN_AUTH_SETTINGS_TITLE)}
         </SettingsHeader>
-        <SettingsSubHeader>
+        <SettingsSubHeader color="var(--ads-v2-color-fg-emphasis)" renderAs="p">
           {createMessage(ADMIN_AUTH_SETTINGS_SUBTITLE)}
         </SettingsSubHeader>
         {authMethods &&
@@ -184,11 +163,17 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
               <MethodCard key={method.id}>
                 <Image alt={method.label} src={method.image} />
                 <MethodDetailsWrapper>
-                  <MethodTitle>
+                  <MethodTitle
+                    color="var(--ads-v2-color-fg)"
+                    kind="heading-s"
+                    renderAs="p"
+                  >
                     {method.label}&nbsp;
                     {method.needsUpgrade && (
                       <>
-                        <Label business>Business</Label>
+                        <Label business isClosable={false}>
+                          Business
+                        </Label>
                         &nbsp;
                       </>
                     )}
@@ -202,13 +187,19 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                       >
                         <Icon
                           className={`${method.category}-green-check`}
-                          color={Colors.GREEN}
+                          color="var(--ads-old-color-jade)"
                           name="oval-check"
                         />
                       </Tooltip>
                     )}
                   </MethodTitle>
-                  <MethodDets>{method.subText}</MethodDets>
+                  <MethodDets
+                    color="var(--ads-v2-color-fg)"
+                    kind="body-s"
+                    renderAs="p"
+                  >
+                    {method.subText}
+                  </MethodDets>
                   {method.calloutBanner && (
                     <Callout
                       kind="info"

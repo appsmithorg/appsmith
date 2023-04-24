@@ -13,11 +13,12 @@ import { FormGroup } from "./Common";
 import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
 import { createBrandColorsFromPrimaryColor } from "utils/BrandingUtils";
 import type { brandColorsKeys } from "../config/branding/BrandingPage";
+import { ContentBox } from "../components";
 
 export const StyledInputGroup = styled(InputGroup)`
   .${Classes.INPUT} {
     box-shadow: none;
-    border-radius: 0;
+    border-radius: var(--ads-v2-border-radius);
     &:focus {
       box-shadow: none;
     }
@@ -141,7 +142,7 @@ export const ColorInput = (props: ColorInputProps) => {
             content={startCase(colorKey)}
             key={colorKey}
           >
-            <div
+            <ContentBox
               className={`flex-grow w-5 h-5 cursor-pointer p-px relative border ${
                 selectedIndex === colorKey
                   ? "border-gray-700 bg-clip-content"

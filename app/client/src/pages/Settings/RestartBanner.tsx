@@ -16,7 +16,7 @@ import {
   RESTART_ERROR_HEADER,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
-import { Icon } from "design-system";
+import { Icon, Text } from "design-system";
 import { retryServerRestart } from "@appsmith/actions/settingsAction";
 import { useDispatch } from "react-redux";
 
@@ -74,12 +74,7 @@ const HeaderContents = styled.div`
   gap: 8px;
 `;
 
-const Heading = styled.span`
-  color: ${(props) => props.theme.colors.modal.headerText};
-  font-weight: ${(props) => props.theme.typography.h1.fontWeight};
-  font-size: ${(props) => props.theme.typography.h1.fontSize}px;
-  line-height: ${(props) => props.theme.typography.h1.lineHeight}px;
-  letter-spacing: ${(props) => props.theme.typography.h1.letterSpacing};
+const Heading = styled(Text)`
   text-transform: capitalize;
 `;
 
@@ -115,7 +110,7 @@ function Header() {
           size="lg"
         />
       )}
-      <Heading>
+      <Heading kind="heading-m" renderAs="p">
         {isRestartFailed
           ? createMessage(RESTART_ERROR_HEADER)
           : createMessage(RESTART_BANNER_HEADER)}

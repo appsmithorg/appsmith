@@ -21,18 +21,18 @@ const StyledLink = styled.a`
   text-transform: uppercase;
   &&,
   &:hover {
-    color: ${(props) => props.theme.colors.settings.link};
+    color: var(--ads-v2-color-black-550);
     text-decoration: none;
   }
 `;
 
 const StyledIcon = styled(Icon)`
   && {
-    color: ${(props) => props.theme.colors.settings.link};
+    color: var(--ads-v2-color-black-550);
     transform: translate(2px, -1px);
 
     svg:hover path {
-      fill: ${(props) => props.theme.colors.settings.link};
+      fill: var(--ads-v2-color-black-550);
       cursor: pointer;
     }
   }
@@ -65,9 +65,10 @@ export default function Link({ setting }: SettingComponentProps) {
           {createMessage(() => setting.label || "")}
         </LinkLabel>
         &nbsp;
-        <Text renderAs="p">{createMessage(LEARN_MORE)}</Text>
-        &nbsp;
-        <StyledIcon icon="arrow-right" iconSize={11} />
+        <Text renderAs="p">
+          {createMessage(LEARN_MORE)}{" "}
+          <StyledIcon icon="arrow-right" iconSize={11} />
+        </Text>
       </StyledLink>
     </LinkWrapper>
   );

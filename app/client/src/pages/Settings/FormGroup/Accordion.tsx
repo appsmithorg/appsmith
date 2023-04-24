@@ -3,20 +3,17 @@ import styled from "styled-components";
 
 import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
 import { createMessage } from "@appsmith//constants/messages";
-import { StyledLabel } from "./Common";
 import Group from "./group";
-import { Icon } from "design-system";
+import { Icon, Text } from "design-system";
 
 const AccordionWrapper = styled.div`
   margin-top: 40px;
   max-width: 40rem;
 `;
 
-const AccordionHeader = styled(StyledLabel)`
+const AccordionHeader = styled(Text)`
   text-transform: capitalize;
   margin-bottom: ${(props) => props.theme.spaces[9]}px;
-  font-size: 20px;
-  font-weight: 500;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
@@ -63,7 +60,13 @@ export default function Accordion({
   return (
     <AccordionWrapper>
       {label && (
-        <AccordionHeader onClick={() => setIsOpen(!isOpen)}>
+        <AccordionHeader
+          color="var(--ads-v2-color-fg)"
+          data-testid="admin-settings-form-group-label"
+          kind="heading-s"
+          onClick={() => setIsOpen(!isOpen)}
+          renderAs="label"
+        >
           <span>{createMessage(() => label)}</span>
           <Line />
           <Icon name={isOpen ? "expand-less" : "expand-more"} size="md" />

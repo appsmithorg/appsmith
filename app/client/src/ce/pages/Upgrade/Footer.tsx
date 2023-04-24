@@ -18,7 +18,7 @@ const FooterContainer = styled.div`
   margin-left: calc(264px + 16px);
   gap: 20px;
   padding: 16px 20px;
-  background-color: var(--ads-color-black-0);
+  background-color: var(--ads-v2-color-white);
 
   & .left {
     min-width: 362px;
@@ -44,7 +44,7 @@ export function FooterComponent(props: FooterProps) {
         {showHeading && (
           <div className="heading-container">
             <Text
-              color="var(ads-v2-color-fg-emphasis)"
+              color="var(ads-v2-color-fg-emphasis-plus)"
               kind="heading-m"
               renderAs="h1"
             >
