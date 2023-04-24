@@ -28,6 +28,7 @@ describe("API Bugs", function () {
       ),
     ); //Assert that an error is not returned.
     _.apiPage.ResponseStatusCheck("200 OK");
+    _.agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("3. Bug 18876 Ensures application does not crash when saving datasource", () => {

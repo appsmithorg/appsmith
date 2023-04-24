@@ -20,12 +20,10 @@ describe("Fork a template to the current app from new page popover", () => {
   it("1. Fork template from page section", () => {
     //Fork template button to be visible always
     _.agHelper.RefreshPage();
+    cy.wait(5000);
     cy.AddPageFromTemplate();
+    cy.wait(5000);
     _.agHelper.AssertElementExist(_.templates.locators._forkApp);
-
-    cy.wait(5000);
-    cy.AddPageFromTemplate();
-    cy.wait(5000);
     cy.get(template.templateDialogBox).should("be.visible");
     cy.wait(4000);
     cy.xpath(
