@@ -5,16 +5,27 @@ import { Field } from "redux-form";
 import { replayHighlightClass } from "globalStyles/portals";
 import type { SelectOptionProps } from "design-system";
 import { Select, Option } from "design-system";
+import { getAssetUrl } from "../../../../ce/utils/airgapHelpers";
 
-const renderDropdown = (props: SelectOptionProps) => {
+const Container = styled.div`
+  display: flex;
+  gap: 8px;
+`;
+const renderDropdown = (props: any) => {
   return (
     <Select>
       {props.options.map((option: SelectOptionProps) => (
         <Option key={option.value} value={option.value}>
-          {option.image && (
-            <img alt="Datasource" className="plugin-image" src={option.image} />
-          )}
-          {option.label}
+          <Container>
+            {option.image && (
+              <img
+                alt="Datasource"
+                className="plugin-image"
+                src={getAssetUrl(option.image)}
+              />
+            )}
+            {option.label}
+          </Container>
         </Option>
       ))}
     </Select>
