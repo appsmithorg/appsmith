@@ -48,6 +48,9 @@ function DeleteConfirmationModal(props: DeleteConfirmationProps) {
           </Text>
         </ModalBody>
         <ModalFooter>
+          <Button kind="secondary" onClick={onClose} size="md">
+            Cancel
+          </Button>
           <Button
             isLoading={isDeletingUser}
             kind="error"
@@ -55,9 +58,6 @@ function DeleteConfirmationModal(props: DeleteConfirmationProps) {
             size="md"
           >
             Remove
-          </Button>
-          <Button kind="secondary" onClick={onClose} size="md">
-            Cancel
           </Button>
         </ModalFooter>
       </ModalContent>
