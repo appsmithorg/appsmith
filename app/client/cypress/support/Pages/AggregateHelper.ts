@@ -24,6 +24,7 @@ export class AggregateHelper {
   }`;
   private removeLine = "{backspace}";
   private selectAll = `${this.isMac ? "{cmd}{a}" : "{ctrl}{a}"}`;
+  private lazyCodeEditorFallback = ".t--lazyCodeEditor-fallback";
 
   private selectChars = (noOfChars: number) =>
     `${"{leftArrow}".repeat(noOfChars) + "{shift}{cmd}{leftArrow}{backspace}"}`;
@@ -821,6 +822,7 @@ export class AggregateHelper {
   }
 
   public UpdateCodeInput(selector: string, value: string) {
+    this.EnableAllCodeEditors();
     cy.wrap(selector)
       .find(".CodeMirror")
       .find("textarea")
@@ -1167,6 +1169,13 @@ export class AggregateHelper {
     } else {
       return this.GetElement(selector).eq(index).should("not.be.disabled");
     }
+  }
+
+  // Waits until all LazyCodeEditor wrappers finished loading the actual code editor.
+  // Called “EnableAllCodeEditors” to match the command in the JS part of the Cypress codebase
+  // with the same name.
+  public EnableAllCodeEditors() {
+    cy.get(this.lazyCodeEditorFallback, { timeout: 60000 }).should("not.exist");
   }
 
   //Not used:
