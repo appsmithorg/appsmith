@@ -500,7 +500,7 @@ function LibraryCard({
       </div>
       <div className="flex flex-row description">{lib.description}</div>
       <div className="flex flex-row items-center gap-1">
-        <ProfileImage size={20} source={lib.icon} />
+        <ProfileImage size="sm" source={lib.icon} />
         <Text type={TextType.P3}>{lib.author}</Text>
       </div>
     </div>

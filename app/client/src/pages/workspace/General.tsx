@@ -7,11 +7,7 @@ import {
 } from "@appsmith/actions/workspaceActions";
 import type { SaveWorkspaceRequest } from "@appsmith/api/WorkspaceApi";
 import { debounce } from "lodash";
-import {
-  TextInput,
-  emailValidator,
-  notEmptyValidator,
-} from "design-system-old";
+import { Input } from "design-system";
 import { useSelector, useDispatch } from "react-redux";
 import {
   getCurrentError,
@@ -31,16 +27,36 @@ const GeneralWrapper = styled.div<{
   isMobile?: boolean;
   isPortrait?: boolean;
 }>`
-  width: ${(props) => (props.isPortrait ? "336px" : "383px")};
-  margin: ${(props) =>
-    props.isMobile ? (props.isPortrait ? "auto" : "120px") : null};
-  padding: 0 20px;
+  width: 340px;
+  padding: 20px 20px;
+  margin: 0 auto;
+  .drag-drop-text {
+    color: var(--ads-v2-color-fg);
+    + form a {
+      --button-padding: var(--ads-v2-spaces-3) var(--ads-v2-spaces-4);
+      background-color: var(--ads-v2-color-bg);
+      border: 1px solid var(--ads-v2-color-border);
+      width: 100%;
+      height: 100%;
+      padding: var(--button-padding);
+      border-radius: var(--ads-v2-border-radius);
+      text-transform: capitalize;
+      &:hover {
+        background-color: var(--ads-v2-color-bg-subtle);
+        color: var(--ads-v2-color-fg);
+        border-color: var(--ads-v2-color-border);
+      }
+    }
+  }
 `;
 
 const InputLabelWrapper = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
+  span {
+    color: var(--ads-v2-color-fg);
+  }
 `;
 
 const SettingWrapper = styled.div`
@@ -49,17 +65,10 @@ const SettingWrapper = styled.div`
   margin-bottom: 15px;
 `;
 
-export const SettingsHeading = styled(Text)`
-  color: ${(props) => props.theme.colors.settingHeading};
-  display: inline-block;
-  margin-top: 25px;
-  margin-bottom: 10px;
-`;
-
 const Loader = styled.div`
   height: 38px;
   width: 320px;
-  border-radius: 0;
+  border-radius: var(--ads-v2-border-radius);
 `;
 
 const FilePickerLoader = styled.div`
@@ -71,15 +80,6 @@ const FilePickerLoader = styled.div`
 // testing
 export const Row = styled.div`
   width: 100%;
-  margin: 0;
-  padding: 0;
-  display: flex;
-`;
-
-export const Col = styled.div`
-  width: 100%;
-  margin: 0;
-  padding: 0;
 `;
 
 export function GeneralSettings() {
@@ -154,96 +154,83 @@ export function GeneralSettings() {
 
   return (
     <GeneralWrapper isMobile={isMobile} isPortrait={isPortrait}>
-      <SettingsHeading type={TextType.H1}>
-        <Row>
-          <Col>General Settings</Col>
-        </Row>
-      </SettingsHeading>
       <SettingWrapper>
         <Row>
-          <Col>
-            <InputLabelWrapper>
-              <Text type={TextType.P1}>Workspace Name</Text>
-            </InputLabelWrapper>
-            {isFetchingApplications && <Loader className={Classes.SKELETON} />}
-            {!isFetchingApplications && (
-              <TextInput
-                cypressSelector="t--workspace-name-input"
-                defaultValue={currentWorkspace && currentWorkspace.name}
-                fill
-                onChange={onWorkspaceNameChange}
-                placeholder="Workspace Name"
-                validator={notEmptyValidator}
-              />
-            )}
-          </Col>
+          {isFetchingApplications && <Loader className={Classes.SKELETON} />}
+          {!isFetchingApplications && (
+            <Input
+              data-testid="t--workspace-name-input"
+              defaultValue={currentWorkspace && currentWorkspace.name}
+              isRequired
+              label="Display name"
+              labelPosition="top"
+              onChange={onWorkspaceNameChange}
+              placeholder="Workspace Name"
+              renderAs="input"
+              size="md"
+              type="text"
+            />
+          )}
         </Row>
       </SettingWrapper>
 
       <SettingWrapper>
         <Row className="t--workspace-settings-filepicker">
-          <Col>
-            <InputLabelWrapper>
-              <Text type={TextType.P1}>Upload Logo</Text>
-            </InputLabelWrapper>
-            {isFetchingWorkspace && (
-              <FilePickerLoader className={Classes.SKELETON} />
-            )}
-            {!isFetchingWorkspace && (
-              <FilePickerV2
-                fileType={FileType.IMAGE}
-                fileUploader={FileUploader}
-                logoUploadError={logoUploadError.message}
-                onFileRemoved={DeleteLogo}
-                url={currentWorkspace && currentWorkspace.logoUrl}
-              />
-            )}
-          </Col>
+          <InputLabelWrapper>
+            <Text type={TextType.P1}>Upload Logo</Text>
+          </InputLabelWrapper>
+          {isFetchingWorkspace && (
+            <FilePickerLoader className={Classes.SKELETON} />
+          )}
+          {!isFetchingWorkspace && (
+            <FilePickerV2
+              fileType={FileType.IMAGE}
+              fileUploader={FileUploader}
+              logoUploadError={logoUploadError.message}
+              onFileRemoved={DeleteLogo}
+              url={currentWorkspace && currentWorkspace.logoUrl}
+            />
+          )}
         </Row>
       </SettingWrapper>
 
       <SettingWrapper>
         <Row>
-          <Col>
-            <InputLabelWrapper>
-              <Text type={TextType.P1}>Website</Text>
-            </InputLabelWrapper>
-            {isFetchingApplications && <Loader className={Classes.SKELETON} />}
-            {!isFetchingApplications && (
-              <TextInput
-                cypressSelector="t--workspace-website-input"
-                defaultValue={
-                  (currentWorkspace && currentWorkspace.website) || ""
-                }
-                fill
-                onChange={onWebsiteChange}
-                placeholder="Your website"
-              />
-            )}
-          </Col>
+          {isFetchingApplications && <Loader className={Classes.SKELETON} />}
+          {!isFetchingApplications && (
+            <Input
+              data-testid="t--workspace-website-input"
+              defaultValue={
+                (currentWorkspace && currentWorkspace.website) || ""
+              }
+              label="Website"
+              labelPosition="top"
+              onChange={onWebsiteChange}
+              placeholder="Your website"
+              renderAs="input"
+              size="md"
+              type="text"
+            />
+          )}
         </Row>
       </SettingWrapper>
 
       <SettingWrapper>
         <Row>
-          <Col>
-            <InputLabelWrapper>
-              <Text type={TextType.P1}>Email</Text>
-            </InputLabelWrapper>
-            {isFetchingApplications && <Loader className={Classes.SKELETON} />}
-            {!isFetchingApplications && (
-              <TextInput
-                cypressSelector="t--workspace-email-input"
-                defaultValue={
-                  (currentWorkspace && currentWorkspace.email) || ""
-                }
-                fill
-                onChange={onEmailChange}
-                placeholder="Email"
-                validator={emailValidator}
-              />
-            )}
-          </Col>
+          {isFetchingApplications && <Loader className={Classes.SKELETON} />}
+          {!isFetchingApplications && (
+            <Input
+              data-testid="t--workspace-email-input"
+              defaultValue={(currentWorkspace && currentWorkspace.email) || ""}
+              label="Email"
+              labelPosition="top"
+              onChange={onEmailChange}
+              placeholder="Email"
+              renderAs="input"
+              size="md"
+              type="text"
+            />
+          )}
         </Row>
       </SettingWrapper>
     </GeneralWrapper>
