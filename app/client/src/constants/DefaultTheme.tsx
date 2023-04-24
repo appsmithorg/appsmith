@@ -2929,7 +2929,7 @@ export const theme: Theme = {
   },
   headerHeight: "48px",
   smallHeaderHeight: "40px",
-  bottomBarHeight: "34px",
+  bottomBarHeight: "37px",
   pageTabsHeight: "32px",
   integrationsPageUnusableHeight: "182px",
   backBanner: "30px",

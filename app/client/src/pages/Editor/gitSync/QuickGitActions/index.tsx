@@ -22,7 +22,6 @@ import {
 
 import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
-import { ReactComponent as GitCommitLine } from "assets/icons/ads/git-commit-line.svg";
 import {
   gitPullInit,
   setIsGitSyncModalOpen,
@@ -39,11 +38,8 @@ import {
 } from "selectors/gitSyncSelectors";
 import SpinnerLoader from "pages/common/SpinnerLoader";
 import { inGuidedTour } from "selectors/onboardingSelectors";
-import {
-  getTypographyByKey,
-  TooltipComponent as TooltipOld,
-} from "design-system-old";
-import { Button, Tooltip } from "design-system";
+import { getTypographyByKey } from "design-system-old";
+import { Button, Icon, Tooltip } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 type QuickActionButtonProps = {
@@ -59,7 +55,13 @@ type QuickActionButtonProps = {
 const QuickActionButtonContainer = styled.div<{ disabled?: boolean }>`
   padding: ${(props) => props.theme.spaces[1]}px
     ${(props) => props.theme.spaces[2]}px;
+  margin: 0 ${(props) => props.theme.spaces[2]}px;
   cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+
+  &:hover {
+    background-color: ${(props) =>
+      props.theme.colors.editorBottomBar.buttonBackgroundHover};
+  }
 
   position: relative;
   overflow: visible;
@@ -71,7 +73,7 @@ const QuickActionButtonContainer = styled.div<{ disabled?: boolean }>`
     justify-content: center;
     align-items: center;
     color: ${Colors.WHITE};
-    background-color: var(--ads-v2-color-gray-700);
+    background-color: ${Colors.BLACK};
     top: ${(props) => -1 * props.theme.spaces[3]}px;
     left: ${(props) => props.theme.spaces[8]}px;
     border-radius: ${(props) => props.theme.spaces[3]}px;
@@ -106,11 +108,11 @@ function QuickActionButton({
       >
         {loading ? (
           <div className="t--loader-quick-git-action">
-            <SpinnerLoader size="md" />
+            <SpinnerLoader height="16px" width="16px" />
           </div>
         ) : (
           <div>
-            <Button isIconButton kind="tertiary" size="sm" startIcon={icon} />
+            <Icon name={icon} size="md" />
             {count > 0 && <span className="count">{count}</span>}
           </div>
         )}
@@ -199,13 +201,8 @@ const Container = styled.div`
   align-items: center;
 `;
 
-const StyledIcon = styled(GitCommitLine)`
+const StyledIcon = styled(Icon)`
   cursor: default;
-
-  & path {
-    fill: ${Colors.DARK_GRAY};
-  }
-
   margin-right: ${(props) => props.theme.spaces[3]}px;
 `;
 
@@ -222,7 +219,6 @@ const PlaceholderButton = styled.div`
 function ConnectGitPlaceholder() {
   const dispatch = useDispatch();
   const isInGuidedTour = useSelector(inGuidedTour);
-
   const isTooltipEnabled = isInGuidedTour;
   const tooltipContent = !isInGuidedTour ? (
     <>
@@ -239,17 +235,13 @@ function ConnectGitPlaceholder() {
 
   return (
     <Container>
-      <TooltipOld
-        autoFocus={false}
-        content={tooltipContent}
-        disabled={!isTooltipEnabled}
-        modifiers={{
-          preventOverflow: { enabled: true },
-        }}
-        openOnTargetFocus={false}
-      >
+      <Tooltip content={tooltipContent} isDisabled={!isTooltipEnabled}>
         <Container style={{ marginLeft: 0, cursor: "pointer" }}>
-          <StyledIcon />
+          <StyledIcon
+            color="var(--ads-v2-color-fg-muted)"
+            name="git-commit"
+            size="lg"
+          />
           {isGitConnectionEnabled ? (
             <Button
               className="t--connect-git-bottom-bar"
@@ -271,7 +263,7 @@ function ConnectGitPlaceholder() {
             </PlaceholderButton>
           )}
         </Container>
-      </TooltipOld>
+      </Tooltip>
     </Container>
   );
 }

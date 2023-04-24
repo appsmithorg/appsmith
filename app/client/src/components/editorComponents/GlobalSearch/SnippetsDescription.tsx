@@ -12,8 +12,6 @@ import {
   TabBehaviour,
 } from "../CodeEditor/EditorConfig";
 import CodeEditor from "../CodeEditor";
-import { TabComponent } from "design-system-old";
-import { Button } from "design-system";
 import {
   evaluateArgument,
   evaluateSnippet,
@@ -42,7 +40,15 @@ import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
 import { Layers } from "constants/Layers";
-import { toast } from "design-system";
+import {
+  toast,
+  Text,
+  Button,
+  Tabs,
+  TabsList,
+  TabPanel,
+  Tab,
+} from "design-system";
 
 SyntaxHighlighter.registerLanguage("sql", sql);
 
@@ -50,57 +56,36 @@ const SnippetContainer = styled.div`
   display: flex;
   flex-direction: column;
   .snippet-container {
-    margin-top: ${(props) => props.theme.spaces[4]}px;
+    margin-top: var(--ads-v2-spaces-3);
     position: relative;
-    border: 1px solid
-      ${(props) => props.theme.colors.globalSearch.snippets.codeContainerBorder};
     .action-icons {
       position: absolute;
       top: 4px;
       right: 4px;
-      display: flex;
-      transition: 0.2s opacity ease;
-      background: ${(props) =>
-        props.theme.colors.globalSearch.documentationCodeBackground};
-      justify-content: space-between;
-    }
-    .action-icons > * {
-      height: 12px;
-      width: 12px;
-      cursor: pointer;
-      transition: 0.2s all ease;
-      &:hover {
-        transform: scale(1.2);
-      }
-      margin: ${(props) => props.theme.spaces[2]}px;
     }
     pre {
-      padding: ${(props) => props.theme.spaces[11]}px
-        ${(props) => props.theme.spaces[5]}px !important;
+      padding: var(--ads-v2-spaces-7) var(--ads-v2-spaces-5) !important;
       margin: 0 !important;
-      background: ${(props) =>
-        props.theme.colors.globalSearch.codeBackground} !important;
+      background: var(--ads-v2-color-bg) !important;
       white-space: pre-wrap;
       border: none;
+      border: 1px solid var(--ads-v2-color-border);
+      border-radius: var(--ads-v2-border-radius);
     }
   }
   .snippet-title {
-    color: ${(props) => props.theme.colors.globalSearch.primaryTextColor};
-    ${getTypographyByKey("h3")}
-    font-size: 1.5rem;
-    line-height: 1.5rem;
     display: flex;
     justify-content: space-between;
     .action-msg {
-      color: #a9a7a7;
+      display: flex;
+      align-items: center;
+      color: var(--ads-v2-color-fg-muted);
       font-size: 11px;
       font-weight: 400;
       flex-shrink: 0;
     }
   }
   .snippet-desc {
-    color: ${(props) => props.theme.colors.globalSearch.secondaryTextColor};
-    ${getTypographyByKey("p1")}
     margin: 10px 0;
   }
   .snippet-group {
@@ -129,29 +114,9 @@ const SnippetContainer = styled.div`
         }
       }
     }
-  }
-  .tab-container {
-    border-top: none;
-    .react-tabs__tab-panel {
-      background: white !important;
-      height: auto !important;
-      overflow: clip;
-      border-top: 1px solid
-        ${(props) => props.theme.colors.globalSearch.primaryBorderColor};
-      code {
-        .token.arrow {
-          background: transparent !important;
-        }
-      }
-      .actions-container {
-        display: flex;
-        margin: 30px 0 15px;
-      }
-    }
-    .react-tabs__tab-list {
-      background: white !important;
-      padding: 0 10px !important;
-      height: 30px;
+    .cm-s-duotone-light.CodeMirror {
+      border-radius: var(--ads-v2-border-radius);
+      border: 1px solid var(--ads-v2-color-border);
     }
   }
 `;
@@ -190,7 +155,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
     dataType,
     language,
   } = item;
-  const [selectedIndex, setSelectedIndex] = useState(0),
+  const [selectedTab, setSelectedTab] = useState("Snippet"),
     [selectedArgs, setSelectedArgs] = useState<any>({}),
     dispatch = useDispatch(),
     evaluatedSnippet = useSelector(
@@ -231,7 +196,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
   );
 
   useEffect(() => {
-    setSelectedIndex(0);
+    setSelectedTab("Snippet");
     dispatch(setEvaluatedSnippet(""));
     setSelectedArgs({});
     dispatch(unsetEvaluatedArgument());
@@ -306,10 +271,14 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
               {getSnippet(snippet, {}, hideOuterBindings, true)}
             </SyntaxHighlighter>
             <div className="action-icons">
-              <CopyIcon
+              <Button
+                isIconButton
+                kind="tertiary"
                 onClick={() =>
                   handleCopy(getSnippet(snippet, {}, hideOuterBindings))
                 }
+                size="sm"
+                startIcon="copy-control"
               />
             </div>
           </div>
@@ -400,30 +369,50 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
   }
   return (
     <SnippetContainer>
-      <div className="snippet-title">
+      <Text className="snippet-title" kind="heading-s">
         <span>{title}</span>
         <span className="action-msg">
           {createMessage(
-            selectedIndex === 0
+            selectedTab === "Snippet"
               ? onEnter === SnippetAction.INSERT
                 ? SNIPPET_INSERT
                 : SNIPPET_COPY
               : SNIPPET_EXECUTE,
           )}
         </span>
-      </div>
-      <div className="snippet-desc">{summary}</div>
+      </Text>
+      <Text className="snippet-desc" kind="body-s">
+        {summary}
+      </Text>
       <TabbedViewContainer className="tab-container">
-        <TabComponent
-          onSelect={(selectedIndex: number) => {
-            if (selectedIndex === 1) {
+        <Tabs
+          onValueChange={() => {
+            setSelectedTab(
+              selectedTab === "Customize" ? "Snippet" : "Customize",
+            );
+            if (selectedTab === "Customize") {
               AnalyticsUtil.logEvent("SNIPPET_CUSTOMIZE", { title });
             }
-            setSelectedIndex(selectedIndex);
           }}
-          selectedIndex={selectedIndex}
-          tabs={tabs}
-        />
+          value={selectedTab}
+        >
+          <TabsList>
+            {tabs.map((tab) => {
+              return (
+                <Tab key={tab.key} value={tab.key}>
+                  {tab.title}
+                </Tab>
+              );
+            })}
+          </TabsList>
+          {tabs.map((tab) => {
+            return (
+              <TabPanel key={tab.key} value={tab.key}>
+                {tab.panelComponent}
+              </TabPanel>
+            );
+          })}
+        </Tabs>
       </TabbedViewContainer>
     </SnippetContainer>
   );
