@@ -12,10 +12,8 @@ import {
   UPGRADE_TO_EE,
   AUTHENTICATION_METHOD_ENABLED,
 } from "@appsmith/constants/messages";
-import type { CalloutType } from "design-system-old";
 import { Colors } from "constants/Colors";
-import { TooltipComponent } from "design-system-old";
-import { Button, Callout, Icon } from "design-system";
+import { Button, Callout, Icon, Tooltip } from "design-system";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
@@ -77,6 +75,7 @@ const MethodTitle = styled.div`
   svg {
     width: 14px;
     height: 14px;
+    cursor: pointer;
   }
 `;
 
@@ -86,12 +85,9 @@ const MethodDets = styled.div`
   color: var(--ads-v2-color-fg);
 `;
 
-export type calloutType = "LINK" | "OTHER";
-
 export type banner = {
   actionLabel: string;
   title: string;
-  type: CalloutType;
 };
 
 export type AuthMethodType = {
@@ -101,7 +97,6 @@ export type AuthMethodType = {
   subText?: string;
   image?: any;
   needsUpgrade?: boolean;
-  type: calloutType;
   isConnected?: boolean;
   calloutBanner?: banner;
 };
@@ -198,23 +193,19 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                       </>
                     )}
                     {method.isConnected && (
-                      <TooltipComponent
-                        autoFocus={false}
+                      <Tooltip
                         content={createMessage(
                           AUTHENTICATION_METHOD_ENABLED,
                           method.label,
                         )}
-                        hoverOpenDelay={0}
-                        minWidth={"180px"}
-                        openOnTargetFocus={false}
-                        position="right"
+                        placement="right"
                       >
                         <Icon
                           className={`${method.category}-green-check`}
                           color={Colors.GREEN}
                           name="oval-check"
                         />
-                      </TooltipComponent>
+                      </Tooltip>
                     )}
                   </MethodTitle>
                   <MethodDets>{method.subText}</MethodDets>

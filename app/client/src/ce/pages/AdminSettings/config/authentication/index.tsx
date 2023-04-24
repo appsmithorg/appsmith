@@ -183,7 +183,6 @@ export const FormAuthCallout: AuthMethodType = {
   label: "Form Login",
   subText: "Enable your workspace to sign in with Appsmith Form.",
   image: Lock,
-  type: "LINK",
   isConnected: !disableLoginForm,
 };
 
@@ -194,7 +193,6 @@ export const GoogleAuthCallout: AuthMethodType = {
   subText:
     "Enable your workspace to sign in with Google (OAuth 2.0) single sign-on (SSO).",
   image: Google,
-  type: "LINK",
   isConnected: enableGoogleOAuth,
 };
 
@@ -205,7 +203,6 @@ export const GithubAuthCallout: AuthMethodType = {
   subText:
     "Enable your workspace to sign in with Github (OAuth 2.0) single sign-on (SSO).",
   image: Github,
-  type: "LINK",
   isConnected: enableGithubOAuth,
 };
 
@@ -216,7 +213,6 @@ export const SamlAuthCallout: AuthMethodType = {
   subText: `Enable your workspace to sign in with your preferred SAML2 compliant provider.`,
   image: SamlSso,
   needsUpgrade: true,
-  type: "OTHER",
 };
 
 export const OidcAuthCallout: AuthMethodType = {
@@ -226,7 +222,6 @@ export const OidcAuthCallout: AuthMethodType = {
   subText: `Enable your workspace to sign in with Open ID Connect.`,
   image: OIDC,
   needsUpgrade: true,
-  type: "OTHER",
 };
 
 const AuthMethods = [

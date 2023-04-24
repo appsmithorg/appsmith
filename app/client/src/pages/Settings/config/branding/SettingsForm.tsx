@@ -9,7 +9,7 @@ import type {
 } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import QuestionIcon from "remixicon-react/QuestionFillIcon";
-import { TooltipComponent } from "design-system-old";
+import { Tooltip } from "design-system";
 import { Button } from "design-system";
 
 import type { Inputs } from "./BrandingPage";
@@ -119,11 +119,9 @@ function SettingsForm(props: SettingsFormProps) {
             >
               Color
             </label>
-            <TooltipComponent
-              content={createMessage(ADMIN_BRANDING_COLOR_TOOLTIP)}
-            >
+            <Tooltip content={createMessage(ADMIN_BRANDING_COLOR_TOOLTIP)}>
               <QuestionIcon className="w-4 h-4 text-[color:var(--ads-color-black-470)] cursor-help" />
-            </TooltipComponent>
+            </Tooltip>
           </div>
 
           <Controller

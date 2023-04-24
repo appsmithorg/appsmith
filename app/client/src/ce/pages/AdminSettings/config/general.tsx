@@ -13,7 +13,6 @@ import {
 } from "@appsmith/pages/AdminSettings/config/types";
 import BrandingBadge from "pages/AppViewer/BrandingBadge";
 import { TagInput } from "design-system-old";
-import QuestionFillIcon from "remixicon-react/QuestionFillIcon";
 import localStorage from "utils/localStorage";
 import isUndefined from "lodash/isUndefined";
 
@@ -102,7 +101,7 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
       {
         badge: "NOT RECOMMENDED",
         tooltip: {
-          icon: <QuestionFillIcon />,
+          icon: "question-fill",
           text: "Lets all domains, including malicious ones, embed your Appsmith apps. ",
           linkText: "SEE WHY THIS IS RISKY",
           link: "https://docs.appsmith.com/getting-started/setup/instance-configuration/frame-ancestors#why-should-i-control-this",

@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import React, { useEffect, useState } from "react";
-import { Text, TextType } from "design-system-old";
+import { Text } from "design-system";
 import type { CarouselProps } from "./types";
 import { Icon } from "design-system";
 
@@ -54,7 +54,9 @@ const CarouselContainer = styled.div`
           }
 
           & .trigger-details-container {
-            .cs-text {
+            .detail-content {
+              color: var(--ads-v2-color-fg);
+
               span {
                 color: var(--ads-color-orange-500);
                 font-weight: 500;
@@ -148,7 +150,8 @@ export function CarouselComponent(props: CarouselProps) {
                 <div className="trigger-heading">
                   <Text
                     color="var(--ads-v2-color-fg-emphasis)"
-                    type={TextType.H1}
+                    kind="heading-m"
+                    renderAs="h1"
                   >
                     {d.heading}
                   </Text>
@@ -162,10 +165,9 @@ export function CarouselComponent(props: CarouselProps) {
                             className={"expanded"}
                             key={`trigger-detail-${di}`}
                           >
-                            <Text
-                              color="var(--ads-v2-color-fg)"
+                            <span
+                              className="detail-content"
                               dangerouslySetInnerHTML={{ __html: detail }}
-                              type={TextType.P1}
                             />
                           </div>
                         );

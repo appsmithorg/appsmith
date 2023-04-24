@@ -1,10 +1,7 @@
 import { createMessage } from "@appsmith/constants/messages";
 import React from "react";
 import styled from "styled-components";
-import {
-  getTypographyByKey,
-  TooltipComponent as Tooltip,
-} from "design-system-old";
+import { Tooltip, Text } from "design-system";
 import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
 import { Colors } from "constants/Colors";
 import { Icon } from "design-system";
@@ -35,10 +32,9 @@ export const StyledFormGroup = styled.div`
   }
 `;
 
-export const StyledLabel = styled.label`
+export const StyledLabel = styled(Text)`
   margin-bottom: ${(props) => props.theme.spaces[3]}px;
   display: inline-block;
-  ${getTypographyByKey("h5")}
   color: var(--ads-v2-color-fg);
 `;
 
@@ -60,7 +56,10 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
     >
       {/*Since we have label in ds component */}
       {setting.label && (
-        <StyledLabel data-testid="admin-settings-form-group-label">
+        <StyledLabel
+          data-testid="admin-settings-form-group-label"
+          renderAs="label"
+        >
           {createMessage(() => setting.label || "")}
         </StyledLabel>
       )}

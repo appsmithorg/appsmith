@@ -1,24 +1,16 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from "react";
 import type { ReactElement } from "react";
-import type { OptionProps } from "design-system-old";
-import {
-  IconWrapper,
-  // Radio,
-  Text,
-  TextType,
-  IconSize,
-} from "design-system-old";
+import { FieldError } from "design-system-old";
 import { Popover2 } from "@blueprintjs/popover2";
 import type { SettingComponentProps } from "./Common";
 import { FormGroup } from "./Common";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
-import { FieldError } from "design-system-old";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { Position } from "@blueprintjs/core";
-import { RadioGroup, Radio, Tag, Button } from "design-system";
+import type { RadioProps } from "design-system";
+import { Button, Icon, Radio, RadioGroup, Tag, Text } from "design-system";
 
 type RadioOption = {
   node?: ReactElement;
@@ -27,13 +19,14 @@ type RadioOption = {
   nodeParentClass?: string;
   badge?: string;
   tooltip?: {
-    icon: any;
+    icon: string;
     text: string;
     linkText: string;
     link: string;
   };
-} & OptionProps;
-export type RadioProps = {
+  label: string;
+} & RadioProps;
+export type RadioOptionProps = {
   options: RadioOption[];
 };
 
@@ -62,12 +55,21 @@ const TooltipContent = styled.div`
 
   .tooltip-text {
     line-height: 1.17;
+    margin-bottom: 8px;
   }
 `;
 
 const SuffixWrapper = styled.div`
   display: inline-flex;
   align-items: center;
+
+  .icon {
+    margin-left: 4px;
+
+    > svg {
+      cursor: pointer;
+    }
+  }
 `;
 
 const NodeWrapper = styled.div`
@@ -81,7 +83,7 @@ function RadioFieldWrapper(
   componentProps: {
     meta: Partial<WrappedFieldMetaProps>;
     input: Partial<WrappedFieldInputProps>;
-  } & RadioProps,
+  } & RadioOptionProps,
 ) {
   function onChangeHandler(value: string) {
     setValue(value);
@@ -117,7 +119,7 @@ function RadioFieldWrapper(
         const isSelected = item.value === value;
 
         return (
-          <React.Fragment key={item.value}>
+          <div key={item.value}>
             <Radio value={item.value}>
               {item.label}
               <SuffixWrapper>
@@ -133,7 +135,8 @@ function RadioFieldWrapper(
                         <Text
                           className="tooltip-text"
                           color="var(--ads-v2-color-fg)"
-                          type={TextType.P3}
+                          kind="action-s"
+                          renderAs="p"
                         >
                           {item.tooltip.text}
                         </Text>
@@ -149,20 +152,14 @@ function RadioFieldWrapper(
                     }
                     position={Position.RIGHT}
                   >
-                    <IconWrapper
-                      className="icon"
-                      fillColor="var(--ads-color-black-470)"
-                      size={IconSize.MEDIUM}
-                    >
-                      {item.tooltip.icon}
-                    </IconWrapper>
+                    <Icon className="icon" name={item.tooltip.icon} size="md" />
                   </Popover2>
                 )}
               </SuffixWrapper>
             </Radio>
             {item.node && isSelected && item.nodeInputPath && (
               <NodeWrapper className={item.nodeParentClass}>
-                <Text color={Colors.GRAY_700} type={TextType.P3}>
+                <Text color={Colors.GRAY_700} kind="body-s" renderAs="span">
                   {item.nodeLabel}
                 </Text>
                 {React.cloneElement(item.node, {
@@ -176,7 +173,7 @@ function RadioFieldWrapper(
                 )}
               </NodeWrapper>
             )}
-          </React.Fragment>
+          </div>
         );
       })}
     </RadioGroup>
@@ -184,7 +181,7 @@ function RadioFieldWrapper(
 }
 
 export default function RadioField({ setting }: RadioGroupProps) {
-  const controlTypeProps = setting.controlTypeProps as RadioProps;
+  const controlTypeProps = setting.controlTypeProps as RadioOptionProps;
 
   return (
     <FormGroup

@@ -1,12 +1,8 @@
-import React, { useEffect } from "react";
-import type { InjectedFormProps } from "redux-form";
-import { Field, reduxForm } from "redux-form";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { UneditableField } from "design-system-old";
-// import { Colors } from "constants/Colors";
-import { Icon, toast, Tooltip } from "design-system";
+import { Icon, Input, toast, Tooltip } from "design-system";
 
 const Wrapper = styled.div`
   margin: 24px 0;
@@ -38,28 +34,23 @@ export const HeaderSecondary = styled.h3`
   color: var(--ads-v2-color-fg-emphasis);
 `;
 
-function CopyUrlForm(
-  props: InjectedFormProps & {
-    value: string;
-    form: string;
-    fieldName: string;
-    title: string;
-    helpText?: string;
-    tooltip?: string;
-  },
-) {
-  useEffect(() => {
-    props.initialize({
-      [props.fieldName]: `${window.location.origin}${props.value}`,
-    });
-  }, []);
+function CopyUrlForm(props: {
+  value: string;
+  title: string;
+  helpText?: string;
+  tooltip?: string;
+}) {
+  const fieldValue = useMemo(
+    () => `${window.location.origin}${props.value}`,
+    [props.value],
+  );
 
-  const handleCopy = (value: string) => {
-    copy(value);
+  const handleCopy = () => {
+    copy(fieldValue);
     toast.show(`${props.title} copied to clipboard`, {
       kind: "success",
     });
-    AnalyticsUtil.logEvent("URL_COPIED", { snippet: value });
+    AnalyticsUtil.logEvent("URL_COPIED", { snippet: fieldValue });
   };
 
   return (
@@ -72,27 +63,25 @@ function CopyUrlForm(
               className={"help-icon"}
               color="var(--ads-v2-color-fg)"
               name="question-line"
-              size="lg"
+              size="md"
             />
           </Tooltip>
         )}
       </HeaderWrapper>
       <BodyContainer>
-        <Field
-          component={UneditableField}
-          disabled
-          handleCopy={handleCopy}
-          helperText={props.helpText}
-          iscopy="true"
-          name={props.fieldName}
-          {...props}
-          asyncControl
+        <Input
+          endIcon="copy-control"
+          endIconProps={{
+            onClick: handleCopy,
+          }}
+          isDisabled
+          isReadOnly
+          size="md"
+          value={fieldValue}
         />
       </BodyContainer>
     </Wrapper>
   );
 }
 
-export const CopyUrlReduxForm = reduxForm<any, any>({
-  touchOnBlur: true,
-})(CopyUrlForm);
+export default CopyUrlForm;

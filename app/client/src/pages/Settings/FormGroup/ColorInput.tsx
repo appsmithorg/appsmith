@@ -4,7 +4,7 @@ import { Field } from "redux-form";
 import { startCase } from "lodash";
 import tinycolor from "tinycolor2";
 import styled from "styled-components";
-import { TooltipComponent } from "design-system-old";
+import { Tooltip } from "design-system";
 import { InputGroup, Classes } from "@blueprintjs/core";
 import QuestionIcon from "remixicon-react/QuestionFillIcon";
 
@@ -136,7 +136,7 @@ export const ColorInput = (props: ColorInputProps) => {
       <div className="flex mb-2 space-x-1 border-gray-300 t--color-input-shades">
         {/* selectable color shades */}
         {colorKeys.filter(filter).map((colorKey: brandColorsKeys, index) => (
-          <TooltipComponent
+          <Tooltip
             className="flex-1"
             content={startCase(colorKey)}
             key={colorKey}
@@ -152,7 +152,7 @@ export const ColorInput = (props: ColorInputProps) => {
               onClick={() => setSelectedIndex(colorKey)}
               style={{ backgroundColor: value[colorKey] }}
             />
-          </TooltipComponent>
+          </Tooltip>
         ))}
       </div>
 
@@ -168,12 +168,12 @@ export const ColorInput = (props: ColorInputProps) => {
         <label className="text-sm text-gray-700">
           {startCase(selectedIndex)}
         </label>
-        <TooltipComponent
+        <Tooltip
           content={tooltips && tooltips[selectedIndex]}
           key={`tooltip-${selectedIndex}`}
         >
           <QuestionIcon className="w-4 h-4 text-[color:var(--ads-color-black-470)] cursor-help" />
-        </TooltipComponent>
+        </Tooltip>
       </div>
 
       <StyledInputGroup

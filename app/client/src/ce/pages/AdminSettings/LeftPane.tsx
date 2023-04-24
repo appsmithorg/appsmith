@@ -23,10 +23,13 @@ export const Wrapper = styled.div`
   &::-webkit-scrollbar {
     display: none;
   }
+
+  > div:not(:first-child) {
+    border-top: 1px solid var(--ads-v2-color-border);
+  }
 `;
 
 export const HeaderContainer = styled.div`
-  border-top: 1px solid var(--ads-v2-color-border);
   padding: 20px 0;
   margin: 0 12px;
 `;
@@ -70,7 +73,6 @@ export const StyledLink = styled(Link)<{ $active: boolean }>`
   &:hover {
     text-decoration: none;
     background-color: var(--ads-v2-color-bg-muted);
-    /* color: ${(props) => props.theme.colors.menuItem.hoverText}; */
   }
 
   & div {

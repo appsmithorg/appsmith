@@ -2,7 +2,7 @@ import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
 import type { AxiosPromise } from "axios";
 import type { AppColorCode } from "constants/DefaultTheme";
-import type { AppIconName } from "design-system-old";
+import type { IconNames } from "design-system";
 import type {
   AppLayoutConfig,
   AppPositioningTypeConfig,
@@ -86,7 +86,7 @@ export interface CreateApplicationRequest {
   name: string;
   workspaceId: string;
   color?: AppColorCode;
-  icon?: AppIconName;
+  icon?: IconNames;
 }
 
 export interface SetDefaultPageRequest {
@@ -198,7 +198,7 @@ export interface UpdateApplicationResponse {
   appIsExample: boolean;
   unreadCommentThreads: number;
   color: string;
-  icon: AppIconName;
+  icon: IconNames;
   slug: string;
   lastDeployedAt: Date;
   evaluationVersion: number;

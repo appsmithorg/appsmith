@@ -16,7 +16,7 @@ import {
   REDIRECT_URL_TOOLTIP,
 } from "@appsmith/constants/messages";
 import { Callout } from "design-system";
-import { CopyUrlReduxForm } from "pages/Settings/FormGroup/CopyUrlForm";
+import CopyUrlForm from "./CopyUrlForm";
 import Accordion from "./Accordion";
 import TagInputField from "./TagInputField";
 import Dropdown from "./Dropdown";
@@ -168,7 +168,7 @@ export default function Group({
                       links={[
                         {
                           children: createMessage(LEARN_MORE),
-                          to: setting.url || "",
+                          ...(setting.url && { to: setting.url }),
                           ...(setting.action && {
                             onClick: () => {
                               if (setting.action) {
@@ -227,15 +227,13 @@ export default function Group({
                     data-testid="admin-settings-uneditable-field"
                     key={setting.name || setting.id}
                   >
-                    <CopyUrlReduxForm
-                      fieldName={setting.fieldName}
-                      form={setting.formName}
+                    <CopyUrlForm
                       helpText={setting.helpText}
-                      title={setting.label}
+                      title={setting.label || ""}
                       tooltip={
                         setting.tooltip || createMessage(REDIRECT_URL_TOOLTIP)
                       }
-                      value={setting.value}
+                      value={setting.value || ""}
                     />
                   </div>
                 );

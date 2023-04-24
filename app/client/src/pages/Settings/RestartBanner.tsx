@@ -16,7 +16,7 @@ import {
   RESTART_ERROR_HEADER,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
-import { AppIcon } from "design-system-old";
+import { Icon } from "design-system";
 import { retryServerRestart } from "@appsmith/actions/settingsAction";
 import { useDispatch } from "react-redux";
 
@@ -36,6 +36,7 @@ const OverlayBackdrop = styled.div`
   left: 0;
   right: 0;
   top: 0;
+  /* to be replaced: Albin */
   background-color: ${hexToRgba(Colors.COD_GRAY, 0.7)};
   overflow: auto;
   pointer-events: none;
@@ -50,12 +51,7 @@ const RestartContainer = styled.div`
   width: 100%;
   height: ${(props) => props.theme.settings.footerHeight}px;
   z-index: 20;
-  padding: 0px ${(props) => props.theme.spaces[11]}px 0px
-    ${(props) =>
-      props.theme.homePage.leftPane.leftPadding +
-      props.theme.homePage.leftPane.width +
-      props.theme.homePage.main.marginLeft -
-      props.theme.spaces[11]}px;
+  padding: 0px ${(props) => props.theme.spaces[11]}px 0px 276px;
   background: var(--appsmith-color-black-0);
   display: flex;
   justify-content: space-between;
@@ -75,6 +71,7 @@ const HeaderContents = styled.div`
   display: flex;
   align-items: center;
   padding-bottom: ${(props) => props.theme.spaces[3]}px;
+  gap: 8px;
 `;
 
 const Heading = styled.span`
@@ -110,10 +107,13 @@ function Header() {
     <HeaderContents>
       {isRestartFailed ? (
         <AppIconWrapper>
-          <AppIcon name="server-line" />
+          <Icon name="server-line" />
         </AppIconWrapper>
       ) : (
-        <Spinner size="lg" />
+        <Spinner
+          iconProps={{ color: "var(--ads-v2-color-orange-500)" }}
+          size="lg"
+        />
       )}
       <Heading>
         {isRestartFailed

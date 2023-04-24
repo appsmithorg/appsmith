@@ -1,7 +1,6 @@
 import { render, screen } from "test/testUtils";
 import React from "react";
-import { CopyUrlReduxForm } from "./CopyUrlForm";
-import { REDIRECT_URL_FORM } from "@appsmith/constants/forms";
+import CopyUrlForm from "./CopyUrlForm";
 
 let container: any = null;
 
@@ -16,9 +15,7 @@ useSelector.mockReturnValue(values);
 
 function renderComponent() {
   render(
-    <CopyUrlReduxForm
-      fieldName={values.fieldName}
-      form={REDIRECT_URL_FORM}
+    <CopyUrlForm
       helpText={values.helpText}
       title={values.title}
       value={values.value}

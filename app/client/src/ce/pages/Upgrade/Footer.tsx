@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import React from "react";
-import { Text, TextType } from "design-system-old";
+import { Text } from "design-system";
 import { Button } from "design-system";
 import type { FooterProps } from "./types";
 import { createMessage } from "design-system-old/build/constants/messages";
@@ -43,13 +43,17 @@ export function FooterComponent(props: FooterProps) {
       <div className="left">
         {showHeading && (
           <div className="heading-container">
-            <Text color="var(ads-v2-color-fg-emphasis)" type={TextType.H1}>
+            <Text
+              color="var(ads-v2-color-fg-emphasis)"
+              kind="heading-m"
+              renderAs="h1"
+            >
               {createMessage(AVAILABLE_ON_BUSINESS)}
             </Text>
           </div>
         )}
         <div className="text-container">
-          <Text color="var(--ads-v2-color-fg)" type={TextType.P1}>
+          <Text color="var(--ads-v2-color-fg)" renderAs="p">
             {message}
           </Text>
         </div>

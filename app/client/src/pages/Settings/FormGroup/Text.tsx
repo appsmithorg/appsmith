@@ -1,4 +1,4 @@
-import { Text, TextType } from "design-system-old";
+import { Text } from "design-system";
 import React from "react";
 import { getSettings } from "selectors/settingsSelectors";
 import { useSelector } from "react-redux";
@@ -21,7 +21,7 @@ export default function TextComponent({ setting }: SettingComponentProps) {
     <FormGroup setting={setting}>
       {value && (
         <TextWrapper>
-          <StyledText data-testid="admin-settings-text" type={TextType.P1}>
+          <StyledText data-testid="admin-settings-text" renderAs="p">
             {value}
           </StyledText>
         </TextWrapper>
