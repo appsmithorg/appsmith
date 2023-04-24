@@ -6,7 +6,6 @@ let container: any = null;
 
 const useSelector = jest.fn();
 const values = {
-  fieldName: "redirect-url-form",
   helpText: "some helper text",
   title: "Redirect URL",
   value: "/link-to-be-copied",

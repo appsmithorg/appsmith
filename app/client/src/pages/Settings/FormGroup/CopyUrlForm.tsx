@@ -4,10 +4,6 @@ import copy from "copy-to-clipboard";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Icon, Input, toast, Tooltip } from "design-system";
 
-const Wrapper = styled.div`
-  margin: 24px 0;
-`;
-
 export const BodyContainer = styled.div`
   width: 100%;
   padding: 0 0 16px;
@@ -54,7 +50,7 @@ function CopyUrlForm(props: {
   };
 
   return (
-    <Wrapper>
+    <div>
       <HeaderWrapper>
         <HeaderSecondary>{props.title}</HeaderSecondary>
         {props.tooltip && (
@@ -70,6 +66,7 @@ function CopyUrlForm(props: {
       </HeaderWrapper>
       <BodyContainer>
         <Input
+          description={props.helpText}
           endIcon="copy-control"
           endIconProps={{
             onClick: handleCopy,
@@ -80,7 +77,7 @@ function CopyUrlForm(props: {
           value={fieldValue}
         />
       </BodyContainer>
-    </Wrapper>
+    </div>
   );
 }
 
