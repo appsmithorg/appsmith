@@ -101,7 +101,14 @@ function Keys(props: KeysProps) {
           </FlexRow>
         </DeployedKeyContainer>
         <MoreMenuWrapper>
-          <Menu modal>
+          <Menu
+            onOpenChange={(open) => {
+              if (!open && !showConfirmation) {
+                setIsMenuOpen(false);
+              }
+            }}
+            open={isMenuOpen}
+          >
             <MenuTrigger>
               <Button
                 isIconButton
@@ -109,12 +116,13 @@ function Keys(props: KeysProps) {
                 onClick={() => {
                   AnalyticsUtil.logEvent("GS_REGENERATE_SSH_KEY_MORE_CLICK");
                   setShowConfirmation(false);
+                  setIsMenuOpen(!isMenuOpen);
                 }}
                 size="md"
                 startIcon="more-2-fill"
               />
             </MenuTrigger>
-            <MenuContent width="150px">
+            <MenuContent width="250px">
               {supportedKeys.map((supportedKey) => (
                 <MenuItem
                   className={`t--regenerate-sshkey-${supportedKey.protocolName}`}
@@ -122,6 +130,7 @@ function Keys(props: KeysProps) {
                   onSelect={() => {
                     setShowConfirmation(true);
                     setNewKeyType(supportedKey.protocolName);
+                    setIsMenuOpen(true);
                   }}
                   startIcon={supportedKey.generated ? "check-line" : undefined}
                 >
@@ -130,7 +139,9 @@ function Keys(props: KeysProps) {
               ))}
               {isMenuOpen &&
                 showConfirmation &&
-                getConfirmMenuItem(regenerateKey)}
+                getConfirmMenuItem(regenerateKey, () =>
+                  setShowConfirmation(false),
+                )}
             </MenuContent>
           </Menu>
         </MoreMenuWrapper>

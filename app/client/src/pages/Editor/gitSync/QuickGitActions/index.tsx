@@ -108,7 +108,7 @@ function QuickActionButton({
       >
         {loading ? (
           <div className="t--loader-quick-git-action">
-            <SpinnerLoader height="16px" width="16px" />
+            <SpinnerLoader size="md" />
           </div>
         ) : (
           <div>
