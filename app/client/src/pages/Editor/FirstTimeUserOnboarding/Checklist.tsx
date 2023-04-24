@@ -85,12 +85,17 @@ const StyledListItem = styled.li`
   display: flex;
   padding: var(--ads-v2-spaces-7) 0px;
   align-items: center;
+  justify-content: space-between;
   border-bottom: 1px solid var(--ads-v2-color-border);
   &:first-child {
     border-top: 1px solid var(--ads-v2-color-border);
   }
 `;
-
+const StyledListItemTextWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  flex: 1;
+`;
 const CHECKLIST_WIDTH_OFFSET = 268;
 
 const ChecklistText = styled.div<{ active: boolean }>`
@@ -105,9 +110,9 @@ const StyledCompleteMarker = styled.div`
 `;
 
 const Banner = styled.div`
-  width: calc(100% - 113px);
+  border-radius: var(--ads-v2-border-radius);
   border: 1px solid var(--ads-v2-color-border);
-  padding: var(--ads-v2-spaces-7);
+  padding: var(--ads-v2-spaces-5);
   margin-top: var(--ads-v2-spaces-7);
 `;
 
@@ -261,26 +266,28 @@ export default function OnboardingChecklist() {
       </StatusWrapper>
       <StyledList>
         <StyledListItem>
-          <StyledCompleteMarker>
-            <Icon
-              className="flex"
-              color={
-                datasources.length || actions.length
-                  ? "var(--ads-v2-color-fg-success)"
-                  : ""
-              }
-              data-testid="checklist-datasource-complete-icon"
-              name="oval-check"
-              size="lg"
-            />
-          </StyledCompleteMarker>
-          <ChecklistText active={!!datasources.length || !!actions.length}>
-            <span>
-              {createMessage(ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE.bold)}
-            </span>
-            &nbsp;
-            {createMessage(ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE.normal)}
-          </ChecklistText>
+          <StyledListItemTextWrapper>
+            <StyledCompleteMarker>
+              <Icon
+                className="flex"
+                color={
+                  datasources.length || actions.length
+                    ? "var(--ads-v2-color-fg-success)"
+                    : ""
+                }
+                data-testid="checklist-datasource-complete-icon"
+                name="oval-check"
+                size="lg"
+              />
+            </StyledCompleteMarker>
+            <ChecklistText active={!!datasources.length || !!actions.length}>
+              <span>
+                {createMessage(ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE.bold)}
+              </span>
+              &nbsp;
+              {createMessage(ONBOARDING_CHECKLIST_CONNECT_DATA_SOURCE.normal)}
+            </ChecklistText>
+          </StyledListItemTextWrapper>
           {!datasources.length && !actions.length && (
             <Button
               className="t--checklist-datasource-button"
@@ -313,21 +320,23 @@ export default function OnboardingChecklist() {
           )}
         </StyledListItem>
         <StyledListItem>
-          <StyledCompleteMarker>
-            <Icon
-              className="flex"
-              color={actions.length ? "var(--ads-v2-color-fg-success)" : ""}
-              data-testid="checklist-action-complete-icon"
-              name="oval-check"
-              size="lg"
-            />
-          </StyledCompleteMarker>
-          <ChecklistText active={!!actions.length}>
-            <span>
-              {createMessage(ONBOARDING_CHECKLIST_CREATE_A_QUERY.bold)}
-            </span>
-            &nbsp;{createMessage(ONBOARDING_CHECKLIST_CREATE_A_QUERY.normal)}
-          </ChecklistText>
+          <StyledListItemTextWrapper>
+            <StyledCompleteMarker>
+              <Icon
+                className="flex"
+                color={actions.length ? "var(--ads-v2-color-fg-success)" : ""}
+                data-testid="checklist-action-complete-icon"
+                name="oval-check"
+                size="lg"
+              />
+            </StyledCompleteMarker>
+            <ChecklistText active={!!actions.length}>
+              <span>
+                {createMessage(ONBOARDING_CHECKLIST_CREATE_A_QUERY.bold)}
+              </span>
+              &nbsp;{createMessage(ONBOARDING_CHECKLIST_CREATE_A_QUERY.normal)}
+            </ChecklistText>
+          </StyledListItemTextWrapper>
           {!actions.length && (
             <Button
               className="t--checklist-action-button"
@@ -357,23 +366,27 @@ export default function OnboardingChecklist() {
           )}
         </StyledListItem>
         <StyledListItem>
-          <StyledCompleteMarker>
-            <Icon
-              className="flex"
-              color={
-                Object.keys(widgets).length > 1
-                  ? "var(--ads-v2-color-fg-success)"
-                  : ""
-              }
-              data-testid="checklist-widget-complete-icon"
-              name="oval-check"
-              size="lg"
-            />
-          </StyledCompleteMarker>
-          <ChecklistText active={Object.keys(widgets).length > 1}>
-            <span>{createMessage(ONBOARDING_CHECKLIST_ADD_WIDGETS.bold)}</span>
-            &nbsp;{createMessage(ONBOARDING_CHECKLIST_ADD_WIDGETS.normal)}
-          </ChecklistText>
+          <StyledListItemTextWrapper>
+            <StyledCompleteMarker>
+              <Icon
+                className="flex"
+                color={
+                  Object.keys(widgets).length > 1
+                    ? "var(--ads-v2-color-fg-success)"
+                    : ""
+                }
+                data-testid="checklist-widget-complete-icon"
+                name="oval-check"
+                size="lg"
+              />
+            </StyledCompleteMarker>
+            <ChecklistText active={Object.keys(widgets).length > 1}>
+              <span>
+                {createMessage(ONBOARDING_CHECKLIST_ADD_WIDGETS.bold)}
+              </span>
+              &nbsp;{createMessage(ONBOARDING_CHECKLIST_ADD_WIDGETS.normal)}
+            </ChecklistText>
+          </StyledListItemTextWrapper>
           {Object.keys(widgets).length === 1 && (
             <Button
               className="t--checklist-widget-button"
@@ -399,24 +412,30 @@ export default function OnboardingChecklist() {
           )}
         </StyledListItem>
         <StyledListItem>
-          <StyledCompleteMarker>
-            <Icon
-              className="flex"
-              color={
-                isConnectionPresent ? "var(--ads-v2-color-fg-success)" : ""
-              }
-              data-testid="checklist-connection-complete-icon"
-              name="oval-check"
-              size="lg"
-            />
-          </StyledCompleteMarker>
-          <ChecklistText active={!!isConnectionPresent}>
-            <span>
-              {createMessage(ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET.bold)}
-            </span>
-            &nbsp;
-            {createMessage(ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET.normal)}
-          </ChecklistText>
+          <StyledListItemTextWrapper>
+            <StyledCompleteMarker>
+              <Icon
+                className="flex"
+                color={
+                  isConnectionPresent ? "var(--ads-v2-color-fg-success)" : ""
+                }
+                data-testid="checklist-connection-complete-icon"
+                name="oval-check"
+                size="lg"
+              />
+            </StyledCompleteMarker>
+            <ChecklistText active={!!isConnectionPresent}>
+              <span>
+                {createMessage(
+                  ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET.bold,
+                )}
+              </span>
+              &nbsp;
+              {createMessage(
+                ONBOARDING_CHECKLIST_CONNECT_DATA_TO_WIDGET.normal,
+              )}
+            </ChecklistText>
+          </StyledListItemTextWrapper>
           {!isConnectionPresent && (
             <Button
               className="t--checklist-connection-button"
@@ -440,22 +459,24 @@ export default function OnboardingChecklist() {
           )}
         </StyledListItem>
         <StyledListItem>
-          <StyledCompleteMarker>
-            <Icon
-              className="flex"
-              color={isDeployed ? "var(--ads-v2-color-fg-success)" : ""}
-              data-testid="checklist-deploy-complete-icon"
-              name="oval-check"
-              size="lg"
-            />
-          </StyledCompleteMarker>
-          <ChecklistText active={!!isDeployed}>
-            <span>
-              {createMessage(ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS.bold)}
-            </span>
-            &nbsp;
-            {createMessage(ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS.normal)}
-          </ChecklistText>
+          <StyledListItemTextWrapper>
+            <StyledCompleteMarker>
+              <Icon
+                className="flex"
+                color={isDeployed ? "var(--ads-v2-color-fg-success)" : ""}
+                data-testid="checklist-deploy-complete-icon"
+                name="oval-check"
+                size="lg"
+              />
+            </StyledCompleteMarker>
+            <ChecklistText active={!!isDeployed}>
+              <span>
+                {createMessage(ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS.bold)}
+              </span>
+              &nbsp;
+              {createMessage(ONBOARDING_CHECKLIST_DEPLOY_APPLICATIONS.normal)}
+            </ChecklistText>
+          </StyledListItemTextWrapper>
           {!isDeployed && (
             <Button
               className="t--checklist-deploy-button"
