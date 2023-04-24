@@ -1,6 +1,6 @@
 import React from "react";
 import { hexToRgba } from "design-system-old";
-import { Button, Spinner } from "design-system";
+import { Button, Icon, Spinner, Text } from "design-system";
 import {
   getIsRestartFailed,
   getRestartingState,
@@ -16,7 +16,6 @@ import {
   RESTART_ERROR_HEADER,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
-import { Icon, Text } from "design-system";
 import { retryServerRestart } from "@appsmith/actions/settingsAction";
 import { useDispatch } from "react-redux";
 

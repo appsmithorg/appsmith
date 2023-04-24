@@ -9,8 +9,7 @@ import type {
 } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import QuestionIcon from "remixicon-react/QuestionFillIcon";
-import { Tooltip } from "design-system";
-import { Button } from "design-system";
+import { Button, Tooltip } from "design-system";
 
 import type { Inputs } from "./BrandingPage";
 import {
