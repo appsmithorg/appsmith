@@ -207,7 +207,7 @@ function LazyCodeEditor({ input, placeholder, ...otherProps }: EditorProps) {
 
     return (
       <LazyEditorWrapper
-        className="t--renderedCodeEditor"
+        className="t--lazyCodeEditor-editor"
         ref={editorWrapperRef}
       >
         <CachedCodeEditor
@@ -221,7 +221,7 @@ function LazyCodeEditor({ input, placeholder, ...otherProps }: EditorProps) {
 
   if (renderTarget === "fallback") {
     return (
-      <LazyEditorWrapper>
+      <LazyEditorWrapper className="t--lazyCodeEditor-fallback">
         <CodeEditorFallback
           input={input}
           onInteracted={() => {

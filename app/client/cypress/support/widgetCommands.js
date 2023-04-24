@@ -1410,20 +1410,9 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("EnableAllCodeEditors", () => {
-  cy.wait(2000);
-  cy.get("body").then(($body) => {
-    if ($body.get(commonlocators.codeEditorWrapper)?.length > 0) {
-      let count = $body.get(commonlocators.codeEditorWrapper)?.length || 0;
-      while (count) {
-        $body
-          .get(commonlocators.codeEditorWrapper)
-          ?.eq(0)
-          .then(($el) => $el.click({ force: true }).wait(100));
-        count = $body.find(commonlocators.codeEditorWrapper)?.length || 0;
-      }
-    }
-  });
-  cy.wait(1000);
+  cy.get(commonlocators.lazyCodeEditorFallback, { timeout: 60000 }).should(
+    "not.exist",
+  );
 });
 
 Cypress.Commands.add("getTableCellHeight", (x, y) => {
