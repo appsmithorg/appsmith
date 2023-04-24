@@ -367,10 +367,6 @@ const TextInputWrapper = styled.div<{
   box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   min-height: 32px;
 
-  .auto-layout & {
-    min-height: 36px;
-  }
-
   &:hover {
     border-color: ${({ disabled, hasError }) => {
       if (disabled) {

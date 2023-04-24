@@ -28,6 +28,7 @@ import {
   extractQueueOfValuesToBeFetched,
 } from "./helper";
 import type { Action as ReduxActionType } from "redux";
+import type { DatasourceConfiguration } from "entities/Datasource";
 
 export type FormEvalActionPayload = {
   formId: string;
@@ -38,6 +39,7 @@ export type FormEvalActionPayload = {
   settingConfig?: FormConfigType[];
   actionDiffPath?: string;
   hasRouteChanged?: boolean;
+  datasourceConfiguration?: DatasourceConfiguration;
 };
 
 // This value holds an array of values that needs to be dynamically fetched

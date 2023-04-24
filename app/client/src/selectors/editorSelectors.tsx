@@ -344,7 +344,9 @@ export const getWidgetCards = createSelector(
   getIsAutoLayout,
   (widgetConfigs: WidgetConfigReducerState, isAutoLayout: boolean) => {
     const cards = Object.values(widgetConfigs.config).filter((config) => {
-      return isAirgapped() ? config.widgetName !== "Map" : !config.hideCard;
+      return isAirgapped()
+        ? config.widgetName !== "Map" && !config.hideCard
+        : !config.hideCard;
     });
     const _cards: WidgetCardProps[] = cards.map((config) => {
       const {

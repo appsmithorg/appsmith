@@ -137,6 +137,7 @@ import {
   saveAndAutoIndentCode,
 } from "./utils/saveAndAutoIndent";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -1055,6 +1056,7 @@ class CodeEditor extends Component<Props, State> {
         datasources: this.props.datasources.list,
         pluginIdToImageLocation: this.props.pluginIdToImageLocation,
         recentEntities: this.props.recentEntities,
+        featureFlags: this.props.featureFlags,
         update: this.props.input.onChange?.bind(this),
         executeCommand: (payload: any) => {
           this.props.executeCommand({
@@ -1091,16 +1093,24 @@ class CodeEditor extends Component<Props, State> {
     const cursor = cm.getCursor();
     const line = cm.getLine(cursor.line);
     let showAutocomplete = false;
+    const prevChar = line[cursor.ch - 1];
+
     /* Check if the character before cursor is completable to show autocomplete which backspacing */
     if (key === "/" && !isCtrlOrCmdPressed) {
       showAutocomplete = true;
     } else if (event.code === "Backspace") {
-      const prevChar = line[cursor.ch - 1];
       showAutocomplete = !!prevChar && /[a-zA-Z_0-9.]/.test(prevChar);
     } else if (key === "{") {
       /* Autocomplete for { should show up only when a user attempts to write {{}} and not a code block. */
-      const prevChar = line[cursor.ch - 1];
       showAutocomplete = prevChar === "{";
+    } else if (key === "'" || key === '"') {
+      /* Autocomplete for [ should show up only when a user attempts to write {['']} for Object property suggestions. */
+      showAutocomplete = prevChar === "[";
+
+      if (!showAutocomplete) {
+        // @ts-expect-error: Types are not available
+        cm.closeHint();
+      }
     } else if (key.length == 1) {
       showAutocomplete = /[a-zA-Z_0-9.]/.test(key);
       /* Autocomplete should be triggered only for characters that make up valid variable names */
@@ -1379,6 +1389,7 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
     state,
     props.dataTreePath?.split(".")[0],
   ),
+  featureFlags: selectFeatureFlags(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
