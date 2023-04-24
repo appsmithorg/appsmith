@@ -396,7 +396,6 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
     font-weight: bold;
     font-size: 14px;
     font-style: italic;
-    padding: 0 0 3px;
     margin: 0 !important;
     top: -2px;
   }
