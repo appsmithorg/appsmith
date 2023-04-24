@@ -1,9 +1,8 @@
 import { createMessage } from "@appsmith/constants/messages";
 import React from "react";
 import styled from "styled-components";
-import { Tooltip, Text } from "design-system";
+import { Icon, Tooltip, Text } from "design-system";
 import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
-import { Icon } from "design-system";
 
 type FieldHelperProps = {
   setting: Setting;

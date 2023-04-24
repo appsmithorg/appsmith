@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import React from "react";
-import { Text } from "design-system";
-import { Button } from "design-system";
+import { Button, Text } from "design-system";
 import type { FooterProps } from "./types";
 import { createMessage } from "design-system-old/build/constants/messages";
 import { AVAILABLE_ON_BUSINESS, UPGRADE } from "../../constants/messages";
