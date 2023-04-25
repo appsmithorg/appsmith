@@ -320,7 +320,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                 size="md"
                 startIcon="query"
               >
-                SNIPPETS
+                Snippets
               </Button>
               <JSFunctionRun
                 disabled={disableRunFunctionality || !isExecutePermitted}
