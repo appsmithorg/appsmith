@@ -156,19 +156,7 @@ const QueryFormContainer = styled.form`
     margin-top: 10px;
   }
 `;
-const MainContainer = styled.div`
-  display: flex;
-  position: relative;
-  height: 100%;
-  flex-direction: column;
-  padding: var(--ads-v2-spaces-7);
-  .tab-panel {
-    margin: var(--ads-v2-spaces-7) 0;
-    height: calc(100vh - 270px);
-    overflow: auto;
-    ${thinScrollbar};
-  }
-`;
+
 const ErrorMessage = styled.p`
   font-size: 14px;
   color: var(--ads-v2-color-fg-error);
@@ -192,6 +180,8 @@ export const TabbedViewContainer = styled.div`
 `;
 
 const SettingsWrapper = styled.div`
+  padding: 16px 30px;
+  ${thinScrollbar};
   height: 100%;
 `;
 
@@ -203,7 +193,7 @@ const ResultsCount = styled.div`
 `;
 
 const FieldWrapper = styled.div`
-  margin-bottom: var(--ads-v2-spaces-4);
+  margin-top: 15px;
 `;
 
 const SecondaryWrapper = styled.div`
@@ -226,6 +216,7 @@ const ResponseContentWrapper = styled.div<{ isError: boolean }>`
 `;
 
 export const StyledFormRow = styled(FormRow)`
+  padding: 0px 20px;
   flex: 0;
 `;
 
@@ -310,6 +301,13 @@ const TabContainerView = styled.div`
   display: flex;
   align-items: start;
   flex: 1;
+  overflow: auto;
+  ${thinScrollbar}
+  a {
+    font-size: 14px;
+    line-height: 20px;
+    margin-top: 12px;
+  }
   position: relative;
 `;
 
@@ -864,7 +862,7 @@ export function EditorJSONtoForm(props: Props) {
   }
 
   return (
-    <MainContainer>
+    <>
       {!guidedTourEnabled && <CloseEditor />}
       {guidedTourEnabled && <Guide className="query-page" />}
       <QueryFormContainer onSubmit={handleSubmit}>
@@ -1085,6 +1083,6 @@ export function EditorJSONtoForm(props: Props) {
           </SidebarWrapper>
         </Wrapper>
       </QueryFormContainer>
-    </MainContainer>
+    </>
   );
 }
