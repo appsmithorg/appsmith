@@ -18,6 +18,7 @@ import "tinymce/plugins/searchreplace";
 import "tinymce/plugins/visualblocks";
 import "tinymce/plugins/fullscreen";
 import "tinymce/plugins/emoticons";
+import "tinymce/plugins/emoticons/js/emojis";
 import "tinymce/plugins/print";
 import "tinymce/themes/silver";
 import "tinymce/skins/ui/oxide/skin.min.css";
