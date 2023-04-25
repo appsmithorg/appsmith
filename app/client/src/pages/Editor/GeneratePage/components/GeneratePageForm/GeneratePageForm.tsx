@@ -104,18 +104,6 @@ const FormWrapper = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-
-  &&& .ads-v2-select.has-error {
-    border: 1px solid var(--ads-old-color-pomegranate);
-  }
-
-  &&& .ads-v2-select.has-error .rc-select-selection-item {
-    color: var(--ads-old-color-pomegranate);
-  }
-
-  &&& .ads-v2-select.has-error .rc-select-arrow {
-    color: var(--ads-old-color-pomegranate);
-  }
 `;
 
 const DescWrapper = styled.div`
@@ -741,10 +729,10 @@ function GeneratePageForm() {
             </Label>
 
             <Select
-              className={tableDropdownErrorMsg ? "has-error" : ""}
               data-testid="t--table-dropdown"
               isDisabled={!!tableDropdownErrorMsg}
               isLoading={fetchingDatasourceConfigs}
+              isValid={!!tableDropdownErrorMsg}
               onChange={(value) =>
                 onSelectTable(
                   value,
@@ -773,16 +761,8 @@ function GeneratePageForm() {
                     <OptionWrapper>
                       <StyledIconWrapper>
                         <StyledIcon
-                          fillColor={
-                            tableDropdownErrorMsg
-                              ? "var(--ads-v2-color-fg-error)"
-                              : table?.iconColor
-                          }
-                          hoverFillColor={
-                            tableDropdownErrorMsg
-                              ? "var(--ads-v2-color-fg-error)"
-                              : table?.iconColor
-                          }
+                          fillColor={table?.iconColor}
+                          hoverFillColor={table?.iconColor}
                           name={table.icon}
                           size={table.iconSize || IconSize.XL}
                         />
