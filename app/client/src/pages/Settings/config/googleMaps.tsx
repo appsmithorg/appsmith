@@ -1,6 +1,7 @@
-import React, { ReactElement } from "react";
+import React from "react";
+import type { ReactElement } from "react";
+import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
 import {
-  AdminConfigType,
   SettingCategories,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
