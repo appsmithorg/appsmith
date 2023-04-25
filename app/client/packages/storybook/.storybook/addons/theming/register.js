@@ -1,13 +1,12 @@
 import styled from "styled-components";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { addons, types } from "@storybook/addons";
 import {
-  Icons,
-  IconButton,
-  WithTooltip,
   Form,
   H6,
   ColorControl,
+  AddonPanel,
+  BooleanControl,
 } from "@storybook/components";
 import { useGlobals } from "@storybook/api";
 import { fontMetricsMap } from "@design-system/widgets";
@@ -32,28 +31,30 @@ const StyledSelect = styled(Select)`
   background-repeat: no-repeat, repeat;
   background-position: right 0.8em top 50%, 0 0;
   background-size: 0.65em auto, 100%;
+  max-width: 250px;
 `;
 
-addons.register("wds/theming", () => {
-  addons.add("wds-addon/toolbar", {
-    id: "wds-addon/toolbar",
+addons.register("widgets/theming", () => {
+  addons.add("widgets-addon/panel", {
+    id: "widgets-addon/toolbar",
     title: "Theming",
-    type: types.TOOL,
+    type: types.PANEL,
     match: (args) => {
       const { viewMode, storyId } = args;
 
       // show the addon only on wds
       if (
         storyId &&
-        storyId?.includes("wds") &&
+        storyId?.includes("widgets") &&
         !!(viewMode && viewMode.match(/^(story|docs)$/))
       )
         return true;
 
       return false;
     },
-    render: ({ active }) => {
+    render: ({ active, key }) => {
       const [globals, updateGlobals] = useGlobals();
+      const [isDarkMode, setDarkMode] = useState(false);
 
       const updateGlobal = (key, value) => {
         updateGlobals({
@@ -65,74 +66,76 @@ addons.register("wds/theming", () => {
       const debouncedColorChange = useCallback(debounce(colorChange, 300), []);
 
       return (
-        <WithTooltip
-          trigger="click"
-          placement="bottom"
-          tooltipShown={active}
-          closeOnClick
-          tooltip={
-            <Wrapper>
-              <div>
-                <H6>Border Radius</H6>
-                <StyledSelect
-                  id="border-radius"
-                  label="Border Radius"
-                  size="100%"
-                  defaultValue={globals.borderRadius}
-                  onChange={(e) => updateGlobal("borderRadius", e.target.value)}
-                >
-                  <option value="0px">Sharp</option>
-                  <option value="0.375rem">Rounded</option>
-                  <option value="1rem">Pill</option>
-                </StyledSelect>
-              </div>
+        <AddonPanel active={active} key={key}>
+          <Wrapper>
+            <div>
+              <H6>Dark mode</H6>
+              <BooleanControl
+                name="colorScheme"
+                value={isDarkMode}
+                onChange={(checked) => {
+                  setDarkMode(checked);
+                  updateGlobal("colorMode", checked ? "dark" : "light");
+                }}
+              />
+            </div>
 
-              <div>
-                <H6>Accent Color</H6>
-                <ColorControl
-                  id="accent-color"
-                  name="accent-color"
-                  label="Accent Color"
-                  defaultValue={globals.accentColor}
-                  value={globals.accentColor}
-                  onChange={debouncedColorChange}
-                />
-              </div>
+            <div>
+              <H6>Border Radius</H6>
+              <StyledSelect
+                id="border-radius"
+                label="Border Radius"
+                size="100%"
+                defaultValue={globals.borderRadius}
+                onChange={(e) => updateGlobal("borderRadius", e.target.value)}
+              >
+                <option value="0px">Sharp</option>
+                <option value="0.375rem">Rounded</option>
+                <option value="1rem">Pill</option>
+              </StyledSelect>
+            </div>
 
-              <div>
-                <H6>Font Family</H6>
-                <StyledSelect
-                  id="font-family"
-                  label="Font Family"
-                  size="100%"
-                  defaultValue={globals.fontFamily}
-                  onChange={(e) => updateGlobal("fontFamily", e.target.value)}
-                >
-                  <option value="">System Default</option>
-                  {Object.keys(fontMetricsMap)
-                    .filter((item) => {
-                      return (
-                        [
-                          "-apple-system",
-                          "BlinkMacSystemFont",
-                          "Segoe UI",
-                        ].includes(item) === false
-                      );
-                    })
-                    .map((font) => (
-                      <option value={font} key={`font-famiy-${font}`}>
-                        {font}
-                      </option>
-                    ))}
-                </StyledSelect>
-              </div>
-            </Wrapper>
-          }
-        >
-          <IconButton key="wds-addon/toolbar" active={active} title="Theming">
-            <Icons icon="paintbrush" />
-          </IconButton>
-        </WithTooltip>
+            <div>
+              <H6>Accent Color</H6>
+              <ColorControl
+                id="accent-color"
+                name="accent-color"
+                label="Accent Color"
+                defaultValue={globals.accentColor}
+                value={globals.accentColor}
+                onChange={debouncedColorChange}
+              />
+            </div>
+
+            <div>
+              <H6>Font Family</H6>
+              <StyledSelect
+                id="font-family"
+                label="Font Family"
+                size="100%"
+                defaultValue={globals.fontFamily}
+                onChange={(e) => updateGlobal("fontFamily", e.target.value)}
+              >
+                <option value="">System Default</option>
+                {Object.keys(fontMetricsMap)
+                  .filter((item) => {
+                    return (
+                      [
+                        "-apple-system",
+                        "BlinkMacSystemFont",
+                        "Segoe UI",
+                      ].includes(item) === false
+                    );
+                  })
+                  .map((font) => (
+                    <option value={font} key={`font-famiy-${font}`}>
+                      {font}
+                    </option>
+                  ))}
+              </StyledSelect>
+            </div>
+          </Wrapper>
+        </AddonPanel>
       );
     },
   });

@@ -496,6 +496,16 @@ Cypress.Commands.add("testJsontextclear", (endp) => {
   });
 });
 
+Cypress.Commands.add("testJsonTextClearMultiline", (endp) => {
+  const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
+
+  cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
+    .first()
+    .focus({ force: true })
+    .type(`{${modifierKey}}{a}`, { force: true })
+    .type(`{${modifierKey}}{del}`, { force: true });
+});
+
 Cypress.Commands.add("getCodeInput", ($selector, value) => {
   cy.EnableAllCodeEditors();
   cy.get($selector)
@@ -1577,6 +1587,17 @@ Cypress.Commands.add("freezeColumnFromDropdown", (columnName, direction) => {
   );
   cy.get(".bp3-menu")
     .contains(`Freeze column ${direction}`)
+    .click({ force: true });
+
+  cy.wait(500);
+});
+
+Cypress.Commands.add("sortColumn", (columnName, direction) => {
+  cy.get(`[data-header=${columnName}] .header-menu .bp3-popover2-target`).click(
+    { force: true },
+  );
+  cy.get(".bp3-menu")
+    .contains(`Sort column ${direction}`)
     .click({ force: true });
 
   cy.wait(500);

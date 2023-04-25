@@ -112,7 +112,7 @@ const TopHeader = (props: TopHeaderProps) => {
           )}
 
         <section className="relative flex items-center space-x-3 z-1 ml-auto py-3">
-          {currentApplicationDetails && (
+          {currentApplicationDetails && currentApplicationDetails?.id && (
             <div className="hidden space-x-1 md:flex">
               <ShareButton
                 currentApplicationDetails={currentApplicationDetails}

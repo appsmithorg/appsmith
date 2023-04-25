@@ -84,8 +84,16 @@ const DROPDOWN_WIDTH = "400px";
 function NonSuperUser(
   props: InjectedFormProps & UserFormProps & NonSuperUserFormData,
 ) {
+  const onSubmit = (data: NonSuperUserFormData) => {
+    props.onGetStarted &&
+      props.onGetStarted(
+        data.role !== "other" ? data.role : props.role_name,
+        data.useCase,
+      );
+  };
+
   return (
-    <StyledNonSuperUserForm>
+    <StyledNonSuperUserForm onSubmit={props.handleSubmit(onSubmit)}>
       <Space />
       <DropdownWrapper
         label={createMessage(WELCOME_FORM_NON_SUPER_USER_ROLE_DROPDOWN)}
@@ -118,15 +126,9 @@ function NonSuperUser(
         <StyledButton
           className="t--get-started-button"
           disabled={props.invalid}
-          onClick={() =>
-            !props.invalid && // temp fix - design system needs to be fixed for disabling click
-            props.onGetStarted &&
-            props.onGetStarted(
-              props.role !== "other" ? props.role : props.role_name,
-              props.useCase,
-            )
-          }
+          tag="button"
           text={createMessage(WELCOME_ACTION)}
+          type="submit"
         />
       </ActionContainer>
     </StyledNonSuperUserForm>

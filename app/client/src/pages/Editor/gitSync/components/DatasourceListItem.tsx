@@ -1,5 +1,11 @@
-import { Icon, IconSize, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
+import {
+  Icon,
+  IconSize,
+  Text,
+  TextType,
+  TooltipComponent,
+} from "design-system-old";
 import type { Datasource } from "entities/Datasource";
 import { PluginImage } from "pages/Editor/DataSourceEditor/JSONtoForm";
 import React from "react";
@@ -69,11 +75,14 @@ function ListItemWrapper(props: {
           >
             {ds.name}
           </Text>
-          <Icon
-            fillColor={ds.isConfigured ? Colors.GREEN : Colors.ERROR_RED}
-            name={ds.isConfigured ? "oval-check" : "info"}
-            size={IconSize.MEDIUM}
-          />
+          <TooltipComponent content={ds.name} position="left">
+            <Icon
+              className="t--ds-list-icon"
+              fillColor={ds.isConfigured ? Colors.GREEN : Colors.ERROR_RED}
+              name={ds.isConfigured ? "oval-check" : "info"}
+              size={IconSize.MEDIUM}
+            />
+          </TooltipComponent>
         </DsTitle>
         <Text color={Colors.GRAY_700} type={TextType.H5}>
           {plugin.name}

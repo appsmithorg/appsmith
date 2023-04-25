@@ -221,6 +221,7 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
           updateCollection = true;
           jsActionTobeUpdated.actions = nonDeletedActions;
         }
+
         if (updateCollection) {
           newActions.forEach((action) => {
             AnalyticsUtil.logEvent("JS_OBJECT_FUNCTION_ADDED", {
@@ -240,7 +241,11 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
   }
 }
 
-export function* makeUpdateJSCollection(jsUpdates: Record<string, JSUpdate>) {
+export function* makeUpdateJSCollection(
+  action: ReduxAction<Record<string, JSUpdate>>,
+) {
+  const jsUpdates: Record<string, JSUpdate> = action.payload;
+
   yield all(
     Object.keys(jsUpdates).map((key) =>
       call(handleEachUpdateJSCollection, jsUpdates[key]),

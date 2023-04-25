@@ -414,7 +414,7 @@ describe("Debugger logs", function () {
     debuggerHelper.DoesConsoleLogExist("end: [0,1,2,3,4]");
   });
 
-  it("6. Bug #19115 - Objects that start with an underscore `_JSObject1` fail to be navigated from the debugger", function () {
+  it("19. Bug #19115 - Objects that start with an underscore `_JSObject1` fail to be navigated from the debugger", function () {
     const JSOBJECT_WITH_UNNECCESARY_SEMICOLON = `export default {
         myFun1: () => {
             //write code here
