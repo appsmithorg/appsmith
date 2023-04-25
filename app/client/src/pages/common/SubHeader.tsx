@@ -17,13 +17,9 @@ const SubHeaderWrapper = styled.div<{
   width: ${({ isMobile }) => (isMobile ? `100%` : `250px`)};
   display: flex;
   justify-content: space-between;
-  ${(props) =>
-    props.isBannerVisible
-      ? "margin-top: 96px"
-      : `margin-top: ${props.theme.spaces[11]}px`};
+  ${(props) => (props.isBannerVisible ? "margin-top: 96px" : "")};
   background: ${(props) => props.theme.colors.homepageBackground};
   z-index: ${Indices.Layer9};
-  margin-left: ${(props) => props.theme.spaces[4]}px;
   z-index: ${({ isMobile }) => (isMobile ? Indices.Layer8 : Indices.Layer9)};
   ${({ isMobile }) => isMobile && `padding: 12px 16px; margin: 0px;`}
 `;

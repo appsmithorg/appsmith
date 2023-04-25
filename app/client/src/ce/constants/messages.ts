@@ -69,7 +69,7 @@ export const NEW_TO_APPSMITH = () => `Don't have an account?`;
 export const LOGIN_PAGE_TITLE = () => `Sign in`;
 export const LOGIN_PAGE_SUBTITLE = () => `Sign in to your account`;
 
-export const LOGIN_PAGE_LOGIN_BUTTON_TEXT = () => `sign in`;
+export const LOGIN_PAGE_LOGIN_BUTTON_TEXT = () => `Sign in`;
 export const LOGIN_PAGE_FORGOT_PASSWORD_TEXT = () => `Forgot Password`;
 export const LOGIN_PAGE_REMEMBER_ME_LABEL = () => `Remember`;
 export const LOGIN_PAGE_SIGN_UP_LINK_TEXT = () => `Sign up`;
@@ -83,7 +83,7 @@ export const SIGNUP_PAGE_PASSWORD_INPUT_LABEL = () => `Password`;
 export const SIGNUP_PAGE_PASSWORD_INPUT_PLACEHOLDER = () => `Password`;
 export const SIGNUP_PAGE_LOGIN_LINK_TEXT = () => `Sign in`;
 export const SIGNUP_PAGE_NAME_INPUT_SUBTEXT = () => `How should we call you?`;
-export const SIGNUP_PAGE_SUBMIT_BUTTON_TEXT = () => `Sign Up`;
+export const SIGNUP_PAGE_SUBMIT_BUTTON_TEXT = () => `Sign up`;
 export const ALREADY_HAVE_AN_ACCOUNT = () => `Already have an account?`;
 
 export const SIGNUP_PAGE_SUCCESS = () =>
@@ -208,7 +208,7 @@ export const EDITOR_HEADER = {
 export const CREATE_NEW_APPLICATION = () => `Create new`;
 export const SEARCH_APPS = () => `Search for apps...`;
 export const GETTING_STARTED = () => `GETTING STARTED`;
-export const WORKSPACES_HEADING = () => `WORKSPACES`;
+export const WORKSPACES_HEADING = () => `Workspaces`;
 export const WELCOME_TOUR = () => `Welcome Tour`;
 export const NO_APPS_FOUND = () =>
   `Whale! Whale! This name doesn't ring a bell!`;
@@ -993,7 +993,7 @@ export const CHOOSE_ACCESS_CONTROL_ROLES = () =>
 export const BUILD_MY_FIRST_APP = () => "Build on my own";
 export const ONBOARDING_INTRO_FOOTER = () =>
   "Let’s start building your first application";
-export const START_TUTORIAL = () => "START TUTORIAL";
+export const START_TUTORIAL = () => "Start tutorial";
 export const WELCOME_TO_APPSMITH = () => "Welcome to Appsmith!";
 export const QUERY_YOUR_DATABASE = () =>
   "Query your own database or API inside Appsmith. Write JS to construct dynamic queries.";
@@ -1406,8 +1406,8 @@ export const NOTE = () => "Note:";
 export const NOTE_MESSAGE = () => "You can add your datasources as well";
 export const WIDGET_USED = () => "Widgets";
 export const SIMILAR_TEMPLATES = () => "Similar Templates";
-export const VIEW_ALL_TEMPLATES = () => "VIEW ALL TEMPLATES";
-export const FILTERS = () => "FILTERS";
+export const VIEW_ALL_TEMPLATES = () => "View all templates";
+export const FILTERS = () => "Filters";
 export const TEMPLATE_CARD_TITLE = () => "Start from a template";
 export const TEMPLATE_CARD_DESCRIPTION = () =>
   "Create app from template by selecting pages";

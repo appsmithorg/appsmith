@@ -24,7 +24,6 @@ import { noop, omit } from "lodash";
 import type { AppIconName } from "design-system-old";
 import {
   AppIcon,
-  Classes as CsClasses,
   ColorSelector,
   EditableText,
   EditInteractionKind,
@@ -33,7 +32,6 @@ import {
   Size,
   Text,
   TextType,
-  TooltipComponent,
 } from "design-system-old";
 import type { MenuItemProps } from "design-system";
 import {
@@ -44,6 +42,7 @@ import {
   MenuContent,
   MenuItem,
   MenuTrigger,
+  Tooltip,
 } from "design-system";
 import { useSelector } from "react-redux";
 import type {
@@ -58,7 +57,6 @@ import {
 import { truncateString, howMuchTimeBeforeText } from "utils/helpers";
 import ForkApplicationModal from "./ForkApplicationModal";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
-import { Colors } from "constants/Colors";
 import { CONNECTED_TO_GIT, createMessage } from "@appsmith/constants/messages";
 import { builderURL, viewerURL } from "RouteBuilder";
 import history from "utils/history";
@@ -173,13 +171,6 @@ const Wrapper = styled(
   .bp3-card {
     border-radius: var(--ads-v2-border-radius);
   }
-  .${CsClasses.APP_ICON} {
-    margin: 0 auto;
-    svg {
-      path {
-        fill: #fff;
-      }
-    }
   }
 
   ${({ isMobile }) =>
@@ -286,9 +277,6 @@ const CircleAppIcon = styled(AppIcon)`
   svg {
     width: 100%;
     height: 100%;
-    path {
-      fill: #000 !important;
-    }
   }
 `;
 
@@ -310,11 +298,11 @@ const CardFooter = styled.div`
 const IconScrollWrapper = styled.div`
   position: relative;
   .t--icon-selected {
-    background-color: rgba(248, 106, 43, 0.2);
-    border: 1px solid ${(props) => props.theme.colors.applications.cardMenuIcon};
+    background-color: var(--ads-v2-color-bg-muted);
+    border: var(--ads-v2-border-color);
     svg {
       path {
-        fill: ${(props) => props.theme.colors.applications.iconColor};
+        fill: var(--ads-app-icon-normal-color);
       }
     }
   }
@@ -337,18 +325,15 @@ const StyledGitConnectedBadge = styled.div`
   top: -12px;
   right: -12px;
   box-shadow: 0px 2px 16px rgba(0, 0, 0, 0.07);
-  background: ${Colors.WHITE};
+  background: var(--ads-v2-color-bg);
 `;
 
 function GitConnectedBadge() {
   return (
     <StyledGitConnectedBadge>
-      <TooltipComponent
-        content={createMessage(CONNECTED_TO_GIT)}
-        maxWidth="400px"
-      >
+      <Tooltip content={createMessage(CONNECTED_TO_GIT)}>
         <Icon name="fork" size="md" />
-      </TooltipComponent>
+      </Tooltip>
     </StyledGitConnectedBadge>
   );
 }
@@ -533,7 +518,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
       onSelect: deleteApp,
       children: "Are you sure?",
       key: "areyousure",
-      startIcon: "delete-blank",
+      startIcon: "delete-bin-line",
       "data-testid": "t--delete",
     });
     setMoreActionItems(updatedActionItems);
@@ -541,7 +526,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const addDeleteOption = () => {
     if (props.delete && hasDeletePermission) {
       const index = moreActionItems.findIndex(
-        (el) => el.startIcon === "delete-blank",
+        (el) => el.startIcon === "delete-bin-line",
       );
       if (index >= 0) {
         moreActionItems.pop();
@@ -550,7 +535,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
         onSelect: askForConfirmation,
         children: "Delete",
         key: "delete",
-        startIcon: "delete-blank",
+        startIcon: "delete-bin-line",
         "data-testid": "t--delete-confirm",
       });
       setMoreActionItems(moreActionItems);
@@ -662,7 +647,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
               <MenuItem
                 {...restMenuItem}
                 className={
-                  item.startIcon === "delete-blank" ? "error-menuitem" : ""
+                  item.startIcon === "delete-bin-line" ? "error-menuitem" : ""
                 }
                 key={key}
               >
@@ -814,7 +799,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                       href={editModeURL}
                       onClick={editApp}
                       size="md"
-                      startIcon={"edit-white"}
+                      startIcon={"pencil-line"}
                     >
                       Edit
                     </Button>
