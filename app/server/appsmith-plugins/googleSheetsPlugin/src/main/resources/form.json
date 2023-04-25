@@ -74,7 +74,7 @@
         },
         {
           "label": "Account",
-          "configProperty": "datasourceConfiguration.properties[0].key",
+          "configProperty": "datasourceConfiguration.properties[0].value",
           "controlType": "INPUT_TEXT",
           "isRequired": false,
           "hidden": {
