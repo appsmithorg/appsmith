@@ -19,7 +19,7 @@ import {
   alterLayoutForMobile,
   getCanvasDimensions,
 } from "utils/autoLayout/AutoLayoutUtils";
-import { getWidgets } from "./selectors";
+import { getCanvasAndMetaWidgets, getWidgets } from "./selectors";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   GridDefaults,
@@ -46,7 +46,10 @@ import {
   setBottomRow,
   setRightColumn,
 } from "utils/autoLayout/flexWidgetUtils";
-import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
+import {
+  updateMultipleMetaWidgetPropertiesAction,
+  updateMultipleWidgetPropertiesAction,
+} from "actions/controlActions";
 import { isEmpty } from "lodash";
 import { mutation_setPropertiesToUpdate } from "./autoHeightSagas/helpers";
 import { updateApplication } from "@appsmith/actions/applicationActions";
@@ -206,7 +209,9 @@ function* updateWidgetDimensionsSaga(
 ) {
   let { height, width } = action.payload;
   const { widgetId } = action.payload;
-  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const allWidgets: CanvasWidgetsReduxState = yield select(
+    getCanvasAndMetaWidgets,
+  );
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
   const isWidgetResizing: boolean = yield select(getIsResizing);
@@ -272,7 +277,9 @@ function* updateWidgetDimensionsSaga(
 function* processAutoLayoutDimensionUpdatesSaga() {
   if (Object.keys(autoLayoutWidgetDimensionUpdateBatch).length === 0) return;
 
-  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const allWidgets: CanvasWidgetsReduxState = yield select(
+    getCanvasAndMetaWidgets,
+  );
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
 
@@ -330,7 +337,8 @@ function* processAutoLayoutDimensionUpdatesSaga() {
     );
   }
 
-  let widgetsToUpdate: any = {};
+  let canvasWidgetsToUpdate: any = {};
+  let metaWidgetsToUpdate: any = {};
 
   /**
    * Iterate over all widgets and check if any of their dimensions have changed
@@ -340,7 +348,8 @@ function* processAutoLayoutDimensionUpdatesSaga() {
   for (const widgetId of Object.keys(widgets)) {
     const widget = widgets[widgetId];
     const oldWidget = widgetsOld[widgetId];
-    const propertiesToUpdate: Record<string, any> = {};
+    const propertiesOfCanvasWidgetsToUpdate: Record<string, any> = {};
+    const propertiesOfMetaWidgetsToUpdate: Record<string, any> = {};
 
     const positionProperties = [
       "topRow",
@@ -355,24 +364,39 @@ function* processAutoLayoutDimensionUpdatesSaga() {
 
     for (const prop of positionProperties) {
       if (widget[prop] !== oldWidget[prop]) {
-        propertiesToUpdate[prop] = widget[prop];
+        if (widget.isMetaWidget) {
+          propertiesOfMetaWidgetsToUpdate[prop] = widget[prop];
+        } else {
+          propertiesOfCanvasWidgetsToUpdate[prop] = widget[prop];
+        }
       }
     }
 
-    if (isEmpty(propertiesToUpdate)) continue;
+    if (!isEmpty(propertiesOfCanvasWidgetsToUpdate)) {
+      canvasWidgetsToUpdate = mutation_setPropertiesToUpdate(
+        canvasWidgetsToUpdate,
+        widgetId,
+        propertiesOfCanvasWidgetsToUpdate,
+      );
+    }
 
-    widgetsToUpdate = mutation_setPropertiesToUpdate(
-      widgetsToUpdate,
-      widgetId,
-      propertiesToUpdate,
-    );
+    if (!isEmpty(propertiesOfMetaWidgetsToUpdate)) {
+      metaWidgetsToUpdate = mutation_setPropertiesToUpdate(
+        metaWidgetsToUpdate,
+        widgetId,
+        propertiesOfMetaWidgetsToUpdate,
+      );
+    }
   }
 
   // Push all updates to the CanvasWidgetsReducer.
   // Note that we're not calling `UPDATE_LAYOUT`
   // as we don't need to trigger an eval
-  if (!isEmpty(widgetsToUpdate)) {
-    yield put(updateMultipleWidgetPropertiesAction(widgetsToUpdate));
+  if (!isEmpty(canvasWidgetsToUpdate)) {
+    yield put(updateMultipleWidgetPropertiesAction(canvasWidgetsToUpdate));
+  }
+  if (!isEmpty(metaWidgetsToUpdate)) {
+    yield put(updateMultipleMetaWidgetPropertiesAction(metaWidgetsToUpdate));
   }
 
   // clear the batch after processing
