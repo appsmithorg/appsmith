@@ -37,7 +37,7 @@ describe("Admin settings page", function () {
 
   it("3. Should test that settings page is redirected to default tab", () => {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.wait(3000);
+    //cy.wait(3000);
     cy.visit("/settings");
     cy.url().should("contain", "/settings/general");
   });

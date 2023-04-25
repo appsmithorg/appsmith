@@ -118,9 +118,8 @@ describe("Theme validation usecase for multi-select widget", function () {
             appSettings.ClosePane();
           });
       });
-  });
 
-  it("4. Publish the App and validate change of Theme across the app in publish mode", function () {
+    //Publish the App and validate change of Theme across the app in publish mode
     cy.PublishtheApp();
     cy.xpath("//div[@id='root']//section/parent::div").should(
       "have.css",
