@@ -90,13 +90,11 @@ const TopHeader = (props: TopHeaderProps) => {
             setMenuOpen={setMenuOpen}
           />
 
-          {currentUser?.username !== ANONYMOUS_USERNAME && (
-            <BackToHomeButton
-              logoConfiguration={logoConfiguration}
-              navColorStyle={navColorStyle}
-              primaryColor={primaryColor}
-            />
-          )}
+          <BackToHomeButton
+            logoConfiguration={logoConfiguration}
+            navColorStyle={navColorStyle}
+            primaryColor={primaryColor}
+          />
 
           {(logoConfiguration ===
             NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE ||

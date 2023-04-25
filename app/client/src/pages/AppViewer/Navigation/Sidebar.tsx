@@ -19,7 +19,6 @@ import {
   previewModeSelector,
 } from "selectors/editorSelectors";
 import type { User } from "constants/userConstants";
-import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import SidebarProfileComponent from "./components/SidebarProfileComponent";
 import CollapseButton from "./components/CollapseButton";
 import classNames from "classnames";
@@ -153,14 +152,12 @@ export function Sidebar(props: SidebarProps) {
     >
       <StyledHeader>
         <div className="flex-col">
-          {currentUser?.username !== ANONYMOUS_USERNAME && (
-            <BackToHomeButton
-              forSidebar
-              logoConfiguration={logoConfiguration}
-              navColorStyle={navColorStyle}
-              primaryColor={primaryColor}
-            />
-          )}
+          <BackToHomeButton
+            forSidebar
+            logoConfiguration={logoConfiguration}
+            navColorStyle={navColorStyle}
+            primaryColor={primaryColor}
+          />
 
           {!isMinimal &&
             (logoConfiguration ===

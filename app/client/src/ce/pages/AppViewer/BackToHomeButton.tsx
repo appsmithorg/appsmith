@@ -12,11 +12,21 @@ import {
 import styled from "styled-components";
 import { TooltipComponent } from "design-system-old";
 import classNames from "classnames";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import {
+  getAppMode,
+  getCurrentApplication,
+} from "@appsmith/selectors/applicationSelectors";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { StyledApplicationName } from "pages/AppViewer/Navigation/components/ApplicationName.styled";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+import { getViewModePageList } from "selectors/editorSelectors";
+import { useHref } from "pages/Editor/utils";
+import { APP_MODE } from "entities/App";
+import { builderURL, viewerURL } from "RouteBuilder";
+import { getCurrentUser } from "selectors/usersSelectors";
+import type { User } from "constants/userConstants";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -48,11 +58,6 @@ export const StyledLink = styled(Link)<{
 }>`
   min-width: max-content;
 
-  img {
-    max-width: 10rem;
-    max-height: 1.5rem;
-  }
-
   &:hover {
     svg {
       background-color: ${({ navColorStyle, primaryColor }) =>
@@ -67,6 +72,11 @@ export const StyledLink = styled(Link)<{
   }
 `;
 
+const StyledImage = styled.img`
+  max-width: 10rem;
+  max-height: 1.5rem;
+`;
+
 function BackToHomeButton(props: BackToHomeButtonProps) {
   const { forSidebar, logoConfiguration, navColorStyle, primaryColor } = props;
   const selectedTheme = useSelector(getSelectedAppTheme);
@@ -77,50 +87,95 @@ function BackToHomeButton(props: BackToHomeButtonProps) {
     currentApplicationDetails?.applicationDetail?.navigationSetting?.navStyle ||
     NAVIGATION_SETTINGS.NAV_STYLE.STACKED;
   const isMobile = useIsMobileDevice();
+  const pages = useSelector(getViewModePageList);
+  const appMode = useSelector(getAppMode);
+  const defaultPage = pages.find((page) => page.isDefault) || pages[0];
+  const pageUrl = useHref(
+    appMode === APP_MODE.PUBLISHED ? viewerURL : builderURL,
+    {
+      pageId: defaultPage?.pageId,
+    },
+  );
+  const currentUser: User | undefined = useSelector(getCurrentUser);
 
   return (
-    <TooltipComponent content="Back to apps" position="bottom-left">
-      <StyledLink
-        className={classNames({
-          "flex items-center gap-2 group t--back-to-home hover:no-underline mr-4":
-            true,
-          "mb-2": forSidebar,
-        })}
-        navColorStyle={navColorStyle}
-        primaryColor={primaryColor}
-        to="/applications"
-      >
-        <StyledAppIcon
-          borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
-          className="p-1 w-7 h-7"
-          forSidebar={forSidebar}
-          navColorStyle={navColorStyle}
-          primaryColor={primaryColor}
-        />
-
-        {currentApplicationDetails?.applicationDetail?.navigationSetting
-          ?.logoAssetId?.length &&
-        (logoConfiguration ===
-          NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE ||
-          logoConfiguration ===
-            NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY) ? (
-          <img
-            alt="Your application's logo"
-            src={`/api/v1/assets/${currentApplicationDetails.applicationDetail.navigationSetting.logoAssetId}`}
-          />
-        ) : (
-          <StyledApplicationName
-            className="text-base whitespace-nowrap"
-            isMobile={isMobile}
+    <div
+      className={classNames({
+        "flex items-center gap-2 mr-4": true,
+        "mb-2": forSidebar,
+      })}
+    >
+      {currentUser?.username !== ANONYMOUS_USERNAME && (
+        <TooltipComponent content="Back to apps" position="bottom-left">
+          <StyledLink
+            className="group t--back-to-home hover:no-underline flex items-center gap-2 "
             navColorStyle={navColorStyle}
-            navStyle={navStyle}
             primaryColor={primaryColor}
+            to="/applications"
           >
-            Apps
-          </StyledApplicationName>
-        )}
-      </StyledLink>
-    </TooltipComponent>
+            <StyledAppIcon
+              borderRadius={
+                selectedTheme.properties.borderRadius.appBorderRadius
+              }
+              className="p-1 w-7 h-7"
+              forSidebar={forSidebar}
+              navColorStyle={navColorStyle}
+              primaryColor={primaryColor}
+            />
+
+            {!currentApplicationDetails?.applicationDetail?.navigationSetting
+              ?.logoAssetId?.length ||
+            logoConfiguration ===
+              NAVIGATION_SETTINGS.LOGO_CONFIGURATION.APPLICATION_TITLE_ONLY ||
+            logoConfiguration ===
+              NAVIGATION_SETTINGS.LOGO_CONFIGURATION
+                .NO_LOGO_OR_APPLICATION_TITLE ? (
+              <StyledApplicationName
+                className="text-base whitespace-nowrap"
+                isMobile={isMobile}
+                navColorStyle={navColorStyle}
+                navStyle={navStyle}
+                primaryColor={primaryColor}
+              >
+                Apps
+              </StyledApplicationName>
+            ) : (
+              ""
+            )}
+          </StyledLink>
+        </TooltipComponent>
+      )}
+
+      {currentApplicationDetails?.applicationDetail?.navigationSetting
+        ?.logoAssetId?.length &&
+      (logoConfiguration ===
+        NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE ||
+        logoConfiguration ===
+          NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY) ? (
+        <TooltipComponent
+          content="Back to homepage"
+          disabled={pages.length <= 1}
+          position="bottom-left"
+        >
+          <StyledLink
+            className={classNames({
+              "group hover:no-underline": true,
+              "pointer-events-none select-none": pages.length <= 1,
+            })}
+            navColorStyle={navColorStyle}
+            primaryColor={primaryColor}
+            to={pageUrl}
+          >
+            <StyledImage
+              alt="Your application's logo"
+              src={`/api/v1/assets/${currentApplicationDetails.applicationDetail.navigationSetting.logoAssetId}`}
+            />
+          </StyledLink>
+        </TooltipComponent>
+      ) : (
+        ""
+      )}
+    </div>
   );
 }
 
