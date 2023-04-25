@@ -1133,10 +1133,6 @@ describe("isDataField", () => {
       isMetaPropDirty: false,
       widgetId: "pzom2ufg3b",
     },
-    appsmith: {
-      ENTITY_TYPE: "APPSMITH",
-      name: "appsmith",
-    },
   } as ConfigTree;
   it("doesn't crash when config tree is empty", () => {
     const isADataField = isDataField("appsmith.store", {});
