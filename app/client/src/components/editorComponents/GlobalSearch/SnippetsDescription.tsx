@@ -36,7 +36,6 @@ import {
 } from "@appsmith/constants/messages";
 import { getExpectedValue } from "utils/validation/common";
 import { getTypographyByKey } from "design-system-old";
-// import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
 import { Layers } from "constants/Layers";
