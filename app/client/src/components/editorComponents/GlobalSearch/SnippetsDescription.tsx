@@ -36,7 +36,7 @@ import {
 } from "@appsmith/constants/messages";
 import { getExpectedValue } from "utils/validation/common";
 import { getTypographyByKey } from "design-system-old";
-import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
+// import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
 import { Layers } from "constants/Layers";
@@ -278,7 +278,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
                   handleCopy(getSnippet(snippet, {}, hideOuterBindings))
                 }
                 size="sm"
-                startIcon="copy-control"
+                startIcon="duplicate"
               />
             </div>
           </div>
@@ -298,12 +298,16 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
               {getSnippet(template, selectedArgs, hideOuterBindings)}
             </SyntaxHighlighter>
             <div className="action-icons">
-              <CopyIcon
+              <Button
+                isIconButton
+                kind="tertiary"
                 onClick={() =>
                   handleCopy(
                     getSnippet(template, selectedArgs, hideOuterBindings),
                   )
                 }
+                size="sm"
+                startIcon="duplicate"
               />
             </div>
           </div>
