@@ -141,11 +141,11 @@ describe("Autocomplete bug fixes", function () {
 
     agHelper.GetNClick(jsEditor._lineinJsEditor(3));
 
-    cy.get(jsEditor._lineinJsEditor(3)).type("console.l");
+    agHelper.TypeText(locator._codeMirrorTextArea, "console.l");
 
     agHelper.GetNClickByContains(locator._hints, "log");
 
-    cy.get("body").type("'hello'");
+    agHelper.TypeText(locator._codeMirrorTextArea, "'hello'");
 
     // If the cursor was not between parenthesis, the following command will fail
     agHelper.GetNAssertContains(
