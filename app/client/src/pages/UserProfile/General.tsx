@@ -50,7 +50,9 @@ function General() {
         <LabelWrapper>
           <Text kind="body-m">Display Picture</Text>
         </LabelWrapper>
-        <UserProfileImagePicker />
+        <div className="user-profile-image-picker">
+          <UserProfileImagePicker />
+        </div>
       </FieldWrapper>
       <FieldWrapper>
         <Input

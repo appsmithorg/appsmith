@@ -10,6 +10,10 @@ export const Wrapper = styled.div`
 export const FieldWrapper = styled.div`
   /* width: 460px; */
   /* display: flex; */
+  .user-profile-image-picker {
+    width: 156px;
+    margin-top: 4px;
+  }
 `;
 
 export const LabelWrapper = styled.div`
