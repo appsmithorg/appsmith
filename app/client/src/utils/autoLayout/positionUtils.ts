@@ -416,14 +416,11 @@ export function extractAlignmentInfo(
     .sort((a, b) => b.columns - a.columns)
     .forEach((each, index) => {
       const { child, columns } = each;
-      let width = fillWidgetLength;
-      if (columns > availableColumns) width = columns;
-      else if (columns > fillWidgetLength) {
-        // If the fill widget's minWidth is greater than the available space, then assign the widget's minWidth as its width.
-        width = columns;
-        availableColumns = Math.min(availableColumns - width, 0);
+      // If minWidth > availableColumns / # of fill widgets => assign columns based on minWidth and update fillLength for remaining fill widgets.
+      const width = columns > fillWidgetLength ? columns : fillWidgetLength;
+      availableColumns = Math.max(availableColumns - width, 0);
+      if (fillChildren.length - index - 1 > 0)
         fillWidgetLength = availableColumns / (fillChildren.length - index - 1);
-      }
       if (child.align === FlexLayerAlignment.Start) {
         startColumns += width;
         const index = startChildren.findIndex(
