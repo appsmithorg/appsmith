@@ -20,6 +20,7 @@ import {
 export type TChatGPTPrompt = {
   role: "user" | "system" | "assistant";
   content: string;
+  messageId?: string;
 };
 
 export type TChatGPTContext = Record<string, unknown>;

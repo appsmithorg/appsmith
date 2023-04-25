@@ -13,7 +13,8 @@ import { GPTPrompt } from "./GPTPrompt";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
-import { useLocalStorage } from "utils/hooks/localstorage";
+// import { useLocalStorage } from "utils/hooks/localstorage";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const QueryForm = styled.form`
   > div:focus-within {
@@ -43,7 +44,7 @@ export function AskAI() {
   const contextGenerator = useGPTContextGenerator();
   const [isLoading, setLoading] = useState(false);
   const location = useLocation();
-  const [queryCount, setQueryCount] = useLocalStorage("queryCount", "25");
+  // const [queryCount, setQueryCount] = useLocalStorage("queryCount", "25");
 
   useEffect(() => {
     return () => {
@@ -86,6 +87,10 @@ export function AskAI() {
   }, [isLoading, query, contextGenerator]);
 
   const fireQuery = async (query: string, context: TChatGPTContext) => {
+    AnalyticsUtil.logEvent("AI_QUERY_SENT", {
+      requestedOutputType: task,
+      characterCount: query.length,
+    });
     try {
       const res: any = await fetch(
         `/api/v1/chat/chat-generation?type=${task}`,
@@ -102,12 +107,25 @@ export function AskAI() {
         },
       );
       const result = await res.json();
-      const message = { role: "assistant", content: result.data.response };
-      if (message) setMessages((messages: any) => [...messages, message]);
+      const message: TChatGPTPrompt = {
+        role: "assistant",
+        content: result.data.response,
+        messageId: result.data.messageId,
+      };
+      if (message) setMessages((messages) => [...messages, message]);
       setLoading(false);
-      setQueryCount(parseInt(queryCount) - 1);
+      // setQueryCount(parseInt(queryCount) - 1);
+      AnalyticsUtil.logEvent("AI_RESPONSE_GENERATED", {
+        success: true,
+        requestedOutputType: task,
+        responseId: message.messageId,
+      });
     } catch (e) {
       setLoading(false);
+      AnalyticsUtil.logEvent("AI_RESPONSE_GENERATED", {
+        success: false,
+        requestedOutputType: task,
+      });
     }
   };
 
@@ -150,7 +168,7 @@ export function AskAI() {
         {messages.length ? (
           <div className="flex flex-col gap-2 w-full justify-start">
             {messages.map((r: any, idx: number) => (
-              <GPTPrompt done key={idx} response={r.content} role={r.role} />
+              <GPTPrompt key={idx} prompt={r} task={task} />
             ))}
           </div>
         ) : (
@@ -166,8 +184,8 @@ export function AskAI() {
           />
         )}
       </div>
-      <div className="flex flex-col flex-shrink-0 gap-1 px-4 pb-2 pt-3 bg-gray-100">
-        <div className="flex flex-row justify-between items-center">
+      <div className="flex flex-col flex-shrink-0 gap-1 px-3 pb-3 pt-3 bg-gray-100">
+        <div className="flex flex-row justify-between px-1 items-center">
           <div className="flex flex-row gap-2 justify-start">
             {tasks.map((t) => (
               <Button
@@ -181,6 +199,14 @@ export function AskAI() {
               />
             ))}
           </div>
+          <span
+            className={classNames({
+              "text-xs font-medium": true,
+              "text-[#E22C2C]": query.length > CHARACTER_LIMIT,
+            })}
+          >
+            {query.length}/{CHARACTER_LIMIT}
+          </span>
         </div>
         <QueryForm className="flex w-full relative mt-1 items-center justify-between">
           <div
@@ -189,12 +215,12 @@ export function AskAI() {
                 true,
               "box-border border border-border-gray-300 py-[4px]  rounded-md":
                 true,
-              disabled: isLoading || parseInt(queryCount) < 1,
+              disabled: isLoading, //|| parseInt(queryCount) < 1,
             })}
           >
             <textarea
               className="m-[1px] w-full min-h-7 px-2 py-1 !pr-5 max-h-40 overflow-auto"
-              disabled={isLoading || parseInt(queryCount) < 1}
+              disabled={isLoading} // || parseInt(queryCount) < 1}
               name="text"
               onChange={(e) => {
                 setQuery(e.target.value);
@@ -224,7 +250,7 @@ export function AskAI() {
             />
           )}
         </QueryForm>
-        <div className="text-xs font-normal w-full flex justify-between px-1">
+        {/* <div className="text-xs font-normal w-full flex justify-end px-1 items-center">
           <span>
             You have <span className="font-semibold">{queryCount}</span>{" "}
             {queryCount === 1 ? "query" : "queries"} left.
@@ -237,7 +263,7 @@ export function AskAI() {
           >
             {query.length}/{CHARACTER_LIMIT}
           </span>
-        </div>
+        </div> */}
       </div>
     </div>
   );
