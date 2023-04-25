@@ -137,7 +137,7 @@ function NavigationSettings() {
           isPlainObject(navigationSetting) &&
           !isEmpty(navigationSetting)
         ) {
-          const newSettings = {
+          const newSettings: NavigationSetting = {
             ...navigationSetting,
             [key]: value,
           };
@@ -185,14 +185,9 @@ function NavigationSettings() {
             //   }
             // }
 
-            if (payload.applicationDetail) {
-              payload.applicationDetail.navigationSetting =
-                newSettings as NavigationSetting;
-            } else {
-              payload.applicationDetail = {
-                navigationSetting: newSettings as NavigationSetting,
-              };
-            }
+            payload.applicationDetail = {
+              navigationSetting: newSettings,
+            };
 
             dispatch(updateApplication(applicationId, payload));
             setNavigationSetting(newSettings);

@@ -416,6 +416,14 @@ export const handlers = {
       isErrorSavingAppName: false,
       isSavingNavigationSetting,
       isErrorSavingNavigationSetting: false,
+      ...(action.payload.applicationDetail
+        ? {
+            applicationDetail: {
+              ...state.currentApplication?.applicationDetail,
+              ...action.payload.applicationDetail,
+            },
+          }
+        : {}),
     };
   },
   [ReduxActionTypes.UPDATE_APPLICATION_SUCCESS]: (
