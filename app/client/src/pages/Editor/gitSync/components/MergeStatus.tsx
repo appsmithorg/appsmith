@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import StatusLoader from "./StatusLoader";
-import { Text } from "design-system";
+import { Icon, Text } from "design-system";
 
 const Flex = styled.div`
   display: flex;
@@ -19,6 +19,9 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
   margin-top: ${(props) => `${props.theme.spaces[3]}px`};
+  width: 45%;
+  align-items: center;
+  gap: 5px;
 `;
 
 function MergeStatus({
@@ -50,6 +53,11 @@ function MergeStatus({
       return (
         <Flex>
           <Wrapper>
+            <Icon
+              color="var(--ads-v2-color-fg-error)"
+              name="alert-line"
+              size="lg"
+            />
             <Text color="var(--ads-v2-color-fg-error)" kind="body-m">
               {message}
             </Text>

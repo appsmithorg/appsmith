@@ -25,7 +25,7 @@ import {
 import styled from "styled-components";
 import { emailValidator, ScrollIndicator } from "design-system-old";
 import UserGitProfileSettings from "../components/UserGitProfileSettings";
-import { AUTH_TYPE_OPTIONS } from "../constants";
+import { AUTH_TYPE_OPTIONS, Classes } from "../constants";
 // import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import copy from "copy-to-clipboard";
@@ -61,7 +61,15 @@ import Statusbar, {
 import Keys from "../components/ssh-key";
 import GitConnectError from "../components/GitConnectError";
 // import Link from "../components/Link";
-import { Button, Input, Text, Tooltip, Link } from "design-system";
+import {
+  Button,
+  Input,
+  Text,
+  Tooltip,
+  Link,
+  ModalBody,
+  ModalFooter,
+} from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { GIT_DOC_URLs, isValidGitRemoteUrl } from "../utils";
 import { useGitConnect, useSSHKeyPair } from "../hooks";
@@ -342,151 +350,162 @@ function GitConnection({ isImport }: Props) {
   }, []);
 
   return (
-    <Container data-test="t--git-connection-container" ref={scrollWrapperRef}>
-      <Space size={2} />
-      <Text color={"var(--ads-v2-color-fg-emphasis)"} kind="body-m">
-        {createMessage(CONNECT_TO_GIT_SUBTITLE)}
-      </Text>
-      <Space size={1} />
-      <UrlOptionContainer data-test="t--remote-url-container">
-        <Text color="var(--ads-v2-color-fg)" renderAs="label">
-          {createMessage(REMOTE_URL)}
-        </Text>
-      </UrlOptionContainer>
-      {!SSHKeyPair ? (
-        <RemoteUrlInfoWrapper>
-          <Text kind="body-s">
-            {createMessage(isImport ? IMPORT_URL_INFO : REMOTE_URL_INFO)}
+    <>
+      <ModalBody className={Classes.GIT_SYNC_MODAL}>
+        <Container
+          data-test="t--git-connection-container"
+          ref={scrollWrapperRef}
+        >
+          <Space size={2} />
+          <Text color={"var(--ads-v2-color-fg-emphasis)"} kind="body-m">
+            {createMessage(CONNECT_TO_GIT_SUBTITLE)}
           </Text>
-          {/* <Space horizontal size={1} /> */}
-          <Link
-            className="t--learn-more-ssh-url learn-more-link"
-            kind="primary"
-            // color={"var(--ads-v2-color-fg-brand)"}
-            // hasIcon={false}
-            onClick={() => {
-              AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
-                source: "REMOTE_URL_ON_GIT_CONNECTION_MODAL",
-              });
-              window.open(RepoUrlDocumentUrl, "_blank");
-            }}
-            target={"_blank"}
-            to={RepoUrlDocumentUrl}
-            // text={createMessage(LEARN_MORE)}
-          >
-            {createMessage(LEARN_MORE)}
-          </Link>
-        </RemoteUrlInfoWrapper>
-      ) : null}
-      <UrlContainer>
-        <Input
-          className="t--git-repo-input"
-          errorMessage={
-            isInvalidRemoteUrl ? createMessage(PASTE_SSH_URL_INFO) : ""
-          }
-          isDisabled={remoteUrl === remoteUrlInStore && !!remoteUrl}
-          onChange={remoteUrlChangeHandler}
-          placeholder={placeholderText}
-          size="md"
-          type="url"
-          value={remoteUrl}
-        />
-        {isGitConnected && (
-          <Tooltip content="Disconnect git">
-            <Button
-              className="t--git-disconnect-icon"
-              isIconButton
-              kind="tertiary"
-              onClick={openDisconnectGitModal}
-              size="md"
-              startIcon="delete"
-            />
-          </Tooltip>
-        )}
-      </UrlContainer>
-      {!SSHKeyPair ? (
-        remoteUrl &&
-        !isInvalidRemoteUrl && (
-          <ButtonContainer topMargin={7}>
-            <Button
-              className="t--generate-deploy-ssh-key-button t--submit-repo-url-button"
-              data-testid="t--generate-deploy-ssh-key-button"
-              isDisabled={!remoteUrl || isInvalidRemoteUrl}
-              isLoading={generatingSSHKey || fetchingSSHKeyPair}
-              onClick={() => {
-                generateSSHKey(
-                  remoteUrl.toString().toLocaleLowerCase().includes("azure")
-                    ? "RSA"
-                    : "ECDSA",
-                );
-                AnalyticsUtil.logEvent("GS_GENERATE_KEY_BUTTON_CLICK");
-              }}
-              size="md"
-            >
-              {createMessage(GENERATE_KEY)}
-            </Button>
-          </ButtonContainer>
-        )
-      ) : (
-        <Keys
-          SSHKeyPair={SSHKeyPair || ""}
-          copyToClipboard={copyToClipboard}
-          deployKeyDocUrl={deployKeyDocUrl}
-          showCopied={showCopied}
-        />
-      )}
-      {SSHKeyPair && remoteUrl ? (
-        <>
-          <Space size={5} />
-          <UserGitProfileSettings
-            authType={selectedAuthType.label || ""}
-            authorInfo={useGlobalConfigInputVal ? globalGitConfig : authorInfo}
-            setAuthorInfo={setAuthorInfo}
-            toggleUseDefaultConfig={toggleHandler}
-            triedSubmit={triedSubmit}
-            useGlobalConfig={useGlobalConfigInputVal}
-          />
-          <ButtonContainer topMargin={3}>
-            {(isConnectingToGit || isImportingApplicationViaGit) && (
-              <StatusbarWrapper className="t--connect-statusbar">
-                <Statusbar
-                  completed={
-                    !submitButtonIsLoading && !isImportingApplicationViaGit
-                  }
-                  message={createMessage(
-                    isImport ? IMPORTING_APP_FROM_GIT : CONNECTING_REPO,
-                  )}
-                  period={4}
-                />
-              </StatusbarWrapper>
-            )}
-            {!(isConnectingToGit || isImportingApplicationViaGit) && (
-              <Button
-                className="t--connect-submit-btn"
-                isDisabled={submitButtonDisabled}
-                isLoading={submitButtonIsLoading}
-                onClick={onSubmit}
-                size="md"
-              >
-                {isImport
-                  ? createMessage(IMPORT_BTN_LABEL)
-                  : isGitConnected
-                  ? createMessage(UPDATE_CONFIG)
-                  : createMessage(CONNECT_BTN_LABEL)}
-              </Button>
-            )}
-            {!(isConnectingToGit || isImportingApplicationViaGit) && (
-              <GitConnectError
-                onClose={() => {
-                  setRemoteUrl("");
+          <Space size={1} />
+          <UrlOptionContainer data-test="t--remote-url-container">
+            <Text color="var(--ads-v2-color-fg)" renderAs="label">
+              {createMessage(REMOTE_URL)}
+            </Text>
+          </UrlOptionContainer>
+          {!SSHKeyPair ? (
+            <RemoteUrlInfoWrapper>
+              <Text kind="body-s">
+                {createMessage(isImport ? IMPORT_URL_INFO : REMOTE_URL_INFO)}
+              </Text>
+              <Link
+                className="t--learn-more-ssh-url learn-more-link"
+                kind="primary"
+                onClick={(e: React.MouseEvent) => {
+                  e.preventDefault();
+                  AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
+                    source: "REMOTE_URL_ON_GIT_CONNECTION_MODAL",
+                  });
+                  window.open(RepoUrlDocumentUrl, "_blank");
                 }}
-              />
+                target={"_blank"}
+                to={RepoUrlDocumentUrl}
+              >
+                {createMessage(LEARN_MORE)}
+              </Link>
+            </RemoteUrlInfoWrapper>
+          ) : null}
+          <UrlContainer>
+            <Input
+              className="t--git-repo-input"
+              errorMessage={
+                isInvalidRemoteUrl ? createMessage(PASTE_SSH_URL_INFO) : ""
+              }
+              isDisabled={remoteUrl === remoteUrlInStore && !!remoteUrl}
+              onChange={remoteUrlChangeHandler}
+              placeholder={placeholderText}
+              size="md"
+              type="url"
+              value={remoteUrl}
+            />
+            {isGitConnected && (
+              <Tooltip content="Disconnect git">
+                <Button
+                  className="t--git-disconnect-icon"
+                  isIconButton
+                  kind="tertiary"
+                  onClick={openDisconnectGitModal}
+                  size="md"
+                  startIcon="delete"
+                />
+              </Tooltip>
             )}
-          </ButtonContainer>
-        </>
-      ) : null}
-      <ScrollIndicator containerRef={scrollWrapperRef} mode="DARK" top="37px" />
-    </Container>
+          </UrlContainer>
+          {SSHKeyPair && remoteUrl ? (
+            <>
+              <Keys
+                SSHKeyPair={SSHKeyPair || ""}
+                copyToClipboard={copyToClipboard}
+                deployKeyDocUrl={deployKeyDocUrl}
+                showCopied={showCopied}
+              />
+              <Space size={5} />
+              <UserGitProfileSettings
+                authType={selectedAuthType.label || ""}
+                authorInfo={
+                  useGlobalConfigInputVal ? globalGitConfig : authorInfo
+                }
+                setAuthorInfo={setAuthorInfo}
+                toggleUseDefaultConfig={toggleHandler}
+                triedSubmit={triedSubmit}
+                useGlobalConfig={useGlobalConfigInputVal}
+              />
+              <ButtonContainer topMargin={3}>
+                {(isConnectingToGit || isImportingApplicationViaGit) && (
+                  <StatusbarWrapper className="t--connect-statusbar">
+                    <Statusbar
+                      completed={
+                        !submitButtonIsLoading && !isImportingApplicationViaGit
+                      }
+                      message={createMessage(
+                        isImport ? IMPORTING_APP_FROM_GIT : CONNECTING_REPO,
+                      )}
+                      period={4}
+                    />
+                  </StatusbarWrapper>
+                )}
+                {!(isConnectingToGit || isImportingApplicationViaGit) && (
+                  <GitConnectError
+                    onClose={() => {
+                      setRemoteUrl("");
+                    }}
+                  />
+                )}
+              </ButtonContainer>
+            </>
+          ) : null}
+          <ScrollIndicator
+            containerRef={scrollWrapperRef}
+            mode="DARK"
+            top="37px"
+          />
+        </Container>
+      </ModalBody>
+      <ModalFooter>
+        {/* Modal actions will go here */}
+
+        {/* Action button to generate the key for the repo */}
+        {!SSHKeyPair && remoteUrl && !isInvalidRemoteUrl ? (
+          <Button
+            className="t--generate-deploy-ssh-key-button t--submit-repo-url-button"
+            data-testid="t--generate-deploy-ssh-key-button"
+            isDisabled={!remoteUrl || isInvalidRemoteUrl}
+            isLoading={generatingSSHKey || fetchingSSHKeyPair}
+            onClick={() => {
+              generateSSHKey(
+                remoteUrl.toString().toLocaleLowerCase().includes("azure")
+                  ? "RSA"
+                  : "ECDSA",
+              );
+              AnalyticsUtil.logEvent("GS_GENERATE_KEY_BUTTON_CLICK");
+            }}
+            size="md"
+          >
+            {createMessage(GENERATE_KEY)}
+          </Button>
+        ) : null}
+
+        {/* Action button to import, update or connect */}
+        {!(isConnectingToGit || isImportingApplicationViaGit) && SSHKeyPair ? (
+          <Button
+            className="t--connect-submit-btn"
+            isDisabled={submitButtonDisabled}
+            isLoading={submitButtonIsLoading}
+            onClick={onSubmit}
+            size="md"
+          >
+            {isImport
+              ? createMessage(IMPORT_BTN_LABEL)
+              : isGitConnected
+              ? createMessage(UPDATE_CONFIG)
+              : createMessage(CONNECT_BTN_LABEL)}
+          </Button>
+        ) : null}
+      </ModalFooter>
+    </>
   );
 }
 

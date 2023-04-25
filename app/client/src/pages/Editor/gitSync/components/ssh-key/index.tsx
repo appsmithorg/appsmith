@@ -122,17 +122,17 @@ function Keys(props: KeysProps) {
                 startIcon="more-2-fill"
               />
             </MenuTrigger>
-            <MenuContent width="250px">
+            <MenuContent align="end" width="250px">
               {supportedKeys.map((supportedKey) => (
                 <MenuItem
                   className={`t--regenerate-sshkey-${supportedKey.protocolName}`}
+                  endIcon={supportedKey.generated ? "check-line" : undefined}
                   key={`supported-key-${supportedKey.protocolName}-menu-item`}
                   onSelect={() => {
                     setShowConfirmation(true);
                     setNewKeyType(supportedKey.protocolName);
                     setIsMenuOpen(true);
                   }}
-                  startIcon={supportedKey.generated ? "check-line" : undefined}
                 >
                   {supportedKey.text}
                 </MenuItem>

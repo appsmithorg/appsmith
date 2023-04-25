@@ -42,7 +42,15 @@ import Statusbar, {
 import { getIsStartingWithRemoteBranches } from "pages/Editor/gitSync/utils";
 import { Classes } from "../constants";
 import SuccessTick from "pages/common/SuccessTick";
-import { Button, Option, Select, Text, Icon } from "design-system";
+import {
+  Button,
+  Option,
+  Select,
+  Text,
+  Icon,
+  ModalFooter,
+  ModalBody,
+} from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { Theme } from "constants/DefaultTheme";
 
@@ -219,60 +227,75 @@ export default function Merge() {
     !isConflicting && !mergeError && !isFetchingGitStatus && !isMerging;
   const gitConflictDocumentUrl = useSelector(getConflictFoundDocUrlMerge);
   return (
-    <Container>
-      <Space size={2} />
-      <Text>{createMessage(SELECT_BRANCH_TO_MERGE)}</Text>
-      <Space size={4} />
-      <Row>
-        <Select
-          className="t--merge-branch-dropdown-destination"
-          dropdownClassName={Classes.MERGE_DROPDOWN}
-          isDisabled={isFetchingBranches || isFetchingMergeStatus || isMerging}
-          isValid={status !== MERGE_STATUS_STATE.NOT_MERGEABLE}
-          onSelect={(value?: string) => {
-            if (value) setSelectedBranchOption({ label: value, value: value });
-          }}
-          showSearch
-          size="md"
-          value={selectedBranchOption}
-        >
-          {branchList.map((branch) => (
-            <Option key={branch.value}>{branch.value}</Option>
-          ))}
-        </Select>
+    <>
+      <ModalBody>
+        <Container>
+          <Space size={2} />
+          <Text>{createMessage(SELECT_BRANCH_TO_MERGE)}</Text>
+          <Space size={4} />
+          <Row>
+            <Select
+              className="t--merge-branch-dropdown-destination"
+              dropdownClassName={Classes.MERGE_DROPDOWN}
+              isDisabled={
+                isFetchingBranches || isFetchingMergeStatus || isMerging
+              }
+              isValid={status !== MERGE_STATUS_STATE.NOT_MERGEABLE}
+              onSelect={(value?: string) => {
+                if (value)
+                  setSelectedBranchOption({ label: value, value: value });
+              }}
+              showSearch
+              size="md"
+              value={selectedBranchOption}
+            >
+              {branchList.map((branch) => (
+                <Option key={branch.value}>{branch.value}</Option>
+              ))}
+            </Select>
 
-        <Space horizontal size={3} />
-        <Icon
-          color={"var(--ads-v2-color-fg-subtle)"}
-          name="arrow-left-s-line"
-          size="lg"
-        />
-        <Space horizontal size={3} />
-        <Select
-          className="textInput"
-          isDisabled
-          options={[currentBranchDropdownOption]}
-          size="md"
-          value={currentBranchDropdownOption}
-        >
-          <Option>{currentBranchDropdownOption.label}</Option>
-        </Select>
-      </Row>
-      <MergeStatus message={mergeStatusMessage} status={status} />
-      <Space size={10} />
-      {isConflicting && (
-        <ConflictInfo
-          browserSupportedRemoteUrl={
-            gitMetaData?.browserSupportedRemoteUrl || ""
-          }
-          learnMoreLink={gitConflictDocumentUrl}
-        />
-      )}
+            <Space horizontal size={3} />
+            <Icon
+              color={"var(--ads-v2-color-fg-subtle)"}
+              name="arrow-left-s-line"
+              size="lg"
+            />
+            <Space horizontal size={3} />
+            <Select
+              className="textInput"
+              isDisabled
+              options={[currentBranchDropdownOption]}
+              size="md"
+              value={currentBranchDropdownOption}
+            >
+              <Option>{currentBranchDropdownOption.label}</Option>
+            </Select>
+          </Row>
+          <MergeStatus message={mergeStatusMessage} status={status} />
+          <Space size={10} />
+          {isConflicting ? (
+            <ConflictInfo
+              browserSupportedRemoteUrl={
+                gitMetaData?.browserSupportedRemoteUrl || ""
+              }
+              learnMoreLink={gitConflictDocumentUrl}
+            />
+          ) : null}
 
-      {showMergeSuccessIndicator ? (
-        <MergeSuccessIndicator />
-      ) : (
-        showMergeButton && (
+          {showMergeSuccessIndicator ? <MergeSuccessIndicator /> : null}
+          {isMerging ? (
+            <StatusbarWrapper>
+              <Statusbar
+                completed={!isMerging}
+                message={createMessage(IS_MERGING)}
+                period={6}
+              />
+            </StatusbarWrapper>
+          ) : null}
+        </Container>
+      </ModalBody>
+      <ModalFooter>
+        {!showMergeSuccessIndicator && showMergeButton ? (
           <Button
             className="t--git-merge-button"
             data-testid="t--git-merge-button"
@@ -283,17 +306,8 @@ export default function Merge() {
           >
             {createMessage(MERGE_CHANGES)}
           </Button>
-        )
-      )}
-      {isMerging && (
-        <StatusbarWrapper>
-          <Statusbar
-            completed={!isMerging}
-            message={createMessage(IS_MERGING)}
-            period={6}
-          />
-        </StatusbarWrapper>
-      )}
-    </Container>
+        ) : null}
+      </ModalFooter>
+    </>
   );
 }

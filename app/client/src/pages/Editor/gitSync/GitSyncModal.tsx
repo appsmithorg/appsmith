@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { setWorkspaceIdForImport } from "@appsmith/actions/applicationActions";
 import Menu from "./Menu";
-import { Classes, MENU_ITEMS_MAP } from "./constants";
+import { MENU_ITEMS_MAP } from "./constants";
 import Deploy from "./Tabs/Deploy";
 import Merge from "./Tabs/Merge";
 import GitConnection from "./Tabs/GitConnection";
@@ -23,7 +23,7 @@ import {
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useGitConnect } from "./hooks";
-import { Modal, ModalBody, ModalContent, ModalHeader } from "design-system";
+import { Modal, ModalContent, ModalHeader } from "design-system";
 
 const ModalContentContainer = styled(ModalContent)`
   min-height: 650px;
@@ -122,21 +122,17 @@ function GitSyncModal(props: { isImport?: boolean }) {
           <ModalHeader>
             {MENU_ITEMS_MAP[activeTabKey]?.modalTitle ?? ""}
           </ModalHeader>
-          <ModalBody className={Classes.GIT_SYNC_MODAL}>
-            <Menu
-              activeTabKey={activeTabKey}
-              onSelect={(tabKey: string) =>
-                setActiveTabKey(tabKey as GitSyncModalTab)
-              }
-              options={menuOptions}
-            />
-            {activeTabKey === GitSyncModalTab.GIT_CONNECTION && (
-              <BodyComponent isImport={props.isImport} />
-            )}
-            {activeTabKey !== GitSyncModalTab.GIT_CONNECTION && (
-              <BodyComponent />
-            )}
-          </ModalBody>
+          <Menu
+            activeTabKey={activeTabKey}
+            onSelect={(tabKey: string) =>
+              setActiveTabKey(tabKey as GitSyncModalTab)
+            }
+            options={menuOptions}
+          />
+          {activeTabKey === GitSyncModalTab.GIT_CONNECTION && (
+            <BodyComponent isImport={props.isImport} />
+          )}
+          {activeTabKey !== GitSyncModalTab.GIT_CONNECTION && <BodyComponent />}
         </ModalContentContainer>
       </Modal>
       <GitErrorPopup />

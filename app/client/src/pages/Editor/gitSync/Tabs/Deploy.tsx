@@ -19,6 +19,7 @@ import {
   Button,
   Callout,
   Input,
+  ModalBody,
   ModalFooter,
   Text,
   Tooltip,
@@ -271,123 +272,137 @@ function Deploy() {
   }
 
   return (
-    <Container data-testid={"t--deploy-tab-container"} ref={scrollWrapperRef}>
-      <Space size={2} />
-      <Section>
-        {hasChangesToCommit && (
-          <Text
-            data-testid={"t--git-deploy-change-reason-text"}
-            kind={"body-m"}
-          >
-            {changeReasonText}
-          </Text>
-        )}
-        <GitChangesList />
-        <Row>
-          <Text>{createMessage(COMMIT_TO)}</Text>
-          <Text className="branch" color={"var(--ads-v2-color-fg-brand)"}>
-            &nbsp;{currentBranch}
-          </Text>
-        </Row>
-        <Space size={3} />
-        <SubmitWrapper
-          onSubmit={() => {
-            if (!commitButtonDisabled) handleCommit(true);
-          }}
+    <>
+      <ModalBody>
+        <Container
+          data-testid={"t--deploy-tab-container"}
+          ref={scrollWrapperRef}
         >
-          <Input
-            autoFocus
-            className="t--commit-comment-input"
-            isDisabled={commitInputDisabled}
-            onChange={setCommitMessage}
-            placeholder={"Your commit message here"}
-            ref={commitInputRef}
-            renderAs="textarea"
-            type="text"
-            value={commitMessageDisplay}
-          />
-        </SubmitWrapper>
-        {isFetchingGitStatus && (
-          <StatusLoader loaderMsg={createMessage(FETCH_GIT_STATUS)} />
-        )}
-        <Space size={11} />
-        {pullRequired && !isConflicting && (
-          <>
-            <Callout
-              kind="warning"
-              links={[
-                {
-                  children: createMessage(READ_DOCUMENTATION),
-                  onClick: (e) => {
-                    e.preventDefault();
-                    AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
-                      source: "UPSTREAM_CHANGES_LINK_ON_GIT_DEPLOY_MODAL",
-                    });
-                    window.open(upstreamErrorDocumentUrl, "_blank");
-                  },
-                },
-              ]}
-            >
-              {createMessage(GIT_UPSTREAM_CHANGES)}
-            </Callout>
+          <Space size={2} />
+          <Section>
+            {hasChangesToCommit && (
+              <Text
+                data-testid={"t--git-deploy-change-reason-text"}
+                kind={"body-m"}
+              >
+                {changeReasonText}
+              </Text>
+            )}
+            <GitChangesList />
+            <Row>
+              <Text>{createMessage(COMMIT_TO)}</Text>
+              <Text className="branch" color={"var(--ads-v2-color-fg-brand)"}>
+                &nbsp;{currentBranch}
+              </Text>
+            </Row>
             <Space size={3} />
-          </>
-        )}
-        {isConflicting && (
-          <ConflictInfo
-            browserSupportedRemoteUrl={
-              gitMetaData?.browserSupportedRemoteUrl || ""
-            }
-            learnMoreLink={gitConflictDocumentUrl}
-          />
-        )}
+            <SubmitWrapper
+              onSubmit={() => {
+                if (!commitButtonDisabled) handleCommit(true);
+              }}
+            >
+              <Input
+                autoFocus
+                className="t--commit-comment-input"
+                isDisabled={commitInputDisabled}
+                onChange={setCommitMessage}
+                placeholder={"Your commit message here"}
+                ref={commitInputRef}
+                renderAs="textarea"
+                type="text"
+                value={commitMessageDisplay}
+              />
+            </SubmitWrapper>
+            {isFetchingGitStatus && (
+              <StatusLoader loaderMsg={createMessage(FETCH_GIT_STATUS)} />
+            )}
+            <Space size={11} />
+            {pullRequired && !isConflicting && (
+              <>
+                <Callout
+                  kind="warning"
+                  links={[
+                    {
+                      children: createMessage(READ_DOCUMENTATION),
+                      onClick: (e) => {
+                        e.preventDefault();
+                        AnalyticsUtil.logEvent(
+                          "GS_GIT_DOCUMENTATION_LINK_CLICK",
+                          {
+                            source: "UPSTREAM_CHANGES_LINK_ON_GIT_DEPLOY_MODAL",
+                          },
+                        );
+                        window.open(upstreamErrorDocumentUrl, "_blank");
+                      },
+                    },
+                  ]}
+                >
+                  {createMessage(GIT_UPSTREAM_CHANGES)}
+                </Callout>
+                <Space size={3} />
+              </>
+            )}
+            {isConflicting && (
+              <ConflictInfo
+                browserSupportedRemoteUrl={
+                  gitMetaData?.browserSupportedRemoteUrl || ""
+                }
+                learnMoreLink={gitConflictDocumentUrl}
+              />
+            )}
 
-        {commitAndPushError && (
-          <PushFailedWarning
-            closeHandler={handleCommitAndPushErrorClose}
-            error={commitAndPushError}
-          />
-        )}
-        {isCommitting && !isDiscarding && (
-          <StatusbarWrapper>
-            <Statusbar
-              completed={!commitButtonLoading}
-              message={createMessage(COMMITTING_AND_PUSHING_CHANGES)}
-              period={6}
+            {commitAndPushError && (
+              <PushFailedWarning
+                closeHandler={handleCommitAndPushErrorClose}
+                error={commitAndPushError}
+              />
+            )}
+            {isCommitting && !isDiscarding && (
+              <StatusbarWrapper>
+                <Statusbar
+                  completed={!commitButtonLoading}
+                  message={createMessage(COMMITTING_AND_PUSHING_CHANGES)}
+                  period={6}
+                />
+              </StatusbarWrapper>
+            )}
+
+            {isDiscarding && !isCommitting && (
+              <StatusbarWrapper>
+                <Statusbar
+                  completed={!isDiscarding}
+                  message={createMessage(DISCARDING_AND_PULLING_CHANGES)}
+                  period={6}
+                />
+              </StatusbarWrapper>
+            )}
+          </Section>
+
+          {discardError && (
+            <DiscardFailedWarning
+              closeHandler={handleDiscardErrorClose}
+              error={discardError}
             />
-          </StatusbarWrapper>
-        )}
+          )}
 
-        {isDiscarding && !isCommitting && (
-          <StatusbarWrapper>
-            <Statusbar
-              completed={!isDiscarding}
-              message={createMessage(DISCARDING_AND_PULLING_CHANGES)}
-              period={6}
+          {showDiscardWarning && (
+            <DiscardChangesWarning
+              discardDocUrl={discardDocUrl}
+              onCloseDiscardChangesWarning={onCloseDiscardWarning}
             />
-          </StatusbarWrapper>
-        )}
-      </Section>
+          )}
 
-      {discardError && (
-        <DiscardFailedWarning
-          closeHandler={handleDiscardErrorClose}
-          error={discardError}
-        />
-      )}
-
-      {showDiscardWarning && (
-        <DiscardChangesWarning
-          discardDocUrl={discardDocUrl}
-          onCloseDiscardChangesWarning={onCloseDiscardWarning}
-        />
-      )}
-
-      {!pullRequired && !isConflicting && (
-        <DeployPreview showSuccess={isCommitAndPushSuccessful} />
-      )}
-      <ScrollIndicator containerRef={scrollWrapperRef} mode="DARK" top="37px" />
-      <ModalFooter>
+          {!pullRequired && !isConflicting && (
+            <DeployPreview showSuccess={isCommitAndPushSuccessful} />
+          )}
+          <ScrollIndicator
+            containerRef={scrollWrapperRef}
+            mode="DARK"
+            top="37px"
+          />
+        </Container>
+      </ModalBody>
+      <ModalFooter key="footer">
         {showPullButton && (
           <Button
             className="t--pull-button"
@@ -435,7 +450,7 @@ function Deploy() {
           </Tooltip>
         )}
       </ModalFooter>
-    </Container>
+    </>
   );
 }
 

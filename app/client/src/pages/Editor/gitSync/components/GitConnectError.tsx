@@ -25,8 +25,10 @@ export default function GitConnectError({
     }
   }, [error]);
 
-  const learnMoreClickHandler = () =>
+  const learnMoreClickHandler = (e: React.MouseEvent) => {
+    e.preventDefault();
     window.open(connectingErrorDocumentUrl, "_blank");
+  };
 
   return error ? (
     <Callout
@@ -44,6 +46,7 @@ export default function GitConnectError({
       <Text kind="heading-s" style={{ marginBottom: "8px" }}>
         {titleMessage}
       </Text>
+      <br />
       <Text kind="body-m" style={{ marginBottom: "8px" }}>
         {error?.message}
       </Text>
