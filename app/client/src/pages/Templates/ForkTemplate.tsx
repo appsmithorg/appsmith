@@ -55,18 +55,19 @@ function ForkTemplate({
       {children}
       <Modal onOpenChange={closeModal} open={showForkModal}>
         <ModalContent>
-          <ModalHeader>
-            {/* <Icon name="fork-2" size="lg" /> */}
-            {createMessage(CHOOSE_WHERE_TO_FORK)}
-          </ModalHeader>
+          <ModalHeader>{createMessage(CHOOSE_WHERE_TO_FORK)}</ModalHeader>
           <ModalBody>
             <Select
               dropdownMatchSelectWidth
+              // TODO: (Albin) Fix this
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              //@ts-ignore
               onSelect={(
-                dropdownOption: React.SetStateAction<{
-                  value: string;
+                dropdownOptionValue: string,
+                dropdownOption: {
                   label: string;
-                }>,
+                  value: string;
+                },
               ) => setSelectedWorkspace(dropdownOption)}
               options={workspaceList}
               placeholder={createMessage(SELECT_WORKSPACE)}

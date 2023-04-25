@@ -197,7 +197,7 @@ export const SHARE_APP = () => `Share app`;
 export const EDITOR_HEADER = {
   saving: () => "Saving",
   saveFailed: () => "Save failed",
-  share: () => "SHARE",
+  share: () => "Share",
   previewTooltip: {
     text: () => "Preview",
     shortcut: () => "P",
@@ -359,12 +359,12 @@ export const LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED = () =>
   "LocalStorage is not supported on your device. Some features including the Appsmith store won't work.";
 
 export const OMNIBAR_PLACEHOLDER = () =>
-  `Search Widgets, Queries, Documentation`;
+  `Search widgets, queries, documentation`;
 export const OMNIBAR_PLACEHOLDER_SNIPPETS = () => "Search code snippets";
 export const OMNIBAR_PLACEHOLDER_NAV = () => "Search widgets and queries";
 export const OMNIBAR_PLACEHOLDER_DOC = () => "Search documentation";
 export const CREATE_NEW_OMNIBAR_PLACEHOLDER = () =>
-  "Create a new Query, API or JS Object";
+  "Create a new query, API or JS object";
 export const HELPBAR_PLACEHOLDER = () => "Search";
 export const NO_SEARCH_DATA_TEXT = () => "No results found";
 
@@ -903,7 +903,7 @@ export const DOC_DESCRIPTION = () =>
 export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
 export const ACTION_OPERATION_DESCRIPTION = () =>
-  `Create a new Query, API or JS Object`;
+  `Create a new query, API or JS object`;
 
 export const TRIGGER_ACTION_VALIDATION_ERROR = (
   functionName: string,
@@ -931,7 +931,7 @@ export const SNIPING_NOT_SUPPORTED = () =>
 //Checklist page
 export enum ONBOARDING_CHECKLIST_ACTIONS {
   CONNECT_A_DATASOURCE = "CONNECT DATASOURCE",
-  CREATE_A_QUERY = "CREATE A QUERY",
+  CREATE_A_QUERY = "Create a query",
   ADD_WIDGETS = "ADD WIDGETS",
   CONNECT_DATA_TO_WIDGET = "CONNECT DATA TO WIDGET",
   DEPLOY_APPLICATIONS = "DEPLOY APPLICATION",
@@ -1293,32 +1293,32 @@ export const STEP_ONE_TITLE = () =>
   "First step is querying the database. Here we are querying a Postgres database populated with customers data.";
 export const STEP_ONE_SUCCESS_TEXT = () =>
   "Excellent! You successfully queried the database and you can see the response of the query below. ";
-export const STEP_ONE_BUTTON_TEXT = () => "PROCEED TO NEXT STEP";
+export const STEP_ONE_BUTTON_TEXT = () => "Proceed to next step";
 export const STEP_TWO_TITLE = () =>
   "Let’s display this response in a table. Select the table widget we’ve added for you.";
 export const STEP_THREE_TITLE = () =>
   "Display the response of the query in a table.";
 export const STEP_THREE_SUCCESS_TEXT = () =>
   "Great job! The table is now displaying the response of a query. You can use {{ }} in any input field to bind data to widgets.";
-export const STEP_THREE_SUCCESS_BUTTON_TEXT = () => "PROCEED TO NEXT STEP";
+export const STEP_THREE_SUCCESS_BUTTON_TEXT = () => "Proceed to next step";
 export const STEP_FOUR_TITLE = () =>
   "Let’s build a form to update a customer record ";
-export const STEP_FOUR_HINT_BUTTON_TEXT = () => "PROCEED";
+export const STEP_FOUR_HINT_BUTTON_TEXT = () => "Proceed";
 export const STEP_FOUR_SUCCESS_TEXT = () =>
   "Awesome! You connected the input widget to table’s selected row. The input will always show the data from the selected row.";
-export const STEP_FOUR_SUCCESS_BUTTON_TEXT = () => "PROCEED TO NEXT STEP";
+export const STEP_FOUR_SUCCESS_BUTTON_TEXT = () => "Proceed to next step";
 export const STEP_FIVE_TITLE = () =>
   "Connect all input fields in the Customer Update Form with the table";
 export const STEP_FIVE_HINT_TEXT = () =>
   `Now let's connect rest of widgets in the container to Table's selected row`;
 export const STEP_FIVE_SUCCESS_TEXT = () =>
   "Great work! All inputs are now connected to the  table’s selected row";
-export const STEP_FIVE_SUCCESS_BUTTON_TEXT = () => "PROCEED TO NEXT STEP";
+export const STEP_FIVE_SUCCESS_BUTTON_TEXT = () => "Proceed to next step";
 export const STEP_SIX_TITLE = () =>
   "Add an update button to trigger an update query";
 export const STEP_SIX_SUCCESS_TEXT = () =>
   "Perfect! Your update button is ready to trigger an update query.";
-export const STEP_SIX_SUCCESS_BUTTON_TEXT = () => "PROCEED TO NEXT STEP";
+export const STEP_SIX_SUCCESS_BUTTON_TEXT = () => "Proceed to next step";
 export const STEP_SEVEN_TITLE = () =>
   "Trigger updateCustomerInfo query by binding to the button widget";
 export const STEP_EIGHT_TITLE = () =>
@@ -1326,22 +1326,22 @@ export const STEP_EIGHT_TITLE = () =>
 export const STEP_EIGHT_SUCCESS_TEXT = () =>
   "Exceptional work! You’ve now built a way to see customer data and update it.";
 export const STEP_NINE_TITLE = () => "Final step: Test & deploy your app";
-export const CONTINUE = () => "CONTINUE";
-export const PROCEED_TO_NEXT_STEP = () => "PROCEED TO NEXT STEP";
-export const PROCEED = () => "PROCEED";
-export const COMPLETE = () => "COMPLETE";
+export const CONTINUE = () => "Continue";
+export const PROCEED_TO_NEXT_STEP = () => "Proceed to next step";
+export const PROCEED = () => "Procced";
+export const COMPLETE = () => "Complete";
 // -- Modal --
 export const DEVIATION = () => "You are deviating from the tutorial";
 export const END_CONFIRMATION = () => "Are you sure you want to end?";
-export const CANCEL_DIALOG = () => "CANCEL";
+export const CANCEL_DIALOG = () => "Cancel";
 // -- End Tutorial --
-export const END_TUTORIAL = () => "END TUTORIAL";
+export const END_TUTORIAL = () => "End tutorial";
 // -- Intro content --
 export const TITLE = () =>
   "In this tutorial we’ll build a tool to display customer information";
 export const DESCRIPTION = () =>
   "This tool has a table that displays customer data and a form to update a particular customer record. Try out the tool below before you start building.";
-export const BUTTON_TEXT = () => "Start Building";
+export const BUTTON_TEXT = () => "Start building";
 // -- Rating --
 export const RATING_TITLE = () =>
   "Congratulations! You just built your first app in Appsmith.";
@@ -1352,7 +1352,7 @@ export const RATING_TEXT = () => "Rate your experience";
 export const END_TITLE = () => "What’s next? Start building your own apps.";
 export const END_DESCRIPTION = () =>
   "Inspect properties of queries, components, etc.";
-export const END_BUTTON_TEXT = () => "START BUILDING AN APP";
+export const END_BUTTON_TEXT = () => "Start building an app";
 
 export const CONTEXT_EDIT_NAME = () => "Edit Name";
 export const CONTEXT_SHOW_BINDING = () => "Show Bindings";
@@ -1385,7 +1385,7 @@ export const MORE = () => "MORE";
 export const SHOW_LESS = () => "SHOW LESS";
 export const CHOOSE_WHERE_TO_FORK = () => "Choose where to fork the template";
 export const SELECT_WORKSPACE = () => "Select Workspace";
-export const FORK_TEMPLATE = () => "FORK TEMPLATE";
+export const FORK_TEMPLATE = () => "Fork template";
 export const TEMPLATES = () => "TEMPLATES";
 export const FORK_THIS_TEMPLATE = () => "Use template";
 export const COULDNT_FIND_TEMPLATE = () =>
@@ -1432,7 +1432,7 @@ export const FORK_APP_MODAL_EMPTY_TITLE = () =>
   "No workspace available to fork to";
 export const FORK_APP_MODAL_SUCCESS_TITLE = () =>
   "Choose where to fork the app";
-export const FORK = () => `FORK`;
+export const FORK = () => `Fork`;
 
 export const CLEAN_URL_UPDATE = {
   name: () => "Update URLs",

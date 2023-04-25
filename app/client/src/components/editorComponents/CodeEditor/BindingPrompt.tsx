@@ -12,7 +12,7 @@ const Wrapper = styled.span<{
   font-size: 12px;
   color: var(--appsmith-color-black-800);
   box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.2), 0px 2px 10px rgba(0, 0, 0, 0.1);
-  border-radius: 0px;
+  border-radius: var(--ads-v2-border-radius);
   background-color: ${(props) =>
     props.theme.colors.codeMirror.background.hoverState};
   position: absolute;

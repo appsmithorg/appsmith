@@ -89,7 +89,7 @@ export const IframeTopBar = styled.div`
   .round {
     height: 12px;
     width: 12px;
-    border-radius: var(--ads-border-radius-circle);
+    border-radius: var(--ads-v2-border-radius-circle);
   }
 
   .red {

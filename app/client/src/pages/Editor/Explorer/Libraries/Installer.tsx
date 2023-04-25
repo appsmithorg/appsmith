@@ -282,37 +282,11 @@ function ProgressTracker({
               children: createMessage(customJSLibraryMessages.LEARN_MORE),
               onClick: (e) => openDoc(e, EXT_LINK.learnMore),
               to: "#",
-              // onClick: function noRefCheck() {},
             },
           ]}
-          // onClose={function noRefCheck() {}}
         >
           Error banner
         </Callout>
-        {/* <div
-          className={classNames({
-            "gap-2 error-card items-start ": true,
-            show: status === InstallState.Failed,
-          })}
-        >
-          <Icon name="danger" size="md" />
-          <div className="flex flex-col unsupported gap-1">
-            <div className="header">
-              {createMessage(customJSLibraryMessages.UNSUPPORTED_LIB)}
-            </div>
-            <div className="body">
-              {createMessage(customJSLibraryMessages.UNSUPPORTED_LIB_DESC)}
-            </div>
-            <div className="footer text-xs font-medium gap-2 flex flex-row">
-              <a onClick={(e) => openDoc(e, EXT_LINK.reportIssue)}>
-                {createMessage(customJSLibraryMessages.REPORT_ISSUE)}
-              </a>
-              <a onClick={(e) => openDoc(e, EXT_LINK.learnMore)}>
-                {createMessage(customJSLibraryMessages.LEARN_MORE)}
-              </a>
-            </div>
-          </div>
-        </div> */}
       </div>
     </InstallationProgressWrapper>
   );
@@ -554,14 +528,6 @@ function LibraryCard({
           >
             {lib.name}
           </Link>
-          {/* <Text kind="heading-s">{lib.name}</Text>
-          <Button
-            isIconButton
-            kind="tertiary"
-            onClick={(e) => openDoc(e, lib.docsURL)}
-            size="sm"
-            startIcon="share-box-line"
-          /> */}
         </div>
         <div className="mr-2">
           <StatusIcon
@@ -574,7 +540,6 @@ function LibraryCard({
       <div className="flex flex-row description">{lib.description}</div>
       <div className="flex flex-row items-center gap-1">
         <Avatar image={lib.icon} label={lib.author} size="sm" />
-        {/* <ProfileImage size={20} source={lib.icon} /> */}
         <Text kind="action-s">{lib.author}</Text>
       </div>
     </div>
