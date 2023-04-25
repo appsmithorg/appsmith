@@ -3,7 +3,6 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const {
   AggregateHelper: agHelper,
   CommonLocators: locator,
-  DataSources: dataSources,
   EntityExplorer: ee,
   LibraryInstaller: installer,
   PropertyPane: propPane,
