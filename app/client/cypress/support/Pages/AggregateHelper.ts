@@ -820,10 +820,7 @@ export class AggregateHelper {
     cy.xpath(this.locator._inputWidgetValueField(name, isInput)).clear();
   }
 
-  public UpdateCodeInput(
-    selector: string | JQuery<HTMLElement>,
-    value: string,
-  ) {
+  public UpdateCodeInput(selector: string, value: string) {
     cy.wrap(selector)
       .find(".CodeMirror")
       .find("textarea")
