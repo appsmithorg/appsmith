@@ -51,10 +51,6 @@ export const LoaderContainer = styled.div`
   justify-content: center;
   width: 100%;
   align-items: center;
-  .cs-spinner {
-    width: 32px;
-    height: 32px;
-  }
 `;
 
 export const ContentBox = styled.div`
