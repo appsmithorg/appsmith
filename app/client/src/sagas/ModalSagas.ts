@@ -46,7 +46,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "./WidgetSelectUtils";
 import { getIsAutoLayout } from "selectors/editorSelectors";
-import { recalculateAutoLayoutColumnsAndSave } from "./AutoLayoutUpdateSagas";
+import { recalculateAutoLayoutColumnsAndSave } from "./AutoLayoutSagas/AutoLayoutUpdateSagas";
 import {
   FlexLayerAlignment,
   LayoutDirection,

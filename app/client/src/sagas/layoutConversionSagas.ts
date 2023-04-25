@@ -19,7 +19,7 @@ import log from "loglevel";
 import { saveAllPagesSaga } from "./PageSagas";
 import { updateApplicationLayout } from "@appsmith/actions/applicationActions";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
+import { updateApplicationLayoutType } from "./AutoLayoutSagas/AutoLayoutUpdateSagas";
 
 /**
  * This method is used to convert from Auto layout to Fixed layout

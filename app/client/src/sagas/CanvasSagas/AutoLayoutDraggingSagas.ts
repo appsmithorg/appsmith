@@ -34,7 +34,7 @@ import {
 } from "selectors/editorSelectors";
 import { executeWidgetBlueprintBeforeOperations } from "sagas/WidgetBlueprintSagas";
 import { BlueprintOperationTypes } from "widgets/constants";
-import { recalculateAutoLayoutColumnsAndSave } from "sagas/AutoLayoutUpdateSagas";
+import { recalculateAutoLayoutColumnsAndSave } from "sagas/AutoLayoutSagas/AutoLayoutUpdateSagas";
 
 function* addWidgetAndReorderSaga(
   actionPayload: ReduxAction<{

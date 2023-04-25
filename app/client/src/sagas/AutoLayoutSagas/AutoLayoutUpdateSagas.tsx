@@ -17,17 +17,9 @@ import {
   select,
   takeLatest,
 } from "redux-saga/effects";
-import {
-  alterLayoutForDesktop,
-  alterLayoutForMobile,
-  getCanvasDimensions,
-} from "utils/autoLayout/AutoLayoutUtils";
-import { getWidgets } from "./selectors";
+import { getWidgets } from "../selectors";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import {
-  GridDefaults,
-  MAIN_CONTAINER_WIDGET_ID,
-} from "constants/WidgetConstants";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import {
   getCurrentApplicationId,
   getCurrentAppPositioningType,
@@ -41,100 +33,20 @@ import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import convertDSLtoAuto from "utils/DSLConversions/fixedToAutoLayout";
 import { convertNormalizedDSLToFixed } from "utils/DSLConversions/autoToFixedLayout";
 import { getCanvasWidth as getMainCanvasWidth } from "selectors/editorSelectors";
-import {
-  getLeftColumn,
-  getTopRow,
-  getWidgetMinMaxDimensionsInPixel,
-  setBottomRow,
-  setRightColumn,
-} from "utils/autoLayout/flexWidgetUtils";
+import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
 import { updateApplication } from "@appsmith/actions/applicationActions";
-import { getIsCurrentlyConvertingLayout } from "selectors/autoLayoutSelectors";
 import { getIsResizing } from "selectors/widgetSelectors";
 import type { AppState } from "ce/reducers";
 import { isEmpty } from "lodash";
-import { mutation_setPropertiesToUpdate } from "./autoHeightSagas/helpers";
 import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
+import {
+  batchWidgetDimensionsUpdateForAutoLayout,
+  getWidgetsWithDimensionChanges,
+  processWidgetDimensionsSaga,
+  recalculatePositionsOfWidgets,
+} from "./utils";
 
-function* recalculatePositionsOfWidgets({
-  canvasWidth,
-  isMobile,
-  parentId,
-  widgets: payloadWidgets,
-}: {
-  parentId: string;
-  isMobile: boolean;
-  canvasWidth: number;
-  widgets?: CanvasWidgetsReduxState;
-}) {
-  const isAutoLayout: boolean = yield select(getIsAutoLayout);
-  if (!isAutoLayout) return;
-  //Do not recalculate columns and update layout while converting layout
-  const isCurrentlyConvertingLayout: boolean = yield select(
-    getIsCurrentlyConvertingLayout,
-  );
-  if (isCurrentlyConvertingLayout) return;
-
-  let allWidgets: CanvasWidgetsReduxState;
-  const widgetsOld: CanvasWidgetsReduxState = yield select(getWidgets);
-
-  if (payloadWidgets) {
-    allWidgets = payloadWidgets;
-  } else {
-    allWidgets = { ...widgetsOld };
-  }
-
-  const mainCanvasWidth: number = yield select(getMainCanvasWidth);
-  const processedWidgets: CanvasWidgetsReduxState = isMobile
-    ? alterLayoutForMobile(allWidgets, parentId, canvasWidth, mainCanvasWidth)
-    : alterLayoutForDesktop(allWidgets, parentId, mainCanvasWidth);
-  return processedWidgets;
-}
-
-function* getWidgetsWithDimensionChanges(
-  processedWidgets: CanvasWidgetsReduxState,
-) {
-  const widgetsOld: CanvasWidgetsReduxState = yield select(getWidgets);
-  let widgetsToUpdate: UpdateWidgetsPayload = {};
-  /**
-   * Iterate over all widgets and check if any of their dimensions have changed
-   * If they have, add them to the list of widgets to update
-   * Note: We need to iterate through all widgets since changing dimension of one widget might affect the dimensions of other widgets
-   */
-  for (const widgetId of Object.keys(processedWidgets)) {
-    const widget = processedWidgets[widgetId];
-    const oldWidget = widgetsOld[widgetId];
-    const propertiesToUpdate: Record<string, any> = {};
-
-    const positionProperties = [
-      "topRow",
-      "bottomRow",
-      "leftColumn",
-      "rightColumn",
-      "mobileTopRow",
-      "mobileBottomRow",
-      "mobileLeftColumn",
-      "mobileRightColumn",
-    ];
-
-    for (const prop of positionProperties) {
-      if (widget[prop] !== oldWidget[prop]) {
-        propertiesToUpdate[prop] = widget[prop];
-      }
-    }
-
-    if (isEmpty(propertiesToUpdate)) continue;
-
-    widgetsToUpdate = mutation_setPropertiesToUpdate(
-      widgetsToUpdate,
-      widgetId,
-      propertiesToUpdate,
-    );
-  }
-  return widgetsToUpdate;
-}
-
-export function* updateLayoutForMobileCheckpoint(
+function* recalculatePositionsOfWidgetsSaga(
   actionPayload: ReduxAction<{
     parentId: string;
     isMobile: boolean;
@@ -175,7 +87,7 @@ export function* updateLayoutForMobileCheckpoint(
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
       payload: {
-        action: ReduxActionTypes.RECALCULATE_COLUMNS,
+        action: ReduxActionTypes.RECALCULATE_POSITIONS,
         error,
       },
     });
@@ -187,7 +99,7 @@ export function* updateLayoutForMobileCheckpoint(
  * @param actionPayload
  * @returns
  */
-export function* updateLayoutPositioningSaga(
+function* updateLayoutPositioningSaga(
   actionPayload: ReduxAction<AppPositioningTypes>,
 ) {
   try {
@@ -230,7 +142,7 @@ export function* updateLayoutPositioningSaga(
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
       payload: {
-        action: ReduxActionTypes.RECALCULATE_COLUMNS,
+        action: ReduxActionTypes.RECALCULATE_POSITIONS,
         error,
       },
     });
@@ -262,20 +174,22 @@ export function* recalculateAutoLayoutColumnsAndSave(
   );
 }
 
-let autoLayoutWidgetDimensionUpdateBatch: Record<
-  string,
-  { width: number; height: number }
-> = {};
-
-function batchWidgetDimensionsUpdateForAutoLayout(
-  widgetId: string,
-  width: number,
-  height: number,
+export function* updateApplicationLayoutType(
+  positioningType: AppPositioningTypes,
 ) {
-  autoLayoutWidgetDimensionUpdateBatch[widgetId] = { width, height };
+  const applicationId: string = yield select(getCurrentApplicationId);
+  yield put(
+    updateApplication(applicationId || "", {
+      applicationDetail: {
+        appPositioning: {
+          type: positioningType,
+        },
+      },
+    }),
+  );
 }
 
-function* updateWidgetDimensionsSaga(
+function* updateAutoLayoutWidgetDimensionsSaga(
   action: ReduxAction<{ widgetId: string; width: number; height: number }>,
 ) {
   let { height, width } = action.payload;
@@ -338,117 +252,35 @@ function* updateWidgetDimensionsSaga(
   }
 }
 
-/**
- *
- * processAutoLayoutDimensionUpdatesSaga(widgets, queue) => widgets
- */
-
-function* processAutoLayoutDimensionUpdatesFn(
-  allWidgets: CanvasWidgetsReduxState,
-  parentIds: Set<string>,
-  isMobile: boolean,
-  mainCanvasWidth: number,
-) {
-  if (Object.keys(autoLayoutWidgetDimensionUpdateBatch).length === 0) {
-    return allWidgets;
-  }
-  // Iterate through the batch and update the new dimensions
-  let widgets = { ...allWidgets };
-  for (const widgetId in autoLayoutWidgetDimensionUpdateBatch) {
-    const { height, width } = autoLayoutWidgetDimensionUpdateBatch[widgetId];
-    const widget = allWidgets[widgetId];
-    if (!widget) continue;
-    const parentId = widget.parentId;
-    if (parentId === undefined) continue;
-    if (parentId) parentIds.add(parentId);
-
-    const { columnSpace } = getCanvasDimensions(
-      widgets[parentId],
-      widgets,
-      mainCanvasWidth,
-      isMobile,
-    );
-
-    //get row space
-    const rowSpace = widget.detachFromLayout
-      ? 1
-      : GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-
-    let widgetToBeUpdated = { ...widget };
-
-    widgetToBeUpdated = setBottomRow(
-      widgetToBeUpdated,
-      getTopRow(widget, isMobile) + height / rowSpace,
-      isMobile,
-    );
-
-    widgetToBeUpdated = setRightColumn(
-      widgetToBeUpdated,
-      getLeftColumn(widget, isMobile) + width / columnSpace,
-      isMobile,
-    );
-
-    widgets = {
-      ...widgets,
-      [widgetId]: widgetToBeUpdated,
-    };
-  }
-  return widgets;
-}
-
-export function* updateApplicationLayoutType(
-  positioningType: AppPositioningTypes,
-) {
-  const applicationId: string = yield select(getCurrentApplicationId);
-  yield put(
-    updateApplication(applicationId || "", {
-      applicationDetail: {
-        appPositioning: {
-          type: positioningType,
-        },
-      },
-    }),
-  );
-}
-
-function* processWidgetDimensionsSaga() {
-  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-  const mainCanvasWidth: number = yield select(getMainCanvasWidth);
-  const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
-
-  const parentIds = new Set<string>();
-  const processedWidgets: CanvasWidgetsReduxState = yield call(
-    processAutoLayoutDimensionUpdatesFn,
-    allWidgets,
-    parentIds,
-    isMobile,
-    mainCanvasWidth,
-  );
-  // clear the batch after processing
-  autoLayoutWidgetDimensionUpdateBatch = {};
-  return processedWidgets;
-}
-
 function* processWidgetDimensionsAndPositions() {
   const processedWidgets: CanvasWidgetsReduxState = yield call(
     processWidgetDimensionsSaga,
   );
   yield call(recalculateAutoLayoutColumnsAndSave, processedWidgets);
 }
+function* shouldRunSaga(saga: any, action: ReduxAction<unknown>) {
+  const isAutoLayout: boolean = yield select(getIsAutoLayout);
+  if (isAutoLayout) {
+    yield call(saga, action);
+  }
+}
 
 export default function* layoutUpdateSagas() {
   yield all([
     takeLatest(
-      ReduxActionTypes.RECALCULATE_COLUMNS,
-      updateLayoutForMobileCheckpoint,
+      ReduxActionTypes.RECALCULATE_POSITIONS,
+      shouldRunSaga,
+      recalculatePositionsOfWidgetsSaga,
     ),
     takeLatest(
       ReduxActionTypes.UPDATE_LAYOUT_POSITIONING,
+      shouldRunSaga,
       updateLayoutPositioningSaga,
     ),
     takeLatest(
-      ReduxActionTypes.UPDATE_WIDGET_DIMENSIONS,
-      updateWidgetDimensionsSaga,
+      ReduxActionTypes.UPDATE_AUTO_LAYOUT_WIDGET_DIMENSIONS,
+      shouldRunSaga,
+      updateAutoLayoutWidgetDimensionsSaga,
     ),
     debounce(
       50,
@@ -456,6 +288,7 @@ export default function* layoutUpdateSagas() {
         ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
         ReduxActionTypes.PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES,
       ],
+      shouldRunSaga,
       processWidgetDimensionsAndPositions,
     ),
   ]);

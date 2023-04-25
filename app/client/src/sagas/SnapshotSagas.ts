@@ -16,7 +16,7 @@ import {
 } from "selectors/editorSelectors";
 import { getLogToSentryFromResponse } from "utils/helpers";
 import { validateResponse } from "./ErrorSagas";
-import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
+import { updateApplicationLayoutType } from "./AutoLayoutSagas/AutoLayoutUpdateSagas";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 //Saga to create application snapshot
