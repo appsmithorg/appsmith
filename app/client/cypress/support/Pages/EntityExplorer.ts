@@ -170,6 +170,19 @@ export class EntityExplorer {
       });
   }
 
+  public GetEntityNamesInSection(
+    sectionName: string,
+    entityFilterSelector: string,
+  ) {
+    return cy
+      .xpath(this._expandCollapseSection(sectionName))
+      .find(entityFilterSelector)
+      .then((entities) => {
+        const entityNames = entities.map((_, el) => Cypress.$(el).text()).get();
+        return entityNames;
+      });
+  }
+
   public ActionContextMenuByEntityName(
     entityNameinLeftSidebar: string,
     action = "Delete",
