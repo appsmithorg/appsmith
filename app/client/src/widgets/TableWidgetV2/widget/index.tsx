@@ -463,6 +463,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             return SORT_ORDER[aSticky] - SORT_ORDER[bSticky];
           };
 
+          // Sort the column order to retain the position of frozen columns
           newColumnOrder.sort(compareColumns);
 
           propertiesToAdd["columnOrder"] = newColumnOrder;
