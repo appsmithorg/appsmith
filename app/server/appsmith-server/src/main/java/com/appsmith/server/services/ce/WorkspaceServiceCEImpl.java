@@ -9,6 +9,7 @@ import com.appsmith.server.constants.Constraint;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
@@ -32,12 +33,16 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.WorkspacePermission;
+import com.mongodb.DBObject;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -69,6 +74,7 @@ import static com.appsmith.server.constants.PatternConstants.EMAIL_PATTERN;
 import static com.appsmith.server.constants.PatternConstants.WEBSITE_PATTERN;
 import static com.appsmith.server.helpers.PermissionUtils.collateAllPermissions;
 import static com.appsmith.server.helpers.TextUtils.generateDefaultRoleNameForResource;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -464,8 +470,21 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                     return workspaceFromDb;
                 })
                 .flatMap(this::validateObject)
-                .flatMap(repository::save)
-                .flatMap(analyticsService::sendUpdateEvent);
+                .then(Mono.defer(() -> {
+                    Query query = new Query(Criteria.where(fieldName(QWorkspace.workspace.id)).is(id));
+                    DBObject update = getDbObject(resource);
+                    Update updateObj = new Update();
+                    Map<String, Object> updateMap = update.toMap();
+                    updateMap.forEach(updateObj::set);
+                    return mongoTemplate.updateFirst(query, updateObj, resource.getClass())
+                            .flatMap(updateResult -> {
+                                if (updateResult.getMatchedCount() == 0) {
+                                    return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, id));
+                                }
+                                return repository.findById(id)
+                                        .flatMap(analyticsService::sendUpdateEvent);
+                            });
+                }));
     }
 
     @Override

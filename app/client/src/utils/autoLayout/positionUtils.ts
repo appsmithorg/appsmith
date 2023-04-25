@@ -15,8 +15,10 @@ import type {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   FlexLayerAlignment,
+  MOBILE_ROW_GAP,
   Positioning,
   ResponsiveBehavior,
+  ROW_GAP,
 } from "utils/autoLayout/constants";
 import {
   getBottomRow,
@@ -65,6 +67,10 @@ export function updateWidgetPositions(
     );
 
     let height = 0;
+    const rowGap =
+      (isMobile ? MOBILE_ROW_GAP : ROW_GAP) /
+      GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
     if (parent.flexLayers && parent.flexLayers?.length) {
       /**
        * For each flex layer, calculate position of child widgets
@@ -84,8 +90,10 @@ export function updateWidgetPositions(
           firstTimeDSLUpdate,
         );
         widgets = payload.widgets;
-        height += payload.height;
+        height += payload.height + rowGap; // Add rowGap after each layer.
       }
+      // subtract rowGap from height to account for the last layer.
+      height -= rowGap;
     } else if (parent.children?.length) {
       // calculate the total height required by all widgets.
       height = getHeightOfFixedCanvas(widgets, parent, isMobile);
@@ -551,17 +559,24 @@ function updatePositionsForFlexWrap(
   const wrappedAlignments: AlignmentInfo[][] = getWrappedAlignmentInfo(arr);
 
   let top = topRow;
+  const rowGap =
+    (isMobile ? MOBILE_ROW_GAP : ROW_GAP) /
+    GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
   for (const each of wrappedAlignments) {
     if (!each.length) break;
+    const totalColumns = each.reduce((acc, curr) => acc + curr.columns, 0);
     // if there is only one alignment in this row, this implies that it may be wrapped.
     const payload =
       each.length === 1
-        ? placeWrappedWidgets(widgets, each[0], top, isMobile)
+        ? placeWrappedWidgets(widgets, each[0], top, isMobile, rowGap)
         : placeWidgetsWithoutWrap(widgets, each, top, isMobile);
     widgets = payload.widgets;
-    top += payload.height;
+    top += payload.height + (totalColumns > 0 ? rowGap : 0);
     continue;
   }
+  // adjust the top position to account for the last row
+  top -= rowGap;
   return { height: top - topRow, widgets };
 }
 
@@ -592,6 +607,7 @@ export function getStartingPosition(
  * @param alignment | AlignmentInfo: alignment to be positioned.
  * @param topRow | number: top row to place the widgets.
  * @param isMobile | boolean: is mobile viewport.
+ * @param rowGap | number: gap between rows.
  * @returns { height: number; widgets: CanvasWidgetsReduxState }
  */
 export function placeWrappedWidgets(
@@ -599,6 +615,7 @@ export function placeWrappedWidgets(
   alignment: AlignmentInfo,
   topRow: number,
   isMobile = false,
+  rowGap = 0,
 ): { height: number; widgets: CanvasWidgetsReduxState } {
   let widgets = { ...allWidgets };
 
@@ -617,9 +634,9 @@ export function placeWrappedWidgets(
       height,
     );
     widgets = result.widgets;
-    startRow += height;
+    startRow += height + rowGap;
   }
-
+  startRow -= rows?.length ? rowGap : 0;
   return { height: startRow - topRow, widgets };
 }
 

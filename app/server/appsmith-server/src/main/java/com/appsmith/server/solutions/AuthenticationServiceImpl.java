@@ -1,9 +1,11 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
+import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.ce.AuthenticationServiceCEImpl;
@@ -21,9 +23,11 @@ public class AuthenticationServiceImpl extends AuthenticationServiceCEImpl imple
                                      CloudServicesConfig cloudServicesConfig,
                                      ConfigService configService,
                                      DatasourcePermission datasourcePermission,
-                                     PagePermission pagePermission) {
+                                     PagePermission pagePermission,
+                                     PluginExecutorHelper pluginExecutorHelper,
+                                     FeatureFlagService featureFlagService) {
 
         super(datasourceService, pluginService, redirectHelper, newPageService, cloudServicesConfig, configService,
-                datasourcePermission, pagePermission);
+                datasourcePermission, pagePermission, pluginExecutorHelper, featureFlagService);
     }
 }
