@@ -268,7 +268,7 @@ describe("Autocomplete tests", () => {
       `{\n"_id": "{{appsmith}}"\n}`,
     );
 
-    cy.wrap(documentInputSelector)
+    cy.xpath(documentInputSelector)
       .find(".CodeMirror")
       .find("textarea")
       .parents(".CodeMirror")
