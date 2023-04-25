@@ -1,8 +1,7 @@
 const dsl = require("../../../../../fixtures/Listv2/MetaHydrationDSL.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const datasource = require("../../../../../locators/DatasourcesEditor.json");
-const queryLocators = require("../../../../../locators/QueryEditor.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
@@ -105,48 +104,14 @@ describe("List widget v2 - meta hydration tests", () => {
 
   it("1. setup serverside data", () => {
     cy.wait(1000);
-    cy.NavigateToDatasourceEditor();
-
-    // // Click on sample(mock) user database.
-    // cy.get(datasource.mockUserDatabase).click();
-
-    // Choose the first data source which consists of users keyword & Click on the "New Query +"" button
-    // Choose the first data source which consists of users keyword & Click on the "New Query +"" button
-    cy.get(`${datasource.datasourceCard}`)
-      .filter(":contains('Users')")
-      .first()
-      .within(() => {
-        cy.get(`${datasource.createQuery}`).click({ force: true });
-      });
-    // Click the editing field
-    cy.get(".t--action-name-edit-field").click({ force: true });
-
-    // Click the editing field
-    cy.get(queryLocators.queryNameField).type("Query1");
-
-    // switching off Use Prepared Statement toggle
-    cy.get(queryLocators.switch).last().click({ force: true });
-
-    //.1: Click on Write query area
-    cy.get(queryLocators.templateMenu).click();
-    cy.get(queryLocators.query).click({
-      force: true,
-    });
-
-    // writing query to get the schema
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type(
+    _.dataSources.CreateDataSource("Postgres");
+    cy.get("@dsName").then(($dsName) => {
+      _.dataSources.CreateQueryAfterDSSaved(
         "SELECT * FROM users OFFSET {{List1.pageNo * List1.pageSize}} LIMIT {{List1.pageSize}};",
-        {
-          force: true,
-          parseSpecialCharSequences: false,
-        },
+        "Query1",
       );
-    cy.WaitAutoSave();
-
-    cy.runQuery();
+      _.dataSources.RunQuery();
+    });
 
     cy.get('.t--entity-name:contains("Page1")').click({ force: true });
 
