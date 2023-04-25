@@ -138,6 +138,7 @@ import {
   saveAndAutoIndentCode,
 } from "./utils/saveAndAutoIndent";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -1079,6 +1080,7 @@ class CodeEditor extends Component<Props, State> {
         datasources: this.props.datasources.list,
         pluginIdToImageLocation: this.props.pluginIdToImageLocation,
         recentEntities: this.props.recentEntities,
+        featureFlags: this.props.featureFlags,
         update: this.props.input.onChange?.bind(this),
         executeCommand: (payload: any) => {
           this.props.executeCommand({
@@ -1411,6 +1413,7 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
     state,
     props.dataTreePath?.split(".")[0],
   ),
+  featureFlags: selectFeatureFlags(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
