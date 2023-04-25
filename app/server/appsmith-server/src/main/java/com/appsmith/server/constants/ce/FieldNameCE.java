@@ -166,5 +166,9 @@ public class FieldNameCE {
     public static final String VIEW_MODE = "viewMode";
     public static final String USER_EMAILS = "userEmails";
     public static final String NUMBER_OF_USERS_INVITED = "numberOfUsersInvited";
-}
 
+    public static final String ASSIGNED_USERS_TO_PERMISSION_GROUPS = "assigned_users";
+    public static final String UNASSIGNED_USERS_FROM_PERMISSION_GROUPS = "unassigned_users";
+    public static final String NUMBER_OF_ASSIGNED_USERS = "numberOfAssignedUsers";
+    public static final String NUMBER_OF_UNASSIGNED_USERS = "numberOfUnassignedUsers";
+}
