@@ -48,7 +48,7 @@ import {
   fetchUsersForWorkspace,
   fetchWorkspace,
 } from "@appsmith/actions/workspaceActions";
-import { useHistory } from "react-router-dom";
+// import { useHistory } from "react-router-dom";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
 
@@ -138,8 +138,6 @@ export const UserInfo = styled.div`
 `;
 
 export const UserRole = styled.div`
-  flex-basis: 40%;
-  flex-shrink: 0;
   span {
     word-break: break-word;
   }
@@ -231,7 +229,7 @@ function WorkspaceInviteUsersForm(props: any) {
   const [emailError, setEmailError] = useState("");
   const [selectedOption, setSelectedOption] = useState<string[]>([]);
   const userRef = React.createRef<HTMLDivElement>();
-  const history = useHistory();
+  // const history = useHistory();
   const selectedId = props?.selected?.id;
 
   const selected = useMemo(
@@ -257,7 +255,7 @@ function WorkspaceInviteUsersForm(props: any) {
     handleSubmit,
     isApplicationInvite = false,
     isLoading,
-    isMultiSelectDropdown = true,
+    isMultiSelectDropdown = false,
     placeholder = "",
     submitFailed,
     submitSucceeded,
@@ -323,11 +321,11 @@ function WorkspaceInviteUsersForm(props: any) {
   );
 
   const onSelect = (value: string) => {
-    const option = styledRoles.find((role: any) => role.id === value);
+    // const option = styledRoles.find((role: any) => role.id === value);
 
-    if (option.link) {
-      history.push(option.link);
-    }
+    // if (option.link) {
+    //   history.push(option.link);
+    // }
 
     if (isMultiSelectDropdown) {
       setSelectedOption((selectedOptions) => [...selectedOptions, value]);
@@ -396,12 +394,12 @@ function WorkspaceInviteUsersForm(props: any) {
               isMultiSelect={isMultiSelectDropdown}
               onDeselect={onRemoveOptions}
               onSelect={onSelect}
-              optionFilterProp="value"
+              optionLabelProp="label"
               placeholder="Select a role"
               value={selectedOption}
             >
               {styledRoles.map((role: any) => (
-                <Option key={role.value} value={role.id}>
+                <Option key={role.id} label={role.value} value={role.id}>
                   <div className="flex flex-col gap-1">
                     <Text kind="heading-xs">{role.value}</Text>
                     <Text kind="body-s">{role.description}</Text>
@@ -464,6 +462,7 @@ function WorkspaceInviteUsersForm(props: any) {
                                 ? `/api/${USER_PHOTO_ASSET_URL}/${user.photoId}`
                                 : undefined
                             }
+                            isTooltipEnabled={false}
                             label={user.name || user.username}
                           />
                           <UserName>
