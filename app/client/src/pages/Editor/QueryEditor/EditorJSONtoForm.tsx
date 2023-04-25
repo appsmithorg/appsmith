@@ -1,6 +1,5 @@
-/* eslint-disable */
 import type { RefObject } from "react";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useRef } from "react";
 import type { InjectedFormProps } from "redux-form";
 import { Tag } from "@blueprintjs/core";
 import { isString } from "lodash";
@@ -132,7 +131,6 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
 import SearchSnippets from "pages/common/SearchSnippets";
-import { change } from "redux-form";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -824,20 +822,6 @@ export function EditorJSONtoForm(props: Props) {
       [],
     );
 
-  // DATASOURCES_OPTIONS[0].value,
-  // const [defaultValue, setDefaultValue] = useState("");
-  //
-  // useEffect(() => {
-  //   if (
-  //     (DATASOURCES_OPTIONS &&
-  //       DATASOURCES_OPTIONS[0] &&
-  //       DATASOURCES_OPTIONS[0]?.value) !== defaultValue
-  //   ) {
-  //     dispatch(change(formName, "datasource.id", DATASOURCES_OPTIONS[0].value)); // Dispatch a change action to update form state
-  //     setDefaultValue(DATASOURCES_OPTIONS[0].value);
-  //   }
-  // }, [DATASOURCES_OPTIONS]);
-
   const selectedConfigTab = useSelector(getQueryPaneConfigSelectedTabIndex);
 
   // Debugger render flag
@@ -900,7 +884,6 @@ export function EditorJSONtoForm(props: Props) {
             <DropdownSelect>
               <DropdownField
                 className={"t--switch-datasource"}
-                // defaultValue={defaultValue}
                 formName={formName}
                 isDisabled={!isChangePermitted}
                 name="datasource.id"
