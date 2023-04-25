@@ -32,7 +32,6 @@ import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const ModalSubHeader = styled.h5`
   font-size: 14px;
-  margin-top: 20px;
 `;
 
 const ModalContentWrapper = styled.div``;
@@ -62,9 +61,16 @@ const StyledImg = styled.img`
 `;
 
 const StyledCount = styled.h5`
-  font-size: 30px;
-  font-weight: 600;
-  color: var(--ads-v2-color-fg-emphasi);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ads-v2-color-fg-emphasis);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--ads-v2-color-bg-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const ModalContentItem = styled.div`
@@ -117,7 +123,9 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
           <ModalContentWrapper>
             <ModalContentRow border>
               <ModalContentTextWrapper>
-                <StyledCount>1</StyledCount>
+                <div>
+                  <StyledCount>1</StyledCount>
+                </div>
                 <ModalContentItem>
                   <ModalContentHeader>
                     {createMessage(ONBOARDING_INTRO_CONNECT_YOUR_DATABASE)}
@@ -136,7 +144,9 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
             </ModalContentRow>
             <ModalContentRow border>
               <ModalContentTextWrapper>
-                <StyledCount>2</StyledCount>
+                <div>
+                  <StyledCount>2</StyledCount>
+                </div>
                 <ModalContentItem>
                   <ModalContentHeader>
                     {createMessage(DRAG_AND_DROP)}
@@ -155,7 +165,9 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
             </ModalContentRow>
             <ModalContentRow className="border-b-0">
               <ModalContentTextWrapper>
-                <StyledCount>3</StyledCount>
+                <div>
+                  <StyledCount>1</StyledCount>
+                </div>
                 <ModalContentItem>
                   <ModalContentHeader>
                     {createMessage(ONBOARDING_INTRO_PUBLISH)}
