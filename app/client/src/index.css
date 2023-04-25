@@ -150,3 +150,7 @@ div.bp3-popover-arrow {
 .error-menuitem:active {
   background-color: var(--ads-v2-color-red-100) !important;
 }
+.menuitem-nohover:hover {
+  background-color: transparent !important;
+  cursor: default !important;
+}
