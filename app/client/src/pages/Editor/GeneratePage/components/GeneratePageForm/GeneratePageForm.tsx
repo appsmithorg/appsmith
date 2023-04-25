@@ -23,11 +23,6 @@ import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
 import DataSourceOption, { DatasourceImage } from "../DataSourceOption";
 import { getQueryStringfromObject } from "RouteBuilder";
 import type { DropdownOption } from "design-system-old";
-import {
-  // getTypographyByKey,
-  IconSize,
-  // TooltipComponent as Tooltip,
-} from "design-system-old";
 import { Button, Icon, Text, Select, Option, Tooltip } from "design-system";
 import GoogleSheetForm from "./GoogleSheetForm";
 import {
@@ -68,7 +63,6 @@ import { datasourcesEditorIdURL, integrationEditorURL } from "RouteBuilder";
 import { PluginPackageName } from "entities/Action";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { hasCreateDatasourcePermission } from "@appsmith/utils/permissionHelpers";
-import { Icon as IconOld } from "design-system-old";
 import { getPluginImages } from "selectors/entitiesSelector";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
@@ -145,8 +139,6 @@ const HelperMsg = styled.span`
   margin: 6px 0px 10px;
 `;
 
-const StyledIcon = styled(IconOld)``;
-
 const StyledIconWrapper = styled.div`
   height: 20px;
   width: auto;
@@ -215,11 +207,10 @@ const DatasourceOptionSelectedView = (props: any) => {
           />
         )}
         {iconType === GeneratePageSelectedViewIconEnum.ADS_ICON && (
-          <StyledIcon
-            fillColor={option?.iconColor}
-            hoverFillColor={option?.iconColor}
+          <Icon
+            color={option?.iconColor}
             name={option.icon}
-            size={option.iconSize || IconSize.XL}
+            size={option?.iconSize}
           />
         )}
       </StyledIconWrapper>
@@ -392,7 +383,7 @@ function GeneratePageForm() {
                     value: column.name,
                     subText: column.type,
                     icon: columnIcon,
-                    iconSize: IconSize.LARGE,
+                    iconSize: "md",
                     iconColor: Colors.GOLD,
                   });
                 }
@@ -452,7 +443,7 @@ function GeneratePageForm() {
         label: bucketName,
         value: bucketName,
         icon: datasourceIcon,
-        iconSize: IconSize.LARGE,
+        iconSize: "md",
         iconColor: Colors.BURNING_ORANGE,
       }));
       setSelectedDatasourceTableOptions(tables);
@@ -482,7 +473,7 @@ function GeneratePageForm() {
             label: name,
             value: name,
             icon: datasourceIcon,
-            iconSize: IconSize.LARGE,
+            iconSize: "md",
             iconColor: Colors.BURNING_ORANGE,
             data: {
               columns,
@@ -732,7 +723,7 @@ function GeneratePageForm() {
               data-testid="t--table-dropdown"
               isDisabled={!!tableDropdownErrorMsg}
               isLoading={fetchingDatasourceConfigs}
-              isValid={!!tableDropdownErrorMsg}
+              isValid={!tableDropdownErrorMsg}
               onChange={(value) =>
                 onSelectTable(
                   value,
@@ -760,11 +751,10 @@ function GeneratePageForm() {
                   <Option key={table.value} value={table.value}>
                     <OptionWrapper>
                       <StyledIconWrapper>
-                        <StyledIcon
-                          fillColor={table?.iconColor}
-                          hoverFillColor={table?.iconColor}
+                        <Icon
+                          color={table?.iconColor}
                           name={table.icon}
-                          size={table.iconSize || IconSize.XL}
+                          size={table.iconSize}
                         />
                       </StyledIconWrapper>
                       <Text renderAs="p">{table.label}</Text>
@@ -839,11 +829,10 @@ function GeneratePageForm() {
                       <Option key={column.value} value={column.value}>
                         <OptionWrapper>
                           <StyledIconWrapper>
-                            <StyledIcon
-                              fillColor={column?.iconColor}
-                              hoverFillColor={column?.iconColor}
+                            <Icon
+                              color={column?.iconColor}
                               name={column.icon}
-                              size={column.iconSize || IconSize.XL}
+                              size={column.iconSize}
                             />
                           </StyledIconWrapper>
                           <Text renderAs="p">{column.label}</Text>
