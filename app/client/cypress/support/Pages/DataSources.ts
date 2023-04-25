@@ -728,6 +728,8 @@ export class DataSources {
       cy.xpath(this._dropdownTitle(ddTitle)).click(); //to expand the dropdown
       cy.xpath(this._visibleTextSpan(newValue)).last().click({ force: true }); //to select the new value
     }
+    // Wait for the UI to stabilize after the change
+    this.agHelper.Sleep(500);
   }
 
   public ReconnectDataSource(dbName: string, dsName: "PostgreSQL" | "MySQL") {
