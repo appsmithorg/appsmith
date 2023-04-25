@@ -18,23 +18,20 @@ describe("General Settings", () => {
       _.appSettings.CheckUrl(appName as string, "Page1", undefined, false);
       _.deployMode.NavigateBacktoEditor();
     });
-  });
 
-  it("2. Handles app icon change", () => {
+    //Handles app icon change
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToGeneralSettings();
     _.generalSettings.UpdateAppIcon();
     _.appSettings.ClosePane();
-  });
 
-  it("3. App name allows special and accented character", () => {
+    //App name allows special and accented character
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToGeneralSettings();
     _.generalSettings.UpdateAppNameAndVerifyUrl(true, guid + "!@#œ™¡", guid);
     _.appSettings.ClosePane();
-  });
 
-  it("4. Veirfy App name doesn't allow empty", () => {
+    //Veirfy App name doesn't allow empty
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToGeneralSettings();
     _.generalSettings.AssertAppErrorMessage("", "App name cannot be empty");

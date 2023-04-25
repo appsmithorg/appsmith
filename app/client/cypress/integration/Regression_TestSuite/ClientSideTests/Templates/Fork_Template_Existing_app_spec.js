@@ -17,15 +17,13 @@ beforeEach(() => {
 });
 
 describe("Fork a template to the current app from new page popover", () => {
-  it("Fork template button to be visible always", () => {
+  it("1. Fork template from page section", () => {
+    //Fork template button to be visible always
     _.agHelper.RefreshPage();
+    cy.wait(5000);
     cy.AddPageFromTemplate();
+    cy.wait(5000);
     _.agHelper.AssertElementExist(_.templates.locators._forkApp);
-  });
-  it("Fork template from page section", () => {
-    cy.wait(5000);
-    cy.AddPageFromTemplate();
-    cy.wait(5000);
     cy.get(template.templateDialogBox).should("be.visible");
     cy.wait(4000);
     cy.xpath(
@@ -51,7 +49,7 @@ describe("Fork a template to the current app from new page popover", () => {
     );
   });
 
-  it("Add selected page of template from page section", () => {
+  it("2. Add selected page of template from page section", () => {
     cy.AddPageFromTemplate();
     cy.wait(5000);
     cy.get(template.templateDialogBox).should("be.visible");
