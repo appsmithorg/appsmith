@@ -268,7 +268,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     yield put(updateAndSaveLayout(updatedWidgetsAfterResizing));
 
     // Widget resize based auto-height is only required for fixed-layout
-    // Auto-layout has UPDATE_WIDGET_DIMENSIONS to handle auto height
+    // Auto-layout has UPDATE_AUTO_LAYOUT_WIDGET_DIMENSIONS to handle auto height
     if (appPositioningType !== AppPositioningTypes.AUTO) {
       yield put(generateAutoHeightLayoutTreeAction(true, true));
     }

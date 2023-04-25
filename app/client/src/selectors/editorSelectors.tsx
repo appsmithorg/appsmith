@@ -403,7 +403,7 @@ export const getDimensionMap = createSelector(
       : DefaultDimensionMap;
   },
 );
-const addWidgetDimensionProxy = (
+export const addWidgetDimensionProxy = (
   dimensionMap: any,
   widgets: CanvasWidgetsReduxState,
 ) => {

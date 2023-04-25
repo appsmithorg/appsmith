@@ -19,7 +19,7 @@ export const updateLayoutForMobileBreakpointAction = (
   saveLayout?: boolean,
 ) => {
   return {
-    type: ReduxActionTypes.RECALCULATE_COLUMNS,
+    type: ReduxActionTypes.RECALCULATE_POSITIONS,
     payload: {
       parentId,
       isMobile,
@@ -57,13 +57,13 @@ export const updateSnapshotDetails = (
     payload: snapShotDetails,
   };
 };
-export function updateWidgetDimensionAction(
+export function updatAutoLayoutWidgetDimensionAction(
   widgetId: string,
   width: number,
   height: number,
 ) {
   return {
-    type: ReduxActionTypes.UPDATE_WIDGET_DIMENSIONS,
+    type: ReduxActionTypes.UPDATE_AUTO_LAYOUT_WIDGET_DIMENSIONS,
     payload: {
       widgetId,
       width,
