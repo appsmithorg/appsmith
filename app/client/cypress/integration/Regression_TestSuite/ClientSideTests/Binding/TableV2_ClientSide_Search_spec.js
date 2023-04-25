@@ -1,16 +1,14 @@
 const dsl = require("../../../../fixtures/TableV2ClientSearch.json");
 
-describe("Test Create Api and Bind to Table widget V2", function() {
+describe("Test Create Api and Bind to Table widget V2", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("1. Validate onSearchTextChanged function is called when configured for search text", function() {
+  it("1. Validate onSearchTextChanged function is called when configured for search text", function () {
     cy.wait(5000);
     // input text in search bar
-    cy.get(".t--widget-tablewidgetv2 .t--search-input input")
-      .first()
-      .type("2");
+    cy.get(".t--widget-tablewidgetv2 .t--search-input input").first().type("2");
     cy.wait(5000);
     // Verify it filtered the table
     cy.readTableV2dataPublish("0", "0").then((tabData) => {

@@ -562,7 +562,7 @@
                   "renderMode": "CANVAS",
                   "isLoading": false,
                   "iconAlign": "left",
-                  "defaultText": "{{echoAPI.data.headers.info}}"
+                  "defaultText": "{{echoAPI.data.headers.Info}}"
                 },
                 {
                   "widgetName": "Input2",
@@ -743,7 +743,7 @@
           "userPermissions": [],
           "name": "DEFAULT_REST_DATASOURCE",
           "pluginId": "restapi-plugin",
-          "datasourceConfiguration": { "url": "https://mock-api.appsmith.com" },
+          "datasourceConfiguration": { "url": "hhttp://host.docker.internal:5001/v1/mock-api" },
           "invalids": [],
           "messages": [],
           "isValid": true,
@@ -753,7 +753,7 @@
         "actionConfiguration": {
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
-          "path": "/echo/get",
+          "path": "/echo",
           "headers": [{ "key": "info", "value": "this is a test" }],
           "encodeParamsToggle": true,
           "queryParameters": [],

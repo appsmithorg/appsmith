@@ -5,11 +5,11 @@ const dsl = require("../../../../../fixtures/formdsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 
-describe("Form Widget Functionality", function() {
+describe("Form Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Default Form text,  Reset and Close button Validation", function() {
+  it("Default Form text,  Reset and Close button Validation", function () {
     cy.get(widgetsPage.textWidget).should("be.visible");
     cy.get(widgetsPage.formButtonWidget)
       .contains("Submit")
@@ -20,7 +20,7 @@ describe("Form Widget Functionality", function() {
       .scrollIntoView()
       .should("be.visible");
   });
-  it("Add Multiple widgets in Form", function() {
+  it("Add Multiple widgets in Form", function () {
     cy.get(explorer.addWidget).click();
     cy.get(commonlocators.entityExplorersearch).should("be.visible");
     cy.dragAndDropToWidget("multiselectwidgetv2", "formwidget", {
@@ -34,7 +34,7 @@ describe("Form Widget Functionality", function() {
     cy.get(widgetsPage.inputWidget).should("be.visible");
     cy.PublishtheApp();
   });
-  it("Form_Widget Minimize and maximize General Validation", function() {
+  it("Form_Widget Minimize and maximize General Validation", function () {
     cy.openPropertyPane("formwidget");
     cy.get(commonlocators.generalChevran).click({ force: true });
     cy.get(commonlocators.generalSection).should("not.be.visible");
@@ -42,7 +42,7 @@ describe("Form Widget Functionality", function() {
     cy.get(commonlocators.generalSection).should("be.visible");
     cy.PublishtheApp();
   });
-  it("Rename Form widget from Entity Explorer", function() {
+  it("Rename Form widget from Entity Explorer", function () {
     cy.GlobalSearchEntity("Form1");
     cy.RenameEntity("Form");
     cy.wait(1000);
@@ -86,13 +86,13 @@ describe("Form Widget Functionality", function() {
   // cy.get(commonlocators.editPropCrossButton).click({ force: true });
   //});
 
-  it("Form Widget Functionality To Verify The Colour", function() {
+  it("Form Widget Functionality To Verify The Colour", function () {
     cy.PublishtheApp();
     cy.get(formWidgetsPage.formD)
       .should("have.css", "background-color")
       .and("eq", "rgb(128, 128, 128)");
   });
-  it("Form Widget Functionality To Unchecked Visible Widget", function() {
+  it("Form Widget Functionality To Unchecked Visible Widget", function () {
     cy.openPropertyPane("formwidget");
     // Uncheck the visble JS
     cy.togglebarDisable(commonlocators.visibleCheckbox);
@@ -101,7 +101,7 @@ describe("Form Widget Functionality", function() {
     cy.get(publish.formWidget).should("not.exist");
     cy.get(publish.backToEditor).click();
   });
-  it("Form Widget Functionality To Check Visible Widget", function() {
+  it("Form Widget Functionality To Check Visible Widget", function () {
     // Open property pone
     cy.openPropertyPane("formwidget");
     // Check the visible JS
@@ -111,7 +111,7 @@ describe("Form Widget Functionality", function() {
     cy.get(publish.formWidget).should("be.visible");
     cy.get(publish.backToEditor).click();
   });
-  it("Toggle JS - Form-Unckeck Visible field Validation", function() {
+  it("Toggle JS - Form-Unckeck Visible field Validation", function () {
     cy.openPropertyPane("formwidget");
     //Uncheck the disabled checkbox using JS and validate
     cy.get(widgetsPage.toggleVisible).click({ force: true });
@@ -121,14 +121,14 @@ describe("Form Widget Functionality", function() {
     cy.get(publish.formWidget).should("not.exist");
   });
 
-  it("Toggle JS - Form-Check Visible field Validation", function() {
+  it("Toggle JS - Form-Check Visible field Validation", function () {
     cy.openPropertyPane("formwidget");
     //Check the disabled checkbox using JS and Validate
     cy.testJsontext("visible", "true");
     cy.PublishtheApp();
     cy.get(publish.formWidget).should("be.visible");
   });
-  it("Form-Copy Verification", function() {
+  it("Form-Copy Verification", function () {
     cy.openPropertyPane("formwidget");
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     //Copy Form and verify all properties

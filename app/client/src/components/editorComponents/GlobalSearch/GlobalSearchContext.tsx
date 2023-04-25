@@ -1,5 +1,5 @@
 import React from "react";
-import { SearchItem, SelectEvent } from "./utils";
+import type { SearchItem, SelectEvent } from "./utils";
 
 type SearchContextType = {
   handleItemLinkClick: (

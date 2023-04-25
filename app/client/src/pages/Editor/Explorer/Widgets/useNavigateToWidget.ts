@@ -1,12 +1,12 @@
 import { useCallback } from "react";
-import { WidgetType } from "constants/WidgetConstants";
+import type { WidgetType } from "constants/WidgetConstants";
 import { useParams } from "react-router";
-import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
+import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import { useDispatch } from "react-redux";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { getCurrentPageWidgets } from "selectors/entitiesSelector";
 import store from "store";
-import { NavigationMethod } from "utils/history";
+import type { NavigationMethod } from "utils/history";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 export const useNavigateToWidget = () => {

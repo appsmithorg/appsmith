@@ -3,12 +3,12 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const dsl = require("../../../../fixtures/containerdsl.json");
 
-describe("Container Widget Functionality", function() {
+describe("Container Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Container Widget Functionality", function() {
+  it("Container Widget Functionality", function () {
     cy.openPropertyPane("containerwidget");
     /**
      * @param{Text} Random Text
@@ -18,7 +18,7 @@ describe("Container Widget Functionality", function() {
     cy.widgetText(
       "job",
       widgetsPage.containerWidget,
-      commonlocators.containerInnerText,
+      widgetsPage.widgetNameSpan,
     );
     cy.moveToStyleTab();
     /**
@@ -59,7 +59,7 @@ describe("Container Widget Functionality", function() {
       .should("be.visible");
     cy.PublishtheApp();
   });
-  it("Container Widget Functionality To Verify The Colour", function() {
+  it("Container Widget Functionality To Verify The Colour", function () {
     cy.get(widgetsPage.containerD)
       .eq(0)
       .should("have.css", "background")
@@ -69,7 +69,7 @@ describe("Container Widget Functionality", function() {
       );
   });
 
-  it("Test border width and verity", function() {
+  it("Test border width and verity", function () {
     cy.get(publish.backToEditor).click();
     cy.openPropertyPane("containerwidget");
     cy.moveToStyleTab();
@@ -81,7 +81,7 @@ describe("Container Widget Functionality", function() {
       .and("eq", "10px");
   });
 
-  it("Test border radius and verity", function() {
+  it("Test border radius and verity", function () {
     // check if border radius is changed on button
 
     cy.get(`.t--property-control-borderradius  button > div`)
@@ -98,7 +98,7 @@ describe("Container Widget Functionality", function() {
       });
   });
 
-  it("Test Box shadow and verity", function() {
+  it("Test Box shadow and verity", function () {
     cy.get(`.t--property-control-boxshadow  button > div`)
       .eq(0)
       .click({ force: true });

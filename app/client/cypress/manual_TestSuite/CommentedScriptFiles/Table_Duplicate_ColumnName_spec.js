@@ -1,6 +1,6 @@
 const dsl = require("../../fixtures/tableNewDsl.json");
 
-describe("prevent duplicate column name in table", function() {
+describe("prevent duplicate column name in table", function () {
   before(() => {
     cy.addDsl(dsl);
   });

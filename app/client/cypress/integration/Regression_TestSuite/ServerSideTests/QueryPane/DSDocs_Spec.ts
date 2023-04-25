@@ -1,64 +1,56 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let dsName: any;
 
-let agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer,
-  dataSources = ObjectsRegistry.DataSources;
-
-describe("Check datasource doc links", function() {
-  it("1. Verify Postgres documentation opens", function() {
-    dataSources.CreateDataSource("Postgres");
-
-    // go back to active ds list
-    dataSources.NavigateToActiveTab();
-
+describe("Check datasource doc links", function () {
+  it("1. Verify Postgres documentation opens", function () {
+    _.dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-      dataSources.CreateQuery(dsName);
-      agHelper.GetNClick(dataSources._queryDoc);
-      agHelper.AssertElementVisible(dataSources._globalSearchModal);
-      agHelper.AssertElementVisible(
-        dataSources._globalSearchInput("PostgreSQL"),
+      _.dataSources.CreateQueryAfterDSSaved();
+      _.agHelper.GetNClick(_.dataSources._queryDoc);
+      _.agHelper.AssertElementVisible(_.dataSources._globalSearchModal);
+      _.agHelper.AssertElementVisible(
+        _.dataSources._globalSearchInput("PostgreSQL"),
       );
     });
   });
 
-  it("2. Verify Mongo documentation opens", function() {
-    dataSources.CreateDataSource("Mongo");
-
-    // go back to active ds list
-    dataSources.NavigateToActiveTab();
-
+  it("2. Verify Mongo documentation opens", function () {
+    _.dataSources.CreateDataSource("Mongo");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-      dataSources.CreateQuery(dsName);
-      agHelper.GetNClick(dataSources._queryDoc);
-      agHelper.AssertElementVisible(dataSources._globalSearchModal);
-      agHelper.AssertElementVisible(dataSources._globalSearchInput("MongoDB"));
+      _.dataSources.CreateQueryAfterDSSaved();
+      _.agHelper.GetNClick(_.dataSources._queryDoc);
+      _.agHelper.AssertElementVisible(_.dataSources._globalSearchModal);
+      _.agHelper.AssertElementVisible(
+        _.dataSources._globalSearchInput("MongoDB"),
+      );
     });
   });
 
-  it("3. Verify MySQL documentation opens", function() {
-    dataSources.CreateDataSource("MySql");
-
-    // go back to active ds list
-    dataSources.NavigateToActiveTab();
-
+  it("3. Verify MySQL documentation opens", function () {
+    _.dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
-      dataSources.CreateQuery(dsName);
-      agHelper.GetNClick(dataSources._queryDoc);
-      agHelper.AssertElementVisible(dataSources._globalSearchModal);
-      agHelper.AssertElementVisible(dataSources._globalSearchInput("MySQL"));
+      _.dataSources.CreateQueryAfterDSSaved();
+      _.agHelper.GetNClick(_.dataSources._queryDoc);
+      _.agHelper.AssertElementVisible(_.dataSources._globalSearchModal);
+      _.agHelper.AssertElementVisible(
+        _.dataSources._globalSearchInput("MySQL"),
+      );
     });
   });
 
   afterEach(() => {
-    agHelper.PressEscape();
-    agHelper.ActionContextMenuWithInPane("Delete");
-    ee.ExpandCollapseEntity("Datasources");
-    ee.ActionContextMenuByEntityName(dsName, "Delete", "Are you sure?");
-    agHelper.AssertContains("deleted successfully");
+    _.agHelper.PressEscape();
+    _.agHelper.ActionContextMenuWithInPane("Delete");
+    _.entityExplorer.ExpandCollapseEntity("Datasources");
+    _.entityExplorer.ActionContextMenuByEntityName(
+      dsName,
+      "Delete",
+      "Are you sure?",
+    );
+    _.agHelper.AssertContains("deleted successfully");
   });
 });

@@ -5,7 +5,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;
 
-describe("Input Widget Max Char Functionality", function() {
+describe("Input Widget Max Char Functionality", function () {
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
   });
@@ -30,9 +30,7 @@ describe("Input Widget Max Char Functionality", function() {
     cy.testJsontext("defaultvalue", "");
     cy.closePropertyPane("inputwidgetv2");
 
-    cy.get(widgetsPage.innertext)
-      .click({ force: true })
-      .type("1234567");
+    cy.get(widgetsPage.innertext).click({ force: true }).type("1234567");
 
     cy.openPropertyPane("inputwidgetv2");
 

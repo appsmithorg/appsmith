@@ -108,8 +108,15 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             }
             if (isFromSignup) {
                 boolean finalIsFromSignup = isFromSignup;
-                redirectionMono = createDefaultApplication(defaultWorkspaceId, authentication)
-                        .flatMap(defaultApplication -> handleOAuth2Redirect(webFilterExchange, defaultApplication, finalIsFromSignup));
+                redirectionMono = workspaceService.isCreateWorkspaceAllowed(Boolean.TRUE)
+                        .flatMap(isCreateWorkspaceAllowed -> {
+                            if (isCreateWorkspaceAllowed) {
+                                return createDefaultApplication(defaultWorkspaceId, authentication)
+                                        .flatMap(defaultApplication ->
+                                                handleOAuth2Redirect(webFilterExchange, defaultApplication, finalIsFromSignup));
+                            }
+                            return handleOAuth2Redirect(webFilterExchange, null, finalIsFromSignup);
+                });
             } else {
                 redirectionMono = handleOAuth2Redirect(webFilterExchange, null, isFromSignup);
             }

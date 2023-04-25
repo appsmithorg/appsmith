@@ -39,9 +39,7 @@ describe("List widget v2 Copy and Paste", () => {
 
     cy.openPropertyPane("listwidgetv2");
     cy.get(".t--delete-widget").click({ force: true });
-    cy.get(".t--toast-action span")
-      .eq(0)
-      .contains("List1 is removed");
+    cy.get(".t--toast-action span").eq(0).contains("List1 is removed");
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",

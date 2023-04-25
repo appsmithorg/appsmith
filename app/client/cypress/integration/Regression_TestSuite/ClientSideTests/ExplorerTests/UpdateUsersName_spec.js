@@ -1,10 +1,10 @@
 import homePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Update a user's name", function() {
+describe("Update a user's name", function () {
   let username;
 
-  it("1. Update a user's name", function() {
+  it("1. Update a user's name", function () {
     _.homePage.NavigateToHome();
     cy.get(homePage.profileMenu).click();
     cy.get(".t--edit-profile").click({ force: true });
@@ -12,9 +12,7 @@ describe("Update a user's name", function() {
     cy.generateUUID().then((uid) => {
       username = uid;
       cy.get("[data-cy=t--display-name]").clear();
-      cy.get("[data-cy=t--display-name]")
-        .click()
-        .type(username);
+      cy.get("[data-cy=t--display-name]").click().type(username);
       // Waiting as the input onchange has a debounce
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(2000);
@@ -25,7 +23,7 @@ describe("Update a user's name", function() {
     });
   });
 
-  it("2. Validate email address and Reset pwd", function() {
+  it("2. Validate email address and Reset pwd", function () {
     cy.intercept("POST", "/api/v1/users/forgotPassword", {
       fixture: "resetPassword.json",
     }).as("resetPwd");
@@ -41,10 +39,7 @@ describe("Update a user's name", function() {
         const someText = text;
         expect(someText).to.equal(Cypress.env("USERNAME"));
       });
-    cy.get(".react-tabs a")
-      .last()
-      .contains("Reset Password")
-      .click();
+    cy.get(".react-tabs a").last().contains("Reset Password").click();
     cy.wait("@resetPwd").should(
       "have.nested.property",
       "response.body.responseMeta.status",

@@ -1,11 +1,11 @@
-import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import { buildChildWidgetTree } from "./widgetRenderUtils";
 
 describe("test EditorUtils methods", () => {
   describe("should test buildChildWidgetTree method", () => {
-    const metaWidgets = ({
+    const metaWidgets = {
       "1_meta": {
         children: ["2_meta"],
         type: "CANVAS",
@@ -24,8 +24,8 @@ describe("test EditorUtils methods", () => {
         bottomRow: 10,
         widgetName: "meta_two",
       },
-    } as unknown) as MetaWidgetsReduxState;
-    const canvasWidgets = ({
+    } as unknown as MetaWidgetsReduxState;
+    const canvasWidgets = {
       "1": {
         children: ["2"],
         type: "FORM_WIDGET",
@@ -62,9 +62,9 @@ describe("test EditorUtils methods", () => {
         bottomRow: 18,
         widgetName: "four",
       },
-    } as unknown) as CanvasWidgetsReduxState;
+    } as unknown as CanvasWidgetsReduxState;
 
-    const dataTree = ({
+    const dataTree = {
       one: {
         children: ["2"],
         type: "FORM_WIDGET",
@@ -140,7 +140,7 @@ describe("test EditorUtils methods", () => {
         isDirty: true,
         isValid: true,
       },
-    } as unknown) as DataTree;
+    } as unknown as DataTree;
 
     it("should return a complete childwidgets Tree", () => {
       const childWidgetTree = [
@@ -206,6 +206,7 @@ describe("test EditorUtils methods", () => {
           metaWidgets,
           dataTree,
           new Set<string>("one"),
+          {},
           "2",
         ),
       ).toEqual(childWidgetTree);
@@ -285,6 +286,7 @@ describe("test EditorUtils methods", () => {
           metaWidgets,
           dataTree,
           new Set<string>("two"),
+          {},
           "1",
         ),
       ).toEqual(childWidgetTree);
@@ -401,6 +403,7 @@ describe("test EditorUtils methods", () => {
           metaWidgets,
           {},
           new Set<string>("one"),
+          {},
           "1",
         ),
       ).toEqual(childWidgetTree);

@@ -1,10 +1,9 @@
+import type { FieldThemeStylesheet, Schema } from "../constants";
 import {
   ARRAY_ITEM_KEY,
   DataType,
-  FieldThemeStylesheet,
   FieldType,
   ROOT_SCHEMA_KEY,
-  Schema,
 } from "../constants";
 import schemaTestData from "../schemaTestData";
 import {
@@ -384,7 +383,7 @@ describe(".generateFieldState", () => {
 
 describe(".dynamicPropertyPathListFromSchema", () => {
   it("returns valid auto JS enabled propertyPaths", () => {
-    const schema = ({
+    const schema = {
       [ROOT_SCHEMA_KEY]: {
         identifier: ROOT_SCHEMA_KEY,
         fieldType: FieldType.OBJECT,
@@ -452,7 +451,7 @@ describe(".dynamicPropertyPathListFromSchema", () => {
           },
         },
       },
-    } as unknown) as Schema;
+    } as unknown as Schema;
 
     const expectedPathList = [
       `schema.${ROOT_SCHEMA_KEY}.children.dob.defaultValue`,

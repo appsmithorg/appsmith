@@ -3,7 +3,7 @@ import "jest-styled-components";
 
 import { RemoteBranchList } from "./RemoteBranchList";
 
-describe("RemoteBranchList", function() {
+describe("RemoteBranchList", function () {
   it("renders nothing when param:remoteBranches is an empty array", async () => {
     render(RemoteBranchList([], () => undefined));
 

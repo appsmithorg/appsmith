@@ -1,37 +1,23 @@
-import React, { useState } from "react";
+import React from "react";
+import { useDispatch } from "react-redux";
 import { get } from "lodash";
-import {
-  Log,
-  LOG_CATEGORY,
-  Message,
-  Severity,
-  SourceEntity,
-} from "entities/AppsmithConsole";
+import type { Log, Message, SourceEntity } from "entities/AppsmithConsole";
+import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import styled, { useTheme } from "styled-components";
-import {
-  AppIcon,
-  Classes,
-  getTypographyByKey,
-  Icon,
-  IconName,
-  IconSize,
-  Text,
-  TextType,
-  TooltipComponent,
-} from "design-system-old";
-import {
-  createMessage,
-  TROUBLESHOOT_ISSUE,
-} from "@appsmith/constants/messages";
+import type { IconName } from "design-system-old";
+import { Classes, getTypographyByKey, Icon, IconSize } from "design-system-old";
 import { Colors } from "constants/Colors";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { PluginErrorDetails } from "api/ActionAPI";
+import type { PluginErrorDetails } from "api/ActionAPI";
 import LogCollapseData from "./components/LogCollapseData";
 import LogAdditionalInfo from "./components/LogAdditionalInfo";
-import ContextualMenu from "../ContextualMenu";
 import LogEntityLink from "./components/LogEntityLink";
 import LogTimeStamp from "./components/LogTimeStamp";
 import { getLogIcon } from "../helpers";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import moment from "moment";
+import LogHelper from "./components/LogHelper";
+import { toggleExpandErrorLogItem } from "actions/debuggerActions";
 
 const InnerWrapper = styled.div`
   display: flex;
@@ -42,7 +28,7 @@ const InnerWrapper = styled.div`
 const Wrapper = styled.div<{ collapsed: boolean }>`
   display: flex;
   flex-direction: column;
-  padding: 6px 12px 6px 12px;
+  padding: 8px 16px 8px 16px;
   cursor: default;
 
   &.${Severity.INFO} {
@@ -79,6 +65,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     font-weight: 500;
     color: ${Colors.GRAY_500};
     cursor: default;
+    flex-shrink: 0;
     &.${Severity.INFO} {
       color: ${(props) => props.theme.colors.debugger.info.time};
     }
@@ -96,6 +83,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     ${getTypographyByKey("h6")}
     letter-spacing: -0.24px;
     color: ${(props) => props.theme.colors.debugger.error.type};
+    flex-shrink: 0;
   }
 
   .debugger-description {
@@ -139,32 +127,32 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     color: ${(props) => props.theme.colors.debugger.error.type};
     cursor: pointer;
     text-decoration-line: underline;
+    flex-shrink: 0;
   }
-`;
-
-const StyledSearchIcon = styled(AppIcon)`
-  height: 14px;
-  width: 14px;
-  svg {
-    height: 14px;
-    width: 14px;
-  }
-`;
-
-const ContextWrapper = styled.div`
-  height: 14px;
-  display: flex;
-  align-items: center;
 `;
 
 const FlexWrapper = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
+  flex-shrink: 0;
 `;
 
 const showToggleIcon = (e: Log) => {
   return !!e.state;
+};
+
+//format the requestedAt timestamp to a readable format.
+export const getUpdateTimestamp = (state?: Record<string, any>) => {
+  if (state) {
+    //clone state to avoid mutating the original state.
+    const copyState = JSON.parse(JSON.stringify(state));
+    copyState.requestedAt = moment(copyState.requestedAt).format(
+      "YYYY-MM-DD HH:mm:ss",
+    );
+    return copyState;
+  }
+  return state;
 };
 
 // returns required parameters for log item
@@ -181,11 +169,12 @@ export const getLogItemProps = (e: Log) => {
     timeTaken: e.timeTaken ? `${e.timeTaken}ms` : "",
     severity: e.severity,
     text: e.text,
-    state: e.state,
+    state: getUpdateTimestamp(e.state),
     id: e.source ? e.source.id : undefined,
     messages: e.messages,
     collapsable: showToggleIcon(e),
     pluginErrorDetails: e.pluginErrorDetails,
+    isExpanded: e.isExpanded,
   };
 };
 
@@ -206,24 +195,39 @@ export type LogItemProps = {
   source?: SourceEntity;
   messages?: Message[];
   pluginErrorDetails?: PluginErrorDetails;
+  isExpanded: boolean;
 };
 
 // Log item component
 function ErrorLogItem(props: LogItemProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const dispatch = useDispatch();
+  const expandToggle = () => {
+    if (props.id) {
+      //Add telemetry for expand.
+      if (!props.isExpanded) {
+        AnalyticsUtil.logEvent("DEBUGGER_LOG_ITEM_EXPAND", {
+          errorType: props.logType,
+          errorSubType: props.messages && props.messages[0].message.name,
+          appsmithErrorCode: props.pluginErrorDetails?.appsmithErrorCode,
+          downstreamErrorCode: props.pluginErrorDetails?.downstreamErrorCode,
+        });
+      }
+      //update to redux store
+      dispatch(toggleExpandErrorLogItem(props.id, !props.isExpanded));
+    }
+  };
+
   const { collapsable } = props;
   const theme = useTheme();
 
   return (
-    <Wrapper className={props.severity} collapsed={!isOpen}>
+    <Wrapper className={props.severity} collapsed={!props.isExpanded}>
       <InnerWrapper
         onClick={() => {
-          if (collapsable) setIsOpen(!isOpen);
+          if (collapsable) expandToggle();
         }}
       >
-        <FlexWrapper
-          style={{ display: "flex", alignItems: "center", gap: "4px" }}
-        >
+        <FlexWrapper>
           <Icon
             clickable={false}
             fillColor={
@@ -232,7 +236,7 @@ function ErrorLogItem(props: LogItemProps) {
                 : ""
             }
             name={props.icon}
-            size={IconSize.SMALL}
+            size={IconSize.XL}
           />
 
           {props.logType &&
@@ -249,11 +253,11 @@ function ErrorLogItem(props: LogItemProps) {
               className={`${Classes.ICON} debugger-toggle`}
               clickable={collapsable}
               data-cy="t--debugger-toggle"
-              data-isOpen={isOpen}
+              data-isOpen={props.isExpanded}
               fillColor={get(theme, "colors.debugger.collapseIcon")}
               name={"expand-more"}
-              onClick={() => setIsOpen(!isOpen)}
-              size={IconSize.MEDIUM}
+              onClick={() => expandToggle()}
+              size={IconSize.XL}
             />
           )}
           <div className={`debugger-error-type`}>
@@ -264,7 +268,7 @@ function ErrorLogItem(props: LogItemProps) {
         </FlexWrapper>
         {!(
           props.collapsable &&
-          isOpen &&
+          props.isExpanded &&
           props.category === LOG_CATEGORY.USER_GENERATED
         ) && (
           <div className="debugger-description">
@@ -286,37 +290,22 @@ function ErrorLogItem(props: LogItemProps) {
                 ? "0" + (props.messages[0].lineNumber + 1)
                 : props.messages[0].lineNumber + 1
             }`}
-            width="40px"
           />
         )}
         {props.category === LOG_CATEGORY.PLATFORM_GENERATED &&
           props.severity === Severity.ERROR &&
           props.logType !== LOG_TYPE.LINT_ERROR && (
-            <ContextWrapper onClick={(e) => e.stopPropagation()}>
-              <ContextualMenu
-                entity={props.source}
-                error={{ message: { name: "", message: "" } }}
-              >
-                <TooltipComponent
-                  content={
-                    <Text style={{ color: "#ffffff" }} type={TextType.P3}>
-                      {createMessage(TROUBLESHOOT_ISSUE)}
-                    </Text>
-                  }
-                  minimal
-                  position="bottom-right"
-                >
-                  <StyledSearchIcon
-                    className={`${Classes.ICON}`}
-                    name={"help"}
-                    size={IconSize.SMALL}
-                  />
-                </TooltipComponent>
-              </ContextualMenu>
-            </ContextWrapper>
+            <LogHelper
+              logType={props.logType}
+              name={props.messages ? props.messages[0].message.name : ""}
+              pluginErrorDetails={props.pluginErrorDetails}
+              source={props.source}
+            />
           )}
       </InnerWrapper>
-      {collapsable && isOpen && <LogCollapseData isOpen={isOpen} {...props} />}
+      {collapsable && props.isExpanded && (
+        <LogCollapseData isOpen={props.isExpanded} {...props} />
+      )}
     </Wrapper>
   );
 }

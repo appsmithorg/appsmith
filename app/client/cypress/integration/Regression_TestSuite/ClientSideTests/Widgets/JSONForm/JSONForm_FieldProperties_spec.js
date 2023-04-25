@@ -47,9 +47,7 @@ describe("Text Field Property Control", () => {
 
   it("4. throws max character error when exceeds maxChar limit for input text", () => {
     cy.testJsontext("defaultvalue", "").wait(200);
-    cy.get(`${fieldPrefix}-name input`)
-      .clear()
-      .type("abcdefghi");
+    cy.get(`${fieldPrefix}-name input`).clear().type("abcdefghi");
     cy.testJsontext("maxchars", 5).wait(200);
     cy.get(`${fieldPrefix}-name input`).click();
     cy.get(".bp3-popover-content").should(($x) => {
@@ -68,9 +66,7 @@ describe("Text Field Property Control", () => {
 
   it("6. sets valid property with custom error message", () => {
     cy.testJsontext("valid", "false");
-    cy.get(`${fieldPrefix}-name input`)
-      .clear()
-      .type("abcd");
+    cy.get(`${fieldPrefix}-name input`).clear().type("abcd");
     cy.get(".bp3-popover-content").contains("Invalid input");
 
     cy.testJsontext("errormessage", "Custom error message");
@@ -102,14 +98,10 @@ describe("Text Field Property Control", () => {
 
   it("9. throws error when REGEX does not match the input value", () => {
     cy.testJsontext("regex", "^\\d+$");
-    cy.get(`${fieldPrefix}-name input`)
-      .clear()
-      .type("abcd");
+    cy.get(`${fieldPrefix}-name input`).clear().type("abcd");
     cy.get(".bp3-popover-content").contains("Invalid input");
 
-    cy.get(`${fieldPrefix}-name input`)
-      .clear()
-      .type("1234");
+    cy.get(`${fieldPrefix}-name input`).clear().type("1234");
     cy.get(".bp3-popover-content").should("not.exist");
   });
 
@@ -285,7 +277,29 @@ describe("Text Field Property Control", () => {
     cy.togglebarDisable(`.t--property-control-disabled input`);
   });
 
-  it("30. Radio group Field Property Control - pre condition", () => {
+  it("30. Invalid options should not crash the widget", () => {
+    // clear Options
+    cy.testJsonTextClearMultiline("options");
+    // enter invalid options
+    cy.testJsontext("options", '{{[{ label: "asd", value: "zxc"}, null ]}}');
+
+    // wait for eval to update
+    cy.wait(2000);
+    // Check if the multiselect field exist
+    cy.get(`${fieldPrefix}-hobbies`).should("exist");
+
+    // clear Default Selected Values
+    cy.testJsonTextClearMultiline("defaultselectedvalues");
+    // enter default value
+    cy.testJsontext("defaultselectedvalues", '["zxc"]');
+
+    // wait for eval to update
+    cy.wait(2000);
+    // Check if the multiselect field exist
+    cy.get(`${fieldPrefix}-hobbies`).should("exist");
+  });
+
+  it("31. Radio group Field Property Control - pre condition", () => {
     const sourceData = {
       radio: "Y",
     };
@@ -296,7 +310,7 @@ describe("Text Field Property Control", () => {
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Radio Group");
   });
 
-  it("31. has valid default value", () => {
+  it("32. has valid default value", () => {
     cy.get(".t--property-control-defaultselectedvalue").contains(
       "{{sourceData.radio}}",
     );
@@ -304,7 +318,7 @@ describe("Text Field Property Control", () => {
     cy.get(`${fieldPrefix}-radio input`).should("have.value", "Y");
   });
 
-  it("32. hides field when visible switched off", () => {
+  it("33. hides field when visible switched off", () => {
     cy.togglebarDisable(`.t--property-control-visible input`);
     cy.get(`${fieldPrefix}-radio`).should("not.exist");
     cy.wait(500);

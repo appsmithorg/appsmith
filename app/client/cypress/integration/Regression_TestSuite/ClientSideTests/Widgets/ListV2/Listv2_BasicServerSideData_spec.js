@@ -3,6 +3,7 @@ const dslWithServerSide = require("../../../../../fixtures/Listv2/listWithServer
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../../locators/QueryEditor.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
@@ -11,51 +12,17 @@ describe("List widget v2 - Basic server side data tests", () => {
     cy.addDsl(dslWithServerSide);
     // Open Datasource editor
     cy.wait(2000);
-    cy.NavigateToDatasourceEditor();
-
-    // Click on sample(mock) user database.
-    cy.get(datasource.mockUserDatabase).click();
-
-    // Choose the first data source which consists of users keyword & Click on the "New Query +"" button
-    cy.get(`${datasource.datasourceCard}`)
-      .contains("Users")
-      .get(`${datasource.createQuery}`)
-      .last()
-      .click({ force: true });
-
-    // Click the editing field
-    cy.get(".t--action-name-edit-field").click({ force: true });
-
-    // Click the editing field
-    cy.get(queryLocators.queryNameField).type("Query1");
-
-    // switching off Use Prepared Statement toggle
-    cy.get(queryLocators.switch)
-      .last()
-      .click({ force: true });
-
-    //.1: Click on Write query area
-    cy.get(queryLocators.templateMenu).click();
-    cy.get(queryLocators.query).click({ force: true });
-
-    // writing query to get the schema
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type(
+    // Create sample(mock) user database.
+    _.dataSources.CreateMockDB("Users").then((dbName) => {
+      _.dataSources.CreateQueryFromActiveTab(dbName, false);
+      _.agHelper.GetNClick(_.dataSources._templateMenu);
+      _.dataSources.ToggleUsePreparedStatement(false);
+      _.dataSources.EnterQuery(
         "SELECT * FROM users OFFSET {{List1.pageNo * List1.pageSize}} LIMIT {{List1.pageSize}};",
-        {
-          force: true,
-          parseSpecialCharSequences: false,
-        },
       );
-    cy.WaitAutoSave();
-
-    cy.runQuery();
-
-    cy.get('.t--entity-name:contains("Page1")').click({ force: true });
-
-    cy.wait(1000);
+      _.dataSources.RunQuery();
+    });
+    _.entityExplorer.SelectEntityByName("Page1");
   });
 
   it("1. shows correct number of items and binding texts", () => {
@@ -138,17 +105,13 @@ describe("List widget v2 - Basic server side data tests", () => {
     cy.get(commonlocators.toastmsg).should("not.exist");
 
     // Reset List widget
-    cy.get(".t--draggable-buttonwidget")
-      .find("button")
-      .click({ force: true });
+    cy.get(".t--draggable-buttonwidget").find("button").click({ force: true });
 
     // Verify if page 1
     cy.get(".rc-pagination-item").contains(1);
 
     // Verify if Query fired once
-    cy.get(commonlocators.toastmsg)
-      .should("exist")
-      .should("have.length", 1);
+    cy.get(commonlocators.toastmsg).should("exist").should("have.length", 1);
   });
 
   it("4. retains input values when pages are switched", () => {
@@ -199,9 +162,7 @@ describe("List widget v2 - Basic server side data tests", () => {
       .find("button")
       .click({ force: true });
 
-    cy.get(".rc-pagination-item")
-      .contains(1)
-      .wait(5000);
+    cy.get(".rc-pagination-item").contains(1).wait(5000);
 
     // Verify if previously the typed values are retained
     cy.get(".t--draggable-inputwidgetv2").each(($inputWidget, index) => {
@@ -211,7 +172,40 @@ describe("List widget v2 - Basic server side data tests", () => {
     });
   });
 
-  it("5. no of items rendered should be equal to page size", () => {
+  it("5. Total Record Count", () => {
+    cy.openPropertyPane("listwidgetv2");
+
+    cy.updateCodeInput(".t--property-control-totalrecords", `{{10}}`);
+
+    // With Page Size of 3 and total record count of 10, we should have total page of 4
+    cy.get(".rc-pagination .rc-pagination-item-1").should("exist");
+    cy.get(".rc-pagination .rc-pagination-item-2").should("exist");
+    cy.get(".rc-pagination .rc-pagination-item-3").should("exist");
+    cy.get(".rc-pagination .rc-pagination-item-4")
+      .should("exist")
+      .click({ force: true });
+
+    cy.wait(2000);
+
+    cy.get(commonlocators.listPaginateActivePage).should("have.text", "4");
+    cy.get(commonlocators.listPaginateNextButtonDisabled).should("exist");
+
+    // When I clear total Record Count the Page Number should remain the same
+    // Although pagination control should only display the active page number
+    cy.testJsontextclear("totalrecords");
+    cy.get(".rc-pagination .rc-pagination-item-1").should("not.exist");
+    cy.get(".rc-pagination .rc-pagination-item-2").should("not.exist");
+    cy.get(".rc-pagination .rc-pagination-item-3").should("not.exist");
+
+    //When I reduce the total record count, it should revert to the next max page number and trigger on page change
+    cy.updateCodeInput(".t--property-control-totalrecords", `{{3}}`);
+
+    cy.wait(200);
+    cy.get(commonlocators.listPaginateActivePage).should("have.text", "1");
+    cy.get(commonlocators.toastmsg).should("exist");
+  });
+
+  it("6. no of items rendered should be equal to page size", () => {
     cy.NavigateToDatasourceEditor();
 
     // Click on sample(mock) user database.
@@ -236,11 +230,9 @@ describe("List widget v2 - Basic server side data tests", () => {
     cy.get(queryLocators.queryNameField).type("Query2");
 
     // switching off Use Prepared Statement toggle
-    cy.get(queryLocators.switch)
-      .last()
-      .click({
-        force: true,
-      });
+    cy.get(queryLocators.switch).last().click({
+      force: true,
+    });
 
     //.1: Click on Write query area
     cy.get(queryLocators.templateMenu).click();

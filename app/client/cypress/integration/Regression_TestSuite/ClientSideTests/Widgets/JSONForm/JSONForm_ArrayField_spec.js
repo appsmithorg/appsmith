@@ -181,9 +181,7 @@ describe("JSON Form Widget Array Field", () => {
       expect($items.length).equal(initialNoOfItems);
     });
     // Click remove button
-    cy.get(`${education} ${deleteButton}`)
-      .last()
-      .click({ force: true });
+    cy.get(`${education} ${deleteButton}`).last().click({ force: true });
     cy.get(`${education}-item`).then(($items) => {
       expect($items.length).equal(initialNoOfItems);
     });
@@ -198,9 +196,7 @@ describe("JSON Form Widget Array Field", () => {
       expect($items.length).equal(initialNoOfItems + 1);
     });
     // Click remove button
-    cy.get(`${education} ${deleteButton}`)
-      .last()
-      .click({ force: true });
+    cy.get(`${education} ${deleteButton}`).last().click({ force: true });
     cy.get(`${education}-item`).then(($items) => {
       expect($items.length).equal(initialNoOfItems);
     });
@@ -268,14 +264,10 @@ describe("JSON Form Widget Array Field", () => {
     cy.testJsontext("text", "Phone Number");
 
     // Open country code dropdown and select +91
-    cy.get(".t--input-country-code-change")
-      .first()
-      .click();
+    cy.get(".t--input-country-code-change").first().click();
     cy.get(".t--search-input input").type("+91");
     cy.wait(500);
-    cy.get(".t--dropdown-option")
-      .last()
-      .click();
+    cy.get(".t--dropdown-option").last().click();
 
     cy.get(".t--input-country-code-change").should("contain", "🇮🇳+91");
   });
@@ -303,14 +295,10 @@ describe("JSON Form Widget Array Field", () => {
     cy.testJsontext("text", "Currency");
 
     // Open country code dropdown and select gbp
-    cy.get(".t--input-currency-change")
-      .first()
-      .click();
+    cy.get(".t--input-currency-change").first().click();
     cy.get(".t--search-input input").type("gbp");
     cy.wait(500);
-    cy.get(".t--dropdown-option")
-      .first()
-      .click();
+    cy.get(".t--dropdown-option").first().click();
 
     cy.get(".t--input-currency-change").should("contain", "£");
   });

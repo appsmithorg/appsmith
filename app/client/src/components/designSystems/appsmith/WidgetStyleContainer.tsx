@@ -1,7 +1,8 @@
-import React, { ReactNode } from "react";
+import type { ReactNode } from "react";
+import React from "react";
 import styled from "styled-components";
-import { ContainerStyle } from "widgets/ContainerWidget/component";
-import { Color } from "constants/Colors";
+import type { ContainerStyle } from "widgets/ContainerWidget/component";
+import type { Color } from "constants/Colors";
 
 export enum BoxShadowTypes {
   NONE = "NONE",
@@ -25,6 +26,7 @@ export interface WidgetStyleContainerProps {
   boxShadow?: BoxShadow;
   className?: string;
   selected?: boolean;
+  direction?: string;
 }
 
 const WidgetStyle = styled.div<WidgetStyleContainerProps>`
@@ -32,7 +34,7 @@ const WidgetStyle = styled.div<WidgetStyleContainerProps>`
   width: 100%;
   border-radius: ${({ borderRadius }) => borderRadius};
   box-shadow: ${(props) => props.boxShadow} !important;
-  border-width: ${(props) => props.borderWidth}px;
+  border-width: ${(props) => props.borderWidth || 0}px;
   border-color: ${(props) => props.borderColor || "transparent"};
   outline: ${(props) =>
     props.selected
@@ -41,7 +43,9 @@ const WidgetStyle = styled.div<WidgetStyleContainerProps>`
   border-style: solid;
   background-color: ${(props) => props.backgroundColor || "transparent"};
 
+  display: block;
   overflow: hidden;
+
   & > div {
     height: 100%;
     width: 100%;

@@ -79,7 +79,9 @@ const widgetsToTest = {
 };
 
 function configureApi() {
-  apiPage.CreateAndFillApi(agHelper.mockApiUrl, "FirstAPI");
+  cy.fixture("datasources").then((datasourceFormData) => {
+    apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"], "FirstAPI");
+  });
   apiPage.EnterHeader("value", "{{this.params.value}}");
 }
 

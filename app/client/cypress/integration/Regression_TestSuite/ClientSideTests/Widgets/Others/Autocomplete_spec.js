@@ -1,12 +1,12 @@
 const dsl = require("../../../../../fixtures/slashcommandDsl.json");
 const dynamicInputLocators = require("../../../../../locators/DynamicInput.json");
 
-describe("Autocomplete using slash command and mustache tests", function() {
+describe("Autocomplete using slash command and mustache tests", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Slash command and mustache autocomplete validation for button widget", function() {
+  it("Slash command and mustache autocomplete validation for button widget", function () {
     cy.openPropertyPane("buttonwidget");
     cy.testCodeMirror("/").then(() => {
       cy.get(dynamicInputLocators.hints).should("exist");
@@ -29,9 +29,7 @@ describe("Autocomplete using slash command and mustache tests", function() {
       .type("{backspace}", { parseSpecialCharSequences: true })
       .then(() => {
         // validates autocomplete binding on entering {{}} in label field
-        cy.get(dynamicInputLocators.input)
-          .first()
-          .type("{shift}{{}{shift}{{}");
+        cy.get(dynamicInputLocators.input).first().type("{shift}{{}{shift}{{}");
         cy.get(`${dynamicInputLocators.hints} li`)
           .eq(1)
           .should("have.text", "Text1.text");
@@ -80,7 +78,7 @@ describe("Autocomplete using slash command and mustache tests", function() {
       });
   });
 
-  it("Slash command and mustache autocomplete validation for textbox widget", function() {
+  it("Slash command and mustache autocomplete validation for textbox widget", function () {
     cy.openPropertyPane("textwidget");
     cy.EnableAllCodeEditors();
     cy.testCodeMirror("/").then(() => {
@@ -103,9 +101,7 @@ describe("Autocomplete using slash command and mustache tests", function() {
       .type("{ctrl}{shift}{downarrow}", { parseSpecialCharSequences: true })
       .type("{backspace}", { parseSpecialCharSequences: true })
       .then(() => {
-        cy.get(dynamicInputLocators.input)
-          .first()
-          .type("{shift}{{}{shift}{{}");
+        cy.get(dynamicInputLocators.input).first().type("{shift}{{}{shift}{{}");
         // validates autocomplete binding on entering {{}} in text field
         cy.get(`${dynamicInputLocators.hints} li`)
           .eq(1)
@@ -116,7 +112,7 @@ describe("Autocomplete using slash command and mustache tests", function() {
       });
   });
 
-  it("Bug 9003: Autocomplete not working for Appsmith specific JS APIs", function() {
+  it("Bug 9003: Autocomplete not working for Appsmith specific JS APIs", function () {
     cy.openPropertyPane("buttonwidget");
     cy.get(".t--property-control-onclick")
       .find(".t--js-toggle")

@@ -9,7 +9,7 @@ import styled from "styled-components";
 import { TemplatesContent } from "..";
 import Filters from "../Filters";
 import LoadingScreen from "./LoadingScreen";
-import { Template } from "api/TemplatesApi";
+import type { Template } from "api/TemplatesApi";
 import TemplateModalHeader from "./Header";
 import {
   createMessage,

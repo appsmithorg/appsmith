@@ -26,4 +26,9 @@ export default {
   formSignupDisabled: "[data-cy='APPSMITH_SIGNUP_DISABLED']",
   formLoginDisabled: "[data-cy='APPSMITH_FORM_LOGIN_DISABLED']",
   embedSettings: ".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS",
+  upgrade: "//span[text()='UPGRADE']",
+  accessControl:
+    "[data-testid='t--enterprise-settings-category-item-access-control']",
+  auditLogs: "[data-testid='t--enterprise-settings-category-item-audit-logs']",
+  upgrageLeftPane: "[data-testid='t--enterprise-settings-category-item-be']",
 };

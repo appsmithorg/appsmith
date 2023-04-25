@@ -1,12 +1,12 @@
-import { TourType } from "entities/Tour";
+import type { TourType } from "entities/Tour";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { getActiveTourIndex, getActiveTourType } from "selectors/tourSelectors";
 import { proceedToNextTourStep } from "actions/tourActions";
 
-export const useIsTourStepActive = (
-  activeTourStepConfig: { [key in TourType]?: any },
-) => {
+export const useIsTourStepActive = (activeTourStepConfig: {
+  [key in TourType]?: any;
+}) => {
   const activeTourType = useSelector(getActiveTourType);
   const expectedActiveStep =
     activeTourType &&
@@ -20,9 +20,9 @@ export const useIsTourStepActive = (
   return isCurrentStepActive;
 };
 
-const useProceedToNextTourStep = (
-  activeTourStepConfig: { [key in TourType]?: any },
-) => {
+const useProceedToNextTourStep = (activeTourStepConfig: {
+  [key in TourType]?: any;
+}) => {
   const dispatch = useDispatch();
 
   const isActive = useIsTourStepActive(activeTourStepConfig);

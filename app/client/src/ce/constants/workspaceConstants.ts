@@ -1,4 +1,4 @@
-import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 
 export type WorkspaceRole = {
   id: string;
@@ -17,6 +17,16 @@ export type Workspace = {
   userPermissions?: string[];
 };
 
+export type WorkspaceUserRoles = {
+  id?: string;
+  name?: string;
+  description?: string;
+  entityType: ENTITY_TYPE;
+  entityName?: string;
+  entityId?: string;
+  autoCreated: boolean;
+};
+
 export type WorkspaceUser = {
   name: string;
   username: string;
@@ -26,6 +36,7 @@ export type WorkspaceUser = {
   isDeleting: boolean;
   isChangingRole: boolean;
   photoId?: string;
+  roles: WorkspaceUserRoles[];
 };
 
 export type Workspaces = {
@@ -33,3 +44,8 @@ export type Workspaces = {
   workspace: Workspace;
   users: WorkspaceUser[];
 };
+
+export enum ENTITY_TYPE {
+  WORKSPACE = "Workspace",
+  APPLICATION = "Application",
+}

@@ -1,6 +1,7 @@
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
+import type { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget from "../../BaseWidget";
+import type { WidgetType } from "constants/WidgetConstants";
 import FilePickerComponent from "../component";
 import Uppy from "@uppy/core";
 import GoogleDrive from "@uppy/google-drive";
@@ -9,13 +10,15 @@ import Url from "@uppy/url";
 import OneDrive from "@uppy/onedrive";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import Dashboard from "@uppy/dashboard";
 import shallowequal from "shallowequal";
 import _ from "lodash";
 import FileDataTypes from "./FileDataTypes";
 import log from "loglevel";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
@@ -26,6 +29,17 @@ class FilePickerWidget extends BaseWidget<
     this.state = {
       isLoading: false,
       uppy: this.initializeUppy(),
+    };
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Filepicker widget is used to allow users to upload files from their local machines to any cloud storage via API. Cloudinary and Amazon S3 have simple APIs for cloud storage uploads",
+      "!url": "https://docs.appsmith.com/widget-reference/filepicker",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      files: "[$__file__$]",
+      isDisabled: "bool",
     };
   }
 
@@ -208,7 +222,7 @@ class FilePickerWidget extends BaseWidget<
         children: [
           {
             helpText:
-              "Triggers an action when the user selects a file. Upload files to a CDN and stores their URLs in filepicker.files",
+              "when the user selects a file. Upload files to a CDN and stores their URLs in filepicker.files",
             propertyName: "onFilesSelected",
             label: "onFilesSelected",
             controlType: "ACTION_SELECTOR",

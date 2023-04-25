@@ -6,6 +6,7 @@ import { Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  getIsAutoLayout,
   previewModeSelector,
   selectURLSlugs,
   showCanvasTopSectionSelector,
@@ -14,7 +15,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 import { generateTemplateFormURL } from "RouteBuilder";
 import { useParams } from "react-router";
-import { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
+import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import { showTemplatesModal as showTemplatesModalAction } from "actions/templateActions";
 import {
   createMessage,
@@ -24,8 +25,9 @@ import {
   TEMPLATE_CARD_TITLE,
 } from "@appsmith/constants/messages";
 import { selectFeatureFlags } from "selectors/usersSelectors";
-import FeatureFlags from "entities/FeatureFlags";
+import type FeatureFlags from "entities/FeatureFlags";
 import { deleteCanvasCardsState } from "actions/editorActions";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const Wrapper = styled.div`
   margin: ${(props) =>
@@ -85,6 +87,7 @@ function CanvasTopSection() {
   const { pageId } = useParams<ExplorerURLParams>();
   const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const featureFlags: FeatureFlags = useSelector(selectFeatureFlags);
+  const isAutoLayout = useSelector(getIsAutoLayout);
 
   useEffect(() => {
     if (!showCanvasTopSection && !inPreviewMode) {
@@ -108,21 +111,25 @@ function CanvasTopSection() {
     });
   };
 
+  const isAirgappedInstance = isAirgapped();
+
   return (
     <Wrapper data-cy="canvas-ctas">
-      {!!featureFlags.TEMPLATES_PHASE_2 && (
-        <Card data-cy="start-from-template" onClick={showTemplatesModal}>
-          <Layout />
-          <Content>
-            <Text color={Colors.COD_GRAY} type={TextType.P1}>
-              {createMessage(TEMPLATE_CARD_TITLE)}
-            </Text>
-            <Text type={TextType.P3}>
-              {createMessage(TEMPLATE_CARD_DESCRIPTION)}
-            </Text>
-          </Content>
-        </Card>
-      )}
+      {!!featureFlags.TEMPLATES_PHASE_2 &&
+        !isAutoLayout &&
+        !isAirgappedInstance && (
+          <Card data-cy="start-from-template" onClick={showTemplatesModal}>
+            <Layout />
+            <Content>
+              <Text color={Colors.COD_GRAY} type={TextType.P1}>
+                {createMessage(TEMPLATE_CARD_TITLE)}
+              </Text>
+              <Text type={TextType.P3}>
+                {createMessage(TEMPLATE_CARD_DESCRIPTION)}
+              </Text>
+            </Content>
+          </Card>
+        )}
       <Card
         centerAlign={!featureFlags.TEMPLATES_PHASE_2}
         data-cy="generate-app"

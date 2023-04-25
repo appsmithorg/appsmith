@@ -6,7 +6,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import { DisplayImageUpload } from "design-system-old";
 
-import Uppy from "@uppy/core";
+import type Uppy from "@uppy/core";
 
 function FormDisplayImage() {
   const [file, setFile] = useState<any>();

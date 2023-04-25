@@ -1,19 +1,19 @@
 import React from "react";
 import styled from "styled-components";
 import Secure from "assets/images/secure.svg";
-import AppsmithDatasource from "assets/images/appsmith-datasource.svg";
+import AppsmithDatasource from "assets/images/appsmith-datasource.png";
 import { Colors } from "constants/Colors";
 
 const Wrapper = styled.div`
   border: 2px solid #d6d6d6;
-  padding: 23px;
+  padding: 16px 23px;
   flex-direction: row;
   display: flex;
   justify-content: space-between;
   align-items: center;
 
   .datasource-img {
-    height: 108px;
+    height: 128px;
   }
 `;
 

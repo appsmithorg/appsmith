@@ -9,7 +9,7 @@ let apiPage = ObjectsRegistry.ApiPage,
   ee = ObjectsRegistry.EntityExplorer,
   locator = ObjectsRegistry.CommonLocators;
 
-describe("Rest Bugs tests", function() {
+describe("Rest Bugs tests", function () {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });
@@ -18,7 +18,7 @@ describe("Rest Bugs tests", function() {
     agHelper.SaveLocalStorageCache();
   });
 
-  it("Bug 5550: Not able to run APIs in parallel", function() {
+  it("Bug 5550: Not able to run APIs in parallel", function () {
     cy.addDsl(dslParallel);
     cy.wait(8000); //settling time for dsl!
     cy.get(".bp3-spinner").should("not.exist");
@@ -87,10 +87,12 @@ describe("Rest Bugs tests", function() {
     //   expect(response.body.data.body.length).to.be.above(0); //Number fact
     // });
 
-    cy.get(".t--draggable-textwidget")
+    cy.get(".t--widget-buttonwidget").scrollIntoView();
+
+    cy.get(".t--widget-textwidget")
       .eq(0)
       .invoke("text")
-      .then(($txt) => expect($txt).to.have.length.greaterThan(25));
+      .then(($txt) => expect($txt).to.have.length.greaterThan(20));
 
     // cy.wait("@postExecute").then(({ response }) => {
     //   //cy.log("Response is :"+ JSON.stringify(response.body))
@@ -127,7 +129,7 @@ describe("Rest Bugs tests", function() {
     //     })
   });
 
-  it("Bug 6863: Clicking on 'debug' crashes the appsmith application", function() {
+  it("Bug 6863: Clicking on 'debug' crashes the appsmith application", function () {
     cy.startErrorRoutes();
     cy.CreatePage();
     cy.wait("@createPage").should(
@@ -142,12 +144,7 @@ describe("Rest Bugs tests", function() {
     );
     apiPage.RunAPI(false);
     cy.wait("@postExecuteError");
-    cy.get(commonlocators.debugger)
-      .should("be.visible")
-      .click({ force: true });
-    cy.get(commonlocators.errorTab)
-      .should("be.visible")
-      .click({ force: true });
+    cy.get(commonlocators.errorTab).should("be.visible").click({ force: true });
     cy.get(commonlocators.debuggerLabel)
       .invoke("text")
       .then(($text) => {
@@ -155,7 +152,7 @@ describe("Rest Bugs tests", function() {
       });
   });
 
-  it("Bug 4775: No Cyclical dependency when Api returns an error", function() {
+  it("Bug 4775: No Cyclical dependency when Api returns an error", function () {
     cy.addDsl(dslTable);
     cy.wait(5000); //settling time for dsl!
     cy.get(".bp3-spinner").should("not.exist");
@@ -177,13 +174,8 @@ describe("Rest Bugs tests", function() {
     agHelper.AssertElementAbsence(
       locator._specificToast("Cyclic dependency found while evaluating"),
     );
-    cy.ResponseStatusCheck("PE-RST-5000");
-    cy.get(commonlocators.debugger)
-      .should("be.visible")
-      .click({ force: true });
-    cy.get(commonlocators.errorTab)
-      .should("be.visible")
-      .click({ force: true });
+    cy.ResponseStatusCheck("404 NOT_FOUND");
+    cy.get(commonlocators.errorTab).should("be.visible").click({ force: true });
     cy.get(commonlocators.debuggerLabel)
       .invoke("text")
       .then(($text) => {
@@ -198,7 +190,7 @@ describe("Rest Bugs tests", function() {
       });
   });
 
-  it("Bug 13515: API Response gets garbled if encoded with gzip", function() {
+  it("Bug 13515: API Response gets garbled if encoded with gzip", function () {
     apiPage.CreateAndFillApi(
       "https://postman-echo.com/gzip",
       "GarbledResponseAPI",

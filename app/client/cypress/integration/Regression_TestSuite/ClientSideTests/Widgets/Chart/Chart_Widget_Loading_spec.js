@@ -2,12 +2,12 @@ const dsl = require("../../../../../fixtures/ChartLoadingDsl.json");
 const datasource = require("../../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../../locators/QueryEditor.json");
 
-describe("Chart Widget Skeleton Loading Functionality", function() {
+describe("Chart Widget Skeleton Loading Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Test case while reloading and on submission", function() {
+  it("1. Test case while reloading and on submission", function () {
     /**
      * Use case:
      * 1. Open Datasource editor
@@ -34,10 +34,11 @@ describe("Chart Widget Skeleton Loading Functionality", function() {
 
     //Step3 & 4
     cy.get(`${datasource.datasourceCard}`)
-      .contains("Users")
-      .get(`${datasource.createQuery}`)
+      .filter(":contains('Users')")
       .last()
-      .click({ force: true });
+      .within(() => {
+        cy.get(`${datasource.createQuery}`).click({ force: true });
+      });
 
     //Step5.1: Click the editing field
     cy.get(".t--action-name-edit-field").click({ force: true });
@@ -46,9 +47,7 @@ describe("Chart Widget Skeleton Loading Functionality", function() {
     cy.get(queryLocators.queryNameField).type("Query1");
 
     // switching off Use Prepared Statement toggle
-    cy.get(queryLocators.switch)
-      .last()
-      .click({ force: true });
+    cy.get(queryLocators.switch).last().click({ force: true });
 
     //Step 6.1: Click on Write query area
     cy.get(queryLocators.templateMenu).click();
@@ -73,9 +72,7 @@ describe("Chart Widget Skeleton Loading Functionality", function() {
     cy.wait(1000);
 
     //Step9:
-    cy.get(".bp3-button-text")
-      .first()
-      .click({ force: true });
+    cy.get(".bp3-button-text").first().click({ force: true });
 
     //Step10:
     cy.get(".t--widget-chartwidget div[class*='bp3-skeleton']").should("exist");

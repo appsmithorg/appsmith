@@ -31,6 +31,7 @@ public class PermissionGroup extends BaseDomain {
     String defaultDomainId;
     String defaultDomainType;
 
+    @Deprecated
     Set<Permission> permissions = new HashSet<>();
 
     Set<String> assignedToUserIds = new HashSet<>();

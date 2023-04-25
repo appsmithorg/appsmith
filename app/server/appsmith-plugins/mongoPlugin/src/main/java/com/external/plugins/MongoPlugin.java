@@ -134,6 +134,7 @@ import static com.external.plugins.utils.MongoPluginUtils.isRawCommand;
 import static java.lang.Boolean.TRUE;
 import static java.util.Arrays.asList;
 import static org.apache.logging.log4j.util.Strings.isBlank;
+import static org.apache.logging.log4j.util.Strings.isEmpty;
 
 public class MongoPlugin extends BasePlugin {
 
@@ -790,7 +791,7 @@ public class MongoPlugin extends BasePlugin {
                     }
 
                     if (!StringUtils.hasLength(authentication.getDatabaseName())) {
-                        invalids.add(MongoPluginErrorMessages.DS_MISSING_DEFAULT_DATABASE_NAME_ERROR_MSG);
+                        invalids.add(MongoPluginErrorMessages.DS_INVALID_AUTH_DATABASE_NAME);
                     }
 
                 }
@@ -816,11 +817,6 @@ public class MongoPlugin extends BasePlugin {
                     MongoPluginErrorMessages.DS_TIMEOUT_ERROR_MSG
             );
 
-            final String defaultDatabaseName;
-            if (datasourceConfiguration.getConnection() != null) {
-                defaultDatabaseName = datasourceConfiguration.getConnection().getDefaultDatabaseName();
-            } else defaultDatabaseName = null;
-
             return datasourceCreate(datasourceConfiguration)
                     .flatMap(mongoClient -> {
                         final Publisher<String> result = mongoClient.listDatabaseNames();
@@ -828,9 +824,36 @@ public class MongoPlugin extends BasePlugin {
                         return documentMono.doFinally(ignored -> mongoClient.close()).then(documentMono);
                     })
                     .flatMap(names -> {
+
+                        final String defaultDatabaseName;
+                        if (datasourceConfiguration.getConnection() != null) {
+                            defaultDatabaseName = datasourceConfiguration.getConnection().getDefaultDatabaseName();
+                        } else {
+                            defaultDatabaseName = null;
+                        }
+
+                        final String authDatabaseName;
+                        if (datasourceConfiguration.getAuthentication() != null &&
+                                !isBlank(((DBAuth)datasourceConfiguration.getAuthentication()).getDatabaseName())) {
+                            authDatabaseName = ((DBAuth) datasourceConfiguration.getAuthentication()).getDatabaseName();
+                        } else {
+                            return Mono.just(new DatasourceTestResult(
+                                    MongoPluginErrorMessages.DS_INVALID_AUTH_DATABASE_NAME));
+                        }
+
+                        final Optional<String> authDB = names.stream()
+                                .filter(name -> name.equals(authDatabaseName))
+                                .findFirst();
+
+                        if(authDB.isEmpty()) {
+                            return Mono.just(new DatasourceTestResult(
+                                    MongoPluginErrorMessages.DS_INVALID_AUTH_DATABASE_NAME));
+                        }
+
                         if (defaultDatabaseName == null || defaultDatabaseName.isBlank()) {
                             return Mono.just(new DatasourceTestResult());
                         }
+
                         final Optional<String> defaultDB = names.stream()
                                 .filter(name -> name.equals(defaultDatabaseName))
                                 .findFirst();

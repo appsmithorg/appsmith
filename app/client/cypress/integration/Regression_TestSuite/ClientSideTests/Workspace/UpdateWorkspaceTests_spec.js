@@ -1,10 +1,11 @@
 import homePage from "../../../../locators/HomePage";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Update Workspace", function() {
+describe("Update Workspace", function () {
   let workspaceId;
   let newWorkspaceName;
 
-  it("Open the workspace general settings and update workspace name. The update should reflect in the workspace. It should also reflect in the workspace names on the left side and the workspace dropdown.	", function() {
+  it("1. Open the workspace general settings and update workspace name. The update should reflect in the workspace. It should also reflect in the workspace names on the left side and the workspace dropdown.	", function () {
     cy.NavigateToHome();
     cy.generateUUID().then((uid) => {
       workspaceId = uid;
@@ -37,13 +38,13 @@ describe("Update Workspace", function() {
     });
   });
 
-  it("Open the workspace general settings and update workspace email. The update should reflect in the workspace.", function() {
-    cy.createWorkspace();
-    cy.wait("@createWorkspace").then((interception) => {
-      newWorkspaceName = interception.response.body.data.name;
-      cy.renameWorkspace(newWorkspaceName, workspaceId);
-      cy.get(homePage.workspaceSettingOption).click({ force: true });
+  it("2. Open the workspace general settings and update workspace email. The update should reflect in the workspace.", function () {
+    _.agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      newWorkspaceName = "SettingsUpdate" + uid;
+      _.homePage.CreateNewWorkspace(newWorkspaceName);
     });
+    cy.get(homePage.workspaceSettingOption).click({ force: true });
     cy.get(homePage.workspaceEmailInput).clear();
     cy.get(homePage.workspaceEmailInput).type(Cypress.env("TESTUSERNAME2"));
     cy.wait("@updateWorkspace").should(
@@ -55,9 +56,21 @@ describe("Update Workspace", function() {
       "have.value",
       Cypress.env("TESTUSERNAME2"),
     );
+    // update workspace website
+    cy.get(homePage.workspaceWebsiteInput).clear();
+    cy.get(homePage.workspaceWebsiteInput).type("demowebsite.com");
+    cy.wait("@updateWorkspace").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.get(homePage.workspaceWebsiteInput).should(
+      "have.value",
+      "demowebsite.com",
+    );
   });
 
-  it("Upload logo / delete logo and validate", function() {
+  it("3. Upload logo / delete logo and validate", function () {
     const fixturePath = "appsmithlogo.png";
     cy.xpath(homePage.uploadLogo).attachFile(fixturePath);
     cy.wait("@updateLogo").should(
@@ -75,20 +88,6 @@ describe("Update Workspace", function() {
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
-    );
-  });
-
-  it("Open the workspace general settings and update workspace website. The update should reflect in the workspace.", function() {
-    cy.get(homePage.workspaceWebsiteInput).clear();
-    cy.get(homePage.workspaceWebsiteInput).type("demowebsite.com");
-    cy.wait("@updateWorkspace").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.get(homePage.workspaceWebsiteInput).should(
-      "have.value",
-      "demowebsite.com",
     );
   });
 });

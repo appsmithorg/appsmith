@@ -5,7 +5,7 @@ const globalSearchLocators = require("../../../../locators/GlobalSearch.json");
 const datasourceHomeLocators = require("../../../../locators/apiWidgetslocator.json");
 const datasourceLocators = require("../../../../locators/DatasourcesEditor.json");
 
-describe("GlobalSearch", function() {
+describe("GlobalSearch", function () {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -14,15 +14,14 @@ describe("GlobalSearch", function() {
     cy.startRoutesForDatasource();
   });
 
-  it("Clicking on filter should show the filter menu", () => {
+  it("1. Clicking on filter should show the filter menu", () => {
     cy.get(commonlocators.globalSearchTrigger).click({ force: true });
     cy.contains(globalSearchLocators.docHint, "Snippets").click();
     cy.get(globalSearchLocators.filterButton).click();
     cy.contains("Reset Filter").should("be.visible");
     cy.get("body").type("{esc}");
-  });
 
-  it("1. showsAndHidesUsingKeyboardShortcuts", () => {
+    //showsAndHidesUsingKeyboardShortcuts
     // wait for the page to load
     cy.get(commonlocators.canvas);
     const isMac = Cypress.platform === "darwin";

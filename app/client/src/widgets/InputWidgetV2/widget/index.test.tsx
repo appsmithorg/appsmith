@@ -1,6 +1,6 @@
+import type { InputWidgetProps } from "./index";
 import {
   defaultValueValidation,
-  InputWidgetProps,
   minValueValidation,
   maxValueValidation,
 } from "./index";
@@ -121,7 +121,7 @@ describe("defaultValueValidation", () => {
   it("should validate defaulttext with type missing", () => {
     result = defaultValueValidation(
       "admin123",
-      ({ inputType: "" } as any) as InputWidgetProps,
+      { inputType: "" } as any as InputWidgetProps,
       _,
     );
 
@@ -141,7 +141,7 @@ describe("defaultValueValidation", () => {
     const value = {};
     result = defaultValueValidation(
       value,
-      ({ inputType: "" } as any) as InputWidgetProps,
+      { inputType: "" } as any as InputWidgetProps,
       _,
     );
 

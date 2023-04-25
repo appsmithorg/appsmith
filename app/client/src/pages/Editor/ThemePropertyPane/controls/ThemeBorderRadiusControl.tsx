@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 
-import { AppTheme } from "entities/AppTheming";
+import type { AppTheme } from "entities/AppTheming";
 import { ButtonGroup, TooltipComponent } from "design-system-old";
 import { invertedBorderRadiusOptions } from "constants/ThemeConstants";
 

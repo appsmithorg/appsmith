@@ -1,5 +1,8 @@
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
+
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -31,6 +34,8 @@ export const CONFIG = {
     isRequired: false,
     isDisabled: false,
     placeholderText: "Select option(s)",
+    responsiveBehavior: ResponsiveBehavior.Fill,
+    minWidth: FILL_WIDGET_MIN_WIDTH,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
@@ -38,6 +43,7 @@ export const CONFIG = {
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
+    autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
 };
 

@@ -33,17 +33,8 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   const sidebarRef = useRef<HTMLDivElement>(null);
   const prevSelectedWidgetId = useRef<string | undefined>();
 
-  const {
-    onMouseDown,
-    onMouseUp,
-    onTouchStart,
-    resizing,
-  } = useHorizontalResize(
-    sidebarRef,
-    props.onWidthChange,
-    props.onDragEnd,
-    true,
-  );
+  const { onMouseDown, onMouseUp, onTouchStart, resizing } =
+    useHorizontalResize(sidebarRef, props.onWidthChange, props.onDragEnd, true);
 
   const isPreviewMode = useSelector(previewModeSelector);
   const selectedWidgetIds = useSelector(getSelectedWidgets);
@@ -116,7 +107,8 @@ export const PropertyPaneSidebar = memo((props: Props) => {
       {/* PROPERTY PANE */}
       <div
         className={classNames({
-          [`js-property-pane-sidebar t--property-pane-sidebar bg-white flex h-full  border-l border-gray-200 transform transition duration-300 ${tailwindLayers.propertyPane}`]: true,
+          [`js-property-pane-sidebar t--property-pane-sidebar bg-white flex h-full  border-l border-gray-200 transform transition duration-300 ${tailwindLayers.propertyPane}`]:
+            true,
           "relative ": !isPreviewMode,
           "fixed translate-x-full right-0": isPreviewMode,
         })}
@@ -132,7 +124,8 @@ export const PropertyPaneSidebar = memo((props: Props) => {
           >
             <div
               className={classNames({
-                "w-1 h-full ml-1 bg-transparent group-hover:bg-gray-300 transform transition": true,
+                "w-1 h-full ml-1 bg-transparent group-hover:bg-gray-300 transform transition":
+                  true,
                 "bg-gray-300": resizing,
               })}
             />

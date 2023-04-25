@@ -1,9 +1,12 @@
 package com.appsmith.server.controllers.ce;
 
+import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.TestEmailConfigRequestDTO;
 import com.appsmith.server.solutions.EnvManager;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,6 +29,7 @@ public class InstanceAdminControllerCE {
 
     private final EnvManager envManager;
 
+    @JsonView(Views.Public.class)
     @GetMapping("/env")
     public Mono<ResponseDTO<Map<String, String>>> getAll() {
         log.debug("Getting all env configuration");
@@ -33,6 +37,7 @@ public class InstanceAdminControllerCE {
                 .map(data -> new ResponseDTO<>(HttpStatus.OK.value(), data, null));
     }
 
+    @JsonView(Views.Public.class)
     @GetMapping("/env/download")
     public Mono<Void> download(ServerWebExchange exchange) {
         log.debug("Getting all env configuration");
@@ -40,6 +45,7 @@ public class InstanceAdminControllerCE {
     }
 
     @Deprecated
+    @JsonView(Views.Public.class)
     @PutMapping(value = "/env", consumes = {MediaType.APPLICATION_JSON_VALUE})
     public Mono<ResponseDTO<Void>> saveEnvChangesJSON(
             @Valid @RequestBody Map<String, String> changes
@@ -49,6 +55,7 @@ public class InstanceAdminControllerCE {
                 .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), null, null));
     }
 
+    @JsonView(Views.Public.class)
     @PutMapping(value = "/env", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public Mono<ResponseDTO<Void>> saveEnvChangesMultipartFormData(
             ServerWebExchange exchange
@@ -59,6 +66,7 @@ public class InstanceAdminControllerCE {
                 .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), null, null));
     }
 
+    @JsonView(Views.Public.class)
     @PostMapping("/restart")
     public Mono<ResponseDTO<Boolean>> restart() {
         log.debug("Received restart request");
@@ -66,6 +74,7 @@ public class InstanceAdminControllerCE {
                 .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null));
     }
 
+    @JsonView(Views.Public.class)
     @PostMapping("/send-test-email")
     public Mono<ResponseDTO<Boolean>> sendTestEmail(@RequestBody @Valid TestEmailConfigRequestDTO requestDTO) {
         log.debug("Sending test email");

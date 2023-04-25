@@ -1007,9 +1007,9 @@ describe("Validates getFilteredTableData Properties", () => {
       transientTableData: {},
       tableData: [
         {
-          "1": "abc",
-          "2": "bcd",
-          "3": "cde",
+          1: "abc",
+          2: "bcd",
+          3: "cde",
           Dec: "mon",
           demo: "3",
           demo_1: "1",
@@ -1023,9 +1023,9 @@ describe("Validates getFilteredTableData Properties", () => {
           ÜserÑame: "john",
         },
         {
-          "1": "asd",
-          "2": "dfg",
-          "3": "jkl",
+          1: "asd",
+          2: "dfg",
+          3: "jkl",
           Dec: "mon2",
           demo: "2",
           demo_1: "1",
@@ -1042,9 +1042,9 @@ describe("Validates getFilteredTableData Properties", () => {
     };
     const expected = [
       {
-        "1": "abc",
-        "2": "bcd",
-        "3": "cde",
+        1: "abc",
+        2: "bcd",
+        3: "cde",
         Dec: "mon",
         demo: "3",
         demo_1: "1",
@@ -1060,9 +1060,9 @@ describe("Validates getFilteredTableData Properties", () => {
         __primaryKey__: undefined,
       },
       {
-        "1": "asd",
-        "2": "dfg",
-        "3": "jkl",
+        1: "asd",
+        2: "dfg",
+        3: "jkl",
         Dec: "mon2",
         demo: "2",
         demo_1: "1",
@@ -2087,7 +2087,7 @@ describe("validate getUpdatedRow", () => {
         { id: 234, name: "Jane Doe", extra: "Extra2", __originalIndex__: 2 },
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
       ],
-    }
+    };
     expect(getUpdatedRow(input1, moment, _)).toStrictEqual({
       id: 123,
       name: "John Doe1",
@@ -2160,7 +2160,7 @@ describe("validate getUpdatedRow", () => {
       status: "--",
     });
   });
-})
+});
 describe("getEditableCellValidity", () => {
   const { getEditableCellValidity } = derivedProperty;
 

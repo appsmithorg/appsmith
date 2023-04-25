@@ -1,9 +1,10 @@
 import React from "react";
-import Select, { InputActionMeta } from "react-select";
-import { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
+import type { InputActionMeta } from "react-select";
+import Select from "react-select";
+import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 
 import { theme } from "constants/DefaultTheme";
-import { SelectComponents } from "react-select/src/components";
+import type { SelectComponents } from "react-select/src/components";
 
 type DropdownProps = {
   options: Array<{

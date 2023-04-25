@@ -1,9 +1,9 @@
 import React, { useRef, useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import { Editor } from "@tinymce/tinymce-react";
-import { LabelPosition } from "components/constants";
-import { Alignment } from "@blueprintjs/core";
-import { TextSize } from "constants/WidgetConstants";
+import type { LabelPosition } from "components/constants";
+import type { Alignment } from "@blueprintjs/core";
+import type { TextSize } from "constants/WidgetConstants";
 
 // @ts-expect-error: loader types not available
 import cssVariables from "!!raw-loader!theme/wds.css";
@@ -365,12 +365,12 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
               "emoticons",
             ],
             contextmenu: "link useBrowserSpellcheck image table",
-            setup: function(editor) {
+            setup: function (editor) {
               editor.ui.registry.addMenuItem("useBrowserSpellcheck", {
                 text: `Use "${
                   isMacOs() ? "Control" : "Ctrl"
                 } + Right click" to access spellchecker`,
-                onAction: function() {
+                onAction: function () {
                   editor.notificationManager.open({
                     text: `To access the spellchecker, hold the ${
                       isMacOs() ? "Control" : "Ctrl"
@@ -382,7 +382,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
                 },
               });
               editor.ui.registry.addContextMenu("useBrowserSpellcheck", {
-                update: function() {
+                update: function () {
                   return editor.selection.isCollapsed()
                     ? ["useBrowserSpellcheck"]
                     : [];

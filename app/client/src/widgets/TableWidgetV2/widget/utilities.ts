@@ -1,18 +1,18 @@
 import { Colors } from "constants/Colors";
-import {
-  FontStyleTypes,
-  RenderMode,
-  RenderModes,
-} from "constants/WidgetConstants";
+import type { RenderMode } from "constants/WidgetConstants";
+import { FontStyleTypes, RenderModes } from "constants/WidgetConstants";
 import _, { filter, isBoolean, isObject, uniq, without } from "lodash";
 import tinycolor from "tinycolor2";
-import {
-  CellAlignmentTypes,
+import type {
   CellLayoutProperties,
   ColumnProperties,
-  StickyType,
+  ReactTableColumnProps,
   TableColumnProps,
   TableStyles,
+} from "../component/Constants";
+import {
+  CellAlignmentTypes,
+  StickyType,
   VerticalAlignmentTypes,
 } from "../component/Constants";
 import {
@@ -23,7 +23,7 @@ import {
   ORIGINAL_INDEX_KEY,
 } from "../constants";
 import { SelectColumnOptionsValidations } from "./propertyUtils";
-import { TableWidgetProps } from "../constants";
+import type { TableWidgetProps } from "../constants";
 import { get } from "lodash";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import {
@@ -33,9 +33,10 @@ import {
 import { ButtonVariantTypes } from "components/constants";
 import { dateFormatOptions } from "widgets/constants";
 import moment from "moment";
-import { Stylesheet } from "entities/AppTheming";
+import type { Stylesheet } from "entities/AppTheming";
 import { getKeysFromSourceDataForEventAutocomplete } from "widgets/MenuButtonWidget/widget/helper";
 import log from "loglevel";
+import type React from "react";
 
 type TableData = Array<Record<string, unknown>>;
 
@@ -187,6 +188,7 @@ export function getDefaultColumnProperties(
 ): ColumnProperties {
   const columnProps = {
     allowCellWrapping: false,
+    allowSameOptionsInNewRow: true,
     index: index,
     width: DEFAULT_COLUMN_WIDTH,
     originalId: id,
@@ -292,6 +294,7 @@ export const getArrayPropertyValue = (value: unknown, index: number) => {
 export const getCellProperties = (
   columnProperties: ColumnProperties,
   rowIndex: number,
+  isAddRowInProgress = false,
 ) => {
   if (columnProperties) {
     return {
@@ -492,9 +495,10 @@ export const getCellProperties = (
         true,
       ),
       shortcuts: getBooleanPropertyValue(columnProperties.shortcuts, rowIndex),
-      selectOptions: getArrayPropertyValue(
-        columnProperties.selectOptions,
+      selectOptions: getSelectOptions(
+        isAddRowInProgress,
         rowIndex,
+        columnProperties,
       ),
       timePrecision: getPropertyValue(
         columnProperties.timePrecision,
@@ -538,9 +542,7 @@ export function getSelectColumnTypeOptions(value: unknown) {
  */
 export const getSelectedRowBgColor = (accentColor: string) => {
   const tinyAccentColor = tinycolor(accentColor);
-  const brightness = tinycolor(accentColor)
-    .greyscale()
-    .getBrightness();
+  const brightness = tinycolor(accentColor).greyscale().getBrightness();
 
   const percentageBrightness = (brightness / 255) * 100;
   let nextBrightness = 0;
@@ -929,12 +931,8 @@ export const getColumnOrderByWidgetIdFromLS = (widgetId: string) => {
       );
 
       if (parsedTableWidgetColumnOrder[widgetId]) {
-        const {
-          columnOrder,
-          columnUpdatedAt,
-          leftOrder,
-          rightOrder,
-        } = parsedTableWidgetColumnOrder[widgetId];
+        const { columnOrder, columnUpdatedAt, leftOrder, rightOrder } =
+          parsedTableWidgetColumnOrder[widgetId];
         return {
           columnOrder,
           columnUpdatedAt,
@@ -953,4 +951,177 @@ export const getAllStickyColumnsCount = (columns: TableColumnProps[]) => {
     filter(columns, { sticky: StickyType.LEFT }).length +
     filter(columns, { sticky: StickyType.RIGHT }).length
   );
+};
+
+/**
+ *
+ * @param currentIndex: current dragging item index
+ * @param targetIndex: Index poistion of of header that is being hovered
+ * @returns
+ */
+export const getHeaderClassNameOnDragDirection = (
+  currentIndex: number,
+  targetIndex: number,
+) => {
+  let parentClasses = "th header-reorder";
+
+  if (currentIndex !== -1) {
+    if (targetIndex > currentIndex) {
+      parentClasses += " highlight-right";
+    } else if (targetIndex < currentIndex) {
+      parentClasses += " highlight-left";
+    }
+  }
+
+  return parentClasses;
+};
+
+export const getIndexByColumnName = (
+  columnName: string,
+  columnOrder?: string[],
+) => {
+  let currentIndex = -1;
+  if (columnOrder) {
+    currentIndex = columnOrder.indexOf(columnName);
+  }
+  return currentIndex;
+};
+
+/**
+ * A function to get all drag and drop handlers for HeaderCell component.
+ * @param columns: React table columns
+ * @param currentDraggedColumn: The Mutable ref object that references column being dragged
+ * @param handleReorderColumn : Function to handle column reordering.
+ * @param columnOrder
+ * @returns
+ */
+export const getDragHandlers = (
+  columns: ReactTableColumnProps[],
+  currentDraggedColumn: React.MutableRefObject<string>,
+  handleReorderColumn: (columnOrder: string[]) => void,
+  columnOrder?: string[],
+) => {
+  const onDrag = (e: React.DragEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+  };
+
+  const onDragEnter = (
+    e: React.DragEvent<HTMLDivElement>,
+    targetIndex: number,
+  ) => {
+    // We get the parent element(.th) so as to apply left and right highlighting
+    const targetElem = e.target as HTMLDivElement;
+    const parentTargetElem = targetElem.closest(".th.header-reorder");
+
+    const currentIndex = getIndexByColumnName(
+      currentDraggedColumn.current,
+      columnOrder,
+    );
+
+    if (parentTargetElem) {
+      parentTargetElem.className = getHeaderClassNameOnDragDirection(
+        currentIndex,
+        targetIndex,
+      );
+    }
+    e.stopPropagation();
+    e.preventDefault();
+  };
+
+  const onDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
+    const targetElem = e.target as HTMLDivElement;
+    targetElem.className = targetElem.className.replace(
+      " draggable-header--dragging",
+      "",
+    );
+    e.preventDefault();
+  };
+
+  const onDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    const targetElem = e.target as HTMLDivElement;
+    const parentTargetElem = targetElem.closest(".th.header-reorder");
+
+    if (parentTargetElem) {
+      parentTargetElem.className = "th header-reorder";
+    }
+
+    e.preventDefault();
+  };
+  const onDragOver = (
+    e: React.DragEvent<HTMLDivElement>,
+    targetIndex: number,
+  ) => {
+    // We get the parent element(.th) so as to apply left and right highlighting
+    const targetElem = e.target as HTMLDivElement;
+    const parentTargetElem = targetElem.closest(".th.header-reorder");
+
+    const currentIndex = getIndexByColumnName(
+      currentDraggedColumn.current,
+      columnOrder,
+    );
+
+    if (parentTargetElem) {
+      parentTargetElem.className = getHeaderClassNameOnDragDirection(
+        currentIndex,
+        targetIndex,
+      );
+    }
+
+    e.stopPropagation();
+    e.preventDefault();
+  };
+
+  const onDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+    currentDraggedColumn.current = columns[index].alias;
+    const targetElem = e.target as HTMLDivElement;
+    targetElem.className = targetElem.className + " draggable-header--dragging";
+    e.stopPropagation();
+  };
+
+  const onDrop = (e: React.DragEvent<HTMLDivElement>, index: number) => {
+    const targetElem = e.target as HTMLDivElement;
+    if (currentDraggedColumn.current) {
+      const partialColumnOrder = without(
+        columnOrder,
+        currentDraggedColumn.current,
+      );
+      partialColumnOrder.splice(index, 0, currentDraggedColumn.current);
+      handleReorderColumn(partialColumnOrder);
+    }
+    targetElem.className = targetElem.className.replace(
+      " draggable-header--dragging",
+      "",
+    );
+    e.stopPropagation();
+  };
+
+  return {
+    onDrag,
+    onDragEnd,
+    onDragEnter,
+    onDragLeave,
+    onDragOver,
+    onDragStart,
+    onDrop,
+  };
+};
+
+export const getSelectOptions = (
+  isNewRow: boolean,
+  rowIndex: number,
+  columnProperties: ColumnProperties,
+) => {
+  if (isNewRow) {
+    if (
+      columnProperties.allowSameOptionsInNewRow &&
+      columnProperties?.selectOptions
+    ) {
+      // Use select options from the first row
+      return getArrayPropertyValue(columnProperties.selectOptions, 0);
+    } else {
+      return columnProperties.newRowSelectOptions;
+    }
+  } else {
+    return getArrayPropertyValue(columnProperties.selectOptions, rowIndex);
+  }
 };

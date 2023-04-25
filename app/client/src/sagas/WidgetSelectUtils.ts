@@ -1,26 +1,25 @@
+import { createMessage, SELECT_ALL_WIDGETS_MSG } from "ce/constants/messages";
 import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "ce/constants/ReduxActionConstants";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { Toaster, Variant } from "design-system-old";
+import { uniq } from "lodash";
+import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { uniq } from "lodash";
 import { call, put, select } from "redux-saga/effects";
-import { getLastSelectedWidget } from "selectors/ui";
 import {
   getWidgetImmediateChildren,
   getWidgetMetaProps,
   getWidgets,
 } from "sagas/selectors";
 import { getWidgetChildrenIds } from "sagas/WidgetOperationUtils";
-import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import WidgetFactory from "utils/WidgetFactory";
-import { setSelectedWidgetAncestry } from "actions/widgetSelectionActions";
-import { Toaster, Variant } from "design-system-old";
-import { createMessage, SELECT_ALL_WIDGETS_MSG } from "ce/constants/messages";
-import {
-  ReduxActionErrorTypes,
-  ReduxActionTypes,
-} from "ce/constants/ReduxActionConstants";
+import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 
 /**
  * Selection types that are possible for widget select
@@ -122,9 +121,8 @@ export const shiftSelectWidgets = (
   lastSelectedWidget: string,
 ): SetSelectionResult => {
   const selectedWidgetIndex = siblingWidgets.indexOf(request[0]);
-  const siblingIndexOfLastSelectedWidget = siblingWidgets.indexOf(
-    lastSelectedWidget,
-  );
+  const siblingIndexOfLastSelectedWidget =
+    siblingWidgets.indexOf(lastSelectedWidget);
   if (siblingIndexOfLastSelectedWidget === -1) {
     return request;
   }
@@ -200,16 +198,24 @@ function* getDroppingCanvasOfWidget(widgetLastSelected: FlattenedWidgetProps) {
 
 function* getLastSelectedCanvas() {
   const lastSelectedWidget: string = yield select(getLastSelectedWidget);
+  const selectedWidgets: string[] = yield select(getSelectedWidgets);
+  const areMultipleWidgetsSelected: boolean = selectedWidgets.length > 1;
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const widgetLastSelected =
     lastSelectedWidget && canvasWidgets[lastSelectedWidget];
   if (widgetLastSelected) {
-    const canvasToSelect: string = yield call(
-      getDroppingCanvasOfWidget,
-      widgetLastSelected,
-    );
-    return canvasToSelect ? canvasToSelect : MAIN_CONTAINER_WIDGET_ID;
+    if (areMultipleWidgetsSelected) {
+      return widgetLastSelected.parentId || MAIN_CONTAINER_WIDGET_ID;
+    }
+    if (!areMultipleWidgetsSelected) {
+      const canvasToSelect: string = yield call(
+        getDroppingCanvasOfWidget,
+        widgetLastSelected,
+      );
+      return canvasToSelect ? canvasToSelect : MAIN_CONTAINER_WIDGET_ID;
+    }
   }
+
   return MAIN_CONTAINER_WIDGET_ID;
 }
 
@@ -264,16 +270,19 @@ export function assertParentId(parentId: unknown): asserts parentId is string {
   }
 }
 
-export function* setWidgetAncestry(
-  parentId: string,
+export function getWidgetAncestry(
+  widgetId: string | undefined,
   allWidgets: CanvasWidgetsReduxState,
 ) {
   // Fill up the ancestry of widget
   // The following is computed to be used in the entity explorer
   // Every time a widget is selected, we need to expand widget entities
   // in the entity explorer so that the selected widget is visible
+  // It is also used for finding the selected widget ancestry so that we can
+  // show widgets that could be invisible in the current state like widgets inside
+  // hidden tabs
   const widgetAncestry: string[] = [];
-  let ancestorWidgetId = parentId;
+  let ancestorWidgetId = widgetId;
   while (ancestorWidgetId) {
     widgetAncestry.push(ancestorWidgetId);
     if (allWidgets[ancestorWidgetId] && allWidgets[ancestorWidgetId].parentId) {
@@ -284,7 +293,7 @@ export function* setWidgetAncestry(
       break;
     }
   }
-  yield put(setSelectedWidgetAncestry(widgetAncestry));
+  return widgetAncestry;
 }
 
 export function* selectAllWidgetsInCanvasSaga() {

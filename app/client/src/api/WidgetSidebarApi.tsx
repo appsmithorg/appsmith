@@ -1,6 +1,6 @@
 import Api from "api/Api";
-import { WidgetCardProps } from "widgets/BaseWidget";
-import { AxiosPromise } from "axios";
+import type { WidgetCardProps } from "widgets/BaseWidget";
+import type { AxiosPromise } from "axios";
 
 export interface WidgetSidebarResponse {
   cards: { [id: string]: WidgetCardProps[] };

@@ -34,15 +34,17 @@ const HorizontalDivider = styled.div<Partial<DividerComponentProps>>`
   height: 0px;
   width: 100%;
   border-top: ${(props) =>
-    `${props.thickness || 1}px ${props.strokeStyle ||
-      "solid"} ${props.dividerColor || "transparent"};`};
+    `${props.thickness || 1}px ${props.strokeStyle || "solid"} ${
+      props.dividerColor || "transparent"
+    };`};
 `;
 const VerticalDivider = styled.div<Partial<DividerComponentProps>>`
   width: 0px;
   height: 100%;
   border-right: ${(props) =>
-    `${props.thickness || 1}px ${props.strokeStyle ||
-      "solid"} ${props.dividerColor || "transparent"};`};
+    `${props.thickness || 1}px ${props.strokeStyle || "solid"} ${
+      props.dividerColor || "transparent"
+    };`};
 `;
 
 const CapWrapper = styled.div<{

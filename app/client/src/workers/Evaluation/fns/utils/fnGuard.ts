@@ -7,7 +7,7 @@ export function addFn(
   fnGuards = [isAsyncGuard],
 ) {
   Object.defineProperty(ctx, fnName, {
-    value: function(...args: any[]) {
+    value: function (...args: any[]) {
       for (const guard of fnGuards) {
         fn = guard(fn, fnName);
       }

@@ -10,7 +10,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   apiPage = ObjectsRegistry.ApiPage,
   appSettings = ObjectsRegistry.AppSettings;
 
-describe("UUID Datatype tests", function() {
+describe("UUID Datatype tests", function () {
   before(() => {
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
@@ -116,16 +116,16 @@ describe("UUID Datatype tests", function() {
     table.ReadTableRowColumnData(0, 0).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(0, 1, 200).then(($v1) => {
+    table.ReadTableRowColumnData(0, 1, "v1", 200).then(($v1) => {
       expect($v1).not.empty;
     });
-    table.ReadTableRowColumnData(0, 2, 200).then(($v4) => {
+    table.ReadTableRowColumnData(0, 2, "v1", 200).then(($v4) => {
       expect($v4).not.empty;
     });
-    table.ReadTableRowColumnData(0, 3, 200).then(($guid) => {
+    table.ReadTableRowColumnData(0, 3, "v1", 200).then(($guid) => {
       expect($guid).not.empty;
     });
-    table.ReadTableRowColumnData(0, 4, 200).then(($nil) => {
+    table.ReadTableRowColumnData(0, 4, "v1", 200).then(($nil) => {
       expect($nil).not.empty;
     });
   });
@@ -145,16 +145,16 @@ describe("UUID Datatype tests", function() {
     table.ReadTableRowColumnData(1, 0).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(1, 1, 200).then(($v1) => {
+    table.ReadTableRowColumnData(1, 1, "v1", 200).then(($v1) => {
       expect($v1).not.empty;
     });
-    table.ReadTableRowColumnData(1, 2, 200).then(($v4) => {
+    table.ReadTableRowColumnData(1, 2, "v1", 200).then(($v4) => {
       expect($v4).not.empty;
     });
-    table.ReadTableRowColumnData(1, 3, 200).then(($guid) => {
+    table.ReadTableRowColumnData(1, 3, "v1", 200).then(($guid) => {
       expect($guid).not.empty;
     });
-    table.ReadTableRowColumnData(1, 4, 200).then(($nil) => {
+    table.ReadTableRowColumnData(1, 4, "v1", 200).then(($nil) => {
       expect($nil).not.empty;
     });
   });
@@ -174,16 +174,16 @@ describe("UUID Datatype tests", function() {
     table.ReadTableRowColumnData(2, 0).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(2, 1, 200).then(($v1) => {
+    table.ReadTableRowColumnData(2, 1, "v1", 200).then(($v1) => {
       expect($v1).not.empty;
     });
-    table.ReadTableRowColumnData(2, 2, 200).then(($v4) => {
+    table.ReadTableRowColumnData(2, 2, "v1", 200).then(($v4) => {
       expect($v4).not.empty;
     });
-    table.ReadTableRowColumnData(2, 3, 200).then(($guid) => {
+    table.ReadTableRowColumnData(2, 3, "v1", 200).then(($guid) => {
       expect($guid).not.empty;
     });
-    table.ReadTableRowColumnData(2, 4, 200).then(($nil) => {
+    table.ReadTableRowColumnData(2, 4, "v1", 200).then(($nil) => {
       expect($nil).not.empty;
     });
   });
@@ -192,8 +192,8 @@ describe("UUID Datatype tests", function() {
     table.SelectTableRow(2); //As Table Selected row has issues due to fast selction
     agHelper.Sleep(2000); //for table selection to be captured
 
-    table.ReadTableRowColumnData(2, 1, 200).then(($oldV1) => {
-      table.ReadTableRowColumnData(2, 2, 200).then(($oldV4) => {
+    table.ReadTableRowColumnData(2, 1, "v1", 200).then(($oldV1) => {
+      table.ReadTableRowColumnData(2, 2, "v1", 200).then(($oldV4) => {
         agHelper.ClickButton("Run UpdateQuery");
         agHelper.AssertElementVisible(locator._modal);
 
@@ -209,10 +209,10 @@ describe("UUID Datatype tests", function() {
         table.ReadTableRowColumnData(2, 0).then(($cellData) => {
           expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
         });
-        table.ReadTableRowColumnData(2, 1, 200).then(($newV1) => {
+        table.ReadTableRowColumnData(2, 1, "v1", 200).then(($newV1) => {
           expect($oldV1).to.not.eq($newV1); //making sure new v1 is updated
         });
-        table.ReadTableRowColumnData(2, 2, 200).then(($newV4) => {
+        table.ReadTableRowColumnData(2, 2, "v1", 200).then(($newV4) => {
           expect($oldV4).to.eq($newV4); //making sure new v4 is not updated
         });
       });
@@ -221,9 +221,9 @@ describe("UUID Datatype tests", function() {
 
   it("9. Updating record - uuidtype - updating v4, guid", () => {
     //table.SelectTableRow(2); //As Table Selected row has issues due to fast selction
-    table.ReadTableRowColumnData(2, 1, 200).then(($oldV1) => {
-      table.ReadTableRowColumnData(2, 2, 200).then(($oldV4) => {
-        table.ReadTableRowColumnData(2, 3, 200).then(($oldguid) => {
+    table.ReadTableRowColumnData(2, 1, "v1", 200).then(($oldV1) => {
+      table.ReadTableRowColumnData(2, 2, "v1", 200).then(($oldV4) => {
+        table.ReadTableRowColumnData(2, 3, "v1", 200).then(($oldguid) => {
           agHelper.ClickButton("Run UpdateQuery");
           agHelper.AssertElementVisible(locator._modal);
 
@@ -242,13 +242,13 @@ describe("UUID Datatype tests", function() {
           table.ReadTableRowColumnData(2, 0).then(($cellData) => {
             expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
           });
-          table.ReadTableRowColumnData(2, 1, 200).then(($newV1) => {
+          table.ReadTableRowColumnData(2, 1, "v1", 200).then(($newV1) => {
             expect($oldV1).to.eq($newV1); //making sure v1 is same
           });
-          table.ReadTableRowColumnData(2, 2, 200).then(($newV4) => {
+          table.ReadTableRowColumnData(2, 2, "v1", 200).then(($newV4) => {
             expect($oldV4).to.not.eq($newV4); //making sure new v4 is updated
           });
-          table.ReadTableRowColumnData(2, 3, 200).then(($newguid) => {
+          table.ReadTableRowColumnData(2, 3, "v1", 200).then(($newguid) => {
             expect($oldguid).to.not.eq($newguid); //making sure new guid is updated
           });
         });
@@ -330,7 +330,7 @@ describe("UUID Datatype tests", function() {
       });
       deployMode.DeployApp();
       table.WaitUntilTableLoad();
-      table.ReadTableRowColumnData(1, 5, 200).then(($newFormedguid2) => {
+      table.ReadTableRowColumnData(1, 5, "v1", 200).then(($newFormedguid2) => {
         expect($newFormedguid1).to.eq($newFormedguid2);
       });
     });
@@ -377,19 +377,19 @@ describe("UUID Datatype tests", function() {
     table.ReadTableRowColumnData(0, 0).then(($cellData) => {
       expect($cellData).to.eq("4"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(0, 1, 200).then(($v1) => {
+    table.ReadTableRowColumnData(0, 1, "v1", 200).then(($v1) => {
       expect($v1).not.empty;
     });
-    table.ReadTableRowColumnData(0, 2, 200).then(($v4) => {
+    table.ReadTableRowColumnData(0, 2, "v1", 200).then(($v4) => {
       expect($v4).not.empty;
     });
-    table.ReadTableRowColumnData(0, 3, 200).then(($guid) => {
+    table.ReadTableRowColumnData(0, 3, "v1", 200).then(($guid) => {
       expect($guid).not.empty;
     });
-    table.ReadTableRowColumnData(0, 4, 200).then(($nil) => {
+    table.ReadTableRowColumnData(0, 4, "v1", 200).then(($nil) => {
       expect($nil).not.empty;
     });
-    table.ReadTableRowColumnData(0, 5, 200).then(($newGenUUID) => {
+    table.ReadTableRowColumnData(0, 5, "v1", 200).then(($newGenUUID) => {
       expect($newGenUUID).not.empty;
     });
   });

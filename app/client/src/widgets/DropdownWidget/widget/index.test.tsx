@@ -1,25 +1,32 @@
-import React from "react";
-import { ThemeProvider } from "styled-components";
-import DropdownWidget, { DropdownWidgetProps } from "./";
-import configureStore from "redux-mock-store";
 import { fireEvent, render, screen } from "@testing-library/react";
+import { dark, theme } from "constants/DefaultTheme";
+import React from "react";
 import { Provider } from "react-redux";
-import { theme, dark } from "constants/DefaultTheme";
+import configureStore from "redux-mock-store";
+import { ThemeProvider } from "styled-components";
+import type { DropdownWidgetProps } from "./";
+import DropdownWidget from "./";
 
 import "@testing-library/jest-dom";
 
 import { RenderModes } from "constants/WidgetConstants";
 
-jest.mock("react-dnd", () => ({
-  useDrag: jest.fn().mockReturnValue([{ isDragging: false }, jest.fn()]),
-}));
-
 describe("<DropdownWidget />", () => {
   const initialState = {
     ui: {
+      appSettingsPane: {
+        isOpen: false,
+      },
       widgetDragResize: {
         lastSelectedWidget: "Widget1",
         selectedWidgets: ["Widget1"],
+      },
+      users: {
+        featureFlag: {
+          data: {
+            AUTO_LAYOUT: false,
+          },
+        },
       },
       propertyPane: {
         isVisible: true,
@@ -36,6 +43,12 @@ describe("<DropdownWidget />", () => {
       },
       autoHeightUI: {
         isAutoHeightWithLimitsChanging: false,
+      },
+      mainCanvas: {
+        width: 1159,
+      },
+      canvasSelection: {
+        isDraggingForSelection: false,
       },
     },
     entities: { canvasWidgets: {}, app: { mode: "canvas" } },

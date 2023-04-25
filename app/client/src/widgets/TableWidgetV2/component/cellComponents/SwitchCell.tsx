@@ -1,10 +1,6 @@
 import React from "react";
-import {
-  ALIGN_ITEMS,
-  BaseCellComponentProps,
-  CellAlignment,
-  JUSTIFY_CONTENT,
-} from "../Constants";
+import type { BaseCellComponentProps, CellAlignment } from "../Constants";
+import { ALIGN_ITEMS, JUSTIFY_CONTENT } from "../Constants";
 import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
 import { LabelPosition } from "components/constants";
 import styled from "styled-components";

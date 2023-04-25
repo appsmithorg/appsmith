@@ -5,7 +5,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { validateResponse } from "sagas/ErrorSagas";
 import ImportedCollectionsApi from "api/CollectionApi";
-import { ImportedCollections } from "constants/collectionsConstants";
+import type { ImportedCollections } from "constants/collectionsConstants";
 
 export function* fetchImportedCollectionsSaga() {
   try {

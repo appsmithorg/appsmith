@@ -1,4 +1,4 @@
-import { IPopoverSharedProps } from "@blueprintjs/core";
+import type { IPopoverSharedProps } from "@blueprintjs/core";
 import { matchPath, useLocation } from "react-router";
 import {
   API_EDITOR_ID_PATH,
@@ -9,15 +9,16 @@ import {
   BUILDER_PATH,
   BUILDER_CUSTOM_PATH,
   matchBuilderPath,
+  matchViewerPath,
 } from "constants/routes";
 
 import {
   SAAS_EDITOR_API_ID_PATH,
   SAAS_EDITOR_DATASOURCE_ID_PATH,
 } from "pages/Editor/SaaSEditor/constants";
-import { ActionData } from "reducers/entityReducers/actionsReducer";
-import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
-import { PluginType } from "entities/Action";
+import type { ActionData } from "reducers/entityReducers/actionsReducer";
+import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import type { PluginType } from "entities/Action";
 import localStorage from "utils/localStorage";
 
 export const ContextMenuPopoverModifiers: IPopoverSharedProps["modifiers"] = {
@@ -80,6 +81,10 @@ export const getActionIdFromURL = () => {
 
 export const isEditorPath = (path: string) => {
   return !!matchBuilderPath(path, { end: false });
+};
+
+export const isViewerPath = (path: string) => {
+  return !!matchViewerPath(path);
 };
 
 export const getJSCollectionIdFromURL = () => {

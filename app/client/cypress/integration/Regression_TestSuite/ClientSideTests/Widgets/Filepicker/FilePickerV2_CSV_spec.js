@@ -27,9 +27,7 @@ describe("File picker widget v2", () => {
     cy.get(
       `.t--property-control-dataformat ${commonlocators.helperText}`,
     ).contains(ARRAY_CSV_HELPER_TEXT);
-    cy.get(commonlocators.filePickerInput)
-      .first()
-      .attachFile("Test_csv.csv");
+    cy.get(commonlocators.filePickerInput).first().attachFile("Test_csv.csv");
     cy.wait(3000);
 
     cy.readTableV2dataPublish("1", "1").then((tabData) => {

@@ -40,7 +40,7 @@ export type DroppableComponentProps<TItem extends BaseItemProps> = {
 };
 
 export class DroppableComponent<
-  TItem extends BaseItemProps
+  TItem extends BaseItemProps,
 > extends React.Component<DroppableComponentProps<TItem>> {
   constructor(props: DroppableComponentProps<TItem>) {
     super(props);

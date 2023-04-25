@@ -66,9 +66,7 @@ describe("JSON Form Widget Custom Field", () => {
     cy.get(`${fieldPrefix}-migrant label`).contains("Migrant");
     cy.get(`${fieldPrefix}-migrant .t--switch-widget-inactive`).should("exist");
 
-    cy.get(`${fieldPrefix}-address`)
-      .find("label")
-      .should("have.length", 4);
+    cy.get(`${fieldPrefix}-address`).find("label").should("have.length", 4);
     cy.get(`${fieldPrefix}-address-street label`).contains("Street");
     cy.get(`${fieldPrefix}-address-street input`).should(
       "have.value",

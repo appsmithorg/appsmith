@@ -1,6 +1,6 @@
 import React from "react";
 
-import { PreviewsProps } from ".";
+import type { PreviewsProps } from ".";
 import PreviewBox from "./PreviewBox";
 
 const DashboardPreview = (props: PreviewsProps) => {

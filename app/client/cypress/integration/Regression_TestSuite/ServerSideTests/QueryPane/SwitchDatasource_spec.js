@@ -1,7 +1,7 @@
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 
-describe("Switch datasource", function() {
+describe("Switch datasource", function () {
   let postgresDatasourceName;
   let postgresDatasourceNameSecond;
   let mongoDatasourceName;
@@ -10,7 +10,7 @@ describe("Switch datasource", function() {
     cy.startRoutesForDatasource();
   });
 
-  it("1. Create postgres datasource", function() {
+  it("1. Create postgres datasource", function () {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
     cy.generateUUID().then((uid) => {
@@ -27,7 +27,7 @@ describe("Switch datasource", function() {
     cy.testSaveDatasource();
   });
 
-  it("2. Create another postgres datasource", function() {
+  it("2. Create another postgres datasource", function () {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
     cy.generateUUID().then((uid) => {
@@ -44,7 +44,7 @@ describe("Switch datasource", function() {
     cy.testSaveDatasource();
   });
 
-  it("3. Create mongo datasource", function() {
+  it("3. Create mongo datasource", function () {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.MongoDB).click();
     cy.generateUUID().then((uid) => {
@@ -61,7 +61,7 @@ describe("Switch datasource", function() {
     cy.testSaveDatasource();
   });
 
-  it("4. By switching datasources execute a query with both the datasources", function() {
+  it("4. By switching datasources execute a query with both the datasources", function () {
     cy.NavigateToActiveDSQueryPane(postgresDatasourceName);
     cy.get(queryLocators.templateMenu).click({ force: true });
     cy.get(".CodeMirror textarea")
@@ -87,12 +87,12 @@ describe("Switch datasource", function() {
     );
   });
 
-  it("5. Confirm mongo datasource is not present in the switch datasources dropdown", function() {
+  it("5. Confirm mongo datasource is not present in the switch datasources dropdown", function () {
     cy.get(".t--switch-datasource").click();
     cy.get(".t--datasource-option").should("not.have", mongoDatasourceName);
   });
 
-  it("6. Delete the query and datasources", function() {
+  it("6. Delete the query and datasources", function () {
     cy.deleteQueryUsingContext();
     cy.deleteDatasource(postgresDatasourceName);
     cy.deleteDatasource(postgresDatasourceNameSecond);

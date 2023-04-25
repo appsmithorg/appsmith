@@ -271,7 +271,7 @@
                   "textSize": "PARAGRAPH",
                   "widgetId": "r1m4lkt7at",
                   "isVisibleFilters": true,
-                  "tableData": "{{mockApi.data.headers.info}}",
+                  "tableData": "{{mockApi.data.headers.Info}}",
                   "isVisible": true,
                   "label": "Data",
                   "searchKey": "",
@@ -412,7 +412,7 @@
           "name": "DEFAULT_REST_DATASOURCE",
           "pluginId": "restapi-plugin",
           "datasourceConfiguration": {
-            "url": "https://mock-api.appsmith.com"
+            "url": "http://host.docker.internal:5001/v1/mock-api"
           },
           "invalids": [],
           "messages": [],
@@ -423,7 +423,7 @@
         "actionConfiguration": {
           "timeoutInMillisecond": 10000,
           "paginationType": "NONE",
-          "path": "/echo/get",
+          "path": "/echo",
           "headers": [
             {
               "key": "info",

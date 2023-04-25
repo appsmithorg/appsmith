@@ -49,11 +49,11 @@ body:
   id: environment
   attributes:
     label: Environment
-    description: "Instance where the issue is reproducible"
+    description: "Environment where the issue is reproducible"
     options:
         - Production
         - Release
-        - Deploy Preview (Default)
+        - Deploy Preview
   validations:
     required: true
 - type: input

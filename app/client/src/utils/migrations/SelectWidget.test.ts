@@ -1,11 +1,11 @@
-import { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "widgets/constants";
 import { MigrateSelectTypeWidgetDefaultValue } from "./SelectWidget";
 
 describe("MigrateSelectTypeWidgetDefaultValue", () => {
   describe("Select widget", () => {
     it("should check that defaultOptionValue is migrated when its in old format", () => {
       expect(
-        MigrateSelectTypeWidgetDefaultValue(({
+        MigrateSelectTypeWidgetDefaultValue({
           children: [
             {
               type: "SELECT_WIDGET",
@@ -13,7 +13,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
               defaultOptionValue: "{{moment()}}",
             },
           ],
-        } as any) as DSLWidget),
+        } as any as DSLWidget),
       ).toEqual({
         children: [
           {
@@ -26,7 +26,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
       });
 
       expect(
-        MigrateSelectTypeWidgetDefaultValue(({
+        MigrateSelectTypeWidgetDefaultValue({
           children: [
             {
               type: "SELECT_WIDGET",
@@ -34,7 +34,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
               defaultOptionValue: "{{moment()}}{{moment()}}",
             },
           ],
-        } as any) as DSLWidget),
+        } as any as DSLWidget),
       ).toEqual({
         children: [
           {
@@ -49,7 +49,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
 
     it("should check that defaultOptionValue is not migrated when its in new format", () => {
       expect(
-        MigrateSelectTypeWidgetDefaultValue(({
+        MigrateSelectTypeWidgetDefaultValue({
           children: [
             {
               type: "SELECT_WIDGET",
@@ -58,7 +58,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
                 "{{ ((options, serverSideFiltering) => ( moment()))(select.options, select.serverSideFiltering) }}",
             },
           ],
-        } as any) as DSLWidget),
+        } as any as DSLWidget),
       ).toEqual({
         children: [
           {
@@ -71,7 +71,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
       });
 
       expect(
-        MigrateSelectTypeWidgetDefaultValue(({
+        MigrateSelectTypeWidgetDefaultValue({
           children: [
             {
               type: "SELECT_WIDGET",
@@ -80,7 +80,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
                 "{{ ((options, serverSideFiltering) => ( moment() + moment()))(select.options, select.serverSideFiltering) }}",
             },
           ],
-        } as any) as DSLWidget),
+        } as any as DSLWidget),
       ).toEqual({
         children: [
           {
@@ -95,7 +95,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
 
     it("should check that defaultOptionValue is not migrated when its a static value", () => {
       expect(
-        MigrateSelectTypeWidgetDefaultValue(({
+        MigrateSelectTypeWidgetDefaultValue({
           children: [
             {
               type: "SELECT_WIDGET",
@@ -103,7 +103,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
               defaultOptionValue: "Green",
             },
           ],
-        } as any) as DSLWidget),
+        } as any as DSLWidget),
       ).toEqual({
         children: [
           {
@@ -119,7 +119,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
   describe("Multi Select widget", () => {
     it("should check that defaultOptionValue is migrated when its in old format", () => {
       expect(
-        MigrateSelectTypeWidgetDefaultValue(({
+        MigrateSelectTypeWidgetDefaultValue({
           children: [
             {
               type: "MULTI_SELECT_WIDGET_V2",
@@ -127,7 +127,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
               defaultOptionValue: "{{[moment()]}}",
             },
           ],
-        } as any) as DSLWidget),
+        } as any as DSLWidget),
       ).toEqual({
         children: [
           {
@@ -140,7 +140,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
       });
 
       expect(
-        MigrateSelectTypeWidgetDefaultValue(({
+        MigrateSelectTypeWidgetDefaultValue({
           children: [
             {
               type: "MULTI_SELECT_WIDGET_V2",
@@ -148,7 +148,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
               defaultOptionValue: "{{moment()}}{{moment()}}",
             },
           ],
-        } as any) as DSLWidget),
+        } as any as DSLWidget),
       ).toEqual({
         children: [
           {
@@ -163,7 +163,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
 
     it("should check that defaultOptionValue is not migrated when its in new format", () => {
       expect(
-        MigrateSelectTypeWidgetDefaultValue(({
+        MigrateSelectTypeWidgetDefaultValue({
           children: [
             {
               type: "MULTI_SELECT_WIDGET_V2",
@@ -172,7 +172,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
                 "{{ ((options, serverSideFiltering) => ( [moment()]))(select.options, select.serverSideFiltering) }}",
             },
           ],
-        } as any) as DSLWidget),
+        } as any as DSLWidget),
       ).toEqual({
         children: [
           {
@@ -185,7 +185,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
       });
 
       expect(
-        MigrateSelectTypeWidgetDefaultValue(({
+        MigrateSelectTypeWidgetDefaultValue({
           children: [
             {
               type: "MULTI_SELECT_WIDGET_V2",
@@ -194,7 +194,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
                 "{{ ((options, serverSideFiltering) => ( moment() + moment()))(select.options, select.serverSideFiltering) }}",
             },
           ],
-        } as any) as DSLWidget),
+        } as any as DSLWidget),
       ).toEqual({
         children: [
           {
@@ -209,7 +209,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
 
     it("should check that defaultOptionValue is not migrated when its a static value", () => {
       expect(
-        MigrateSelectTypeWidgetDefaultValue(({
+        MigrateSelectTypeWidgetDefaultValue({
           children: [
             {
               type: "MULTI_SELECT_WIDGET_V2",
@@ -217,7 +217,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
               defaultOptionValue: "[Green]",
             },
           ],
-        } as any) as DSLWidget),
+        } as any as DSLWidget),
       ).toEqual({
         children: [
           {
@@ -230,7 +230,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
     });
 
     expect(
-      MigrateSelectTypeWidgetDefaultValue(({
+      MigrateSelectTypeWidgetDefaultValue({
         children: [
           {
             type: "MULTI_SELECT_WIDGET_V2",
@@ -238,7 +238,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
             defaultOptionValue: ["Green"],
           },
         ],
-      } as any) as DSLWidget),
+      } as any as DSLWidget),
     ).toEqual({
       children: [
         {
@@ -253,7 +253,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
   describe("other widget", () => {
     it("should left untouched", () => {
       expect(
-        MigrateSelectTypeWidgetDefaultValue(({
+        MigrateSelectTypeWidgetDefaultValue({
           children: [
             {
               type: "TABLE_WIDGET",
@@ -261,7 +261,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
               defaultOptionValue: "{{[moment()]}}",
             },
           ],
-        } as any) as DSLWidget),
+        } as any as DSLWidget),
       ).toEqual({
         children: [
           {
@@ -1830,7 +1830,7 @@ describe("MigrateSelectTypeWidgetDefaultValue", () => {
     };
 
     expect(
-      MigrateSelectTypeWidgetDefaultValue((input as any) as DSLWidget),
+      MigrateSelectTypeWidgetDefaultValue(input as any as DSLWidget),
     ).toEqual(output);
   });
 });

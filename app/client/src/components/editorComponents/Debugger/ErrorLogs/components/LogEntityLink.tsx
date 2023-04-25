@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { keyBy } from "lodash";
-import { LogItemProps } from "../ErrorLogItem";
+import type { LogItemProps } from "../ErrorLogItem";
 import { Colors } from "constants/Colors";
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
 import {
@@ -14,6 +14,7 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { PluginType } from "entities/Action";
 import { getPlugins } from "selectors/entitiesSelector";
 import EntityLink, { DebuggerLinkUI } from "../../EntityLink";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const EntityLinkWrapper = styled.div`
   display: flex;
@@ -45,27 +46,27 @@ export default function LogEntityLink(props: LogItemProps) {
       // If the source is a widget.
       if (props.source.type === ENTITY_TYPE.WIDGET && props.source.pluginType) {
         return (
-          <WidgetIcon height={12} type={props.source.pluginType} width={12} />
+          <WidgetIcon height={16} type={props.source.pluginType} width={16} />
         );
       }
       // If the source is a JS action.
       else if (props.source.type === ENTITY_TYPE.JSACTION) {
-        return JsFileIconV2(12, 12);
+        return JsFileIconV2(16, 16);
       } else if (props.source.type === ENTITY_TYPE.ACTION) {
         // If the source is an API action.
         if (
           props.source.pluginType === PluginType.API &&
           props.source.httpMethod
         ) {
-          return ApiMethodIcon(props.source.httpMethod, "9px", "17px", 28);
+          return ApiMethodIcon(props.source.httpMethod, "16px", "32px", 50);
         }
         // If the source is a Datasource action.
         else if (props.iconId && pluginGroups[props.iconId]) {
           return (
-            <EntityIcon height={"12px"} width={"12px"}>
+            <EntityIcon height={"16px"} width={"16px"}>
               <img
                 alt="entityIcon"
-                src={pluginGroups[props.iconId].iconLocation}
+                src={getAssetUrl(pluginGroups[props.iconId].iconLocation)}
               />
             </EntityIcon>
           );
@@ -89,6 +90,9 @@ export default function LogEntityLink(props: LogItemProps) {
         >
           <IconWrapper>{getIcon()}</IconWrapper>
           <EntityLink
+            appsmithErrorCode={props.pluginErrorDetails?.appsmithErrorCode}
+            errorSubType={props.messages && props.messages[0].message.name}
+            errorType={props.logType}
             id={props.source.id}
             name={props.source.name}
             type={props.source.type}

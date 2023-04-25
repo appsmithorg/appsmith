@@ -1,8 +1,8 @@
-import {
+import type {
   EvaluationReduxAction,
   ReduxAction,
-  ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 export const batchAction = (action: EvaluationReduxAction<any>) => ({
   type: ReduxActionTypes.BATCHED_UPDATE,

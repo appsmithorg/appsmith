@@ -1,7 +1,8 @@
 import React, { createRef, memo, useEffect, useState } from "react";
 import { Tooltip } from "@blueprintjs/core";
 import { CellWrapper, ColumnWrapper } from "./TableStyledWrappers";
-import { CellLayoutProperties, ColumnTypes } from "./Constants";
+import type { CellLayoutProperties } from "./Constants";
+import { ColumnTypes } from "./Constants";
 import { ReactComponent as OpenNewTabIcon } from "assets/icons/control/open-new-tab.svg";
 import styled from "styled-components";
 import equal from "fast-deep-equal/es6";

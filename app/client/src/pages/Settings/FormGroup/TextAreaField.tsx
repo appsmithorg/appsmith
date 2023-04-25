@@ -1,6 +1,7 @@
 import React from "react";
-import { Field, WrappedFieldMetaProps } from "redux-form";
-import { Intent } from "constants/DefaultTheme";
+import type { WrappedFieldMetaProps } from "redux-form";
+import { Field } from "redux-form";
+import type { Intent } from "constants/DefaultTheme";
 import { FieldError } from "design-system-old";
 import {
   EditorModes,
@@ -8,9 +9,8 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import CodeEditor, {
-  EditorProps,
-} from "components/editorComponents/CodeEditor";
+import type { EditorProps } from "components/editorComponents/CodeEditor";
+import CodeEditor from "components/editorComponents/CodeEditor";
 
 const renderComponent = (
   componentProps: FormTextAreaFieldProps &

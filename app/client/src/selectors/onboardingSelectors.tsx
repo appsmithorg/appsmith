@@ -1,7 +1,7 @@
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
-import { getUserApplicationsWorkspaces } from "./applicationSelectors";
+import { getUserApplicationsWorkspaces } from "@appsmith/selectors/applicationSelectors";
 import { getWidgets } from "sagas/selectors";
 import {
   getActionResponses,
@@ -286,9 +286,7 @@ export const buttonWidgetHasOnSuccessBinding = createSelector(
       return (
         widget.type === "BUTTON_WIDGET" &&
         widget.onClick &&
-        widget.onClick.includes(
-          "{{updateCustomerInfo.run(() => getCustomers.run(), () => {})}}",
-        )
+        widget.onClick.includes("getCustomers.run()")
       );
     });
 

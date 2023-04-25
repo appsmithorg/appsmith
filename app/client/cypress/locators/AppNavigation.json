@@ -1,0 +1,44 @@
+{
+  "header": ".t--app-viewer-navigation-header",
+  "sidebar": ".t--app-viewer-navigation-sidebar",
+  "topStacked": ".t--app-viewer-navigation-top-stacked",
+  "topInline": ".t--app-viewer-navigation-top-inline",
+  "applicationName": ".t--app-viewer-application-name",
+  "shareButton": ".t--app-viewer-share-button",
+  "editButton": ".t--back-to-editor",
+  "forkButton": ".t--fork-app",
+  "signButton": ".t--sign-in",
+  "userProfileDropdownButton": ".t--profile-menu-icon",
+  "userProfileDropdownMenu": ".t--profile-menu",
+  "modal": ".bp3-dialog",
+  "modalClose": ".bp3-dialog .bp3-dialog-close-button",
+  "navigationMenuItem": ".t--page-switch-tab",
+  "appSettingsButton": "#t--app-settings-cta",
+  "navigationSettingsTab": "#t--navigation-settings-header",
+  "navigationPreview": ".t--navigation-preview",
+  "navigationSettings": {
+    "showNavbar": "#t--navigation-settings-show-navbar",
+    "showSignIn": "#t--navigation-settings-show-sign-in",
+    "orientation": ".t--navigation-settings-orientation",
+    "navStyle": ".t--navigation-settings-navStyle",
+    "colorStyle": ".t--navigation-settings-colorStyle",
+    "orientationOptions": {
+      "top": ".t--navigation-settings-orientation .t--button-group-top",
+      "side": ".t--navigation-settings-orientation .t--button-group-side"
+    },
+    "navStyleOptions": {
+      "stacked": ".t--navigation-settings-navStyle .t--button-group-stacked",
+      "inline": ".t--navigation-settings-navStyle .t--button-group-inline"
+    },
+    "colorStyleOptions": {
+      "light": ".t--navigation-settings-colorStyle .t--button-group-light",
+      "theme": ".t--navigation-settings-colorStyle .t--button-group-theme"
+    }
+  },
+  "scrollArrows": ".scroll-arrows",
+  "topStackedScrollableContainer": ".t--app-viewer-navigation-top-stacked .hidden-scrollbar",
+  "topInlineMoreButton": ".t--app-viewer-navigation-top-inline-more-button",
+  "topInlineMoreDropdown": ".t--app-viewer-navigation-top-inline-more-dropdown",
+  "topInlineMoreDropdownItem": ".t--app-viewer-navigation-top-inline-more-dropdown-item",
+  "sidebarCollapseButton": ".t--app-viewer-navigation-sidebar-collapse"
+}

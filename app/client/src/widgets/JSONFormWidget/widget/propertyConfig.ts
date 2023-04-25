@@ -1,17 +1,16 @@
 import { Alignment } from "@blueprintjs/core";
 
-import generatePanelPropertyConfig from "./propertyConfig/generatePanelPropertyConfig";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { JSONFormWidgetProps } from ".";
-import { ROOT_SCHEMA_KEY } from "../constants";
+import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
+import type { OnButtonClickProps } from "components/propertyControls/ButtonControl";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { ButtonVariantTypes, ButtonPlacementTypes } from "components/constants";
-import { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
-import { OnButtonClickProps } from "components/propertyControls/ButtonControl";
-import { ComputedSchemaStatus, computeSchema } from "./helper";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
-
+import type { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
+import type { JSONFormWidgetProps } from ".";
+import { ROOT_SCHEMA_KEY } from "../constants";
+import { ComputedSchemaStatus, computeSchema } from "./helper";
+import generatePanelPropertyConfig from "./propertyConfig/generatePanelPropertyConfig";
 const MAX_NESTING_LEVEL = 5;
 
 const panelConfig = generatePanelPropertyConfig(MAX_NESTING_LEVEL);
@@ -285,7 +284,7 @@ export const contentConfig = [
     children: [
       {
         propertyName: "onSubmit",
-        helpText: "Triggers an action when the submit button is clicked",
+        helpText: "when the submit button is clicked",
         label: "onSubmit",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,

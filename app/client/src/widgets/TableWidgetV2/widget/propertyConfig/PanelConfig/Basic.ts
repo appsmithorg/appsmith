@@ -1,9 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import {
-  ColumnTypes,
-  ICON_NAMES,
-  TableWidgetProps,
-} from "widgets/TableWidgetV2/constants";
+import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
+import { ColumnTypes, ICON_NAMES } from "widgets/TableWidgetV2/constants";
 import {
   hideByColumnType,
   hideByMenuItemsSource,
@@ -219,7 +216,7 @@ export default {
                 dependencies: ["primaryColumns", "columnOrder"],
               },
               {
-                helpText: "Triggers an action when the menu item is clicked",
+                helpText: "when the menu item is clicked",
                 propertyName: "onClick",
                 label: "onClick",
                 controlType: "ACTION_SELECTOR",
@@ -364,7 +361,7 @@ export default {
       },
     },
     {
-      helpText: "Triggers an action when the button is clicked",
+      helpText: "when the button is clicked",
       propertyName: "onClick",
       label: "onClick",
       controlType: "ACTION_SELECTOR",

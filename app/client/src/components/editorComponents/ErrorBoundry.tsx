@@ -1,4 +1,5 @@
-import React, { ReactNode } from "react";
+import type { ReactNode } from "react";
+import React from "react";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
 import * as log from "loglevel";

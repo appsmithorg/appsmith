@@ -1,4 +1,5 @@
 export class CommonLocators {
+  _body = "body";
   _chevronUp = ".bp3-icon-chevron-up";
   _loading = "#loading";
   _spinner = ".bp3-spinner";
@@ -175,4 +176,8 @@ export class CommonLocators {
   _commentString = ".cm-comment";
   _modalWrapper = "[data-cy='modal-wrapper']";
   _editorBackButton = ".t--close-editor";
+  _evaluateMsg = ".t--evaluatedPopup-error";
+  _canvas = "[data-testid=widgets-editor]";
+  _enterPreviewMode = "[data-cy='edit-mode']";
+  _exitPreviewMode = "[data-cy='preview-mode']";
 }

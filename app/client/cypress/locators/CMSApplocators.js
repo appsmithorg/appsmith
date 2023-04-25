@@ -8,7 +8,7 @@ export default {
   sendMailText: "//span[text()='Send Mail']",
   inputMail: "//input[@value='Curt50@gmail.com']",
   subjectField: "(//div[@class='bp3-input-group']//input)[6]",
-  contentField: ".t--draggable-inputwidgetv2",
+  contentField: ".t--widget-inputwidgetv2",
   confirmButton: "span:contains('Confirm')",
   closeButton: "span:contains('Close')",
   datasourcesbutton: "//div[text()='Datasources']",

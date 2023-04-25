@@ -1,15 +1,17 @@
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
 import { isBoolean, get, set, isString } from "lodash";
-import {
+import type {
   ConditionalOutput,
   FormConfigEvalObject,
   FormEvalOutput,
 } from "reducers/evaluationReducers/formEvaluationReducer";
-import { FormConfigType, HiddenType } from "./BaseControl";
-import { diff, Diff } from "deep-diff";
+import type { FormConfigType, HiddenType } from "./BaseControl";
+import type { Diff } from "deep-diff";
+import { diff } from "deep-diff";
 import { MongoDefaultActionConfig } from "constants/DatasourceEditorConstants";
-import { Action } from "@sentry/react/dist/types";
+import type { Action } from "@sentry/react/dist/types";
 import { klona } from "klona/full";
+import type FeatureFlags from "entities/FeatureFlags";
 
 export const evaluateCondtionWithType = (
   conditions: Array<boolean> | undefined,
@@ -62,7 +64,7 @@ export const isHiddenConditionsEvaluation = (
 export const caculateIsHidden = (
   values: any,
   hiddenConfig?: HiddenType,
-  featureFlag?: boolean,
+  featureFlags?: FeatureFlags,
 ) => {
   if (!!hiddenConfig && !isBoolean(hiddenConfig)) {
     let valueAtPath;
@@ -75,6 +77,11 @@ export const caculateIsHidden = (
     }
     if ("comparison" in hiddenConfig) {
       comparison = hiddenConfig.comparison;
+    }
+
+    let flagValue: keyof FeatureFlags = "APP_TEMPLATE";
+    if ("flagValue" in hiddenConfig) {
+      flagValue = hiddenConfig.flagValue;
     }
 
     switch (comparison) {
@@ -94,7 +101,7 @@ export const caculateIsHidden = (
         // FEATURE_FLAG comparision is used to hide previous configs,
         // and show new configs if feature flag is enabled, if disabled/ not present,
         // previous config would be shown as is
-        return featureFlag === value;
+        return !!featureFlags && featureFlags[flagValue] === value;
       default:
         return true;
     }
@@ -104,14 +111,14 @@ export const caculateIsHidden = (
 export const isHidden = (
   values: any,
   hiddenConfig?: HiddenType,
-  featureFlag?: boolean,
+  featureFlags?: FeatureFlags,
 ) => {
   if (!!hiddenConfig && !isBoolean(hiddenConfig)) {
     if ("conditionType" in hiddenConfig) {
       //check if nested conditions exist
       return isHiddenConditionsEvaluation(values, hiddenConfig);
     } else {
-      return caculateIsHidden(values, hiddenConfig, featureFlag);
+      return caculateIsHidden(values, hiddenConfig, featureFlags);
     }
   }
   return !!hiddenConfig;

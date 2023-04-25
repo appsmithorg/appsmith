@@ -2,12 +2,12 @@ const dsl = require("../../../../fixtures/formInputTableV2Dsl.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 
-describe("Binding the Table and input Widget", function() {
+describe("Binding the Table and input Widget", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("1. Input widget test with default value from table widget", function() {
+  it("1. Input widget test with default value from table widget", function () {
     cy.SearchEntityandOpen("Input1");
     cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
 
@@ -18,7 +18,7 @@ describe("Binding the Table and input Widget", function() {
     );
   });
 
-  it("2. validation of data displayed in input widgets based on search value set", function() {
+  it("2. validation of data displayed in input widgets based on search value set", function () {
     cy.SearchEntityandOpen("Table1");
     cy.get(".t--property-control-allowsearching input").click({ force: true });
     cy.testJsontext("defaultsearchtext", "2736212");

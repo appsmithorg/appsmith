@@ -2,7 +2,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const dsl = require("../../../../../fixtures/formdsl1.json");
 
-describe("RichTextEditor Widget Validation", function() {
+describe("RichTextEditor Widget Validation", function () {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -12,7 +12,7 @@ describe("RichTextEditor Widget Validation", function() {
     cy.openPropertyPane("richtexteditorwidget");
   });
 
-  it("RichTextEditor-required with empty content show error border for textarea", function() {
+  it("RichTextEditor-required with empty content show error border for textarea", function () {
     cy.setTinyMceContent("rte-6h8j08u7ea", "");
     cy.get(commonlocators.requiredCheckbox).click({ force: true });
     cy.wait(500);

@@ -480,7 +480,9 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
                     String message = (String) result.getBody();
-                    assertTrue(message.contains("Unable to parse content"));
+                    assertTrue(message.contains("Unrecognized token 'erroneousBody': was expecting " +
+                                                        "(JSON String, Number, Array, Object or token 'null', 'true' or 'false')\n" +
+                                                        " at [Source: (String)\"erroneousBody\"; line: 1, column: 14]"));
                     assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
 
                     /*
@@ -529,7 +531,9 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
                     String message = (String) result.getBody();
-                    assertTrue(message.contains("File content is not base64 encoded"));
+                    assertTrue(message.contains("File content is not base64 encoded. " +
+                                                        "File content needs to be base64 encoded when the " +
+                                                        "'File Data Type: Base64/Text' field is selected 'Yes'."));
                     assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
 
                     /*

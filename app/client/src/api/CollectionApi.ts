@@ -1,6 +1,6 @@
-import { AxiosPromise } from "axios";
+import type { AxiosPromise } from "axios";
 import Api from "api/Api";
-import { ImportedCollections } from "constants/collectionsConstants";
+import type { ImportedCollections } from "constants/collectionsConstants";
 
 class ImportedCollectionsApi extends Api {
   static importedCollectionsURL = "v1/import/templateCollections";

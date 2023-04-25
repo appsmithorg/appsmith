@@ -1,23 +1,24 @@
-import { parse, Node } from "acorn";
+import type { Node } from "acorn";
+import { parse } from "acorn";
 import { ancestor } from "acorn-walk";
-import { CodeEditorGutter } from "components/editorComponents/CodeEditor";
-import { JSAction, JSCollection } from "entities/JSCollection";
+import type { CodeEditorGutter } from "components/editorComponents/CodeEditor";
+import type { JSAction, JSCollection } from "entities/JSCollection";
 import {
   RUN_GUTTER_CLASSNAME,
   RUN_GUTTER_ID,
   NO_FUNCTION_DROPDOWN_OPTION,
 } from "./constants";
-import { DropdownOption } from "design-system-old";
+import type { DropdownOption } from "design-system-old";
 import { find, memoize } from "lodash";
+import type { PropertyNode } from "@shared/ast";
 import {
   isLiteralNode,
   isPropertyNode,
-  PropertyNode,
   ECMA_VERSION,
   NodeTypes,
   SourceType,
 } from "@shared/ast";
-import { EventLocation } from "utils/AnalyticsUtil";
+import type { EventLocation } from "utils/AnalyticsUtil";
 
 export interface JSActionDropdownOption extends DropdownOption {
   data: JSAction | null;
@@ -122,12 +123,12 @@ export const createGutterMarker = (gutterOnclick: () => void) => {
   marker.type = "button";
   marker.innerHTML = "&#9654;";
   marker.classList.add(RUN_GUTTER_CLASSNAME);
-  marker.onmousedown = function(e) {
+  marker.onmousedown = function (e) {
     e.preventDefault();
     gutterOnclick();
   };
   // Allows executing functions (via run gutter) when devtool is open
-  marker.ontouchstart = function(e) {
+  marker.ontouchstart = function (e) {
     e.preventDefault();
     gutterOnclick();
   };

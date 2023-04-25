@@ -101,7 +101,7 @@ public class GetStructureMethod implements ExecutionMethod, TriggerMethod {
     }
 
     @Override
-    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig) {
+    public JsonNode transformExecutionResponse(JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
         if (response == null) {
             throw new AppsmithPluginException(GSheetsPluginError.QUERY_EXECUTION_FAILED, ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG);
         }
@@ -191,7 +191,7 @@ public class GetStructureMethod implements ExecutionMethod, TriggerMethod {
     }
 
     @Override
-    public JsonNode transformTriggerResponse(JsonNode response, MethodConfig methodConfig) {
+    public JsonNode transformTriggerResponse(JsonNode response, MethodConfig methodConfig, Set<String> userAuthorizedSheetIds) {
         if (response == null) {
             throw new AppsmithPluginException(GSheetsPluginError.QUERY_EXECUTION_FAILED, ErrorMessages.MISSING_VALID_RESPONSE_ERROR_MSG);
         }

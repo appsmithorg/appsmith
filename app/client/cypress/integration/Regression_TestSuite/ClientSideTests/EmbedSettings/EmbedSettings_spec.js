@@ -1,7 +1,8 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import adminSettings from "../../../../locators/AdminsSettings";
+const appNavigationLocators = require("../../../../locators/AppNavigation.json");
 
-describe("Embed settings options", function() {
+describe("Embed settings options", function () {
   const {
     AggregateHelper: agHelper,
     DeployMode: deployMode,
@@ -37,10 +38,10 @@ describe("Embed settings options", function() {
   before(() => {
     ee.DragDropWidgetNVerify("buttonwidget", 100, 100);
     deployMode.DeployApp();
-    cy.get("[data-cy='viewmode-share']").click();
-    cy.get("[data-cy='copy-application-url']")
-      .last()
-      .click();
+    cy.get(
+      `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
+    ).click();
+    cy.get("[data-cy='copy-application-url']").last().click();
     agHelper.GiveChromeCopyPermission();
     cy.window()
       .its("navigator.clipboard")
@@ -55,19 +56,14 @@ describe("Embed settings options", function() {
     });
     // cy.testJsontext("url", this.embeddedAppUrl);
     deployMode.DeployApp();
-    cy.get("[data-cy='viewmode-share']").click();
-    cy.get("[data-cy='copy-application-url']")
-      .last()
-      .click();
-    cy.window()
-      .its("navigator.clipboard")
-      .invoke("readText")
-      .as("deployUrl");
+    cy.get(
+      `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
+    ).click();
+    cy.get("[data-cy='copy-application-url']").last().click();
+    cy.window().its("navigator.clipboard").invoke("readText").as("deployUrl");
     cy.enablePublicAccess();
     cy.wait(6000);
-    getIframeBody()
-      .contains("Submit")
-      .should("exist");
+    getIframeBody().contains("Submit").should("exist");
     deployMode.NavigateBacktoEditor();
   });
 
@@ -80,15 +76,13 @@ describe("Embed settings options", function() {
   });
 
   describe("Wrapper to get access to the alias in all tests", () => {
-    it("1. Allow embedding everywhere", function() {
+    it("1. Allow embedding everywhere", function () {
       cy.log(this.deployUrl);
       homePage.NavigateToHome();
       cy.get(".admin-settings-menu-option").click();
       cy.get(".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS").within(
         () => {
-          cy.get("input")
-            .eq(0)
-            .click();
+          cy.get("input").eq(0).click();
         },
       );
       cy.get(adminSettings.saveButton).click();
@@ -102,51 +96,37 @@ describe("Embed settings options", function() {
       // });
       cy.get(adminSettings.restartNotice).should("not.exist");
       cy.visit(this.deployUrl);
-      getIframeBody()
-        .contains("Submit")
-        .should("exist");
+      getIframeBody().contains("Submit").should("exist");
       ValidateEditModeSetting(embedSettings.locators._allowAllText);
     });
 
-    it("2. Limit embedding", function() {
+    it("2. Limit embedding", function () {
       cy.log(this.deployUrl);
       homePage.NavigateToHome();
       cy.get(".admin-settings-menu-option").click();
       cy.get(".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS").within(
         () => {
-          cy.get("input")
-            .eq(1)
-            .click();
-          cy.get(".bp3-tag-remove")
-            .eq(1)
-            .click();
-          cy.get(".bp3-tag-remove")
-            .eq(0)
-            .click();
-          cy.get(".bp3-input-ghost")
-            .type(window.location.origin)
-            .blur();
+          cy.get("input").eq(1).click();
+          cy.get(".bp3-tag-remove").eq(1).click();
+          cy.get(".bp3-tag-remove").eq(0).click();
+          cy.get(".bp3-input-ghost").type(window.location.origin).blur();
         },
       );
       cy.get(adminSettings.saveButton).click();
       cy.waitForServerRestart();
       cy.get(adminSettings.restartNotice).should("not.exist");
       cy.visit(this.deployUrl);
-      getIframeBody()
-        .contains("Submit")
-        .should("exist");
+      getIframeBody().contains("Submit").should("exist");
 
       ValidateEditModeSetting(embedSettings.locators._restrictedText);
     });
-    it("3. Disable everywhere", function() {
+    it("3. Disable everywhere", function () {
       cy.log(this.deployUrl);
       homePage.NavigateToHome();
       cy.get(".admin-settings-menu-option").click();
       cy.get(".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS").within(
         () => {
-          cy.get("input")
-            .last()
-            .click();
+          cy.get("input").last().click();
         },
       );
       cy.get(adminSettings.saveButton).click();
@@ -160,9 +140,7 @@ describe("Embed settings options", function() {
       //   } = interception[1].response.body.data;
       //   expect(APPSMITH_ALLOWED_FRAME_ANCESTORS).to.equal("'none'");
       // });
-      getIframeBody()
-        .contains("Submit")
-        .should("not.exist");
+      getIframeBody().contains("Submit").should("not.exist");
 
       ValidateEditModeSetting(embedSettings.locators._disabledText);
     });

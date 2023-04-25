@@ -1,7 +1,7 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
-import { GuidedTourState } from "reducers/uiReducers/guidedTourReducer";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
+import type { GuidedTourState } from "reducers/uiReducers/guidedTourReducer";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 export const enableGuidedTour = (payload: boolean) => {
   return {

@@ -108,10 +108,7 @@ describe("JSON Form reset", () => {
     );
 
     // Reset form
-    cy.get("button")
-      .contains("Reset")
-      .parent("button")
-      .click({ force: true });
+    cy.get("button").contains("Reset").parent("button").click({ force: true });
 
     // Verify initial field values
     cy.get(`${fieldPrefix}-name input`).should(

@@ -1,5 +1,5 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { SelectedPropertyPanel } from "reducers/uiReducers/propertyPaneReducer";
+import type { SelectedPropertyPanel } from "reducers/uiReducers/propertyPaneReducer";
 
 export const updateWidgetName = (widgetId: string, newName: string) => {
   return {

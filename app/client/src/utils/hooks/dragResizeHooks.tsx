@@ -1,6 +1,6 @@
-import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useCallback, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 
 export const useShowPropertyPane = () => {
@@ -113,11 +113,13 @@ export const useWidgetDragResize = () => {
         dragGroupActualParent = "",
         draggingGroupCenter = {},
         startPoints,
+        draggedOn,
       }: {
         isDragging: boolean;
         dragGroupActualParent?: string;
         draggingGroupCenter?: Record<string, any>;
         startPoints?: any;
+        draggedOn?: string;
       }) => {
         if (isDragging) {
           document.body.classList.add("dragging");
@@ -131,6 +133,7 @@ export const useWidgetDragResize = () => {
             dragGroupActualParent,
             draggingGroupCenter,
             startPoints,
+            draggedOn,
           },
         });
       },

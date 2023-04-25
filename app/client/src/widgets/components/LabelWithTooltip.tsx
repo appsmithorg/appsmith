@@ -138,7 +138,8 @@ export const LabelContainer = styled.div<LabelContainerProps>`
         ? `&&& {margin-right: ${LABEL_DEFAULT_GAP}; flex-shrink: 0;} max-width: ${LABEL_MAX_WIDTH_RATE}%;`
         : `width: 100%;`
     }
-    ${position === LabelPosition.Left &&
+    ${
+      position === LabelPosition.Left &&
       `
       ${!width && `width: ${LABEL_DEFAULT_WIDTH_RATE}%`};
       ${alignment === Alignment.RIGHT && `justify-content: flex-end`};
@@ -149,7 +150,8 @@ export const LabelContainer = styled.div<LabelContainerProps>`
             : `text-align: left`
         };
       }
-    `}
+    `
+    }
     ${!inline && optionCount && optionCount > 1 && `align-self: flex-start;`}
   `}
 `;

@@ -12,12 +12,22 @@ import styled from "styled-components";
 
 const StyledHeader = styled.div`
   height: 48px;
-  padding: 10px 16px 12px;
-  box-shadow: 0 1px 0 0 ${Colors.GRAY_300};
+  padding: 10px 0px 10px;
+  border-bottom: 1px solid ${Colors.GRAY_300};
+  margin-bottom: 0;
 `;
 
 const StyledText = styled.div`
   font-size: 16px;
+`;
+
+const StyledIcon = styled(Icon)`
+  height: 48px;
+  width: 48px;
+  justify-content: center;
+  &:hover {
+    background-color: var(--appsmith-color-black-200);
+  }
 `;
 
 function PaneHeader() {
@@ -28,8 +38,7 @@ function PaneHeader() {
         content={APP_SETTINGS_CLOSE_TOOLTIP()}
         position={PopoverPosition.BOTTOM}
       >
-        <Icon
-          className="pr-2"
+        <StyledIcon
           fillColor={Colors.GREY_10}
           id="t--close-app-settings-pane"
           name="double-arrow-right"

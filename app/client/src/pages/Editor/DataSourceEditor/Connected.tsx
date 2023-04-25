@@ -1,7 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { isNil } from "lodash";
 import { getDatasource, getPlugin } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
@@ -32,15 +32,16 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   border-bottom: 1px solid #d0d7dd;
-  padding-top: 24px;
-  padding-bottom: 24px;
+  padding: 24px 20px;
 `;
 
 function Connected({
   errorComponent,
+  hideDatasourceRenderSection = false,
   showDatasourceSavedText = true,
 }: {
   errorComponent?: JSX.Element | null;
+  hideDatasourceRenderSection?: boolean;
   showDatasourceSavedText?: boolean;
 }) {
   const params = useParams<{ datasourceId: string }>();
@@ -91,14 +92,14 @@ function Connected({
       )}
       {errorComponent}
       <div style={{ marginTop: showDatasourceSavedText ? "30px" : "" }}>
-        {!isNil(currentFormConfig) && !isNil(datasource) ? (
+        {!isNil(currentFormConfig) &&
+        !isNil(datasource) &&
+        !hideDatasourceRenderSection ? (
           <RenderDatasourceInformation
             config={currentFormConfig[0]}
             datasource={datasource}
           />
-        ) : (
-          undefined
-        )}
+        ) : undefined}
       </div>
     </Wrapper>
   );

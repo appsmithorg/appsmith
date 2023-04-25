@@ -2,9 +2,9 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { connectSearchBox } from "react-instantsearch-dom";
-import { SearchBoxProvided } from "react-instantsearch-core";
+import type { SearchBoxProvided } from "react-instantsearch-core";
 import { getTypographyByKey, Icon } from "design-system-old";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import {
   createMessage,
   CREATE_NEW_OMNIBAR_PLACEHOLDER,
@@ -13,7 +13,8 @@ import {
   OMNIBAR_PLACEHOLDER_NAV,
   OMNIBAR_PLACEHOLDER_SNIPPETS,
 } from "@appsmith/constants/messages";
-import { isMenu, SearchCategory, SEARCH_CATEGORY_ID } from "./utils";
+import type { SearchCategory } from "./utils";
+import { isMenu, SEARCH_CATEGORY_ID } from "./utils";
 import { ReactComponent as CloseIcon } from "assets/icons/help/close_blue.svg";
 import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
 

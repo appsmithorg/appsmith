@@ -1,6 +1,6 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
-import { Dispatch } from "react";
+import type { Dispatch } from "react";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 export const triggerWelcomeTour = (dispatch: Dispatch<any>) => {

@@ -12,13 +12,11 @@ describe("Radio Group Widget", () => {
     cy.updateCodeInput(".t--property-control-text", `{{RadioGroup1.isDirty}}`);
   });
 
-  it("Check isDirty meta property", function() {
+  it("Check isDirty meta property", function () {
     // Check if initial value of isDirty is false
     cy.get(".t--widget-textwidget").should("contain", "false");
     // Interact with UI
-    cy.get(".t--widget-radiogroupwidget .bp3-radio")
-      .last()
-      .click();
+    cy.get(".t--widget-radiogroupwidget .bp3-radio").last().click();
     // Check if isDirty is set to true
     cy.get(".t--widget-textwidget").should("contain", "true");
     // Change defaultOptionValue

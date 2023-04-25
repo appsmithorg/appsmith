@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import AdminConfig from "@appsmith/pages/AdminSettings/config";
-import { Category } from "@appsmith/pages/AdminSettings/config/types";
+import type { Category } from "@appsmith/pages/AdminSettings/config/types";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { useParams } from "react-router";
 import { Icon, IconSize } from "design-system-old";

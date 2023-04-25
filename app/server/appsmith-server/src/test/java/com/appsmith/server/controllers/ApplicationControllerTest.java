@@ -8,6 +8,7 @@ import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationFetcher;
@@ -52,6 +53,9 @@ public class ApplicationControllerTest {
 
     @MockBean
     ImportExportApplicationService importExportApplicationService;
+
+    @MockBean
+    ApplicationSnapshotService applicationSnapshotService;
 
     @MockBean
     ThemeService themeService;

@@ -186,7 +186,7 @@
                 "textSize": "PARAGRAPH",
                 "widgetId": "h4mh57zrj1",
                 "isVisibleFilters": true,
-                "tableData": "{{get_data.data.headers.info}}",
+                "tableData": "{{get_data.data.headers.Info}}",
                 "isVisible": true,
                 "label": "Data",
                 "searchKey": "",

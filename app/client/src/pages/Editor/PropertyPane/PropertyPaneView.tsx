@@ -1,14 +1,9 @@
-import React, {
-  ReactElement,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import type { ReactElement } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPaneView } from "selectors/propertyPaneSelectors";
-import { IPanelProps, Position } from "@blueprintjs/core";
+import type { IPanelProps, Position } from "@blueprintjs/core";
 
 import PropertyPaneTitle from "./PropertyPaneTitle";
 import PropertyControlsGenerator from "./PropertyControlsGenerator";
@@ -18,11 +13,9 @@ import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
 import PropertyPaneConnections from "./PropertyPaneConnections";
 import CopyIcon from "remixicon-react/FileCopyLineIcon";
 import DeleteIcon from "remixicon-react/DeleteBinLineIcon";
-import { WidgetType } from "constants/WidgetConstants";
-import {
-  InteractionAnalyticsEventDetail,
-  INTERACTION_ANALYTICS_EVENT,
-} from "utils/AppsmithUtils";
+import type { WidgetType } from "constants/WidgetConstants";
+import type { InteractionAnalyticsEventDetail } from "utils/AppsmithUtils";
+import { INTERACTION_ANALYTICS_EVENT } from "utils/AppsmithUtils";
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
@@ -179,20 +172,16 @@ function PropertyPaneView(
   if (!widgetProperties) return null;
 
   // Building Deprecation Messages
-  const {
-    currentWidgetName,
-    isDeprecated,
-    widgetReplacedWith,
-  } = isWidgetDeprecated(widgetProperties.type);
-  // generate messages
-  const deprecationMessage = buildDeprecationWidgetMessage(
-    currentWidgetName,
-    widgetReplacedWith,
-  );
-
-  const isContentConfigAvailable = WidgetFactory.getWidgetPropertyPaneContentConfig(
+  const { isDeprecated, widgetReplacedWith } = isWidgetDeprecated(
     widgetProperties.type,
-  ).length;
+  );
+  // generate messages
+  const deprecationMessage = buildDeprecationWidgetMessage(widgetReplacedWith);
+
+  const isContentConfigAvailable =
+    WidgetFactory.getWidgetPropertyPaneContentConfig(
+      widgetProperties.type,
+    ).length;
 
   const isStyleConfigAvailable = WidgetFactory.getWidgetPropertyPaneStyleConfig(
     widgetProperties.type,

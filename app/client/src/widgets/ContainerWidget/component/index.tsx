@@ -1,21 +1,22 @@
-import React, {
+import type {
   MouseEventHandler,
   PropsWithChildren,
   ReactNode,
   RefObject,
-  useCallback,
-  useEffect,
-  useRef,
 } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import tinycolor from "tinycolor2";
 import fastdom from "fastdom";
 import { generateClassName, getCanvasClassName } from "utils/generators";
-import WidgetStyleContainer, {
-  WidgetStyleContainerProps,
-} from "components/designSystems/appsmith/WidgetStyleContainer";
-import { WidgetType } from "utils/WidgetFactory";
+import type { WidgetStyleContainerProps } from "components/designSystems/appsmith/WidgetStyleContainer";
+import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
+import type { WidgetType } from "utils/WidgetFactory";
 import { scrollCSS } from "widgets/WidgetUtils";
+import { useSelector } from "react-redux";
+import { getCurrentAppPositioningType } from "selectors/editorSelectors";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 const StyledContainerComponent = styled.div<
   Omit<ContainerWrapperProps, "widgetId">
@@ -24,7 +25,7 @@ const StyledContainerComponent = styled.div<
   width: 100%;
   overflow: hidden;
   ${(props) => (!!props.dropDisabled ? `position: relative;` : ``)}
-  
+
   ${(props) =>
     props.shouldScrollContents && !props.$noScroll ? scrollCSS : ``}
   opacity: ${(props) => (props.resizeDisabled ? "0.8" : "1")};
@@ -33,9 +34,7 @@ const StyledContainerComponent = styled.div<
   &:hover {
     background-color: ${(props) => {
       return props.onClickCapture && props.backgroundColor
-        ? tinycolor(props.backgroundColor)
-            .darken(5)
-            .toString()
+        ? tinycolor(props.backgroundColor).darken(5).toString()
         : props.backgroundColor;
     }};
     z-index: ${(props) => (props.onClickCapture ? "2" : "1")};
@@ -58,6 +57,7 @@ function ContainerComponentWrapper(
   props: PropsWithChildren<ContainerWrapperProps>,
 ) {
   const containerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
+  const appPositioningType = useSelector(getCurrentAppPositioningType);
 
   useEffect(() => {
     if (!props.shouldScrollContents) {
@@ -124,7 +124,12 @@ function ContainerComponentWrapper(
       backgroundColor={props.backgroundColor}
       className={`${
         props.shouldScrollContents ? getCanvasClassName() : ""
-      } ${generateClassName(props.widgetId)} container-with-scrollbar`}
+      } ${generateClassName(props.widgetId)} container-with-scrollbar ${
+        appPositioningType === AppPositioningTypes.AUTO &&
+        props.widgetId === MAIN_CONTAINER_WIDGET_ID
+          ? "auto-layout"
+          : ""
+      }`}
       data-widgetId={props.widgetId}
       dropDisabled={props.dropDisabled}
       onClick={props.onClick}
@@ -201,6 +206,11 @@ export interface ContainerComponentProps extends WidgetStyleContainerProps {
   backgroundColor?: string;
   type: WidgetType;
   noScroll?: boolean;
+  minHeight?: number;
+  useAutoLayout?: boolean;
+  direction?: string;
+  justifyContent?: string;
+  alignItems?: string;
   dropDisabled?: boolean;
 }
 

@@ -2,11 +2,12 @@ import {
   createMessage,
   SCHEMA_NOT_AVAILABLE,
 } from "@appsmith/constants/messages";
-import {
+import type {
   DatasourceStructure as DatasourceStructureType,
   DatasourceTable,
 } from "entities/Datasource";
-import React, { memo, ReactElement } from "react";
+import type { ReactElement } from "react";
+import React, { memo } from "react";
 import EntityPlaceholder from "../Entity/Placeholder";
 import { useEntityUpdateState } from "../hooks";
 import DatasourceStructure from "./DatasourceStructure";

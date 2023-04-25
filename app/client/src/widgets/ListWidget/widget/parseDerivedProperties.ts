@@ -7,7 +7,8 @@ import widgetPropertyFns from "!!raw-loader!./derived.js";
 // Error out on wrong values
 const derivedProperties: any = {};
 // const regex = /(\w+):\s?\(props\)\s?=>\s?{([\w\W]*?)},/gim;
-const regex = /(\w+):\s?\(props, moment, _\)\s?=>\s?{([\w\W\n]*?)},\n?\s+?\/\//gim;
+const regex =
+  /(\w+):\s?\(props, moment, _\)\s?=>\s?{([\w\W\n]*?)},\n?\s+?\/\//gim;
 
 let m;
 

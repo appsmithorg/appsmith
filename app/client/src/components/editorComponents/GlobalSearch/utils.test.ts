@@ -1,4 +1,5 @@
-import { fetchDefaultDocs, DocSearchItem } from "./utils";
+import type { DocSearchItem } from "./utils";
+import { fetchDefaultDocs } from "./utils";
 import * as githubHelper from "./githubHelper";
 
 // we mock the actual API call that uses "fetch"

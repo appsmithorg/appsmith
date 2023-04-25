@@ -7,18 +7,15 @@ public class MySQLErrorMessages {
     public static final String MISSING_PARAMETER_QUERY_ERROR_MSG = "Missing required parameter: Query.";
 
     public static final String IS_KEYWORD_NOT_SUPPORTED_IN_PS_ERROR_MSG = "Appsmith currently does not support the IS keyword with the prepared statement " +
-            "setting turned ON. Please re-write your SQL query without the IS keyword or " +
-            "turn OFF (unsafe) the 'Use prepared statement' knob from the settings tab.";
+            "setting turned ON. Please re-write your SQL query without the IS keyword";
 
-    public static final String GET_STRUCTURE_ERROR_MSG = "Appsmith server has failed to fetch the structure of your schema. Please check more information in the error details.";
+    public static final String GET_STRUCTURE_ERROR_MSG = "The Appsmith server has failed to fetch the structure of your schema.";
 
-    public static final String QUERY_EXECUTION_FAILED_ERROR_MSG = "Your MySQL query failed to execute. Please check more information in the error details.";
+    public static final String QUERY_EXECUTION_FAILED_ERROR_MSG = "Your MySQL query failed to execute.";
 
-    public static final String UNEXPECTED_SSL_OPTION_ERROR_MSG = "Appsmith server has found an unexpected SSL option: %s. Please reach out to" +
-            " Appsmith customer support to resolve this.";
+    public static final String UNEXPECTED_SSL_OPTION_ERROR_MSG = "The Appsmith server has found an unexpected SSL option: %s.";
 
-    public static final String SSL_CONFIGURATION_FETCHING_ERROR_MSG = "Appsmith server has failed to fetch SSL configuration from datasource configuration form. " +
-            "Please reach out to Appsmith customer support to resolve this.";
+    public static final String SSL_CONFIGURATION_FETCHING_ERROR_MSG = "The Appsmith server has failed to fetch SSL configuration from datasource configuration form.";
 
 
     /*

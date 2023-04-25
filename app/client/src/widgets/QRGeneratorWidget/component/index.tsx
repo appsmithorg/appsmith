@@ -1,9 +1,9 @@
 import * as React from "react";
-import { Text } from "@blueprintjs/core";
-import { ComponentProps } from "widgets/BaseComponent";
-import { TextSize } from "constants/WidgetConstants";
+import type { Text } from "@blueprintjs/core";
+import type { ComponentProps } from "widgets/BaseComponent";
+import type { TextSize } from "constants/WidgetConstants";
 import { isEqual, get } from "lodash";
-import { Color } from "constants/Colors";
+import type { Color } from "constants/Colors";
 import { OverflowTypes } from "../constants";
 
 export type TextAlign = "LEFT" | "CENTER" | "RIGHT" | "JUSTIFY";

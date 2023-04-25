@@ -1,8 +1,8 @@
-import { useDispatch } from "react-redux";
 import { focusWidget } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 
 import { useCallback } from "react";
+import { useDispatch } from "react-redux";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { NavigationMethod } from "utils/history";
 
@@ -25,7 +25,14 @@ export const useWidgetSelection = () => {
       [dispatch],
     ),
     deselectAll: useCallback(
-      () => dispatch(selectWidgetInitAction(SelectionRequestType.Empty)),
+      () =>
+        dispatch(
+          selectWidgetInitAction(
+            SelectionRequestType.Empty,
+            [],
+            NavigationMethod.CanvasClick,
+          ),
+        ),
       [dispatch],
     ),
   };

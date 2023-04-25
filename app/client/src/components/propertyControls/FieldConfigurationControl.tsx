@@ -4,19 +4,21 @@ import styled from "styled-components";
 import { klona } from "klona";
 import { isEmpty, isString, maxBy, set, sortBy } from "lodash";
 
-import BaseControl, { ControlProps } from "./BaseControl";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
 import EmptyDataState from "components/utils/EmptyDataState";
 import SchemaParser, {
   getKeysFromSchema,
 } from "widgets/JSONFormWidget/schemaParser";
-import { ARRAY_ITEM_KEY, Schema } from "widgets/JSONFormWidget/constants";
+import type { Schema } from "widgets/JSONFormWidget/constants";
+import { ARRAY_ITEM_KEY } from "widgets/JSONFormWidget/constants";
 import { Category, Size } from "design-system-old";
-import { BaseItemProps } from "./DraggableListComponent";
+import type { BaseItemProps } from "./DraggableListComponent";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import { StyledPropertyPaneButton } from "./StyledControls";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { InputText } from "./InputTextControl";
-import { JSONFormWidgetProps } from "widgets/JSONFormWidget/widget";
+import type { JSONFormWidgetProps } from "widgets/JSONFormWidget/widget";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 
 type DroppableItem = BaseItemProps & {
@@ -118,10 +120,8 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
     if (this.isArrayItem()) return;
 
     const { propertyValue = {}, propertyName, widgetProperties } = this.props;
-    const {
-      childStylesheet,
-      widgetName,
-    } = widgetProperties as JSONFormWidgetProps;
+    const { childStylesheet, widgetName } =
+      widgetProperties as JSONFormWidgetProps;
     const schema: Schema = propertyValue;
     const existingKeys = getKeysFromSchema(schema, ["identifier", "accessor"]);
     const schemaItems = Object.values(schema);

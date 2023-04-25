@@ -1,12 +1,17 @@
-import React from "react";
+import type React from "react";
 import _, { get, some } from "lodash";
 import equal from "fast-deep-equal/es6";
-import { WidgetProps } from "../../BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
-import ContainerWidget, {
-  ContainerWidgetProps,
-} from "widgets/ContainerWidget/widget";
-import { ContainerComponentProps } from "widgets/ContainerWidget/component";
+import type { WidgetProps } from "../../BaseWidget";
+import type { WidgetType } from "constants/WidgetConstants";
+import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import { ContainerWidget } from "widgets/ContainerWidget/widget";
+import type { ContainerComponentProps } from "widgets/ContainerWidget/component";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { Positioning } from "utils/autoLayout/constants";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 class FormWidget extends ContainerWidget {
   checkInvalidChildren = (children: WidgetProps[]): boolean => {
@@ -119,6 +124,27 @@ class FormWidget extends ContainerWidget {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
     };
+  }
+
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {
+      hasChanges: false,
+    };
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return (widget: FormWidgetProps, extraDefsToDefine?: ExtraDef) => ({
+      "!doc":
+        "Form is used to capture a set of data inputs from a user. Forms are used specifically because they reset the data inputs when a form is submitted and disable submission for invalid data inputs",
+      "!url": "https://docs.appsmith.com/widget-reference/form",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      data: generateTypeDef(widget.data, extraDefsToDefine),
+      hasChanges: "bool",
+    });
+  }
+
+  static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    return { positioning: Positioning.Fixed };
   }
 }
 

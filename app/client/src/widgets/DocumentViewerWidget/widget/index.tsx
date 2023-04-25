@@ -1,18 +1,21 @@
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import DocumentViewerComponent from "../component";
-import {
-  ValidationTypes,
-  ValidationResponse,
-} from "constants/WidgetValidation";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import DocumentViewerComponent from "../component";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 export function documentUrlValidation(value: unknown): ValidationResponse {
   // applied validations if value exist
   if (value) {
     const whiteSpaceRegex = /\s/g;
-    const urlRegex = /(?:https:\/\/|www)?([\da-z.-]+)\.([a-z.]{2,6})[/\w .-]*\/?/;
-    const base64Regex = /^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i;
+    const urlRegex =
+      /(?:https:\/\/|www)?([\da-z.-]+)\.([a-z.]{2,6})[/\w .-]*\/?/;
+    const base64Regex =
+      /^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i;
     if (
       urlRegex.test(value as string) &&
       !whiteSpaceRegex.test(value as string)
@@ -129,6 +132,15 @@ class DocumentViewerWidget extends BaseWidget<
         ],
       },
     ];
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc": "Document viewer widget is used to show documents on a page",
+      "!url": "https://docs.appsmith.com/reference/widgets/document-viewer",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      docUrl: "string",
+    };
   }
 
   getPageView() {

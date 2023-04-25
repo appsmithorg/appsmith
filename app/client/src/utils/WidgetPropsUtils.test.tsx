@@ -18,7 +18,8 @@ import {
   getDraggingSpacesFromBlocks,
   getMousePositionsOnCanvas,
 } from "./WidgetPropsUtils";
-import { WidgetDraggingBlock } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
+import type { WidgetDraggingBlock } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 describe("WidgetProps tests", () => {
   it("should convert WidgetDraggingBlocks to occupied Spaces", () => {
@@ -32,6 +33,7 @@ describe("WidgetProps tests", () => {
         isNotColliding: true,
         columnWidth: 10,
         rowHeight: 10,
+        type: "",
       },
       {
         left: 310,
@@ -42,6 +44,7 @@ describe("WidgetProps tests", () => {
         isNotColliding: true,
         columnWidth: 10,
         rowHeight: 10,
+        type: "",
       },
     ];
     const draggingSpaces = [
@@ -77,10 +80,10 @@ describe("WidgetProps tests", () => {
       parentRowSpace: 10,
       maxGridColumns: 64,
     };
-    const mouseEvent = ({
+    const mouseEvent = {
       offsetX: 500,
       offsetY: 600,
-    } as unknown) as MouseEvent;
+    } as unknown as MouseEvent;
     expect(getMousePositionsOnCanvas(mouseEvent, gridProps)).toEqual({
       id: "mouse",
       top: 59,
@@ -95,10 +98,10 @@ describe("WidgetProps tests", () => {
       parentRowSpace: 10,
       maxGridColumns: 64,
     };
-    const mouseEvent = ({
+    const mouseEvent = {
       offsetX: 2,
       offsetY: 5,
-    } as unknown) as MouseEvent;
+    } as unknown as MouseEvent;
     expect(getMousePositionsOnCanvas(mouseEvent, gridProps)).toEqual({
       id: "mouse",
       top: -1,
@@ -641,7 +644,7 @@ describe("Initial value migration test", () => {
           renderMode: RenderModes.CANVAS,
           version: 1,
           onPlay: "",
-          url: "https://assets.appsmith.com/widgets/bird.mp4",
+          url: `${ASSETS_CDN_URL}/widgets/bird.mp4`,
           parentId: "0",
           isLoading: false,
           parentColumnSpace: 67.375,
@@ -666,7 +669,7 @@ describe("Initial value migration test", () => {
           renderMode: RenderModes.CANVAS,
           version: 1,
           onPlay: "",
-          url: "https://assets.appsmith.com/widgets/bird.mp4",
+          url: `${ASSETS_CDN_URL}/widgets/bird.mp4`,
           parentId: "0",
           isLoading: false,
           parentColumnSpace: 67.375,
@@ -912,9 +915,9 @@ describe("Initial value migration test", () => {
         },
       };
     };
-    const migratedDslV2: any = extractCurrentDSL(tabsWidgetDSL());
+    const migratedDslV2: any = extractCurrentDSL(tabsWidgetDSL()).dsl;
     expect(migratedDslV2.children[0].children[0].leftColumn).toBeNaN();
-    const migratedDslV3: any = extractCurrentDSL(tabsWidgetDSL(2));
+    const migratedDslV3: any = extractCurrentDSL(tabsWidgetDSL(2)).dsl;
     expect(migratedDslV3.children[0].version).toBe(3);
     expect(migratedDslV3.children[0].children[0].leftColumn).not.toBeNaN();
     expect(migratedDslV3.children[0].children[0].leftColumn).toBe(0);

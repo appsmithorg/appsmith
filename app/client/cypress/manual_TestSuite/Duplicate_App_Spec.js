@@ -1,14 +1,14 @@
 import homePage from "../../../locators/HomePage";
 
-describe("Duplicate an application must duplicate every API ,Query widget and Datasource", function() {
-  it("Duplicating an application", function() {
+describe("Duplicate an application must duplicate every API ,Query widget and Datasource", function () {
+  it("Duplicating an application", function () {
     // Navigate to home Page
     // Click on any application action icon (Three dots)
     // Click on "Duplicate" option
     // Ensure the application gets copied
     // Ensure the name is appended with the word "Copy"
   });
-  it("Deleting the duplicated Application ", function() {
+  it("Deleting the duplicated Application ", function () {
     // Navigate to home Page
     // Click on any application action icon (Three dots)
     // Click on "Duplicate" option
@@ -20,7 +20,7 @@ describe("Duplicate an application must duplicate every API ,Query widget and Da
     // Ensure  the App gets deleted
   });
 
-  it(" Ensure only the original application is deleted  and copy of it exists", function() {
+  it(" Ensure only the original application is deleted  and copy of it exists", function () {
     // Navigate to home Page
     // Create an Application
     // Add a name to the application
@@ -33,7 +33,7 @@ describe("Duplicate an application must duplicate every API ,Query widget and Da
     // Ensure only Original Application is deleted and not the child application
   });
 
-  it(" Ensure only the Duplicate application is deleted  and original Application of it exists", function() {
+  it(" Ensure only the Duplicate application is deleted  and original Application of it exists", function () {
     // Navigate to home Page
     // Create an Application
     // Add a name to the application
