@@ -11,11 +11,9 @@ import { NavigationMethod } from "utils/history";
 import { useHistory } from "react-router-dom";
 
 const Back = styled(Link)`
-  height: 30px;
   display: flex;
   align-items: center;
-  cursor: pointer;
-  margin-left: 16px;
+  margin: var(--ads-v2-spaces-7) 0 0 var(--ads-v2-spaces-7);
 `;
 
 function BackButton() {

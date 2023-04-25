@@ -38,7 +38,7 @@ const HeaderFlex = styled.div`
   display: flex;
   align-items: center;
   color: var(--ads-v2-color-fg-emphasis-plus);
-  padding: 0 20px;
+  padding: 0 var(--ads-v2-spaces-7);
 `;
 
 const ApiHomePage = styled.div`
@@ -57,7 +57,7 @@ const ApiHomePage = styled.div`
     font-size: 16px;
   }
   .integrations-content-container {
-    padding: 0 20px;
+    padding: 0 var(--ads-v2-spaces-7);
   }
   .t--vertical-menu {
     overflow: auto;
@@ -67,10 +67,10 @@ const ApiHomePage = styled.div`
 const MainTabsContainer = styled.div`
   width: 100%;
   height: 100%;
-  padding: 0 20px;
-  .react-tabs__tab-list {
+  padding: 0 var(--ads-v2-spaces-7);
+  /* .react-tabs__tab-list {
     margin: 2px;
-  }
+  } */
 `;
 
 const SectionGrid = styled.div<{ isActiveTab?: boolean }>`
