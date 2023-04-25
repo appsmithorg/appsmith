@@ -2429,7 +2429,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 totalReadableByteCount.addAndGet(dataBuffer.readableByteCount());
                                 dataBuffer.read(bytes);
                                 DataBufferUtils.release(dataBuffer);
-                                blobMap.put(part.name(), new String(bytes, StandardCharsets.UTF_8));
+                                blobMap.put(part.name(), new String(bytes, StandardCharsets.ISO_8859_1));
                                 return Mono.empty();
                             });
                 })
