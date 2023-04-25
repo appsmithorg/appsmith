@@ -73,6 +73,10 @@ public class UserData extends BaseDomain {
     @JsonView(Views.Public.class)
     private List<String> recentlyUsedTemplateIds;
 
+    // Status of user's consent on sharing email for Intercom communications
+    @JsonView(Views.Internal.class)
+    private boolean isIntercomConsentGiven;
+
     @JsonView(Views.Public.class)
     public GitProfile getGitProfileByKey(String key) {
         // Always use DEFAULT_GIT_PROFILE as fallback
