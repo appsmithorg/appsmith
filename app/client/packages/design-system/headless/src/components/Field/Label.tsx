@@ -55,9 +55,6 @@ export const Label = forwardRef(
         ref={domRef}
       >
         {children}
-        {(necessityIndicator === "label" ||
-          (necessityIndicator === "icon" && isRequired)) &&
-          " \u200b"}
         {/* necessityLabel is hidden to screen readers if the field is required because
          * aria-required is set on the field in that case. That will already be announced,
          * so no need to duplicate it here. If optional, we do want it to be announced here. */}

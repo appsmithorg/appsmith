@@ -16,7 +16,7 @@ export const CheckboxGroup = forwardRef(
   (props: CheckboxGroupProps, ref: HeadlessCheckboxGroupRef) => {
     const { errorMessage, label, ...rest } = props;
     const wrappedErrorMessage = errorMessage && <Text>{errorMessage}</Text>;
-    const wrappedLabel = <Text>{label}</Text>;
+    const wrappedLabel = label && <Text>{label}</Text>;
 
     return (
       <StyledCheckboxGroup

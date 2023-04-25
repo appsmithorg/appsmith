@@ -34,6 +34,9 @@ export const fieldStyles = css<FieldStylesProps>`
   *-----------------------------------------------------------------------------
   */
   & .fieldLabel {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-1);
     height: fit-content;
     color: var(--color-fg);
     font-weight: ${({ isEmphasized }) => (isEmphasized ? "bold" : "normal")};
@@ -42,8 +45,6 @@ export const fieldStyles = css<FieldStylesProps>`
     ${({ labelPosition, labelWidth }) => {
       if (labelPosition === "side") {
         return css`
-          display: flex;
-          align-items: center;
           min-height: calc(5 * var(--sizing-root-unit));
           width: ${labelWidth ?? "max-content"};
         `;
@@ -57,8 +58,8 @@ export const fieldStyles = css<FieldStylesProps>`
   *-----------------------------------------------------------------------------
   */
   & .required-icon {
-    width: var(--spacing-3);
-    height: var(--spacing-3);
+    width: var(--spacing-2);
+    height: var(--spacing-2);
   }
 
   /**
