@@ -16,7 +16,10 @@ import { getChildOfContainerLikeWidget } from "./helpers";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import { getLayoutTree } from "./layoutTree";
-import { getWidgetsForBreakpoint } from "selectors/editorSelectors";
+import {
+  getIsAutoLayoutMobileBreakPoint,
+  getWidgetsForBreakpoint,
+} from "selectors/editorSelectors";
 
 export function* dynamicallyUpdateContainersSaga(
   action?: ReduxAction<{ resettingTabs: boolean }>,
@@ -25,6 +28,10 @@ export function* dynamicallyUpdateContainersSaga(
 
   const stateWidgets: CanvasWidgetsReduxState = yield select(
     getWidgetsForBreakpoint,
+  );
+
+  const IsAutoLayoutMobileBreakPoint: boolean = yield select(
+    getIsAutoLayoutMobileBreakPoint,
   );
   const canvasWidgets: FlattenedWidgetProps[] | undefined = Object.values(
     stateWidgets,
@@ -97,6 +104,39 @@ export function* dynamicallyUpdateContainersSaga(
         // If this canvas has children
         // we need to consider the bottom most child for the height
         if (
+          IsAutoLayoutMobileBreakPoint &&
+          Array.isArray(parentContainerWidget.children) &&
+          parentContainerWidget.children.length > 0 &&
+          parentContainerWidget.canvasSplitType &&
+          parentContainerWidget.canvasSplitType !== "1-column"
+        ) {
+          let maxBottomRowBasedOnChildren = 0;
+          for (const splitCanvas of parentContainerWidget.children) {
+            const splitCanvasWidget = stateWidgets[splitCanvas];
+            if (
+              splitCanvasWidget &&
+              Array.isArray(splitCanvasWidget.children) &&
+              splitCanvasWidget.children.length > 0
+            ) {
+              const maxBottomRowForCurrentSplitCanvas: number =
+                yield getMinHeightBasedOnChildren(
+                  canvasWidget.widgetId,
+                  {},
+                  true,
+                  dynamicHeightLayoutTree,
+                );
+              maxBottomRowBasedOnChildren += maxBottomRowForCurrentSplitCanvas;
+              // Add a canvas extension offset
+              maxBottomRowBasedOnChildren +=
+                GridDefaults.CANVAS_EXTENSION_OFFSET;
+            }
+          }
+          // Add the offset to the total height of the parent widget
+          maxBottomRowBasedOnChildren += canvasHeightOffset;
+
+          // Get the larger value between the minDynamicHeightInRows and bottomMostRowForChild
+          maxBottomRow = Math.max(maxBottomRowBasedOnChildren, maxBottomRow);
+        } else if (
           Array.isArray(canvasWidget.children) &&
           canvasWidget.children.length > 0
         ) {

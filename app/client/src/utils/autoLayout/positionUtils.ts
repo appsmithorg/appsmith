@@ -62,7 +62,6 @@ export function updateWidgetPositions(
       widgets,
       mainCanvasWidth,
       isMobile,
-      parent?.canvasSplitRatio || 1,
     );
 
     let height = 0;
@@ -98,7 +97,12 @@ export function updateWidgetPositions(
     const paddingBufferForCanvas = parent.parentRowSpace === 1 ? 2 : 0;
     const parentHeight = getWidgetRows(parent, isMobile);
     const computedHeight = height + paddingBufferForCanvas;
-    if (parentHeight < computedHeight) {
+    if (
+      parentHeight < computedHeight ||
+      (isMobile &&
+        parent.canvasSplitRatio < 1 &&
+        parentHeight !== computedHeight)
+    ) {
       /**
        * if children height is greater than parent height,
        * update the parent height to match the children height
@@ -687,17 +691,35 @@ function getHeightOfFixedCanvas(
 ): number {
   if (!parent.children || !parent.children.length)
     return getWidgetRows(parent, isMobile);
-  return getTotalRowsOfAllChildren(widgets, parent.children, isMobile);
+  return getTotalRowsOfAllChildren(
+    widgets,
+    parent.children,
+    isMobile,
+    parent.canvasSplitType && parent.canvasSplitType !== "1-column",
+  );
 }
 
 export function getTotalRowsOfAllChildren(
   widgets: CanvasWidgetsReduxState,
   children: string[],
   isMobile: boolean,
+  isSplitCanvas?: boolean,
 ): number {
   if (!children || !children.length) return 0;
   let top = 10000,
     bottom = 0;
+
+  if (isMobile && isSplitCanvas) {
+    top = 0;
+    for (const childId of children) {
+      const child = widgets[childId];
+      if (!child) continue;
+      bottom +=
+        getBottomRow(child, isMobile) / GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+    }
+
+    return Math.ceil(bottom - top);
+  }
   for (const childId of children) {
     const child = widgets[childId];
     if (!child) continue;
@@ -705,6 +727,7 @@ export function getTotalRowsOfAllChildren(
     top = Math.min(top, getTopRow(child, isMobile));
     bottom = Math.max(bottom, getBottomRow(child, isMobile) / divisor);
   }
+
   return bottom - top;
 }
 

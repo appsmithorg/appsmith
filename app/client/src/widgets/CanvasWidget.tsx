@@ -137,6 +137,8 @@ class CanvasWidget extends ContainerWidget {
         direction={direction}
         flexLayers={this.props.flexLayers || []}
         isMobile={this.props.isMobile || false}
+        isSecondCanvas={this.props.isSecondCanvas}
+        isSplit={this.props.canvasSplitRatio < 1}
         stretchHeight={stretchFlexBox}
         useAutoLayout={this.props.useAutoLayout || false}
         widgetId={this.props.widgetId}

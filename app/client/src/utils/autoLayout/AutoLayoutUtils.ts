@@ -445,7 +445,6 @@ export function getCanvasDimensions(
   widgets: CanvasWidgetsReduxState,
   mainCanvasWidth: number,
   isMobile: boolean,
-  canvasSplitRatio = 1,
 ): { canvasWidth: number; columnSpace: number } {
   const canvasWidth: number = getCanvasWidth(
     canvas,
@@ -454,8 +453,7 @@ export function getCanvasDimensions(
     isMobile,
   );
 
-  const columnSpace: number =
-    (canvasWidth / GridDefaults.DEFAULT_GRID_COLUMNS) * canvasSplitRatio;
+  const columnSpace: number = canvasWidth / GridDefaults.DEFAULT_GRID_COLUMNS;
 
   return { canvasWidth: canvasWidth, columnSpace };
 }
@@ -468,7 +466,7 @@ function getCanvasWidth(
 ): number {
   if (!mainCanvasWidth) return 0;
   if (canvas.widgetId === MAIN_CONTAINER_WIDGET_ID)
-    return mainCanvasWidth - getPadding(canvas);
+    return mainCanvasWidth - getPadding(canvas, isMobile);
 
   const stack = [];
   let widget = canvas;
@@ -494,8 +492,9 @@ function getCanvasWidth(
     const widget = stack.pop();
     if (!widget) continue;
     const columns = getWidgetWidth(widget, isMobile);
-    const padding = getPadding(widget);
-    const splitRatio = widget.canvasSplitRatio || 1;
+    const padding = getPadding(widget, isMobile);
+    const splitRatio =
+      !isMobile && widget.canvasSplitRatio ? widget.canvasSplitRatio : 1;
     const factor = widget.detachFromLayout
       ? 1
       : columns / GridDefaults.DEFAULT_GRID_COLUMNS;
@@ -505,7 +504,7 @@ function getCanvasWidth(
   return width;
 }
 
-function getPadding(canvas: FlattenedWidgetProps): number {
+function getPadding(canvas: FlattenedWidgetProps, isMobile: boolean): number {
   let padding = 0;
   if (canvas.widgetId === MAIN_CONTAINER_WIDGET_ID) {
     padding = FLEXBOX_PADDING * 2;
@@ -519,7 +518,11 @@ function getPadding(canvas: FlattenedWidgetProps): number {
     padding -= WIDGET_PADDING;
   }
 
-  if (canvas.canvasSplitType && canvas.canvasSplitType !== "1-column") {
+  if (
+    !isMobile &&
+    canvas.canvasSplitType &&
+    canvas.canvasSplitType !== "1-column"
+  ) {
     padding += (CONTAINER_GRID_PADDING + FLEXBOX_PADDING) * 2;
   }
 

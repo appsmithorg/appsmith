@@ -202,6 +202,11 @@ export class ContainerWidget extends BaseWidget<
       index === undefined || index === 1
         ? componentWidth
         : componentWidth * canvasSplitRatio;
+    if (index !== undefined && index === 1) {
+      if (!this.props.isMobile)
+        childWidget.leftColumn = componentWidth * (1 - canvasSplitRatio);
+      else childWidget.leftColumn = 0;
+    }
     childWidget.bottomRow = this.props.shouldScrollContents
       ? childWidget.bottomRow
       : componentHeight;
@@ -217,6 +222,8 @@ export class ContainerWidget extends BaseWidget<
       ? this.props.positioning === Positioning.Vertical
       : false;
     childWidget.canvasSplitRatio = canvasSplitRatio;
+    childWidget.isSecondCanvas = index === 1;
+    childWidget.canvasWidth = componentWidth * canvasSplitRatio;
 
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }
@@ -276,6 +283,7 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   noPad?: boolean;
   positioning?: Positioning;
   canvasSplit?: boolean;
+  canvasWidth?: number;
   canvasSplitType?: CanvasSplitTypes;
 }
 

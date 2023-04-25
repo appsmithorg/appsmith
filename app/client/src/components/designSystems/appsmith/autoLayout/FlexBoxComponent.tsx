@@ -27,6 +27,8 @@ export interface FlexBoxProps {
   widgetId: string;
   flexLayers: FlexLayer[];
   isMobile: boolean;
+  isSplit: boolean;
+  isSecondCanvas: boolean;
 }
 
 export const DEFAULT_HIGHLIGHT_SIZE = 4;
@@ -138,7 +140,9 @@ function FlexBoxComponent(props: FlexBoxProps) {
       height: props.stretchHeight ? "100%" : "auto",
       overflow: "hidden",
       padding: leaveSpaceForWidgetName
-        ? `${FLEXBOX_PADDING}px ${FLEXBOX_PADDING}px ${WidgetNameComponentHeight}px ${FLEXBOX_PADDING}px`
+        ? isMobile && props.isSplit && !props.isSecondCanvas
+          ? `${FLEXBOX_PADDING}px`
+          : `${FLEXBOX_PADDING}px ${FLEXBOX_PADDING}px ${WidgetNameComponentHeight}px ${FLEXBOX_PADDING}px`
         : "0px",
     };
   }, [

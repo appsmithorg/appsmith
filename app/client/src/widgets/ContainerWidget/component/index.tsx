@@ -22,7 +22,8 @@ const StyledContainerComponent = styled.div<
   Omit<ContainerWrapperProps, "widgetId">
 >`
   height: 100%;
-  width: 100%;
+  ${(props) =>
+    !!props.canvasWidth ? `width: ${props.canvasWidth}px;` : `width: 100%;`}
   overflow: hidden;
   ${(props) => (!!props.dropDisabled ? `position: relative;` : ``)}
 
@@ -61,6 +62,7 @@ interface ContainerWrapperProps {
   type: WidgetType;
   dropDisabled?: boolean;
   $noScroll: boolean;
+  canvasWidth: number | undefined;
   isMobile: boolean;
 }
 function ContainerComponentWrapper(
@@ -132,6 +134,7 @@ function ContainerComponentWrapper(
       // getCanvasClassName is used to add a scrollable parent.
       $noScroll={props.$noScroll}
       backgroundColor={props.backgroundColor}
+      canvasWidth={props.canvasWidth}
       className={`${
         props.shouldScrollContents ? getCanvasClassName() : ""
       } ${generateClassName(props.widgetId)} container-with-scrollbar ${
@@ -164,8 +167,9 @@ function ContainerComponent(props: ContainerComponentProps) {
     return (
       <ContainerComponentWrapper
         $noScroll={!!props.noScroll}
+        canvasWidth={props.canvasWidth}
         dropDisabled={props.dropDisabled}
-        isMobile={props.isMobile}
+        isMobile={!!props.isMobile}
         onClick={props.onClick}
         onClickCapture={props.onClickCapture}
         resizeDisabled={props.resizeDisabled}
@@ -192,8 +196,9 @@ function ContainerComponent(props: ContainerComponentProps) {
       <ContainerComponentWrapper
         $noScroll={!!props.noScroll}
         backgroundColor={props.backgroundColor}
+        canvasWidth={props.canvasWidth}
         dropDisabled={props.dropDisabled}
-        isMobile={props.isMobile}
+        isMobile={!!props.isMobile}
         onClick={props.onClick}
         onClickCapture={props.onClickCapture}
         resizeDisabled={props.resizeDisabled}
@@ -227,7 +232,8 @@ export interface ContainerComponentProps extends WidgetStyleContainerProps {
   justifyContent?: string;
   alignItems?: string;
   dropDisabled?: boolean;
-  isMobile: boolean;
+  isMobile?: boolean;
+  canvasWidth?: number;
 }
 
 export default ContainerComponent;
