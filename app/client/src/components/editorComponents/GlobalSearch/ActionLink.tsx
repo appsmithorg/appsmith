@@ -8,13 +8,6 @@ import { Button } from "design-system";
 export const StyledActionLink = styled.span<{ isActiveItem?: boolean }>`
   visibility: ${(props) => (props.isActiveItem ? "visible" : "hidden")};
   display: inline-flex;
-  svg {
-    fill: none;
-    rect,
-    path {
-      stroke: ${(props) => props.theme.colors.globalSearch.secondaryTextColor};
-    }
-  }
 `;
 
 export const ActionLink = ({

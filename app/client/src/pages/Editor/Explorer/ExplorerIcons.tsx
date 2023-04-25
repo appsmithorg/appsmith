@@ -257,7 +257,6 @@ const EntityIconWrapper = styled.div<{
   justify-content: center;
   text-align: center;
   border-radius: var(--ads-v2-border-radius);
-
   svg,
   img {
     height: 80% !important;

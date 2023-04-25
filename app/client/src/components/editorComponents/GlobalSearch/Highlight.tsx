@@ -1,4 +1,5 @@
 import React from "react";
+import { Text } from "design-system";
 
 function Highlight({
   className,
@@ -17,7 +18,7 @@ function Highlight({
   let lastIndex = 0;
 
   return (
-    <span className={className}>
+    <Text className={className} kind="heading-xs">
       {parts?.map((part, index) => {
         lastIndex += Math.max(part.length, 0);
         const result = (
@@ -33,7 +34,7 @@ function Highlight({
         lastIndex += match.length;
         return result;
       })}
-    </span>
+    </Text>
   );
 }
 
