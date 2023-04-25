@@ -751,7 +751,7 @@ export const CONNECT_GIT_BETA = () => "Connect Git (Beta)";
 export const RETRY = () => "RETRY";
 export const CREATE_NEW_BRANCH = () => "CREATE NEW BRANCH";
 export const ERROR_WHILE_PULLING_CHANGES = () => "ERROR WHILE PULLING CHANGES";
-export const SUBMIT = () => "SUBMIT";
+export const SUBMIT = () => "Submit";
 export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
   "Git user updated successfully";
 export const REMOTE_URL_INPUT_PLACEHOLDER = () =>
@@ -1402,7 +1402,7 @@ export const OVERVIEW = () => "Overview";
 export const FUNCTION = () => "Function";
 export const INDUSTRY = () => "Use Case";
 export const DATASOURCES = () => "Datasources";
-export const NOTE = () => "Note:";
+export const NOTE = () => "Note: ";
 export const NOTE_MESSAGE = () => "You can add your datasources as well";
 export const WIDGET_USED = () => "Widgets";
 export const SIMILAR_TEMPLATES = () => "Similar Templates";

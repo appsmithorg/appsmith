@@ -10,9 +10,10 @@ import {
 } from "@appsmith/constants/messages";
 import { logoutUser, updateUserDetails } from "actions/userActions";
 import UserProfileImagePicker from "./UserProfileImagePicker";
-import { Wrapper, FieldWrapper } from "./StyledComponents";
+import { Wrapper, FieldWrapper, LabelWrapper } from "./StyledComponents";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
+import { Text } from "design-system";
 const { disableLoginForm } = getAppsmithConfigs();
 
 function General() {
@@ -46,6 +47,9 @@ function General() {
   return (
     <Wrapper>
       <FieldWrapper>
+        <LabelWrapper>
+          <Text kind="body-m">Display Picture</Text>
+        </LabelWrapper>
         <UserProfileImagePicker />
       </FieldWrapper>
       <FieldWrapper>
@@ -86,7 +90,7 @@ function General() {
         >
           {!disableLoginForm && (
             <Button
-              kind="tertiary"
+              kind="secondary"
               onClick={forgotPassword}
               renderAs="a"
               size="md"

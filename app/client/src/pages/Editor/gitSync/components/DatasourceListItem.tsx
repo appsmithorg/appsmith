@@ -1,6 +1,5 @@
 import { Text, TextType } from "design-system-old";
 import { Icon } from "design-system";
-import { Colors } from "constants/Colors";
 import type { Datasource } from "entities/Datasource";
 import { PluginImage } from "pages/Editor/DataSourceEditor/JSONtoForm";
 import React from "react";
@@ -11,17 +10,20 @@ const ListItem = styled.div<{ disabled?: boolean }>`
   display: flex;
   height: 64px;
   width: 100%;
-  padding: 10px 18px;
+  padding: 10px 12px;
   margin-bottom: 10px;
   cursor: pointer;
   opacity: ${(props) => (props.disabled ? 0.4 : 1)};
-  &.active,
+  border-radius: var(--ads-v2-border-radius);
+  &.active {
+    background-color: var(--ads-v2-color-bg-muted);
+  }
   &:hover {
-    background-color: ${Colors.GEYSER_LIGHT};
+    background-color: var(--ads-v2-color-bg-subtle);
   }
   img {
-    width: 24pxx;
-    height: 22.5px;
+    width: 24px;
+    height: 24px;
   }
 `;
 
@@ -65,18 +67,22 @@ function ListItemWrapper(props: {
         <DsTitle>
           <Text
             className="t--ds-list-title"
-            color={Colors.GRAY_800}
+            color="var(--ads-v2-color-fg-emphasis)"
             type={TextType.H4}
           >
             {ds.name}
           </Text>
           <Icon
-            color={ds.isConfigured ? Colors.GREEN : Colors.ERROR_RED}
+            color={
+              ds.isConfigured
+                ? "var(--ads-v2-color-fg-success)"
+                : "var(--ads-v2-color-fg-error)"
+            }
             name={ds.isConfigured ? "oval-check" : "info"}
             size="md"
           />
         </DsTitle>
-        <Text color={Colors.GRAY_700} type={TextType.H5}>
+        <Text color="var(--ads-v2-color-fg)" type={TextType.H5}>
           {plugin.name}
         </Text>
       </ListLabels>

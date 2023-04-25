@@ -27,9 +27,9 @@ const GeneralWrapper = styled.div<{
   isMobile?: boolean;
   isPortrait?: boolean;
 }>`
-  width: 340px;
-  padding: 20px 20px;
-  margin: 0 auto;
+  width: 320px;
+  padding: 20px 0px;
+  /* margin: 0 auto; */
   .drag-drop-text {
     color: var(--ads-v2-color-fg);
     + form a {

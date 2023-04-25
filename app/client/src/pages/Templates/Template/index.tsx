@@ -17,15 +17,11 @@ import { Position } from "@blueprintjs/core";
 const TemplateWrapper = styled.div`
   border: 1px solid var(--ads-v2-color-border);
   margin-bottom: 24px;
-  transition: all 1s ease-out;
   cursor: pointer;
   background-color: var(--ads-v2-color-bg);
   border-radius: var(--ads-v2-border-radius);
 
   &:hover {
-    // .template-content {
-    //   border-color: var(--ads-v2-color-border-emphasis);
-    // }
     border-color: var(--ads-v2-color-border-emphasis);
   }
 `;
@@ -36,19 +32,16 @@ const ImageWrapper = styled.div`
 `;
 
 const StyledImage = styled.img`
-  // box-shadow: 0px 17.52px 24.82px rgba(0, 0, 0, 0.09);
   object-fit: contain;
   width: 100%;
   height: 236px;
 `;
 
 const TemplateContent = styled.div`
-  // border-top: 1px solid var(--ads-v2-color-border);
   padding: 0 25px 16px 25px;
   display: flex;
   flex-direction: column;
   flex: 1;
-  // transition: all 1s ease-out;
 
   .title {
     color: var(--ads-v2-color-fg-emphasis-plus);
