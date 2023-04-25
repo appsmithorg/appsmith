@@ -22,7 +22,7 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { updateApplication } from "@appsmith/actions/applicationActions";
 import { Spinner } from "design-system-old";
 import LogoInput from "./LogoInput";
-import LogoConfiguration from "./LogoConfiguration";
+import SwitchSettingForLogoConfiguration from "./SwitchSettingForLogoConfiguration";
 
 /**
  * TODO - @Dhruvik - ImprovedAppNav
@@ -38,6 +38,11 @@ export type UpdateSetting = (
   value: NavigationSetting[keyof NavigationSetting],
 ) => void;
 
+export type LogoConfigurationSwitches = {
+  logo: boolean;
+  applicationTitle: boolean;
+};
+
 function NavigationSettings() {
   const application = useSelector(getCurrentApplication);
   const applicationId = useSelector(getCurrentApplicationId);
@@ -45,10 +50,81 @@ function NavigationSettings() {
   const [navigationSetting, setNavigationSetting] = useState(
     application?.applicationDetail?.navigationSetting,
   );
+  const [logoConfigurationSwitches, setLogoConfigurationSwitches] =
+    useState<LogoConfigurationSwitches>({
+      logo: false,
+      applicationTitle: false,
+    });
 
   useEffect(() => {
     setNavigationSetting(application?.applicationDetail?.navigationSetting);
+
+    // Logo configuration
+    switch (navigationSetting?.logoConfiguration) {
+      case NAVIGATION_SETTINGS.LOGO_CONFIGURATION.APPLICATION_TITLE_ONLY:
+        setLogoConfigurationSwitches({
+          logo: false,
+          applicationTitle: true,
+        });
+        break;
+      case NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE:
+        setLogoConfigurationSwitches({
+          logo: true,
+          applicationTitle: true,
+        });
+        break;
+      case NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY:
+        setLogoConfigurationSwitches({
+          logo: true,
+          applicationTitle: false,
+        });
+        break;
+      case NAVIGATION_SETTINGS.LOGO_CONFIGURATION.NO_LOGO_OR_APPLICATION_TITLE:
+        setLogoConfigurationSwitches({
+          logo: false,
+          applicationTitle: false,
+        });
+        break;
+      default:
+        break;
+    }
   }, [application?.applicationDetail?.navigationSetting]);
+
+  useEffect(() => {
+    if (
+      logoConfigurationSwitches.logo &&
+      logoConfigurationSwitches.applicationTitle
+    ) {
+      updateSetting(
+        "logoConfiguration",
+        NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE,
+      );
+    } else if (
+      logoConfigurationSwitches.logo &&
+      !logoConfigurationSwitches.applicationTitle
+    ) {
+      updateSetting(
+        "logoConfiguration",
+        NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY,
+      );
+    } else if (
+      !logoConfigurationSwitches.logo &&
+      logoConfigurationSwitches.applicationTitle
+    ) {
+      updateSetting(
+        "logoConfiguration",
+        NAVIGATION_SETTINGS.LOGO_CONFIGURATION.APPLICATION_TITLE_ONLY,
+      );
+    } else if (
+      !logoConfigurationSwitches.logo &&
+      !logoConfigurationSwitches.applicationTitle
+    ) {
+      updateSetting(
+        "logoConfiguration",
+        NAVIGATION_SETTINGS.LOGO_CONFIGURATION.NO_LOGO_OR_APPLICATION_TITLE,
+      );
+    }
+  }, [logoConfigurationSwitches]);
 
   const updateSetting = useCallback(
     debounce(
@@ -309,47 +385,30 @@ function NavigationSettings() {
             updateSetting={updateSetting}
           />
 
-          <LogoInput
-            navigationSetting={navigationSetting}
-            updateSetting={updateSetting}
+          <SwitchSettingForLogoConfiguration
+            keyName="logo"
+            label={createMessage(APP_NAVIGATION_SETTING.showLogoLabel)}
+            logoConfigurationSwitches={logoConfigurationSwitches}
+            setLogoConfigurationSwitches={setLogoConfigurationSwitches}
           />
 
-          <LogoConfiguration
-            navigationSetting={navigationSetting}
-            options={[
-              {
-                label: _.startCase(
-                  NAVIGATION_SETTINGS.LOGO_CONFIGURATION
-                    .LOGO_AND_APPLICATION_TITLE,
-                ),
-                value:
-                  NAVIGATION_SETTINGS.LOGO_CONFIGURATION
-                    .LOGO_AND_APPLICATION_TITLE,
-              },
-              {
-                label: _.startCase(
-                  NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY,
-                ),
-                value: NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY,
-              },
-              {
-                label: _.startCase(
-                  NAVIGATION_SETTINGS.LOGO_CONFIGURATION.APPLICATION_TITLE_ONLY,
-                ),
-                value:
-                  NAVIGATION_SETTINGS.LOGO_CONFIGURATION.APPLICATION_TITLE_ONLY,
-              },
-              {
-                label: _.startCase(
-                  NAVIGATION_SETTINGS.LOGO_CONFIGURATION
-                    .NO_LOGO_OR_APPLICATION_TITLE,
-                ),
-                value:
-                  NAVIGATION_SETTINGS.LOGO_CONFIGURATION
-                    .NO_LOGO_OR_APPLICATION_TITLE,
-              },
-            ]}
-            updateSetting={updateSetting}
+          {(navigationSetting?.logoConfiguration ===
+            NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE ||
+            navigationSetting?.logoConfiguration ===
+              NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY) && (
+            <LogoInput
+              navigationSetting={navigationSetting}
+              updateSetting={updateSetting}
+            />
+          )}
+
+          <SwitchSettingForLogoConfiguration
+            keyName="applicationTitle"
+            label={createMessage(
+              APP_NAVIGATION_SETTING.showApplicationTitleLabel,
+            )}
+            logoConfigurationSwitches={logoConfigurationSwitches}
+            setLogoConfigurationSwitches={setLogoConfigurationSwitches}
           />
 
           <SwitchSetting

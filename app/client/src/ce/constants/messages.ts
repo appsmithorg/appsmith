@@ -1548,19 +1548,21 @@ export const IN_APP_EMBED_SETTING = {
 export const APP_NAVIGATION_SETTING = {
   sectionHeader: () => "Navigation",
   sectionHeaderDesc: () => "Customize the navigation bar",
-  showNavbarLabel: () => "Show Navbar",
+  showNavbarLabel: () => "Show navbar",
   orientationLabel: () => "Orientation",
   navStyleLabel: () => "Variant",
   positionLabel: () => "Position",
   itemStyleLabel: () => "Item Style",
   colorStyleLabel: () => "Background color",
   logoLabel: () => "Logo",
-  logoConfigurationLabel: () => "Logo Configuration",
-  showSignInLabel: () => "Show Sign In",
+  logoConfigurationLabel: () => "Logo configuration",
+  showSignInLabel: () => "Show sign in",
   showSignInTooltip: () =>
     "Toggle to show the sign-in button for users who are not logged in.",
   logoUploadFormatError: () => `Uploaded file must be in .PNG or .JPG formats.`,
   logoUploadSizeError: () => `Uploaded file must be less than 1MB.`,
+  showLogoLabel: () => "Show logo",
+  showApplicationTitleLabel: () => "Show application title",
 };
 
 export const LOCK_SIDEBAR_MESSAGE = () => `Lock sidebar open`;
