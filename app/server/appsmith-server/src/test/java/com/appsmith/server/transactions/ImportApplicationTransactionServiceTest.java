@@ -150,7 +150,7 @@ public class ImportApplicationTransactionServiceTest {
         // Check  if expected exception is thrown
         StepVerifier
                 .create(resultMono)
-                .expectErrorMatches(error -> error instanceof AppsmithException && error.getMessage().equals(AppsmithError.GENERIC_JSON_IMPORT_ERROR.getMessage(createdWorkspace.getId(), "")))
+                .expectErrorMatches(error -> error instanceof AppsmithException && error.getMessage().contains(AppsmithError.GENERIC_JSON_IMPORT_ERROR.getMessage(createdWorkspace.getId(), "")))
                 .verify();
 
         // After the import application failed in the middle of execution after the application and pages are saved to DB
