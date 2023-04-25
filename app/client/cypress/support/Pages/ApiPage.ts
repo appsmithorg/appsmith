@@ -26,7 +26,7 @@ export class ApiPage {
     "\\]\\.key\\." +
     index +
     "";
-  private _paramValue = (index: number) =>
+  public _paramValue = (index: number) =>
     ".t--actionConfiguration\\.queryParameters\\[" +
     index +
     "\\]\\.value\\." +

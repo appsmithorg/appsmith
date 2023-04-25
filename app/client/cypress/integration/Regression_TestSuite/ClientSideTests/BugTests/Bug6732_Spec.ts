@@ -1,6 +1,6 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-const { agHelper, apiPage } = _;
+const { apiPage } = _;
 
 describe("this.params in IIFE function in API editor", () => {
   it("1. this.params should be available in IIFE function in API editor", () => {
@@ -14,8 +14,9 @@ describe("this.params in IIFE function in API editor", () => {
       false,
     );
 
-    // the value is evaluated correctly only during execution
-    // in this case, we just want to ensure that this.params is an object and present
-    agHelper.VerifyEvaluatedValue("undefined", false);
+    cy.get(apiPage._paramValue(0)).should(
+      "not.have.class",
+      "t--codemirror-has-error",
+    );
   });
 });
