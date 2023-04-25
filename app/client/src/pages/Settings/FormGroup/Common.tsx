@@ -29,12 +29,12 @@ export const StyledLabel = styled.div`
   margin-bottom: 8px;
 `;
 
-export const StyledSubtext = styled.p`
+export const StyledSubtext = styled(Text)`
   font-size: 12px;
   color: var(--ads-v2-color-fg-muted);
 `;
 
-export const StyledAsterisk = styled.span`
+export const StyledAsterisk = styled(Text)`
   color: var(--ads-v2-color-fg-error);
   margin-left: 2px;
 `;
@@ -55,7 +55,9 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
             {createMessage(() => setting.label || "")}
           </Text>
         )}
-        {setting.isRequired && <StyledAsterisk>*</StyledAsterisk>}
+        {setting.isRequired && (
+          <StyledAsterisk renderAs="span">*</StyledAsterisk>
+        )}
         {setting.helpText && (
           <Tooltip content={createMessage(() => setting.helpText || "")}>
             <Icon
@@ -69,7 +71,10 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
       </StyledLabel>
       {children}
       {setting.subText && (
-        <StyledSubtext data-testid="admin-settings-form-group-subtext">
+        <StyledSubtext
+          data-testid="admin-settings-form-group-subtext"
+          renderAs="p"
+        >
           * {createMessage(() => setting.subText || "")}
         </StyledSubtext>
       )}

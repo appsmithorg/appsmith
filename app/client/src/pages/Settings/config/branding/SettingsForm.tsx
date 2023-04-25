@@ -8,8 +8,7 @@ import type {
   UseFormResetField,
 } from "react-hook-form";
 import { Controller } from "react-hook-form";
-import QuestionIcon from "remixicon-react/QuestionFillIcon";
-import { Button, Tooltip } from "design-system";
+import { Button, Icon, Text, Tooltip } from "design-system";
 
 import type { Inputs } from "./BrandingPage";
 import {
@@ -53,9 +52,14 @@ function SettingsForm(props: SettingsFormProps) {
       <div className="flex flex-col flex-grow gap-4">
         {/* LOGO */}
         <div className="flex flex-col gap-2">
-          <label className="font-semibold" htmlFor="APPSMITH_BRAND_LOGO">
+          <Text
+            color="var(--ads-v2-color-fg-emphasis)"
+            htmlFor="APPSMITH_BRAND_LOGO"
+            kind="heading-s"
+            renderAs="label"
+          >
             Logo
-          </label>
+          </Text>
           <Controller
             control={control}
             name="APPSMITH_BRAND_LOGO"
@@ -75,16 +79,21 @@ function SettingsForm(props: SettingsFormProps) {
               />
             )}
           />
-          <p className="text-gray-500">
+          <Text renderAs="p">
             {createMessage(ADMIN_BRANDING_LOGO_REQUIREMENT)}
-          </p>
+          </Text>
         </div>
 
         {/* FAVICON */}
         <div className="flex flex-col gap-2">
-          <label className="font-semibold" htmlFor="APPSMITH_BRAND_FAVICON">
+          <Text
+            color="var(--ads-v2-color-fg-emphasis)"
+            htmlFor="APPSMITH_BRAND_FAVICON"
+            kind="heading-s"
+            renderAs="label"
+          >
             Favicon
-          </label>
+          </Text>
           <Controller
             control={control}
             name="APPSMITH_BRAND_FAVICON"
@@ -104,22 +113,24 @@ function SettingsForm(props: SettingsFormProps) {
               />
             )}
           />
-          <p className="text-gray-500">
+          <Text renderAs="p">
             {createMessage(ADMIN_BRANDING_FAVICON_REQUIREMENT)}
-          </p>
+          </Text>
         </div>
 
         {/* COLOR */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-1">
-            <label
-              className="font-semibold"
+            <Text
+              color="var(--ads-v2-color-fg-emphasis)"
               htmlFor="APPSMITH_BRAND_PRIMARY_COLOR"
+              kind="heading-s"
+              renderAs="label"
             >
               Color
-            </label>
+            </Text>
             <Tooltip content={createMessage(ADMIN_BRANDING_COLOR_TOOLTIP)}>
-              <QuestionIcon className="w-4 h-4 text-[color:var(--ads-color-black-470)] cursor-help" />
+              <Icon name="question-fill" size="md" />
             </Tooltip>
           </div>
 

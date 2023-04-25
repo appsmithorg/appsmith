@@ -35,7 +35,7 @@ const OverlayBackdrop = styled.div`
   left: 0;
   right: 0;
   top: 0;
-  /* to be replaced: Albin */
+  /* TODO: replaced hexToRgba (Albin) */
   background-color: ${hexToRgba(Colors.COD_GRAY, 0.7)};
   overflow: auto;
   pointer-events: none;
@@ -93,8 +93,6 @@ const AppIconWrapper = styled.div`
   }
 `;
 
-const RestartMessage = styled.p``;
-
 function Header() {
   const isRestartFailed = useSelector(getIsRestartFailed);
   return (
@@ -128,11 +126,11 @@ export default function RestartBanner() {
       <RestartContainer>
         <RestartMessageWrapper>
           <Header />
-          <RestartMessage>
+          <Text renderAs="p">
             {isRestartFailed
               ? createMessage(RESTART_ERROR_BODY)
               : createMessage(RESTART_BANNER_BODY)}
-          </RestartMessage>
+          </Text>
         </RestartMessageWrapper>
         {isRestartFailed && (
           <Button

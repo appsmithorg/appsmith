@@ -37,10 +37,6 @@ const StyledIcon = styled(Icon)`
   }
 `;
 
-const LinkLabel = styled.span`
-  color: var(--ads-v2-color-fg);
-`;
-
 export default function Link({ setting }: SettingComponentProps) {
   const dispatch = useDispatch();
   const linkProps: Record<string, string | (() => any)> = {};
@@ -60,9 +56,13 @@ export default function Link({ setting }: SettingComponentProps) {
       data-testid="admin-settings-link"
     >
       <StyledLink data-testid="admin-settings-link-anchor" {...linkProps}>
-        <LinkLabel data-testid="admin-settings-link-label">
+        <Text
+          color="var(--ads-v2-color-fg)"
+          data-testid="admin-settings-link-label"
+          renderAs="span"
+        >
           {createMessage(() => setting.label || "")}
-        </LinkLabel>
+        </Text>
         &nbsp;
         <Text renderAs="p">
           {createMessage(LEARN_MORE)}{" "}

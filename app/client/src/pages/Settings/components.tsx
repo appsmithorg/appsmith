@@ -59,4 +59,5 @@ export const LoaderContainer = styled.div`
 
 export const ContentBox = styled.div`
   border-radius: var(--ads-v2-border-radius);
+  border-color: var(--ads-v2-color-border);
 `;
