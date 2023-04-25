@@ -44,6 +44,7 @@ import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getGoogleMapsApiKey } from "ce/selectors/tenantSelectors";
 import ConfigTreeActions from "utils/configTree";
 import { getSelectedWidgetAncestry } from "../selectors/widgetSelectors";
+import { getParentWidget } from "../selectors/widgetSelectors";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 const WIDGETS_REQUIRING_SELECTED_ANCESTRY = ["MODAL_WIDGET", "TABS_WIDGET"];
@@ -64,6 +65,10 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     const canvasWidget = useSelector((state: AppState) =>
       getWidget(state, widgetId),
     );
+    const parentWidget = useSelector((state: AppState) =>
+      getParentWidget(state, widgetId),
+    );
+
     const metaWidget = useSelector(getMetaWidget(widgetId));
 
     const mainCanvasProps = useSelector((state: AppState) =>
@@ -189,6 +194,10 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         widgetProps.shouldScrollContents = props.shouldScrollContents;
         widgetProps.canExtend = props.canExtend;
         widgetProps.parentId = props.parentId;
+
+        widgetProps.parentBorderWidth = parentWidget
+          ? parentWidget?.borderWidth || "0"
+          : "0";
       } else if (widgetId !== MAIN_CONTAINER_WIDGET_ID) {
         widgetProps.parentColumnSpace = props.parentColumnSpace;
         widgetProps.parentRowSpace = props.parentRowSpace;

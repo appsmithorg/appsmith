@@ -519,8 +519,9 @@ function getPadding(canvas: FlattenedWidgetProps): number {
   if (canvas.noPad) {
     padding -= WIDGET_PADDING;
   }
-
-  return padding;
+  const borderWidth: number =
+    parseInt(canvas?.borderWidth || canvas?.parentBorderWidth || "0", 10) || 0;
+  return padding + borderWidth * 2;
 }
 
 /**
