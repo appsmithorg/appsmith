@@ -1,50 +1,52 @@
-import React from "react";
+import React, { forwardRef } from "react";
+import classNames from "classnames";
 import type { DOMRef } from "@react-types/shared";
 import { useDOMRef } from "@react-spectrum/utils";
 import { useCheckboxGroup } from "@react-aria/checkbox";
+import type { StyleProps } from "@react-types/shared";
 import { useCheckboxGroupState } from "@react-stately/checkbox";
 import type { SpectrumCheckboxGroupProps } from "@react-types/checkbox";
 
 import { Field } from "../Field";
-import classNames from "classnames";
 import { CheckboxGroupContext } from "./context";
+import type { LabelProps } from "../Field/Label";
 
-function CheckboxGroup(
-  props: SpectrumCheckboxGroupProps,
-  ref: DOMRef<HTMLDivElement>,
-) {
-  const { children, orientation = "vertical" } = props;
-  const domRef = useDOMRef(ref);
-  const state = useCheckboxGroupState(props);
-  const { descriptionProps, errorMessageProps, groupProps, labelProps } =
-    useCheckboxGroup(props, state);
-
-  return (
-    <Field
-      {...props}
-      descriptionProps={descriptionProps}
-      elementType="span"
-      errorMessageProps={errorMessageProps}
-      includeNecessityIndicatorInAccessibilityName
-      labelProps={labelProps}
-      ref={domRef}
-    >
-      <div
-        {...groupProps}
-        className={classNames({
-          "fieldGroup-horizontal": orientation === "horizontal",
-        })}
-      >
-        <CheckboxGroupContext.Provider value={state}>
-          {children}
-        </CheckboxGroupContext.Provider>
-      </div>
-    </Field>
-  );
+export type CheckboxGroupRef = DOMRef<HTMLDivElement>;
+export interface CheckboxGroupProps
+  extends Omit<SpectrumCheckboxGroupProps, keyof StyleProps>,
+    Pick<LabelProps, "labelWidth"> {
+  className?: string;
 }
 
-/**
- * A CheckboxGroup allows users to select one or more items from a list of choices.
- */
-const _CheckboxGroup = React.forwardRef(CheckboxGroup);
-export { _CheckboxGroup as CheckboxGroup };
+export const CheckboxGroup = forwardRef(
+  (props: CheckboxGroupProps, ref: CheckboxGroupRef) => {
+    const { children, className, orientation = "vertical" } = props;
+    const domRef = useDOMRef(ref);
+    const state = useCheckboxGroupState(props);
+    const { descriptionProps, errorMessageProps, groupProps, labelProps } =
+      useCheckboxGroup(props, state);
+
+    return (
+      <Field
+        {...props}
+        descriptionProps={descriptionProps}
+        errorMessageProps={errorMessageProps}
+        includeNecessityIndicatorInAccessibilityName
+        labelProps={labelProps}
+        ref={domRef}
+        wrapperClassName={className}
+      >
+        <div
+          {...groupProps}
+          className={classNames("fieldGroup", {
+            "fieldGroup--horizontal": orientation === "horizontal",
+          })}
+        >
+          <CheckboxGroupContext.Provider value={state}>
+            {children}
+          </CheckboxGroupContext.Provider>
+        </div>
+      </Field>
+    );
+  },
+);

@@ -1,13 +1,16 @@
-import React, { forwardRef } from "react";
-import { Label } from "./Label";
 import classNames from "classnames";
-import { HelpText } from "./HelpText";
-import { useId } from "@react-aria/utils";
-import { SlotProvider } from "@react-spectrum/utils";
+import React, { forwardRef } from "react";
 import type { LabelPosition } from "@react-types/shared";
 import type { SpectrumFieldProps } from "@react-types/label";
 
-export const Field = forwardRef((props: SpectrumFieldProps, ref: any) => {
+import { Label } from "./Label";
+import { ErrorText } from "./ErrorText";
+
+export type FieldProps = SpectrumFieldProps;
+
+export type FieldRef = any;
+
+export const Field = forwardRef((props: FieldProps, ref: FieldRef) => {
   const {
     label,
     labelPosition = "top" as LabelPosition,
@@ -16,14 +19,10 @@ export const Field = forwardRef((props: SpectrumFieldProps, ref: any) => {
     necessityIndicator,
     includeNecessityIndicatorInAccessibilityName,
     validationState,
-    description,
     errorMessage,
     isDisabled,
     showErrorIcon,
-    contextualHelp,
     labelProps,
-    // Not every component that uses <Field> supports help text.
-    descriptionProps = {},
     errorMessageProps = {},
     elementType,
     children,
@@ -31,39 +30,37 @@ export const Field = forwardRef((props: SpectrumFieldProps, ref: any) => {
     wrapperProps = {},
     ...otherProps
   } = props;
-  const hasHelpText =
-    !!description || (errorMessage && validationState === "invalid");
-  const contextualHelpId = useId();
+  const hasErrorText = errorMessage && validationState === "invalid";
 
   const labelWrapperClass = classNames(
     "field",
     {
+      "is-disabled": isDisabled,
       "field--positionTop": labelPosition === "top",
       "field--positionSide": labelPosition === "side",
       "field--alignEnd": labelAlign === "end",
-      "field--hasContextualHelp": !!props.contextualHelp,
     },
     wrapperClassName,
   );
 
-  const renderHelpText = () => (
-    <HelpText
-      description={description}
-      descriptionProps={descriptionProps}
-      errorMessage={errorMessage}
-      errorMessageProps={errorMessageProps}
-      isDisabled={isDisabled}
-      showErrorIcon={showErrorIcon}
-      validationState={validationState}
-    />
-  );
+  const renderErrorText = () => {
+    return (
+      <ErrorText
+        errorMessage={errorMessage}
+        errorMessageProps={errorMessageProps}
+        isDisabled={isDisabled}
+        showErrorIcon={showErrorIcon}
+        validationState={validationState}
+      />
+    );
+  };
 
   const renderChildren = () => {
     if (labelPosition === "side") {
       return (
         <div className="wrapper">
           {children}
-          {hasHelpText && renderHelpText()}
+          {hasErrorText && renderErrorText()}
         </div>
       );
     }
@@ -71,44 +68,25 @@ export const Field = forwardRef((props: SpectrumFieldProps, ref: any) => {
     return (
       <>
         {children}
-        {hasHelpText && renderHelpText()}
+        {hasErrorText && renderErrorText()}
       </>
     );
   };
 
-  const labelAndContextualHelp = (
-    <>
-      {label && (
-        <Label
-          {...labelProps}
-          elementType={elementType}
-          includeNecessityIndicatorInAccessibilityName={
-            includeNecessityIndicatorInAccessibilityName
-          }
-          isRequired={isRequired}
-          labelAlign={labelAlign}
-          labelPosition={labelPosition}
-          necessityIndicator={necessityIndicator}
-        >
-          {label}
-        </Label>
-      )}
-      {label && contextualHelp && (
-        <SlotProvider
-          slots={{
-            actionButton: {
-              className: "field-contextual-help",
-              id: contextualHelpId,
-              "aria-labelledby": labelProps?.id
-                ? `${labelProps.id} ${contextualHelpId}`
-                : undefined,
-            },
-          }}
-        >
-          {contextualHelp}
-        </SlotProvider>
-      )}
-    </>
+  const labelAndContextualHelp = label && (
+    <Label
+      {...labelProps}
+      elementType={elementType}
+      includeNecessityIndicatorInAccessibilityName={
+        includeNecessityIndicatorInAccessibilityName
+      }
+      isRequired={isRequired}
+      labelAlign={labelAlign}
+      labelPosition={labelPosition}
+      necessityIndicator={necessityIndicator}
+    >
+      {label}
+    </Label>
   );
 
   return (
@@ -118,7 +96,7 @@ export const Field = forwardRef((props: SpectrumFieldProps, ref: any) => {
       className={labelWrapperClass}
       ref={ref}
     >
-      {labelAndContextualHelp}
+      <div>{labelAndContextualHelp}</div>
       {renderChildren()}
     </div>
   );

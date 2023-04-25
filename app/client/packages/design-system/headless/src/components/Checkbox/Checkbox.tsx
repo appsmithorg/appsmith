@@ -14,11 +14,11 @@ import { useVisuallyHidden } from "@react-aria/visually-hidden";
 import type { SpectrumCheckboxProps } from "@react-types/checkbox";
 import type { FocusableRef, StyleProps } from "@react-types/shared";
 
-export interface CheckboxProps
-  extends Omit<SpectrumCheckboxProps, keyof StyleProps> {
+export type CheckboxProps = Omit<SpectrumCheckboxProps, keyof StyleProps> & {
   icon?: React.ReactNode;
   className?: string;
-}
+  labelPosition?: "left" | "right";
+};
 
 export type CheckboxRef = FocusableRef<HTMLLabelElement>;
 

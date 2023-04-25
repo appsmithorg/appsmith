@@ -34,6 +34,7 @@ export class LightModeTheme implements ColorModeTheme {
       fg: this.fg,
       fgAccent: this.fgAccent,
       fgOnAccent: this.fgOnAccent,
+      fgNegative: this.fgNegative,
       bdAccent: this.bdAccent,
       bdNeutral: this.bdNeutral,
       bdNeutralHover: this.bdNeutralHover,
@@ -166,6 +167,10 @@ export class LightModeTheme implements ColorModeTheme {
       l: 0.15,
       c: 0.064,
     });
+  }
+
+  private get fgNegative() {
+    return "#d91921";
   }
 
   /*

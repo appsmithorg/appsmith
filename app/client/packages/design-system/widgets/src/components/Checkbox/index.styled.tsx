@@ -9,7 +9,6 @@ export const labelStyles = css<Pick<CheckboxProps, "labelPosition">>`
   position: relative;
   display: flex;
   gap: var(--spacing-2);
-  width: 100%;
 
   ${({ labelPosition }) => css`
     justify-content: ${labelPosition === "left" ? "space-between" : undefined};
@@ -71,9 +70,6 @@ export const StyledCheckbox = styled(HeadlessCheckbox)<CheckboxProps>`
   */
   &.is-disabled {
     cursor: not-allowed;
-  }
-
-  &.is-disabled {
     opacity: var(--opacity-disabled);
   }
 

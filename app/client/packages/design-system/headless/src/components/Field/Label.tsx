@@ -6,6 +6,11 @@ import { filterDOMProps } from "@react-aria/utils";
 import AsteriskIcon from "remixicon-react/AsteriskIcon";
 import type { SpectrumLabelProps } from "@react-types/label";
 
+export interface LabelProps extends SpectrumLabelProps {
+  labelWidth?: number;
+  isEmphasized?: boolean;
+}
+
 export const Label = forwardRef(
   (props: SpectrumLabelProps, ref: DOMRef<HTMLLabelElement>) => {
     const {
