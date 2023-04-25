@@ -35,7 +35,7 @@ import {
 } from "@appsmith/constants/messages";
 import { getTypographyByKey } from "design-system-old";
 import { onboardingCheckListUrl } from "RouteBuilder";
-import { Icon } from "design-system";
+import { Icon, Button } from "design-system";
 
 const Wrapper = styled.div<{ active: boolean }>`
   width: 100%;
@@ -97,10 +97,10 @@ const Progressbar = styled.div<StatusProgressbarType>`
   border-radius: var(--ads-v2-border-radius);
 `;
 
-const StyledClose = styled(Icon)`
-  position: absolute;
-  top: 15px;
-  right: 13px;
+const StyledClose = styled(Button)`
+  position: absolute !important;
+  top: 9px;
+  right: 9px;
   opacity: 0;
   cursor: pointer;
 `;
@@ -242,9 +242,11 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
         <StyledClose
           className="hover-icons"
           data-cy="statusbar-skip"
-          name="close-control"
+          isIconButton
+          kind="tertiary"
           onClick={endFirstTimeUserOnboarding}
-          size="md"
+          size="sm"
+          startIcon="close-control"
         />
       )}
       <TitleWrapper>
@@ -253,7 +255,7 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
       <StatusText className="mt-2">
         <span data-testid="statusbar-text">{content}</span>&nbsp;&nbsp;
         {!isChecklistPage && (
-          <Icon className="hover-icons" name="chevron-right" size="md" />
+          <Icon className="hover-icons" name="right-arrow-2" size="md" />
         )}
       </StatusText>
       <StatusProgressbar
