@@ -90,7 +90,7 @@ jobs:
       # Set status = success
       - name: Save the status of the run
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
-      
+
       # Set up Node.js cache yarn dependencies.
       # actions/setup-node@v3 now support caching of dependencies using actions/cache under the hood
       # https://github.com/actions/setup-node#caching-global-packages-data
@@ -98,21 +98,19 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-node@v3
         with:
-          node-version: '16.14.0'
-          cache: 'yarn'
-          cache-dependency-path: 'app/client/yarn.lock'
+          node-version: "16.14.0"
 
       # Install all the dependencies
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
-        run: yarn install --frozen-lockfile
+        run: yarn install
 
       - name: Installing Yarn serve
         if: steps.run_result.outputs.run_result != 'success'
         run: |
           yarn global add serve
           echo "$(yarn global bin)" >> $GITHUB_PATH
-     
+
       - name: Download Docker image artifact
         uses: actions/download-artifact@v3
         with:
