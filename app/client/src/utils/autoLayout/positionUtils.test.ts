@@ -17,6 +17,8 @@ import {
   updateWidgetPositions,
 } from "./positionUtils";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LabelPosition } from "components/constants";
+import * as utils from "./flexWidgetUtils";
 
 describe("test PositionUtils methods", () => {
   const mainCanvasWidth = 960;
@@ -165,6 +167,159 @@ describe("test PositionUtils methods", () => {
         extractAlignmentInfo(widgets, layer, false, 64, 1, false)
           .fillWidgetLength,
       ).toEqual(24);
+    });
+    it("should allocate columns for fill widgets that match min widths if enough space is unavailable", () => {
+      const widgets = {
+        "1": {
+          widgetId: "1",
+          leftColumn: 0,
+          rightColumn: 32,
+          alignment: FlexLayerAlignment.Start,
+          topRow: 0,
+          bottomRow: 4,
+          type: "DOCUMENT_VIEWER_WIDGET",
+          widgetName: "",
+          renderMode: RenderModes.CANVAS,
+          version: 1,
+          parentColumnSpace: 10,
+          parentRowSpace: 10,
+          isLoading: false,
+          responsiveBehavior: ResponsiveBehavior.Hug,
+          autoLayout: {
+            widgetSize: [
+              {
+                viewportMinWidth: 0,
+                configuration: () => {
+                  return {
+                    minWidth: "280px",
+                    minHeight: "280px",
+                  };
+                },
+              },
+            ],
+          },
+        },
+        "2": {
+          widgetId: "2",
+          leftColumn: 32,
+          rightColumn: 64,
+          alignment: FlexLayerAlignment.Start,
+          topRow: 0,
+          bottomRow: 7,
+          type: "CURRENCY_INPUT_WIDGET",
+          widgetName: "Currency1",
+          renderMode: RenderModes.CANVAS,
+          version: 1,
+          parentColumnSpace: 10,
+          parentRowSpace: 10,
+          isLoading: false,
+          responsiveBehavior: ResponsiveBehavior.Fill,
+          autoLayout: {
+            disabledPropsDefaults: {
+              labelPosition: LabelPosition.Top,
+              labelTextSize: "0.875rem",
+            },
+            defaults: {
+              rows: 6.6,
+            },
+            autoDimension: {
+              height: true,
+            },
+            widgetSize: [
+              {
+                viewportMinWidth: 0,
+                configuration: () => {
+                  return {
+                    minWidth: "120px",
+                  };
+                },
+              },
+            ],
+            disableResizeHandles: {
+              vertical: true,
+            },
+          },
+        },
+        "3": {
+          widgetId: "3",
+          leftColumn: 64,
+          rightColumn: 96,
+          alignment: FlexLayerAlignment.End,
+          topRow: 0,
+          bottomRow: 7,
+          type: "CONTAINER_WIDGET",
+          widgetName: "Container1",
+          renderMode: RenderModes.CANVAS,
+          version: 1,
+          parentColumnSpace: 10,
+          parentRowSpace: 10,
+          isLoading: false,
+          responsiveBehavior: ResponsiveBehavior.Fill,
+        },
+      };
+      jest
+        .spyOn(utils, "getWidgetMinMaxDimensionsInPixel")
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        .mockImplementation((widget: any, width: number) => {
+          if (
+            ["DOCUMENT_VIEWER_WIDGET", "CONTAINER_WIDGET"].includes(
+              widget?.type,
+            )
+          )
+            return {
+              minWidth: 280,
+              minHeight: 280,
+              maxWidth: undefined,
+              maxHeight: undefined,
+            };
+          if (widget?.type === "CURRENCY_INPUT_WIDGET")
+            return {
+              minWidth: 120,
+              minHeight: 40,
+              maxWidth: undefined,
+              maxHeight: undefined,
+            };
+          return {
+            minWidth: undefined,
+            minHeight: undefined,
+            maxWidth: undefined,
+            maxHeight: undefined,
+          };
+        });
+      const layer: FlexLayer = {
+        children: [
+          { id: "1", align: FlexLayerAlignment.Start },
+          { id: "2", align: FlexLayerAlignment.Start },
+          { id: "3", align: FlexLayerAlignment.End },
+        ],
+      };
+      const result = extractAlignmentInfo(widgets, layer, false, 600, 1, false);
+
+      /**
+       * Canvas width = 600
+       * # of fill widgets = 3
+       * standard fill widget length (f) = 600 / 3 = 200
+       * min widths in descending order -> 280, 280, 120.
+       *
+       * In descending order of min widths:
+       * available space: 600
+       * 1st fill widget length (DocumentViewer) -> 280 > 200 -> 280
+       * available space: 600 - 280 = 320
+       * standard fill widget length (f) = 320 / 2 = 160
+       *
+       * 2nd fill widget length (ContainerWidget) -> 280 > 160 -> 280
+       * available space: 320 - 280 = 40
+       * standard fill widget length (f) = 40 / 1 = 40
+       *
+       * 3rd fill widget length (CurrencyInput) -> 120 > 40 -> 120
+       *
+       * => widgets will overflow the canvas.
+       */
+
+      // DocumnetViewer + CurrencyInput
+      expect(result.info[0].columns).toEqual(280 + 120);
+      // ContainerWidget
+      expect(result.info[2].columns).toEqual(280);
     });
   });
 
@@ -588,6 +743,178 @@ describe("test PositionUtils methods", () => {
       expect(result.widgets["2"].mobileRightColumn).toEqual(48);
       expect(result.widgets["3"].mobileLeftColumn).toEqual(48);
       expect(result.widgets["3"].mobileRightColumn).toEqual(64);
+    });
+
+    it("should allocate columns for fill widgets in descending order of their min width requirement", () => {
+      const widgets = {
+        "1": {
+          widgetId: "1",
+          leftColumn: 0,
+          rightColumn: 32,
+          alignment: FlexLayerAlignment.Start,
+          topRow: 0,
+          bottomRow: 4,
+          type: "DOCUMENT_VIEWER_WIDGET",
+          widgetName: "",
+          renderMode: RenderModes.CANVAS,
+          version: 1,
+          parentColumnSpace: 10,
+          parentRowSpace: 10,
+          isLoading: false,
+          responsiveBehavior: ResponsiveBehavior.Hug,
+          autoLayout: {
+            widgetSize: [
+              {
+                viewportMinWidth: 0,
+                configuration: () => {
+                  return {
+                    minWidth: "280px",
+                    minHeight: "280px",
+                  };
+                },
+              },
+            ],
+          },
+        },
+        "2": {
+          widgetId: "2",
+          leftColumn: 32,
+          rightColumn: 64,
+          alignment: FlexLayerAlignment.Start,
+          topRow: 0,
+          bottomRow: 7,
+          type: "CURRENCY_INPUT_WIDGET",
+          widgetName: "Currency1",
+          renderMode: RenderModes.CANVAS,
+          version: 1,
+          parentColumnSpace: 10,
+          parentRowSpace: 10,
+          isLoading: false,
+          responsiveBehavior: ResponsiveBehavior.Fill,
+          autoLayout: {
+            disabledPropsDefaults: {
+              labelPosition: LabelPosition.Top,
+              labelTextSize: "0.875rem",
+            },
+            defaults: {
+              rows: 6.6,
+            },
+            autoDimension: {
+              height: true,
+            },
+            widgetSize: [
+              {
+                viewportMinWidth: 0,
+                configuration: () => {
+                  return {
+                    minWidth: "120px",
+                  };
+                },
+              },
+            ],
+            disableResizeHandles: {
+              vertical: true,
+            },
+          },
+        },
+        "3": {
+          widgetId: "3",
+          leftColumn: 64,
+          rightColumn: 96,
+          alignment: FlexLayerAlignment.End,
+          topRow: 0,
+          bottomRow: 7,
+          type: "CONTAINER_WIDGET",
+          widgetName: "Container1",
+          renderMode: RenderModes.CANVAS,
+          version: 1,
+          parentColumnSpace: 10,
+          parentRowSpace: 10,
+          isLoading: false,
+          responsiveBehavior: ResponsiveBehavior.Fill,
+        },
+      };
+      jest
+        .spyOn(utils, "getWidgetMinMaxDimensionsInPixel")
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        .mockImplementation((widget: any, width: number) => {
+          if (
+            ["DOCUMENT_VIEWER_WIDGET", "CONTAINER_WIDGET"].includes(
+              widget?.type,
+            )
+          )
+            return {
+              minWidth: 280,
+              minHeight: 280,
+              maxWidth: undefined,
+              maxHeight: undefined,
+            };
+          if (widget?.type === "CURRENCY_INPUT_WIDGET")
+            return {
+              minWidth: 120,
+              minHeight: 40,
+              maxWidth: undefined,
+              maxHeight: undefined,
+            };
+          return {
+            minWidth: undefined,
+            minHeight: undefined,
+            maxWidth: undefined,
+            maxHeight: undefined,
+          };
+        });
+      const layer: FlexLayer = {
+        children: [
+          { id: "1", align: FlexLayerAlignment.Start },
+          { id: "2", align: FlexLayerAlignment.Start },
+          { id: "3", align: FlexLayerAlignment.End },
+        ],
+      };
+      const alignmentInfo = extractAlignmentInfo(
+        widgets,
+        layer,
+        false,
+        600,
+        1,
+        false,
+      );
+      const res = placeWidgetsWithoutWrap(
+        widgets,
+        alignmentInfo.info,
+        0,
+        false,
+      );
+
+      /**
+       * Canvas width = 600
+       * # of fill widgets = 3
+       * standard fill widget length (f) = 600 / 3 = 200
+       * min widths in descending order -> 280, 280, 120.
+       *
+       * In descending order of min widths:
+       * available space: 600
+       * 1st fill widget length (DocumentViewer) -> 280 > 200 -> 280
+       * available space: 600 - 280 = 320
+       * standard fill widget length (f) = 320 / 2 = 160
+       *
+       * 2nd fill widget length (ContainerWidget) -> 280 > 160 -> 280
+       * available space: 320 - 280 = 40
+       * standard fill widget length (f) = 40 / 1 = 40
+       *
+       * 3rd fill widget length (CurrencyInput) -> 120 > 40 -> 120
+       *
+       * => widgets will overflow the canvas.
+       */
+
+      // DocumentViewer
+      expect(res.widgets["1"].leftColumn).toEqual(0);
+      expect(res.widgets["1"].rightColumn).toEqual(280);
+      // CurrencyInput
+      expect(res.widgets["2"].leftColumn).toEqual(280);
+      expect(res.widgets["2"].rightColumn).toEqual(400);
+      // ContainerWidget
+      expect(res.widgets["3"].leftColumn).toEqual(400);
+      expect(res.widgets["3"].rightColumn).toEqual(680);
     });
   });
 

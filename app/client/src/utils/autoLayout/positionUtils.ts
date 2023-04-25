@@ -401,7 +401,7 @@ export function extractAlignmentInfo(
     }
   }
 
-  const availableColumns: number =
+  let availableColumns: number =
     GridDefaults.DEFAULT_GRID_COLUMNS -
     startColumns -
     centerColumns -
@@ -417,11 +417,12 @@ export function extractAlignmentInfo(
     .forEach((each, index) => {
       const { child, columns } = each;
       let width = fillWidgetLength;
-      // If the fill widget's minWidth is greater than the available space, then assign the widget's minWidth as its width.
-      if (columns > fillWidgetLength) {
+      if (columns > availableColumns) width = columns;
+      else if (columns > fillWidgetLength) {
+        // If the fill widget's minWidth is greater than the available space, then assign the widget's minWidth as its width.
         width = columns;
-        fillWidgetLength =
-          (availableColumns - width) / (fillChildren.length - index - 1);
+        availableColumns = Math.min(availableColumns - width, 0);
+        fillWidgetLength = availableColumns / (fillChildren.length - index - 1);
       }
       if (child.align === FlexLayerAlignment.Start) {
         startColumns += width;
