@@ -95,7 +95,7 @@ export const EntityItem = styled.div<{
   display: inline-grid;
   grid-template-columns: 20px auto 1fr auto auto auto;
   grid-auto-flow: column dense;
-  border-radius: 0;
+  border-radius: var(--ads-v2-border-radius);
   color: var(--ads-v2-color-fg);
   font-weight: 500;
   cursor: pointer;

@@ -123,6 +123,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
       )}
       <Divider />
       <Datasources />
+      <Divider />
       <JSDependencies />
       <ScrollIndicator containerRef={explorerRef} />
     </Wrapper>
