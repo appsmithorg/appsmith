@@ -144,7 +144,7 @@ const ErrorMsg = styled.span`
   font-size: 12px;
   line-height: 16px;
   letter-spacing: -0.221538px;
-  color: var(--ads-old-color-pomegranate);
+  color: var(--ads-v2-color-fg-error);
   margin-top: var(--ads-spaces-3);
 `;
 
@@ -153,7 +153,7 @@ const HelperMsg = styled.span`
   font-size: 12px;
   line-height: 16px;
   letter-spacing: -0.221538px;
-  color: var(--ads-dropdown-default-menu-subtext-text-color);
+  color: var(--ads-v2-color-fg-muted);
   margin: 6px 0px 10px;
 `;
 
@@ -719,9 +719,6 @@ function GeneratePageForm() {
             }
           >
             {dataSourceOptions.map((option) => {
-              /* eslint-disable no-debugger, no-console */
-              //  eslint-disable-next-line
-              console.log("option", option);
               return (
                 <Option key={option.value} value={option.value}>
                   <DataSourceOption
@@ -771,7 +768,6 @@ function GeneratePageForm() {
               }
             >
               {datasourceTableOptions.map((table) => {
-                console.log("option table", table);
                 return (
                   <Option key={table.value} value={table.value}>
                     <OptionWrapper>
@@ -779,12 +775,12 @@ function GeneratePageForm() {
                         <StyledIcon
                           fillColor={
                             tableDropdownErrorMsg
-                              ? "var(--ads-old-color-pomegranate)"
+                              ? "var(--ads-v2-color-fg-error)"
                               : table?.iconColor
                           }
                           hoverFillColor={
                             tableDropdownErrorMsg
-                              ? "var(--ads-old-color-pomegranate)"
+                              ? "var(--ads-v2-color-fg-error)"
                               : table?.iconColor
                           }
                           name={table.icon}
@@ -805,7 +801,7 @@ function GeneratePageForm() {
           </SelectWrapper>
         ) : null}
         {showEditDatasourceBtn && (
-          <Button kind="secondary" onClick={goToEditDatasource}>
+          <Button kind="secondary" onClick={goToEditDatasource} size={"md"}>
             Edit Datasource
           </Button>
         )}
@@ -859,7 +855,6 @@ function GeneratePageForm() {
                   }
                 >
                   {selectedTableColumnOptions.map((column) => {
-                    console.log("option column", column);
                     return (
                       <Option key={column.value} value={column.value}>
                         <OptionWrapper>

@@ -301,6 +301,7 @@ function GoogleSheetForm(props: Props) {
           </Label>
 
           <Select
+            data-testid="t--sheetName-dropdown"
             isLoading={isFetchingSheetsList}
             onChange={(value) =>
               onSelectSheetOption(
@@ -340,7 +341,7 @@ function GoogleSheetForm(props: Props) {
               </TooltipWrapper>
             </Row>
             <Input
-              className="t--tableHeaderIndex" // using className in place of cypressSelectors.
+              data-testid="t--tableHeaderIndex"
               onChange={tableHeaderIndexChangeHandler}
               placeholder="Table Header Index"
               size="md"

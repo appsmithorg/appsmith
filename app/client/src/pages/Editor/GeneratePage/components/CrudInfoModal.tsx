@@ -102,6 +102,10 @@ const SuccessContentWrapper = styled.div`
   height: 100%;
 `;
 
+const InfoContentHeadingText = styled(Text)`
+  color: var(--ads-v2-color-fg-muted);
+`;
+
 const STEP = {
   SHOW_SUCCESS_GIF: "show_success_gif",
   SHOW_INFO: "show_info",
@@ -121,7 +125,7 @@ function InfoContent({
   return (
     <>
       <Content>
-        <Text
+        <InfoContentHeadingText
           className="info-subtitle"
           dangerouslySetInnerHTML={{
             __html: successMessage,
@@ -139,9 +143,11 @@ function InfoContent({
 
       <ActionButtonWrapper>
         <Button
+          kind="primary"
           onClick={() => {
             onClose();
           }}
+          size={"md"}
         >
           Got It
         </Button>

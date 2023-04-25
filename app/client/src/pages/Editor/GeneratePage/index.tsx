@@ -37,7 +37,7 @@ const HeaderText = styled.h1`
   letter-spacing: 0px;
   text-align: center;
   margin: 0px;
-  color: black;
+  color: var(--ads-v2-color-fg-emphasis);
 `;
 
 function GeneratePage() {
