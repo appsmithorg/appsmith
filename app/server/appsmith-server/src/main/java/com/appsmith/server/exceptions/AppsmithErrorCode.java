@@ -53,6 +53,7 @@ public enum AppsmithErrorCode {
     AUTHENTICATION_FAILURE("AE-APP-5010", "Authentication failure"),
     INSTANCE_REGISTRATION_FAILURE("AE-APP-5011", "Instance registration failure"),
     CLOUD_SERVICES_ERROR("AE-APP-5012", "Cloud services error"),
+    OPEN_AI_ERROR("AE-APP-5013", "Open AI error"),
     SSH_KEY_GENERATION_ERROR("AE-APP-5015", "Ssh key generation error"),
     FILE_PART_DATA_BUFFER_ERROR("AE-APP-5017", "File part data buffer error"),
     MIGRATION_ERROR("AE-APP-5018", "Migration error"),
