@@ -15,9 +15,10 @@ import com.appsmith.util.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatusCode;
+import org.springframework.core.codec.DecodingException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -61,7 +62,7 @@ public class ChatServiceImpl implements ChatService {
                             .uri(builder -> builder.queryParam("type", type).build())
                             .body(BodyInserters.fromValue(chatGenerationRequestDTO))
                             .exchangeToMono(clientResponse -> {
-                                if (HttpStatusCode.valueOf(200).equals(clientResponse.statusCode())) {
+                                if (clientResponse.statusCode().is2xxSuccessful()) {
                                     return clientResponse.bodyToMono(new ParameterizedTypeReference<ResponseDTO<ChatGenerationResponseDTO>>() {
                                     });
                                 } else {
@@ -69,6 +70,25 @@ public class ChatServiceImpl implements ChatService {
                                 }
                             })
                             .map(ResponseDTO::getData)
+                            .onErrorMap(
+                                    WebClientResponseException.class,
+                                    e -> {
+                                        ResponseDTO<ChatGenerationResponseDTO> responseDTO;
+                                        try {
+                                            responseDTO = e.getResponseBodyAs(new ParameterizedTypeReference<>() {
+                                            });
+                                        } catch (DecodingException | IllegalStateException e2) {
+                                            return e;
+                                        }
+                                        if (responseDTO != null &&
+                                                responseDTO.getResponseMeta() != null &&
+                                                responseDTO.getResponseMeta().getError() != null) {
+                                            return new AppsmithException(
+                                                    AppsmithError.OPEN_AI_ERROR,
+                                                    responseDTO.getResponseMeta().getError().getMessage());
+                                        }
+                                        return e;
+                                    })
                             .onErrorMap(
                                     // Only map errors if we haven't already wrapped them into an AppsmithException
                                     e -> !(e instanceof AppsmithException),
