@@ -100,17 +100,6 @@ jobs:
         with:
           node-version: "16.14.0"
 
-      # Install all the dependencies
-      - name: Install dependencies
-        if: steps.run_result.outputs.run_result != 'success'
-        run: yarn install
-
-      - name: Installing Yarn serve
-        if: steps.run_result.outputs.run_result != 'success'
-        run: |
-          yarn global add serve
-          echo "$(yarn global bin)" >> $GITHUB_PATH
-
       - name: Download Docker image artifact
         uses: actions/download-artifact@v3
         with:
@@ -206,7 +195,7 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         working-directory: app/client/perf
         shell: bash
-        run: yarn install --frozen-lockfile
+        run: yarn install --focus --immutable
 
       - name: Change test script permissions
         if: steps.run_result.outputs.run_result != 'success'
