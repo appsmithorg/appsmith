@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Button from "./AppViewerButton";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import {
@@ -9,6 +9,7 @@ import {
 import {
   getCurrentApplication,
   getCurrentPageId,
+  previewModeSelector,
 } from "selectors/editorSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import {
@@ -27,6 +28,7 @@ import type { NavigationSetting } from "constants/AppConstants";
 import { Icon } from "design-system-old";
 import { getApplicationNameTextColor } from "./utils";
 import { ButtonVariantTypes } from "components/constants";
+import { setPreviewModeInitAction } from "actions/editorActions";
 
 /**
  * ---------------------------------------------------------------------------------------------------
@@ -65,6 +67,8 @@ function PrimaryCTA(props: Props) {
   const permissionRequired = PERMISSION_TYPE.MANAGE_APPLICATION;
   const userPermissions = currentApplication?.userPermissions ?? [];
   const canEdit = isPermitted(userPermissions, permissionRequired);
+  const isPreviewMode = useSelector(previewModeSelector);
+  const dispatch = useDispatch();
 
   const appViewerURL = useHref(viewerURL, {
     pageId: currentPageID,
@@ -112,7 +116,11 @@ function PrimaryCTA(props: Props) {
           isMinimal={isMinimal}
           navColorStyle={navColorStyle}
           onClick={() => {
-            history.push(url);
+            if (isPreviewMode) {
+              dispatch(setPreviewModeInitAction(!isPreviewMode));
+            } else {
+              history.push(url);
+            }
           }}
           primaryColor={primaryColor}
           text={insideSidebar && !isMinimal && createMessage(EDIT_APP)}
