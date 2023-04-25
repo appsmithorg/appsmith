@@ -99,7 +99,8 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
              * value would directly be returned to further evaluations / subscriptions.
              */
             if (datasourceContextIdentifier.getDatasourceId() != null
-                    && datasourceContextMonoMap.get(datasourceContextIdentifier) != null) {
+                    && datasourceContextMonoMap.get(datasourceContextIdentifier) != null
+                    && !datasourceContextMonoMap.get(datasourceContextIdentifier).toFuture().isCompletedExceptionally()) {
                 log.debug("Cached resource context mono exists. Returning the same.");
                 return datasourceContextMonoMap.get(datasourceContextIdentifier);
             }
@@ -219,6 +220,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                 // The following condition happens when there's a timeout in the middle of destroying a connection and
                 // the reactive flow interrupts, resulting in the destroy operation not completing.
                 && datasourceContextMap.get(datasourceContextIdentifier).getConnection() != null
+                && !datasourceContextMonoMap.get(datasourceContextIdentifier).toFuture().isCompletedExceptionally()
                 && !isStale;
     }
 
