@@ -942,26 +942,14 @@ export default class DataTreeEvaluator {
 
             const contextData: EvaluateContext = {};
             if (isAction(entity)) {
-              const evaluatedExecutionParams = this.getDynamicValue(
-                `{{${JSON.stringify(
-                  (entity.config.queryParameters &&
-                    entity.config.queryParameters[0]) ||
-                    {},
-                )}}}`,
-                this.evalTree,
-                this.oldConfigTree,
-                EvaluationSubstitutionType.TEMPLATE,
-              );
-              contextData.thisContext = {
-                [THIS_DOT_PARAMS_KEY]: evaluatedExecutionParams,
-              };
+              // Add empty object for this.params to avoid undefined errors
               contextData.globalContext = {
-                [EXECUTION_PARAM_KEY]: evaluatedExecutionParams,
+                [THIS_DOT_PARAMS_KEY]: {},
               };
 
               unEvalPropertyValue = unEvalPropertyValue.replace(
                 EXECUTION_PARAM_REFERENCE_REGEX,
-                EXECUTION_PARAM_KEY,
+                THIS_DOT_PARAMS_KEY,
               );
             }
             try {

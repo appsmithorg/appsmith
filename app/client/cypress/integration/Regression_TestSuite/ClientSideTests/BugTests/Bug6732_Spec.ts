@@ -14,6 +14,8 @@ describe("this.params in IIFE function in API editor", () => {
       false,
     );
 
-    agHelper.VerifyEvaluatedValue("page");
+    // the value is evaluated correctly only during execution
+    // in this case, we just want to ensure that this.params is an object and present
+    agHelper.VerifyEvaluatedValue("undefined", false);
   });
 });

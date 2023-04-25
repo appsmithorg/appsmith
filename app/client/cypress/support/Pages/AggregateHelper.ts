@@ -995,12 +995,14 @@ export class AggregateHelper {
 
   // this should only be used when we want to verify the evaluated value of dynamic bindings for example {{Api1.data}} or {{"asa"}}
   // and should not be called for plain strings
-  public VerifyEvaluatedValue(currentValue: string) {
+  public VerifyEvaluatedValue(currentValue: string, checkUndefined = true) {
     this.Sleep(3000);
-    cy.get(this.locator._evaluatedCurrentValue)
-      .first()
-      .should("be.visible")
-      .should("not.have.text", "undefined");
+    if (checkUndefined) {
+      cy.get(this.locator._evaluatedCurrentValue)
+        .first()
+        .should("be.visible")
+        .should("not.have.text", "undefined");
+    }
     cy.get(this.locator._evaluatedCurrentValue)
       .first()
       .click({ force: true })
