@@ -11,7 +11,6 @@ import {
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { Colors } from "constants/Colors";
 import { viewerURL } from "RouteBuilder";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import useWorkspace from "utils/hooks/useWorkspace";
@@ -40,7 +39,9 @@ const ShareToggle = styled.div`
 
 const BottomContainer = styled.div<{ canInviteToApplication?: boolean }>`
   ${({ canInviteToApplication }) =>
-    canInviteToApplication ? `border-top: 1px solid ${Colors.GREY_200}` : ``};
+    canInviteToApplication
+      ? `border-top: 1px solid var(--ads-v2-color-border);`
+      : `none`};
 `;
 
 function AppInviteUsersForm(props: any) {
@@ -121,6 +122,7 @@ function AppInviteUsersForm(props: any) {
         <Button
           className="flex gap-1.5 cursor-pointer"
           data-cy={"copy-application-url"}
+          kind="tertiary"
           onClick={copyToClipboard}
           startIcon="links-line"
         >

@@ -6,7 +6,6 @@ import { Link } from "design-system";
 const Container = styled.div`
   display: flex;
   padding: 12px 0;
-  border-top: 1px solid var(--ads-v2-color-border);
 `;
 
 function ManageUsers({
@@ -21,7 +20,7 @@ function ManageUsers({
   return !pathRegex.test(currentPath) ? (
     <Container>
       <Link
-        endIcon="arrow-right-line"
+        endIcon="arrow-right-s-line"
         kind="secondary"
         to={`/workspace/${workspaceId}/settings/members`}
       >

@@ -1,6 +1,6 @@
 import React from "react";
 import copy from "copy-to-clipboard";
-import { Text, TextType } from "design-system-old";
+import { Text } from "design-system";
 import { Colors } from "constants/Colors";
 import {
   createMessage,
@@ -8,6 +8,10 @@ import {
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
 import { toast } from "design-system";
+
+const Container = styled.div`
+  background-color: var(--ads-v2-color-bg-muted);
+`;
 
 const StyledText = styled(Text)`
   line-height: 1.5;
@@ -27,7 +31,6 @@ type EmbedCodeSnippetProps = {
 };
 
 function EmbedCodeSnippet(props: EmbedCodeSnippetProps) {
-  const scrollWrapperRef = React.createRef<HTMLSpanElement>();
   const onClick = () => {
     copy(props.snippet);
     toast.show(createMessage(IN_APP_EMBED_SETTING.copiedEmbedCode), {
@@ -36,20 +39,18 @@ function EmbedCodeSnippet(props: EmbedCodeSnippetProps) {
   };
 
   return (
-    <div
-      className="flex flex-1 select-all bg-[color:var(--appsmith-color-black-100)]"
+    <Container
+      className="flex flex-1 select-all"
       data-cy="t--embed-snippet"
       onClick={onClick}
     >
       <StyledText
         className="break-all max-h-32 overflow-y-auto p-2 mr-0.5"
-        color={Colors.GREY_900}
-        ref={scrollWrapperRef}
-        type={TextType.P1}
+        kind="action-m"
       >
         {props.snippet}
       </StyledText>
-    </div>
+    </Container>
   );
 }
 

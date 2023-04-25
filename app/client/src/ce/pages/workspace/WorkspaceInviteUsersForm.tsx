@@ -35,11 +35,11 @@ import {
   Callout,
   Avatar,
   Button,
-  Icon,
   Select,
   Spinner,
   Text,
   Option,
+  Tooltip,
 } from "design-system";
 import { getInitialsFromName } from "utils/AppsmithUtils";
 import ManageUsers from "pages/workspace/ManageUsers";
@@ -91,11 +91,10 @@ export const StyledInviteFieldGroup = styled.div`
 
   .wrapper {
     display: flex;
-    width: 85%;
+    width: 87%;
     flex-direction: row;
     align-items: baseline;
     justify-content: space-between;
-    margin-right: ${(props) => props.theme.spaces[3]}px;
     border-right: 0px;
   }
 `;
@@ -230,7 +229,7 @@ const validate = (values: any) => {
 
 function WorkspaceInviteUsersForm(props: any) {
   const [emailError, setEmailError] = useState("");
-  const [selectedOption, setSelectedOption] = useState<any[]>([]);
+  const [selectedOption, setSelectedOption] = useState<string[]>([]);
   const userRef = React.createRef<HTMLDivElement>();
   const history = useHistory();
   const selectedId = props?.selected?.id;
@@ -258,7 +257,7 @@ function WorkspaceInviteUsersForm(props: any) {
     handleSubmit,
     isApplicationInvite = false,
     isLoading,
-    isMultiSelectDropdown = false,
+    isMultiSelectDropdown = true,
     placeholder = "",
     submitFailed,
     submitSucceeded,
@@ -275,6 +274,10 @@ function WorkspaceInviteUsersForm(props: any) {
     userWorkspacePermissions,
     PERMISSION_TYPE.MANAGE_WORKSPACE,
   );
+
+  useEffect(() => {
+    setSelectedOption([]);
+  }, [submitSucceeded]);
 
   useEffect(() => {
     fetchUser(props.workspaceId);
@@ -298,7 +301,7 @@ function WorkspaceInviteUsersForm(props: any) {
           return {
             id: role.id,
             value: role.name?.split(" - ")[0],
-            label: role.description,
+            description: role.description,
           };
         });
 
@@ -319,15 +322,17 @@ function WorkspaceInviteUsersForm(props: any) {
     [allUsers],
   );
 
-  const onSelect = (_value: string, option: any) => {
+  const onSelect = (value: string) => {
+    const option = styledRoles.find((role: any) => role.id === value);
+
     if (option.link) {
       history.push(option.link);
     }
 
     if (isMultiSelectDropdown) {
-      setSelectedOption((selectedOptions) => [...selectedOptions, option]);
+      setSelectedOption((selectedOptions) => [...selectedOptions, value]);
     } else {
-      setSelectedOption([option]);
+      setSelectedOption([value]);
     }
   };
 
@@ -338,7 +343,7 @@ function WorkspaceInviteUsersForm(props: any) {
   const onRemoveOptions = (value: string) => {
     if (isMultiSelectDropdown) {
       setSelectedOption((selectedOptions) =>
-        selectedOptions.filter((option) => option.value !== value),
+        selectedOptions.filter((option) => option !== value),
       );
     }
   };
@@ -348,7 +353,10 @@ function WorkspaceInviteUsersForm(props: any) {
       <InviteModalStyles />
       <StyledForm
         onSubmit={handleSubmit((values: any, dispatch: any) => {
-          validateFormValues(values);
+          const roles = isMultiSelectDropdown
+            ? selectedOption.join(",")
+            : selectedOption[0];
+          validateFormValues({ ...values, role: roles });
           const usersAsStringsArray = values.users.split(",");
           // update state to show success message correctly
           updateNumberOfUsersInvited(usersAsStringsArray.length);
@@ -357,18 +365,14 @@ function WorkspaceInviteUsersForm(props: any) {
             .join(",");
           AnalyticsUtil.logEvent("INVITE_USER", {
             ...(cloudHosting ? { users: usersAsStringsArray } : {}),
-            role: isMultiSelectDropdown
-              ? selectedOption.map((group: any) => group.id).join(",")
-              : [selectedOption[0].id],
+            role: roles,
             numberOfUsersInvited: usersAsStringsArray.length,
           });
           return inviteUsersToWorkspace(
             {
               ...(props.workspaceId ? { workspaceId: props.workspaceId } : {}),
               users,
-              permissionGroupId: isMultiSelectDropdown
-                ? selectedOption.map((group: any) => group.id).join(",")
-                : selectedOption[0].id,
+              permissionGroupId: roles,
             },
             dispatch,
           );
@@ -390,18 +394,17 @@ function WorkspaceInviteUsersForm(props: any) {
               data-cy="t--invite-role-input"
               disabled={props.disableDropdown}
               isMultiSelect={isMultiSelectDropdown}
-              // @ts-expect-error: Select name prop
-              name="role"
               onDeselect={onRemoveOptions}
-              onSelect={(value, option) => onSelect(value, option)}
+              onSelect={onSelect}
+              optionFilterProp="value"
               placeholder="Select a role"
-              value={selectedOption.map(({ value }) => value)}
+              value={selectedOption}
             >
               {styledRoles.map((role: any) => (
-                <Option key={role.id} value={role.value}>
+                <Option key={role.value} value={role.id}>
                   <div className="flex flex-col gap-1">
                     <Text kind="heading-xs">{role.value}</Text>
-                    <Text kind="body-s">{role.label}</Text>
+                    <Text kind="body-s">{role.description}</Text>
                   </div>
                 </Option>
               ))}
@@ -409,7 +412,7 @@ function WorkspaceInviteUsersForm(props: any) {
           </div>
           <Button
             className="t--invite-user-btn"
-            isDisabled={!valid}
+            isDisabled={!valid || selectedOption.length === 0}
             isLoading={submitting && !(submitFailed && !anyTouched)}
             size="md"
           >
@@ -417,9 +420,8 @@ function WorkspaceInviteUsersForm(props: any) {
           </Button>
         </StyledInviteFieldGroup>
 
-        <div className="flex gap-2 mt-2">
-          <Icon name="user-3-line" size="sm" />
-          <Text data-testid="helper-message" kind="action-m">
+        <div className="flex gap-2 mt-2 ml-1">
+          <Text data-testid="helper-message" kind="action-s">
             {createMessage(USERS_HAVE_ACCESS_TO_ALL_APPS)}
           </Text>
         </div>
@@ -465,8 +467,9 @@ function WorkspaceInviteUsersForm(props: any) {
                             label={user.name || user.username}
                           />
                           <UserName>
-                            <Text kind="heading-xs">{user.name}</Text>
-                            <Text kind="body-s">{user.username}</Text>
+                            <Tooltip content={user.username} placement="top">
+                              <Text kind="heading-xs">{user.name}</Text>
+                            </Tooltip>
                           </UserName>
                         </UserInfo>
                         <UserRole>
