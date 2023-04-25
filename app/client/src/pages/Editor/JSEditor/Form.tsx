@@ -69,8 +69,9 @@ import {
 import history from "utils/history";
 import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
-import { Button, Tab, TabPanel, Tabs, TabsList } from "design-system";
+import { Tab, TabPanel, Tabs, TabsList } from "design-system";
 import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
+import SearchSnippets from "../../common/SearchSnippets";
 
 interface JSFormProps {
   jsCollection: JSCollection;
@@ -302,10 +303,10 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                 name={currentJSCollection.name}
                 pageId={pageId}
               />
-              <Button
-                kind="secondary"
-                onClick={(e) => {
-                  e.preventDefault();
+              <SearchSnippets
+                entityId={currentJSCollection?.id}
+                entityType={ENTITY_TYPE.JSACTION}
+                onClick={() => {
                   dispatch(
                     executeCommandAction({
                       actionType: SlashCommand.NEW_SNIPPET,
@@ -317,11 +318,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                   );
                   return;
                 }}
-                size="md"
-                startIcon="query"
-              >
-                Snippets
-              </Button>
+              />
               <JSFunctionRun
                 disabled={disableRunFunctionality || !isExecutePermitted}
                 isLoading={isExecutingCurrentJSAction}

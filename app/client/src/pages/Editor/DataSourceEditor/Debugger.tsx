@@ -58,7 +58,7 @@ export const TabbedViewContainer = styled.div`
     padding: 9px 11px;
   }
   background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
-  border-top: 1px solid #e8e8e8;
+  border-top: 1px solid var(--ads-v2-color-border);
 `;
 
 export const ResizerMainContainer = styled.div`
@@ -77,6 +77,7 @@ export const ResizerContentContainer = styled.div`
   flex: 1;
   position: relative;
   display: flex;
+  padding: 0px var(--ads-v2-spaces-7);
 `;
 
 export default function Debugger() {

@@ -21,14 +21,14 @@ const VariableWrapper = styled.div`
     border: 0px;
   }
   &&& .CodeMirror-gutters {
-    background: ${Colors.GRAY_50};
+    background: var(--ads-v2-color-bg-subtle);
   }
 `;
 
 const VariableHeader = styled.div`
   display: flex;
   width: 100%;
-  background: ${Colors.SEA_SHELL};
+  background: var(--ads-v2-color-bg-subtle);
   padding: 8px 16px;
 `;
 

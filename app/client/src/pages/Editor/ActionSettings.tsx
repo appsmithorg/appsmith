@@ -28,18 +28,6 @@ const ActionSettingsWrapper = styled.div`
     align-items: center;
     margin-left: 24px;
   }
-  &&& .bp3-control.bp3-switch .bp3-control-indicator {
-    width: 46px;
-    height: 24px;
-    position: relative;
-  }
-  &&& .bp3-control.bp3-switch .bp3-control-indicator::before {
-    width: 20px;
-    height: 20px;
-  }
-  &&& .bp3-control.bp3-switch input:checked ~ .bp3-control-indicator::before {
-    left: calc(100% - 24px);
-  }
 `;
 
 function ActionSettings(props: ActionSettingsProps): JSX.Element {
