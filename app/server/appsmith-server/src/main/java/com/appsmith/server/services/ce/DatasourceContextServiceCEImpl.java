@@ -213,7 +213,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                 && datasource.getUpdatedAt().isAfter(datasourceContextMap.get(datasourceContextIdentifier).getCreationTime());
     }
 
-    protected boolean isValidDatasourceContextAvailable(Datasource datasource,
+    public boolean isValidDatasourceContextAvailable(Datasource datasource,
                                                         DatasourceContextIdentifier datasourceContextIdentifier) {
         boolean isStale = getIsStale(datasource, datasourceContextIdentifier);
         return datasourceContextMap.get(datasourceContextIdentifier) != null
