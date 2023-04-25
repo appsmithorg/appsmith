@@ -108,7 +108,7 @@ function BackToHomeButton(props: BackToHomeButtonProps) {
             alt="Your application's logo"
             src={`/api/v1/assets/${currentApplicationDetails.applicationDetail.navigationSetting.logoAssetId}`}
           />
-        ) : cloudHosting ? (
+        ) : (
           <StyledApplicationName
             className="text-base whitespace-nowrap"
             isMobile={isMobile}
@@ -118,8 +118,6 @@ function BackToHomeButton(props: BackToHomeButtonProps) {
           >
             Apps
           </StyledApplicationName>
-        ) : (
-          ""
         )}
       </StyledLink>
     </TooltipComponent>
