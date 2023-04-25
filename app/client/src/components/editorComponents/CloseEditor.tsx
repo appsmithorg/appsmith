@@ -20,8 +20,7 @@ import { NavigationMethod } from "../../utils/history";
 import { useHistory } from "react-router-dom";
 
 const StyledLink = styled(Link)`
-  /* margin-left: 16px;
-  margin-top: 8px; */
+  margin: var(--ads-v2-spaces-7) 0 0 var(--ads-v2-spaces-7);
   width: fit-content;
 `;
 

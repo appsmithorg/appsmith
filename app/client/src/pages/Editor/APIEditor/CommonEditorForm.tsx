@@ -92,7 +92,7 @@ const Form = styled.form`
 
 const MainConfiguration = styled.div`
   z-index: 7;
-  padding: var(--ads-v2-spaces-4) 0 0;
+  padding: var(--ads-v2-spaces-4) var(--ads-v2-spaces-7) 0;
   .api-info-row {
     .ads-v2-select > .rc-select-selector {
       min-width: 110px;
@@ -133,7 +133,7 @@ export const TabbedViewContainer = styled.div`
   overflow: auto;
   position: relative;
   height: 100%;
-  padding-right: var(--ads-v2-spaces-7);
+  padding: 0 var(--ads-v2-spaces-7);
   ${FormRow} {
     min-height: auto;
     padding: ${(props) => props.theme.spaces[0]}px;
@@ -163,7 +163,7 @@ const MainContainer = styled.div`
   position: relative;
   height: 100%;
   flex-direction: column;
-  padding: var(--ads-v2-spaces-7);
+  /* padding: var(--ads-v2-spaces-7); */
 `;
 export interface CommonFormProps {
   pluginId: string;

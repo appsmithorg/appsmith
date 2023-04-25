@@ -34,7 +34,7 @@ const DatasourceContainer = styled.div`
   min-width: calc(${(props) => props.theme.actionSidePane.width}px - 2px);
   color: var(--ads-v2-color-fg);
   .tab-container-right-sidebar {
-    padding: 0 0 0 var(--ads-v2-spaces-7);
+    padding: 0 var(--ads-v2-spaces-7);
   }
 `;
 

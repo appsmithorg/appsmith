@@ -23,7 +23,7 @@ import Debugger, {
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
 const MainConfiguration = styled.div`
-  padding: var(--ads-v2-spaces-4) 0;
+  padding: var(--ads-v2-spaces-4) var(--ads-v2-spaces-7);
 `;
 
 const ActionButtons = styled.div`
@@ -94,7 +94,7 @@ const MainContainer = styled.div`
   position: relative;
   height: 100%;
   flex-direction: column;
-  padding: var(--ads-v2-spaces-7);
+  /* padding: var(--ads-v2-spaces-7); */
 `;
 interface ReduxStateProps {
   actions: ActionDataState;

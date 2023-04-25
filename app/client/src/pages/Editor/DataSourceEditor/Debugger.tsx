@@ -77,6 +77,7 @@ export const ResizerContentContainer = styled.div`
   flex: 1;
   position: relative;
   display: flex;
+  padding: 0px var(--ads-v2-spaces-7);
 `;
 
 export default function Debugger() {

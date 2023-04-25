@@ -170,6 +170,7 @@ export const TabbedViewContainer = styled.div`
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
   width: 100%;
+  /* padding: 0 var(--ads-v2-spaces-7); */
   .close-debugger {
     position: absolute;
     top: 0px;
@@ -180,7 +181,7 @@ export const TabbedViewContainer = styled.div`
 `;
 
 const SettingsWrapper = styled.div`
-  padding: 16px 30px;
+  /* padding: 16px 30px; */
   ${thinScrollbar};
   height: 100%;
 `;
@@ -216,7 +217,7 @@ const ResponseContentWrapper = styled.div<{ isError: boolean }>`
 `;
 
 export const StyledFormRow = styled(FormRow)`
-  padding: 0px 20px;
+  padding: 0px var(--ads-v2-spaces-7);
   flex: 0;
 `;
 
@@ -302,6 +303,7 @@ const TabContainerView = styled.div`
   align-items: start;
   flex: 1;
   overflow: auto;
+  padding: 0 var(--ads-v2-spaces-7);
   ${thinScrollbar}
   a {
     font-size: 14px;
@@ -320,7 +322,7 @@ const Wrapper = styled.div`
 
 const DocumentationButton = styled(Button)`
   position: absolute !important;
-  right: 0;
+  right: 24px;
   margin: 7px 0px 0px;
 `;
 

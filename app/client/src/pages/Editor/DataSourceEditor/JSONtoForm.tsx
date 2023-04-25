@@ -44,7 +44,7 @@ export const FormContainer = styled.div`
   position: relative;
   height: 100%;
   flex-direction: column;
-  padding: var(--ads-v2-spaces-7);
+  /* padding: var(--ads-v2-spaces-7); */
 `;
 
 export const FormContainerBody = styled.div`
@@ -79,6 +79,7 @@ export const Header = styled.div`
   justify-content: space-between;
   border-bottom: 1px solid var(--ads-v2-color-border);
   padding: 0 0 var(--ads-v2-spaces-4);
+  margin: 0 var(--ads-v2-spaces-7);
 `;
 
 export const ActionWrapper = styled.div`
