@@ -628,6 +628,7 @@ class CodeEditor extends Component<Props, State> {
       const lineContent = this.editor.getLine(tokenPos.line);
       console.log("on hover src element", tokenElement);
       console.log("on hover line", lineContent);
+
       if (tokenElement.classList.contains("cm-m-javascript")) {
         if (tokenElement.classList.contains("cm-variable")) {
           // JsObject1.data -> JsObject1
@@ -645,6 +646,12 @@ class CodeEditor extends Component<Props, State> {
           // needed to handle this keyword
           // export, default, return etc... (need to filter)
           console.log("on hover element - keyword");
+        } else if (tokenElement.classList.contains("cm-number")) {
+          // identify array indices here
+          console.log("on hover element - number");
+        } else if (tokenElement.classList.contains("cm-string")) {
+          // identify ["x"] accessor here
+          console.log("on hover element - string");
         } else {
           this.hideNewPeekOverlay();
         }
