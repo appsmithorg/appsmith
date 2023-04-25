@@ -438,10 +438,7 @@ function generateHorizontalHighlights(
     bottom: rowHeight === -1 ? 10000 : rowHeight * 0.5,
   };
   const rowGap = isMobile ? MOBILE_ROW_GAP : ROW_GAP;
-  offsetTop =
-    previousOffset === -1
-      ? offsetTop
-      : offsetTop - (rowGap - DEFAULT_HIGHLIGHT_SIZE);
+  offsetTop = previousOffset === -1 ? offsetTop : offsetTop - rowGap;
   [
     FlexLayerAlignment.Start,
     FlexLayerAlignment.Center,
