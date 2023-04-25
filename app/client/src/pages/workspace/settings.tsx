@@ -45,7 +45,7 @@ const SentryRoute = Sentry.withSentryRouting(Route);
 const SettingsWrapper = styled.div<{
   isMobile?: boolean;
 }>`
-  width: ${(props) => (props.isMobile ? "345px" : "916px")};
+  width: ${(props) => (props.isMobile ? "345px" : "960px")};
   margin: 0 auto;
   height: 100%;
   &::-webkit-scrollbar {
@@ -68,7 +68,7 @@ const StyledStickyHeader = styled(StickyHeader)<{ isMobile?: boolean }>`
     `
   top: 48px;
   position: fixed;
-  width: 916px;
+  width: 960px;
   `}
 `;
 
@@ -79,7 +79,7 @@ export const TabsWrapper = styled.div`
   .react-tabs__tab-list {
     border-bottom: 1px solid var(--appsmith-color-black-200);
     padding: 36px 0 0;
-    width: 908px;
+    /* width: 908px; */
   }
   .react-tabs__tab-panel {
     height: calc(100% - 76px);
