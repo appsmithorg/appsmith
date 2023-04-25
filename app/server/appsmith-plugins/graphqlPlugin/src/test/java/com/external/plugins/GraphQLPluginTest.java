@@ -341,7 +341,13 @@ public class GraphQLPluginTest {
     @Test
     public void testValidSignature() {
         DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
-        dsConfig.setUrl("http://httpbin.org/headers");
+        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        mockEndpoint
+                .enqueue(new MockResponse()
+                        .setBody("{}")
+                        .addHeader("Content-Type", "application/json"));
 
         final String secretKey = "a-random-key-that-should-be-32-chars-long-at-least";
         dsConfig.setProperties(List.of(
@@ -358,22 +364,31 @@ public class GraphQLPluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    String token = ((ObjectNode) result.getBody()).get("headers").get("X-Appsmith-Signature").asText();
 
-                    final SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
-                    final String issuer = Jwts.parserBuilder()
-                            .setSigningKey(key)
-                            .build()
-                            .parseClaimsJws(token)
-                            .getBody()
-                            .getIssuer();
-                    assertEquals("Appsmith", issuer);
-                    final Iterator<Map.Entry<String, JsonNode>> fields = ((ObjectNode) result.getRequest().getHeaders()).fields();
-                    fields.forEachRemaining(field -> {
-                        if ("X-Appsmith-Signature".equalsIgnoreCase(field.getKey())) {
-                            assertEquals(token, field.getValue().get(0).asText());
-                        }
-                    });
+                    try {
+                        final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                        assert recordedRequest != null;
+                        String token = recordedRequest.getHeaders().get("X-Appsmith-Signature");
+
+                        final SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+                        final String issuer = Jwts.parserBuilder()
+                                .setSigningKey(key)
+                                .build()
+                                .parseClaimsJws(token)
+                                .getBody()
+                                .getIssuer();
+                        assertEquals("Appsmith", issuer);
+                        final Iterator<Map.Entry<String, JsonNode>> fields = ((ObjectNode) result.getRequest().getHeaders()).fields();
+                        fields.forEachRemaining(field -> {
+                            if ("X-Appsmith-Signature".equalsIgnoreCase(field.getKey())) {
+                                assertEquals(token, field.getValue().get(0).asText());
+                            }
+                        });
+                    } catch (InterruptedException e) {
+                        assert false : e.getMessage();
+                    }
+
+
 
                 })
                 .verifyComplete();

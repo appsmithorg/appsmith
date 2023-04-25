@@ -18,10 +18,7 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.exceptions.RestApiPluginError;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
@@ -30,9 +27,6 @@ import io.jsonwebtoken.security.SignatureException;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
 import mockwebserver3.RecordedRequest;
-import net.minidev.json.JSONObject;
-import net.minidev.json.parser.JSONParser;
-import net.minidev.json.parser.ParseException;
 import okhttp3.HttpUrl;
 import okio.Buffer;
 import org.junit.jupiter.api.AfterAll;
@@ -47,6 +41,7 @@ import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
 import javax.crypto.SecretKey;
+import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -61,6 +56,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.zip.GZIPOutputStream;
 
 import static com.appsmith.external.constants.Authentication.API_KEY;
 import static com.appsmith.external.constants.Authentication.OAUTH2;
@@ -454,7 +451,14 @@ public class RestApiPluginTest {
     @Test
     public void testValidFormApiExecution() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("https://postman-echo.com/post");
+        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        mockEndpoint
+                .enqueue(new MockResponse()
+                        .setBody("{}")
+                        .addHeader("Content-Type", "application/json"));
+
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHeaders(List.of(new Property("content-type", "application/x-www-form-urlencoded")));
@@ -470,8 +474,21 @@ public class RestApiPluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    JsonNode data = ((ObjectNode) result.getBody()).get("form");
-                    assertEquals("{\"key\":\"value\",\"key1\":\"value1\"}", data.toString());
+
+                    try {
+                        final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                        assert recordedRequest != null;
+                        final Buffer recordedRequestBody = recordedRequest.getBody();
+                        byte[] bodyBytes = new byte[(int) recordedRequestBody.size()];
+
+                        recordedRequestBody.readFully(bodyBytes);
+                        recordedRequestBody.close();
+
+                        assertEquals("key=value&key1=value1", new String(bodyBytes));
+                    } catch (EOFException | InterruptedException e) {
+                        assert false : e.getMessage();
+                    }
+
                     assertEquals("key=value&key1=value1", result.getRequest().getBody());
                 })
                 .verifyComplete();
@@ -649,7 +666,13 @@ public class RestApiPluginTest {
     @Test
     public void testInvalidSignature() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("http://httpbin.org/headers");
+        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        mockEndpoint
+                .enqueue(new MockResponse()
+                        .setBody("{}")
+                        .addHeader("Content-Type", "application/json"));
 
         final String secretKey = "a-random-key-that-should-be-32-chars-long-at-least";
         dsConfig.setProperties(List.of(
@@ -665,12 +688,20 @@ public class RestApiPluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    String token = ((ObjectNode) result.getBody()).get("headers").get("X-Appsmith-Signature").asText();
 
-                    final SecretKey key = Keys.hmacShaKeyFor((secretKey + "-abc").getBytes(StandardCharsets.UTF_8));
-                    final JwtParser parser = Jwts.parserBuilder().setSigningKey(key).build();
+                    try {
+                        final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                        assert recordedRequest != null;
+                        String token = recordedRequest.getHeaders().get("X-Appsmith-Signature");
 
-                    assertThrows(SignatureException.class, () -> parser.parseClaimsJws(token));
+                        final SecretKey key = Keys.hmacShaKeyFor((secretKey + "-abc").getBytes(StandardCharsets.UTF_8));
+                        final JwtParser parser = Jwts.parserBuilder().setSigningKey(key).build();
+
+                        assertThrows(SignatureException.class, () -> parser.parseClaimsJws(token));
+                    } catch (InterruptedException e) {
+                        assert false : e.getMessage();
+                    }
+
                 })
                 .verifyComplete();
     }
@@ -678,7 +709,14 @@ public class RestApiPluginTest {
     @Test
     public void testEncodeParamsToggleOn() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("https://postman-echo.com/post");
+
+        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        mockEndpoint
+                .enqueue(new MockResponse()
+                        .setBody("{}")
+                        .addHeader("Content-Type", "application/json"));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
@@ -698,9 +736,23 @@ public class RestApiPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
 
-                    String expected_url = "\"https://postman-echo.com/post?query_key=query+val\"";
-                    JsonNode url = ((ObjectNode) result.getBody()).get("url");
-                    assertEquals(expected_url, url.toString());
+                    try {
+                        final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                        assert recordedRequest != null;
+                        final Buffer recordedRequestBody = recordedRequest.getBody();
+                        byte[] bodyBytes = new byte[(int) recordedRequestBody.size()];
+
+                        recordedRequestBody.readFully(bodyBytes);
+                        recordedRequestBody.close();
+
+                        assertEquals(requestBody, new String(bodyBytes));
+
+                        String requestPath = recordedRequest.getPath();
+                        assertEquals("/?query_key=query+val", requestPath);
+
+                    } catch (EOFException | InterruptedException e) {
+                        assert false : e.getMessage();
+                    }
                 })
                 .verifyComplete();
     }
@@ -708,7 +760,13 @@ public class RestApiPluginTest {
     @Test
     public void testEncodeParamsToggleNull() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("https://postman-echo.com/post");
+        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        mockEndpoint
+                .enqueue(new MockResponse()
+                        .setBody("{}")
+                        .addHeader("Content-Type", "application/json"));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
@@ -728,9 +786,23 @@ public class RestApiPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
 
-                    String expected_url = "\"https://postman-echo.com/post?query_key=query+val\"";
-                    JsonNode url = ((ObjectNode) result.getBody()).get("url");
-                    assertEquals(expected_url, url.toString());
+                    try {
+                        final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                        assert recordedRequest != null;
+                        final Buffer recordedRequestBody = recordedRequest.getBody();
+                        byte[] bodyBytes = new byte[(int) recordedRequestBody.size()];
+
+                        recordedRequestBody.readFully(bodyBytes);
+                        recordedRequestBody.close();
+
+                        assertEquals(requestBody, new String(bodyBytes));
+
+                        String requestPath = recordedRequest.getPath();
+                        assertEquals("/?query_key=query+val", requestPath);
+
+                    } catch (EOFException | InterruptedException e) {
+                        assert false : e.getMessage();
+                    }
                 })
                 .verifyComplete();
     }
@@ -738,7 +810,13 @@ public class RestApiPluginTest {
     @Test
     public void testEncodeParamsToggleOff() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("https://postman-echo.com/post");
+        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        mockEndpoint
+                .enqueue(new MockResponse()
+                        .setBody("{}")
+                        .addHeader("Content-Type", "application/json"));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
@@ -779,7 +857,13 @@ public class RestApiPluginTest {
     @Test
     public void testSmartSubstitutionJSONBody() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("https://postman-echo.com/post");
+        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        mockEndpoint
+                .enqueue(new MockResponse()
+                        .setBody("{}")
+                        .addHeader("Content-Type", "application/json"));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
@@ -844,15 +928,19 @@ public class RestApiPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     String resultBody = "{\"password\":\"12/01/2018\",\"name\":\"this is a string! Yay :D\",\"newField\":null,\"tableRow\":{\"orderAmount\":4.99,\"id\":2381224,\"userName\":\"Michael Lawson\",\"email\":\"michael.lawson@reqres.in\",\"productName\":\"Chicken Sandwich\"},\"email\":true,\"table\":[{\"orderAmount\":4.99,\"id\":2381224,\"userName\":\"Michael Lawson\",\"email\":\"michael.lawson@reqres.in\",\"productName\":\"Chicken Sandwich\"},{\"orderAmount\":9.99,\"id\":2736212,\"userName\":\"Lindsay Ferguson\",\"email\":\"lindsay.ferguson@reqres.in\",\"productName\":\"Tuna Salad\"},{\"orderAmount\":19.99,\"id\":6788734,\"userName\":\"Tobias Funke\",\"email\":\"tobias.funke@reqres.in\",\"productName\":\"Beef steak\"}],\"username\":0}";
-                    JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
-                    ObjectMapper objectMapper = new ObjectMapper();
+
                     try {
-                        JSONObject resultJson = (JSONObject) jsonParser.parse(String.valueOf(result.getBody()));
-                        Object resultData = resultJson.get("json");
-                        String parsedJsonAsString = objectMapper.writeValueAsString(resultData);
-                        assertEquals(resultBody, parsedJsonAsString);
-                    } catch (ParseException | JsonProcessingException e) {
-                        e.printStackTrace();
+                        final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                        assert recordedRequest != null;
+                        final Buffer recordedRequestBody = recordedRequest.getBody();
+                        byte[] bodyBytes = new byte[(int) recordedRequestBody.size()];
+
+                        recordedRequestBody.readFully(bodyBytes);
+                        recordedRequestBody.close();
+
+                        assertEquals(resultBody, new String(bodyBytes));
+                    } catch (EOFException | InterruptedException e) {
+                        assert false : e.getMessage();
                     }
 
                     // Assert the debug request parameters are getting set.
@@ -887,13 +975,18 @@ public class RestApiPluginTest {
     @Test
     public void testMultipartFormData() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("http://httpbin.org/post");
+        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        mockEndpoint
+                .enqueue(new MockResponse()
+                        .setBody("{}")
+                        .addHeader("Content-Type", "application/json"));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setAutoGeneratedHeaders(List.of(new Property("content-type", "multipart/form-data")));
 
         actionConfig.setHttpMethod(HttpMethod.POST);
-        String requestBody = "{\"key1\":\"onlyValue\"}";
         final Property key1 = new Property("key1", "onlyValue");
         final Property key2 = new Property("key2", "{\"name\":\"fileName\", \"type\":\"application/json\", \"data\":{\"key\":\"value\"}}");
         final Property key3 = new Property("key3", "[{\"name\":\"fileName2\", \"type\":\"application/json\", \"data\":{\"key2\":\"value2\"}}]");
@@ -913,10 +1006,39 @@ public class RestApiPluginTest {
                                     "key2", "<file>",
                                     "key3", "<file>"),
                             result.getRequest().getBody());
-                    JsonNode formDataResponse = ((ObjectNode) result.getBody()).get("form");
-                    assertEquals(requestBody, formDataResponse.toString());
-                    JsonNode fileDataResponse = ((ObjectNode) result.getBody()).get("files");
-                    assertEquals("{\"key2\":\"{key=value}\",\"key3\":\"{key2=value2}\"}", fileDataResponse.toString());
+
+                    try {
+                        final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                        assert recordedRequest != null;
+                        final Buffer recordedRequestBody = recordedRequest.getBody();
+                        byte[] bodyBytes = new byte[(int) recordedRequestBody.size()];
+
+                        recordedRequestBody.readFully(bodyBytes);
+                        recordedRequestBody.close();
+
+                        String bodyString = new String(bodyBytes);
+
+                        assertTrue(bodyString.contains("""
+                                Content-Disposition: form-data; name="key1"\r
+                                Content-Type: text/plain;charset=UTF-8\r
+                                Content-Length: 9\r
+                                \r
+                                onlyValue"""));
+
+                        assertTrue(bodyString.contains("""
+                                Content-Disposition: form-data; name="key2"; filename="fileName"\r
+                                Content-Type: application/json\r
+                                \r
+                                {key=value}"""));
+
+                        assertTrue(bodyString.contains("""
+                                Content-Disposition: form-data; name="key3"; filename="fileName2"\r
+                                Content-Type: application/json\r
+                                \r
+                                {key2=value2}"""));
+                    } catch (EOFException | InterruptedException e) {
+                        assert false : e.getMessage();
+                    }
                 })
                 .verifyComplete();
     }
@@ -924,7 +1046,13 @@ public class RestApiPluginTest {
     @Test
     public void testParsingBodyWithInvalidJSONHeader() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("https://mock-api.appsmith.com/echo/raw");
+        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        mockEndpoint
+                .enqueue(new MockResponse()
+                        .setBody("invalid json text")
+                        .addHeader("Content-Type", "application/json"));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
@@ -945,9 +1073,25 @@ public class RestApiPluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
+
+                    try {
+                        final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                        assert recordedRequest != null;
+                        final Buffer recordedRequestBody = recordedRequest.getBody();
+                        byte[] bodyBytes = new byte[(int) recordedRequestBody.size()];
+
+                        recordedRequestBody.readFully(bodyBytes);
+                        recordedRequestBody.close();
+
+                        assertEquals("{\"headers\":{\"X-RANDOM-HEADER\":\"random-value\",\"Content-Type\":\"application/json\"},\"body\":\"invalid json text\"}",
+                                new String(bodyBytes));
+
+                        String contentType = recordedRequest.getHeaders().get("Content-Type");
+                        assertEquals("application/json", contentType);
+                    } catch (EOFException | InterruptedException e) {
+                        assert false : e.getMessage();
+                    }
                     assertEquals("invalid json text", result.getBody());
-                    ArrayNode data = (ArrayNode) result.getHeaders().get("Content-Type");
-                    assertEquals("application/json; charset=utf-8", data.get(0).asText());
 
                     assertEquals(1, result.getMessages().size());
                     String expectedMessage = "The response returned by this API is not a valid JSON. Please " +
@@ -963,7 +1107,14 @@ public class RestApiPluginTest {
     @Test
     public void testRequestWithApiKeyHeader() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("https://postman-echo.com/post");
+        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        mockEndpoint
+                .enqueue(new MockResponse()
+                        .setBody("{}")
+                        .addHeader("Content-Type", "application/json"));
+
         AuthenticationDTO authenticationDTO = new ApiKeyAuth(ApiKeyAuth.Type.HEADER, "api_key", "Token", "test");
         dsConfig.setAuthentication(authenticationDTO);
 
@@ -998,7 +1149,13 @@ public class RestApiPluginTest {
     @Test
     public void testSmartSubstitutionEvaluatedValueContainingQuestionMark() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("https://postman-echo.com/post");
+        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        mockEndpoint
+                .enqueue(new MockResponse()
+                        .setBody("{}")
+                        .addHeader("Content-Type", "application/json"));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
@@ -1032,16 +1189,19 @@ public class RestApiPluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    String resultBody = "{\"name\":\"this is a string with a ? \",\"email\":\"email@email.com\"}";
-                    JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
-                    ObjectMapper objectMapper = new ObjectMapper();
+
                     try {
-                        JSONObject resultJson = (JSONObject) jsonParser.parse(String.valueOf(result.getBody()));
-                        Object resultData = resultJson.get("json");
-                        String parsedJsonAsString = objectMapper.writeValueAsString(resultData);
-                        assertEquals(resultBody, parsedJsonAsString);
-                    } catch (ParseException | JsonProcessingException e) {
-                        e.printStackTrace();
+                        final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                        assert recordedRequest != null;
+                        final Buffer recordedRequestBody = recordedRequest.getBody();
+                        byte[] bodyBytes = new byte[(int) recordedRequestBody.size()];
+
+                        recordedRequestBody.readFully(bodyBytes);
+                        recordedRequestBody.close();
+                        String resultBody = "{\"name\":\"this is a string with a ? \",\"email\":\"email@email.com\"}";
+                        assertEquals(resultBody, new String(bodyBytes));
+                    } catch (EOFException | InterruptedException e) {
+                        assert false : e.getMessage();
                     }
                 })
                 .verifyComplete();
@@ -1394,7 +1554,13 @@ public class RestApiPluginTest {
     @Test
     public void testQueryParamsInDatasource() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("https://postman-echo.com/post");
+        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        mockEndpoint
+                .enqueue(new MockResponse()
+                        .setBody("{}")
+                        .addHeader("Content-Type", "application/json"));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
@@ -1414,9 +1580,23 @@ public class RestApiPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
 
-                    String expected_url = "\"https://postman-echo.com/post?query_key=query+val\"";
-                    JsonNode url = ((ObjectNode) result.getBody()).get("url");
-                    assertEquals(expected_url, url.toString());
+                    try {
+                        final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                        assert recordedRequest != null;
+                        final Buffer recordedRequestBody = recordedRequest.getBody();
+                        byte[] bodyBytes = new byte[(int) recordedRequestBody.size()];
+
+                        recordedRequestBody.readFully(bodyBytes);
+                        recordedRequestBody.close();
+
+                        assertEquals(requestBody, new String(bodyBytes));
+
+                        String requestPath = recordedRequest.getPath();
+                        assertEquals("/?query_key=query+val", requestPath);
+
+                    } catch (EOFException | InterruptedException e) {
+                        assert false : e.getMessage();
+                    }
                 })
                 .verifyComplete();
     }
@@ -1528,8 +1708,32 @@ public class RestApiPluginTest {
     @Test
     public void testAPIResponseEncodedInGzipFormat() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("http://postman-echo.com/gzip");
+        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
 
+        Function<String, byte[]> compressor = (data) -> {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream(data.length());
+            GZIPOutputStream gzip;
+            try {
+                gzip = new GZIPOutputStream(bos);
+
+                gzip.write(data.getBytes());
+                gzip.close();
+                byte[] compressed = bos.toByteArray();
+                bos.close();
+                return compressed;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        };
+        String body = "GzippedBody";
+
+        try (Buffer buffer = new Buffer()) {
+            mockEndpoint
+                    .enqueue(new MockResponse()
+                            .setBody(buffer.write(compressor.apply(body)))
+                            .addHeader("Content-Encoding", "gzip"));
+        }
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHeaders(List.of(
                 new Property("content-type", "application/json")
@@ -1540,13 +1744,9 @@ public class RestApiPluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getRequest().getBody());
-                    final Iterator<Map.Entry<String, JsonNode>> fields = ((ObjectNode) result.getRequest().getHeaders()).fields();
-                    fields.forEachRemaining(field -> {
-                        if ("gzipped".equalsIgnoreCase(field.getKey())) {
-                            assertEquals("true", field.getValue().get(0).asText());
-                        }
-                    });
+                    assertNotNull(result.getBody());
+
+                    assertEquals(body, result.getBody());
                 })
                 .verifyComplete();
     }
@@ -1554,7 +1754,13 @@ public class RestApiPluginTest {
     @Test
     public void testNumericStringHavingLeadingZero() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("https://postman-echo.com/post");
+        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        mockEndpoint
+                .enqueue(new MockResponse()
+                        .setBody("{}")
+                        .addHeader("Content-Type", "application/json"));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         final List<Property> headers = List.of(new Property("content-type", "application/json"));
@@ -1576,10 +1782,23 @@ public class RestApiPluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    JsonNode data = ((ObjectNode) result.getBody()).get("data");
-                    assertEquals(requestBody.replace("{{phoneNumber.text}}", param.getValue()), data.toString());
+
+                    try {
+                        final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                        assert recordedRequest != null;
+                        final Buffer recordedRequestBody = recordedRequest.getBody();
+                        byte[] bodyBytes = new byte[(int) recordedRequestBody.size()];
+
+                        recordedRequestBody.readFully(bodyBytes);
+                        recordedRequestBody.close();
+
+                        assertEquals(requestBody.replace("{{phoneNumber.text}}", param.getValue()), new String(bodyBytes));
+                    } catch (EOFException | InterruptedException e) {
+                        assert false : e.getMessage();
+                    }
+
                     final ActionExecutionRequest request = result.getRequest();
-                    assertEquals("https://postman-echo.com/post", request.getUrl());
+                    assertEquals(baseUrl, request.getUrl());
                     assertEquals(HttpMethod.POST, request.getHttpMethod());
                     final Iterator<Map.Entry<String, JsonNode>> fields = ((ObjectNode) result.getRequest().getHeaders()).fields();
                     fields.forEachRemaining(field -> {
@@ -1594,7 +1813,13 @@ public class RestApiPluginTest {
     @Test
     public void whenBindingFoundWithoutValue_doNotReplaceWithNull() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("https://postman-echo.com/post");
+        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+
+        mockEndpoint
+                .enqueue(new MockResponse()
+                        .setBody("{}")
+                        .addHeader("Content-Type", "application/json"));
 
         ActionConfiguration actionConfig = new ActionConfiguration();
         final List<Property> headers = List.of(new Property("content-type", "application/json"));
@@ -1616,10 +1841,23 @@ public class RestApiPluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    JsonNode data = ((ObjectNode) result.getBody()).get("data");
-                    assertEquals(requestBody.replace("{{Input1.text}}", param.getValue()), data.toString());
+
+                    try {
+                        final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                        assert recordedRequest != null;
+                        final Buffer recordedRequestBody = recordedRequest.getBody();
+                        byte[] bodyBytes = new byte[(int) recordedRequestBody.size()];
+
+                        recordedRequestBody.readFully(bodyBytes);
+                        recordedRequestBody.close();
+
+                        assertEquals(requestBody.replace("{{Input1.text}}", param.getValue()), new String(bodyBytes));
+                    } catch (EOFException | InterruptedException e) {
+                        assert false : e.getMessage();
+                    }
+
                     final ActionExecutionRequest request = result.getRequest();
-                    assertEquals("https://postman-echo.com/post", request.getUrl());
+                    assertEquals(baseUrl, request.getUrl());
                     assertEquals(HttpMethod.POST, request.getHttpMethod());
                     final Iterator<Map.Entry<String, JsonNode>> fields = ((ObjectNode) result.getRequest().getHeaders()).fields();
                     fields.forEachRemaining(field -> {
