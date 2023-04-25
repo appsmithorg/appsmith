@@ -3,6 +3,7 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { Dispatch } from "react";
 import type { EventName } from "utils/AnalyticsUtil";
 import type { RadioOptionProps } from "pages/Settings/FormGroup/Radio";
+import type { SelectOptionProps } from "design-system";
 
 type ControlType = {
   [K in keyof ControlPropsType]: {
@@ -81,7 +82,7 @@ export type Setting = ControlType & {
   isRequired?: boolean;
   formName?: string;
   fieldName?: string;
-  dropdownOptions?: Array<{ id: string; value: string; label?: string }>;
+  dropdownOptions?: Partial<SelectOptionProps>[];
   needsUpgrade?: boolean;
   upgradeLogEventName?: EventName;
   upgradeIntercomMessage?: string;
