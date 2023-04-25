@@ -10390,10 +10390,10 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system-old@npm:@appsmithorg/design-system-old@1.1.4-alpha.8":
-  version "1.1.4-alpha.8"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system-old/-/design-system-old-1.1.4-alpha.8.tgz#6e3f5089c18e2279753074670772b95f78f70e97"
-  integrity sha512-ZeZlh9Uzhdli9eVsnBY2ihcL9ddJVAcct0pca+FCBYzsr05Qw24Btj80Dhn98K645iaOo+xXL360FQZU7uKhqQ==
+"design-system-old@npm:@appsmithorg/design-system-old@1.1.4-alpha.13":
+  version "1.1.4-alpha.13"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system-old/-/design-system-old-1.1.4-alpha.13.tgz#486f63d3c2f22778040734268dc156b06c6cc6b9"
+  integrity sha512-8LZ1INxxVfSrtsbdhKFvwIy2pjWCe2/PNAqPFq/fDQKh5N0k1nr9wYfJBd1wxPH0rGjCUACs0/wBixbfsQuG7w==
   dependencies:
     emoji-mart "3.0.1"
 
@@ -10418,7 +10418,6 @@ depd@~1.1.2:
     rc-select "^14.3.0"
     rc-tooltip "^5.3.1"
     react-datepicker "^4.10.0"
-    react-merge-refs "^2.0.1"
     react-toastify "9.0.3"
 
 destroy@1.2.0:

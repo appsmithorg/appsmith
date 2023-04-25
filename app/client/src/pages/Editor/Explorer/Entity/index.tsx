@@ -311,7 +311,11 @@ export const Entity = forwardRef(
     useClick(itemRef, handleClick, noop);
 
     const addButton = props.customAddButton || (
-      <Tooltip content={props.addButtonHelptext || ""} placement="right">
+      <Tooltip
+        content={props.addButtonHelptext || ""}
+        isDisabled={!props.addButtonHelptext}
+        placement="right"
+      >
         <AddButtonWrapper>
           <AddButton
             className={`${EntityClassNames.ADD_BUTTON} ${props.className}`}

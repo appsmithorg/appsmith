@@ -12,7 +12,6 @@ import {
   PopoverInteractionKind,
   Classes,
 } from "@blueprintjs/core";
-import { ReactComponent as ColorPickerIcon } from "assets/icons/control/color-picker.svg";
 import { debounce, get } from "lodash";
 import { useSelector } from "react-redux";
 import { getSelectedAppThemeProperties } from "selectors/appThemingSelectors";
@@ -331,9 +330,7 @@ function LeftIcon(props: LeftIconProps) {
     <ColorPickerIconContainer
       className="cursor-pointer"
       onClick={props.handleInputClick}
-    >
-      <ColorPickerIcon />
-    </ColorPickerIconContainer>
+    />
   );
 }
 

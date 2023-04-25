@@ -135,7 +135,7 @@ const OptionWrapper = styled.div<{ hasError: boolean; fillIconColor: boolean }>`
     }
 
     background-color: ${(props) =>
-      props.hasError && props.theme.colors.propertyPane.connections.optionBg}};
+      props.hasError && props.theme.colors.propertyPane.connections.optionBg};
 
     &&& svg {
       rect {
@@ -347,7 +347,7 @@ const TriggerNode = memo((props: TriggerNodeProps) => {
 
       <Tooltip
         content={tooltipText}
-        // disabled={props.isOpen}
+        isDisabled={props.isOpen}
         placement={props.tooltipPosition}
       >
         <EntityText>

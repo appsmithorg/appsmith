@@ -37,7 +37,11 @@ import { getUsedActionNames } from "selectors/actionSelectors";
 import { isNameValid, resolveAsSpaceChar } from "utils/helpers";
 
 const UrlPreviewWrapper = styled.div`
-  height: 54px;
+  height: 56px;
+  color: var(--ads-v2-color-gray-500);
+  border-radius: var(--ads-v2-border-radius);
+  background-color: var(--ads-v2-color-bg-muted);
+  line-height: 1.17;
 `;
 
 const UrlPreviewScroll = styled.div`
@@ -270,11 +274,9 @@ function PageSettings(props: { page: Page }) {
       </div>
 
       {!appNeedsUpdate && (
-        <UrlPreviewWrapper
-          className={`mb-2 bg-[color:var(--appsmith-color-black-100)]`}
-        >
+        <UrlPreviewWrapper className="mb-2">
           <UrlPreviewScroll
-            className={`py-1 pl-2 mr-0.5 text-[color:var(--appsmith-color-black-700)] text-xs break-all`}
+            className="py-1 pl-2 mr-0.5  text-xs break-all"
             onCopy={() => {
               navigator.clipboard.writeText(
                 location.protocol +
@@ -283,7 +285,6 @@ function PageSettings(props: { page: Page }) {
                   pathPreview.relativePath,
               );
             }}
-            style={{ lineHeight: "1.17" }}
           >
             {location.protocol}
             {"//"}

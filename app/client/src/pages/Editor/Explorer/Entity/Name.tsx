@@ -129,6 +129,7 @@ export const EntityName = React.memo(
         <Container ref={ref}>
           <Tooltip
             content={updatedName}
+            isDisabled={!showTooltip}
             mouseEnterDelay={TOOLTIP_HOVER_ON_DELAY_IN_S}
             placement="topLeft"
             showArrow={false}

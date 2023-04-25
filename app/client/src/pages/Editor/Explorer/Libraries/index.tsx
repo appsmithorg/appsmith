@@ -300,6 +300,7 @@ function JSDependencies() {
       customAddButton={
         <Tooltip
           content={createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}
+          isDisabled={isOpen}
           placement="right"
           {...(isOpen ? { visible: false } : {})}
         >
