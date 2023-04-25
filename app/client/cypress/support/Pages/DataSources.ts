@@ -815,9 +815,7 @@ export class DataSources {
   }
 
   public EnterQuery(query: string, sleep = 500) {
-    cy.get(this.locator._codeEditorTarget).then(($field: any) => {
-      this.agHelper.UpdateCodeInput($field, query);
-    });
+    this.agHelper.UpdateCodeInput(this.locator._codeEditorTarget, query);
     this.agHelper.AssertAutoSave();
     this.agHelper.Sleep(sleep); //waiting a bit before proceeding!
     cy.wait("@saveAction");
@@ -908,17 +906,14 @@ export class DataSources {
     variable?: string;
   }) {
     if (options?.query) {
-      this.agHelper.GetElement(this._graphqlQueryEditor).then(($field: any) => {
-        this.agHelper.UpdateCodeInput($field, options.query as string);
-      });
+      this.agHelper.UpdateCodeInput(this._graphqlQueryEditor, options.query);
     }
 
     if (options?.variable) {
-      this.agHelper
-        .GetElement(this._graphqlVariableEditor)
-        .then(($field: any) => {
-          this.agHelper.UpdateCodeInput($field, options.variable as string);
-        });
+      this.agHelper.UpdateCodeInput(
+        this._graphqlVariableEditor,
+        options.variable as string,
+      );
     }
 
     this.agHelper.Sleep();
