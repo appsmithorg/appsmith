@@ -54,12 +54,10 @@ const AutoLayoutCanvasResizer = styled.div`
 export function CanvasResizer({
   heightWithTopMargin,
   isPageInitiated,
-  resizerTop,
   shouldHaveTopMargin,
 }: {
   heightWithTopMargin: string;
   isPageInitiated: boolean;
-  resizerTop: string;
   shouldHaveTopMargin: boolean;
 }) {
   const isPreviewMode = useSelector(previewModeSelector);
@@ -171,9 +169,8 @@ export function CanvasResizer({
       }}
       ref={ref}
       style={{
-        top: resizerTop,
+        top: "100%",
         height: shouldHaveTopMargin ? heightWithTopMargin : "100vh",
-        bottom: isPreviewMode ? "-3px" : "0%",
       }}
     >
       <div className="canvas-resizer-icon">
