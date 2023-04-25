@@ -32,7 +32,6 @@ export const Wrapper = styled.div`
   background-color: var(--ads-v2-color-bg);
   width: 100%;
   margin-top: auto;
-  /* padding-left: 16px; */
   border-top: 1px solid var(--ads-v2-color-border);
 `;
 
