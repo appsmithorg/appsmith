@@ -4,9 +4,8 @@ import { Field } from "redux-form";
 import { startCase } from "lodash";
 import tinycolor from "tinycolor2";
 import styled from "styled-components";
-import { Tooltip } from "design-system";
+import { Icon, Text, Tooltip } from "design-system";
 import { InputGroup, Classes } from "@blueprintjs/core";
-import QuestionIcon from "remixicon-react/QuestionFillIcon";
 
 import type { SettingComponentProps } from "./Common";
 import { FormGroup } from "./Common";
@@ -165,14 +164,18 @@ export const ColorInput = (props: ColorInputProps) => {
 
       {/* label with tooltip */}
       <div className="flex items-center gap-1">
-        <label className="text-sm text-gray-700">
+        <Text
+          color="var(--ads-v2-color-fg-emphasis)"
+          kind="heading-s"
+          renderAs="label"
+        >
           {startCase(selectedIndex)}
-        </label>
+        </Text>
         <Tooltip
           content={tooltips && tooltips[selectedIndex]}
           key={`tooltip-${selectedIndex}`}
         >
-          <QuestionIcon className="w-4 h-4 text-[color:var(--ads-color-black-470)] cursor-help" />
+          <Icon name="question-fill" size="md" />
         </Tooltip>
       </div>
 

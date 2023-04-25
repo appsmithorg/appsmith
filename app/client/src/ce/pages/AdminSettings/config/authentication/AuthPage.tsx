@@ -19,7 +19,7 @@ import useOnUpgrade from "utils/hooks/useOnUpgrade";
 
 export const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
-  padding: 40px 0 0 24px;
+  padding: 30px 0 0 24px;
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
   overflow: auto;
 `;
