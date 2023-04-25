@@ -88,8 +88,6 @@ const SettingColumn = styled.div<{ grow?: boolean; isHeading?: boolean }>`
 const JSFunctionSettingsWrapper = styled.div`
   display: flex;
   height: 100%;
-  border-bottom: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
-  border-top: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   overflow: auto;
 `;
 

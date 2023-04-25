@@ -60,7 +60,7 @@
               "value": "ROWS"
             },
             {
-              "disabled": "{{ ['FETCH_MANY', 'FETCH_DETAILS', 'INSERT_ONE', 'DELETE_ONE'].includes(actionConfiguration.formData.command.data) === false }}",
+              "disabled": "{{ ['FETCH_MANY', 'FETCH_DETAILS', 'INSERT_ONE', 'DELETE_ONE'].includes(actionConfiguration.formData.command.data) === false || (['INSERT_ONE', 'DELETE_ONE'].includes(actionConfiguration.formData.command.data) === true &&  ['https://www.googleapis.com/auth/drive.file'].includes(datasourceConfiguration.authentication.scopeString) === true)}}",
               "label": "Spreadsheet",
               "value": "SPREADSHEET"
             },

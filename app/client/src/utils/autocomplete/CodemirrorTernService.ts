@@ -167,6 +167,7 @@ class CodeMirrorTernService {
     cm.showHint({
       hint: this.getHint.bind(this),
       completeSingle: false,
+      alignWithWord: false,
       extraKeys: {
         Up: (cm: CodeMirror.Editor, handle: any) => {
           handle.moveFocus(-1);
@@ -376,7 +377,7 @@ class CodeMirrorTernService {
           origins: true,
           caseInsensitive: true,
           guess: false,
-          inLiteral: false,
+          inLiteral: true,
         },
         (error, data) => this.requestCallback(error, data, cm, resolve),
       );

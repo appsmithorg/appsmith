@@ -42,6 +42,7 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
+    autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
   autoLayout: {
     disabledPropsDefaults: {
@@ -49,7 +50,7 @@ export const CONFIG = {
       labelTextSize: "0.875rem",
     },
     defaults: {
-      rows: 7,
+      rows: 6.6,
     },
     autoDimension: {
       height: true,

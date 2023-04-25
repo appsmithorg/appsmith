@@ -134,6 +134,7 @@ import {
   getDebuggerSelectedTab,
   getErrorCount,
   getResponsePaneHeight,
+  showDebuggerFlag,
 } from "selectors/debuggerSelectors";
 import LogAdditionalInfo from "components/editorComponents/Debugger/ErrorLogs/components/LogAdditionalInfo";
 import LogHelper from "components/editorComponents/Debugger/ErrorLogs/components/LogHelper";
@@ -144,6 +145,7 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { AIWindow } from "@appsmith/components/editorComponents/GPT";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -225,7 +227,7 @@ const FieldWrapper = styled.div`
   margin-top: 15px;
 `;
 
-const DocumentationLink = styled.a`
+export const DocumentationLink = styled.a`
   position: absolute;
   right: 23px;
   top: -6px;
@@ -252,9 +254,10 @@ const SecondaryWrapper = styled.div`
 
 const HelpSection = styled.div``;
 
-const ResponseContentWrapper = styled.div`
+const ResponseContentWrapper = styled.div<{ isError: boolean }>`
   overflow-y: auto;
   display: grid;
+  height: ${(props) => (props.isError ? "" : "100%")};
 
   ${HelpSection} {
     margin-bottom: 10px;
@@ -829,7 +832,7 @@ export function EditorJSONtoForm(props: Props) {
       key: "response",
       title: "Response",
       panelComponent: (
-        <ResponseContentWrapper>
+        <ResponseContentWrapper isError={!!error}>
           {error && (
             <ResponseTabErrorContainer>
               <ResponseTabErrorContent>
@@ -978,10 +981,8 @@ export function EditorJSONtoForm(props: Props) {
 
   const selectedConfigTab = useSelector(getQueryPaneConfigSelectedTabIndex);
 
-  // Render debugger flag
-  const showDebuggerFlag = useSelector(
-    (state: AppState) => state.ui.debugger.isOpen,
-  );
+  // Debugger render flag
+  const renderDebugger = useSelector(showDebuggerFlag);
 
   const setSelectedConfigTab = useCallback((selectedIndex: number) => {
     dispatch(setQueryPaneConfigSelectedTabIndex(selectedIndex));
@@ -1063,157 +1064,160 @@ export function EditorJSONtoForm(props: Props) {
           </ActionsWrapper>
         </StyledFormRow>
         <Wrapper>
-          <SecondaryWrapper>
-            <TabContainerView>
-              {documentationLink && (
-                <DocumentationLink>
-                  <TooltipComponent
-                    content={createMessage(DOCUMENTATION_TOOLTIP)}
-                    hoverOpenDelay={50}
-                    position="top"
-                  >
-                    <span
-                      className="t--datasource-documentation-link"
-                      onClick={(e: React.MouseEvent) =>
-                        handleDocumentationClick(e)
-                      }
+          <div className="flex flex-1">
+            <SecondaryWrapper>
+              <TabContainerView>
+                {documentationLink && (
+                  <DocumentationLink>
+                    <TooltipComponent
+                      content={createMessage(DOCUMENTATION_TOOLTIP)}
+                      hoverOpenDelay={50}
+                      position="top"
                     >
-                      <AdsIcon
-                        keepColors
-                        name="book-line"
-                        size={IconSize.XXXL}
-                      />
-                      &nbsp;
-                      {createMessage(DOCUMENTATION)}
-                    </span>
-                  </TooltipComponent>
-                </DocumentationLink>
+                      <span
+                        className="t--datasource-documentation-link"
+                        onClick={(e: React.MouseEvent) =>
+                          handleDocumentationClick(e)
+                        }
+                      >
+                        <AdsIcon
+                          keepColors
+                          name="book-line"
+                          size={IconSize.XXXL}
+                        />
+                        &nbsp;
+                        {createMessage(DOCUMENTATION)}
+                      </span>
+                    </TooltipComponent>
+                  </DocumentationLink>
+                )}
+                <TabComponent
+                  onSelect={setSelectedConfigTab}
+                  selectedIndex={selectedConfigTab}
+                  tabs={[
+                    {
+                      key: EDITOR_TABS.QUERY,
+                      title: "Query",
+                      panelComponent: (
+                        <SettingsWrapper>
+                          {editorConfig && editorConfig.length > 0 ? (
+                            renderConfig(editorConfig)
+                          ) : (
+                            <>
+                              <ErrorMessage>
+                                {createMessage(UNEXPECTED_ERROR)}
+                              </ErrorMessage>
+                              <Tag
+                                intent="warning"
+                                interactive
+                                minimal
+                                onClick={() => window.location.reload()}
+                                round
+                              >
+                                {createMessage(ACTION_EDITOR_REFRESH)}
+                              </Tag>
+                            </>
+                          )}
+                          {dataSources.length === 0 && (
+                            <NoDataSourceContainer>
+                              <p className="font18">
+                                {createMessage(NO_DATASOURCE_FOR_QUERY)}
+                              </p>
+                              <EditorButton
+                                disabled={!canCreateDatasource}
+                                filled
+                                icon="plus"
+                                intent="primary"
+                                onClick={() => onCreateDatasourceClick()}
+                                size="small"
+                                text="Add a Datasource"
+                              />
+                            </NoDataSourceContainer>
+                          )}
+                        </SettingsWrapper>
+                      ),
+                    },
+                    {
+                      key: EDITOR_TABS.SETTINGS,
+                      title: "Settings",
+                      panelComponent: (
+                        <SettingsWrapper>
+                          <ActionSettings
+                            actionSettingsConfig={settingConfig}
+                            formName={formName}
+                          />
+                        </SettingsWrapper>
+                      ),
+                    },
+                  ]}
+                />
+              </TabContainerView>
+              {renderDebugger && (
+                <TabbedViewContainer
+                  className="t--query-bottom-pane-container"
+                  ref={panelRef}
+                >
+                  <Resizable
+                    initialHeight={responsePaneHeight}
+                    onResizeComplete={(height: number) =>
+                      setQueryResponsePaneHeight(height)
+                    }
+                    openResizer={isRunning}
+                    panelRef={panelRef}
+                    snapToHeight={ActionExecutionResizerHeight}
+                  />
+                  {isRunning && (
+                    <>
+                      <LoadingOverlayScreen theme={EditorTheme.LIGHT} />
+                      <LoadingOverlayContainer>
+                        <div>
+                          <Text textAlign={"center"} type={TextType.P1}>
+                            {createMessage(ACTION_EXECUTION_MESSAGE, "Query")}
+                          </Text>
+                          <CancelRequestButton
+                            category={Category.secondary}
+                            className={`t--cancel-action-button`}
+                            onClick={() => {
+                              handleCancelActionExecution();
+                            }}
+                            size={Size.medium}
+                            tag="button"
+                            text="Cancel Request"
+                            type="button"
+                          />
+                        </div>
+                      </LoadingOverlayContainer>
+                    </>
+                  )}
+
+                  {output && !!output.length && (
+                    <ResultsCount>
+                      <Text type={TextType.P3}>
+                        Result:
+                        <Text type={TextType.H5}>{` ${output.length} Record${
+                          output.length > 1 ? "s" : ""
+                        }`}</Text>
+                      </Text>
+                    </ResultsCount>
+                  )}
+
+                  <EntityBottomTabs
+                    expandedHeight={`${ActionExecutionResizerHeight}px`}
+                    onSelect={setSelectedResponseTab}
+                    selectedTabKey={selectedResponseTab}
+                    tabs={responseTabs}
+                  />
+                  <AdsIcon
+                    className="close-debugger t--close-debugger"
+                    name="close-modal"
+                    onClick={onClose}
+                    size={IconSize.XL}
+                  />
+                </TabbedViewContainer>
               )}
-              <TabComponent
-                onSelect={setSelectedConfigTab}
-                selectedIndex={selectedConfigTab}
-                tabs={[
-                  {
-                    key: EDITOR_TABS.QUERY,
-                    title: "Query",
-                    panelComponent: (
-                      <SettingsWrapper>
-                        {editorConfig && editorConfig.length > 0 ? (
-                          renderConfig(editorConfig)
-                        ) : (
-                          <>
-                            <ErrorMessage>
-                              {createMessage(UNEXPECTED_ERROR)}
-                            </ErrorMessage>
-                            <Tag
-                              intent="warning"
-                              interactive
-                              minimal
-                              onClick={() => window.location.reload()}
-                              round
-                            >
-                              {createMessage(ACTION_EDITOR_REFRESH)}
-                            </Tag>
-                          </>
-                        )}
-                        {dataSources.length === 0 && (
-                          <NoDataSourceContainer>
-                            <p className="font18">
-                              {createMessage(NO_DATASOURCE_FOR_QUERY)}
-                            </p>
-                            <EditorButton
-                              disabled={!canCreateDatasource}
-                              filled
-                              icon="plus"
-                              intent="primary"
-                              onClick={() => onCreateDatasourceClick()}
-                              size="small"
-                              text="Add a Datasource"
-                            />
-                          </NoDataSourceContainer>
-                        )}
-                      </SettingsWrapper>
-                    ),
-                  },
-                  {
-                    key: EDITOR_TABS.SETTINGS,
-                    title: "Settings",
-                    panelComponent: (
-                      <SettingsWrapper>
-                        <ActionSettings
-                          actionSettingsConfig={settingConfig}
-                          formName={formName}
-                        />
-                      </SettingsWrapper>
-                    ),
-                  },
-                ]}
-              />
-            </TabContainerView>
-            {showDebuggerFlag && (
-              <TabbedViewContainer
-                className="t--query-bottom-pane-container"
-                ref={panelRef}
-              >
-                <Resizable
-                  initialHeight={responsePaneHeight}
-                  onResizeComplete={(height: number) =>
-                    setQueryResponsePaneHeight(height)
-                  }
-                  openResizer={isRunning}
-                  panelRef={panelRef}
-                  snapToHeight={ActionExecutionResizerHeight}
-                />
-                {isRunning && (
-                  <>
-                    <LoadingOverlayScreen theme={EditorTheme.LIGHT} />
-                    <LoadingOverlayContainer>
-                      <div>
-                        <Text textAlign={"center"} type={TextType.P1}>
-                          {createMessage(ACTION_EXECUTION_MESSAGE, "Query")}
-                        </Text>
-                        <CancelRequestButton
-                          category={Category.secondary}
-                          className={`t--cancel-action-button`}
-                          onClick={() => {
-                            handleCancelActionExecution();
-                          }}
-                          size={Size.medium}
-                          tag="button"
-                          text="Cancel Request"
-                          type="button"
-                        />
-                      </div>
-                    </LoadingOverlayContainer>
-                  </>
-                )}
-
-                {output && !!output.length && (
-                  <ResultsCount>
-                    <Text type={TextType.P3}>
-                      Result:
-                      <Text type={TextType.H5}>{` ${output.length} Record${
-                        output.length > 1 ? "s" : ""
-                      }`}</Text>
-                    </Text>
-                  </ResultsCount>
-                )}
-
-                <EntityBottomTabs
-                  expandedHeight={`${ActionExecutionResizerHeight}px`}
-                  onSelect={setSelectedResponseTab}
-                  selectedTabKey={selectedResponseTab}
-                  tabs={responseTabs}
-                />
-                <AdsIcon
-                  className="close-debugger t--close-debugger"
-                  name="close-modal"
-                  onClick={onClose}
-                  size={IconSize.XL}
-                />
-              </TabbedViewContainer>
-            )}
-          </SecondaryWrapper>
+            </SecondaryWrapper>
+            <AIWindow className="border-t border-l" windowType="fixed" />
+          </div>
           <SidebarWrapper
             show={(hasDependencies || !!output) && !guidedTourEnabled}
           >
