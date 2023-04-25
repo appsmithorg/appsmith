@@ -15,7 +15,7 @@ let widgets = [
   "datepickerwidget2",
   "tabswidget",
   "phoneinputwidget",
-  "categorysliderwidget"
+  "categorysliderwidget",
 ];
 let height = {
   switchwidget: 0,
@@ -99,7 +99,10 @@ describe("Validating Mobile Views for Auto Fill Widgets", function () {
     }
   });
 
-  let phones = [[390, 844], [360, 780]];
+  let phones = [
+    [390, 844],
+    [360, 780],
+  ];
   phones.forEach((phone) => {
     it(`${phone} port execution For Auto Fill Widgets`, function () {
       if (Cypress._.isArray(phone)) {
@@ -118,18 +121,6 @@ describe("Validating Mobile Views for Auto Fill Widgets", function () {
         .then((newwidth) => {
           expect(width[widgets[0]]).to.not.equal(newwidth);
         });
-      /*
-      cy.get(".t--widget-currencyinputwidget")
-        .invoke("css", "height")
-        .then((newheight) => {
-          expect(parseFloat(height[widgets[1]])).to.be.at.least(parseFloat(newheight));
-        });
-      cy.get(".t--widget-currencyinputwidget")
-        .invoke("css", "width")
-        .then((newwidth) => {
-          expect(parseFloat(width[widgets[1]])).to.be.at.least(parseFloat(newwidth));
-        });
-        */
       cy.get(".t--widget-codescannerwidget")
         .invoke("css", "height")
         .then((newheight) => {
@@ -182,18 +173,6 @@ describe("Validating Mobile Views for Auto Fill Widgets", function () {
         .then((newwidth) => {
           expect(width[widgets[6]]).to.not.equal(newwidth);
         });
-      /*  
-      cy.get(".t--widget-selectwidget")
-        .invoke("css", "height")
-        .then((newheight) => {
-          expect(parseFloat(height[widgets[7]])).to.be.at.least(parseFloat(newheight));
-        });
-      cy.get(".t--widget-selectwidget")
-        .invoke("css", "width")
-        .then((newwidth) => {
-          expect(parseFloat(width[widgets[7]])).to.be.at.least(parseFloat(newwidth));
-        });
-        */
       cy.get(".t--widget-radiogroupwidget")
         .invoke("css", "height")
         .then((newheight) => {
@@ -204,41 +183,29 @@ describe("Validating Mobile Views for Auto Fill Widgets", function () {
         .then((newwidth) => {
           expect(width[widgets[8]]).to.not.equal(newwidth);
         });
-      // cy.get(".t--widget-datepickerwidget2")
-      //   .scrollIntoView()
-      //   .invoke("css", "height")
-      //   .then((newheight) => {
-      //     expect(parseFloat(height[widgets[9]])).to.be.at.least(parseFloat(newheight));
-      //   });
       cy.get(".t--widget-datepickerwidget2")
         .scrollIntoView()
         .invoke("css", "width")
         .then((newwidth) => {
-          expect(parseFloat(width[widgets[9]])).to.be.at.least(parseFloat(newwidth));
+          expect(parseFloat(width[widgets[9]])).to.be.at.least(
+            parseFloat(newwidth),
+          );
         });
       cy.get(".t--widget-tabswidget")
         .invoke("css", "height")
         .then((newheight) => {
-          expect(parseFloat(height[widgets[10]])).to.be.at.least(parseFloat(newheight));
+          expect(parseFloat(height[widgets[10]])).to.be.at.least(
+            parseFloat(newheight),
+          );
         });
       cy.get(".t--widget-tabswidget")
         .invoke("css", "width")
         .then((newwidth) => {
-          expect(parseFloat(width[widgets[10]])).to.be.at.least(parseFloat(newwidth));
+          expect(parseFloat(width[widgets[10]])).to.be.at.least(
+            parseFloat(newwidth),
+          );
         });
-        /*
-      cy.get(".t--widget-phoneinputwidget")
-        .invoke("css", "height")
-        .then((newheight) => {
-          expect(height[widgets[11]]).to.equal(newheight);
-        });
-      cy.get(".t--widget-phoneinputwidget")
-        .invoke("css", "width")
-        .then((newwidth) => {
-          expect(width[widgets[11]]).to.equal(newwidth);
-        });
-        */
-        cy.get(".t--widget-categorysliderwidget")
+      cy.get(".t--widget-categorysliderwidget")
         .invoke("css", "height")
         .then((newheight) => {
           expect(height[widgets[12]]).to.equal(newheight);
