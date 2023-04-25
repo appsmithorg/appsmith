@@ -64,6 +64,9 @@ export interface AppsmithEntity extends Omit<AppDataState, "store"> {
   store: Record<string, unknown>;
   theme: AppTheme["properties"];
 }
+export interface AppsmithEntityConfig {
+  ENTITY_TYPE: ENTITY_TYPE.APPSMITH;
+}
 
 type DataTreeSeed = {
   actions: ActionDataState;
@@ -81,7 +84,8 @@ type DataTreeSeed = {
 export type DataTreeEntityConfig =
   | WidgetEntityConfig
   | ActionEntityConfig
-  | JSActionEntityConfig;
+  | JSActionEntityConfig
+  | AppsmithEntityConfig;
 
 export type ConfigTree = {
   [entityName: string]: DataTreeEntityConfig;
@@ -155,7 +159,9 @@ export class DataTreeFactory {
       theme,
     } as AppsmithEntity;
     (dataTree.appsmith as AppsmithEntity).ENTITY_TYPE = ENTITY_TYPE.APPSMITH;
-
+    configTree["appsmith"] = {
+      ENTITY_TYPE: ENTITY_TYPE.APPSMITH,
+    };
     const startMetaWidgets = performance.now();
 
     Object.values(metaWidgets).forEach((widget) => {
