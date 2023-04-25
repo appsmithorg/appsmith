@@ -95,6 +95,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
@@ -172,6 +173,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         //      : Sample apps where datasource config needs to be shared => Read permission
 
         boolean isGitSync = SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseFor);
+        AtomicReference<Boolean> exportWithConfiguration = new AtomicReference<>(false);
 
         // If Git-sync, then use MANAGE_APPLICATIONS, else use EXPORT_APPLICATION permission to fetch application
         AclPermission permission = isGitSync ? applicationPermission.getEditPermission() : applicationPermission.getExportPermission();
@@ -215,7 +217,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 // Explicitly setting the boolean to avoid NPE for future checks
                                 application.setExportWithConfiguration(false);
                             }
-
+                            exportWithConfiguration.set(application.getExportWithConfiguration());
                             return application;
                         });
 
@@ -265,7 +267,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     applicationJson.setExportedApplication(application);
                     Set<String> dbNamesUsedInActions = new HashSet<>();
 
-                    Flux<NewPage> pageFlux = TRUE.equals(application.getExportWithConfiguration())
+                    Flux<NewPage> pageFlux = TRUE.equals(exportWithConfiguration.get())
                             ? newPageRepository.findByApplicationId(applicationId, pagePermission.getReadPermission())
                             : newPageRepository.findByApplicationId(applicationId, pagePermission.getEditPermission());
 
@@ -322,7 +324,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     put(FieldName.PAGE_LIST, updatedPageSet);
                                 }});
 
-                                Flux<Datasource> datasourceFlux = TRUE.equals(application.getExportWithConfiguration())
+                                Flux<Datasource> datasourceFlux = TRUE.equals(exportWithConfiguration.get())
                                         ? datasourceRepository.findAllByWorkspaceId(workspaceId, datasourcePermission.getReadPermission())
                                         : datasourceRepository.findAllByWorkspaceId(workspaceId, datasourcePermission.getEditPermission());
 
@@ -333,7 +335,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         datasourceIdToNameMap.put(datasource.getId(), datasource.getName()));
                                 applicationJson.setDatasourceList(datasourceList);
 
-                                Flux<ActionCollection> actionCollectionFlux = TRUE.equals(application.getExportWithConfiguration())
+                                Flux<ActionCollection> actionCollectionFlux = TRUE.equals(exportWithConfiguration.get())
                                         ? actionCollectionRepository.findByListOfPageIds(unPublishedPages, actionPermission.getReadPermission())
                                         : actionCollectionRepository.findByListOfPageIds(unPublishedPages, actionPermission.getEditPermission());
                                 return actionCollectionFlux;
@@ -389,7 +391,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 applicationJson.setActionCollectionList(actionCollections);
                                 applicationJson.getUpdatedResources().put(FieldName.ACTION_COLLECTION_LIST, updatedActionCollectionSet);
 
-                                Flux<NewAction> actionFlux = TRUE.equals(application.getExportWithConfiguration())
+                                Flux<NewAction> actionFlux = TRUE.equals(exportWithConfiguration.get())
                                         ? newActionRepository.findByListOfPageIds(unPublishedPages, actionPermission.getReadPermission())
                                         : newActionRepository.findByListOfPageIds(unPublishedPages, actionPermission.getEditPermission());
 
@@ -462,7 +464,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                                 // Save decrypted fields for datasources for internally used sample apps and templates only
                                 // when serialising for file sharing
-                                if (TRUE.equals(application.getExportWithConfiguration()) && SerialiseApplicationObjective.SHARE.equals(serialiseFor)) {
+                                if (TRUE.equals(exportWithConfiguration.get()) && SerialiseApplicationObjective.SHARE.equals(serialiseFor)) {
                                     // Save decrypted fields for datasources
                                     Map<String, DecryptedSensitiveFields> decryptedFields = new HashMap<>();
                                     applicationJson.getDatasourceList().forEach(datasource -> {
