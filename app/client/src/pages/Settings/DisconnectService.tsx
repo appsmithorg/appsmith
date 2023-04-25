@@ -34,7 +34,7 @@ export function DisconnectService(props: {
 
   return (
     <Container>
-      <Text color="var(--ads-v2-color-fg-error)" kind="heading-m" renderAs="h2">
+      <Text color="var(--ads-v2-color-fg-error)" kind="heading-l" renderAs="h2">
         {createMessage(DANGER_ZONE)}
       </Text>
       <Text renderAs="h3">{props.subHeader}</Text>
@@ -45,6 +45,7 @@ export function DisconnectService(props: {
         onClick={() =>
           warnDisconnectAuth ? callDisconnect() : setWarnDisconnectAuth(true)
         }
+        size="md"
       >
         {warnDisconnectAuth
           ? createMessage(DISCONNECT_CONFIRMATION)

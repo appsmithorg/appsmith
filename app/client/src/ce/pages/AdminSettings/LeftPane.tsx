@@ -65,10 +65,7 @@ export const StyledLink = styled(Link)<{ $active: boolean }>`
   gap: 12px;
 
   && {
-    color: ${(props) =>
-      props.$active
-        ? props.theme.colors.menuItem.hoverText
-        : `var(--ads-v2-color-fg)`};
+    color: var(--ads-v2-color-fg);
   }
   &:hover {
     text-decoration: none;

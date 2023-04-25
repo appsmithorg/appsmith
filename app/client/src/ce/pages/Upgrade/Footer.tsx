@@ -17,7 +17,7 @@ const FooterContainer = styled.div`
   margin-left: calc(264px + 16px);
   gap: 20px;
   padding: 16px 20px;
-  background-color: var(--ads-v2-color-white);
+  background-color: var(--ads-v2-color-bg);
 
   & .left {
     min-width: 362px;

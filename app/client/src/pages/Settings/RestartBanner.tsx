@@ -51,7 +51,7 @@ const RestartContainer = styled.div`
   height: ${(props) => props.theme.settings.footerHeight}px;
   z-index: 20;
   padding: 0px ${(props) => props.theme.spaces[11]}px 0px 276px;
-  background: var(--ads-v2-color-white);
+  background: var(--ads-v2-color-bg);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -78,7 +78,7 @@ const Heading = styled(Text)`
 `;
 
 const AppIconWrapper = styled.div`
-  background: var(--appsmith-color-red-50);
+  background: var(--ads-v2-color-bg-error);
   border-radius: 50%;
   padding: 4px;
   margin-right: 12px;
@@ -88,7 +88,7 @@ const AppIconWrapper = styled.div`
     height: 18px;
 
     path {
-      fill: var(--ads-v2-color-fg-error);
+      fill: var(--ads-v2-color-fg-on-error);
     }
   }
 `;
@@ -105,7 +105,7 @@ function Header() {
         </AppIconWrapper>
       ) : (
         <Spinner
-          iconProps={{ color: "var(--ads-v2-color-orange-500)" }}
+          iconProps={{ color: "var(--ads-v2-color-bg-brand)" }}
           size="lg"
         />
       )}

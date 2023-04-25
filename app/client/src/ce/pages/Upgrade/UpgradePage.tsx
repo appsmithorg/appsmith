@@ -6,7 +6,7 @@ import { FooterComponent as Footer } from "./Footer";
 import type { UpgradePageProps } from "./types";
 
 export const Container = styled.div`
-  background-color: var(--ads-v2-color-black-50);
+  background-color: var(--ads-v2-color-bg-subtle);
   height: auto;
   min-height: 0;
   overflow: auto;

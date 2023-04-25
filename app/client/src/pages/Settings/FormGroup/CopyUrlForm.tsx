@@ -7,6 +7,9 @@ import { Icon, Input, Text, toast, Tooltip } from "design-system";
 export const BodyContainer = styled.div`
   width: 100%;
   padding: 0 0 16px;
+  .ads-v2-input__input-section-icon[data-has-onclick="true"] * {
+    cursor: pointer !important;
+  }
 `;
 
 const HeaderWrapper = styled.div`
@@ -62,7 +65,6 @@ function CopyUrlForm(props: {
           endIconProps={{
             onClick: handleCopy,
           }}
-          isDisabled
           isReadOnly
           size="md"
           value={fieldValue}

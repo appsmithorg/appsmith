@@ -72,8 +72,9 @@ const GroupBody = styled.div`
     }
 
     .tag-input .${Classes.TAG} {
-      color: var(--ads-v2-color-black-700);
-      background-color: var(--ads-v2-color-black-200);
+      color: var(--ads-v2-color-fg);
+      background-color: var(--ads-v2-color-bg-subtle);
+      border-radius: var(--ads-v2-border-radius);
       ${(props) => getTypographyByKey(props, "h5")}
       // Cursor on close icon need to be a pointer
       svg:hover {

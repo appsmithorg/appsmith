@@ -42,7 +42,7 @@ const Image = styled.img`
   width: 32px;
   height: 32px;
   margin-right: 8px;
-  background: var(--ads-v2-color-black-75);
+  background: var(--ads-v2-color-bg-subtle);
   object-fit: cover;
   border-radius: 50%;
   padding: 5px;
@@ -50,7 +50,7 @@ const Image = styled.img`
 `;
 
 const MethodDetailsWrapper = styled.div`
-  color: #2e3d49;
+  color: var(--ads-v2-color-fg-muted);
   width: 492px;
   margin-right: 60px;
 `;

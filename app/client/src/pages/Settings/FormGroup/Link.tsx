@@ -1,6 +1,5 @@
 import { Icon } from "@blueprintjs/core";
 import { Text } from "design-system";
-import { Colors } from "constants/Colors";
 import { createMessage, LEARN_MORE } from "@appsmith/constants/messages";
 import React from "react";
 import { useDispatch } from "react-redux";
@@ -10,7 +9,7 @@ import type { SettingComponentProps } from "./Common";
 const LinkWrapper = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[16]}px;
   margin-top: 3px;
-  background: var(--ads-v2-color-black-75);
+  background: var(--ads-v2-color-bg);
   padding: ${(props) => props.theme.spaces[3]}px
     ${(props) => props.theme.spaces[7]}px;
   display: inline-block;
@@ -21,25 +20,25 @@ const StyledLink = styled.a`
   text-transform: uppercase;
   &&,
   &:hover {
-    color: var(--ads-v2-color-black-550);
+    color: var(--ads-v2-color-fg-emphasis);
     text-decoration: none;
   }
 `;
 
 const StyledIcon = styled(Icon)`
   && {
-    color: var(--ads-v2-color-black-550);
+    color: var(--ads-v2-color-fg);
     transform: translate(2px, -1px);
 
     svg:hover path {
-      fill: var(--ads-v2-color-black-550);
+      fill: var(--ads-v2-color-fg-emphasis);
       cursor: pointer;
     }
   }
 `;
 
 const LinkLabel = styled.span`
-  color: ${Colors.MIRAGE};
+  color: var(--ads-v2-color-fg);
 `;
 
 export default function Link({ setting }: SettingComponentProps) {

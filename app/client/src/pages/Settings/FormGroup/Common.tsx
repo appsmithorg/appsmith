@@ -16,11 +16,6 @@ export const StyledFormGroup = styled.div`
   &.t--admin-settings-dropdown {
     div {
       width: 100%;
-      &:hover {
-        &:hover {
-          background-color: ${(props) => props.theme.colors.textInput.hover.bg};
-        }
-      }
     }
   }
   & svg:hover {

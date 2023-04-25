@@ -35,7 +35,7 @@ const Line = styled.hr`
   display: block;
   height: 1px;
   border: 0;
-  border-top: 1px solid #DFDFDF;
+  border-top: 1px solid var(--ads-v2-color-border);
   margin: 0 16px;
   flex: 1 0 auto;
 }

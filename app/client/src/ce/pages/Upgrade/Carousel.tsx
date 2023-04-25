@@ -55,7 +55,7 @@ const CarouselContainer = styled.div`
               color: var(--ads-v2-color-fg);
 
               span {
-                color: var(--ads-v2-color-orange-500);
+                color: var(--ads-v2-color-fg-brand);
                 font-weight: 500;
               }
             }
@@ -69,11 +69,11 @@ const CarouselContainer = styled.div`
         box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.06),
           0 4px 8px -2px rgba(0, 0, 0, 0.1);
 
-        background-color: var(--ads-v2-color-white);
+        background-color: var(--ads-v2-color-bg);
         border-radius: var(--ads-v2-border-radius);
 
         & .icon-container svg path {
-          fill: var(--ads-v2-color-orange-500);
+          fill: var(--ads-v2-color-fg-brand);
         }
 
         & .trigger {
