@@ -59,7 +59,7 @@ import { bindingMarker } from "components/editorComponents/CodeEditor/MarkHelper
 import {
   entityMarker,
   NAVIGATE_TO_ATTRIBUTE,
-  PEEKABLE_ATTRIBUTE,
+  // PEEKABLE_ATTRIBUTE,
   PEEKABLE_CH_END,
   PEEKABLE_CH_START,
   PEEKABLE_LINE,
@@ -239,6 +239,11 @@ type State = {
       })
     | undefined;
   isDynamic: boolean;
+  newPeekOverlay:
+    | {
+        tokenElement: Element;
+      }
+    | undefined;
 };
 
 const getEditorIdentifier = (props: EditorProps): string => {
@@ -272,6 +277,7 @@ class CodeEditor extends Component<Props, State> {
       changeStarted: false,
       ctrlPressed: false,
       peekOverlayProps: undefined,
+      newPeekOverlay: undefined,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
@@ -587,39 +593,97 @@ class CodeEditor extends Component<Props, State> {
     PEEK_OVERLAY_DELAY,
   );
 
-  handleMouseOver = (event: MouseEvent) => {
-    if (
-      event.target instanceof Element &&
-      event.target.hasAttribute(PEEKABLE_ATTRIBUTE)
-    ) {
-      const tokenElement = event.target;
-      const tokenElementPosition = tokenElement.getBoundingClientRect();
-      const peekableAttribute = tokenElement.getAttribute(PEEKABLE_ATTRIBUTE);
-      if (peekableAttribute) {
-        // don't retrigger if hovering over the same token
-        if (
-          this.state.peekOverlayProps?.name === peekableAttribute &&
-          this.state.peekOverlayProps?.position.top ===
-            tokenElementPosition.top &&
-          this.state.peekOverlayProps?.position.left ===
-            tokenElementPosition.left
-        ) {
-          return;
-        }
-        const paths = peekableAttribute.split(".");
-        if (paths.length) {
-          paths.splice(1, 0, "peekData");
-          this.showPeekOverlay(
-            peekableAttribute,
-            tokenElement,
-            tokenElementPosition,
-            _.get(this.props.entitiesForNavigation, paths),
-          );
-        }
+  showNewPeekOverlay = (tokenElement: Element) => {
+    if (this.state.newPeekOverlay) {
+      if (tokenElement !== this.state.newPeekOverlay.tokenElement) {
+        this.hideNewPeekOverlay();
+      } else {
+        return;
       }
-    } else {
-      this.hidePeekOverlay();
     }
+    tokenElement.classList.add("peekaboo");
+    this.setState({
+      newPeekOverlay: {
+        tokenElement,
+      },
+    });
+  };
+
+  hideNewPeekOverlay = () => {
+    if (this.state.newPeekOverlay) {
+      this.state.newPeekOverlay.tokenElement.classList.remove("peekaboo");
+      this.setState({
+        newPeekOverlay: undefined,
+      });
+    }
+  };
+
+  handleMouseOver = (event: MouseEvent) => {
+    if (event.target instanceof Element) {
+      const tokenElement = event.target;
+      const tokenPos = this.editor.coordsChar({
+        left: event.clientX,
+        top: event.clientY,
+      });
+      const lineContent = this.editor.getLine(tokenPos.line);
+      console.log("on hover src element", tokenElement);
+      console.log("on hover line", lineContent);
+      if (tokenElement.classList.contains("cm-m-javascript")) {
+        if (tokenElement.classList.contains("cm-variable")) {
+          // JsObject1.data -> JsObject1
+          // storeValue("x", 123) -> storeValue
+          console.log("on hover element - variable");
+          this.showNewPeekOverlay(tokenElement);
+        } else if (tokenElement.classList.contains("cm-property")) {
+          // object definitions const obj = { x: 123 } -> x
+          // local variables obj.x -> x (need to filter local variables)
+          // JsObject1.data -> data
+          // JsObject1.data.filter() -> filter (need identify function calls)
+          console.log("on hover element - property");
+          this.showNewPeekOverlay(tokenElement);
+        } else if (tokenElement.classList.contains("cm-keyword")) {
+          // needed to handle this keyword
+          // export, default, return etc... (need to filter)
+          console.log("on hover element - keyword");
+        } else {
+          this.hideNewPeekOverlay();
+        }
+      } else {
+        this.hideNewPeekOverlay();
+      }
+    }
+    // if (
+    //   event.target instanceof Element &&
+    //   event.target.hasAttribute(PEEKABLE_ATTRIBUTE)
+    // ) {
+    //   const tokenElement = event.target;
+    //   const tokenElementPosition = tokenElement.getBoundingClientRect();
+    //   const peekableAttribute = tokenElement.getAttribute(PEEKABLE_ATTRIBUTE);
+    //   if (peekableAttribute) {
+    //     // don't retrigger if hovering over the same token
+    //     if (
+    //       this.state.peekOverlayProps?.name === peekableAttribute &&
+    //       this.state.peekOverlayProps?.position.top ===
+    //         tokenElementPosition.top &&
+    //       this.state.peekOverlayProps?.position.left ===
+    //         tokenElementPosition.left
+    //     ) {
+    //       return;
+    //     }
+    //     const paths = peekableAttribute.split(".");
+    //     if (paths.length) {
+    //       paths.splice(1, 0, "peekData");
+    //       this.showPeekOverlay(
+    //         peekableAttribute,
+    //         tokenElement,
+    //         tokenElementPosition,
+    //         _.get(this.props.entitiesForNavigation, paths),
+    //       );
+    //     }
+    //   }
+    // } else {
+    //   this.hidePeekOverlay();
+    // }
   };
 
   handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {

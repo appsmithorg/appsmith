@@ -172,8 +172,12 @@ export const EditorWrapper = styled.div<{
       font-weight: 700;
     }
 
-    .${PEEKABLE_CLASSNAME}:hover, .${PEEK_STYLE_PERSIST_CLASS} {
-      background-color: #f4ffde;
+    // .${PEEKABLE_CLASSNAME}:hover, .${PEEK_STYLE_PERSIST_CLASS} {
+    //   background-color: #f4ffde;
+    // }
+
+    .peekaboo {
+      background-color: red;
     }
 
     .${NAVIGATION_CLASSNAME} {

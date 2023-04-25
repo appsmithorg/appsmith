@@ -118,9 +118,9 @@ const getMarkOptions = (
   lineNo: number,
 ): CodeMirror.TextMarkerOptions => {
   return {
-    className: `${data.navigable ? NAVIGATION_CLASSNAME : ""} ${
-      data.peekable ? PEEKABLE_CLASSNAME : ""
-    }`,
+    // className: `${data.navigable ? NAVIGATION_CLASSNAME : ""} ${
+    //   data.peekable ? PEEKABLE_CLASSNAME : ""
+    // }`,
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     attributes: {
