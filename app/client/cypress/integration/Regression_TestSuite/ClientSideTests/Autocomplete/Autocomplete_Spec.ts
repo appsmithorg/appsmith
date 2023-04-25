@@ -3,6 +3,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const {
   AggregateHelper: agHelper,
   CommonLocators: locator,
+  DataSources: dataSources,
   EntityExplorer: ee,
   LibraryInstaller: installer,
   PropertyPane: propPane,
@@ -108,5 +109,17 @@ describe("Autocomplete bug fixes", function () {
     installer.uninstallLibrary("uuidjs");
     propPane.TypeTextIntoField("Text", "{{UUID.");
     agHelper.AssertElementAbsence(locator._hints);
+  });
+
+  it("9. Bug #20449 Cursor should be between parenthesis when function is autocompleted", function () {
+    ee.SelectEntityByName("Text1");
+    propPane.TypeTextIntoField("Text", "{{console.l");
+
+    agHelper.GetNClickByContains(locator._hints, "log");
+
+    propPane.TypeTextIntoField("Text", '"hello"', false);
+
+    // If the cursor was not between parenthesis, the following command will fail
+    propPane.ValidatePropertyFieldValue("Text", '{{console.log("hello")}}');
   });
 });
