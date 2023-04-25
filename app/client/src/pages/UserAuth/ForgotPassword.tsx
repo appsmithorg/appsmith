@@ -85,7 +85,7 @@ export const ForgotPassword = (props: ForgotPasswordProps) => {
               {
                 to: "https://docs.appsmith.com/v/v1.2.1/setup/docker/email",
                 target: "_blank",
-                children: "Configure Email service",
+                children: "Configure email service",
               },
             ]}
           >

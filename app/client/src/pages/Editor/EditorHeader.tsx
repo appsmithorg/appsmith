@@ -390,7 +390,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                     name="hamburger"
                     size="md"
                   />
-                  {!pinned && (
+                  {pinned && (
                     <Icon
                       className="absolute transition-opacity opacity-0 group-hover:opacity-100"
                       name="double-arrow-left"
@@ -398,7 +398,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                       size="md"
                     />
                   )}
-                  {pinned && (
+                  {!pinned && (
                     <Icon
                       className="absolute transition-opacity opacity-0 group-hover:opacity-100"
                       name="double-arrow-right"

@@ -25,11 +25,11 @@ function Container(props: ContainerProps) {
           src={getAssetUrl(tenantConfig.brandLogoUrl)}
         />
         <div className="flex flex-col gap-2 text-center">
-          <h1 className="text-xl font-semibold text-center text-[color:var(--ads-v2\-color-fg-emphasis-plus)]">
+          <h1 className="text-xl font-semibold text-center text-[color:var(--ads-v2\-color-fg-emphasis)]">
             {title}
           </h1>
           {subtitle && (
-            <p className="text-base text-center text-[color:var(--ads-v2\-color-fg-emphasis)]">
+            <p className="text-base text-center text-[color:var(--ads-v2\-color-fg)]">
               {subtitle}
             </p>
           )}

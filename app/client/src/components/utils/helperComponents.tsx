@@ -21,7 +21,7 @@ export const HelpPopoverStyle = createGlobalStyle`
 
 export const StyledBackLink = styled(Link)`
   display: inline-flex;
-  margin: 0 0 20px 0;
+  margin: 0 0 var(--ads-v2-spaces-7) 0;
 `;
 
 export const SettingsHeader = styled.h2`

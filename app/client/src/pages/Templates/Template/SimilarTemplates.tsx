@@ -4,7 +4,7 @@ import {
   VIEW_ALL_TEMPLATES,
 } from "@appsmith/constants/messages";
 import type { Template as TemplateInterface } from "api/TemplatesApi";
-import { Text, Button } from "design-system";
+import { Text, Link } from "design-system";
 import React from "react";
 import type { MasonryProps } from "react-masonry-css";
 import Masonry from "react-masonry-css";
@@ -63,14 +63,9 @@ function SimilarTemplates(props: SimilarTemplatesProp) {
           <Text kind="heading-m" renderAs="h4">
             {createMessage(SIMILAR_TEMPLATES)}
           </Text>
-          <Button
-            endIcon="view-all"
-            kind="tertiary"
-            onClick={props.onBackPress}
-            size="md"
-          >
+          <Link endIcon="view-all" onClick={props.onBackPress}>
             {createMessage(VIEW_ALL_TEMPLATES)}
-          </Button>
+          </Link>
         </SimilarTemplatesTitleWrapper>
         <Masonry
           breakpointCols={props.breakpointCols}
