@@ -103,17 +103,12 @@ describe("List widget v2 - meta hydration tests", () => {
   });
 
   it("1. setup serverside data", () => {
-    cy.wait(1000);
-    _.dataSources.CreateDataSource("Postgres");
-    cy.get("@dsName").then(($dsName) => {
-      _.dataSources.CreateQueryAfterDSSaved(
-        "SELECT * FROM users OFFSET {{List1.pageNo * List1.pageSize}} LIMIT {{List1.pageSize}};",
-        "Query1",
-      );
-      _.dataSources.RunQuery();
-    });
-
-    cy.get('.t--entity-name:contains("Page1")').click({ force: true });
+    cy.createAndFillApi(
+      "http://host.docker.internal:5001/v1/mock-api?records=20&page={{List1.pageNo}}&size={{List1.pageSize}}",
+      "",
+    );
+    cy.RunAPI();
+    cy.SearchEntityandOpen("List1");
 
     cy.wait(1000);
 
@@ -121,12 +116,12 @@ describe("List widget v2 - meta hydration tests", () => {
 
     testJsontextClear("items");
 
-    cy.testJsontext("items", "{{Query1.data}}");
+    cy.testJsontext("items", "{{Api1.data}}");
 
     cy.togglebar(commonlocators.serverSidePaginationCheckbox);
 
     cy.get(toggleJSButton("onpagechange")).click({ force: true });
-    cy.testJsontext("onpagechange", "{{Query1.run()}}");
+    cy.testJsontext("onpagechange", "{{Api1.run()}}");
 
     cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`).should(
       "have.length",
@@ -215,15 +210,15 @@ describe("List widget v2 - meta hydration tests", () => {
         .should("have.length", 3),
     );
 
-    cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
-      .eq(0)
-      .within(() => {
-        cy.waitUntil(() =>
-          cy
-            .get(".rc-select-selection-overflow-item .remove-icon")
-            .should("exist"),
-        );
-      });
+    cy.waitUntil(() =>
+      cy
+        .get(
+          `${widgetSelector(
+            "List1",
+          )} ${containerWidgetSelector} .rc-select-selection-overflow-item .remove-icon`,
+        )
+        .should("have.length", 3),
+    );
 
     cy.waitUntil(
       () =>
@@ -275,15 +270,15 @@ describe("List widget v2 - meta hydration tests", () => {
         .should("have.length", 3),
     );
 
-    cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
-      .eq(0)
-      .within(() => {
-        cy.waitUntil(() =>
-          cy
-            .get(".rc-select-selection-overflow-item .remove-icon")
-            .should("exist"),
-        );
-      });
+    cy.waitUntil(() =>
+      cy
+        .get(
+          `${widgetSelector(
+            "List1",
+          )} ${containerWidgetSelector} .rc-select-selection-overflow-item .remove-icon`,
+        )
+        .should("have.length", 3),
+    );
 
     cy.waitUntil(
       () =>
@@ -400,15 +395,15 @@ describe("List widget v2 - meta hydration tests", () => {
         .should("have.length", 3),
     );
 
-    cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
-      .eq(0)
-      .within(() => {
-        cy.waitUntil(() =>
-          cy
-            .get(".rc-select-selection-overflow-item .remove-icon")
-            .should("exist"),
-        );
-      });
+    cy.waitUntil(() =>
+      cy
+        .get(
+          `${widgetSelector(
+            "List1",
+          )} ${containerWidgetSelector} .rc-select-selection-overflow-item .remove-icon`,
+        )
+        .should("have.length", 3),
+    );
 
     cy.waitUntil(
       () =>
@@ -460,15 +455,15 @@ describe("List widget v2 - meta hydration tests", () => {
         .should("have.length", 3),
     );
 
-    cy.get(`${widgetSelector("List1")} ${containerWidgetSelector}`)
-      .eq(0)
-      .within(() => {
-        cy.waitUntil(() =>
-          cy
-            .get(".rc-select-selection-overflow-item .remove-icon")
-            .should("exist"),
-        );
-      });
+    cy.waitUntil(() =>
+      cy
+        .get(
+          `${widgetSelector(
+            "List1",
+          )} ${containerWidgetSelector} .rc-select-selection-overflow-item .remove-icon`,
+        )
+        .should("have.length", 3),
+    );
 
     cy.waitUntil(
       () =>
