@@ -15,6 +15,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
 // import { useLocalStorage } from "utils/hooks/localstorage";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import ArrowLeft from "remixicon-react/ArrowLeftSLineIcon";
 
 const QueryForm = styled.form`
   > div:focus-within {
@@ -44,7 +45,18 @@ export function AskAI() {
   const contextGenerator = useGPTContextGenerator();
   const [isLoading, setLoading] = useState(false);
   const location = useLocation();
+  const [showExamplePrompt, setShowExamplePrompt] = useState(false);
   // const [queryCount, setQueryCount] = useLocalStorage("queryCount", "25");
+
+  useEffect(() => {
+    setShowExamplePrompt(messages.length === 0);
+    setTimeout(() => {
+      messageContainerRef.current?.scrollTo(
+        0,
+        messageContainerRef.current.scrollHeight,
+      );
+    });
+  }, [messages.length]);
 
   useEffect(() => {
     return () => {
@@ -55,18 +67,15 @@ export function AskAI() {
     };
   }, []);
 
+  useEffect(() => {
+    resizeTextArea(queryContainerRef);
+  }, [query]);
+
   const tasks = useMemo(() => {
     return getGPTTasks(location.pathname);
   }, [location.pathname]);
 
   const [task, setTask] = useState(tasks[0]?.id);
-
-  useEffect(() => {
-    messageContainerRef.current?.scrollTo(
-      0,
-      messageContainerRef.current.scrollHeight,
-    );
-  }, [messages.length]);
 
   const handleTaskSelection = useCallback((task: any) => {
     setTask(task.id);
@@ -90,6 +99,8 @@ export function AskAI() {
     AnalyticsUtil.logEvent("AI_QUERY_SENT", {
       requestedOutputType: task,
       characterCount: query.length,
+      userQuery: query,
+      context,
     });
     try {
       const res: any = await fetch(
@@ -119,6 +130,9 @@ export function AskAI() {
         success: true,
         requestedOutputType: task,
         responseId: message.messageId,
+        generatedCode: message.content,
+        userQuery: query,
+        context,
       });
     } catch (e) {
       setLoading(false);
@@ -161,22 +175,23 @@ export function AskAI() {
         />
       </div>
       <div
-        className="flex flex-col justify-start gap-2 px-4 pb-2 overflow-auto"
+        className="flex flex-col justify-start gap-2 px-4 pb-3 overflow-auto"
         ref={messageContainerRef}
         style={{ height: "calc(100% - 150px)" }}
       >
-        {messages.length ? (
-          <div className="flex flex-col gap-2 w-full justify-start">
-            {messages.map((r: any, idx: number) => (
-              <GPTPrompt key={idx} prompt={r} task={task} />
-            ))}
+        {!showExamplePrompt ? (
+          <div className="flex flex-col justify-between h-full">
+            <div className="flex flex-col gap-2 w-full justify-start">
+              {messages.map((r: any, idx: number) => (
+                <GPTPrompt key={idx} prompt={r} task={task} />
+              ))}
+            </div>
           </div>
         ) : (
           <GettingStarted
             onClick={(query: string) => {
               if (queryContainerRef?.current) {
                 queryContainerRef.current.innerText = query;
-                setTimeout(() => resizeTextArea(queryContainerRef));
               }
               setQuery(query);
             }}
@@ -184,6 +199,17 @@ export function AskAI() {
           />
         )}
       </div>
+      {!showExamplePrompt && (
+        <div className="flex justify-end flex-shrink-0">
+          <div
+            className="h-6 items-center px-4 gap-[2px] text-[11px] flex flex-row font-normal hover:underline cursor-pointer"
+            onClick={() => setShowExamplePrompt(true)}
+          >
+            <ArrowLeft size={13} />
+            Show example prompts
+          </div>
+        </div>
+      )}
       <div className="flex flex-col flex-shrink-0 gap-1 px-3 pb-3 pt-3 bg-gray-100">
         <div className="flex flex-row justify-between px-1 items-center">
           <div className="flex flex-row gap-2 justify-start">
@@ -219,12 +245,11 @@ export function AskAI() {
             })}
           >
             <textarea
-              className="m-[1px] w-full min-h-7 px-2 py-1 !pr-5 max-h-40 overflow-auto"
+              className="m-[1px] min-h-[29px] w-full px-2 py-1 !pr-5 max-h-40 overflow-auto"
               disabled={isLoading} // || parseInt(queryCount) < 1}
               name="text"
               onChange={(e) => {
                 setQuery(e.target.value);
-                resizeTextArea(queryContainerRef);
               }}
               onKeyDown={handleEnter}
               placeholder="Type your query here"

@@ -32,8 +32,7 @@ const ResponseContainer = styled.div`
   }
 `;
 
-const UserPrompt = styled.div`
-  background-color: var(--ads-color-black-0);
+export const UserPrompt = styled.div`
   color: var(--ads-color-black-700);
   font-size: 12px;
   font-weight: 500;
@@ -73,6 +72,7 @@ export function GPTPrompt(props: TGPTPromptProps) {
     AnalyticsUtil.logEvent("AI_RESPONSE_COPIED", {
       responseId: messageId,
       requestedOutputType: task,
+      generatedCode: text,
     });
   }, [text, clickCopyIcon, pageType]);
 

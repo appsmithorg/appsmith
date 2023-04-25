@@ -136,9 +136,11 @@ function getPotentialEntityNamesFromMessage(
   message: string,
   entityNames: string[],
 ) {
-  entityNames = entityNames.map((entityName) => entityName.toLowerCase());
-  const words = message.split(" ");
-  return words.filter((word) => entityNames.includes(word?.toLowerCase()));
+  const words = message
+    .split(" ")
+    .filter(Boolean)
+    .map((word) => word?.toLowerCase());
+  return entityNames.filter((name) => words.includes(name?.toLowerCase()));
 }
 
 const getGPTContextGenerator = createSelector(

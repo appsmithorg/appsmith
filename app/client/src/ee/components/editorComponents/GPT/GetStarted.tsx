@@ -1,6 +1,6 @@
 import React from "react";
 import { GPTTask } from "./utils";
-import { Button } from "design-system-old";
+import { UserPrompt } from "./GPTPrompt";
 
 const examplePrompts = {
   [GPTTask.JS_EXPRESSION]: [
@@ -45,19 +45,14 @@ export function GettingStarted({
 }
 
 function ExamplePrompt({
-  onClick,
   prompt,
 }: {
   prompt: string;
   onClick: (text: string) => void;
 }) {
   return (
-    <Button
-      category="tertiary"
-      className="!min-h-7 !h-auto !border-gray-100 !w-fit !font-medium !py-2 !leading !normal-case !text-xs"
-      icon="right-arrow"
-      onClick={() => onClick(prompt)}
-      text={prompt}
-    />
+    <div className="flex justify-start bg-gray-100 w-full font-medium">
+      <UserPrompt>{prompt}</UserPrompt>
+    </div>
   );
 }
