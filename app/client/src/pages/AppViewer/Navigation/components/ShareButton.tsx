@@ -47,6 +47,10 @@ const ShareButton = (props: ShareButtonProps) => {
     "inherit",
   );
 
+  if (!currentApplicationDetails?.id) {
+    return null;
+  }
+
   return (
     <FormDialogComponent
       Form={AppInviteUsersForm}

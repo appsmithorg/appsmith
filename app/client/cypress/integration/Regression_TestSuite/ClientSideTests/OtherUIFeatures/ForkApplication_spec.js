@@ -4,7 +4,11 @@ import applicationLocators from "../../../../locators/Applications.json";
 import signupPageLocators from "../../../../locators/SignupPage.json";
 import loginPageLocators from "../../../../locators/LoginPage.json";
 import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
-import { agHelper } from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  dataSources,
+  homePage as homePageHelper,
+} from "../../../../support/Objects/ObjectsCore";
 
 let forkedApplicationDsl;
 let parentApplicationDsl;
@@ -99,7 +103,28 @@ describe("Fork application across workspaces", function () {
           cy.wait(10000);
           cy.get(applicationLocators.forkButton).first().click({ force: true });
           cy.get(homePage.forkAppWorkspaceButton).should("be.visible");
+          agHelper.GetNClick(homePageHelper.closeBtn);
         });
+      });
+    });
+  });
+  it("Check if reconnect modal is shown post forking an application which has datasources", () => {
+    cy.NavigateToHome();
+    homePageHelper.CreateNewApplication();
+    agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      homePageHelper.RenameApplication(`AppToBeForked${uid}`);
+
+      dataSources.CreateMockDB("Movies").then(($createdMockMovies) => {
+        dataSources.CreateQueryFromActiveTab($createdMockMovies, false);
+
+        homePageHelper.NavigateToHome();
+        homePageHelper.CreateNewWorkspace(`WorkspaceToForkTo${uid}`);
+        homePageHelper.ForkApplication(
+          `AppToBeForked${uid}`,
+          `WorkspaceToForkTo${uid}`,
+        );
+        dataSources.assetReconnectDataSourceModalVisibility();
       });
     });
   });

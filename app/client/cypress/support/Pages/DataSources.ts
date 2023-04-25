@@ -730,6 +730,10 @@ export class DataSources {
     }
   }
 
+  public assetReconnectDataSourceModalVisibility() {
+    this.agHelper.AssertElementVisible(this._reconnectModal);
+  }
+
   public ReconnectDataSource(dbName: string, dsName: "PostgreSQL" | "MySQL") {
     this.agHelper.AssertElementVisible(this._reconnectModal);
     cy.xpath(this._activeDSListReconnectModal(dsName)).should("be.visible");

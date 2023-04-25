@@ -135,6 +135,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
           <>
             <Dropdown
               boundary="viewport"
+              cypressSelector={"fork-dropdown"}
               dropdownMaxHeight={"200px"}
               fillOptions
               onSelect={(

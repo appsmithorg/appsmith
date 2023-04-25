@@ -81,6 +81,9 @@ export class HomePage {
     applicationName +
     "']/ancestor::div[contains(@class, 't--application-card')]//span[@name= 'context-menu']";
   private _forkApp = '[data-cy="t--fork-app"]';
+  private _forkDropdown = '[data-cy="fork-dropdown"]';
+  private _forkDropdownOption = (workspaceName: string) =>
+    `[data-cy="t--dropdown-option-${workspaceName}"]`;
   private _duplicateApp = '[data-cy="t--duplicate"]';
   private _deleteApp = '[data-cy="t--delete-confirm"]';
   private _deleteAppConfirm = '[data-cy="t--delete"]';
@@ -451,10 +454,15 @@ export class HomePage {
     cy.get(this.locator._loading).should("not.exist");
   }
 
-  public ForkApplication(appliName: string) {
+  public ForkApplication(appliName: string, workspaceToFork?: string) {
     this.agHelper.GetNClick(this._applicationContextMenu(appliName));
     this.agHelper.GetNClick(this._forkApp);
     this.agHelper.AssertElementVisible(this._forkModal);
+
+    if (workspaceToFork) {
+      this.agHelper.GetNClick(this._forkDropdown);
+      this.agHelper.GetNClick(this._forkDropdownOption(workspaceToFork));
+    }
     this.agHelper.ClickButton("FORK");
   }
 
