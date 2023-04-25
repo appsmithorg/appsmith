@@ -5,6 +5,7 @@ import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { isHidden, isKVArray } from "components/formControls/utils";
 import log from "loglevel";
+import { ComparisonOperationsEnum } from "components/formControls/BaseControl";
 
 const Key = styled.div`
   color: ${Colors.DOVE_GRAY};
@@ -129,7 +130,7 @@ export default class RenderDatasourceInformation extends React.Component<{
                 !value &&
                 !!viewMode &&
                 "comparison" in section.hidden &&
-                section.hidden.comparison === "VIEW_MODE"
+                section.hidden.comparison === ComparisonOperationsEnum.VIEW_MODE
               ) {
                 value = section.initialValue;
               }

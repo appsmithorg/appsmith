@@ -23,6 +23,10 @@ export type ComparisonOperations =
   | "FEATURE_FLAG"
   | "VIEW_MODE";
 
+export enum ComparisonOperationsEnum {
+  VIEW_MODE = "VIEW_MODE",
+}
+
 export type HiddenType = boolean | Condition | ConditionObject;
 
 export type ConditionObject = { conditionType: string; conditions: Conditions };
