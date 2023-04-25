@@ -102,21 +102,25 @@ function HelpButton() {
               {item.label}
             </MenuItem>
           ))}
-          <MenuSeparator />
           {appVersion.id && (
-            <MenuItem className="menuitem-nohover">
-              <HelpFooter>
-                <span>
-                  {createMessage(
-                    APPSMITH_DISPLAY_VERSION,
-                    appVersion.edition,
-                    appVersion.id,
-                    cloudHosting,
-                  )}
-                </span>
-                <span>Released {moment(appVersion.releaseDate).fromNow()}</span>
-              </HelpFooter>
-            </MenuItem>
+            <>
+              <MenuSeparator />
+              <MenuItem className="menuitem-nohover">
+                <HelpFooter>
+                  <span>
+                    {createMessage(
+                      APPSMITH_DISPLAY_VERSION,
+                      appVersion.edition,
+                      appVersion.id,
+                      cloudHosting,
+                    )}
+                  </span>
+                  <span>
+                    Released {moment(appVersion.releaseDate).fromNow()}
+                  </span>
+                </HelpFooter>
+              </MenuItem>
+            </>
           )}
         </MenuContent>
       </Menu>
