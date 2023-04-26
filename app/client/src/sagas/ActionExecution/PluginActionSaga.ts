@@ -127,6 +127,13 @@ enum ActionResponseDataTypes {
   BINARY = "BINARY",
 }
 
+type FilePickerInstumentationObject = {
+  numberOfFiles: number;
+  totalSize: number;
+  fileTypes: Array<string>;
+  fileSizes: Array<number>;
+};
+
 export const getActionTimeout = (
   state: AppState,
   actionId: string,
@@ -277,6 +284,7 @@ function* evaluateActionParams(
   bindings: string[] | undefined,
   formData: FormData,
   executeActionRequest: ExecuteActionRequest,
+  filePickerInstrumentation: FilePickerInstumentationObject,
   executionParams?: Record<string, any> | string,
 ) {
   if (isNil(bindings) || bindings.length === 0) {
@@ -289,6 +297,14 @@ function* evaluateActionParams(
 
   const bindingsMap: Record<string, string> = {};
   const bindingBlob = [];
+
+  let recordFilePickerInstrumentation = false;
+
+  // if json bindings have filepicker reference, we need to init the instrumentation object
+  // which we will send post execution
+  recordFilePickerInstrumentation = bindings.some((binding) =>
+    binding.includes(".files"),
+  );
 
   // Add keys values to formData for the multipart submission
   for (let i = 0; i < bindings.length; i++) {
@@ -309,6 +325,15 @@ function* evaluateActionParams(
           arrDatatype,
         );
         tempArr.push(newVal);
+
+        if (key.includes(".files") && recordFilePickerInstrumentation) {
+          filePickerInstrumentation["numberOfFiles"] += 1;
+          // @ts-expect-error: Values can take many types
+          const { size, type } = newVal;
+          filePickerInstrumentation["totalSize"] += size;
+          filePickerInstrumentation["fileSizes"].push(size);
+          filePickerInstrumentation["fileTypes"].push(type);
+        }
       }
       //Adding array datatype along with the datatype of first element of the array
       executeActionRequest.paramProperties[`k${i}`] = {
@@ -318,6 +343,12 @@ function* evaluateActionParams(
     } else {
       // @ts-expect-error: Values can take many types
       value = yield call(resolvingBlobUrls, value, executeActionRequest, i);
+      if (key.includes(".files") && recordFilePickerInstrumentation) {
+        filePickerInstrumentation["numberOfFiles"] += 1;
+        filePickerInstrumentation["totalSize"] += value.size;
+        filePickerInstrumentation["fileSizes"].push(value.size);
+        filePickerInstrumentation["fileTypes"].push(value.type);
+      }
     }
 
     if (typeof value === "object") {
@@ -1030,11 +1061,21 @@ function* executePluginActionSaga(
 
   const formData = new FormData();
 
+  // Initialising instrumentation object, will only be populated in case
+  // files are being uplaoded
+  const filePickerInstrumentation: FilePickerInstumentationObject = {
+    numberOfFiles: 0,
+    totalSize: 0,
+    fileTypes: [],
+    fileSizes: [],
+  };
+
   yield call(
     evaluateActionParams,
     pluginAction.jsonPathKeys,
     formData,
     executeActionRequest,
+    filePickerInstrumentation,
     params,
   );
 
@@ -1069,12 +1110,35 @@ function* executePluginActionSaga(
     } catch (e) {
       log.error("plugin no found", e);
     }
+
+    const isError = isErrorResponse(response);
+    if (filePickerInstrumentation.numberOfFiles > 0) {
+      triggerFileUploadInstrumentation(
+        filePickerInstrumentation,
+        isError ? "ERROR" : "SUCCESS",
+        response.data.statusCode,
+        pluginAction.name,
+        pluginAction.pluginType,
+        response.clientMeta.duration,
+      );
+    }
     return {
       payload,
-      isError: isErrorResponse(response),
+      isError,
     };
   } catch (e) {
     if ("clientDefinedError" in (e as any)) {
+      // Case: error from client side validation
+      if (filePickerInstrumentation.numberOfFiles > 0) {
+        triggerFileUploadInstrumentation(
+          filePickerInstrumentation,
+          "ERROR",
+          "400",
+          pluginAction.name,
+          pluginAction.pluginType,
+          "NA",
+        );
+      }
       throw e;
     }
 
@@ -1085,11 +1149,58 @@ function* executePluginActionSaga(
       }),
     );
     if (e instanceof UserCancelledActionExecutionError) {
+      // Case: user cancelled the request of file upload
+      if (filePickerInstrumentation.numberOfFiles > 0) {
+        triggerFileUploadInstrumentation(
+          filePickerInstrumentation,
+          "CANCELLED",
+          "499",
+          pluginAction.name,
+          pluginAction.pluginType,
+          "NA",
+        );
+      }
       throw new UserCancelledActionExecutionError();
     }
 
+    // In case there is no response from server and files are being uploaded
+    // we report it as INVALID_RESPONSE. The server didn't send any code or the
+    // request was cancelled due to timeout
+    if (filePickerInstrumentation.numberOfFiles > 0) {
+      triggerFileUploadInstrumentation(
+        filePickerInstrumentation,
+        "INVALID_RESPONSE",
+        "444",
+        pluginAction.name,
+        pluginAction.pluginType,
+        "NA",
+      );
+    }
     throw new PluginActionExecutionError("Response not valid", false);
   }
+}
+
+// Function to send the file upload event to segment
+function triggerFileUploadInstrumentation(
+  filePickerInfo: Record<string, any>,
+  status: string,
+  statusCode: string,
+  pluginName: string,
+  pluginType: string,
+  timeTaken: string,
+) {
+  const { fileSizes, fileTypes, numberOfFiles, totalSize } = filePickerInfo;
+  AnalyticsUtil.logEvent("FILE_UPLOAD_COMPLETE", {
+    totalSize,
+    fileSizes,
+    numberOfFiles,
+    fileTypes,
+    status,
+    statusCode,
+    pluginName,
+    pluginType,
+    timeTaken,
+  });
 }
 
 //Open debugger with response tab selected.

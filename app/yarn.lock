@@ -8898,7 +8898,7 @@ __metadata:
     cypress-xpath: ^1.4.0
     dayjs: ^1.10.6
     deep-diff: ^1.0.2
-    design-system-old: "npm:@appsmithorg/design-system-old@1.1.4"
+    design-system-old: "npm:@appsmithorg/design-system-old@1.1.5"
     diff: ^5.0.0
     dotenv: ^8.1.0
     downloadjs: ^1.4.7
@@ -12541,9 +12541,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"design-system-old@npm:@appsmithorg/design-system-old@1.1.4":
-  version: 1.1.4
-  resolution: "@appsmithorg/design-system-old@npm:1.1.4"
+"design-system-old@npm:@appsmithorg/design-system-old@1.1.5":
+  version: 1.1.5
+  resolution: "@appsmithorg/design-system-old@npm:1.1.5"
   dependencies:
     emoji-mart: 3.0.1
   peerDependencies:
@@ -12563,7 +12563,7 @@ __metadata:
     remixicon-react: ^1.0.0
     styled-components: 5.3.6
     tinycolor2: ^1.4.2
-  checksum: 30ebdd5015b5e0a4b2cdaed49436da90e437a61eaacb2c90b1350d4b8ad9d29094bb0ac29828fe6e70948dc5f26ed011202637c4e490b0ab6551d3ea81c6725a
+  checksum: 42884788fb40160fc36e7b1d882d1de3a347a08d14e0592398e902b5ed23450248a87dda048ef5dd21139fd517f67b537e82bb67dec644885a679b96e929e8c0
   languageName: node
   linkType: hard
 

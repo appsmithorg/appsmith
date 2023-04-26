@@ -1190,6 +1190,18 @@ export class AggregateHelper {
     });
   }
 
+  public AssertNewTabOpened(openTabFunc: () => void) {
+    cy.window().then((win) => {
+      cy.spy(win, "open").as("windowOpen");
+      openTabFunc();
+      cy.get("@windowOpen").should(
+        "be.calledWith",
+        Cypress.sinon.match.string,
+        "_blank",
+      );
+    });
+  }
+
   //Not used:
   // private xPathToCss(xpath: string) {
   //     return xpath

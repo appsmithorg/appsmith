@@ -393,12 +393,8 @@ function getPositionForInitialHighlight(
   columnSpace: number,
   startPosition: number | undefined,
 ): number {
-  const containerWidth = 64 * columnSpace;
-  const endPosition =
-    containerWidth +
-    (canvasId !== MAIN_CONTAINER_WIDGET_ID
-      ? FLEXBOX_PADDING
-      : FLEXBOX_PADDING / 2);
+  const containerWidth = GridDefaults.DEFAULT_GRID_COLUMNS * columnSpace;
+  const endPosition = containerWidth + FLEXBOX_PADDING / 2;
   if (alignment === FlexLayerAlignment.End) {
     return endPosition;
   } else if (alignment === FlexLayerAlignment.Center) {
@@ -442,10 +438,7 @@ function generateHorizontalHighlights(
     bottom: rowHeight === -1 ? 10000 : rowHeight * 0.5,
   };
   const rowGap = isMobile ? MOBILE_ROW_GAP : ROW_GAP;
-  offsetTop =
-    previousOffset === -1
-      ? offsetTop
-      : offsetTop - (rowGap - DEFAULT_HIGHLIGHT_SIZE / 2) / 2;
+  offsetTop = previousOffset === -1 ? offsetTop : offsetTop - rowGap;
   [
     FlexLayerAlignment.Start,
     FlexLayerAlignment.Center,
@@ -495,20 +488,26 @@ function updateVerticalHighlightDropZone(
   for (const [index, highlight] of highlights.entries()) {
     const nextHighlight: HighlightInfo | undefined = highlights[index + 1];
     const previousHighlight: HighlightInfo | undefined = highlights[index - 1];
-    const leftZone = previousHighlight
-      ? (highlight.posX -
-          (highlight.posY < previousHighlight.posY + previousHighlight.height
-            ? previousHighlight.posX
-            : 0)) *
-        zoneSize
-      : highlight.posX + DEFAULT_HIGHLIGHT_SIZE;
-    const rightZone = nextHighlight
-      ? ((highlight.posY + highlight.height > nextHighlight.posY
-          ? nextHighlight.posX
-          : canvasWidth) -
-          highlight.posX) *
-        zoneSize
-      : canvasWidth - highlight.posX;
+    const leftZone = Math.max(
+      previousHighlight
+        ? (highlight.posX -
+            (highlight.posY < previousHighlight.posY + previousHighlight.height
+              ? previousHighlight.posX
+              : 0)) *
+            zoneSize
+        : highlight.posX + DEFAULT_HIGHLIGHT_SIZE,
+      DEFAULT_HIGHLIGHT_SIZE,
+    );
+    const rightZone = Math.max(
+      nextHighlight
+        ? ((highlight.posY + highlight.height > nextHighlight.posY
+            ? nextHighlight.posX
+            : canvasWidth) -
+            highlight.posX) *
+            zoneSize
+        : canvasWidth - highlight.posX,
+      DEFAULT_HIGHLIGHT_SIZE,
+    );
     highlights[index] = {
       ...highlight,
       dropZone: {
