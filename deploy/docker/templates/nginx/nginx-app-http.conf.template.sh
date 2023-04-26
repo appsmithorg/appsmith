@@ -70,7 +70,7 @@ server {
   proxy_set_header X-Forwarded-Host  \$origin_host;
 
   location / {
-    try_files \$uri /index.html =404;
+    try_files /loading.html \$uri /index.html =404;
   }
 
   location ~ ^/static/(js|css|media)\b {
