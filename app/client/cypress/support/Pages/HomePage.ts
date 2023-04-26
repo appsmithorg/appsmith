@@ -432,8 +432,7 @@ export class HomePage {
     if (CURRENT_REPO === REPO.CE) {
       this.InviteUserToWorkspaceFromApp(email, role);
     } else {
-      // this.InviteUserToApplicationFromApp(email, role);
-      this.InviteUserToWorkspaceFromApp(email, role); /* temp change */
+      this.InviteUserToApplicationFromApp(email, role);
     }
   }
 

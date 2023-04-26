@@ -12,6 +12,7 @@ const DataSourceKVP = {
   Arango: "ArangoDB",
   Firestore: "Firestore",
   Elasticsearch: "Elasticsearch",
+  Redis: "Redis",
 }; //DataSources KeyValuePair
 
 export enum Widgets {
@@ -564,6 +565,17 @@ export class DataSources {
     });
   }
 
+  public FillRedisDSForm() {
+    this.agHelper.UpdateInputValue(
+      this._host,
+      datasourceFormData["redis-host"],
+    );
+    this.agHelper.UpdateInputValue(
+      this._port,
+      datasourceFormData["redis-port"].toString(),
+    );
+  }
+
   public TestSaveDatasource(expectedRes = true) {
     this.TestDatasource(expectedRes);
     this.SaveDatasource();
@@ -851,7 +863,8 @@ export class DataSources {
       | "Airtable"
       | "Arango"
       | "Firestore"
-      | "Elasticsearch",
+      | "Elasticsearch"
+      | "Redis",
     navigateToCreateNewDs = true,
     testNSave = true,
   ) {
@@ -877,6 +890,7 @@ export class DataSources {
           this.FillFirestoreDSForm();
         else if (DataSourceKVP[dsType] == "Elasticsearch")
           this.FillElasticSearchDSForm();
+        else if (DataSourceKVP[dsType] == "Redis") this.FillRedisDSForm();
 
         if (testNSave) {
           this.TestSaveDatasource();

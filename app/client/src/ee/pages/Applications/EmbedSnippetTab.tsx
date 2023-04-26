@@ -94,16 +94,16 @@ export function EmbedSnippetTab({
     <EmbedSnippetContainer isAppSettings={isAppSettings}>
       {isAppSettings && (
         <div>
-          <div className="pt-3 pb-2 font-medium text-[color:var(--appsmith-color-black-800)]">
+          <div className="pt-3 pb-3 font-medium text-[color:var(--appsmith-color-black-800)]">
             {createMessage(IN_APP_EMBED_SETTING.embed)}
           </div>
         </div>
       )}
       <div className="flex flex-col gap-6">
-        <div className="flex flex-col flex-1 gap-6 pt-2">
+        <div className="flex flex-1 flex-col gap-6">
           {embedSnippet.isSuperUser && (
             <div>
-              <div className="flex items-center justify-between">
+              <div className="flex justify-between items-center">
                 <div
                   className="flex items-center gap-1 pt-0.5 text-[color:var(--appsmith-color-black-700)]"
                   data-cy={"frame-ancestors-setting"}
@@ -113,6 +113,7 @@ export function EmbedSnippetTab({
                     name={embedSnippet.embedSettingContent.icon}
                     size={IconSize.XXL}
                   />
+
                   {isAppSettings ? (
                     <StyledPropertyHelpLabel
                       label={embedSnippet.embedSettingContent.label}

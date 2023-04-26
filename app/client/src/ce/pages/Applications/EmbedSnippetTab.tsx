@@ -96,13 +96,13 @@ export function EmbedSnippetTab({
     <EmbedSnippetContainer isAppSettings={isAppSettings}>
       {isAppSettings && (
         <div>
-          <div className="pt-3 pb-2 font-medium text-[color:var(--appsmith-color-black-800)]">
+          <div className="pt-3 pb-3 font-medium text-[color:var(--appsmith-color-black-800)]">
             {createMessage(IN_APP_EMBED_SETTING.embed)}
           </div>
         </div>
       )}
       <div className="flex flex-col gap-6">
-        <div className="flex flex-1 flex-col gap-6 pt-2">
+        <div className="flex flex-1 flex-col gap-6">
           {embedSnippet.isSuperUser && (
             <div>
               <div className="flex justify-between items-center">

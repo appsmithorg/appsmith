@@ -99,15 +99,6 @@ ff4j:
             value: integrations@appsmith.com
 
     # Put EE flags below this line, to avoid conflicts.
-    - uid: RBAC
-      enable: true
-      description: Enable access control settings
-      flipstrategy:
-        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
-        param:
-          - name: emails
-            value: raksha@appsmith.com,ankita@appsmith.com,nilesh@appsmith.com,akhil@appsmith.com,trisha@appsmith.com
-
     - uid: LAZY_CANVAS_RENDERING
       enable: true
       description: Enable Canvas to lazily render widgets below the fold

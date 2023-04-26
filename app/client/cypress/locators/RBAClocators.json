@@ -50,5 +50,11 @@
   "rename": "//span[text()='Rename']",
   "userRow": "[data-testid='acl-user-listing-link']",
   "helperMessage": "[data-testid='helper-message']",
-  "noUsersContent": "[data-testid='no-users-content']"
+  "noUsersContent": "[data-testid='no-users-content']",
+  "arrowRightMembersPage": "[name='arrow-right-s-fill']",
+  "optionDeveloper": "//span[text()='Developer']",
+  "optionAppViewer": "//span[text()='App Viewer']",
+  "optionAdministrator": "//span[text()='Administrator']",
+  "searchHighlight": ".search-highlight",
+  "dropdownOption": ".t--dropdown-option"
 }

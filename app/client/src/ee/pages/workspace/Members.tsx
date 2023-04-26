@@ -17,7 +17,7 @@ import {
   getCurrentWorkspace,
   getWorkspaceLoadingStates,
 } from "@appsmith/selectors/workspaceSelectors";
-import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
 import {
   fetchUsersForWorkspace,
   fetchRolesForWorkspace,
@@ -165,9 +165,7 @@ export default function MemberSettings(props: PageProps) {
     currentWorkspace?.userPermissions,
     PERMISSION_TYPE.MANAGE_WORKSPACE,
   );
-
-  const featureFlags = useSelector(selectFeatureFlags);
-  const isAppInvite = featureFlags.RBAC && !cloudHosting;
+  const isAppInvite = !cloudHosting;
 
   useEffect(() => {
     if (
