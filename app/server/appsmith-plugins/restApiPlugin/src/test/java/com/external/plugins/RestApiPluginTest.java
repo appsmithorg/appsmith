@@ -29,8 +29,7 @@ import mockwebserver3.MockWebServer;
 import mockwebserver3.RecordedRequest;
 import okhttp3.HttpUrl;
 import okio.Buffer;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
@@ -99,22 +98,18 @@ public class RestApiPluginTest {
 
     RestApiPlugin.RestApiPluginExecutor pluginExecutor = new RestApiPlugin.RestApiPluginExecutor(new MockSharedConfig());
 
-    @BeforeAll
-    public static void setUpAll() throws IOException {
+    @BeforeEach
+    public void setUp() throws IOException {
+        hintMessageUtils = new HintMessageUtils();
         mockEndpoint = new MockWebServer();
         mockEndpoint.start();
     }
 
-    @AfterAll
-    public static void tearDownAll() throws IOException {
+    @AfterEach
+    public void tearDown() throws IOException {
         mockEndpoint.shutdown();
     }
-
-    @BeforeEach
-    public void setUp() {
-        hintMessageUtils = new HintMessageUtils();
-    }
-
+    
     @Test
     public void testValidJsonApiExecution() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
@@ -1655,14 +1650,14 @@ public class RestApiPluginTest {
     @Test
     public void testDenyInstanceMetadataAwsWithRedirect() throws IOException {
         // Generate a mock response which redirects to the invalid host
-        MockWebServer mockWebServer = new MockWebServer();
+        mockEndpoint = new MockWebServer();
         MockResponse mockRedirectResponse = new MockResponse()
                 .setResponseCode(301)
                 .addHeader("Location", "http://169.254.169.254.nip.io/latest/meta-data");
-        mockWebServer.enqueue(mockRedirectResponse);
-        mockWebServer.start();
+        mockEndpoint.enqueue(mockRedirectResponse);
+        mockEndpoint.start();
 
-        HttpUrl mockHttpUrl = mockWebServer.url("/mock/redirect");
+        HttpUrl mockHttpUrl = mockEndpoint.url("/mock/redirect");
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setUrl(mockHttpUrl.toString());
 

@@ -29,8 +29,7 @@ import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import okio.Buffer;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
@@ -106,20 +105,16 @@ public class GraphQLPluginTest {
             .withExposedPorts(5000)
             .waitingFor(Wait.forHttp("/").forStatusCode(404));
 
-    @BeforeAll
-    public static void setUpAll() throws IOException {
+    @BeforeEach
+    public void setUp() throws IOException {
+        hintMessageUtils = new GraphQLHintMessageUtils();
         mockEndpoint = new MockWebServer();
         mockEndpoint.start();
     }
 
-    @AfterAll
-    public static void tearDownAll() throws IOException {
+    @AfterEach
+    public void tearDown() throws IOException {
         mockEndpoint.shutdown();
-    }
-
-    @BeforeEach
-    public void setUp() {
-        hintMessageUtils = new GraphQLHintMessageUtils();
     }
 
     private DatasourceConfiguration getDefaultDatasourceConfig() {
@@ -387,8 +382,6 @@ public class GraphQLPluginTest {
                     } catch (InterruptedException e) {
                         assert false : e.getMessage();
                     }
-
-
 
                 })
                 .verifyComplete();
@@ -1138,17 +1131,18 @@ public class GraphQLPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
 
-                    RecordedRequest recordedRequest = null;
                     try {
-                        recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+                        RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
+
+                        assert recordedRequest != null;
+                        String recordedRequestPath = recordedRequest.getPath();
+
+                        String expectedUrl = "/?query_key=query+val";
+                        assertEquals(expectedUrl, recordedRequestPath);
                     } catch (InterruptedException e) {
                         assert false : e.getMessage();
                     }
-                    assert recordedRequest != null;
-                    String recordedRequestPath = recordedRequest.getPath();
 
-                    String expectedUrl = "/?query_key=query+val";
-                    assertEquals(expectedUrl, recordedRequestPath);
                 })
                 .verifyComplete();
     }
