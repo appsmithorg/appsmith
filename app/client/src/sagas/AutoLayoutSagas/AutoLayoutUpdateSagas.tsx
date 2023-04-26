@@ -258,18 +258,18 @@ function* shouldRunSaga(saga: any, action: ReduxAction<unknown>) {
   }
 }
 
-function* shouldRunCalculatingDimensionsSaga(
-  saga: any,
-  action: ReduxAction<unknown>,
-) {
-  const isAutoLayout: boolean = yield select(getIsAutoLayout);
-  const isAutoCanvasResizing: boolean = yield select(
-    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
-  );
-  if (isAutoLayout && !isAutoCanvasResizing) {
-    yield call(saga, action);
-  }
-}
+// function* shouldRunCalculatingDimensionsSaga(
+//   saga: any,
+//   action: ReduxAction<unknown>,
+// ) {
+//   const isAutoLayout: boolean = yield select(getIsAutoLayout);
+//   const isAutoCanvasResizing: boolean = yield select(
+//     (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+//   );
+//   if (isAutoLayout && !isAutoCanvasResizing) {
+//     yield call(saga, action);
+//   }
+// }
 
 export default function* layoutUpdateSagas() {
   yield all([
@@ -295,7 +295,7 @@ export default function* layoutUpdateSagas() {
         ReduxActionTypes.PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES,
         ReduxActionTypes.GENERATE_AUTO_HEIGHT_LAYOUT_TREE, // add, move, paste, cut, delete, undo/redo
       ],
-      shouldRunCalculatingDimensionsSaga,
+      shouldRunSaga,
       processWidgetDimensionsAndPositions,
     ),
   ]);
