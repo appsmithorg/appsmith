@@ -278,6 +278,7 @@ function* evaluateActionParams(
   formData: FormData,
   executeActionRequest: ExecuteActionRequest,
   executionParams?: Record<string, any> | string,
+  filePickerInstrumentation: Record<string, any> = {},
 ) {
   if (isNil(bindings) || bindings.length === 0) {
     formData.append("executeActionDTO", JSON.stringify(executeActionRequest));
@@ -289,6 +290,16 @@ function* evaluateActionParams(
 
   const bindingsMap: Record<string, string> = {};
   const bindingBlob = [];
+
+  // if json bindings have filepicker reference, we need to init the instrumentation object
+  // which we will send post execution
+  if (bindings.some((binding) => binding.includes(".files"))) {
+    // initialising the filePickerInstrumentation object
+    filePickerInstrumentation["numberOfFiles"] = 0;
+    filePickerInstrumentation["totalSize"] = 0;
+    filePickerInstrumentation["fileSizes"] = [];
+    filePickerInstrumentation["fileTypes"] = [];
+  }
 
   // Add keys values to formData for the multipart submission
   for (let i = 0; i < bindings.length; i++) {
@@ -309,6 +320,18 @@ function* evaluateActionParams(
           arrDatatype,
         );
         tempArr.push(newVal);
+
+        if (
+          key.includes(".files") &&
+          filePickerInstrumentation.hasOwnProperty("numberOfFiles")
+        ) {
+          filePickerInstrumentation["numberOfFiles"] += 1;
+          // @ts-expect-error: Values can take many types
+          const { size, type } = newVal;
+          filePickerInstrumentation["totalSize"] += size;
+          filePickerInstrumentation["fileSizes"].push(size);
+          filePickerInstrumentation["fileTypes"].push(type);
+        }
       }
       //Adding array datatype along with the datatype of first element of the array
       executeActionRequest.paramProperties[`k${i}`] = {
@@ -318,6 +341,15 @@ function* evaluateActionParams(
     } else {
       // @ts-expect-error: Values can take many types
       value = yield call(resolvingBlobUrls, value, executeActionRequest, i);
+      if (
+        key.includes(".files") &&
+        filePickerInstrumentation.hasOwnProperty("numberOfFiles")
+      ) {
+        filePickerInstrumentation["numberOfFiles"] += 1;
+        filePickerInstrumentation["totalSize"] += value.size;
+        filePickerInstrumentation["fileSizes"].push(value.size);
+        filePickerInstrumentation["fileTypes"].push(value.type);
+      }
     }
 
     if (typeof value === "object") {
@@ -1028,7 +1060,7 @@ function* executePluginActionSaga(
 
   const formData = new FormData();
 
-  triggerFileUploadInstrumentation(1, "1", "1", 1, "1", "1", "1", 1);
+  const filePickerInstrumentation: Record<string, any> = {};
 
   yield call(
     evaluateActionParams,
@@ -1036,6 +1068,7 @@ function* executePluginActionSaga(
     formData,
     executeActionRequest,
     params,
+    filePickerInstrumentation,
   );
 
   let payload = EMPTY_RESPONSE;
@@ -1069,12 +1102,32 @@ function* executePluginActionSaga(
     } catch (e) {
       log.error("plugin no found", e);
     }
+
+    const isError = isErrorResponse(response);
+    if (filePickerInstrumentation.hasOwnProperty("numberOfFiles")) {
+      triggerFileUploadInstrumentation(
+        filePickerInstrumentation,
+        isError ? "ERROR" : "SUCCESS",
+        response.data.statusCode,
+        pluginAction.name,
+        pluginAction.pluginType,
+      );
+    }
     return {
       payload,
-      isError: isErrorResponse(response),
+      isError,
     };
   } catch (e) {
     if ("clientDefinedError" in (e as any)) {
+      if (filePickerInstrumentation.hasOwnProperty("numberOfFiles")) {
+        triggerFileUploadInstrumentation(
+          filePickerInstrumentation,
+          "ERROR",
+          "400",
+          pluginAction.name,
+          pluginAction.pluginType,
+        );
+      }
       throw e;
     }
 
@@ -1085,33 +1138,50 @@ function* executePluginActionSaga(
       }),
     );
     if (e instanceof UserCancelledActionExecutionError) {
+      if (filePickerInstrumentation.hasOwnProperty("numberOfFiles")) {
+        triggerFileUploadInstrumentation(
+          filePickerInstrumentation,
+          "CANCELLED",
+          "499",
+          pluginAction.name,
+          pluginAction.pluginType,
+        );
+      }
       throw new UserCancelledActionExecutionError();
     }
 
+    if (filePickerInstrumentation.hasOwnProperty("numberOfFiles")) {
+      triggerFileUploadInstrumentation(
+        filePickerInstrumentation,
+        "INVALID_RESPONSE",
+        "444",
+        pluginAction.name,
+        pluginAction.pluginType,
+      );
+    }
     throw new PluginActionExecutionError("Response not valid", false);
   }
 }
 
 // Function to send the file upload event to segment
 function triggerFileUploadInstrumentation(
-  size: number,
+  filePickerInfo: Record<string, any>,
   status: string,
-  type: string,
-  statusCode: number,
+  statusCode: string,
   pluginName: string,
   pluginType: string,
-  appName: string,
-  timeTaken: number,
 ) {
+  const { fileSizes, fileTypes, numberOfFiles, totalSize } = filePickerInfo;
+  console.log("Ayush", numberOfFiles, status, statusCode);
   AnalyticsUtil.logEvent("FILE_UPLOAD_COMPLETE", {
-    size,
+    totalSize,
+    fileSizes,
+    numberOfFiles,
+    fileTypes,
     status,
-    type,
     statusCode,
     pluginName,
     pluginType,
-    appName,
-    timeTaken,
   });
 }
 
