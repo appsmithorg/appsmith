@@ -438,7 +438,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                 !_.isNil(datasource) &&
                 !hideDatasourceSection ? (
                   <DatasourceInformation
-                    config={formConfig[1]} // using index of 1 here, to show formConfig hidden behind feature flag for google sheets.
+                    config={formConfig[0]}
                     datasource={datasource}
                     viewMode={!!viewMode}
                   />
