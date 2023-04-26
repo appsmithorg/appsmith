@@ -28,6 +28,7 @@ import { ButtonWrapper } from "pages/Applications/ForkModalStyles";
 import { FormGroup } from "design-system-old";
 import { Button } from "design-system";
 import { roleOptions, useCaseOptions } from "./constants";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const DetailsFormWrapper = styled.div`
   width: 100%;
@@ -50,6 +51,8 @@ export default function DetailsForm(
   props: SetupFormProps & { onNext?: () => void },
 ) {
   const ref = React.createRef<HTMLDivElement>();
+
+  const isAirgappedInstance = isAirgapped();
 
   return (
     <DetailsFormWrapper ref={ref}>
@@ -145,7 +148,7 @@ export default function DetailsForm(
             className="t--welcome-form-next-button"
             isDisabled={props.invalid}
             kind="secondary"
-            onClick={props.onNext}
+            onClick={!isAirgappedInstance ? props.onNext : undefined}
             size="md"
           >
             Next

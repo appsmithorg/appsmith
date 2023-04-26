@@ -12,7 +12,7 @@ import { thinScrollbar } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const FilterMainContainer = styled.div`
-  padding-left: 16px;
+  /* padding: 0 16px; */
 `;
 
 const FilterWrapper = styled.div`
@@ -41,10 +41,11 @@ const FilterItemWrapper = styled.div<{ selected: boolean }>`
 `;
 
 const StyledFilterCategory = styled(Text)`
-  margin-bottom: ${(props) => props.theme.spaces[4]}px;
+  margin-bottom: 16px;
   padding-left: ${(props) => props.theme.spaces[6]}px;
   font-weight: bold;
   text-transform: capitalize;
+  font-size: 13px;
 
   &.title {
     margin-bottom: ${(props) => props.theme.spaces[12] - 10}px;

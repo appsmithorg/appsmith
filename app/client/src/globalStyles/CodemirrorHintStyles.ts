@@ -64,6 +64,11 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       .shortcut {
         color: var(--ads-v2-color-bg);
       }
+      .magic {
+        path {
+          fill: black;
+        }
+      }
       .add-datasource-icon {
         background: var(--ads-v2-color-bg);
       }

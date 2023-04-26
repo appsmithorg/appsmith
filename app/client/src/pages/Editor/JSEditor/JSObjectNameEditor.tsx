@@ -20,6 +20,7 @@ import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
 import { Spinner } from "design-system";
+import { getAssetUrl } from "../../../ce/utils/airgapHelpers";
 
 const JSObjectNameWrapper = styled.div<{ page?: string }>`
   min-width: 50%;
@@ -100,7 +101,7 @@ export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
             {currentPlugin && (
               <JSIconWrapper
                 alt={currentPlugin.name}
-                src={currentPlugin.iconLocation}
+                src={getAssetUrl(currentPlugin.iconLocation)}
               />
             )}
             <EditableText

@@ -55,7 +55,7 @@ const StepCount = styled.div`
   color: var(--ads-v2-color-fg-on-emphasis-plus);
   height: 24px;
   width: 24px;
-  border-radius: var(--ads-border-radius-circle);
+  border-radius: var(--ads-v2-border-radius-circle);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -66,7 +66,7 @@ const Description = styled.span<{ addLeftSpacing?: boolean }>`
   font-size: 14px;
   line-height: 16px;
 
-  padding-left: ${(props) => (props.addLeftSpacing ? `20px` : "5px")};
+  padding-left: ${(props) => (props.addLeftSpacing ? `20px` : "0")};
   margin-top: var(--ads-v2-spaces-2);
   flex: 1;
   display: flex;
@@ -401,7 +401,7 @@ function CompletionContent(props: CompletionContentProps) {
           {info?.icon && (
             <Icon
               color="var(--ads-v2-color-fg-information)"
-              name={info.icon || ""}
+              name={info.icon}
               size="lg"
             />
           )}

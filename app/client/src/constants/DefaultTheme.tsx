@@ -2906,11 +2906,11 @@ export const theme: Theme = {
       color: Colors.MYSTIC,
     },
   ],
-  sidebarWidth: "250px",
+  sidebarWidth: "256px",
   homePage: {
     header: 48,
     leftPane: {
-      width: 240,
+      width: 256,
       leftPadding: 16,
       rightMargin: 12,
     },

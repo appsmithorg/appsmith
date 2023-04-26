@@ -131,6 +131,7 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
 import SearchSnippets from "pages/common/SearchSnippets";
+import { AIWindow } from "@appsmith/components/editorComponents/GPT";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -913,148 +914,151 @@ export function EditorJSONtoForm(props: Props) {
           </ActionsWrapper>
         </StyledFormRow>
         <Wrapper>
-          <SecondaryWrapper>
-            <TabContainerView>
-              <Tabs
-                onValueChange={setSelectedConfigTab}
-                value={selectedConfigTab || EDITOR_TABS.QUERY}
-              >
-                <TabsList>
-                  <Tab value={EDITOR_TABS.QUERY}>Query</Tab>
-                  <Tab value={EDITOR_TABS.SETTINGS}>Settings</Tab>
-                </TabsList>
-                <TabPanel className="tab-panel" value={EDITOR_TABS.QUERY}>
-                  <SettingsWrapper>
-                    {editorConfig && editorConfig.length > 0 ? (
-                      renderConfig(editorConfig)
-                    ) : (
+          <div className="flex flex-1">
+            <SecondaryWrapper>
+              <TabContainerView>
+                <Tabs
+                  onValueChange={setSelectedConfigTab}
+                  value={selectedConfigTab || EDITOR_TABS.QUERY}
+                >
+                  <TabsList>
+                    <Tab value={EDITOR_TABS.QUERY}>Query</Tab>
+                    <Tab value={EDITOR_TABS.SETTINGS}>Settings</Tab>
+                  </TabsList>
+                  <TabPanel className="tab-panel" value={EDITOR_TABS.QUERY}>
+                    <SettingsWrapper>
+                      {editorConfig && editorConfig.length > 0 ? (
+                        renderConfig(editorConfig)
+                      ) : (
+                        <>
+                          <ErrorMessage>
+                            {createMessage(UNEXPECTED_ERROR)}
+                          </ErrorMessage>
+                          <Tag
+                            intent="warning"
+                            interactive
+                            minimal
+                            onClick={() => window.location.reload()}
+                            round
+                          >
+                            {createMessage(ACTION_EDITOR_REFRESH)}
+                          </Tag>
+                        </>
+                      )}
+                      {dataSources.length === 0 && (
+                        <NoDataSourceContainer>
+                          <p className="font18">
+                            {createMessage(NO_DATASOURCE_FOR_QUERY)}
+                          </p>
+                          <Button
+                            isDisabled={!canCreateDatasource}
+                            kind="primary"
+                            onClick={() => onCreateDatasourceClick()}
+                            size="sm"
+                            startIcon="plus"
+                          >
+                            Add a Datasource
+                          </Button>
+                        </NoDataSourceContainer>
+                      )}
+                    </SettingsWrapper>
+                  </TabPanel>
+                  <TabPanel value={EDITOR_TABS.SETTINGS}>
+                    <SettingsWrapper>
+                      <ActionSettings
+                        actionSettingsConfig={settingConfig}
+                        formName={formName}
+                      />
+                    </SettingsWrapper>
+                  </TabPanel>
+                </Tabs>
+                {documentationLink && (
+                  <Tooltip
+                    content={createMessage(DOCUMENTATION_TOOLTIP)}
+                    placement="top"
+                  >
+                    <DocumentationButton
+                      className="t--datasource-documentation-link"
+                      kind="tertiary"
+                      onClick={(e: React.MouseEvent) =>
+                        handleDocumentationClick(e)
+                      }
+                      size="sm"
+                      startIcon="book-line"
+                    >
+                      {createMessage(DOCUMENTATION)}
+                    </DocumentationButton>
+                  </Tooltip>
+                )}
+              </TabContainerView>
+              {renderDebugger && (
+                <>
+                  <Divider />
+                  <TabbedViewContainer
+                    className="t--query-bottom-pane-container"
+                    ref={panelRef}
+                  >
+                    <Resizable
+                      initialHeight={responsePaneHeight}
+                      onResizeComplete={(height: number) =>
+                        setQueryResponsePaneHeight(height)
+                      }
+                      openResizer={isRunning}
+                      panelRef={panelRef}
+                      snapToHeight={ActionExecutionResizerHeight}
+                    />
+                    {isRunning && (
                       <>
-                        <ErrorMessage>
-                          {createMessage(UNEXPECTED_ERROR)}
-                        </ErrorMessage>
-                        <Tag
-                          intent="warning"
-                          interactive
-                          minimal
-                          onClick={() => window.location.reload()}
-                          round
-                        >
-                          {createMessage(ACTION_EDITOR_REFRESH)}
-                        </Tag>
+                        <LoadingOverlayScreen theme={EditorTheme.LIGHT} />
+                        <LoadingOverlayContainer>
+                          <Text textAlign={"center"} type={TextType.P1}>
+                            {createMessage(ACTION_EXECUTION_MESSAGE, "Query")}
+                          </Text>
+                          <Button
+                            className={`t--cancel-action-button`}
+                            kind="secondary"
+                            onClick={() => {
+                              handleCancelActionExecution();
+                            }}
+                            size="md"
+                          >
+                            Cancel Request
+                          </Button>
+                        </LoadingOverlayContainer>
                       </>
                     )}
-                    {dataSources.length === 0 && (
-                      <NoDataSourceContainer>
-                        <p className="font18">
-                          {createMessage(NO_DATASOURCE_FOR_QUERY)}
-                        </p>
-                        <Button
-                          isDisabled={!canCreateDatasource}
-                          kind="primary"
-                          onClick={() => onCreateDatasourceClick()}
-                          size="sm"
-                          startIcon="plus"
-                        >
-                          Add a Datasource
-                        </Button>
-                      </NoDataSourceContainer>
-                    )}
-                  </SettingsWrapper>
-                </TabPanel>
-                <TabPanel value={EDITOR_TABS.SETTINGS}>
-                  <SettingsWrapper>
-                    <ActionSettings
-                      actionSettingsConfig={settingConfig}
-                      formName={formName}
-                    />
-                  </SettingsWrapper>
-                </TabPanel>
-              </Tabs>
-              {documentationLink && (
-                <Tooltip
-                  content={createMessage(DOCUMENTATION_TOOLTIP)}
-                  placement="top"
-                >
-                  <DocumentationButton
-                    className="t--datasource-documentation-link"
-                    kind="tertiary"
-                    onClick={(e: React.MouseEvent) =>
-                      handleDocumentationClick(e)
-                    }
-                    size="sm"
-                    startIcon="book-line"
-                  >
-                    {createMessage(DOCUMENTATION)}
-                  </DocumentationButton>
-                </Tooltip>
-              )}
-            </TabContainerView>
-            {renderDebugger && (
-              <>
-                <Divider />
-                <TabbedViewContainer
-                  className="t--query-bottom-pane-container"
-                  ref={panelRef}
-                >
-                  <Resizable
-                    initialHeight={responsePaneHeight}
-                    onResizeComplete={(height: number) =>
-                      setQueryResponsePaneHeight(height)
-                    }
-                    openResizer={isRunning}
-                    panelRef={panelRef}
-                    snapToHeight={ActionExecutionResizerHeight}
-                  />
-                  {isRunning && (
-                    <>
-                      <LoadingOverlayScreen theme={EditorTheme.LIGHT} />
-                      <LoadingOverlayContainer>
-                        <Text textAlign={"center"} type={TextType.P1}>
-                          {createMessage(ACTION_EXECUTION_MESSAGE, "Query")}
+
+                    {output && !!output.length && (
+                      <ResultsCount>
+                        <Text type={TextType.P3}>
+                          Result:
+                          <Text type={TextType.H5}>{` ${output.length} Record${
+                            output.length > 1 ? "s" : ""
+                          }`}</Text>
                         </Text>
-                        <Button
-                          className={`t--cancel-action-button`}
-                          kind="secondary"
-                          onClick={() => {
-                            handleCancelActionExecution();
-                          }}
-                          size="md"
-                        >
-                          Cancel Request
-                        </Button>
-                      </LoadingOverlayContainer>
-                    </>
-                  )}
+                      </ResultsCount>
+                    )}
 
-                  {output && !!output.length && (
-                    <ResultsCount>
-                      <Text type={TextType.P3}>
-                        Result:
-                        <Text type={TextType.H5}>{` ${output.length} Record${
-                          output.length > 1 ? "s" : ""
-                        }`}</Text>
-                      </Text>
-                    </ResultsCount>
-                  )}
-
-                  <EntityBottomTabs
-                    expandedHeight={`${ActionExecutionResizerHeight}px`}
-                    onSelect={setSelectedResponseTab}
-                    selectedTabKey={selectedResponseTab}
-                    tabs={responseTabs}
-                  />
-                  <Button
-                    className="close-debugger t--close-debugger"
-                    isIconButton
-                    kind="tertiary"
-                    onClick={onClose}
-                    size="md"
-                    startIcon="close-modal"
-                  />
-                </TabbedViewContainer>
-              </>
-            )}
-          </SecondaryWrapper>
+                    <EntityBottomTabs
+                      expandedHeight={`${ActionExecutionResizerHeight}px`}
+                      onSelect={setSelectedResponseTab}
+                      selectedTabKey={selectedResponseTab}
+                      tabs={responseTabs}
+                    />
+                    <Button
+                      className="close-debugger t--close-debugger"
+                      isIconButton
+                      kind="tertiary"
+                      onClick={onClose}
+                      size="md"
+                      startIcon="close-modal"
+                    />
+                  </TabbedViewContainer>
+                </>
+              )}
+            </SecondaryWrapper>
+            <AIWindow className="border-t border-l" windowType="fixed" />
+          </div>
           <SidebarWrapper
             show={(hasDependencies || !!output) && !guidedTourEnabled}
           >
