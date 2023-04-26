@@ -17,12 +17,11 @@ const Wrapper = styled.div`
   flex-direction: column;
   padding: ${(props) => props.theme.spaces[11]}px;
   background-color: var(--ads-v2-color-bg-subtle);
-  transition: all 1s ease-out;
   margin-bottom: ${(props) => props.theme.spaces[12]}px;
+  cursor: pointer;
 
   &:hover {
-    box-shadow: 0px 20px 24px -4px rgba(16, 24, 40, 0.1),
-      0px 8px 8px -4px rgba(16, 24, 40, 0.04);
+    border-color: var(--ads-v2-color-border-emphasis);
   }
 
   .title {

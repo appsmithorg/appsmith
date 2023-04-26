@@ -21,7 +21,7 @@ export class ColorsAccessor {
   }
 
   get isVeryLight() {
-    return this.color.oklch.l > 0.9;
+    return this.color.oklch.l > 0.93;
   }
 
   /* Chroma */

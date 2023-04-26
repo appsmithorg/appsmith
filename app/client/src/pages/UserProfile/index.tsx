@@ -9,7 +9,7 @@ import { GIT_PROFILE_ROUTE } from "constants/routes";
 import { BackButton } from "components/utils/helperComponents";
 
 const ProfileWrapper = styled.div`
-  width: ${(props) => props.theme.pageContentWidth}px;
+  width: 960px;
   margin: 0 auto;
 
   .tab-item {

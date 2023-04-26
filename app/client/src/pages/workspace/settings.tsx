@@ -9,7 +9,8 @@ import {
 import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useSelector, useDispatch } from "react-redux";
 import type { MenuItemProps, TabProp } from "design-system-old";
-import { TabComponent } from "design-system-old";
+// import { TabComponent } from "design-system-old";
+import { Tabs, Tab, TabsList, TabPanel } from "design-system";
 import styled from "styled-components";
 
 import { Modal, ModalBody, ModalContent, ModalHeader } from "design-system";
@@ -42,7 +43,7 @@ const SentryRoute = Sentry.withSentryRouting(Route);
 const SettingsWrapper = styled.div<{
   isMobile?: boolean;
 }>`
-  width: ${(props) => (props.isMobile ? "345px" : "916px")};
+  width: ${(props) => (props.isMobile ? "345px" : "960px")};
   margin: 0 auto;
   height: 100%;
   &::-webkit-scrollbar {
@@ -53,7 +54,7 @@ const SettingsWrapper = styled.div<{
     ${({ isMobile }) =>
       !isMobile &&
       `
-      padding: 104px 0 0;
+      padding: 110px 0 0;
   `}
   }
 `;
@@ -65,22 +66,12 @@ const StyledStickyHeader = styled(StickyHeader)<{ isMobile?: boolean }>`
     `
   top: 48px;
   position: fixed;
-  width: 916px;
+  width: 960px;
   `}
 `;
 
 export const TabsWrapper = styled.div`
-  .react-tabs {
-    margin-left: 8px;
-  }
-  .react-tabs__tab-list {
-    border-bottom: 1px solid var(--appsmith-color-black-200);
-    padding: 36px 0 0;
-    width: 908px;
-  }
-  .react-tabs__tab-panel {
-    height: calc(100% - 76px);
-  }
+  padding-top: var(--ads-v2-spaces-4);
 `;
 
 enum TABS {
@@ -105,6 +96,7 @@ export default function Settings() {
   const history = useHistory();
 
   const currentTab = location.pathname.split("/").pop();
+  // const [selectedTab, setSelectedTab] = useState(currentTab);
 
   const isMemberofTheWorkspace = isPermitted(
     currentWorkspace?.userPermissions || [],
@@ -180,15 +172,11 @@ export default function Settings() {
       key: "members",
       title: "Members",
       panelComponent: MemberSettingsComponent,
-      // icon: "gear",
-      // iconSize: IconSize.XL,
     },
     {
       key: "general",
       title: "General Settings",
       panelComponent: GeneralSettingsComponent,
-      // icon: "user-2",
-      // iconSize: IconSize.XL,
     },
   ].filter(Boolean) as TabProp[];
 
@@ -204,7 +192,7 @@ export default function Settings() {
   ];
 
   const isMembersPage = tabArr.length > 1 && currentTab === TABS.MEMBERS;
-  const isGeneralPage = tabArr.length === 1 && currentTab === TABS.GENERAL;
+  // const isGeneralPage = tabArr.length === 1 && currentTab === TABS.GENERAL;
 
   const isMobile: boolean = useMediaQuery({ maxWidth: 767 });
   return (
@@ -227,13 +215,30 @@ export default function Settings() {
           className="tabs-wrapper"
           data-testid="t--user-edit-tabs-wrapper"
         >
-          <TabComponent
-            onSelect={(index: number) =>
-              navigateToTab(tabArr[index].key, location, history)
+          <Tabs
+            defaultValue={currentTab}
+            onValueChange={(key: string) =>
+              navigateToTab(key, location, history)
             }
-            selectedIndex={isMembersPage ? 0 : isGeneralPage ? 0 : 1}
-            tabs={tabArr}
-          />
+            value={currentTab}
+          >
+            <TabsList>
+              {tabArr.map((tab) => {
+                return (
+                  <Tab key={tab.key} value={tab.key}>
+                    <div className="tab-item">{tab.title}</div>
+                  </Tab>
+                );
+              })}
+            </TabsList>
+            {tabArr.map((tab) => {
+              return (
+                <TabPanel key={tab.key} value={tab.key}>
+                  {tab.panelComponent}
+                </TabPanel>
+              );
+            })}
+          </Tabs>
         </TabsWrapper>
       </SettingsWrapper>
       <Modal onOpenChange={(isOpen) => setShowModal(isOpen)} open={showModal}>

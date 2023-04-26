@@ -102,7 +102,7 @@ function PrimaryCTA(props: Props) {
           icon={
             <Icon
               color={getApplicationNameTextColor(primaryColor, navColorStyle)}
-              name="edit-line"
+              name="pencil-line"
               size="md"
             />
           }

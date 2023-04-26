@@ -1,4 +1,4 @@
-import type { EntityDefinitionsOptions } from "ce/utils/autocomplete/EntityDefinitions";
+import type { EntityDefinitionsOptions } from "@appsmith/utils/autocomplete/EntityDefinitions";
 import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { isFunction } from "lodash";
