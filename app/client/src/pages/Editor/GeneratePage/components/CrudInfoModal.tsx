@@ -26,6 +26,7 @@ import {
   Container as ProgressiveImageContainer,
 } from "design-system-old";
 import SuccessTick from "pages/common/SuccessTick";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 type Props = {
   crudInfoModalOpen: boolean;
@@ -131,7 +132,7 @@ function InfoContent({
         <ImageWrapper>
           <ProgressiveImage
             alt="template information"
-            imageSource={successImageUrl}
+            imageSource={getAssetUrl(successImageUrl)}
             thumbnailSource={getInfoThumbnail()}
           />
         </ImageWrapper>

@@ -10,7 +10,7 @@ import { setPreviewModeInitAction } from "actions/editorActions";
 import { previewModeSelector } from "selectors/editorSelectors";
 
 import { isExploringSelector } from "selectors/onboardingSelectors";
-import { createMessage, EDITOR_HEADER } from "ce/constants/messages";
+import { createMessage, EDITOR_HEADER } from "@appsmith/constants/messages";
 
 function ToggleModeButton() {
   const dispatch = useDispatch();

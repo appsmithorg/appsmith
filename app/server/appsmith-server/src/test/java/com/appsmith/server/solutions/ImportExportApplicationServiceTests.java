@@ -215,7 +215,7 @@ public class ImportExportApplicationServiceTests {
         ds1.setWorkspaceId(workspaceId);
         ds1.setPluginId(installedPlugin.getId());
         final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        datasourceConfiguration.setUrl("http://httpbin.org/get");
+        datasourceConfiguration.setUrl("http://example.org/get");
         datasourceConfiguration.setHeaders(List.of(
                 new Property("X-Answer", "42")
         ));
