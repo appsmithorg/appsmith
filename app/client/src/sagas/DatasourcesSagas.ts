@@ -1444,26 +1444,23 @@ function* updateDatasourceAuthStateSaga(
         type: ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
         payload: response.data,
       });
-
-      Toaster.show({
-        text:
-          authStatus === AuthenticationStatus.SUCCESS
-            ? OAUTH_AUTHORIZATION_SUCCESSFUL
-            : OAUTH_AUTHORIZATION_FAILED,
-        variant:
-          authStatus === AuthenticationStatus.SUCCESS
-            ? Variant.success
-            : Variant.danger,
-      });
+      toast.show(
+        authStatus === AuthenticationStatus.SUCCESS
+          ? OAUTH_AUTHORIZATION_SUCCESSFUL
+          : OAUTH_AUTHORIZATION_FAILED,
+        {
+          kind:
+            authStatus === AuthenticationStatus.SUCCESS ? "success" : "error",
+        },
+      );
     }
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.UPDATE_DATASOURCE_ERROR,
       payload: { error },
     });
-    Toaster.show({
-      text: OAUTH_AUTHORIZATION_FAILED,
-      variant: Variant.danger,
+    toast.show(OAUTH_AUTHORIZATION_FAILED, {
+      kind: "error",
     });
   }
 }
