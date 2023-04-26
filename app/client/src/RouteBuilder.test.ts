@@ -19,6 +19,7 @@ describe("Route builder", () => {
         input: { a1: "1234*&^%~`<>:';,./?" },
         expected: "?a1=1234*%26%5E%25~%60%3C%3E%3A'%3B%2C.%2F%3F",
       },
+      { index: 4, input: { isSignedIn: false }, expected: "?isSignedIn=false" },
     ];
 
     test.each(cases.map((x) => [x.index, x.input, x.expected]))(
