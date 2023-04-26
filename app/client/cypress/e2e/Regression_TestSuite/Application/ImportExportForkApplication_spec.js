@@ -36,7 +36,12 @@ describe("Import, Export and Fork application and validate data binding", functi
         force: true,
       });
       cy.wait(2000);
-      cy.get(homePage.applicationName).clear().type(appName);
+
+      const appName = () => cy.get(homePage.applicationName);
+      appName().clear();
+      appName().type(appName);
+
+      //cy.get(homePage.applicationName).clear().type(appName);
       cy.get("body").click(0, 0);
       cy.wait("@updateApplication").should(
         "have.nested.property",
@@ -75,7 +80,12 @@ describe("Import, Export and Fork application and validate data binding", functi
 
   it("3. Export and import application and validate data binding for the widgets", function () {
     cy.NavigateToHome();
-    cy.get(homePage.searchInput).clear().type(`${appName}`);
+    //cy.get(homePage.searchInput).clear().type(`${appName}`);
+
+    const searchInput = () => cy.get(homePage.searchInput);
+    searchInput().clear();
+    searchInput().type(`${appName}`);
+
     cy.wait(2000);
     cy.get(homePage.applicationCard).first().trigger("mouseover");
     cy.get(homePage.appMoreIcon).first().click({ force: true });

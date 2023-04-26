@@ -4,7 +4,9 @@ import { ObjectsRegistry } from "../Objects/Registry";
 
 type ElementType = string | JQuery<HTMLElement>;
 
-let LOCAL_STORAGE_MEMORY: any = {};
+let LOCAL_STORAGE_MEMORY: any = {},
+  SESSION_STORAGE_MEMORY: any = {};
+
 export interface IEnterValue {
   propFieldName: string;
   directInput: boolean;
@@ -56,6 +58,18 @@ export class AggregateHelper {
   public ClearLocalStorageCache() {
     localStorage.clear();
     LOCAL_STORAGE_MEMORY = {};
+  }
+
+  public SaveSessionStorage() {
+    Object.keys(sessionStorage).forEach((key) => {
+      SESSION_STORAGE_MEMORY[key] = sessionStorage[key];
+    });
+  }
+
+  public RestoreSessionStorage() {
+    Object.keys(SESSION_STORAGE_MEMORY).forEach((key) => {
+      sessionStorage.setItem(key, SESSION_STORAGE_MEMORY[key]);
+    });
   }
 
   public TypeTab(shiftKey = false, ctrlKey = false) {

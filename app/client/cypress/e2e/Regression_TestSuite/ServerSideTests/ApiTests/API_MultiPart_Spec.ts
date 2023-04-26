@@ -6,19 +6,10 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   apiPage = ObjectsRegistry.ApiPage,
   locator = ObjectsRegistry.CommonLocators,
   deployMode = ObjectsRegistry.DeployMode,
-  propPane = ObjectsRegistry.PropertyPane,
-  debuggerHelper = ObjectsRegistry.DebuggerHelper;
+  propPane = ObjectsRegistry.PropertyPane;
 
 describe("Validate API request body panel", () => {
-  beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
-  });
-
-  afterEach(() => {
-    agHelper.SaveLocalStorageCache();
-  });
-
-  it("1. Check whether input and type dropdown selector exist when multi-part is selected", () => {
+  it.only("1. Check whether input and type dropdown selector exist when multi-part is selected", () => {
     apiPage.CreateApi("FirstAPI", "POST");
     apiPage.SelectPaneTab("Body");
     apiPage.SelectSubTab("FORM_URLENCODED");
@@ -31,7 +22,7 @@ describe("Validate API request body panel", () => {
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
-  it("2. Checks whether No body error message is shown when None API body content type is selected", function () {
+  it.only("2. Checks whether No body error message is shown when None API body content type is selected", function () {
     apiPage.CreateApi("FirstAPI", "GET");
     apiPage.SelectPaneTab("Body");
     apiPage.SelectSubTab("NONE");

@@ -31,6 +31,11 @@ import "./widgetCommands";
 import "./themeCommands";
 import "./AdminSettingsCommands";
 /// <reference types="cypress-xpath" />
+let myCookie, originalCookie;
+//import "cypress-localstorage-commands"
+
+import { ObjectsRegistry } from "./Objects/Registry";
+const agHelper = ObjectsRegistry.AggregateHelper;
 
 Cypress.on("uncaught:exception", () => {
   // returning false here prevents Cypress from
@@ -85,13 +90,52 @@ before(function () {
 });
 
 before(function () {
+  //cy.clearLocalStorageSnapshot();
+
   //console.warn = () => {};
-  Cypress.Cookies.preserveOnce("SESSION", "remember_token");
+  //Cypress.Cookies.preserveOnce("SESSION", "remember_token");
+  //cy.setCookie("SESSION", "remember_token");
+
+  // cy.session("unique_identifier", {
+  //   validate() {
+  //     cy.getCookies().should("have.length", 2);
+  //   }, cacheAcrossSpecs: true
+  // });
+
   const username = Cypress.env("USERNAME");
   const password = Cypress.env("PASSWORD");
+
+  // cy.session("preservingCookies", cy.LoginFromAPI(username, password), {
+  //   validate() {
+  //     cy.url().should("contain", "/applications")
+  //     //expect(loc.href).to.equal(loc.origin + "/applications");
+
+  //     //cy.getCookies().should("have.length", 2);
+  //   },
+  //   cacheAcrossSpecs: true,
+  // });
+  //cy.restoreLocalStorage();
+
   cy.LoginFromAPI(username, password);
   cy.wait("@getMe");
   cy.wait(3000);
+  //cy.loadCookies();
+
+  // cy.getCookies().then((cookies) => {
+  //   myCookie = cookies;
+  // });
+
+  // cy.window().then((win) => {
+  //   myCookie.forEach((cookie) => {
+  //     win.document.cookie = `${cookie.name}=${cookie.value}`;
+  //   });
+  // });
+
+  // cy.getCookies().then((cookies) => {
+  //   myCookie = cookies.find((c) => c.name === 'myCookie')
+  // })
+
+  //cy.setCookie("SESSION", "remember_token");
   cy.get(".t--applications-container .createnew")
     .should("be.visible")
     .should("be.enabled");
@@ -103,21 +147,87 @@ before(function () {
   cy.fixture("example").then(function (data) {
     this.data = data;
   });
+
+  // cy.session('my_cookies_session', () => {
+  //   cy.loadCookies();
+  // });
 });
 
 beforeEach(function () {
+  // const username = Cypress.env("USERNAME");
+  // const password = Cypress.env("PASSWORD");
   //cy.window().then((win) => (win.onbeforeunload = undefined));
   if (!navigator.userAgent.includes("Cypress")) {
     window.addEventListener("beforeunload", this.beforeunloadFunction);
   }
   initLocalstorage();
-  Cypress.Cookies.preserveOnce("SESSION", "remember_token");
+  agHelper.RestoreSessionStorage();
+
+  //cy.session("SESSION", "remember_token");
+  //cy.setCookie("SESSION", "remember_token");
+  //cy.getCookie("SESSION");
+
+  //cy.getCookie("SESSION");
+  // cy.session('my_cookies_session', () => {
+  //   cy.loadCookies();
+  // });
+
+  //cy.saveCookies();
+  //cy.loadCookies();
+  //cy.restoreLocalStorage();
+
+  // cy.getCookies().then((cookies) => {
+  //   myCookie = cookies;
+  // });
+  //onBeforeLoad(win) {
+  // cy.window().then((win) => {
+  //   myCookie.forEach((cookie) => {
+  //     win.document.cookie = `${cookie.name}=${cookie.value}`;
+  //   });
+  // });
+
+  //Cypress.Cookies.preserveOnce("SESSION", "remember_token");
+  // cy.session("SESSION", {
+  //   validate() {
+  //     //cy.getCookies().should("have.length", 2);},
+  //   },
+  //    cacheAcrossSpecs: true
+  // });
+
+  // cy.session("preservingCookies", cy.LoginFromAPI(username, password), {
+  //   validate() {
+  //     cy.url().should("contain", "/applications")
+  //     //expect(loc.href).to.equal(loc.origin + "/applications");
+
+  //     //cy.getCookies().should("have.length", 2);
+  //   },
+  //   cacheAcrossSpecs: true,
+  // });
+
   cy.startServerAndRoutes();
   //-- Delete local storage data of entity explorer
   cy.DeleteEntityStateLocalStorage();
   cy.intercept("api/v1/admin/env", (req) => {
     req.headers["origin"] = Cypress.config("baseUrl");
   });
+});
+
+// afterEach(() => {
+//   // Set the "myCookie" cookie back to its original value
+//   //cy.setCookie(myCookie, myCookie);
+//   //cy.loadCookies();
+
+//   cy.saveCookies();
+//   //cy.saveLocalStorage();
+
+//   // cy.session('my_cookies_session', () => {
+//   //   cy.saveCookies();
+//   // }, cacheAcrossSpecs: true);
+
+// });
+
+afterEach(() => {
+  agHelper.SaveSessionStorage();
 });
 
 after(function () {
