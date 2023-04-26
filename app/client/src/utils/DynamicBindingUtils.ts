@@ -120,10 +120,15 @@ export const combineDynamicBindings = (
     .join(" + ");
 };
 
-// Operator precedence example: JSCode =  code  {{ currentItem.noExist || "Blue"}}  PS: currentItem.noExist is undefined
-// if JS code is evaluated it'd be evaluated as "code undefined" rather than "code Blue"
-//Now "code " + {{(undefined || "Blue")}} = "code Blue"  because the parentheses change the order of evaluation, giving addition higher precedence in this case
+/**
+ * Operator precedence example: JSCode =  Color is  {{ currentItem.color || "Blue"}}  PS: currentItem.color is undefined
+ *  Previously this code would be transformed to  (() =>  "Color is" + currentItem.color || "Blue")() which evaluates to "Color is undefined" rather than "Color is Blue"
+ * with precedence we'd have (() =>  "Color is" + (currentItem.color || "Blue"))() which evaluates to Color is Blue,  because the parentheses change the order of evaluation, giving  higher precedence in this case to (currentItem.color || "Blue").
+ */
 function addOperatorPrecedenceIfNeeded(stringifiedJS: string) {
+  /**
+   *  parenthesis doesn't work with ; i.e Color is  {{ currentItem.color || "Blue" ;}} cant be (() =>  "Color is" + (currentItem.color || "Blue";))()
+   */
   if (!hasNonStringSemicolons(stringifiedJS)) {
     return `(${stringifiedJS})`;
   }
