@@ -19,6 +19,7 @@ import { getQueryParams } from "utils/URLUtils";
 import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { curlImportPageURL } from "RouteBuilder";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -298,7 +299,7 @@ function NewApiScreen(props: Props) {
               <img
                 alt="OAuth2"
                 className="authApiImage t--authApiImage content-icon"
-                src={authApiPlugin.iconLocation}
+                src={getAssetUrl(authApiPlugin.iconLocation)}
               />
               <p className="t--plugin-name textBtn">Authenticated API</p>
             </CardContentWrapper>
@@ -337,7 +338,7 @@ function NewApiScreen(props: Props) {
                 className={
                   "content-icon saasImage t--saas-" + p.packageName + "-image"
                 }
-                src={p.iconLocation}
+                src={getAssetUrl(p.iconLocation)}
               />
               <p className="t--plugin-name textBtn">{p.name}</p>
             </CardContentWrapper>

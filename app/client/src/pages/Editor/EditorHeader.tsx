@@ -87,7 +87,7 @@ import EndTour from "./GuidedTour/EndTour";
 import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
 import { viewerURL } from "RouteBuilder";
 import { useHref } from "./utils";
-import EmbedSnippetForm from "pages/Applications/EmbedSnippetTab";
+import EmbedSnippetForm from "@appsmith/pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
@@ -323,6 +323,9 @@ export function EditorHeader(props: EditorHeaderProps) {
         key: "EMBED",
         title: createMessage(IN_APP_EMBED_SETTING.embed),
         component: EmbedSnippetForm,
+        customProps: {
+          changeTabIndex: 0,
+        },
       },
     ];
   }, []);
@@ -390,7 +393,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                     name="hamburger"
                     size="md"
                   />
-                  {!pinned && (
+                  {pinned && (
                     <Icon
                       className="absolute transition-opacity opacity-0 group-hover:opacity-100"
                       name="double-arrow-left"
@@ -398,7 +401,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                       size="md"
                     />
                   )}
-                  {pinned && (
+                  {!pinned && (
                     <Icon
                       className="absolute transition-opacity opacity-0 group-hover:opacity-100"
                       name="double-arrow-right"

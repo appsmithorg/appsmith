@@ -2,51 +2,84 @@ import type { AppState } from "@appsmith/reducers";
 import { redirectAuthorizationCode } from "actions/datasourceActions";
 import { Callout } from "design-system";
 import type { Datasource } from "entities/Datasource";
+import { ActionType } from "entities/Datasource";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getPluginTypeFromDatasourceId } from "selectors/entitiesSelector";
 import styled from "styled-components";
+import {
+  setGlobalSearchQuery,
+  toggleShowGlobalSearchModal,
+} from "actions/globalSearchActions";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { createMessage } from "design-system-old/build/constants/messages";
+import {
+  GOOGLE_SHEETS_AUTHORIZE_DATASOURCE,
+  GOOGLE_SHEETS_LEARN_MORE,
+} from "@appsmith/constants/messages";
 
 const StyledAuthMessage = styled.div`
   width: fit-content;
   margin-bottom: var(--ads-v2-space-4);
-  /* padding: 0 20px; */
-  /* & > div {
-    margin: 0;
-  } */
 `;
 
 type AuthMessageProps = {
   // We can handle for other action types as well eg. save, delete etc.
-  actionType?: "authorize";
+  actionType?: string;
   datasource: Datasource;
   description: string;
   pageId?: string;
   style?: any;
+  calloutType?: CalloutType;
 };
 
 export default function AuthMessage(props: AuthMessageProps) {
-  const { actionType, datasource, description, pageId, style = {} } = props;
+  const {
+    actionType,
+    calloutType = "error",
+    datasource,
+    description,
+    pageId,
+    style = {},
+  } = props;
   const dispatch = useDispatch();
   const pluginType = useSelector((state: AppState) =>
     getPluginTypeFromDatasourceId(state, datasource.id),
   );
   const handleOauthAuthorization: any = () => {
+    e.preventDefault();
     if (!pluginType || !pageId) return;
     dispatch(redirectAuthorizationCode(pageId, datasource.id, pluginType));
+  };
+  const handleDocumentationClick: any = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const query = "Google Sheets";
+    dispatch(setGlobalSearchQuery(query));
+    dispatch(toggleShowGlobalSearchModal());
+    AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
+      source: "DATASOURCE_DOCUMENTATION_CLICK",
+      query,
+    });
   };
 
   return (
     <StyledAuthMessage style={style}>
       <Callout
-        kind="error"
+        kind={calloutType}
         links={
-          actionType === "authorize"
+          actionType === ActionType.AUTHORIZE
             ? [
                 {
-                  children: "Authorize Datasource",
+                  children: createMessage(GOOGLE_SHEETS_AUTHORIZE_DATASOURCE),
                   onClick: handleOauthAuthorization,
-                  to: "",
+                },
+              ]
+            : actionType === ActionType.DOCUMENTATION
+            ? [
+                {
+                  children: createMessage(GOOGLE_SHEETS_LEARN_MORE),
+                  onClick: handleDocumentationClick,
                 },
               ]
             : undefined

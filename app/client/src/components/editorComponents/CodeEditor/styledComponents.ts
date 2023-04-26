@@ -120,6 +120,7 @@ export const EditorWrapper = styled.div<{
               return "var(--ads-v2-color-border)";
           }
         }};
+
       background: var(--ads-v2-color-bg);
       color: var(--ads-v2-color-fg);
       & {
@@ -238,6 +239,7 @@ export const EditorWrapper = styled.div<{
     .cm-tab {
       border-right: 1px dotted #ccc;
     }
+    height: 100%;
   `}
 
   .bp3-popover-target {

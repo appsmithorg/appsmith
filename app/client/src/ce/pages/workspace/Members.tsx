@@ -466,7 +466,7 @@ export default function MemberSettings(props: PageProps) {
               );
             }}
             size="sm"
-            startIcon="delete-control"
+            startIcon="delete-bin-line"
           />
         );
       },

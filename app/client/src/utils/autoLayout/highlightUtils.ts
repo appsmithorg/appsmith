@@ -1,4 +1,8 @@
-import { FlexLayerAlignment } from "utils/autoLayout/constants";
+import {
+  FlexLayerAlignment,
+  MOBILE_ROW_GAP,
+  ROW_GAP,
+} from "utils/autoLayout/constants";
 import { DEFAULT_HIGHLIGHT_SIZE } from "components/designSystems/appsmith/autoLayout/FlexBoxComponent";
 import {
   FLEXBOX_PADDING,
@@ -55,6 +59,8 @@ export function deriveHighlightsFromLayers(
   let childCount = 0;
   let layerIndex = 0;
 
+  const rowGap = isMobile ? MOBILE_ROW_GAP : ROW_GAP;
+
   let offsetTop = FLEXBOX_PADDING; // used to calculate distance of a highlight from parents's top.
   for (const layer of layers) {
     /**
@@ -107,13 +113,15 @@ export function deriveHighlightsFromLayers(
           hasFillWidget,
           childrenRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
           getPreviousOffsetTop(highlights),
+          isMobile,
         ),
       );
 
       highlights.push(...payload.highlights);
       layerIndex += 1;
     } else highlights = updateHorizontalDropZone(highlights);
-    offsetTop += childrenRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT || 0;
+    offsetTop +=
+      childrenRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT + rowGap || 0;
     childCount += payload.childCount;
   }
   // Add a layer of horizontal highlights for the empty space at the bottom of a stack.
@@ -127,6 +135,7 @@ export function deriveHighlightsFromLayers(
       hasFillWidget,
       -1,
       getPreviousOffsetTop(highlights),
+      isMobile,
     ),
   );
   return highlights;
@@ -424,6 +433,7 @@ function generateHorizontalHighlights(
   hasFillWidget: boolean,
   rowHeight: number,
   previousOffset: number,
+  isMobile: boolean,
 ): HighlightInfo[] {
   const width = containerWidth / 3;
   const arr: HighlightInfo[] = [];
@@ -431,6 +441,11 @@ function generateHorizontalHighlights(
     top: previousOffset === -1 ? offsetTop : (offsetTop - previousOffset) * 0.5,
     bottom: rowHeight === -1 ? 10000 : rowHeight * 0.5,
   };
+  const rowGap = isMobile ? MOBILE_ROW_GAP : ROW_GAP;
+  offsetTop =
+    previousOffset === -1
+      ? offsetTop
+      : offsetTop - (rowGap - DEFAULT_HIGHLIGHT_SIZE / 2) / 2;
   [
     FlexLayerAlignment.Start,
     FlexLayerAlignment.Center,
@@ -481,10 +496,18 @@ function updateVerticalHighlightDropZone(
     const nextHighlight: HighlightInfo | undefined = highlights[index + 1];
     const previousHighlight: HighlightInfo | undefined = highlights[index - 1];
     const leftZone = previousHighlight
-      ? (highlight.posX - previousHighlight.posX) * zoneSize
+      ? (highlight.posX -
+          (highlight.posY < previousHighlight.posY + previousHighlight.height
+            ? previousHighlight.posX
+            : 0)) *
+        zoneSize
       : highlight.posX + DEFAULT_HIGHLIGHT_SIZE;
     const rightZone = nextHighlight
-      ? (nextHighlight.posX - highlight.posX) * zoneSize
+      ? ((highlight.posY + highlight.height > nextHighlight.posY
+          ? nextHighlight.posX
+          : canvasWidth) -
+          highlight.posX) *
+        zoneSize
       : canvasWidth - highlight.posX;
     highlights[index] = {
       ...highlight,
