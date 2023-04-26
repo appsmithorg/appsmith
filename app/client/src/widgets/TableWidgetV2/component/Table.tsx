@@ -354,32 +354,8 @@ export function Table(props: TableProps) {
               tableSizes={tableSizes}
               width={props.width}
             >
-              <TableHeader
-                accentColor={props.accentColor}
-                allowAddNewRow={props.allowAddNewRow}
-                applyFilter={props.applyFilter}
-                borderRadius={props.borderRadius}
-                boxShadow={props.boxShadow}
-                columns={tableHeadercolumns}
-                currentPageIndex={currentPageIndex}
-                delimiter={props.delimiter}
-                disableAddNewRow={!!props.editableCell?.column}
-                disabledAddNewRowSave={props.disabledAddNewRowSave}
-                filters={props.filters}
-                isAddRowInProgress={props.isAddRowInProgress}
-                isVisibleDownload={props.isVisibleDownload}
-                isVisibleFilters={props.isVisibleFilters}
-                isVisiblePagination={props.isVisiblePagination}
-                isVisibleSearch={props.isVisibleSearch}
-                nextPageClick={props.nextPageClick}
-                onAddNewRow={props.onAddNewRow}
-                onAddNewRowAction={props.onAddNewRowAction}
-                pageCount={pageCount}
-                pageNo={props.pageNo}
-                pageOptions={pageOptions}
-                prevPageClick={props.prevPageClick}
-                searchKey={props.searchKey}
-                searchTableData={props.searchTableData}
+              <TableHeaderInnerWrapper
+                backgroundColor={Colors.WHITE}
                 serverSidePaginationEnabled={props.serverSidePaginationEnabled}
                 tableSizes={tableSizes}
                 variant={props.variant}
@@ -394,7 +370,7 @@ export function Table(props: TableProps) {
                   columns={tableHeadercolumns}
                   currentPageIndex={currentPageIndex}
                   delimiter={props.delimiter}
-                  disableAddNewRow={!!props.editableCell.column}
+                  disableAddNewRow={!!props.editableCell?.column}
                   disabledAddNewRowSave={props.disabledAddNewRowSave}
                   filters={props.filters}
                   isAddRowInProgress={props.isAddRowInProgress}
