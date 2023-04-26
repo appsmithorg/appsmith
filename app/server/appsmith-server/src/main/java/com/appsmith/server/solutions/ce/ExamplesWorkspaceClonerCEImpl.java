@@ -201,6 +201,14 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                 .thenMany(applicationFlux)
                 .flatMap(application -> {
                     application.setWorkspaceId(toWorkspaceId);
+                    // Extracting forkWithConfiguration to use below before resetting it for newly forked app
+                    //forkWithConfig by default remains FALSE for datasources used in an application
+                    Boolean forkWithConfig;
+                    if (Boolean.TRUE.equals(application.getForkWithConfiguration())){
+                        forkWithConfig = Boolean.TRUE;
+                    } else {
+                        forkWithConfig = Boolean.FALSE;
+                    }
                     //Setting the forkWithConfiguration and exportWithConfiguration to null for newly forked app
                     application.setForkWithConfiguration(null);
                     application.setExportWithConfiguration(null);
@@ -216,7 +224,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                                     Mono.zip(
                                             Mono.just(page),
                                             Mono.just(defaultPageId.equals(page.getId())),
-                                            Mono.just(application)
+                                            Mono.just(forkWithConfig)
                                     )
                             );
                 })
@@ -224,7 +232,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                     final NewPage newPage = tuple.getT1();
                     final boolean isDefault = tuple.getT2();
                     final String templatePageId = newPage.getId();
-                    Application application = tuple.getT3();
+                    Boolean forkWithConfig = tuple.getT3();
                     DefaultResources defaults = new DefaultResources();
                     defaults.setApplicationId(newPage.getApplicationId());
                     newPage.setDefaultResources(defaults);
@@ -271,11 +279,6 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                                                 if (datasourceInsideAction.getId() != null) {
                                                     final String datasourceId = datasourceInsideAction.getId();
                                                     if (!cloneDatasourceMonos.containsKey(datasourceId)) {
-                                                        //exportWithConfig by default remains FALSE for datasources used in an application
-                                                        Boolean forkWithConfig = Boolean.FALSE;
-                                                        if (Boolean.TRUE.equals(application.getForkWithConfiguration())){
-                                                            forkWithConfig = Boolean.TRUE;
-                                                        }
                                                         cloneDatasourceMonos.put(datasourceId, cloneDatasource(datasourceId, toWorkspaceId, forkWithConfig).cache());
                                                     }
                                                     actionMono = cloneDatasourceMonos.get(datasourceId)
