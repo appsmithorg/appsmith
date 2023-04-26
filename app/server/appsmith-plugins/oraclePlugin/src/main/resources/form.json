@@ -74,7 +74,7 @@
               "value": "DISABLE"
             },
             {
-              "label": "No verify",
+              "label": "TLS",
               "value": "NO_VERIFY"
             }
           ]
