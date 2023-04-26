@@ -46,11 +46,11 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "./WidgetSelectUtils";
 import { getIsAutoLayout } from "selectors/editorSelectors";
-import { recalculateAutoLayoutColumnsAndSave } from "./AutoLayoutSagas/AutoLayoutUpdateSagas";
 import {
   FlexLayerAlignment,
   LayoutDirection,
 } from "utils/autoLayout/constants";
+import { recalculatePositionsForCurrentBreakPointAction } from "actions/autoLayoutActions";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
@@ -274,7 +274,7 @@ export function* resizeModalSaga(resizeAction: ReduxAction<ModalWidgetResize>) {
     log.debug("resize computations took", performance.now() - start, "ms");
     //TODO Identify the updated widgets and pass the values
     if (isAutoLayout) {
-      yield call(recalculateAutoLayoutColumnsAndSave, widgets, true);
+      yield put(recalculatePositionsForCurrentBreakPointAction(widgets, true));
     } else {
       yield put(updateAndSaveLayout(widgets));
     }

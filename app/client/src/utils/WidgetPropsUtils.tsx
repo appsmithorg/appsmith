@@ -308,8 +308,10 @@ export const getCanvasSnapRows = (
     isMobile && mobileBottomRow !== undefined && isAutoLayoutActive
       ? mobileBottomRow
       : bottomRow;
-  const totalRows = Math.floor(bottom / GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
-
+  const computedTotalRows = bottom / GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+  const totalRows = isAutoLayoutActive
+    ? computedTotalRows
+    : Math.floor(computedTotalRows);
   return totalRows - 1;
 };
 
