@@ -152,26 +152,20 @@ function BackToHomeButton(props: BackToHomeButtonProps) {
         NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE ||
         logoConfiguration ===
           NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_ONLY) ? (
-        <TooltipComponent
-          content="Back to homepage"
-          disabled={pages.length <= 1}
-          position="bottom-left"
+        <StyledLink
+          className={classNames({
+            "group hover:no-underline": true,
+            "pointer-events-none select-none": pages.length <= 1,
+          })}
+          navColorStyle={navColorStyle}
+          primaryColor={primaryColor}
+          to={pageUrl}
         >
-          <StyledLink
-            className={classNames({
-              "group hover:no-underline": true,
-              "pointer-events-none select-none": pages.length <= 1,
-            })}
-            navColorStyle={navColorStyle}
-            primaryColor={primaryColor}
-            to={pageUrl}
-          >
-            <StyledImage
-              alt="Your application's logo"
-              src={`/api/v1/assets/${currentApplicationDetails.applicationDetail.navigationSetting.logoAssetId}`}
-            />
-          </StyledLink>
-        </TooltipComponent>
+          <StyledImage
+            alt="Your application's logo"
+            src={`/api/v1/assets/${currentApplicationDetails.applicationDetail.navigationSetting.logoAssetId}`}
+          />
+        </StyledLink>
       ) : (
         ""
       )}
