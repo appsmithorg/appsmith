@@ -403,7 +403,6 @@ function* evaluateActionParams(
 
         if (key.includes(".files") && recordFilePickerInstrumentation) {
           filePickerInstrumentation["numberOfFiles"] += 1;
-          // @ts-expect-error: Values can take many types
           const { size, type } = newVal;
           filePickerInstrumentation["totalSize"] += size;
           filePickerInstrumentation["fileSizes"].push(size);
