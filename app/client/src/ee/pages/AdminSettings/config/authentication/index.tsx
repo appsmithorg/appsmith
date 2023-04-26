@@ -32,7 +32,7 @@ const SsoAuth: AdminConfigType = {
   title: "SAML 2.0",
   component: Saml,
   subText:
-    "Enable your organization to sign in with your preferred SAML2 compliant provider.",
+    "Enable your workspace to sign in with your preferred SAML2 compliant provider.",
   canSave: true,
   isConnected: enableSamlOAuth,
 };
@@ -43,7 +43,7 @@ const OidcAuth: AdminConfigType = {
   title: "OpenID Connect",
   component: Oidc,
   subText:
-    "Enable your organization to sign in with your preferred OIDC compliant provider.",
+    "Enable your workspace to sign in with your preferred OIDC compliant provider.",
   canSave: true,
   isConnected: enableOidcOAuth,
   settings: [

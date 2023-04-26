@@ -65,7 +65,7 @@ import {
   GOOGLE_SHEETS_INFO_BANNER_MESSAGE,
   GSHEET_AUTHORIZATION_ERROR,
   SAVE_AND_AUTHORIZE_BUTTON_TEXT,
-} from "ce/constants/messages";
+} from "@appsmith/constants/messages";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import { getDatasourceErrorMessage } from "./errorUtils";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";

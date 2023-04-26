@@ -80,7 +80,7 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import store from "store";
 import TagListField from "../../utils/TagInput";
 import { showAdminSettings } from "@appsmith/utils/adminSettingsHelpers";
-import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
 import {
   getAllAppUsers,
   getAppRolesForField,
@@ -226,7 +226,6 @@ function WorkspaceInviteUsersForm(props: any) {
   const [numberOfUsersInvited, updateNumberOfUsersInvited] = useState(0);
   const currentWorkspace = useSelector(getCurrentAppWorkspace);
   const groupSuggestions: any[] = useSelector(getGroupSuggestions);
-  const featureFlags = useSelector(selectFeatureFlags);
 
   const userWorkspacePermissions = currentWorkspace?.userPermissions ?? [];
   const canManage = isPermitted(
@@ -234,8 +233,7 @@ function WorkspaceInviteUsersForm(props: any) {
     PERMISSION_TYPE.MANAGE_WORKSPACE,
   );
   const isEEFeature = (!isAclFlow && !cloudHosting) || false;
-  const isAppLevelInvite =
-    (!cloudHosting && isApplicationInvite && featureFlags.RBAC) || false;
+  const isAppLevelInvite = (!cloudHosting && isApplicationInvite) || false;
 
   useEffect(() => {
     if (!isAclFlow) {
@@ -602,9 +600,7 @@ export default connect(
       isApplicationInvite,
     }: { formName?: string; isApplicationInvite?: boolean },
   ): any => {
-    const featureFlags = state.ui.users.featureFlag.data;
-    const isAppLevelInvite =
-      (!cloudHosting && isApplicationInvite && featureFlags.RBAC) || false;
+    const isAppLevelInvite = (!cloudHosting && isApplicationInvite) || false;
     return {
       roles: isAppLevelInvite
         ? getAppRolesForField(state)
