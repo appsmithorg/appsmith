@@ -8,6 +8,7 @@ import type {
   AuthenticationStatus,
   Datasource,
   FilePickerActionStatus,
+  MockDatasource,
 } from "entities/Datasource";
 import type { PluginType } from "entities/Action";
 import type { executeDatasourceQueryRequest } from "api/DatasourcesApi";
@@ -112,6 +113,15 @@ export const fetchDatasourceStructure = (id: string, ignoreCache?: boolean) => {
       id,
       ignoreCache,
     },
+  };
+};
+
+export const addAndFetchMockDatasourceStructure = (
+  datasource: MockDatasource,
+) => {
+  return {
+    type: ReduxActionTypes.ADD_AND_FETCH_MOCK_DATASOURCE_STRUCTURE_INIT,
+    payload: datasource,
   };
 };
 
@@ -257,6 +267,7 @@ export interface addMockRequest
     pluginId: string;
     packageName: string;
     isGeneratePageMode?: string;
+    skipRedirection?: boolean;
   }> {
   extraParams?: any;
 }
@@ -267,10 +278,11 @@ export const addMockDatasourceToWorkspace = (
   pluginId: string,
   packageName: string,
   isGeneratePageMode?: string,
+  skipRedirection = false,
 ): addMockRequest => {
   return {
     type: ReduxActionTypes.ADD_MOCK_DATASOURCES_INIT,
-    payload: { name, packageName, pluginId, workspaceId },
+    payload: { name, packageName, pluginId, workspaceId, skipRedirection },
     extraParams: { isGeneratePageMode },
   };
 };

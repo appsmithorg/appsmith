@@ -82,6 +82,8 @@ class WidgetFactory {
 
   static autoLayoutConfigMap: Map<WidgetType, AutoLayoutConfig> = new Map();
 
+  static widgetMethodsMap: Map<WidgetType, Record<string, any>> = new Map();
+
   static registerWidgetBuilder(
     widgetType: string,
     widgetBuilder: WidgetBuilder<WidgetProps, WidgetState>,
@@ -389,6 +391,21 @@ class WidgetFactory {
       return undefined;
     }
     return map;
+  }
+
+  static setWidgetMethods(type: WidgetType, methods: Record<string, any>) {
+    this.widgetMethodsMap.set(type, methods);
+  }
+
+  static getWidgetMethods(type: WidgetType) {
+    const methods = this.widgetMethodsMap.get(type);
+
+    if (!methods) {
+      log.error("Widget methods are not defined: ", type);
+      return {};
+    }
+
+    return methods;
   }
 }
 
