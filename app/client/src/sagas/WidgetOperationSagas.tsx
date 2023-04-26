@@ -172,7 +172,10 @@ import { toast } from "design-system";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { updatePositionsOfParentAndSiblings } from "utils/autoLayout/positionUtils";
 import { getWidgetWidth } from "utils/autoLayout/flexWidgetUtils";
-import { LayoutDirection } from "utils/autoLayout/constants";
+import {
+  FlexLayerAlignment,
+  LayoutDirection,
+} from "utils/autoLayout/constants";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -1967,6 +1970,7 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
         payload: {
           dropPayload: {
             isNewLayer: true,
+            alignment: FlexLayerAlignment.Start,
           },
           newWidget,
           parentId: MAIN_CONTAINER_WIDGET_ID,

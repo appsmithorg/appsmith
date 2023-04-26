@@ -6,16 +6,26 @@ import { generateQuickCommands } from "./generateQuickCommands";
 import type { Datasource } from "entities/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import log from "loglevel";
+
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEditor/codeEditorUtils";
 import type { SlashCommandPayload } from "entities/Action";
+import type FeatureFlags from "entities/FeatureFlags";
 
 export const commandsHelper: HintHelper = (editor, data: DataTree) => {
-  let entitiesForSuggestions = Object.values(data).filter(
-    (entity: any) =>
-      entity.ENTITY_TYPE && entity.ENTITY_TYPE !== ENTITY_TYPE.APPSMITH,
-  );
+  let entitiesForSuggestions: any[] = [];
+
+  Object.keys(data).forEach((entityName) => {
+    const entity: any = data[entityName];
+
+    if (entity.ENTITY_TYPE && entity.ENTITY_TYPE !== ENTITY_TYPE.APPSMITH) {
+      entitiesForSuggestions.push({
+        entityName,
+        ...entity,
+      });
+    }
+  });
   return {
     showHint: (
       editor: CodeMirror.Editor,
@@ -23,6 +33,7 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
       {
         datasources,
         executeCommand,
+        featureFlags,
         pluginIdToImageLocation,
         recentEntities,
         update,
@@ -33,6 +44,7 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
         recentEntities: string[];
         update: (value: string) => void;
         entityId: string;
+        featureFlags: FeatureFlags;
       },
     ): boolean => {
       const currentEntityType =
@@ -57,6 +69,7 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
             executeCommand,
             pluginIdToImageLocation,
             recentEntities,
+            featureFlags,
           },
           expectedType || "string",
           entityId,
