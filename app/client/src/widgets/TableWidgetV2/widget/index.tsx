@@ -16,9 +16,10 @@ import _, {
   pickBy,
   orderBy,
   filter,
+  merge,
 } from "lodash";
 
-import type { WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import type { WidgetType } from "constants/WidgetConstants";
 import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
@@ -64,6 +65,7 @@ import {
   generateLocalNewColumnOrderFromStickyValue,
   updateAndSyncTableLocalColumnOrders,
   getAllStickyColumnsCount,
+  createEditActionColumn,
 } from "./utilities";
 import type {
   ColumnProperties,
@@ -110,6 +112,7 @@ import { getMemoiseTransformDataWithEditableCell } from "./reactTableUtils/trans
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { AutocompletionDefinitions } from "widgets/constants";
+import type { WidgetQueryGenerationFormConfig } from "WidgetQueryGenerators/types";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -137,6 +140,101 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   memoiseGetColumnsWithLocalStorage: (localStorage: any) => getColumns;
   memoiseTransformDataWithEditableCell: transformDataWithEditableCell;
 
+  static getQueryGenerationConfig(widget: WidgetProps) {
+    return {
+      select: {
+        limit: `${widget.widgetName}.pageSize`,
+        where: `${widget.widgetName}.searchText`,
+        offset: `(${widget.widgetName}.pageNo - 1) * ${widget.widgetName}.pageSize`,
+        orderBy: `${widget.widgetName}.sortOrder.column`,
+        sortOrder: `${widget.widgetName}.sortOrder.order !== "desc"`,
+      },
+      create: {
+        value: `${widget.widgetName}.newRow`,
+      },
+      update: {
+        value: `${widget.widgetName}.updatedRow`,
+        where: `${widget.widgetName}.updatedRow`,
+      },
+      totalRecord: true,
+    };
+  }
+
+  static getPropertyUpdatesForQueryBinding(
+    queryConfig: any,
+    widget: TableWidgetProps,
+    formConfig: WidgetQueryGenerationFormConfig,
+  ) {
+    let updates = {};
+
+    if (queryConfig.select) {
+      updates = merge(updates, {
+        pristine: false,
+        tableData: queryConfig.select.data,
+        onPageChange: queryConfig.select.run,
+        serverSidePaginationEnabled: true,
+        onSearchTextChanged: formConfig.searchableColumn
+          ? queryConfig.select.run
+          : undefined,
+        onSort: queryConfig.select.run,
+        enableClientSideSearch: !formConfig.searchableColumn,
+        primaryColumnId: formConfig.primaryColumn,
+      });
+    }
+
+    if (queryConfig.create) {
+      updates = merge(updates, {
+        onAddNewRowSave: queryConfig.create.run,
+        allowAddNewRow: true,
+        ...Object.keys(widget.primaryColumns).reduce(
+          (prev: Record<string, boolean>, curr) => {
+            prev[`primaryColumns.${curr}.isEditable`] = true;
+            prev[`primaryColumns.${curr}.isCellEditable`] = true;
+            prev[`showInlineEditingOptionDropdown`] = true;
+
+            return prev;
+          },
+          {},
+        ),
+      });
+    }
+
+    if (queryConfig.update) {
+      let editAction = {};
+
+      if (
+        !Object.values(widget.primaryColumns).some(
+          (column) => column.columnType === ColumnTypes.EDIT_ACTIONS,
+        )
+      ) {
+        editAction = Object.values(createEditActionColumn(widget)).reduce(
+          (
+            prev: Record<string, unknown>,
+            curr: { propertyPath: string; propertyValue: unknown },
+          ) => {
+            prev[curr.propertyPath] = curr.propertyValue;
+
+            return prev;
+          },
+          {},
+        );
+      }
+
+      updates = merge(updates, {
+        ...editAction,
+        [`primaryColumns.EditActions1.onSave`]: queryConfig.update.run,
+      });
+    }
+
+    if (queryConfig.total_record) {
+      updates = merge(updates, {
+        totalRecordsCount: queryConfig.total_record.data,
+      });
+    }
+
+    return updates;
+  }
+
   static getPropertyPaneContentConfig() {
     return contentConfig;
   }
@@ -144,6 +242,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   static getPropertyPaneStyleConfig() {
     return styleConfig;
   }
+
   constructor(props: TableWidgetProps) {
     super(props);
     // generate new cache instances so that each table widget instance has its own respective cache instance
@@ -822,6 +921,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       isVisibleFilters,
       isVisiblePagination,
       isVisibleSearch,
+      pristine,
     } = this.props;
     const tableColumns = this.getTableColumns() || emptyArr;
     const transformedData = this.transformData(filteredTableData, tableColumns);
@@ -898,6 +998,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           }
           selectedRowIndices={this.getSelectedRowIndices()}
           serverSidePaginationEnabled={!!this.props.serverSidePaginationEnabled}
+          showConnectDataOverlay={
+            pristine && this.props.renderMode === RenderModes.CANVAS
+          }
           sortTableColumn={this.handleColumnSorting}
           tableData={finalTableData}
           totalRecordsCount={totalRecordsCount}

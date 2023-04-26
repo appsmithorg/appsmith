@@ -47,6 +47,7 @@ export interface DatasourceColumns {
 export interface DatasourceKeys {
   name: string;
   type: string;
+  columnNames: string[];
 }
 
 export interface DatasourceStructure {

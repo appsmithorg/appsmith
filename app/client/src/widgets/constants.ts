@@ -68,6 +68,7 @@ export interface WidgetConfiguration {
     stylesheetConfig?: Stylesheet;
     autocompleteDefinitions?: AutocompletionDefinitions;
   };
+  methods?: Record<string, unknown>;
 }
 
 export const GRID_DENSITY_MIGRATION_V1 = 4;

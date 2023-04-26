@@ -39,7 +39,9 @@ import {
   getDatasourceActionRouteInfo,
   getPlugin,
   getEditorConfig,
+  getPluginByPackageName,
 } from "selectors/entitiesSelector";
+import { addMockDatasourceToWorkspace } from "actions/datasourceActions";
 import type {
   UpdateDatasourceSuccessAction,
   executeDatasourceQueryReduxAction,
@@ -58,7 +60,11 @@ import {
 import type { ApiResponse } from "api/ApiResponses";
 import type { CreateDatasourceConfig } from "api/DatasourcesApi";
 import DatasourcesApi from "api/DatasourcesApi";
-import type { Datasource, TokenResponse } from "entities/Datasource";
+import type {
+  Datasource,
+  MockDatasource,
+  TokenResponse,
+} from "entities/Datasource";
 import { AuthenticationStatus } from "entities/Datasource";
 import { FilePickerActionStatus } from "entities/Datasource";
 import {
@@ -174,6 +180,7 @@ interface addMockDb
       workspaceId: string;
       pluginId: string;
       packageName: string;
+      skipRedirection?: boolean;
     },
     unknown,
     unknown
@@ -183,7 +190,8 @@ interface addMockDb
 
 export function* addMockDbToDatasources(actionPayload: addMockDb) {
   try {
-    const { name, packageName, pluginId, workspaceId } = actionPayload.payload;
+    const { name, packageName, pluginId, skipRedirection, workspaceId } =
+      actionPayload.payload;
     const { isGeneratePageMode } = actionPayload.extraParams;
     const pageId: string = yield select(getCurrentPageId);
     const response: ApiResponse = yield DatasourcesApi.addMockDbToDatasources(
@@ -208,7 +216,9 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       yield call(checkAndGetPluginFormConfigsSaga, response.data.pluginId);
       const isGeneratePageInitiator =
         getIsGeneratePageInitiator(isGeneratePageMode);
+
       const isInGuidedTour: boolean = yield select(inGuidedTour);
+
       if (isGeneratePageInitiator) {
         history.push(
           generateTemplateFormURL({
@@ -220,7 +230,10 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
           }),
         );
       } else {
-        if (isInGuidedTour) return;
+        if (isInGuidedTour || skipRedirection) {
+          return;
+        }
+
         history.push(
           integrationEditorURL({
             pageId,
@@ -1046,6 +1059,36 @@ function* fetchDatasourceStructureSaga(
   }
 }
 
+function* AddAndFetchDatasourceStructureSaga(
+  action: ReduxAction<MockDatasource>,
+) {
+  const plugin: Plugin = yield select((state: AppState) =>
+    getPluginByPackageName(state, action.payload.packageName),
+  );
+
+  const workspaceId: string = yield select(getCurrentWorkspaceId);
+
+  yield put(
+    addMockDatasourceToWorkspace(
+      action.payload.name,
+      workspaceId,
+      plugin.id,
+      plugin.packageName,
+      "",
+      true,
+    ),
+  );
+
+  const result: ReduxAction<Datasource> = yield take([
+    ReduxActionTypes.ADD_MOCK_DATASOURCES_SUCCESS,
+    ReduxActionErrorTypes.ADD_MOCK_DATASOURCES_ERROR,
+  ]);
+
+  if (result.type === ReduxActionTypes.ADD_MOCK_DATASOURCES_SUCCESS) {
+    yield put(fetchDatasourceStructure(result.payload.id, true));
+  }
+}
+
 function* refreshDatasourceStructure(action: ReduxAction<{ id: string }>) {
   const datasource = shouldBeDefined<Datasource>(
     yield select(getDatasource, action.payload.id),
@@ -1555,6 +1598,10 @@ export function* watchDatasourcesSagas() {
     takeEvery(
       ReduxActionTypes.UPDATE_DATASOURCE_AUTH_STATE,
       updateDatasourceAuthStateSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.ADD_AND_FETCH_MOCK_DATASOURCE_STRUCTURE_INIT,
+      AddAndFetchDatasourceStructureSaga,
     ),
   ]);
 }
