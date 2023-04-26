@@ -25,7 +25,7 @@ export const StyledBackLink = styled(Link)`
 `;
 
 export const SettingsHeader = styled.h2`
-  padding: 0px 8px;
+  padding: 0px 8px 0 0;
   font-size: 24px;
   font-weight: 500;
   text-transform: capitalize;
