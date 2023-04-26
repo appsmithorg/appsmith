@@ -257,7 +257,7 @@ describe("Input widget V2 - ", () => {
       },
     ].forEach(({ expected, input }) => enterAndTest(input, expected));
 
-    validateAutocomplteAttribute();
+    validateAutocompleteAttribute();
   });
 
   it("6. Validate DataType - EMAIL can be entered into Input widget", () => {
@@ -328,7 +328,7 @@ describe("Input widget V2 - ", () => {
       },
     ].forEach(({ expected, input }) => enterAndTest(input, expected));
 
-    validateAutocomplteAttribute();
+    validateAutocompleteAttribute();
   });
 
   it("7. Validating other properties - Input validity with #valid", () => {
@@ -446,7 +446,7 @@ describe("Input widget V2 - ", () => {
     cy.get(".t--widget-textwidget").should("contain", expected);
   }
 
-  function validateAutocomplteAttribute() {
+  function validateAutocompleteAttribute() {
     //validate autocomplete behaviour for email and password
 
     cy.openPropertyPane("textwidget");
