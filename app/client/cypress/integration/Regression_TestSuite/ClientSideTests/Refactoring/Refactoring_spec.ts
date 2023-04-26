@@ -34,9 +34,8 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-  });
 
-  it("1. Selecting paintings table from MySQL DS", () => {
+    //Selecting paintings table from MySQL DS
     cy.fixture("datasources").then((datasourceFormData: any) => {
       //Initialize new JSObject with custom code
       _.jsEditor.CreateJSObject(jsCode);
@@ -55,7 +54,7 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
     });
   });
 
-  it("2. Refactor Widget, API, Query and JSObject", () => {
+  it("1. Refactor Widget, API, Query and JSObject", () => {
     //Rename all widgets and entities
     _.entityExplorer.SelectEntityByName(refactorInput.textWidget.oldName);
     _.agHelper.RenameWidget(
@@ -82,8 +81,7 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
     );
   });
 
-  //Commenting due to failure in RTS start in fat container runs
-  it("3. Verify refactoring updates in JS object", () => {
+  it("2. Verify refactoring updates in JS object", () => {
     //Verify JSObject refactoring in API pane
     _.entityExplorer.SelectEntityByName(refactorInput.api.newName);
     _.agHelper.Sleep(1000);
