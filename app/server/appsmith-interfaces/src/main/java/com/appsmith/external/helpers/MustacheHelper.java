@@ -5,6 +5,7 @@ import com.appsmith.external.models.EntityDependencyNode;
 import com.appsmith.external.models.EntityReferenceType;
 import com.appsmith.external.models.MustacheBindingToken;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyAccessorFactory;
@@ -338,7 +339,7 @@ public class MustacheHelper {
             }
         }
 
-        return rendered.toString();
+        return StringEscapeUtils.unescapeHtml4(rendered.toString());
     }
 
     /**
