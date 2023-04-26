@@ -116,6 +116,8 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
                 return (
                   <MenuItem
                     key={page.id}
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    //@ts-ignore
                     onSelect={() =>
                       copyActionToPage(props.id, props.name, page.id)
                     }
@@ -141,6 +143,8 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
                     return (
                       <MenuItem
                         key={page.id}
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        //@ts-ignore
                         onSelect={() =>
                           moveActionToPage(props.id, props.name, page.id)
                         }
