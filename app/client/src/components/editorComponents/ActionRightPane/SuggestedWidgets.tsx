@@ -27,6 +27,7 @@ const WidgetList = styled.div`
 
   img {
     max-width: 100%;
+    border-radius: var(--ads-v2-border-radius);
   }
 
   .image-wrapper {
@@ -40,19 +41,6 @@ const WidgetList = styled.div`
 
   .widget:not(:first-child) {
     margin-top: 24px;
-  }
-`;
-
-const WidgetOverlay = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: calc(100% - ${(props) => props.theme.spaces[1]}px);
-
-  &:hover {
-    display: block;
-    background: rgba(0, 0, 0, 0.6);
   }
 `;
 
@@ -246,7 +234,6 @@ function SuggestedWidgets(props: SuggestedWidgetProps) {
                       src={getAssetUrl(widgetInfo.image)}
                     />
                   )}
-                  <WidgetOverlay />
                 </div>
               </Tooltip>
             </div>
