@@ -11,7 +11,7 @@ import type { APP_MODE } from "entities/App";
 import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
 import type { Datasource } from "entities/Datasource";
 import type { NavigationSetting } from "constants/AppConstants";
-import { getSnapShotAPIRoute } from "ce/constants/ApiConstants";
+import { getSnapShotAPIRoute } from "@appsmith/constants/ApiConstants";
 
 export type EvaluationVersion = number;
 

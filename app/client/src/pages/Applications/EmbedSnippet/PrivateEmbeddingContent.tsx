@@ -1,47 +1,42 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { Button, Text, TextType } from "design-system-old";
+import { PRICING_PAGE_URL } from "constants/ThirdPartyConstants";
 import {
   createMessage,
   IN_APP_EMBED_SETTING,
 } from "@appsmith/constants/messages";
-import { getAppsmithConfigs } from "ce/configs";
-import { PRICING_PAGE_URL } from "constants/ThirdPartyConstants";
-import { useSelector } from "react-redux";
-import { getInstanceId } from "ce/selectors/tenantSelectors";
+import { getAppsmithConfigs } from "@appsmith/configs";
+import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 
 const Container = styled.div<{ isAppSettings: boolean }>`
+  text-align: left;
   ${({ isAppSettings }) =>
     isAppSettings
       ? `
-      text-align: left; 
-      `
-      : `
-      text-align: left;
-
-      .no-sub-img {
-        margin: auto;
-      }
-  `}
-`;
-
-const SubContainer = styled.div<{ isAppSettings: boolean }>`
-  ${({ isAppSettings }) =>
-    isAppSettings
-      ? `
-      > span {
-        margin: 1rem;
-      }
+      padding: 0 16px;
       `
       : `
       > span {
-        margin: 8px 0px;
+        margin: 0px 0px 8px;
       }
 
       > span:nth-child(2) {
         margin-bottom: 16px;
       }
   `}
+`;
+
+const SubContainer = styled.div<{ isAppSettings?: boolean }>`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  &.button-wrapper {
+    display: inline-block;
+    margin-top: 8px;
+  }
 `;
 
 const StyledText = styled(Text)`
@@ -53,13 +48,14 @@ const StyledText = styled(Text)`
     font-size: 16px;
   }
 
-  &.upgrade-heading-inapp {
+  &.upgrade-heading-in-app {
     font-weight: 500;
-    text-[color:var(--appsmith-color-black-800)];
+    text-color: var(--appsmith-color-black-800);
   }
+
   &.secondary-heading {
     font-weight: 500;
-    text-[color:var(--appsmith-color-black-800)];
+    text-color: var(--appsmith-color-black-800);
   }
 `;
 
@@ -78,21 +74,25 @@ function PrivateEmbeddingContent(props: {
 
   return (
     <Container data-testid="t--upgrade-content" isAppSettings={isAppSettings}>
-      <SubContainer isAppSettings={isAppSettings}>
+      {isAppSettings ? (
+        <div>
+          <div className="pt-3 pb-3 font-medium text-[color:var(--appsmith-color-black-800)]">
+            {createMessage(IN_APP_EMBED_SETTING.embed)}
+          </div>
+        </div>
+      ) : (
         <StyledText
           className={
-            !isAppSettings ? "upgrade-heading" : "upgrade-heading-inapp "
+            !isAppSettings ? "upgrade-heading" : "upgrade-heading-in-app"
           }
           type={TextType.P1}
         >
           {canMakeAppPublic
-            ? isAppSettings
-              ? createMessage(IN_APP_EMBED_SETTING.upgradeHeadingForAppSettings)
-              : createMessage(IN_APP_EMBED_SETTING.upgradeHeadingForInviteModal)
-            : isAppSettings
-            ? createMessage(IN_APP_EMBED_SETTING.upgradeHeadingForAppSettings)
+            ? createMessage(IN_APP_EMBED_SETTING.upgradeHeadingForInviteModal)
             : createMessage(IN_APP_EMBED_SETTING.upgradeHeading)}
         </StyledText>
+      )}
+      <SubContainer className="flex flex-col">
         {isAppSettings && (
           <StyledText className="secondary-heading" type={TextType.P2}>
             {canMakeAppPublic
@@ -122,7 +122,7 @@ function PrivateEmbeddingContent(props: {
           .
         </StyledText>
       </SubContainer>
-      <SubContainer className={`flex`} isAppSettings={isAppSettings}>
+      <SubContainer className="button-wrapper">
         {canMakeAppPublic && !isAppSettings && (
           <Button
             data-testid="t--share-settings-btn"

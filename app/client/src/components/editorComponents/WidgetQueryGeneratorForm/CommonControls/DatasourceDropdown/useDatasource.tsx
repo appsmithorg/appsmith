@@ -3,7 +3,7 @@ import {
   fetchDatasourceStructure,
   fetchGheetSpreadsheets,
 } from "actions/datasourceActions";
-import type { ExplorerURLParams } from "ce/pages/Editor/Explorer/helpers";
+import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import { INTEGRATION_TABS } from "constants/routes";
 import { PluginPackageName } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
