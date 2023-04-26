@@ -1,5 +1,5 @@
 import { dataTreeEvaluator } from "../handlers/evalTree";
-import { getEntityNameAndPropertyPath } from "ce/workers/Evaluation/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { updateEvalTreeValueFromContext } from ".";
 import { evalTreeWithChanges } from "../evalTreeWithChanges";
 import { get } from "lodash";

@@ -55,7 +55,7 @@ import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import {
   waitForSegmentInit,
   waitForFetchUserSuccess,
-} from "ce/sagas/userSagas";
+} from "@appsmith/sagas/userSagas";
 import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelectors";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
