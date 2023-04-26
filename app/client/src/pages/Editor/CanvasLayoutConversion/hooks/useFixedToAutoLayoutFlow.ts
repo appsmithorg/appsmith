@@ -14,7 +14,7 @@ import type { ConversionProps } from "../ConversionForm";
 import type { Dispatch } from "redux";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { commonConversionFlows } from "./CommonConversionFlows";
 
 //returns props for Fixed to Auto layout conversion flows based on which the Conversion Form can be rendered

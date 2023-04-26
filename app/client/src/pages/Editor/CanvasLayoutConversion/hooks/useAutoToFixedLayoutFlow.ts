@@ -24,7 +24,7 @@ import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
 import { useSelector } from "react-redux";
 import { getReadableSnapShotDetails } from "selectors/autoLayoutSelectors";
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { snapShotFlow } from "./useSnapShotForm";
 import { commonConversionFlows } from "./CommonConversionFlows";
 
