@@ -118,7 +118,7 @@ export const { cloudHosting } = getAppsmithConfigs();
 
 export const WorkspaceDropDown = styled.div<{ isMobile?: boolean }>`
   display: flex;
-  padding: ${(props) => (props.isMobile ? `10px 16px` : `10px 10px`)};
+  padding: ${(props) => (props.isMobile ? `10px 16px` : `10px 0`)};
   font-size: ${(props) => props.theme.fontSizes[1]}px;
   justify-content: space-between;
   align-items: center;
@@ -137,7 +137,7 @@ export const ApplicationCardsWrapper = styled.div<{ isMobile?: boolean }>`
   flex-wrap: wrap;
   gap: ${({ isMobile }) => (isMobile ? 12 : 20)}px;
   font-size: ${(props) => props.theme.fontSizes[4]}px;
-  padding: ${({ isMobile }) => (isMobile ? `10px 16px` : `10px`)};
+  padding: ${({ isMobile }) => (isMobile ? `10px 16px` : `10px 0`)};
 `;
 
 export const WorkspaceSection = styled.div<{ isMobile?: boolean }>`
@@ -158,16 +158,12 @@ export const PaddingWrapper = styled.div<{ isMobile?: boolean }>`
   }
 
   @media screen and (min-width: 1500px) and (max-width: 1512px) {
-    width: ${(props) =>
-      props.theme.card.minWidth + props.theme.spaces[4] * 2}px;
     .bp3-card {
       width: ${(props) => props.theme.card.minWidth - 5}px;
       height: ${(props) => props.theme.card.minHeight - 5}px;
     }
   }
   @media screen and (min-width: 1478px) and (max-width: 1500px) {
-    width: ${(props) =>
-      props.theme.card.minWidth + props.theme.spaces[4] * 2}px;
     .bp3-card {
       width: ${(props) => props.theme.card.minWidth - 8}px;
       height: ${(props) => props.theme.card.minHeight - 8}px;
@@ -232,10 +228,10 @@ export const LeftPaneWrapper = styled.div<{ isBannerVisible?: boolean }>`
     ${(props) => props.theme.homePage.header}px +
       ${(props) => (props.isBannerVisible ? "48px" : "0px")}
   );
-  box-shadow: 1px 0px 0px #ededed;
+  border-right: 1px solid var(--ads-v2-color-border);
+  padding: 0 16px;
 `;
 export const ApplicationContainer = styled.div<{ isMobile?: boolean }>`
-  padding-right: ${(props) => props.theme.homePage.leftPane.rightMargin}px;
   padding-top: 16px;
   ${({ isMobile }) =>
     isMobile &&
@@ -247,8 +243,7 @@ export const ApplicationContainer = styled.div<{ isMobile?: boolean }>`
 `;
 
 export const ItemWrapper = styled.div`
-  padding: 9px 15px;
-  padding-left: 31px;
+  padding: 16px;
 `;
 export const StyledIcon = styled(Icon)`
   margin-right: 11px;
@@ -270,11 +265,6 @@ export const WorkspaceShareUsers = styled.div`
   & .t--new-button {
     margin-left: 8px;
   }
-
-  // & button,
-  // & a {
-  //   padding: 4px 12px;
-  // }
 `;
 
 export const NoAppsFound = styled.div`
@@ -344,8 +334,8 @@ export const StyledAnchor = styled.a`
 
 export const WorkpsacesNavigator = styled.div`
   overflow: auto;
+  margin-bottom: 4px;
   ${thinScrollbar};
-  padding-left: 16px;
 `;
 
 export const textIconStyles = (props: { color: string; hover: string }) => {
@@ -514,18 +504,10 @@ export const NoSearchResultImg = styled.img`
 export const ApplicationsWrapper = styled.div<{ isMobile: boolean }>`
   height: calc(100vh - ${(props) => props.theme.homePage.search.height - 40}px);
   overflow: auto;
-  margin-left: ${(props) =>
-    props.theme.homePage.leftPane.width +
-    props.theme.homePage.leftPane.rightMargin +
-    props.theme.homePage.leftPane.leftPadding}px;
-  width: calc(
-    100% -
-      ${(props) =>
-        props.theme.homePage.leftPane.width +
-        props.theme.homePage.leftPane.rightMargin +
-        props.theme.homePage.leftPane.leftPadding}px
-  );
+  margin-left: ${(props) => props.theme.homePage.leftPane.width}px;
+  width: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
   scroll-behavior: smooth;
+  padding: var(--ads-v2-spaces-7);
   ${({ isMobile }) =>
     isMobile &&
     `
@@ -891,6 +873,7 @@ export function ApplicationsSection(props: any) {
                             )}
                           {canInviteToWorkspace && (
                             <MenuItem
+                              className="error-menuitem"
                               onSelect={() => {
                                 !warnLeavingWorkspace
                                   ? setWarnLeavingWorkspace(true)

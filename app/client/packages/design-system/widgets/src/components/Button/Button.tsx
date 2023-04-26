@@ -28,22 +28,13 @@ export const Button = forwardRef(
     const {
       children,
       fontFamily,
-      isActive,
-      isDisabled,
       isFitContainer = false,
       isFocused,
-      isHover,
       isLoading,
-      onBlur,
-      onFocus,
-      onFocusChange,
-      onKeyDown,
-      onPress,
-      onPressChange,
-      onPressEnd,
-      onPressStart,
-      onPressUp,
+      // eslint-disable-next-line -- TODO add onKeyUp when the bug is fixedhttps://github.com/adobe/react-spectrum/issues/4350
+      onKeyUp,
       variant = "primary",
+      ...rest
     } = props;
 
     return (
@@ -52,21 +43,8 @@ export const Button = forwardRef(
         data-focus={isFocused}
         data-loading={isLoading}
         data-variant={variant}
-        isActive={isActive}
-        isDisabled={isDisabled}
-        isHover={isHover}
-        onBlur={onBlur}
-        onFocus={onFocus}
-        onFocusChange={onFocusChange}
-        onKeyDown={onKeyDown}
-        // TODO Return onKeyUp when the bug is fixed https://github.com/adobe/react-spectrum/issues/4350
-        // onKeyUp={onKeyUp}
-        onPress={onPress}
-        onPressChange={onPressChange}
-        onPressEnd={onPressEnd}
-        onPressStart={onPressStart}
-        onPressUp={onPressUp}
         ref={ref}
+        {...rest}
       >
         {isLoading && <Spinner />}
 

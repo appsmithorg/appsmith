@@ -180,7 +180,7 @@ const getQuickActionButtons = ({
       tooltipText: createMessage(MERGE),
     },
     {
-      icon: "settings-3-line",
+      icon: "settings-2-line",
       onClick: connect,
       tooltipText: createMessage(GIT_SETTINGS),
     },

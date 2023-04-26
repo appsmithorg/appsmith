@@ -16,7 +16,6 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { howMuchTimeBeforeText } from "utils/helpers";
 import { onboardingCreateApplication } from "actions/onboardingActions";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
-import { Colors } from "constants/Colors";
 import {
   DropdownOnSelectActions,
   getOnSelectAction,
@@ -30,17 +29,20 @@ import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 
 export const Wrapper = styled.div`
   padding-bottom: ${(props) => props.theme.spaces[3]}px;
-  background-color: ${Colors.WHITE};
+  background-color: var(--ads-v2-color-bg);
   width: 100%;
   margin-top: auto;
-  padding-left: 16px;
   border-top: 1px solid var(--ads-v2-color-border);
+`;
+
+export const MenuWrapper = styled.div`
+  margin-top: 4px;
 `;
 
 export const LeftPaneVersionData = styled.div`
   display: flex;
   justify-content: space-between;
-  color: ${Colors.MIRAGE_2};
+  color: var(--ads-v2-color-fg-emphasis);
   font-size: 8px;
   width: 92%;
   margin-top: ${(props) => props.theme.spaces[3]}px;
@@ -59,73 +61,75 @@ function LeftPaneBottomSection() {
 
   return (
     <Wrapper>
-      {showAdminSettings(user) && !isFetchingApplications && (
-        <MenuItem
-          className="admin-settings-menu-option"
-          icon="setting"
-          onSelect={() => {
-            getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
-              path: getDefaultAdminSettingsPath({
-                isSuperUser: user?.isSuperUser,
-                tenantPermissions,
-              }),
-            });
-          }}
-          text={createMessage(ADMIN_SETTINGS)}
-        />
-      )}
-      <MenuItem
-        icon="discord"
-        onSelect={() => {
-          window.open("https://discord.gg/rBTTVJp", "_blank");
-        }}
-        text={"Join our Discord"}
-      />
-      <MenuItem
-        icon="book"
-        onSelect={() => {
-          window.open("https://docs.appsmith.com/", "_blank");
-        }}
-        text={createMessage(DOCUMENTATION)}
-      />
-
-      <MenuItem
-        containerClassName={"t--welcome-tour"}
-        icon="guide"
-        onSelect={() => {
-          if (!isFetchingApplications && !!onboardingWorkspaces.length) {
-            AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
-            dispatch(onboardingCreateApplication());
-          }
-        }}
-        text={createMessage(WELCOME_TOUR)}
-      />
-      <MenuItem
-        containerClassName={"t--product-updates-btn"}
-        data-testid="t--product-updates-btn"
-        icon="updates"
-        onSelect={() => {
-          setIsProductUpdatesModalOpen(true);
-        }}
-        text="What's New?"
-      />
-      <ProductUpdatesModal
-        isOpen={isProductUpdatesModalOpen}
-        onClose={() => setIsProductUpdatesModalOpen(false)}
-      />
-      <LeftPaneVersionData>
-        <span>
-          {createMessage(
-            APPSMITH_DISPLAY_VERSION,
-            appVersion.edition,
-            appVersion.id,
-            cloudHosting,
-          )}
-        </span>
-        {howMuchTimeBefore !== "" && (
-          <span>Released {howMuchTimeBefore} ago</span>
+      <MenuWrapper>
+        {showAdminSettings(user) && !isFetchingApplications && (
+          <MenuItem
+            className="admin-settings-menu-option"
+            icon="setting"
+            onSelect={() => {
+              getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+                path: getDefaultAdminSettingsPath({
+                  isSuperUser: user?.isSuperUser,
+                  tenantPermissions,
+                }),
+              });
+            }}
+            text={createMessage(ADMIN_SETTINGS)}
+          />
         )}
-      </LeftPaneVersionData>
+        <MenuItem
+          icon="discord"
+          onSelect={() => {
+            window.open("https://discord.gg/rBTTVJp", "_blank");
+          }}
+          text={"Join our Discord"}
+        />
+        <MenuItem
+          icon="book"
+          onSelect={() => {
+            window.open("https://docs.appsmith.com/", "_blank");
+          }}
+          text={createMessage(DOCUMENTATION)}
+        />
+
+        <MenuItem
+          containerClassName={"t--welcome-tour"}
+          icon="guide"
+          onSelect={() => {
+            if (!isFetchingApplications && !!onboardingWorkspaces.length) {
+              AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
+              dispatch(onboardingCreateApplication());
+            }
+          }}
+          text={createMessage(WELCOME_TOUR)}
+        />
+        <MenuItem
+          containerClassName={"t--product-updates-btn"}
+          data-testid="t--product-updates-btn"
+          icon="updates"
+          onSelect={() => {
+            setIsProductUpdatesModalOpen(true);
+          }}
+          text="What's New?"
+        />
+        <ProductUpdatesModal
+          isOpen={isProductUpdatesModalOpen}
+          onClose={() => setIsProductUpdatesModalOpen(false)}
+        />
+        <LeftPaneVersionData>
+          <span>
+            {createMessage(
+              APPSMITH_DISPLAY_VERSION,
+              appVersion.edition,
+              appVersion.id,
+              cloudHosting,
+            )}
+          </span>
+          {howMuchTimeBefore !== "" && (
+            <span>Released {howMuchTimeBefore} ago</span>
+          )}
+        </LeftPaneVersionData>
+      </MenuWrapper>
     </Wrapper>
   );
 }
