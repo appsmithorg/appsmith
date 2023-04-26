@@ -131,11 +131,11 @@ public class GraphQLPluginTest {
         actionConfig.setHttpMethod(HttpMethod.POST);
         String requestBody = """
                 query {
-                \tallPosts(first: 1) {
-                \t\tnodes {
-                \t\t\tid
-                \t\t}
-                \t}
+                  allPosts(first: 1) {
+                    nodes {
+                      id
+                    }
+                  }
                 }""";
         actionConfig.setBody(requestBody);
         List<Property> properties = new ArrayList<>();
@@ -151,11 +151,11 @@ public class GraphQLPluginTest {
         ActionConfiguration actionConfig = getDefaultActionConfiguration();
         String queryBody = """
                 query($limit: Int) {
-                \tallPosts(first: $limit) {
-                \t\tnodes {
-                \t\t\tid
-                \t\t}
-                \t}
+                  allPosts(first: $limit) {
+                    nodes {
+                      id
+                    }
+                  }
                 }""";
         actionConfig.setBody(queryBody);
         List<Property> properties = new ArrayList<>();
@@ -190,11 +190,11 @@ public class GraphQLPluginTest {
         dsConfig.setUrl(url);
         String queryBody = """
                 query($limit: Int) {
-                \tallPosts(first: $limit) {
-                \t\tnodes {
-                \t\t\tid
-                \t\t}
-                \t}
+                  allPosts(first: $limit) {
+                    nodes {
+                      id
+                    }
+                  }
                 }""";
         actionConfig.setBody(queryBody);
         List<Property> properties = new ArrayList<>();
@@ -619,13 +619,13 @@ public class GraphQLPluginTest {
         ActionConfiguration actionConfig = getDefaultActionConfiguration();
         String queryVariables = """
                 {
-                \t"name" : {{Input1.text}},
-                \t"email" : {{Input2.text}},
-                \t"username" : {{Input3.text}},
-                \t"password" : "{{Input4.text}}",
-                \t"newField" : "{{Input5.text}}",
-                \t"tableRow" : {{Table1.selectedRow}},
-                \t"table" : "{{Table1.tableData}}"
+                  "name" : {{Input1.text}},
+                  "email" : {{Input2.text}},
+                  "username" : {{Input3.text}},
+                  "password" : "{{Input4.text}}",
+                  "newField" : "{{Input5.text}}",
+                  "tableRow" : {{Table1.selectedRow}},
+                  "table" : "{{Table1.tableData}}"
                 }""";
         actionConfig.getPluginSpecifiedTemplates().get(QUERY_VARIABLES_INDEX).setValue(queryVariables);
 
