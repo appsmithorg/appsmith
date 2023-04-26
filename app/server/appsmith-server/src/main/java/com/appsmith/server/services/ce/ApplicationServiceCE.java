@@ -41,7 +41,7 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Mono<UpdateResult> update(String defaultApplicationId, Map<String, Object> fieldNameValueMap, String branchName);
 
-    Mono<Application> createDefault(Application object);
+    Mono<Application> createDefaultApplication(Application object);
 
     Mono<Application> archive(Application application);
 

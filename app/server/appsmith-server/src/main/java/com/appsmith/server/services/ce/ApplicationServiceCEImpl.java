@@ -216,22 +216,43 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         throw new UnsupportedOperationException("Please use `ApplicationPageService.createApplication` to create an application.");
     }
 
-    @Override
-    public Mono<Application> createDefault(Application application) {
+    /**
+     * Tries to create the given application with the name, over and over again with an incremented suffix, but **only**
+     * if the error is because of a name clash.
+     * @param application Application to create.
+     * @param name Name of the application, to which numbered suffixes will be appended.
+     * @param suffix Suffix used for appending, recursion artifact. Usually set to 0.
+     * @return A Mono that yields the created application.
+     */
+    private Mono<Application> createSuffixedApplication(Application application, String name, int suffix) {
+        final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
+        application.setName(actualName);
         application.setSlug(TextUtils.makeSlug(application.getName()));
         application.setLastEditedAt(Instant.now());
         if (!StringUtils.hasLength(application.getColor())) {
             application.setColor(getRandomAppCardColor());
         }
         return super.create(application)
-                .onErrorMap(DuplicateKeyException.class, error -> {
+                .onErrorResume(DuplicateKeyException.class, error -> {
                     if (error.getMessage() != null
                             // Catch only if error message contains workspace_application_deleted_gitApplicationMetadata_compound_index mongo error
                             && error.getMessage().contains("workspace_application_deleted_gitApplicationMetadata_compound_index")) {
-                        return new AppsmithException(AppsmithError.DUPLICATE_KEY_OBJECT_CREATION, application.getName());
+                        // The duplicate key error is because of the `name` field.
+                        return createSuffixedApplication(application, name, suffix + 1);
                     }
                     throw error;
                 });
+    }
+
+    /**
+     * A public method which creates a default application by calling createSuffixedApplication which will retry with
+     * incremental suffix if there is name clash.
+     * @param application Application to create.
+     * @return A Mono that yields the created application.
+     */
+    @Override
+    public Mono<Application> createDefaultApplication(Application application) {
+        return createSuffixedApplication(application, application.getName(), 0);
     }
 
     @Override

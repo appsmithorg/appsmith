@@ -32,7 +32,6 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
-import com.appsmith.server.dtos.CustomJSLibApplicationDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
@@ -319,9 +318,13 @@ public class ApplicationServiceCETest {
                 .verify();
     }
 
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void createValidApplication() {
+
+    /**
+     * Create an application with name "ApplicationServiceTest TestApp" and validate it.
+     * @param applicationFinalName This is the application resultant name and it can be different from original name
+     *                             due to retry if there is name clash.
+     */
+    private void createAndVerifyValidApplication(String applicationFinalName){
         Application testApplication = new Application();
         testApplication.setName("ApplicationServiceTest TestApp");
         Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, workspaceId);
@@ -341,10 +344,10 @@ public class ApplicationServiceCETest {
                     Application application = tuple2.getT1();
                     String defaultThemeId = tuple2.getT2();
                     assertThat(application).isNotNull();
-                    assertThat(application.getSlug()).isEqualTo(TextUtils.makeSlug(application.getName()));
+                    assertThat(application.getSlug()).isEqualTo(TextUtils.makeSlug(applicationFinalName));
                     assertThat(application.isAppIsExample()).isFalse();
                     assertThat(application.getId()).isNotNull();
-                    assertThat(application.getName()).isEqualTo("ApplicationServiceTest TestApp");
+                    assertThat(application.getName()).isEqualTo(applicationFinalName);
                     assertThat(application.getPolicies()).isNotEmpty();
                     assertThat(application.getWorkspaceId()).isEqualTo(workspaceId);
                     assertThat(application.getModifiedBy()).isEqualTo("api_user");
@@ -396,20 +399,19 @@ public class ApplicationServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void createValidApplication() {
+        this.createAndVerifyValidApplication("ApplicationServiceTest TestApp");
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void createApplicationWithDuplicateName() {
-       // Creating first App with name "ApplicationServiceTest TestApp"
-        this.createValidApplication();
+        // Creating first App with name "ApplicationServiceTest TestApp"
+        this.createAndVerifyValidApplication("ApplicationServiceTest TestApp");
 
-        // Creating second App with same name "ApplicationServiceTest TestApp"
-        Application testApplication = new Application();
-        testApplication.setName("ApplicationServiceTest TestApp");
-        Mono<Application> secondApplicationMono = applicationPageService.createApplication(testApplication, workspaceId);
-
-        StepVerifier
-                .create(secondApplicationMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.DUPLICATE_KEY_OBJECT_CREATION.getMessage(testApplication.getName())))
-                .verify();
+        // Creating second App with same name "ApplicationServiceTest TestApp" but due to duplicate name its resultant
+        // name will be ApplicationServiceTest TestApp (1)
+        this.createAndVerifyValidApplication("ApplicationServiceTest TestApp (1)");
     }
 
     @Test

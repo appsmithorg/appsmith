@@ -71,8 +71,6 @@ public enum AppsmithError {
     UNAUTHORIZED_ACCESS(403, AppsmithErrorCode.UNAUTHORIZED_ACCESS.getCode(), "Unauthorized access", AppsmithErrorAction.DEFAULT, "Unauthorized access", ErrorType.AUTHENTICATION_ERROR, null),
     DUPLICATE_KEY(409, AppsmithErrorCode.DUPLICATE_KEY.getCode(), "Duplicate key error: An object with the name {0} already exists. Please use a different name or reach out to Appsmith customer support to resolve this.",
             AppsmithErrorAction.DEFAULT, "Duplicate key", ErrorType.BAD_REQUEST, null),
-    DUPLICATE_KEY_OBJECT_CREATION(409, AppsmithErrorCode.DUPLICATE_KEY_OBJECT_CREATION.getCode(), "Duplicate key error: An object with the name {0} already exists. Please refresh the page and try again",
-            AppsmithErrorAction.DEFAULT, "Duplicate key", ErrorType.BAD_REQUEST, null),
     USER_ALREADY_EXISTS_SIGNUP(409, AppsmithErrorCode.USER_ALREADY_EXISTS_SIGNUP.getCode(), "There is already an account registered with this email {0}. Please sign in instead.",
             AppsmithErrorAction.DEFAULT, "Account already exists with this email", ErrorType.BAD_REQUEST, null),
     ACTION_IS_NOT_AUTHORIZED(403, AppsmithErrorCode.ACTION_IS_NOT_AUTHORIZED.getCode(), "Uh oh! You do not have permissions to do : {0}", AppsmithErrorAction.DEFAULT, "Permission denied", ErrorType.AUTHENTICATION_ERROR, null),

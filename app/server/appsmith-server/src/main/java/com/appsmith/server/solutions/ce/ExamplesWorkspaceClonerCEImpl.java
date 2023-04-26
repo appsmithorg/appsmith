@@ -491,9 +491,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
         Mono<User> userMono = sessionUserService.getCurrentUser();
 
         return applicationPageService.setApplicationPolicies(userMono, workspaceId, application)
-                .flatMap(applicationToCreate ->
-                        createSuffixedApplication(applicationToCreate, applicationToCreate.getName(), 0)
-                );
+                .flatMap(applicationService::createDefaultApplication);
     }
 
     public Mono<Datasource> cloneDatasource(String datasourceId, String toWorkspaceId) {
@@ -554,27 +552,6 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                             && error.getMessage().contains("workspace_datasource_deleted_compound_index")) {
                         // The duplicate key error is because of the `name` field.
                         return createSuffixedDatasource(datasource, name, 1 + suffix);
-                    }
-                    throw error;
-                });
-    }
-
-    /**
-     * Tries to create the given application with the name, over and over again with an incremented suffix, but **only**
-     * if the error is because of a name clash.
-     * @param application Application to try create.
-     * @param name Name of the application, to which numbered suffixes will be appended.
-     * @param suffix Suffix used for appending, recursion artifact. Usually set to 0.
-     * @return A Mono that yields the created application.
-     */
-    private Mono<Application> createSuffixedApplication(Application application, String name, int suffix) {
-        final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
-        application.setName(actualName);
-        return applicationService.createDefault(application)
-                .onErrorResume(AppsmithException.class, error -> {
-                    if (AppsmithError.DUPLICATE_KEY_OBJECT_CREATION.getAppErrorCode().equals(error.getAppErrorCode())){
-                        // The duplicate key error is because of the `name` field.
-                        return createSuffixedApplication(application, name, 1 + suffix);
                     }
                     throw error;
                 });
