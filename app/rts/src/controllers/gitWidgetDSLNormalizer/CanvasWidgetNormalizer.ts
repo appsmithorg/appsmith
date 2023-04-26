@@ -16,8 +16,6 @@ export default class CanvasWidgetNormalizer extends BaseController {
 
   async normalize(req: Request, res: Response) {
     const dsl =  req.body;
-    console.log("dsl response ------------", JSON.stringify(normalize(dsl, widgetSchema)));
-    console.log("dsl request ------------", dsl);
     return super.sendResponse(res, normalize(dsl, widgetSchema));
   }
 }
