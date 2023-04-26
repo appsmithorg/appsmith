@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Bold, SelectWrapper } from "../../styles";
 import { useDatasource } from "./useDatasource";
 import { Select, Option, Icon } from "design-system";
@@ -15,8 +15,20 @@ const SectionHeader = styled.div`
 `;
 
 function DatasourceDropdown() {
-  const { datasourceOptions, otherOptions, queryOptions, selected } =
-    useDatasource();
+  const {
+    datasourceOptions,
+    isSourceOpen,
+    onSourceClose,
+    otherOptions,
+    queryOptions,
+    selected,
+  } = useDatasource();
+
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    setOpen(isSourceOpen);
+  }, [isSourceOpen]);
 
   return (
     <SelectWrapper>
@@ -26,6 +38,10 @@ function DatasourceDropdown() {
           minWidth: "350px",
           maxHeight: "300px",
         }}
+        onDropdownVisibleChange={(open: boolean) => {
+          !open && onSourceClose();
+          setOpen(open);
+        }}
         onSelect={(value: string) => {
           const option = [
             ...datasourceOptions,
@@ -34,7 +50,10 @@ function DatasourceDropdown() {
           ].find((option) => option.id === value);
 
           option?.onSelect?.(value, option as DropdownOptionType);
+          onSourceClose();
+          setOpen(false);
         }}
+        open={open}
         value={selected}
         virtual={false}
       >
@@ -52,7 +71,11 @@ function DatasourceDropdown() {
           );
         })}
 
-        <Option className="has-seperator" disabled key="Generate a query">
+        <Option
+          className={queryOptions.length && "has-seperator"}
+          disabled
+          key="Generate a query"
+        >
           <SectionHeader>Generate a query</SectionHeader>
         </Option>
 

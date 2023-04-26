@@ -43,6 +43,7 @@ export default [
         },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
         updateHook: updatePristineHook,
+        dependencies: ["isConnectDataEnabled"],
       },
       {
         helpText: "Columns",

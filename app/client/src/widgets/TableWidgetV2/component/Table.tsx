@@ -125,6 +125,7 @@ export interface TableProps {
   handleColumnFreeze?: (columnName: string, sticky?: StickyType) => void;
   canFreezeColumn?: boolean;
   showConnectDataOverlay: boolean;
+  onConnectData: () => void;
 }
 
 const defaultColumn = {
@@ -160,6 +161,7 @@ export type HeaderComponentProps = {
 };
 
 const emptyArr: any = [];
+
 export function Table(props: TableProps) {
   const isResizingColumn = React.useRef(false);
   const handleResizeColumn = (columnWidths: Record<string, number>) => {
@@ -317,7 +319,9 @@ export function Table(props: TableProps) {
 
   return (
     <>
-      {showConnectDataOverlay && <ConnectDataOverlay />}
+      {showConnectDataOverlay && (
+        <ConnectDataOverlay onConnectData={props.onConnectData} />
+      )}
       <TableWrapper
         accentColor={props.accentColor}
         backgroundColor={Colors.ATHENS_GRAY_DARKER}

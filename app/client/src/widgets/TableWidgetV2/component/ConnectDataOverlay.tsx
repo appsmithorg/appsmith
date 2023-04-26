@@ -42,20 +42,12 @@ const ConnecData = styled(Button)`
   width: 100%;
 `;
 
-const Footer = styled.div`
-  font-weight: 400;
-  font-size: 14px;
-  color: ${Colors.GRAY_700};
-  margin-top: 10px;
-`;
-
-export function ConnectDataOverlay() {
+export function ConnectDataOverlay(props: { onConnectData: () => void }) {
   return (
     <Wrapper>
       <Container>
         <Header>Connect your or sample datasources to display data</Header>
-        <ConnecData text="Connect Data" />
-        <Footer>or write a new binding</Footer>
+        <ConnecData onClick={props.onConnectData} text="Connect Data" />
       </Container>
     </Wrapper>
   );

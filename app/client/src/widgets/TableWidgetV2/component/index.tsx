@@ -103,6 +103,7 @@ interface ReactTableComponentProps {
   handleColumnFreeze?: (columnName: string, sticky?: StickyType) => void;
   canFreezeColumn?: boolean;
   showConnectDataOverlay: boolean;
+  onConnectData: () => void;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -140,6 +141,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     onAddNewRowAction,
     onBulkEditDiscard,
     onBulkEditSave,
+    onConnectData,
     onRowClick,
     pageNo,
     pageSize,
@@ -253,6 +255,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       onAddNewRowAction={onAddNewRowAction}
       onBulkEditDiscard={onBulkEditDiscard}
       onBulkEditSave={onBulkEditSave}
+      onConnectData={onConnectData}
       pageNo={pageNo - 1}
       pageSize={pageSize || 1}
       prevPageClick={prevPageClick}

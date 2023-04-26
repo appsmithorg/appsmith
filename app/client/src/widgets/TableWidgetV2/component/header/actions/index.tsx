@@ -144,44 +144,45 @@ function Actions(props: ActionsPropsType) {
       )}
       {(props.isVisibleFilters ||
         props.isVisibleDownload ||
-        props.allowAddNewRow) && (
-        <CommonFunctionsMenuWrapper tableSizes={props.tableSizes}>
-          {props.isVisibleFilters && (
-            <TableFilters
-              accentColor={props.accentColor}
-              applyFilter={props.applyFilter}
-              borderRadius={props.borderRadius}
-              columns={props.columns}
-              filters={props.filters}
-              widgetId={props.widgetId}
-            />
-          )}
+        props.allowAddNewRow) &&
+        !!props.columns.length && (
+          <CommonFunctionsMenuWrapper tableSizes={props.tableSizes}>
+            {props.isVisibleFilters && (
+              <TableFilters
+                accentColor={props.accentColor}
+                applyFilter={props.applyFilter}
+                borderRadius={props.borderRadius}
+                columns={props.columns}
+                filters={props.filters}
+                widgetId={props.widgetId}
+              />
+            )}
 
-          {props.isVisibleDownload && (
-            <TableDataDownload
-              borderRadius={props.borderRadius}
-              columns={props.tableColumns}
-              data={props.tableData}
-              delimiter={props.delimiter}
-              widgetName={props.widgetName}
-            />
-          )}
+            {props.isVisibleDownload && (
+              <TableDataDownload
+                borderRadius={props.borderRadius}
+                columns={props.tableColumns}
+                data={props.tableData}
+                delimiter={props.delimiter}
+                widgetName={props.widgetName}
+              />
+            )}
 
-          {props.allowAddNewRow && (
-            <ActionItem
-              borderRadius={props.borderRadius}
-              className="t--add-new-row"
-              disabled={props.disableAddNewRow}
-              disabledMessage="Save or discard the unsaved row to add a new row"
-              icon="add"
-              selectMenu={props.onAddNewRow}
-              selected={false}
-              title="Add new row"
-              width={12}
-            />
-          )}
-        </CommonFunctionsMenuWrapper>
-      )}
+            {props.allowAddNewRow && (
+              <ActionItem
+                borderRadius={props.borderRadius}
+                className="t--add-new-row"
+                disabled={props.disableAddNewRow}
+                disabledMessage="Save or discard the unsaved row to add a new row"
+                icon="add"
+                selectMenu={props.onAddNewRow}
+                selected={false}
+                title="Add new row"
+                width={12}
+              />
+            )}
+          </CommonFunctionsMenuWrapper>
+        )}
 
       {props.isVisiblePagination && props.serverSidePaginationEnabled && (
         <PaginationWrapper>

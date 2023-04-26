@@ -177,7 +177,7 @@ function* BindWidgetToDatasource(
       ]);
 
       if (fetchAction.type === ReduxActionErrorTypes.FETCH_ACTIONS_ERROR) {
-        throw new Error("Unable to featch newly created actions");
+        throw new Error("Unable to fetch newly created actions");
       }
 
       Toaster.show({
@@ -258,16 +258,6 @@ function* BindWidgetToDatasource(
       });
 
       yield take(ReduxActionTypes.SET_EVALUATED_TREE);
-
-      Toaster.show({
-        text: `Successfully bound action${
-          createdActions.length > 1 ? "s" : ""
-        }: ${createdActions.map((d) => d.name)} to widget - ${
-          updatedWidget.widgetName
-        }`,
-        hideProgressBar: false,
-        variant: Variant.success,
-      });
     }
 
     yield put({

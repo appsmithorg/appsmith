@@ -145,7 +145,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       select: {
         limit: `${widget.widgetName}.pageSize`,
         where: `${widget.widgetName}.searchText`,
-        offset: `(${widget.widgetName}.pageNo - 1) * ${widget.widgetName}.pageSize`,
+        offset: `${widget.widgetName}.pageOffset`,
         orderBy: `${widget.widgetName}.sortOrder.column`,
         sortOrder: `${widget.widgetName}.sortOrder.order !== "desc"`,
       },
@@ -981,6 +981,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           onAddNewRowAction={this.handleAddNewRowAction}
           onBulkEditDiscard={this.onBulkEditDiscard}
           onBulkEditSave={this.onBulkEditSave}
+          onConnectData={this.onConnectData}
           onRowClick={this.handleRowClick}
           pageNo={this.props.pageNo}
           pageSize={
@@ -2603,6 +2604,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       [alias]: parsedValue,
     });
     commitBatchMetaUpdates();
+  };
+
+  onConnectData = () => {
+    if (this.props.renderMode === RenderModes.CANVAS) {
+      super.updateWidgetProperty("isConnectDataEnabled", true);
+    }
   };
 }
 

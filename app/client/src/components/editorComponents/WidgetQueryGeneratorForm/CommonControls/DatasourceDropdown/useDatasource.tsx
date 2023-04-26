@@ -29,10 +29,18 @@ import type { DropdownOptions } from "pages/Editor/GeneratePage/components/const
 import type { DropdownOptionType } from "../../types";
 import { invert } from "lodash";
 import { Colors } from "constants/Colors";
+import { DropdownOption } from "../../components/DropdownOption";
 
 export function useDatasource() {
-  const { addBinding, addSnippet, config, propertyValue, updateConfig } =
-    useContext(WidgetQueryGeneratorFormContext);
+  const {
+    addBinding,
+    addSnippet,
+    config,
+    isSourceOpen,
+    onSourceClose,
+    propertyValue,
+    updateConfig,
+  } = useContext(WidgetQueryGeneratorFormContext);
 
   const dispatch = useDispatch();
 
@@ -221,14 +229,22 @@ export function useDatasource() {
     datasourceOptions,
     otherOptions,
     selected: (() => {
+      let source;
+
       if (config.datasource) {
-        return datasourceOptions.find(
+        source = datasourceOptions.find(
           (option) => option.id === config.datasource,
         );
       } else if (propertyValue) {
-        return queryOptions.find((option) => option.value === propertyValue);
+        source = queryOptions.find((option) => option.value === propertyValue);
       }
+
+      return {
+        label: <DropdownOption label={source?.label} leftIcon={source?.icon} />,
+      };
     })(),
     queryOptions,
+    isSourceOpen,
+    onSourceClose,
   };
 }

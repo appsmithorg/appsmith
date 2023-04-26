@@ -11,23 +11,32 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
     return "ONE_CLICK_BINDING_CONTROL";
   }
 
-  public onUpdatePropertyValue(value = "", makeDynamicPropertyPath?: boolean) {
+  public onUpdatePropertyValue = (
+    value = "",
+    makeDynamicPropertyPath?: boolean,
+  ) => {
     this.props.onPropertyChange?.(
       this.props.propertyName,
       value,
       false,
       makeDynamicPropertyPath,
     );
-  }
+  };
+
+  public onSourceClose = () => {
+    if (this.props.widgetProperties.isConnectDataEnabled) {
+      this.updateProperty?.("isConnectDataEnabled", false);
+    }
+  };
 
   public render() {
     return (
       <WidgetQueryGeneratorForm
         entityId={this.props.widgetProperties.widgetId}
         expectedType={this.props.expected?.autocompleteDataType}
-        onUpdate={(value?: string, makeDynamicPropertyPath?: boolean) =>
-          this.onUpdatePropertyValue(value, makeDynamicPropertyPath)
-        }
+        isSourceOpen={this.props.widgetProperties.isConnectDataEnabled}
+        onSourceClose={this.onSourceClose}
+        onUpdate={this.onUpdatePropertyValue}
         propertyPath={this.props.propertyName}
         propertyValue={this.props.propertyValue}
         widgetId={this.props.widgetProperties.widgetId}
