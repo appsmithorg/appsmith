@@ -105,6 +105,16 @@ export function updateWidgetPositions(
     const paddingBufferForCanvas = parent.parentRowSpace === 1 ? 2 : 0;
     const parentHeight = getWidgetRows(parent, isMobile);
     const computedHeight = height + paddingBufferForCanvas;
+
+    // Disables auto-height calculations for List widget
+    if (
+      parent?.isListItemContainer ||
+      (parent.parentId && widgets[parent.parentId].type === "LIST_WIDGET_V2") ||
+      parent.type === "LIST_WIDGET_V2"
+    ) {
+      return widgets;
+    }
+
     if (parentHeight !== computedHeight) {
       /**
        * if children height is greater than parent height,
