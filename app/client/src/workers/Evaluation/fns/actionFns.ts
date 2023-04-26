@@ -1,4 +1,4 @@
-import { isTrueObject } from "ce/workers/Evaluation/evaluationUtils";
+import { isTrueObject } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { promisify } from "./utils/Promisify";
 
 function runFnDescriptor(
