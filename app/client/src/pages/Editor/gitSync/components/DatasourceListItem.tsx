@@ -1,9 +1,9 @@
+import React from "react";
 import { Text, TextType } from "design-system-old";
-import { Icon } from "design-system";
+import { Icon, Tooltip } from "design-system";
 import { Colors } from "constants/Colors";
 import type { Datasource } from "entities/Datasource";
 import { PluginImage } from "pages/Editor/DataSourceEditor/JSONtoForm";
-import React from "react";
 import styled from "styled-components";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
@@ -70,11 +70,14 @@ function ListItemWrapper(props: {
           >
             {ds.name}
           </Text>
-          <Icon
-            color={ds.isConfigured ? Colors.GREEN : Colors.ERROR_RED}
-            name={ds.isConfigured ? "oval-check" : "info"}
-            size="md"
-          />
+          <Tooltip content={ds.name} placement="left">
+            <Icon
+              className="t--ds-list-icon"
+              color={ds.isConfigured ? Colors.GREEN : Colors.ERROR_RED}
+              name={ds.isConfigured ? "oval-check" : "info"}
+              size="md"
+            />
+          </Tooltip>
         </DsTitle>
         <Text color={Colors.GRAY_700} type={TextType.H5}>
           {plugin.name}
