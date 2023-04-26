@@ -91,9 +91,8 @@ const SaveButtonContainer = styled.div`
 `;
 
 const StyledAuthMessage = styled.div`
-  color: ${(props) => props.theme.colors.error};
+  color: var(--ads-v2-color-fg-error);
   margin-top: 15px;
-  padding-left: 20px;
   &:after {
     content: " *";
     color: inherit;
