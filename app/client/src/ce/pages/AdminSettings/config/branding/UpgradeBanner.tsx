@@ -37,7 +37,8 @@ const UpgradeBanner = () => {
           <SettingsSubHeader
             className="w-7/12 mt-1"
             color="var(--ads-v2-color-fg-emphasis)"
-            renderAs="p"
+            kind="body-m"
+            renderAs="span"
           >
             {createMessage(ADMIN_BRANDING_SETTINGS_SUBTITLE)}
           </SettingsSubHeader>

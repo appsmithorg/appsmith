@@ -34,6 +34,7 @@ export default function ButtonComponent({ setting }: SettingComponentProps) {
               setting.action(dispatch, settings);
             }
           }}
+          size="md"
         >
           {setting.text}
         </StyledButton>

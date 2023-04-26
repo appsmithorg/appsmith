@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
+import { Text } from "design-system";
 
 export const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
@@ -10,18 +11,11 @@ export const HeaderWrapper = styled.div<{ margin?: string }>`
   margin-bottom: ${(props) => props.margin ?? `16px`};
 `;
 
-export const SettingsHeader = styled.h2`
-  font-size: 24px;
-  font-weight: 500;
-  text-transform: capitalize;
+export const SettingsHeader = styled(Text)`
   margin-bottom: 0px;
-  color: var(--ads-v2-color-fg-emphasis-plus);
 `;
 
-export const SettingsSubHeader = styled.div`
-  font-size: 12px;
-  color: var(--ads-v2-color-fg-emphasis);
-`;
+export const SettingsSubHeader = styled(Text)``;
 
 export const SettingsFormWrapper = styled.div`
   /* 84px is the height of save bottom bar */

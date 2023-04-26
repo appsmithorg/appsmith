@@ -197,9 +197,21 @@ export function SettingsForm(
       <SettingsFormWrapper>
         <MaxWidthWrapper>
           <HeaderWrapper>
-            <SettingsHeader>{pageTitle}</SettingsHeader>
+            <SettingsHeader
+              color="var(--ads-v2-color-fg-emphasis-plus)"
+              kind="heading-l"
+              renderAs="h2"
+            >
+              {pageTitle}
+            </SettingsHeader>
             {details?.subText && (
-              <SettingsSubHeader>{details.subText}</SettingsSubHeader>
+              <SettingsSubHeader
+                color="var(--ads-v2-color-fg-emphasis)"
+                kind="body-m"
+                renderAs="span"
+              >
+                {details.subText}
+              </SettingsSubHeader>
             )}
           </HeaderWrapper>
           <Group

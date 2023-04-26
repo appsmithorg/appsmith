@@ -44,7 +44,11 @@ function CopyUrlForm(props: {
   return (
     <div>
       <HeaderWrapper>
-        <Text color="var(--ads-v2-color-fg-emphasis)" renderAs="span">
+        <Text
+          color="var(--ads-v2-color-fg-emphasis-plus)"
+          kind="body-m"
+          renderAs="label"
+        >
           {props.title}
         </Text>
         {props.tooltip && (

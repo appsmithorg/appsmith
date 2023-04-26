@@ -62,7 +62,7 @@ const GroupBody = styled.div`
   &&&& {
     // TagInput in design system has a right margin
     .tag-input > div {
-      margin: 0;
+      margin-right: 0;
     }
 
     .tag-input .${Classes.TAG_INPUT} {

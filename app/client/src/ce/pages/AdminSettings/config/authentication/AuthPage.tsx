@@ -154,7 +154,11 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
         >
           {createMessage(ADMIN_AUTH_SETTINGS_TITLE)}
         </SettingsHeader>
-        <SettingsSubHeader color="var(--ads-v2-color-fg-emphasis)" renderAs="p">
+        <SettingsSubHeader
+          color="var(--ads-v2-color-fg-emphasis)"
+          kind="body-m"
+          renderAs="span"
+        >
           {createMessage(ADMIN_AUTH_SETTINGS_SUBTITLE)}
         </SettingsSubHeader>
         {authMethods &&
