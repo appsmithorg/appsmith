@@ -17,7 +17,7 @@ import { createMessage } from "design-system-old/build/constants/messages";
 import {
   GOOGLE_SHEETS_AUTHORIZE_DATASOURCE,
   GOOGLE_SHEETS_LEARN_MORE,
-} from "ce/constants/messages";
+} from "@appsmith/constants/messages";
 
 const StyledAuthMessage = styled.div`
   width: fit-content;
