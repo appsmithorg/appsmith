@@ -2,16 +2,20 @@ import { ReactComponent as CanvasResizerIcon } from "assets/icons/ads/app-icons/
 import { layoutConfigurations } from "constants/WidgetConstants";
 import React, { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   getCurrentApplicationLayout,
-  getCurrentAppPositioningType,
   getCurrentPageId,
+  getIsAutoLayout,
   previewModeSelector,
 } from "selectors/editorSelectors";
-import { setAutoCanvasResizing } from "actions/autoLayoutActions";
+import {
+  recalculatePositionsForCurrentBreakPointAction,
+  setAutoCanvasResizing,
+} from "actions/autoLayoutActions";
 import styled from "styled-components";
 import { AUTOLAYOUT_RESIZER_WIDTH_BUFFER } from "utils/hooks/useDynamicAppLayout";
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { debounce } from "lodash";
 
 const AutoLayoutCanvasResizer = styled.div`
   position: sticky;
@@ -63,13 +67,18 @@ export function CanvasResizer({
   const isPreviewMode = useSelector(previewModeSelector);
   const currentPageId = useSelector(getCurrentPageId);
   const appLayout = useSelector(getCurrentApplicationLayout);
-  const appPositioningType = useSelector(getCurrentAppPositioningType);
+  const isAutoLayout = useSelector(getIsAutoLayout);
   const ref = useRef(null);
   const dispatch = useDispatch();
+  const debouncedReCalculation = debounce(
+    () => dispatch(recalculatePositionsForCurrentBreakPointAction()),
+    50,
+  );
+
   useEffect(() => {
     const ele: any = document.getElementById("canvas-viewport");
 
-    if (isPageInitiated && appPositioningType === AppPositioningTypes.AUTO) {
+    if (isPageInitiated && isAutoLayout) {
       const buffer = isPreviewMode ? AUTOLAYOUT_RESIZER_WIDTH_BUFFER : 0;
       const fullWidthCSS = `calc(100% - ${AUTOLAYOUT_RESIZER_WIDTH_BUFFER}px)`;
       const wrapperElement: any = document.getElementById("widgets-editor");
@@ -111,6 +120,7 @@ export function CanvasResizer({
           // Attach the listeners to `document`
           document.addEventListener("mousemove", mouseMove);
           document.addEventListener("mouseup", mouseUpHandler);
+          debouncedReCalculation();
           // e.stopPropagation();
         };
 
@@ -129,6 +139,7 @@ export function CanvasResizer({
           if (smallestWidth > w + dx) {
             ele.style.width = `${smallestWidth}px`;
           }
+          debouncedReCalculation();
           // e.stopPropagation();
         };
 
@@ -136,6 +147,9 @@ export function CanvasResizer({
           // Remove the handlers of `mousemove` and `mouseup`
           mouseMoveHandler(e);
           dispatch(setAutoCanvasResizing(false));
+          dispatch({
+            type: ReduxActionTypes.PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES,
+          });
           document.removeEventListener("mousemove", events[0] as any);
           document.removeEventListener("mouseup", mouseUpHandler);
           events = [];
@@ -152,14 +166,8 @@ export function CanvasResizer({
     } else {
       ele.style.removeProperty("width");
     }
-  }, [
-    appLayout,
-    isPreviewMode,
-    currentPageId,
-    appPositioningType,
-    isPageInitiated,
-  ]);
-  return appPositioningType === AppPositioningTypes.AUTO ? (
+  }, [appLayout, isPreviewMode, currentPageId, isAutoLayout, isPageInitiated]);
+  return isAutoLayout ? (
     <AutoLayoutCanvasResizer
       className="resizer-right"
       draggable

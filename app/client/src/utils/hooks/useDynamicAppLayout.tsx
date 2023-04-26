@@ -1,22 +1,18 @@
 import { debounce, get } from "lodash";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
-import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions";
 import { updateCanvasLayoutAction } from "actions/editorActions";
 import { APP_SETTINGS_PANE_WIDTH } from "constants/AppConstants";
 import {
   DefaultLayoutType,
   layoutConfigurations,
-  MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { APP_MODE } from "entities/App";
 import { SIDE_NAV_WIDTH } from "pages/common/SideNav";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   getCurrentApplicationLayout,
-  getCurrentAppPositioningType,
   getCurrentPageId,
+  getIsAutoLayout,
   getMainCanvasProps,
   previewModeSelector,
 } from "selectors/editorSelectors";
@@ -44,7 +40,6 @@ import { useIsMobileDevice } from "./useDeviceDetect";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import { scrollbarWidth } from "utils/helpers";
 import { useWindowSizeHooks } from "./dragResizeHooks";
-import type { AppState } from "ce/reducers";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 
 const GUTTER_WIDTH = 72;
@@ -66,7 +61,7 @@ export const useDynamicAppLayout = () => {
   const tabsPaneWidth = useSelector(getTabsPaneWidth);
   const isMultiPane = useSelector(isMultiPaneActive);
   const paneCount = useSelector(getPaneCount);
-  const appPositioningType = useSelector(getCurrentAppPositioningType);
+  const isAutoLayout = useSelector(getIsAutoLayout);
   const isAppSidebarPinned = useSelector(getAppSidebarPinned);
   const sidebarWidth = useSelector(getSidebarWidth);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
@@ -74,10 +69,6 @@ export const useDynamicAppLayout = () => {
   );
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const isMobile = useIsMobileDevice();
-  const isAutoCanvasResizing = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
-  );
-  const [isCanvasResizing, setIsCanvasResizing] = useState<boolean>(false);
 
   // /**
   //  * calculates min height
@@ -126,8 +117,7 @@ export const useDynamicAppLayout = () => {
     const { minWidth } = layoutWidthRange;
     let calculatedWidth = screenWidth - scrollbarWidth();
 
-    const gutterWidth =
-      appPositioningType === AppPositioningTypes.AUTO ? 0 : GUTTER_WIDTH;
+    const gutterWidth = isAutoLayout ? 0 : GUTTER_WIDTH;
 
     // if preview mode is not on and the app setting pane is not opened, we need to subtract the width of the property pane
     if (
@@ -319,26 +309,12 @@ export const useDynamicAppLayout = () => {
   ]);
 
   useEffect(() => {
-    dispatch(
-      updateLayoutForMobileBreakpointAction(
-        MAIN_CONTAINER_WIDGET_ID,
-        appPositioningType === AppPositioningTypes.AUTO
-          ? mainCanvasProps?.isMobile
-          : false,
-        calculateCanvasWidth(),
-      ),
-    );
-  }, [mainCanvasProps?.isMobile]);
-
-  useEffect(() => {
-    if (isAutoCanvasResizing) setIsCanvasResizing(true);
-    else if (isCanvasResizing) {
-      setIsCanvasResizing(false);
+    if (isAutoLayout) {
       dispatch({
         type: ReduxActionTypes.PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES,
       });
     }
-  }, [isAutoCanvasResizing]);
+  }, []);
 
   return isCanvasInitialized;
 };

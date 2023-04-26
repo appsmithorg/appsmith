@@ -49,6 +49,7 @@ export default function* autoHeightSagas() {
     ),
     takeLatest(
       ReduxActionTypes.GENERATE_AUTO_HEIGHT_LAYOUT_TREE, // add, move, paste, cut, delete, undo/redo
+      shouldCallAutoHeight,
       generateTreeForAutoHeightComputations,
     ),
     takeLatest(

@@ -11,19 +11,13 @@ import type {
  * This function is triggered the first time mobile viewport (480px) is encountered.
  * It is also called when increasing viewport size from mobile to desktop.
  */
-export const updateLayoutForMobileBreakpointAction = (
-  parentId: string,
-  isMobile: boolean,
-  canvasWidth: number,
+export const recalculatePositionsForCurrentBreakPointAction = (
   widgets?: CanvasWidgetsReduxState,
   saveLayout?: boolean,
 ) => {
   return {
     type: ReduxActionTypes.RECALCULATE_POSITIONS,
     payload: {
-      parentId,
-      isMobile,
-      canvasWidth,
       widgets,
       saveLayout,
     },
