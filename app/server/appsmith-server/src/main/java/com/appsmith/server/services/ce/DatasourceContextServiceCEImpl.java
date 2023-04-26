@@ -77,9 +77,11 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                                                                                Object monitor,
                                                                                DatasourceContextIdentifier datasourceContextIdentifier) {
         synchronized (monitor) {
-            /* Destroy any stale connection to free up resource */
+            /* Destroy any connection that is stale or in error state to free up resource */
             final boolean isStale = getIsStale(datasource, datasourceContextIdentifier);
-            if (isStale) {
+            final boolean isErrorState = datasourceContextMonoMap.get(datasourceContextIdentifier).toFuture().isCompletedExceptionally();
+
+            if (isStale || isErrorState) {
                 final Object connection = datasourceContextMap.get(datasourceContextIdentifier).getConnection();
                 if (connection != null) {
                     try {
@@ -99,8 +101,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
              * value would directly be returned to further evaluations / subscriptions.
              */
             if (datasourceContextIdentifier.getDatasourceId() != null
-                    && datasourceContextMonoMap.get(datasourceContextIdentifier) != null
-                    && !datasourceContextMonoMap.get(datasourceContextIdentifier).toFuture().isCompletedExceptionally()) {
+                    && datasourceContextMonoMap.get(datasourceContextIdentifier) != null) {
                 log.debug("Cached resource context mono exists. Returning the same.");
                 return datasourceContextMonoMap.get(datasourceContextIdentifier);
             }
