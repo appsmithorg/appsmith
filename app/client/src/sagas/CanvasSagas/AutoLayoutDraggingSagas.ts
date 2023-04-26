@@ -1,10 +1,10 @@
 import type { WidgetAddChild } from "actions/pageActions";
 import { updateAndSaveLayout } from "actions/pageActions";
-import type { ReduxAction } from "ce/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "ce/constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import type { FlexLayerAlignment } from "utils/autoLayout/constants";
 import { LayoutDirection } from "utils/autoLayout/constants";
 import {

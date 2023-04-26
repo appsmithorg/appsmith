@@ -19,7 +19,7 @@ import { setFocusHistory } from "actions/focusHistoryActions";
 import { builderURL } from "RouteBuilder";
 import type { AppsmithLocationState } from "utils/history";
 import history, { NavigationMethod } from "utils/history";
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
 import { getAction, getPlugin } from "selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";

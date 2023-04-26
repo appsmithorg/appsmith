@@ -1,4 +1,4 @@
-import type { AppState } from "ce/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { FLEXBOX_PADDING, GridDefaults } from "constants/WidgetConstants";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
