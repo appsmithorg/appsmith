@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 const { apiPage } = _;
 
-describe("this.params in IIFE function in API editor", () => {
+describe("Bug 6732 - this.params in IIFE function in API editor", () => {
   it("1. this.params should be available in IIFE function in API editor", () => {
     apiPage.CreateApi("Api1", "GET");
 
