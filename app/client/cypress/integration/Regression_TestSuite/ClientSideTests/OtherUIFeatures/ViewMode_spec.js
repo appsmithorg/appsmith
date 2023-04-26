@@ -7,9 +7,8 @@ describe("Preview mode functionality", function () {
     cy.addDsl(dsl);
   });
 
-  it("on click of apps on header, it should take to application home page", function () {
+  it("1. on click of apps on header, it should take to application home page", function () {
     cy.PublishtheApp();
-
     cy.get(".t--back-to-home").click();
     cy.url().should("eq", BASE_URL + "applications");
   });
