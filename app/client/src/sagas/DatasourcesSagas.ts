@@ -1444,7 +1444,6 @@ function* updateDatasourceAuthStateSaga(
         type: ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
         payload: response.data,
       });
-
       toast.show(
         authStatus === AuthenticationStatus.SUCCESS
           ? OAUTH_AUTHORIZATION_SUCCESSFUL

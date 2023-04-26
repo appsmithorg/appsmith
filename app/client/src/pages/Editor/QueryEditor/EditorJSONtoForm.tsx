@@ -25,7 +25,6 @@ import log from "loglevel";
 import {
   Callout,
   Classes,
-  SearchSnippet,
   TabComponent,
   Text,
   TextType,
@@ -139,6 +138,7 @@ import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { AIWindow } from "@appsmith/components/editorComponents/GPT";
+import SearchSnippets from "pages/common/SearchSnippets";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -172,7 +172,7 @@ const ErrorMessage = styled.p`
 `;
 
 export const TabbedViewContainer = styled.div`
-  ${ResizerCSS}
+  ${ResizerCSS};
   height: ${ActionExecutionResizerHeight}px;
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
@@ -1008,7 +1008,7 @@ export function EditorJSONtoForm(props: Props) {
               name={currentActionConfig ? currentActionConfig.name : ""}
               pageId={pageId}
             />
-            <SearchSnippet
+            <SearchSnippets
               className="search-snippets"
               entityId={currentActionConfig?.id}
               entityType={ENTITY_TYPE.ACTION}
