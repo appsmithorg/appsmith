@@ -1,9 +1,9 @@
 import { updateAndSaveLayout } from "actions/pageActions";
-import type { ReduxAction } from "ce/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "ce/constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import log from "loglevel";
 import type {
   CanvasWidgetsReduxState,
@@ -36,7 +36,7 @@ import { getCanvasWidth as getMainCanvasWidth } from "selectors/editorSelectors"
 import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
 import { updateApplication } from "@appsmith/actions/applicationActions";
 import { getIsResizing } from "selectors/widgetSelectors";
-import type { AppState } from "ce/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { isEmpty } from "lodash";
 import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
 import {
