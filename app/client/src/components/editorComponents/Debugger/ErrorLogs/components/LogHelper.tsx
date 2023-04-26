@@ -1,5 +1,8 @@
 import type { PluginErrorDetails } from "api/ActionAPI";
-import { createMessage, TROUBLESHOOT_ISSUE } from "ce/constants/messages";
+import {
+  createMessage,
+  TROUBLESHOOT_ISSUE,
+} from "@appsmith/constants/messages";
 import {
   AppIcon,
   Classes,

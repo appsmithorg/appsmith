@@ -45,7 +45,7 @@ import run, { clear } from "./actionFns";
 import {
   isAction,
   isAppsmithEntity,
-} from "ce/workers/Evaluation/evaluationUtils";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import type {
   TGetGeoLocationActionType,
