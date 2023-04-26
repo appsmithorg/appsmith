@@ -59,13 +59,17 @@ describe("Validate Redis DS", () => {
     //Get All keys from HSET
     _.dataSources.EnterQuery(getAll);
     _.dataSources.RunQueryNVerifyResponseViews(8); //4 keys, 4 values
-    //order not always matching - hence commented
-    // _.dataSources.ReadQueryTableResponse(0).then(($cellData: any) => {
-    //   expect($cellData).to.eq("ingredients");
-    // });
+    _.dataSources.ReadQueryTableResponse(0).then(($cellData: any) => {
+      expect($cellData).to.be.oneOf([
+        "name",
+        "ingredients",
+        "instructions",
+        "difficulty",
+      ]);
+    });
     // _.dataSources.ReadQueryTableResponse(6).then(($cellData: any) => {
     //   expect($cellData).to.eq("instructions");
-    // });
+    // });//order not always matching - hence commented
 
     //Ading one more key/value to HSET
     _.dataSources.EnterQuery(addNewKeyValue);
@@ -75,7 +79,13 @@ describe("Validate Redis DS", () => {
     _.dataSources.EnterQuery(getAll);
     _.dataSources.RunQueryNVerifyResponseViews(10); //5 keys, 5 values
     _.dataSources.ReadQueryTableResponse(0).then(($cellData: any) => {
-      expect($cellData).to.eq("ingredients");
+      expect($cellData).to.be.oneOf([
+        "name",
+        "ingredients",
+        "instructions",
+        "difficulty",
+        "prep_time",
+      ]);
     });
 
     //Deleting the Hash key
