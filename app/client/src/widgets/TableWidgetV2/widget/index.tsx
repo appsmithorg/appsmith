@@ -113,7 +113,10 @@ import { getMemoiseTransformDataWithEditableCell } from "./reactTableUtils/trans
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { AutocompletionDefinitions } from "widgets/constants";
-import type { WidgetQueryGenerationFormConfig } from "WidgetQueryGenerators/types";
+import type {
+  WidgetQueryConfig,
+  WidgetQueryGenerationFormConfig,
+} from "WidgetQueryGenerators/types";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -146,7 +149,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       select: {
         limit: `${widget.widgetName}.pageSize`,
         where: `${widget.widgetName}.searchText`,
-        offset: `(${widget.widgetName}.pageNo - 1) * ${widget.widgetName}.pageSize`,
+        offset: `${widget.widgetName}.pageOffset`,
         orderBy: `${widget.widgetName}.sortOrder.column`,
         sortOrder: `${widget.widgetName}.sortOrder.order !== "desc"`,
       },
@@ -162,7 +165,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   static getPropertyUpdatesForQueryBinding(
-    queryConfig: any,
+    queryConfig: WidgetQueryConfig,
     widget: TableWidgetProps,
     formConfig: WidgetQueryGenerationFormConfig,
   ) {
@@ -997,6 +1000,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           onAddNewRowAction={this.handleAddNewRowAction}
           onBulkEditDiscard={this.onBulkEditDiscard}
           onBulkEditSave={this.onBulkEditSave}
+          onConnectData={this.onConnectData}
           onRowClick={this.handleRowClick}
           pageNo={this.props.pageNo}
           pageSize={
@@ -2619,6 +2623,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       [alias]: parsedValue,
     });
     commitBatchMetaUpdates();
+  };
+
+  onConnectData = () => {
+    if (this.props.renderMode === RenderModes.CANVAS) {
+      super.updateWidgetProperty("isConnectDataEnabled", true);
+    }
   };
 }
 

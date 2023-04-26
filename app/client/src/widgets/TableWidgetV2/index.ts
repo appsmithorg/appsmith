@@ -6,7 +6,10 @@ import { InlineEditingSaveOptions } from "./constants";
 import type { TableWidgetProps } from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
-import type { WidgetQueryGenerationFormConfig } from "WidgetQueryGenerators/types";
+import type {
+  WidgetQueryConfig,
+  WidgetQueryGenerationFormConfig,
+} from "WidgetQueryGenerators/types";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -66,7 +69,7 @@ export const CONFIG = {
       return Widget.getQueryGenerationConfig(widgetProps);
     },
     getPropertyUpdatesForQueryBinding: (
-      queryConfig: any,
+      queryConfig: WidgetQueryConfig,
       widget: TableWidgetProps,
       formConfig: WidgetQueryGenerationFormConfig,
     ) => {

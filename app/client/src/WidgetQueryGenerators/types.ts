@@ -1,7 +1,6 @@
 export type WidgetQueryGenerationFormConfig = {
   tableName: string;
   datasourceId: string;
-  //TODO:check where to use this
   aliases: {
     name: string;
     alias: string;
@@ -10,7 +9,6 @@ export type WidgetQueryGenerationFormConfig = {
   searchableColumn: string;
   columns: string[];
   primaryColumn: string;
-  version: number;
 };
 
 export type WidgetQueryGenerationConfig = {
@@ -22,17 +20,13 @@ export type WidgetQueryGenerationConfig = {
     sortOrder: string;
   };
   create?: {
-    // we just the property name, since different Db generates query differently
     value: string;
   };
   update?: {
-    // we just the property name, since different Db generates query differently
     value: string;
     where: string;
   };
-  //TODO:check where to use this
-  totalRecord: boolean; //whether we need to query to find total record
-  version: number; //version of the config object
+  totalRecord: boolean;
 };
 
 export enum QUERY_TYPE {
@@ -41,3 +35,11 @@ export enum QUERY_TYPE {
   CREATE = "create",
   TOTAL_RECORD = "total_record",
 }
+
+export type WidgetQueryConfig = Record<
+  string,
+  {
+    data: string;
+    run: string;
+  }
+>;

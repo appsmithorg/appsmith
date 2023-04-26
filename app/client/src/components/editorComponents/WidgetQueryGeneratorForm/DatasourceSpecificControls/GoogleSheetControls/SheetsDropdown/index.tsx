@@ -4,10 +4,10 @@ import {
   SelectWrapper,
 } from "components/editorComponents/WidgetQueryGeneratorForm/styles";
 import { Dropdown } from "design-system-old";
-import React from "react";
+import React, { memo } from "react";
 import { useSheets } from "./useSheets";
 
-export function SheetsDropdown() {
+export default memo(function SheetsDropdown() {
   const { error, isLoading, label, onSelect, options, selected, show } =
     useSheets();
 
@@ -33,4 +33,4 @@ export function SheetsDropdown() {
   } else {
     return null;
   }
-}
+});

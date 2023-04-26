@@ -28,7 +28,7 @@ const Label = styled.div`
 `;
 
 type Props = {
-  label?: JSX.Element;
+  label?: JSX.Element | string;
   leftIcon?: JSX.Element;
   rightIcon?: JSX.Element;
 };

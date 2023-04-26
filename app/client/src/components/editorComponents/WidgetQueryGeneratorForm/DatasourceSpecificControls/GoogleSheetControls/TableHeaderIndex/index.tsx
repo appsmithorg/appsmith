@@ -4,14 +4,10 @@ import {
   GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
+import { Icon, IconSize, TooltipComponent as Tooltip } from "design-system-old";
+import React, { memo } from "react";
 import {
-  Icon,
-  IconSize,
-  TextInput,
-  TooltipComponent as Tooltip,
-} from "design-system-old";
-import React from "react";
-import {
+  ErrorMessage,
   Row,
   RowHeading,
   SelectWrapper,
@@ -19,6 +15,7 @@ import {
 } from "../../../styles";
 import styled from "styled-components";
 import { useTableHeaderIndex } from "./useTableHeader";
+import { Input } from "design-system";
 
 const RoundBg = styled.div`
   width: 16px;
@@ -30,7 +27,7 @@ const RoundBg = styled.div`
   align-items: center;
 `;
 
-export function TableHeaderIndex() {
+export default memo(function TableHeaderIndex() {
   const { error, onChange, show, value } = useTableHeaderIndex();
 
   if (show) {
@@ -54,18 +51,15 @@ export function TableHeaderIndex() {
             </Tooltip>
           </TooltipWrapper>
         </Row>
-        <TextInput
-          cypressSelector="t--tableHeaderIndex"
-          dataType="text"
-          errorMsg={error}
-          fill
+        <Input
           onChange={onChange}
           placeholder="Table Header Index"
-          value={value}
+          value={value.toString()}
         />
+        <ErrorMessage>{error}</ErrorMessage>
       </SelectWrapper>
     );
   } else {
     return null;
   }
-}
+});

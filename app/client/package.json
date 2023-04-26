@@ -78,7 +78,7 @@
     "dayjs": "^1.10.6",
     "deep-diff": "^1.0.2",
     "design-system-old": "npm:@appsmithorg/design-system-old@1.1.6",
-    "design-system": "npm:@appsmithorg/design-system@2.1.5-alpha.32",
+    "design-system": "npm:@appsmithorg/design-system@2.1.8-alpha.14",
     "downloadjs": "^1.4.7",
     "exceljs": "^4.3.0",
     "fast-deep-equal": "^3.1.3",

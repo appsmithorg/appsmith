@@ -25,14 +25,21 @@ import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
 import { WidgetQueryGeneratorFormContext } from "../..";
 import { Binding, DatasourceImage, ImageWrapper } from "../../styles";
 import { Icon } from "design-system";
-import type { DropdownOptions } from "pages/Editor/GeneratePage/components/constants";
 import type { DropdownOptionType } from "../../types";
 import { invert } from "lodash";
 import { Colors } from "constants/Colors";
+import { DropdownOption } from "./DropdownOption";
 
 export function useDatasource() {
-  const { addBinding, addSnippet, config, propertyValue, updateConfig } =
-    useContext(WidgetQueryGeneratorFormContext);
+  const {
+    addBinding,
+    addSnippet,
+    config,
+    isSourceOpen,
+    onSourceClose,
+    propertyValue,
+    updateConfig,
+  } = useContext(WidgetQueryGeneratorFormContext);
 
   const dispatch = useDispatch();
 
@@ -48,7 +55,7 @@ export function useDatasource() {
 
   const mockDatasources: MockDatasource[] = useSelector(getMockDatasources);
 
-  const datasourceOptions: DropdownOptions = useMemo(() => {
+  const datasourceOptions = useMemo(() => {
     const availableDatasources = datasources.filter(({ pluginId }) =>
       WidgetQueryGeneratorRegistry.has(pluginsPackageNamesMap[pluginId]),
     );
@@ -62,6 +69,7 @@ export function useDatasource() {
           pluginId: datasource.pluginId,
           isValid: datasource.isValid,
           pluginPackageName: pluginsPackageNamesMap[datasource.pluginId],
+          isSample: false,
         },
         icon: (
           <ImageWrapper>
@@ -110,6 +118,7 @@ export function useDatasource() {
               datasource.packageName as string
             ],
             pluginPackageName: datasource.packageName,
+            isSample: true,
           },
           icon: (
             <ImageWrapper>
@@ -182,7 +191,7 @@ export function useDatasource() {
         onSelect: () => addBinding("{{}}", true),
       },
     ];
-  }, [currentPageId, history]);
+  }, [currentPageId, history, addBinding, addSnippet]);
 
   const queries = useSelector(getActionsForCurrentPage);
 
@@ -206,6 +215,10 @@ export function useDatasource() {
     }));
   }, [queries, pluginImages, addBinding]);
 
+  /*
+   * When user selects the sample datasource and the plaform creates a new datasource out of it
+   * we need to choose the newly created datasource as the selected value.
+   */
   useEffect(() => {
     if (
       isMockDatasource &&
@@ -221,14 +234,27 @@ export function useDatasource() {
     datasourceOptions,
     otherOptions,
     selected: (() => {
+      let source;
+
       if (config.datasource) {
-        return datasourceOptions.find(
+        source = datasourceOptions.find(
           (option) => option.id === config.datasource,
         );
       } else if (propertyValue) {
-        return queryOptions.find((option) => option.value === propertyValue);
+        source = queryOptions.find((option) => option.value === propertyValue);
+      }
+
+      if (source) {
+        return {
+          key: source.id,
+          label: (
+            <DropdownOption label={source?.label} leftIcon={source?.icon} />
+          ),
+        };
       }
     })(),
     queryOptions,
+    isSourceOpen,
+    onSourceClose,
   };
 }

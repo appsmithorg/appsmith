@@ -10,7 +10,6 @@ import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "styled-components";
 import type { Indices } from "constants/Layers";
 import { Size, Category } from "design-system-old";
-import EmptyDataState from "components/utils/EmptyDataState";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
@@ -53,6 +52,12 @@ const AddColumnButton = styled(StyledPropertyPaneButton)`
 const EdtiableCheckboxWrapper = styled.div<{ rightPadding: boolean | null }>`
   position: relative;
   ${(props) => props.rightPadding && `right: 6px;`}
+`;
+
+const EmptyStateLabel = styled.div`
+  margin: 20px 0px;
+  text-align: center;
+  color: ${Colors.GREY_6};
 `;
 
 interface ReduxStateProps {
@@ -169,7 +174,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
 
     // If there are no columns, show empty state
     if (Object.keys(columns).length === 0) {
-      return <EmptyDataState />;
+      return <EmptyStateLabel>Table columns will appear here</EmptyStateLabel>;
     }
     // Get an empty array of length of columns
     let columnOrder: string[] = new Array(Object.keys(columns).length);

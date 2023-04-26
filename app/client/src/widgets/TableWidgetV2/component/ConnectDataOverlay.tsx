@@ -1,5 +1,5 @@
 import { Colors } from "constants/Colors";
-import { Button } from "design-system-old";
+import { Button } from "design-system";
 import React from "react";
 import styled from "styled-components";
 
@@ -37,25 +37,17 @@ const Header = styled.div`
 const ConnecData = styled(Button)`
   padding: 11px 15px;
   max-width: 250px;
-  height: 30px;
+  height: 30px !important;
   margin-bottom: 15px;
   width: 100%;
 `;
 
-const Footer = styled.div`
-  font-weight: 400;
-  font-size: 14px;
-  color: ${Colors.GRAY_700};
-  margin-top: 10px;
-`;
-
-export function ConnectDataOverlay() {
+export function ConnectDataOverlay(props: { onConnectData: () => void }) {
   return (
     <Wrapper>
       <Container>
         <Header>Connect your or sample datasources to display data</Header>
-        <ConnecData text="Connect Data" />
-        <Footer>or write a new binding</Footer>
+        <ConnecData onClick={props.onConnectData}>Connect Data</ConnecData>
       </Container>
     </Wrapper>
   );

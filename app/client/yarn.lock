@@ -9139,6 +9139,11 @@ classnames@^2.2, classnames@^2.2.1, classnames@^2.2.5, classnames@^2.2.6:
   version "2.2.6"
   resolved "https://registry.npmjs.org/classnames/-/classnames-2.2.6.tgz"
 
+classnames@^2.3.2:
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.3.2.tgz#351d813bf0137fcc6a76a16b88208d2560a0d924"
+  integrity sha512-CSbhY4cFEJRe6/GQzIk5qXZ4Jeg5pcsP7b5peFSDpffpe1cqjASH/n9UTjBwOp6XpMSTwQ8Za2K5V02ueA7Tmw==
+
 clean-css@^4.2.3:
   version "4.2.4"
   resolved "https://registry.yarnpkg.com/clean-css/-/clean-css-4.2.4.tgz#733bf46eba4e607c6891ea57c24a989356831178"
@@ -10423,10 +10428,10 @@ depd@~1.1.2:
   dependencies:
     emoji-mart "3.0.1"
 
-"design-system@npm:@appsmithorg/design-system@2.1.5-alpha.32":
-  version "2.1.5-alpha.32"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-2.1.5-alpha.32.tgz#4dd4fb25087ccc9f5f2b056224c96c2b309534d5"
-  integrity sha512-lLpgwF9nrnHeWYPWq2N1Xo3QkHw0h6Z1auJhqVCiSAUyNi993W2j4Hyxm2qO7zw4x5AY+S3FxiZ44f3oham3Dg==
+"design-system@npm:@appsmithorg/design-system@2.1.8-alpha.14":
+  version "2.1.8-alpha.14"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-2.1.8-alpha.14.tgz#194d89ce2f9971638f7732090748b8587a9299ab"
+  integrity sha512-TT2nHQ5fVJIKQVAIv59oBz9vYg/1Jya6JyP1IuYe2VKDX60WjD9R98AnHpt6Op7F+HhifJqYcZoEhCIAJ1WKbw==
   dependencies:
     "@radix-ui/react-dialog" "^1.0.2"
     "@radix-ui/react-dropdown-menu" "^2.0.4"
@@ -10441,10 +10446,10 @@ depd@~1.1.2:
     "@react-stately/radio" "^3.6.2"
     "@react-stately/toggle" "^3.4.4"
     date-fns "^2.29.3"
-    rc-select "^14.3.0"
+    loglevel "^1.8.1"
+    rc-select "^14.4.3"
     rc-tooltip "^5.3.1"
     react-datepicker "^4.10.0"
-    react-merge-refs "^2.0.1"
     react-toastify "9.0.3"
 
 destroy@1.2.0:
@@ -15435,6 +15440,11 @@ loglevel@^1.7.1:
   version "1.7.1"
   resolved "https://registry.npmjs.org/loglevel/-/loglevel-1.7.1.tgz"
 
+loglevel@^1.8.1:
+  version "1.8.1"
+  resolved "https://registry.yarnpkg.com/loglevel/-/loglevel-1.8.1.tgz#5c621f83d5b48c54ae93b6156353f555963377b4"
+  integrity sha512-tCRIJM51SHjAayKwC+QAg8hT8vg6z7GSgLJKGvzuPb1Wc+hLzqtuVLxp6/HzSPOozuK+8ErAhy7U/sVzw8Dgfg==
+
 loose-envify@^1.0.0, loose-envify@^1.1.0, loose-envify@^1.2.0, loose-envify@^1.3.1, loose-envify@^1.4.0:
   version "1.4.0"
   resolved "https://registry.npmjs.org/loose-envify/-/loose-envify-1.4.0.tgz"
@@ -18309,7 +18319,7 @@ rc-select@^14.1.9, rc-select@~14.1.0:
     rc-util "^5.16.1"
     rc-virtual-list "^3.2.0"
 
-rc-select@^14.3.0:
+rc-select@^14.4.3:
   version "14.4.3"
   resolved "https://registry.yarnpkg.com/rc-select/-/rc-select-14.4.3.tgz#68d7f1b6bcb41543f69901951facd5e097fb835d"
   integrity sha512-qoz4gNqm3SN+4dYKSCRiRkxKSEEdbS3jC6gdFYoYwEjDZ9sdQFo5jHlfQbF+hhai01HOoj1Hf8Gq6tpUvU+Gmw==
@@ -18774,11 +18784,6 @@ react-merge-refs@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/react-merge-refs/-/react-merge-refs-1.1.0.tgz#73d88b892c6c68cbb7a66e0800faa374f4c38b06"
   integrity sha512-alTKsjEL0dKH/ru1Iyn7vliS2QRcBp9zZPGoWxUOvRGWPUYgjo+V01is7p04It6KhgrzhJGnIj9GgX8W4bZoCQ==
-
-react-merge-refs@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/react-merge-refs/-/react-merge-refs-2.0.1.tgz#a1f8c2dadefa635333e9b91ec59f30b65228b006"
-  integrity sha512-pywF6oouJWuqL26xV3OruRSIqai31R9SdJX/I3gP2q8jLxUnA1IwXcLW8werUHLZOrp4N7YOeQNZrh/BKrHI4A==
 
 react-modal@^3.15.1:
   version "3.15.1"
