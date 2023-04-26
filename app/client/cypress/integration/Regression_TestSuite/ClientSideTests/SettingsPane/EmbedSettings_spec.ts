@@ -69,14 +69,12 @@ describe("In-app embed settings", () => {
       "/settings",
     );
     _.appSettings.ClosePane();
-  });
 
-  it("5. Check embed preview show/hides navigation bar according to setting", () => {
+    //Check embed preview show/hides navigation bar according to setting
     _.inviteModal.ValidatePreviewEmbed("true");
     _.inviteModal.ValidatePreviewEmbed("false");
-  });
 
-  it("6. Check Show/Hides Navigation bar syncs between AppSettings Pane Embed tab & Share modal", () => {
+    //Check Show/Hides Navigation bar syncs between AppSettings Pane Embed tab & Share modal
     ValidateSyncWithInviteModal("true");
     ValidateSyncWithInviteModal("false");
   });
