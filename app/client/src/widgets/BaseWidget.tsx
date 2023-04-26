@@ -575,6 +575,7 @@ abstract class BaseWidget<
           this.props.flexVerticalAlignment || FlexVerticalAlignment.Bottom
         }
         focused={this.props.focused}
+        isCanvas={!!this.props.isCanvas}
         isMobile={this.props.isMobile || false}
         parentColumnSpace={this.props.parentColumnSpace}
         parentId={this.props.parentId}
