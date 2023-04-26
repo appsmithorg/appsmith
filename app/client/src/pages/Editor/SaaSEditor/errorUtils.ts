@@ -6,7 +6,7 @@ import {
   GSHEET_AUTHORISED_FILE_IDS_KEY,
   GSHEET_AUTHORIZATION_ERROR,
   GSHEET_FILES_NOT_SELECTED,
-} from "ce/constants/messages";
+} from "@appsmith/constants/messages";
 import { getDatasourcePropertyValue } from "utils/editorContextUtils";
 import { GOOGLE_SHEET_SPECIFIC_SHEETS_SCOPE } from "constants/Datasource";
 import { PluginPackageName } from "entities/Action";

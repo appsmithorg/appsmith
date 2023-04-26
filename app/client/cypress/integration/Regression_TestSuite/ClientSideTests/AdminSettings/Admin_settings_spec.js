@@ -18,7 +18,6 @@ describe("Admin settings page", function () {
   it("1. Should test that settings page is accessible to super user", () => {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
@@ -29,7 +28,6 @@ describe("Admin settings page", function () {
   it("2. Should test that settings page is not accessible to normal users", () => {
     cy.wait(2000);
     cy.LoginFromAPI(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
-    cy.visit("/applications");
     cy.get(".admin-settings-menu-option").should("not.exist");
     cy.visit("/settings/general");
     // non super users are redirected to home page
@@ -39,8 +37,7 @@ describe("Admin settings page", function () {
 
   it("3. Should test that settings page is redirected to default tab", () => {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
-    cy.wait(3000);
+    //cy.wait(3000);
     cy.visit("/settings");
     cy.url().should("contain", "/settings/general");
   });

@@ -28,7 +28,7 @@ import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { triggerWelcomeTour } from "./Utils";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const ModalSubHeader = styled.h5`
   font-size: 14px;
@@ -100,6 +100,7 @@ const getPublishAppsImg = () => `${ASSETS_CDN_URL}/PublishApps-v2.svg`;
 export default function IntroductionModal({ close }: IntroductionModalProps) {
   const modalAlwaysOpen = true;
   const dispatch = useDispatch();
+  const isAirgappedInstance = isAirgapped();
   const onBuildApp = () => {
     AnalyticsUtil.logEvent("SIGNPOSTING_BUILD_APP_CLICK");
     close();
@@ -190,14 +191,16 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
           </ModalFooterText>
         </ModalBody>
         <ModalFooter>
-          <Button
-            className="t--introduction-modal-welcome-tour-button"
-            kind="secondary"
-            onClick={() => triggerWelcomeTour(dispatch)}
-            size="md"
-          >
-            {createMessage(START_TUTORIAL)}
-          </Button>
+          {!isAirgappedInstance && (
+            <Button
+              className="t--introduction-modal-welcome-tour-button"
+              kind="secondary"
+              onClick={() => triggerWelcomeTour(dispatch)}
+              size="md"
+            >
+              {createMessage(START_TUTORIAL)}
+            </Button>
+          )}
           <Button
             className="t--introduction-modal-build-button"
             onClick={onBuildApp}

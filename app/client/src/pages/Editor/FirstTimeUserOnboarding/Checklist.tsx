@@ -48,6 +48,7 @@ import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { triggerWelcomeTour } from "./Utils";
 import { builderURL, integrationEditorURL } from "RouteBuilder";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const Wrapper = styled.div`
   padding: var(--ads-v2-spaces-7);
@@ -185,6 +186,7 @@ function getSuggestedNextActionAndCompletedTasks(
 }
 
 export default function OnboardingChecklist() {
+  const isAirgappedInstance = isAirgapped();
   const dispatch = useDispatch();
   const datasources = useSelector(getDatasources);
   const pageId = useSelector(getCurrentPageId);
@@ -509,18 +511,20 @@ export default function OnboardingChecklist() {
           )}
         </StyledListItem>
       </StyledList>
-      <StyledFooter
-        className="flex"
-        onClick={() => triggerWelcomeTour(dispatch)}
-      >
-        <StyledCompleteMarker>
-          <Icon name="rocket" size="lg" />
-        </StyledCompleteMarker>
-        <Text style={{ lineHeight: "14px" }} type={TextType.P1}>
-          {createMessage(ONBOARDING_CHECKLIST_FOOTER)}
-        </Text>
-        <Icon name="arrow-forward" size="md" />
-      </StyledFooter>
+      {!isAirgappedInstance && (
+        <StyledFooter
+          className="flex"
+          onClick={() => triggerWelcomeTour(dispatch)}
+        >
+          <StyledCompleteMarker>
+            <Icon name="rocket" size="lg" />
+          </StyledCompleteMarker>
+          <Text style={{ lineHeight: "14px" }} type={TextType.P1}>
+            {createMessage(ONBOARDING_CHECKLIST_FOOTER)}
+          </Text>
+          <Icon name="arrow-forward" size="md" />
+        </StyledFooter>
+      )}
     </Wrapper>
   );
 }
