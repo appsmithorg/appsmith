@@ -78,7 +78,7 @@ export const CONFIG = {
     ],
     disableResizeHandles: (props: ContainerWidgetProps<WidgetProps>) => ({
       // Disables vertical resize handles for all container widgets except for the List item container
-      vertical: !props.dragDisabled,
+      vertical: !props.isListItemContainer,
     }),
   },
   properties: {
