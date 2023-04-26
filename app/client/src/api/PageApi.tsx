@@ -11,7 +11,7 @@ import type {
   ClonePageActionPayload,
   CreatePageActionPayload,
 } from "actions/pageActions";
-import type { FetchApplicationResponse } from "./ApplicationApi";
+import type { FetchApplicationResponse } from "@appsmith/api/ApplicationApi";
 
 export type FetchPageRequest = {
   id: string;
@@ -38,6 +38,14 @@ export type PageLayout = {
   layoutActions: PageAction[];
   layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];
 };
+
+export interface PageLayoutsRequest {
+  layoutId: string;
+  pageId: string;
+  layout: {
+    dsl: DSLWidget;
+  };
+}
 
 export type FetchPageResponseData = {
   id: string;
@@ -179,6 +187,10 @@ class PageApi extends Api {
     return !!bustCache ? url + "?v=" + +new Date() : url;
   };
 
+  static getSaveAllPagesURL = (applicationId: string) => {
+    return `v1/layouts/application/${applicationId}`;
+  };
+
   static updatePageUrl = (pageId: string) => `${PageApi.url}/${pageId}`;
   static setPageOrderUrl = (
     applicationId: string,
@@ -210,6 +222,15 @@ class PageApi extends Api {
       undefined,
       { cancelToken: PageApi.pageUpdateCancelTokenSource.token },
     );
+  }
+
+  static saveAllPages(
+    applicationId: string,
+    pageLayouts: PageLayoutsRequest[],
+  ) {
+    return Api.put(PageApi.getSaveAllPagesURL(applicationId), {
+      pageLayouts,
+    });
   }
 
   static fetchPublishedPage(

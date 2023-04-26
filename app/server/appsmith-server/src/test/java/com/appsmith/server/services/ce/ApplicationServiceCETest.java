@@ -727,7 +727,9 @@ public class ApplicationServiceCETest {
                             Application application = workspaceApplicationDTO.getApplications().get(0);
                             assertThat(application.getUserPermissions()).contains("read:applications");
                             assertThat(application.isAppIsExample()).isFalse();
-                            assertThat(workspaceApplicationDTO.getUsers().get(0).getPermissionGroupName()).startsWith(FieldName.ADMINISTRATOR);
+                            assertThat(workspaceApplicationDTO.getUsers()).isNotEmpty();
+                            assertThat(workspaceApplicationDTO.getUsers().get(0).getRoles()).hasSize(1);
+                            assertThat(workspaceApplicationDTO.getUsers().get(0).getRoles().get(0).getName()).startsWith(FieldName.ADMINISTRATOR);
                         }
                     }
 
@@ -2411,6 +2413,7 @@ public class ApplicationServiceCETest {
     public void publishApplication_withGitConnectedApp_success() {
         GitApplicationMetadata gitData = gitConnectedApp.getGitApplicationMetadata();
         gitConnectedApp.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
+        gitConnectedApp.setUnpublishedApplicationDetail(new ApplicationDetail());
         gitConnectedApp.getUnpublishedApplicationDetail().setAppPositioning(new Application.AppPositioning(Application.AppPositioning.Type.FIXED));
 
         Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();

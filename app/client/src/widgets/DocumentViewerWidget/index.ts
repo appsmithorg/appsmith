@@ -1,5 +1,9 @@
+import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+
+const isAirgappedInstance = isAirgapped();
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -10,12 +14,14 @@ export const CONFIG = {
   searchTags: ["pdf"],
   defaults: {
     widgetName: "DocumentViewer",
-    docUrl:
-      "https://www.learningcontainer.com/wp-content/uploads/2019/09/sample-pdf-file.pdf",
+    docUrl: !isAirgappedInstance
+      ? "https://www.learningcontainer.com/wp-content/uploads/2019/09/sample-pdf-file.pdf"
+      : "",
     rows: 40,
     columns: 24,
     version: 1,
     animateLoading: true,
+    responsiveBehavior: ResponsiveBehavior.Fill,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
@@ -23,6 +29,20 @@ export const CONFIG = {
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
     contentConfig: Widget.getPropertyPaneContentConfig(),
+    autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
+  },
+  autoLayout: {
+    widgetSize: [
+      {
+        viewportMinWidth: 0,
+        configuration: () => {
+          return {
+            minWidth: "280px",
+            minHeight: "280px",
+          };
+        },
+      },
+    ],
   },
 };
 

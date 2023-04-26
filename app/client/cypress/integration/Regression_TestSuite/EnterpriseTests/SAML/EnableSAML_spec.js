@@ -6,7 +6,6 @@ describe("SSO with SAML test functionality", function () {
   it("1. Go to admin settings and enable SAML via Metadata URL", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
@@ -35,9 +34,16 @@ describe("SSO with SAML test functionality", function () {
     // assert server is restarting
     cy.get(adminSettings.restartNotice).should("be.visible");
     // adding wait for server to restart
-    cy.wait(120000);
+
+    cy.waitUntil(() =>
+      cy
+        .contains("Authentication Successful!", { timeout: 180000 })
+        .should("be.visible"),
+    );
+    cy.wait(1000);
     cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
     cy.get(homePage.profileMenu).click();
+    cy.get(homePage.signOutIcon).should("be.visible");
     cy.get(homePage.signOutIcon).click();
     cy.wait(500);
     // validating sso with saml is enabled
@@ -50,7 +56,6 @@ describe("SSO with SAML test functionality", function () {
   it("2. Go to admin settings and disable SAML", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
@@ -82,9 +87,13 @@ describe("SSO with SAML test functionality", function () {
     // assert server is restarting
     cy.get(adminSettings.restartNotice).should("be.visible");
     // adding wait for server to restart
-    cy.wait(120000);
+    cy.waitUntil(() =>
+      cy.contains("SAML 2.0", { timeout: 180000 }).should("be.visible"),
+    );
+    cy.wait(1000);
     cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
     cy.get(homePage.profileMenu).click();
+    cy.get(homePage.signOutIcon).should("be.visible");
     cy.get(homePage.signOutIcon).click();
     cy.wait(500);
     // validating sso with saml is enabled
@@ -94,7 +103,6 @@ describe("SSO with SAML test functionality", function () {
   it("3. Go to admin settings and enable SAML via Metadata XML", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
@@ -123,7 +131,12 @@ describe("SSO with SAML test functionality", function () {
     // assert server is restarting
     cy.get(adminSettings.restartNotice).should("be.visible");
     // adding wait for server to restart
-    cy.wait(120000);
+    cy.waitUntil(() =>
+      cy
+        .contains("Authentication Successful!", { timeout: 180000 })
+        .should("be.visible"),
+    );
+    cy.wait(1000);
     cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
     cy.get(homePage.profileMenu).click();
     cy.get(homePage.signOutIcon).click();
@@ -138,7 +151,6 @@ describe("SSO with SAML test functionality", function () {
   it("4. Go to admin settings and disable SAML", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
@@ -170,7 +182,10 @@ describe("SSO with SAML test functionality", function () {
     // assert server is restarting
     cy.get(adminSettings.restartNotice).should("be.visible");
     // adding wait for server to restart
-    cy.wait(120000);
+    cy.waitUntil(() =>
+      cy.contains("SAML 2.0", { timeout: 180000 }).should("be.visible"),
+    );
+    cy.wait(1000);
     cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
     cy.get(homePage.profileMenu).click();
     cy.get(homePage.signOutIcon).click();
@@ -182,7 +197,6 @@ describe("SSO with SAML test functionality", function () {
   it("5. Go to admin settings and enable SAML via IDP data", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
@@ -211,7 +225,12 @@ describe("SSO with SAML test functionality", function () {
     // assert server is restarting
     cy.get(adminSettings.restartNotice).should("be.visible");
     // adding wait for server to restart
-    cy.wait(120000);
+    cy.waitUntil(() =>
+      cy
+        .contains("Authentication Successful!", { timeout: 180000 })
+        .should("be.visible"),
+    );
+    cy.wait(1000);
     cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
     cy.get(homePage.profileMenu).click();
     cy.get(homePage.signOutIcon).click();
@@ -226,7 +245,6 @@ describe("SSO with SAML test functionality", function () {
   it("6. Go to admin settings and disable SAML", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
@@ -258,7 +276,10 @@ describe("SSO with SAML test functionality", function () {
     // assert server is restarting
     cy.get(adminSettings.restartNotice).should("be.visible");
     // adding wait for server to restart
-    cy.wait(120000);
+    cy.waitUntil(() =>
+      cy.contains("SAML 2.0", { timeout: 180000 }).should("be.visible"),
+    );
+    cy.wait(1000);
     cy.waitUntil(() => cy.get(homePage.profileMenu).should("be.visible"));
     cy.get(homePage.profileMenu).click();
     cy.get(homePage.signOutIcon).click();

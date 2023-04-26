@@ -94,6 +94,8 @@ public enum AclPermission {
     WORKSPACE_DELETE_DATASOURCES("delete:workspaceDatasources", Workspace.class),
     WORKSPACE_EXECUTE_DATASOURCES("execute:workspaceDatasources", Workspace.class),
 
+    // global permission on workspace level to give create actions on all datasources
+    WORKSPACE_DATASOURCE_CREATE_DATASOURCE_ACTIONS("create:workspaceDatasourceActions", Workspace.class),
     // Invitation related permissions : TODO : Delete this since invitation would be led by user groups
     @Deprecated
     WORKSPACE_INVITE_USERS("inviteUsers:workspace", Workspace.class),
@@ -110,6 +112,9 @@ public enum AclPermission {
     // Can the user create a comment thread on a given application?
     @Deprecated
     COMMENT_ON_APPLICATIONS("canComment:applications", Application.class),
+
+    // Gives users permission to invite users to application.
+    INVITE_USERS_APPLICATIONS("inviteUsers:applications", Application.class),
 
     APPLICATION_CREATE_PAGES("create:pages", Application.class),
 

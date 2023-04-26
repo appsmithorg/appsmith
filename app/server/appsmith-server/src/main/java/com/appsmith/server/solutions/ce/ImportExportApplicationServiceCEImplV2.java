@@ -291,6 +291,8 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                     : Optional.of(pagePermission.getEditPermission());
                     Flux<NewPage> pageFlux = newPageRepository.findByApplicationId(applicationId, optionalPermission);
 
+                    List<String> unPublishedPages = application.getPages().stream().map(ApplicationPage::getId).collect(Collectors.toList());
+
                     return pageFlux
                             .collectList()
                             .flatMap(newPageList -> {
@@ -298,6 +300,10 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                 // field is JsonIgnored. Also remove any ids those are present in the page objects
 
                                 Set<String> updatedPageSet = new HashSet<String>();
+
+                                // check the application object for the page reference in the page list
+                                // Exclude the deleted pages that are present in view mode  because the app is not published yet
+                                newPageList.removeIf(newPage -> !unPublishedPages.contains(newPage.getId()));
                                 newPageList.forEach(newPage -> {
                                     if (newPage.getUnpublishedPage() != null) {
                                         pageIdToNameMap.put(
@@ -355,7 +361,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                                 ? Optional.of(actionPermission.getReadPermission())
                                                 : Optional.of(actionPermission.getEditPermission());
                                 Flux<ActionCollection> actionCollectionFlux =
-                                        actionCollectionRepository.findByApplicationId(applicationId, optionalPermission1, Optional.empty());
+                                        actionCollectionRepository.findByListOfPageIds(unPublishedPages, optionalPermission1);
                                 return actionCollectionFlux;
                             })
                             .map(actionCollection -> {
@@ -415,7 +421,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                         : Optional.of(actionPermission.getEditPermission());
 
                                 Flux<NewAction> actionFlux =
-                                        newActionRepository.findByApplicationId(applicationId, optionalPermission2, Optional.empty());
+                                        newActionRepository.findByListOfPageIds(unPublishedPages, optionalPermission2);
                                 return actionFlux;
                             })
                             .map(newAction -> {

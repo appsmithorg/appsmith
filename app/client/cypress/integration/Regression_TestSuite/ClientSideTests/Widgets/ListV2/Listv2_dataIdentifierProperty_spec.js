@@ -10,6 +10,37 @@ const agHelper = ObjectsRegistry.AggregateHelper;
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
+function testJsontextClear(endp) {
+  const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
+
+  cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
+    .first()
+    .focus({ force: true })
+    .type(`{${modifierKey}}{a}`, { force: true })
+    .type(`{${modifierKey}}{del}`, { force: true });
+}
+
+const data = [
+  {
+    id: "001",
+    name: "Blue",
+    img: "https://assets.appsmith.com/widgets/default.png",
+    same: "1",
+  },
+  {
+    id: "002",
+    name: "Green",
+    img: "https://assets.appsmith.com/widgets/default.png",
+    same: "01",
+  },
+  {
+    id: "003",
+    name: "Red",
+    img: "https://assets.appsmith.com/widgets/default.png",
+    same: 1,
+  },
+];
+
 describe("List v2 - Data Identifier property", () => {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
@@ -149,7 +180,7 @@ describe("List v2 - Data Identifier property", () => {
     cy.get(widgetsPage.containerWidget).should("have.length", 2);
   });
 
-  it("Widgets get displayed when PrimaryKey doesn't exist - SSP", () => {
+  it("9. Widgets get displayed when PrimaryKey doesn't exist - SSP", () => {
     cy.addDsl(ListV2WithNullPrimaryKeyDSL);
     cy.createAndFillApi(
       "https://api.punkapi.com/v2/beers?page={{List1.pageNo}}&per_page={{List1.pageSize}}",
@@ -175,7 +206,7 @@ describe("List v2 - Data Identifier property", () => {
       .should("have.text", "0");
   });
 
-  it("Widgets get displayed when PrimaryKey doesn't exist - Client-Side Pagination", () => {
+  it("10. Widgets get displayed when PrimaryKey doesn't exist - Client-Side Pagination", () => {
     cy.openPropertyPaneByWidgetName("Text4", "textwidget");
 
     cy.testJsontext("text", "{{currentIndex}}");
@@ -199,5 +230,38 @@ describe("List v2 - Data Identifier property", () => {
     cy.get(`${widgetSelector("Text4")} ${commonlocators.bodyTextStyle}`)
       .first()
       .should("have.text", `2`);
+  });
+
+  it("11. Non unique data identifier should throw error- (data type issue)", () => {
+    cy.openPropertyPaneByWidgetName("List2", "listwidgetv2");
+
+    testJsontextClear("items");
+
+    cy.testJsontext("items", JSON.stringify(data));
+
+    // clicking on the data identifier dropdown
+    testJsontextClear("dataidentifier");
+    cy.get(`${propertyControl}-dataidentifier`)
+      .find(".t--js-toggle")
+      .click({ force: true });
+    cy.wait(250);
+
+    cy.get(`${propertyControl}-dataidentifier`)
+      .find(".bp3-popover-target")
+      .last()
+      .click({
+        force: true,
+      });
+    cy.wait(250);
+
+    cy.get(".t--dropdown-option").contains("same").last().click({});
+    cy.get(`${widgetSelector("List2")} ${widgetsPage.containerWidget}`).should(
+      "have.length",
+      1,
+    );
+
+    cy.get(".debugger-list").contains(
+      "This data identifier is evaluating to a duplicate value. Please use an identifier that evaluates to a unique value.",
+    );
   });
 });

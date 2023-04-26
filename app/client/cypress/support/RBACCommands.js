@@ -223,6 +223,8 @@ Cypress.Commands.add("AssignRoleToUser", (Role, userEmail) => {
   cy.get(RBAC.addButton).click();
   cy.get(RBAC.inviteModal).should("be.visible");
   cy.get(RBAC.rolesTabInviteModal).click();
+  cy.get(RBAC.helperMessage).should("not.exist");
+  cy.get(RBAC.noUsersContent).should("not.exist");
   cy.xpath(RBAC.EmailInputInviteModal).type(userEmail);
   // select role
   cy.xpath(RBAC.selectFromDropdownInviteModal).click();
@@ -247,6 +249,8 @@ Cypress.Commands.add("AssignGroupToUser", (Group, userEmail) => {
   cy.get(RBAC.addButton).click();
   cy.get(RBAC.inviteModal).should("be.visible");
   cy.get(RBAC.groupsTabInviteModal).click();
+  cy.get(RBAC.helperMessage).should("not.exist");
+  cy.get(RBAC.noUsersContent).should("not.exist");
   cy.xpath(RBAC.EmailInputInviteModal).type(userEmail);
   // select role
   cy.xpath(RBAC.selectFromDropdownInviteModal).click();
@@ -524,6 +528,8 @@ Cypress.Commands.add(
     );
     cy.wait(2000);
     cy.get(RBAC.inviteButton).click();
+    cy.get(RBAC.helperMessage).should("not.exist");
+    cy.get(RBAC.noUsersContent).should("not.exist");
     cy.wait("@mockPostInvite")
       .its("request.headers")
       .should("have.property", "origin", "Cypress");
@@ -782,7 +788,7 @@ Cypress.Commands.add("DeleteUser", (User) => {
 Cypress.Commands.add(
   "InviteGroupToWorkspace",
   (workspaceName, groupName, role) => {
-    const successMessage = "The user has been invited successfully";
+    const successMessage = "The user/group have been invited successfully";
     const _email =
       "//input[@type='text' and contains(@class,'bp3-input-ghost')]";
     cy.stubPostHeaderReq();
@@ -795,6 +801,9 @@ Cypress.Commands.add(
         ") button:contains('Share')",
       0,
       true,
+    );
+    agHelper.AssertElementExist(
+      "//span[text()='Users will have access to all applications in this workspace']",
     );
     cy.xpath(_email).click({ force: true }).type(groupName);
     cy.get(".suggestions-list").should("be.visible");
@@ -816,6 +825,33 @@ Cypress.Commands.add(
     cy.contains(successMessage);
   },
 );
+
+Cypress.Commands.add("InviteGroupToApplication", (groupName, role) => {
+  const successMessage = "The user/group have been invited successfully";
+  const _email = "//input[@type='text' and contains(@class,'bp3-input-ghost')]";
+  cy.stubPostHeaderReq();
+  agHelper.AssertElementExist(
+    "//span[text()='Users will only have access to this application']",
+  );
+  cy.xpath(_email).click({ force: true }).type(groupName);
+  cy.get(".suggestions-list").should("be.visible");
+  cy.get(".each-suggestion").first().click();
+  cy.xpath("//span[text()='Select a role']/ancestor::div")
+    .first()
+    .click({ force: true });
+  agHelper.Sleep(500);
+  cy.xpath(
+    "//div[contains(@class, 'label-container')]//span[1][text()='" +
+      role +
+      "']",
+  ).click({ force: true });
+  agHelper.ClickButton("Invite");
+  cy.wait("@mockPostAppInvite")
+    .its("request.headers")
+    .should("have.property", "origin", "Cypress");
+  cy.contains(groupName, { matchCase: false });
+  cy.contains(successMessage);
+});
 
 Cypress.Commands.add("AddIntercepts", () => {
   cy.intercept("PUT", "/api/v1/roles/*").as("updateRoles");

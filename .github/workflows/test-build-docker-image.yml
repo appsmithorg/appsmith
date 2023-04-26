@@ -29,6 +29,14 @@ jobs:
     with:
       pr: 0
 
+  client-build-airgap:
+    name: client-build-airgap
+    uses: ./.github/workflows/client-build.yml
+    secrets: inherit
+    with:
+      pr: 0
+      airgap-enabled: "true"
+
   rts-build:
     name: rts-build
     uses: ./.github/workflows/rts-build.yml
@@ -45,6 +53,17 @@ jobs:
     secrets: inherit
     with:
       pr: 0
+
+  build-airgapped-docker-image:
+    needs: [ client-build-airgap, server-build, rts-build ]
+    # Only run if the build step is successful
+    if: success()
+    name: build-airgapped-docker-image
+    uses: ./.github/workflows/build-docker-image.yml
+    secrets: inherit
+    with:
+      pr: 0
+      airgap-enabled: "true"
 
   perf-test:
     needs: [ build-docker-image ]
@@ -90,19 +109,11 @@ jobs:
 
       # Download failed_spec_ci list for all CI container jobs
       - uses: actions/download-artifact@v3
-        if: needs.ci-test.result
+        if: needs.ci-test.result != 'success'
         id: download_ci
         with:
           name: failed-spec-ci
           path: ~/failed_spec_ci
-
-      # delete-artifact
-      - name: delete existing failed-spec-ci artifact
-        if: needs.ci-test.result != 'success'
-        uses: geekyeggo/delete-artifact@v2
-        with:
-          name: failed-spec-ci
-          failOnError: false
 
       # In case for any ci job failure, create combined failed spec
       - name: "combine all specs for CI"
@@ -185,6 +196,12 @@ jobs:
           name: client-build
           path: app/client/build
 
+      - name: Download the airgapped react build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: client-build-airgap
+          path: app/client/build_airgap
+
       - name: Download the server build artifact
         uses: actions/download-artifact@v3
         with:
@@ -226,7 +243,7 @@ jobs:
           context: app/client
           push: true
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:${{steps.vars.outputs.tag}}
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:${{steps.vars.outputs.tag}}
 
       # Build master Docker image and push to Docker Hub
       - name: Push client master image to Docker Hub with commit tag
@@ -236,8 +253,8 @@ jobs:
           context: app/client
           push: true
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:${{ github.sha }}
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:nightly
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:${{ github.sha }}
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:nightly
 
       - name: Build and push release image to Docker Hub
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
@@ -249,7 +266,21 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:${{steps.vars.outputs.tag}}
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:${{steps.vars.outputs.tag}}
+
+      - name: Build and push airgap release image to Docker Hub
+        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        uses: depot/build-push-action@v1
+        with:
+          context: .
+          push: true
+          platforms: linux/arm64,linux/amd64
+          build-args: |
+            KEYGEN_LICENSE_VERIFICATION_KEY=${{ secrets.KEYGEN_LICENSE_VERIFICATION_KEY_RELEASE }}
+            APPSMITH_AIRGAP_ENABLED=true
+            APPSMITH_CLIENT_BUILD_PATH=./app/client/build_airgap
+          tags: |
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-airgap:${{steps.vars.outputs.tag}}
 
       - name: Build and push master image to Docker Hub with commit tag
         if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
@@ -261,20 +292,23 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:${{ github.sha }}
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:nightly
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:${{ github.sha }}
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:nightly
 
-      - name: Build and push cloud-fork image
-        if: success() && github.ref == 'refs/heads/cloud-fork' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+      - name: Build and push airgap master image to Docker Hub with commit tag
+        if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         uses: depot/build-push-action@v1
         with:
           context: .
           push: true
-          platforms: linux/amd64
+          platforms: linux/arm64,linux/amd64
           build-args: |
-            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
+            APPSMITH_AIRGAP_ENABLED=true
+            KEYGEN_LICENSE_VERIFICATION_KEY=${{ secrets.KEYGEN_LICENSE_VERIFICATION_KEY }}
+            APPSMITH_CLIENT_BUILD_PATH=./app/client/build_airgap
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:cloud-fork
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-airgap:${{ github.sha }}
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-airgap:nightly
 
       # - name: Check and push CI image to Docker Hub with commit tag
       #   if: success() && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/release') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
@@ -286,16 +320,16 @@ jobs:
       #       tag="${{ steps.vars.outputs.tag }}"
       #     fi
       #     docker run --detach --publish 80:80 --name appsmith \
-      #       "${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:$tag"
+      #       "${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:$tag"
       #     sleep 180
       #     cd deploy/docker
       #     if bash run-test.sh; then
       #       echo "Fat container test passed. Pushing image."
-      #       docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee
+      #       docker push --all-tags ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-ee
       #     else
       #       echo "Fat container test FAILED. Not pushing image."
       #       # Temporarily pushing even if test fails.
-      #       docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee
+      #       docker push --all-tags ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-ee
       #     fi
 
       # Build release Docker image and push to Docker Hub
@@ -308,7 +342,7 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:${{steps.vars.outputs.tag}}
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:${{steps.vars.outputs.tag}}
 
       # Build master Docker image and push to Docker Hub
       - name: Push server master image to Docker Hub with commit tag
@@ -320,5 +354,5 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:${{ github.sha }}
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:nightly
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:${{ github.sha }}
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:nightly

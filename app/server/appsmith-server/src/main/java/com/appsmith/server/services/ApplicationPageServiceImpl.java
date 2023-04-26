@@ -4,6 +4,7 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.GitFileUtils;
@@ -166,5 +167,21 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 actionCollectionFlux, FieldName.ACTION, permissionGroupService.getSessionUserPermissionGroupIds(),
                 actionPermission.getEditPermission(), expectedError);
         return Mono.zip(pagesValidatedForPermission, actionsValidatedForPermission, actionCollectionsValidatedForPermission);
+    }
+
+    /**
+     * This method performs a soft delete on the application, its associated pages and actions.
+     * The method also deletes the default application roles associated with the application.
+     * @param id The application id to delete
+     * @return The modified application object with the deleted flag set
+     */
+    @Override
+    public Mono<Application> deleteApplication(String id) {
+        Mono<Application> deletedApplicationMono = super.deleteApplication(id).cache();
+        Flux<PermissionGroup> defaultApplicationRoles = deletedApplicationMono
+                .flatMapMany(deletedApplication -> permissionGroupService.getAllDefaultRolesForApplication(deletedApplication, Optional.empty()));
+        return defaultApplicationRoles
+                .flatMap(role -> permissionGroupService.deleteWithoutPermission(role.getId()))
+                .then(deletedApplicationMono);
     }
 }

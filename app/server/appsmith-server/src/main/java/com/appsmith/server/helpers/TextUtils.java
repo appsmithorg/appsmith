@@ -60,4 +60,14 @@ public class TextUtils {
         parts.remove("");
         return parts;
     }
+
+    /**
+     * Generates default names for roles based on role type and resource name.
+     * @param roleType {@link String}
+     * @param resourceName {@link String}
+     * @return {@link String}
+     */
+    public static String generateDefaultRoleNameForResource(String roleType, String resourceName) {
+        return roleType + " - " + resourceName;
+    }
 }

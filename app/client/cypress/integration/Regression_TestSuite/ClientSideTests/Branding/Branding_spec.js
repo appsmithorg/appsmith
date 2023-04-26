@@ -1,4 +1,6 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
+const widgetsPage = require("../../../../locators/Widgets.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 
 const locators = {
@@ -31,13 +33,13 @@ describe("Branding", () => {
   let shades = {};
 
   it("check if localStorage is populated with tenantConfig values", () => {
-    if (Cypress.env("Edition") === 0) {
+    if (CURRENT_REPO === REPO.CE) {
       const tenantConfig = localStorage.getItem("tenantConfig");
 
       expect(tenantConfig).to.be.null;
     }
 
-    if (Cypress.env("Edition") === 1) {
+    if (CURRENT_REPO === REPO.EE) {
       const tenantConfig = localStorage.getItem("tenantConfig");
 
       expect(tenantConfig).to.not.be.null;
@@ -47,7 +49,6 @@ describe("Branding", () => {
   it("1. Super user can access branding page", () => {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.get(locators.AdminSettingsEntryLink).should("be.visible");
     cy.get(locators.AdminSettingsEntryLink).click();
     cy.url().should("contain", "/settings/general");
@@ -112,7 +113,7 @@ describe("Branding", () => {
       cy.get(locators.submitButton).should("be.disabled");
     }
 
-    if (Cypress.env("Edition") === 1) {
+    if (CURRENT_REPO === REPO.EE) {
       // click on submit button
       cy.get(locators.submitButton).click();
       cy.wait(2000);
@@ -153,8 +154,8 @@ describe("Branding", () => {
     }
   });
 
-  it("checks branding on dashboard", () => {
-    if (Cypress.env("Edition") === 1) {
+  it("checks branding on dashboard and checks if colorpicker has branding colors", () => {
+    if (CURRENT_REPO === REPO.EE) {
       // naivagae to dashboard
       cy.get(locators.appsmithLogo).click();
 
@@ -179,11 +180,20 @@ describe("Branding", () => {
         "background-color",
         shades.primary,
       );
+
+      // create new app
+      cy.get(locators.createNewAppButton).eq(0).click();
+
+      _.appSettings.OpenAppSettings();
+      _.appSettings.GoToThemeSettings();
+
+      cy.get(widgetsPage.colorPickerV2Popover).click({ force: true }).click();
+      cy.get(widgetsPage.colorPickerV2PopoverContent).contains("Brand Colors");
     }
   });
 
   it("checks branding colors on login page", () => {
-    if (Cypress.env("Edition") === 1) {
+    if (CURRENT_REPO === REPO.EE) {
       // logout user
       cy.window().its("store").invoke("dispatch", { type: "LOGOUT_USER_INIT" });
       cy.wait("@postLogout");

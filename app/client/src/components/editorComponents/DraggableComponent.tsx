@@ -20,6 +20,7 @@ import {
   useShowTableFilterPane,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 
 const DraggableWrapper = styled.div`
   display: block;
@@ -62,13 +63,15 @@ export const canDrag = (
   props: any,
   isSnipingMode: boolean,
   isPreviewMode: boolean,
+  isAppSettingsPaneWithNavigationTabOpen: boolean,
 ) => {
   return (
     !isResizingOrDragging &&
     !isDraggingDisabled &&
     !props?.dragDisabled &&
     !isSnipingMode &&
-    !isPreviewMode
+    !isPreviewMode &&
+    !isAppSettingsPaneWithNavigationTabOpen
   );
 };
 
@@ -77,6 +80,9 @@ function DraggableComponent(props: DraggableComponentProps) {
   const { focusWidget, selectWidget } = useWidgetSelection();
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+    getIsAppSettingsPaneWithNavigationTabOpen,
+  );
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
   // The value is boolean
   const { setDraggingState } = useWidgetDragResize();
@@ -148,6 +154,7 @@ function DraggableComponent(props: DraggableComponentProps) {
     props,
     isSnipingMode,
     isPreviewMode,
+    isAppSettingsPaneWithNavigationTabOpen,
   );
   const className = `${classNameForTesting}`;
   const draggableRef = useRef<HTMLDivElement>(null);

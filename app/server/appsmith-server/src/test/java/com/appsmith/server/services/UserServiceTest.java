@@ -453,6 +453,39 @@ public class UserServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void updateIntercomConsentOfUser() {
+        final Mono<UserData> userDataMono = userDataService.getForUserEmail("api_user");
+        StepVerifier.create(userDataMono)
+                .assertNext(userData -> {
+                    assertNotNull(userData);
+                    assertThat(userData.isIntercomConsentGiven()).isFalse();
+                })
+                .verifyComplete();
+
+        UserUpdateDTO updateUser = new UserUpdateDTO();
+        updateUser.setIntercomConsentGiven(true);
+        final Mono<UserData> updateToTrueMono = userService.updateCurrentUser(updateUser, null)
+                .then(userDataMono);
+        StepVerifier.create(updateToTrueMono)
+                .assertNext(userData -> {
+                    assertNotNull(userData);
+                    assertThat(userData.isIntercomConsentGiven()).isTrue();
+                })
+                .verifyComplete();
+
+        updateUser.setIntercomConsentGiven(false);
+        final Mono<UserData> updateToFalseAfterTrueMono = userService.updateCurrentUser(updateUser, null)
+                .then(userDataMono);
+        StepVerifier.create(updateToFalseAfterTrueMono)
+                .assertNext(userData -> {
+                    assertNotNull(userData);
+                    assertThat(userData.isIntercomConsentGiven()).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void updateNameRoleAndUseCaseOfUser() {
         UserUpdateDTO updateUser = new UserUpdateDTO();
         updateUser.setName("New name of user here");

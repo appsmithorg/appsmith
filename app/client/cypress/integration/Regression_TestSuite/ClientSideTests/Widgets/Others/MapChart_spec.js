@@ -2,6 +2,7 @@ const commonLocators = require("../../../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/MapChartDsl.json");
+const { ObjectsRegistry } = require("../../../../../support/Objects/Registry");
 
 describe("Map Chart Widget Functionality", function () {
   before(() => {
@@ -110,7 +111,7 @@ describe("Map Chart Widget Functionality", function () {
 
   it("Action: onDataPointClick, Open modal", function () {
     // Create the Alert Modal and verify Modal name
-    cy.createModal(this.data.ModalName);
+    cy.createModal(this.data.ModalName, "onDataPointClick");
     cy.PublishtheApp();
     /*
     cy.get(widgetsPage.mapChartPlot)
@@ -125,6 +126,17 @@ describe("Map Chart Widget Functionality", function () {
   });
 
   it("Action: onDataPointClick, Show message using selectedDataPoint", function () {
+    cy.get(ObjectsRegistry.CommonLocators._jsToggle("ondatapointclick"))
+      .scrollIntoView()
+      .click();
+    ObjectsRegistry.PropertyPane.UpdatePropertyFieldValue(
+      "onDataPointClick",
+      "",
+    );
+    cy.get(
+      ObjectsRegistry.CommonLocators._jsToggle("ondatapointclick"),
+    ).click();
+
     const expectedEntityData = {
       value: 2.04,
       label: "South America",
@@ -136,7 +148,7 @@ describe("Map Chart Widget Functionality", function () {
     cy.updateMapType("World");
     // Set action details for onDataPointClick
     const boundMessage = `{{JSON.stringify(MapChart1.selectedDataPoint)}}`;
-    cy.addAction(boundMessage);
+    cy.addAction(boundMessage, "onDataPointClick");
     cy.get(commonLocators.chooseMsgType).last().click({ force: true });
     cy.get(commonLocators.chooseAction).children().contains("Success").click();
     // Click on the entity, South America

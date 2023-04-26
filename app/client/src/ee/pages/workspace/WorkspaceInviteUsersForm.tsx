@@ -6,7 +6,6 @@ import {
   LabelText,
   Loading,
   MailConfigContainer,
-  RoleDivider,
   StyledForm,
   StyledInviteFieldGroup,
   User,
@@ -14,7 +13,6 @@ import {
   UserList,
   UserName,
   UserRole,
-  WorkspaceInviteTitle,
   WorkspaceInviteWrapper,
 } from "ce/pages/workspace/WorkspaceInviteUsersForm";
 import React, {
@@ -46,6 +44,9 @@ import {
   INVITE_USERS_VALIDATION_EMAILS_EMPTY,
   INVITE_USERS_VALIDATION_EMAIL_LIST,
   INVITE_USERS_VALIDATION_ROLE_EMPTY,
+  USERS_HAVE_ACCESS_TO_ALL_APPS,
+  USERS_HAVE_ACCESS_TO_ONLY_THIS_APP,
+  NO_USERS_INVITED,
 } from "@appsmith/constants/messages";
 import { INVITE_USERS_VALIDATION_EMAIL_LIST as CE_INVITE_USERS_VALIDATION_EMAIL_LIST } from "ce/constants/messages";
 import { isEmail } from "utils/formhelpers";
@@ -61,7 +62,6 @@ import {
   Callout,
   Icon,
   IconSize,
-  ScrollIndicator,
   Size,
   Text,
   TextType,
@@ -70,16 +70,30 @@ import {
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "pages/workspace/ManageUsers";
-import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
+import {
+  fetchRolesForWorkspace,
+  fetchUsersForWorkspace,
+  fetchWorkspace,
+} from "@appsmith/actions/workspaceActions";
 import { useHistory } from "react-router-dom";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import store from "store";
 import TagListField from "../../utils/TagInput";
 import { showAdminSettings } from "@appsmith/utils/adminSettingsHelpers";
 import { getCurrentUser } from "selectors/usersSelectors";
+import {
+  getAllAppUsers,
+  getAppRolesForField,
+} from "@appsmith/selectors/applicationSelectors";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
+import {
+  fetchRolesForApplication,
+  fetchUsersForApplication,
+} from "@appsmith/actions/applicationActions";
+import { ENTITY_TYPE } from "@appsmith/constants/workspaceConstants";
+import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
 
-const { cloudHosting, mailEnabled } = getAppsmithConfigs();
+const { cloudHosting } = getAppsmithConfigs();
 
 const validateFormValues = (
   values: {
@@ -185,21 +199,21 @@ function WorkspaceInviteUsersForm(props: any) {
   const {
     allUsers,
     anyTouched,
-    disableEmailSetup = false,
     disableManageUsers = false,
     disableUserList = false,
     dropdownPlaceholder = "",
     error,
+    fetchAllAppRoles,
+    fetchAllAppUsers,
     fetchAllRoles,
     fetchCurrentWorkspace,
     fetchGroupSuggestions,
     fetchUser,
     handleSubmit,
     isAclFlow = false,
-    isApplicationInvite,
+    isApplicationInvite = false,
     isLoading,
     isMultiSelectDropdown = false,
-    message = "",
     onSubmitHandler,
     placeholder = "",
     submitFailed,
@@ -219,11 +233,17 @@ function WorkspaceInviteUsersForm(props: any) {
     PERMISSION_TYPE.MANAGE_WORKSPACE,
   );
   const isEEFeature = (!isAclFlow && !cloudHosting) || false;
+  const isAppLevelInvite = (!cloudHosting && isApplicationInvite) || false;
 
   useEffect(() => {
     if (!isAclFlow) {
-      fetchUser(props.workspaceId);
-      fetchAllRoles(props.workspaceId);
+      if (isAppLevelInvite) {
+        fetchAllAppUsers(props.applicationId);
+        fetchAllAppRoles(props.applicationId);
+      } else {
+        fetchUser(props.workspaceId);
+        fetchAllRoles(props.workspaceId);
+      }
       fetchCurrentWorkspace(props.workspaceId);
       fetchGroupSuggestions();
     }
@@ -233,6 +253,10 @@ function WorkspaceInviteUsersForm(props: any) {
     fetchAllRoles,
     fetchCurrentWorkspace,
     fetchGroupSuggestions,
+    fetchAllAppRoles,
+    fetchAllAppUsers,
+    props.applicationId,
+    isAppLevelInvite,
   ]);
 
   useEffect(() => {
@@ -335,13 +359,6 @@ function WorkspaceInviteUsersForm(props: any) {
   return (
     <WorkspaceInviteWrapper>
       <InviteModalStyles />
-      {isApplicationInvite && (
-        <WorkspaceInviteTitle>
-          <Text type={TextType.H5}>
-            Invite users to {currentWorkspace?.name}{" "}
-          </Text>
-        </WorkspaceInviteTitle>
-      )}
       <StyledForm
         onSubmit={handleSubmit((values: any, dispatch: any) => {
           validateFormValues(values, isAclFlow);
@@ -391,12 +408,18 @@ function WorkspaceInviteUsersForm(props: any) {
               permissionGroupId: isMultiSelectDropdown
                 ? selectedOption.map((group: any) => group.id).join(",")
                 : selectedOption[0].id,
+              isApplicationInvite: isAppLevelInvite,
+              ...(isAppLevelInvite
+                ? {
+                    applicationId: props.applicationId,
+                    roleType: selectedOption[0].value,
+                  }
+                : {}),
             },
             dispatch,
           );
         })}
       >
-        <LabelText type={TextType.P0}>{message}</LabelText>
         <StyledInviteFieldGroupEE>
           <div className="wrapper">
             <TagListField
@@ -451,21 +474,22 @@ function WorkspaceInviteUsersForm(props: any) {
             width={InviteButtonWidth}
           />
         </StyledInviteFieldGroupEE>
+        {!isAclFlow && (
+          <LabelText data-testid="helper-message" type={TextType.P0}>
+            <Icon name="user-3-line" size={IconSize.MEDIUM} />
+            {isAppLevelInvite
+              ? createMessage(USERS_HAVE_ACCESS_TO_ONLY_THIS_APP)
+              : createMessage(USERS_HAVE_ACCESS_TO_ALL_APPS)}
+          </LabelText>
+        )}
         {isLoading ? (
           <Loading size={30} />
         ) : (
           <>
-            {!mailEnabled && !disableEmailSetup && (
-              <MailConfigContainer>
-                {allUsers.length === 0 && <NoEmailConfigImage />}
-                <span>You haven’t setup any email service yet</span>
-                <a
-                  href="https://docs.appsmith.com/v/v1.2.1/setup/docker/email"
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  Please configure your email service to invite people
-                </a>
+            {allUsers.length === 0 && !isAclFlow && (
+              <MailConfigContainer data-testid="no-users-content">
+                <NoEmailConfigImage />
+                <span>{createMessage(NO_USERS_INVITED)}</span>
               </MailConfigContainer>
             )}
             {!disableUserList && (
@@ -477,20 +501,25 @@ function WorkspaceInviteUsersForm(props: any) {
                   (user: {
                     username: string;
                     name: string;
-                    permissionGroupId: string;
-                    permissionGroupName: string;
+                    roles: WorkspaceUserRoles[];
                     initials: string;
                     userGroupId: string;
                     userId: string;
                     photoId?: string;
                   }) => {
-                    return (
+                    const showUser =
+                      (isAppLevelInvite
+                        ? user.roles?.[0]?.entityType ===
+                          ENTITY_TYPE.APPLICATION
+                        : user.roles?.[0]?.entityType ===
+                          ENTITY_TYPE.WORKSPACE) && user.roles?.[0]?.id;
+                    return showUser ? (
                       <Fragment
                         key={
                           user?.userGroupId ? user.userGroupId : user.username
                         }
                       >
-                        <User>
+                        <User isApplicationInvite={isApplicationInvite}>
                           <UserInfo>
                             {user?.userGroupId ? (
                               <>
@@ -524,17 +553,14 @@ function WorkspaceInviteUsersForm(props: any) {
                           </UserInfo>
                           <UserRole>
                             <Text type={TextType.P1}>
-                              {user.permissionGroupName?.split(" - ")[0]}
+                              {user.roles?.[0]?.name?.split(" - ")[0] || ""}
                             </Text>
                           </UserRole>
                         </User>
-
-                        <RoleDivider />
                       </Fragment>
-                    );
+                    ) : null;
                   },
                 )}
-                <ScrollIndicator containerRef={userRef} mode="DARK" />
               </StyledUserList>
             )}
           </>
@@ -556,7 +582,10 @@ function WorkspaceInviteUsersForm(props: any) {
           )}
         </ErrorBox>
         {canManage && !disableManageUsers && (
-          <ManageUsers workspaceId={props.workspaceId} />
+          <ManageUsers
+            isApplicationInvite={isApplicationInvite}
+            workspaceId={props.workspaceId}
+          />
         )}
       </StyledForm>
     </WorkspaceInviteWrapper>
@@ -564,41 +593,45 @@ function WorkspaceInviteUsersForm(props: any) {
 }
 
 export default connect(
-  (state: AppState, { formName }: { formName?: string }) => {
+  (
+    state: AppState,
+    {
+      formName,
+      isApplicationInvite,
+    }: { formName?: string; isApplicationInvite?: boolean },
+  ): any => {
+    const isAppLevelInvite = (!cloudHosting && isApplicationInvite) || false;
     return {
-      roles: getRolesForField(state),
-      allUsers: getAllUsers(state),
-      isLoading: state.ui.workspaces.loadingStates.isFetchAllUsers,
+      roles: isAppLevelInvite
+        ? getAppRolesForField(state)
+        : getRolesForField(state),
+      allUsers: isAppLevelInvite ? getAllAppUsers(state) : getAllUsers(state),
+      isLoading: isAppLevelInvite
+        ? state.ui.applications.loadingStates.isFetchAllUsers
+        : state.ui.workspaces.loadingStates.isFetchAllUsers,
       form: formName || INVITE_USERS_TO_WORKSPACE_FORM,
     };
   },
   (dispatch: any) => ({
     fetchAllRoles: (workspaceId: string) =>
-      dispatch({
-        type: ReduxActionTypes.FETCH_ALL_ROLES_INIT,
-        payload: {
-          workspaceId,
-        },
-      }),
+      dispatch(fetchRolesForWorkspace(workspaceId)),
     fetchCurrentWorkspace: (workspaceId: string) =>
       dispatch(fetchWorkspace(workspaceId)),
     fetchUser: (workspaceId: string) =>
-      dispatch({
-        type: ReduxActionTypes.FETCH_ALL_USERS_INIT,
-        payload: {
-          workspaceId,
-        },
-      }),
+      dispatch(fetchUsersForWorkspace(workspaceId)),
     fetchGroupSuggestions: () =>
       dispatch({
         type: ReduxActionTypes.FETCH_GROUP_SUGGESTIONS,
       }),
+    fetchAllAppRoles: (applicationId: string) =>
+      dispatch(fetchRolesForApplication(applicationId)),
+    fetchAllAppUsers: (applicationId: string) =>
+      dispatch(fetchUsersForApplication(applicationId)),
   }),
 )(
   reduxForm<
     InviteUsersToWorkspaceFormValues,
     {
-      fetchAllRoles: (workspaceId: string) => void;
       roles?: any;
       applicationId?: string;
       workspaceId?: string;

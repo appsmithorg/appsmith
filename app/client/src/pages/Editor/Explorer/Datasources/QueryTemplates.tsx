@@ -16,6 +16,7 @@ import type { Datasource, QueryTemplate } from "entities/Datasource";
 import { INTEGRATION_TABS } from "constants/routes";
 import { getDatasource } from "selectors/entitiesSelector";
 import { integrationEditorURL } from "RouteBuilder";
+import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 
 const Container = styled.div`
   background-color: ${(props) => props.theme.colors.queryTemplate.bg};
@@ -92,7 +93,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
   );
 
   return (
-    <Container>
+    <Container className={EntityClassNames.CONTEXT_MENU_CONTENT}>
       {props.templates.map((template) => {
         return (
           <TemplateType

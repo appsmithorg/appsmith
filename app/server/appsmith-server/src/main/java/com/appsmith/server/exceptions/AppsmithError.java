@@ -145,7 +145,7 @@ public enum AppsmithError {
     FILE_PART_DATA_BUFFER_ERROR(500, AppsmithErrorCode.FILE_PART_DATA_BUFFER_ERROR.getCode(), "Failed to upload file with error: {0}", AppsmithErrorAction.DEFAULT, "Failed to upload file", ErrorType.BAD_REQUEST, null),
     MIGRATION_ERROR(500, AppsmithErrorCode.MIGRATION_ERROR.getCode(), "This action is already migrated", AppsmithErrorAction.DEFAULT, "Action already migrated", ErrorType.INTERNAL_ERROR, null),
     INVALID_GIT_SSH_URL(400, AppsmithErrorCode.INVALID_GIT_SSH_URL.getCode(), "Please enter valid SSH URL of your repository", AppsmithErrorAction.DEFAULT, "Invalid SSH URL", ErrorType.GIT_CONFIGURATION_ERROR, null),
-    REPOSITORY_NOT_FOUND(404, AppsmithErrorCode.REPOSITORY_NOT_FOUND.getCode(), "Unable to find the repository for application {0}, please refresh the page to auto-sync with the remote. This might take couple of minutes", AppsmithErrorAction.DEFAULT, "Repository not found", ErrorType.REPOSITORY_NOT_FOUND, null),
+    REPOSITORY_NOT_FOUND(404, AppsmithErrorCode.REPOSITORY_NOT_FOUND.getCode(), "Unable to find the remote repository for application {0}, please check the deploy key configuration in your remote repository.", AppsmithErrorAction.DEFAULT, "Repository not found", ErrorType.REPOSITORY_NOT_FOUND, null),
     UNKNOWN_PLUGIN_REFERENCE(400, AppsmithErrorCode.UNKNOWN_PLUGIN_REFERENCE.getCode(), "Unable to find the plugin {0} Please reach out to Appsmith customer support to resolve this.", AppsmithErrorAction.DEFAULT, "Unknown plugin", ErrorType.CONFIGURATION_ERROR, null),
     ENV_FILE_NOT_FOUND(500, AppsmithErrorCode.ENV_FILE_NOT_FOUND.getCode(), "Admin Settings is unavailable. Unable to read and write to Environment file.", AppsmithErrorAction.DEFAULT, "Environment file not found", ErrorType.CONFIGURATION_ERROR, null),
     PUBLIC_APP_NO_PERMISSION_GROUP(500, AppsmithErrorCode.PUBLIC_APP_NO_PERMISSION_GROUP.getCode(), "Invalid state. Public application does not have the required roles set for public access. Please reach out to Appsmith customer support to resolve this.", AppsmithErrorAction.LOG_EXTERNALLY, "Required permission missing for public access", ErrorType.INTERNAL_ERROR, null),
@@ -177,6 +177,8 @@ public enum AppsmithError {
             AppsmithErrorAction.DEFAULT, "Unable to deploy", ErrorType.INTERNAL_ERROR, null),
 
     UNKNOWN_SERVER_VARIABLE_TYPE(500, AppsmithErrorCode.UNKNOWN_SERVER_VARIABLE_TYPE.getCode(), "Unexpected state. Server side variable type is unknown. Please contact Appsmith support to report this issue.", AppsmithErrorAction.LOG_EXTERNALLY, "Unexpected server variable type", ErrorType.INTERNAL_ERROR, null),
+    MIGRATION_FAILED(500, AppsmithErrorCode.MIGRATION_FAILED.getCode(), "Migration {0} failed. Reason: {1}. Note: {2}", AppsmithErrorAction.DEFAULT, "Migration failed", ErrorType.INTERNAL_ERROR, null),
+    OPEN_AI_ERROR(500, AppsmithErrorCode.OPEN_AI_ERROR.getCode(), "{0}", AppsmithErrorAction.DEFAULT, "Open AI error", ErrorType.EE_FEATURE_ERROR, null),
     ;
 
     private final Integer httpErrorCode;

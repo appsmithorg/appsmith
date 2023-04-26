@@ -110,14 +110,14 @@ public class DatasourceControllerCE extends BaseController<DatasourceService, Da
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/mocks")
+    @GetMapping(Url.MOCKS)
     public Mono<ResponseDTO<List<MockDataSet>>> getMockDataSets() {
         return mockDataService.getMockDataSet()
                 .map(config -> new ResponseDTO<>(HttpStatus.OK.value(), config.getMockdbs(), null));
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping("/mocks")
+    @PostMapping(Url.MOCKS)
     public Mono<ResponseDTO<Datasource>> createMockDataSet(@RequestBody MockDataSource mockDataSource) {
         return mockDataService.createMockDataSet(mockDataSource)
                 .map(datasource -> new ResponseDTO<>(HttpStatus.OK.value(), datasource, null));

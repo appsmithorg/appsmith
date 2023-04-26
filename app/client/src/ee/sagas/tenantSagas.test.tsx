@@ -19,6 +19,8 @@ import {
   LICENSE_UPDATED_SUCCESSFULLY,
 } from "@appsmith/constants/messages";
 import { Toaster, Variant } from "design-system-old";
+import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
+import { AxiosError } from "axios";
 
 const response = {
   responseMeta: {
@@ -94,15 +96,23 @@ describe("fetchCurrentTenantConfigSaga", () => {
   });
 
   it("should handle errors", () => {
-    const error = new Error("Fetch error");
+    const errorObj = new AxiosError("Fetch error");
     const gen = cloneableGenerator(fetchCurrentTenantConfigSaga)();
 
     expect(gen.next().value).toEqual(call(TenantApi.fetchCurrentTenantConfig));
-    expect(gen?.throw?.(error).value).toEqual(
+    expect(gen?.throw?.(errorObj).value).toEqual(
       put({
         type: ReduxActionErrorTypes.FETCH_CURRENT_TENANT_CONFIG_ERROR,
         payload: {
-          error,
+          errorObj,
+        },
+      }),
+    );
+    expect(gen?.next().value).toEqual(
+      put({
+        type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
+        payload: {
+          code: errorObj.code ?? ERROR_CODES.SERVER_ERROR,
         },
       }),
     );

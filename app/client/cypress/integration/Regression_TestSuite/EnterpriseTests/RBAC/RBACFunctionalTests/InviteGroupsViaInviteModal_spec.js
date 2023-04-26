@@ -1,11 +1,12 @@
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 import HomePage from "../../../../../locators/HomePage";
 import locators from "../../../../../locators/AuditLogsLocators";
+const RBAC = require("../../../../../locators/RBAClocators.json");
 let workspaceId, appid;
 const agHelper = ObjectsRegistry.AggregateHelper,
   homePage = ObjectsRegistry.HomePage;
 
-describe("Create new workspace and invite user & validate all roles", () => {
+describe("Create new workspace and invite group & validate all roles", () => {
   const GroupName = "group1" + `${Math.floor(Math.random() * 1000)}`;
 
   beforeEach(() => {
@@ -75,14 +76,14 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.get(homePage._applicationCard).first().trigger("mouseover");
     cy.get(homePage._appHoverIcon("edit")).should("not.exist");
     // verify only viewer role is visible
-    cy.xpath("//span[text()='Share']").first().click();
+    agHelper.GetNClick(homePage._shareWorkspace(workspaceId));
     // click on selet a role
-    cy.wait(2000);
+    agHelper.Sleep(2000);
     cy.xpath(HomePage.selectRole).click();
     cy.get(".t--dropdown-option")
       .should("have.length", 1)
       .and("contain.text", `App Viewer`);
-    cy.get(HomePage.closeBtn).click();
+    agHelper.GetNClick(HomePage.closeBtn);
     homePage.LaunchAppFromAppHover();
     homePage.LogOutviaAPI();
   });
@@ -107,16 +108,17 @@ describe("Create new workspace and invite user & validate all roles", () => {
     );
     homePage.FilterApplication(appid, workspaceId);
     cy.get(homePage._applicationCard).first().trigger("mouseover");
-    cy.get(homePage._appHoverIcon("edit")).first().click({ force: true });
-    // cy.xpath(homePage._editPageLanding).should("exist");
-    cy.wait(4000);
-    cy.xpath("//span[text()='SHARE']").click();
-    cy.wait(2000);
+    agHelper.AssertElementExist(homePage._appHoverIcon("edit"));
+
+    agHelper.GetNClick(homePage._shareWorkspace(workspaceId));
+    agHelper.Sleep(2000);
     cy.xpath(HomePage.selectRole).click();
     cy.get(".t--dropdown-option")
       .should("have.length", 2)
       .and("contain.text", `App Viewer`, `Developer`);
-    cy.get(HomePage.editModeInviteModalCloseBtn).click();
+    agHelper.GetNClick(HomePage.closeBtn);
+
+    agHelper.GetNClick(homePage._appHoverIcon("edit"));
     homePage.LogOutviaAPI();
   });
 
@@ -147,17 +149,18 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.wait(2000);
     homePage.FilterApplication(appid, workspaceId);
     cy.get(homePage._applicationCard).first().trigger("mouseover");
-    cy.get(homePage._appHoverIcon("edit")).first().click({ force: true });
-    // cy.xpath(homePage._editPageLanding).should("exist");
-    cy.wait(4000);
-    cy.xpath("//span[text()='SHARE']").click();
-    cy.wait(2000);
+    agHelper.AssertElementExist(homePage._appHoverIcon("edit"));
+
+    agHelper.GetNClick(homePage._shareWorkspace(workspaceId));
+    agHelper.Sleep(2000);
     cy.xpath(HomePage.selectRole).click();
     cy.get(".t--dropdown-option")
       .should("have.length", 3)
       .should("contain.text", `App Viewer`, `Developer`);
     cy.get(".t--dropdown-option").should("contain.text", `Administrator`);
-    cy.get(HomePage.editModeInviteModalCloseBtn).click();
+    agHelper.GetNClick(HomePage.closeBtn);
+
+    agHelper.GetNClick(homePage._appHoverIcon("edit"));
     homePage.LogOutviaAPI();
   });
 
@@ -178,10 +181,14 @@ describe("Create new workspace and invite user & validate all roles", () => {
       expect($list.eq(1)).to.contain(GroupName);
       expect($list.eq(2)).to.contain(Cypress.env("TESTUSERNAME2"));
     });
+    agHelper.AssertElementAbsence(RBAC.arrowRightMembersPage);
     homePage.NavigateToHome();
   });
 
-  /*it("9. Login as Developer, Verify leave workspace flow", () => {
+  /*
+  Group users are not allowed to leace workspace because they were not invited individually, they have to be removed from the group in order to leave the workspace. An error toaster message occurs if they try to leave the group
+
+  it("9. Login as Developer, Verify leave workspace flow", () => {
     homePage.LogintoApp(
       Cypress.env("TESTUSERNAME1"),
       Cypress.env("TESTPASSWORD1"),

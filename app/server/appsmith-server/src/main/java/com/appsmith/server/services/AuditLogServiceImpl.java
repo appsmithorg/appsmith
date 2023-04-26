@@ -306,7 +306,7 @@ public class AuditLogServiceImpl implements AuditLogService {
     public Mono<ExportFileDTO> exportAuditLogs(MultiValueMap<String, String> params) {
         return this.getAuditLogRecords(params, EXPORT_RECORD_LIMIT).map(
             records -> {
-                records.forEach(BaseDomain::sanitiseToExportBaseObject);
+                records.forEach(BaseDomain::sanitiseToExportDBObject);
 
                 AuditLogExportDTO exportContent = new AuditLogExportDTO(records, params);
 

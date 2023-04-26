@@ -266,7 +266,7 @@ jobs:
           context: app/client
           push: true
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:${{needs.prelude.outputs.tag}}
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:${{needs.prelude.outputs.tag}}
 
       # Only build & tag with latest if the tag doesn't contain beta
       - name: Build and push client image latest
@@ -276,7 +276,7 @@ jobs:
           context: app/client
           push: true
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:latest
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:latest
 
       - name: Build and push fat image
         uses: depot/build-push-action@v1
@@ -287,7 +287,7 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:${{needs.prelude.outputs.tag}}
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:${{needs.prelude.outputs.tag}}
 
       # Only build & tag with latest if the tag doesn't contain beta
       - name: Build and push fat image latest
@@ -300,7 +300,7 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:latest
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:latest
 
       - name: Build and push server image
         uses: depot/build-push-action@v1
@@ -310,7 +310,7 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:${{needs.prelude.outputs.tag}}
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:${{needs.prelude.outputs.tag}}
 
       # Only build & tag with latest if the tag doesn't contain beta
       - name: Build and push server image latest
@@ -322,4 +322,4 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
           tags: |
-            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:latest
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:latest

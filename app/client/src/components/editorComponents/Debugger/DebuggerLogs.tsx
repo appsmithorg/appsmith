@@ -31,6 +31,7 @@ const ContainerWrapper = styled.div`
 `;
 
 export const ListWrapper = styled.div`
+  overflow-wrap: anywhere;
   overflow: auto;
   height: calc(100% - ${LIST_HEADER_HEIGHT});
   ${thinScrollbar};

@@ -16,6 +16,7 @@ import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.RequestParamDTO;
+import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
@@ -24,6 +25,7 @@ import com.external.plugins.exceptions.FirestorePluginError;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.firestore.FirestoreException;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
@@ -907,6 +909,28 @@ public class FirestorePlugin extends BasePlugin {
                     })
                     .map(FirestoreClient::getFirestore)
                     .subscribeOn(scheduler);
+        }
+
+        @Override
+        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration){
+
+            return datasourceCreate(datasourceConfiguration)
+                    .flatMap(connection -> {
+                        try {
+                            connection.listCollections();
+                        } catch (FirestoreException e){
+                            log.debug("Invalid datasource configuration : {}", e.getMessage());
+                            if(e.getMessage().contains("Metadata operations require admin authentication")){
+                                DatasourceTestResult datasourceTestResult = new DatasourceTestResult();
+                                datasourceTestResult.setMessages(new HashSet<>(Collections.singletonList(
+                                        FirestoreErrorMessages.META_DATA_ACCESS_MISSING_MESSAGE)));
+                                return Mono.just(datasourceTestResult);
+                            }
+                            return Mono.just(new DatasourceTestResult(FirestoreErrorMessages.
+                                    DS_CONNECTION_FAILED_FOR_PROJECT_ID));
+                        }
+                        return Mono.just(new DatasourceTestResult());
+                    });
         }
 
         @Override

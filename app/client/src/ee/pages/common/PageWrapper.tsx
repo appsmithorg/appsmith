@@ -27,15 +27,13 @@ export function PageWrapper(props: PageWrapperProps) {
   const { isFixed = false, isSavable = false } = props;
   const showBanner = useSelector(shouldShowLicenseBanner);
   const isHomePage = useRouteMatch("/applications")?.isExact;
+  const styledBanner = (
+    <StyledBanner {...PageBannerMessage()} className="trial-warning-banner" />
+  );
 
   return (
     <Wrapper isFixed={isFixed}>
-      {showBanner && isHomePage && PageBannerMessage && (
-        <StyledBanner
-          {...PageBannerMessage()}
-          className="trial-warning-banner"
-        />
-      )}
+      {showBanner && isHomePage && styledBanner}
       <Helmet>
         <title>{`${
           props.displayName ? `${props.displayName} | ` : ""

@@ -21,20 +21,10 @@ export function* executeActionTriggers(
   if (!cloudHosting) {
     switch (trigger.type) {
       case "WINDOW_MESSAGE_LISTENER":
-        yield call(
-          windowMessageListener,
-          trigger.payload,
-          eventType,
-          triggerMeta,
-        );
+        yield call(windowMessageListener);
         return;
       case "UNLISTEN_WINDOW_MESSAGE":
-        yield call(
-          unListenWindowMessage,
-          trigger.payload,
-          eventType,
-          triggerMeta,
-        );
+        yield call(unListenWindowMessage);
         return;
     }
   }

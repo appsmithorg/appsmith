@@ -33,7 +33,8 @@
     }
     const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__");
     const ZIPY_KEY = parseConfig("__APPSMITH_ZIPY_SDK_KEY__");
-    if (CLOUD_HOSTING && ZIPY_KEY) {
+    const AIRGAPPED = parseConfig("__APPSMITH_AIRGAP_ENABLED__");
+    if (CLOUD_HOSTING && ZIPY_KEY && !AIRGAPPED) {
       const script = document.createElement('script');
       script.crossOrigin = "anonymous";
       script.defer = true;
@@ -127,7 +128,7 @@
     const CONFIG_LOG_LEVEL_INDEX = LOG_LEVELS.indexOf(parseConfig("__APPSMITH_CLIENT_LOG_LEVEL__"));
 
     const INTERCOM_APP_ID = parseConfig("%REACT_APP_INTERCOM_APP_ID%") || parseConfig("__APPSMITH_INTERCOM_APP_ID__");
-    const DISABLE_INTERCOM = parseConfig("__APPSMITH_DISABLE_INTERCOM__");
+    const DISABLE_INTERCOM = parseConfig("__APPSMITH_DISABLE_INTERCOM__") || parseConfig("__APPSMITH_AIRGAP_ENABLED__");
 
     // Initialize the Intercom library
     if (INTERCOM_APP_ID.length && !DISABLE_INTERCOM) {
@@ -179,6 +180,7 @@
       disableIframeWidgetSandbox: parseConfig("__APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX__"),
       customerPortalUrl: parseConfig("__APPSMITH_CUSTOMER_PORTAL_URL__") || "https://customer.appsmith.com",
       pricingUrl: parseConfig("__APPSMITH_PRICING_URL__") || "https://www.appsmith.com/pricing",
+      airGapped: parseConfig("__APPSMITH_AIRGAP_ENABLED__"),
     };
   </script>
 </body>

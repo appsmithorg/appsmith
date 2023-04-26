@@ -5,6 +5,10 @@ import {
   INVITE_USERS_PLACEHOLDER as CE_INVITE_USERS_PLACEHOLDER,
   INVITE_USERS_VALIDATION_EMAIL_LIST as CE_INVITE_USERS_VALIDATION_EMAIL_LIST,
   MEMBERS_TAB_TITLE as CE_MEMBERS_TAB_TITLE,
+  SEARCH_USERS as CE_SEARCH_USERS,
+  PAGE_SERVER_UNAVAILABLE_TITLE as CE_PAGE_SERVER_UNAVAILABLE_TITLE,
+  INVITE_USERS_SUBMIT_SUCCESS as CE_INVITE_USERS_SUBMIT_SUCCESS,
+  INVITE_USER_SUBMIT_SUCCESS as CE_INVITE_USER_SUBMIT_SUCCESS,
 } from "ce/constants/messages";
 
 // GAC begin
@@ -68,6 +72,16 @@ export const MEMBERS_TAB_TITLE = (length: number, cloudHosting?: boolean) =>
   cloudHosting
     ? createMessage(CE_MEMBERS_TAB_TITLE, length)
     : `Users / User Groups (${length})`;
+export const SEARCH_USERS = (cloudHosting?: boolean) =>
+  cloudHosting ? createMessage(CE_SEARCH_USERS) : `Search for users or groups`;
+export const INVITE_USERS_SUBMIT_SUCCESS = (cloudHosting?: boolean) =>
+  cloudHosting
+    ? createMessage(CE_INVITE_USERS_SUBMIT_SUCCESS)
+    : `The users/groups have been invited successfully`;
+export const INVITE_USER_SUBMIT_SUCCESS = (cloudHosting?: boolean) =>
+  cloudHosting
+    ? createMessage(CE_INVITE_USER_SUBMIT_SUCCESS)
+    : `The user/group have been invited successfully`;
 export const EVENT_GROUP_ADD_USER_TOP_BAR = () =>
   "Group Details page > Top bar";
 export const EVENT_GROUP_ADD_USER_EMPTY_STATE = () =>
@@ -169,3 +183,15 @@ export const PAYMENT_FAILED_UPDATE = (count: number, suffix: string) =>
 
 // Welcome form EE
 export const WELCOME_FORM_SUBMIT_LABEL = () => "Next";
+
+// Auth pages
+export const SIGNUP_PAGE_TITLE = () => `Create your account`;
+
+// error pages
+export const PAGE_SERVER_UNAVAILABLE_TITLE = (cloudHosting: boolean) => {
+  if (cloudHosting) {
+    return CE_PAGE_SERVER_UNAVAILABLE_TITLE(cloudHosting);
+  } else {
+    return "Server unavailable";
+  }
+};

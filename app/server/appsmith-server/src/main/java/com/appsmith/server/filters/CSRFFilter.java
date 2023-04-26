@@ -14,8 +14,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.Set;
 
-import static java.util.stream.Collectors.toMap;
-
 @Slf4j
 public class CSRFFilter implements WebFilter {
 

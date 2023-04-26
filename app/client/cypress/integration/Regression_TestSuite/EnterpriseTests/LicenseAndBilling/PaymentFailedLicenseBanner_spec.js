@@ -8,7 +8,6 @@ describe("Payment Failed License Banner", function () {
       licenseStatus: "IN_GRACE_PERIOD",
     });
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.wait(2000);
     cy.get(LicenseLocators.warningBanner).should("be.visible");
   });
@@ -50,7 +49,6 @@ describe("Payment Failed License Banner", function () {
       licenseType: "PAID",
       licenseStatus: "IN_GRACE_PERIOD",
     });
-    cy.visit("/applications");
     cy.reload();
     cy.wait(2000);
     cy.get(LicenseLocators.wrapperBanner).should("not.exist");

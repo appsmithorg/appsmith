@@ -11,7 +11,7 @@ const appSettings = ObjectsRegistry.AppSettings;
 let themeBackgroudColor;
 
 describe("Theme validation for default data", function () {
-  it("Drag and drop form widget and validate Default color/font/shadow/border and list of font validation", function () {
+  it("1. Drag and drop form widget and validate Default color/font/shadow/border and list of font validation", function () {
     cy.log("Login Successful");
     cy.reload(); // To remove the rename tooltip
     cy.get(explorer.addWidget).click();
@@ -68,7 +68,7 @@ describe("Theme validation for default data", function () {
     appSettings.ClosePane();
   });
 
-  it("Validate Default Theme change across application", function () {
+  it("2. Validate Default Theme change across application", function () {
     cy.get(formWidgetsPage.formD).click();
     cy.widgetText(
       "FormTest",
@@ -98,21 +98,6 @@ describe("Theme validation for default data", function () {
           .then((selectedBackgroudColor) => {
             expect(CurrentBackgroudColor).to.equal(selectedBackgroudColor);
             themeBackgroudColor = CurrentBackgroudColor;
-          });
-      });
-  });
-
-  it("Publish the App and validate Default Theme across the app", function () {
-    cy.PublishtheApp();
-    cy.get(".bp3-button:contains('Submit')")
-      .invoke("css", "background-color")
-      .then((CurrentBackgroudColor) => {
-        cy.get(".bp3-button:contains('Edit App')")
-          .invoke("css", "background-color")
-          .then((selectedBackgroudColor) => {
-            expect(CurrentBackgroudColor).to.equal(selectedBackgroudColor);
-            expect(CurrentBackgroudColor).to.equal(themeBackgroudColor);
-            expect(selectedBackgroudColor).to.equal(themeBackgroudColor);
           });
       });
   });

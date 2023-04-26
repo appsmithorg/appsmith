@@ -6,6 +6,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PermissionGroupCompactDTO;
@@ -50,7 +51,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.TENANT_MANAGE_ALL_USERS;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
@@ -61,6 +61,7 @@ import static com.appsmith.server.constants.FieldName.NUMBER_OF_UNASSIGNED_USER_
 import static com.appsmith.server.constants.FieldName.EVENT_DATA;
 import static com.appsmith.server.constants.FieldName.NUMBER_OF_ASSIGNED_USERS;
 import static com.appsmith.server.constants.FieldName.NUMBER_OF_UNASSIGNED_USERS;
+import static com.appsmith.server.constants.FieldName.CLOUD_HOSTED_EXTRA_PROPS;
 import static java.lang.Boolean.TRUE;
 
 @Component
@@ -122,7 +123,40 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 .filter(user -> !user.getEmail().equals(ANONYMOUS_USER))
                 .flatMap(this::addGroupsAndRolesForUser)
                 .sort(AppsmithComparators.managementUserComparator())
-                .collectList();
+                .collectList()
+                .flatMap(this::addPhotoIdForUsers);
+
+    }
+
+    private Mono<List<UserForManagementDTO>> addPhotoIdForUsers(List<UserForManagementDTO> userForManagementDTOList) {
+        List<String> userIds = userForManagementDTOList.stream()
+                .map(UserForManagementDTO::getId).toList();
+        Mono<Map<String, UserData>> userDataMapMono = userDataRepository.findPhotoAssetsByUserIds(userIds)
+                .collectMap(UserData::getUserId);
+
+        return Mono.zip(Mono.just(userForManagementDTOList), userDataMapMono)
+                .map(pair -> {
+                    List<UserForManagementDTO> userForManagementDTOList1 = pair.getT1();
+                    Map<String, UserData> userIdUserDataMap = pair.getT2();
+                    userForManagementDTOList1.forEach(userForManagementDTO -> {
+                        String userId = userForManagementDTO.getId();
+                        if (userIdUserDataMap.containsKey(userId)
+                                && StringUtils.hasLength(userIdUserDataMap.get(userId).getProfilePhotoAssetId())) {
+                            userForManagementDTO.setPhotoId(userIdUserDataMap.get(userId).getProfilePhotoAssetId());
+                        }
+                    });
+                    return userForManagementDTOList1;
+                });
+    }
+
+    private Mono<UserForManagementDTO> addPhotoIdForUser(UserForManagementDTO userForManagementDTO) {
+        return addPhotoIdForUsers(List.of(userForManagementDTO))
+                .map(userForManagementDTOList -> {
+                    if (userForManagementDTOList.isEmpty()) {
+                        return userForManagementDTO;
+                    }
+                    return userForManagementDTOList.get(0);
+                });
     }
 
     @Override
@@ -133,6 +167,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 .flatMap(tenant -> userRepository.findById(userId))
                 // Add the name of the user in response.
                 .flatMap(user -> addGroupsAndRolesForUser(user)
+                        .flatMap(this::addPhotoIdForUser)
                         .map(dto -> {
                             String name = user.getName();
                             if (StringUtils.hasLength(name)) {
@@ -156,7 +191,6 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 .map(tuple -> {
                     List<PermissionGroupInfoDTO> rolesInfo = tuple.getT1();
                     List<UserGroupCompactDTO> groupsInfo = tuple.getT2();
-
                     return new UserForManagementDTO(user.getId(), user.getUsername(), groupsInfo, rolesInfo);
                 });
     }
@@ -322,9 +356,12 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 .flatMap(permissionGroup1 -> {
                     Map<String, Object> eventData = Map.of(FieldName.ASSIGNED_USERS_TO_PERMISSION_GROUPS, usernames,
                             FieldName.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS, userGroupNames);
+                    Map<String, Object> extraPropsForCloudHostedInstance = Map.of(FieldName.ASSIGNED_USERS_TO_PERMISSION_GROUPS, usernames,
+                            FieldName.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS, userGroupNames);
                     Map<String, Object> analyticsProperties = Map.of(NUMBER_OF_ASSIGNED_USERS, usernames.size(),
                             NUMBER_OF_ASSIGNED_USER_GROUPS, userGroupNames.size(),
-                            EVENT_DATA, eventData);
+                            EVENT_DATA, eventData,
+                            CLOUD_HOSTED_EXTRA_PROPS, extraPropsForCloudHostedInstance);
                     AnalyticsEvents assignedEvent;
                     if (! usernames.isEmpty() && ! userGroupNames.isEmpty()) {
                         assignedEvent = AnalyticsEvents.ASSIGNED_TO_PERMISSION_GROUP;
@@ -353,9 +390,12 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 .flatMap(pg -> {
                     Map<String, Object> eventData = Map.of(FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS, usernames,
                             FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS, userGroupNames);
+                    Map<String, Object> extraPropsForCloudHostedInstance = Map.of(FieldName.UNASSIGNED_USERS_FROM_PERMISSION_GROUPS, usernames,
+                            FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS, userGroupNames);
                     Map<String, Object> analyticsProperties = Map.of(NUMBER_OF_UNASSIGNED_USERS, usernames.size(),
                             NUMBER_OF_UNASSIGNED_USER_GROUPS, userGroupNames.size(),
-                            EVENT_DATA, eventData);
+                            EVENT_DATA, eventData,
+                            CLOUD_HOSTED_EXTRA_PROPS, extraPropsForCloudHostedInstance);
                     AnalyticsEvents unassignedEvent;
                     if (! usernames.isEmpty() && ! userGroupNames.isEmpty())
                         unassignedEvent = AnalyticsEvents.UNASSIGNED_FROM_PERMISSION_GROUP;

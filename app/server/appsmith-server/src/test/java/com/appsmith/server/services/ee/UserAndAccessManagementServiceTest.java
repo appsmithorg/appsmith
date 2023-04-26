@@ -4,11 +4,13 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PermissionGroupCompactDTO;
 import com.appsmith.server.dtos.UpdateRoleAssociationDTO;
 import com.appsmith.server.dtos.UserCompactDTO;
+import com.appsmith.server.dtos.UserForManagementDTO;
 import com.appsmith.server.dtos.UserGroupCompactDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -17,7 +19,9 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserGroupService;
+import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +35,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.test.StepVerifier;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -51,6 +56,8 @@ public class UserAndAccessManagementServiceTest {
     @Autowired WorkspaceService workspaceService;
     @Autowired UserGroupService userGroupService;
     @Autowired PermissionGroupService permissionGroupService;
+    @Autowired UserService userService;
+    @Autowired UserDataService userDataService;
 
 
     User apiUser, testUser;
@@ -431,6 +438,58 @@ public class UserAndAccessManagementServiceTest {
                                         .getMessage("role", updatedPermissionGroup.getId())))
                 .verify();
         PermissionGroup setPoliciesBack = permissionGroupRepository.save(updatedPermissionGroup).block();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGetAllUsers_assertPhotoId() {
+        String testName = "testGetAllUsers_assertPhotoId";
+        User user1 = new User();
+        user1.setEmail(testName + 1);
+        user1.setPassword(testName);
+        User createdUser1 = userService.userCreate(user1, false).block();
+        UserData userData1 = userDataService.getForUser(createdUser1).block();
+        userData1.setProfilePhotoAssetId(testName + 1);
+        UserData userData1PostUpdate = userDataService.updateForUser(createdUser1, userData1).block();
+
+        User user2 = new User();
+        user2.setEmail(testName);
+        user2.setPassword(testName + 2);
+        User createdUser2 = userService.userCreate(user2, false).block();
+        UserData userData2 = userDataService.getForUser(createdUser2).block();
+        userData2.setProfilePhotoAssetId(testName + 2);
+        UserData userData2PostUpdate = userDataService.updateForUser(createdUser2, userData2).block();
+
+
+        List<UserForManagementDTO> usersList = userAndAccessManagementService.getAllUsers().block();
+        Optional<UserForManagementDTO> userForManagementDTO1 = usersList.stream().filter(_user -> createdUser1.getId().equals(_user.getId())).findFirst();
+        assertThat(userForManagementDTO1.isPresent()).isTrue();
+        assertThat(userForManagementDTO1.get().getPhotoId()).isEqualTo(testName + 1);
+
+        Optional<UserForManagementDTO> userForManagementDTO2 = usersList.stream().filter(_user -> createdUser2.getId().equals(_user.getId())).findFirst();
+        assertThat(userForManagementDTO2.isPresent()).isTrue();
+        assertThat(userForManagementDTO2.get().getPhotoId()).isEqualTo(testName + 2);
+
+        userAndAccessManagementService.deleteUser(createdUser1.getId()).block();
+        userAndAccessManagementService.deleteUser(createdUser2.getId()).block();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testGetUserById_assertPhotoId() {
+        String testName = "testGetAllUsers_assertPhotoId";
+        User user1 = new User();
+        user1.setEmail(testName);
+        user1.setPassword(testName);
+        User createdUser1 = userService.userCreate(user1, false).block();
+        UserData userData1 = userDataService.getForUser(createdUser1).block();
+        userData1.setProfilePhotoAssetId(testName);
+        UserData userData1PostUpdate = userDataService.updateForUser(createdUser1, userData1).block();
+
+        UserForManagementDTO user = userAndAccessManagementService.getUserById(createdUser1.getId()).block();
+        assertThat(user.getPhotoId()).isEqualTo(testName);
+
+        userAndAccessManagementService.deleteUser(createdUser1.getId()).block();
     }
 
 }

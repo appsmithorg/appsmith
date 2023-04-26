@@ -13,6 +13,12 @@ on:
         description: "This is a boolean value in case the workflow is being called in build deploy-preview"
         required: false
         type: string
+        default: "false"
+      airgap-enabled:
+        description: "This is a boolean value in case the workflow is building for airgap"
+        required: false
+        type: string
+        default: "false"
 
   pull_request:
     branches: [release, master]
@@ -27,7 +33,7 @@ defaults:
 
 jobs:
   build:
-    runs-on: ubuntu-latest-4-cores
+    runs-on: ubuntu-latest-8-cores
     # Only run this workflow for internally triggered events
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||
@@ -99,7 +105,7 @@ jobs:
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
         run: yarn install --frozen-lockfile
-      
+
       - name: Run Eslint
         if: steps.run_result.outputs.run_result != 'success'
         run: yarn run lint:ci
@@ -133,7 +139,7 @@ jobs:
 
       # Run the Jest tests only if the workflow has been invoked in a PR and the previous re-run has failed
       - name: Run the jest tests
-        if: steps.run_result.outputs.run_result != 'success' && inputs.pr != 0 && inputs.skip-tests != 'true'
+        if: steps.run_result.outputs.run_result != 'success' && inputs.skip-tests != 'true'
         run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
 
       # We burn React environment & the Segment analytics key into the build itself.
@@ -145,6 +151,9 @@ jobs:
           else
             export REACT_APP_SEGMENT_CE_KEY="${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}"
           fi
+          if [[ "${{ inputs.airgap-enabled }}" == "true" ]]; then
+            export REACT_APP_AIRGAP_ENABLED=true
+          fi
           REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
             REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
@@ -153,20 +162,34 @@ jobs:
             REACT_APP_VERSION_EDITION="Business" \
             yarn build
 
+      - name: Set the client build path env vars
+        run: |
+         if [[ '${{ inputs.airgap-enabled }}' == 'true' ]]; then
+          echo 'client_build_name=client-build-airgap' >> "$GITHUB_ENV"
+          echo 'client_build_path=app/client/build_airgap/' >> "$GITHUB_ENV"
+         else
+          echo 'client_build_name=client-build' >> "$GITHUB_ENV"
+          echo 'client_build_path=app/client/build/' >> "$GITHUB_ENV"
+          fi
+
+      - name: Log the client build env vars
+        run: |
+          echo "client_build_name: ${{ env.client_build_name }}"
+          echo "client_build_path: ${{ env.client_build_path }}"
+
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
         uses: actions/cache@v3
         with:
-          path: |
-            app/client/build/
+          path: ${{ env.client_build_path }}
           key: ${{ github.run_id }}-${{ github.job }}-client
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload react build bundle
         uses: actions/upload-artifact@v3
         with:
-          name: client-build
-          path: app/client/build/
+          name: ${{ env.client_build_name }}
+          path: ${{ env.client_build_path }}
 
       # Set status = success
       - name: Save the status of the run

@@ -12,6 +12,7 @@
 
 # production
 /build
+/build_airgap
 
 # misc
 .DS_Store
@@ -50,3 +51,6 @@ TODO
 /nginx
 
 /public/static/wds/
+
+storybook-static
+stats.json

@@ -9,6 +9,7 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QUserGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UpdateGroupMembershipDTO;
@@ -20,6 +21,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.AppsmithComparators;
 import com.appsmith.server.helpers.PermissionGroupUtils;
+import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
 import jakarta.validation.Validator;
 import org.modelmapper.ModelMapper;
@@ -29,6 +31,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -49,8 +52,9 @@ import static com.appsmith.server.acl.AclPermission.READ_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.REMOVE_USERS_FROM_USER_GROUPS;
 import static com.appsmith.server.constants.FieldName.GROUP_ID;
 import static com.appsmith.server.constants.FieldName.EVENT_DATA;
-import static com.appsmith.server.constants.FieldName.NUMBER_OF_INVITED_USERS;
+import static com.appsmith.server.constants.FieldName.NUMBER_OF_USERS_INVITED;
 import static com.appsmith.server.constants.FieldName.NUMBER_OF_REMOVED_USERS;
+import static com.appsmith.server.constants.ce.FieldNameCE.CLOUD_HOSTED_EXTRA_PROPS;
 import static com.appsmith.server.dtos.UsersForGroupDTO.validate;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.FALSE;
@@ -68,6 +72,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
 
     private final ModelMapper modelMapper;
     private final PermissionGroupUtils permissionGroupUtils;
+    private final UserDataRepository userDataRepository;
 
     public UserGroupServiceImpl(Scheduler scheduler,
                                 Validator validator,
@@ -81,7 +86,8 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                                 PermissionGroupService permissionGroupService,
                                 UserService userService,
                                 ModelMapper modelMapper,
-                                PermissionGroupUtils permissionGroupUtils) {
+                                PermissionGroupUtils permissionGroupUtils,
+                                UserDataRepository userDataRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.sessionUserService = sessionUserService;
         this.tenantService = tenantService;
@@ -90,6 +96,7 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
         this.userService = userService;
         this.modelMapper = modelMapper;
         this.permissionGroupUtils = permissionGroupUtils;
+        this.userDataRepository = userDataRepository;
     }
 
     @Override
@@ -103,8 +110,17 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
     }
 
     @Override
-    public Flux<UserGroupCompactDTO> getAllWithAddUserPermission() {
-        return this.getAll(ADD_USERS_TO_USER_GROUPS).map(this::generateUserGroupCompactDTO);
+    public Mono<List<UserGroupCompactDTO>> getAllWithAddUserPermission() {
+        return this.getAll(ADD_USERS_TO_USER_GROUPS)
+                .map(this::generateUserGroupCompactDTO)
+                .collectList();
+    }
+
+    @Override
+    public Mono<List<UserGroupCompactDTO>> getAllReadableGroups() {
+        return this.getAll(READ_USER_GROUPS)
+                .map(this::generateUserGroupCompactDTO)
+                .collectList();
     }
 
     @Override
@@ -169,12 +185,27 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                 .flatMap(userGroup -> {
 
                     Mono<List<PermissionGroupInfoDTO>> groupRolesMono = getRoleDTOsForTheGroup(id);
-                    Mono<List<UserCompactDTO>> usersMono = getUsersCompactForTheGroup(userGroup);
+                    Mono<List<UserCompactDTO>> usersMono = getUsersCompactForTheGroup(userGroup).cache();
+                    Mono<Map<String, UserData>> userIdUserDataMapMono = usersMono
+                            .flatMap(users -> {
+                                List<String> userIds = users.stream()
+                                        .map(UserCompactDTO::getId).toList();
+                                return userDataRepository.findPhotoAssetsByUserIds(userIds)
+                                        .collectMap(UserData::getUserId);
+                            });
 
-                    return Mono.zip(groupRolesMono, usersMono)
+                    return Mono.zip(groupRolesMono, usersMono, userIdUserDataMapMono)
                             .flatMap(tuple -> {
                                 List<PermissionGroupInfoDTO> rolesInfoList = tuple.getT1();
                                 List<UserCompactDTO> usersList = tuple.getT2();
+                                Map<String, UserData> userIdUserDataMap = tuple.getT3();
+                                usersList.forEach(user -> {
+                                    String userId = user.getId();
+                                    if (userIdUserDataMap.containsKey(userId)
+                                            && StringUtils.hasLength(userIdUserDataMap.get(userId).getProfilePhotoAssetId())) {
+                                        user.setPhotoId(userIdUserDataMap.get(userId).getProfilePhotoAssetId());
+                                    }
+                                });
                                 return generateUserGroupDTO(userGroup, rolesInfoList, usersList);
                             });
                 });
@@ -243,7 +274,11 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                             })
                             .flatMap(userGroup -> {
                                 Map<String, Object> eventData = Map.of(FieldName.INVITED_USERS_TO_USER_GROUPS, usernames);
-                                Map<String, Object> analyticsProperties = Map.of(NUMBER_OF_INVITED_USERS, usernames.size(), EVENT_DATA, eventData);
+                                Map<String, Object> extraPropsForCloudHostedInstance = Map.of(FieldName.INVITED_USERS_TO_USER_GROUPS, usernames);
+                                Map<String, Object> analyticsProperties = Map.of(
+                                        NUMBER_OF_USERS_INVITED, usernames.size(),
+                                        EVENT_DATA, eventData,
+                                        CLOUD_HOSTED_EXTRA_PROPS, extraPropsForCloudHostedInstance);
                                 return analyticsService.sendObjectEvent(AnalyticsEvents.INVITE_USERS_TO_USER_GROUPS, userGroup, analyticsProperties);
                             })
                             .cache();
@@ -321,7 +356,11 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                             })
                             .flatMap(userGroup -> {
                                 Map<String, Object> eventData = Map.of(FieldName.REMOVED_USERS_FROM_USER_GROUPS, usernames);
-                                Map<String, Object> analyticsProperties = Map.of(NUMBER_OF_REMOVED_USERS, usernames.size(), EVENT_DATA, eventData);
+                                Map<String, Object> extraPropsForCloudHostedInstance = Map.of(FieldName.REMOVED_USERS_FROM_USER_GROUPS, usernames);
+                                Map<String, Object> analyticsProperties = Map.of(
+                                        NUMBER_OF_REMOVED_USERS, usernames.size(),
+                                        EVENT_DATA, eventData,
+                                        CLOUD_HOSTED_EXTRA_PROPS, extraPropsForCloudHostedInstance);
                                 return analyticsService.sendObjectEvent(AnalyticsEvents.REMOVE_USERS_FROM_USER_GROUPS, userGroup, analyticsProperties);
                             })
                             .cache();
@@ -472,7 +511,11 @@ public class UserGroupServiceImpl extends BaseService<UserGroupRepository, UserG
                     updateObj.set(path, usersInGroup);
                     return repository.updateById(userGroup.getId(), updateObj).then(Mono.defer(() -> {
                         Map<String, Object> eventData = Map.of(FieldName.REMOVED_USERS_FROM_USER_GROUPS, Set.of(user.getUsername()));
-                        Map<String, Object> analyticsProperties = Map.of(NUMBER_OF_REMOVED_USERS, 1, EVENT_DATA, eventData);
+                        Map<String, Object> extraPropsForCloudHostedInstance = Map.of(FieldName.REMOVED_USERS_FROM_USER_GROUPS, Set.of(user.getUsername()));
+                        Map<String, Object> analyticsProperties = Map.of(
+                                NUMBER_OF_REMOVED_USERS, 1,
+                                EVENT_DATA, eventData,
+                                CLOUD_HOSTED_EXTRA_PROPS, extraPropsForCloudHostedInstance);
                         return analyticsService.sendObjectEvent(AnalyticsEvents.REMOVE_USERS_FROM_USER_GROUPS, userGroup, analyticsProperties);
                     }));
                 })

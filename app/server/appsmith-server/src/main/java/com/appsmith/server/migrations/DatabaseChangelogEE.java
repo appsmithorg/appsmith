@@ -1,6 +1,7 @@
 package com.appsmith.server.migrations;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.configurations.LicenseConfig;
@@ -9,12 +10,8 @@ import com.appsmith.server.constants.LicenseOrigin;
 import com.appsmith.server.constants.LicenseStatus;
 import com.appsmith.server.domains.AuditLog;
 import com.appsmith.server.domains.Config;
-import com.appsmith.external.models.Environment;
-import com.appsmith.external.models.EnvironmentVariable;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QConfig;
-import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.QUsagePulse;
@@ -31,13 +28,11 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import io.changock.migration.api.annotations.NonLockGuarded;
-import io.mongock.api.annotations.ChangeUnit;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.CriteriaDefinition;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.StringUtils;
@@ -65,7 +60,6 @@ import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
 import static com.appsmith.server.migrations.MigrationHelperMethods.evictPermissionCacheForUsers;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Slf4j
 @ChangeLog(order = "100")
@@ -227,7 +221,6 @@ public class DatabaseChangelogEE {
         Index createdAt = makeIndex("createdAt");
 
         ensureIndexes(mongoTemplate, Environment.class, createdAt, environmentUniqueness);
-        ensureIndexes(mongoTemplate, EnvironmentVariable.class, createdAt);
     }
 
     @ChangeSet(order = "009", id = "remove-default-logo-urls", author = "")

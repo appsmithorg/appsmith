@@ -112,8 +112,8 @@ const metaWidgetsReducer = createImmerReducer(initialState, {
     }
     return state;
   },
-  [ReduxActionTypes.INIT_CANVAS_LAYOUT]: () => {
-    return {};
+  [ReduxActionTypes.INIT_CANVAS_LAYOUT]: (state: MetaWidgetsReduxState) => {
+    return state;
   },
 });
 

@@ -3,6 +3,7 @@ import log from "loglevel";
 
 import { EVALUATION_PATH, EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { ListWidgetProps } from ".";
@@ -35,6 +36,7 @@ export const primaryColumnValidation = (
     dynamicPropertyPathList.find((d) => d.key === "primaryKeys"),
   );
 
+  // For not valid entries an empty array is parsed as the inputValue is an array type
   if (isArray) {
     if (inputValue.length === 0) {
       return {
@@ -54,7 +56,7 @@ export const primaryColumnValidation = (
     if (inputValue.every((value) => _.isNil(value))) {
       return {
         isValid: false,
-        parsed: inputValue, // undefined the chosen key doesn't exist.
+        parsed: [],
         messages: [
           {
             name: "ValidationError",
@@ -69,7 +71,7 @@ export const primaryColumnValidation = (
     if (inputValue.some((value) => _.isNil(value))) {
       return {
         isValid: false,
-        parsed: inputValue,
+        parsed: [],
         messages: [
           {
             name: "ValidationError",
@@ -82,10 +84,14 @@ export const primaryColumnValidation = (
 
     const areKeysUnique = _.uniq(inputValue).length === listData.length;
 
-    if (!areKeysUnique) {
+    const isDataTypeUnique =
+      _.uniqBy(inputValue, (item: any) => item.toString()).length ===
+      listData.length;
+
+    if (!areKeysUnique || !isDataTypeUnique) {
       return {
         isValid: false,
-        parsed: [], // Empty array as the inputValue is an array type
+        parsed: [],
         messages: [
           {
             name: "ValidationError",
@@ -113,6 +119,41 @@ export const primaryColumnValidation = (
     messages: [{ name: "", message: "" }],
   };
 };
+
+export function defaultSelectedItemValidation(
+  value: any,
+  props: ListWidgetProps,
+  _?: any,
+): ValidationResponse {
+  const TYPE_ERROR_MESSAGE = {
+    name: "TypeError",
+    message: "This value must be string or number",
+  };
+
+  const EMPTY_ERROR_MESSAGE = { name: "", message: "" };
+
+  if (value === undefined) {
+    return {
+      isValid: true,
+      parsed: value,
+      messages: [EMPTY_ERROR_MESSAGE],
+    };
+  }
+
+  if (!_.isFinite(value) && !_.isString(value)) {
+    return {
+      isValid: false,
+      parsed: value,
+      messages: [TYPE_ERROR_MESSAGE],
+    };
+  }
+
+  return {
+    isValid: true,
+    parsed: String(value),
+    messages: [EMPTY_ERROR_MESSAGE],
+  };
+}
 
 const getPrimaryKeyFromDynamicValue = (
   prefixTemplate: string,
@@ -257,7 +298,10 @@ export const PropertyPaneContentConfig = [
         placeholderText: "Enter total record count",
         validation: {
           type: ValidationTypes.NUMBER,
-          params: { min: MIN_TOTAL_RECORD_COUNT, max: MAX_TOTAL_RECORD_COUNT },
+          params: {
+            min: MIN_TOTAL_RECORD_COUNT,
+            max: MAX_TOTAL_RECORD_COUNT,
+          },
         },
         hidden: (props: ListWidgetProps<WidgetProps>) =>
           !props.serverSidePagination,
@@ -266,7 +310,7 @@ export const PropertyPaneContentConfig = [
       {
         propertyName: "onPageChange",
         helpText:
-          "Configure one or chain multiple Actions when the page is changed in a List. All nested Actions run at the same time.",
+          "Configure one or chain multiple actions when the page is changed in a List. All nested Actions run at the same time.",
         label: "onPageChange",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
@@ -275,6 +319,63 @@ export const PropertyPaneContentConfig = [
         hidden: (props: ListWidgetProps<WidgetProps>) =>
           !props.serverSidePagination,
         dependencies: ["serverSidePagination"],
+      },
+    ],
+  },
+  {
+    sectionName: "Item Selection",
+    children: [
+      {
+        propertyName: "defaultSelectedItem",
+        helpText: "Selects Item by default by using a valid data identifier",
+        label: "Default Selected Item",
+        controlType: "INPUT_TEXT",
+        placeholderText: "001",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        hidden: (props: ListWidgetProps<WidgetProps>) =>
+          !!props.serverSidePagination,
+        dependencies: ["serverSidePagination"],
+        validation: {
+          type: ValidationTypes.FUNCTION,
+          params: {
+            fn: defaultSelectedItemValidation,
+            expected: {
+              type: "string or number",
+              example: `John | 123`,
+              autocompleteDataType: AutocompleteDataType.STRING,
+            },
+          },
+        },
+      },
+      {
+        propertyName: "onItemClick",
+        helpText: "Triggers an action when an item in this List is clicked",
+        label: "onItemClick",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
+        additionalAutoComplete: (props: ListWidgetProps<WidgetProps>) => {
+          let items = get(props, `${EVAL_VALUE_PATH}.listData`, []);
+
+          if (Array.isArray(items)) {
+            items = items.filter(Boolean);
+          } else {
+            items = [];
+          }
+
+          return {
+            currentItem: Object.assign(
+              {},
+              ...Object.keys(get(items, "0", {})).map((key) => ({
+                [key]: "",
+              })),
+            ),
+            currentIndex: 0,
+          };
+        },
+        dependencies: ["listData"],
       },
     ],
   },
@@ -304,40 +405,6 @@ export const PropertyPaneContentConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
-      },
-    ],
-  },
-  {
-    sectionName: "Events",
-    children: [
-      {
-        propertyName: "onItemClick",
-        helpText: "Triggers an action when an item in this List is clicked",
-        label: "onItemClick",
-        controlType: "ACTION_SELECTOR",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: true,
-        additionalAutoComplete: (props: ListWidgetProps<WidgetProps>) => {
-          let items = get(props, `${EVAL_VALUE_PATH}.listData`, []);
-
-          if (Array.isArray(items)) {
-            items = items.filter(Boolean);
-          } else {
-            items = [];
-          }
-
-          return {
-            currentItem: Object.assign(
-              {},
-              ...Object.keys(get(items, "0", {})).map((key) => ({
-                [key]: "",
-              })),
-            ),
-            currentIndex: 0,
-          };
-        },
-        dependencies: ["listData"],
       },
     ],
   },

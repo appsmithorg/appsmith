@@ -37,6 +37,7 @@ import PageHeader from "pages/common/PageHeader";
 import Page from "pages/common/ErrorPages/Page";
 import styled from "styled-components";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const StyledIcon = styled(Icon)`
   transform: scale(1.5);
@@ -45,6 +46,7 @@ const StyledIcon = styled(Icon)`
 
 function LicenseCheckPage() {
   const showLicenseUpdateForm = useSelector(isAdminUser);
+  const isAirgappedInstance = isAirgapped();
 
   if (!showLicenseUpdateForm) {
     return (
@@ -67,7 +69,7 @@ function LicenseCheckPage() {
               alt={createMessage(NO_ACTIVE_SUBSCRIPTION)}
               className="no-sub-img"
               loading="lazy"
-              src={`${ASSETS_CDN_URL}/upgrade-box.svg`}
+              src={getAssetUrl(`${ASSETS_CDN_URL}/upgrade-box.svg`)}
               width="180"
             />
             <Text
@@ -77,12 +79,14 @@ function LicenseCheckPage() {
             >
               {createMessage(NO_ACTIVE_SUBSCRIPTION)}
             </Text>
-            <Text
-              data-testid="t--choose-one-option-license-text"
-              type={TextType.P1}
-            >
-              {createMessage(GET_STARTED_MESSAGE)}
-            </Text>
+            {!isAirgappedInstance && (
+              <Text
+                data-testid="t--choose-one-option-license-text"
+                type={TextType.P1}
+              >
+                {createMessage(GET_STARTED_MESSAGE)}
+              </Text>
+            )}
           </StyledBannerWrapper>
           <StyledCardWrapper data-testid="t--license-check-card-wrapper">
             <StyledCard data-testid="t--license-check-form-card">
@@ -95,25 +99,30 @@ function LicenseCheckPage() {
                 placeholder={createMessage(ADD_KEY)}
               />
             </StyledCard>
-            <StyledCard data-testid="t--get-trial-license-card-wrapper" noField>
-              <IconBadge>
-                <Icon name="arrow-up-line" size={IconSize.XXXXL} />
-              </IconBadge>
-              <StyledContent data-testid="t--get-license-key-label">
-                {createMessage(LICENSE_KEY_CTA_LABEL)}
-              </StyledContent>
-              <StyledButton
-                category={Category.secondary}
-                data-testid="t--customer-portal-cta"
-                icon="share-2"
-                iconPosition="left"
-                onClick={goToCustomerPortal}
-                size={Size.large}
-                tag="button"
-                text={createMessage(VISIT_CUSTOMER_PORTAL)}
-                type="button"
-              />
-            </StyledCard>
+            {!isAirgappedInstance && (
+              <StyledCard
+                data-testid="t--get-trial-license-card-wrapper"
+                noField
+              >
+                <IconBadge>
+                  <Icon name="arrow-up-line" size={IconSize.XXXXL} />
+                </IconBadge>
+                <StyledContent data-testid="t--get-license-key-label">
+                  {createMessage(LICENSE_KEY_CTA_LABEL)}
+                </StyledContent>
+                <StyledButton
+                  category={Category.secondary}
+                  data-testid="t--customer-portal-cta"
+                  icon="share-2"
+                  iconPosition="left"
+                  onClick={goToCustomerPortal}
+                  size={Size.large}
+                  tag="button"
+                  text={createMessage(VISIT_CUSTOMER_PORTAL)}
+                  type="button"
+                />
+              </StyledCard>
+            )}
           </StyledCardWrapper>
         </StyledPageWrapper>
       </>

@@ -34,6 +34,7 @@ import {
   Text,
   TextType,
 } from "design-system-old";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const StyledText = styled(Text)<{ color: string; underline?: boolean }>`
   text-decoration: ${(props) => (props.underline ? "underline" : "none")};
@@ -106,6 +107,7 @@ export function PageBannerMessage(): any {
     (gracePeriod <= 3 && (suffix === Suffix.DAYS || suffix === Suffix.DAY)) ||
     suffix === Suffix.HOURS ||
     suffix === Suffix.HOUR;
+  const isAirgappedInstance = isAirgapped();
 
   const color = lessThanThreeDays ? Colors.RED_500 : Colors.GRAY_800;
   if ((isPaymentFailed && isAdmin) || isTrial) {
@@ -117,7 +119,7 @@ export function PageBannerMessage(): any {
       message: (
         <FlexWrapper
           className="wrapper-banner"
-          justify={isAdmin ? "space-between" : "center"}
+          justify={isAdmin && !isAirgappedInstance ? "space-between" : "center"}
         >
           {isAdmin && <span> </span>}
           <FlexContentWrapper>
@@ -141,7 +143,7 @@ export function PageBannerMessage(): any {
               type={TextType.P1}
               weight="600"
             />
-            {isAdmin ? (
+            {isAdmin && !isAirgappedInstance ? (
               <ContentWrapper className="wrapper-content">
                 <StyledText
                   as="button"
@@ -170,17 +172,19 @@ export function PageBannerMessage(): any {
                 />
               </ContentWrapper>
             ) : (
-              <StyledText
-                color={gracePeriod > 3 ? Colors.GRAY_800 : Colors.RED_500}
-                data-testid="t--non-admin-trial-expiry-warning"
-                type={TextType.P1}
-                weight="600"
-              >
-                {createMessage(NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING)}
-              </StyledText>
+              !isAirgappedInstance && (
+                <StyledText
+                  color={gracePeriod > 3 ? Colors.GRAY_800 : Colors.RED_500}
+                  data-testid="t--non-admin-trial-expiry-warning"
+                  type={TextType.P1}
+                  weight="600"
+                >
+                  {createMessage(NON_ADMIN_USER_TRIAL_EXPIRTY_WARNING)}
+                </StyledText>
+              )
             )}
           </FlexContentWrapper>
-          {isAdmin && (
+          {isAdmin && !isAirgappedInstance && (
             <ActionBtnWrapper className="wrapper-cta">
               <StyledText
                 color={Colors.SCORPION}

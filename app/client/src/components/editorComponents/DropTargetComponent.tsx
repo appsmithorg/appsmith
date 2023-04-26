@@ -32,7 +32,12 @@ import {
   checkContainersForAutoHeightAction,
   updateDOMDirectlyBasedOnAutoHeightAction,
 } from "actions/autoHeightActions";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+
+import {
+  isAutoHeightEnabledForWidget,
+  isAutoHeightEnabledForWidgetWithLimits,
+} from "widgets/WidgetUtils";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 
 type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -125,9 +130,8 @@ function useUpdateRows(
    */
   const isParentAutoHeightEnabled = useSelector((state: AppState) => {
     return parentId
-      ? !isAutoHeightEnabledForWidget(
+      ? !isAutoHeightEnabledForWidgetWithLimits(
           state.entities.canvasWidgets[parentId],
-          true,
         ) &&
           isAutoHeightEnabledForWidget(state.entities.canvasWidgets[parentId])
       : false;
@@ -188,6 +192,9 @@ function useUpdateRows(
 export function DropTargetComponent(props: DropTargetComponentProps) {
   // Get if this is in preview mode.
   const isPreviewMode = useSelector(previewModeSelector);
+  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+    getIsAppSettingsPaneWithNavigationTabOpen,
+  );
   const isAutoLayoutActive = useSelector(isAutoLayoutEnabled);
   const { contextValue, dropTargetRef, rowRef } = useUpdateRows(
     props.bottomRow,
@@ -263,17 +270,28 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     isResizing,
   ]);
 
-  const handleFocus = (e: any) => {
+  const handleFocus = (e: React.MouseEvent<HTMLElement>) => {
     // Making sure that we don't deselect the widget
     // after we are done dragging the limits in auto height with limits
+
+    const selectionDiv = `div-selection-${MAIN_CONTAINER_WIDGET_ID}`;
+    const mainCanvasId = `canvas-selection-${MAIN_CONTAINER_WIDGET_ID}`;
+    const isTargetMainCanvas =
+      (e.target as HTMLDivElement).dataset.testid === selectionDiv ||
+      (e.target as HTMLDivElement).dataset.testid === mainCanvasId;
+
     if (!isResizing && !isDragging && !isAutoHeightWithLimitsChanging) {
-      if (!props.parentId) {
+      // Check if Target is the MainCanvas
+      if (isTargetMainCanvas) {
         deselectAll();
         focusWidget && focusWidget(props.widgetId);
         showPropertyPane && showPropertyPane();
+        e.preventDefault();
+      } else {
+        // Prevent onClick from Bubbling out of the Canvas to the WidgetEditor for any other widget except the MainCanvas
+        e.stopPropagation();
       }
     }
-    e.preventDefault();
   };
 
   // Get the height for the drop target
@@ -293,7 +311,10 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       isResizing ||
       isAutoHeightWithLimitsChanging) &&
     !isPreviewMode &&
+    !isAppSettingsPaneWithNavigationTabOpen &&
     !props.useAutoLayout;
+
+  const isMainContainer = props.widgetId === MAIN_CONTAINER_WIDGET_ID;
 
   return (
     <DropTargetContext.Provider value={contextValue}>
@@ -301,7 +322,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
         className={`t--drop-target drop-target-${
           props.parentId || MAIN_CONTAINER_WIDGET_ID
         }`}
-        onClick={handleFocus}
+        onClick={isMainContainer ? handleFocus : undefined}
         ref={dropTargetRef}
         style={dropTargetStyles}
       >

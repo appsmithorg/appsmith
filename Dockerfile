@@ -28,7 +28,7 @@ RUN curl --silent --show-error --location https://www.mongodb.org/static/pgp/ser
   && echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-5.0.list \
   && curl --silent --show-error --location https://deb.nodesource.com/setup_16.x | bash - \
   && echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list \
-  && curl --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \ 
+  && curl --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
   && apt update \
   && apt-get install --no-install-recommends --yes mongodb-org=5.0.14 nodejs redis build-essential postgresql-13 \
   && apt-get clean \
@@ -36,7 +36,7 @@ RUN curl --silent --show-error --location https://www.mongodb.org/static/pgp/ser
 
 # Untar & install keycloak - Service Layer
 RUN mkdir -p /opt/keycloak/data \
-  && curl --location --output /tmp/keycloak.tar.gz https://github.com/keycloak/keycloak/releases/download/21.0.1/keycloak-21.0.1.tar.gz \
+  && curl --location --output /tmp/keycloak.tar.gz https://github.com/keycloak/keycloak/releases/download/21.0.2/keycloak-21.0.2.tar.gz \
   && tar -C /opt/keycloak -zxvf /tmp/keycloak.tar.gz --strip-components 1
 
 # Clean up cache file - Service layer
@@ -58,7 +58,13 @@ VOLUME [ "/appsmith-stacks" ]
 ARG JAR_FILE=./app/server/dist/server-*.jar
 ARG PLUGIN_JARS=./app/server/dist/plugins/*.jar
 ARG APPSMITH_SEGMENT_CE_KEY
+ARG APPSMITH_AIRGAP_ENABLED=false
+ARG KEYGEN_LICENSE_VERIFICATION_KEY
+ARG APPSMITH_CLIENT_BUILD_PATH=./app/client/build
 ENV APPSMITH_SEGMENT_CE_KEY=${APPSMITH_SEGMENT_CE_KEY}
+ENV APPSMITH_AIRGAP_ENABLED=${APPSMITH_AIRGAP_ENABLED}
+ENV KEYGEN_LICENSE_VERIFICATION_KEY=${KEYGEN_LICENSE_VERIFICATION_KEY}
+
 #Create the plugins directory
 RUN mkdir -p ./backend ./editor ./rts ./backend/plugins ./templates ./utils
 
@@ -67,7 +73,7 @@ COPY ${JAR_FILE} backend/server.jar
 COPY ${PLUGIN_JARS} backend/plugins/
 
 # Add client UI - Application Layer
-COPY ./app/client/build editor/
+COPY ${APPSMITH_CLIENT_BUILD_PATH} editor/
 
 # Add RTS - Application Layer
 COPY ./app/rts/package.json ./app/rts/dist rts/
@@ -77,6 +83,8 @@ COPY ./deploy/docker/templates/nginx/* \
   ./deploy/docker/templates/docker.env.sh \
   ./deploy/docker/templates/mockdb_postgres.sql \
   ./deploy/docker/templates/users_postgres.sql \
+  ./deploy/docker/templates/appsmith_starting.html \
+  ./deploy/docker/templates/appsmith_initializing.html \
   templates/
 
 # Add bootstrapfile

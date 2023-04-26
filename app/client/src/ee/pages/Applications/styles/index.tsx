@@ -58,5 +58,9 @@ export const BannerCtaWrapper = styled.div`
   .close-button {
     background: transparent;
     border: 1px solid var(--appsmith-color-black-800);
+    &:hover {
+      background-color: var(--ads-color-black-50);
+      color: var(--ads-color-black-700);
+    }
   }
 `;

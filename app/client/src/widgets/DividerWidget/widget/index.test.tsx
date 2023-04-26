@@ -10,6 +10,9 @@ import DividerWidget from "./";
 describe("<DividerWidget />", () => {
   const initialState = {
     ui: {
+      appSettingsPane: {
+        isOpen: false,
+      },
       users: {
         featureFlag: {
           data: {
@@ -36,6 +39,9 @@ describe("<DividerWidget />", () => {
       },
       autoHeightUI: {
         isAutoHeightWithLimitsChanging: false,
+      },
+      mainCanvas: {
+        width: 1159,
       },
       canvasSelection: {
         isDraggingForSelection: false,

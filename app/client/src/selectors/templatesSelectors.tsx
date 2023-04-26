@@ -2,7 +2,7 @@ import type { FilterKeys, Template } from "api/TemplatesApi";
 import Fuse from "fuse.js";
 import type { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
-import { getWorkspaceCreateApplication } from "./applicationSelectors";
+import { getWorkspaceCreateApplication } from "@appsmith/selectors/applicationSelectors";
 import { getWidgetCards } from "./editorSelectors";
 import { getDefaultPlugins } from "./entitiesSelector";
 import type { Filter } from "pages/Templates/Filters";

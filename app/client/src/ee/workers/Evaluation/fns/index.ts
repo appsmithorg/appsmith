@@ -12,11 +12,11 @@ import type {
   TUnlistenWindowMessageType,
   TWindowMessageListenerDescription,
   TWindowMessageListenerType,
-} from "./messageListenerFns";
+} from "./messageListenerFns/index";
 import {
   unlistenWindowMessage,
   windowMessageListener,
-} from "./messageListenerFns";
+} from "./messageListenerFns/index";
 
 type EE_ActionTriggerKeys =
   | TWindowMessageListenerType

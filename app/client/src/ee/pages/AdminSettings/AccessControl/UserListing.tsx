@@ -54,7 +54,7 @@ import { LoaderContainer } from "pages/Settings/components";
 
 export const CellContainer = styled.div`
   display: flex;
-  align-items: baseline;
+  align-items: center;
 
   &.user-email-column > span {
     text-decoration: underline;
@@ -111,10 +111,11 @@ export function UserListing() {
   const dispatch = useDispatch();
 
   const aclUsers = useSelector(getAllAclUsers);
-  const selectedUser = useSelector(getSelectedUser);
+  const selUser = useSelector(getSelectedUser);
   const isLoading = useSelector(getAclIsLoading);
   const inviteViaRoles = useSelector(getRolesForInvite);
   const inviteViaGroups = useSelector(getGroupsForInvite);
+  const [selectedUser, setSelectedUser] = useState<UserProps | null>(null);
 
   const [data, setData] = useState<UserProps[]>([]);
   const [searchValue, setSearchValue] = useState("");
@@ -135,7 +136,12 @@ export function UserListing() {
   }, [aclUsers]);
 
   useEffect(() => {
+    setSelectedUser(selUser);
+  }, [selUser]);
+
+  useEffect(() => {
     if (selectedUserId && selectedUser?.id !== selectedUserId) {
+      setSelectedUser(null);
       dispatch(getUserById({ id: selectedUserId }));
     } else if (!selectedUserId) {
       dispatch({ type: ReduxActionTypes.FETCH_ACL_USERS });
@@ -189,10 +195,11 @@ export function UserListing() {
       Header: `Users (${data.length})`,
       accessor: "username",
       Cell: function UserCell(cellProps: any) {
-        const { photoId, username } = cellProps.cell.row.values;
-        const { id } = cellProps.cell.row.original;
+        const { username } = cellProps.cell.row.values;
+        const { id, photoId } = cellProps.cell.row.original;
         return (
           <Link
+            className="user-email-link"
             data-testid="acl-user-listing-link"
             onClick={() =>
               AnalyticsUtil.logEvent("GAC_USER_CLICK", {

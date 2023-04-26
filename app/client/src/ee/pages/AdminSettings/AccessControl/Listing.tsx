@@ -18,6 +18,7 @@ const ListingWrapper = styled.div`
   table {
     border-collapse: separate;
     table-layout: fixed;
+    height: 100%;
     thead {
       background: var(--appsmith-color-black-0);
       z-index: 1;
@@ -78,6 +79,11 @@ const ListingWrapper = styled.div`
             &.active {
               visibility: visible;
             }
+          }
+
+          .user-email-link {
+            display: block;
+            height: 100%;
           }
         }
 

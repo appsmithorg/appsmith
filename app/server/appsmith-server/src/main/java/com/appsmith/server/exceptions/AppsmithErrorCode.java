@@ -53,6 +53,7 @@ public enum AppsmithErrorCode {
     AUTHENTICATION_FAILURE("AE-APP-5010", "Authentication failure"),
     INSTANCE_REGISTRATION_FAILURE("AE-APP-5011", "Instance registration failure"),
     CLOUD_SERVICES_ERROR("AE-APP-5012", "Cloud services error"),
+    OPEN_AI_ERROR("AE-APP-5013", "Open AI error"),
     SSH_KEY_GENERATION_ERROR("AE-APP-5015", "Ssh key generation error"),
     FILE_PART_DATA_BUFFER_ERROR("AE-APP-5017", "File part data buffer error"),
     MIGRATION_ERROR("AE-APP-5018", "Migration error"),
@@ -117,6 +118,7 @@ public enum AppsmithErrorCode {
     // New EE-only errors below this line:
     SAML_CONFIGURATION_FAILURE("AE-SML-4000", "SAML configuration failed"),
     SAML_ALREADY_CONFIGURED("AE-SML-4009", "SAML already configured"),
+    MIGRATION_FAILED("AE-APP-5043", "Migration failed")
     ;
     private final String code;
     private final String description;

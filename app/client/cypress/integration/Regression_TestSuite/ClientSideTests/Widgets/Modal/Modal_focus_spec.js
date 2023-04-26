@@ -61,7 +61,9 @@ describe("Modal focus", function () {
 
     //close Modal
     cy.get(widgets.modalCloseButton).click({ force: true });
+    cy.get(widgets.modalCloseButton).should("not.be.visible");
 
+    cy.wait(1500);
     //open the modal
     cy.get(widgets.widgetBtn).contains("Submit").click({ force: true });
     //check if the focus is on the input field
@@ -75,8 +77,9 @@ describe("Modal focus", function () {
       .find(".bp3-switch input")
       .click({ force: true });
     //close Modal
-
     cy.get(widgets.modalCloseButton).click({ force: true });
+    cy.get(widgets.modalCloseButton).should("not.be.visible");
+
     //open the modal
     cy.get(widgets.modalWidget).should("not.exist");
     cy.get(widgets.widgetBtn).contains("Submit").click({ force: true });

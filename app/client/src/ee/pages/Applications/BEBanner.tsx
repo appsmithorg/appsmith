@@ -22,11 +22,13 @@ import {
   BannerCtaWrapper,
 } from "./styles";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 export function BEBanner() {
   const { days, suffix } = useSelector(getRemainingDays);
   const dispatch = useDispatch();
   const isAdmin = useSelector(isAdminUser);
+  const isAirgappedInstance = isAirgapped();
 
   const handleClose = () => {
     localStorage.setItem("showLicenseBanner", JSON.stringify(false));
@@ -40,7 +42,7 @@ export function BEBanner() {
           alt={createMessage(NO_ACTIVE_SUBSCRIPTION)}
           className="no-sub-img"
           height="180px"
-          src={`${ASSETS_CDN_URL}/upgrade-box.svg`}
+          src={getAssetUrl(`${ASSETS_CDN_URL}/upgrade-box.svg`)}
           width="180px"
         />
         <BannerTextWrapper>
@@ -60,7 +62,7 @@ export function BEBanner() {
         </BannerTextWrapper>
       </BannerContentWrapper>
       <BannerCtaWrapper>
-        {isAdmin && (
+        {isAdmin && !isAirgappedInstance && (
           <Button
             className="upgrade-button"
             fill

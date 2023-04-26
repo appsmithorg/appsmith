@@ -362,7 +362,7 @@ export class ApiPage {
       .invoke("text")
       .then((text) => {
         apiResp = `${text
-          .match(/"(.*)"/)![0]
+          .match(/"(.*)"/)?.[0]
           .split('"')
           .join("")} `;
         cy.log("Key value in api response is :" + apiResp);

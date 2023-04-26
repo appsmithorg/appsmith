@@ -134,6 +134,7 @@ export type EventName =
   | "DISCORD_LINK_CLICK"
   | "INTERCOM_CLICK"
   | "BINDING_SUCCESS"
+  | "ENTITY_BINDING_SUCCESS"
   | "APP_MENU_OPTION_CLICK"
   | "SLASH_COMMAND"
   | "DEBUGGER_NEW_ERROR"
@@ -288,7 +289,17 @@ export type EventName =
   | "PEEK_OVERLAY_OPENED"
   | "PEEK_OVERLAY_COLLAPSE_EXPAND_CLICK"
   | "PEEK_OVERLAY_VALUE_COPIED"
-  | LIBRARY_EVENTS;
+  | LIBRARY_EVENTS
+  | "APP_SETTINGS_SECTION_CLICK"
+  | APP_NAVIGATION_EVENT_NAMES
+  | ACTION_SELECTOR_EVENT_NAMES
+  | "PRETTIFY_AND_SAVE_KEYBOARD_SHORTCUT"
+  | AI_EVENTS;
+
+export type AI_EVENTS =
+  | "AI_QUERY_SENT"
+  | "AI_RESPONSE_GENERATED"
+  | "AI_RESPONSE_COPIED";
 
 export type LIBRARY_EVENTS =
   | "INSTALL_LIBRARY"
@@ -313,6 +324,18 @@ export type GAC_EVENT_NAMES =
   | "GAC_INVITE_USER_CLICK"
   | "GAC_ADD_USER_CLICK";
 
+export type APP_NAVIGATION_EVENT_NAMES =
+  | "APP_NAVIGATION_SHOW_NAV"
+  | "APP_NAVIGATION_ORIENTATION"
+  | "APP_NAVIGATION_VARIANT"
+  | "APP_NAVIGATION_BACKGROUND_COLOR"
+  | "APP_NAVIGATION_SHOW_SIGN_IN";
+
+export type ACTION_SELECTOR_EVENT_NAMES =
+  | "ACTION_ADDED"
+  | "ACTION_DELETED"
+  | "ACTION_MODIFIED";
+
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
   const applicationsIndex = pathSplit.findIndex(
@@ -331,11 +354,6 @@ class AnalyticsUtil {
 
   static initializeSmartLook(id: string) {
     smartlookClient.init(id);
-  }
-
-  static initializeSegmentWithoutTracking(key: string) {
-    AnalyticsUtil.blockTrackEvent = true;
-    return AnalyticsUtil.initializeSegment(key);
   }
 
   static initializeSegment(key: string) {

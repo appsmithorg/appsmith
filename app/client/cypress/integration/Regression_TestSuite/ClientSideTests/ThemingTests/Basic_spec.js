@@ -6,7 +6,8 @@ const dsl = require("../../../../fixtures/replay.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const ee = ObjectsRegistry.EntityExplorer,
-  appSettings = ObjectsRegistry.AppSettings;
+  appSettings = ObjectsRegistry.AppSettings,
+  agHelper = ObjectsRegistry.AggregateHelper;
 
 const containerShadowElement = `${widgetsPage.containerWidget} [data-testid^="container-wrapper-"]`;
 
@@ -161,7 +162,7 @@ describe("App Theming funtionality", function () {
           cy.get(widgetsPage.widgetBtn).should(
             "have.css",
             "font-family",
-            $childElem.children().last().text(),
+            `${$childElem.children().last().text()}, sans-serif`,
           );
         });
     });
@@ -220,12 +221,12 @@ describe("App Theming funtionality", function () {
           cy.get(widgetsPage.iconWidgetBtn).should(
             "have.css",
             "font-family",
-            $childElem.children().last().text(),
+            `${$childElem.children().last().text()}, sans-serif`,
           );
           cy.get(widgetsPage.widgetBtn).should(
             "have.css",
             "font-family",
-            $childElem.children().last().text(),
+            `${$childElem.children().last().text()}, sans-serif`,
           );
         });
     });
@@ -700,7 +701,7 @@ describe("App Theming funtionality", function () {
 
     //cy.wait(4000); //for theme to settle
 
-    cy.get("body").should("have.css", "font-family", "Montserrat"); //Font
+    cy.get("body").should("have.css", "font-family", "Montserrat, sans-serif"); //Font
 
     cy.xpath("//div[@id='root']//section/parent::div").should(
       "have.css",
@@ -723,26 +724,6 @@ describe("App Theming funtionality", function () {
 
     cy.get(widgetsPage.widgetBtn).should("have.css", "box-shadow", "none"); //Shadow
     cy.get(publish.iconWidgetBtn).should("have.css", "box-shadow", "none"); //Shadow
-
-    //Verify Share button
-    cy.contains("Share").should(
-      "have.css",
-      "border-top-color",
-      "rgb(126, 34, 206)",
-    ); //Color
-    cy.contains("Share")
-      .closest("div")
-      .should("have.css", "font-family", "Montserrat"); //Font
-
-    //Verify Edit App button
-    cy.contains("Edit App").should(
-      "have.css",
-      "background-color",
-      "rgb(126, 34, 206)",
-    ); //Color
-    cy.contains("Edit App")
-      .closest("div")
-      .should("have.css", "font-family", "Montserrat"); //Font
 
     cy.get(publish.backToEditor).click({ force: true }).wait(3000);
   });
@@ -877,6 +858,7 @@ describe("App Theming funtionality", function () {
 
     //Resetting back to theme
     ee.NavigateToSwitcher("explorer");
+    //agHelper.Sleep(2500);
     ee.ExpandCollapseEntity("Widgets"); //to expand widgets
     ee.SelectEntityByName("Button2");
     cy.moveToStyleTab();
@@ -904,7 +886,7 @@ describe("App Theming funtionality", function () {
     cy.PublishtheApp();
 
     cy.wait(4000); //for theme to settle
-    cy.get("body").should("have.css", "font-family", "Montserrat"); //Font
+    cy.get("body").should("have.css", "font-family", "Montserrat, sans-serif"); //Font
 
     cy.xpath("//div[@id='root']//section/parent::div").should(
       "have.css",
@@ -956,26 +938,6 @@ describe("App Theming funtionality", function () {
       "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
     ); //Since Shadow revert option does not exixts
     cy.get(publish.iconWidgetBtn).should("have.css", "box-shadow", "none"); //Shadow
-
-    //Verify Share button
-    cy.contains("Share").should(
-      "have.css",
-      "border-top-color",
-      "rgb(126, 34, 206)",
-    ); //Color
-    cy.contains("Share")
-      .closest("div")
-      .should("have.css", "font-family", "Montserrat"); //Font
-
-    //Verify Edit App button
-    cy.contains("Edit App").should(
-      "have.css",
-      "background-color",
-      "rgb(126, 34, 206)",
-    ); //Color
-    cy.contains("Edit App")
-      .closest("div")
-      .should("have.css", "font-family", "Montserrat"); //Font
 
     cy.get(publish.backToEditor).click({ force: true }).wait(2000);
   });
@@ -1153,7 +1115,7 @@ describe("App Theming funtionality", function () {
     cy.PublishtheApp();
 
     cy.wait(4000); //for theme to settle
-    cy.get("body").should("have.css", "font-family", "Rubik"); //Font for Rounded theme
+    cy.get("body").should("have.css", "font-family", "Rubik, sans-serif"); //Font for Rounded theme
 
     cy.xpath("//div[@id='root']//section/parent::div").should(
       "have.css",
@@ -1206,26 +1168,6 @@ describe("App Theming funtionality", function () {
       "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
     ); //Since Shadow revert option does not exixts
     cy.get(publish.iconWidgetBtn).should("have.css", "box-shadow", "none"); //Shadow
-
-    //Verify Share button
-    cy.contains("Share").should(
-      "have.css",
-      "border-top-color",
-      "rgb(239, 68, 68)",
-    ); //Color
-    cy.contains("Share")
-      .closest("div")
-      .should("have.css", "font-family", "Rubik"); //Font
-
-    //Verify Edit App button
-    cy.contains("Edit App").should(
-      "have.css",
-      "background-color",
-      "rgb(239, 68, 68)",
-    ); //Color
-    cy.contains("Edit App")
-      .closest("div")
-      .should("have.css", "font-family", "Rubik"); //Font
 
     cy.get(publish.backToEditor).click({ force: true }).wait(1000);
   });

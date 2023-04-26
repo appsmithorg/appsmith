@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   importApplication,
   setWorkspaceIdForImport,
-} from "actions/applicationActions";
+} from "@appsmith/actions/applicationActions";
 import {
   createMessage,
   IMPORT_APP_FROM_FILE_MESSAGE,
@@ -30,7 +30,7 @@ import {
 } from "design-system-old";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
-import { getIsImportingApplication } from "selectors/applicationSelectors";
+import { getIsImportingApplication } from "@appsmith/selectors/applicationSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Classes } from "@blueprintjs/core";
 import Statusbar from "pages/Editor/gitSync/components/Statusbar";

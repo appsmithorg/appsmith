@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.configurations.LicenseConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.LicenseStatus;
 import com.appsmith.server.domains.Tenant;
@@ -13,6 +14,8 @@ import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.ce.TenantServiceCEImpl;
 import com.appsmith.server.solutions.LicenseValidator;
 import org.pf4j.util.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
@@ -25,15 +28,18 @@ import java.util.Map;
 
 @Service
 public class TenantServiceImpl extends TenantServiceCEImpl implements TenantService {
+
     private final LicenseValidator licenseValidator;
+
+    @Autowired
     public TenantServiceImpl(Scheduler scheduler,
                              Validator validator,
                              MongoConverter mongoConverter,
                              ReactiveMongoTemplate reactiveMongoTemplate,
                              TenantRepository repository,
                              AnalyticsService analyticsService,
-                             LicenseValidator licenseValidator,
-                             ConfigService configService) {
+                             ConfigService configService,
+                             LicenseValidator licenseValidator){
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, configService);
         this.licenseValidator = licenseValidator;
@@ -102,7 +108,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                     TenantConfiguration.License license1 = tenant.getTenantConfiguration().getLicense();
                     AnalyticsEvents analyticsEvent = isActivateInstance ? AnalyticsEvents.ACTIVATE_NEW_INSTANCE : AnalyticsEvents.UPDATE_EXISTING_LICENSE;
                     Map<String, Object> analyticsProperties = Map.of(
-                            FieldName.LICENSE_KEY, StringUtils.isNullOrEmpty(license1.getKey()) ? "" : DataTypeStringUtils.maskString(license1.getKey()),
+                            FieldName.LICENSE_KEY, StringUtils.isNullOrEmpty(license1.getKey()) ? "" : DataTypeStringUtils.maskString(license1.getKey(), 8, 32, 'x'),
                             FieldName.LICENSE_VALID, license1.getStatus() != null  && LicenseStatus.ACTIVE.equals(license1.getStatus()),
                             FieldName.LICENSE_TYPE, license1.getType() == null ? "" : license1.getType(),
                             FieldName.LICENSE_STATUS, license1.getStatus() == null ? "" : license1.getStatus()

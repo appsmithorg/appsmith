@@ -14,6 +14,7 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.GitAuth;
@@ -2263,6 +2264,7 @@ public class GitServiceTest {
 
                     Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();
                     appNavigationSetting.setOrientation("top");
+                    branchedApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
                     branchedApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
                     return Mono.just(branchedApplication);
                 })
@@ -2282,7 +2284,7 @@ public class GitServiceTest {
                     Application branchedApp = tuple.getT1();
                     Application srcApp = tuple.getT2();
                     assertThat(branchedApp.getUnpublishedApplicationDetail().getNavigationSetting().getOrientation()).isEqualTo("top");
-                    assertThat(srcApp.getUnpublishedApplicationDetail().getNavigationSetting()).isNull();
+                    assertThat(srcApp.getUnpublishedApplicationDetail()).isNull();
                 })
                 .verifyComplete();
     }
@@ -2342,7 +2344,7 @@ public class GitServiceTest {
                     Application srcApp = tuple.getT2();
                     assertThat(branchedApp.getUnpublishedApplicationDetail().getNavigationSetting()).isNotNull();
                     assertThat(branchedApp.getUnpublishedApplicationDetail().getNavigationSetting().getLogoAssetId()).isNotNull();
-                    assertThat(srcApp.getUnpublishedApplicationDetail().getNavigationSetting()).isNull();
+                    assertThat(srcApp.getUnpublishedApplicationDetail()).isNull();
                 })
                 .verifyComplete();
     }

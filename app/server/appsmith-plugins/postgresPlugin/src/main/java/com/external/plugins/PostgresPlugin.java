@@ -601,10 +601,6 @@ public class PostgresPlugin extends BasePlugin {
                     invalids.add(PostgresErrorMessages.DS_MISSING_USERNAME_ERROR_MSG);
                 }
 
-                if (StringUtils.isEmpty(authentication.getPassword())) {
-                    invalids.add(PostgresErrorMessages.DS_MISSING_PASSWORD_ERROR_MSG);
-                }
-
                 if (StringUtils.isEmpty(authentication.getDatabaseName())) {
                     invalids.add(PostgresErrorMessages.DS_MISSING_DATABASE_NAME_ERROR_MSG);
                 }
@@ -1028,6 +1024,8 @@ public class PostgresPlugin extends BasePlugin {
          * Ref: https://jdbc.postgresql.org/documentation/83/connect.html
          */
         urlBuilder.append("?stringtype=unspecified");
+
+        urlBuilder.append("&ApplicationName=Appsmith%20JDBC%20Driver");
 
         /*
          * - Ideally, it is never expected to be null because the SSL dropdown is set to

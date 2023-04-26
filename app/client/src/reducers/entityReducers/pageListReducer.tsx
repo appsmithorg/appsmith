@@ -129,7 +129,7 @@ export const pageListReducer = createReducer(initialState, {
     action: ReduxAction<{ id: string; slug?: string; permissions?: string[] }>,
   ) => {
     const pageList = state.pages.map((page) => {
-      if (page.pageId === action.payload.id)
+      if (page.pageId === action.payload.id && action.payload.permissions)
         page.userPermissions = action.payload.permissions;
       return page;
     });
@@ -254,8 +254,8 @@ export interface AppLayoutConfig {
 }
 
 export enum AppPositioningTypes {
-  "FIXED",
-  "AUTO",
+  FIXED = "FIXED",
+  AUTO = "AUTO",
 }
 export interface AppPositioningTypeConfig {
   type: AppPositioningTypes;

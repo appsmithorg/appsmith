@@ -205,6 +205,7 @@ describe("1. Correctly handle paths", () => {
             ["1", "2"],
           ],
         },
+        stringProperty: new String("Hello"),
       },
     };
     const result = {
@@ -221,6 +222,7 @@ describe("1. Correctly handle paths", () => {
       "WidgetName.objectProperty.childObjectProperty[3]": true,
       "WidgetName.objectProperty.childObjectProperty[3][0]": true,
       "WidgetName.objectProperty.childObjectProperty[3][1]": true,
+      "WidgetName.stringProperty": true,
     };
 
     const actual = getAllPaths(myTree);

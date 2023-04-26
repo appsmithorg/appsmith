@@ -399,11 +399,11 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   }
 
   function generateStoresSecretInfo(rowIndex: number) {
-    let secretInfo: string = "";
+    let secretInfo = "";
     table
       .ReadTableRowColumnData(rowIndex, 3, "v1", 200)
       .then(($cellData: any) => {
-        var points = $cellData.match(/((.*))/).pop(); //(/(?<=\()).+?(?=\))/g)
+        let points = $cellData.match(/((.*))/).pop(); //(/(?<=\()).+?(?=\))/g)
         let secretCode: string[] = (points as string).split(",");
         secretCode[0] = secretCode[0].slice(0, 5);
         secretCode[1] = secretCode[1].slice(0, 5);

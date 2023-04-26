@@ -46,7 +46,7 @@ export default function TabItem(props: {
 }) {
   const { selected, tab, vertical } = props;
   return (
-    <Wrapper key={tab.title} selected={selected} vertical={vertical}>
+    <Wrapper key={tab.key} selected={selected} vertical={vertical}>
       {tab.title}
     </Wrapper>
   );

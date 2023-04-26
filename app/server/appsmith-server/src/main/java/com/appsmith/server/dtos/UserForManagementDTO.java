@@ -22,6 +22,8 @@ public class UserForManagementDTO {
 
     List<PermissionGroupInfoDTO> roles = new ArrayList<>();
 
+    String photoId;
+
     public UserForManagementDTO(String id, String username, List<UserGroupCompactDTO> groups, List<PermissionGroupInfoDTO> roles) {
         this.id = id;
         this.username = username;

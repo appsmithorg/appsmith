@@ -10,7 +10,6 @@ describe("License expired", function () {
     });
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.wait(2000);
     cy.url().should("contain", "/license");
     cy.get(LicenseLocators.noSubscriptionText).should(
@@ -57,7 +56,6 @@ describe("License expired", function () {
       active: false,
     });
     cy.LoginFromAPI(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
-    cy.visit("/applications");
     cy.wait(2000);
     cy.url().should("contain", "/license");
     cy.get(".t--error-page-description").should(

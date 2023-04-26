@@ -1,5 +1,8 @@
 package com.appsmith.server.solutions.roles;
 
+import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -7,6 +10,8 @@ import com.appsmith.server.domains.GacEntityMetadata;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.QActionCollection;
+import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.Theme;
@@ -16,8 +21,10 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PermissionGroupUtils;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.GenericDatabaseOperation;
 import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
@@ -83,6 +90,8 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
     private final NewActionRepository newActionRepository;
     private final ActionCollectionRepository actionCollectionRepository;
     private final AnalyticsService analyticsService;
+    private final NewPageRepository newPageRepository;
+    private final DatasourceRepository datasourceRepository;
 
     public RoleConfigurationSolutionImpl(WorkspaceResources workspaceResources,
                                          TenantResources tenantResources,
@@ -94,7 +103,9 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                                          ThemeRepository themeRepository,
                                          NewActionRepository newActionRepository,
                                          ActionCollectionRepository actionCollectionRepository,
-                                         AnalyticsService analyticsService) {
+                                         AnalyticsService analyticsService,
+                                         NewPageRepository newPageRepository,
+                                         DatasourceRepository datasourceRepository) {
 
         this.workspaceResources = workspaceResources;
         this.tenantResources = tenantResources;
@@ -107,6 +118,8 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         this.newActionRepository = newActionRepository;
         this.actionCollectionRepository = actionCollectionRepository;
         this.analyticsService = analyticsService;
+        this.newPageRepository = newPageRepository;
+        this.datasourceRepository = datasourceRepository;
     }
 
     @Override
@@ -156,7 +169,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         List<PermissionViewableName> viewablePermissions = tab.getViewablePermissions();
         List<Tuple3<String, Class<?>, List<AclPermission>>> duplicateEntities = tab.getDuplicateEntities();
         List<Mono<Long>> sideEffects = new ArrayList<>();
-        List<Mono<Boolean>> postAllUpdatesSideEffects = new ArrayList<>();
+
 
         Set<UpdateRoleEntityDTO> entitiesChanged = updateRoleConfigDTO.getEntitiesChanged();
 
@@ -172,82 +185,11 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
 
         Mono<Map<Class, Set<String>>> preComputeMono = Flux.fromIterable(entitiesChanged)
                 .map(entity -> {
-                    String id = entity.getId();
-                    String type = entity.getType();
-                    String name = entity.getName();
-                    List<AclPermission> permissionsOfInterestIfDuplicate = new ArrayList<>();
-
-                    Class<?> aClass = null;
-
-                    try {
-                        aClass = getClass(type);
-                    } catch (ClassNotFoundException e) {
-                        log.debug("DEBUG : Class not found for entity : {}", entity);
-                        // This must be a custom header (aka same entity type but different name)
-                        Optional<Tuple3<String, Class<?>, List<AclPermission>>> duplicateEntityClassOptional = duplicateEntities.stream()
-                                .filter(entityTuple -> entityTuple.getT1().equals(name))
-                                .findFirst();
-
-                        if (duplicateEntityClassOptional.isPresent()) {
-                            Tuple3<String, Class<?>, List<AclPermission>> entityTuple = duplicateEntityClassOptional.get();
-                            aClass = (Class<?>) entityTuple.getT2();
-                            permissionsOfInterestIfDuplicate = entityTuple.getT3();
-                        }
-                    }
-
-                    // If we haven't been able to figure out the class so far, throw an error and return
-                    if (aClass == null) {
-                        return Flux.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
-                    }
-
-                    if (!CollectionUtils.isEmpty(duplicateEntities)) {
-                        for (Tuple3<String, Class<?>, List<AclPermission>> duplicateEntity : duplicateEntities) {
-                            String entityName = duplicateEntity.getT1();
-                            Class<?> entityClass = duplicateEntity.getT2();
-                            if (entityName.equals(name) && entityClass.equals(aClass)) {
-                                permissionsOfInterestIfDuplicate = duplicateEntity.getT3();
-                            }
-                        }
-                    }
-
-                    List<Integer> permissions = entity.getPermissions();
                     List<AclPermission> added = new ArrayList<>();
                     List<AclPermission> removed = new ArrayList<>();
-                    ListIterator<Integer> permissionsIterator = permissions.listIterator();
-                    while (permissionsIterator.hasNext()) {
-                        int index = permissionsIterator.nextIndex();
-                        Integer permission = permissionsIterator.next();
-                        // If the permission is not applicable, move on
-                        if (permission == -1) {
-                            continue;
-                        }
-                        PermissionViewableName permissionViewableName = viewablePermissions.get(index);
-
-                        // Get the acl permissions for the tab which are of interest.
-                        List<AclPermission> aclPermissionsFromViewableName = getAclPermissionsFromViewableName(permissionViewableName, aClass)
-                                .stream()
-                                .filter(tab.getPermissions()::contains)
-                                .collect(Collectors.toList());
-
-                        if (aclPermissionsFromViewableName.size() != 1) {
-                            // This can happen if we have a duplicate entity class representing multiple permissions with the
-                            // same viewable name
-                            aclPermissionsFromViewableName = aclPermissionsFromViewableName.stream()
-                                    .filter(permissionsOfInterestIfDuplicate::contains)
-                                    .collect(Collectors.toList());
-
-                            if (aclPermissionsFromViewableName.size() != 1) {
-                                // This is unexpected state where the translated permission is unclear
-                                return Flux.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
-                            }
-                        }
-                        AclPermission aclPermission = aclPermissionsFromViewableName.get(0);
-                        if (permission == 1) {
-                            added.add(aclPermission);
-                        } else {
-                            removed.add(aclPermission);
-                        }
-                    }
+                    String id = entity.getId();
+                    List<Integer> permissions = entity.getPermissions();
+                    Class<?> aClass = generateClassAndPopulateAddedAndRemovedPermissions(entity, tab, added, removed);
 
                     // Compute the side effects for this entity and add to the list.
                     computeSideEffectOfPermissionChange(sideEffects, tab, aClass, id, permissions,
@@ -270,7 +212,124 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                 .flatMapMany(entityObjectListMap -> Flux.fromIterable(entityObjectListMap.entrySet()))
                 .flatMap(entry -> validatePermissionsChanged(entry.getKey(), entry.getValue(), entityPermissionsAddedMap, entityPermissionsRemovedMap))
                 .collectList();
+        Flux<Boolean> updateEntityPoliciesAndSideEffectsFlux = updateEntityPoliciesAndSideEffects(permissionGroupId, validatedEntities, sideEffects,
+                entityPermissionsAddedMap, entityPermissionsRemovedMap, entityClassMap, sideEffectsPermissionsAddedMap,
+                sideEffectsPermissionsRemovedMap, sideEffectsClassMap, applicationsRevokedInApplicationResourcesTab);
 
+        Map<String, Object> roleUpdateProperties = getRoleUpdateMetadata(updateRoleConfigDTO);
+        Map<String, Object> analyticsProperties = Map.of(GAC_TAB, updateRoleConfigDTO.getTabName(), EVENT_DATA, roleUpdateProperties);
+        Mono<PermissionGroup> sendPermissionGroupUpdatedEventMono = permissionGroupMono
+                .flatMap(permissionGroup -> analyticsService.sendUpdateEvent(permissionGroup, analyticsProperties));
+
+        return permissionGroupMono
+                .thenMany(updateEntityPoliciesAndSideEffectsFlux)
+                .then(getAllTabViews(permissionGroupId))
+                .zipWith(sendPermissionGroupUpdatedEventMono)
+                // Add the user permissions and other transient fields to the response before returning
+                .map(tuple -> {
+                    RoleViewDTO roleViewDTO = tuple.getT1();
+                    PermissionGroup permissionGroup = tuple.getT2();
+
+                    roleViewDTO.setId(permissionGroup.getId());
+                    roleViewDTO.setName(permissionGroup.getName());
+                    roleViewDTO.setDescription(permissionGroup.getDescription());
+                    roleViewDTO.setUserPermissions(permissionGroup.getUserPermissions());
+                    return roleViewDTO;
+                });
+    }
+
+    private Class<?> generateClassAndPopulateAddedAndRemovedPermissions(UpdateRoleEntityDTO entity,
+                                                                        RoleTab tab,
+                                                                        List<AclPermission> added,
+                                                                        List<AclPermission> removed) {
+        String type = entity.getType();
+        String name = entity.getName();
+        List<AclPermission> permissionsOfInterestIfDuplicate = new ArrayList<>();
+        List<Tuple3<String, Class<?>, List<AclPermission>>> duplicateEntities = tab.getDuplicateEntities();
+        List<PermissionViewableName> viewablePermissions = tab.getViewablePermissions();
+
+        Class<?> aClass = null;
+
+        try {
+            aClass = getClass(type);
+        } catch (ClassNotFoundException e) {
+            log.debug("DEBUG : Class not found for entity : {}", entity);
+            // This must be a custom header (aka same entity type but different name)
+            Optional<Tuple3<String, Class<?>, List<AclPermission>>> duplicateEntityClassOptional = duplicateEntities.stream()
+                    .filter(entityTuple -> entityTuple.getT1().equals(name))
+                    .findFirst();
+
+            if (duplicateEntityClassOptional.isPresent()) {
+                Tuple3<String, Class<?>, List<AclPermission>> entityTuple = duplicateEntityClassOptional.get();
+                aClass = (Class<?>) entityTuple.getT2();
+                permissionsOfInterestIfDuplicate = entityTuple.getT3();
+            }
+        }
+
+        // If we haven't been able to figure out the class so far, throw an error and return
+        if (aClass == null) {
+            throw new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR);
+        }
+
+        if (!CollectionUtils.isEmpty(duplicateEntities)) {
+            for (Tuple3<String, Class<?>, List<AclPermission>> duplicateEntity : duplicateEntities) {
+                String entityName = duplicateEntity.getT1();
+                Class<?> entityClass = duplicateEntity.getT2();
+                if (entityName.equals(name) && entityClass.equals(aClass)) {
+                    permissionsOfInterestIfDuplicate = duplicateEntity.getT3();
+                }
+            }
+        }
+
+        List<Integer> permissions = entity.getPermissions();
+        ListIterator<Integer> permissionsIterator = permissions.listIterator();
+        while (permissionsIterator.hasNext()) {
+            int index = permissionsIterator.nextIndex();
+            Integer permission = permissionsIterator.next();
+            // If the permission is not applicable, move on
+            if (permission == -1) {
+                continue;
+            }
+            PermissionViewableName permissionViewableName = viewablePermissions.get(index);
+
+            // Get the acl permissions for the tab which are of interest.
+            List<AclPermission> aclPermissionsFromViewableName = getAclPermissionsFromViewableName(permissionViewableName, aClass)
+                    .stream()
+                    .filter(tab.getPermissions()::contains)
+                    .collect(Collectors.toList());
+
+            if (aclPermissionsFromViewableName.size() != 1) {
+                // This can happen if we have a duplicate entity class representing multiple permissions with the
+                // same viewable name
+                aclPermissionsFromViewableName = aclPermissionsFromViewableName.stream()
+                        .filter(permissionsOfInterestIfDuplicate::contains)
+                        .collect(Collectors.toList());
+
+                if (aclPermissionsFromViewableName.size() != 1) {
+                    // This is unexpected state where the translated permission is unclear
+                    throw new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR);
+                }
+            }
+            AclPermission aclPermission = aclPermissionsFromViewableName.get(0);
+            if (permission == 1) {
+                added.add(aclPermission);
+            } else {
+                removed.add(aclPermission);
+            }
+        }
+        return aClass;
+    }
+
+    private Flux<Boolean> updateEntityPoliciesAndSideEffects(String permissionGroupId,
+                                                             Mono<List<Boolean>> validatedEntities,
+                                                             List<Mono<Long>> sideEffects,
+                                                             ConcurrentHashMap<String, List<AclPermission>> entityPermissionsAddedMap,
+                                                             ConcurrentHashMap<String, List<AclPermission>> entityPermissionsRemovedMap,
+                                                             ConcurrentHashMap<String, Class> entityClassMap,
+                                                             ConcurrentHashMap<String, List<AclPermission>> sideEffectsPermissionsAddedMap,
+                                                             ConcurrentHashMap<String, List<AclPermission>> sideEffectsPermissionsRemovedMap,
+                                                             ConcurrentHashMap<String, Class> sideEffectsClassMap,
+                                                             List<String> applicationsRevokedInApplicationResourcesTab) {
         /*
          * Before updating any of the entities, we are validating if the Entities have Correct Permissions changed or not.
          * If not, then we are fast failing, so that there is no partial update on any of the Entity.
@@ -299,6 +358,7 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                 }).flatMap(obj -> obj).reduce(0L, Long::sum);
 
 
+        List<Mono<Boolean>> postAllUpdatesSideEffects = new ArrayList<>();
         Flux<Mono<Boolean>> postAllUpdatesEffectsFlux = Flux.defer(() -> {
             if (!CollectionUtils.isEmpty(applicationsRevokedInApplicationResourcesTab)) {
                 // Permissions may have changed for applications. We want to remove read workspace permission from any workspace
@@ -314,30 +374,11 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
             return Flux.fromIterable(postAllUpdatesSideEffects);
         });
 
-        Map<String, Object> roleUpdateProperties = getRoleUpdateMetadata(updateRoleConfigDTO);
-        Map<String, Object> analyticsProperties = Map.of(GAC_TAB, updateRoleConfigDTO.getTabName(), EVENT_DATA, roleUpdateProperties);
-        Mono<PermissionGroup> sendPermissionGroupUpdatedEventMono = permissionGroupMono
-                .flatMap(permissionGroup -> analyticsService.sendUpdateEvent(permissionGroup, analyticsProperties));
-
-        return permissionGroupMono
-                .thenMany(updateEntityPoliciesFlux)
+        return  updateEntityPoliciesFlux
                 .then(computeSideEffects)
                 // Post all the entity updates and side effects, now do a cleanup for affected entities at the end
                 .thenMany(postAllUpdatesEffectsFlux)
-                .flatMap(obj -> obj)
-                .then(getAllTabViews(permissionGroupId))
-                .zipWith(sendPermissionGroupUpdatedEventMono)
-                // Add the user permissions and other transient fields to the response before returning
-                .map(tuple -> {
-                    RoleViewDTO roleViewDTO = tuple.getT1();
-                    PermissionGroup permissionGroup = tuple.getT2();
-
-                    roleViewDTO.setId(permissionGroup.getId());
-                    roleViewDTO.setName(permissionGroup.getName());
-                    roleViewDTO.setDescription(permissionGroup.getDescription());
-                    roleViewDTO.setUserPermissions(permissionGroup.getUserPermissions());
-                    return roleViewDTO;
-                });
+                .flatMap(obj -> obj);
     }
 
     private Mono<Long> addReadPermissionToWorkspaceGivenApplication(String applicationId,
@@ -771,4 +812,159 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
         return permissionGroupRepository.findAllByIdsWithoutPermission(ids, includeFields);
     }
 
+    public Mono<Long> updateApplicationAndRelatedResourcesWithPermissionsForRole(String applicationId,
+                                                                                 String roleId,
+                                                                                 Map<String, List<AclPermission>> toBeAddedPermissions,
+                                                                                 Map<String, List<AclPermission>> toBeRemovedPermissions) {
+        List<String> includeFieldsForPage = List.of(fieldName(QNewPage.newPage.id));
+        List<String> includeFieldsForAction = List.of(fieldName(QNewAction.newAction.id),
+                fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.datasource) + "." + fieldName(QNewAction.newAction.unpublishedAction.datasource.id),
+                fieldName(QNewAction.newAction.publishedAction) + "." + fieldName(QNewAction.newAction.publishedAction.datasource) + "." + fieldName(QNewAction.newAction.publishedAction.datasource.id));
+        List<String> includeFieldsForActionCollection = List.of(fieldName(QActionCollection.actionCollection.id));
+
+        Mono<List<NewPage>> allPagesInApplicationMono = newPageRepository
+                .findAllByApplicationIdsWithoutPermission(List.of(applicationId), includeFieldsForPage).collectList();
+        Mono<List<NewAction>> allActionsInApplicationMono = newActionRepository
+                .findAllByApplicationIdsWithoutPermission(List.of(applicationId), includeFieldsForAction).collectList()
+                .cache();
+        Mono<List<ActionCollection>> allActionCollectionInApplicationMono = actionCollectionRepository
+                .findAllByApplicationIds(List.of(applicationId), includeFieldsForActionCollection).collectList();
+
+        return Mono.zip(allPagesInApplicationMono, allActionsInApplicationMono, allActionCollectionInApplicationMono)
+                .flatMap(tuple -> {
+                    List<NewPage> newPages = tuple.getT1();
+                    List<NewAction> newActions = tuple.getT2();
+                    List<ActionCollection> actionCollections = tuple.getT3();
+                    Set<String> datasourceIds = getAllDatasourceIdsFromActions(newActions);
+
+                    Map<String, Class> entityIdEntityClassMap = new HashMap<>();
+                    Map<String, List<AclPermission>> toBeAddedPermissionsForEntities = new HashMap<>();
+                    Map<String, List<AclPermission>> toBeRemovedPermissionsForEntities = new HashMap<>();
+
+                    entityIdEntityClassMap.put(applicationId, Application.class);
+                    toBeAddedPermissionsForEntities.put(applicationId, toBeAddedPermissions.getOrDefault(Application.class.getSimpleName(), List.of()));
+                    toBeRemovedPermissionsForEntities.put(applicationId, toBeRemovedPermissions.getOrDefault(Application.class.getSimpleName(), List.of()));
+
+                    datasourceIds.forEach(datasourceId -> {
+                        entityIdEntityClassMap.put(datasourceId, Datasource.class);
+                        toBeAddedPermissionsForEntities.put(datasourceId, toBeAddedPermissions.getOrDefault(Datasource.class.getSimpleName(), List.of()));
+                        toBeRemovedPermissionsForEntities.put(datasourceId, toBeRemovedPermissions.getOrDefault(Datasource.class.getSimpleName(), List.of()));
+                    });
+
+                    newPages.forEach(page -> {
+                        entityIdEntityClassMap.put(page.getId(), NewPage.class);
+                        toBeAddedPermissionsForEntities.put(page.getId(), toBeAddedPermissions.getOrDefault(NewPage.class.getSimpleName(), List.of()));
+                        toBeRemovedPermissionsForEntities.put(page.getId(), toBeRemovedPermissions.getOrDefault(NewPage.class.getSimpleName(), List.of()));
+                    });
+
+                    newActions.forEach(newAction -> {
+                        entityIdEntityClassMap.put(newAction.getId(), NewAction.class);
+                        toBeAddedPermissionsForEntities.put(newAction.getId(), toBeAddedPermissions.getOrDefault(NewAction.class.getSimpleName(), List.of()));
+                        toBeRemovedPermissionsForEntities.put(newAction.getId(), toBeRemovedPermissions.getOrDefault(NewPage.class.getSimpleName(), List.of()));
+                    });
+
+                    actionCollections.forEach(actionCollection -> {
+                        entityIdEntityClassMap.put(actionCollection.getId(), ActionCollection.class);
+                        toBeAddedPermissionsForEntities.put(actionCollection.getId(), toBeAddedPermissions.getOrDefault(ActionCollection.class.getSimpleName(), List.of()));
+                        toBeRemovedPermissionsForEntities.put(actionCollection.getId(), toBeRemovedPermissions.getOrDefault(ActionCollection.class.getSimpleName(), List.of()));
+                    });
+
+                    return bulkUpdateEntityPoliciesForApplicationRole(entityIdEntityClassMap, roleId,
+                            toBeAddedPermissionsForEntities, toBeRemovedPermissionsForEntities);
+                });
+    }
+
+    private Set<String> getAllDatasourceIdsFromActions(List<NewAction> actions) {
+        Set<String> datasourceIds = new HashSet<>();
+        actions.forEach(action -> {
+            ActionDTO unpublishedAction = action.getUnpublishedAction();
+            ActionDTO publishedAction = action.getPublishedAction();
+
+            if (unpublishedAction.getDatasource() != null &&
+                    unpublishedAction.getDatasource().getId() != null) {
+                datasourceIds.add(unpublishedAction.getDatasource().getId());
+            }
+
+            if (publishedAction != null &&
+                    publishedAction.getDatasource() != null &&
+                    publishedAction.getDatasource().getId() != null) {
+                datasourceIds.add(publishedAction.getDatasource().getId());
+            }
+        });
+        return datasourceIds;
+    }
+
+    private Mono<Long> bulkUpdateEntityPoliciesForApplicationRole(Map<String, Class> entityIdEntityClassMap,
+                                                                  String roleId,
+                                                                  Map<String, List<AclPermission>> toBeAddedPermissionsMap,
+                                                                  Map<String, List<AclPermission>> toBeRemovedPermissionsMap) {
+        List<Mono<Long>> sideEffects = new ArrayList<>();
+        ConcurrentHashMap<String, List<AclPermission>> entityPermissionsAddedMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, List<AclPermission>> entityPermissionsRemovedMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, Class> entityClassMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, List<AclPermission>> sideEffectsPermissionsAddedMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, List<AclPermission>> sideEffectsPermissionsRemovedMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, Class> sideEffectsClassMap = new ConcurrentHashMap<>();
+        List<String> applicationsRevokedInApplicationResourcesTab = new ArrayList<>();
+
+        Mono<List<Boolean>> collectEntitiesAndSideEffectEntities = Flux.fromIterable(entityIdEntityClassMap.entrySet())
+                .map(entry -> {
+                    String entityId = entry.getKey();
+                    Class<?> clazz = entry.getValue();
+                    List<AclPermission> toBeAddedPermissions = toBeAddedPermissionsMap.getOrDefault(entityId, List.of());
+                    List<AclPermission> toBeRemovedPermissions = toBeRemovedPermissionsMap.getOrDefault(entityId, List.of());
+
+                    entityPermissionsAddedMap.merge(entityId, toBeAddedPermissions, ListUtils::union);
+                    entityPermissionsRemovedMap.merge(entityId, toBeRemovedPermissions, ListUtils::union);
+                    entityClassMap.put(entityId, clazz);
+
+                    if (clazz.equals(NewPage.class)) {
+                        sideEffectOnActionsGivenPageUpdate(sideEffects, entityId, toBeAddedPermissions,
+                                toBeRemovedPermissions, sideEffectsPermissionsAddedMap,
+                                sideEffectsPermissionsRemovedMap, sideEffectsClassMap);
+                    }
+                    if (clazz.equals(Application.class)) {
+                        sideEffectOnCustomThemeGivenApplicationUpdate(sideEffects, entityId, toBeAddedPermissions,
+                                toBeRemovedPermissions, sideEffectsPermissionsAddedMap,
+                                sideEffectsPermissionsRemovedMap, sideEffectsClassMap);
+                        sideEffects.add(addReadPermissionToWorkspaceGivenApplication(entityId, sideEffectsPermissionsAddedMap, sideEffectsClassMap));
+                    }
+                    return Mono.just(Boolean.TRUE);
+                })
+                .map(value -> true)
+                .collectList();
+
+        Flux<Boolean> updateEntityPoliciesAndSideEffectsFlux = updateEntityPoliciesAndSideEffects(roleId, collectEntitiesAndSideEffectEntities, sideEffects,
+                entityPermissionsAddedMap, entityPermissionsRemovedMap, entityClassMap, sideEffectsPermissionsAddedMap,
+                sideEffectsPermissionsRemovedMap, sideEffectsClassMap, applicationsRevokedInApplicationResourcesTab);
+
+        return updateEntityPoliciesAndSideEffectsFlux
+                .then(Mono.just(1L));
+    }
+
+    @Override
+    public Mono<Long> updateWorkspaceAndDatasourcesInWorkspaceWithPermissionsForRole(String workspaceId,
+                                                                                     String roleId,
+                                                                                     Map<String, List<AclPermission>> toBeAddedPermissions,
+                                                                                     Map<String, List<AclPermission>> toBeRemovedPermissions) {
+        List<String> includeFields = List.of(fieldName(QDatasource.datasource.id));
+        Mono<List<Datasource>> allDatasourcesInWorkspaceMono = datasourceRepository.findAllByWorkspaceIdsWithoutPermission(Set.of(workspaceId), includeFields)
+                .collectList();
+        return allDatasourcesInWorkspaceMono
+                .flatMap(datasources -> {
+                    Map<String, Class> entityIdEntityClassMap = new HashMap<>();
+                    Map<String, List<AclPermission>> toBeAddedPermissionsForEntities = new HashMap<>();
+                    Map<String, List<AclPermission>> toBeRemovedPermissionsForEntities = new HashMap<>();
+                    entityIdEntityClassMap.put(workspaceId, Workspace.class);
+                    toBeAddedPermissionsForEntities.put(workspaceId, toBeAddedPermissions.getOrDefault(Workspace.class.getSimpleName(), List.of()));
+                    toBeRemovedPermissionsForEntities.put(workspaceId, toBeRemovedPermissions.getOrDefault(Workspace.class.getSimpleName(), List.of()));
+                    datasources.forEach(datasource -> {
+                        entityIdEntityClassMap.put(datasource.getId(), Datasource.class);
+                        toBeAddedPermissionsForEntities.put(datasource.getId(), toBeAddedPermissions.getOrDefault(Datasource.class.getSimpleName(), List.of()));
+                        toBeRemovedPermissionsForEntities.put(datasource.getId(), toBeRemovedPermissions.getOrDefault(Datasource.class.getSimpleName(), List.of()));
+                    });
+                    return bulkUpdateEntityPoliciesForApplicationRole(entityIdEntityClassMap, roleId,
+                            toBeAddedPermissionsForEntities, toBeRemovedPermissionsForEntities);
+                });
+    }
 }

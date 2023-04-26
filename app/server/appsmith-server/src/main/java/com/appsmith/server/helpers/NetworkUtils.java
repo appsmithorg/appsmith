@@ -1,17 +1,25 @@
 package com.appsmith.server.helpers;
 
+import com.appsmith.server.configurations.AirgapInstanceConfig;
 import com.appsmith.util.WebClientUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
 
+@Component
 public class NetworkUtils {
 
     private static final URI GET_IP_URI = URI.create("https://api64.ipify.org");
 
     private static String cachedAddress = null;
 
-    private NetworkUtils() {
+    @Autowired
+    public NetworkUtils(@Autowired AirgapInstanceConfig airgapInstanceConfig) {
+        if (airgapInstanceConfig.isAirgapEnabled()) {
+            cachedAddress = "unknown";
+        }
     }
 
     /**

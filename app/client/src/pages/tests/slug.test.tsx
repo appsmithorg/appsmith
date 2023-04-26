@@ -1,5 +1,5 @@
 import React from "react";
-import { ApplicationVersion } from "actions/applicationActions";
+import { ApplicationVersion } from "@appsmith/actions/applicationActions";
 import { builderURL } from "RouteBuilder";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { selectURLSlugs } from "selectors/editorSelectors";

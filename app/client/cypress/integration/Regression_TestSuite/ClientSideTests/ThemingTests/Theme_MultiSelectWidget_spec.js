@@ -1,11 +1,8 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 const themelocator = require("../../../../locators/ThemeLocators.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let themeBackgroudColor;
 let themeFont;
-let themeColour;
 let propPane = ObjectsRegistry.PropertyPane,
   ee = ObjectsRegistry.EntityExplorer,
   appSettings = ObjectsRegistry.AppSettings;
@@ -70,7 +67,7 @@ describe("Theme validation usecase for multi-select widget", function () {
           cy.get(".t--draggable-multiselectwidgetv2:contains('more')").should(
             "have.css",
             "font-family",
-            $childElem.children().last().text(),
+            `${$childElem.children().last().text()}, sans-serif`,
           );
           themeFont = $childElem.children().last().text();
         });
@@ -99,16 +96,6 @@ describe("Theme validation usecase for multi-select widget", function () {
     cy.get(".rc-select-selection-item > .rc-select-selection-item-content")
       .last()
       .should("have.css", "font-family", themeFont);
-    cy.get(".bp3-button:contains('Edit App')").should(
-      "have.css",
-      "font-family",
-      themeFont,
-    );
-    cy.get(".bp3-button:contains('Share')").should(
-      "have.css",
-      "font-family",
-      themeFont,
-    );
     cy.goToEditFromPublish();
   });
 
@@ -122,38 +109,18 @@ describe("Theme validation usecase for multi-select widget", function () {
     cy.get(".t--theme-card main > main")
       .first()
       .invoke("css", "background-color")
-      .then((CurrentBackgroudColor) => {
+      .then(() => {
         cy.get(".t--draggable-multiselectwidgetv2:contains('more')")
           .last()
           .invoke("css", "background-color")
           .then((selectedBackgroudColor) => {
             expect("rgba(0, 0, 0, 0)").to.equal(selectedBackgroudColor);
-            themeBackgroudColor = CurrentBackgroudColor;
-            themeColour = selectedBackgroudColor;
             appSettings.ClosePane();
           });
       });
-  });
 
-  it("4. Publish the App and validate change of Theme across the app in publish mode", function () {
+    //Publish the App and validate change of Theme across the app in publish mode
     cy.PublishtheApp();
-    cy.get(".rc-select-selection-item > .rc-select-selection-item-content")
-      .first()
-      .invoke("css", "background-color")
-      .then((CurrentBackgroudColor) => {
-        cy.get(".bp3-button:contains('Edit App')")
-          .invoke("css", "background-color")
-          .then((selectedBackgroudColor) => {
-            expect(CurrentBackgroudColor).to.equal(themeColour);
-            expect(selectedBackgroudColor).to.equal(themeBackgroudColor);
-          });
-      });
-    cy.get(".bp3-button:contains('Edit App')")
-      .last()
-      .invoke("css", "background-color")
-      .then((CurrentBackgroudColor) => {
-        expect(CurrentBackgroudColor).to.equal(themeBackgroudColor);
-      });
     cy.xpath("//div[@id='root']//section/parent::div").should(
       "have.css",
       "background-color",

@@ -85,6 +85,7 @@ export function GroupListing() {
 
   useEffect(() => {
     if (selectedUserGroupId && selectedGroup?.id !== selectedUserGroupId) {
+      setSelectedUserGroup(null);
       dispatch(getGroupById({ id: selectedUserGroupId }));
     } else if (!selectedUserGroupId) {
       dispatch({ type: ReduxActionTypes.FETCH_ACL_GROUPS });

@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -260,8 +261,11 @@ public class GenericDatabaseOperation {
     private boolean isConnectedToGit(BaseDomain domain) {
         if(domain instanceof Application) {
             return ((Application) domain).getGitApplicationMetadata() != null && StringUtils.isNotEmpty(((Application) domain).getGitApplicationMetadata().getDefaultApplicationId());
+        } else if (domain instanceof BranchAwareDomain) {
+            BranchAwareDomain branchAwareDomain = (BranchAwareDomain) domain;
+            return branchAwareDomain.getDefaultResources() != null && StringUtils.isNotEmpty(branchAwareDomain.getDefaultResources().getBranchName());
         } else {
-            return domain.getDefaultResources() != null && StringUtils.isNotEmpty(domain.getDefaultResources().getBranchName());
+            return false;
         }
     }
 

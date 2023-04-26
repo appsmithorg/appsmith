@@ -37,7 +37,7 @@ describe("Validate basic binding of Input widget to Input widget", () => {
   });
 
   it("3. Publish widget and validate the data displayed in input widgets", function () {
-    var currentTime = new Date();
+    let currentTime = new Date();
     deployMode.DeployApp(locator._widgetInputSelector("inputwidgetv2"));
     cy.get(locator._widgetInputSelector("inputwidgetv2"))
       .first()

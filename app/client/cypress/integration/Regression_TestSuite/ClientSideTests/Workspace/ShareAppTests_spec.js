@@ -1,5 +1,6 @@
 /// <reference types="Cypress" />
 
+import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 import homePage from "../../../../locators/HomePage";
 const publish = require("../../../../locators/publishWidgetspage.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
@@ -30,7 +31,7 @@ describe("Create new workspace and share with a user", function () {
       );
       cy.get("h2").contains("Drag and drop a widget here");
       cy.get(homePage.shareApp).click({ force: true });
-      HomePage.InviteUserToWorkspaceFromApp(
+      HomePage.InviteUserToApplication(
         Cypress.env("TESTUSERNAME1"),
         "App Viewer",
       );
@@ -44,7 +45,9 @@ describe("Create new workspace and share with a user", function () {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get(homePage.appsContainer).contains(workspaceId);
-    cy.xpath(homePage.ShareBtn).first().should("be.visible");
+    if (CURRENT_REPO === REPO.CE) {
+      cy.xpath(homePage.ShareBtn).first().should("be.visible");
+    }
     cy.get(homePage.applicationCard).trigger("mouseover");
     cy.get(homePage.appEditIcon).should("not.exist");
     cy.launchApp(appid);
@@ -53,7 +56,6 @@ describe("Create new workspace and share with a user", function () {
 
   it("3. Enable public access to Application", function () {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.wait("@applications").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -113,9 +115,8 @@ describe("Create new workspace and share with a user", function () {
     cy.LogOut();
   });
 
-  it("login as Owner and disable public access", function () {
+  it("6. login as Owner and disable public access", function () {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.wait("@applications").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -133,7 +134,7 @@ describe("Create new workspace and share with a user", function () {
     cy.LogOut();
   });
 
-  it("6. login as uninvited user, validate public access disable feature ", function () {
+  it("7. login as uninvited user, validate public access disable feature ", function () {
     cy.LoginFromAPI(Cypress.env("TESTUSERNAME2"), Cypress.env("TESTPASSWORD2"));
     cy.visit(currentUrl);
     cy.wait("@getPagesForViewApp").should(
@@ -142,9 +143,8 @@ describe("Create new workspace and share with a user", function () {
       404,
     );
     cy.LogOut();
-  });
 
-  it("7. visit the app as anonymous user and validate redirection to login page", function () {
+    // visit the app as anonymous user and validate redirection to login page
     cy.visit(currentUrl);
     cy.wait("@getPagesForViewApp").should(
       "have.nested.property",

@@ -166,7 +166,7 @@ export class GitSync {
     cy.wait(`@generateKey`).then((result: any) => {
       generatedKey = result.response.body.data.publicKey;
       generatedKey = generatedKey.slice(0, generatedKey.length - 1);
-      var formdata = new FormData();
+      let formdata = new FormData();
       cy.log("generatedKey is " + generatedKey);
       formdata.set("sshkey", generatedKey);
       // fetch the generated key and post to the github repo
@@ -229,7 +229,7 @@ export class GitSync {
   }
 
   private CreateLocalGithubRepo(repo: string) {
-    let remoteUrl: string = "";
+    let remoteUrl = "";
     cy.request({
       method: "GET",
       url:

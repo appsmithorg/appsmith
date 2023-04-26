@@ -1,10 +1,11 @@
-import equal from "fast-deep-equal/es6";
+import isEqual from "fast-deep-equal/es6";
 import log from "loglevel";
 import memoize from "micro-memoize";
 import type { RefObject } from "react";
 import React, { createRef } from "react";
-import { isEmpty, floor, isString } from "lodash";
+import { isEmpty, floor, isString, isNil } from "lodash";
 import { klona } from "klona";
+import hash from "object-hash";
 
 import type { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
@@ -38,6 +39,11 @@ import type {
   TabContainerWidgetProps,
   TabsWidgetProps,
 } from "widgets/TabsWidget/constants";
+import { getMetaFlexLayers, isTargetElementClickable } from "./helper";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -76,7 +82,7 @@ export type LevelData = {
 };
 
 export type MetaWidgetCacheProps = {
-  entityDefinition: Record<string, string> | string;
+  entityDefinition: string;
   metaWidgetId: string;
   metaWidgetName: string;
   originalMetaWidgetId: string;
@@ -111,11 +117,12 @@ type ExtendedCanvasWidgetStructure = CanvasWidgetStructure & {
 type RenderChildrenOption = {
   componentWidth: number;
   parentColumnSpace: number;
-  selectedItemKey: string | null;
+  selectedItemKey?: string | null;
   startIndex: number;
 };
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
+const EMPTY_BINDING = "{{{}}}";
 
 class ListWidget extends BaseWidget<
   ListWidgetProps,
@@ -129,7 +136,9 @@ class ListWidget extends BaseWidget<
   prevMetaMainCanvasWidget?: MetaWidget;
   pageSize: number;
   pageChangeEventTriggerFromPageNo?: number | null;
+  pageChangeEventTriggerFromSelectedKey: boolean;
   pageSizeUpdated: boolean;
+  primaryKeys: string[];
 
   static getPropertyPaneContentConfig() {
     return PropertyPaneContentConfig;
@@ -147,6 +156,37 @@ class ListWidget extends BaseWidget<
     };
   }
 
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return (widget: ListWidgetProps, extraDefsToDefine?: ExtraDef) => ({
+      "!doc":
+        "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
+      "!url": "https://docs.appsmith.com/widget-reference/list",
+      backgroundColor: {
+        "!type": "string",
+        "!url": "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
+      },
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      itemSpacing: "number",
+      selectedItem: generateTypeDef(widget.selectedItem, extraDefsToDefine),
+      selectedItemView: generateTypeDef(
+        widget.selectedItemView,
+        extraDefsToDefine,
+      ),
+      triggeredItem: generateTypeDef(widget.triggeredItem, extraDefsToDefine),
+      triggeredItemView: generateTypeDef(
+        widget.triggeredItemView,
+        extraDefsToDefine,
+      ),
+      listData: generateTypeDef(widget.listData, extraDefsToDefine),
+      pageNo: generateTypeDef(widget.pageNo),
+      pageSize: generateTypeDef(widget.pageSize),
+      currentItemsView: generateTypeDef(
+        widget.currentItemsView,
+        extraDefsToDefine,
+      ),
+    });
+  }
+
   static getDerivedPropertiesMap() {
     return {
       childAutoComplete: `{{(() => {${derivedProperties.getChildAutoComplete}})()}}`,
@@ -154,7 +194,9 @@ class ListWidget extends BaseWidget<
   }
 
   static getDefaultPropertiesMap(): Record<string, string> {
-    return {};
+    return {
+      selectedItemKey: "defaultSelectedItem",
+    };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
@@ -165,8 +207,8 @@ class ListWidget extends BaseWidget<
       triggeredItemView: "{{{}}}",
       selectedItem: undefined,
       triggeredItem: undefined,
-      selectedItemKey: null,
-      triggeredItemKey: null,
+      selectedItemKey: undefined,
+      triggeredItemKey: undefined,
     };
   }
 
@@ -192,6 +234,8 @@ class ListWidget extends BaseWidget<
     this.prevMetaContainerNames = [];
     this.componentRef = createRef<HTMLDivElement>();
     this.pageSize = this.getPageSize();
+    this.primaryKeys = this.generatePrimaryKeys();
+    this.pageChangeEventTriggerFromSelectedKey = false;
     /**
      * To prevent an infinite loop, we use a flag to avoid recursively updating the pageSize property.
      * This is necessary because the updateWidgetProperty function does not immediately update the property,
@@ -203,6 +247,7 @@ class ListWidget extends BaseWidget<
 
   componentDidMount() {
     this.pageSize = this.getPageSize();
+    this.primaryKeys = this.generatePrimaryKeys();
 
     if (this.props.pageSize === this.pageSize) {
       this.pageSizeUpdated = true;
@@ -212,19 +257,55 @@ class ListWidget extends BaseWidget<
       this.updatePageSize();
     }
 
-    if (this.props.selectedItemKey || this.props.triggeredItemKey) {
+    if (
+      isString(this.props.selectedItemKey) ||
+      isString(this.props.triggeredItemKey)
+    ) {
       /**
        * Resetting selected Items and triggered items when the list widget is mounted
        * because the MetaWidgetGenerator also clears all cached data when mounted or re-mounted
+       * in both client and server-side. Although it recoverable in client side pagination.
        *
        * Task: Persist the cache in List V2.1
        * The current issue exist is two forms
-       * 1. When we move from canvas to the query page, the widgetCache is lost and we lose all cache
+       * 1. When we move from canvas to the query page, the widgetCache is lost since BaseWidget is unmounted  and we lose all cache
        * once we navigate back to the canvas the List widget generates new sets of metaWidget with different
        * widgetIds and name.
        * 2. A nested List widget, when the parent widget switches pages, the inner List is unmounted.
        */
-      this.resetCache();
+
+      if (this.props.serverSidePagination) {
+        this.resetCache();
+      } else {
+        this.resetTriggeredCache();
+      }
+    }
+
+    if (
+      isString(this.props.selectedItemKey) &&
+      this.primaryKeys &&
+      !this.props.serverSidePagination
+    ) {
+      // Go to the page containing the defaultKey/SelectedKey when the List widget is mounted
+      // We'd update the SelectedItemView when we're on that page.
+      const rowIndex = this.getRowIndexOfSelectedItem(
+        this.props.selectedItemKey,
+      );
+      if (rowIndex !== -1) {
+        this.updatePageNumber(this.props.selectedItemKey);
+        this.updateSelectedItem(rowIndex);
+        this.pageChangeEventTriggerFromSelectedKey = true;
+      }
+    }
+
+    if (
+      this.props.defaultSelectedItem &&
+      !isString(this.props.selectedItemKey) &&
+      !this.props.serverSidePagination
+    ) {
+      // There are some mounting cases where the defaultSelectedItem isn't mapped with selectedItemKey
+      const defaultKey = String(this.props.defaultSelectedItem);
+      this.props.updateWidgetMetaProperty("selectedItemKey", defaultKey);
     }
 
     const generatorOptions = this.metaWidgetGeneratorOptions();
@@ -244,6 +325,10 @@ class ListWidget extends BaseWidget<
 
     this.pageSize = this.getPageSize();
 
+    if (!isEqual(this.props.primaryKeys, prevProps.primaryKeys)) {
+      this.primaryKeys = this.generatePrimaryKeys();
+    }
+
     if (this.shouldUpdatePageSize() && this.pageSizeUpdated) {
       this.updatePageSize();
       this.pageSizeUpdated = false;
@@ -255,6 +340,11 @@ class ListWidget extends BaseWidget<
 
     if (this.props.pageSize === this.pageSize) {
       this.pageSizeUpdated = true;
+    }
+
+    if (this.serverPaginationJustEnabled(prevProps)) {
+      // reset pageNo when serverSide Pagination is just turned on
+      this.onPageChange(1);
     }
 
     if (this.isCurrPageNoGreaterThanMaxPageNo()) {
@@ -277,6 +367,32 @@ class ListWidget extends BaseWidget<
     }
 
     this.setupMetaWidgets(prevProps);
+
+    if (
+      this.didDefaultSelectedItemChange(prevProps) ||
+      this.props.primaryKeys !== prevProps.primaryKeys
+    ) {
+      /**
+       * If there's a change in the defaultSelectedItem, we'd either update the selectedItem, ItemView and PageNumber if the key is present
+       * else we reset the Selections, since the new SelectedKey isn't present in the primaryKeys.
+       */
+      this.handleDefaultSelectedItemChange();
+    }
+
+    /**
+     * NB: This is to come after setupMetaWidgets as SelectedItemView is dependent on the meta widget container name.
+     *
+     * We'd need to update PageNumber, SelectedItem and SelectedItemView if
+     * 1. When the List widget is resetted.
+     * 2. DefaultSelectedItem is set when the component is mounted (Primarily to update updateSelectedItemView)
+     *
+     */
+    if (
+      this.shouldUpdateSelectedItemAndView() &&
+      isString(this.props.selectedItemKey)
+    ) {
+      this.updateSelectedItemAndPageOnResetOrMount();
+    }
   }
 
   componentWillUnmount() {
@@ -309,7 +425,6 @@ class ListWidget extends BaseWidget<
       mainCanvasId = "",
       mainContainerId = "",
       pageNo,
-      primaryKeys,
       serverSidePagination = false,
     } = this.props;
     const pageSize = this.pageSize;
@@ -325,7 +440,7 @@ class ListWidget extends BaseWidget<
       levelData: this.props.levelData,
       nestedViewIndex: this.props.nestedViewIndex,
       prevTemplateWidgets: this.prevFlattenedChildCanvasWidgets,
-      primaryKeys,
+      primaryKeys: this.primaryKeys,
       scrollElement: this.componentRef.current,
       templateBottomRow: this.getTemplateBottomRow(),
       widgetName: this.props.widgetName,
@@ -336,6 +451,24 @@ class ListWidget extends BaseWidget<
         afterMetaWidgetGenerate: this.afterMetaWidgetGenerate,
       },
     };
+  };
+
+  generatePrimaryKeys = () => {
+    const { listData, primaryKeys } = this.props;
+
+    if (!listData) return [];
+
+    return listData.map((datum, index) => {
+      const key = primaryKeys?.[index];
+
+      if (typeof key === "number" || typeof key === "string") {
+        return key.toString();
+      }
+
+      const datumToHash = datum ?? index;
+
+      return hash(datumToHash, { algorithm: "md5" });
+    });
   };
 
   generateMetaWidgets = () => {
@@ -412,7 +545,7 @@ class ListWidget extends BaseWidget<
       mainCanvasWidget.children = currMetaContainerIds;
     }
 
-    if (!equal(this.prevMetaMainCanvasWidget, mainCanvasWidget)) {
+    if (!isEqual(this.prevMetaMainCanvasWidget, mainCanvasWidget)) {
       this.prevMetaMainCanvasWidget = klona(mainCanvasWidget);
       return mainCanvasWidget;
     }
@@ -428,6 +561,15 @@ class ListWidget extends BaseWidget<
         tab.widgetId = options.rowReferences[tab.widgetId] || tab.widgetId;
       });
     }
+
+    //To Add Auto Layout flex layer for meta Canvas Widgets
+    if (metaWidget.type === "CANVAS_WIDGET" && metaWidget.flexLayers) {
+      metaWidget.flexLayers = getMetaFlexLayers(
+        metaWidget.flexLayers,
+        options.rowReferences,
+      );
+    }
+
     if (metaWidget.dynamicHeight === "AUTO_HEIGHT") {
       metaWidget.dynamicHeight = "FIXED";
     }
@@ -439,7 +581,7 @@ class ListWidget extends BaseWidget<
 
     const { prefix, suffix } = getCurrentItemsViewBindingTemplate();
 
-    if (!equal(this.prevMetaContainerNames, currMetaContainerNames)) {
+    if (!isEqual(this.prevMetaContainerNames, currMetaContainerNames)) {
       const currentItemsViewBinding = `${prefix}${currMetaContainerNames.map(
         (name) => `${name}.data`,
       )}${suffix}`;
@@ -536,6 +678,99 @@ class ListWidget extends BaseWidget<
     super.updateWidgetProperty("pageSize", this.pageSize);
   };
 
+  // This is only for client-side data
+  updatePageNumber = (key: string) => {
+    if (this.props.serverSidePagination) return;
+
+    const rowIndex = this.getRowIndexOfSelectedItem(key);
+
+    if (rowIndex === -1) return;
+
+    const pageNo = this.calculatePageNumberFromRowIndex(rowIndex);
+
+    this.onPageChange(pageNo);
+  };
+
+  shouldUpdateSelectedItemAndView = () => {
+    const { serverSidePagination } = this.props;
+    return Boolean(
+      !serverSidePagination &&
+        isString(this.props.selectedItemKey) &&
+        (!this.props.selectedItem ||
+          this.props.selectedItemView === EMPTY_BINDING ||
+          this.pageChangeEventTriggerFromSelectedKey),
+    );
+  };
+
+  updateSelectedItemAndPageOnResetOrMount = () => {
+    const selectedItemKey = String(this.props.selectedItemKey);
+    const rowIndex = this.getRowIndexOfSelectedItem(selectedItemKey);
+    const binding = this.getItemViewBindingByRowIndex(rowIndex);
+
+    if (this.pageChangeEventTriggerFromSelectedKey && rowIndex !== -1) {
+      this.updateSelectedItemView(rowIndex);
+      this.pageChangeEventTriggerFromSelectedKey = false;
+      return;
+    }
+
+    if (rowIndex !== -1) {
+      this.updatePageNumber(selectedItemKey);
+      this.updateSelectedItem(rowIndex);
+
+      if (binding !== EMPTY_BINDING) {
+        this.pageChangeEventTriggerFromSelectedKey = true;
+      } else {
+        this.updateSelectedItemView(rowIndex);
+      }
+    }
+  };
+
+  /**
+   *
+   * This is to check if the defaultSelectedItem has changed.
+   * If the defaultSelectedItem changes, the selectedItemKey would change and the selectedItem would
+   * remain the same.
+   */
+  didDefaultSelectedItemChange = (prevProps: ListWidgetProps) =>
+    Boolean(
+      this.props.selectedItemKey !== prevProps.selectedItemKey &&
+        isEqual(this.props.selectedItem, prevProps.selectedItem),
+    );
+
+  handleDefaultSelectedItemChange = () => {
+    if (this.props.serverSidePagination) return;
+
+    const selectedItemKey = String(this.props.selectedItemKey);
+    const rowIndex = this.getRowIndexOfSelectedItem(selectedItemKey);
+
+    if (rowIndex !== -1) {
+      this.updatePageNumber(selectedItemKey);
+      this.updateSelectedItem(rowIndex);
+      const binding = this.getItemViewBindingByRowIndex(rowIndex);
+
+      if (binding === EMPTY_BINDING) {
+        this.pageChangeEventTriggerFromSelectedKey = true;
+      } else {
+        this.updateSelectedItemView(rowIndex);
+      }
+    } else {
+      this.resetSelectedItemView();
+      this.resetSelectedItem();
+    }
+  };
+
+  getRowIndexOfSelectedItem = (selectedItemKey: string) => {
+    if (!this.primaryKeys || isNil(selectedItemKey)) return -1;
+
+    const rowIndex = this.primaryKeys.indexOf(selectedItemKey.toString());
+
+    return rowIndex;
+  };
+
+  calculatePageNumberFromRowIndex = (index: number) => {
+    return Math.ceil((index + 1) / this.pageSize);
+  };
+
   shouldUpdatePageSize = () => {
     return this.props.listData?.length && this.props.pageSize !== this.pageSize;
   };
@@ -625,6 +860,7 @@ class ListWidget extends BaseWidget<
    * Only Initiate Cache if
    * 1. Triggered or Selected Key changes (i.e a  new row was triggered or selected)
    * 2. If Server-side Pagination is just turned on. (This is mainly to cache any row previously selected)
+   * 3. When we have a defaultSelectedItem
    *
    * If this conditions are true, we'd send the keys to the MetaWidgetGenerator to handle all Caching.
    */
@@ -632,7 +868,11 @@ class ListWidget extends BaseWidget<
     return (
       this.props.triggeredItemKey !== prevProps.triggeredItemKey ||
       this.props.selectedItemKey !== prevProps.selectedItemKey ||
-      (!prevProps.serverSidePagination && this.props.serverSidePagination)
+      (!prevProps.serverSidePagination && this.props.serverSidePagination) ||
+      (isString(this.props.selectedItemKey) &&
+        !this.metaWidgetGenerator
+          .getCurrCachedRows()
+          .has(this.props.selectedItemKey))
     );
   };
 
@@ -649,7 +889,7 @@ class ListWidget extends BaseWidget<
 
   onItemClick = (rowIndex: number) => {
     this.handleSelectedItemAndKey(rowIndex);
-    this.updateSelectedItemView(rowIndex);
+    this.handleSelectedItemView(rowIndex);
 
     if (!this.props.onItemClick) return;
 
@@ -682,10 +922,15 @@ class ListWidget extends BaseWidget<
     this.updateTriggeredItemView(rowIndex);
   };
 
+  getPrimaryKeyByRowIndex = (rowIndex: number) => {
+    return this.metaWidgetGenerator.getPrimaryKey(rowIndex);
+  };
+
   // Updates SelectedItem and SelectedItemKey Meta Properties.
   handleSelectedItemAndKey = (rowIndex: number) => {
     const { selectedItemKey } = this.props;
-    const key = this.metaWidgetGenerator.getPrimaryKey(rowIndex);
+    const key = this.getPrimaryKeyByRowIndex(rowIndex);
+
     let data: Record<string, unknown> | undefined;
 
     if (key === selectedItemKey) {
@@ -705,10 +950,11 @@ class ListWidget extends BaseWidget<
     this.props.updateWidgetMetaProperty("selectedItem", data);
   };
 
-  resetSelectedItem = () =>
+  resetSelectedItem = () => {
     this.props.updateWidgetMetaProperty("selectedItem", undefined);
+  };
 
-  updateSelectedItemView = (rowIndex: number) => {
+  handleSelectedItemView = (rowIndex: number) => {
     const { selectedItemKey } = this.props;
     const key = this.metaWidgetGenerator.getPrimaryKey(rowIndex);
 
@@ -718,39 +964,45 @@ class ListWidget extends BaseWidget<
       return;
     }
 
-    const triggeredContainer =
+    this.updateSelectedItemView(rowIndex);
+  };
+
+  getItemViewBindingByRowIndex = (rowIndex: number) => {
+    const container =
       this.metaWidgetGenerator.getRowContainerWidgetName(rowIndex);
 
-    const selectedItemViewBinding = triggeredContainer
-      ? `{{ ${triggeredContainer}.data }}`
-      : "{{{}}}";
+    const itemViewBinding = container
+      ? `{{ ${container}.data }}`
+      : EMPTY_BINDING;
 
-    this.props.updateWidgetMetaProperty(
-      "selectedItemView",
-      selectedItemViewBinding,
-    );
+    return itemViewBinding;
+  };
+
+  updateSelectedItemView = (rowIndex: number) => {
+    const binding = this.getItemViewBindingByRowIndex(rowIndex);
+
+    this.props.updateWidgetMetaProperty("selectedItemView", binding);
+  };
+
+  updateSelectedItem = (rowIndex: number) => {
+    const data = this.props.listData?.[rowIndex];
+    if (!isEqual(this.props.selectedItem, data)) {
+      this.props.updateWidgetMetaProperty("selectedItem", data);
+    }
   };
 
   updateTriggeredItemView = (rowIndex: number) => {
-    const triggeredContainer =
-      this.metaWidgetGenerator.getRowContainerWidgetName(rowIndex);
+    const binding = this.getItemViewBindingByRowIndex(rowIndex);
 
-    const triggeredItemViewBinding = triggeredContainer
-      ? `{{ ${triggeredContainer}.data }}`
-      : "{{{}}}";
-
-    this.props.updateWidgetMetaProperty(
-      "triggeredItemView",
-      triggeredItemViewBinding,
-    );
+    this.props.updateWidgetMetaProperty("triggeredItemView", binding);
   };
 
   resetSelectedItemView = () => {
-    this.props.updateWidgetMetaProperty("selectedItemView", "{{{}}}");
+    this.props.updateWidgetMetaProperty("selectedItemView", {});
   };
 
   resetTriggeredItemView = () => {
-    this.props.updateWidgetMetaProperty("triggeredItemView", "{{{}}}");
+    this.props.updateWidgetMetaProperty("triggeredItemView", {});
   };
 
   resetTriggeredItemKey = () => {
@@ -775,13 +1027,19 @@ class ListWidget extends BaseWidget<
 
     this.props.updateWidgetMetaProperty("triggeredItemKey", key);
 
-    if (!equal(data, triggeredItem)) {
+    if (!isEqual(data, triggeredItem)) {
       this.props.updateWidgetMetaProperty("triggeredItem", data);
     }
   };
 
   resetSelectedItemKey = () => {
     this.props.updateWidgetMetaProperty("selectedItemKey", null);
+  };
+
+  resetTriggeredCache = () => {
+    this.resetTriggeredItem();
+    this.resetTriggeredItemKey();
+    this.resetTriggeredItemView();
   };
 
   resetCache = () => {
@@ -797,12 +1055,20 @@ class ListWidget extends BaseWidget<
     const defaultValue = 0;
     const { serverSidePagination, totalRecordsCount } = this.props;
 
+    const totalRecords = Number(totalRecordsCount);
+
     if (!serverSidePagination) return (this.props.listData || []).length;
 
-    if (typeof totalRecordsCount === "number" && totalRecordsCount > 0)
-      return totalRecordsCount;
+    if (typeof totalRecords === "number" && totalRecords > 0)
+      return totalRecords;
 
     return defaultValue;
+  };
+
+  serverPaginationJustEnabled = (prevProps: ListWidgetProps) => {
+    return Boolean(
+      !prevProps.serverSidePagination && this.props.serverSidePagination,
+    );
   };
 
   shouldPaginate = () => {
@@ -843,7 +1109,6 @@ class ListWidget extends BaseWidget<
           child.canExtend = true;
           child.positioning = this.props.positioning;
           child.children = child.children?.map((container, viewIndex) => {
-            container.positioning = this.props.positioning;
             const rowIndex = viewIndex + startIndex;
             const focused =
               this.props.renderMode === RenderModes.CANVAS && rowIndex === 0;
@@ -854,6 +1119,9 @@ class ListWidget extends BaseWidget<
               selected: selectedItemKey === key,
               onClick: (e: React.MouseEvent<HTMLElement>) => {
                 e.stopPropagation();
+                // If Container Child Elements are clickable, we should not call the containers onItemClick Event
+                if (isTargetElementClickable(e)) return;
+
                 this.onItemClick(rowIndex);
               },
               onClickCapture: () => {
@@ -1095,14 +1363,16 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   pageSize: number;
   prefixMetaWidgetId?: string;
   currentItemsView: string;
-  selectedItemKey: string | null;
-  triggeredItemKey: string | null;
-  selectedItemView: Record<string, unknown>;
+  selectedItemKey?: string | null;
+  triggeredItemKey?: string | null;
+  // Eval String
+  selectedItemView: string;
   selectedItem?: Record<string, unknown>;
   triggeredItem?: Record<string, unknown>;
-  primaryKeys?: (string | number)[];
+  primaryKeys?: (string | number | null)[];
   serverSidePagination?: boolean;
   nestedViewIndex?: number;
+  defaultSelectedItem?: string;
   totalRecordsCount?: number | string;
 }
 

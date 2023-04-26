@@ -73,9 +73,14 @@ public class SessionFilter implements WebFilter {
 
     private OAuth2AuthorizedClient getNewAccessToken(OAuth2AuthorizedClient oidcClient) {
 
-        final OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(oidcClient.getClientRegistration(),
-                oidcClient.getAccessToken(), oidcClient.getRefreshToken(), oidcClient.getAccessToken().getScopes());
-        final OAuth2AccessTokenResponse tokenResponse = refreshTokenClient.getTokenResponse(refreshTokenGrantRequest);
+        final OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest
+            = new OAuth2RefreshTokenGrantRequest(
+                    oidcClient.getClientRegistration(),
+                    oidcClient.getAccessToken(),
+                    oidcClient.getRefreshToken(),
+                    oidcClient.getAccessToken().getScopes());
+
+        OAuth2AccessTokenResponse tokenResponse = refreshTokenClient.getTokenResponse(refreshTokenGrantRequest);
 
         return new OAuth2AuthorizedClient(oidcClient.getClientRegistration(), oidcClient.getPrincipalName(),
                 tokenResponse.getAccessToken(), tokenResponse.getRefreshToken());
@@ -127,7 +132,15 @@ public class SessionFilter implements WebFilter {
                                     return Mono.just(Boolean.FALSE);
                                 }
 
-                                OAuth2AccessToken newAccessToken = this.getNewAccessToken(oidcClient).getAccessToken();
+                                OAuth2AccessToken newAccessToken;
+                                try {
+                                    newAccessToken = this.getNewAccessToken(oidcClient).getAccessToken();
+                                } catch (Exception exception) {
+                                    // Invalidate the session for any unforeseen exceptions that will be thrown while
+                                    // generating the access token
+                                    log.debug("Unable to retrieve new access token with error {}", exception.getMessage());
+                                    return Mono.just(Boolean.FALSE);
+                                }
                                 UserData updates = new UserData();
                                 updates.setOidcAccessToken(
                                         new AppsmithOidcAccessToken(
