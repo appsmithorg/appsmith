@@ -26,8 +26,6 @@ const Container = styled.div`
   background-color: var(--ads-v2-color-bg-success);
   padding: var(--ads-v2-spaces-5);
   width: 100%;
-  border-bottom: 1px solid var(--ads-v2-color-border-success);
-  border-top: 1px solid var(--ads-v2-color-border-success);
 `;
 
 const Wrapper = styled.div`
