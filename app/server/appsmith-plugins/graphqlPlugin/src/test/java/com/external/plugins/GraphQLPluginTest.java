@@ -336,7 +336,7 @@ public class GraphQLPluginTest {
     @Test
     public void testValidSignature() {
         DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
-        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
         mockEndpoint
@@ -413,7 +413,7 @@ public class GraphQLPluginTest {
     public void testSmartSubstitutionInQueryBodyForNumberStringBooleanAndSchemaTypes() {
         DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
 
-        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
         mockEndpoint
@@ -524,7 +524,7 @@ public class GraphQLPluginTest {
     public void testSmartSubstitutionInQueryBodyForFullBodySubstitution() {
         DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
 
-        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
         mockEndpoint
@@ -608,7 +608,7 @@ public class GraphQLPluginTest {
     public void testSmartSubstitutionQueryVariables() {
         DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
 
-        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
         mockEndpoint
@@ -723,7 +723,7 @@ public class GraphQLPluginTest {
     public void testRequestWithApiKeyHeader() {
         DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
 
-        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
         mockEndpoint
@@ -1109,7 +1109,7 @@ public class GraphQLPluginTest {
     public void testQueryParamsInDatasource() {
         DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
 
-        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
         mockEndpoint

@@ -114,7 +114,7 @@ public class RestApiPluginTest {
     public void testValidJsonApiExecution() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
 
-        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
         mockEndpoint
@@ -169,7 +169,7 @@ public class RestApiPluginTest {
     public void testValidApiExecutionWithWhitespacesInUrl() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
 
-        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         //added whitespaces in url to validate successful execution of the same
         dsConfig.setUrl("  " + baseUrl + "  ");
 
@@ -446,7 +446,7 @@ public class RestApiPluginTest {
     @Test
     public void testValidFormApiExecution() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
         mockEndpoint
@@ -493,7 +493,7 @@ public class RestApiPluginTest {
     public void testValidRawApiExecution() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
 
-        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
         mockEndpoint
@@ -536,7 +536,7 @@ public class RestApiPluginTest {
     public void testValidSignature() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
 
-        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
         mockEndpoint
@@ -661,7 +661,7 @@ public class RestApiPluginTest {
     @Test
     public void testInvalidSignature() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
         mockEndpoint
@@ -705,7 +705,7 @@ public class RestApiPluginTest {
     public void testEncodeParamsToggleOn() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
 
-        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
         mockEndpoint
@@ -755,7 +755,7 @@ public class RestApiPluginTest {
     @Test
     public void testEncodeParamsToggleNull() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
         mockEndpoint
@@ -805,7 +805,7 @@ public class RestApiPluginTest {
     @Test
     public void testEncodeParamsToggleOff() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
         mockEndpoint
@@ -852,7 +852,7 @@ public class RestApiPluginTest {
     @Test
     public void testSmartSubstitutionJSONBody() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
         mockEndpoint
@@ -970,7 +970,7 @@ public class RestApiPluginTest {
     @Test
     public void testMultipartFormData() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
         mockEndpoint
@@ -1041,7 +1041,7 @@ public class RestApiPluginTest {
     @Test
     public void testParsingBodyWithInvalidJSONHeader() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
         mockEndpoint
@@ -1102,7 +1102,7 @@ public class RestApiPluginTest {
     @Test
     public void testRequestWithApiKeyHeader() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
         mockEndpoint
@@ -1144,7 +1144,7 @@ public class RestApiPluginTest {
     @Test
     public void testSmartSubstitutionEvaluatedValueContainingQuestionMark() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
         mockEndpoint
@@ -1549,7 +1549,7 @@ public class RestApiPluginTest {
     @Test
     public void testQueryParamsInDatasource() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
         mockEndpoint
@@ -1703,7 +1703,7 @@ public class RestApiPluginTest {
     @Test
     public void testAPIResponseEncodedInGzipFormat() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
         Function<String, byte[]> compressor = (data) -> {
@@ -1749,7 +1749,7 @@ public class RestApiPluginTest {
     @Test
     public void testNumericStringHavingLeadingZero() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
         mockEndpoint
@@ -1808,7 +1808,7 @@ public class RestApiPluginTest {
     @Test
     public void whenBindingFoundWithoutValue_doNotReplaceWithNull() {
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
         dsConfig.setUrl(baseUrl);
 
         mockEndpoint
