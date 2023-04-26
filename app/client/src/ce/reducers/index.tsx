@@ -75,6 +75,7 @@ import type { AnalyticsReduxState } from "reducers/uiReducers/analyticsReducer";
 import type { MultiPaneReduxState } from "reducers/uiReducers/multiPaneReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import type { layoutConversionReduxState } from "reducers/uiReducers/layoutConversionReducer";
+import type { OneClickBindingState } from "reducers/uiReducers/oneClickBindingReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -137,6 +138,7 @@ export interface AppState {
     autoHeightUI: AutoHeightUIState;
     multiPaneConfig: MultiPaneReduxState;
     layoutConversion: layoutConversionReduxState;
+    oneClickBinding: OneClickBindingState;
   };
   entities: {
     canvasWidgetsStructure: CanvasWidgetStructure;
