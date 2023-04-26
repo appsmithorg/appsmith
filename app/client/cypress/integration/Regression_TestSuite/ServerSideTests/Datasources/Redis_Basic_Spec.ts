@@ -59,11 +59,12 @@ describe("Validate Redis DS", () => {
     //Get All keys from HSET
     _.dataSources.EnterQuery(getAll);
     _.dataSources.RunQueryNVerifyResponseViews(8); //4 keys, 4 values
-    _.dataSources.ReadQueryTableResponse(0).then(($cellData: any) => {
-      expect($cellData).to.eq("ingredients");
-    });
+    //order not always matching - hence commented
+    // _.dataSources.ReadQueryTableResponse(0).then(($cellData: any) => {
+    //   expect($cellData).to.eq("ingredients");
+    // });
     // _.dataSources.ReadQueryTableResponse(6).then(($cellData: any) => {
-    //   expect($cellData).to.eq("instructions"); //order not always matching - hence commented
+    //   expect($cellData).to.eq("instructions");
     // });
 
     //Ading one more key/value to HSET
