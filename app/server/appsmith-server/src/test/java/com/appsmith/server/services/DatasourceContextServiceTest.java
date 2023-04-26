@@ -347,7 +347,7 @@ public class DatasourceContextServiceTest {
         Mono<DatasourceContext<?>> failedDatasourceContextMono =
                 datasourceContextService.getCachedDatasourceContextMono(datasource, spyMockPluginExecutor, monitor, datasourceContextIdentifier);
 
-        assertTrue(failedDatasourceContextMono.toFuture().isCompletedExceptionally());
+        assertThrows(RuntimeException.class, failedDatasourceContextMono::block);
 
         assertFalse(datasourceContextService.isValidDatasourceContextAvailable(datasource, datasourceContextIdentifier));
     }
