@@ -8,8 +8,8 @@ export function addFn(
 ) {
   Object.defineProperty(ctx, fnName, {
     value: function (...args: any[]) {
-      const fnWithGaurds = getFnWithGaurds(fn, fnName, fnGuards);
-      return fnWithGaurds(...args);
+      const fnWithGuards = getFnWithGuards(fn, fnName, fnGuards);
+      return fnWithGuards(...args);
     },
     enumerable: false,
     writable: true,
@@ -27,16 +27,16 @@ export function isAsyncGuard<P extends ReadonlyArray<unknown>>(
   }
 }
 
-type FnGaurd = (fn: (...args: any[]) => unknown, fnName: string) => unknown;
+type FnGuard = (fn: (...args: any[]) => unknown, fnName: string) => unknown;
 
-export function getFnWithGaurds(
+export function getFnWithGuards(
   fn: (...args: any[]) => unknown,
   fnName: string,
-  fnGaurds: FnGaurd[],
+  fnGuards: FnGuard[],
 ) {
   return (...args: any[]) => {
-    for (const gaurd of fnGaurds) {
-      gaurd(fn, fnName);
+    for (const guard of fnGuards) {
+      guard(fn, fnName);
     }
     return fn(...args);
   };
