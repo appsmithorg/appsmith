@@ -37,6 +37,7 @@ export type AutoLayoutProps = {
   widgetType: WidgetType;
   parentColumnSpace: number;
   flexVerticalAlignment: FlexVerticalAlignment;
+  isCanvas: boolean;
   isMobile: boolean;
   renderMode: RenderMode;
 };
@@ -85,7 +86,6 @@ export function FlexComponent(props: AutoLayoutProps) {
     [props.parentId, props.widgetId, props.widgetType, props.widgetName],
   );
   const isPreviewMode = useSelector(previewModeSelector);
-
   const isResizing = useSelector(getIsResizing);
   const widgetDimensionsViewCss = {
     width: props.componentWidth - WIDGET_PADDING * 2,
@@ -99,11 +99,12 @@ export function FlexComponent(props: AutoLayoutProps) {
     width: isResizing
       ? "auto"
       : `${props.componentWidth - WIDGET_PADDING * 2 + RESIZE_BORDER_BUFFER}px`,
-    height: isResizing
-      ? "auto"
-      : `${
-          props.componentHeight - WIDGET_PADDING * 2 + RESIZE_BORDER_BUFFER
-        }px`,
+    height:
+      isResizing || props.isCanvas
+        ? "auto"
+        : `${
+            props.componentHeight - WIDGET_PADDING * 2 + RESIZE_BORDER_BUFFER
+          }px`,
     margin: WIDGET_PADDING / 2 + "px",
   };
   const flexComponentStyle: CSSProperties = useMemo(() => {

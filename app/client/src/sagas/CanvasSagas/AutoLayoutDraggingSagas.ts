@@ -1,10 +1,10 @@
 import type { WidgetAddChild } from "actions/pageActions";
 import { updateAndSaveLayout } from "actions/pageActions";
-import type { ReduxAction } from "ce/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "ce/constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import type { FlexLayerAlignment } from "utils/autoLayout/constants";
 import { LayoutDirection } from "utils/autoLayout/constants";
 import {
@@ -34,7 +34,7 @@ import {
 } from "selectors/editorSelectors";
 import { executeWidgetBlueprintBeforeOperations } from "sagas/WidgetBlueprintSagas";
 import { BlueprintOperationTypes } from "widgets/constants";
-import { recalculateAutoLayoutColumnsAndSave } from "sagas/AutoLayoutSagas/AutoLayoutUpdateSagas";
+import { recalculatePositionsForCurrentBreakPointAction } from "actions/autoLayoutActions";
 
 function* addWidgetAndReorderSaga(
   actionPayload: ReduxAction<{
@@ -77,12 +77,14 @@ function* addWidgetAndReorderSaga(
 
     let widgetIndex = index;
     let currLayerIndex = layerIndex;
+    let newLayer = isNewLayer;
 
     const canvasWidget = updatedWidgetsOnAddition[parentId];
 
     if (addToBottom && canvasWidget.children && canvasWidget.flexLayers) {
       widgetIndex = canvasWidget.children.length;
       currLayerIndex = canvasWidget.flexLayers.length;
+      newLayer = true;
     }
 
     const updatedWidgetsOnMove: CanvasWidgetsReduxState = yield call(
@@ -90,7 +92,7 @@ function* addWidgetAndReorderSaga(
       {
         movedWidgets: [newWidget.newWidgetId],
         index: widgetIndex,
-        isNewLayer,
+        isNewLayer: newLayer,
         parentId,
         allWidgets: updatedWidgetsOnAddition,
         alignment,
@@ -101,7 +103,13 @@ function* addWidgetAndReorderSaga(
       },
     );
 
-    yield call(recalculateAutoLayoutColumnsAndSave, updatedWidgetsOnMove, true);
+    yield put(
+      recalculatePositionsForCurrentBreakPointAction(
+        updatedWidgetsOnMove,
+        true,
+      ),
+    );
+
     log.debug(
       "Auto Layout : add new widget took",
       performance.now() - start,

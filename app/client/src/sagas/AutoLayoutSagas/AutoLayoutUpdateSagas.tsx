@@ -1,9 +1,9 @@
 import { updateAndSaveLayout } from "actions/pageActions";
-import type { ReduxAction } from "ce/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "ce/constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import log from "loglevel";
 import type {
   CanvasWidgetsReduxState,
@@ -28,7 +28,7 @@ import {
   getMainCanvasProps,
 } from "selectors/editorSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
-import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions";
+import { recalculatePositionsForCurrentBreakPointAction } from "actions/autoLayoutActions";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import convertDSLtoAuto from "utils/DSLConversions/fixedToAutoLayout";
 import { convertNormalizedDSLToFixed } from "utils/DSLConversions/autoToFixedLayout";
@@ -49,23 +49,21 @@ import {
   recalculatePositionsOfWidgets,
 } from "./utils";
 
-function* recalculatePositionsOfWidgetsSaga(
-  actionPayload: ReduxAction<{
-    parentId: string;
-    isMobile: boolean;
-    canvasWidth: number;
-    widgets?: CanvasWidgetsReduxState;
-    saveLayout?: boolean;
-  }>,
-) {
+function* recalculatePositionsOfWidgetsSaga(payload: {
+  parentId: string;
+  isMobile: boolean;
+  canvasWidth: number;
+  widgets?: CanvasWidgetsReduxState;
+  saveLayout?: boolean;
+}) {
   try {
     const start = performance.now();
     const processedWidgets: CanvasWidgetsReduxState = yield call(
       recalculatePositionsOfWidgets,
-      actionPayload.payload,
+      payload,
     );
     // save layout in cases like DnD where it creates new entities
-    if (actionPayload.payload.saveLayout) {
+    if (payload.saveLayout) {
       yield put(updateAndSaveLayout(processedWidgets));
     } else {
       const widgetsToUpdate: UpdateWidgetsPayload = yield call(
@@ -147,8 +145,7 @@ function* updateLayoutPositioningSaga(
           CanvasWidgetsNormalizer.normalize(autoDSL).entities.canvasWidgets,
         ),
       );
-
-      yield call(recalculateAutoLayoutColumnsAndSave);
+      yield put(recalculatePositionsForCurrentBreakPointAction());
     }
     // Convert Auto layout to fixed
     else {
@@ -171,27 +168,23 @@ function* updateLayoutPositioningSaga(
 
 //This Method is used to re calculate Positions based on canvas width
 export function* recalculateAutoLayoutColumnsAndSave(
-  widgets?: CanvasWidgetsReduxState,
-  saveLayout = false,
+  actionPayload: ReduxAction<{
+    widgets?: CanvasWidgetsReduxState;
+    saveLayout?: boolean;
+  }>,
 ) {
-  const appPositioningType: AppPositioningTypes = yield select(
-    getCurrentAppPositioningType,
-  );
   const mainCanvasProps: MainCanvasReduxState = yield select(
     getMainCanvasProps,
   );
-
-  yield put(
-    updateLayoutForMobileBreakpointAction(
-      MAIN_CONTAINER_WIDGET_ID,
-      appPositioningType === AppPositioningTypes.AUTO
-        ? mainCanvasProps?.isMobile
-        : false,
-      mainCanvasProps.width,
-      widgets,
-      saveLayout,
-    ),
-  );
+  const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
+  const { saveLayout = false, widgets } = actionPayload.payload;
+  yield call(recalculatePositionsOfWidgetsSaga, {
+    parentId: MAIN_CONTAINER_WIDGET_ID,
+    isMobile,
+    canvasWidth: mainCanvasProps.width,
+    widgets,
+    saveLayout,
+  });
 }
 
 export function* updateApplicationLayoutType(
@@ -278,11 +271,24 @@ function* processWidgetDimensionsAndPositions() {
   const processedWidgets: CanvasWidgetsReduxState = yield call(
     processWidgetDimensionsSaga,
   );
-  yield call(recalculateAutoLayoutColumnsAndSave, processedWidgets);
+  yield put(recalculatePositionsForCurrentBreakPointAction(processedWidgets));
 }
 function* shouldRunSaga(saga: any, action: ReduxAction<unknown>) {
   const isAutoLayout: boolean = yield select(getIsAutoLayout);
   if (isAutoLayout) {
+    yield call(saga, action);
+  }
+}
+
+function* shouldRunCalculatingDimensionsSaga(
+  saga: any,
+  action: ReduxAction<unknown>,
+) {
+  const isAutoLayout: boolean = yield select(getIsAutoLayout);
+  const isAutoCanvasResizing: boolean = yield select(
+    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+  );
+  if (isAutoLayout && !isAutoCanvasResizing) {
     yield call(saga, action);
   }
 }
@@ -292,7 +298,7 @@ export default function* layoutUpdateSagas() {
     takeLatest(
       ReduxActionTypes.RECALCULATE_POSITIONS,
       shouldRunSaga,
-      recalculatePositionsOfWidgetsSaga,
+      recalculateAutoLayoutColumnsAndSave,
     ),
     takeLatest(
       ReduxActionTypes.UPDATE_LAYOUT_POSITIONING,
@@ -309,8 +315,9 @@ export default function* layoutUpdateSagas() {
       [
         ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
         ReduxActionTypes.PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES,
+        ReduxActionTypes.GENERATE_AUTO_HEIGHT_LAYOUT_TREE, // add, move, paste, cut, delete, undo/redo
       ],
-      shouldRunSaga,
+      shouldRunCalculatingDimensionsSaga,
       processWidgetDimensionsAndPositions,
     ),
   ]);

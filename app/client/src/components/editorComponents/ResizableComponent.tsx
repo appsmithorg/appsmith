@@ -58,7 +58,7 @@ import {
   TopRightHandleStyles,
   VisibilityContainer,
 } from "./ResizeStyledComponents";
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -355,10 +355,11 @@ export const ResizableComponent = memo(function ResizableComponent(
     return !isAutoHeightEnabledForWidget(props) && isEnabled;
   }, [props, isAutoHeightEnabledForWidget, isEnabled]);
 
-  const fixedHeight =
-    isAutoHeightEnabledForWidgetWithLimits(props) ||
-    !isAutoHeightEnabledForWidget(props) ||
-    !props.isCanvas;
+  const fixedHeight = isAutoLayout
+    ? !props.isCanvas
+    : isAutoHeightEnabledForWidgetWithLimits(props) ||
+      !isAutoHeightEnabledForWidget(props) ||
+      !props.isCanvas;
 
   const allowResize: boolean =
     !isMultiSelected || (isAutoLayout && !props.isFlexChild);

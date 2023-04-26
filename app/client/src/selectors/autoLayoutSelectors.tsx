@@ -1,4 +1,4 @@
-import type { AppState } from "ce/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { FLEXBOX_PADDING, GridDefaults } from "constants/WidgetConstants";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
@@ -77,6 +77,8 @@ export const getTotalTopOffset = (widgetId: string) => {
             ? parent.mobileTopRow
             : parent.topRow;
         offset += top * GridDefaults.DEFAULT_GRID_ROW_HEIGHT + FLEXBOX_PADDING;
+        if (parent.type === "TABS_WIDGET" && parent?.shouldShowTabs)
+          offset += GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 4; // 4 rows for tabs header
         widget = parent;
       }
       return offset;

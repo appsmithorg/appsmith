@@ -44,6 +44,7 @@ import log from "loglevel";
 import { APP_MODE } from "entities/App";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getAppMode } from "selectors/entitiesSelector";
+import { MOBILE_ROW_GAP, ROW_GAP } from "utils/autoLayout/constants";
 
 export function* recalculatePositionsOfWidgets({
   canvasWidth,
@@ -85,9 +86,26 @@ export function* recalculatePositionsOfWidgets({
     processedWidgets,
     dimensionMap,
     mainCanvasWidth,
+    isMobile,
   );
   return processedWidgets;
 }
+const positionProperties = [
+  "topRow",
+  "bottomRow",
+  "leftColumn",
+  "rightColumn",
+  "mobileTopRow",
+  "mobileBottomRow",
+  "mobileLeftColumn",
+  "mobileRightColumn",
+];
+const modalDimensionProperties = ["height"];
+
+const dimensionPropertiesToConsider = [
+  ...positionProperties,
+  ...modalDimensionProperties,
+];
 
 export function* getWidgetsWithDimensionChanges(
   processedWidgets: CanvasWidgetsReduxState,
@@ -106,18 +124,7 @@ export function* getWidgetsWithDimensionChanges(
     const oldWidget = widgetsOld[widgetId];
     const propertiesToUpdate: Record<string, any> = {};
 
-    const positionProperties = [
-      "topRow",
-      "bottomRow",
-      "leftColumn",
-      "rightColumn",
-      "mobileTopRow",
-      "mobileBottomRow",
-      "mobileLeftColumn",
-      "mobileRightColumn",
-    ];
-
-    for (const prop of positionProperties) {
+    for (const prop of dimensionPropertiesToConsider) {
       if (widget[prop] !== oldWidget[prop]) {
         propertiesToUpdate[prop] = widget[prop];
       }
@@ -222,11 +229,17 @@ export function* processWidgetDimensionsSaga() {
 
 export function* getAutoLayoutMinHeightBasedOnChildren(
   widgetId: string,
+  dimensionMap: typeof DefaultDimensionMap,
+  changesSoFar: Record<string, { bottomRow: number; topRow: number }>,
   widgets: CanvasWidgetsReduxState,
+  isMobile: boolean,
 ) {
+  const rowGap =
+    (isMobile ? MOBILE_ROW_GAP : ROW_GAP) /
+    GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+  const { bottomRow: bottomRowMap, topRow: topRowMap } = dimensionMap;
   // Starting with no height
   let minHeightInRows = 0;
-
   // Should we be able to collapse widgets
   const shouldCollapse: boolean = yield shouldWidgetsCollapse();
   // Skip this whole process if the parent is collapsed: Process:
@@ -234,7 +247,6 @@ export function* getAutoLayoutMinHeightBasedOnChildren(
   const dataTree: DataTree = yield select(getDataTree);
 
   const { children = [] } = widgets[widgetId];
-
   // For each child widget id.
   for (const childWidgetId of children) {
     // If we've changed the widget's bottomRow via computations
@@ -261,13 +273,30 @@ export function* getAutoLayoutMinHeightBasedOnChildren(
     }
 
     // Get the child widget's dimenstions from the tree
-    const { bottomRow, topRow } = widgets[childWidgetId];
+    const bottomRow = widgets[childWidgetId][bottomRowMap];
+    const topRow = widgets[childWidgetId][topRowMap];
 
-    // If this child is to collapse, don't consider it.
-    if (!(shouldCollapse && bottomRow === topRow)) {
-      minHeightInRows = Math.max(minHeightInRows, bottomRow);
+    // If this child has changed so far during computations
+    if (changesSoFar.hasOwnProperty(childWidgetId)) {
+      const collapsing =
+        changesSoFar[childWidgetId].bottomRow ===
+        changesSoFar[childWidgetId].topRow;
+
+      // If this child is collapsing, don't consider it
+      if (!(shouldCollapse && collapsing)) {
+        minHeightInRows =
+          Math.max(minHeightInRows, changesSoFar[childWidgetId].bottomRow) +
+          rowGap;
+      }
+
+      // If we need to get the existing bottomRow from the state
+    } else {
+      // If this child is to collapse, don't consider it.
+      if (!(shouldCollapse && bottomRow === topRow))
+        minHeightInRows = Math.max(minHeightInRows, bottomRow) + rowGap;
     }
   }
+  minHeightInRows -= rowGap;
 
   if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
     return minHeightInRows + GridDefaults.MAIN_CANVAS_EXTENSION_OFFSET;
@@ -280,6 +309,7 @@ export function* getUpdatesOfAllAutoLayoutCanvasHeight(
   widgets: CanvasWidgetsReduxState,
   dimensionMap: typeof DefaultDimensionMap,
   mainCanvasWidth: number,
+  isMobile: boolean,
 ) {
   const start = performance.now();
   const appMode: APP_MODE = yield select(getAppMode);
@@ -373,7 +403,10 @@ export function* getUpdatesOfAllAutoLayoutCanvasHeight(
         let maxBottomRowBasedOnChildren: number =
           yield getAutoLayoutMinHeightBasedOnChildren(
             canvasWidget.widgetId,
+            dimensionMap,
+            {},
             stateWidgets,
+            isMobile,
           );
         // Add a canvas extension offset
         maxBottomRowBasedOnChildren += GridDefaults.CANVAS_EXTENSION_OFFSET;
@@ -428,6 +461,8 @@ export function* getUpdatesOfAllAutoLayoutCanvasHeight(
   let processedWidgets = { ...intialWidgets };
   const widgetHeightUpdates = Object.keys(canvasHeightsToUpdate);
   const { bottomRow: bottomRowMap, topRow: topRowMap } = dimensionMap;
+  const changesSoFar: Record<string, { bottomRow: number; topRow: number }> =
+    {};
   if (widgetHeightUpdates.length) {
     processedWidgets = widgetHeightUpdates.reduce((updatedWidgets, each) => {
       const widget = updatedWidgets[each];
@@ -440,6 +475,20 @@ export function* getUpdatesOfAllAutoLayoutCanvasHeight(
           ...widget,
           [bottomRowMap]: widgetTopRow + rows,
         },
+      };
+      if (widget.type === "MODAL_WIDGET") {
+        updatedWidgets = {
+          ...updatedWidgets,
+          [each]: {
+            ...widget,
+            height:
+              (widgetTopRow + rows) * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+          },
+        };
+      }
+      changesSoFar[each] = {
+        topRow: updatedWidgets[each][topRowMap],
+        bottomRow: updatedWidgets[each][bottomRowMap],
       };
       return updatedWidgets;
     }, processedWidgets);
@@ -460,7 +509,10 @@ export function* getUpdatesOfAllAutoLayoutCanvasHeight(
   const maxPossibleCanvasHeightInRows: number =
     yield getAutoLayoutMinHeightBasedOnChildren(
       MAIN_CONTAINER_WIDGET_ID,
+      dimensionMap,
+      changesSoFar,
       processedWidgets,
+      isMobile,
     );
 
   maxCanvasHeightInRows = Math.max(
@@ -476,7 +528,7 @@ export function* getUpdatesOfAllAutoLayoutCanvasHeight(
     },
   };
   log.debug(
-    "Auto Layotu Auto height: Canvas computations time taken:",
+    "Auto Layout Auto height: Canvas computations time taken:",
     performance.now() - start,
     "ms",
   );
