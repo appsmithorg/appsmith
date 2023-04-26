@@ -1,15 +1,15 @@
-export type FormConfig = {
-  config: {
-    tableName: string;
-    datasourceId: string;
-    //TODO:check where to use this
-    columns: {
-      name: string;
-      alias: string;
-    }[];
-    widgetId: string;
-    searchableColumn: string;
-  };
+export type WidgetQueryGenerationFormConfig = {
+  tableName: string;
+  datasourceId: string;
+  //TODO:check where to use this
+  aliases: {
+    name: string;
+    alias: string;
+  }[];
+  widgetId: string;
+  searchableColumn: string;
+  columns: string[];
+  primaryColumn: string;
   version: number;
 };
 
@@ -25,13 +25,19 @@ export type WidgetQueryGenerationConfig = {
     // we just the property name, since different Db generates query differently
     value: string;
   };
-  insert?: {
+  update?: {
     // we just the property name, since different Db generates query differently
     value: string;
     where: string;
   };
   //TODO:check where to use this
-  recordsCount: boolean; //whether we need to query to find total record
+  totalRecord: boolean; //whether we need to query to find total record
   version: number; //version of the config object
 };
-export type CombinedConfig = FormConfig & WidgetQueryGenerationConfig;
+
+export enum QUERY_TYPE {
+  SELECT = "select",
+  UPDATE = "update",
+  CREATE = "create",
+  TOTAL_RECORD = "total_record",
+}

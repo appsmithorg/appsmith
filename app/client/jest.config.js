@@ -17,7 +17,7 @@ module.exports = {
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node", "css"],
   moduleDirectories: ["node_modules", "src", "test"],
   transformIgnorePatterns: [
-    "<rootDir>/node_modules/(?!codemirror|design-system-old|react-dnd|dnd-core|@babel|(@blueprintjs/core)|@github|lodash-es|@draft-js-plugins|react-documents|linkedom)",
+    "<rootDir>/node_modules/(?!codemirror|design-system|design-system-old|react-dnd|dnd-core|@babel|(@blueprintjs/core)|@github|lodash-es|@draft-js-plugins|react-documents|linkedom)",
   ],
   moduleNameMapper: {
     "\\.(css|less)$": "<rootDir>/test/__mocks__/styleMock.js",
@@ -46,6 +46,7 @@ module.exports = {
       "<rootDir>/../node_modules/@blueprintjs/popover2/lib/esnext",
     "^@blueprintjs/select$":
       "<rootDir>/../node_modules/@blueprintjs/select/lib/esnext",
+    "design-system": "<rootDir>/node_modules/design-system/build",
   },
   globals: {
     "ts-jest": {

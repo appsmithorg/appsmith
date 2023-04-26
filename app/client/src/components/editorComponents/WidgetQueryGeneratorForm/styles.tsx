@@ -1,5 +1,6 @@
+import { Colors } from "constants/Colors";
 import { Button, getTypographyByKey } from "design-system-old";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import { DROPDOWN_TRIGGER_DIMENSION } from "./constants";
 
 export const Wrapper = styled.div``;
@@ -18,7 +19,7 @@ export const Label = styled.p`
 `;
 
 export const Bold = styled.span`
-  font-weight: 500;
+  font-weight: 700;
 `;
 
 export const Section = styled.div``;
@@ -60,4 +61,34 @@ export const ImageWrapper = styled.div`
 export const DatasourceImage = styled.img`
   height: 20px;
   width: auto;
+`;
+
+export const GlobalStyles = createGlobalStyle`
+  .one-click-binding-datasource-dropdown {
+    height: 300px;
+
+    .rc-select-item-option-disabled {
+      opacity: 1 !important;
+    }
+
+    .rc-virtual-list-holder {
+      max-height: 290px !important;
+    }
+
+    .has-seperator {
+      border-top: 1px solid ${Colors.GREY_4};
+      border-radius: 0;
+      margin-top: 10px;
+      padding-top: 15px;
+    }
+  }
+`;
+
+export const Binding = styled.div`
+  display: flex;
+  font-size: 16px;
+  font-weight: 700;
+  position: relative;
+  left: 4px;
+  color: ${Colors.GRAY};
 `;

@@ -461,8 +461,11 @@ function* createNewQueryForDatasourceSaga(
 
   const createActionPayload: Partial<Action> = yield call(
     createDefaultActionPayload,
-    action,
+    action.payload.pageId,
+    action.payload.datasourceId,
+    action.payload.from,
   );
+
   yield put(createActionRequest(createActionPayload));
 }
 
