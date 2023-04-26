@@ -1172,7 +1172,6 @@ function triggerFileUploadInstrumentation(
   pluginType: string,
 ) {
   const { fileSizes, fileTypes, numberOfFiles, totalSize } = filePickerInfo;
-  console.log("Ayush", numberOfFiles, status, statusCode);
   AnalyticsUtil.logEvent("FILE_UPLOAD_COMPLETE", {
     totalSize,
     fileSizes,
