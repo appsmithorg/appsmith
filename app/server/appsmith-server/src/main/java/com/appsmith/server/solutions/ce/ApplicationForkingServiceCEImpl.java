@@ -16,6 +16,7 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
+import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +43,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     private final ResponseUtils responseUtils;
     private final WorkspacePermission workspacePermission;
     private final ApplicationPermission applicationPermission;
-    private final ImportExportApplicationServiceCEImplV2 importExportApplicationServiceCEImplV2;
+    private final ImportExportApplicationService importExportApplicationService;
 
     public Mono<ApplicationImportDTO> forkApplicationToWorkspace(String srcApplicationId, String targetWorkspaceId) {
         final Mono<Application> sourceApplicationMono = applicationService.findById(srcApplicationId, applicationPermission.getReadPermission())
@@ -86,7 +87,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                             .flatMap(application ->
                                     sendForkApplicationAnalyticsEvent(srcApplicationId, targetWorkspaceId, application, eventData));
                 })
-                .flatMap(application -> importExportApplicationServiceCEImplV2.getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application));
+                .flatMap(application -> importExportApplicationService.getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application));
 
         // Fork application is currently a slow API because it needs to create application, clone all the pages, and then
         // copy all the actions and collections. This process may take time and the client may cancel the request.
@@ -123,7 +124,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
         return applicationService.findBranchedApplicationId(branchName, srcApplicationId, applicationPermission.getReadPermission())
                 .flatMap(branchedApplicationId -> forkApplicationToWorkspace(branchedApplicationId, targetWorkspaceId))
                 .map(applicationImportDTO -> responseUtils.updateApplicationWithDefaultResources(applicationImportDTO.getApplication()))
-                .flatMap(application -> importExportApplicationServiceCEImplV2.getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application));
+                .flatMap(application -> importExportApplicationService.getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application));
 
     }
 
