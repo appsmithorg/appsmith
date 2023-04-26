@@ -17,7 +17,12 @@ const renderDropdown = (props: any) => {
   return (
     <Select
       onSelect={(value) => {
-        props.input.onChange(value);
+        // take the string value that rc-select gives us and use it to find the object that the string value contains,
+        // which is what our backend wants.
+        const obj = _.find(props.options, (o) => {
+          return o.value === value;
+        });
+        props.input.onChange(obj);
       }}
       value={props.input.value}
     >

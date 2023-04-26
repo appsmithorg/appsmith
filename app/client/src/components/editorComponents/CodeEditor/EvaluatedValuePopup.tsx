@@ -85,18 +85,19 @@ const CopyIconWrapper = styled(Button)`
 `;
 
 const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
-  min-height: 28px;
+  min-height: 36px;
   -ms-overflow-style: none;
-  padding: ${(props) => props.theme.spaces[3]}px;
-  padding-right: 30px;
+  padding-left: var(--ads-v2-spaces-3);
+  padding-right: var(--ads-v2-spaces-2);
   background-color: ${THEME.editorBackground};
   border-radius: var(--ads-v2-border-radius);
   position: relative;
   width: 100%;
   display: flex;
-  align-items: start;
+  align-items: center;
+  justify-content: space-between;
   &:hover {
-    ${CopyIconWrapper} {
+    .copyIconWrapper {
       display: flex;
     }
   }
@@ -418,18 +419,19 @@ const ControlledCurrentValueViewer = memo(
             colorTheme={props.theme}
           >
             {content}
+            {props.hasOwnProperty("evaluatedValue") && (
+              <CopyIconWrapper
+                className={"copyIconWrapper"}
+                isIconButton
+                kind="tertiary"
+                onClick={() =>
+                  copyContent(props.evaluatedValue, onCopyContentText)
+                }
+                size="sm"
+                startIcon="copy-control"
+              />
+            )}
           </CurrentValueWrapper>
-          {props.hasOwnProperty("evaluatedValue") && (
-            <CopyIconWrapper
-              isIconButton
-              kind="tertiary"
-              onClick={() =>
-                copyContent(props.evaluatedValue, onCopyContentText)
-              }
-              size="sm"
-              startIcon="copy-control"
-            />
-          )}
         </Collapse>
       </>
     );
