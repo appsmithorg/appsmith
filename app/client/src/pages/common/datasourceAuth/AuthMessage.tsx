@@ -1,5 +1,6 @@
 import type { AppState } from "@appsmith/reducers";
 import { redirectAuthorizationCode } from "actions/datasourceActions";
+import type { CalloutKind } from "design-system";
 import { Callout } from "design-system";
 import type { Datasource } from "entities/Datasource";
 import { ActionType } from "entities/Datasource";
@@ -30,7 +31,7 @@ type AuthMessageProps = {
   description: string;
   pageId?: string;
   style?: any;
-  calloutType?: CalloutType;
+  calloutType?: CalloutKind;
 };
 
 export default function AuthMessage(props: AuthMessageProps) {
@@ -46,7 +47,7 @@ export default function AuthMessage(props: AuthMessageProps) {
   const pluginType = useSelector((state: AppState) =>
     getPluginTypeFromDatasourceId(state, datasource.id),
   );
-  const handleOauthAuthorization: any = () => {
+  const handleOauthAuthorization: any = (e: React.MouseEvent) => {
     e.preventDefault();
     if (!pluginType || !pageId) return;
     dispatch(redirectAuthorizationCode(pageId, datasource.id, pluginType));
