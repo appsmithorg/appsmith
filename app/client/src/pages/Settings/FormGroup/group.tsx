@@ -180,8 +180,9 @@ export default function Group({
                           children: createMessage(LEARN_MORE),
                           ...(setting.url && { to: setting.url }),
                           ...(setting.action && {
-                            onClick: () => {
+                            onClick: (e: any) => {
                               if (setting.action) {
+                                e.preventDefault();
                                 setting.action(
                                   calloutDispatch,
                                 ) as unknown as React.MouseEventHandler<HTMLElement>;
