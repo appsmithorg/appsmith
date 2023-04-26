@@ -63,6 +63,7 @@ const StyleTabText = styled.div<{
     text-overflow: ellipsis;
     white-space: nowrap;
     width: 100%;
+    line-height: initial;
 
     &.is-selected {
       color: ${(props) => props.accentColor};
