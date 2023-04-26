@@ -3,10 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { generateReactKey } from "utils/generators";
 import { Collapsible } from ".";
-import {
-  getTypographyByKey,
-  TooltipComponent as Tooltip,
-} from "design-system-old";
+import { getTypographyByKey } from "design-system-old";
 import { addSuggestedWidget } from "actions/widgetActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -22,6 +19,7 @@ import { getWidgets } from "sagas/selectors";
 import { getNextWidgetName } from "sagas/WidgetOperationUtils";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { Tooltip } from "design-system";
 
 const WidgetList = styled.div`
   ${getTypographyByKey("p1")}
