@@ -10,7 +10,8 @@ import styled from "styled-components";
 import { toast } from "design-system";
 
 const Container = styled.div`
-  background-color: var(--ads-v2-color-bg-muted);
+  background-color: var(--ads-v2-color-bg-subtle);
+  border-radius: var(--ads-v2-border-radius);
 `;
 
 const StyledText = styled(Text)`

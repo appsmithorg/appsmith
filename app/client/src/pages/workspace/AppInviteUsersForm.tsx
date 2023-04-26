@@ -19,25 +19,21 @@ import {
   INVITE_USERS_PLACEHOLDER,
   IN_APP_EMBED_SETTING,
   MAKE_APPLICATION_PUBLIC,
-  MAKE_APPLICATION_PUBLIC_TOOLTIP,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { hasInviteUserToApplicationPermission } from "@appsmith/utils/permissionHelpers";
-import { Button, Icon, Tooltip, Text, Switch } from "design-system";
+import { Button, Switch } from "design-system";
 
 const { cloudHosting } = getAppsmithConfigs();
 
-const ShareToggle = styled.div`
-  flex-basis: 46px;
-  height: 23px;
-
-  .ads-v2-switch__label {
-    justify-content: flex-end;
-    min-width: 0px;
-  }
+const SwitchContainer = styled.div`
+  flex-basis: 200px;
 `;
 
 const BottomContainer = styled.div<{ canInviteToApplication?: boolean }>`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   ${({ canInviteToApplication }) =>
     canInviteToApplication
       ? `border-top: 1px solid var(--ads-v2-color-border);`
@@ -117,14 +113,15 @@ function AppInviteUsersForm(props: any) {
       )}
       <BottomContainer
         canInviteToApplication={canInviteToApplication}
-        className={`flex space-between ${canInviteToApplication ? "pt-5" : ""}`}
+        className={`${canInviteToApplication ? "pt-3" : ""}`}
       >
         <Button
           className="flex gap-1.5 cursor-pointer"
           data-cy={"copy-application-url"}
+          endIcon="links-line"
           kind="tertiary"
           onClick={copyToClipboard}
-          startIcon="links-line"
+          size="md"
         >
           {`${
             isCopied
@@ -133,31 +130,22 @@ function AppInviteUsersForm(props: any) {
           } ${createMessage(IN_APP_EMBED_SETTING.applicationUrl)}`}
         </Button>
         {canShareWithPublic && (
-          <div className="flex flex-1 items-center justify-end">
-            <Text kind="action-m">
-              {createMessage(MAKE_APPLICATION_PUBLIC)}
-            </Text>
-            <Tooltip
-              content={createMessage(MAKE_APPLICATION_PUBLIC_TOOLTIP)}
-              placement="topRight"
-            >
-              <Icon className="pl-1" name="question-fill" size="md" />
-            </Tooltip>
-            <ShareToggle className="ml-4 t--share-public-toggle">
-              {currentApplicationDetails && (
-                <Switch
-                  isDisabled={isChangingViewAccess || isFetchingApplication}
-                  onChange={() => {
-                    changeAppViewAccess(
-                      applicationId,
-                      !currentApplicationDetails.isPublic,
-                    );
-                  }}
-                  value={currentApplicationDetails.isPublic}
-                />
-              )}
-            </ShareToggle>
-          </div>
+          <SwitchContainer className="t--share-public-toggle">
+            {currentApplicationDetails && (
+              <Switch
+                isDisabled={isChangingViewAccess || isFetchingApplication}
+                onChange={() => {
+                  changeAppViewAccess(
+                    applicationId,
+                    !currentApplicationDetails.isPublic,
+                  );
+                }}
+                value={currentApplicationDetails.isPublic}
+              >
+                {createMessage(MAKE_APPLICATION_PUBLIC)}
+              </Switch>
+            )}
+          </SwitchContainer>
         )}
       </BottomContainer>
     </>

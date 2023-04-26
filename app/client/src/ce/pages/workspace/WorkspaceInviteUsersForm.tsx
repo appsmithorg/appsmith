@@ -70,12 +70,6 @@ export const StyledForm = styled.form`
     .wrapper > div:nth-child(2) {
       width: 40%;
     }
-    .bp3-input {
-      box-shadow: none;
-    }
-    .bp3-button {
-      padding-top: 5px;
-    }
   }
 `;
 
@@ -88,15 +82,7 @@ export const StyledInviteFieldGroup = styled.div`
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-
-  .wrapper {
-    display: flex;
-    width: 87%;
-    flex-direction: row;
-    align-items: baseline;
-    justify-content: space-between;
-    border-right: 0px;
-  }
+  gap: 0.8rem;
 `;
 
 export const InviteModalStyles = createGlobalStyle`
@@ -106,9 +92,11 @@ export const InviteModalStyles = createGlobalStyle`
 `;
 
 export const UserList = styled.div`
-  margin-top: 24px;
+  margin-top: 10px;
   max-height: 260px;
   overflow-y: auto;
+  justify-content: space-between;
+  margin-left: 0.1rem;
   &&::-webkit-scrollbar-thumb {
     background-color: ${(props) => props.theme.colors.modal.scrollbar};
   }
@@ -118,10 +106,8 @@ export const User = styled.div<{ isApplicationInvite?: boolean }>`
   display: flex;
   align-items: center;
   min-height: 54px;
-  padding: 5px 0 5px 15px;
   justify-content: space-between;
-  color: ${(props) => props.theme.colors.modal.user.textColor};
-  border-bottom: 1px solid ${(props) => props.theme.colors.menuBorder};
+  border-bottom: 1px solid var(--ads-v2-color-border);
 
   &:last-child {
     ${({ isApplicationInvite }) =>
@@ -167,6 +153,12 @@ export const MailConfigContainer = styled.div`
     font-weight: 500;
     font-size: 14px;
   }
+`;
+
+const ManageUsersContainer = styled.div`
+  display: flex;
+  padding: 12px 0;
+  margin-left: 0.7rem;
 `;
 
 const validateFormValues = (values: {
@@ -376,8 +368,18 @@ function WorkspaceInviteUsersForm(props: any) {
           );
         })}
       >
+        <div className="flex gap-2 mb-2">
+          <Text
+            color="var(--ads-v2-color-gray-600)"
+            data-testid="helper-message"
+            kind="action-m"
+          >
+            {createMessage(USERS_HAVE_ACCESS_TO_ALL_APPS)}
+          </Text>
+        </div>
+
         <StyledInviteFieldGroup>
-          <div className="wrapper">
+          <div style={{ width: "60%" }}>
             <TagListField
               autofocus
               customError={(err: string) => errorHandler(err)}
@@ -388,6 +390,8 @@ function WorkspaceInviteUsersForm(props: any) {
               placeholder={placeholder || "Enter email address(es)"}
               type="email"
             />
+          </div>
+          <div style={{ width: "40%" }}>
             <Select
               data-cy="t--invite-role-input"
               disabled={props.disableDropdown}
@@ -408,21 +412,17 @@ function WorkspaceInviteUsersForm(props: any) {
               ))}
             </Select>
           </div>
-          <Button
-            className="t--invite-user-btn"
-            isDisabled={!valid || selectedOption.length === 0}
-            isLoading={submitting && !(submitFailed && !anyTouched)}
-            size="md"
-          >
-            Invite
-          </Button>
+          <div>
+            <Button
+              className="t--invite-user-btn"
+              isDisabled={!valid || selectedOption.length === 0}
+              isLoading={submitting && !(submitFailed && !anyTouched)}
+              size="md"
+            >
+              Invite
+            </Button>
+          </div>
         </StyledInviteFieldGroup>
-
-        <div className="flex gap-2 mt-2 ml-1">
-          <Text data-testid="helper-message" kind="action-s">
-            {createMessage(USERS_HAVE_ACCESS_TO_ALL_APPS)}
-          </Text>
-        </div>
 
         {isLoading ? (
           <div className="p-4">
@@ -437,10 +437,7 @@ function WorkspaceInviteUsersForm(props: any) {
               </MailConfigContainer>
             )}
             {!disableUserList && (
-              <UserList
-                ref={userRef}
-                style={{ justifyContent: "space-between" }}
-              >
+              <UserList ref={userRef}>
                 {allUsersProfiles.map(
                   (user: {
                     username: string;
@@ -497,10 +494,12 @@ function WorkspaceInviteUsersForm(props: any) {
           )}
         </ErrorBox>
         {canManage && !disableManageUsers && (
-          <ManageUsers
-            isApplicationInvite={isApplicationInvite}
-            workspaceId={props.workspaceId}
-          />
+          <ManageUsersContainer>
+            <ManageUsers
+              isApplicationInvite={isApplicationInvite}
+              workspaceId={props.workspaceId}
+            />
+          </ManageUsersContainer>
         )}
       </StyledForm>
     </WorkspaceInviteWrapper>

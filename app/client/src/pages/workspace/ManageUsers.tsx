@@ -1,12 +1,6 @@
 import React from "react";
-import styled from "styled-components";
 import { useLocation } from "react-router-dom";
 import { Link } from "design-system";
-
-const Container = styled.div`
-  display: flex;
-  padding: 12px 0;
-`;
 
 function ManageUsers({
   workspaceId,
@@ -18,15 +12,13 @@ function ManageUsers({
   const pathRegex = /(?:\/workspace\/)\w+(?:\/settings)/;
 
   return !pathRegex.test(currentPath) ? (
-    <Container>
-      <Link
-        endIcon="arrow-right-s-line"
-        kind="secondary"
-        to={`/workspace/${workspaceId}/settings/members`}
-      >
-        Manage Users
-      </Link>
-    </Container>
+    <Link
+      endIcon="arrow-right-s-line"
+      kind="secondary"
+      to={`/workspace/${workspaceId}/settings/members`}
+    >
+      Manage Users
+    </Link>
   ) : null;
 }
 export default ManageUsers;

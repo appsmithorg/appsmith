@@ -100,9 +100,9 @@ function EmbedSnippetTab() {
         className={`flex justify-end border-t-2 mt-6 pt-5 border-[${Colors.GRAY_200}]`}
       >
         <div className="flex gap-1 items-center">
-          <Icon name="link" size="md" />
           <Link
             data-cy="preview-embed"
+            endIcon="share-box-line"
             kind="secondary"
             target={"_blank"}
             to={embedSnippet.appViewEndPoint}
