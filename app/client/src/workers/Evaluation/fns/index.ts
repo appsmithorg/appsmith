@@ -60,7 +60,7 @@ import {
   stopWatchGeoLocation,
   watchGeoLocation,
 } from "./geolocationFns";
-import { isAsyncGuard } from "./utils/fnGuard";
+import { getFnWithGaurds, isAsyncGuard } from "./utils/fnGuard";
 
 // cloudHosting -> to use in EE
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -120,34 +120,44 @@ export const entityFns = [
     name: "run",
     qualifier: (entity: DataTreeEntity) => isAction(entity),
     fn: (entity: DataTreeEntity, entityName: string) =>
-      isAsyncGuard(run.bind(entity), `${entityName}.run`),
+      getFnWithGaurds(run.bind(entity), `${entityName}.run`, [isAsyncGuard]),
   },
   {
     name: "clear",
     qualifier: (entity: DataTreeEntity) => isAction(entity),
     fn: (entity: DataTreeEntity, entityName: string) =>
-      isAsyncGuard(clear.bind(entity), `${entityName}.clear`),
+      getFnWithGaurds(clear.bind(entity), `${entityName}.clear`, [
+        isAsyncGuard,
+      ]),
   },
   {
     name: "getGeoLocation",
     path: "appsmith.geolocation.getCurrentPosition",
     qualifier: (entity: DataTreeEntity) => isAppsmithEntity(entity),
     fn: () =>
-      isAsyncGuard(getGeoLocation, "appsmith.geolocation.getCurrentPosition"),
+      getFnWithGaurds(
+        getGeoLocation,
+        "appsmith.geolocation.getCurrentPosition",
+        [isAsyncGuard],
+      ),
   },
   {
     name: "watchGeoLocation",
     path: "appsmith.geolocation.watchPosition",
     qualifier: (entity: DataTreeEntity) => isAppsmithEntity(entity),
     fn: () =>
-      isAsyncGuard(watchGeoLocation, "appsmith.geolocation.watchPosition"),
+      getFnWithGaurds(watchGeoLocation, "appsmith.geolocation.watchPosition", [
+        isAsyncGuard,
+      ]),
   },
   {
     name: "stopWatchGeoLocation",
     path: "appsmith.geolocation.clearWatch",
     qualifier: (entity: DataTreeEntity) => isAppsmithEntity(entity),
     fn: () =>
-      isAsyncGuard(stopWatchGeoLocation, "appsmith.geolocation.clearWatch"),
+      getFnWithGaurds(stopWatchGeoLocation, "appsmith.geolocation.clearWatch", [
+        isAsyncGuard,
+      ]),
   },
 ];
 
