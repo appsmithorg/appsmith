@@ -434,7 +434,6 @@ function renderHelpSection(
             children: "Learn how",
             endIcon: "right-arrow",
             onClick: handleClickLearnHow,
-            to: "",
           },
         ]}
         onClose={() => setApiBindHelpSectionVisible(false)}
@@ -571,6 +570,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
   const theme = EditorTheme.LIGHT;
   const handleClickLearnHow = (e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     dispatch(setGlobalSearchQuery("capturing data"));
     dispatch(toggleShowGlobalSearchModal());
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "LEARN_HOW_DATASOURCE" });
