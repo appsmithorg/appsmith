@@ -14,6 +14,7 @@ import {
 import { useSelector } from "react-redux";
 import type { EventLocation } from "utils/AnalyticsUtil";
 import history from "utils/history";
+import type { ActionOperation } from "./utils";
 import {
   actionOperations,
   attachKind,
@@ -37,7 +38,7 @@ export const useFilteredFileOperations = (query = "") => {
   const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();
   /**
    *  Work around to get the rest api cloud image.
-   *  We don't have it store as an svg
+   *  We don't have it store as a svg
    */
   const plugins = useSelector(getPlugins);
   const restApiPlugin = plugins.find(
@@ -62,101 +63,121 @@ export const useFilteredFileOperations = (query = "") => {
     userWorkspacePermissions,
   );
 
-  return useMemo(() => {
-    let fileOperations: any =
-      (canCreateActions &&
-        actionOperations.filter((op) =>
-          op.title.toLowerCase().includes(query.toLowerCase()),
-        )) ||
-      [];
-    const filteredAppWideDS = appWideDS.filter((ds: Datasource) =>
-      ds.name.toLowerCase().includes(query.toLowerCase()),
-    );
-    const otherFilteredDS = otherDS.filter((ds: Datasource) =>
-      ds.name.toLowerCase().includes(query.toLowerCase()),
+  return useMemo(
+    () =>
+      getFilteredAndSortedFileOperations(
+        query,
+        appWideDS,
+        otherDS,
+        canCreateActions,
+        canCreateDatasource,
+        pagePermissions,
+      ),
+    [query, appWideDS, otherDS],
+  );
+};
+
+export const getFilteredAndSortedFileOperations = (
+  query: string,
+  appWideDS: Datasource[] = [],
+  otherDS: Datasource[] = [],
+  canCreateActions = true,
+  canCreateDatasource = true,
+  pagePermissions: string[] = [],
+) => {
+  const fileOperations: ActionOperation[] = [];
+  if (!canCreateActions) return fileOperations;
+
+  // Add JS object operation
+  fileOperations.push(actionOperations[2]);
+  // Add app datasources
+  if (appWideDS.length > 0 || otherDS.length > 0) {
+    const showCreateQuery = [...appWideDS, ...otherDS].some((ds: Datasource) =>
+      hasCreateDatasourceActionPermission([
+        ...(ds.userPermissions ?? []),
+        ...pagePermissions,
+      ]),
     );
 
-    if (filteredAppWideDS.length > 0 || otherFilteredDS.length > 0) {
-      const showCreateQuery = [...filteredAppWideDS, ...otherFilteredDS].some(
-        (ds: Datasource) =>
-          hasCreateDatasourceActionPermission([
-            ...(ds.userPermissions ?? []),
-            ...pagePermissions,
-          ]),
-      );
-
-      fileOperations = [
-        ...fileOperations,
-        showCreateQuery && {
-          title: "CREATE A QUERY",
-          kind: SEARCH_ITEM_TYPES.sectionTitle,
-        },
-      ];
+    if (showCreateQuery) {
+      fileOperations.push({
+        desc: "",
+        title: "CREATE A QUERY",
+        kind: SEARCH_ITEM_TYPES.sectionTitle,
+      });
     }
-    if (filteredAppWideDS.length > 0) {
-      fileOperations = [
-        ...fileOperations,
-        ...filteredAppWideDS.map((ds) => {
-          return hasCreateDatasourceActionPermission([
-            ...(ds.userPermissions ?? []),
-            ...pagePermissions,
-          ])
-            ? {
-                title: `New ${ds.name} Query`,
-                shortTitle: `${ds.name} Query`,
-                desc: `Create a query in ${ds.name}`,
-                pluginId: ds.pluginId,
-                kind: SEARCH_ITEM_TYPES.actionOperation,
-                action: (pageId: string, from: EventLocation) =>
-                  createNewQueryAction(pageId, from, ds.id),
-              }
-            : null;
-        }),
-      ];
-    }
-    if (otherFilteredDS.length > 0) {
-      fileOperations = [
-        ...fileOperations,
-        ...otherFilteredDS.map((ds) => {
-          return hasCreateDatasourceActionPermission([
-            ...(ds.userPermissions ?? []),
-            ...pagePermissions,
-          ])
-            ? {
-                title: `New ${ds.name} Query`,
-                shortTitle: `${ds.name} Query`,
-                desc: `Create a query in ${ds.name}`,
-                kind: SEARCH_ITEM_TYPES.actionOperation,
-                pluginId: ds.pluginId,
-                action: (pageId: string, from: EventLocation) =>
-                  createNewQueryAction(pageId, from, ds.id),
-              }
-            : null;
-        }),
-      ];
-    }
-    fileOperations = [
-      ...fileOperations,
-      canCreateDatasource && {
-        title: "New Datasource",
-        icon: (
-          <EntityIcon>
-            <AddLineIcon size={22} />
-          </EntityIcon>
-        ),
+  }
+  if (appWideDS.length > 0) {
+    const appWideDSOperations = appWideDS
+      .filter((ds) =>
+        hasCreateDatasourceActionPermission([
+          ...(ds.userPermissions ?? []),
+          ...pagePermissions,
+        ]),
+      )
+      .map((ds) => ({
+        title: `New ${ds.name} query`,
+        shortTitle: `${ds.name} query`,
+        desc: `Create a query in ${ds.name}`,
+        pluginId: ds.pluginId,
         kind: SEARCH_ITEM_TYPES.actionOperation,
-        redirect: (pageId: string) => {
-          history.push(
-            integrationEditorURL({
-              pageId,
-              selectedTab: INTEGRATION_TABS.NEW,
-            }),
-          );
-        },
+        action: (pageId: string, from: EventLocation) =>
+          createNewQueryAction(pageId, from, ds.id),
+      }));
+
+    fileOperations.push(...appWideDSOperations);
+  }
+  // Add other datasources
+  if (otherDS.length > 0) {
+    const otherDSOperations = otherDS
+      .filter((ds) =>
+        hasCreateDatasourceActionPermission([
+          ...(ds.userPermissions ?? []),
+          ...pagePermissions,
+        ]),
+      )
+      .map((ds) => ({
+        title: `New ${ds.name} query`,
+        shortTitle: `${ds.name} query`,
+        desc: `Create a query in ${ds.name}`,
+        pluginId: ds.pluginId,
+        kind: SEARCH_ITEM_TYPES.actionOperation,
+        action: (pageId: string, from: EventLocation) =>
+          createNewQueryAction(pageId, from, ds.id),
+      }));
+
+    fileOperations.push(...otherDSOperations);
+  }
+  // Add generic action creation
+  fileOperations.push(
+    ...actionOperations.filter((op) => op.title !== actionOperations[2].title),
+  );
+  // Filter out based on query
+  const filteredFileOperations = fileOperations
+    .filter(Boolean)
+    .filter((ds) => ds.title.toLowerCase().includes(query.toLowerCase()));
+  // Add genetic datasource creation
+  if (canCreateDatasource) {
+    filteredFileOperations.push({
+      desc: "Create a new datasource in the organisation",
+      title: "New Datasource",
+      icon: (
+        <EntityIcon>
+          <AddLineIcon size={22} />
+        </EntityIcon>
+      ),
+      kind: SEARCH_ITEM_TYPES.actionOperation,
+      redirect: (pageId: string) => {
+        history.push(
+          integrationEditorURL({
+            pageId,
+            selectedTab: INTEGRATION_TABS.NEW,
+          }),
+        );
       },
-    ];
-    return fileOperations.filter(Boolean);
-  }, [query, appWideDS, otherDS]);
+    });
+  }
+  return filteredFileOperations;
 };
 
 export const useFilteredWidgets = (query: string) => {
