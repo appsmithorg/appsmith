@@ -75,7 +75,7 @@ function DropdownWrapper(props: DropdownWrapperProps) {
       onSelect={onSelectHandler}
       placeholder={props.placeholder}
       showSearch={props.enableSearch}
-      value={props.isMultiSelect ? selectedOption : selectedOption[0].value}
+      value={props.isMultiSelect ? selectedOption : selectedOption[0]}
     >
       {props.options.map((option: Partial<SelectOptionProps>) => (
         <Option key={option.value} value={option.id}>

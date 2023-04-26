@@ -191,7 +191,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                       >
                         <Icon
                           className={`${method.category}-green-check`}
-                          color="var(--ads-old-color-jade)"
+                          color="var(--ads-v2-color-fg-success)"
                           name="oval-check"
                         />
                       </Tooltip>

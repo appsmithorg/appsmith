@@ -2,8 +2,11 @@ import styled from "styled-components";
 import React from "react";
 import { Button, Text } from "design-system";
 import type { FooterProps } from "./types";
-import { createMessage } from "design-system-old/build/constants/messages";
-import { AVAILABLE_ON_BUSINESS, UPGRADE } from "../../constants/messages";
+import {
+  AVAILABLE_ON_BUSINESS,
+  createMessage,
+  UPGRADE,
+} from "@appsmith/constants/messages";
 
 const FooterContainer = styled.div`
   position: fixed;
