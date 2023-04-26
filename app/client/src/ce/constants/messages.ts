@@ -1094,6 +1094,7 @@ export const ADD_DATASOURCE_TOOLTIP = () =>
 export const ADD_WIDGET_TOOLTIP = () => "Find and add a widget";
 export const HELP_RESOURCE_TOOLTIP = () => "Help and resources";
 export const COPY_ELEMENT = () => "Copy element";
+export const SHOW_TEMPLATES = () => "Add a query";
 export const LAYOUT_DROPDOWN_TOOLTIP = () =>
   "Choose how your application looks on desktop, tablet and mobile devices";
 export const DEPLOY_BUTTON_TOOLTIP = () =>
