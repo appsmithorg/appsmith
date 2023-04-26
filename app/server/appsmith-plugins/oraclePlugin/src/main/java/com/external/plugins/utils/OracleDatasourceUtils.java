@@ -97,7 +97,7 @@ public class OracleDatasourceUtils {
 
     public static void datasourceDestroy(HikariDataSource connectionPool) {
         if (connectionPool != null) {
-            System.out.println(Thread.currentThread().getName() + ": Closing Oracle DB Connection Pool");
+            log.debug(Thread.currentThread().getName() + ": Closing Oracle DB Connection Pool");
             connectionPool.close();
         }
     }
