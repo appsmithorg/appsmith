@@ -97,6 +97,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
@@ -176,12 +177,12 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
         //      : Sample apps where datasource config needs to be shared => Read permission
 
         boolean isGitSync = SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseFor);
+        AtomicReference<Boolean> exportWithConfiguration = new AtomicReference<>(false);
 
         // If Git-sync, then use MANAGE_APPLICATIONS, else use EXPORT_APPLICATION permission to fetch application
         AclPermission permission = isGitSync ? applicationPermission.getEditPermission() : applicationPermission.getExportPermission();
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
-
         Mono<Application> applicationMono =
                 // Find the application with appropriate permission
                 applicationService.findById(applicationId, permission)
@@ -195,7 +196,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                 // Explicitly setting the boolean to avoid NPE for future checks
                                 application.setExportWithConfiguration(false);
                             }
-
+                            exportWithConfiguration.set(application.getExportWithConfiguration());
                             return application;
                         });
 
@@ -286,7 +287,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                     Set<String> dbNamesUsedInActions = new HashSet<>();
 
                     Optional<AclPermission> optionalPermission = isGitSync ? Optional.empty() :
-                            TRUE.equals(application.getExportWithConfiguration())
+                            TRUE.equals(exportWithConfiguration.get())
                                     ? Optional.of(pagePermission.getReadPermission())
                                     : Optional.of(pagePermission.getEditPermission());
                     Flux<NewPage> pageFlux = newPageRepository.findByApplicationId(applicationId, optionalPermission);
@@ -343,7 +344,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                 }});
 
                                 Optional<AclPermission> optionalPermission3 = isGitSync ? Optional.empty()
-                                        : TRUE.equals(application.getExportWithConfiguration())
+                                        : TRUE.equals(exportWithConfiguration.get())
                                         ? Optional.of(datasourcePermission.getReadPermission())
                                         : Optional.of(datasourcePermission.getEditPermission());
 
@@ -357,7 +358,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                 applicationJson.setDatasourceList(datasourceList);
 
                                 Optional<AclPermission> optionalPermission1 = isGitSync ? Optional.empty() :
-                                        TRUE.equals(application.getExportWithConfiguration())
+                                        TRUE.equals(exportWithConfiguration.get())
                                                 ? Optional.of(actionPermission.getReadPermission())
                                                 : Optional.of(actionPermission.getEditPermission());
                                 Flux<ActionCollection> actionCollectionFlux =
@@ -416,7 +417,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                 applicationJson.getUpdatedResources().put(FieldName.ACTION_COLLECTION_LIST, updatedActionCollectionSet);
 
                                 Optional<AclPermission> optionalPermission2 = isGitSync ? Optional.empty()
-                                        : TRUE.equals(application.getExportWithConfiguration())
+                                        : TRUE.equals(exportWithConfiguration.get())
                                         ? Optional.of(actionPermission.getReadPermission())
                                         : Optional.of(actionPermission.getEditPermission());
 
@@ -491,7 +492,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
 
                                 // Save decrypted fields for datasources for internally used sample apps and templates only
                                 // when serialising for file sharing
-                                if (TRUE.equals(application.getExportWithConfiguration()) && SerialiseApplicationObjective.SHARE.equals(serialiseFor)) {
+                                if (TRUE.equals(exportWithConfiguration.get()) && SerialiseApplicationObjective.SHARE.equals(serialiseFor)) {
                                     // Save decrypted fields for datasources
                                     Map<String, DecryptedSensitiveFields> decryptedFields = new HashMap<>();
                                     applicationJson.getDatasourceList().forEach(datasource -> {

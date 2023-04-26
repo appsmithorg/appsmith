@@ -1,9 +1,13 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.Connection;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.JSValue;
+import com.appsmith.external.models.SSLDetails;
+import com.appsmith.external.models.UploadedFile;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
@@ -68,6 +72,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 import reactor.util.function.Tuple3;
 import reactor.util.function.Tuple4;
 
@@ -876,5 +881,124 @@ public class ApplicationForkingServiceTests {
                     assertThat(forkedApplication.getExportWithConfiguration()).isNull();
                 })
                 .verifyComplete();
+    }
+
+    private Mono<Tuple2<Application, String>> forkApplicationSetup(Boolean forkWithConfiguration, Boolean connectDatasourceToAction){
+        Workspace targetWorkspace = new Workspace();
+        targetWorkspace.setName("target-org");
+        targetWorkspace = workspaceService.create(targetWorkspace).block();
+        assert targetWorkspace != null;
+        final String targetWorkspaceId = targetWorkspace.getId();
+
+        Workspace srcWorkspace = new Workspace();
+        srcWorkspace.setName("src-org");
+        srcWorkspace = workspaceService.create(srcWorkspace).block();
+
+        Application application = new Application();
+        application.setName("app1");
+        application.setForkWithConfiguration(forkWithConfiguration);
+        assert srcWorkspace != null;
+        Application srcApp = applicationPageService.createApplication(application, srcWorkspace.getId()).block();
+
+        Datasource datasource = new Datasource();
+        datasource.setName("test db datasource1");
+        datasource.setWorkspaceId(srcApp.getWorkspaceId());
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        Connection connection = new Connection();
+        connection.setMode(Connection.Mode.READ_ONLY);
+        connection.setType(Connection.Type.REPLICA_SET);
+        SSLDetails sslDetails = new SSLDetails();
+        sslDetails.setAuthType(SSLDetails.AuthType.CA_CERTIFICATE);
+        sslDetails.setKeyFile(new UploadedFile("ssl_key_file_id", ""));
+        sslDetails.setCertificateFile(new UploadedFile("ssl_cert_file_id", ""));
+        connection.setSsl(sslDetails);
+        datasourceConfiguration.setConnection(connection);
+        DBAuth auth = new DBAuth();
+        auth.setUsername("test");
+        auth.setPassword("test");
+        datasourceConfiguration.setAuthentication(auth);
+        datasource.setDatasourceConfiguration(datasourceConfiguration);
+
+        Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
+        datasource.setPluginId(installed_plugin.getId());
+
+        Datasource createdDatasource = datasourceService.create(datasource).block();
+
+        if (Boolean.TRUE.equals(connectDatasourceToAction)){
+            ActionDTO action = new ActionDTO();
+            action.setName("forkActionTest");
+            action.setPageId(srcApp.getPages().get(0).getId());
+            action.setExecuteOnLoad(true);
+            ActionConfiguration actionConfiguration = new ActionConfiguration();
+            actionConfiguration.setHttpMethod(HttpMethod.GET);
+            action.setActionConfiguration(actionConfiguration);
+            action.setDatasource(createdDatasource);
+            layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+        }
+
+        return Mono.zip(Mono.just(srcApp), Mono.just(targetWorkspaceId));
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void forkApplication_withForkWithConfigurationFalseAndDatasourceUsed_IsPartialImportTrue(){
+        Tuple2<Application, String> forkApplicationSetupResponse = forkApplicationSetup(false, true).block();
+        Application srcApp = forkApplicationSetupResponse.getT1();
+        String targetWorkspaceId = forkApplicationSetupResponse.getT2();
+
+        Mono<ApplicationImportDTO> resultMono = applicationForkingService.forkApplicationToWorkspace(srcApp.getId(), targetWorkspaceId);
+
+        StepVerifier.create(resultMono)
+                .assertNext(forkedApplicationImportDTO -> {
+                    Application forkedApplication = forkedApplicationImportDTO.getApplication();
+                    assertThat(forkedApplication).isNotNull();
+                    assertThat(forkedApplicationImportDTO.getIsPartialImport()).isTrue();
+                    assertThat(forkedApplication.getForkWithConfiguration()).isNull();
+                    assertThat(forkedApplication.getExportWithConfiguration()).isNull();
+                })
+                .verifyComplete();
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void forkApplication_withForkWithConfigurationFalseAndDatasourceNotUsed_IsPartialImportFalse(){
+        Tuple2<Application, String> forkApplicationSetupResponse = forkApplicationSetup(false, false).block();
+        Application srcApp = forkApplicationSetupResponse.getT1();
+        String targetWorkspaceId = forkApplicationSetupResponse.getT2();
+
+        Mono<ApplicationImportDTO> resultMono = applicationForkingService.forkApplicationToWorkspace(srcApp.getId(), targetWorkspaceId);
+
+        StepVerifier.create(resultMono)
+                .assertNext(forkedApplicationImportDTO -> {
+                    Application forkedApplication = forkedApplicationImportDTO.getApplication();
+                    assertThat(forkedApplication).isNotNull();
+                    assertThat(forkedApplicationImportDTO.getIsPartialImport()).isFalse();
+                    assertThat(forkedApplication.getForkWithConfiguration()).isNull();
+                    assertThat(forkedApplication.getExportWithConfiguration()).isNull();
+                })
+                .verifyComplete();
+
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void forkApplication_withForkWithConfigurationTrue_IsPartialImportFalse(){
+        Tuple2<Application, String> forkApplicationSetupResponse = forkApplicationSetup(true, true).block();
+        Application srcApp = forkApplicationSetupResponse.getT1();
+        String targetWorkspaceId = forkApplicationSetupResponse.getT2();
+
+        Mono<ApplicationImportDTO> resultMono = applicationForkingService.forkApplicationToWorkspace(srcApp.getId(), targetWorkspaceId);
+
+        StepVerifier.create(resultMono)
+                .assertNext(forkedApplicationImportDTO -> {
+                    Application forkedApplication = forkedApplicationImportDTO.getApplication();
+                    assertThat(forkedApplication).isNotNull();
+                    assertThat(forkedApplicationImportDTO.getIsPartialImport()).isFalse();
+                    assertThat(forkedApplication.getForkWithConfiguration()).isNull();
+                    assertThat(forkedApplication.getExportWithConfiguration()).isNull();
+                })
+                .verifyComplete();
+
     }
 }
