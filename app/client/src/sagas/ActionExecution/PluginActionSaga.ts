@@ -258,12 +258,17 @@ function* resolvingBlobUrls(
       const blobUrl = value[blobUrlPath] as string;
       const resolvedBlobValue: unknown = yield call(readBlob, blobUrl);
       set(value, blobUrlPath, resolvedBlobValue);
-      const blobUrlPaths = get(value, "blobUrlPaths", {}) as Record<
+
+      // We need to store the url path map to be able to update the blob data
+      // and send the info to server
+
+      // Here we fetch the blobUrlPathMap from the action payload and update it
+      const blobUrlPathMap = get(value, "blobUrlPaths", {}) as Record<
         string,
         string
       >;
-      set(blobUrlPaths, blobUrlPath, blobUrl);
-      set(value, "blobUrlPaths", blobUrlPaths);
+      set(blobUrlPathMap, blobUrlPath, blobUrl);
+      set(value, "blobUrlPaths", blobUrlPathMap);
     }
   } else if (isBlobUrl(value)) {
     // @ts-expect-error: Values can take many types
@@ -271,6 +276,28 @@ function* resolvingBlobUrls(
   }
 
   return value;
+}
+
+// Function that updates the blob data in the action payload for large file
+// uploads
+function updateBlobDataFromUrls(
+  blobUrlPaths: Record<string, string>,
+  newVal: any,
+  blobMap: string[],
+  blobDataMap: Record<string, Blob>,
+) {
+  Object.entries(blobUrlPaths as Record<string, string>).forEach(
+    // blobUrl: string eg: blob:1234-1234-1234?type=binary
+    ([path, blobUrl]) => {
+      if (isArrayBuffer(newVal[path])) {
+        // remove the ?type=binary from the blob url if present
+        const sanitisedBlobURL = blobUrl.split("?")[0];
+        blobMap.push(sanitisedBlobURL);
+        set(blobDataMap, sanitisedBlobURL, new Blob([newVal[path]]));
+        set(newVal, path, sanitisedBlobURL);
+      }
+    },
+  );
 }
 
 /**
@@ -346,18 +373,13 @@ function* evaluateActionParams(
         );
 
         if (newVal.hasOwnProperty("blobUrlPaths")) {
-          Object.entries(newVal.blobUrlPaths as Record<string, string>).forEach(
-            // blobUrl: string eg: blob:1234-1234-1234?type=binary
-            ([path, blobUrl]) => {
-              if (isArrayBuffer(newVal[path])) {
-                // remove the ?type=binary from the blob url if present
-                const sanitisedBlobURL = blobUrl.split("?")[0];
-                blobMap.push(sanitisedBlobURL);
-                set(blobDataMap, sanitisedBlobURL, new Blob([newVal[path]]));
-                set(newVal, path, sanitisedBlobURL);
-              }
-            },
+          updateBlobDataFromUrls(
+            newVal.blobUrlPaths,
+            newVal,
+            blobMap,
+            blobDataMap,
           );
+          useBlobMaps = true;
           unset(newVal, "blobUrlPaths");
         }
 
@@ -377,11 +399,11 @@ function* evaluateActionParams(
       // This is used in cases of large files, we store the bloburls with the path they were set in
       // This helps in creating a unique map of blob urls to blob data when passing to the server
       if (value.hasOwnProperty("blobUrlPaths")) {
+        updateBlobDataFromUrls(value.blobUrlPaths, value, blobMap, blobDataMap);
         Object.entries(value.blobUrlPaths as Record<string, string>).forEach(
           // blobUrl: string eg: blob:1234-1234-1234?type=binary
           ([path, blobUrl]) => {
             if (isArrayBuffer(value[path])) {
-              useBlobMaps = true;
               // remove the ?type=binary from the blob url if present
               const sanitisedBlobURL = blobUrl.split("?")[0];
               blobMap.push(sanitisedBlobURL);
@@ -396,11 +418,16 @@ function* evaluateActionParams(
       value = JSON.stringify(value);
     }
 
+    // If there are no blob urls in the value, we can directly add it to the formData
+    // If there are blob urls, we need to add them to the blobDataMap
     if (!useBlobMaps) {
       value = new Blob([value], { type: "text/plain" });
     }
     bindingsMap[key] = `k${i}`;
     bindingBlob.push({ name: `k${i}`, value: value });
+
+    // We need to add the blob map to the param properties
+    // This will allow the server to handle the scenaio of large files upload using blob data
     const paramProperties = executeActionRequest.paramProperties[`k${i}`];
     if (!!paramProperties && typeof paramProperties === "object") {
       paramProperties["blobIdentifiers"] = blobMap;
