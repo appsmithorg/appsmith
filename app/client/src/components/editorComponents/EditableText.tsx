@@ -47,10 +47,6 @@ const EditableTextWrapper = styled.div<{
   minimal: boolean;
   useFullWidth: boolean;
 }>`
-  --border-color: ${(props) =>
-    props.isEditing
-      ? "var(--ads-v2-color-border-emphasis-plus)"
-      : "transparent"};
   && {
     display: flex;
     flex-direction: column;
@@ -58,9 +54,11 @@ const EditableTextWrapper = styled.div<{
     align-items: flex-start;
     width: 100%;
     & .${Classes.EDITABLE_TEXT} {
-      border: 1px solid var(--border-color);
       border-radius: var(--ads-v2-border-radius);
-      background: var(--ads-v2-color-bg);
+      background: ${(props) =>
+        props.isEditing && !props.minimal
+          ? "var(--ads-v2-color-bg-subtle)"
+          : "none"};
       cursor: pointer;
       padding: ${(props) => (!props.minimal ? "5px 5px" : "0px")};
       text-transform: none;
@@ -72,13 +70,6 @@ const EditableTextWrapper = styled.div<{
       &:after {
         display: none;
       }
-    }
-    :hover {
-      border-radius: var(--ads-v2-border-radius);
-      --border-color: ${(props) =>
-        props.isEditing
-          ? "var(--ads-v2-color-border-emphasis-plus)"
-          : "var(--ads-v2-color-border-emphasis)"};
     }
     & div.${Classes.EDITABLE_TEXT_INPUT} {
       text-transform: none;
@@ -95,12 +86,30 @@ const EditableTextWrapper = styled.div<{
   `}
 `;
 const TextContainer = styled.div<{
-  isEditing: boolean;
   isValid: boolean;
   minimal: boolean;
   underline?: boolean;
 }>`
   display: flex;
+  &&&& .${Classes.EDITABLE_TEXT} {
+    & .${Classes.EDITABLE_TEXT_CONTENT} {
+      &:hover {
+        text-decoration: ${(props) => (props.minimal ? "underline" : "none")};
+        text-decoration-color: var(--ads-v2-color-border);
+      }
+    }
+  }
+  &&& .${Classes.EDITABLE_TEXT_CONTENT}:hover {
+    ${(props) =>
+      props.underline
+        ? `
+        border-bottom-style: solid;
+        border-bottom-width: 1px;
+        border-bottom-color: var(--ads-v2-color-border);
+        width: fit-content;
+      `
+        : null}
+  }
   & span.bp3-editable-text-content {
     height: auto !important;
   }
@@ -225,7 +234,6 @@ export function EditableText(props: EditableTextProps) {
         message={errorMessage as string}
       >
         <TextContainer
-          isEditing={isEditing}
           isValid={!error}
           minimal={!!minimal}
           underline={underline}
