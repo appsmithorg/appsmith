@@ -6,7 +6,6 @@ import { useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getPluginPackageFromDatasourceId } from "selectors/entitiesSelector";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
-import { WIDGET_QUERY_GENERATION_FORM_CONFIG_VERSION } from "WidgetQueryGenerators/constants";
 import { WidgetQueryGeneratorFormContext } from "..";
 import { useColumns } from "../WidgetSpecificControls/ColumnDropdown/useColumns";
 
@@ -27,7 +26,6 @@ export function useConnectData() {
       datasourceId: config.datasource,
       widgetId: widgetId,
       searchableColumn: config.searchableColumn,
-      version: WIDGET_QUERY_GENERATION_FORM_CONFIG_VERSION,
       columns: columns.map((column) => column.value),
       primaryColumn,
     };

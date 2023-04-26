@@ -948,14 +948,21 @@ export function selectColumnOptionsValidation(
 export const getColumnPath = (propPath: string) =>
   propPath.split(".").slice(0, 2).join(".");
 
-export function updatePristineHook(): Array<{
-  propertyPath: string;
-  propertyValue: any;
-}> {
-  return [
-    {
-      propertyPath: "pristine",
-      propertyValue: false,
-    },
-  ];
+export function updatePristineHook(
+  props: TableWidgetProps,
+  propertyPath: string,
+):
+  | Array<{
+      propertyPath: string;
+      propertyValue: any;
+    }>
+  | undefined {
+  if (propertyPath === "tableData") {
+    return [
+      {
+        propertyPath: "pristine",
+        propertyValue: false,
+      },
+    ];
+  }
 }

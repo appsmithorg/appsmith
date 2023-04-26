@@ -176,15 +176,12 @@ export const getPluginIdFromDatasourceId = (
   const datasource = state.entities.datasources.list.find(
     (datasource) => datasource.id === datasourceId,
   );
+
   const plugin = state.entities.plugins.list.find(
     (plugin) => plugin.id === datasource?.pluginId,
   );
 
-  if (!plugin) {
-    return undefined;
-  }
-
-  return plugin.id;
+  return plugin?.id;
 };
 
 export const getPluginNameFromId = (

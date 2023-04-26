@@ -1,7 +1,6 @@
 import React from "react";
 import { fetchGheetSheets } from "actions/datasourceActions";
 import { Colors } from "constants/Colors";
-import type { DropdownOption } from "design-system-old";
 import { IconSize } from "design-system-old";
 import { PluginPackageName } from "entities/Action";
 import { useCallback, useContext, useMemo } from "react";
@@ -15,13 +14,15 @@ import {
 } from "selectors/entitiesSelector";
 import { WidgetQueryGeneratorFormContext } from "../..";
 import { Bold, Label } from "../../styles";
-import type { DatasourceTableDropdownOption } from "../../types";
 import { PluginFormInputFieldMap } from "../../constants";
 import {
   getGsheetSpreadsheets,
   getIsFetchingGsheetSpreadsheets,
 } from "selectors/datasourceSelectors";
 import type { AppState } from "ce/reducers";
+import { Icon } from "design-system-old";
+import { DropdownOption as Option } from "../DatasourceDropdown/DropdownOption";
+import type { DropdownOptionType } from "../../types";
 
 export function useTableOrSpreadsheet() {
   const dispatch = useDispatch();
@@ -57,7 +58,7 @@ export function useTableOrSpreadsheet() {
       ).TABLE
     : "table";
 
-  const options: DropdownOption[] = useMemo(() => {
+  const options = useMemo(() => {
     if (
       selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS &&
       spreadSheets
@@ -66,18 +67,14 @@ export function useTableOrSpreadsheet() {
         id: value,
         label: label,
         value: value,
-        icon: "tables",
-        iconSize: IconSize.LARGE,
-        iconColor: Colors.BURNING_ORANGE,
+        icon: <Icon color={Colors.GRAY} name="tables" size={IconSize.XXL} />,
       }));
     } else if (datasourceStructure) {
       return (datasourceStructure.tables || []).map(({ name }) => ({
         id: name,
         label: name,
         value: name,
-        icon: "tables",
-        iconSize: IconSize.LARGE,
-        iconColor: Colors.BURNING_ORANGE,
+        icon: <Icon color={Colors.GRAY} name="tables" size={IconSize.XXL} />,
       }));
     } else {
       return [];
@@ -85,7 +82,7 @@ export function useTableOrSpreadsheet() {
   }, [selectedDatasourcePluginPackageName, spreadSheets, datasourceStructure]);
 
   const onSelect = useCallback(
-    (table: string | undefined, TableObj: DatasourceTableDropdownOption) => {
+    (table: string | undefined, TableObj: DropdownOptionType) => {
       updateConfig("table", TableObj.value);
 
       if (
@@ -111,6 +108,17 @@ export function useTableOrSpreadsheet() {
     ],
   );
 
+  const selected = useMemo(() => {
+    if (config.table) {
+      const option = options.find((option) => option.value === config.table);
+
+      return {
+        label: <Option label={option?.label} leftIcon={option?.icon} />,
+        key: option?.id,
+      };
+    }
+  }, [config.table, options]);
+
   return {
     error:
       selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS
@@ -127,7 +135,7 @@ export function useTableOrSpreadsheet() {
       isFetchingDatasourceStructure ||
       isDatasourceLoading,
     onSelect,
-    selected: options.find((option) => option.value === config.table),
+    selected,
     show: !!config.datasource,
   };
 }

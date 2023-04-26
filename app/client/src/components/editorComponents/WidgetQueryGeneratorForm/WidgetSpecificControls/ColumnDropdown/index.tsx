@@ -1,7 +1,8 @@
-import { Dropdown } from "design-system-old";
-import React from "react";
-import { DROPDOWN_TRIGGER_DIMENSION } from "../../constants";
-import { Label, SelectWrapper } from "../../styles";
+import { Option, Select } from "design-system";
+import type { DefaultOptionType } from "rc-select/lib/Select";
+import React, { memo } from "react";
+import { DropdownOption } from "../../CommonControls/DatasourceDropdown/DropdownOption";
+import { ErrorMessage, Label, SelectWrapper } from "../../styles";
 import { useColumns } from "./useColumns";
 
 type Props = {
@@ -19,19 +20,31 @@ function ColumnDropdown(props: Props) {
     return (
       <SelectWrapper className="space-y-2">
         <Label>{props.label}</Label>
-        <Dropdown
-          data-testid="t--table-dropdown"
-          dropdownMaxHeight={"300px"}
-          errorMsg={error}
-          fillOptions
-          height={DROPDOWN_TRIGGER_DIMENSION.HEIGHT}
+        <Select
+          dropdownStyle={{
+            minWidth: "350px",
+            maxHeight: "300px",
+          }}
           isLoading={isLoading}
-          onSelect={onSelect}
-          options={options}
-          selected={selected}
-          showLabelOnly
-          width={DROPDOWN_TRIGGER_DIMENSION.WIDTH}
-        />
+          isValid={!error}
+          onSelect={(value: string, selectedOption: DefaultOptionType) => {
+            const option = options.find((d) => d.id === selectedOption.key);
+
+            if (option) {
+              onSelect(value, option);
+            }
+          }}
+          value={selected}
+        >
+          {options.map((option) => {
+            return (
+              <Option key={option.id} value={option.value}>
+                <DropdownOption label={option.label} leftIcon={option.icon} />
+              </Option>
+            );
+          })}
+        </Select>
+        <ErrorMessage>{error}</ErrorMessage>
       </SelectWrapper>
     );
   } else {
@@ -39,4 +52,4 @@ function ColumnDropdown(props: Props) {
   }
 }
 
-export default ColumnDropdown;
+export default memo(ColumnDropdown);

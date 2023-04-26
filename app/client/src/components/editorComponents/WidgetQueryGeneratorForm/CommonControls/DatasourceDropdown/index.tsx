@@ -1,11 +1,12 @@
-import React from "react";
+import React, { memo, useEffect, useState } from "react";
 import { Bold, SelectWrapper } from "../../styles";
 import { useDatasource } from "./useDatasource";
 import { Select, Option, Icon } from "design-system";
-import { DropdownOption } from "../../components/DropdownOption";
+import { DropdownOption } from "./DropdownOption";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import type { DropdownOptionType } from "../../types";
+import type { DefaultOptionType } from "rc-select/lib/Select";
 
 const SectionHeader = styled.div`
   cursor: default;
@@ -15,8 +16,20 @@ const SectionHeader = styled.div`
 `;
 
 function DatasourceDropdown() {
-  const { datasourceOptions, otherOptions, queryOptions, selected } =
-    useDatasource();
+  const {
+    datasourceOptions,
+    isSourceOpen,
+    onSourceClose,
+    otherOptions,
+    queryOptions,
+    selected,
+  } = useDatasource();
+
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    setOpen(isSourceOpen);
+  }, [isSourceOpen]);
 
   return (
     <SelectWrapper>
@@ -26,15 +39,38 @@ function DatasourceDropdown() {
           minWidth: "350px",
           maxHeight: "300px",
         }}
-        onSelect={(value: string) => {
+        filterOption={(value: string, option?: DefaultOptionType) => {
+          if (
+            ["Bind to query", "Generate a query", "Other actions"].includes(
+              option?.value as string,
+            )
+          ) {
+            return false;
+          } else {
+            return (
+              !!option?.value &&
+              option.value.toString()?.toLocaleLowerCase().indexOf(value) > -1
+            );
+          }
+        }}
+        onDropdownVisibleChange={(open: boolean) => {
+          !open && onSourceClose();
+          setOpen(open);
+        }}
+        onSelect={(value: string, selectedOption: DefaultOptionType) => {
           const option = [
             ...datasourceOptions,
             ...otherOptions,
             ...queryOptions,
-          ].find((option) => option.id === value);
+          ].find((option) => option.id === selectedOption.key);
 
           option?.onSelect?.(value, option as DropdownOptionType);
+          onSourceClose();
+          setOpen(false);
         }}
+        open={open}
+        placeholder="Connect data"
+        showSearch
         value={selected}
         virtual={false}
       >
@@ -44,25 +80,30 @@ function DatasourceDropdown() {
           </Option>
         )}
 
-        {queryOptions.map((option: any) => {
+        {queryOptions.map((option) => {
           return (
-            <Option key={option.id} value={option.id}>
+            <Option key={option.id} value={option.label}>
               <DropdownOption label={option.label} leftIcon={option.icon} />
             </Option>
           );
         })}
 
-        <Option className="has-seperator" disabled key="Generate a query">
+        <Option
+          className={queryOptions.length && "has-seperator"}
+          disabled
+          key="Generate a query"
+        >
           <SectionHeader>Generate a query</SectionHeader>
         </Option>
 
-        {datasourceOptions.map((option: any) => {
+        {datasourceOptions.map((option) => {
           return (
-            <Option key={option.id} value={option.id}>
+            <Option key={option.id} value={option.label}>
               <DropdownOption
                 label={
                   <>
-                    New from <Bold>{option.label}</Bold>
+                    New from {option.data.isSample ? "sample " : ""}
+                    <Bold>{option.label}</Bold>
                   </>
                 }
                 leftIcon={option.icon}
@@ -76,9 +117,9 @@ function DatasourceDropdown() {
           <SectionHeader>Other actions</SectionHeader>
         </Option>
 
-        {otherOptions.map((option: any) => {
+        {otherOptions.map((option: DropdownOptionType) => {
           return (
-            <Option key={option.id} value={option.id}>
+            <Option key={option.id} value={option.label}>
               <DropdownOption label={option.label} leftIcon={option.icon} />
             </Option>
           );
@@ -88,4 +129,4 @@ function DatasourceDropdown() {
   );
 }
 
-export default DatasourceDropdown;
+export default memo(DatasourceDropdown);

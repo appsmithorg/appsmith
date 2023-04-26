@@ -2,7 +2,7 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionErrorTypes } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { Plugin } from "api/PluginApi";
-import type { Action } from "entities/Action";
+import type { Action, QueryActionConfig } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
 import { merge, omit, partition } from "lodash";
 import { all, call, put, select, takeLatest, take } from "redux-saga/effects";
@@ -41,15 +41,18 @@ import { fetchActions, runAction } from "actions/pluginActionActions";
 import { Toaster, Variant } from "design-system-old";
 
 export function* createActionsForOneClickBindingSaga(
-  payload: Partial<Action> & { eventData: any; pluginId: string },
+  payload: Partial<Action> & { eventData: unknown; pluginId: string },
 ) {
   try {
     const response: ApiResponse<ActionCreateUpdateResponse> | undefined =
       yield ActionAPI.createAction(payload);
 
-    if (!response) return { status: "failure" };
+    if (!response) {
+      return false;
+    }
 
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       const pageName: string = yield select(
         getCurrentPageNameByActionId,
@@ -76,7 +79,7 @@ export function* createActionsForOneClickBindingSaga(
       return response.data;
     }
   } catch (e) {
-    return;
+    return false;
   }
 }
 
@@ -128,11 +131,11 @@ function* BindWidgetToDatasource(
     const queryNameMap: Record<string, string> = {};
 
     const actionRequestPayloadList: Partial<Action> &
-      { eventData: any; pluginId: string; type: QUERY_TYPE }[] =
+      { eventData: unknown; pluginId: string; type: QUERY_TYPE }[] =
       actionConfigurationList.map(
         (action: {
-          payload: any;
-          dynamicBindingPathList: any;
+          payload: QueryActionConfig;
+          dynamicBindingPathList: unknown;
           name: string;
           type: QUERY_TYPE;
         }) => {
@@ -159,7 +162,7 @@ function* BindWidgetToDatasource(
     );
 
     for (const payloadList of groupedPayloadList) {
-      const createdActions: any[] = yield all(
+      const createdActions: Action[] = yield all(
         payloadList.map((payload) =>
           call(createActionsForOneClickBindingSaga, omit(payload, "type")),
         ),
@@ -177,15 +180,16 @@ function* BindWidgetToDatasource(
       ]);
 
       if (fetchAction.type === ReduxActionErrorTypes.FETCH_ACTIONS_ERROR) {
-        throw new Error("Unable to featch newly created actions");
+        throw new Error("Unable to fetch newly created actions");
       }
 
       Toaster.show({
         text: `Successfully created action${
           createdActions.length > 1 ? "s" : ""
         }: ${createdActions.map((d) => d.name)}`,
-        hideProgressBar: false,
+        hideProgressBar: true,
         variant: Variant.success,
+        duration: 3000,
       });
 
       const actionsToRun = createdActions.filter(
@@ -197,6 +201,8 @@ function* BindWidgetToDatasource(
       for (const action of actionsToRun) {
         yield put(runAction(action.id, undefined, true));
       }
+
+      yield take(ReduxActionTypes.EXECUTE_PLUGIN_ACTION_SUCCESS);
 
       const { getPropertyUpdatesForQueryBinding } =
         WidgetFactory.getWidgetMethods(widget.type);
@@ -215,18 +221,24 @@ function* BindWidgetToDatasource(
       if (createdQueryNames.includes(queryNameMap[QUERY_TYPE.UPDATE])) {
         queryBindingConfig[QUERY_TYPE.UPDATE] = {
           data: `{{${queryNameMap[QUERY_TYPE.UPDATE]}.data}}`,
-          run: `{{${queryNameMap[QUERY_TYPE.UPDATE]}.run(() => ${
-            queryNameMap[QUERY_TYPE.SELECT]
-          }.run())}}`,
+          run: `{{${queryNameMap[QUERY_TYPE.UPDATE]}.run(() => {
+            showAlert("Successfully saved!");
+            ${queryNameMap[QUERY_TYPE.SELECT]}.run();
+          }, () => {
+            showAlert("Unable to save!");
+          })}}`,
         };
       }
 
       if (createdQueryNames.includes(queryNameMap[QUERY_TYPE.CREATE])) {
         queryBindingConfig[QUERY_TYPE.CREATE] = {
           data: `{{${queryNameMap[QUERY_TYPE.CREATE]}.data}}`,
-          run: `{{${queryNameMap[QUERY_TYPE.CREATE]}.run(() => ${
-            queryNameMap[QUERY_TYPE.SELECT]
-          }.run())}}`,
+          run: `{{${queryNameMap[QUERY_TYPE.CREATE]}.run(() => {
+            showAlert("Successfully created!");
+            ${queryNameMap[QUERY_TYPE.SELECT]}.run()
+          }, () => {
+            showAlert("Unable to create!");
+          })}}`,
         };
       }
 
@@ -258,16 +270,6 @@ function* BindWidgetToDatasource(
       });
 
       yield take(ReduxActionTypes.SET_EVALUATED_TREE);
-
-      Toaster.show({
-        text: `Successfully bound action${
-          createdActions.length > 1 ? "s" : ""
-        }: ${createdActions.map((d) => d.name)} to widget - ${
-          updatedWidget.widgetName
-        }`,
-        hideProgressBar: false,
-        variant: Variant.success,
-      });
     }
 
     yield put({

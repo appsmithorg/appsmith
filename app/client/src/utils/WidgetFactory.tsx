@@ -14,6 +14,7 @@ import type {
   AutocompletionDefinitions,
   AutoLayoutConfig,
   CanvasWidgetStructure,
+  WidgetMethods,
 } from "widgets/constants";
 import {
   addPropertyConfigIds,
@@ -393,7 +394,10 @@ class WidgetFactory {
     return map;
   }
 
-  static setWidgetMethods(type: WidgetType, methods: Record<string, any>) {
+  static setWidgetMethods(
+    type: WidgetType,
+    methods: Record<string, WidgetMethods>,
+  ) {
     this.widgetMethodsMap.set(type, methods);
   }
 

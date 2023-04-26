@@ -26,6 +26,8 @@ type WidgetQueryGeneratorFormContextType = {
   updateConfig: (propertyName: string, value: unknown) => void;
   addSnippet: () => void;
   addBinding: (binding?: string, makeDynamicPropertyPath?: boolean) => void;
+  isSourceOpen: boolean;
+  onSourceClose: () => void;
 };
 
 const DEFAULT_CONFIG_VALUE = {
@@ -44,6 +46,8 @@ const DEFAULT_CONTEXT_VALUE = {
   addBinding: noop,
   widgetId: "",
   propertyValue: "",
+  isSourceOpen: false,
+  onSourceClose: noop,
 };
 
 export const WidgetQueryGeneratorFormContext =
@@ -58,6 +62,8 @@ type Props = {
   entityId: string;
   onUpdate: (snippet?: string, makeDynamicPropertyPath?: boolean) => void;
   widgetId: string;
+  isSourceOpen: boolean;
+  onSourceClose: () => void;
 };
 
 function WidgetQueryGeneratorForm(props: Props) {
@@ -68,6 +74,8 @@ function WidgetQueryGeneratorForm(props: Props) {
   const {
     entityId,
     expectedType,
+    isSourceOpen,
+    onSourceClose,
     onUpdate,
     propertyPath,
     propertyValue,
@@ -156,8 +164,19 @@ function WidgetQueryGeneratorForm(props: Props) {
       addBinding,
       propertyValue,
       widgetId,
+      isSourceOpen,
+      onSourceClose,
     };
-  }, [config, updateConfig, addSnippet, addBinding, propertyValue, widgetId]);
+  }, [
+    config,
+    updateConfig,
+    addSnippet,
+    addBinding,
+    propertyValue,
+    widgetId,
+    isSourceOpen,
+    onSourceClose,
+  ]);
 
   useEffect(() => {
     if (!pristine) {

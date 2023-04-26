@@ -1,6 +1,7 @@
+import React from "react";
 import type { AppState } from "ce/reducers";
 import { Colors } from "constants/Colors";
-import { IconSize } from "design-system-old";
+import { Icon, IconSize } from "design-system-old";
 import { PluginPackageName } from "entities/Action";
 import { get, isArray } from "lodash";
 import { ALLOWED_SEARCH_DATATYPE } from "pages/Editor/GeneratePage/components/constants";
@@ -16,6 +17,7 @@ import {
   getPluginPackageFromDatasourceId,
 } from "selectors/entitiesSelector";
 import { WidgetQueryGeneratorFormContext } from "../..";
+import { DropdownOption as Option } from "../../CommonControls/DatasourceDropdown/DropdownOption";
 
 export function useColumns(alias: string) {
   const { config, updateConfig } = useContext(WidgetQueryGeneratorFormContext);
@@ -47,7 +49,7 @@ export function useColumns(alias: string) {
         return {
           ...column,
           id: column.value,
-          icon: "column",
+          icon: <Icon color={Colors.GRAY} name="column" size={IconSize.XXL} />,
           iconSize: IconSize.LARGE,
           iconColor: Colors.GOLD,
         };
@@ -66,7 +68,9 @@ export function useColumns(alias: string) {
             label: column.name,
             value: column.name,
             subText: column.type,
-            icon: "column",
+            icon: (
+              <Icon color={Colors.GRAY} name="column" size={IconSize.XXL} />
+            ),
             iconSize: IconSize.LARGE,
             iconColor: Colors.GOLD,
           };
@@ -83,6 +87,19 @@ export function useColumns(alias: string) {
     [updateConfig, alias],
   );
 
+  const selectedValue = get(config, alias);
+
+  const selected = useMemo(() => {
+    if (selectedValue) {
+      const option = options.find((option) => option.value === selectedValue);
+
+      return {
+        label: <Option label={option?.label} leftIcon={option?.icon} />,
+        key: option?.id,
+      };
+    }
+  }, [selectedValue, options]);
+
   return {
     error:
       selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS &&
@@ -90,7 +107,7 @@ export function useColumns(alias: string) {
     options,
     isLoading,
     onSelect,
-    selected: options.find((option) => option.value === get(config, alias)),
+    selected,
     show:
       (selectedDatasourcePluginPackageName !==
         PluginPackageName.GOOGLE_SHEETS ||
