@@ -46,7 +46,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "./WidgetSelectUtils";
 import { getIsAutoLayout } from "selectors/editorSelectors";
-import { recalculateAutoLayoutColumnsAndSave } from "./AutoLayoutUpdateSagas";
+import { recalculateAutoLayoutColumnsAndSave } from "./AutoLayoutSagas/AutoLayoutUpdateSagas";
 import {
   FlexLayerAlignment,
   LayoutDirection,
@@ -274,7 +274,7 @@ export function* resizeModalSaga(resizeAction: ReduxAction<ModalWidgetResize>) {
     log.debug("resize computations took", performance.now() - start, "ms");
     //TODO Identify the updated widgets and pass the values
     if (isAutoLayout) {
-      yield call(recalculateAutoLayoutColumnsAndSave, widgets);
+      yield call(recalculateAutoLayoutColumnsAndSave, widgets, true);
     } else {
       yield put(updateAndSaveLayout(widgets));
     }

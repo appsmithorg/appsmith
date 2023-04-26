@@ -51,9 +51,9 @@ function MetaWidgetContextProvider({
     metaEditorContextProps.modifyMetaWidgets ??
     editorContextProps.modifyMetaWidgets;
 
-  const updateWidgetDimension =
-    metaEditorContextProps.updateWidgetDimension ??
-    editorContextProps.updateWidgetDimension;
+  const updateAutoLayoutWidgetDimension =
+    metaEditorContextProps.updateAutoLayoutWidgetDimension ??
+    editorContextProps.updateAutoLayoutWidgetDimension;
 
   const setWidgetCache =
     metaEditorContextProps.setWidgetCache ?? editorContextProps.setWidgetCache;
@@ -84,7 +84,7 @@ function MetaWidgetContextProvider({
       getWidgetCache,
       deleteMetaWidgets,
       updateMetaWidgetProperty,
-      updateWidgetDimension,
+      updateAutoLayoutWidgetDimension,
       syncBatchUpdateWidgetMetaProperties,
     }),
     [
@@ -102,7 +102,7 @@ function MetaWidgetContextProvider({
       getWidgetCache,
       deleteMetaWidgets,
       updateMetaWidgetProperty,
-      updateWidgetDimension,
+      updateAutoLayoutWidgetDimension,
       syncBatchUpdateWidgetMetaProperties,
     ],
   );

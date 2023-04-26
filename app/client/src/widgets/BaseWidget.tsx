@@ -660,7 +660,7 @@ abstract class BaseWidget<
           isFillWidget={
             this.props.responsiveBehavior === ResponsiveBehavior.Fill
           }
-          onDimensionUpdate={this.updateWidgetDimensions}
+          onDimensionUpdate={this.updateAutoLayoutWidgetDimension}
           width={componentWidth}
         >
           {content}
@@ -672,10 +672,10 @@ abstract class BaseWidget<
     return this.addErrorBoundary(content);
   };
 
-  private updateWidgetDimensions = (width: number, height: number) => {
-    const { updateWidgetDimension } = this.context;
-    if (!updateWidgetDimension) return;
-    updateWidgetDimension(
+  private updateAutoLayoutWidgetDimension = (width: number, height: number) => {
+    const { updateAutoLayoutWidgetDimension } = this.context;
+    if (!updateAutoLayoutWidgetDimension) return;
+    updateAutoLayoutWidgetDimension(
       this.props.widgetId,
       width + 2 * FLEXBOX_PADDING,
       height + 2 * FLEXBOX_PADDING,

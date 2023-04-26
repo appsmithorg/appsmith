@@ -71,7 +71,7 @@ export const CONFIG = {
         configuration: () => {
           return {
             minWidth: "280px",
-            minHeight: "50px",
+            minHeight: "100px",
           };
         },
       },

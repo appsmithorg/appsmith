@@ -34,6 +34,7 @@ import {
 } from "selectors/editorSelectors";
 import { executeWidgetBlueprintBeforeOperations } from "sagas/WidgetBlueprintSagas";
 import { BlueprintOperationTypes } from "widgets/constants";
+import { recalculateAutoLayoutColumnsAndSave } from "sagas/AutoLayoutSagas/AutoLayoutUpdateSagas";
 
 function* addWidgetAndReorderSaga(
   actionPayload: ReduxAction<{
@@ -100,7 +101,7 @@ function* addWidgetAndReorderSaga(
       },
     );
 
-    yield put(updateAndSaveLayout(updatedWidgetsOnMove));
+    yield call(recalculateAutoLayoutColumnsAndSave, updatedWidgetsOnMove, true);
     log.debug(
       "Auto Layout : add new widget took",
       performance.now() - start,

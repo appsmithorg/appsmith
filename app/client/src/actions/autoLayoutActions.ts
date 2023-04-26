@@ -16,14 +16,16 @@ export const updateLayoutForMobileBreakpointAction = (
   isMobile: boolean,
   canvasWidth: number,
   widgets?: CanvasWidgetsReduxState,
+  saveLayout?: boolean,
 ) => {
   return {
-    type: ReduxActionTypes.RECALCULATE_COLUMNS,
+    type: ReduxActionTypes.RECALCULATE_POSITIONS,
     payload: {
       parentId,
       isMobile,
       canvasWidth,
       widgets,
+      saveLayout,
     },
   };
 };
@@ -55,13 +57,13 @@ export const updateSnapshotDetails = (
     payload: snapShotDetails,
   };
 };
-export function updateWidgetDimensionAction(
+export function updatAutoLayoutWidgetDimensionAction(
   widgetId: string,
   width: number,
   height: number,
 ) {
   return {
-    type: ReduxActionTypes.UPDATE_WIDGET_DIMENSIONS,
+    type: ReduxActionTypes.UPDATE_AUTO_LAYOUT_WIDGET_DIMENSIONS,
     payload: {
       widgetId,
       width,

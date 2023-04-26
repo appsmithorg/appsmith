@@ -1,5 +1,14 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { all, debounce, takeEvery, takeLatest } from "redux-saga/effects";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import {
+  all,
+  call,
+  debounce,
+  select,
+  takeEvery,
+  takeLatest,
+} from "redux-saga/effects";
+import { getIsAutoLayout } from "selectors/editorSelectors";
 import {
   batchCallsToUpdateWidgetAutoHeightSaga,
   callEvalWithoutReplay,
@@ -8,6 +17,13 @@ import { dynamicallyUpdateContainersSaga } from "./containers";
 import { generateTreeForAutoHeightComputations } from "./layoutTree";
 import { updateWidgetAutoHeightSaga } from "./widgets";
 
+function* shouldCallAutoHeight(saga: any, action: ReduxAction<unknown>) {
+  const isAutoLayout: boolean = yield select(getIsAutoLayout);
+  if (!isAutoLayout) {
+    yield call(saga, action);
+  }
+}
+
 export default function* autoHeightSagas() {
   yield all([
     takeLatest(
@@ -15,6 +31,7 @@ export default function* autoHeightSagas() {
         ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
         ReduxActionTypes.SET_PREVIEW_MODE,
       ],
+      shouldCallAutoHeight,
       dynamicallyUpdateContainersSaga,
     ),
     takeEvery(
