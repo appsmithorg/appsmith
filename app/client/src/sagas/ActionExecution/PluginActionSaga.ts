@@ -398,20 +398,8 @@ function* evaluateActionParams(
     if (typeof value === "object") {
       // This is used in cases of large files, we store the bloburls with the path they were set in
       // This helps in creating a unique map of blob urls to blob data when passing to the server
-      if (value.hasOwnProperty("blobUrlPaths")) {
+      if (!!value && value.hasOwnProperty("blobUrlPaths")) {
         updateBlobDataFromUrls(value.blobUrlPaths, value, blobMap, blobDataMap);
-        Object.entries(value.blobUrlPaths as Record<string, string>).forEach(
-          // blobUrl: string eg: blob:1234-1234-1234?type=binary
-          ([path, blobUrl]) => {
-            if (isArrayBuffer(value[path])) {
-              // remove the ?type=binary from the blob url if present
-              const sanitisedBlobURL = blobUrl.split("?")[0];
-              blobMap.push(sanitisedBlobURL);
-              set(blobDataMap, sanitisedBlobURL, new Blob([value[path]]));
-              set(value, path, sanitisedBlobURL);
-            }
-          },
-        );
         unset(value, "blobUrlPaths");
       }
 
