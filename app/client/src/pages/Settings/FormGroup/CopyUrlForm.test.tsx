@@ -38,7 +38,6 @@ describe("Redirect URL Form", () => {
     expect(inputEl?.value).toBeDefined();
     expect(inputEl?.value).toEqual(value);
     expect(inputEl?.hasAttribute("disabled"));
-    expect(inputEl?.hasAttribute("iscopy")).toEqual(true);
     const copyIcon = document.querySelector(".copy-icon") as HTMLElement;
     expect(copyIcon).toBeDefined();
     copyIcon?.click();

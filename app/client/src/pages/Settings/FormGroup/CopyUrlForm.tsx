@@ -64,6 +64,7 @@ function CopyUrlForm(props: {
           description={`* ${props.helpText}`}
           endIcon="copy-control"
           endIconProps={{
+            className: "copy-icon",
             onClick: handleCopy,
           }}
           isReadOnly
