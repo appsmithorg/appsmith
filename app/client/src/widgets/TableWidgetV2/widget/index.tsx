@@ -95,7 +95,7 @@ import { SelectCell } from "../component/cellComponents/SelectCell";
 import { CellWrapper } from "../component/TableStyledWrappers";
 import localStorage from "utils/localStorage";
 import { generateNewColumnOrderFromStickyValue } from "./utilities";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { DateCell } from "../component/cellComponents/DateCell";
 import type { MenuItem } from "widgets/MenuButtonWidget/constants";
 import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
@@ -273,6 +273,22 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           discardButtonColor: "{{appsmith.theme.colors.primaryColor}}",
           discardBorderRadius:
             "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        },
+      },
+    };
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+        },
+        setSelectedRowIndex: {
+          path: "selectedRowIndex",
+        },
+        setData: {
+          path: "tableData",
         },
       },
     };

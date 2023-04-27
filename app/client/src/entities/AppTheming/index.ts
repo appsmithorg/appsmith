@@ -75,3 +75,11 @@ export type AppTheme = {
     };
   };
 };
+
+export type SetterConfig = {
+  __setters: {
+    [key: string]: {
+      path: string;
+    };
+  };
+};
