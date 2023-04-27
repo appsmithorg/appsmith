@@ -38,7 +38,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -328,7 +327,7 @@ public class DatasourceContextServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testDatasourceContextIsInvalid_whenCachedDatasourceContextMono_isInErrorState() {
-        doReturn(false).doReturn(false).when(datasourceContextService).getIsStale(any(), any());
+        doReturn(false).when(datasourceContextService).getIsStale(any(), any());
 
         MockPluginExecutor mockPluginExecutor = new MockPluginExecutor();
         MockPluginExecutor spyMockPluginExecutor = spy(mockPluginExecutor);
@@ -337,7 +336,7 @@ public class DatasourceContextServiceTest {
         doReturn(Mono.error(new RuntimeException("error"))).when(spyMockPluginExecutor).datasourceCreate(any());
 
         Datasource datasource = new Datasource();
-        datasource.setId("id1");
+        datasource.setId("error_datasource_1");
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
 
         DatasourceContextIdentifier datasourceContextIdentifier = new DatasourceContextIdentifier(datasource.getId(), "envId");
@@ -347,7 +346,9 @@ public class DatasourceContextServiceTest {
         Mono<DatasourceContext<?>> failedDatasourceContextMono =
                 datasourceContextService.getCachedDatasourceContextMono(datasource, spyMockPluginExecutor, monitor, datasourceContextIdentifier);
 
-        assertThrows(RuntimeException.class, failedDatasourceContextMono::block);
+        StepVerifier.create(failedDatasourceContextMono)
+                .expectError(RuntimeException.class)
+                .verify();
 
         assertFalse(datasourceContextService.isValidDatasourceContextAvailable(datasource, datasourceContextIdentifier));
     }
@@ -372,7 +373,7 @@ public class DatasourceContextServiceTest {
                 .when(spyMockPluginExecutor).datasourceCreate(any());
 
         Datasource datasource = new Datasource();
-        datasource.setId("id1");
+        datasource.setId("error_datasource_2");
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
 
         DatasourceContextIdentifier datasourceContextIdentifier = new DatasourceContextIdentifier(datasource.getId(), "envId");
@@ -381,14 +382,18 @@ public class DatasourceContextServiceTest {
 
         Mono<DatasourceContext<?>> failedDatasourceContextMono =
                 datasourceContextService.getCachedDatasourceContextMono(datasource, spyMockPluginExecutor, monitor, datasourceContextIdentifier);
-        assertThrows(RuntimeException.class, failedDatasourceContextMono::block);
+        StepVerifier.create(failedDatasourceContextMono)
+                .expectError(RuntimeException.class)
+                .verify();
 
-        Mono<DatasourceContext<?>> validDatasoureContextMono =
+        Mono<DatasourceContext<?>> validDatasourceContextMono =
                 datasourceContextService.getCachedDatasourceContextMono(datasource, spyMockPluginExecutor, monitor, datasourceContextIdentifier);
-        DatasourceContext<?> validDatasourceContext = validDatasoureContextMono.block();
-        assertEquals(validDatasourceContext.getConnection(), "valid_connection");
 
-        assertNotEquals(failedDatasourceContextMono, validDatasoureContextMono);
+        StepVerifier.create(validDatasourceContextMono)
+                .assertNext(validDatasourceContext -> assertEquals(validDatasourceContext.getConnection(), "valid_connection"))
+                .verifyComplete();
+
+        assertNotEquals(failedDatasourceContextMono, validDatasourceContextMono);
     }
 
 
