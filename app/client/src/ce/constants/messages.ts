@@ -1148,7 +1148,7 @@ export const INTRODUCING = (featureName: string) =>
   `Introducing ${featureName}`;
 export const AUDIT_LOGS_UPGRADE_PAGE_SUB_HEADING = () =>
   "See a timestamped trail of events in your workspace. Filter by type of event, user, resource ID, and time. Drill down into each event to investigate further.";
-export const SECURITY_AND_COMPLIANCE = () => "Security & Compliance";
+export const SECURITY_AND_COMPLIANCE = () => "Security & compliance";
 export const SECURITY_AND_COMPLIANCE_DETAIL1 = () =>
   "Proactively derisk misconfigured permissions, roll back changes from a critical security event, and keep checks against your compliance policies.";
 export const SECURITY_AND_COMPLIANCE_DETAIL2 = () =>

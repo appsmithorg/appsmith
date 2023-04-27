@@ -448,12 +448,12 @@ describe("Audit logs messages", () => {
     const expected = [
       "Audit logs",
       "See a timestamped trail of events in your workspace. Filter by type of event, user, resource ID, and time. Drill down into each event to investigate further.",
-      "Security & Compliance",
+      "Security & compliance",
       "Proactively derisk misconfigured permissions, roll back changes from a critical security event, and keep checks against your compliance policies.",
       "Exports to popular compliance tools coming soon",
       "Debugging",
       "Debug with a timeline of events filtered by user and resource ID, correlate them with end-user and app developer actions, and investigate back to the last known good state of your app.",
-      "Incident Management",
+      "Incident management",
       "Go back in time from an incident to see who did what, correlate events with breaking changes, and run RCAs to remediate incidents for now and the future.",
       "Available on a business plan only",
     ];
