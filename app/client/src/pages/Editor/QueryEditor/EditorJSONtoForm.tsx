@@ -1217,10 +1217,7 @@ export function EditorJSONtoForm(props: Props) {
                 </TabbedViewContainer>
               )}
             </SecondaryWrapper>
-            <AIWindow
-              className="border-t h-full w-96 border-l"
-              windowType="fixed"
-            />
+            <AIWindow className="border-t border-l" windowType="fixed" />
           </div>
           <SidebarWrapper
             show={(hasDependencies || !!output) && !guidedTourEnabled}
