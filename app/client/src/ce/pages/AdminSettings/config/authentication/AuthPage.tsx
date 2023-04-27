@@ -40,7 +40,6 @@ const Image = styled.img`
   width: 32px;
   height: 32px;
   margin-right: 8px;
-  background: var(--ads-v2-color-bg-subtle);
   object-fit: cover;
   border-radius: 50%;
   padding: 5px;
@@ -131,7 +130,7 @@ export function ActionButton({ method }: { method: AuthMethodType }) {
         method.needsUpgrade ? `upgrade-${method.category}` : method.category
       }`}
       data-cy="btn-auth-account"
-      kind={method.isConnected ? "primary" : "secondary"}
+      kind={"secondary"}
       onClick={() => onClickHandler(method)}
       size="sm"
     >

@@ -38,15 +38,6 @@ const saveAdminSettings = (props: SaveAdminSettingsProps) => {
   return (
     <SettingsButtonWrapper>
       <Button
-        className="t--admin-settings-reset-button"
-        isDisabled={Object.keys(settings).length == 0}
-        kind="secondary"
-        onClick={onClear}
-        size="md"
-      >
-        {createMessage(() => "Reset")}
-      </Button>
-      <Button
         className="t--admin-settings-save-button"
         isDisabled={Object.keys(settings).length == 0 || !valid}
         isLoading={isSaving}
@@ -54,6 +45,15 @@ const saveAdminSettings = (props: SaveAdminSettingsProps) => {
         size="md"
       >
         {createMessage(() => "Save & restart")}
+      </Button>
+      <Button
+        className="t--admin-settings-reset-button"
+        isDisabled={Object.keys(settings).length == 0}
+        kind="secondary"
+        onClick={onClear}
+        size="md"
+      >
+        {createMessage(() => "Reset")}
       </Button>
     </SettingsButtonWrapper>
   );
