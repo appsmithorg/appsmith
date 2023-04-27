@@ -423,10 +423,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                 ) : null}
               </SecondaryWrapper>
             </div>
-            <AIWindow
-              className="border-t h-full w-80 border-l"
-              windowType="fixed"
-            />
+            <AIWindow className="border-t border-l" windowType="fixed" />
           </Wrapper>
         </Form>
       </JSObjectHotKeys>

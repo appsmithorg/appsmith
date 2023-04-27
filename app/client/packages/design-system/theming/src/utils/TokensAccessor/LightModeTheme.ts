@@ -11,9 +11,10 @@ export class LightModeTheme implements ColorModeTheme {
   private readonly seedHue: number;
   private readonly seedIsAchromatic: boolean;
   private readonly seedIsCold: boolean;
+  private readonly seedIsVeryLight: boolean;
 
   constructor(private color: ColorTypes) {
-    const { chroma, hex, hue, isAchromatic, isCold, lightness } =
+    const { chroma, hex, hue, isAchromatic, isCold, isVeryLight, lightness } =
       new ColorsAccessor(color);
     this.seedColor = hex;
     this.seedLightness = lightness;
@@ -21,6 +22,7 @@ export class LightModeTheme implements ColorModeTheme {
     this.seedHue = hue;
     this.seedIsAchromatic = isAchromatic;
     this.seedIsCold = isCold;
+    this.seedIsVeryLight = isVeryLight;
   }
 
   public getColors = () => {
@@ -47,27 +49,51 @@ export class LightModeTheme implements ColorModeTheme {
    * Background colors
    */
   private get bg() {
-    if (this.seedIsAchromatic) {
-      return setLch(this.seedColor, {
+    let currentColor = this.seedColor;
+
+    if (this.seedIsVeryLight) {
+      currentColor = setLch(currentColor, {
+        l: 0.9,
+      });
+    }
+
+    if (!this.seedIsVeryLight) {
+      currentColor = setLch(currentColor, {
         l: 0.985,
+      });
+    }
+
+    if (this.seedIsCold) {
+      currentColor = setLch(currentColor, {
+        c: 0.009,
+      });
+    }
+
+    if (!this.seedIsCold) {
+      currentColor = setLch(currentColor, {
+        c: 0.007,
+      });
+    }
+
+    if (this.seedIsAchromatic) {
+      currentColor = setLch(currentColor, {
         c: 0,
       });
     }
 
-    return setLch(this.seedColor, {
-      l: 0.985,
-      c: this.seedIsCold ? 0.006 : 0.004,
-    });
+    return currentColor;
   }
 
   private get bgAccent() {
-    if (contrast(this.seedColor, this.bg) >= -15) {
-      return setLch(this.seedColor, {
-        l: 0.85,
+    let currentColor = this.seedColor;
+
+    if (this.seedIsVeryLight) {
+      currentColor = setLch(currentColor, {
+        l: 0.975,
       });
     }
 
-    return this.seedColor;
+    return currentColor;
   }
 
   private get bgAccentHover() {
@@ -75,7 +101,7 @@ export class LightModeTheme implements ColorModeTheme {
   }
 
   private get bgAccentActive() {
-    return lighten(this.bgAccentHover, 0.9);
+    return lighten(this.bgAccent, 0.9);
   }
 
   // used only for generating child colors, not used as a token
@@ -105,6 +131,7 @@ export class LightModeTheme implements ColorModeTheme {
         c: 0,
       });
     }
+
     return currentColor;
   }
 

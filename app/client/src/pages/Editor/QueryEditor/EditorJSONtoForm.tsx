@@ -48,8 +48,6 @@ import Resizable, {
 } from "components/editorComponents/Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
-import { setGlobalSearchQuery } from "actions/globalSearchActions";
-import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
 import {
   checkIfSectionCanRender,
@@ -60,20 +58,20 @@ import {
   updateEvaluatedSectionConfig,
 } from "components/formControls/utils";
 import {
+  ACTION_EDITOR_REFRESH,
+  ACTION_EXECUTION_MESSAGE,
+  ACTION_RUN_BUTTON_MESSAGE_FIRST_HALF,
+  ACTION_RUN_BUTTON_MESSAGE_SECOND_HALF,
+  CREATE_NEW_DATASOURCE,
   createMessage,
+  DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
   DOCUMENTATION,
   DOCUMENTATION_TOOLTIP,
   INSPECT_ENTITY,
-  ACTION_EXECUTION_MESSAGE,
-  UNEXPECTED_ERROR,
-  NO_DATASOURCE_FOR_QUERY,
-  ACTION_EDITOR_REFRESH,
   INVALID_FORM_CONFIGURATION,
-  ACTION_RUN_BUTTON_MESSAGE_FIRST_HALF,
-  ACTION_RUN_BUTTON_MESSAGE_SECOND_HALF,
-  CREATE_NEW_DATASOURCE,
-  DEBUGGER_ERRORS,
+  NO_DATASOURCE_FOR_QUERY,
+  UNEXPECTED_ERROR,
 } from "@appsmith/constants/messages";
 import { useParams } from "react-router";
 import type { AppState } from "@appsmith/reducers";
@@ -102,15 +100,15 @@ import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
 import {
-  responseTabComponent,
-  InlineButton,
+  apiReactJsonProps,
   CancelRequestButton,
-  LoadingOverlayContainer,
   handleCancelActionExecution,
+  InlineButton,
+  LoadingOverlayContainer,
+  responseTabComponent,
   ResponseTabErrorContainer,
   ResponseTabErrorContent,
   ResponseTabErrorDefaultMessage,
-  apiReactJsonProps,
 } from "components/editorComponents/ApiResponseView";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -145,6 +143,7 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import { AIWindow } from "@appsmith/components/editorComponents/GPT";
 
 const QueryFormContainer = styled.form`
@@ -613,13 +612,7 @@ export function EditorJSONtoForm(props: Props) {
 
   const handleDocumentationClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const query = plugin?.name || "Connecting to datasources";
-    dispatch(setGlobalSearchQuery(query));
-    dispatch(toggleShowGlobalSearchModal());
-    AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
-      source: "DATASOURCE_DOCUMENTATION_CLICK",
-      query,
-    });
+    openDoc(DocsLink.QUERY, plugin?.documentationLink, plugin?.name);
   };
 
   // Added function to handle the render of the configs
@@ -1216,10 +1209,7 @@ export function EditorJSONtoForm(props: Props) {
                 </TabbedViewContainer>
               )}
             </SecondaryWrapper>
-            <AIWindow
-              className="border-t h-full w-96 border-l"
-              windowType="fixed"
-            />
+            <AIWindow className="border-t border-l" windowType="fixed" />
           </div>
           <SidebarWrapper
             show={(hasDependencies || !!output) && !guidedTourEnabled}
