@@ -816,15 +816,19 @@ function verifyDynamicPathBindingList(
   widget: DSLWidget,
   removableDynamicBindingPathList: string[],
 ) {
-  if (
-    !removableDynamicBindingPathList ||
-    removableDynamicBindingPathList.length < 1 ||
-    !widget.dynamicBindingPathList
-  )
+  if (!removableDynamicBindingPathList || !widget.dynamicBindingPathList)
     return widget;
 
   const dynamicBindingPathList: DynamicPath[] = [];
   for (const dynamicBindingPath of widget.dynamicBindingPathList) {
+    //if the values are not dynamic, remove from the dynamic binding path list
+    if (
+      !widget[dynamicBindingPath.key] ||
+      !isDynamicValue(widget[dynamicBindingPath.key])
+    ) {
+      continue;
+    }
+
     if (removableDynamicBindingPathList.indexOf(dynamicBindingPath.key) < 0) {
       dynamicBindingPathList.push(dynamicBindingPath);
     }
