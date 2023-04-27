@@ -45,6 +45,7 @@ export default function* autoHeightSagas() {
     ),
     takeEvery(
       ReduxActionTypes.DIRECT_DOM_UPDATE_AUTO_HEIGHT,
+      shouldCallAutoHeight,
       updateWidgetAutoHeightSaga,
     ),
     takeLatest(
