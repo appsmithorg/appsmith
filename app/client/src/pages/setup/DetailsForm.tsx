@@ -28,6 +28,7 @@ import {
 import { Button } from "design-system";
 import { roleOptions, useCaseOptions } from "./constants";
 import { Colors } from "constants/Colors";
+import { isAirgapped } from "ce/utils/airgapHelpers";
 
 const DetailsFormWrapper = styled.div`
   width: 100%;
@@ -174,13 +175,15 @@ export default function DetailsForm(
               </StyledFormGroup>
             )}
 
-            <Checkbox
-              isDefaultChecked={false}
-              label="I want security and product updates."
-              name="signupForNewsletter"
-              type={CheckboxType.PRIMARY}
-              value="true"
-            />
+            {!isAirgapped() && (
+              <Checkbox
+                isDefaultChecked={false}
+                label="I want security and product updates."
+                name="signupForNewsletter"
+                type={CheckboxType.PRIMARY}
+                value="true"
+              />
+            )}
           </div>
         )}
         <ButtonWrapper>

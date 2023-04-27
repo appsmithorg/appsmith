@@ -75,7 +75,6 @@ function Banner() {
 export default memo(function LandingPage(props: LandingPageProps) {
   useEffect(() => {
     playWelcomeAnimation(`#${WELCOME_PAGE_ANIMATION_CONTAINER}`);
-    //wait for the fonts to be loaded
   }, []);
   return (
     <LandingPageWrapper
