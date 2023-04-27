@@ -138,6 +138,13 @@ const OptionWrapper = styled.div`
   display: flex;
   align-items: center;
   width: 100%;
+  position: relative;
+
+  .datasource-sub-text {
+    position: absolute;
+    right: 0;
+    font-size: 12px;
+  }
 `;
 // Constants
 
@@ -818,6 +825,13 @@ function GeneratePageForm() {
                             />
                           </StyledIconWrapper>
                           <Text renderAs="p">{column.label}</Text>
+                          <Text
+                            className="datasource-sub-text"
+                            color="var(--ads-v2-color-fg-muted)"
+                            renderAs="span"
+                          >
+                            {column.subText}
+                          </Text>
                         </OptionWrapper>
                       </Option>
                     );
