@@ -1,4 +1,3 @@
-import classNames from "classnames";
 import React, { forwardRef } from "react";
 import { useDOMRef } from "@react-spectrum/utils";
 import type { DOMRef } from "@react-types/shared";
@@ -7,7 +6,6 @@ import AsteriskIcon from "remixicon-react/AsteriskIcon";
 import type { SpectrumLabelProps } from "@react-types/label";
 
 export interface LabelProps extends SpectrumLabelProps {
-  labelWidth?: number;
   isEmphasized?: boolean;
 }
 
@@ -37,19 +35,16 @@ export const Label = forwardRef(
             ? "(required)"
             : undefined
         }
-        className="required-icon"
+        data-field-necessity-indicator-icon=""
       />
     );
 
-    const labelClassNames = classNames("fieldLabel", {
-      "fieldLabel--positionSide": labelPosition === "side",
-      "fieldLabel--alignEnd": labelAlign === "end",
-    });
-
     return (
       <ElementType
+        data-align={labelAlign}
+        data-field-label=""
+        data-position={labelPosition}
         {...filterDOMProps(otherProps)}
-        className={labelClassNames}
         htmlFor={ElementType === "label" ? labelFor || htmlFor : undefined}
         onClick={onClick}
         ref={domRef}

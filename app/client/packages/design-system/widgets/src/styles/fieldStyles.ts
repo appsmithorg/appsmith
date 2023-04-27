@@ -3,8 +3,10 @@ import type { LabelProps as HeadlessLabelProps } from "@design-system/headless";
 
 type FieldStylesProps = Pick<
   HeadlessLabelProps,
-  "labelPosition" | "labelWidth" | "isEmphasized"
->;
+  "labelPosition" | "isEmphasized"
+> & {
+  labelWidth?: string;
+};
 
 // NOTE: these field styles are used in every input component that has a label
 // for e.g input, select, checkbox group, toggle group, radio group, etc

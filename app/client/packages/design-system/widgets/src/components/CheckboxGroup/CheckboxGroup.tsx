@@ -3,16 +3,14 @@ import React, { forwardRef } from "react";
 import type {
   CheckboxGroupRef as HeadlessCheckboxGroupRef,
   CheckboxGroupProps as HeadlessCheckboxGroupProps,
-  LabelProps as HeadlessLabelProps,
 } from "@design-system/headless";
 
 import { Text } from "../Text";
 import { StyledCheckboxGroup } from "./index.styled";
 
-export interface CheckboxGroupProps
-  extends HeadlessCheckboxGroupProps,
-    Pick<HeadlessLabelProps, "labelWidth"> {
+export interface CheckboxGroupProps extends HeadlessCheckboxGroupProps {
   className?: string;
+  labelWidth?: string;
 }
 
 export const CheckboxGroup = forwardRef(
