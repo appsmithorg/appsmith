@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { FilePickerActionStatus } from "entities/Datasource";
 import { useDispatch } from "react-redux";
 import { filePickerCallbackAction } from "actions/datasourceActions";
+import { GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS } from "constants/Datasource";
 
 interface Props {
   datasourceId: string;
@@ -87,8 +88,7 @@ function GoogleSheetFilePicker({
   // Ref: https://github.com/appsmithorg/appsmith/issues/22753
   useEffect(() => {
     if (!!pickerVisible) {
-      const className = "overlay";
-      removeClassFromDocumentBody(className);
+      removeClassFromDocumentBody(GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS);
     }
   }, [pickerVisible]);
 
