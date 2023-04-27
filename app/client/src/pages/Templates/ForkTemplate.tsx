@@ -1,6 +1,20 @@
 import type { ReactNode } from "react";
 import React, { useState } from "react";
-// import { Dropdown } from "design-system-old";
+import noop from "lodash/noop";
+
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getForkableWorkspaces,
+  isImportingTemplateSelector,
+} from "selectors/templatesSelectors";
+import { importTemplateToWorkspace } from "actions/templateActions";
+import {
+  CANCEL,
+  CHOOSE_WHERE_TO_FORK,
+  createMessage,
+  FORK_TEMPLATE,
+  SELECT_WORKSPACE,
+} from "@appsmith/constants/messages";
 import {
   Button,
   Modal,
@@ -10,41 +24,6 @@ import {
   ModalHeader,
   Select,
 } from "design-system";
-import { useDispatch, useSelector } from "react-redux";
-import { noop } from "lodash";
-import {
-  getForkableWorkspaces,
-  isImportingTemplateSelector,
-} from "selectors/templatesSelectors";
-// import styled from "styled-components";
-import { importTemplateToWorkspace } from "actions/templateActions";
-import {
-  CANCEL,
-  CHOOSE_WHERE_TO_FORK,
-  createMessage,
-  FORK_TEMPLATE,
-  SELECT_WORKSPACE,
-} from "@appsmith/constants/messages";
-// import { Colors } from "constants/Colors";
-// import { Classes } from "@blueprintjs/core";
-
-// const ButtonsWrapper = styled.div`
-//   display: flex;
-//   margin-top: ${(props) => props.theme.spaces[11]}px;
-//   gap: ${(props) => props.theme.spaces[4]}px;
-//   justify-content: flex-end;
-// `;
-
-// const StyledDialog = styled(Dialog)`
-//   && {
-//     .${Classes.DIALOG_CLOSE_BUTTON} {
-//       svg {
-//         width: 29px;
-//         height: 29px;
-//       }
-//     }
-//   }
-// `;
 
 interface ForkTemplateProps {
   children?: ReactNode;
@@ -63,6 +42,7 @@ function ForkTemplate({
   const [selectedWorkspace, setSelectedWorkspace] = useState(workspaceList[0]);
   const isImportingTemplate = useSelector(isImportingTemplateSelector);
   const dispatch = useDispatch();
+
   const onFork = () => {
     dispatch(importTemplateToWorkspace(templateId, selectedWorkspace.value));
   };
