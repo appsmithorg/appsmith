@@ -1,5 +1,4 @@
 import React, { forwardRef } from "react";
-import classNames from "classnames";
 import type { DOMRef } from "@react-types/shared";
 import { useDOMRef } from "@react-spectrum/utils";
 import { useCheckboxGroup } from "@react-aria/checkbox";
@@ -36,12 +35,7 @@ export const CheckboxGroup = forwardRef(
         ref={domRef}
         wrapperClassName={className}
       >
-        <div
-          {...groupProps}
-          className={classNames("fieldGroup", {
-            "fieldGroup--horizontal": orientation === "horizontal",
-          })}
-        >
+        <div {...groupProps} data-field-group data-orientation={orientation}>
           <CheckboxGroupContext.Provider value={state}>
             {children}
           </CheckboxGroupContext.Provider>

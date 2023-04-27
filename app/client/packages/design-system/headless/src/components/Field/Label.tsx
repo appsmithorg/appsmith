@@ -1,4 +1,3 @@
-import classNames from "classnames";
 import React, { forwardRef } from "react";
 import { useDOMRef } from "@react-spectrum/utils";
 import type { DOMRef } from "@react-types/shared";
@@ -12,7 +11,7 @@ export interface LabelProps extends SpectrumLabelProps {
 }
 
 export const Label = forwardRef(
-  (props: SpectrumLabelProps, ref: DOMRef<HTMLLabelElement>) => {
+  (props: LabelProps, ref: DOMRef<HTMLLabelElement>) => {
     const {
       children,
       labelPosition = "top",
@@ -24,6 +23,7 @@ export const Label = forwardRef(
       for: labelFor,
       elementType: ElementType = "label",
       onClick,
+      labelWidth,
       ...otherProps
     } = props;
 
@@ -37,19 +37,17 @@ export const Label = forwardRef(
             ? "(required)"
             : undefined
         }
-        className="required-icon"
+        data-field-necessity-indicator-icon=""
       />
     );
-
-    const labelClassNames = classNames("fieldLabel", {
-      "fieldLabel--positionSide": labelPosition === "side",
-      "fieldLabel--alignEnd": labelAlign === "end",
-    });
 
     return (
       <ElementType
         {...filterDOMProps(otherProps)}
-        className={labelClassNames}
+        data-align={labelAlign}
+        data-field-label=""
+        data-position={labelPosition}
+        data-width={labelWidth}
         htmlFor={ElementType === "label" ? labelFor || htmlFor : undefined}
         onClick={onClick}
         ref={domRef}

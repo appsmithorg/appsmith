@@ -15,7 +15,7 @@ export const labelStyles = css<Pick<CheckboxProps, "labelPosition">>`
     flex-direction: ${labelPosition === "left" ? "row-reverse" : "row"};
   `};
 
-  .label {
+  &[data-label] {
     min-height: calc(5 * var(--sizing-root-unit));
     display: flex;
     align-items: center;
@@ -25,7 +25,7 @@ export const labelStyles = css<Pick<CheckboxProps, "labelPosition">>`
 export const StyledCheckbox = styled(HeadlessCheckbox)<CheckboxProps>`
   ${labelStyles}
 
-  .icon {
+  [data-icon] {
     width: calc(5 * var(--sizing-root-unit));
     height: calc(5 * var(--sizing-root-unit));
     border-width: var(--border-width-1);
@@ -40,7 +40,7 @@ export const StyledCheckbox = styled(HeadlessCheckbox)<CheckboxProps>`
     flex-shrink: 0;
   }
 
-  &.is-hovered:not(.is-disabled) .icon {
+  &[data-hovered]:not([data-disabled]) [data-icon] {
     border-color: var(--color-bd-neutral-hover);
   }
 
@@ -49,15 +49,15 @@ export const StyledCheckbox = styled(HeadlessCheckbox)<CheckboxProps>`
  * CHECKED  AND INDETERMINATE - BUT NOT DISABLED
  *-----------------------------------------------------------------------------
  */
-  &.is-checked .icon,
-  &.is-indeterminate .icon {
+  &[data-state="checked"] [data-icon],
+  &[data-state="indeterminate"] [data-icon] {
     background-color: var(--color-bg-accent);
     border-color: var(--color-bg-accent);
     color: var(--color-fg-on-accent);
   }
 
-  &.is-hovered.is-checked:not(.is-disabled) .icon,
-  &.is-hovered.is-indeterminate:not(.is-disabled) .icon {
+  &[data-hovered][data-state="checked"]:not([data-disabled]) [data-icon],
+  &[data-hovered][data-state="indeterminate"]:not([data-disabled]) [data-icon] {
     border-color: var(--color-bg-accent-hover);
     background-color: var(--color-bg-accent-hover);
     color: var(--color-fg-on-accent);
@@ -68,7 +68,7 @@ export const StyledCheckbox = styled(HeadlessCheckbox)<CheckboxProps>`
   * DISABLED
   *-----------------------------------------------------------------------------
   */
-  &.is-disabled {
+  &[data-disabled] {
     cursor: not-allowed;
     opacity: var(--opacity-disabled);
   }
@@ -78,7 +78,7 @@ export const StyledCheckbox = styled(HeadlessCheckbox)<CheckboxProps>`
   * FOCUS
   *-----------------------------------------------------------------------------
   */
-  &.is-focused .icon {
+  &[data-focused] [data-icon] {
     box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-bd-focus);
   }
 
@@ -87,11 +87,11 @@ export const StyledCheckbox = styled(HeadlessCheckbox)<CheckboxProps>`
  * ERROR ( INVALID )
  *-----------------------------------------------------------------------------
  */
-  &.is-invalid .icon {
+  &[data-invalid] [data-icon] {
     border-color: var(--color-bd-negative);
   }
 
-  &.is-hovered.is-invalid .icon {
+  &[data-hovered][data-invalid] [data-icon] {
     border-color: var(--color-bd-negative-hover);
   }
 `;

@@ -9,16 +9,16 @@ type FieldStylesProps = Pick<
 // NOTE: these field styles are used in every input component that has a label
 // for e.g input, select, checkbox group, toggle group, radio group, etc
 export const fieldStyles = css<FieldStylesProps>`
-  &.field {
+  &[data-field] {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-3);
 
-    &--positionSide {
+    &[data-position="side"] {
       flex-direction: row;
     }
 
-    &.is-disabled {
+    &[data-disabled] {
       cursor: not-allowed;
       opacity: var(--opacity-disabled);
 
@@ -33,7 +33,7 @@ export const fieldStyles = css<FieldStylesProps>`
   * LABEL
   *-----------------------------------------------------------------------------
   */
-  & .fieldLabel {
+  & [data-field-label] {
     display: flex;
     align-items: center;
     gap: var(--spacing-1);
@@ -42,14 +42,10 @@ export const fieldStyles = css<FieldStylesProps>`
     font-weight: ${({ isEmphasized }) => (isEmphasized ? "bold" : "normal")};
 
     //  when the label is on the side, we need to make sure the label is aligned
-    ${({ labelPosition, labelWidth }) => {
-      if (labelPosition === "side") {
-        return css`
-          min-height: calc(5 * var(--sizing-root-unit));
-          width: ${labelWidth ?? "max-content"};
-        `;
-      }
-    }}
+    &[data-position="side"] {
+      min-height: calc(5 * var(--sizing-root-unit));
+      width: attr(data-width);
+    }
   }
 
   /**
@@ -57,7 +53,7 @@ export const fieldStyles = css<FieldStylesProps>`
   * REQUIRED ICON
   *-----------------------------------------------------------------------------
   */
-  & .required-icon {
+  & [data-field-necessity-indicator-icon] {
     width: var(--spacing-2);
     height: var(--spacing-2);
   }
@@ -67,7 +63,7 @@ export const fieldStyles = css<FieldStylesProps>`
   * ERROR TEXT
   *-----------------------------------------------------------------------------
   */
-  &.field .errorText {
+  & [data-field-error-text] {
     display: flex;
     align-items: center;
     color: var(--color-fg-negative);
@@ -78,12 +74,12 @@ export const fieldStyles = css<FieldStylesProps>`
   * FIELD GROUP
   *-----------------------------------------------------------------------------
   */
-  & .fieldGroup {
+  & [data-field-group] {
     gap: var(--spacing-2);
     display: flex;
     flex-direction: column;
 
-    &--horizontal {
+    &[data-orientation="horizontal"] {
       flex-direction: row;
     }
   }

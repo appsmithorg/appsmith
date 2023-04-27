@@ -1,6 +1,5 @@
-import classNames from "classnames";
 import React, { forwardRef } from "react";
-import type { LabelPosition } from "@react-types/shared";
+import { filterDOMProps } from "@react-aria/utils";
 import type { SpectrumFieldProps } from "@react-types/label";
 
 import { Label } from "./Label";
@@ -13,7 +12,7 @@ export type FieldRef = any;
 export const Field = forwardRef((props: FieldProps, ref: FieldRef) => {
   const {
     label,
-    labelPosition = "top" as LabelPosition,
+    labelPosition = "top",
     labelAlign,
     isRequired,
     necessityIndicator,
@@ -31,17 +30,6 @@ export const Field = forwardRef((props: FieldProps, ref: FieldRef) => {
     ...otherProps
   } = props;
   const hasErrorText = errorMessage && validationState === "invalid";
-
-  const labelWrapperClass = classNames(
-    "field",
-    {
-      "is-disabled": isDisabled,
-      "field--positionTop": labelPosition === "top",
-      "field--positionSide": labelPosition === "side",
-      "field--alignEnd": labelAlign === "end",
-    },
-    wrapperClassName,
-  );
 
   const renderErrorText = () => {
     return (
@@ -91,9 +79,13 @@ export const Field = forwardRef((props: FieldProps, ref: FieldRef) => {
 
   return (
     <div
-      {...otherProps}
+      {...filterDOMProps(otherProps)}
       {...wrapperProps}
-      className={labelWrapperClass}
+      className={wrapperClassName}
+      data-align={labelAlign}
+      data-disabled={isDisabled}
+      data-field=""
+      data-position={labelPosition}
       ref={ref}
     >
       <div>{labelAndContextualHelp}</div>

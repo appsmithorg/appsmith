@@ -1,18 +1,17 @@
-import React, { forwardRef, useContext, useRef } from "react";
-import { useCheckbox, useCheckboxGroupItem } from "@react-aria/checkbox";
-
-import CheckIcon from "remixicon-react/CheckLineIcon";
-import { CheckboxGroupContext } from "./context";
-import SubtractIcon from "remixicon-react/SubtractLineIcon";
-import classNames from "classnames";
 import { mergeProps } from "@react-aria/utils";
 import { useFocusRing } from "@react-aria/focus";
-import { useFocusableRef } from "@react-spectrum/utils";
 import { useHover } from "@react-aria/interactions";
+import CheckIcon from "remixicon-react/CheckLineIcon";
 import { useToggleState } from "@react-stately/toggle";
+import { useFocusableRef } from "@react-spectrum/utils";
+import SubtractIcon from "remixicon-react/SubtractLineIcon";
+import React, { forwardRef, useContext, useRef } from "react";
 import { useVisuallyHidden } from "@react-aria/visually-hidden";
-import type { SpectrumCheckboxProps } from "@react-types/checkbox";
 import type { FocusableRef, StyleProps } from "@react-types/shared";
+import type { SpectrumCheckboxProps } from "@react-types/checkbox";
+import { useCheckbox, useCheckboxGroupItem } from "@react-aria/checkbox";
+
+import { CheckboxGroupContext } from "./context";
 
 export type CheckboxProps = Omit<SpectrumCheckboxProps, keyof StyleProps> & {
   icon?: React.ReactNode;
@@ -64,22 +63,29 @@ export const Checkbox = forwardRef((props: CheckboxProps, ref: CheckboxRef) => {
     : // eslint-disable-next-line react-hooks/rules-of-hooks
       useCheckbox(props, state, inputRef);
 
-  const computedClassnames = classNames(className, {
-    "is-disabled": isDisabled,
-    "is-hovered": isHovered,
-    "is-checked": inputProps.checked,
-    "is-indeterminate": isIndeterminate,
-    "is-invalid": validationState === "invalid",
-    "is-focused": isFocusVisible,
-  });
+  const dataState = isIndeterminate
+    ? "indeterminate"
+    : inputProps.checked
+    ? "checked"
+    : "unchecked";
 
   return (
-    <label {...hoverProps} className={computedClassnames} ref={domRef}>
+    <label
+      {...hoverProps}
+      className={className}
+      data-disabled={isDisabled ? "" : undefined}
+      data-focussed={isFocusVisible ? "" : undefined}
+      data-hovered={isHovered ? "" : undefined}
+      data-invalid={validationState === "invalid" ? "" : undefined}
+      data-label=""
+      data-state={dataState}
+      ref={domRef}
+    >
       <input
         {...mergeProps(inputProps, visuallyHiddenProps, focusProps)}
         ref={inputRef}
       />
-      <span aria-hidden="true" className="icon" role="presentation">
+      <span aria-hidden="true" data-icon="" role="presentation">
         {isIndeterminate ? <SubtractIcon /> : icon}
       </span>
       {children}
