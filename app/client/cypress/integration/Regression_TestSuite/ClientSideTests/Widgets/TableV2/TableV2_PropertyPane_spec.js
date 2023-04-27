@@ -373,7 +373,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     );
   });
 
-  it.only("14. It provides currentRow and currentIndex properties in min validation field", function () {
+  it("14. It provides currentRow and currentIndex properties in min validation field", function () {
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("orderAmount");
     cy.editColumn("orderAmount");
@@ -384,12 +384,12 @@ describe("Table Widget V2 property pane feature validation", function () {
     propPane.UpdatePropertyFieldValue("Min", "{{currentIndex}}");
     cy.get(".t--evaluatedPopup-error").should("not.exist");
 
-    // Update cell with row : 0, column : orderAmount
-    cy.editTableCell(4, 0);
-    cy.enterTableCellValue(4, 0, -1);
+    // Update cell with row : 1, column : orderAmount
+    cy.editTableCell(4, 1);
+    cy.enterTableCellValue(4, 1, -1);
 
     cy.get(".bp3-popover-content").contains("Invalid input");
-    cy.enterTableCellValue(4, 0, 0);
+    cy.enterTableCellValue(4, 1, 0);
     cy.get(".bp3-popover-content").should("not.exist");
 
     // Check if currentRow works
@@ -397,13 +397,101 @@ describe("Table Widget V2 property pane feature validation", function () {
     propPane.UpdatePropertyFieldValue("Min", "{{currentRow.id}}");
     cy.get(".t--evaluatedPopup-error").should("not.exist");
 
-    // Update cell with row : 0, column : orderAmount. The min is set to 231224 (i.e value of cell in id column)
-    cy.editTableCell(4, 0);
-    cy.enterTableCellValue(4, 0, 231225);
-    cy.get(".t--evaluatedPopup-error").should("not.exist");
-    cy.enterTableCellValue(4, 0, 231223);
+    // Update cell with row : 0, column : orderAmount. The min is set to 7 (i.e value of cell in id column)
+    cy.editTableCell(4, 1);
+    cy.enterTableCellValue(4, 1, 8);
+    cy.get(".bp3-popover-content").should("not.exist");
+
+    cy.enterTableCellValue(4, 1, 6);
     cy.get(".bp3-popover-content").contains("Invalid input");
-    cy.enterTableCellValue(4, 0, 231225);
+    cy.enterTableCellValue(4, 1, 8);
+    cy.get(".bp3-popover-content").should("not.exist");
+    propPane.UpdatePropertyFieldValue("Min", "");
+
+    // Check for currentIndex property on Regex field
+    cy.changeColumnType("Plain Text");
+    propPane.UpdatePropertyFieldValue("Regex", "{{currentIndex}}2");
+
     cy.get(".t--evaluatedPopup-error").should("not.exist");
+    cy.editTableCell(4, 1);
+    cy.enterTableCellValue(4, 1, 3);
+    cy.get(".bp3-popover-content").contains("Invalid input");
+    cy.enterTableCellValue(4, 1, "12");
+    cy.get(".bp3-popover-content").should("not.exist");
+
+    // Check for currentRow property on Regex field
+    propPane.UpdatePropertyFieldValue("Regex", "{{currentRow.id}}");
+    cy.editTableCell(4, 1);
+
+    cy.enterTableCellValue(4, 1, 7);
+    cy.get(".bp3-popover-content").should("not.exist");
+    cy.enterTableCellValue(4, 1, 8);
+    cy.get(".bp3-popover-content").contains("Invalid input");
+    cy.enterTableCellValue(4, 1, 7);
+    cy.get(".bp3-popover-content").should("not.exist");
+    propPane.UpdatePropertyFieldValue("Regex", "");
+
+    cy.get(".t--property-control-required").find(".t--js-toggle").click();
+    propPane.UpdatePropertyFieldValue("Required", "{{currentIndex == 1}}");
+
+    cy.editTableCell(4, 1);
+    cy.enterTableCellValue(4, 1, "");
+    cy.get(".bp3-popover-content").contains("This field is required");
+    cy.enterTableCellValue(4, 1, "1{enter}");
+    cy.get(".bp3-popover-content").should("not.exist");
+
+    cy.wait(500);
+    cy.discardTableRow(5, 1);
+
+    // Value isn't required in Row Index 2
+    cy.editTableCell(4, 2);
+    cy.enterTableCellValue(4, 2, "");
+    cy.get(".bp3-popover-content").should("not.exist");
+    cy.enterTableCellValue(4, 2, "11");
+    cy.get(".bp3-popover-content").should("not.exist");
+    cy.enterTableCellValue(4, 2, "{enter}");
+    cy.get(".bp3-popover-content").should("not.exist");
+
+    cy.wait(500);
+    cy.discardTableRow(5, 2);
+
+    // Check for Required property using currentRow, row with index 1 has id 7
+    propPane.UpdatePropertyFieldValue("Required", "{{currentRow.id == 7}}");
+
+    cy.editTableCell(4, 1);
+    cy.enterTableCellValue(4, 1, "");
+    cy.get(".bp3-popover-content").contains("This field is required");
+    cy.enterTableCellValue(4, 1, 1);
+    cy.get(".bp3-popover-content").should("not.exist");
+    cy.enterTableCellValue(4, 1, "");
+    cy.get(".bp3-popover-content").contains("This field is required");
+
+    cy.enterTableCellValue(4, 1, "1{enter}");
+    cy.get(".bp3-popover-content").should("not.exist");
+
+    cy.wait(500);
+    cy.discardTableRow(5, 1);
+
+    // Value isn't required in Row Index 2
+    cy.editTableCell(4, 2);
+    cy.enterTableCellValue(4, 2, "");
+    cy.get(".bp3-popover-content").should("not.exist");
+    cy.enterTableCellValue(4, 2, 10);
+    cy.get(".bp3-popover-content").should("not.exist");
+
+    cy.enterTableCellValue(4, 2, "{enter}");
+    cy.get(".bp3-popover-content").should("not.exist");
+
+    cy.wait(500);
+    cy.discardTableRow(5, 2);
+
+    // Cleanup
+    propPane.UpdatePropertyFieldValue(
+      "Computed Value",
+      '{{currentRow["orderAmount"]}}',
+    );
+    cy.changeColumnType("Plain Text");
+    cy.backFromPropertyPanel();
+    cy.makeColumnEditable("orderAmount");
   });
 });
