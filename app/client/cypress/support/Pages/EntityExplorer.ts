@@ -234,9 +234,11 @@ export class EntityExplorer {
 
   public CreateNewDsQuery(dsName: string, isQuery = true) {
     cy.get(this.locator._createNew).last().click({ force: true });
+    const searchText = isQuery ? dsName + " query" : dsName;
+    cy.get(`[data-testId="t--search-file-operation"]`).type(searchText);
     let overlayItem = isQuery
-      ? this._visibleTextSpan(dsName + " Query")
-      : this._visibleTextSpan(dsName);
+      ? this._visibleTextSpan(searchText)
+      : this._visibleTextSpan(searchText);
     this.agHelper.GetNClick(overlayItem);
   }
 
