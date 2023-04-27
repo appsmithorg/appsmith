@@ -696,8 +696,8 @@ Cypress.Commands.add("NavigateToWidgetsInExplorer", () => {
 
 Cypress.Commands.add("NavigateToJSEditor", () => {
   cy.get(explorer.createNew).click({ force: true });
-  // 2 is the index value of the JS Object in omnibar ui
-  cy.get(".t--file-operation").eq(2).click({ force: true });
+  cy.get(`[data-testId="t--search-file-operation"]`).type("New JS Object");
+  cy.get(".t--file-operation").eq(0).click({ force: true });
 });
 
 Cypress.Commands.add("importCurl", () => {
