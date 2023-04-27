@@ -1,6 +1,6 @@
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
-import { Button } from "design-system";
+import { Button, Link } from "design-system";
 import {
   ONBOARDING_TASK_DATASOURCE_BODY,
   ONBOARDING_TASK_DATASOURCE_HEADER,
@@ -57,7 +57,7 @@ const CenteredContainer = styled.div`
 `;
 
 const TaskImageContainer = styled.div`
-  width: 220px;
+  width: 180px;
   margin: 0 auto;
 `;
 
@@ -66,7 +66,8 @@ const TaskImage = styled.img`
 `;
 
 const TaskHeader = styled.h5`
-  font-size: 24px;
+  font-size: 20px;
+  margin-top: 16px;
   margin-bottom: 16px;
 `;
 
@@ -80,11 +81,8 @@ const TaskButtonWrapper = styled.div`
 
 const Taskfootnote = styled.p`
   margin-top: 30px;
-  & span {
-    color: ${(props) => props.theme.colors.welcomeTourStickySidebarBackground};
-    font-weight: 600;
-    cursor: pointer;
-  }
+  display: flex;
+  justify-content: center;
 `;
 
 const getOnboardingDatasourceImg = () =>
@@ -131,15 +129,18 @@ export default function OnboardingTasks() {
                 }),
               );
             }}
+            size="md"
+            startIcon="plus"
           >
             {createMessage(ONBOARDING_TASK_DATASOURCE_BUTTON)}
           </Button>
         </TaskButtonWrapper>
         <Taskfootnote>
           {createMessage(ONBOARDING_TASK_FOOTER)}&nbsp;
-          <span
+          <Link
             className="t--tasks-datasource-alternate-button"
             data-testid="onboarding-tasks-datasource-alt"
+            kind="primary"
             onClick={() => {
               AnalyticsUtil.logEvent("SIGNPOSTING_ADD_WIDGET_CLICK", {
                 from: "CANVAS",
@@ -149,7 +150,7 @@ export default function OnboardingTasks() {
             }}
           >
             {createMessage(ONBOARDING_TASK_DATASOURCE_FOOTER_ACTION)}
-          </span>
+          </Link>
           &nbsp;{createMessage(ONBOARDING_TASK_DATASOURCE_FOOTER)}
         </Taskfootnote>
       </CenteredContainer>
@@ -182,15 +183,18 @@ export default function OnboardingTasks() {
                 }),
               );
             }}
+            size="md"
+            startIcon="plus"
           >
             {createMessage(ONBOARDING_TASK_QUERY_BUTTON)}
           </Button>
         </TaskButtonWrapper>
         <Taskfootnote>
           {createMessage(ONBOARDING_TASK_FOOTER)}&nbsp;
-          <span
+          <Link
             className="t--tasks-action-alternate-button"
             data-testid="onboarding-tasks-action-alt"
+            kind="primary"
             onClick={() => {
               AnalyticsUtil.logEvent("SIGNPOSTING_ADD_WIDGET_CLICK", {
                 from: "CANVAS",
@@ -200,7 +204,7 @@ export default function OnboardingTasks() {
             }}
           >
             {createMessage(ONBOARDING_TASK_QUERY_FOOTER_ACTION)}
-          </span>
+          </Link>
         </Taskfootnote>
       </CenteredContainer>
     );
@@ -228,15 +232,18 @@ export default function OnboardingTasks() {
               dispatch(toggleInOnboardingWidgetSelection(true));
               dispatch(forceOpenWidgetPanel(true));
             }}
+            size="md"
+            startIcon="plus"
           >
             {createMessage(ONBOARDING_TASK_WIDGET_BUTTON)}
           </Button>
         </TaskButtonWrapper>
         <Taskfootnote>
           {createMessage(ONBOARDING_TASK_FOOTER)}&nbsp;
-          <span
+          <Link
             className="t--tasks-widget-alternate-button"
             data-testid="onboarding-tasks-widget-alt"
+            kind="primary"
             onClick={() => {
               AnalyticsUtil.logEvent("SIGNPOSTING_PUBLISH_CLICK", {
                 from: "CANVAS",
@@ -250,7 +257,7 @@ export default function OnboardingTasks() {
             }}
           >
             {createMessage(ONBOARDING_TASK_WIDGET_FOOTER_ACTION)}
-          </span>
+          </Link>
           .
         </Taskfootnote>
       </CenteredContainer>
