@@ -320,20 +320,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               dependencies: ["dynamicHeight"],
             },
             {
-              propertyName: "shouldAllowAutofill",
-              label: "Allow autofill",
-              helpText: "Allow users to autofill values from browser",
-              controlType: "SWITCH",
-              isJSConvertible: true,
-              isBindProperty: true,
-              isTriggerProperty: false,
-              validation: { type: ValidationTypes.BOOLEAN },
-              hidden: (props: InputWidgetProps) => {
-                return !isInputTypeEmailOrPassword(props?.inputType);
-              },
-              dependencies: ["inputType"],
-            },
-            {
               helpText:
                 "Sets the default text of the widget. The text is updated if the default text changes",
               propertyName: "defaultText",
