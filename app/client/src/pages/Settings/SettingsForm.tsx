@@ -200,7 +200,7 @@ export function SettingsForm(
             <SettingsHeader
               color="var(--ads-v2-color-fg-emphasis-plus)"
               kind="heading-l"
-              renderAs="h2"
+              renderAs="h1"
             >
               {pageTitle}
             </SettingsHeader>
@@ -208,7 +208,7 @@ export function SettingsForm(
               <SettingsSubHeader
                 color="var(--ads-v2-color-fg-emphasis)"
                 kind="body-m"
-                renderAs="span"
+                renderAs="h2"
               >
                 {details.subText}
               </SettingsSubHeader>
