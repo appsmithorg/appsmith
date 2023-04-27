@@ -14,6 +14,7 @@ import AppsLineIcon from "remixicon-react/AppsLineIcon";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
+import { TooltipComponent } from "design-system-old";
 
 type BackToAppsButtonProps = {
   currentApplicationDetails?: ApplicationPayload;
@@ -52,26 +53,40 @@ const BackToAppsButton = (props: BackToAppsButtonProps) => {
   }
 
   return (
-    <Button
-      borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
-      className="h-8 t--app-viewer-back-to-apps-button"
-      icon={
-        <StyledAppIcon
-          borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
-          insideSidebar={insideSidebar}
-          navColorStyle={navColorStyle}
-          primaryColor={primaryColor}
-        />
-      }
-      insideSidebar={insideSidebar}
-      isMinimal={isMinimal}
-      navColorStyle={navColorStyle}
-      onClick={() => {
-        history.push("/applications");
+    <TooltipComponent
+      boundary="viewport"
+      content={createMessage(ALL_APPS)}
+      disabled={insideSidebar}
+      hoverOpenDelay={500}
+      modifiers={{
+        preventOverflow: {
+          enabled: true,
+          boundariesElement: "viewport",
+        },
       }}
-      primaryColor={primaryColor}
-      text={insideSidebar && !isMinimal && createMessage(ALL_APPS)}
-    />
+      position="bottom"
+    >
+      <Button
+        borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
+        className="h-8 t--app-viewer-back-to-apps-button"
+        icon={
+          <StyledAppIcon
+            borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
+            insideSidebar={insideSidebar}
+            navColorStyle={navColorStyle}
+            primaryColor={primaryColor}
+          />
+        }
+        insideSidebar={insideSidebar}
+        isMinimal={isMinimal}
+        navColorStyle={navColorStyle}
+        onClick={() => {
+          history.push("/applications");
+        }}
+        primaryColor={primaryColor}
+        text={insideSidebar && !isMinimal && createMessage(ALL_APPS)}
+      />
+    </TooltipComponent>
   );
 };
 

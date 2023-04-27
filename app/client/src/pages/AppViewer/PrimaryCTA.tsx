@@ -25,7 +25,7 @@ import { viewerURL } from "RouteBuilder";
 import { useHistory } from "react-router";
 import { useHref } from "pages/Editor/utils";
 import type { NavigationSetting } from "constants/AppConstants";
-import { Icon } from "design-system-old";
+import { Icon, TooltipComponent } from "design-system-old";
 import { getApplicationNameTextColor } from "./utils";
 import { ButtonVariantTypes } from "components/constants";
 import { setPreviewModeInitAction } from "actions/editorActions";
@@ -99,32 +99,46 @@ function PrimaryCTA(props: Props) {
   const PrimaryCTA = useMemo(() => {
     if (url && canEdit) {
       return (
-        <Button
-          borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
-          className={className}
-          icon={
-            <Icon
-              fillColor={getApplicationNameTextColor(
-                primaryColor,
-                navColorStyle,
-              )}
-              name="edit-line"
-              size="extraLarge"
-            />
-          }
-          insideSidebar={insideSidebar}
-          isMinimal={isMinimal}
-          navColorStyle={navColorStyle}
-          onClick={() => {
-            if (isPreviewMode) {
-              dispatch(setPreviewModeInitAction(!isPreviewMode));
-            } else {
-              history.push(url);
-            }
+        <TooltipComponent
+          boundary="viewport"
+          content={createMessage(EDIT_APP)}
+          disabled={insideSidebar}
+          hoverOpenDelay={500}
+          modifiers={{
+            preventOverflow: {
+              enabled: true,
+              boundariesElement: "viewport",
+            },
           }}
-          primaryColor={primaryColor}
-          text={insideSidebar && !isMinimal && createMessage(EDIT_APP)}
-        />
+          position="bottom"
+        >
+          <Button
+            borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
+            className={className}
+            icon={
+              <Icon
+                fillColor={getApplicationNameTextColor(
+                  primaryColor,
+                  navColorStyle,
+                )}
+                name="edit-line"
+                size="extraLarge"
+              />
+            }
+            insideSidebar={insideSidebar}
+            isMinimal={isMinimal}
+            navColorStyle={navColorStyle}
+            onClick={() => {
+              if (isPreviewMode) {
+                dispatch(setPreviewModeInitAction(!isPreviewMode));
+              } else {
+                history.push(url);
+              }
+            }}
+            primaryColor={primaryColor}
+            text={insideSidebar && !isMinimal && createMessage(EDIT_APP)}
+          />
+        </TooltipComponent>
       );
     }
 
