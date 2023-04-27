@@ -103,8 +103,8 @@ import type {
 } from "workers/Evaluation/types";
 import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
-import { getAppsmithConfigs } from "ce/configs";
 import { toast } from "design-system";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { executeJSUpdates } from "actions/pluginActionActions";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();

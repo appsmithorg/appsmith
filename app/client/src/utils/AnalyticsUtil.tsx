@@ -292,6 +292,7 @@ export type EventName =
   | LIBRARY_EVENTS
   | "APP_SETTINGS_SECTION_CLICK"
   | APP_NAVIGATION_EVENT_NAMES
+  | ACTION_SELECTOR_EVENT_NAMES
   | "PRETTIFY_AND_SAVE_KEYBOARD_SHORTCUT";
 
 export type LIBRARY_EVENTS =
@@ -323,6 +324,11 @@ export type APP_NAVIGATION_EVENT_NAMES =
   | "APP_NAVIGATION_VARIANT"
   | "APP_NAVIGATION_BACKGROUND_COLOR"
   | "APP_NAVIGATION_SHOW_SIGN_IN";
+
+export type ACTION_SELECTOR_EVENT_NAMES =
+  | "ACTION_ADDED"
+  | "ACTION_DELETED"
+  | "ACTION_MODIFIED";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");

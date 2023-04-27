@@ -17,6 +17,7 @@ import {
   MenuItem,
   MenuTrigger,
   Tooltip,
+  MenuSeparator,
 } from "design-system";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import moment from "moment/moment";
@@ -28,11 +29,7 @@ const HelpFooter = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-top: 1px solid var(--ads-v2-color-border);
-  padding: 5px 10px;
-  height: 30px;
-  color: var(--ads-v2-color-fg);
-  font-size: 6pt;
+  font-size: 8px;
 `;
 type HelpItem = {
   label: string;
@@ -48,7 +45,7 @@ const HELP_MENU_ITEMS: HelpItem[] = [
     link: "https://docs.appsmith.com/",
   },
   {
-    icon: "bug",
+    icon: "bug-line",
     label: "Report a bug",
     link: "https://github.com/appsmithorg/appsmith/issues/new/choose",
   },
@@ -88,39 +85,43 @@ function HelpButton() {
             Help
           </Button>
         </MenuTrigger>
-        <MenuContent collisionPadding={10}>
-          <div style={{ width: HELP_MODAL_WIDTH }}>
-            {HELP_MENU_ITEMS.map((item) => (
-              <MenuItem
-                endIcon="share-box-line"
-                key={item.label}
-                onClick={() => {
-                  if (item.link) window.open(item.link, "_blank");
-                  if (item.id === "intercom-trigger") {
-                    if (intercomAppID && window.Intercom) {
-                      window.Intercom("show");
-                    }
+        <MenuContent collisionPadding={10} style={{ width: HELP_MODAL_WIDTH }}>
+          {HELP_MENU_ITEMS.map((item) => (
+            <MenuItem
+              key={item.label}
+              onClick={() => {
+                if (item.link) window.open(item.link, "_blank");
+                if (item.id === "intercom-trigger") {
+                  if (intercomAppID && window.Intercom) {
+                    window.Intercom("show");
                   }
-                }}
-                startIcon={item.icon}
-              >
-                {item.label}
+                }
+              }}
+              startIcon={item.icon}
+            >
+              {item.label}
+            </MenuItem>
+          ))}
+          {appVersion.id && (
+            <>
+              <MenuSeparator />
+              <MenuItem className="menuitem-nohover">
+                <HelpFooter>
+                  <span>
+                    {createMessage(
+                      APPSMITH_DISPLAY_VERSION,
+                      appVersion.edition,
+                      appVersion.id,
+                      cloudHosting,
+                    )}
+                  </span>
+                  <span>
+                    Released {moment(appVersion.releaseDate).fromNow()}
+                  </span>
+                </HelpFooter>
               </MenuItem>
-            ))}
-            {appVersion.id && (
-              <HelpFooter>
-                <span>
-                  {createMessage(
-                    APPSMITH_DISPLAY_VERSION,
-                    appVersion.edition,
-                    appVersion.id,
-                    cloudHosting,
-                  )}
-                </span>
-                <span>Released {moment(appVersion.releaseDate).fromNow()}</span>
-              </HelpFooter>
-            )}
-          </div>
+            </>
+          )}
         </MenuContent>
       </Menu>
     </Tooltip>

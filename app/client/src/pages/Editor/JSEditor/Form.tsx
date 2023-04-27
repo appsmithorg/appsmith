@@ -4,9 +4,10 @@ import type { JSAction, JSCollection } from "entities/JSCollection";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import MoreJSCollectionsMenu from "../Explorer/JSActions/MoreJSActionsMenu";
 import type { DropdownOnSelect } from "design-system-old";
-import { SearchSnippet, TabComponent } from "design-system-old";
+import { TabComponent } from "design-system-old";
 import CodeEditor from "components/editorComponents/CodeEditor";
 import {
+  CodeEditorBorder,
   EditorModes,
   EditorSize,
   EditorTheme,
@@ -50,7 +51,6 @@ import {
   Form,
   FormWrapper,
   NameWrapper,
-  SecondaryWrapper,
   StyledFormRow,
   TabbedViewContainer,
 } from "./styledComponents";
@@ -69,13 +69,36 @@ import {
 } from "actions/editorContextActions";
 import history from "utils/history";
 import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
+import styled from "styled-components";
+import { AIWindow } from "@appsmith/components/editorComponents/GPT";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
+import SearchSnippets from "../../common/SearchSnippets";
 
 interface JSFormProps {
   jsCollection: JSCollection;
 }
 
 type Props = JSFormProps;
+
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  height: calc(100% - 50px);
+  width: 100%;
+`;
+
+const SecondaryWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  &&& {
+    .react-tabs__tab-panel {
+      height: calc(100% - 30px);
+      padding-top: 1px;
+    }
+  }
+`;
 
 function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
   const theme = EditorTheme.LIGHT;
@@ -298,7 +321,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                 name={currentJSCollection.name}
                 pageId={pageId}
               />
-              <SearchSnippet
+              <SearchSnippets
                 entityId={currentJSCollection?.id}
                 entityType={ENTITY_TYPE.JSACTION}
                 onClick={() => {
@@ -331,71 +354,78 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
               />
             </ActionButtons>
           </StyledFormRow>
-          <SecondaryWrapper>
-            <TabbedViewContainer isExecuting={isExecutingCurrentJSAction}>
-              <TabComponent
-                onSelect={setSelectedConfigTab}
-                selectedIndex={selectedConfigTab}
-                tabs={[
-                  {
-                    key: "code",
-                    title: "Code",
-                    panelComponent: (
-                      <CodeEditor
-                        blockCompletions={blockCompletions}
-                        className={"js-editor"}
-                        customGutter={JSGutters}
-                        dataTreePath={`${currentJSCollection.name}.body`}
-                        disabled={!isChangePermitted}
-                        folding
-                        height={"100%"}
-                        hideEvaluatedValue
-                        input={{
-                          value: currentJSCollection.body,
-                          onChange: handleEditorChange,
-                        }}
-                        isJSObject
-                        mode={EditorModes.JAVASCRIPT}
-                        placeholder="Let's write some code!"
-                        showLightningMenu={false}
-                        showLineNumbers
-                        size={EditorSize.EXTENDED}
-                        tabBehaviour={TabBehaviour.INDENT}
-                        theme={theme}
-                      />
-                    ),
-                  },
-                  {
-                    key: "settings",
-                    title: "Settings",
-                    panelComponent: (
-                      <JSFunctionSettingsView
-                        actions={jsActions}
-                        disabled={!isChangePermitted}
-                      />
-                    ),
-                  },
-                ]}
-              />
-            </TabbedViewContainer>
-            {showDebugger ? (
-              <JSResponseView
-                currentFunction={activeResponse}
-                disabled={disableRunFunctionality || !isExecutePermitted}
-                errors={parseErrors}
-                isLoading={isExecutingCurrentJSAction}
-                jsObject={currentJSCollection}
-                onButtonClick={(
-                  event:
-                    | React.MouseEvent<HTMLElement, MouseEvent>
-                    | KeyboardEvent,
-                ) => {
-                  handleRunAction(event, "JS_OBJECT_RESPONSE_RUN_BUTTON");
-                }}
-                theme={theme}
-              />
-            ) : null}
-          </SecondaryWrapper>
+          <Wrapper>
+            <div className="flex flex-1">
+              <SecondaryWrapper>
+                <TabbedViewContainer isExecuting={isExecutingCurrentJSAction}>
+                  <TabComponent
+                    onSelect={setSelectedConfigTab}
+                    selectedIndex={selectedConfigTab}
+                    tabs={[
+                      {
+                        key: "code",
+                        title: "Code",
+                        panelComponent: (
+                          <CodeEditor
+                            blockCompletions={blockCompletions}
+                            border={CodeEditorBorder.NONE}
+                            borderLess
+                            className={"js-editor"}
+                            customGutter={JSGutters}
+                            dataTreePath={`${currentJSCollection.name}.body`}
+                            disabled={!isChangePermitted}
+                            folding
+                            height={"100%"}
+                            hideEvaluatedValue
+                            input={{
+                              value: currentJSCollection.body,
+                              onChange: handleEditorChange,
+                            }}
+                            isJSObject
+                            mode={EditorModes.JAVASCRIPT}
+                            placeholder="Let's write some code!"
+                            showLightningMenu={false}
+                            showLineNumbers
+                            size={EditorSize.EXTENDED}
+                            tabBehaviour={TabBehaviour.INDENT}
+                            theme={theme}
+                          />
+                        ),
+                      },
+                      {
+                        key: "settings",
+                        title: "Settings",
+                        panelComponent: (
+                          <JSFunctionSettingsView
+                            actions={jsActions}
+                            disabled={!isChangePermitted}
+                          />
+                        ),
+                      },
+                    ]}
+                  />
+                </TabbedViewContainer>
+                {showDebugger ? (
+                  <JSResponseView
+                    currentFunction={activeResponse}
+                    disabled={disableRunFunctionality || !isExecutePermitted}
+                    errors={parseErrors}
+                    isLoading={isExecutingCurrentJSAction}
+                    jsObject={currentJSCollection}
+                    onButtonClick={(
+                      event:
+                        | React.MouseEvent<HTMLElement, MouseEvent>
+                        | KeyboardEvent,
+                    ) => {
+                      handleRunAction(event, "JS_OBJECT_RESPONSE_RUN_BUTTON");
+                    }}
+                    theme={theme}
+                  />
+                ) : null}
+              </SecondaryWrapper>
+            </div>
+            <AIWindow className="border-t border-l" windowType="fixed" />
+          </Wrapper>
         </Form>
       </JSObjectHotKeys>
     </FormWrapper>

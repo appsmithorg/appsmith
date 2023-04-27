@@ -121,6 +121,7 @@ export function NavigationMenuItem({
     case MenuTypes.RECONFIRM:
       return (
         <ReconfirmMenuItem
+          className="error-menuitem"
           onClick={(e) => handleReconfirmClick(e, menuItemData)}
         >
           {confirm.text}
