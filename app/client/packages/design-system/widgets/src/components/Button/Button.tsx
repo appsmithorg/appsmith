@@ -1,10 +1,8 @@
 import React, { forwardRef } from "react";
-import type { ReactElement } from "react";
 import type {
   ButtonProps as HeadlessButtonProps,
   ButtonRef as HeadlessButtonRef,
 } from "@design-system/headless";
-import { Icon as HeadlessIcon } from "@design-system/headless";
 
 import { Text } from "../Text";
 import { Spinner } from "../Spinner";
@@ -22,7 +20,6 @@ export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {
   fontFamily?: fontFamilyTypes;
   isFitContainer?: boolean;
   isFocused?: boolean;
-  icon?: ReactElement;
   iconPosition?: "start" | "end";
 }
 
@@ -31,7 +28,6 @@ export const Button = forwardRef(
     const {
       children,
       fontFamily,
-      icon,
       isFitContainer = false,
       isFocused,
       isLoading,
@@ -47,20 +43,17 @@ export const Button = forwardRef(
       }
 
       return (
-        <>
-          {icon && <HeadlessIcon className="icon">{icon}</HeadlessIcon>}
-          <Text fontFamily={fontFamily} lineClamp={1}>
-            {children}
-          </Text>
-        </>
+        <Text fontFamily={fontFamily} lineClamp={1}>
+          {children}
+        </Text>
       );
     };
 
     return (
       <StyledButton
-        data-fit-container={isFitContainer}
-        data-focus={isFocused}
-        data-loading={isLoading}
+        data-fit-container={isFitContainer ? "" : undefined}
+        data-focused={isFocused}
+        data-loading={isLoading ? "" : undefined}
         data-variant={variant}
         ref={ref}
         {...rest}
