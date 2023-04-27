@@ -61,6 +61,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   snapColumnSpace,
   snapRows,
   snapRowSpace,
+  useAutoLayout,
   widgetId,
 }: CanvasDraggingArenaProps) => {
   const dispatch = useDispatch();
@@ -421,7 +422,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
     drawingBlocks: WidgetDraggingBlock[],
     rows: number,
   ) => {
-    if (drawingBlocks.length) {
+    if (!useAutoLayout && drawingBlocks.length) {
       const sortedByTopBlocks = drawingBlocks.sort(
         (each1, each2) => each2.top + each2.height - (each1.top + each1.height),
       );
