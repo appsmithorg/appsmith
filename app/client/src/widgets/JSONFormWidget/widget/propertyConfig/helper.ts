@@ -42,10 +42,12 @@ export const fieldTypeUpdateHook = (
     FieldType.PASSWORD_INPUT,
   ].includes(fieldType);
 
-  const schemaItemWithAutoFillState = {
-    ...newSchemaItem,
-    ["shouldAllowAutofill"]: isInputOrEmailSelected,
-  };
+  const schemaItemWithAutoFillState = isInputOrEmailSelected
+    ? {
+        ...newSchemaItem,
+        shouldAllowAutofill: true,
+      }
+    : newSchemaItem;
   /**
    * TODO(Ashit): Not suppose to update the whole schema but just
    * the path within the schema. This is just a hack to make sure
