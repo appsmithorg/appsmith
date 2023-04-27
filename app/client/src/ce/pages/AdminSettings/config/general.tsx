@@ -99,9 +99,9 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
   controlTypeProps: {
     options: [
       {
-        badge: "NOT RECOMMENDED",
+        badge: "Not Recommended",
         tooltip: {
-          icon: "question-fill",
+          icon: "question-line",
           text: "Lets all domains, including malicious ones, embed your Appsmith apps. ",
           linkText: "SEE WHY THIS IS RISKY",
           link: "https://docs.appsmith.com/getting-started/setup/instance-configuration/frame-ancestors#why-should-i-control-this",

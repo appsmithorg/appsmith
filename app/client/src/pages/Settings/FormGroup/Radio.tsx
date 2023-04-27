@@ -35,9 +35,7 @@ const StyledTag = styled(Tag)<{ selected?: boolean }>`
   margin-left: 4px;
   .ads-v2-text {
     color: ${(props) =>
-      props.selected
-        ? "var(--ads-v2-color-fg-warning)"
-        : "var(--ads-v2-color-fg)"};
+      props.selected ? "var(--ads-v2-color-fg-warning)" : "initial"};
   }
 `;
 

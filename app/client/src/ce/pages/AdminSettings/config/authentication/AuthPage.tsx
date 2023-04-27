@@ -135,7 +135,7 @@ export function ActionButton({ method }: { method: AuthMethodType }) {
       data-cy="btn-auth-account"
       kind={method.isConnected ? "primary" : "secondary"}
       onClick={() => onClickHandler(method)}
-      size="md"
+      size="sm"
     >
       {createMessage(
         method.isConnected ? EDIT : !!method.needsUpgrade ? UPGRADE : ENABLE,
