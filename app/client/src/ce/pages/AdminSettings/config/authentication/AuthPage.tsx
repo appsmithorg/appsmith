@@ -59,6 +59,7 @@ const MethodTitle = styled(Text)`
   display: flex;
   align-items: center;
   margin: 0 0 4px;
+  color: var(--ads-v2-color-fg);
 
   svg {
     width: 14px;
@@ -94,7 +95,7 @@ const Label = styled(Tag)<{ business?: boolean }>`
 `;
 
 const StyledButton = styled(Button)`
-  width: 100px;
+  width: 80px;
 `;
 
 export function ActionButton({ method }: { method: AuthMethodType }) {
@@ -134,7 +135,7 @@ export function ActionButton({ method }: { method: AuthMethodType }) {
       data-cy="btn-auth-account"
       kind={method.isConnected ? "primary" : "secondary"}
       onClick={() => onClickHandler(method)}
-      size="sm"
+      size="md"
     >
       {createMessage(
         method.isConnected ? EDIT : !!method.needsUpgrade ? UPGRADE : ENABLE,
