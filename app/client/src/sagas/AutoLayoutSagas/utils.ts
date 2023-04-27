@@ -45,7 +45,10 @@ import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getAppMode } from "selectors/entitiesSelector";
 import { MOBILE_ROW_GAP, ROW_GAP } from "utils/autoLayout/constants";
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
-import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
+import {
+  updateMultipleMetaWidgetPropertiesAction,
+  updateMultipleWidgetPropertiesAction,
+} from "actions/controlActions";
 
 export function* recalculatePositionsOfWidgets({
   canvasWidth,
@@ -242,11 +245,26 @@ export function* processWidgetDimensionsSaga() {
     processedWidgets,
   );
 
+  const canvasWidgetsToUpdate: UpdateWidgetsPayload = {};
+  const metaWidgetsToUpdate: UpdateWidgetsPayload = {};
+
+  for (const widgetId in widgetsToUpdate) {
+    const widget = processedWidgets[widgetId];
+    if (widget.isMetaWidget) {
+      metaWidgetsToUpdate[widgetId] = widgetsToUpdate[widgetId];
+    } else {
+      canvasWidgetsToUpdate[widgetId] = widgetsToUpdate[widgetId];
+    }
+  }
+
   // Push all updates to the CanvasWidgetsReducer.
   // Note that we're not calling `UPDATE_LAYOUT`
   // as we don't need to trigger an eval
-  if (!isEmpty(widgetsToUpdate)) {
-    yield put(updateMultipleWidgetPropertiesAction(widgetsToUpdate));
+  if (!isEmpty(canvasWidgetsToUpdate)) {
+    yield put(updateMultipleWidgetPropertiesAction(canvasWidgetsToUpdate));
+  }
+  if (!isEmpty(metaWidgetsToUpdate)) {
+    yield put(updateMultipleMetaWidgetPropertiesAction(metaWidgetsToUpdate));
   }
 
   // clear the batch after processing
