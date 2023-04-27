@@ -195,7 +195,7 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         working-directory: app/client/perf
         shell: bash
-        run: yarn install  --immutable
+        run: yarn install
 
       - name: Change test script permissions
         if: steps.run_result.outputs.run_result != 'success'
