@@ -1428,12 +1428,14 @@ function* loadFilePickerSaga() {
   const appsmithToken = localStorage.getItem(APPSMITH_TOKEN_STORAGE_KEY);
   const search = new URLSearchParams(window.location.search);
   const isShowFilePicker = search.get(SHOW_FILE_PICKER_KEY);
+  const gapiScriptLoaded = (window as any).googleAPIsLoaded;
   const authStatus = search.get(RESPONSE_STATUS);
   if (
     !!isShowFilePicker &&
     !!authStatus &&
     authStatus === AuthorizationStatus.SUCCESS &&
-    !!appsmithToken
+    !!appsmithToken &&
+    !!gapiScriptLoaded
   ) {
     addClassToDocumentBody(className);
   }
