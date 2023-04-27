@@ -116,7 +116,6 @@ export function generateTypeDef(
   switch (getType(value)) {
     case Types.ARRAY: {
       const array = value as [unknown];
-
       if (depth > 5) {
         return `[?]`;
       }
