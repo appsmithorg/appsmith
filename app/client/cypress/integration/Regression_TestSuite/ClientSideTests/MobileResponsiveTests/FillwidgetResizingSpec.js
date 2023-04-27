@@ -1,20 +1,10 @@
 const dsl = require("../../../../fixtures/inputWidgetMobileDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper;
 let theight;
 let twidth;
 
 describe("Validating Mobile Views", function () {
-  afterEach(() => {
-    agHelper.SaveLocalStorageCache();
-  });
-
-  beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
-  });
-  it("Validate change with height width for widgets", function () {
-    cy.wait(5000);
+  it("1. Validate change with height width for widgets", function () {
     cy.get(commonlocators.autoConvert).click({
       force: true,
     });
@@ -45,8 +35,8 @@ describe("Validating Mobile Views", function () {
   });
 
   let phones = ["iphone-4", "samsung-s10", [390, 844], [360, 780]];
-  phones.forEach((phone) => {
-    it(`${phone} port execution`, function () {
+  phones.forEach((phone, index) => {
+    it(`${index + 1}. ${phone} port execution`, function () {
       if (Cypress._.isArray(phone)) {
         cy.viewport(phone[0], phone[1]);
       } else {

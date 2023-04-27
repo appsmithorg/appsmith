@@ -1,16 +1,7 @@
 const dsl = require("../../../../fixtures/AutolayoutWidgetsDsl.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Validating Mobile Views", function () {
-  afterEach(() => {
-    agHelper.SaveLocalStorageCache();
-  });
-
-  beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
-  });
-  it("Validate change with height width for widgets", function () {
+  it("1. Validate change with height width for widgets", function () {
     cy.addDsl(dsl);
     cy.wait(5000); //for dsl to settle
     //cy.openPropertyPane("containerwidget");
