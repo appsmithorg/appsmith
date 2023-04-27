@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import React, { memo } from "react";
 import styled from "styled-components";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { useEffect } from "react";
@@ -11,14 +11,13 @@ import {
 import NonSuperUserForm, { SuperUserForm } from "./GetStarted";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
-const LandingPageWrapper = styled.div<{ hide: boolean }>`
+const LandingPageWrapper = styled.div`
   width: 100%;
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: flex-start;
   margin: 0 auto;
-  opacity: ${(props) => (props.hide ? 0 : 1)};
 `;
 
 const LandingPageContent = styled.div`
@@ -74,18 +73,13 @@ function Banner() {
 }
 
 export default memo(function LandingPage(props: LandingPageProps) {
-  const [fontsInjected, setFontsInjected] = useState(false);
   useEffect(() => {
     playWelcomeAnimation(`#${WELCOME_PAGE_ANIMATION_CONTAINER}`);
     //wait for the fonts to be loaded
-    setTimeout(() => {
-      setFontsInjected(true);
-    }, 100);
   }, []);
   return (
     <LandingPageWrapper
       data-testid={"welcome-page"}
-      hide={!fontsInjected}
       id={WELCOME_PAGE_ANIMATION_CONTAINER}
     >
       <LandingPageContent>
