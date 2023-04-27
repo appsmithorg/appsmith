@@ -302,12 +302,9 @@ export const getCanvasSnapRows = (
   bottomRow: number,
   mobileBottomRow?: number,
   isMobile?: boolean,
-  isAutoLayoutActive?: boolean,
 ): number => {
   const bottom =
-    isMobile && mobileBottomRow !== undefined && isAutoLayoutActive
-      ? mobileBottomRow
-      : bottomRow;
+    isMobile && mobileBottomRow !== undefined ? mobileBottomRow : bottomRow;
   const totalRows = Math.floor(bottom / GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
 
   return totalRows - 1;

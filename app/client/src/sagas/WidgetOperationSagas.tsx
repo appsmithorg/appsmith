@@ -36,7 +36,7 @@ import {
 import {
   getCanvasWidth,
   getContainerWidgetSpacesSelector,
-  getCurrentAppPositioningType,
+  getAppPositioningType,
   getCurrentPageId,
   getIsAutoLayout,
   getIsAutoLayoutMobileBreakPoint,
@@ -204,7 +204,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     } = resizeAction.payload;
 
     const appPositioningType: AppPositioningTypes = yield select(
-      getCurrentAppPositioningType,
+      getAppPositioningType,
     );
     const mainCanvasWidth: number = yield select(getCanvasWidth);
     widget = {

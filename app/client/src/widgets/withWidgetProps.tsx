@@ -18,7 +18,6 @@ import {
 import {
   computeMainContainerWidget,
   getChildWidgets,
-  getCurrentAppPositioningType,
   getMainCanvasProps,
   getRenderMode,
   getMetaWidgetChildrenStructure,
@@ -26,6 +25,7 @@ import {
   getFlattenedChildCanvasWidgets,
   previewModeSelector,
   getIsAutoLayoutMobileBreakPoint,
+  getAppPositioningType,
 } from "selectors/editorSelectors";
 import {
   createCanvasWidget,
@@ -86,7 +86,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       equal,
     );
     const isMobile = useSelector(getIsAutoLayoutMobileBreakPoint);
-    const appPositioningType = useSelector(getCurrentAppPositioningType);
+    const appPositioningType = useSelector(getAppPositioningType);
     const isAutoLayout = appPositioningType === AppPositioningTypes.AUTO;
 
     const configTree = ConfigTreeActions.getConfigTree();

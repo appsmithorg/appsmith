@@ -267,29 +267,14 @@ export const getAppPositioningType = (state: AppState) => {
   return AppPositioningTypes.FIXED;
 };
 
-export const isAutoLayoutEnabled = (state: AppState): boolean => {
-  return state.ui.users.featureFlag.data.AUTO_LAYOUT === true;
-};
-
-export const getCurrentAppPositioningType = createSelector(
-  isAutoLayoutEnabled,
-  getAppPositioningType,
-  (
-    autoLayoutEnabled: boolean,
-    appPositionType: AppPositioningTypes,
-  ): AppPositioningTypes => {
-    return autoLayoutEnabled ? appPositionType : AppPositioningTypes.FIXED;
-  },
-);
-
 export const getIsAutoLayout = createSelector(
-  getCurrentAppPositioningType,
+  getAppPositioningType,
   (positioningType) => positioningType === AppPositioningTypes.AUTO,
 );
 
 export const getCurrentApplicationLayout = createSelector(
   getAppLayout,
-  getCurrentAppPositioningType,
+  getAppPositioningType,
   (appLayout: AppLayoutConfig, appPositionType) => {
     return appPositionType === AppPositioningTypes.FIXED
       ? appLayout

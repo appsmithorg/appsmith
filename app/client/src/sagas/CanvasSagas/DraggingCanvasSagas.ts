@@ -32,7 +32,7 @@ import {
 } from "sagas/WidgetBlueprintSagas";
 import {
   getCanvasWidth,
-  getCurrentAppPositioningType,
+  getAppPositioningType,
   getIsAutoLayoutMobileBreakPoint,
   getMainCanvasProps,
   getOccupiedSpacesSelectorForContainer,
@@ -336,7 +336,7 @@ function* moveWidgetsSaga(
     }
 
     const appPositioningType: AppPositioningTypes = yield select(
-      getCurrentAppPositioningType,
+      getAppPositioningType,
     );
     let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
     if (appPositioningType === AppPositioningTypes.AUTO) {

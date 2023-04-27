@@ -15,7 +15,7 @@ import { SIDE_NAV_WIDTH } from "pages/common/SideNav";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   getCurrentApplicationLayout,
-  getCurrentAppPositioningType,
+  getAppPositioningType,
   getCurrentPageId,
   getMainCanvasProps,
   previewModeSelector,
@@ -66,7 +66,7 @@ export const useDynamicAppLayout = () => {
   const tabsPaneWidth = useSelector(getTabsPaneWidth);
   const isMultiPane = useSelector(isMultiPaneActive);
   const paneCount = useSelector(getPaneCount);
-  const appPositioningType = useSelector(getCurrentAppPositioningType);
+  const appPositioningType = useSelector(getAppPositioningType);
   const isAppSidebarPinned = useSelector(getAppSidebarPinned);
   const sidebarWidth = useSelector(getSidebarWidth);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(

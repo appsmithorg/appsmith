@@ -27,7 +27,7 @@ import {
 } from "constants/WidgetConstants";
 import {
   getCurrentApplicationId,
-  getCurrentAppPositioningType,
+  getAppPositioningType,
   getIsAutoLayout,
   getIsAutoLayoutMobileBreakPoint,
   getMainCanvasProps,
@@ -120,7 +120,7 @@ export function* updateLayoutPositioningSaga(
 ) {
   try {
     const currPositioningType: AppPositioningTypes = yield select(
-      getCurrentAppPositioningType,
+      getAppPositioningType,
     );
     const payloadPositioningType = actionPayload.payload;
 
@@ -170,7 +170,7 @@ export function* recalculateAutoLayoutColumnsAndSave(
   widgets?: CanvasWidgetsReduxState,
 ) {
   const appPositioningType: AppPositioningTypes = yield select(
-    getCurrentAppPositioningType,
+    getAppPositioningType,
   );
   const mainCanvasProps: MainCanvasReduxState = yield select(
     getMainCanvasProps,

@@ -22,7 +22,6 @@ import { useDispatch } from "react-redux";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 import {
   getOccupiedSpacesSelectorForContainer,
-  isAutoLayoutEnabled,
   previewModeSelector,
 } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
@@ -103,15 +102,9 @@ function useUpdateRows(
   parentId?: string,
   mobileBottomRow?: number,
   isMobile?: boolean,
-  isAutoLayoutActive?: boolean,
 ) {
   // This gives us the number of rows
-  const snapRows = getCanvasSnapRows(
-    bottomRow,
-    mobileBottomRow,
-    isMobile,
-    isAutoLayoutActive,
-  );
+  const snapRows = getCanvasSnapRows(bottomRow, mobileBottomRow, isMobile);
   // Put the existing snap rows in a ref.
   const rowRef = useRef(snapRows);
 
@@ -195,14 +188,12 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
-  const isAutoLayoutActive = useSelector(isAutoLayoutEnabled);
   const { contextValue, dropTargetRef, rowRef } = useUpdateRows(
     props.bottomRow,
     props.widgetId,
     props.parentId,
     props.mobileBottomRow,
     props.isMobile,
-    isAutoLayoutActive,
   );
 
   // Are we currently resizing?
@@ -244,7 +235,6 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       props.bottomRow,
       props.mobileBottomRow,
       props.isMobile,
-      isAutoLayoutActive,
     );
     // If the current ref is not set to the new snaprows we've received (based on bottomRow)
     if (rowRef.current !== snapRows && !isDragging && !isResizing) {

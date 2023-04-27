@@ -14,7 +14,7 @@ import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleC
 import type { WidgetType } from "utils/WidgetFactory";
 import { scrollCSS } from "widgets/WidgetUtils";
 import { useSelector } from "react-redux";
-import { getCurrentAppPositioningType } from "selectors/editorSelectors";
+import { getAppPositioningType } from "selectors/editorSelectors";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
@@ -57,7 +57,7 @@ function ContainerComponentWrapper(
   props: PropsWithChildren<ContainerWrapperProps>,
 ) {
   const containerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
-  const appPositioningType = useSelector(getCurrentAppPositioningType);
+  const appPositioningType = useSelector(getAppPositioningType);
 
   useEffect(() => {
     if (!props.shouldScrollContents) {

@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   getCurrentApplicationLayout,
-  getCurrentAppPositioningType,
+  getAppPositioningType,
   getCurrentPageId,
   previewModeSelector,
 } from "selectors/editorSelectors";
@@ -63,7 +63,7 @@ export function CanvasResizer({
   const isPreviewMode = useSelector(previewModeSelector);
   const currentPageId = useSelector(getCurrentPageId);
   const appLayout = useSelector(getCurrentApplicationLayout);
-  const appPositioningType = useSelector(getCurrentAppPositioningType);
+  const appPositioningType = useSelector(getAppPositioningType);
   const ref = useRef(null);
   const dispatch = useDispatch();
   useEffect(() => {

@@ -23,7 +23,7 @@ import { getGoogleMapsApiKey } from "@appsmith/selectors/tenantSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getCanvasWidgets } from "./entitiesSelector";
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
-import { getCurrentAppPositioningType } from "./editorSelectors";
+import { getAppPositioningType } from "./editorSelectors";
 
 export type WidgetProperties = WidgetProps & {
   [EVALUATION_PATH]?: DataTreeEntity;
@@ -71,7 +71,7 @@ const getCurrentWidgetName = createSelector(
 
 export const getWidgetPropsForPropertyPane = createSelector(
   getCurrentWidgetProperties,
-  getCurrentAppPositioningType,
+  getAppPositioningType,
   getDataTree,
   (
     widget: WidgetProps | undefined,
