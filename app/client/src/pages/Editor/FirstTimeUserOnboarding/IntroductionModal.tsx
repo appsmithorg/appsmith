@@ -105,11 +105,13 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
     AnalyticsUtil.logEvent("SIGNPOSTING_BUILD_APP_CLICK");
     close();
   };
+
   useEffect(() => {
     dispatch({
       type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
     });
   }, []);
+
   return (
     <Modal
       onOpenChange={(open: boolean) => !open && onBuildApp()}

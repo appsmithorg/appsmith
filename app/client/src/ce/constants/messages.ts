@@ -1580,25 +1580,25 @@ export const GOOGLE_SHEETS_AUTHORIZE_DATASOURCE = () => "Authorize Datasource";
 export const GOOGLE_SHEETS_LEARN_MORE = () => "Learn more";
 
 //Layout Conversion flow
-export const CONVERT = () => "CONVERT";
-export const BUILD_RESPONSIVE = () => "Build Responsive Apps";
+export const CONVERT = () => "Convert layout";
+export const BUILD_RESPONSIVE = () => "Build responsive apps";
 export const BUILD_RESPONSIVE_TEXT = () =>
   "Appsmith will convert your application's UI to auto layout, a new mode designed for building mobile-friendly apps in no time";
-export const BUILD_FIXED_LAYOUT = () => "Use Fixed Layout";
+export const BUILD_FIXED_LAYOUT = () => "Use fixed-layout";
 export const BUILD_FIXED_LAYOUT_TEXT = () =>
   "Appsmith will convert your application’s UI to fixed layout, the default mode.";
-export const USE_SNAPSHOT = () => "USE SNAPSHOT";
+export const USE_SNAPSHOT = () => "Use snapshot";
 export const USE_SNAPSHOT_HEADER = () => "Use Snapshot";
 export const DISCARD_SNAPSHOT_HEADER = () => "Discarding a Snapshot";
 export const SAVE_SNAPSHOT = () =>
-  "Save a Snapshot of your Current Layout for 5 days";
+  "Save a snapshot of your current layout for 5 days";
 export const SAVE_SNAPSHOT_TEXT = () =>
   "We save a snapshot of your current layout so you can go back if auto-layout doesn't work for you in this beta.";
 export const CREATE_SNAPSHOT = () => "Creating a snapshot";
 export const CONVERTING_APP = () => "Converting your app";
 export const RESTORING_SNAPSHOT = () => "Removing changes made";
-export const REFRESH_THE_APP = () => "REFRESH THE APP";
-export const CONVERT_ANYWAYS = () => "CONVERT ANYWAYS";
+export const REFRESH_THE_APP = () => "Refresh the app";
+export const CONVERT_ANYWAYS = () => "Convert anyways";
 export const CONVERSION_SUCCESS_HEADER = () => "All done";
 export const DISCARD_SNAPSHOT_TEXT = () =>
   "You are about to discard this snapshot:";
@@ -1611,7 +1611,7 @@ export const CONVERSION_WARNING_TEXT = () =>
 export const CONVERSION_ERROR_HEADER = () => "Conversion Failed";
 export const CONVERSION_ERROR = () =>
   "Appsmith ran into a critical error while trying to convert to auto layout";
-export const SEND_REPORT = () => "SEND US A REPORT";
+export const SEND_REPORT = () => "Send us a report";
 export const CONVERSION_ERROR_TEXT = () => "No changes were made to your app";
 export const DROPDOWN_LABEL_TEXT = () => "Target canvas size";
 export const CONVERSION_WARNING = () => "Conversion will change your layout";
@@ -1621,14 +1621,14 @@ export const USE_SNAPSHOT_TEXT = () =>
   "Your app will look and work exactly like it used to before the conversion. Widgets, datasources, queries, JS objects added and any changes you made after conversion will not be present.";
 export const SNAPSHOT_WARNING_MESSAGE = () =>
   "Any changes you made after conversion will not be present.";
-export const CONVERT_TO_FIXED_TITLE = () => "Convert to Fixed Layout";
-export const CONVERT_TO_FIXED_BUTTON = () => "CONVERT TO Fixed-LAYOUT";
-export const CONVERT_TO_AUTO_TITLE = () => "Convert to Auto Layout";
-export const CONVERT_TO_AUTO_BUTTON = () => "CONVERT TO AUTO-LAYOUT";
+export const CONVERT_TO_FIXED_TITLE = () => "Convert to Fixed-Layout";
+export const CONVERT_TO_FIXED_BUTTON = () => "Convert to fixed-layout";
+export const CONVERT_TO_AUTO_TITLE = () => "Convert to Auto-Layout";
+export const CONVERT_TO_AUTO_BUTTON = () => "Convert to auto-layout";
 export const SNAPSHOT_BANNER_MESSAGE = () =>
   "Confirm this layout is per expectations before you discard the snapshot. Use the snapshot to go back.";
-export const USE_SNAPSHOT_CTA = () => "USE SNAPSHOT";
-export const DISCARD_SNAPSHOT_CTA = () => "DISCARD SNAPSHOT";
+export const USE_SNAPSHOT_CTA = () => "Use snapshot";
+export const DISCARD_SNAPSHOT_CTA = () => "Discard snapshot";
 export const MORE_DETAILS = () => "More details";
 export const CONVERSION_ERROR_MESSAGE_HEADER = () =>
   "To resolve this error please:";
@@ -1643,7 +1643,7 @@ export const SNAPSHOT_TIME_FROM_MESSAGE = (
 export const SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE = (
   timeTillExpiration: string,
 ) => `Snapshot of your previous layout expires in ${timeTillExpiration}`;
-export const DISCARD = () => "DISCARD";
+export const DISCARD = () => "Discard";
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [
   { label: "Info", value: "'info'", id: "info" },
