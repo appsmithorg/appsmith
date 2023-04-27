@@ -126,7 +126,7 @@ export function ConversionForm(
         <ConversionCompleteLayout {...conversionComplete} />
       )}
       {collapsibleMessage && (
-        <div className="px-2" title={collapsibleMessage.title}>
+        <div className="px-2">
           <Text kind="heading-s" renderAs="h4">
             {collapsibleMessage.messageHeader}
           </Text>
@@ -151,22 +151,6 @@ export function ConversionForm(
             onChange={selectDropDown.onSelect}
             options={selectDropDown.options}
           />
-          {/* <Select
-            //@ts-expect-error: onSelect type mismatch
-            onSelect={selectDropDown.onSelect}
-            value={selectDropDown.selected.value}
-          >
-            {selectDropDown.options.map((option) => {
-              return (
-                <Option key={option.value} value={option.value}>
-                  <div className="flex items-center gap-2">
-                    <Icon name={option.icon || "info"} size="md" />
-                    {option.label}
-                  </div>
-                </Option>
-              );
-            })}
-          </Select> */}
         </div>
       )}
 
