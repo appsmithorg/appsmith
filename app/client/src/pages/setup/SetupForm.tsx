@@ -19,6 +19,7 @@ import { isEmail, isStrongPassword } from "utils/formhelpers";
 import type { AppState } from "@appsmith/reducers";
 import { SUPER_USER_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
 import { useState } from "react";
+import { isAirgapped } from "ce/utils/airgapHelpers";
 
 const PageWrapper = styled.div`
   width: 100%;
@@ -137,7 +138,7 @@ function SetupForm(props: SetupFormProps) {
     form.appendChild(useCaseInput);
     const anonymousDataInput = document.createElement("input");
     anonymousDataInput.type = "checkbox";
-    anonymousDataInput.value = "true";
+    anonymousDataInput.value = isAirgapped() ? "false" : "true";
     anonymousDataInput.name = "allowCollectingAnonymousData";
     anonymousDataInput.style.display = "none";
     anonymousDataInput.checked = true;
@@ -145,7 +146,8 @@ function SetupForm(props: SetupFormProps) {
     const signupForNewsletter: HTMLInputElement = document.querySelector(
       `[name="signupForNewsletter"]`,
     ) as HTMLInputElement;
-    signupForNewsletter.value = signupForNewsletter.checked.toString();
+    if (signupForNewsletter)
+      signupForNewsletter.value = signupForNewsletter.checked.toString();
     return true;
   };
 
