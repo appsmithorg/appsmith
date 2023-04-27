@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
 import type { ControlProps } from "components/formControls/BaseControl";
 
 //Styled help text, intended to be used with Form Fields
@@ -38,7 +37,7 @@ font-size: 12px;
 
 //Styled help text, intended to be used with Form Fields
 const FormInputHelperText = styled.p<{ addMarginTop?: string }>`
-  color: ${Colors.GREY_7};
+  color: var(--ads-v2-color-fg-muted);
   font-style: normal;
   font-weight: normal;
   font-size: 12px;
@@ -97,7 +96,7 @@ const StyledFormLabel = styled.label<{
   extraStyles?: any;
 }>`
   display: inline-block;
-  // TODO: replace condition with props.config?.dataType === "TOGGLE" 
+  // TODO: replace condition with props.config?.dataType === "TOGGLE"
   // required for large texts in CHECKBOX and SWITCH
   width: ${(props) => props.config?.customStyles?.width || "auto;"}
   min-width: ${(props) =>
@@ -106,7 +105,7 @@ const StyledFormLabel = styled.label<{
       : props.config?.controlType === "SWITCH" ||
         props.config?.controlType === "CHECKBOX"
       ? "auto;"
-      : "270px;"} 
+      : "270px;"}
   font-weight: 400;
   font-size: 14px;
   line-height: 16px;
@@ -116,7 +115,7 @@ const StyledFormLabel = styled.label<{
       ? props.extraStyles?.marginBottom
       : props.config?.controlType === "CHECKBOX"
       ? "0;"
-      : "4px;"} 
+      : "4px;"};
   &:first-child {
     margin-left: 0;
   }

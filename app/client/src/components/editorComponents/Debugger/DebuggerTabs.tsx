@@ -33,7 +33,7 @@ import { Button } from "design-system";
 const TABS_HEADER_HEIGHT = 36;
 
 const Container = styled.div`
-  ${ResizerCSS}
+  ${ResizerCSS};
   position: absolute;
   bottom: 0;
   height: ${ActionExecutionResizerHeight}px;

@@ -36,7 +36,7 @@ import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import EntityDeps from "./Debugger/EntityDependecies";
 import { Classes, TAB_MIN_HEIGHT, Text, TextType } from "design-system-old";
-import { Button, Callout, Icon } from "design-system";
+import { Button, Callout } from "design-system";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import Table from "pages/Editor/QueryEditor/Table";
@@ -702,11 +702,13 @@ function ApiResponseView(props: Props) {
           selectedTabKey={selectedResponseTab}
           tabs={tabs}
         />
-        <Icon
+        <Button
           className="close-debugger t--close-debugger"
-          name="close-modal"
+          isIconButton
+          kind="tertiary"
           onClick={onClose}
-          size="lg"
+          size="md"
+          startIcon="close-modal"
         />
       </TabbedViewWrapper>
     </ResponseContainer>
