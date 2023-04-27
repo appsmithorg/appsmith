@@ -7,7 +7,6 @@ import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { useParams } from "react-router";
 import { createMessage, UPGRADE } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import camelCase from "lodash/camelCase";
 import { Icon, Text } from "design-system";
 
 export const Wrapper = styled.div`
@@ -191,7 +190,7 @@ export default function LeftPane() {
             >
               <Icon name="arrow-up-line" size="md" />
               <SettingName active={category === "business-edition"}>
-                {camelCase(createMessage(UPGRADE))}
+                {createMessage(UPGRADE)}
               </SettingName>
             </StyledLink>
           </CategoryItem>

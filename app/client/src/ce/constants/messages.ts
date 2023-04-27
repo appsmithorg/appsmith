@@ -1156,7 +1156,7 @@ export const SECURITY_AND_COMPLIANCE_DETAIL2 = () =>
 export const DEBUGGING = () => "Debugging";
 export const DEBUGGING_DETAIL1 = () =>
   "Debug with a timeline of events filtered by user and resource ID, correlate them with end-user and app developer actions, and investigate back to the last known good state of your app.";
-export const INCIDENT_MANAGEMENT = () => "Incident Management";
+export const INCIDENT_MANAGEMENT = () => "Incident management";
 export const INCIDENT_MANAGEMENT_DETAIL1 = () =>
   "Go back in time from an incident to see who did what, correlate events with breaking changes, and run RCAs to remediate incidents for now and the future.";
 export const AVAILABLE_ON_BUSINESS = () => "Available on a business plan only";
@@ -1167,7 +1167,7 @@ export const EXCLUSIVE_TO_BUSINESS = (featureName: string) =>
 
 // Access control upgrade page begin
 export const GRANULAR_ACCESS_CONTROL_FOR_TEAMS = () =>
-  "Granular Access Controls for teams";
+  "granular access controls for teams";
 export const ACCESS_CONTROL_UPGRADE_PAGE_SUB_HEADING = () =>
   "Control all permissions for all resources in your apps in a workspace. Manage permissions granularly by attributes. Use permissions and user groups to easily define access levels.";
 export const SECURITY_APPS_LEAST_PRIVILEGE = () =>
