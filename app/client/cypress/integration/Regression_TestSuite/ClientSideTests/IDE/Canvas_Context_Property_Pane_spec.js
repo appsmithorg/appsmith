@@ -82,7 +82,7 @@ describe("Canvas context Property Pane", function () {
   });
 
   it("2. ColorPicker Property controls should have focus while switching between widgets, pages and Editor Panes", function () {
-    const propertyControlSelector = `.t--property-control-buttoncolor input[type="text"]`;
+    let propertyControlSelector = `.t--property-control-buttoncolor input[type="text"]`;
     verifyPropertyPaneContext(
       () => {
         cy.get(propertyControlSelector).click({ force: true });
@@ -152,7 +152,7 @@ describe("Canvas context Property Pane", function () {
   });
 
   it("3. Layered PropertyPane - Toggle Property controls should have focus while switching between widgets, pages and Editor Panes", function () {
-    const propertyControlSelector = `.t--property-control-cellwrapping input[type="checkbox"]`;
+    let propertyControlSelector = `.t--property-control-cellwrapping input[type="checkbox"]`;
     verifyPropertyPaneContext(
       () => {
         cy.editColumn("step");
@@ -314,7 +314,7 @@ describe("Canvas context Property Pane", function () {
   });
 });
 
-const propertySectionClass = (section) =>
+let propertySectionClass = (section) =>
   `.t--property-pane-section-collapse-${section}`;
 
 function setPropertyPaneSectionState(propertySectionState) {
