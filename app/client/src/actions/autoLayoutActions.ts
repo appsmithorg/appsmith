@@ -14,14 +14,12 @@ import type {
 export const recalculatePositionsForCurrentBreakPointAction = (
   widgets?: CanvasWidgetsReduxState,
   saveLayout?: boolean,
-  parentId?: string,
 ) => {
   return {
     type: ReduxActionTypes.RECALCULATE_POSITIONS,
     payload: {
       widgets,
       saveLayout,
-      parentId,
     },
   };
 };

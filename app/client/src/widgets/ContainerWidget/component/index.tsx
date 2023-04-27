@@ -157,7 +157,7 @@ function ContainerComponent(props: ContainerComponentProps) {
         resizeDisabled={props.resizeDisabled}
         shouldScrollContents={
           props.shouldScrollContents &&
-          props.appPositioningType !== AppPositioningTypes.AUTO // We need to allow scrollbars for list items as they don't have auto-height
+          props.appPositioningType !== AppPositioningTypes.AUTO
         }
         type={props.type}
         widgetId={props.widgetId}

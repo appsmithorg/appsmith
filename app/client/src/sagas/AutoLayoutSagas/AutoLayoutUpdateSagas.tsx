@@ -245,14 +245,6 @@ function* updateAutoLayoutWidgetDimensionsSaga(
   }
 }
 
-function* processWidgetDimensionsAndPositions() {
-  // const widgetsAndIds: [any, any] =
-  yield call(processWidgetDimensionsSaga);
-  // const [processedWidgets, parentIds] = widgetsAndIds;
-  // console.log("####", processedWidgets, parentIds);
-  // TODO: pass the parent id for calculation
-  //yield put(recalculatePositionsForCurrentBreakPointAction(processedWidgets));
-}
 function* shouldRunSaga(saga: any, action: ReduxAction<unknown>) {
   const isAutoLayout: boolean = yield select(getIsAutoLayout);
   if (isAutoLayout) {
@@ -298,7 +290,7 @@ export default function* layoutUpdateSagas() {
         // ReduxActionTypes.GENERATE_AUTO_HEIGHT_LAYOUT_TREE, // add, move, paste, cut, delete, undo/redo
       ],
       shouldRunSaga,
-      processWidgetDimensionsAndPositions,
+      processWidgetDimensionsSaga,
     ),
   ]);
 }

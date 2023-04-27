@@ -212,8 +212,6 @@ export function* processWidgetDimensionsSaga() {
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
 
-  console.log("#### blabla2");
-
   const parentIds = new Set<string>();
   let processedWidgets: CanvasWidgetsReduxState = yield call(
     processAutoLayoutDimensionUpdatesFn,
@@ -233,15 +231,12 @@ export function* processWidgetDimensionsSaga() {
     );
   }
 
-  // Make a call to update redux store
-
+  // Gets only the widgets that need to be updated
   yield call(getWidgetsWithDimensionChanges, processedWidgets);
   const widgetsToUpdate: UpdateWidgetsPayload = yield call(
     getWidgetsWithDimensionChanges,
     processedWidgets,
   );
-
-  console.log("####", widgetsToUpdate);
 
   // Push all updates to the CanvasWidgetsReducer.
   // Note that we're not calling `UPDATE_LAYOUT`
@@ -252,9 +247,6 @@ export function* processWidgetDimensionsSaga() {
 
   // clear the batch after processing
   autoLayoutWidgetDimensionUpdateBatch = {};
-
-  return processedWidgets;
-  // return { processedWidgets, parentIds: Array.from(parentIds) };
 }
 
 export function* getAutoLayoutMinHeightBasedOnChildren(

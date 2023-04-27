@@ -146,9 +146,6 @@ export function CanvasResizer({
           // Remove the handlers of `mousemove` and `mouseup`
           mouseMoveHandler(e);
           dispatch(setAutoCanvasResizing(false));
-          // dispatch({
-          //   type: ReduxActionTypes.PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES,
-          // });
           debouncedReCalculation();
           document.removeEventListener("mousemove", events[0] as any);
           document.removeEventListener("mouseup", mouseUpHandler);

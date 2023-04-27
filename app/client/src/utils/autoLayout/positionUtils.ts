@@ -77,7 +77,6 @@ export function updateWidgetPositions(
        * and calculate the total height of all layers.
        */
       for (const layer of parent.flexLayers) {
-        // if (parent.widgetName === "Canvas2") debugger;
         const payload: {
           height: number;
           widgets: CanvasWidgetsReduxState;
@@ -104,19 +103,12 @@ export function updateWidgetPositions(
     // padding is 2 to respect padding on top and bottom(WIDGET_PADDING + CONTAINER_PADDING)
     // ToDo: use getCanvasHeightOffset to weigh in offset values as well.
     const parentHeight = getWidgetRows(parent, isMobile);
-    // if (parent.widgetName === "Canvas2") debugger;
     const computedHeight = getComputedHeight(
       parent,
       widgets,
       height,
       mainCanvasWidth,
     );
-
-    // console.log("#### heightUpdate", parent.widgetName, {
-    //   height,
-    //   parentHeight,
-    //   computedHeight,
-    // });
 
     if (
       shouldUpdateParentHeight(parent, widgets, parentHeight, computedHeight)
