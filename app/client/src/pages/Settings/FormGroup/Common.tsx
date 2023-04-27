@@ -48,7 +48,7 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
       <StyledLabel>
         {setting.label && (
           <Text
-            color="var(--ads-v2-color-fg-emphasis-plus)"
+            color="var(--ads-v2-color-fg)"
             data-testid="admin-settings-form-group-label"
             kind="body-m"
             renderAs="label"

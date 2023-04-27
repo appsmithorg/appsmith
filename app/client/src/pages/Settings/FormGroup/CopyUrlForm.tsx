@@ -16,6 +16,7 @@ const HeaderWrapper = styled.div`
   display: flex;
   align-items: center;
   margin-bottom: 8px;
+  color: var(--ads-v2-color-fg);
   .help-icon {
     margin-left: 8px;
     cursor: pointer;
@@ -44,11 +45,7 @@ function CopyUrlForm(props: {
   return (
     <div>
       <HeaderWrapper>
-        <Text
-          color="var(--ads-v2-color-fg-emphasis-plus)"
-          kind="body-m"
-          renderAs="label"
-        >
+        <Text color="var(--ads-v2-color-fg)" kind="body-m" renderAs="label">
           {props.title}
         </Text>
         {props.tooltip && (

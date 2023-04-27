@@ -164,11 +164,7 @@ export const ColorInput = (props: ColorInputProps) => {
 
       {/* label with tooltip */}
       <div className="flex items-center gap-1">
-        <Text
-          color="var(--ads-v2-color-fg-emphasis)"
-          kind="heading-s"
-          renderAs="label"
-        >
+        <Text color="var(--ads-v2-color-fg)" kind="heading-s" renderAs="label">
           {startCase(selectedIndex)}
         </Text>
         <Tooltip
