@@ -344,7 +344,7 @@ export class ApplicationApi extends Api {
     return Api.post(
       `${ApplicationApi.baseURL}/import/${request.workspaceId}${
         request.appId ? `?applicationId=${request.appId}` : ""
-      }}`,
+      }`,
       formData,
       null,
       {
