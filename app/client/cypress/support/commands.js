@@ -110,6 +110,9 @@ Cypress.Commands.add("stubPostHeaderReq", () => {
   cy.intercept("POST", "/api/v1/users/invite", (req) => {
     req.headers["origin"] = "Cypress";
   }).as("mockPostInvite");
+  cy.intercept("POST", "/api/v1/applications/invite", (req) => {
+    req.headers["origin"] = "Cypress";
+  }).as("mockPostAppInvite");
 });
 
 Cypress.Commands.add(
@@ -286,6 +289,7 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
         expect(loc.href).to.equal(loc.origin + "/applications");
       });
   });
+  cy.wait(2000); //for the page elements to load!
 });
 
 Cypress.Commands.add("DeleteApp", (appName) => {
