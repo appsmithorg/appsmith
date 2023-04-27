@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
 import { useSelector, useDispatch } from "react-redux";
 import {
   getDatasources,
@@ -68,20 +67,8 @@ import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 //  ---------- Styles ----------
 
-const RoundBg = styled.div`
-  width: 16px;
-  height: 16px;
-  border-radius: 16px;
-  background-color: ${Colors.GRAY};
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-left: 8px;
-`;
-
 const TooltipWrapper = styled.div`
-  /* margin-top: 2px;
-  margin-left: 6px; */
+  margin-left: 6px;
 `;
 
 const Wrapper = styled.div`
@@ -154,8 +141,8 @@ const OptionWrapper = styled.div`
 `;
 // Constants
 
-const datasourceIcon = "tables";
-const columnIcon = "column";
+const datasourceIcon = "layout-left-2-line";
+const columnIcon = "layout-column-line";
 
 const GENERATE_PAGE_MODE = {
   NEW: "NEW", // a new page is created for the template. (new pageId created)
@@ -384,7 +371,7 @@ function GeneratePageForm() {
                     subText: column.type,
                     icon: columnIcon,
                     iconSize: "md",
-                    iconColor: Colors.GOLD,
+                    iconColor: "var(--ads-v2-color-fg)",
                   });
                 }
               });
@@ -444,7 +431,7 @@ function GeneratePageForm() {
         value: bucketName,
         icon: datasourceIcon,
         iconSize: "md",
-        iconColor: Colors.BURNING_ORANGE,
+        iconColor: "var(--ads-v2-color-fg)",
       }));
       setSelectedDatasourceTableOptions(tables);
     }
@@ -474,7 +461,7 @@ function GeneratePageForm() {
             value: name,
             icon: datasourceIcon,
             iconSize: "md",
-            iconColor: Colors.BURNING_ORANGE,
+            iconColor: "var(--ads-v2-color-fg)",
             data: {
               columns,
             },
@@ -787,13 +774,8 @@ function GeneratePageForm() {
                   selected&nbsp;
                   {pluginField.TABLE}
                   <TooltipWrapper>
-                    <Tooltip
-                      content="Only string values are allowed for searchable column"
-                      // hoverOpenDelay={200}
-                    >
-                      <RoundBg>
-                        <Icon name="help" size="sm" />
-                      </RoundBg>
+                    <Tooltip content="Only string values are allowed for searchable column">
+                      <Icon name="question-line" size="md" />
                     </Tooltip>
                   </TooltipWrapper>
                 </Row>

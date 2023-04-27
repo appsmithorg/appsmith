@@ -1,7 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 import PageContent from "./components/PageContent";
-import { Text, Link } from "design-system";
+import { Text } from "design-system";
+import { BackButton } from "components/utils/helperComponents";
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -21,12 +23,12 @@ const SubHeading = styled(Text)`
   text-align: center;
 `;
 
-const Back = styled(Link)`
-  margin: 20px 0 20px 10px;
-`;
-
 const Header = styled.div`
   width: 100%;
+
+  > a {
+    margin: var(--ads-v2-spaces-3) var(--ads-v2-spaces-4);
+  }
 `;
 
 const HeaderText = styled.h1`
@@ -37,7 +39,7 @@ const HeaderText = styled.h1`
   letter-spacing: 0px;
   text-align: center;
   margin: 0px;
-  color: var(--ads-v2-color-fg-emphasis);
+  color: var(--ads-v2-color-fg-emphasis-plus);
 `;
 
 function GeneratePage() {
@@ -48,9 +50,7 @@ function GeneratePage() {
     <Container>
       {isGenerateFormPage ? (
         <Header>
-          <Back onClick={() => history.back()} startIcon="arrow-left" to="#">
-            Back
-          </Back>
+          <BackButton />
         </Header>
       ) : null}
 

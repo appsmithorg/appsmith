@@ -3,16 +3,9 @@ import styled from "styled-components";
 import { connect, useDispatch } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  DialogComponent as Dialog,
-  getTypographyByKey,
-  Text,
-  TextType,
-} from "design-system-old";
-import { Button } from "design-system";
+import { Button, Text, Modal, ModalContent, ModalBody } from "design-system";
 import { getCrudInfoModalData } from "selectors/crudInfoModalSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
-import { Colors } from "constants/Colors";
 
 import type { GenerateCRUDSuccessInfoData } from "reducers/uiReducers/crudInfoModalReducer";
 import {
@@ -33,24 +26,10 @@ type Props = {
   generateCRUDSuccessInfo: GenerateCRUDSuccessInfoData | null;
 };
 
-const Heading = styled.div`
-  color: ${Colors.CODE_GRAY};
-  display: flex;
-  justify-content: center;
-  ${getTypographyByKey("h1")}
-`;
-
 const ActionButtonWrapper = styled.div`
   display: flex;
   justify-content: center;
   margin: 30px 0px 0px;
-`;
-
-export const StyledSeparator = styled.div`
-  width: 100%;
-  background-color: ${(props) => props.theme.colors.modal.separator};
-  opacity: 0.6;
-  height: 1px;
 `;
 
 const Content = styled.div`
@@ -103,8 +82,8 @@ const SuccessContentWrapper = styled.div`
   height: 100%;
 `;
 
-const InfoContentHeadingText = styled(Text)`
-  color: var(--ads-v2-color-fg-muted);
+const InfoContentHeadingText = styled.span`
+  color: var(--ads-v2-color-fg);
 `;
 
 const STEP = {
@@ -126,12 +105,12 @@ function InfoContent({
   return (
     <>
       <Content>
+        {/* TODO: Replace this with ADS text */}
         <InfoContentHeadingText
           className="info-subtitle"
           dangerouslySetInnerHTML={{
             __html: successMessage,
           }}
-          type={TextType.P1}
         />
         <ImageWrapper>
           <ProgressiveImage
@@ -150,7 +129,7 @@ function InfoContent({
           }}
           size={"md"}
         >
-          Got It
+          Got it
         </Button>
       </ActionButtonWrapper>
     </>
@@ -186,28 +165,30 @@ function GenCRUDSuccessModal(props: Props) {
   }, [setStep]);
 
   return (
-    <Dialog
-      canEscapeKeyClose
-      canOutsideClickClose
-      isOpen={crudInfoModalOpen}
-      setModalClose={onClose}
-    >
-      <Wrapper>
-        {step === STEP.SHOW_SUCCESS_GIF ? (
-          <SuccessContentWrapper>
-            <SuccessTick height="80px" width="80px" />
-            <Heading> {createMessage(GEN_CRUD_SUCCESS_MESSAGE)}</Heading>
-          </SuccessContentWrapper>
-        ) : null}
-        {step === STEP.SHOW_INFO ? (
-          <InfoContent
-            onClose={onClose}
-            successImageUrl={successImageUrl}
-            successMessage={successMessage}
-          />
-        ) : null}
-      </Wrapper>
-    </Dialog>
+    <Modal onOpenChange={onClose} open={crudInfoModalOpen}>
+      <ModalContent>
+        <ModalBody>
+          <Wrapper>
+            {step === STEP.SHOW_SUCCESS_GIF ? (
+              <SuccessContentWrapper>
+                <SuccessTick height="80px" width="80px" />
+                <Text kind="heading-l">
+                  {" "}
+                  {createMessage(GEN_CRUD_SUCCESS_MESSAGE)}
+                </Text>
+              </SuccessContentWrapper>
+            ) : null}
+            {step === STEP.SHOW_INFO ? (
+              <InfoContent
+                onClose={onClose}
+                successImageUrl={successImageUrl}
+                successMessage={successMessage}
+              />
+            ) : null}
+          </Wrapper>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
   );
 }
 
