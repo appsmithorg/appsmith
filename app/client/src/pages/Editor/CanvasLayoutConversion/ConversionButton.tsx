@@ -67,7 +67,7 @@ function ConversionButton() {
       trigger={
         <Button
           category={Category.secondary}
-          className="mb-6"
+          className="mb-6  text-center !p-2"
           fill
           id="t--layout-conversion-cta"
           size={Size.medium}
