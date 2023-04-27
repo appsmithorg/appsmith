@@ -11,17 +11,27 @@ export class LightModeTheme implements ColorModeTheme {
   private readonly seedHue: number;
   private readonly seedIsAchromatic: boolean;
   private readonly seedIsCold: boolean;
+  private readonly seedIsVeryDark: boolean;
   private readonly seedIsVeryLight: boolean;
 
   constructor(private color: ColorTypes) {
-    const { chroma, hex, hue, isAchromatic, isCold, isVeryLight, lightness } =
-      new ColorsAccessor(color);
+    const {
+      chroma,
+      hex,
+      hue,
+      isAchromatic,
+      isCold,
+      isVeryDark,
+      isVeryLight,
+      lightness,
+    } = new ColorsAccessor(color);
     this.seedColor = hex;
     this.seedLightness = lightness;
     this.seedChroma = chroma;
     this.seedHue = hue;
     this.seedIsAchromatic = isAchromatic;
     this.seedIsCold = isCold;
+    this.seedIsVeryDark = isVeryDark;
     this.seedIsVeryLight = isVeryLight;
   }
 
@@ -99,9 +109,15 @@ export class LightModeTheme implements ColorModeTheme {
   private get bgAccentHover() {
     let currentColor = this.bgAccent;
 
-    if (this.seedLightness < 0.4) {
+    if (this.seedIsVeryDark) {
       currentColor = setLch(currentColor, {
-        l: this.seedLightness + 0.1,
+        l: this.seedLightness + 0.3,
+      });
+    }
+
+    if (!this.seedIsVeryDark && this.seedLightness < 0.4) {
+      currentColor = setLch(currentColor, {
+        l: this.seedLightness + 0.15,
       });
     }
 
