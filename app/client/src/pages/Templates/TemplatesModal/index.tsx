@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { DialogComponent } from "design-system-old";
+import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
   templateModalOpenSelector,
@@ -15,6 +15,12 @@ import { fetchDefaultPlugins } from "actions/pluginActions";
 import TemplateDetailedView from "./TemplateDetailedView";
 import { isEmpty } from "lodash";
 import type { AppState } from "@appsmith/reducers";
+import { Modal, ModalContent } from "design-system";
+
+const ModalContentWrapper = styled(ModalContent)`
+  width: 90%;
+  overflow-y: hidden;
+`;
 
 function TemplatesModal() {
   const templatesModalOpen = useSelector(templateModalOpenSelector);
@@ -50,9 +56,11 @@ function TemplatesModal() {
     }
   }, [filters]);
 
-  const onClose = () => {
-    dispatch(showTemplatesModal(false));
-    setShowTemplateDetails("");
+  const onClose = (open: boolean) => {
+    if (open === false) {
+      dispatch(showTemplatesModal(false));
+      setShowTemplateDetails("");
+    }
   };
 
   const onTemplateClick = (id: string) => {
@@ -60,24 +68,22 @@ function TemplatesModal() {
   };
 
   return (
-    <DialogComponent
-      canEscapeKeyClose
-      canOutsideClickClose
-      isOpen={templatesModalOpen}
-      noModalBodyMarginTop
-      onClose={onClose}
-      width={"90%"}
-    >
-      {!!showTemplateDetails ? (
-        <TemplateDetailedView
-          onBackPress={() => setShowTemplateDetails("")}
-          onClose={onClose}
-          templateId={showTemplateDetails}
-        />
-      ) : (
-        <TemplatesList onClose={onClose} onTemplateClick={onTemplateClick} />
-      )}
-    </DialogComponent>
+    <Modal onOpenChange={(open) => onClose(open)} open={templatesModalOpen}>
+      <ModalContentWrapper>
+        {!!showTemplateDetails ? (
+          <TemplateDetailedView
+            onBackPress={() => setShowTemplateDetails("")}
+            onClose={() => onClose(false)}
+            templateId={showTemplateDetails}
+          />
+        ) : (
+          <TemplatesList
+            onClose={() => onClose(false)}
+            onTemplateClick={onTemplateClick}
+          />
+        )}
+      </ModalContentWrapper>
+    </Modal>
   );
 }
 

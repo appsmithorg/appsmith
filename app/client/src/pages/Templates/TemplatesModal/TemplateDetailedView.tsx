@@ -40,6 +40,7 @@ const Wrapper = styled.div`
   height: 85vh;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 `;
 
 const Body = styled.div`

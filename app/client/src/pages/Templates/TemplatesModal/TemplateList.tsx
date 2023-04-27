@@ -20,7 +20,7 @@ import {
 const Wrapper = styled.div`
   display: flex;
   height: 85vh;
-  overflow: auto;
+  overflow-y: hidden;
 
   .modal-header {
     padding-bottom: ${(props) => props.theme.spaces[4]}px;
