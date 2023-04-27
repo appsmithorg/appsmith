@@ -25,8 +25,6 @@ type BackToAppsButtonProps = {
 const StyledAppIcon = styled(AppsLineIcon)<{
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
-  borderRadius: string;
-  insideSidebar?: boolean;
 }>`
   color: ${({ navColorStyle, primaryColor }) =>
     getMenuItemTextColor(primaryColor, navColorStyle, true)};
@@ -71,8 +69,6 @@ const BackToAppsButton = (props: BackToAppsButtonProps) => {
         className="h-8 t--app-viewer-back-to-apps-button"
         icon={
           <StyledAppIcon
-            borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
-            insideSidebar={insideSidebar}
             navColorStyle={navColorStyle}
             primaryColor={primaryColor}
           />
