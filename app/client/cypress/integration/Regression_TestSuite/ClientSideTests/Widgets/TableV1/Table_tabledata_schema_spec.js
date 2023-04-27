@@ -1,7 +1,8 @@
-const explorer = require("../../../../../locators/explorerlocators.json");
 import homePage from "../../../../../locators/HomePage";
 const publish = require("../../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../../fixtures/swtchTableDsl.json");
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+const explorer = require("../../../../../locators/explorerlocators.json");
+const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Table Widget", function () {
   it("1. Table Widget Functionality To Check with changing schema of tabledata", () => {
@@ -13,14 +14,18 @@ describe("Table Widget", function () {
       "response.body.responseMeta.status",
       201,
     );
-    cy.addDsl(dsl);
+    cy.fixture("tableNewDsl").then((val = any) => {
+      agHelper.AddDsl(val);
+    });
     cy.wait(5000);
+    cy.get(explorer.addWidget).click();
+    cy.dragAndDropToCanvas("switchwidget", { x: 200, y: 200 });
+    cy.wait(2000);
     cy.openPropertyPane("tablewidget");
     cy.get(".t--property-control-tabledata").then(($el) => {
       cy.updateCodeInput($el, jsContext);
     });
     cy.PublishtheApp();
-    cy.wait(30000);
     cy.getTableDataSelector("0", "0").then((element) => {
       cy.get(element).should("be.visible");
     });
@@ -45,9 +50,7 @@ describe("Table Widget", function () {
     cy.readTabledataPublish("0", "0").then((value) => {
       expect(value).to.be.equal("joe");
     });
-
     cy.get(publish.backToEditor).click().wait(1000);
-    cy.wait(30000);
     cy.CheckAndUnfoldEntityItem("Widgets");
     cy.actionContextMenuByEntityName("Switch1");
     cy.actionContextMenuByEntityName("Table1");
