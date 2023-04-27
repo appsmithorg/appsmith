@@ -39,7 +39,9 @@ function ConversionButton() {
     if (isOpen) {
       dispatch(setConversionStart(CONVERSION_STATES.START));
     } else {
-      dispatch(setConversionStop());
+      setTimeout(() => {
+        dispatch(setConversionStop());
+      }, 0);
     }
   }, []);
 

@@ -71,14 +71,20 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_SUCCESS),
     );
-  } catch (e) {
-    log.error(e);
+  } catch (e: any) {
+    let error: Error = e;
+    if (error) {
+      error.message = `Layout Conversion Error - while Converting from Auto to Fixed Layout: ${error.message}`;
+    } else {
+      error = new Error(
+        "Layout Conversion Error - while Converting from Auto to Fixed Layout",
+      );
+    }
+
+    log.error(error);
     //update conversion form state to error
     yield put(
-      setLayoutConversionStateAction(
-        CONVERSION_STATES.COMPLETED_ERROR,
-        e as Error,
-      ),
+      setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_ERROR, error),
     );
   }
 }
@@ -126,14 +132,20 @@ function* convertFromFixedToAutoSaga() {
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_SUCCESS),
     );
-  } catch (e) {
-    log.error(e);
+  } catch (e: any) {
+    let error: Error = e;
+    if (error) {
+      error.message = `Layout Conversion Error - while Converting from Fixed to Auto Layout: ${error.message}`;
+    } else {
+      error = new Error(
+        "Layout Conversion Error - while Converting from Fixed to Auto Layout",
+      );
+    }
+
+    log.error(error);
     //update conversion form state to error
     yield put(
-      setLayoutConversionStateAction(
-        CONVERSION_STATES.COMPLETED_ERROR,
-        e as Error,
-      ),
+      setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_ERROR, error),
     );
   }
 }
