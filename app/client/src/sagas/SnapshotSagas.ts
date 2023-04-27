@@ -4,16 +4,19 @@ import {
 } from "actions/autoLayoutActions";
 import type { ApiResponse } from "api/ApiResponses";
 import ApplicationApi from "@appsmith/api/ApplicationApi";
-import type { PageDefaultMeta } from "@appsmith/api/ApplicationApi";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import log from "loglevel";
 import type { SnapShotDetails } from "reducers/uiReducers/layoutConversionReducer";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getAppPositioningType,
+  getCurrentApplicationId,
+} from "selectors/editorSelectors";
 import { getLogToSentryFromResponse } from "utils/helpers";
 import { validateResponse } from "./ErrorSagas";
 import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 //Saga to create application snapshot
 export function* createSnapshotSaga() {
@@ -75,25 +78,23 @@ function* restoreApplicationFromSnapshotSaga() {
       applicationId,
     });
 
+    const currentAppPositioningType: AppPositioningTypes = yield select(
+      getAppPositioningType,
+    );
+
     const isValidResponse: boolean = yield validateResponse(
       response,
       false,
       getLogToSentryFromResponse(response),
     );
 
-    // update the pages list temporarily with incomplete data.
-    if (response?.data?.pages) {
-      yield put({
-        type: ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
-        payload: {
-          pages: response.data.pages.map((page: PageDefaultMeta) => ({
-            pageId: page.id,
-            isDefault: page.isDefault,
-          })),
-          applicationId,
-        },
-      });
-    }
+    //update layout positioning type from
+    yield call(
+      updateApplicationLayoutType,
+      currentAppPositioningType === AppPositioningTypes.FIXED
+        ? AppPositioningTypes.AUTO
+        : AppPositioningTypes.FIXED,
+    );
 
     if (response?.data?.applicationDetail?.appPositioning?.type) {
       //update layout positioning type from response
