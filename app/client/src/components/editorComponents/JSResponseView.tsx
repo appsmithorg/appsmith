@@ -375,11 +375,13 @@ function JSResponseView(props: Props) {
           tabs={tabs}
         />
 
-        <Icon
+        <Button
           className="close-debugger t--close-debugger"
-          name="close-modal"
+          isIconButton
+          kind="tertiary"
           onClick={onClose}
           size="md"
+          startIcon="close-modal"
         />
       </TabbedViewWrapper>
     </ResponseContainer>
