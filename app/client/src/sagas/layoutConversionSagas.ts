@@ -20,6 +20,7 @@ import { saveAllPagesSaga } from "./PageSagas";
 import { updateApplicationLayout } from "@appsmith/actions/applicationActions";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 /**
  * This method is used to convert from Auto layout to Fixed layout
@@ -28,11 +29,15 @@ import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
 function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
   try {
     const pageWidgetsList: PageWidgetsReduxState = yield select(getPageWidgets);
+    const notEmptyApp = isNotEmptyApp(pageWidgetsList);
 
-    if (getShouldSaveSnapShot(pageWidgetsList)) {
+    if (notEmptyApp) {
       yield call(createSnapshotSaga);
     }
 
+    AnalyticsUtil.logEvent("CONVERT_AUTO_TO_FIXED", {
+      isNewApp: !notEmptyApp,
+    });
     //Set conversion form to indicated conversion loading state
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.CONVERSION_SPINNER),
@@ -86,6 +91,10 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_ERROR, error),
     );
+
+    AnalyticsUtil.logEvent("CONVERSION_FAILURE", {
+      flow: "CONVERT_AUTO_TO_FIXED",
+    });
   }
 }
 
@@ -96,11 +105,15 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
 function* convertFromFixedToAutoSaga() {
   try {
     const pageWidgetsList: PageWidgetsReduxState = yield select(getPageWidgets);
+    const notEmptyApp = isNotEmptyApp(pageWidgetsList);
 
-    if (getShouldSaveSnapShot(pageWidgetsList)) {
+    if (notEmptyApp) {
       yield call(createSnapshotSaga);
     }
 
+    AnalyticsUtil.logEvent("CONVERT_FIXED_TO_AUTO", {
+      isNewApp: !notEmptyApp,
+    });
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.CONVERSION_SPINNER),
     );
@@ -147,6 +160,10 @@ function* convertFromFixedToAutoSaga() {
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_ERROR, error),
     );
+
+    AnalyticsUtil.logEvent("CONVERSION_FAILURE", {
+      flow: "CONVERT_FIXED_TO_AUTO",
+    });
   }
 }
 
@@ -202,7 +219,7 @@ export default function* layoutConversionSagas() {
 }
 
 //Function returns boolean, SnapShot should not be saved for a single empty canvas
-function getShouldSaveSnapShot(pageWidgetsList: PageWidgetsReduxState) {
+function isNotEmptyApp(pageWidgetsList: PageWidgetsReduxState) {
   const pageList = Object.values(pageWidgetsList);
 
   if (pageList.length !== 1) return true;

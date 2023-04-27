@@ -18,6 +18,7 @@ import { getLogToSentryFromResponse } from "utils/helpers";
 import { validateResponse } from "./ErrorSagas";
 import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 //Saga to create application snapshot
 export function* createSnapshotSaga() {
@@ -74,6 +75,8 @@ export function* fetchSnapshotSaga() {
 function* restoreApplicationFromSnapshotSaga() {
   let response: ApiResponse<any> | undefined;
   try {
+    AnalyticsUtil.logEvent("RESTORE_SNAPSHOT");
+
     const applicationId: string = yield select(getCurrentApplicationId);
     response = yield ApplicationApi.restoreApplicationFromSnapshot({
       applicationId,
@@ -130,6 +133,10 @@ function* restoreApplicationFromSnapshotSaga() {
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_ERROR, error),
     );
+
+    AnalyticsUtil.logEvent("CONVERSION_FAILURE", {
+      flow: "RESTORE_SNAPSHOT",
+    });
   }
 }
 
