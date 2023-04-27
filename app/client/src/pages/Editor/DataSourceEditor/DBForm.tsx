@@ -4,7 +4,6 @@ import styled from "styled-components";
 import _ from "lodash";
 import { DATASOURCE_DB_FORM } from "@appsmith/constants/forms";
 import FormTitle from "./FormTitle";
-import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import Connected from "./Connected";
 import type { Datasource } from "entities/Datasource";
 import type { InjectedFormProps } from "redux-form";
@@ -60,11 +59,6 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
 
 type Props = DatasourceDBEditorProps &
   InjectedFormProps<Datasource, DatasourceDBEditorProps>;
-
-const CollapsibleWrapper = styled.div`
-  width: max-content;
-  padding: 0 20px;
-`;
 
 export const Form = styled.form`
   display: flex;
@@ -168,21 +162,24 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
               cloudHosting &&
               pluginType === PluginType.DB &&
               !viewMode && (
-                <CollapsibleWrapper>
-                  <CollapsibleHelp
-                    links={[
-                      {
-                        children: "Learn more",
-                        onClick: () => this.openOmnibarReadMore,
-                        endIcon: "share-box",
+                <Callout
+                  className="mt-4"
+                  kind="warning"
+                  links={[
+                    {
+                      children: "Learn more",
+                      onClick: (e: React.MouseEvent) => {
+                        e.preventDefault();
+                        this.openOmnibarReadMore();
                       },
-                    ]}
-                  >
-                    {`Whitelist the IP ${convertArrayToSentence(
-                      APPSMITH_IP_ADDRESSES,
-                    )}  on your database instance to connect to it. `}
-                  </CollapsibleHelp>
-                </CollapsibleWrapper>
+                      endIcon: "share-box",
+                    },
+                  ]}
+                >
+                  {`Whitelist the IP ${convertArrayToSentence(
+                    APPSMITH_IP_ADDRESSES,
+                  )}  on your database instance to connect to it. `}
+                </Callout>
               )}
             {(!viewMode || datasourceId === TEMP_DATASOURCE_ID) && (
               <>
