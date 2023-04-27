@@ -166,14 +166,13 @@ export function Sidebar(props: SidebarProps) {
               logoConfiguration ===
                 NAVIGATION_SETTINGS.LOGO_CONFIGURATION
                   .APPLICATION_TITLE_ONLY) && (
-              <div className="ml-2">
-                <ApplicationName
-                  appName={currentApplicationDetails?.name}
-                  navColorStyle={navColorStyle}
-                  navStyle={navStyle}
-                  primaryColor={primaryColor}
-                />
-              </div>
+              <ApplicationName
+                appName={currentApplicationDetails?.name}
+                forSidebar
+                navColorStyle={navColorStyle}
+                navStyle={navStyle}
+                primaryColor={primaryColor}
+              />
             )}
         </div>
 

@@ -99,12 +99,7 @@ function BackToHomeButton(props: BackToHomeButtonProps) {
   const currentUser: User | undefined = useSelector(getCurrentUser);
 
   return (
-    <div
-      className={classNames({
-        "flex items-center gap-2 mr-4": true,
-        "mb-2": forSidebar,
-      })}
-    >
+    <div className="flex items-center gap-2 mr-4">
       {currentUser?.username !== ANONYMOUS_USERNAME && (
         <TooltipComponent content="Back to apps" position="bottom-left">
           <StyledLink
@@ -132,6 +127,7 @@ function BackToHomeButton(props: BackToHomeButtonProps) {
                 .NO_LOGO_OR_APPLICATION_TITLE ? (
               <StyledApplicationName
                 className="text-base whitespace-nowrap"
+                fontWeight="regular"
                 isMobile={isMobile}
                 navColorStyle={navColorStyle}
                 navStyle={navStyle}

@@ -13,10 +13,21 @@ export const StyledApplicationName = styled.div<{
   navColorStyle: NavigationSetting["colorStyle"];
   navStyle: NavigationSetting["navStyle"];
   isMobile: boolean;
+  forSidebar?: boolean;
+  fontWeight: "regular" | "bold";
 }>`
   color: ${({ navColorStyle, primaryColor }) =>
     getApplicationNameTextColor(primaryColor, navColorStyle)};
   font-size: ${THEMEING_TEXT_SIZES.base};
+  font-weight: ${({ fontWeight }) =>
+    fontWeight === "regular" ? "400" : "600"};
+  ${({ forSidebar }) =>
+    forSidebar
+      ? `
+        margin-top: 16px;
+        margin-left: 10px;
+      `
+      : ""};
 
   ${({ isMobile, navStyle }) => {
     if (isMobile) {
