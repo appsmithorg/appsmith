@@ -216,3 +216,5 @@ export const WIDGET_PROPS_TO_SKIP_FROM_EVAL = {
  * It is also used to calculate widget positions and highlight placements.
  */
 export const FLEXBOX_PADDING = 4;
+
+export const FILE_SIZE_LIMIT_FOR_BLOBS = 5000 * 1024; // 5MB
