@@ -825,7 +825,7 @@ export const IMPORTING_APP_FROM_GIT = () => "Importing application from Git";
 export const CONFIRM_SSH_KEY = () =>
   "Please make sure your SSH key has write access.";
 export const READ_DOCUMENTATION = () => "Read documentation";
-export const LEARN_MORE = () => "Learn More";
+export const LEARN_MORE = () => "Learn more";
 export const GIT_NO_UPDATED_TOOLTIP = () => "No new updates to push";
 
 export const FIND_OR_CREATE_A_BRANCH = () => "Find or create a branch";
@@ -1140,7 +1140,7 @@ export const DISCONNECT_AUTH_ERROR = () =>
 export const MANDATORY_FIELDS_ERROR = () => "Mandatory fields cannot be empty";
 
 // Audit logs begin
-export const AUDIT_LOGS = () => "Audit Logs";
+export const AUDIT_LOGS = () => "Audit logs";
 export const TRY_AGAIN_WITH_YOUR_FILTER = () => "Try again with your filter";
 
 // Audit logs Upgrade page begin
@@ -1245,10 +1245,10 @@ export const UPGRADE_TO_EE = (authLabel: string) =>
 export const UPGRADE_TO_EE_FEATURE = (feature: string) =>
   `Hello, I would like to upgrade and start using the ${feature} feature.`;
 export const UPGRADE_TO_EE_GENERIC = () => `Hello, I would like to upgrade`;
-export const ADMIN_AUTH_SETTINGS_TITLE = () => "Select Authentication Method";
+export const ADMIN_AUTH_SETTINGS_TITLE = () => "Select authentication method";
 export const ADMIN_AUTH_SETTINGS_SUBTITLE = () =>
   "Select a protocol you want to authenticate users with";
-export const DANGER_ZONE = () => "Danger Zone";
+export const DANGER_ZONE = () => "Danger zone";
 export const DISCONNECT_AUTH_METHOD = () => "Disconnect";
 export const DISCONNECT_CONFIRMATION = () => "Are you sure?";
 

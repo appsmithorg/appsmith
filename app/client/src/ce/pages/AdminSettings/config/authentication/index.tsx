@@ -30,8 +30,8 @@ const { disableLoginForm, enableGithubOAuth, enableGoogleOAuth } =
 const FormAuth: AdminConfigType = {
   type: SettingCategories.FORM_AUTH,
   controlType: SettingTypes.GROUP,
-  title: "Form Login",
-  subText: "Enable your workspace to sign in with Appsmith Form.",
+  title: "Form login",
+  subText: "Enable your workspace to sign in with Appsmith form.",
   canSave: true,
   isConnected: false,
   settings: [
@@ -40,16 +40,16 @@ const FormAuth: AdminConfigType = {
       category: SettingCategories.FORM_AUTH,
       subCategory: SettingSubCategories.FORMLOGIN,
       controlType: SettingTypes.TOGGLE,
-      label: "Form Login",
+      label: "Form login",
       toggleText: (value: boolean) =>
-        value ? "Form Login Disabled" : "Enable Form Login",
+        value ? "Form login enabled" : "Enable form login",
     },
     {
       id: "APPSMITH_SIGNUP_DISABLED",
       category: SettingCategories.FORM_AUTH,
       subCategory: SettingSubCategories.FORMLOGIN,
       controlType: SettingTypes.TOGGLE,
-      label: "Form Signup",
+      label: "Form signup",
       toggleText: (value: boolean) =>
         value
           ? "Allow only invited users to signup"
@@ -71,7 +71,7 @@ const FormAuth: AdminConfigType = {
 const GoogleAuth: AdminConfigType = {
   type: SettingCategories.GOOGLE_AUTH,
   controlType: SettingTypes.GROUP,
-  title: "Google Authentication",
+  title: "Google authentication",
   subText: "Enable your workspace to sign in with Google (OAuth).",
   canSave: true,
   isConnected: enableGoogleOAuth,
@@ -89,7 +89,7 @@ const GoogleAuth: AdminConfigType = {
       category: SettingCategories.GOOGLE_AUTH,
       subCategory: SettingSubCategories.GOOGLE,
       controlType: SettingTypes.UNEDITABLEFIELD,
-      label: "JavaScript Origin URL",
+      label: "JavaScript origin URL",
       formName: JS_ORIGIN_URI_FORM,
       fieldName: "js-origin-url-form",
       value: "",
@@ -125,7 +125,7 @@ const GoogleAuth: AdminConfigType = {
       subCategory: SettingSubCategories.GOOGLE,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
-      label: "Client Secret",
+      label: "Client secret",
       isRequired: true,
     },
     {
@@ -134,7 +134,7 @@ const GoogleAuth: AdminConfigType = {
       subCategory: SettingSubCategories.GOOGLE,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
-      label: "Allowed Domains",
+      label: "Allowed domains",
       placeholder: "domain1.com, domain2.com",
     },
   ],
@@ -143,7 +143,7 @@ const GoogleAuth: AdminConfigType = {
 const GithubAuth: AdminConfigType = {
   type: SettingCategories.GITHUB_AUTH,
   controlType: SettingTypes.GROUP,
-  title: "Github Authentication",
+  title: "Github authentication",
   subText:
     "Enable your workspace to sign in with Github SAML single sign-on (SSO).",
   canSave: true,
@@ -172,7 +172,7 @@ const GithubAuth: AdminConfigType = {
       subCategory: SettingSubCategories.GITHUB,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
-      label: "Client Secret",
+      label: "Client secret",
       isRequired: true,
     },
   ],
@@ -181,7 +181,7 @@ const GithubAuth: AdminConfigType = {
 export const FormAuthCallout: AuthMethodType = {
   id: "APPSMITH_FORM_LOGIN_AUTH",
   category: SettingCategories.FORM_AUTH,
-  label: "Form Login",
+  label: "Form login",
   subText: "Enable your workspace to sign in with Appsmith Form.",
   image: Lock,
   isConnected: !disableLoginForm,

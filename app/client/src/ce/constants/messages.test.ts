@@ -446,7 +446,7 @@ describe("Audit logs messages", () => {
       AVAILABLE_ON_BUSINESS,
     ];
     const expected = [
-      "Audit Logs",
+      "Audit logs",
       "See a timestamped trail of events in your workspace. Filter by type of event, user, resource ID, and time. Drill down into each event to investigate further.",
       "Security & Compliance",
       "Proactively derisk misconfigured permissions, roll back changes from a critical security event, and keep checks against your compliance policies.",

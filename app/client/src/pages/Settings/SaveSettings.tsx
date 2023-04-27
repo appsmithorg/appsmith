@@ -53,7 +53,7 @@ const saveAdminSettings = (props: SaveAdminSettingsProps) => {
         onClick={onSave}
         size="md"
       >
-        {createMessage(() => "Save & Restart")}
+        {createMessage(() => "Save & restart")}
       </Button>
     </SettingsButtonWrapper>
   );

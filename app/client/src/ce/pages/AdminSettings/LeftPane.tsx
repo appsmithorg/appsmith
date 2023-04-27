@@ -54,7 +54,6 @@ export const StyledLink = styled(Link)<{ $active: boolean }>`
   border-radius: var(--ads-v2-border-radius);
   background-color: ${(props) =>
     props.$active ? `var(--ads-v2-color-bg-muted)` : ""};
-  text-transform: capitalize;
   display: flex;
   gap: 12px;
 
@@ -145,7 +144,7 @@ export default function LeftPane() {
     <Wrapper>
       <HeaderContainer>
         <StyledHeader kind="heading-s" renderAs="p">
-          Admin Settings
+          Admin settings
         </StyledHeader>
         <Categories
           categories={categories}
@@ -166,7 +165,7 @@ export default function LeftPane() {
             >
               <Icon name="lock-2-line" size="md" />
               <SettingName active={category === "access-control"}>
-                Access Control
+                Access control
               </SettingName>
             </StyledLink>
           </CategoryItem>

@@ -26,9 +26,7 @@ export const Wrapper = styled.div`
 
 export const SettingsFormWrapper = styled.div``;
 
-export const SettingsHeader = styled(Text)`
-  text-transform: capitalize;
-`;
+export const SettingsHeader = styled(Text)``;
 
 export const SettingsSubHeader = styled(Text)``;
 
