@@ -246,10 +246,12 @@ function* updateAutoLayoutWidgetDimensionsSaga(
 }
 
 function* processWidgetDimensionsAndPositions() {
-  const processedWidgets: CanvasWidgetsReduxState = yield call(
-    processWidgetDimensionsSaga,
-  );
-  yield put(recalculatePositionsForCurrentBreakPointAction(processedWidgets));
+  // const widgetsAndIds: [any, any] =
+  yield call(processWidgetDimensionsSaga);
+  // const [processedWidgets, parentIds] = widgetsAndIds;
+  // console.log("####", processedWidgets, parentIds);
+  // TODO: pass the parent id for calculation
+  //yield put(recalculatePositionsForCurrentBreakPointAction(processedWidgets));
 }
 function* shouldRunSaga(saga: any, action: ReduxAction<unknown>) {
   const isAutoLayout: boolean = yield select(getIsAutoLayout);
@@ -291,9 +293,9 @@ export default function* layoutUpdateSagas() {
     debounce(
       50,
       [
-        ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
+        // ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
         ReduxActionTypes.PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES,
-        ReduxActionTypes.GENERATE_AUTO_HEIGHT_LAYOUT_TREE, // add, move, paste, cut, delete, undo/redo
+        // ReduxActionTypes.GENERATE_AUTO_HEIGHT_LAYOUT_TREE, // add, move, paste, cut, delete, undo/redo
       ],
       shouldRunSaga,
       processWidgetDimensionsAndPositions,

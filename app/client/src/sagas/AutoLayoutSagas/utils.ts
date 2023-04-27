@@ -3,7 +3,7 @@ import type {
   FlattenedWidgetProps,
   UpdateWidgetsPayload,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { call, select } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
 import {
   alterLayoutForDesktop,
   alterLayoutForMobile,
@@ -44,6 +44,8 @@ import { APP_MODE } from "entities/App";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getAppMode } from "selectors/entitiesSelector";
 import { MOBILE_ROW_GAP, ROW_GAP } from "utils/autoLayout/constants";
+import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
+import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
 
 export function* recalculatePositionsOfWidgets({
   canvasWidth,
@@ -201,6 +203,7 @@ export function* processAutoLayoutDimensionUpdatesFn(
       [widgetId]: widgetToBeUpdated,
     };
   }
+
   return widgets;
 }
 
@@ -209,17 +212,49 @@ export function* processWidgetDimensionsSaga() {
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
 
+  console.log("#### blabla2");
+
   const parentIds = new Set<string>();
-  const processedWidgets: CanvasWidgetsReduxState = yield call(
+  let processedWidgets: CanvasWidgetsReduxState = yield call(
     processAutoLayoutDimensionUpdatesFn,
     allWidgets,
     parentIds,
     isMobile,
     mainCanvasWidth,
   );
+
+  // Update the position of all the widgets
+  for (const parentId of parentIds) {
+    processedWidgets = updateWidgetPositions(
+      processedWidgets,
+      parentId,
+      isMobile,
+      mainCanvasWidth,
+    );
+  }
+
+  // Make a call to update redux store
+
+  yield call(getWidgetsWithDimensionChanges, processedWidgets);
+  const widgetsToUpdate: UpdateWidgetsPayload = yield call(
+    getWidgetsWithDimensionChanges,
+    processedWidgets,
+  );
+
+  console.log("####", widgetsToUpdate);
+
+  // Push all updates to the CanvasWidgetsReducer.
+  // Note that we're not calling `UPDATE_LAYOUT`
+  // as we don't need to trigger an eval
+  if (!isEmpty(widgetsToUpdate)) {
+    yield put(updateMultipleWidgetPropertiesAction(widgetsToUpdate));
+  }
+
   // clear the batch after processing
   autoLayoutWidgetDimensionUpdateBatch = {};
+
   return processedWidgets;
+  // return { processedWidgets, parentIds: Array.from(parentIds) };
 }
 
 export function* getAutoLayoutMinHeightBasedOnChildren(
