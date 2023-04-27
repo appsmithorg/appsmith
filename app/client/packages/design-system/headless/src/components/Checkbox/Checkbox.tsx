@@ -13,11 +13,12 @@ import { useCheckbox, useCheckboxGroupItem } from "@react-aria/checkbox";
 
 import { CheckboxGroupContext } from "./context";
 
-export type CheckboxProps = Omit<SpectrumCheckboxProps, keyof StyleProps> & {
+export interface CheckboxProps
+  extends Omit<SpectrumCheckboxProps, keyof StyleProps> {
   icon?: React.ReactNode;
   className?: string;
   labelPosition?: "left" | "right";
-};
+}
 
 export type CheckboxRef = FocusableRef<HTMLLabelElement>;
 
