@@ -29,6 +29,19 @@ function GoogleSheetFilePicker({
   const google: any = (window as any).google;
 
   useEffect(() => {
+    // When google apis javascript does not load, we need to update auth status to failure
+    if (!scriptLoadedFlag) {
+      dispatch(
+        filePickerCallbackAction({
+          action: FilePickerActionStatus.CANCEL,
+          fileIds: [],
+          datasourceId: datasourceId,
+        }),
+      );
+    }
+  }, [scriptLoadedFlag]);
+
+  useEffect(() => {
     // Since we need to display file picker on blank page, as soon as file picker is visible
     // Add overlay on the file picker background
     if (pickerVisible) {
@@ -58,7 +71,7 @@ function GoogleSheetFilePicker({
   useEffect(() => {
     if (
       !!gsheetToken &&
-      scriptLoadedFlag &&
+      !!scriptLoadedFlag &&
       pickerInitiated &&
       !!google &&
       !!gsheetProjectID
