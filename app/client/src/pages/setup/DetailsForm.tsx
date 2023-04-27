@@ -5,7 +5,8 @@ import { DropdownWrapper, FormBodyWrapper, withDropdown } from "./common";
 import {
   createMessage,
   WELCOME_FORM_EMAIL_ID,
-  WELCOME_FORM_FULL_NAME,
+  WELCOME_FORM_FIRST_NAME,
+  WELCOME_FORM_LAST_NAME,
   WELCOME_FORM_CREATE_PASSWORD,
   WELCOME_FORM_VERIFY_PASSWORD,
   WELCOME_FORM_ROLE_DROPDOWN,
@@ -19,13 +20,12 @@ import FormTextField from "components/utils/ReduxFormTextField";
 import type { SetupFormProps } from "./SetupForm";
 import { ButtonWrapper } from "pages/Applications/ForkModalStyles";
 import {
-  Button,
   Category,
   FormGroup as StyledFormGroup,
-  Size,
   Checkbox,
   CheckboxType,
 } from "design-system-old";
+import { Button } from "design-system";
 import { roleOptions, useCaseOptions } from "./constants";
 import { Colors } from "constants/Colors";
 
@@ -35,7 +35,7 @@ const DetailsFormWrapper = styled.div`
 `;
 
 const StyledFormBodyWrapper = styled(FormBodyWrapper)`
-  width: 260px;
+  width: 440px;
 `;
 
 const StyledTabIndicatorWrapper = styled.div`
@@ -68,17 +68,30 @@ export default function DetailsForm(
       </StyledTabIndicatorWrapper>
       <StyledFormBodyWrapper>
         <div style={isFirstPage() ? { display: "block" } : { display: "none" }}>
-          <StyledFormGroup
-            className="t--welcome-form-full-name"
-            label={createMessage(WELCOME_FORM_FULL_NAME)}
-          >
-            <FormTextField
-              autoFocus
-              name="name"
-              placeholder="John Doe"
-              type="text"
-            />
-          </StyledFormGroup>
+          <div className="flex flex-row justify-between w-100">
+            <StyledFormGroup
+              className="!w-52 t--welcome-form-full-name"
+              label={createMessage(WELCOME_FORM_FIRST_NAME)}
+            >
+              <FormTextField
+                autoFocus
+                name="firstName"
+                placeholder="John"
+                type="text"
+              />
+            </StyledFormGroup>
+            <StyledFormGroup
+              className="!w-52 t--welcome-form-full-name"
+              label={createMessage(WELCOME_FORM_LAST_NAME)}
+            >
+              <FormTextField
+                autoFocus
+                name="lastName"
+                placeholder="Doe"
+                type="text"
+              />
+            </StyledFormGroup>
+          </div>
           <StyledFormGroup
             className="t--welcome-form-email"
             label={createMessage(WELCOME_FORM_EMAIL_ID)}
@@ -172,18 +185,17 @@ export default function DetailsForm(
         )}
         <ButtonWrapper>
           <Button
-            category={Category.primary}
-            className="t--welcome-form-next-button"
-            disabled={props.invalid}
+            className="t--welcome-form-next-button w-100"
+            isDisabled={props.invalid}
+            kind={Category.primary}
             onClick={() => {
               if (isFirstPage()) setFormState(1);
             }}
-            size={Size.large}
-            tag="button"
-            text={isFirstPage() ? "Continue" : "Get Started"}
+            size="md"
             type={isFirstPage() ? "button" : "submit"}
-            width="100%"
-          />
+          >
+            {isFirstPage() ? "Continue" : "Get Started"}
+          </Button>
         </ButtonWrapper>
       </StyledFormBodyWrapper>
     </DetailsFormWrapper>

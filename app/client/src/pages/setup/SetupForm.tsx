@@ -100,12 +100,31 @@ function SetupForm(props: SetupFormProps) {
   const signupURL = `/api/v1/${SUPER_USER_SUBMIT_PATH}`;
   const [showDetailsForm, setShowDetailsForm] = useState(true);
   const formRef = useRef<HTMLFormElement>(null);
+  const isAirgappedFlag = isAirgapped();
+
   const onSubmit = () => {
     const form: HTMLFormElement = formRef.current as HTMLFormElement;
     const verifyPassword: HTMLInputElement = document.querySelector(
       `[name="verifyPassword"]`,
     ) as HTMLInputElement;
     verifyPassword.removeAttribute("name");
+
+    const firstName: HTMLInputElement = document.querySelector(
+      `[name="firstName"]`,
+    ) as HTMLInputElement;
+
+    const lastName: HTMLInputElement = document.querySelector(
+      `[name="lastName"]`,
+    ) as HTMLInputElement;
+
+    if (firstName && lastName) {
+      const fullName = document.createElement("input");
+      fullName.type = "text";
+      fullName.name = "name";
+      fullName.style.display = "none";
+      fullName.value = `${firstName.value} ${lastName.value}`;
+      form.appendChild(fullName);
+    }
 
     const roleInput = document.createElement("input");
     verifyPassword.removeAttribute("name");
@@ -138,7 +157,7 @@ function SetupForm(props: SetupFormProps) {
     form.appendChild(useCaseInput);
     const anonymousDataInput = document.createElement("input");
     anonymousDataInput.type = "checkbox";
-    anonymousDataInput.value = isAirgapped() ? "false" : "true";
+    anonymousDataInput.value = isAirgappedFlag ? "false" : "true";
     anonymousDataInput.name = "allowCollectingAnonymousData";
     anonymousDataInput.style.display = "none";
     anonymousDataInput.checked = true;

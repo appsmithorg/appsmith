@@ -1,5 +1,6 @@
 import React from "react";
-import { Button, FormGroup as StyledFormGroup } from "design-system-old";
+import { FormGroup as StyledFormGroup } from "design-system-old";
+import { Button } from "design-system";
 import FormTextField from "components/utils/ReduxFormTextField";
 import {
   WELCOME_FORM_ROLE_FIELD_NAME,
@@ -123,10 +124,12 @@ function NonSuperUser(
         <StyledButton
           className="t--get-started-button"
           disabled={props.invalid}
-          tag="button"
-          text={createMessage(WELCOME_ACTION)}
+          kind="primary"
+          renderAs="button"
           type="submit"
-        />
+        >
+          {createMessage(WELCOME_ACTION)}
+        </StyledButton>
       </ActionContainer>
     </StyledNonSuperUserForm>
   );

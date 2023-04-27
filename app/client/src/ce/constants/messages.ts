@@ -1057,7 +1057,8 @@ export const ACTION_EXECUTION_MESSAGE = (actionType: string) =>
   `Sending the ${actionType} request`;
 
 export const WELCOME_FORM_HEADER = () => "Let us get to know you better!";
-export const WELCOME_FORM_FULL_NAME = () => "Full Name";
+export const WELCOME_FORM_FIRST_NAME = () => "First Name";
+export const WELCOME_FORM_LAST_NAME = () => "Last Name";
 export const WELCOME_FORM_EMAIL_ID = () => "Email Id";
 export const WELCOME_FORM_CREATE_PASSWORD = () => "Create Password";
 export const WELCOME_FORM_VERIFY_PASSWORD = () => "Verify Password";
