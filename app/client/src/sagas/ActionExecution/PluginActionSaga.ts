@@ -836,16 +836,12 @@ function* runActionSaga(
       },
     ]);
 
-    Toaster.show({
-      text: createMessage(ERROR_ACTION_EXECUTE_FAIL, actionObject.name),
-      variant: Variant.danger,
-    });
-
     yield put({
       type: ReduxActionErrorTypes.RUN_ACTION_ERROR,
       payload: {
         error: appsmithConsoleErrorMessageList[0].message,
         id: reduxAction.payload.id,
+        show: false,
       },
     });
     return;
@@ -932,6 +928,7 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
         collectionName: collection.name,
         action: jsAction,
         collectionId: collectionId,
+        isExecuteJSFunc: true,
       };
       yield call(handleExecuteJSFunctionSaga, data);
     }
