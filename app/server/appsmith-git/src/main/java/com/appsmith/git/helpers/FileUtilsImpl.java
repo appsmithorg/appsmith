@@ -13,8 +13,6 @@ import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.git.converters.GsonDoubleToLongConverter;
 import com.appsmith.git.converters.GsonUnorderedToOrderedConverter;
 import com.appsmith.util.WebClientUtils;
-import com.eclipsesource.json.Json;
-import com.github.wnameless.json.flattener.JsonFlattener;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -245,6 +243,7 @@ public class FileUtilsImpl implements FileInterface {
 
                     Set<String> validPages = new HashSet<>();
                     Set<String> validWidgets = new HashSet<>();
+                    Stopwatch processStopwatch1 = new Stopwatch("FS DSL save --- ");
                     for (Map.Entry<String, Object> pageResource : pageEntries) {
                         final String pageName = pageResource.getKey();
                         Path pageSpecificDirectory = pageDirectory.resolve(pageName);
@@ -270,6 +269,7 @@ public class FileUtilsImpl implements FileInterface {
                         validPages.add(pageName);
                     }
                     scanAndDeleteDirectoryForDeletedResources(validPages, baseRepo.resolve(PAGE_DIRECTORY));
+                    processStopwatch1.stopAndLogTimeInMillis();
 
                     // Save JS Libs
                     Path jsLibDirectory = baseRepo.resolve(JS_LIB_DIRECTORY);
