@@ -131,8 +131,6 @@ function* executeInIntervals(
     } catch (e) {
       logActionExecutionError(
         e.message,
-        triggerMeta.source,
-        triggerMeta.triggerPropertyName,
       );
     }
     yield delay(interval);
