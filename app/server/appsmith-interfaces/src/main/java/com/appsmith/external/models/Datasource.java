@@ -3,7 +3,6 @@ package com.appsmith.external.models;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -38,7 +37,7 @@ public class Datasource extends BranchAwareDomain {
     @Transient
     @JsonView(Views.Public.class)
     String pluginName;
-    
+
     //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
     @Deprecated
     @JsonView(Views.Public.class)
@@ -122,6 +121,7 @@ public class Datasource extends BranchAwareDomain {
      * Intended to function like `.equals`, but only semantically significant fields, except for the ID. Semantically
      * significant just means that if two datasource have same values for these fields, actions against them will behave
      * exactly the same.
+     *
      * @return true if equal, false otherwise.
      */
     public boolean softEquals(Datasource other) {
