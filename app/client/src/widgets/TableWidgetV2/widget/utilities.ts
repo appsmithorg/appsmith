@@ -188,6 +188,7 @@ export function getDefaultColumnProperties(
 ): ColumnProperties {
   const columnProps = {
     allowCellWrapping: false,
+    allowSameOptionsInNewRow: true,
     index: index,
     width: DEFAULT_COLUMN_WIDTH,
     originalId: id,
@@ -293,6 +294,7 @@ export const getArrayPropertyValue = (value: unknown, index: number) => {
 export const getCellProperties = (
   columnProperties: ColumnProperties,
   rowIndex: number,
+  isAddRowInProgress = false,
 ) => {
   if (columnProperties) {
     return {
@@ -493,9 +495,10 @@ export const getCellProperties = (
         true,
       ),
       shortcuts: getBooleanPropertyValue(columnProperties.shortcuts, rowIndex),
-      selectOptions: getArrayPropertyValue(
-        columnProperties.selectOptions,
+      selectOptions: getSelectOptions(
+        isAddRowInProgress,
         rowIndex,
+        columnProperties,
       ),
       timePrecision: getPropertyValue(
         columnProperties.timePrecision,
@@ -1101,4 +1104,24 @@ export const getDragHandlers = (
     onDragStart,
     onDrop,
   };
+};
+
+export const getSelectOptions = (
+  isNewRow: boolean,
+  rowIndex: number,
+  columnProperties: ColumnProperties,
+) => {
+  if (isNewRow) {
+    if (
+      columnProperties.allowSameOptionsInNewRow &&
+      columnProperties?.selectOptions
+    ) {
+      // Use select options from the first row
+      return getArrayPropertyValue(columnProperties.selectOptions, 0);
+    } else {
+      return columnProperties.newRowSelectOptions;
+    }
+  } else {
+    return getArrayPropertyValue(columnProperties.selectOptions, rowIndex);
+  }
 };

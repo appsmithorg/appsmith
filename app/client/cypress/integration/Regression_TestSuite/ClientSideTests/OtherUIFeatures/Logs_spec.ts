@@ -252,6 +252,7 @@ describe("Debugger logs", function () {
 
     // Run function and verify logs are visible
     agHelper.GetNClick(jsEditor._runButton);
+    agHelper.GetNClick(jsEditor._logsTab);
     debuggerHelper.DoesConsoleLogExist(logString);
   });
 
@@ -418,7 +419,7 @@ describe("Debugger logs", function () {
     debuggerHelper.DoesConsoleLogExist("end: [0,1,2,3,4]");
   });
 
-  it("6. Bug #19115 - Objects that start with an underscore `_JSObject1` fail to be navigated from the debugger", function () {
+  it("19. Bug #19115 - Objects that start with an underscore `_JSObject1` fail to be navigated from the debugger", function () {
     const JSOBJECT_WITH_UNNECCESARY_SEMICOLON = `export default {
         myFun1: () => {
             //write code here
@@ -437,7 +438,6 @@ describe("Debugger logs", function () {
     });
 
     ee.SelectEntityByName("Page1", "Pages");
-    agHelper.GetNClick(".t--debugger");
     agHelper.GetNClick(locator._errorTab);
 
     debuggerHelper.ClicklogEntityLink(0);

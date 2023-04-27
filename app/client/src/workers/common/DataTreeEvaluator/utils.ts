@@ -20,7 +20,7 @@ export function getFixedTimeDifference(endTime: number, startTime: number) {
 export function isDataField(fullPath: string, configTree: ConfigTree) {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
   const entityConfig = configTree[entityName];
-  if ("triggerPaths" in entityConfig) {
+  if (entityConfig && "triggerPaths" in entityConfig) {
     return !(propertyPath in entityConfig.triggerPaths);
   }
   return false;

@@ -18,12 +18,12 @@ export type Workspace = {
 };
 
 export type WorkspaceUserRoles = {
-  id: string;
-  name: string;
-  description: string;
+  id?: string;
+  name?: string;
+  description?: string;
   entityType: ENTITY_TYPE;
-  entityName: string;
-  entityId: string;
+  entityName?: string;
+  entityId?: string;
   autoCreated: boolean;
 };
 

@@ -27,4 +27,8 @@ export enum NodeTypes {
   ObjectExpression = 'ObjectExpression',
   ArrayExpression = 'ArrayExpression',
   ThisExpression = 'ThisExpression',
+  CallExpression = 'CallExpression',
+  BinaryExpression = 'BinaryExpression',
+  ExpressionStatement = 'ExpressionStatement',
+  BlockStatement = 'BlockStatement',
 }

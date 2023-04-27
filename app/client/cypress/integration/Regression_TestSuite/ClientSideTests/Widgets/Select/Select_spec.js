@@ -84,6 +84,6 @@ describe("Select widget", () => {
     // enter tooltip in property pan
     cy.get(widgetsPage.inputTooltipControl).type("Helpful text for tooltip !");
     // tooltip help icon shows
-    cy.get(".select-tooltip").should("be.visible");
+    cy.get(".select-tooltip").scrollIntoView().should("be.visible");
   });
 });

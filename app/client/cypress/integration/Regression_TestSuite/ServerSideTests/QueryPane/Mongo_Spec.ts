@@ -660,11 +660,8 @@ describe("Validate Mongo Query Pane Validations", () => {
     dataSources.EnterQuery(dropCollection);
     agHelper.FocusElement(locator._codeMirrorTextArea);
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
-
     dataSources.RunQuery({ expectedStatus: false });
-    agHelper
-      .GetText(dataSources._queryError)
-      .then(($errorText) => expect($errorText).to.eq("ns not found."));
+    agHelper.AssertContains("ns not found.", "exist", dataSources._queryError);
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 

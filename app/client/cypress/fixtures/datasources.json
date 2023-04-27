@@ -29,6 +29,11 @@
   "arango-username": "root",
   "arango-password": "Arango",
 
+  "elastic-host": "http://host.docker.internal",
+  "elastic-port": 9200,
+  "elastic-username": "elastic",
+  "elastic-password": "docker",
+
   "redshift-host": "localhost",
   "redshift-port": 5439,
   "redshift-databaseName": "fakeapi",
@@ -39,6 +44,9 @@
   "smtp-port": "25",
   "smtp-username": "root",
   "smtp-password": "root",
+
+  "redis-host": "host.docker.internal",
+  "redis-port": "6379",
 
   "OAuth_Username": "testuser@appsmith.com",
   "OAuth_Host": "http://localhost:6001",
@@ -54,11 +62,12 @@
   "echoApiUrl": "http://host.docker.internal:5001/v1/mock-api/echo",
   "randomCatfactUrl": "http://host.docker.internal:5001/v1/catfact/random",
 
+  "firestore-database-url": "https://appsmith-22e8b.firebaseio.com",
+  "firestore-projectID": "appsmith-22e8b",
+
   "restapi-url": "https://my-json-server.typicode.com/typicode/demo/posts",
   "connection-type": "Replica set",
-  "database-url": "appsmith-f9fe4.firebaseio.com",
-  "projectID": "appsmith-f9fe4",
-  "serviceAccCredentials": "testdata",
+
   "mockHostAddress": "fake-api.cvuydmurdlas.us-east-1.rds.amazonaws.com",
   "mockDatabaseName": "fakeapi",
   "mockDatabaseUsername": "fakeapi",

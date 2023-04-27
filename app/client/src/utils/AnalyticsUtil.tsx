@@ -115,6 +115,7 @@ export type EventName =
   | "PROPERTY_PANE_CLOSE_CLICK"
   | "APPLICATIONS_PAGE_LOAD"
   | "EXECUTE_ACTION"
+  | "FILE_UPLOAD_COMPLETE"
   | "WELCOME_TOUR_CLICK"
   | "GUIDED_TOUR_RATING"
   | "GUIDED_TOUR_REACHED_STEP"
@@ -291,7 +292,10 @@ export type EventName =
   | "PEEK_OVERLAY_VALUE_COPIED"
   | LIBRARY_EVENTS
   | "APP_SETTINGS_SECTION_CLICK"
-  | APP_NAVIGATION_EVENT_NAMES;
+  | APP_NAVIGATION_EVENT_NAMES
+  | ACTION_SELECTOR_EVENT_NAMES
+  | "PRETTIFY_AND_SAVE_KEYBOARD_SHORTCUT"
+  | "OPEN_DOCS";
 
 export type LIBRARY_EVENTS =
   | "INSTALL_LIBRARY"
@@ -323,6 +327,11 @@ export type APP_NAVIGATION_EVENT_NAMES =
   | "APP_NAVIGATION_BACKGROUND_COLOR"
   | "APP_NAVIGATION_SHOW_SIGN_IN";
 
+export type ACTION_SELECTOR_EVENT_NAMES =
+  | "ACTION_ADDED"
+  | "ACTION_DELETED"
+  | "ACTION_MODIFIED";
+
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
   const applicationsIndex = pathSplit.findIndex(
@@ -341,11 +350,6 @@ class AnalyticsUtil {
 
   static initializeSmartLook(id: string) {
     smartlookClient.init(id);
-  }
-
-  static initializeSegmentWithoutTracking(key: string) {
-    AnalyticsUtil.blockTrackEvent = true;
-    return AnalyticsUtil.initializeSegment(key);
   }
 
   static initializeSegment(key: string) {

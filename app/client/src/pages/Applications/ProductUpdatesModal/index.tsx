@@ -17,6 +17,7 @@ import type { Release } from "./ReleaseComponent";
 import ReleaseComponent from "./ReleaseComponent";
 import { DialogComponent as Dialog, ScrollIndicator } from "design-system-old";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const StyledDialog = styled(Dialog)`
   .bp3-dialog-body {
@@ -48,16 +49,21 @@ function ProductUpdatesModal(props: ProductUpdatesModalProps) {
   const { newReleasesCount, releaseItems } = useSelector(
     (state: AppState) => state.ui.releases,
   );
+  const isAirgappedInstance = isAirgapped();
   const containerRef = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (props.hideTrigger && releaseItems.length === 0) {
+    if (
+      props.hideTrigger &&
+      releaseItems.length === 0 &&
+      !isAirgappedInstance
+    ) {
       dispatch({
         type: ReduxActionTypes.FETCH_RELEASES,
       });
     }
-  }, []);
+  }, [isAirgappedInstance]);
 
   const onOpening = useCallback(async () => {
     setIsOpen(true);

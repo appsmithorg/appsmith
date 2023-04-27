@@ -186,10 +186,7 @@ const searchAction: Record<
 const IconContainer = styled.span`
   display: flex;
   align-items: center;
-
-  .${Classes.ICON} {
-    margin-right: ${(props) => props.theme.spaces[5]}px;
-  }
+  gap: 8px;
 `;
 
 const MenuItem = styled.a`
