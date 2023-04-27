@@ -25,7 +25,8 @@ import ProfileDropdown from "pages/common/ProfileDropdown";
 import TopStacked from "../TopStacked";
 import { HeaderRow, StyledNav } from "./TopHeader.styled";
 import TopInline from "../TopInline";
-import BackToHomeButton from "@appsmith/pages/AppViewer/BackToHomeButton";
+import NavigationLogo from "@appsmith/pages/AppViewer/NavigationLogo";
+import BackToAppsButton from "./BackToAppsButton";
 
 type TopHeaderProps = {
   currentApplicationDetails?: ApplicationPayload;
@@ -90,11 +91,7 @@ const TopHeader = (props: TopHeaderProps) => {
             setMenuOpen={setMenuOpen}
           />
 
-          <BackToHomeButton
-            logoConfiguration={logoConfiguration}
-            navColorStyle={navColorStyle}
-            primaryColor={primaryColor}
-          />
+          <NavigationLogo logoConfiguration={logoConfiguration} />
 
           {(logoConfiguration ===
             NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE ||
@@ -123,6 +120,10 @@ const TopHeader = (props: TopHeaderProps) => {
         <section className="relative flex items-center space-x-3 z-1 ml-auto py-3">
           {currentApplicationDetails && currentApplicationDetails?.id && (
             <div className="hidden space-x-1 md:flex">
+              <BackToAppsButton
+                currentApplicationDetails={currentApplicationDetails}
+              />
+
               <ShareButton
                 currentApplicationDetails={currentApplicationDetails}
                 currentWorkspaceId={currentWorkspaceId}

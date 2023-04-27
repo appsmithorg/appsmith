@@ -23,6 +23,7 @@ import { get } from "lodash";
 import { PageMenuContainer, StyledNavLink } from "./PageMenu.styled";
 import { StyledCtaContainer } from "./Navigation/Sidebar.styled";
 import ShareButton from "./Navigation/components/ShareButton";
+import BackToAppsButton from "./Navigation/components/BackToAppsButton";
 
 type NavigationProps = {
   isOpen?: boolean;
@@ -128,12 +129,16 @@ export function PageMenu(props: NavigationProps) {
         <div className="py-3 border-t">
           {application && (
             <StyledCtaContainer>
+              <BackToAppsButton
+                currentApplicationDetails={application}
+                insideSidebar
+              />
+
               <ShareButton
                 currentApplicationDetails={application}
                 currentWorkspaceId={workspaceID}
                 insideSidebar
               />
-
               {isOpen && (
                 <PrimaryCTA
                   className="t--back-to-editor--mobile"
@@ -143,7 +148,6 @@ export function PageMenu(props: NavigationProps) {
                   url={props.url}
                 />
               )}
-
               {!hideWatermark && (
                 <a
                   className="flex hover:no-underline mt-2"

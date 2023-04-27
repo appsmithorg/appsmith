@@ -21,13 +21,7 @@ export const StyledApplicationName = styled.div<{
   font-size: ${THEMEING_TEXT_SIZES.base};
   font-weight: ${({ fontWeight }) =>
     fontWeight === "regular" ? "400" : "600"};
-  ${({ forSidebar }) =>
-    forSidebar
-      ? `
-        margin-top: 16px;
-        margin-left: 10px;
-      `
-      : ""};
+  ${({ forSidebar }) => (forSidebar ? "margin-left: 10px;" : "")};
 
   ${({ isMobile, navStyle }) => {
     if (isMobile) {

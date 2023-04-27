@@ -193,6 +193,7 @@ export const EDIT_APP = () => `Edit App`;
 export const FORK_APP = () => `Fork App`;
 export const SIGN_IN = () => `Sign in`;
 export const SHARE_APP = () => `Share app`;
+export const ALL_APPS = () => `All apps`;
 
 export const EDITOR_HEADER = {
   saving: () => "Saving",

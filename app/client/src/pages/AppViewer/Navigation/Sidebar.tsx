@@ -34,8 +34,9 @@ import {
 } from "./Sidebar.styled";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
-import BackToHomeButton from "@appsmith/pages/AppViewer/BackToHomeButton";
+import NavigationLogo from "@appsmith/pages/AppViewer/NavigationLogo";
 import MenuItemContainer from "./components/MenuItemContainer";
+import BackToAppsButton from "./components/BackToAppsButton";
 
 type SidebarProps = {
   currentApplicationDetails?: ApplicationPayload;
@@ -152,12 +153,7 @@ export function Sidebar(props: SidebarProps) {
     >
       <StyledHeader>
         <div className="flex-col">
-          <BackToHomeButton
-            forSidebar
-            logoConfiguration={logoConfiguration}
-            navColorStyle={navColorStyle}
-            primaryColor={primaryColor}
-          />
+          <NavigationLogo logoConfiguration={logoConfiguration} />
 
           {!isMinimal &&
             (logoConfiguration ===
@@ -217,6 +213,12 @@ export function Sidebar(props: SidebarProps) {
       <StyledFooter navColorStyle={navColorStyle} primaryColor={primaryColor}>
         {currentApplicationDetails && (
           <StyledCtaContainer>
+            <BackToAppsButton
+              currentApplicationDetails={currentApplicationDetails}
+              insideSidebar
+              isMinimal={isMinimal}
+            />
+
             <ShareButton
               currentApplicationDetails={currentApplicationDetails}
               currentWorkspaceId={currentWorkspaceId}
