@@ -50,8 +50,7 @@ export const Checkbox = forwardRef((props: CheckboxProps, ref: CheckboxRef) => {
           ...props,
           // Value is optional for standalone checkboxes, but required for CheckboxGroup items;
           // it's passed explicitly here to avoid typescript error (requires ignore).
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
+          // @ts-expect-error value is required in checkbox group items
           value: props.value,
           // Only pass isRequired and validationState to react-aria if they came from
           // the props for this individual checkbox, and not from the group via context.
