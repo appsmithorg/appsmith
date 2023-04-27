@@ -1474,8 +1474,7 @@ export const APP_SETTINGS_CLOSE_TOOLTIP = () => "Close settings panel";
 
 export const GENERAL_SETTINGS_SECTION_HEADER = () => "General";
 export const GENERAL_SETTINGS_SECTION_CONTENT_HEADER = () => "General Settings";
-export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () =>
-  "App name, icon and share";
+export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () => "App name and icon";
 export const GENERAL_SETTINGS_APP_NAME_LABEL = () => "App Name";
 export const GENERAL_SETTINGS_NAME_EMPTY_MESSAGE = () =>
   "App name cannot be empty";
@@ -1510,6 +1509,15 @@ export const PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE = () =>
   "Set this page as your home page. This will override your previously set home page.";
 export const PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR = (name: string) =>
   `${name} is already being used.`;
+
+export const UPDATE_VIA_IMPORT_SETTING = {
+  settingHeader: () => "Update through file import",
+  settingDesc: () => "Update app by importing file",
+  settingLabel: () => "Import",
+  settingContent: () =>
+    "This action will override your existing application. Please exercise caution while selecting the file to import.",
+  settingActionButtonTxt: () => "Import",
+};
 
 export const IN_APP_EMBED_SETTING = {
   applicationUrl: () => "application url",

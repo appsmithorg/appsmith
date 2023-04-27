@@ -14,6 +14,8 @@ function AppSettingsPane() {
     if (document.getElementById("save-theme-modal")) return;
     if (document.getElementById("delete-theme-modal")) return;
     if (document.getElementById("manual-upgrades-modal")) return;
+    if (document.getElementsByClassName("t--import-application-modal"[0]))
+      return;
     dispatch(closeAppSettingsPaneAction());
   });
 
