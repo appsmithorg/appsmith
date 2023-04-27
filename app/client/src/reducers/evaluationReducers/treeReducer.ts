@@ -41,6 +41,13 @@ const evaluatedTreeReducer = createImmerReducer(initialState, {
     }
   },
   [ReduxActionTypes.FETCH_PAGE_INIT]: () => initialState,
+  [ReduxActionTypes.RESET_DATA_TREE]: () => {
+    const state = { ...initialState };
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    state.dataTree = undefined;
+    return state;
+  },
 });
 
 export default evaluatedTreeReducer;
