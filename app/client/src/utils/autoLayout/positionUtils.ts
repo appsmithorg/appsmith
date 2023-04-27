@@ -58,7 +58,6 @@ export function updateWidgetPositions(
       return widgets;
     const parent = widgets[parentId];
     if (!parent) return widgets;
-    if (parent?.tabId === "tab2") console.log("@@@@ here");
 
     const { columnSpace } = getCanvasDimensions(
       parent,
@@ -719,7 +718,6 @@ export function getTotalRowsOfAllChildren(
     const divisor = child.parentRowSpace === 1 ? 10 : 1;
     top = Math.min(top, getTopRow(child, isMobile));
     bottom = Math.max(bottom, getBottomRow(child, isMobile) / divisor);
-    console.log("!!!! child", child, top, bottom);
   }
   return bottom - top;
 }
