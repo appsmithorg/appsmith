@@ -8,12 +8,10 @@ import type { SpectrumCheckboxGroupProps } from "@react-types/checkbox";
 
 import { Field } from "../Field";
 import { CheckboxGroupContext } from "./context";
-import type { LabelProps } from "../Field/Label";
 
 export type CheckboxGroupRef = DOMRef<HTMLDivElement>;
 export interface CheckboxGroupProps
-  extends Omit<SpectrumCheckboxGroupProps, keyof StyleProps>,
-    Pick<LabelProps, "labelWidth"> {
+  extends Omit<SpectrumCheckboxGroupProps, keyof StyleProps> {
   className?: string;
 }
 

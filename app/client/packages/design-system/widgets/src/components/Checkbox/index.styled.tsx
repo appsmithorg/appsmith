@@ -9,6 +9,7 @@ export const labelStyles = css<Pick<CheckboxProps, "labelPosition">>`
   position: relative;
   display: flex;
   gap: var(--spacing-2);
+  cursor: pointer;
 
   ${({ labelPosition }) => css`
     justify-content: ${labelPosition === "left" ? "space-between" : undefined};
@@ -19,6 +20,16 @@ export const labelStyles = css<Pick<CheckboxProps, "labelPosition">>`
     min-height: calc(5 * var(--sizing-root-unit));
     display: flex;
     align-items: center;
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * DISABLED
+  *-----------------------------------------------------------------------------
+  */
+  &[data-disabled] {
+    pointer-events: none;
+    opacity: var(--opacity-disabled);
   }
 `;
 
@@ -61,16 +72,6 @@ export const StyledCheckbox = styled(HeadlessCheckbox)<CheckboxProps>`
     border-color: var(--color-bg-accent-hover);
     background-color: var(--color-bg-accent-hover);
     color: var(--color-fg-on-accent);
-  }
-
-  /**
-  * ----------------------------------------------------------------------------
-  * DISABLED
-  *-----------------------------------------------------------------------------
-  */
-  &[data-disabled] {
-    cursor: not-allowed;
-    opacity: var(--opacity-disabled);
   }
 
   /**
