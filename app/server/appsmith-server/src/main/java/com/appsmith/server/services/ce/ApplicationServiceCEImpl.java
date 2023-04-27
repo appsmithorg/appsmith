@@ -86,6 +86,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     private final UserRepository userRepository;
     private final DatasourcePermission datasourcePermission;
     private final ApplicationPermission applicationPermission;
+    private final static Integer MAX_RETRIES = 5;
 
     @Autowired
     public ApplicationServiceCEImpl(Scheduler scheduler,
@@ -237,8 +238,12 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     if (error.getMessage() != null
                             // Catch only if error message contains workspace_application_deleted_gitApplicationMetadata_compound_index mongo error
                             && error.getMessage().contains("workspace_application_deleted_gitApplicationMetadata_compound_index")) {
-                        // The duplicate key error is because of the `name` field.
-                        return createSuffixedApplication(application, name, suffix + 1);
+                        if (suffix > MAX_RETRIES){
+                            return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY_PAGE_RELOAD, name));
+                        }else {
+                            // The duplicate key error is because of the `name` field.
+                            return createSuffixedApplication(application, name, suffix + 1);
+                        }
                     }
                     throw error;
                 });
