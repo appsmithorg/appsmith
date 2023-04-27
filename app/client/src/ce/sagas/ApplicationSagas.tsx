@@ -63,10 +63,7 @@ import {
 import type { AppIconName } from "design-system-old";
 import { Toaster, Variant } from "design-system-old";
 import { APP_MODE } from "entities/App";
-import type {
-  Workspace,
-  Workspaces,
-} from "@appsmith/constants/workspaceConstants";
+import type { Workspaces } from "@appsmith/constants/workspaceConstants";
 import type { AppColorCode } from "constants/DefaultTheme";
 import {
   getCurrentApplicationId,
@@ -81,7 +78,7 @@ import {
   reconnectAppLevelWebsocket,
   reconnectPageLevelWebsocket,
 } from "actions/websocketActions";
-import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 
 import {
   getCurrentStep,
@@ -710,7 +707,7 @@ export function* showReconnectDatasourcesModalSaga(
 
 export function* importApplicationSaga(
   action: ReduxAction<ImportApplicationRequest>,
-) {
+): any {
   try {
     const response: ApiResponse = yield call(
       ApplicationApi.importApplicationToWorkspace,
@@ -718,11 +715,8 @@ export function* importApplicationSaga(
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const allWorkspaces: Workspace[] = yield select(getCurrentWorkspace);
-      const currentWorkspace = allWorkspaces.filter(
-        (el: Workspace) => el.id === action.payload.workspaceId,
-      );
-      if (currentWorkspace.length > 0) {
+      const currentWorkspaceId = yield select(getCurrentWorkspaceId);
+      if (currentWorkspaceId) {
         const {
           // @ts-expect-error: response is of type unknown
           application: { pages },
@@ -751,7 +745,7 @@ export function* importApplicationSaga(
           const pageURL = builderURL({
             pageId: defaultPage[0].id,
           });
-          history.push(pageURL);
+          window.location.replace(pageURL);
           const guidedTour: boolean = yield select(inGuidedTour);
 
           if (guidedTour) return;
@@ -761,6 +755,10 @@ export function* importApplicationSaga(
             variant: Variant.success,
           });
         }
+      } else {
+        yield put({
+          type: ReduxActionErrorTypes.IMPORT_APPLICATION_ERROR,
+        });
       }
     }
   } catch (error) {
