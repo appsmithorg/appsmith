@@ -18,7 +18,6 @@ import {
 } from "constants/WidgetConstants";
 import {
   addWidgetDimensionProxy,
-  getDimensionMap,
   getIsAutoLayout,
   getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
@@ -75,19 +74,19 @@ export function* recalculatePositionsOfWidgets({
   }
 
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
-  let processedWidgets: CanvasWidgetsReduxState = isMobile
+  const processedWidgets: CanvasWidgetsReduxState = isMobile
     ? alterLayoutForMobile(allWidgets, parentId, canvasWidth, mainCanvasWidth)
     : alterLayoutForDesktop(allWidgets, parentId, mainCanvasWidth);
-  const dimensionMap: typeof DefaultDimensionMap = yield select(
-    getDimensionMap,
-  );
-  processedWidgets = yield call(
-    getUpdatesOfAllAutoLayoutCanvasHeight,
-    processedWidgets,
-    dimensionMap,
-    mainCanvasWidth,
-    isMobile,
-  );
+  // const dimensionMap: typeof DefaultDimensionMap = yield select(
+  //   getDimensionMap,
+  // );
+  // processedWidgets = yield call(
+  //   getUpdatesOfAllAutoLayoutCanvasHeight,
+  //   processedWidgets,
+  //   dimensionMap,
+  //   mainCanvasWidth,
+  //   isMobile,
+  // );
   return processedWidgets;
 }
 const positionProperties = [
