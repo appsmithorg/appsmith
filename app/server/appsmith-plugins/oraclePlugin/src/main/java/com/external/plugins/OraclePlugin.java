@@ -293,8 +293,9 @@ public class OraclePlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<DatasourceStructure> getStructure(HikariDataSource connection, DatasourceConfiguration datasourceConfiguration) {
-            return OracleDatasourceUtils.getStructure(connection, datasourceConfiguration);
+        public Mono<DatasourceStructure> getStructure(HikariDataSource connectionPool,
+                                                      DatasourceConfiguration datasourceConfiguration) {
+            return OracleDatasourceUtils.getStructure(connectionPool, datasourceConfiguration);
         }
 
         private Set<String> populateHintMessages(List<String> columnNames) {

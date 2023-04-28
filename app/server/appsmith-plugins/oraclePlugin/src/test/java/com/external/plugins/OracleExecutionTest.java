@@ -13,9 +13,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.MessageFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,8 +22,8 @@ import java.util.Map;
 import static com.appsmith.external.helpers.PluginUtils.getExecuteDTOForTestWithBindingAndValueAndDataType;
 import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static com.external.plugins.OracleTestDBContainerManager.getDefaultDatasourceConfig;
-import static com.external.plugins.utils.OracleDatasourceUtils.getConnectionFromConnectionPool;
-import static com.external.plugins.utils.OracleExecuteUtils.closeConnectionPostExecution;
+import static com.external.plugins.OracleTestDBContainerManager.oraclePluginExecutor;
+import static com.external.plugins.OracleTestDBContainerManager.runSQLQueryOnOracleTestDB;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -105,8 +103,6 @@ public class OracleExecutionTest {
     public static final String DELETE_TEST_WITHOUT_PREPARED_STMT_TABLE_NAME = "testDeleteWithoutPreparedStatement";
     public static final String DELETE_TEST_WITH_PREPARED_STMT_TABLE_NAME = "testDeleteWithPreparedStatement";
 
-    static OraclePlugin.OraclePluginExecutor oraclePluginExecutor = new OraclePlugin.OraclePluginExecutor();
-
     @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
     @Container
     private static final OracleContainer oracleDB = OracleTestDBContainerManager.getOracleDBForTest();
@@ -132,20 +128,13 @@ public class OracleExecutionTest {
 
     private static void createTableWithName(String tableName) throws SQLException {
         String sqlQueryToCreateTable = MessageFormat.format(SQL_QUERY_CREATE_TABLE_FORMAT, tableName);
-        runSQLQueryOnOracleTestDB(sqlQueryToCreateTable);
+        runSQLQueryOnOracleTestDB(sqlQueryToCreateTable, sharedConnectionPool);
 
         String sqlQueryToInsertRow1 = MessageFormat.format(SQL_QUERY_TO_INSERT_ONE_ROW_FORMAT, tableName, 1);
-        runSQLQueryOnOracleTestDB(sqlQueryToInsertRow1);
+        runSQLQueryOnOracleTestDB(sqlQueryToInsertRow1, sharedConnectionPool);
 
         String sqlQueryToInsertRow2 = MessageFormat.format(SQL_QUERY_TO_INSERT_ONE_ROW_FORMAT, tableName, 2);
-        runSQLQueryOnOracleTestDB(sqlQueryToInsertRow2);
-    }
-
-    private static void runSQLQueryOnOracleTestDB(String sqlQuery) throws SQLException {
-        Connection connectionFromPool = getConnectionFromConnectionPool(sharedConnectionPool);
-        Statement statement = connectionFromPool.createStatement();
-        statement.execute(sqlQuery);
-        closeConnectionPostExecution(null, statement, null, connectionFromPool);
+        runSQLQueryOnOracleTestDB(sqlQueryToInsertRow2, sharedConnectionPool);
     }
 
     @Test

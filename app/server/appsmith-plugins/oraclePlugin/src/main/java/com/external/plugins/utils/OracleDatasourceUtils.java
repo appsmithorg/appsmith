@@ -307,10 +307,10 @@ public class OracleDatasourceUtils {
                             getSampleColumnNamesCSVString(columnNameToSampleColumnDataMap),
                             getSampleColumnDataCSVString(columnNameToSampleColumnDataMap));
                     String updateQueryTemplate = MessageFormat.format("UPDATE {0} SET {1} WHERE " +
-                                    "1=0; -- Specify a valid condition here. Removing the condition may " +
+                                    "1=0 -- Specify a valid condition here. Removing the condition may " +
                                     "update every row in the table!", table.getName(),
                             getSampleOneColumnUpdateString(columnNameToSampleColumnDataMap));
-                    String deleteQueryTemplate = MessageFormat.format("DELETE FROM {0} WHERE 1=0;" +
+                    String deleteQueryTemplate = MessageFormat.format("DELETE FROM {0} WHERE 1=0" +
                             " -- Specify a valid condition here. Removing the condition may " +
                             "delete everything in the table!", table.getName());
 
