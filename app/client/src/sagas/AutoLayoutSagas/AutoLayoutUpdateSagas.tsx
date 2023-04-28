@@ -291,6 +291,8 @@ function* shouldRunSaga(saga: any, action: ReduxAction<unknown>) {
 function* updatePositionsOnTabChangeSaga(
   action: ReduxAction<{ selectedTabWidgetId: string; widgetId: string }>,
 ) {
+  const isAutoLayout: boolean = yield select(getIsAutoLayout);
+  if (!isAutoLayout) return;
   const { selectedTabWidgetId } = action.payload;
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
