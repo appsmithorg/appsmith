@@ -27,12 +27,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { getEvaluatedPopupState } from "selectors/editorContextSelectors";
 import type { AppState } from "@appsmith/reducers";
 import { setEvalPopupState } from "actions/editorContextActions";
-import { Link } from "react-router-dom";
 import { showDebugger } from "actions/debuggerActions";
 import { modText } from "utils/helpers";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getJSFunctionNavigationUrl } from "selectors/navigationSelectors";
-import { Button, Icon, toast, Tooltip } from "design-system";
+import { Button, Icon, Link, toast, Tooltip } from "design-system";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -166,18 +165,6 @@ const StyledTitleName = styled.p`
   font-weight: 600;
   line-height: 12px;
   cursor: pointer;
-`;
-
-const AsyncFunctionErrorLink = styled(Link)`
-  color: ${(props) => props.theme.colors.debugger.entityLink};
-  font-weight: 600;
-  font-size: 12px;
-  line-height: 14px;
-  cursor: pointer;
-  letter-spacing: 0.6px;
-  &:hover {
-    color: ${(props) => props.theme.colors.debugger.entityLink};
-  }
 `;
 
 const AsyncFunctionErrorView = styled.div`
@@ -491,9 +478,7 @@ function PopoverContent(props: PopoverContentProps) {
   if (hasError) {
     error = errors[0];
   }
-  const openDebugger = (
-    event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
-  ) => {
+  const openDebugger = (event: React.MouseEvent) => {
     event.preventDefault();
     dispatch(showDebugger());
   };
@@ -513,6 +498,7 @@ function PopoverContent(props: PopoverContentProps) {
       ? error.message
       : `This value does not evaluate to type "${expected?.type}".`;
   };
+
   return (
     <ContentWrapper
       className="t--CodeEditor-evaluatedValue evaluated-value-popup"
@@ -536,13 +522,15 @@ function PopoverContent(props: PopoverContentProps) {
 
           {errorNavigationUrl ? (
             <AsyncFunctionErrorView>
-              {/* TODO: this cannot use the internal link because we can't pass an empty string to it*/}
-              <AsyncFunctionErrorLink onClick={(e) => openDebugger(e)} to="">
-                See Error ({modText()} D)
-              </AsyncFunctionErrorLink>
-              <AsyncFunctionErrorLink to={errorNavigationUrl}>
-                View Source
-              </AsyncFunctionErrorLink>
+              <Link
+                onClick={(e: React.MouseEvent) => {
+                  e.preventDefault();
+                  openDebugger(e);
+                }}
+              >
+                {`See Error (${modText()} D)`}
+              </Link>
+              <Link to={errorNavigationUrl}>View Source</Link>
             </AsyncFunctionErrorView>
           ) : (
             <EvaluatedValueDebugButton
