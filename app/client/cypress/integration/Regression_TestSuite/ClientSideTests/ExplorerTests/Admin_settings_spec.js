@@ -30,36 +30,28 @@ describe("Admin settings page", function () {
     }).as("postEnvVariables");
   });
 
-  it("should test that settings page is accessible to super user", () => {
+  it("1. should test that settings page is accessible to super user", () => {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", routes.GENERAL);
     cy.wait("@getEnvVariables");
-    cy.LogOut();
   });
 
-  it("should test that settings page is not accessible to normal users", () => {
-    cy.wait(2000);
-    cy.LoginFromAPI(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
-    cy.get(".admin-settings-menu-option").should("not.exist");
-    cy.visit(routes.GENERAL);
-    // non super users are redirected to home page
-    cy.url().should("contain", routes.APPLICATIONS);
-    cy.LogOut();
-  });
-
-  it("should test that page header is visible", () => {
-    cy.visit(routes.GENERAL);
+  it("2. should test that page header is visible", () => {
     cy.get(adminsSettings.appsmithHeader).should("be.visible");
     cy.visit(routes.GOOGLE_MAPS);
+    cy.url().should("contain", "/google-maps");
+    cy.wait(2000); //page to load properly
     cy.get(adminsSettings.appsmithHeader).should("be.visible");
     cy.visit(routes.GOOGLEAUTH);
+    cy.url().should("contain", "/google-auth");
+    cy.wait(2000); //page to load properly
     cy.get(adminsSettings.appsmithHeader).should("be.visible");
   });
 
-  it("should test that clicking on logo should redirect to applications page", () => {
+  it("3. should test that clicking on logo should redirect to applications page", () => {
     cy.visit(routes.GENERAL);
     cy.get(adminsSettings.appsmithHeader).should("be.visible");
     cy.get(adminsSettings.appsmithLogo).should("be.visible");
@@ -67,14 +59,13 @@ describe("Admin settings page", function () {
     cy.url().should("contain", routes.APPLICATIONS);
   });
 
-  it("should test that settings page is redirected to default tab", () => {
+  it("4. should test that settings page is redirected to default tab", () => {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.wait(3000);
     cy.visit(routes.SETTINGS);
     cy.url().should("contain", routes.GENERAL);
   });
 
-  it("should test that settings page tab redirects", () => {
+  it("5. should test that settings page tab redirects", () => {
     cy.visit(routes.APPLICATIONS);
     cy.wait(3000);
     cy.get(".admin-settings-menu-option").click();
@@ -92,7 +83,7 @@ describe("Admin settings page", function () {
     cy.url().should("contain", routes.VERSION);
   });
 
-  it("should test save and clear buttons disabled state", () => {
+  it("6. should test save and clear buttons disabled state", () => {
     cy.visit(routes.GENERAL);
     const assertVisibilityAndDisabledState = () => {
       cy.get(adminsSettings.saveButton).should("be.visible");
@@ -111,7 +102,7 @@ describe("Admin settings page", function () {
     assertVisibilityAndDisabledState();
   });
 
-  it("should test saving a setting value", () => {
+  it("7. should test saving a setting value", () => {
     cy.visit(routes.GENERAL);
     cy.get(adminsSettings.restartNotice).should("not.exist");
     cy.get(adminsSettings.instanceName).should("be.visible");
@@ -137,7 +128,7 @@ describe("Admin settings page", function () {
     cy.wait(3000);
   });
 
-  it("should test saving settings value from different tabs", () => {
+  it("8. should test saving settings value from different tabs", () => {
     cy.visit(routes.GENERAL);
     cy.get(adminsSettings.restartNotice).should("not.exist");
     cy.get(adminsSettings.instanceName).should("be.visible");
@@ -175,13 +166,13 @@ describe("Admin settings page", function () {
     cy.wait(3000);
   });
 
-  it("should test that instance name and admin emails exist on general tab", () => {
+  it("9. should test that instance name and admin emails exist on general tab", () => {
     cy.visit(routes.GENERAL);
     cy.get(adminsSettings.instanceName).should("be.visible");
     cy.get(adminsSettings.adminEmails).should("be.visible");
   });
 
-  it("should test that configure link redirects to google maps setup doc", () => {
+  it("10. should test that configure link redirects to google maps setup doc", () => {
     cy.visit(routes.GOOGLE_MAPS);
     cy.get(adminsSettings.readMoreLink).within(() => {
       cy.get("a")
@@ -192,7 +183,7 @@ describe("Admin settings page", function () {
     });
   });
 
-  it("should test that authentication page redirects", () => {
+  it("11. should test that authentication page redirects", () => {
     cy.visit(routes.GENERAL);
     cy.get(adminsSettings.authenticationTab).click();
     cy.url().should("contain", routes.AUTHENTICATION);
@@ -208,7 +199,7 @@ describe("Admin settings page", function () {
     cy.url().should("contain", routes.FORMLOGIN);
   });
 
-  it("should test that configure link redirects to google signup setup doc", () => {
+  it("12. should test that configure link redirects to google signup setup doc", () => {
     cy.visit(routes.GENERAL);
     cy.get(adminsSettings.authenticationTab).click();
     cy.url().should("contain", routes.AUTHENTICATION);
@@ -223,7 +214,7 @@ describe("Admin settings page", function () {
     });
   });
 
-  it("should test that configure link redirects to github signup setup doc", () => {
+  it("13. should test that configure link redirects to github signup setup doc", () => {
     cy.visit(routes.GENERAL);
     cy.get(adminsSettings.authenticationTab).click();
     cy.url().should("contain", routes.AUTHENTICATION);
@@ -238,7 +229,7 @@ describe("Admin settings page", function () {
     });
   });
 
-  it("should test that read more on version opens up release notes", () => {
+  it("14. should test that read more on version opens up release notes", () => {
     cy.visit(routes.GENERAL);
     cy.get(adminsSettings.versionTab).click();
     cy.url().should("contain", routes.VERSION);
@@ -256,5 +247,16 @@ describe("Admin settings page", function () {
     cy.get(".bp3-dialog-close-button").click();
     cy.wait(2000);
     cy.get(".bp3-dialog-container").should("not.exist");
+  });
+
+  it("15. should test that settings page is not accessible to normal users", () => {
+    cy.LogOut();
+    cy.wait(2000);
+    cy.LoginFromAPI(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
+    cy.get(".admin-settings-menu-option").should("not.exist");
+    cy.visit(routes.GENERAL);
+    // non super users are redirected to home page
+    cy.url().should("contain", routes.APPLICATIONS);
+    cy.LogOut();
   });
 });

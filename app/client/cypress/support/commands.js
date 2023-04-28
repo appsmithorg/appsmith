@@ -289,6 +289,7 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
         expect(loc.href).to.equal(loc.origin + "/applications");
       });
   });
+  cy.wait(2000); //for the page elements to load!
 });
 
 Cypress.Commands.add("DeleteApp", (appName) => {
