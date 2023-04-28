@@ -9,7 +9,11 @@ import {
   alterLayoutForMobile,
   getCanvasDimensions,
 } from "utils/autoLayout/AutoLayoutUtils";
-import { getWidgets, getWidgetsMeta } from "../selectors";
+import {
+  getCanvasAndMetaWidgets,
+  getWidgets,
+  getWidgetsMeta,
+} from "../selectors";
 import type { DefaultDimensionMap } from "constants/WidgetConstants";
 import {
   GridDefaults,
@@ -45,7 +49,10 @@ import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getAppMode } from "selectors/entitiesSelector";
 import { MOBILE_ROW_GAP, ROW_GAP } from "utils/autoLayout/constants";
 import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
-import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
+import {
+  updateMultipleMetaWidgetPropertiesAction,
+  updateMultipleWidgetPropertiesAction,
+} from "actions/controlActions";
 
 export function* recalculatePositionsOfWidgets({
   canvasWidth,
@@ -127,7 +134,9 @@ const dimensionPropertiesToConsider = [
 export function* getWidgetsWithDimensionChanges(
   processedWidgets: CanvasWidgetsReduxState,
 ) {
-  const widgetsOld: CanvasWidgetsReduxState = yield select(getWidgets);
+  const widgetsOld: CanvasWidgetsReduxState = yield select(
+    getCanvasAndMetaWidgets,
+  );
   let widgetsToUpdate: UpdateWidgetsPayload = {};
   /**
    * Iterate over all widgets and check if any of their dimensions have changed
@@ -224,7 +233,9 @@ export function* processAutoLayoutDimensionUpdatesFn(
 }
 
 export function* processWidgetDimensionsSaga() {
-  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const allWidgets: CanvasWidgetsReduxState = yield select(
+    getCanvasAndMetaWidgets,
+  );
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
   const metaProps: Record<string, any> = yield select(getWidgetsMeta);
@@ -258,11 +269,26 @@ export function* processWidgetDimensionsSaga() {
     processedWidgets,
   );
 
+  const canvasWidgetsToUpdate: UpdateWidgetsPayload = {};
+  const metaWidgetsToUpdate: UpdateWidgetsPayload = {};
+
+  for (const widgetId in widgetsToUpdate) {
+    const widget = processedWidgets[widgetId];
+    if (widget.isMetaWidget) {
+      metaWidgetsToUpdate[widgetId] = widgetsToUpdate[widgetId];
+    } else {
+      canvasWidgetsToUpdate[widgetId] = widgetsToUpdate[widgetId];
+    }
+  }
+
   // Push all updates to the CanvasWidgetsReducer.
   // Note that we're not calling `UPDATE_LAYOUT`
   // as we don't need to trigger an eval
-  if (!isEmpty(widgetsToUpdate)) {
-    yield put(updateMultipleWidgetPropertiesAction(widgetsToUpdate));
+  if (!isEmpty(canvasWidgetsToUpdate)) {
+    yield put(updateMultipleWidgetPropertiesAction(canvasWidgetsToUpdate));
+  }
+  if (!isEmpty(metaWidgetsToUpdate)) {
+    yield put(updateMultipleMetaWidgetPropertiesAction(metaWidgetsToUpdate));
   }
 
   // clear the batch after processing
