@@ -10,7 +10,7 @@ import {
   PoweredBy,
 } from "react-instantsearch-dom";
 import "instantsearch.css/themes/algolia.css";
-import { connect } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { HelpIcons } from "icons/HelpIcons";
 import { HelpBaseURL } from "constants/HelpConstants";
@@ -29,7 +29,18 @@ import { Colors } from "constants/Colors";
 import {
   createMessage,
   APPSMITH_DISPLAY_VERSION,
+  INTERCOM_CONSENT_MESSAGE,
 } from "@appsmith/constants/messages";
+import {
+  IconSize,
+  Icon as ADSIcon,
+  Button,
+  Category,
+  Size,
+} from "design-system-old";
+import { updateIntercomProperties } from "utils/bootIntercom";
+import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
+import { updateIntercomConsent, updateUserDetails } from "actions/userActions";
 
 const { algolia, appVersion, cloudHosting, intercomAppID } =
   getAppsmithConfigs();
@@ -70,7 +81,9 @@ function Hit(props: { hit: { path: string } }) {
 function DefaultHelpMenuItem(props: {
   item: { label: string; link?: string; id?: string; icon: React.ReactNode };
   onSelect: () => void;
+  showIntercomConsent: (val: boolean) => void;
 }) {
+  const user = useSelector(getCurrentUser);
   return (
     <li className="ais-Hits-item">
       <div
@@ -80,10 +93,14 @@ function DefaultHelpMenuItem(props: {
           if (props.item.link) window.open(props.item.link, "_blank");
           if (props.item.id === "intercom-trigger") {
             if (intercomAppID && window.Intercom) {
-              window.Intercom("show");
+              if (user?.isIntercomConsentGiven) {
+                window.Intercom("show");
+              } else {
+                props.showIntercomConsent(true);
+              }
             }
+            props.onSelect();
           }
-          props.onSelect();
         }}
       >
         <div className="hit-name t--docHitTitle">
@@ -270,6 +287,27 @@ const HelpBody = styled.div<{ hideSearch?: boolean }>`
   `}
   flex: 5;
 `;
+const ConsentContainer = styled.div`
+  padding: 10px 18px;
+`;
+const ActionsRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+`;
+const ConsentText = styled.div`
+  margin-bottom: 16px;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--appsmith-color-black-700);
+`;
+const ConsentButton = styled(Button)`
+  font-size: 11px;
+  font-weight: 600;
+  width: 94px;
+`;
 
 type Props = {
   hitsPerPage: number;
@@ -279,7 +317,7 @@ type Props = {
   hideMinimizeBtn?: boolean;
   user?: User;
 };
-type State = { showResults: boolean };
+type State = { showResults: boolean; showIntercomConsent: boolean };
 
 type HelpItem = {
   label: string;
@@ -314,11 +352,54 @@ if (intercomAppID && window.Intercom) {
   });
 }
 
+function IntercomConsent({
+  showIntercomConsent,
+}: {
+  showIntercomConsent: (val: boolean) => void;
+}) {
+  const user = useSelector(getCurrentUser);
+  const instanceId = useSelector(getInstanceId);
+  const dispatch = useDispatch();
+
+  const sendUserDataToIntercom = () => {
+    updateIntercomProperties(instanceId, user);
+    dispatch(
+      updateUserDetails({
+        intercomConsentGiven: true,
+      }),
+    );
+    dispatch(updateIntercomConsent());
+    window.Intercom("show");
+    showIntercomConsent(false);
+  };
+  return (
+    <ConsentContainer>
+      <ActionsRow>
+        <ADSIcon
+          fillColor={Colors.GRAY}
+          name="arrow-left"
+          onClick={() => showIntercomConsent(false)}
+          size={IconSize.MEDIUM}
+        />
+      </ActionsRow>
+      <ConsentText>{createMessage(INTERCOM_CONSENT_MESSAGE)}</ConsentText>
+      <ConsentButton
+        category={Category.primary}
+        fill
+        onClick={sendUserDataToIntercom}
+        size={Size.medium}
+        text="CONTINUE"
+      />
+    </ConsentContainer>
+  );
+}
+
 class DocumentationSearch extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
       showResults: props.defaultRefinement.length > 0,
+      showIntercomConsent: false,
     };
   }
 
@@ -377,16 +458,25 @@ class DocumentationSearch extends React.Component<Props, State> {
             <HelpBody hideSearch={this.props.hideSearch}>
               {this.state.showResults ? (
                 <Hits hitComponent={Hit as any} />
-              ) : (
+              ) : !this.state.showIntercomConsent ? (
                 <ul className="ais-Hits-list">
                   {HELP_MENU_ITEMS.map((item) => (
                     <DefaultHelpMenuItem
                       item={item}
                       key={item.label}
                       onSelect={this.handleClose}
+                      showIntercomConsent={(val: boolean) =>
+                        this.setState({ showIntercomConsent: val })
+                      }
                     />
                   ))}
                 </ul>
+              ) : (
+                <IntercomConsent
+                  showIntercomConsent={(val: boolean) =>
+                    this.setState({ showIntercomConsent: val })
+                  }
+                />
               )}
             </HelpBody>
             {appVersion.id && (
