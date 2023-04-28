@@ -431,6 +431,7 @@ class CodeEditor extends Component<Props, State> {
           }
         }, 200);
       }.bind(this);
+      sqlHint.setDatasourceStructure(this.props.datasourceStructure);
 
       // Finally create the Codemirror editor
       this.editor = CodeMirror(this.codeEditorTarget.current, options);
