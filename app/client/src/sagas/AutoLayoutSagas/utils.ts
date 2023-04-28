@@ -1,6 +1,5 @@
 import type {
   CanvasWidgetsReduxState,
-  FlattenedWidgetProps,
   UpdateWidgetsPayload,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { call, put, select } from "redux-saga/effects";
@@ -18,10 +17,10 @@ import type { DefaultDimensionMap } from "constants/WidgetConstants";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
-  WidgetHeightLimits,
 } from "constants/WidgetConstants";
 import {
   addWidgetDimensionProxy,
+  getDimensionMap,
   getIsAutoLayout,
   getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
@@ -29,21 +28,17 @@ import { getCanvasWidth as getMainCanvasWidth } from "selectors/editorSelectors"
 import {
   getLeftColumn,
   getTopRow,
-  getWidgetMinMaxDimensionsInPixel,
   setBottomRow,
   setRightColumn,
 } from "utils/autoLayout/flexWidgetUtils";
 import { isEmpty } from "lodash";
 import { getIsCurrentlyConvertingLayout } from "selectors/autoLayoutSelectors";
 import {
-  getChildOfContainerLikeWidget,
   mutation_setPropertiesToUpdate,
   shouldWidgetsCollapse,
 } from "sagas/autoHeightSagas/helpers";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
-import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
-import log from "loglevel";
 import { APP_MODE } from "entities/App";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getAppMode } from "selectors/entitiesSelector";
@@ -86,7 +81,7 @@ export function* recalculatePositionsOfWidgets({
   const metaProps: Record<string, any> = yield select(getWidgetsMeta);
   const selectedTabWidgetId: string | undefined =
     metaProps[parentId]?.selectedTabWidgetId || undefined;
-  const processedWidgets: CanvasWidgetsReduxState = isMobile
+  let processedWidgets: CanvasWidgetsReduxState = isMobile
     ? alterLayoutForMobile(
         allWidgets,
         parentId,
@@ -102,16 +97,15 @@ export function* recalculatePositionsOfWidgets({
         false,
         selectedTabWidgetId,
       );
-  // const dimensionMap: typeof DefaultDimensionMap = yield select(
-  //   getDimensionMap,
-  // );
-  // processedWidgets = yield call(
-  //   getUpdatesOfAllAutoLayoutCanvasHeight,
-  //   processedWidgets,
-  //   dimensionMap,
-  //   mainCanvasWidth,
-  //   isMobile,
-  // );
+  const dimensionMap: typeof DefaultDimensionMap = yield select(
+    getDimensionMap,
+  );
+  processedWidgets = yield call(
+    processAutoLayoutMainCanvasHeight,
+    processedWidgets,
+    dimensionMap,
+    isMobile,
+  );
   return processedWidgets;
 }
 const positionProperties = [
@@ -178,7 +172,7 @@ export function batchWidgetDimensionsUpdateForAutoLayout(
   autoLayoutWidgetDimensionUpdateBatch[widgetId] = { width, height };
 }
 
-export function* processAutoLayoutDimensionUpdatesFn(
+function* processAutoLayoutDimensionUpdatesFn(
   allWidgets: CanvasWidgetsReduxState,
   parentIds: Set<string>,
   isMobile: boolean,
@@ -295,7 +289,7 @@ export function* processWidgetDimensionsSaga() {
   autoLayoutWidgetDimensionUpdateBatch = {};
 }
 
-export function* getAutoLayoutMinHeightBasedOnChildren(
+function* getAutoLayoutMinHeightBasedOnChildren(
   widgetId: string,
   dimensionMap: typeof DefaultDimensionMap,
   changesSoFar: Record<string, { bottomRow: number; topRow: number }>,
@@ -373,194 +367,15 @@ export function* getAutoLayoutMinHeightBasedOnChildren(
   return minHeightInRows;
 }
 
-export function* getUpdatesOfAllAutoLayoutCanvasHeight(
+function* processAutoLayoutMainCanvasHeight(
   widgets: CanvasWidgetsReduxState,
   dimensionMap: typeof DefaultDimensionMap,
-  mainCanvasWidth: number,
   isMobile: boolean,
 ) {
-  const start = performance.now();
   const appMode: APP_MODE = yield select(getAppMode);
-  const intialWidgets = { ...widgets };
-  const stateWidgets = addWidgetDimensionProxy(dimensionMap, widgets);
-  const canvasWidgets: FlattenedWidgetProps[] | undefined = Object.values(
-    stateWidgets,
-  ).filter((widget: FlattenedWidgetProps) => {
-    const isCanvasWidget = widget.type === "CANVAS_WIDGET";
-    const parent = widget.parentId ? stateWidgets[widget.parentId] : undefined;
-    // List widget cases
-    if (
-      (parent && parent.disallowCopy) ||
-      parent?.hasMetaWidgets ||
-      widget.disallowCopy ||
-      ["LIST_WIDGET", "LIST_WIDGET_V2"].includes(widget.type)
-    ) {
-      return false;
-    }
-    if (parent === undefined) {
-      return false;
-    }
-    return isCanvasWidget;
-  });
+  let processedWidgets = addWidgetDimensionProxy(dimensionMap, widgets);
+  const { bottomRow: bottomRowMap } = dimensionMap;
 
-  const canvasHeightsToUpdate: Record<string, number> = {};
-  const shouldCollapse: boolean = yield call(shouldWidgetsCollapse);
-
-  for (const canvasWidget of canvasWidgets) {
-    if (canvasWidget.parentId) {
-      // The parent widget of this canvas widget
-      const parentContainerWidget = stateWidgets[canvasWidget.parentId];
-
-      // Skip this whole process if the parent is collapsed: Process:
-      // Get the DataTree
-      const dataTree: DataTree = yield select(getDataTree);
-      // Get this parentContainerWidget from the DataTree
-      const dataTreeWidget = dataTree[parentContainerWidget.widgetName];
-      // If the widget exists, is not visible and we can collapse widgets
-      if (
-        dataTreeWidget &&
-        (dataTreeWidget as WidgetEntity).isVisible !== true &&
-        shouldCollapse
-      ) {
-        continue;
-      }
-
-      // Get the child we need to consider
-      // For a container widget, it will be the child canvas
-      // For a tabs widget, it will be the currently open tab's canvas
-      const childWidgetId: string | undefined =
-        yield getChildOfContainerLikeWidget(parentContainerWidget);
-
-      // This can be different from the canvas widget in consideration
-      // For example, if this canvas widget in consideration
-      // is not the selected tab's canvas in a tabs widget
-      // we don't have to consider it at all
-      if (childWidgetId !== canvasWidget.widgetId) {
-        continue;
-      }
-      const { maxHeight, minHeight } = getWidgetMinMaxDimensionsInPixel(
-        parentContainerWidget,
-        mainCanvasWidth,
-      );
-
-      // Add parentContainerWidget min height from configuration of widget responsiveness
-      const minDynamicHeightInRows = minHeight
-        ? minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT
-        : WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
-      const maxDynamicHeightInRows = maxHeight
-        ? maxHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT
-        : WidgetHeightLimits.MAX_HEIGHT_IN_ROWS;
-
-      // Default to the min height expected.
-      let maxBottomRow = minDynamicHeightInRows;
-
-      // For widgets like Tabs Widget, some of the height is occupied by the
-      // tabs themselves, the child canvas as a result has less number of rows available
-      // To accommodate for this, we need to increase the new height by the offset amount.
-      const canvasHeightOffset: number = getCanvasHeightOffset(
-        parentContainerWidget.type,
-        parentContainerWidget,
-      );
-
-      // If this canvas has children
-      // we need to consider the bottom most child for the height
-      if (
-        Array.isArray(canvasWidget.children) &&
-        canvasWidget.children.length > 0
-      ) {
-        let maxBottomRowBasedOnChildren: number =
-          yield getAutoLayoutMinHeightBasedOnChildren(
-            canvasWidget.widgetId,
-            dimensionMap,
-            {},
-            stateWidgets,
-            isMobile,
-          );
-        // Add a canvas extension offset
-        maxBottomRowBasedOnChildren += GridDefaults.CANVAS_EXTENSION_OFFSET;
-
-        // Add the offset to the total height of the parent widget
-        maxBottomRowBasedOnChildren += canvasHeightOffset;
-
-        // Get the larger value between the minDynamicHeightInRows and bottomMostRowForChild
-        maxBottomRow = Math.max(maxBottomRowBasedOnChildren, maxBottomRow);
-      } else {
-        // If the parent is not supposed to be collapsed
-        // Use the canvasHeight offset, as that would be the
-        // minimum
-        if (
-          parentContainerWidget.bottomRow - parentContainerWidget.topRow > 0 ||
-          !shouldCollapse
-        ) {
-          maxBottomRow += canvasHeightOffset;
-        }
-      }
-
-      // The following makes sure we stay within bounds
-      // If the new height is below the min threshold
-      if (maxBottomRow < minDynamicHeightInRows) {
-        maxBottomRow = minDynamicHeightInRows;
-      }
-      // If the new height is above the max threshold
-      if (maxBottomRow > maxDynamicHeightInRows) {
-        maxBottomRow = maxDynamicHeightInRows;
-      }
-
-      if (parentContainerWidget.type === "TABS_WIDGET") {
-        const layoutNode = stateWidgets[parentContainerWidget.widgetId];
-
-        if (
-          layoutNode &&
-          maxBottomRow === layoutNode.bottomRow - layoutNode.topRow
-        ) {
-          continue;
-        }
-      }
-
-      // If we have a new height to set and
-      if (
-        !canvasHeightsToUpdate.hasOwnProperty(parentContainerWidget.widgetId)
-      ) {
-        canvasHeightsToUpdate[parentContainerWidget.widgetId] =
-          maxBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-      }
-    }
-  }
-  let processedWidgets = { ...intialWidgets };
-  const widgetHeightUpdates = Object.keys(canvasHeightsToUpdate);
-  const { bottomRow: bottomRowMap, topRow: topRowMap } = dimensionMap;
-  const changesSoFar: Record<string, { bottomRow: number; topRow: number }> =
-    {};
-  if (widgetHeightUpdates.length) {
-    processedWidgets = widgetHeightUpdates.reduce((updatedWidgets, each) => {
-      const widget = updatedWidgets[each];
-      const widgetTopRow = widget[topRowMap];
-      const rows =
-        canvasHeightsToUpdate[each] / GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-      updatedWidgets = {
-        ...updatedWidgets,
-        [each]: {
-          ...widget,
-          [bottomRowMap]: widgetTopRow + rows,
-        },
-      };
-      if (widget.type === "MODAL_WIDGET") {
-        updatedWidgets = {
-          ...updatedWidgets,
-          [each]: {
-            ...widget,
-            height:
-              (widgetTopRow + rows) * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-          },
-        };
-      }
-      changesSoFar[each] = {
-        topRow: updatedWidgets[each][topRowMap],
-        bottomRow: updatedWidgets[each][bottomRowMap],
-      };
-      return updatedWidgets;
-    }, processedWidgets);
-  }
   // Let's consider the minimum Canvas Height
   const mainContainerMinHeight =
     processedWidgets[MAIN_CONTAINER_WIDGET_ID].minHeight;
@@ -573,12 +388,11 @@ export function* getUpdatesOfAllAutoLayoutCanvasHeight(
 
   // The same logic to compute the minimum height of the MainContainer
   // Based on how many rows are being occuped by children.
-
   const maxPossibleCanvasHeightInRows: number =
     yield getAutoLayoutMinHeightBasedOnChildren(
       MAIN_CONTAINER_WIDGET_ID,
       dimensionMap,
-      changesSoFar,
+      {},
       processedWidgets,
       isMobile,
     );
@@ -595,10 +409,5 @@ export function* getUpdatesOfAllAutoLayoutCanvasHeight(
         maxCanvasHeightInRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
     },
   };
-  log.debug(
-    "Auto Layout Auto height: Canvas computations time taken:",
-    performance.now() - start,
-    "ms",
-  );
   return processedWidgets;
 }
