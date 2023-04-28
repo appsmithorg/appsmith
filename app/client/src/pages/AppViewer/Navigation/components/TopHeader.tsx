@@ -120,10 +120,6 @@ const TopHeader = (props: TopHeaderProps) => {
         <section className="relative flex items-center space-x-3 z-1 ml-auto py-3">
           {currentApplicationDetails && currentApplicationDetails?.id && (
             <div className="hidden space-x-1 md:flex">
-              <BackToAppsButton
-                currentApplicationDetails={currentApplicationDetails}
-              />
-
               <ShareButton
                 currentApplicationDetails={currentApplicationDetails}
                 currentWorkspaceId={currentWorkspaceId}
@@ -135,6 +131,10 @@ const TopHeader = (props: TopHeaderProps) => {
                   navColorStyle={navColorStyle}
                   primaryColor={primaryColor}
                   url={editorURL}
+                />
+
+                <BackToAppsButton
+                  currentApplicationDetails={currentApplicationDetails}
                 />
               </HeaderRightItemContainer>
             </div>

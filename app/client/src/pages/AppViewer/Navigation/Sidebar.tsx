@@ -213,12 +213,6 @@ export function Sidebar(props: SidebarProps) {
       <StyledFooter navColorStyle={navColorStyle} primaryColor={primaryColor}>
         {currentApplicationDetails && (
           <StyledCtaContainer>
-            <BackToAppsButton
-              currentApplicationDetails={currentApplicationDetails}
-              insideSidebar
-              isMinimal={isMinimal}
-            />
-
             <ShareButton
               currentApplicationDetails={currentApplicationDetails}
               currentWorkspaceId={currentWorkspaceId}
@@ -233,6 +227,12 @@ export function Sidebar(props: SidebarProps) {
               navColorStyle={navColorStyle}
               primaryColor={primaryColor}
               url={editorURL}
+            />
+
+            <BackToAppsButton
+              currentApplicationDetails={currentApplicationDetails}
+              insideSidebar
+              isMinimal={isMinimal}
             />
           </StyledCtaContainer>
         )}

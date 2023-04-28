@@ -129,16 +129,12 @@ export function PageMenu(props: NavigationProps) {
         <div className="py-3 border-t">
           {application && (
             <StyledCtaContainer>
-              <BackToAppsButton
-                currentApplicationDetails={application}
-                insideSidebar
-              />
-
               <ShareButton
                 currentApplicationDetails={application}
                 currentWorkspaceId={workspaceID}
                 insideSidebar
               />
+
               {isOpen && (
                 <PrimaryCTA
                   className="t--back-to-editor--mobile"
@@ -148,6 +144,12 @@ export function PageMenu(props: NavigationProps) {
                   url={props.url}
                 />
               )}
+
+              <BackToAppsButton
+                currentApplicationDetails={application}
+                insideSidebar
+              />
+
               {!hideWatermark && (
                 <a
                   className="flex hover:no-underline mt-2"
