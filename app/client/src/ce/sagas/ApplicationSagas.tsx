@@ -741,11 +741,23 @@ export function* importApplicationSaga(
         } else {
           // @ts-expect-error: pages is of type any
           // TODO: Update route params here
-          const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
+          const { application } = response.data;
+          const defaultPage = pages.filter(
+            (eachPage: any) => !!eachPage.isDefault,
+          );
           const pageURL = builderURL({
             pageId: defaultPage[0].id,
           });
-          window.location.replace(pageURL);
+          const appId = application.id;
+          const pageId = application.defaultPageId;
+          history.push(pageURL);
+          yield put({
+            type: ReduxActionTypes.FETCH_APPLICATION_INIT,
+            payload: {
+              applicationId: appId,
+              pageId,
+            },
+          });
           const guidedTour: boolean = yield select(inGuidedTour);
 
           if (guidedTour) return;
