@@ -99,6 +99,15 @@ export function updateWidgetPositions(
       height = getHeightOfFixedCanvas(widgets, parent, isMobile);
     } else return widgets;
 
+    // Disables auto-height calculations for List widget
+    if (
+      parent?.isListItemContainer ||
+      (parent.parentId && widgets[parent.parentId].type === "LIST_WIDGET_V2") ||
+      parent.type === "LIST_WIDGET_V2"
+    ) {
+      return widgets;
+    }
+
     const divisor = parent.parentRowSpace === 1 ? 10 : 1;
     // padding is 2 to respect padding on top and bottom(WIDGET_PADDING + CONTAINER_PADDING)
     // ToDo: use getCanvasHeightOffset to weigh in offset values as well.

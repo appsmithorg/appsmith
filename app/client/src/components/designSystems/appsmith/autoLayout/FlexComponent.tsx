@@ -99,12 +99,11 @@ export function FlexComponent(props: AutoLayoutProps) {
     width: isResizing
       ? "auto"
       : `${props.componentWidth - WIDGET_PADDING * 2 + RESIZE_BORDER_BUFFER}px`,
-    height:
-      isResizing || props.isCanvas
-        ? "auto"
-        : `${
-            props.componentHeight - WIDGET_PADDING * 2 + RESIZE_BORDER_BUFFER
-          }px`,
+    height: isResizing
+      ? "auto"
+      : `${
+          props.componentHeight - WIDGET_PADDING * 2 + RESIZE_BORDER_BUFFER
+        }px`,
     margin: WIDGET_PADDING / 2 + "px",
   };
   const flexComponentStyle: CSSProperties = useMemo(() => {
