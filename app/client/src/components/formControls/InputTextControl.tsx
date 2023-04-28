@@ -5,6 +5,7 @@ import type { ControlType } from "constants/PropertyControlConstants";
 import type { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
 import type { InputType } from "components/constants";
+import type { InputType as DSInputType } from "design-system";
 import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
 import { Field, formValueSelector } from "redux-form";
 import { connect } from "react-redux";
@@ -44,7 +45,7 @@ const PASSWORD_EXISTS_INDICATOR = "······";
 function renderComponent(
   props: {
     placeholder: string;
-    dataType?: InputType;
+    dataType?: DSInputType;
     disabled?: boolean;
     reference: any;
     validator?: (value: string) => { isValid: boolean; message: string };
@@ -54,17 +55,17 @@ function renderComponent(
   },
 ) {
   return (
-    // TODO: handle validation externally using "errorMessage"
-    // TODO: Extend the type of input from React.HTMLAttributes<HTMLInputElement>
     <Input
+      errorMessage={props.validator?.(props.input.value).message}
       isDisabled={props.disabled || false}
-      // name={props.input?.name}
+      isValid={props.validator?.(props.input.value).isValid}
+      name={props.input?.name}
       onChange={props.input.onChange}
       placeholder={props.placeholder}
       ref={props.reference}
       size="md"
+      type={props.dataType}
       value={props.input.value}
-      // validator={props.validator}
     />
   );
 }
@@ -165,23 +166,13 @@ class InputTextControl extends BaseControl<InputControlProps> {
     );
   }
 
-  isNumberType(): boolean {
-    const { inputType } = this.props;
-    switch (inputType) {
-      case "CURRENCY":
-      case "INTEGER":
-      case "NUMBER":
-      case "PHONE_NUMBER":
-        return true;
-      default:
-        return false;
-    }
-  }
-
   getType(dataType: InputType | undefined) {
     switch (dataType) {
       case "PASSWORD":
         return "password";
+      case "CURRENCY":
+      case "INTEGER":
+      case "PHONE_NUMBER":
       case "NUMBER":
         return "number";
       default:
