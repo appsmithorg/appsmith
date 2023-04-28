@@ -48,10 +48,10 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
     private final CommonConfig commonConfig;
     private final PermissionGroupRepository permissionGroupRepository;
     private final UserGroupRepository userGroupRepository;
-    public static final String DEFAULT_APPSMITH_LOGO = "https://assets.appsmith.com/appsmith-logo.svg";
+    public static final String DEFAULT_APPSMITH_LOGO = "https://assets.appsmith.com/appsmith-logo-full.png";
     private static final String DEFAULT_PRIMARY_COLOR = "#F86A2B";
     private static final String DEFAULT_BACKGROUND_COLOR = "#FFFFFF";
-    private static final String DEFAULT_FONT_COLOR = "#000000";
+    private static final String DEFAULT_FONT_COLOR = "#FFFFFF";
 
     public UserServiceImpl(Scheduler scheduler,
                            Validator validator,
@@ -156,13 +156,12 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
         return tenantService.getDefaultTenant()
                 .map(tenant -> {
                     final TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
-                    String logoUrl = null;
                     String primaryColor = DEFAULT_PRIMARY_COLOR;
                     String backgroundColor = DEFAULT_BACKGROUND_COLOR;
                     String fontColor = DEFAULT_FONT_COLOR;
+                    String logoUrl = StringUtils.isNotEmpty(origin) ? origin + tenantConfiguration.getBrandLogoUrl() : null;
 
-                    if (StringUtils.isNotEmpty(origin) && tenantConfiguration.isWhitelabelEnabled()) {
-                        logoUrl = origin + tenantConfiguration.getBrandLogoUrl();
+                    if (tenantConfiguration.isWhitelabelEnabled()) {
                         final TenantConfiguration.BrandColors brandColors = tenantConfiguration.getBrandColors();
                         if (brandColors != null) {
                             primaryColor = StringUtils.defaultIfEmpty(brandColors.getPrimary(), primaryColor);
