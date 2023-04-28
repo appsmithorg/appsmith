@@ -24,11 +24,10 @@ import {
 } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
 
-export class ContainerWidget extends BaseWidget<
-  ContainerWidgetProps<WidgetProps>,
-  WidgetState
-> {
-  constructor(props: ContainerWidgetProps<WidgetProps>) {
+export class ContainerWidget<
+  T extends ContainerWidgetProps<WidgetProps> = ContainerWidgetProps<WidgetProps>,
+> extends BaseWidget<T, WidgetState> {
+  constructor(props: T) {
     super(props);
     this.renderChildWidget = this.renderChildWidget.bind(this);
   }

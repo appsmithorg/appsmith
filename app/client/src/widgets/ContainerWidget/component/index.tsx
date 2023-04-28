@@ -52,6 +52,7 @@ interface ContainerWrapperProps {
   type: WidgetType;
   dropDisabled?: boolean;
   $noScroll: boolean;
+  customClassName?: string;
 }
 function ContainerComponentWrapper(
   props: PropsWithChildren<ContainerWrapperProps>,
@@ -129,7 +130,7 @@ function ContainerComponentWrapper(
         props.widgetId === MAIN_CONTAINER_WIDGET_ID
           ? "auto-layout"
           : ""
-      }`}
+      } ${props.customClassName || ""}`}
       data-widgetId={props.widgetId}
       dropDisabled={props.dropDisabled}
       onClick={props.onClick}
@@ -151,6 +152,7 @@ function ContainerComponent(props: ContainerComponentProps) {
     return (
       <ContainerComponentWrapper
         $noScroll={!!props.noScroll}
+        customClassName={props.customClassName}
         dropDisabled={props.dropDisabled}
         onClick={props.onClick}
         onClickCapture={props.onClickCapture}
@@ -173,7 +175,7 @@ function ContainerComponent(props: ContainerComponentProps) {
       borderRadius={props.borderRadius}
       borderWidth={props.borderWidth}
       boxShadow={props.boxShadow}
-      className="style-container"
+      className={"style-container " + (props.customClassName || "")}
       containerStyle={props.containerStyle}
       selected={props.selected}
       widgetId={props.widgetId}
@@ -219,6 +221,7 @@ export interface ContainerComponentProps extends WidgetStyleContainerProps {
   alignItems?: string;
   dropDisabled?: boolean;
   appPositioningType?: AppPositioningTypes;
+  customClassName?: string;
 }
 
 export default ContainerComponent;
