@@ -58,12 +58,14 @@ function* recalculatePositionsOfWidgetsSaga(payload: {
 }) {
   try {
     const start = performance.now();
+    console.log("#### recalculating", payload.parentId);
     const processedWidgets: CanvasWidgetsReduxState = yield call(
       recalculatePositionsOfWidgets,
       payload,
     );
     // save layout in cases like DnD where it creates new entities
     if (payload.saveLayout) {
+      console.log("#### recalculated SaveL", payload.parentId);
       yield put(updateAndSaveLayout(processedWidgets));
     } else {
       const widgetsToUpdate: UpdateWidgetsPayload = yield call(
@@ -87,9 +89,19 @@ function* recalculatePositionsOfWidgetsSaga(payload: {
       // Note that we're not calling `UPDATE_LAYOUT`
       // as we don't need to trigger an eval
       if (!isEmpty(canvasWidgetsToUpdate)) {
+        console.log(
+          "#### recalculated canvasW",
+          payload.parentId,
+          canvasWidgetsToUpdate,
+        );
         yield put(updateMultipleWidgetPropertiesAction(canvasWidgetsToUpdate));
       }
       if (!isEmpty(metaWidgetsToUpdate)) {
+        console.log(
+          "#### recalculated metaW",
+          payload.parentId,
+          metaWidgetsToUpdate,
+        );
         yield put(
           updateMultipleMetaWidgetPropertiesAction(metaWidgetsToUpdate),
         );
@@ -171,15 +183,20 @@ export function* recalculateAutoLayoutColumnsAndSave(
   actionPayload: ReduxAction<{
     widgets?: CanvasWidgetsReduxState;
     saveLayout?: boolean;
+    parentId?: string;
   }>,
 ) {
   const mainCanvasProps: MainCanvasReduxState = yield select(
     getMainCanvasProps,
   );
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
-  const { saveLayout = false, widgets } = actionPayload.payload;
+  const {
+    saveLayout = false,
+    widgets,
+    parentId = MAIN_CONTAINER_WIDGET_ID,
+  } = actionPayload.payload;
   yield call(recalculatePositionsOfWidgetsSaga, {
-    parentId: MAIN_CONTAINER_WIDGET_ID,
+    parentId: parentId,
     isMobile,
     canvasWidth: mainCanvasProps.width,
     widgets,
@@ -268,10 +285,23 @@ function* updateAutoLayoutWidgetDimensionsSaga(
 }
 
 function* processWidgetDimensionsAndPositions() {
-  const processedWidgets: CanvasWidgetsReduxState = yield call(
-    processWidgetDimensionsSaga,
-  );
-  yield put(recalculatePositionsForCurrentBreakPointAction(processedWidgets));
+  const {
+    parentIds,
+    processedWidgets,
+  }: { processedWidgets: CanvasWidgetsReduxState; parentIds: Set<string> } =
+    yield call(processWidgetDimensionsSaga);
+
+  console.log("#### updating parents", parentIds);
+  // Updates the position of widgets within affected canvas
+  for (const parentId of parentIds) {
+    yield put(
+      recalculatePositionsForCurrentBreakPointAction(
+        processedWidgets,
+        false,
+        parentId,
+      ),
+    );
+  }
 }
 function* shouldRunSaga(saga: any, action: ReduxAction<unknown>) {
   const isAutoLayout: boolean = yield select(getIsAutoLayout);

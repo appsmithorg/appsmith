@@ -662,6 +662,8 @@ abstract class BaseWidget<
             this.props.responsiveBehavior === ResponsiveBehavior.Fill
           }
           onDimensionUpdate={this.updateAutoLayoutWidgetDimension}
+          widgetId={this.props.widgetId}
+          widgetName={this.props.widgetName}
           width={componentWidth}
         >
           {content}

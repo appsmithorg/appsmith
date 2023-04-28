@@ -16,6 +16,8 @@ interface AutoLayoutDimensionObserverProps {
   width: number;
   height: number;
   isFillWidget: boolean;
+  widgetId: string;
+  widgetName: string;
 }
 
 export default function AutoLayoutDimensionObserver(
@@ -47,6 +49,14 @@ export default function AutoLayoutDimensionObserver(
       props.height - 2 * FLEXBOX_PADDING - currentDimension.height,
     );
     if (widthDiff >= 1 || heightDiff >= 1) {
+      console.log(
+        "#### observer",
+        props.widgetId,
+        props.widgetName,
+        { propW: props.width, propH: props.height },
+        currentDimension,
+        { widthDiff, heightDiff },
+      );
       onDimensionUpdate(currentDimension.width, currentDimension.height);
     }
   }, [

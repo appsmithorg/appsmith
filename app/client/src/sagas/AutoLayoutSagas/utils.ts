@@ -167,6 +167,7 @@ export function* processAutoLayoutDimensionUpdatesFn(
   }
   // Iterate through the batch and update the new dimensions
   let widgets = { ...allWidgets };
+  console.log("#### processing batch", autoLayoutWidgetDimensionUpdateBatch);
   for (const widgetId in autoLayoutWidgetDimensionUpdateBatch) {
     const { height, width } = autoLayoutWidgetDimensionUpdateBatch[widgetId];
     const widget = allWidgets[widgetId];
@@ -210,7 +211,9 @@ export function* processAutoLayoutDimensionUpdatesFn(
 }
 
 export function* processWidgetDimensionsSaga() {
-  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const allWidgets: CanvasWidgetsReduxState = yield select(
+    getCanvasAndMetaWidgets,
+  );
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
 
@@ -224,7 +227,7 @@ export function* processWidgetDimensionsSaga() {
   );
   // clear the batch after processing
   autoLayoutWidgetDimensionUpdateBatch = {};
-  return processedWidgets;
+  return { processedWidgets, parentIds };
 }
 
 export function* getAutoLayoutMinHeightBasedOnChildren(
