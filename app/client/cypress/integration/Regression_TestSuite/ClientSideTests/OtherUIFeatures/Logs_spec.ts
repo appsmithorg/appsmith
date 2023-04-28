@@ -236,7 +236,6 @@ describe("Debugger logs", function () {
         prettify: false,
       },
     );
-    agHelper.WaitUntilAllToastsDisappear();
 
     // Edit JSObject and verify no logs are visible
     jsEditor.EditJSObj(`export default {
@@ -285,7 +284,6 @@ describe("Debugger logs", function () {
         shouldCreateNewJSObj: true,
       },
     );
-    agHelper.WaitUntilAllToastsDisappear();
 
     cy.get("@jsObjName").then((jsObjName) => {
       agHelper.Sleep(2000);
@@ -330,7 +328,6 @@ describe("Debugger logs", function () {
         shouldCreateNewJSObj: true,
       },
     );
-    agHelper.WaitUntilAllToastsDisappear();
     agHelper.GetNClick(jsEditor._runButton);
     agHelper.GetNClick(jsEditor._logsTab);
     debuggerHelper.DoesConsoleLogExist(`${logString} Started`);
@@ -355,7 +352,6 @@ describe("Debugger logs", function () {
         shouldCreateNewJSObj: false,
       },
     );
-    agHelper.WaitUntilAllToastsDisappear();
     agHelper.GetNClick(jsEditor._runButton);
     agHelper.GetNClick(jsEditor._logsTab);
     debuggerHelper.DoesConsoleLogExist(`Parent ${logString}`);
@@ -383,7 +379,6 @@ describe("Debugger logs", function () {
         shouldCreateNewJSObj: true,
       },
     );
-    agHelper.WaitUntilAllToastsDisappear();
     agHelper.GetNClick(jsEditor._runButton);
     agHelper.GetNClick(jsEditor._logsTab);
     debuggerHelper.DoesConsoleLogExist(`${logString}`);
@@ -419,7 +414,7 @@ describe("Debugger logs", function () {
     debuggerHelper.DoesConsoleLogExist("end: [0,1,2,3,4]");
   });
 
-  it("6. Bug #19115 - Objects that start with an underscore `_JSObject1` fail to be navigated from the debugger", function () {
+  it("19. Bug #19115 - Objects that start with an underscore `_JSObject1` fail to be navigated from the debugger", function () {
     const JSOBJECT_WITH_UNNECCESARY_SEMICOLON = `export default {
         myFun1: () => {
             //write code here

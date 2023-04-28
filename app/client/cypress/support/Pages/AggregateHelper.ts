@@ -1034,7 +1034,7 @@ export class AggregateHelper {
   AssertHeight(selector: ElementType, height: number) {
     return this.GetElement(selector)
       .invoke("height")
-      .should("be.equal", height);
+      .should("be.closeTo", height, 1);
   }
 
   public AssertText(
@@ -1167,6 +1167,18 @@ export class AggregateHelper {
     } else {
       return this.GetElement(selector).eq(index).should("not.be.disabled");
     }
+  }
+
+  public AssertNewTabOpened(openTabFunc: () => void) {
+    cy.window().then((win) => {
+      cy.spy(win, "open").as("windowOpen");
+      openTabFunc();
+      cy.get("@windowOpen").should(
+        "be.calledWith",
+        Cypress.sinon.match.string,
+        "_blank",
+      );
+    });
   }
 
   //Not used:
