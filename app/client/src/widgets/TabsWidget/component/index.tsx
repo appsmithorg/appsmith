@@ -12,6 +12,7 @@ import { scrollCSS } from "widgets/WidgetUtils";
 
 interface TabsComponentProps extends ComponentProps {
   children?: ReactNode;
+  height: string;
   shouldScrollContents?: boolean;
   selectedTabWidgetId: string;
   shouldShowTabs: boolean;
@@ -38,11 +39,12 @@ const TabsContainerWrapper = styled.div<{
   borderWidth?: number;
   borderColor?: string;
   backgroundColor?: string;
+  height?: string;
 }>`
   position: relative;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: ${(props) => props.height}px;
   width: 100%;
   justify-content: flex-start;
   align-items: center;
@@ -165,6 +167,7 @@ function TabsComponent(props: TabsComponentProps) {
       borderRadius={props.borderRadius}
       borderWidth={props.borderWidth}
       boxShadow={props.boxShadow}
+      height={props.height}
     >
       {props.shouldShowTabs && (
         <Container className="relative flex px-6 h-9">
