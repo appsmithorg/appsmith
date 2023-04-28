@@ -110,7 +110,7 @@ export default function Pagination(props: PaginationProps) {
               value: PaginationType.PAGE_NO,
             },
             {
-              label: "Paginate with Response Url",
+              label: "Paginate with Response URL",
               value: PaginationType.URL,
             },
           ]}
@@ -176,14 +176,14 @@ export default function Pagination(props: PaginationProps) {
                   </Text>
                 </StepTitle>
                 <Step type={TextType.P1}>Configure Next and Previous URL </Step>
-                <Step type={TextType.P1}>Previous url</Step>
+                <Step type={TextType.P1}>Previous URL</Step>
                 <PaginationFieldWrapper
                   data-replay-id={btoa("actionConfiguration.prev")}
                 >
                   <DynamicTextField
                     border={CodeEditorBorder.ALL_SIDE}
                     className="t--apiFormPaginationPrev"
-                    evaluatedPopUpLabel="Previous Url"
+                    evaluatedPopUpLabel="Previous URL"
                     fill={!!true}
                     focusElementName={`${props.actionName}.actionConfiguration.prev`}
                     height="100%"
@@ -201,14 +201,14 @@ export default function Pagination(props: PaginationProps) {
                     Test
                   </Button>
                 </PaginationFieldWrapper>
-                <Step type={TextType.P1}>Next url</Step>
+                <Step type={TextType.P1}>Next URL</Step>
                 <PaginationFieldWrapper
                   data-replay-id={btoa("actionConfiguration.next")}
                 >
                   <DynamicTextField
                     border={CodeEditorBorder.ALL_SIDE}
                     className="t--apiFormPaginationNext"
-                    evaluatedPopUpLabel="Next Url"
+                    evaluatedPopUpLabel="Next URL"
                     fill={!!true}
                     focusElementName={`${props.actionName}.actionConfiguration.next`}
                     height="100%"

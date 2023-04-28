@@ -2,10 +2,8 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router";
 import type { AppState } from "@appsmith/reducers";
-import { isNil } from "lodash";
 import { getDatasource, getPlugin } from "selectors/entitiesSelector";
 import styled from "styled-components";
-import RenderDatasourceInformation from "./DatasourceSection";
 import NewActionButton from "./NewActionButton";
 
 import { hasCreateDatasourceActionPermission } from "@appsmith/utils/permissionHelpers";
@@ -27,16 +25,8 @@ const Header = styled.div`
   justify-content: space-between;
 `;
 
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  border-bottom: 1px solid var(--ads-v2-color-border);
-  padding: 12px 0;
-`;
-
 function Connected({
   errorComponent,
-  hideDatasourceRenderSection = false,
   showDatasourceSavedText = true,
 }: {
   errorComponent?: JSX.Element | null;
@@ -47,10 +37,6 @@ function Connected({
 
   const datasource = useSelector((state: AppState) =>
     getDatasource(state, params.datasourceId),
-  );
-
-  const datasourceFormConfigs = useSelector(
-    (state: AppState) => state.entities.plugins.formConfigs,
   );
 
   const plugin = useSelector((state: AppState) =>
@@ -66,11 +52,8 @@ function Connected({
     ...pagePermissions,
   ]);
 
-  const currentFormConfig: Array<any> =
-    datasourceFormConfigs[datasource?.pluginId ?? ""];
-
   return (
-    <Wrapper>
+    <>
       {showDatasourceSavedText && (
         <Header>
           <ConnectedText>
@@ -90,17 +73,7 @@ function Connected({
         </Header>
       )}
       {errorComponent}
-      <div style={{ marginTop: showDatasourceSavedText ? "20px" : "" }}>
-        {!isNil(currentFormConfig) &&
-        !isNil(datasource) &&
-        !hideDatasourceRenderSection ? (
-          <RenderDatasourceInformation
-            config={currentFormConfig[0]}
-            datasource={datasource}
-          />
-        ) : undefined}
-      </div>
-    </Wrapper>
+    </>
   );
 }
 
