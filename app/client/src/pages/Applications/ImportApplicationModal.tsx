@@ -85,8 +85,8 @@ const Row = styled.div`
   }
 `;
 
-const FileImportCard = styled.div<{ fill: boolean }>`
-  width: ${(props) => (props.fill ? "100%" : "320px")};
+const FileImportCard = styled.div<{ fillCardWidth: boolean }>`
+  width: ${(props) => (props.fillCardWidth ? "100%" : "320px")};
   height: 200px;
   border: 1px solid ${Colors.GREY_4};
   display: flex;
@@ -322,7 +322,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
       </TextWrapper>
       {!importingApplication && (
         <Row>
-          <FileImportCard className="t--import-json-card" fill={toApp}>
+          <FileImportCard className="t--import-json-card" fillCardWidth={toApp}>
             <FilePickerV2
               containerClickable
               description={createMessage(IMPORT_APP_FROM_FILE_MESSAGE)}

@@ -63,7 +63,10 @@ import {
 import type { AppIconName } from "design-system-old";
 import { Toaster, Variant } from "design-system-old";
 import { APP_MODE } from "entities/App";
-import type { Workspaces } from "@appsmith/constants/workspaceConstants";
+import type {
+  Workspace,
+  Workspaces,
+} from "@appsmith/constants/workspaceConstants";
 import type { AppColorCode } from "constants/DefaultTheme";
 import {
   getCurrentApplicationId,
@@ -78,7 +81,10 @@ import {
   reconnectAppLevelWebsocket,
   reconnectPageLevelWebsocket,
 } from "actions/websocketActions";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import {
+  getCurrentWorkspace,
+  getCurrentWorkspaceId,
+} from "@appsmith/selectors/workspaceSelectors";
 
 import {
   getCurrentStep,
@@ -724,17 +730,22 @@ export function* importApplicationSaga(
       ApplicationApi.importApplicationToWorkspace,
       action.payload,
     );
+    const urlObject = new URL(window.location.href);
+    const isApplicationUrl = urlObject.pathname.includes("/app/");
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const currentWorkspaceId = yield select(getCurrentWorkspaceId);
-      if (currentWorkspaceId) {
+      const allWorkspaces: Workspace[] = yield select(getCurrentWorkspace);
+      const currentWorkspace = allWorkspaces.filter(
+        (el: Workspace) => el.id === action.payload.workspaceId,
+      );
+      if (currentWorkspaceId || currentWorkspace.length > 0) {
         const {
           // @ts-expect-error: response is of type unknown
           application: { pages },
           // @ts-expect-error: response is of type unknown
           isPartialImport,
         } = response.data;
-
         // @ts-expect-error: response is of type unknown
         yield put(importApplicationSuccess(response.data?.application));
 
@@ -759,16 +770,18 @@ export function* importApplicationSaga(
           const pageURL = builderURL({
             pageId: defaultPage[0].id,
           });
-          const appId = application.id;
-          const pageId = application.defaultPageId;
+          if (isApplicationUrl) {
+            const appId = application.id;
+            const pageId = application.defaultPageId;
+            yield put({
+              type: ReduxActionTypes.FETCH_APPLICATION_INIT,
+              payload: {
+                applicationId: appId,
+                pageId,
+              },
+            });
+          }
           history.push(pageURL);
-          yield put({
-            type: ReduxActionTypes.FETCH_APPLICATION_INIT,
-            payload: {
-              applicationId: appId,
-              pageId,
-            },
-          });
           const guidedTour: boolean = yield select(inGuidedTour);
 
           if (guidedTour) return;
