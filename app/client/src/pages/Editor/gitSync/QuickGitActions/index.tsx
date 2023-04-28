@@ -53,15 +53,7 @@ type QuickActionButtonProps = {
 };
 
 const QuickActionButtonContainer = styled.div<{ disabled?: boolean }>`
-  padding: ${(props) => props.theme.spaces[1]}px
-    ${(props) => props.theme.spaces[2]}px;
-  margin: 0 ${(props) => props.theme.spaces[2]}px;
-  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
-
-  &:hover {
-    background-color: ${(props) =>
-      props.theme.colors.editorBottomBar.buttonBackgroundHover};
-  }
+  margin: 0 ${(props) => props.theme.spaces[1]}px;
 
   position: relative;
   overflow: visible;
@@ -73,9 +65,9 @@ const QuickActionButtonContainer = styled.div<{ disabled?: boolean }>`
     justify-content: center;
     align-items: center;
     color: ${Colors.WHITE};
-    background-color: ${Colors.BLACK};
+    background-color: var(--ads-v2-color-bg-brand-secondary-emphasis-plus);
     top: ${(props) => -1 * props.theme.spaces[3]}px;
-    left: ${(props) => props.theme.spaces[8]}px;
+    left: ${(props) => props.theme.spaces[10]}px;
     border-radius: ${(props) => props.theme.spaces[3]}px;
     ${getTypographyByKey("p3")};
     z-index: 1;
@@ -108,11 +100,11 @@ function QuickActionButton({
       >
         {loading ? (
           <div className="t--loader-quick-git-action">
-            <SpinnerLoader height="16px" width="16px" />
+            <SpinnerLoader size="md" />
           </div>
         ) : (
           <div>
-            <Icon name={icon} size="md" />
+            <Button isIconButton kind="tertiary" size="md" startIcon={icon} />
             {count > 0 && <span className="count">{count}</span>}
           </div>
         )}

@@ -13,12 +13,11 @@ import {
   LATEST_DP_SUBTITLE,
   LATEST_DP_TITLE,
 } from "@appsmith/constants/messages";
-import { Text, Case, TextType } from "design-system-old";
-import { Colors } from "constants/Colors";
 import SuccessTick from "pages/common/SuccessTick";
 import { howMuchTimeBeforeText } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { viewerURL } from "RouteBuilder";
+import { Text } from "design-system";
 
 const Container = styled.div`
   display: flex;
@@ -46,7 +45,7 @@ const IconWrapper = styled.div`
 
   svg {
     path {
-      fill: ${Colors.GREY_9};
+      fill: var(--ads-v2-color-black-750);
     }
   }
 `;
@@ -84,19 +83,14 @@ export default function DeployPreview(props: { showSuccess: boolean }) {
       </div>
       <div>
         <ButtonWrapper onClick={showDeployPreview}>
-          <Text
-            case={Case.UPPERCASE}
-            color={Colors.GREY_9}
-            type={TextType.P1}
-            weight="600"
-          >
+          <Text color="var(--ads-v2-color-fg-emphasis)" kind="heading-s">
             {createMessage(LATEST_DP_TITLE)}
           </Text>
           <IconWrapper>
             <RightArrow width={20} />
           </IconWrapper>
         </ButtonWrapper>
-        <Text color={Colors.GREY_6} type={TextType.P3}>
+        <Text color="var(--ads-v2-color-fg-muted)" kind="body-s">
           {lastDeployedAtMsg}
         </Text>
       </div>

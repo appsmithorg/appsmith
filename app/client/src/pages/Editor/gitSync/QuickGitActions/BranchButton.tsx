@@ -8,11 +8,10 @@ import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
 import BranchList from "../components/BranchList";
 import { fetchBranchesInit } from "actions/gitSyncActions";
-import { TooltipComponent as Tooltip } from "design-system-old";
-import { isEllipsisActive } from "utils/helpers";
 import { getGitStatus } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Button } from "design-system";
+import { Button, Tooltip } from "design-system";
+import { isEllipsisActive } from "../../../../utils/helpers";
 
 const ButtonContainer = styled(Button)`
   display: flex;
@@ -52,14 +51,12 @@ function BranchButton() {
       placement="top-start"
     >
       <Tooltip
-        boundary="window"
         content={currentBranch || ""}
-        disabled={!isEllipsisActive(labelTarget.current)}
-        hoverOpenDelay={1}
-        position="top-left"
+        isDisabled={!isEllipsisActive(labelTarget.current)}
+        placement="topLeft"
       >
         <ButtonContainer
-          className="t--branch-button "
+          className="t--branch-button"
           data-testid={"t--branch-button-currentBranch"}
           kind="secondary"
           ref={labelTarget}
