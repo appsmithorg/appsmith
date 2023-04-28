@@ -2,6 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.dtos.ParamProperty;
 import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
 import com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils;
@@ -600,7 +601,9 @@ public class RestApiPluginTest {
         param.setPseudoBindingName("k0");
 
         executeActionDTO.setParams(Collections.singletonList(param));
-        executeActionDTO.setParamProperties(Collections.singletonMap("k0", "string"));
+        ParamProperty paramProperty = new ParamProperty();
+        paramProperty.setDatatype("string");
+        executeActionDTO.setParamProperties(Collections.singletonMap("k0", paramProperty));
         executeActionDTO.setParameterMap(Collections.singletonMap("Input1.text", "k0"));
         executeActionDTO.setInvertParameterMap(Collections.singletonMap("k0", "Input1.text"));
 
@@ -1871,6 +1874,34 @@ public class RestApiPluginTest {
         assertEquals(0, Arrays.stream(RestApiPluginError.values()).map(RestApiPluginError::getAppErrorCode)
                 .filter(appErrorCode -> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-RST")).count());
 
+    }
+
+    @Test
+    public void whenAPIReturnsNon200_doNotStringifyResponseBody() throws IOException {
+        // Generate a mock response which generates a non 200 HTTP status code e.g. HTTP 500
+        MockWebServer mockWebServer = new MockWebServer();
+        MockResponse mockRedirectResponse = new MockResponse()
+                .setResponseCode(500)
+                .addHeader("Content-Type", "application/json")
+                .setBody("{\"statusCode\":500,\"description\":\"Internal Server Error\"}");
+        mockWebServer.enqueue(mockRedirectResponse);
+
+        mockWebServer.start();
+
+        HttpUrl mockHttpUrl = mockWebServer.url("/mock.codes/500");
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl(mockHttpUrl.toString());
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHttpMethod(HttpMethod.GET);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertFalse(result.getIsExecutionSuccess());
+                    assertTrue(result.getBody() instanceof JsonNode);
+                })
+                .verifyComplete();
     }
 }
 
