@@ -371,6 +371,7 @@ describe("Table Widget V2 property pane feature validation", function () {
       "have.text",
       "customColumn99",
     );
+    cy.backFromPropertyPanel();
   });
 
   it("14. It provides currentRow and currentIndex properties in min validation field", function () {
