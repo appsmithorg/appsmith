@@ -60,6 +60,7 @@ function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
           defaultSelected={isPropertyDisabled ? !val : val}
           isDisabled={props.isDisabled}
           onChange={onCheckbox}
+          value={props.id}
         >
           {props.text}
         </Checkbox>
