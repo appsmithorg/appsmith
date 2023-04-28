@@ -1,6 +1,7 @@
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 import HomePage from "../../../../../locators/HomePage";
 import locators from "../../../../../locators/AuditLogsLocators";
+const RBAC = require("../../../../../locators/RBAClocators.json");
 let workspaceId, appid;
 const agHelper = ObjectsRegistry.AggregateHelper,
   homePage = ObjectsRegistry.HomePage;
@@ -180,7 +181,7 @@ describe("Create new workspace and invite group & validate all roles", () => {
       expect($list.eq(1)).to.contain(GroupName);
       expect($list.eq(2)).to.contain(Cypress.env("TESTUSERNAME2"));
     });
-    agHelper.AssertElementAbsence("[name='arrow-right-s-fill']");
+    agHelper.AssertElementAbsence(RBAC.arrowRightMembersPage);
     homePage.NavigateToHome();
   });
 

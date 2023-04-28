@@ -226,7 +226,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
                 deletePair(index, e.detail === 0);
               }}
             >
-              <StyledDeleteIcon />
+              <StyledDeleteIcon className="delete-icon" />
             </StyledButton>
           </ControlWrapper>
         );

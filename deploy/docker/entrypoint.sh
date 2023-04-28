@@ -65,7 +65,7 @@ init_env_file() {
     )
     local generated_appsmith_supervisor_password=$(
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
-      echo ''
+      echo ""
     )
 
     bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" > "$ENV_PATH"
@@ -366,6 +366,9 @@ configure_supervisord() {
   fi
 
   cp -f "$SUPERVISORD_CONF_PATH/application_process/"*.conf /etc/supervisor/conf.d
+  
+  # Copy Supervisor Listiner confs to conf.d
+  cp -f "$SUPERVISORD_CONF_PATH/event_listeners/"*.conf /etc/supervisor/conf.d
 
   # Disable services based on configuration
   if [[ -z "${DYNO}" ]]; then
@@ -470,13 +473,37 @@ seed_embedded_postgres(){
     psql -U postgres -d users --file='/opt/appsmith/templates/users_postgres.sql'
 }
 
+configure_cron(){
+  # Cron for auto backup
+  local backup_cron_file="/etc/cron.d/backup"
+  if [[ -n "${APPSMITH_BACKUP_CRON_EXPRESSION:-}" ]]; then
+    echo "${APPSMITH_BACKUP_CRON_EXPRESSION} root appsmithctl backup --upload-to-s3" > "$backup_cron_file"
+    chmod 0644 "$backup_cron_file"
+  elif [[ -e $backup_cron_file ]]; then
+    rm "$backup_cron_file"
+  fi
+}
+
 safe_init_postgres(){
 runEmbeddedPostgres=1
 # fail safe to prevent entrypoint from exiting, and prevent postgres from starting
 init_postgres || runEmbeddedPostgres=0
 }
 
+init_loading_pages(){
+  local starting_page="/opt/appsmith/templates/appsmith_starting.html"
+  local initializing_page="/opt/appsmith/templates/appsmith_initializing.html"
+  local editor_load_page="/opt/appsmith/editor/loading.html" 
+  # Update default nginx page for initializing page
+  cp "$initializing_page" /var/www/html/index.nginx-debian.html
+  # Start nginx page to display the Appsmith is Initializing page
+  nginx
+  # Update editor nginx page for starting page
+  cp "$starting_page" "$editor_load_page"
+}
+
 # Main Section
+init_loading_pages
 init_env_file
 setup_proxy_variables
 unset_unused_variables
@@ -505,6 +532,8 @@ safe_init_postgres
 
 configure_supervisord
 
+configure_cron
+
 CREDENTIAL_PATH="/etc/nginx/passwords"
 if ! [[ -e "$CREDENTIAL_PATH" ]]; then
   echo "Generating Basic Authentication file"
@@ -514,7 +543,11 @@ fi
 mkdir -p /appsmith-stacks/data/{backup,restore,keycloak}
 
 # Create sub-directory to store services log in the container mounting folder
-mkdir -p /appsmith-stacks/logs/{backend,cron,editor,rts,mongodb,redis,postgres,keycloak}
+mkdir -p /appsmith-stacks/logs/{backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
+mkdir -p /appsmith-stacks/logs/keycloak
+
+# Stop nginx gracefully
+nginx -s quit
 
 # Handle CMD command
 exec "$@"

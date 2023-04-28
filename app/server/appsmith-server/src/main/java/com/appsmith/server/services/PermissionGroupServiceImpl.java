@@ -30,6 +30,7 @@ import com.appsmith.server.solutions.roles.RoleConfigurationSolution;
 import com.appsmith.server.solutions.roles.dtos.RoleViewDTO;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -495,20 +496,10 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
     private Mono<PermissionGroup> sendAssignedToPermissionGroupEvent(PermissionGroup permissionGroup,
                                                                      List<String> usernames,
                                                                      List<String> userGroupNames) {
-        Map<String, Object> eventData = Map.of(FieldName.ASSIGNED_USERS_TO_PERMISSION_GROUPS, usernames,
-                FieldName.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS, userGroupNames);
-        Map<String, Object> analyticsProperties = Map.of(NUMBER_OF_ASSIGNED_USERS, usernames.size(),
-                NUMBER_OF_ASSIGNED_USER_GROUPS, userGroupNames.size(),
-                EVENT_DATA, eventData);
-        AnalyticsEvents assignedEvent;
-        if (! usernames.isEmpty() && ! userGroupNames.isEmpty()) {
-            assignedEvent = AnalyticsEvents.ASSIGNED_TO_PERMISSION_GROUP;
-        } else if (! usernames.isEmpty()) {
-            assignedEvent = AnalyticsEvents.ASSIGNED_USERS_TO_PERMISSION_GROUP;
-        } else {
-            assignedEvent = AnalyticsEvents.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUP;
-        }
-        return analyticsService.sendObjectEvent(assignedEvent, permissionGroup, analyticsProperties);
+        Mono<PermissionGroup> sendAssignedUsersToPermissionGroupEvent = sendEventUsersAssociatedToRole(permissionGroup, usernames);
+        Mono<PermissionGroup> sendAssignedUserGroupsTpPermissionGroupEvent = sendEventUserGroupsAssociatedToRole(permissionGroup, userGroupNames);
+        return Mono.when(sendAssignedUsersToPermissionGroupEvent, sendAssignedUserGroupsTpPermissionGroupEvent)
+                .thenReturn(permissionGroup);
     }
 
     @Override
@@ -543,5 +534,59 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
         return cleanCacheForAllUsersAssignedDirectlyIndirectly
                 .then(updateEventGetRoleMono)
                 .then(updatedRoleMono);
+    }
+
+    protected Mono<PermissionGroup> sendEventUserGroupsAssociatedToRole(PermissionGroup permissionGroup,
+                                                                        List<String> groupNames) {
+        Mono<PermissionGroup> sendAssignedUsersToPermissionGroupEvent = Mono.just(permissionGroup);
+        if (CollectionUtils.isNotEmpty(groupNames)) {
+            Map<String, Object> eventData = Map.of(FieldName.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS, groupNames);
+            Map<String, Object> extraPropsForCloudHostedInstance = Map.of(FieldName.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS, groupNames);
+            Map<String, Object> analyticsProperties = Map.of(NUMBER_OF_ASSIGNED_USER_GROUPS, groupNames.size(),
+                    FieldName.EVENT_DATA, eventData,
+                    FieldName.CLOUD_HOSTED_EXTRA_PROPS, extraPropsForCloudHostedInstance);
+            sendAssignedUsersToPermissionGroupEvent = analyticsService.sendObjectEvent(
+                    AnalyticsEvents.ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUP, permissionGroup, analyticsProperties);
+        }
+        return sendAssignedUsersToPermissionGroupEvent;
+    }
+
+    protected Mono<PermissionGroup> sendEventUserGroupsRemovedFromRole(PermissionGroup permissionGroup,
+                                                                       List<String> groupNames) {
+        Mono<PermissionGroup> sendUnAssignedUsersToPermissionGroupEvent = Mono.just(permissionGroup);
+        if (CollectionUtils.isNotEmpty(groupNames)) {
+            Map<String, Object> eventData = Map.of(FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS, groupNames);
+            Map<String, Object> extraPropsForCloudHostedInstance = Map.of(FieldName.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS, groupNames);
+            Map<String, Object> analyticsProperties = Map.of(NUMBER_OF_UNASSIGNED_USER_GROUPS, groupNames.size(),
+                    FieldName.EVENT_DATA, eventData,
+                    FieldName.CLOUD_HOSTED_EXTRA_PROPS, extraPropsForCloudHostedInstance);
+            sendUnAssignedUsersToPermissionGroupEvent = analyticsService.sendObjectEvent(
+                    AnalyticsEvents.UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUP, permissionGroup, analyticsProperties);
+        }
+        return sendUnAssignedUsersToPermissionGroupEvent;
+    }
+
+    @Override
+    public Mono<PermissionGroup> assignToUserGroupAndSendEvent(PermissionGroup permissionGroup, UserGroup userGroup) {
+        return bulkAssignToUserGroupsAndSendEvent(permissionGroup, Set.of(userGroup));
+    }
+
+    @Override
+    public Mono<PermissionGroup> bulkAssignToUserGroupsAndSendEvent(PermissionGroup permissionGroup, Set<UserGroup> userGroups) {
+        List<String> groupNames = userGroups.stream().map(UserGroup::getName).toList();
+        return bulkAssignToUserGroups(permissionGroup, userGroups)
+                .flatMap(permissionGroup1 -> sendEventUserGroupsAssociatedToRole(permissionGroup1, groupNames));
+    }
+
+    @Override
+    public Mono<PermissionGroup> unAssignFromUserGroupAndSendEvent(PermissionGroup permissionGroup, UserGroup userGroup) {
+        return bulkUnAssignFromUserGroupsAndSendEvent(permissionGroup, Set.of(userGroup));
+    }
+
+    @Override
+    public Mono<PermissionGroup> bulkUnAssignFromUserGroupsAndSendEvent(PermissionGroup permissionGroup, Set<UserGroup> userGroups) {
+        List<String> groupNames = userGroups.stream().map(UserGroup::getName).toList();
+        return bulkUnassignFromUserGroups(permissionGroup, userGroups)
+                .flatMap(permissionGroup1 -> sendEventUserGroupsRemovedFromRole(permissionGroup1, groupNames));
     }
 }

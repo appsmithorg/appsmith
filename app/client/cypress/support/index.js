@@ -94,13 +94,11 @@ before(function () {
   Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   const username = Cypress.env("USERNAME");
   const password = Cypress.env("PASSWORD");
-  cy.LoginFromAPI(username, password);
-  cy.wait(2000);
-  /* When first setting up the instance, try to navigate to /appliations which will then redirect to /license
+  /* When first setting up the instance, we will be redirected to /applications which will then redirect to /license.
      This is because the license is not set up yet. Then call the validateLicense function to set up the license and test it.
      Then navigate to /applications again to continue with the tests.
   */
-  cy.visit("/applications");
+  cy.LoginFromAPI(username, password);
   cy.wait(2000);
   if (CURRENT_REPO === REPO.EE) {
     cy.url().then((url) => {

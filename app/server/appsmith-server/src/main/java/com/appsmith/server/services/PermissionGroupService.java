@@ -64,4 +64,12 @@ public interface PermissionGroupService extends PermissionGroupServiceCE {
 
     Mono<PermissionGroup> bulkAssignToUsersAndGroups(PermissionGroup role, List<User> users, List<UserGroup> groups);
 
+    Mono<PermissionGroup> assignToUserGroupAndSendEvent(PermissionGroup permissionGroup, UserGroup userGroup);
+
+    Mono<PermissionGroup> bulkAssignToUserGroupsAndSendEvent(PermissionGroup permissionGroup, Set<UserGroup> userGroups);
+
+    Mono<PermissionGroup> unAssignFromUserGroupAndSendEvent(PermissionGroup permissionGroup, UserGroup userGroup);
+
+    Mono<PermissionGroup> bulkUnAssignFromUserGroupsAndSendEvent(PermissionGroup permissionGroup, Set<UserGroup> userGroups);
+
 }

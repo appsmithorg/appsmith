@@ -8,6 +8,7 @@ import com.appsmith.external.models.ParsedDataType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -223,5 +224,20 @@ public class DataTypeStringUtilsTest {
         );
         final String expectedValue = "[{\"Address\":\"Line1.\\nLine2.\\nLine3\"}]";
         assertThat(expectedValue).isEqualTo(replacedValue);
+    }
+
+    @Test
+    public void maskString_nullString_returnsNull() {
+        Assertions.assertNull(DataTypeStringUtils.maskString(null, 8, 32, '+'));
+    }
+
+    @Test
+    public void maskString_validString_returnMaskedString() {
+        String randomString = "$this*_is_a_random_and_long_string_which_has_no_*significance$";
+        char maskChar = '*';
+        Assertions.assertEquals(
+            DataTypeStringUtils.maskString(randomString, 8, 20, maskChar),
+            "$this*_i****ficance$"
+        );
     }
 }

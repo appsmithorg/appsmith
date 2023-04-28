@@ -46,8 +46,6 @@ public class FieldName extends FieldNameCE {
     public static final String REMOVED_USERS_FROM_USER_GROUPS = "removed_users";
     public static final String REMOVE_USERS_FROM_USER_GROUPS = "remove_users";
     public static final String INVITE_USERS_TO_USER_GROUPS = "invite_users";
-    public static final String ASSIGNED_USERS_TO_PERMISSION_GROUPS = "assigned_users";
-    public static final String UNASSIGNED_USERS_FROM_PERMISSION_GROUPS = "unassigned_users";
     public static final String ASSIGNED_USER_GROUPS_TO_PERMISSION_GROUPS = "assigned_groups";
     public static final String UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUPS = "unassigned_groups";
     public static final String ASSIGNED_TO_PERMISSION_GROUPS = "assigned_user_and_groups";
@@ -75,8 +73,6 @@ public class FieldName extends FieldNameCE {
     public static final String LICENSE_TYPE = "licenseType";
     public static final String LICENSE_STATUS = "licenseStatus";
     public static final String NUMBER_OF_REMOVED_USERS = "numberOfUsersRemoved";
-    public static final String NUMBER_OF_ASSIGNED_USERS = "numberOfAssignedUsers";
-    public static final String NUMBER_OF_UNASSIGNED_USERS = "numberOfUnassignedUsers";
     public static final String NUMBER_OF_ASSIGNED_USER_GROUPS = "numberOfAssignedGroups";
     public static final String NUMBER_OF_UNASSIGNED_USER_GROUPS = "numberOfUnassignedGroups";
     /**

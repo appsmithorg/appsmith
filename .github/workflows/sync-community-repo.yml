@@ -34,6 +34,12 @@ jobs:
               git add .github/config.json
               git commit -m 'Merge CE, conflict in config.json'
             else
+              {
+                EOF="$(dd if=/dev/urandom bs=15 count=1 status=none | base64)"
+                echo "conflicts<<$EOF"
+                echo "$conflict_files"
+                echo "$EOF"
+              } >> "$GITHUB_OUTPUT"
               exit 1
             fi
           fi
@@ -57,8 +63,8 @@ jobs:
             :alert: The sync workflow has failed to merge code from the release branch of CE repository
             to the release branch of EE repository. Please check
             ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-            for details. Output:
+            for details. Conflicts found in:
             ```
-            ${{join(steps.merge_step.outputs.*, '\n')}}
+            echo '${{ steps.merge_step.outputs.conflicts }}' | sort | cat -n
             ```
           SLACK_USERNAME: appsmith-bot

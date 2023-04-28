@@ -6,10 +6,10 @@ import com.appsmith.server.constants.LicenseStatus;
 import com.appsmith.server.constants.LicenseType;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
+import com.appsmith.server.services.ConfigService;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.testcontainers.shaded.org.bouncycastle.crypto.signers.Ed25519Signer;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +21,7 @@ import org.testcontainers.shaded.org.bouncycastle.crypto.generators.Ed25519KeyPa
 import org.testcontainers.shaded.org.bouncycastle.crypto.params.Ed25519KeyGenerationParameters;
 import org.testcontainers.shaded.org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
 import org.testcontainers.shaded.org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
+import org.testcontainers.shaded.org.bouncycastle.crypto.signers.Ed25519Signer;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -37,6 +38,12 @@ public class OfflineLicenseValidatorTests {
     LicenseConfig licenseConfig;
 
     @Autowired
+    ReleaseNotesService releaseNotesService;
+
+    @Autowired
+    ConfigService configService;
+
+    @Autowired
     Gson gson;
 
     private LicenseValidator licenseValidator;
@@ -51,20 +58,20 @@ public class OfflineLicenseValidatorTests {
             "\"email\":\"test@example.com\"," +
             "\"contractType\":\"FIXED_EXPIRY\"," +
             "\"createdAt\":\"2023-03-15T08:17:39.010Z\"" +
-        "}";
+            "}";
 
     String TRIAL_EXPIRED_DATASET = "{" +
-        "\"origin\":\"AIR_GAP\"," +
-        "\"type\":\"TRIAL\"," +
-        "\"expiry\":\"2021-05-30\"," +
-        "\"email\":\"test@example.com\"," +
-        "\"contractType\":\"FIXED_EXPIRY\"," +
-        "\"createdAt\":\"2021-04-30T08:17:39.010Z\"" +
-        "}";
+            "\"origin\":\"AIR_GAP\"," +
+            "\"type\":\"TRIAL\"," +
+            "\"expiry\":\"2021-05-30\"," +
+            "\"email\":\"test@example.com\"," +
+            "\"contractType\":\"FIXED_EXPIRY\"," +
+            "\"createdAt\":\"2021-04-30T08:17:39.010Z\"" +
+            "}";
 
     @BeforeEach
     public void setup() throws Exception {
-        this.licenseValidator = new OfflineLicenseValidatorImpl(licenseConfig, gson);
+        this.licenseValidator = new OfflineLicenseValidatorImpl(releaseNotesService, configService, licenseConfig, gson);
         // Generate Ed25519 key pair
         Ed25519KeyPairGenerator keyPairGenerator = new Ed25519KeyPairGenerator();
         keyPairGenerator.init(new Ed25519KeyGenerationParameters(new SecureRandom()));
@@ -111,17 +118,17 @@ public class OfflineLicenseValidatorTests {
         Mono<TenantConfiguration.License> verifiedLicenseMono = licenseValidator.licenseCheck(tenant);
 
         StepVerifier
-            .create(verifiedLicenseMono)
-            .assertNext(verifiedLicense -> {
-                Assertions.assertNotNull(verifiedLicense);
-                Assertions.assertEquals(verifiedLicense.getOrigin(), LicenseOrigin.AIR_GAP);
-                Assertions.assertEquals(verifiedLicense.getExpiry(), Instant.parse("2099-05-30T00:00:00Z"));
-                Assertions.assertTrue(license.getActive());
-                Assertions.assertEquals(license.getKey(), activeLicenseKey);
-                Assertions.assertEquals(license.getType(), LicenseType.PAID);
-                Assertions.assertEquals(license.getStatus(), LicenseStatus.ACTIVE);
-            })
-            .verifyComplete();
+                .create(verifiedLicenseMono)
+                .assertNext(verifiedLicense -> {
+                    Assertions.assertNotNull(verifiedLicense);
+                    Assertions.assertEquals(verifiedLicense.getOrigin(), LicenseOrigin.AIR_GAP);
+                    Assertions.assertEquals(verifiedLicense.getExpiry(), Instant.parse("2099-05-30T00:00:00Z"));
+                    Assertions.assertTrue(license.getActive());
+                    Assertions.assertEquals(license.getKey(), activeLicenseKey);
+                    Assertions.assertEquals(license.getType(), LicenseType.PAID);
+                    Assertions.assertEquals(license.getStatus(), LicenseStatus.ACTIVE);
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -132,9 +139,9 @@ public class OfflineLicenseValidatorTests {
         Tenant tenant = this.createTransientTenantWithSampleLicense(license);
         Mono<TenantConfiguration.License> licenseMono = licenseValidator.licenseCheck(tenant);
         StepVerifier
-            .create(licenseMono)
-            .assertNext(verifiedLicense -> Assertions.assertEquals(verifiedLicense, new TenantConfiguration.License()))
-            .verifyComplete();
+                .create(licenseMono)
+                .assertNext(verifiedLicense -> Assertions.assertEquals(verifiedLicense, new TenantConfiguration.License()))
+                .verifyComplete();
     }
 
     @Test
@@ -147,16 +154,16 @@ public class OfflineLicenseValidatorTests {
         Mono<TenantConfiguration.License> verifiedLicenseMono = licenseValidator.licenseCheck(tenant);
 
         StepVerifier
-            .create(verifiedLicenseMono)
-            .assertNext(verifiedLicense -> {
-                Assertions.assertNotNull(verifiedLicense);
-                Assertions.assertEquals(verifiedLicense.getOrigin(), LicenseOrigin.AIR_GAP);
-                Assertions.assertEquals(verifiedLicense.getExpiry(), Instant.parse("2021-05-30T00:00:00Z"));
-                Assertions.assertFalse(license.getActive());
-                Assertions.assertEquals(license.getKey(), expiredLicenseKey);
-                Assertions.assertEquals(license.getType(), LicenseType.TRIAL);
-                Assertions.assertEquals(license.getStatus(), LicenseStatus.EXPIRED);
-            })
-            .verifyComplete();
+                .create(verifiedLicenseMono)
+                .assertNext(verifiedLicense -> {
+                    Assertions.assertNotNull(verifiedLicense);
+                    Assertions.assertEquals(verifiedLicense.getOrigin(), LicenseOrigin.AIR_GAP);
+                    Assertions.assertEquals(verifiedLicense.getExpiry(), Instant.parse("2021-05-30T00:00:00Z"));
+                    Assertions.assertFalse(license.getActive());
+                    Assertions.assertEquals(license.getKey(), expiredLicenseKey);
+                    Assertions.assertEquals(license.getType(), LicenseType.TRIAL);
+                    Assertions.assertEquals(license.getStatus(), LicenseStatus.EXPIRED);
+                })
+                .verifyComplete();
     }
 }

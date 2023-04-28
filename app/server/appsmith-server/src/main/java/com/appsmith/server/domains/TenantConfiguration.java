@@ -63,7 +63,7 @@ public class TenantConfiguration extends TenantConfigurationCE {
         this.license = isLicenseExist ? tenantConfiguration.getLicense() : null;
 
         if (null != this.license && !StringUtils.isEmpty(this.license.key)) {
-            this.license.key = DataTypeStringUtils.maskString(this.license.key);
+            this.license.key = DataTypeStringUtils.maskString(this.license.key, 8, 32, 'x');
         }
     }
 

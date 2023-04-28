@@ -37,7 +37,7 @@ import PageHeader from "pages/common/PageHeader";
 import Page from "pages/common/ErrorPages/Page";
 import styled from "styled-components";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const StyledIcon = styled(Icon)`
   transform: scale(1.5);
@@ -69,7 +69,7 @@ function LicenseCheckPage() {
               alt={createMessage(NO_ACTIVE_SUBSCRIPTION)}
               className="no-sub-img"
               loading="lazy"
-              src={`${ASSETS_CDN_URL}/upgrade-box.svg`}
+              src={getAssetUrl(`${ASSETS_CDN_URL}/upgrade-box.svg`)}
               width="180"
             />
             <Text

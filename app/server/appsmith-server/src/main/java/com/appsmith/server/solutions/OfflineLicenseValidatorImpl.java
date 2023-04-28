@@ -4,20 +4,17 @@ import com.appsmith.server.configurations.LicenseConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.LicenseOrigin;
 import com.appsmith.server.constants.LicenseStatus;
-import com.appsmith.server.dtos.OfflineLicenseDataset;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
+import com.appsmith.server.dtos.OfflineLicenseDataset;
+import com.appsmith.server.services.ConfigService;
 import com.google.gson.Gson;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
 import org.bouncycastle.crypto.signers.Ed25519Signer;
 import org.bouncycastle.util.encoders.Hex;
-
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
-
 
 import java.time.Instant;
 import java.util.Base64;
@@ -25,20 +22,28 @@ import java.util.Base64;
 /**
  * Class dedicated to Air-gap license validations
  */
-@RequiredArgsConstructor
 @Slf4j
-public class OfflineLicenseValidatorImpl implements LicenseValidator {
+public class OfflineLicenseValidatorImpl extends BaseLicenseValidatorImpl implements LicenseValidator {
 
     private final LicenseConfig licenseConfig;
     private final Gson gson;
+
+    public OfflineLicenseValidatorImpl(ReleaseNotesService releaseNotesService,
+                                       ConfigService configService,
+                                       LicenseConfig licenseConfig,
+                                       Gson gson) {
+        super(releaseNotesService, configService);
+        this.licenseConfig = licenseConfig;
+        this.gson = gson;
+    }
 
     @Override
     public Mono<TenantConfiguration.License> licenseCheck(Tenant tenant) {
 
         log.debug("Initiating offline license check");
         TenantConfiguration.License license = isLicenseKeyValid(tenant)
-            ? tenant.getTenantConfiguration().getLicense()
-            : new TenantConfiguration.License();
+                ? tenant.getTenantConfiguration().getLicense()
+                : new TenantConfiguration.License();
 
         if (!StringUtils.hasLength(license.getKey())) {
             log.debug("License key not found for tenant {}", tenant.getId());
@@ -50,7 +55,7 @@ public class OfflineLicenseValidatorImpl implements LicenseValidator {
     }
 
     public TenantConfiguration.License getVerifiedLicense(TenantConfiguration.License license,
-                                                           String publicVerificationKey) {
+                                                          String publicVerificationKey) {
 
         String licenseKey = license.getKey();
 
@@ -108,7 +113,7 @@ public class OfflineLicenseValidatorImpl implements LicenseValidator {
             license1.setActive(false);
             license1.setKey(licenseKey);
             return license1;
-        } catch(Exception e) {
+        } catch (Exception e) {
             log.debug("Exception while processing the offline license: {}", e.getMessage());
             return new TenantConfiguration.License();
         }

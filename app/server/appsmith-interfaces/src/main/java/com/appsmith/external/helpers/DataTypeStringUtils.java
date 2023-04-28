@@ -391,17 +391,24 @@ public class DataTypeStringUtils {
     }
 
     /**
-     * To mask a string by adding 'x' in the middle of the string for half of the string length
-     * @param string
-     * @return
+     * To mask a string by adding mask char in the middle of the string
+     * @param str           String to be masked
+     * @param preserveChars Chars needs to be preserved from begin and end of given string
+     * @param maskChar      Character which will be used to mask the string
+     * @param maxLength     Length of masked string
+     * @return              Masked string
      */
-    public static String maskString(String string) {
-        Integer maskLength = round(string.length() / 4);
-        StringBuilder maskedString = new StringBuilder(string);
-        for (int i = maskLength; i < string.length() - maskLength; i++) {
-            maskedString.setCharAt(i, 'x');
+    public static String maskString(String str, int preserveChars, int maxLength, char maskChar) {
+        if (str == null) {
+            // nothing to mask
+            return null;
         }
-
-        return maskedString.toString();
+        String start = str.substring(0, preserveChars);
+        String end = str.substring(str.length() - preserveChars);
+        String middle = "";
+        if (maxLength - 2 * preserveChars > 0) {
+             middle = new String(new char[maxLength - 2 * preserveChars]).replace('\0', maskChar);
+        }
+        return start + middle + end;
     }
 }

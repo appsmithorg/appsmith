@@ -15,7 +15,6 @@ describe("Trial License", function () {
     cy.window()
       .its("localStorage.showLicenseBanner")
       .should("eq", JSON.stringify(true));
-    cy.visit("/applications");
     cy.wait(2000);
     cy.closeWelcomeBanner();
   });
@@ -26,7 +25,6 @@ describe("Trial License", function () {
     });
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.wait(2000);
     cy.get(LicenseLocators.welcomeBanner).should("not.exist");
     cy.get(LicenseLocators.upgradeLeftPane).should("be.visible");

@@ -108,7 +108,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                     TenantConfiguration.License license1 = tenant.getTenantConfiguration().getLicense();
                     AnalyticsEvents analyticsEvent = isActivateInstance ? AnalyticsEvents.ACTIVATE_NEW_INSTANCE : AnalyticsEvents.UPDATE_EXISTING_LICENSE;
                     Map<String, Object> analyticsProperties = Map.of(
-                            FieldName.LICENSE_KEY, StringUtils.isNullOrEmpty(license1.getKey()) ? "" : DataTypeStringUtils.maskString(license1.getKey()),
+                            FieldName.LICENSE_KEY, StringUtils.isNullOrEmpty(license1.getKey()) ? "" : DataTypeStringUtils.maskString(license1.getKey(), 8, 32, 'x'),
                             FieldName.LICENSE_VALID, license1.getStatus() != null  && LicenseStatus.ACTIVE.equals(license1.getStatus()),
                             FieldName.LICENSE_TYPE, license1.getType() == null ? "" : license1.getType(),
                             FieldName.LICENSE_STATUS, license1.getStatus() == null ? "" : license1.getStatus()

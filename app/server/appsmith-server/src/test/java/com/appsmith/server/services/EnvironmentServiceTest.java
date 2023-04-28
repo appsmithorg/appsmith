@@ -1,28 +1,17 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.acl.AclPermission;
-import com.appsmith.external.models.EnvironmentVariable;
-import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.domains.User;
-import com.appsmith.server.repositories.EnvironmentVariableRepository;
-import com.appsmith.server.repositories.EnvironmentRepository;
 import com.appsmith.external.dtos.EnvironmentDTO;
+import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.repositories.EnvironmentRepository;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
-
-import java.util.List;
 
 
 @ExtendWith(SpringExtension.class)
@@ -35,13 +24,7 @@ public class EnvironmentServiceTest {
     EnvironmentService environmentService;
 
     @Autowired
-    EnvironmentVariableService environmentVariableService;
-
-    @Autowired
     EnvironmentRepository environmentRepository;
-
-    @Autowired
-    EnvironmentVariableRepository environmentVariableRepository;
 
     @Autowired
     UserRepository userRepository;
@@ -51,7 +34,6 @@ public class EnvironmentServiceTest {
 
     @SpyBean
     FeatureFlagService featureFlagService;
-
 
     private Workspace workspace;
     private static final String environmentName = "Staging-Test";

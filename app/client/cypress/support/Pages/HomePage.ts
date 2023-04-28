@@ -325,7 +325,6 @@ export class HomePage {
     cy.get(this._leaveWorkspaceConfirmModal).should("be.visible");
     cy.get(this._leaveWorkspaceConfirmButton).click({ force: true });
     cy.wait(4000);
-    this.NavigateToHome();
   }
 
   public OpenMembersPageForWorkspace(workspaceName: string) {
@@ -358,12 +357,19 @@ export class HomePage {
   ) {
     this.OpenMembersPageForWorkspace(workspaceName);
     cy.log(workspaceName, email, currentRole);
+    this.agHelper.UpdateInput(this._searchUsersInput, email);
+    cy.get(".search-highlight").should("exist").contains(email);
     this.agHelper.Sleep(2000);
     cy.xpath(this._userRoleDropDown(currentRole))
       .first()
       .click({ force: true });
     this.agHelper.Sleep();
     //cy.xpath(this._userRoleDropDown(email)).first().click({force: true});
+    if (CURRENT_REPO === REPO.EE) {
+      this.agHelper.AssertElementExist(
+        this._visibleTextSpan("Assign Custom Role"),
+      );
+    }
     cy.xpath(this._visibleTextSpan(`${newRole}`))
       .last()
       .parent("div")
@@ -426,8 +432,7 @@ export class HomePage {
     if (CURRENT_REPO === REPO.CE) {
       this.InviteUserToWorkspaceFromApp(email, role);
     } else {
-      // this.InviteUserToApplicationFromApp(email, role);
-      this.InviteUserToWorkspaceFromApp(email, role); /* temp change */
+      this.InviteUserToApplicationFromApp(email, role);
     }
   }
 

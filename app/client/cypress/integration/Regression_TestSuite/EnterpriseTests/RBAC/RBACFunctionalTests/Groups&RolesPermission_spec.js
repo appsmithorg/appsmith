@@ -223,7 +223,6 @@ describe("Groups&Roles tab Tests", function () {
   it("1. Verify user has create groups and roles permission", function () {
     //login as user1 the user should have admin access and should see groups tab
     cy.LoginFromAPI(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
-    cy.visit("/applications");
     cy.get(locators.AdminSettingsEntryLink).should("be.visible");
     cy.get(locators.AdminSettingsEntryLink).click();
     cy.get(RBAC.usersTab).should("not.exist");
@@ -288,7 +287,6 @@ describe("Groups&Roles tab Tests", function () {
   it("5. Verify user has edit groups and roles permission", function () {
     cy.LoginFromAPI(Cypress.env("TESTUSERNAME2"), Cypress.env("TESTPASSWORD2"));
     cy.get(homePage.profileMenu).should("be.visible");
-    cy.visit("/applications");
     cy.get(locators.AdminSettingsEntryLink).should("be.visible");
     cy.get(locators.AdminSettingsEntryLink).click();
     cy.get(RBAC.usersTab).should("not.exist");

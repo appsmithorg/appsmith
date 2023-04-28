@@ -802,6 +802,9 @@ Cypress.Commands.add(
       0,
       true,
     );
+    agHelper.AssertElementExist(
+      "//span[text()='Users will have access to all applications in this workspace']",
+    );
     cy.xpath(_email).click({ force: true }).type(groupName);
     cy.get(".suggestions-list").should("be.visible");
     cy.get(".each-suggestion").first().click();
@@ -822,6 +825,33 @@ Cypress.Commands.add(
     cy.contains(successMessage);
   },
 );
+
+Cypress.Commands.add("InviteGroupToApplication", (groupName, role) => {
+  const successMessage = "The user/group have been invited successfully";
+  const _email = "//input[@type='text' and contains(@class,'bp3-input-ghost')]";
+  cy.stubPostHeaderReq();
+  agHelper.AssertElementExist(
+    "//span[text()='Users will only have access to this application']",
+  );
+  cy.xpath(_email).click({ force: true }).type(groupName);
+  cy.get(".suggestions-list").should("be.visible");
+  cy.get(".each-suggestion").first().click();
+  cy.xpath("//span[text()='Select a role']/ancestor::div")
+    .first()
+    .click({ force: true });
+  agHelper.Sleep(500);
+  cy.xpath(
+    "//div[contains(@class, 'label-container')]//span[1][text()='" +
+      role +
+      "']",
+  ).click({ force: true });
+  agHelper.ClickButton("Invite");
+  cy.wait("@mockPostAppInvite")
+    .its("request.headers")
+    .should("have.property", "origin", "Cypress");
+  cy.contains(groupName, { matchCase: false });
+  cy.contains(successMessage);
+});
 
 Cypress.Commands.add("AddIntercepts", () => {
   cy.intercept("PUT", "/api/v1/roles/*").as("updateRoles");
