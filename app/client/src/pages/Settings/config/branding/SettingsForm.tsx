@@ -130,7 +130,7 @@ function SettingsForm(props: SettingsFormProps) {
               Color
             </Text>
             <Tooltip content={createMessage(ADMIN_BRANDING_COLOR_TOOLTIP)}>
-              <Icon name="question-fill" size="md" />
+              <Icon name="question-line" size="md" />
             </Tooltip>
           </div>
 

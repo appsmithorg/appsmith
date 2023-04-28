@@ -171,7 +171,7 @@ export const ColorInput = (props: ColorInputProps) => {
           content={tooltips && tooltips[selectedIndex]}
           key={`tooltip-${selectedIndex}`}
         >
-          <Icon name="question-fill" size="md" />
+          <Icon name="question-line" size="md" />
         </Tooltip>
       </div>
 
