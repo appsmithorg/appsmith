@@ -8857,9 +8857,10 @@ codemirror-graphql@^1.2.14:
   dependencies:
     graphql-language-service "^5.0.6"
 
-codemirror@^5.59.2:
-  version "5.59.2"
-  resolved "https://registry.npmjs.org/codemirror/-/codemirror-5.59.2.tgz"
+codemirror@^5.65.13:
+  version "5.65.13"
+  resolved "https://registry.yarnpkg.com/codemirror/-/codemirror-5.65.13.tgz#c098a6f409db8b5a7c5722788bd9fa3bb2367f2e"
+  integrity sha512-SVWEzKXmbHmTQQWaz03Shrh4nybG0wXx2MEu3FO4ezbPW8IbnZEd5iGHGEffSUaitKYa3i+pHpBsSvw8sPHtzg==
 
 collapse-white-space@^1.0.2:
   version "1.0.6"

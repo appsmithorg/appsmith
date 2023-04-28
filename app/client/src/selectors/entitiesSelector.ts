@@ -9,11 +9,12 @@ import type {
   Datasource,
   MockDatasource,
   DatasourceStructure,
+  DatasourceTable,
 } from "entities/Datasource";
 import { isEmbeddedRestDatasource } from "entities/Datasource";
 import type { Action } from "entities/Action";
 import { PluginPackageName, PluginType } from "entities/Action";
-import { find, get, sortBy } from "lodash";
+import { find, get, isEmpty, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -1008,3 +1009,33 @@ export const selectJSCollectionByName = (collectionName: string) =>
       (collection) => collection.config.name === collectionName,
     );
   });
+
+export const getDatasourceStructuresFromDatasourceId = createSelector(
+  (state: AppState) => getDatasourcesStructure(state),
+  (state: AppState) => getActions(state),
+  (state: AppState, dataTreePath: string) => dataTreePath,
+  (datasourceStructures: any, actions: any, dataTreePath: string) => {
+    const actionName = dataTreePath.split(".")[0];
+
+    const action = find(actions, (a) => a.config.name === actionName);
+    let datasourceId = "";
+    if (action) {
+      datasourceId = action?.config?.datasource?.id;
+    }
+    let structures: DatasourceStructure | undefined = undefined;
+    const tables: Record<string, string[]> = {};
+
+    if (datasourceId in datasourceStructures) {
+      structures = datasourceStructures[datasourceId];
+
+      if (structures && structures.tables) {
+        structures?.tables.forEach((table: DatasourceTable) => {
+          if (table?.name) {
+            tables[table.name] = table.columns.map((column) => column.name);
+          }
+        });
+      }
+    }
+    return isEmpty(tables) ? undefined : tables;
+  },
+);

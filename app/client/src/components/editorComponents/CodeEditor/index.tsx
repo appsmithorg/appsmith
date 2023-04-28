@@ -20,6 +20,10 @@ import "codemirror/addon/tern/tern.css";
 import "codemirror/addon/lint/lint";
 import "codemirror/addon/lint/lint.css";
 import "codemirror/addon/comment/comment";
+import "codemirror/mode/sql/sql.js";
+import "codemirror/addon/hint/show-hint";
+import "codemirror/addon/hint/show-hint.css";
+import "codemirror/addon/hint/sql-hint";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import type { WrappedFieldInputProps } from "redux-form";
@@ -66,7 +70,10 @@ import {
   PEEKABLE_LINE,
   PEEK_STYLE_PERSIST_CLASS,
 } from "components/editorComponents/CodeEditor/MarkHelpers/entityMarker";
-import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
+import {
+  bindingHint,
+  sqlHint,
+} from "components/editorComponents/CodeEditor/hintHelpers";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
 import { Button, ScrollIndicator } from "design-system-old";
@@ -139,6 +146,7 @@ import {
 } from "./utils/saveAndAutoIndent";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { selectFeatureFlags } from "selectors/usersSelectors";
+import { getDatasourceStructuresFromDatasourceId } from "selectors/entitiesSelector";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -249,7 +257,7 @@ const getEditorIdentifier = (props: EditorProps): string => {
 class CodeEditor extends Component<Props, State> {
   static defaultProps = {
     marking: [bindingMarker, entityMarker],
-    hinting: [bindingHint, commandsHelper],
+    hinting: [bindingHint, commandsHelper, sqlHint.hinter],
     lineCommentString: "//",
   };
   // this is the higlighted element for any highlighted text in the codemirror
@@ -529,6 +537,9 @@ class CodeEditor extends Component<Props, State> {
           this.props.marking,
           this.props.entitiesForNavigation,
         );
+      }
+      if (this.props.datasourceStructure !== prevProps.datasourceStructure) {
+        sqlHint.setDatasourceStructure(this.props.datasourceStructure || {});
       }
     });
   }
@@ -1414,6 +1425,10 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
     props.dataTreePath?.split(".")[0],
   ),
   featureFlags: selectFeatureFlags(state),
+  datasourceStructure: getDatasourceStructuresFromDatasourceId(
+    state,
+    props.dataTreePath || "",
+  ),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
