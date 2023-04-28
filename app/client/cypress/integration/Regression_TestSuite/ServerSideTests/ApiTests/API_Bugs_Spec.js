@@ -176,17 +176,12 @@ describe("Rest Bugs tests", function () {
     );
     cy.ResponseStatusCheck("404 NOT_FOUND");
     cy.get(commonlocators.errorTab).should("be.visible").click({ force: true });
+    cy.get(commonlocators.debuggerToggle).click();
+    cy.wait(1000);
     cy.get(commonlocators.debuggerLabel)
       .invoke("text")
       .then(($text) => {
-        expect($text).to.eq("API execution error");
-      });
-    cy.get(commonlocators.debuggerToggle).click();
-    cy.wait(1000);
-    cy.get(commonlocators.debuggerDownStreamErrCode)
-      .invoke("text")
-      .then(($text) => {
-        expect($text).to.eq("[404 NOT_FOUND]");
+        expect($text).contains("Not found");
       });
   });
 

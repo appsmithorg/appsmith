@@ -19,7 +19,7 @@ public class FieldNameCE {
     public static final String NAME = "name";
     public static String PAGE_ID = "pageId";
     public static String LAYOUT_ID = "layoutId";
-    public static String APPLICATION_ID = "applicationId";
+    public static final String APPLICATION_ID = "applicationId";
     public static String SOURCE_APPLICATION_ID = "sourceApplicationId";
     public static final String DEFAULT_RESOURCES = "defaultResources";
     public static String PLUGIN_ID = "pluginId";
@@ -166,5 +166,9 @@ public class FieldNameCE {
     public static final String VIEW_MODE = "viewMode";
     public static final String USER_EMAILS = "userEmails";
     public static final String NUMBER_OF_USERS_INVITED = "numberOfUsersInvited";
-}
 
+    public static final String ASSIGNED_USERS_TO_PERMISSION_GROUPS = "assigned_users";
+    public static final String UNASSIGNED_USERS_FROM_PERMISSION_GROUPS = "unassigned_users";
+    public static final String NUMBER_OF_ASSIGNED_USERS = "numberOfAssignedUsers";
+    public static final String NUMBER_OF_UNASSIGNED_USERS = "numberOfUnassignedUsers";
+}

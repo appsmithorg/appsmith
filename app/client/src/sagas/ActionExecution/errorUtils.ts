@@ -58,6 +58,7 @@ export class ActionValidationError extends TriggerFailureError {
 
 export const logActionExecutionError = (
   errorMessage: string,
+  isExecuteJSFunc = true,
   source?: TriggerSource,
   triggerPropertyName?: string,
 ) => {
@@ -86,17 +87,18 @@ export const logActionExecutionError = (
   //   ]);
   // }
 
-  Toaster.show({
-    text: getDisplayMessageFromError(errorMessage) as string,
-    variant: Variant.danger,
-    showDebugButton: !!triggerPropertyName && {
-      component: DebugButton,
-      componentProps: {
-        className: "t--toast-debug-button",
-        source: "TOAST",
+  isExecuteJSFunc &&
+    Toaster.show({
+      text: getDisplayMessageFromError(errorMessage) as string,
+      variant: Variant.danger,
+      showDebugButton: !!triggerPropertyName && {
+        component: DebugButton,
+        componentProps: {
+          className: "t--toast-debug-button",
+          source: "TOAST",
+        },
       },
-    },
-  });
+    });
 };
 
 /*
