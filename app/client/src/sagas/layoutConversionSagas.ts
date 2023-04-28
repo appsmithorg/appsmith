@@ -27,8 +27,11 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
  * @param action
  */
 function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
+  let appId = "";
   try {
+    appId = yield select(getCurrentApplicationId);
     const pageWidgetsList: PageWidgetsReduxState = yield select(getPageWidgets);
+
     const notEmptyApp = isNotEmptyApp(pageWidgetsList);
 
     if (notEmptyApp) {
@@ -94,6 +97,7 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
 
     AnalyticsUtil.logEvent("CONVERSION_FAILURE", {
       flow: "CONVERT_AUTO_TO_FIXED",
+      appId,
     });
   }
 }
@@ -103,8 +107,11 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
  * @param action
  */
 function* convertFromFixedToAutoSaga() {
+  let appId = "";
   try {
+    appId = yield select(getCurrentApplicationId);
     const pageWidgetsList: PageWidgetsReduxState = yield select(getPageWidgets);
+
     const notEmptyApp = isNotEmptyApp(pageWidgetsList);
 
     if (notEmptyApp) {
@@ -113,6 +120,7 @@ function* convertFromFixedToAutoSaga() {
 
     AnalyticsUtil.logEvent("CONVERT_FIXED_TO_AUTO", {
       isNewApp: !notEmptyApp,
+      appId,
     });
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.CONVERSION_SPINNER),
@@ -163,6 +171,7 @@ function* convertFromFixedToAutoSaga() {
 
     AnalyticsUtil.logEvent("CONVERSION_FAILURE", {
       flow: "CONVERT_FIXED_TO_AUTO",
+      appId,
     });
   }
 }

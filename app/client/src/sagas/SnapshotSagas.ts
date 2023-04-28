@@ -74,8 +74,12 @@ export function* fetchSnapshotSaga() {
 //Saga to restore application snapshot
 function* restoreApplicationFromSnapshotSaga() {
   let response: ApiResponse<any> | undefined;
+  let appId = "";
   try {
-    AnalyticsUtil.logEvent("RESTORE_SNAPSHOT");
+    appId = yield select(getCurrentApplicationId);
+    AnalyticsUtil.logEvent("RESTORE_SNAPSHOT", {
+      appId,
+    });
 
     const applicationId: string = yield select(getCurrentApplicationId);
     response = yield ApplicationApi.restoreApplicationFromSnapshot({
@@ -136,6 +140,7 @@ function* restoreApplicationFromSnapshotSaga() {
 
     AnalyticsUtil.logEvent("CONVERSION_FAILURE", {
       flow: "RESTORE_SNAPSHOT",
+      appId,
     });
   }
 }
