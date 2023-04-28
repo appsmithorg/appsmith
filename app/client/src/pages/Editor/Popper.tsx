@@ -74,10 +74,6 @@ const DragHandleBlock = styled.div`
   :hover {
     background-color: var(--ads-v2-color-bg-subtle);
   }
-
-  svg {
-    transform: rotate(90deg);
-  }
 `;
 
 type PopperDragHandleProps = { dragFn?: (val: boolean) => void };
@@ -143,7 +139,7 @@ export default (props: PopperProps) => {
           }
         }}
       >
-        <Icon name="drag-handle" size="md" />
+        <Icon name="drag-handle" size="lg" />
       </DragHandleBlock>
     );
   };
