@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import Entity, { EntityClassNames } from "../Entity";
 import { datasourceTableIcon } from "../ExplorerIcons";
-import { EntityTogglesWrapper } from "../ExplorerStyledComponents";
-import styled from "styled-components";
 import QueryTemplates from "./QueryTemplates";
 import DatasourceField from "./DatasourceField";
 import type { DatasourceTable } from "entities/Datasource";
@@ -13,25 +11,8 @@ import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { getDatasource } from "selectors/entitiesSelector";
 import { getPagePermissions } from "selectors/editorSelectors";
-import { Menu, MenuTrigger, Button } from "design-system";
-
-const Wrapper = styled(EntityTogglesWrapper)`
-  &&&& {
-    svg,
-    svg path {
-      fill: var(--ads-v2-color-bg-brand);
-    }
-  }
-  .button-icon {
-    height: 36px;
-  }
-`;
-
-const StyledEntity = styled(Entity)`
-  & > div {
-    grid-template-columns: 20px auto 1fr auto auto;
-  }
-`;
+import { Menu, MenuTrigger, Button, Tooltip, MenuContent } from "design-system";
+import { SHOW_TEMPLATES, createMessage } from "ce/constants/messages";
 
 type DatasourceStructureProps = {
   dbStructure: DatasourceTable;
@@ -58,25 +39,34 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
   ]);
 
   const lightningMenu = canCreateDatasourceActions ? (
-    <Menu>
-      <MenuTrigger onClick={() => setActive(!active)}>
-        <Wrapper
-          className={`t--template-menu-trigger ${EntityClassNames.CONTEXT_MENU}`}
-        >
+    <Menu open={active}>
+      <Tooltip
+        content={createMessage(SHOW_TEMPLATES)}
+        isDisabled={active}
+        mouseLeaveDelay={0}
+        placement="right"
+      >
+        <MenuTrigger>
           <Button
-            className="button-icon"
+            className={`button-icon t--template-menu-trigger ${EntityClassNames.CONTEXT_MENU}`}
+            isIconButton
             kind="tertiary"
-            size="sm"
-            startIcon="lightning"
-          >
-            Add
-          </Button>
-        </Wrapper>
-      </MenuTrigger>
-      <QueryTemplates
-        datasourceId={props.datasourceId}
-        templates={dbStructure.templates}
-      />
+            onClick={() => setActive(!active)}
+            startIcon="increase-control-v2"
+          />
+        </MenuTrigger>
+      </Tooltip>
+      <MenuContent
+        align="start"
+        onInteractOutside={() => setActive(false)}
+        side="right"
+      >
+        <QueryTemplates
+          datasourceId={props.datasourceId}
+          onSelect={() => setActive(false)}
+          templates={dbStructure.templates}
+        />
+      </MenuContent>
     </Menu>
   ) : null;
 
@@ -84,7 +74,7 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
   const columnsAndKeys = dbStructure.columns.concat(dbStructure.keys);
 
   return (
-    <StyledEntity
+    <Entity
       action={() => canCreateDatasourceActions && setActive(!active)}
       active={active}
       className={`datasourceStructure`}
@@ -103,7 +93,7 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
           />
         );
       })}
-    </StyledEntity>
+    </Entity>
   );
 }
 

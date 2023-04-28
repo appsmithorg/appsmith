@@ -13,11 +13,12 @@ import type { Datasource, QueryTemplate } from "entities/Datasource";
 import { INTEGRATION_TABS } from "constants/routes";
 import { getDatasource } from "selectors/entitiesSelector";
 import { integrationEditorURL } from "RouteBuilder";
-import { MenuContent, MenuItem } from "design-system";
+import { MenuItem } from "design-system";
 
 type QueryTemplatesProps = {
   templates: QueryTemplate[];
   datasourceId: string;
+  onSelect: () => void;
 };
 
 export function QueryTemplates(props: QueryTemplatesProps) {
@@ -74,18 +75,21 @@ export function QueryTemplates(props: QueryTemplatesProps) {
   );
 
   return (
-    <MenuContent align="start" side="right">
+    <>
       {props.templates.map((template) => {
         return (
           <MenuItem
             key={template.title}
-            onClick={() => createQueryAction(template)}
+            onSelect={() => {
+              createQueryAction(template);
+              props.onSelect();
+            }}
           >
             {template.title}
           </MenuItem>
         );
       })}
-    </MenuContent>
+    </>
   );
 }
 
