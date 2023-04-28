@@ -12,6 +12,11 @@ import {
   SettingsHeader,
   SettingsSubHeader,
 } from "@appsmith/pages/AdminSettings/config/authentication/AuthPage";
+import styled from "styled-components";
+
+const StyledSettingsSubHeader = styled(SettingsSubHeader)`
+  margin: 0;
+`;
 
 const UpgradeBanner = () => {
   const { onUpgrade } = useOnUpgrade({
@@ -34,14 +39,14 @@ const UpgradeBanner = () => {
           >
             {createMessage(ADMIN_BRANDING_SETTINGS_TITLE)}
           </SettingsHeader>
-          <SettingsSubHeader
+          <StyledSettingsSubHeader
             className="w-7/12 mt-1"
             color="var(--ads-v2-color-fg-emphasis)"
             kind="body-m"
             renderAs="h2"
           >
             {createMessage(ADMIN_BRANDING_SETTINGS_SUBTITLE)}
-          </SettingsSubHeader>
+          </StyledSettingsSubHeader>
         </main>
         <aside>
           <Button onClick={onUpgrade} size="md" startIcon="star-line">

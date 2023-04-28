@@ -9,15 +9,14 @@ import {
 } from "@appsmith/constants/messages";
 
 const FooterContainer = styled.div`
-  position: fixed;
+  position: absolute;
   bottom: 0;
   left: 0;
-  width: calc(100% - 264px - 16px);
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
   height: 112px;
-  margin-left: calc(264px + 16px);
   gap: 20px;
   padding: 16px 20px;
   background-color: var(--ads-v2-color-bg);

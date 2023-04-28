@@ -7,11 +7,14 @@ import type { UpgradePageProps } from "./types";
 
 export const Container = styled.div`
   background-color: var(--ads-v2-color-bg-subtle);
-  height: auto;
   min-height: 0;
-  overflow: auto;
-  height: calc(100vh - 50px - 112px);
   width: 100%;
+  position: relative;
+
+  .scroll-container {
+    height: calc(100vh - 50px - 112px);
+    overflow: auto;
+  }
 `;
 
 export default function UpgradePage(props: UpgradePageProps) {
@@ -21,8 +24,10 @@ export default function UpgradePage(props: UpgradePageProps) {
       className="upgrade-page-container"
       data-testid="t--upgrade-page-container"
     >
-      <Header {...header} />
-      <Carousel {...carousel} />
+      <div className="scroll-container">
+        <Header {...header} />
+        <Carousel {...carousel} />
+      </div>
       <Footer {...footer} />
     </Container>
   );
