@@ -55,7 +55,7 @@ import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import {
   waitForSegmentInit,
   waitForFetchUserSuccess,
-} from "ce/sagas/userSagas";
+} from "@appsmith/sagas/userSagas";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 export default class AppEditorEngine extends AppEngine {

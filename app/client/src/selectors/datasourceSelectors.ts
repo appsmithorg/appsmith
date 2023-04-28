@@ -1,4 +1,4 @@
-import type { AppState } from "ce/reducers";
+import type { AppState } from "@appsmith/reducers";
 
 export const getGsheetSpreadsheets =
   (id = "") =>
