@@ -1,35 +1,25 @@
-const dsl = require("../../../../fixtures/mobileViewScrollDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper;
 let theight;
 let twidth;
 
-describe("Validating Mobile Views", function () {
-  afterEach(() => {
-    agHelper.SaveLocalStorageCache();
-  });
-
-  beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
-  });
-  it("Validate change with height width for widgets", function () {
-    cy.wait(5000);
+describe("Validating Mobile View related usecases for Autoscroll", function () {
+  it("Capture the height/width of autofill widgets in webview", function () {
     cy.get(commonlocators.autoConvert).click({
       force: true,
     });
-    cy.wait(2000);
     cy.get(commonlocators.convert).click({
       force: true,
     });
-    cy.wait(2000);
     cy.get(commonlocators.refreshApp).click({
       force: true,
     });
     cy.wait(2000);
-    cy.addDsl(dsl);
-    cy.wait(5000); //for dsl to settle
-    //cy.openPropertyPane("containerwidget");
+    cy.dragAndDropToCanvas("listwidgetv2", { x: 100, y: 200 });
+    cy.dragAndDropToCanvas("containerwidget", { x: 620, y: 820 });
+    for (let i = 0; i < 10; i++) {
+      cy.dragAndDropToCanvas("inputwidgetv2", { x: 450, y: 530 });
+    }
+    cy.get(".t--widget-inputwidgetv2").first().should("be.visible");
     cy.PublishtheApp();
     cy.wait(2000);
     cy.get(".t--widget-inputwidgetv2")
@@ -49,14 +39,14 @@ describe("Validating Mobile Views", function () {
     [360, 780],
   ];
   phones.forEach((phone) => {
-    it(`${phone} port execution`, function () {
+    it(`${phone} port execution for autoscroll`, function () {
       if (Cypress._.isArray(phone)) {
         cy.viewport(phone[0], phone[1]);
       } else {
         cy.viewport(phone);
       }
       cy.wait(2000);
-      for (let i = 0; i < 9; i++) {
+      for (let i = 0; i < 10; i++) {
         cy.get(".t--widget-inputwidgetv2")
           .eq(i)
           .scrollIntoView()

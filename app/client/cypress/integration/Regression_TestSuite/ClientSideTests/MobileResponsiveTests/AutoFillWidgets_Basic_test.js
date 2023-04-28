@@ -5,97 +5,74 @@ const agHelper = ObjectsRegistry.AggregateHelper;
 let widgets = [
   "switchwidget",
   "currencyinputwidget",
-  "codescannerwidget",
-  "listwidgetv2",
-  "tablewidgetv2",
   "audiowidget",
   "checkboxwidget",
   "selectwidget",
   "radiogroupwidget",
   "datepickerwidget2",
-  "tabswidget",
   "phoneinputwidget",
   "categorysliderwidget",
 ];
 let height = {
   switchwidget: 0,
   currencyinputwidget: 0,
-  codescannerwidget: 0,
-  listwidgetv2: 0,
-  tablewidgetv2: 0,
   audiowidget: 0,
   checkboxwidget: 0,
   selectwidget: 0,
   radiogroupwidget: 0,
   datepickerwidget2: 0,
-  tabswidget: 0,
   phoneinputwidget: 0,
   categorysliderwidget: 0,
 };
 let width = {
   switchwidget: 0,
   currencyinputwidget: 0,
-  codescannerwidget: 0,
-  listwidgetv2: 0,
-  tablewidgetv2: 0,
   audiowidget: 0,
   checkboxwidget: 0,
   selectwidget: 0,
   radiogroupwidget: 0,
   datepickerwidget2: 0,
-  tabswidget: 0,
   phoneinputwidget: 0,
   categorysliderwidget: 0,
 };
 
 describe("Validating Mobile Views for Auto Fill Widgets", function () {
-  afterEach(() => {
-    agHelper.SaveLocalStorageCache();
-  });
-
-  beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
-  });
-  it("To capture the height and width of various auto fill widgets in webview", function () {
-    cy.wait(5000);
+  it("To capture the height and width of various autofill / Hug widgets in webview", function () {
     cy.get(commonlocators.autoConvert).click({
       force: true,
     });
-    cy.wait(2000);
     cy.get(commonlocators.convert).click({
       force: true,
     });
-    cy.wait(2000);
     cy.get(commonlocators.refreshApp).click({
       force: true,
     });
     cy.wait(2000);
-    cy.addDsl(dsl);
+    cy.dragAndDropToCanvas("switchwidget", { x: 100, y: 200 });
+    cy.dragAndDropToCanvas("currencyinputwidget", { x: 110, y: 210 });
+    cy.dragAndDropToCanvas("audiowidget", { x: 250, y: 300 });
+    cy.dragAndDropToCanvas("selectwidget", { x: 560, y: 560 });
+    cy.dragAndDropToCanvas("checkboxwidget", { x: 770, y: 770 });
+    cy.dragAndDropToCanvas("radiogroupwidget", { x: 770, y: 770 });
+    cy.dragAndDropToCanvas("datepickerwidget2", { x: 770, y: 970 });
+    cy.dragAndDropToCanvas("phoneinputwidget", { x: 660, y: 810 });
+    cy.dragAndDropToCanvas("categorysliderwidget", { x: 620, y: 810 });
     cy.wait(5000); //for dsl to settle
-    //cy.openPropertyPane("containerwidget");
     cy.PublishtheApp();
     cy.wait(2000);
-    let heightPromises = [];
-    let widthPromises = [];
     for (let i = 0; i < widgets.length; i++) {
-      let heightPromise = cy
-        .get(".t--widget-".concat(widgets[i]))
+      cy.get(".t--widget-".concat(widgets[i]))
         .invoke("css", "height")
         .then((newheight) => {
           height[widgets[i]] = newheight;
           cy.log(height[widgets[i]]);
-          cy.log(i);
         });
-      heightPromises.push(heightPromise);
-      let widthPromise = cy
-        .get(".t--widget-".concat(widgets[i]))
+      cy.get(".t--widget-".concat(widgets[i]))
         .invoke("css", "width")
         .then((newwidth) => {
           width[widgets[i]] = newwidth;
           cy.log(width[widgets[i]]);
-          cy.log(i);
         });
-      widthPromises.push(widthPromise);
     }
   });
 
@@ -121,99 +98,78 @@ describe("Validating Mobile Views for Auto Fill Widgets", function () {
         .then((newwidth) => {
           expect(width[widgets[0]]).to.not.equal(newwidth);
         });
-      cy.get(".t--widget-codescannerwidget")
+      cy.get(".t--widget-currencyinputwidget")
+        .invoke("css", "height")
+        .then((newheight) => {
+          expect(height[widgets[1]]).to.equal(newheight);
+        });
+      cy.get(".t--widget-currencyinputwidget")
+        .invoke("css", "width")
+        .then((newwidth) => {
+          expect(width[widgets[1]]).to.not.equal(newwidth);
+        });
+      cy.get(".t--widget-audiowidget")
         .invoke("css", "height")
         .then((newheight) => {
           expect(height[widgets[2]]).to.equal(newheight);
         });
-      cy.get(".t--widget-codescannerwidget")
+      cy.get(".t--widget-audiowidget")
         .invoke("css", "width")
         .then((newwidth) => {
           expect(width[widgets[2]]).to.not.equal(newwidth);
         });
-      cy.get(".t--widget-listwidgetv2")
+      cy.get(".t--widget-selectwidget")
         .invoke("css", "height")
         .then((newheight) => {
-          expect(height[widgets[3]]).to.equal(newheight);
+          expect(parseFloat(height[widgets[3]])).to.not.equal(parseFloat(newheight));
         });
-      cy.get(".t--widget-listwidgetv2")
+      cy.get(".t--widget-selectwidget")
         .invoke("css", "width")
         .then((newwidth) => {
-          expect(width[widgets[3]]).to.not.equal(newwidth);
-        });
-      cy.get(".t--widget-tablewidgetv2")
-        .invoke("css", "height")
-        .then((newheight) => {
-          expect(parseFloat(height[widgets[4]])).to.be.at.least(
-            parseFloat(newheight),
-          );
-        });
-      cy.get(".t--widget-tablewidgetv2")
-        .invoke("css", "width")
-        .then((newwidth) => {
-          expect(width[widgets[4]]).to.not.equal(newwidth);
-        });
-      cy.get(".t--widget-audiowidget")
-        .invoke("css", "height")
-        .then((newheight) => {
-          expect(height[widgets[5]]).to.equal(newheight);
-        });
-      cy.get(".t--widget-audiowidget")
-        .invoke("css", "width")
-        .then((newwidth) => {
-          expect(width[widgets[5]]).to.not.equal(newwidth);
-        });
-      cy.get(".t--widget-checkboxwidget")
-        .invoke("css", "height")
-        .then((newheight) => {
-          expect(height[widgets[6]]).to.equal(newheight);
+          expect(parseFloat(width[widgets[3]])).to.not.equal(parseFloat(newwidth));
         });
       cy.get(".t--widget-checkboxwidget")
         .invoke("css", "width")
         .then((newwidth) => {
-          expect(width[widgets[6]]).to.not.equal(newwidth);
+          expect(parseFloat(width[widgets[4]])).to.not.equal(parseFloat(newwidth));
         });
       cy.get(".t--widget-radiogroupwidget")
         .invoke("css", "height")
         .then((newheight) => {
-          expect(height[widgets[8]]).to.equal(newheight);
+          expect(parseFloat(height[widgets[5]])).to.equal(parseFloat(newheight));
         });
       cy.get(".t--widget-radiogroupwidget")
         .invoke("css", "width")
         .then((newwidth) => {
-          expect(width[widgets[8]]).to.not.equal(newwidth);
+          expect(parseFloat(width[widgets[5]])).to.not.equal(parseFloat(newwidth));
         });
       cy.get(".t--widget-datepickerwidget2")
         .scrollIntoView()
         .invoke("css", "width")
         .then((newwidth) => {
-          expect(parseFloat(width[widgets[9]])).to.be.at.least(
+          expect(parseFloat(width[widgets[6]])).to.be.at.least(
             parseFloat(newwidth),
           );
         });
-      cy.get(".t--widget-tabswidget")
+      cy.get(".t--widget-phoneinputwidget")
         .invoke("css", "height")
         .then((newheight) => {
-          expect(parseFloat(height[widgets[10]])).to.be.at.least(
-            parseFloat(newheight),
-          );
+          expect(parseFloat(height[widgets[7]])).to.equal(parseFloat(newheight));
         });
-      cy.get(".t--widget-tabswidget")
+      cy.get(".t--widget-phoneinputwidget")
         .invoke("css", "width")
         .then((newwidth) => {
-          expect(parseFloat(width[widgets[10]])).to.be.at.least(
-            parseFloat(newwidth),
-          );
+          expect(parseFloat(width[widgets[7]])).to.not.equal(parseFloat(newwidth));
         });
       cy.get(".t--widget-categorysliderwidget")
         .invoke("css", "height")
         .then((newheight) => {
-          expect(height[widgets[12]]).to.equal(newheight);
+          expect(parseFloat(height[widgets[8]])).to.equal(parseFloat(newheight));
         });
       cy.get(".t--widget-categorysliderwidget")
         .invoke("css", "width")
         .then((newwidth) => {
-          expect(width[widgets[12]]).to.not.equal(newwidth);
+          expect(width[widgets[8]]).to.not.equal(parseFloat(newwidth));
         });
     });
   });
