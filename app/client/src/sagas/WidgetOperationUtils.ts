@@ -6,6 +6,7 @@ import {
 } from "./selectors";
 import _, { find, isString, reduce, remove } from "lodash";
 import type { WidgetType } from "constants/WidgetConstants";
+import { AUTO_LAYOUT_CONTAINER_PADDING } from "constants/WidgetConstants";
 import {
   CONTAINER_GRID_PADDING,
   FLEXBOX_PADDING,
@@ -745,7 +746,12 @@ export function getMousePositions(
  */
 export function getSnappedGrid(LayoutWidget: WidgetProps, canvasWidth: number) {
   // For all widgets inside a container, we remove both container padding as well as widget padding from component width
-  let padding = (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2;
+  let padding =
+    ((LayoutWidget?.appPositioningType === AppPositioningTypes.AUTO
+      ? AUTO_LAYOUT_CONTAINER_PADDING
+      : CONTAINER_GRID_PADDING) +
+      WIDGET_PADDING) *
+    2;
   if (
     LayoutWidget.widgetId === MAIN_CONTAINER_WIDGET_ID ||
     LayoutWidget.type === "CONTAINER_WIDGET"

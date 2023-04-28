@@ -41,7 +41,7 @@ import {
 } from "utils/autoLayout/constants";
 import { isAutoHeightEnabledForWidget } from "./WidgetUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
-import { getGoogleMapsApiKey } from "ce/selectors/tenantSelectors";
+import { getGoogleMapsApiKey } from "@appsmith/selectors/tenantSelectors";
 import ConfigTreeActions from "utils/configTree";
 import { getSelectedWidgetAncestry } from "../selectors/widgetSelectors";
 import { getParentWidget } from "../selectors/widgetSelectors";
