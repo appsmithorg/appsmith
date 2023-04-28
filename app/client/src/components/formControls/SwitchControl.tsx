@@ -33,10 +33,6 @@ export class SwitchField extends React.Component<SwitchFieldProps, any> {
     }
   }
 
-  onChange: React.FormEventHandler<HTMLInputElement> = () => {
-    this.props.input.onChange(!this.value);
-  };
-
   render() {
     return (
       <SwitchWrapped data-cy={this.props.input.name}>
@@ -44,8 +40,9 @@ export class SwitchField extends React.Component<SwitchFieldProps, any> {
         <Switch
           className="switch-control"
           isDisabled={this.props.disabled}
+          isSelected={this.value}
           name={this.props.input.name}
-          onChange={() => this.onChange}
+          onChange={(isSelected) => this.props.input.onChange(isSelected)}
         />
       </SwitchWrapped>
     );

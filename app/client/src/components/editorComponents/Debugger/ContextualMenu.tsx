@@ -183,7 +183,7 @@ const ContextualMenu = (props: ContextualMenuProps) => {
   return (
     <Menu className="t--debugger-contextual-error-menu">
       <MenuTrigger>{props.children}</MenuTrigger>
-      <MenuContent>
+      <MenuContent align="end">
         {options.map((e) => {
           const menuProps = searchAction[e];
           const onSelect = () => {

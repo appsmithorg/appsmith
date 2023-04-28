@@ -541,7 +541,7 @@ class IntegrationsHomeScreen extends React.Component<
           style={{ overflow: "auto" }}
         >
           <HeaderFlex>
-            <p className="sectionHeadings">Datasources</p>
+            <p className="sectionHeadings">Datasources in your workspace</p>
           </HeaderFlex>
           <SectionGrid
             isActiveTab={

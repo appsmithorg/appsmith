@@ -10,7 +10,7 @@ import type { ControlProps, ControlData } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import type { TextInputProps } from "design-system-old";
+import type { InputProps } from "design-system";
 import { setDefaultKeyValPairFlag } from "actions/datasourceActions";
 import { useDispatch } from "react-redux";
 import { Button, Input } from "design-system";
@@ -41,7 +41,7 @@ const FormRowWithLabel = styled.div`
   }
 `;
 
-const StyledTextInput = styled(Input)`
+const StyledInput = styled(Input)`
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
@@ -93,7 +93,7 @@ function KeyValueRow(
     }
   }, [props.fields]);
 
-  const keyFieldValidate = useCallback(
+  const isKeyFieldValid = useCallback(
     (value: string) => {
       if (value && keyFieldProps?.validationRegex) {
         const regex = new RegExp(keyFieldProps?.validationRegex);
@@ -102,8 +102,7 @@ function KeyValueRow(
           ? { isValid: true }
           : { isValid: false, message: keyFieldProps.validationMessage };
       }
-
-      return undefined;
+      return { isValid: true };
     },
     [keyFieldProps?.validationRegex, keyFieldProps?.validationMessage],
   );
@@ -127,12 +126,12 @@ function KeyValueRow(
               data-replay-id={btoa(keyTextFieldName)}
             >
               <Field
-                component={renderTextInput}
+                component={renderInput}
                 name={keyTextFieldName}
                 props={{
                   dataType: getType(extraData[0]?.dataType),
                   defaultValue: extraData[0]?.initialValue,
-                  keyFieldValidate,
+                  keyFieldValidate: isKeyFieldValid,
                   placeholder: props.extraData
                     ? props.extraData[1]?.placeholderText
                     : "",
@@ -148,7 +147,7 @@ function KeyValueRow(
                   style={{ display: "flex", flexDirection: "row" }}
                 >
                   <Field
-                    component={renderTextInput}
+                    component={renderInput}
                     name={valueTextFieldName}
                     props={{
                       dataType: getType(extraData[1]?.dataType),
@@ -235,35 +234,33 @@ const getType = (dataType: string | undefined) => {
   }
 };
 
-function renderTextInput(
-  props: TextInputProps & {
+function renderInput(
+  props: InputProps & {
     dataType?: "text" | "number" | "password";
     placeholder?: string;
     defaultValue: string | number;
     isRequired: boolean;
-    keyFieldValidate?: (value: string) => { isValid: boolean; message: string };
-    errorMsg?: string;
+    isKeyFieldValid?: (value: string) => { isValid: boolean; message: string };
     helperText?: string;
   } & {
     meta: Partial<WrappedFieldMetaProps>;
     input: Partial<WrappedFieldInputProps>;
   },
 ): JSX.Element {
-  //  TODO (tanvi): use number or text inout based on data type
   return (
-    <StyledTextInput
-      // dataType={props.dataType}
+    <StyledInput
       aria-label={
         props.helperText || props.defaultValue || props.placeholder || "label"
       }
       defaultValue={props.defaultValue}
       description={props.helperText}
-      errorMessage={props.errorMsg}
-      // name={props.input?.name}
+      errorMessage={props.isKeyFieldValid?.(props.input.value).message}
+      isValid={props.isKeyFieldValid?.(props.input.value).isValid}
+      name={props.input?.name}
       onChange={props.input.onChange}
       placeholder={props.placeholder}
       size="md"
-      // validator={props.keyFieldValidate}
+      type={props.dataType}
       value={props.input.value}
     />
   );

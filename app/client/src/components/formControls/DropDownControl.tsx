@@ -231,12 +231,14 @@ function renderDropdown(
   return (
     <Select
       data-cy={`t--dropdown-${props?.configProperty}`}
+      defaultValue={props.initialValue}
       isDisabled={props.disabled}
       isMultiSelect={props?.isMultiSelect}
       onDeselect={onRemoveOptions}
-      onSelect={onSelectOptions}
+      onSelect={(value) => onSelectOptions(value)}
       placeholder={props?.placeholderText}
       showSearch={props.isSearchable}
+      value={props.isMultiSelect ? selectedOptions : selectedOptions[0]}
     >
       {options.map((option) => {
         return (

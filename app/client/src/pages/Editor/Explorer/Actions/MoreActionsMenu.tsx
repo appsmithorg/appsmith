@@ -161,7 +161,7 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
         )}
         {isDeletePermitted && (
           <MenuItem
-            className="t--apiFormDeleteBtn"
+            className="t--apiFormDeleteBtn error-menuitem"
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             //@ts-ignore
             onSelect={(e: Event) => {
