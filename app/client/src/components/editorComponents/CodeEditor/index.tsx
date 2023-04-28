@@ -24,6 +24,7 @@ import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import type { WrappedFieldInputProps } from "redux-form";
 import _, { debounce, isEqual } from "lodash";
+import scrollIntoView from "scroll-into-view-if-needed";
 
 import type {
   DataTree,
@@ -389,6 +390,7 @@ class CodeEditor extends Component<Props, State> {
         editor.on("blur", this.handleEditorBlur);
         editor.on("postPick", () => this.handleAutocompleteVisibility(editor));
         editor.on("mousedown", this.handleClick);
+        editor.on("scrollCursorIntoView", this.handleScrollCursorIntoView);
         CodeMirror.on(
           editor.getWrapperElement(),
           "mousemove",
@@ -586,6 +588,28 @@ class CodeEditor extends Component<Props, State> {
     (ev) => this.handleMouseOver(ev),
     PEEK_OVERLAY_DELAY,
   );
+
+  handleScrollCursorIntoView = (cm: CodeMirror.Editor, event: Event) => {
+    event.preventDefault();
+
+    const delayedWork = () => {
+      if (!this.state.isFocused) return;
+
+      const cursorElement = cm
+        .getScrollerElement()
+        .getElementsByClassName("CodeMirror-cursor")[0];
+      if (cursorElement) {
+        scrollIntoView(cursorElement, {
+          block: "nearest",
+        });
+      }
+    };
+
+    // We need to delay this because CodeMirror can fire scrollCursorIntoView as a view is being blurred
+    // and another is being focused. The blurred editor still has the focused state when this event fires.
+    // We don't want to scroll the blurred editor into view, only the focused editor.
+    setTimeout(delayedWork, 0);
+  };
 
   handleMouseOver = (event: MouseEvent) => {
     if (

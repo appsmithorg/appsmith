@@ -114,6 +114,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { safeCrashAppRequest } from "actions/errorActions";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { setAllEntityCollapsibleStates } from "../../actions/editorContextActions";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -603,6 +604,16 @@ export function* createApplicationSaga(
         const FirstTimeUserOnboardingApplicationId: string = yield select(
           getFirstTimeUserOnboardingApplicationId,
         );
+        // All new apps will have the Entity Explorer unfurled so that users
+        // can find the entities they have created
+        yield put(
+          setAllEntityCollapsibleStates({
+            Widgets: true,
+            ["Queries/JS"]: true,
+            Datasources: true,
+          }),
+        );
+
         if (
           isFirstTimeUserOnboardingEnabled &&
           FirstTimeUserOnboardingApplicationId === ""
