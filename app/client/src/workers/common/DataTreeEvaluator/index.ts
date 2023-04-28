@@ -107,6 +107,7 @@ import {
 import {
   addRootcauseToAsyncInvocationErrors,
   getFixedTimeDifference,
+  replaceThisDotParams,
 } from "./utils";
 import { isJSObjectFunction } from "workers/Evaluation/JSObject/utils";
 import {
@@ -947,10 +948,7 @@ export default class DataTreeEvaluator {
                 [THIS_DOT_PARAMS_KEY]: {},
               };
 
-              unEvalPropertyValue = unEvalPropertyValue.replace(
-                EXECUTION_PARAM_REFERENCE_REGEX,
-                THIS_DOT_PARAMS_KEY,
-              );
+              unEvalPropertyValue = replaceThisDotParams(unEvalPropertyValue);
             }
             try {
               evalPropertyValue = this.getDynamicValue(
