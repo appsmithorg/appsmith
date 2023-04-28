@@ -234,6 +234,7 @@ export function EditorHeader(props: EditorHeaderProps) {
     publishApplication,
     workspaceId,
   } = props;
+  const [activeTab, setActiveTab] = useState("invite");
   const dispatch = useDispatch();
   const isSnipingMode = useSelector(snipingModeSelector);
   const isSavingName = useSelector(getIsSavingAppName);
@@ -460,7 +461,10 @@ export function EditorHeader(props: EditorHeaderProps) {
               <ModalContent>
                 <ModalHeader>Application Invite</ModalHeader>
                 <ModalBody>
-                  <Tabs defaultValue="invite">
+                  <Tabs
+                    onValueChange={(value) => setActiveTab(value)}
+                    value={activeTab}
+                  >
                     <TabsList>
                       <Tab value="invite">{createMessage(INVITE_TAB)}</Tab>
                       <Tab value="embed">
@@ -477,7 +481,9 @@ export function EditorHeader(props: EditorHeaderProps) {
                       />
                     </TabPanel>
                     <TabPanel value="embed">
-                      <EmbedSnippetForm />
+                      <EmbedSnippetForm
+                        changeTab={() => setActiveTab("invite")}
+                      />
                     </TabPanel>
                   </Tabs>
                 </ModalBody>

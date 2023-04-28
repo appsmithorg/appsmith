@@ -10415,10 +10415,10 @@ depd@~1.1.2:
   dependencies:
     emoji-mart "3.0.1"
 
-"design-system@npm:@appsmithorg/design-system@2.1.5-alpha.45":
-  version "2.1.5-alpha.45"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-2.1.5-alpha.45.tgz#5d38c25bda2358a7b748356dd9bf64faa5114ea8"
-  integrity sha512-rI3BdtxBkqlhfJWdOdGhBIc8CQZOwBQOgcyNgIaTdP/IM2/iViEF5nzmq3JIxo22pTYO8FpwSiCNbnxfYMJFIg==
+"design-system@npm:@appsmithorg/design-system@2.1.5-alpha.58":
+  version "2.1.5-alpha.58"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-2.1.5-alpha.58.tgz#940f0ee1b37743b319cd745884e9ab6db4a3b0b8"
+  integrity sha512-8GVQ9M2d7WDOOGQqHBbM5Oe0BIoQIo+xOu1YMUjqKk/LxCZQYliOMOq5kVlbRZ54wpj/Ox3erJv5otrc7jfO9Q==
   dependencies:
     "@radix-ui/react-dialog" "^1.0.2"
     "@radix-ui/react-dropdown-menu" "^2.0.4"
@@ -10433,7 +10433,7 @@ depd@~1.1.2:
     "@react-stately/radio" "^3.6.2"
     "@react-stately/toggle" "^3.4.4"
     date-fns "^2.29.3"
-    rc-select "^14.3.0"
+    rc-select "^14.4.3"
     rc-tooltip "^5.3.1"
     react-datepicker "^4.10.0"
     react-toastify "9.0.3"
@@ -18262,10 +18262,10 @@ rc-select@^14.1.9, rc-select@~14.1.0:
     rc-util "^5.16.1"
     rc-virtual-list "^3.2.0"
 
-rc-select@^14.3.0:
-  version "14.4.2"
-  resolved "https://registry.yarnpkg.com/rc-select/-/rc-select-14.4.2.tgz#940fbbf6ffbf35ba11464a42ad1baf330901945c"
-  integrity sha512-Ykk4bIPwEMd1WDoG8pHrcggRcB7Sji+OhyWj3ADuGKtDQGlgg7PgM79Opf3qtbkLQX+Q9DiQ16UykozAgL5gMw==
+rc-select@^14.4.3:
+  version "14.4.3"
+  resolved "https://registry.yarnpkg.com/rc-select/-/rc-select-14.4.3.tgz#68d7f1b6bcb41543f69901951facd5e097fb835d"
+  integrity sha512-qoz4gNqm3SN+4dYKSCRiRkxKSEEdbS3jC6gdFYoYwEjDZ9sdQFo5jHlfQbF+hhai01HOoj1Hf8Gq6tpUvU+Gmw==
   dependencies:
     "@babel/runtime" "^7.10.1"
     "@rc-component/trigger" "^1.5.0"

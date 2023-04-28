@@ -1528,7 +1528,7 @@ export const IN_APP_EMBED_SETTING = {
   change: () => "Change",
   copiedEmbedCode: () => "Embed code copied to clipboard",
   embedSize: () => "Embed size",
-  previewEmbeddedApp: () => "PREVIEW EMBEDDED APP",
+  previewEmbeddedApp: () => "Preview Embedded App",
   sectionHeader: () => "Share & Embed",
   sectionContentHeader: () => "Share",
   sectionHeaderDesc: () => "Make public, embed properties",
@@ -1538,7 +1538,7 @@ export const IN_APP_EMBED_SETTING = {
   upgradeHeadingForInviteModal: () =>
     "Make your app public in share settings to embed",
   upgradeContent: () => "Private embedding is now available in",
-  appsmithBusinessEdition: () => "Appsmith Business Edition",
+  appsmithBusinessEdition: () => "Appsmith Business Edition.",
   secondaryHeadingForAppSettings: () => "Make your app public to embed",
   secondaryHeading: () =>
     "Please contact your workspace admin to make the app public before embedding",
