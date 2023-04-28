@@ -45,6 +45,7 @@ import {
 import {
   batchWidgetDimensionsUpdateForAutoLayout,
   getWidgetsWithDimensionChanges,
+  processWidgetDimensionsFn,
   processWidgetDimensionsSaga,
   recalculatePositionsOfWidgets,
 } from "./utils";
@@ -298,6 +299,13 @@ function* updatePositionsOnTabChangeSaga(
   yield put(updateAndSaveLayout(updatedWidgets));
 }
 
+function* updateEntireLayoutOnce() {
+  const processedWidgets: CanvasWidgetsReduxState = yield call(
+    processWidgetDimensionsFn,
+  );
+  yield put(recalculatePositionsForCurrentBreakPointAction(processedWidgets));
+}
+
 export default function* layoutUpdateSagas() {
   yield all([
     takeLatest(
@@ -320,6 +328,11 @@ export default function* layoutUpdateSagas() {
       [ReduxActionTypes.PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES],
       shouldRunSaga,
       processWidgetDimensionsSaga,
+    ),
+    takeLatest(
+      [ReduxActionTypes.IMMEDIATELY_PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES],
+      shouldRunSaga,
+      updateEntireLayoutOnce,
     ),
     takeLatest(
       ReduxActionTypes.UPDATE_POSITIONS_ON_TAB_CHANGE,

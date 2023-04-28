@@ -15,6 +15,7 @@ import {
 import styled from "styled-components";
 import { AUTOLAYOUT_RESIZER_WIDTH_BUFFER } from "utils/hooks/useDynamicAppLayout";
 import { debounce } from "lodash";
+// import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 
 const AutoLayoutCanvasResizer = styled.div`
   position: sticky;
@@ -119,7 +120,7 @@ export function CanvasResizer({
           // Attach the listeners to `document`
           document.addEventListener("mousemove", mouseMove);
           document.addEventListener("mouseup", mouseUpHandler);
-          debouncedReCalculation();
+          // debouncedReCalculation();
           // e.stopPropagation();
         };
 
@@ -146,7 +147,9 @@ export function CanvasResizer({
           // Remove the handlers of `mousemove` and `mouseup`
           mouseMoveHandler(e);
           dispatch(setAutoCanvasResizing(false));
-          debouncedReCalculation();
+          // dispatch({
+          //   type: ReduxActionTypes.IMMEDIATELY_PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES,
+          // });
           document.removeEventListener("mousemove", events[0] as any);
           document.removeEventListener("mouseup", mouseUpHandler);
           events = [];

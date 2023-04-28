@@ -226,7 +226,7 @@ function* processAutoLayoutDimensionUpdatesFn(
   return widgets;
 }
 
-export function* processWidgetDimensionsSaga() {
+export function* processWidgetDimensionsFn() {
   const allWidgets: CanvasWidgetsReduxState = yield select(
     getCanvasAndMetaWidgets,
   );
@@ -255,9 +255,14 @@ export function* processWidgetDimensionsSaga() {
       selectedTabWidgetId,
     );
   }
+  return processedWidgets;
+}
 
-  // Gets only the widgets that need to be updated
-  yield call(getWidgetsWithDimensionChanges, processedWidgets);
+export function* processWidgetDimensionsSaga() {
+  const processedWidgets: CanvasWidgetsReduxState = yield call(
+    processWidgetDimensionsFn,
+  );
+
   const widgetsToUpdate: UpdateWidgetsPayload = yield call(
     getWidgetsWithDimensionChanges,
     processedWidgets,
