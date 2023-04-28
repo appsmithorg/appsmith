@@ -28,8 +28,6 @@ import RestAPIDatasourceForm from "./RestAPIDatasourceForm";
 import type { Datasource } from "entities/Datasource";
 import type { RouteComponentProps } from "react-router";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import { setGlobalSearchQuery } from "actions/globalSearchActions";
-import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { DatasourceComponentTypes } from "api/PluginApi";
 import DatasourceSaasForm from "../SaaSEditor/DatasourceForm";
 
@@ -165,7 +163,6 @@ class DataSourceEditor extends React.Component<Props> {
       isNewDatasource,
       isSaving,
       isTesting,
-      openOmnibarReadMore,
       pageId,
       pluginId,
       pluginImages,
@@ -188,7 +185,6 @@ class DataSourceEditor extends React.Component<Props> {
         isNewDatasource={isNewDatasource}
         isSaving={isSaving}
         isTesting={isTesting}
-        openOmnibarReadMore={openOmnibarReadMore}
         pageId={pageId}
         pluginImage={pluginImages[pluginId]}
         pluginType={pluginType}
@@ -202,7 +198,6 @@ class DataSourceEditor extends React.Component<Props> {
 export interface DatasourcePaneFunctions {
   switchDatasource: (id: string) => void;
   setDatasourceViewMode: (viewMode: boolean) => void;
-  openOmnibarReadMore: (text: string) => void;
   discardTempDatasource: () => void;
   deleteTempDSFromDraft: () => void;
   toggleSaveActionFlag: (flag: boolean) => void;
@@ -541,10 +536,6 @@ const mapDispatchToProps = (
   },
   setDatasourceViewMode: (viewMode: boolean) =>
     dispatch(setDatasourceViewMode(viewMode)),
-  openOmnibarReadMore: (text: string) => {
-    dispatch(setGlobalSearchQuery(text));
-    dispatch(toggleShowGlobalSearchModal());
-  },
   discardTempDatasource: () => dispatch(removeTempDatasource()),
   deleteTempDSFromDraft: () => dispatch(deleteTempDSFromDraft()),
   toggleSaveActionFlag: (flag) => dispatch(toggleSaveActionFlag(flag)),

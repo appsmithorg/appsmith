@@ -13,7 +13,6 @@ import type { InjectedFormProps } from "redux-form";
 import { reduxForm } from "redux-form";
 import { APPSMITH_IP_ADDRESSES } from "constants/DatasourceEditorConstants";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import { convertArrayToSentence } from "utils/helpers";
 import { PluginType } from "entities/Action";
 import type { AppState } from "@appsmith/reducers";
@@ -35,12 +34,12 @@ import Debugger, {
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { Button } from "design-system";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
+import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 
 const { cloudHosting } = getAppsmithConfigs();
 
 interface DatasourceDBEditorProps extends JSONtoFormProps {
   setDatasourceViewMode: (viewMode: boolean) => void;
-  openOmnibarReadMore: (text: string) => void;
   datasourceId: string;
   applicationId: string;
   pageId: string;
@@ -101,10 +100,8 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
     });
   };
 
-  openOmnibarReadMore = () => {
-    const { openOmnibarReadMore } = this.props;
-    openOmnibarReadMore("connect to databases");
-    AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "READ_MORE_DATASOURCE" });
+  openDocumentation = () => {
+    openDoc(DocsLink.WHITELIST_IP);
   };
 
   render() {
@@ -190,7 +187,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
                     <span>{`Whitelist the IP ${convertArrayToSentence(
                       APPSMITH_IP_ADDRESSES,
                     )}  on your database instance to connect to it. `}</span>
-                    <a onClick={this.openOmnibarReadMore}>
+                    <a onClick={this.openDocumentation}>
                       {"Learn more "}
                       <StyledOpenDocsIcon icon="document-open" />
                     </a>

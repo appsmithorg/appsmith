@@ -97,9 +97,7 @@ export function ConversionForm(
     <>
       {bannerMessageDetails && (
         <Callout kind={bannerMessageDetails.kind}>
-          <Text kind="heading-xs" renderAs="p">
-            {bannerMessageDetails.message}
-          </Text>
+          {bannerMessageDetails.message}
         </Callout>
       )}
 
@@ -165,12 +163,12 @@ export function ConversionForm(
           )}
           <SnapshotContainer style={snapShotStyles}>
             <Icon
-              className="mx-3"
+              className="mx-1"
               color="var(--ads-v2-color-gray-600)"
               name={snapShotDetails.icon}
               size="lg"
             />
-            <Text kind="heading-xs" renderAs="p">
+            <Text kind="action-l" renderAs="p">
               {snapShotDetails.text}
             </Text>
           </SnapshotContainer>
