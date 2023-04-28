@@ -32,7 +32,7 @@ export const APPSMITH__ADMIN_EMAILS_SETTING: Setting = {
   controlSubType: SettingSubtype.EMAIL,
   label: "Admin email",
   subText:
-    "Emails of the users who can modify instance settings (Comma Separated)",
+    "Emails of the users who can modify instance settings (comma separated)",
   placeholder: "Jane@example.com",
   validate: (value: string) => {
     if (
