@@ -23,33 +23,19 @@
   </properties>
 
   <dependencies>
-        <dependency>
-          <groupId>org.pf4j</groupId>
-          <artifactId>pf4j-spring</artifactId>
-          <version>0.8.0</version>
-          <scope>provided</scope>
+      <dependency>
+          <groupId>com.zaxxer</groupId>
+          <artifactId>HikariCP</artifactId>
+          <version>5.0.1</version>
           <exclusions>
               <exclusion>
-                  <artifactId>slf4j-reload4j</artifactId>
                   <groupId>org.slf4j</groupId>
+                  <artifactId>slf4j-api</artifactId>
               </exclusion>
           </exclusions>
-        </dependency>
+      </dependency>
 
-        <dependency>
-            <groupId>com.appsmith</groupId>
-            <artifactId>interfaces</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.22</version>
-            <scope>provided</scope>
-        </dependency>
-       <!-- Test Dependencies -->
+      <!-- Test Dependencies -->
       <!-- https://mvnrepository.com/artifact/com.oracle.database.jdbc/ojdbc8 -->
         <dependency>
           <groupId>com.oracle.database.jdbc</groupId>
@@ -66,17 +52,6 @@
           <groupId>org.testcontainers</groupId>
           <artifactId>jdbc-test</artifactId>
           <version>1.11.4</version>
-        </dependency>
-        <dependency>
-          <groupId>com.zaxxer</groupId>
-          <artifactId>HikariCP</artifactId>
-          <version>5.0.1</version>
-          <exclusions>
-              <exclusion>
-                  <groupId>org.slf4j</groupId>
-                  <artifactId>slf4j-api</artifactId>
-              </exclusion>
-          </exclusions>
         </dependency>
   </dependencies>
 

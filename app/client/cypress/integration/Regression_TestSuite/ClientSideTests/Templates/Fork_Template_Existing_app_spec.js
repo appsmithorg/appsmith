@@ -73,4 +73,22 @@ describe("Fork a template to the current app from new page popover", () => {
       "template added successfully",
     );
   });
+
+  it("Fork template button should take user to 'select pages from template' page", () => {
+    _.agHelper.RefreshPage();
+    cy.AddPageFromTemplate();
+    cy.get(_.templates.locators._forkApp).first().click();
+    cy.get(template.templateViewForkButton).should("be.visible");
+  });
+
+  it("Similar templates add icon should take user to 'select pages from template' page", () => {
+    _.agHelper.RefreshPage();
+    cy.AddPageFromTemplate();
+    // We are currentlyon on templates list page
+    cy.get(_.templates.locators._forkApp).first().click();
+    // Here we are on template detail page, with similar templates at the bottom
+    cy.get(_.templates.locators._forkApp).first().click();
+
+    cy.get(template.templateViewForkButton).should("be.visible");
+  });
 });
