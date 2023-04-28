@@ -1691,4 +1691,4 @@ export const customJSLibraryMessages = {
 
 // Business Edition upgrade page
 export const MOVE_TO_BUSINESS_EDITION = (trailingChar: string) =>
-  `Move to Business Edition${trailingChar ? trailingChar : ""}`;
+  `Move to Business edition${trailingChar ? trailingChar : ""}`;
