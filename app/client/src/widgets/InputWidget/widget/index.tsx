@@ -29,7 +29,7 @@ import {
   getLocale,
 } from "../component/utilities";
 import { LabelPosition } from "components/constants";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
@@ -758,6 +758,25 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       accentColor: "{{appsmith.theme.colors.primaryColor}}",
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "none",
+    };
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+        },
+        setDisabled: {
+          path: "isDisabled",
+        },
+        setRequired: {
+          path: "isRequired",
+        },
+        setValue: {
+          path: "meta.inputText",
+        },
+      },
     };
   }
 

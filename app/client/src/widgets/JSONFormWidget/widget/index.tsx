@@ -24,6 +24,7 @@ import { convertSchemaItemToFormData } from "../helper";
 import type {
   ButtonStyles,
   ChildStylesheet,
+  SetterConfig,
   Stylesheet,
 } from "entities/AppTheming";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
@@ -233,6 +234,22 @@ class JSONFormWidget extends BaseWidget<
       fieldState: generateTypeDef(widget.fieldState),
       isValid: "bool",
     });
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {
+        setVisibility: {
+          path: "isVisible",
+        },
+        setDisabled: {
+          path: "isDisabled",
+        },
+        setData: {
+          path: "formData",
+        },
+      },
+    };
   }
 
   static defaultProps = {};
