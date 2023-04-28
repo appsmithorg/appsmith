@@ -837,13 +837,17 @@ export class AggregateHelper {
       ? selector +
         "//*[contains(concat(' ', normalize-space(@class), ' '), ' CodeMirror ')]"
       : selector + " .CodeMirror";
-    this.GetElement(codeMirrorSelector).then((ins) => {
-      const input = (ins[0] as any).CodeMirror as CodeMirror.Editor;
-      input.focus();
-      this.Sleep(200);
-      input.setValue(value);
-      this.Sleep(200);
-    });
+    this.GetElement(codeMirrorSelector)
+      .find("textarea")
+      .parents(".CodeMirror")
+      .first()
+      .then((ins) => {
+        const input = (ins[0] as any).CodeMirror as CodeMirror.Editor;
+        input.focus();
+        this.Sleep(200);
+        input.setValue(value);
+        this.Sleep(200);
+      });
     this.Sleep(500); //for value set to settle
   }
 
