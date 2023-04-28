@@ -5,7 +5,6 @@ describe("Form Login test functionality", function () {
   it("1. Go to admin settings and disable Form Signup", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.openAuthentication();
     cy.get(adminSettings.formloginButton)
       .should("be.visible")
@@ -41,7 +40,6 @@ describe("Form Login test functionality", function () {
       );
       // restore setting
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      cy.visit("/applications");
       cy.get(".admin-settings-menu-option").click();
       cy.get(adminSettings.authenticationTab).click();
       cy.get(adminSettings.formloginButton).click();
@@ -69,7 +67,6 @@ describe("Form Login test functionality", function () {
   it("2. Go to admin settings and disable Form Login", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.openAuthentication();
     cy.get(adminSettings.formloginButton)
       .should("be.visible")
@@ -111,7 +108,6 @@ describe("Form Login test functionality", function () {
     cy.get(".t--sign-up").should("not.exist");
     // cy.wait(30000); // restart nginx docker
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.openAuthentication();
 
     // enable form login

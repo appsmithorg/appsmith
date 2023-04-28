@@ -152,3 +152,20 @@ div.bp3-popover-arrow {
 .icon-select-popover {
   box-shadow: var(--ads-v2-shadow-popovers) !important;
 }
+
+.error-menuitem {
+  color: var(--ads-v2-color-fg-error) !important;
+}
+.error-menuitem > .ads-v2-menu__menu-item-children {
+  color: var(--ads-v2-color-fg-error) !important;
+}
+.error-menuitem:hover {
+  background-color: var(--ads-v2-color-red-50) !important;
+}
+.error-menuitem:active {
+  background-color: var(--ads-v2-color-red-100) !important;
+}
+.menuitem-nohover:hover {
+  background-color: transparent !important;
+  cursor: default !important;
+}

@@ -4,7 +4,7 @@ import { Position } from "@blueprintjs/core";
 import type { DebouncedFunc } from "lodash";
 import type { MenuItemProps } from "design-system-old";
 import { Menu, MenuItem } from "design-system-old";
-import { Button, SearchInput } from "design-system";
+import { Button, SearchInput, Tooltip } from "design-system";
 import { HeaderWrapper } from "pages/Settings/components";
 import {
   HelpPopoverStyle,
@@ -13,7 +13,6 @@ import {
 } from "components/utils/helperComponents";
 import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";
 import { useMediaQuery } from "react-responsive";
-import { TooltipComponent } from "design-system-old";
 
 type PageHeaderProps = {
   buttonText?: string;
@@ -99,12 +98,12 @@ export function SettingsPageHeader(props: PageHeaderProps) {
   return (
     <Container isMobile={isMobile}>
       <HeaderWrapper margin={`0px`}>
-        <TooltipComponent
+        <Tooltip
           content={title}
-          disabled={title && title.length < 32 ? true : false}
+          isDisabled={title && title.length < 32 ? true : false}
         >
           <SettingsHeader data-testid="t--page-title">{title}</SettingsHeader>
-        </TooltipComponent>
+        </Tooltip>
       </HeaderWrapper>
       <Container isMobile={isMobile}>
         <SearchWrapper>

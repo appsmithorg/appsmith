@@ -1,4 +1,3 @@
-import type { TriggerSource } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   createMessage,
   TRIGGER_ACTION_VALIDATION_ERROR,
@@ -65,8 +64,7 @@ export class ActionValidationError extends TriggerFailureError {
 
 export const logActionExecutionError = (
   errorMessage: string,
-  source?: TriggerSource,
-  triggerPropertyName?: string,
+  isExecuteJSFunc = true,
 ) => {
   //Commenting as per decision taken for the error hanlding epic to not show the trigger errors in the debugger.
   // if (triggerPropertyName) {
@@ -104,11 +102,7 @@ export const logActionExecutionError = (
     store.dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
   }
 
-  if (!!triggerPropertyName) {
-    toast.show(errorMessage, {
-      kind: "error",
-    });
-  } else {
+  isExecuteJSFunc &&
     toast.show(errorMessage, {
       kind: "error",
       action: {
@@ -117,7 +111,6 @@ export const logActionExecutionError = (
         className: "t--toast-debug-button",
       },
     });
-  }
 };
 
 /*

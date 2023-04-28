@@ -69,7 +69,7 @@ export const NEW_TO_APPSMITH = () => `Don't have an account?`;
 export const LOGIN_PAGE_TITLE = () => `Sign in`;
 export const LOGIN_PAGE_SUBTITLE = () => `Sign in to your account`;
 
-export const LOGIN_PAGE_LOGIN_BUTTON_TEXT = () => `sign in`;
+export const LOGIN_PAGE_LOGIN_BUTTON_TEXT = () => `Sign in`;
 export const LOGIN_PAGE_FORGOT_PASSWORD_TEXT = () => `Forgot Password`;
 export const LOGIN_PAGE_REMEMBER_ME_LABEL = () => `Remember`;
 export const LOGIN_PAGE_SIGN_UP_LINK_TEXT = () => `Sign up`;
@@ -83,7 +83,7 @@ export const SIGNUP_PAGE_PASSWORD_INPUT_LABEL = () => `Password`;
 export const SIGNUP_PAGE_PASSWORD_INPUT_PLACEHOLDER = () => `Password`;
 export const SIGNUP_PAGE_LOGIN_LINK_TEXT = () => `Sign in`;
 export const SIGNUP_PAGE_NAME_INPUT_SUBTEXT = () => `How should we call you?`;
-export const SIGNUP_PAGE_SUBMIT_BUTTON_TEXT = () => `Sign Up`;
+export const SIGNUP_PAGE_SUBMIT_BUTTON_TEXT = () => `Sign up`;
 export const ALREADY_HAVE_AN_ACCOUNT = () => `Already have an account?`;
 
 export const SIGNUP_PAGE_SUCCESS = () =>
@@ -208,7 +208,7 @@ export const EDITOR_HEADER = {
 export const CREATE_NEW_APPLICATION = () => `Create new`;
 export const SEARCH_APPS = () => `Search for apps...`;
 export const GETTING_STARTED = () => `GETTING STARTED`;
-export const WORKSPACES_HEADING = () => `WORKSPACES`;
+export const WORKSPACES_HEADING = () => `Workspaces`;
 export const WELCOME_TOUR = () => `Welcome Tour`;
 export const NO_APPS_FOUND = () =>
   `Whale! Whale! This name doesn't ring a bell!`;
@@ -347,7 +347,7 @@ export const OAUTH_AUTHORIZATION_APPSMITH_ERROR = "Something went wrong.";
 export const OAUTH_APPSMITH_TOKEN_NOT_FOUND = "Appsmith token not found";
 
 export const GSHEET_AUTHORIZATION_ERROR =
-  "Data source is not authorized, please authorize to continue.";
+  "Authorisation failed, to continue using this data source authorize now.";
 export const GSHEET_FILES_NOT_SELECTED =
   "Datasource does not have access to any files, please authorize google sheets to use this data source";
 
@@ -751,7 +751,7 @@ export const CONNECT_GIT_BETA = () => "Connect Git (Beta)";
 export const RETRY = () => "RETRY";
 export const CREATE_NEW_BRANCH = () => "CREATE NEW BRANCH";
 export const ERROR_WHILE_PULLING_CHANGES = () => "ERROR WHILE PULLING CHANGES";
-export const SUBMIT = () => "SUBMIT";
+export const SUBMIT = () => "Submit";
 export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
   "Git user updated successfully";
 export const REMOTE_URL_INPUT_PLACEHOLDER = () =>
@@ -930,11 +930,11 @@ export const SNIPING_NOT_SUPPORTED = () =>
 //First Time User Onboarding
 //Checklist page
 export enum ONBOARDING_CHECKLIST_ACTIONS {
-  CONNECT_A_DATASOURCE = "CONNECT DATASOURCE",
+  CONNECT_A_DATASOURCE = "Connect datasource",
   CREATE_A_QUERY = "Create a query",
-  ADD_WIDGETS = "ADD WIDGETS",
-  CONNECT_DATA_TO_WIDGET = "CONNECT DATA TO WIDGET",
-  DEPLOY_APPLICATIONS = "DEPLOY APPLICATION",
+  ADD_WIDGETS = "Add widgets",
+  CONNECT_DATA_TO_WIDGET = "Connect data to widget",
+  DEPLOY_APPLICATIONS = "Deploy application",
 }
 
 export const ONBOARDING_CHECKLIST_BANNER_HEADER = () =>
@@ -993,7 +993,7 @@ export const CHOOSE_ACCESS_CONTROL_ROLES = () =>
 export const BUILD_MY_FIRST_APP = () => "Build on my own";
 export const ONBOARDING_INTRO_FOOTER = () =>
   "Let’s start building your first application";
-export const START_TUTORIAL = () => "START TUTORIAL";
+export const START_TUTORIAL = () => "Start tutorial";
 export const WELCOME_TO_APPSMITH = () => "Welcome to Appsmith!";
 export const QUERY_YOUR_DATABASE = () =>
   "Query your own database or API inside Appsmith. Write JS to construct dynamic queries.";
@@ -1009,7 +1009,7 @@ export const ONBOARDING_STATUS_STEPS_FOURTH = () =>
 export const ONBOARDING_STATUS_STEPS_FIVETH = () =>
   "Next: Deploy your application";
 export const ONBOARDING_STATUS_STEPS_SIXTH = () => "Completed 🎉";
-export const ONBOARDING_STATUS_GET_STARTED = () => "GET STARTED";
+export const ONBOARDING_STATUS_GET_STARTED = () => "Get started";
 
 //Tasks
 //1. datasource
@@ -1017,21 +1017,21 @@ export const ONBOARDING_TASK_DATASOURCE_HEADER = () =>
   "Start by adding your first Datasource";
 export const ONBOARDING_TASK_DATASOURCE_BODY = () =>
   "Adding a datasource makes creating applications more powerful. Don’t worry if you don’t have any data on hand, we have a sample dataset that you can use.";
-export const ONBOARDING_TASK_DATASOURCE_BUTTON = () => "+ Add a datasource";
-export const ONBOARDING_TASK_DATASOURCE_FOOTER_ACTION = () => "Add a widget";
+export const ONBOARDING_TASK_DATASOURCE_BUTTON = () => "Add a datasource";
+export const ONBOARDING_TASK_DATASOURCE_FOOTER_ACTION = () => "add a widget";
 export const ONBOARDING_TASK_DATASOURCE_FOOTER = () => "first.";
 //2. query
 export const ONBOARDING_TASK_QUERY_HEADER = () => "Next, create a query";
 export const ONBOARDING_TASK_QUERY_BODY = () =>
   "Great job adding a datasource! The next thing you can do is create a query on your data.";
-export const ONBOARDING_TASK_QUERY_BUTTON = () => "+ Create a query";
-export const ONBOARDING_TASK_QUERY_FOOTER_ACTION = () => "Add a widget";
+export const ONBOARDING_TASK_QUERY_BUTTON = () => "Create a query";
+export const ONBOARDING_TASK_QUERY_FOOTER_ACTION = () => "add a widget";
 //2. widget
 export const ONBOARDING_TASK_WIDGET_HEADER = () =>
   "Next, add a widget to start displaying data";
 export const ONBOARDING_TASK_WIDGET_BODY = () =>
   "Great job adding a datasource! The next thing you can do is add widget to start visualizing your data.";
-export const ONBOARDING_TASK_WIDGET_BUTTON = () => "+ Add a widget";
+export const ONBOARDING_TASK_WIDGET_BUTTON = () => "Add a widget";
 export const ONBOARDING_TASK_WIDGET_FOOTER_ACTION = () =>
   "deploy your application";
 export const ONBOARDING_TASK_FOOTER = () => "Alternatively, you can also";
@@ -1402,12 +1402,12 @@ export const OVERVIEW = () => "Overview";
 export const FUNCTION = () => "Function";
 export const INDUSTRY = () => "Use Case";
 export const DATASOURCES = () => "Datasources";
-export const NOTE = () => "Note:";
+export const NOTE = () => "Note: ";
 export const NOTE_MESSAGE = () => "You can add your datasources as well";
 export const WIDGET_USED = () => "Widgets";
 export const SIMILAR_TEMPLATES = () => "Similar Templates";
-export const VIEW_ALL_TEMPLATES = () => "VIEW ALL TEMPLATES";
-export const FILTERS = () => "FILTERS";
+export const VIEW_ALL_TEMPLATES = () => "View all templates";
+export const FILTERS = () => "Filters";
 export const TEMPLATE_CARD_TITLE = () => "Start from a template";
 export const TEMPLATE_CARD_DESCRIPTION = () =>
   "Create app from template by selecting pages";
@@ -1524,8 +1524,8 @@ export const IN_APP_EMBED_SETTING = {
   disableEmbeddingTooltip: () =>
     "This app cannot be embedded anywhere on the Internet",
   embed: () => "Embed",
-  embedSnippetTitle: () => "Copy embed code",
-  change: () => "CHANGE",
+  embedSnippetTitle: () => "Embed URL",
+  change: () => "Change",
   copiedEmbedCode: () => "Embed code copied to clipboard",
   embedSize: () => "Embed size",
   previewEmbeddedApp: () => "PREVIEW EMBEDDED APP",
@@ -1533,6 +1533,15 @@ export const IN_APP_EMBED_SETTING = {
   sectionContentHeader: () => "Share",
   sectionHeaderDesc: () => "Make public, embed properties",
   showNavigationBar: () => "Show navigation bar",
+  upgradeHeading: () =>
+    "Please contact your workspace admin to make the app public before embedding",
+  upgradeHeadingForInviteModal: () =>
+    "Make your app public in share settings to embed",
+  upgradeContent: () => "Private embedding is now available in",
+  appsmithBusinessEdition: () => "Appsmith Business Edition",
+  secondaryHeadingForAppSettings: () => "Make your app public to embed",
+  secondaryHeading: () =>
+    "Please contact your workspace admin to make the app public before embedding",
 };
 
 export const APP_NAVIGATION_SETTING = {
@@ -1554,6 +1563,7 @@ export const APP_NAVIGATION_SETTING = {
 export const LOCK_SIDEBAR_MESSAGE = () => `Lock sidebar open`;
 export const CLOSE_SIDEBAR_MESSAGE = () => `Close sidebar`;
 
+// Datasource/New Query
 export const NEW_QUERY_BUTTON_TEXT = () => "New Query";
 export const NEW_API_BUTTON_TEXT = () => "New API";
 export const GENERATE_NEW_PAGE_BUTTON_TEXT = () => "Generate new page";
@@ -1561,29 +1571,32 @@ export const RECONNECT_BUTTON_TEXT = () => "Reconnect";
 export const SAVE_BUTTON_TEXT = () => "Save";
 export const SAVE_AND_AUTHORIZE_BUTTON_TEXT = () => "Save and authorize";
 export const DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT = () => "Don't save";
-export const GSHEET_AUTHORISED_FILE_IDS_KEY = () =>
-  "Google sheets authorised file ids key";
+export const GSHEET_AUTHORISED_FILE_IDS_KEY = () => "userAuthorizedSheetIds";
+export const GOOGLE_SHEETS_INFO_BANNER_MESSAGE = () =>
+  "Appsmith will require access to your google drive to access google sheets.";
+export const GOOGLE_SHEETS_AUTHORIZE_DATASOURCE = () => "Authorize Datasource";
+export const GOOGLE_SHEETS_LEARN_MORE = () => "Learn more";
 
 //Layout Conversion flow
-export const CONVERT = () => "CONVERT";
-export const BUILD_RESPONSIVE = () => "Build Responsive Apps";
+export const CONVERT = () => "Convert layout";
+export const BUILD_RESPONSIVE = () => "Build responsive apps";
 export const BUILD_RESPONSIVE_TEXT = () =>
   "Appsmith will convert your application's UI to auto layout, a new mode designed for building mobile-friendly apps in no time";
-export const BUILD_FIXED_LAYOUT = () => "Use Fixed Layout";
+export const BUILD_FIXED_LAYOUT = () => "Use fixed-layout";
 export const BUILD_FIXED_LAYOUT_TEXT = () =>
   "Appsmith will convert your application’s UI to fixed layout, the default mode.";
-export const USE_SNAPSHOT = () => "USE SNAPSHOT";
+export const USE_SNAPSHOT = () => "Use snapshot";
 export const USE_SNAPSHOT_HEADER = () => "Use Snapshot";
 export const DISCARD_SNAPSHOT_HEADER = () => "Discarding a Snapshot";
 export const SAVE_SNAPSHOT = () =>
-  "Save a Snapshot of your Current Layout for 5 days";
+  "Save a snapshot of your current layout for 5 days";
 export const SAVE_SNAPSHOT_TEXT = () =>
   "We save a snapshot of your current layout so you can go back if auto-layout doesn't work for you in this beta.";
 export const CREATE_SNAPSHOT = () => "Creating a snapshot";
 export const CONVERTING_APP = () => "Converting your app";
 export const RESTORING_SNAPSHOT = () => "Removing changes made";
-export const REFRESH_THE_APP = () => "REFRESH THE APP";
-export const CONVERT_ANYWAYS = () => "CONVERT ANYWAYS";
+export const REFRESH_THE_APP = () => "Refresh the app";
+export const CONVERT_ANYWAYS = () => "Convert anyways";
 export const CONVERSION_SUCCESS_HEADER = () => "All done";
 export const DISCARD_SNAPSHOT_TEXT = () =>
   "You are about to discard this snapshot:";
@@ -1596,7 +1609,7 @@ export const CONVERSION_WARNING_TEXT = () =>
 export const CONVERSION_ERROR_HEADER = () => "Conversion Failed";
 export const CONVERSION_ERROR = () =>
   "Appsmith ran into a critical error while trying to convert to auto layout";
-export const SEND_REPORT = () => "SEND US A REPORT";
+export const SEND_REPORT = () => "Send us a report";
 export const CONVERSION_ERROR_TEXT = () => "No changes were made to your app";
 export const DROPDOWN_LABEL_TEXT = () => "Target canvas size";
 export const CONVERSION_WARNING = () => "Conversion will change your layout";
@@ -1606,14 +1619,14 @@ export const USE_SNAPSHOT_TEXT = () =>
   "Your app will look and work exactly like it used to before the conversion. Widgets, datasources, queries, JS objects added and any changes you made after conversion will not be present.";
 export const SNAPSHOT_WARNING_MESSAGE = () =>
   "Any changes you made after conversion will not be present.";
-export const CONVERT_TO_FIXED_TITLE = () => "Convert to Fixed Layout";
-export const CONVERT_TO_FIXED_BUTTON = () => "Convert To Fixed Layout";
-export const CONVERT_TO_AUTO_TITLE = () => "Convert to Auto Layout";
-export const CONVERT_TO_AUTO_BUTTON = () => "Convert To Auto Layout";
+export const CONVERT_TO_FIXED_TITLE = () => "Convert to Fixed-Layout";
+export const CONVERT_TO_FIXED_BUTTON = () => "Convert to fixed-layout";
+export const CONVERT_TO_AUTO_TITLE = () => "Convert to Auto-Layout";
+export const CONVERT_TO_AUTO_BUTTON = () => "Convert to auto-layout";
 export const SNAPSHOT_BANNER_MESSAGE = () =>
   "Confirm this layout is per expectations before you discard the snapshot. Use the snapshot to go back.";
-export const USE_SNAPSHOT_CTA = () => "USE SNAPSHOT";
-export const DISCARD_SNAPSHOT_CTA = () => "DISCARD SNAPSHOT";
+export const USE_SNAPSHOT_CTA = () => "Use snapshot";
+export const DISCARD_SNAPSHOT_CTA = () => "Discard snapshot";
 export const MORE_DETAILS = () => "More details";
 export const CONVERSION_ERROR_MESSAGE_HEADER = () =>
   "To resolve this error please:";
@@ -1628,7 +1641,7 @@ export const SNAPSHOT_TIME_FROM_MESSAGE = (
 export const SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE = (
   timeTillExpiration: string,
 ) => `Snapshot of your previous layout expires in ${timeTillExpiration}`;
-export const DISCARD = () => "DISCARD";
+export const DISCARD = () => "Discard";
 // Alert options and labels for showMessage types
 export const ALERT_STYLE_OPTIONS = [
   { label: "Info", value: "'info'", id: "info" },

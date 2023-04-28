@@ -686,8 +686,15 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
         if (allUpdates.hasUserDataUpdates()) {
             final UserData updates = new UserData();
-            updates.setRole(allUpdates.getRole());
-            updates.setUseCase(allUpdates.getUseCase());
+            if (StringUtils.hasLength(allUpdates.getRole())) {
+                updates.setRole(allUpdates.getRole());
+            }
+            if (StringUtils.hasLength(allUpdates.getUseCase())) {
+                updates.setUseCase(allUpdates.getUseCase());
+            }
+            if (allUpdates.isIntercomConsentGiven()) {
+                updates.setIntercomConsentGiven(true);
+            }
             updatedUserDataMono = userDataService.updateForCurrentUser(updates).cache();
             monos.add(updatedUserDataMono.then());
         } else {
@@ -765,7 +772,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     profile.setUseCase(userData.getUseCase());
                     profile.setPhotoId(userData.getProfilePhotoAssetId());
                     profile.setEnableTelemetry(!commonConfig.isTelemetryDisabled());
-
+                    profile.setIntercomConsentGiven(userData.isIntercomConsentGiven());
                     profile.setSuperUser(isSuperUser);
                     profile.setConfigurable(!StringUtils.isEmpty(commonConfig.getEnvFilePath()));
 

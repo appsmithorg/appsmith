@@ -137,7 +137,7 @@ function AppSettings() {
     },
     {
       id: "t--theme-settings-header",
-      icon: "edit-line",
+      icon: "pencil-line",
       isSelected: selectedTab.type === AppSettingsTabs.Theme,
       name: createMessage(THEME_SETTINGS_SECTION_HEADER),
       onClick: () => {

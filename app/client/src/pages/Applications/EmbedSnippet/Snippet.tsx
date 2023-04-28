@@ -1,29 +1,33 @@
 import React from "react";
 import copy from "copy-to-clipboard";
-import { Input } from "design-system";
 import {
   createMessage,
   IN_APP_EMBED_SETTING,
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
-import { toast } from "design-system";
+import { toast, Icon, Text } from "design-system";
 
-const StyledInput = styled(Input)`
-  > .ads-v2-input__input-section > div {
-    opacity: 1;
-  }
-  textarea {
-    font-size: var(--ads-v2-font-size-4);
-    height: 150px;
+const EmbedSnippetContainer = styled.div`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  background: var(--appsmith-color-black-100);
+
+  .icon {
+    flex-shrink: 0;
   }
 `;
 
 type EmbedCodeSnippetProps = {
   snippet: string;
+  isAppSettings?: boolean;
 };
 
 function EmbedCodeSnippet(props: EmbedCodeSnippetProps) {
-  const scrollWrapperRef = React.createRef<HTMLInputElement>();
+  const { isAppSettings = false, snippet } = props;
+
+  // const scrollWrapperRef = React.createRef<HTMLSpanElement>();
+
   const onClick = () => {
     copy(props.snippet);
     toast.show(createMessage(IN_APP_EMBED_SETTING.copiedEmbedCode), {
@@ -32,14 +36,31 @@ function EmbedCodeSnippet(props: EmbedCodeSnippetProps) {
   };
 
   return (
-    <div data-cy="t--embed-snippet" onClick={onClick}>
-      <StyledInput
-        isReadOnly
-        ref={scrollWrapperRef}
-        renderAs="textarea"
-        size="md"
-        value={props.snippet}
-      />
+    <div className="flex flex-col gap-2">
+      <div className="flex justify-between items-center">
+        <Text>{createMessage(IN_APP_EMBED_SETTING.embedSnippetTitle)}</Text>
+        {isAppSettings && (
+          <Icon
+            className="break-all max-h-32 overflow-y-auto p-0 mr-0.5 icon"
+            name="copy-control"
+            onClick={onClick}
+            size="lg"
+          />
+        )}
+      </div>
+      <EmbedSnippetContainer data-cy="t--embed-snippet">
+        <Text className="break-all max-h-32 overflow-y-auto p-2 mr-0.5">
+          {snippet}
+        </Text>
+        {!isAppSettings && (
+          <Icon
+            className="break-all max-h-32 overflow-y-auto p-2 mr-0.5 icon"
+            name="copy-control"
+            onClick={onClick}
+            size="lg"
+          />
+        )}
+      </EmbedSnippetContainer>
     </div>
   );
 }

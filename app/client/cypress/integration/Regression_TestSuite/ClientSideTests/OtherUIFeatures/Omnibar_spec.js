@@ -13,12 +13,11 @@ describe("Omnibar functionality test cases", () => {
     cy.addDsl(dsl);
   });
 
-  it("1. Bug #15104 The Data is not displayed in Omnibar after clicking on learn more link from property pane", function () {
+  it("1. Docs tab opens after clicking on learn more link from property pane", function () {
     cy.dragAndDropToCanvas("audiowidget", { x: 300, y: 500 });
-    cy.xpath('//span[text()="Learn more"]').click();
-    cy.get(locators._omnibarDescription).scrollTo("top");
-    cy.get(omnibar.openDocumentationLink);
-    cy.get("body").click(0, 0);
+    ObjectsRegistry.AggregateHelper.AssertNewTabOpened(() => {
+      cy.xpath('//span[text()="Learn more"]').click();
+    });
   });
 
   it("2.Verify omnibar is present across all pages and validate its fields", function () {

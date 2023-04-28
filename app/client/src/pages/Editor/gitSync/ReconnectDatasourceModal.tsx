@@ -9,14 +9,7 @@ import {
 } from "@appsmith/selectors/applicationSelectors";
 
 import { useDispatch, useSelector } from "react-redux";
-import TabMenu from "./Menu";
-import { Classes, MENU_HEIGHT } from "./constants";
-import {
-  DialogComponent as Dialog,
-  Text,
-  TextType,
-  TooltipComponent,
-} from "design-system-old";
+import { Text, TextType } from "design-system-old";
 import { Button, toast } from "design-system";
 import { Colors } from "constants/Colors";
 
@@ -63,17 +56,14 @@ import {
 } from "actions/datasourceActions";
 import { builderURL } from "RouteBuilder";
 import localStorage from "utils/localStorage";
-
-const Container = styled.div`
-  height: 765px;
-  max-height: 82vh;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow-y: hidden;
-  padding: 0px 10px 0px 0px;
-`;
+import {
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  Tooltip,
+} from "design-system";
 
 const Section = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
@@ -82,23 +72,13 @@ const Section = styled.div`
 
 const BodyContainer = styled.div`
   flex: 3;
-  height: calc(100% - ${MENU_HEIGHT}px);
-  padding-left: ${(props) => props.theme.spaces[8]}px;
-`;
-
-const TabsContainer = styled.div`
-  height: ${MENU_HEIGHT}px;
-  padding-left: ${(props) => props.theme.spaces[8]}px;
-
-  .react-tabs {
-    width: 1029px;
-  }
+  height: 640px;
+  max-height: 82vh;
 `;
 
 const ContentWrapper = styled.div`
   height: calc(100% - 96px);
   display: flex;
-  margin-left: -${(props) => props.theme.spaces[8]}px;
 
   .t--json-to-form-wrapper {
     width: 100%;
@@ -205,26 +185,12 @@ const Message = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[7]}px;
 `;
 
-const CloseButton = styled(Button)`
-  position: absolute;
-  right: ${(props) => props.theme.spaces[1]}px;
-  top: ${(props) => -props.theme.spaces[4]}px;
-  padding: ${(props) => props.theme.spaces[1]}px;
-`;
-
-const SkipToAppButtonWrapper = styled.div`
-  position: absolute;
-  right: 0px;
-  top: ${(props) => props.theme.spaces[11]}px;
-
-  padding: ${(props) =>
-    `${props.theme.spaces[3]}px ${props.theme.spaces[7] - 1}px`};
-`;
+const SkipToAppButtonWrapper = styled.div``;
 
 const TooltipWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  width: 320px;
+  /* width: 320px; */
 `;
 
 const DBFormWrapper = styled.div`
@@ -249,16 +215,10 @@ enum AuthorizationStatus {
 function TooltipContent() {
   return (
     <TooltipWrapper>
-      <Text
-        color={Colors.WHITE}
-        style={{ marginBottom: "4px" }}
-        type={TextType.P3}
-      >
+      <span style={{ marginBottom: "4px" }}>
         {createMessage(SKIP_TO_APPLICATION)}
-      </Text>
-      <Text color={Colors.WHITE} type={TextType.P3}>
-        {createMessage(SKIP_TO_APPLICATION_TOOLTIP_DESCRIPTION)}
-      </Text>
+      </span>
+      <span>{createMessage(SKIP_TO_APPLICATION_TOOLTIP_DESCRIPTION)}</span>
     </TooltipWrapper>
   );
 }
@@ -439,13 +399,6 @@ function ReconnectDatasourceModal() {
     }
   }, [isConfigFetched, selectedDatasourceId, queryIsImport]);
 
-  const menuOptions = [
-    {
-      key: "RECONNECT_DATASOURCES",
-      title: "Reconnect Datasources",
-    },
-  ];
-
   const importedApplication = useSelector(getImportedApplication);
   useEffect(() => {
     if (!queryIsImport) {
@@ -541,82 +494,60 @@ function ReconnectDatasourceModal() {
     isConfigFetched && !isLoading && !datasource?.isConfigured;
 
   return (
-    <Dialog
-      canEscapeKeyClose
-      canOutsideClickClose
-      className={Classes.RECONNECT_DATASOURCE_MODAL}
-      isOpen={isModalOpen}
-      maxWidth={"1300px"}
-      onClose={handleClose}
-      width={"1293px"}
-    >
-      <Container>
-        <TabsContainer>
-          <TabMenu
-            activeTabIndex={0}
-            onSelect={() => undefined}
-            options={menuOptions}
-          />
-        </TabsContainer>
-        <BodyContainer>
-          <Title>
-            {createMessage(RECONNECT_MISSING_DATASOURCE_CREDENTIALS)}
-          </Title>
-          <Section>
-            <Text color={Colors.BLACK} type={TextType.P1}>
-              {createMessage(
-                RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION,
+    <Modal onOpenChange={handleClose} open={isModalOpen}>
+      <ModalContent>
+        <ModalHeader> Reconnect datasources</ModalHeader>
+        <ModalBody>
+          <BodyContainer>
+            <Title>
+              {createMessage(RECONNECT_MISSING_DATASOURCE_CREDENTIALS)}
+            </Title>
+            <Section>
+              <Text color={Colors.BLACK} type={TextType.P1}>
+                {createMessage(
+                  RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION,
+                )}
+              </Text>
+            </Section>
+            <ContentWrapper>
+              <ListContainer>{mappedDataSources}</ListContainer>
+              {shouldShowDBForm && (
+                <DBFormWrapper>
+                  <DatasourceForm
+                    applicationId={appId}
+                    datasourceId={selectedDatasourceId}
+                    fromImporting
+                    pageId={pageId}
+                  />
+                </DBFormWrapper>
               )}
-            </Text>
-          </Section>
-          <ContentWrapper>
-            <ListContainer>{mappedDataSources}</ListContainer>
-            {shouldShowDBForm && (
-              <DBFormWrapper>
-                <DatasourceForm
-                  applicationId={appId}
-                  datasourceId={selectedDatasourceId}
-                  fromImporting
-                  pageId={pageId}
-                />
-              </DBFormWrapper>
-            )}
-            {datasource?.isConfigured && SuccessMessages()}
-          </ContentWrapper>
-        </BodyContainer>
-        <SkipToAppButtonWrapper>
-          <TooltipComponent
-            boundary="viewport"
-            content={<TooltipContent />}
-            maxWidth="320px"
-            position="bottom-right"
-          >
-            <Button
-              className="t--skip-to-application-btn"
-              href={appURL}
-              kind="secondary"
-              onClick={() => {
-                AnalyticsUtil.logEvent(
-                  "RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK",
-                );
-                localStorage.setItem("importedAppPendingInfo", "null");
-              }}
-              renderAs="a"
-            >
-              {createMessage(SKIP_TO_APPLICATION)}
-            </Button>
-          </TooltipComponent>
-        </SkipToAppButtonWrapper>
-        <CloseButton
-          className="t--reconnect-close-btn"
-          isIconButton
-          kind="tertiary"
-          onClick={handleClose}
-          size="sm"
-          startIcon="close-modal"
-        />
-      </Container>
-    </Dialog>
+              {datasource?.isConfigured && SuccessMessages()}
+            </ContentWrapper>
+          </BodyContainer>
+        </ModalBody>
+        <ModalFooter>
+          <SkipToAppButtonWrapper>
+            <Tooltip content={<TooltipContent />} placement="topRight">
+              <Button
+                className="t--skip-to-application-btn"
+                href={appURL}
+                kind="secondary"
+                onClick={() => {
+                  AnalyticsUtil.logEvent(
+                    "RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK",
+                  );
+                  localStorage.setItem("importedAppPendingInfo", "null");
+                }}
+                renderAs="a"
+                size="md"
+              >
+                {createMessage(SKIP_TO_APPLICATION)}
+              </Button>
+            </Tooltip>
+          </SkipToAppButtonWrapper>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 }
 

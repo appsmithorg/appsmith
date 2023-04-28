@@ -76,18 +76,19 @@ const SnippetsFilterContainer = styled.div<{
         padding: var(--button-padding);
         border-radius: inherit;
         text-transform: capitalize;
-        :hover:not(.ais-ClearRefinements-button--disabled]) {
+        &:hover {
           --button-color-bg: var(--ads-v2-color-bg-subtle);
           --button-color-fg: var(--ads-v2-color-fg);
         }
         &.ais-ClearRefinements-button--disabled {
           cursor: not-allowed;
           opacity: var(--ads-v2-opacity-disabled);
+          --button-color-bg: transparent;
         }
       }
     }
     .container {
-      height: calc(100% - 33px);
+      height: calc(100% - 38px);
       overflow: auto;
       --checkbox-color-label: var(--ads-v2-color-fg);
       --checkbox-color-border: var(--ads-v2-color-border);

@@ -83,8 +83,8 @@ export default function ProfileDropdown(props: TagProps) {
   return (
     <Menu>
       <MenuTrigger>{Profile(createMessage(ACCOUNT_TOOLTIP))}</MenuTrigger>
-      <MenuContent>
-        <MenuItem>
+      <MenuContent align="end">
+        <MenuItem className="menuitem-nohover">
           <UserInformation>
             <div className="user-image">
               {Profile(props.name || props.userName)}
@@ -109,7 +109,7 @@ export default function ProfileDropdown(props: TagProps) {
                 path: PROFILE,
               });
             }}
-            startIcon="edit-underline"
+            startIcon="pencil-line"
           >
             Edit Profile
           </MenuItem>

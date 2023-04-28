@@ -17,7 +17,6 @@ import {
   UPLOADING_APPLICATION,
   UPLOADING_JSON,
 } from "@appsmith/constants/messages";
-import { Colors } from "constants/Colors";
 import type { SetProgress } from "design-system-old";
 import { FilePickerV2, FileType } from "design-system-old";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
@@ -31,8 +30,7 @@ import { Icon, Modal, ModalContent, ModalHeader, Text } from "design-system";
 
 const TextWrapper = styled.div`
   padding: 0;
-  margin-bottom: ${(props) => props.theme.spaces[12] + 4}px;
-  margin-top: ${(props) => props.theme.spaces[11]}px;
+  margin-bottom: var(--ads-v2-spaces-7);
 `;
 
 const Row = styled.div`
@@ -82,14 +80,14 @@ const FileImportCard = styled.div`
         justify-content: center;
         margin-top: 35px;
         margin-bottom: 32px;
-        color: ${Colors.GREY_800} !important;
+        color: var(--ads-v2-color-fg) !important;
 
         svg {
           width: ${(props) => props.theme.iconSizes.XL}px;
           height: ${(props) => props.theme.iconSizes.XL}px;
 
           path {
-            color: ${Colors.GREY_800} !important;
+            color: var(--ads-v2-color-fg) !important;
           }
         }
       }
@@ -274,7 +272,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
                 description={createMessage(IMPORT_APP_FROM_FILE_MESSAGE)}
                 fileType={FileType.JSON}
                 fileUploader={FileUploader}
-                iconFillColor={Colors.GREY_800}
+                iconFillColor={"var(--ads-v2-color-fg)"}
                 onFileRemoved={onRemoveFile}
                 title={createMessage(IMPORT_APP_FROM_FILE_TITLE)}
                 uploadIcon="file-line"

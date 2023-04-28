@@ -40,6 +40,7 @@ function ForkTemplate({
   const [selectedWorkspace, setSelectedWorkspace] = useState(workspaceList[0]);
   const isImportingTemplate = useSelector(isImportingTemplateSelector);
   const dispatch = useDispatch();
+
   const onFork = () => {
     dispatch(importTemplateToWorkspace(templateId, selectedWorkspace.value));
   };

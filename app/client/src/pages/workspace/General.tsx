@@ -27,9 +27,20 @@ const GeneralWrapper = styled.div<{
   isMobile?: boolean;
   isPortrait?: boolean;
 }>`
-  width: 340px;
-  padding: 20px 20px;
-  margin: 0 auto;
+  width: 320px;
+  /* padding: 20px 0px; */
+  /* margin: 0 auto; */
+  .upload-form-container {
+    .button-wrapper {
+      svg {
+        width: 40px;
+        height: 40px;
+        path {
+          fill: var(--ads-v2-color-fg);
+        }
+      }
+    }
+  }
   .drag-drop-text {
     color: var(--ads-v2-color-fg);
     + form a {
@@ -46,6 +57,12 @@ const GeneralWrapper = styled.div<{
         color: var(--ads-v2-color-fg);
         border-color: var(--ads-v2-color-border);
       }
+    }
+  }
+  .remove-button {
+    a {
+      border-radius: var(--ads-v2-border-radius);
+      text-transform: capitalize !important;
     }
   }
 `;
@@ -74,7 +91,7 @@ const Loader = styled.div`
 const FilePickerLoader = styled.div`
   height: 190px;
   width: 333px;
-  border-radius: 0;
+  border-radius: var(--ads-v2-border-radius);
 `;
 
 // testing
@@ -162,10 +179,10 @@ export function GeneralSettings() {
               data-testid="t--workspace-name-input"
               defaultValue={currentWorkspace && currentWorkspace.name}
               isRequired
-              label="Display name"
+              label="Workspace name"
               labelPosition="top"
               onChange={onWorkspaceNameChange}
-              placeholder="Workspace Name"
+              placeholder="Workspace name"
               renderAs="input"
               size="md"
               type="text"

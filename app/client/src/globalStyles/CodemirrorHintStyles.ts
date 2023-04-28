@@ -68,6 +68,11 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       .shortcut {
         color: #ffffff;
       }
+      .magic {
+        path {
+          fill: black;
+        }
+      }
       .add-datasource-icon {
         background: white;
       }

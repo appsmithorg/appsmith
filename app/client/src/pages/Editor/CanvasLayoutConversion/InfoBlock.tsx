@@ -1,6 +1,5 @@
-import { Colors } from "constants/Colors";
-import { Icon, IconSize, Text, TextType } from "design-system-old";
 import React from "react";
+import { Icon, Text } from "design-system";
 
 export type InfoBlockProps = {
   icon: string;
@@ -10,20 +9,14 @@ export type InfoBlockProps = {
 
 export const InfoBlock = (props: InfoBlockProps) => {
   return (
-    <div className="flex flex-row gap-2 pt-3">
-      <Icon
-        clickable={false}
-        fillColor={Colors.PRIMARY_ORANGE}
-        name={props.icon}
-        size={IconSize.XXXL}
-        withWrapper
-        wrapperColor={Colors.PRIMARY_ORANGE_OPAQUE}
-      />
-      <div className="flex flex-col">
-        <Text className="pb-1" type={TextType.H4}>
+    <div className="flex flex-row items-start gap-3 pt-3">
+      <Icon color="var(--ads-v2-color-gray-600)" name={props.icon} size="lg" />
+      <div>
+        <Text className="pb-1" kind="heading-s" renderAs="h4">
           {props.header}
         </Text>
-        <Text color={Colors.GRAY_500} type={TextType.P1} weight="400">
+
+        <Text kind="body-m" renderAs="p">
           {props.info}
         </Text>
       </div>
