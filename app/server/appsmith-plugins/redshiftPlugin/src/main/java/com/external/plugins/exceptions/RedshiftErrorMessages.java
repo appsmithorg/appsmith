@@ -21,4 +21,8 @@ public class RedshiftErrorMessages {
     public static final String JDBC_DRIVER_LOADING_ERROR_MSG = "Error loading Redshift JDBC Driver class.";
 
     public static final String CONNECTION_POOL_CREATION_FAILED_ERROR_MSG = "Exception occurred while creating connection pool. One or more arguments in the datasource configuration may be invalid. Please check your datasource configuration.";
+
+    public static final String SSL_CONFIGURATION_ERROR_MSG = "The Appsmith server has failed to fetch SSL configuration from datasource configuration form. ";
+
+    public static final String INVALID_SSL_OPTION_ERROR_MSG = "The Appsmith server has found an unexpected SSL option: %s.";
 }

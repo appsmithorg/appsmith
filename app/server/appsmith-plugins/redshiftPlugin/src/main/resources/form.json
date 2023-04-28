@@ -82,7 +82,12 @@
           "label": "SSL Mode",
           "configProperty": "datasourceConfiguration.connection.ssl.authType",
           "controlType": "DROP_DOWN",
+          "initialValue": "DEFAULT",
           "options": [
+            {
+              "label": "Default",
+              "value": "DEFAULT"
+            },
             {
               "label": "No SSL",
               "value": "NO_SSL"

@@ -6,6 +6,7 @@ import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionExceptio
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.external.plugins.exceptions.RedshiftErrorMessages;
+import com.external.plugins.exceptions.RedshiftPluginError;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.pool.HikariPool;
@@ -56,6 +57,45 @@ public class RedshiftDatasourceUtils {
 
         if (!StringUtils.isEmpty(authentication.getDatabaseName())) {
             urlBuilder.append(authentication.getDatabaseName());
+        }
+
+        /*
+         * - Ideally, it is never expected to be null because the SSL dropdown is set to
+         * a initial value.
+         */
+        if (datasourceConfiguration.getConnection() == null
+                || datasourceConfiguration.getConnection().getSsl() == null
+                || datasourceConfiguration.getConnection().getSsl().getAuthType() == null) {
+            throw new AppsmithPluginException(
+                    RedshiftPluginError.REDSHIFT_PLUGIN_ERROR,
+                    RedshiftErrorMessages.SSL_CONFIGURATION_ERROR_MSG);
+        }
+
+        /*
+         * - By default, the driver configures SSL in the preferred mode.
+         */
+        SSLDetails.AuthType sslAuthType = datasourceConfiguration.getConnection().getSsl().getAuthType();
+        switch (sslAuthType) {
+            case ALLOW:
+            case PREFER:
+            case REQUIRE:
+                config.addDataSourceProperty("ssl", "true");
+                config.addDataSourceProperty("sslmode", sslAuthType.toString().toLowerCase());
+
+                break;
+            case DISABLE:
+                config.addDataSourceProperty("ssl", "false");
+                config.addDataSourceProperty("sslmode", sslAuthType.toString().toLowerCase());
+
+                break;
+            case DEFAULT:
+                /* do nothing - accept default driver setting */
+
+                break;
+            default:
+                throw new AppsmithPluginException(
+                        RedshiftPluginError.REDSHIFT_PLUGIN_ERROR,
+                        String.format(RedshiftErrorMessages.INVALID_SSL_OPTION_ERROR_MSG, sslAuthType));
         }
 
         String url = urlBuilder.toString();
