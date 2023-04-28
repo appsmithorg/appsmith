@@ -264,7 +264,8 @@ export function PreparedStatementViewer(props: {
   const $params = [...value.matchAll(/\$\d+/g)].map((matches) => matches[0]);
 
   const paramsWithTooltips = $params.map((param) => (
-    <Tooltip content={parameters[param].toString()} key={param}>
+    // TODO: But why is parameters[param] undefined sometimes?
+    <Tooltip content={parameters[param]?.toString()} key={param}>
       <PreparedStatementParameter key={param}>
         {param}
       </PreparedStatementParameter>
