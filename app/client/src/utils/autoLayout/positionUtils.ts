@@ -134,7 +134,7 @@ export function updateWidgetPositions(
       const updatedParent: FlattenedWidgetProps = updateParentHeight(
         parent,
         computedHeight * divisor,
-        divisor,
+        getModalHeight(parent, computedHeight, divisor),
         isMobile,
       );
 
@@ -879,7 +879,7 @@ function getComputedHeight(
 function updateParentHeight(
   parent: FlattenedWidgetProps,
   height: number,
-  divisor: number,
+  modalHeight: number,
   isMobile = false,
 ): FlattenedWidgetProps {
   const parentTopRow: number = getTopRow(parent, isMobile);
@@ -894,8 +894,20 @@ function updateParentHeight(
   if (parent.type === "MODAL_WIDGET")
     updatedParent = {
       ...updatedParent,
-      height:
-        height * (divisor === 1 ? GridDefaults.DEFAULT_GRID_ROW_HEIGHT : 1),
+      height: modalHeight,
     };
   return updatedParent;
+}
+
+function getModalHeight(
+  parent: FlattenedWidgetProps,
+  computedHeight: number,
+  divisor: number,
+): number {
+  let res: number = computedHeight;
+  if (parent.parentRowSpace === 1) res -= 2;
+  res *= divisor;
+  if (parent.type === "MODAL_WIDGET")
+    res *= divisor === 1 ? GridDefaults.DEFAULT_GRID_ROW_HEIGHT : 1;
+  return res;
 }
