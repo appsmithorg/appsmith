@@ -100,6 +100,9 @@ function MultiSelectField({
     onBlur: onBlurDynamicString,
     onFocus: onFocusDynamicString,
   } = schemaItem;
+  // When the options value is invalid after validation, the string value entered
+  // in the property pane is passed down as options here.
+  const options = Array.isArray(schemaItem.options) ? schemaItem.options : [];
   const wrapperRef = useRef<HTMLDivElement>(null);
   const { executeAction } = useContext(FormContext);
 
@@ -154,10 +157,7 @@ function MultiSelectField({
     }
   }, [schemaItem.defaultValue, passedDefaultValue]);
 
-  const componentValues = fieldValuesToComponentValues(
-    inputValue,
-    schemaItem.options,
-  );
+  const componentValues = fieldValuesToComponentValues(inputValue, options);
 
   const onFilterChange = useCallback(
     (value: string) => {
@@ -215,7 +215,7 @@ function MultiSelectField({
           onChange={onOptionChange}
           onFilterChange={onFilterChange}
           onFocus={onFocusHandler}
-          options={schemaItem.options || []}
+          options={options}
           placeholder={schemaItem.placeholderText || ""}
           serverSideFiltering={schemaItem.serverSideFiltering}
           value={componentValues}

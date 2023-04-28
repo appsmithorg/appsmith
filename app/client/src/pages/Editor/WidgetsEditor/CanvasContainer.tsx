@@ -31,7 +31,6 @@ import {
   AUTOLAYOUT_RESIZER_WIDTH_BUFFER,
   useDynamicAppLayout,
 } from "utils/hooks/useDynamicAppLayout";
-import useGoogleFont from "utils/hooks/useGoogleFont";
 import Canvas from "../Canvas";
 import { CanvasResizer } from "widgets/CanvasResizer";
 
@@ -105,7 +104,7 @@ function CanvasContainer(props: CanvasContainerProps) {
     };
   }, []);
 
-  const fontFamily = useGoogleFont(selectedTheme.properties.fontFamily.appFont);
+  const fontFamily = `${selectedTheme.properties.fontFamily.appFont}, sans-serif`;
 
   let node: ReactNode;
   const pageLoading = (
@@ -151,7 +150,6 @@ function CanvasContainer(props: CanvasContainerProps) {
   // calculating exact height to not allow scroll at this component,
   // calculating total height minus margin on top, top bar and bottom bar and scrollbar height at the bottom
   const heightWithTopMargin = `calc(100vh - 2rem - ${topMargin} - ${smallHeaderHeight} - ${bottomBarHeight} - ${scrollBarHeight} - ${navigationHeight}px)`;
-  const resizerTop = `calc(2rem + ${topMargin} + ${smallHeaderHeight})`;
   return (
     <>
       <Container
@@ -195,7 +193,6 @@ function CanvasContainer(props: CanvasContainerProps) {
       <CanvasResizer
         heightWithTopMargin={heightWithTopMargin}
         isPageInitiated={!isPageInitializing && !!widgetsStructure}
-        resizerTop={resizerTop}
         shouldHaveTopMargin={shouldHaveTopMargin}
       />
     </>

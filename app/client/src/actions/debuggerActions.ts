@@ -9,6 +9,7 @@ export interface LogDebuggerErrorAnalyticsPayload {
   entityType: ENTITY_TYPE;
   eventName: EventName;
   propertyPath: string;
+  errorId?: string;
   errorMessages?: Message[];
   errorMessage?: Message["message"];
   errorType?: Message["type"];
