@@ -9,37 +9,20 @@ const Container = styled.div`
   flex-direction: column;
   overflow-y: auto;
   height: 100%;
+  padding: var(--ads-v2-spaces-7);
 `;
 
 const HeadingContainer = styled.div`
   display: flex;
-  justify-content: center;
-  align-items: center;
-  padding-top: 50px;
-`;
-
-const SubHeading = styled(Text)`
-  margin: 10px 0px;
-  text-align: center;
+  padding-top: var(--ads-v2-spaces-4);
 `;
 
 const Header = styled.div`
   width: 100%;
 
   > a {
-    margin: var(--ads-v2-spaces-3) var(--ads-v2-spaces-4);
+    margin: 0;
   }
-`;
-
-const HeaderText = styled.h1`
-  font-size: 40px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 48px;
-  letter-spacing: 0px;
-  text-align: center;
-  margin: 0px;
-  color: var(--ads-v2-color-fg-emphasis-plus);
 `;
 
 function GeneratePage() {
@@ -55,12 +38,12 @@ function GeneratePage() {
       ) : null}
 
       <HeadingContainer>
-        <HeaderText>{heading}</HeaderText>
+        <Text kind="heading-l">{heading}</Text>
       </HeadingContainer>
       {isGenerateFormPage ? (
-        <SubHeading renderAs="p">
+        <Text renderAs="p">
           Auto create a simple CRUD interface on top of your data
-        </SubHeading>
+        </Text>
       ) : null}
 
       <PageContent />

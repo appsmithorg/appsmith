@@ -14,14 +14,7 @@ import type {
   UseSheetColumnHeadersReturn,
 } from "./hooks";
 import type { DropdownOption } from "design-system-old";
-import {
-  FontWeight,
-  getTypographyByKey,
-  Text,
-  TextType,
-  TooltipComponent as Tooltip,
-} from "design-system-old";
-import { Colors } from "constants/Colors";
+import { getTypographyByKey, Text, TextType } from "design-system-old";
 import { debounce } from "lodash";
 import {
   createMessage,
@@ -30,7 +23,7 @@ import {
   GEN_CRUD_NO_COLUMNS,
   GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC,
 } from "@appsmith/constants/messages";
-import { Icon, Option, Select, Input } from "design-system";
+import { Icon, Option, Select, Input, Tooltip } from "design-system";
 
 type Props = {
   googleSheetPluginId: string;
@@ -53,25 +46,18 @@ type Props = {
 
 // styles
 
-const RoundBg = styled.div`
-  width: 16px;
-  height: 16px;
-  border-radius: 16px;
-  background-color: ${Colors.GRAY};
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
+const RoundBg = styled.div``;
 
 const Row = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 4px;
 `;
 
 const ColumnName = styled.span`
   ${getTypographyByKey("p3")};
-  color: ${Colors.GRAY};
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
@@ -83,24 +69,24 @@ const ColumnInfoWrapper = styled.div`
   flex-direction: row;
   justify-content: flex-start;
   align-items: flex-start;
-  padding: 0px 8px;
-  margin-bottom: 10px;
+  margin-bottom: 24px;
   width: ${DROPDOWN_DIMENSION.WIDTH};
   overflow: hidden;
   flex-wrap: wrap;
+  margin-top: 2px;
+  .cs-text {
+    color: var(--ads-v2-color-fg-muted);
+  }
 `;
 
 const ColumnNameWrapper = styled.div`
   display: flex;
-`;
-
-const TooltipWrapper = styled.div`
-  margin-top: 2px;
+  color: var(--ads-v2-color-fg-muted);
 `;
 
 const RowHeading = styled.p`
   ${getTypographyByKey("p1")};
-  margin-right: 10px;
+  margin-right: 6px;
 `;
 
 // As TextInput with dataType as number allows `e` as input, hence adding a number validator
@@ -295,9 +281,9 @@ function GoogleSheetForm(props: Props) {
   return (
     <>
       {selectedSpreadsheet.value ? (
-        <SelectWrapper className="space-y-2" width={DROPDOWN_DIMENSION.WIDTH}>
+        <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
           <Label>
-            Select sheet from <Bold>{selectedSpreadsheet.label}</Bold>
+            Select sheet from&nbsp;<Bold>{selectedSpreadsheet.label}</Bold>
           </Label>
 
           <Select
@@ -323,22 +309,20 @@ function GoogleSheetForm(props: Props) {
       ) : null}
 
       {selectedSheet.value ? (
-        <>
-          <SelectWrapper className="space-y-2" width={DROPDOWN_DIMENSION.WIDTH}>
+        <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
+          <>
             <Row>
               <RowHeading>
                 {createMessage(GEN_CRUD_TABLE_HEADER_LABEL)}
               </RowHeading>
-              <TooltipWrapper>
-                <Tooltip
-                  content={createMessage(GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC)}
-                  hoverOpenDelay={200}
-                >
-                  <RoundBg>
-                    <Icon name="help" size="sm" />
-                  </RoundBg>
-                </Tooltip>
-              </TooltipWrapper>
+              <Tooltip
+                content={createMessage(GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC)}
+                // hoverOpenDelay={200}
+              >
+                <RoundBg>
+                  <Icon name="question-line" size="md" />
+                </RoundBg>
+              </Tooltip>
             </Row>
             <Input
               data-testid="t--tableHeaderIndex"
@@ -348,36 +332,36 @@ function GoogleSheetForm(props: Props) {
               type="text"
               value={tableHeaderIndex}
             />
-          </SelectWrapper>
-          <ColumnInfoWrapper>
-            {columnHeaderList.length ? (
-              <>
-                <Text type={TextType.P3} weight={FontWeight.BOLD}>
-                  {createMessage(GEN_CRUD_COLUMN_HEADER_TITLE)} :&nbsp;
-                </Text>
-                {columnHeaderList
-                  .slice(0, MAX_COLUMNS_VISIBLE)
-                  .map((column, index) => (
-                    <ColumnNameWrapper key={column.id}>
-                      <ColumnName>{column.label}</ColumnName>
-                      {columnHeaderList.length - 1 === index ? null : (
-                        <ColumnName>,&nbsp;</ColumnName>
-                      )}
-                    </ColumnNameWrapper>
-                  ))}
-                {columnHeaderList.length > MAX_COLUMNS_VISIBLE ? (
-                  <ColumnName>
-                    and +{columnHeaderList.length - MAX_COLUMNS_VISIBLE} more.
-                  </ColumnName>
-                ) : (
-                  ""
-                )}
-              </>
-            ) : (
-              <ColumnName>{createMessage(GEN_CRUD_NO_COLUMNS)}</ColumnName>
-            )}
-          </ColumnInfoWrapper>
-        </>
+            <ColumnInfoWrapper>
+              {columnHeaderList.length ? (
+                <>
+                  <Text type={TextType.P3}>
+                    {createMessage(GEN_CRUD_COLUMN_HEADER_TITLE)}:&nbsp;
+                  </Text>
+                  {columnHeaderList
+                    .slice(0, MAX_COLUMNS_VISIBLE)
+                    .map((column, index) => (
+                      <ColumnNameWrapper key={column.id}>
+                        <ColumnName>{column.label}</ColumnName>
+                        {columnHeaderList.length - 1 === index ? null : (
+                          <ColumnName>,&nbsp;</ColumnName>
+                        )}
+                      </ColumnNameWrapper>
+                    ))}
+                  {columnHeaderList.length > MAX_COLUMNS_VISIBLE ? (
+                    <ColumnName>
+                      and +{columnHeaderList.length - MAX_COLUMNS_VISIBLE} more.
+                    </ColumnName>
+                  ) : (
+                    ""
+                  )}
+                </>
+              ) : (
+                <ColumnName>{createMessage(GEN_CRUD_NO_COLUMNS)}</ColumnName>
+              )}
+            </ColumnInfoWrapper>
+          </>
+        </SelectWrapper>
       ) : null}
 
       {selectedSheet.value

@@ -75,30 +75,19 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  align-items: center;
-  padding: 10px 20px 0px;
   border: none;
 `;
 
 const FormWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
 `;
 
 const DescWrapper = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
 `;
-
-// const Title = styled.p`
-//   font-weight: 500;
-//   color: ${Colors.CODE_GRAY};
-//   font-size: 24px;
-// `;
 
 const Row = styled.p`
   display: flex;
@@ -106,6 +95,7 @@ const Row = styled.p`
   justify-content: flex-start;
   align-items: center;
   white-space: nowrap;
+  margin-bottom: 4px;
 `;
 
 const ErrorMsg = styled.span`
@@ -168,16 +158,18 @@ function GeneratePageSubmitBtn({
   disabled: boolean;
 }) {
   return showSubmitButton ? (
-    <Button
-      data-cy="t--generate-page-form-submit"
-      isDisabled={disabled}
-      isLoading={isLoading}
-      kind="secondary"
-      onClick={() => !disabled && onSubmit()}
-      size={"md"}
-    >
-      Generate Page
-    </Button>
+    <div>
+      <Button
+        data-cy="t--generate-page-form-submit"
+        isDisabled={disabled}
+        isLoading={isLoading}
+        kind="primary"
+        onClick={() => !disabled && onSubmit()}
+        size="md"
+      >
+        Generate Page
+      </Button>
+    </div>
   ) : null;
 }
 
@@ -656,16 +648,14 @@ function GeneratePageForm() {
     !selectedTable.value || !showSubmitButton || isSelectedTableEmpty;
 
   return (
-    <div className="space-y-4">
+    <div>
       <Wrapper>
         <DescWrapper>
-          <Text kind="heading-l" renderAs="h2">
-            {GENERATE_PAGE_FORM_TITLE()}
-          </Text>
+          <Text kind="heading-m">{GENERATE_PAGE_FORM_TITLE()}</Text>
         </DescWrapper>
       </Wrapper>
       <FormWrapper>
-        <SelectWrapper className="space-y-2" width={DROPDOWN_DIMENSION.WIDTH}>
+        <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
           <Label>{createMessage(GEN_CRUD_DATASOURCE_DROPDOWN_LABEL)}</Label>
           <Select
             data-testid="t--datasource-dropdown"
@@ -707,9 +697,9 @@ function GeneratePageForm() {
           </Select>
         </SelectWrapper>
         {selectedDatasource.value ? (
-          <SelectWrapper className="space-y-2" width={DROPDOWN_DIMENSION.WIDTH}>
+          <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
             <Label>
-              Select {pluginField.TABLE} from{" "}
+              Select {pluginField.TABLE} from&nbsp;
               <Bold>{selectedDatasource.label}</Bold>
             </Label>
 
@@ -765,17 +755,16 @@ function GeneratePageForm() {
           </SelectWrapper>
         ) : null}
         {showEditDatasourceBtn && (
-          <Button kind="secondary" onClick={goToEditDatasource} size={"md"}>
-            Edit Datasource
-          </Button>
+          <div>
+            <Button kind="primary" onClick={goToEditDatasource} size="md">
+              Edit Datasource
+            </Button>
+          </div>
         )}
         {!isGoogleSheetPlugin ? (
           <>
             {showSearchableColumn && (
-              <SelectWrapper
-                className="space-y-2"
-                width={DROPDOWN_DIMENSION.WIDTH}
-              >
+              <SelectWrapper width={DROPDOWN_DIMENSION.WIDTH}>
                 <Row>
                   Select a searchable {pluginField.COLUMN} from the
                   selected&nbsp;

@@ -3,7 +3,14 @@ import styled from "styled-components";
 import { connect, useDispatch } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Button, Text, Modal, ModalContent, ModalBody } from "design-system";
+import {
+  Button,
+  Text,
+  Modal,
+  ModalContent,
+  ModalBody,
+  ModalFooter,
+} from "design-system";
 import { getCrudInfoModalData } from "selectors/crudInfoModalSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 
@@ -26,14 +33,7 @@ type Props = {
   generateCRUDSuccessInfo: GenerateCRUDSuccessInfoData | null;
 };
 
-const ActionButtonWrapper = styled.div`
-  display: flex;
-  justify-content: center;
-  margin: 30px 0px 0px;
-`;
-
 const Content = styled.div`
-  padding: 16px;
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -47,7 +47,6 @@ const Wrapper = styled.div`
   min-height: 500px;
 
   .info-subtitle {
-    padding-top: 5px;
     text-align: center;
   }
 `;
@@ -94,45 +93,29 @@ const STEP = {
 const DELAY_TIME = 3000;
 
 function InfoContent({
-  onClose,
   successImageUrl,
   successMessage,
 }: {
-  onClose: () => void;
   successMessage: string;
   successImageUrl: string;
 }) {
   return (
-    <>
-      <Content>
-        {/* TODO: Replace this with ADS text */}
-        <InfoContentHeadingText
-          className="info-subtitle"
-          dangerouslySetInnerHTML={{
-            __html: successMessage,
-          }}
+    <Content>
+      {/* TODO: Replace this with ADS text */}
+      <InfoContentHeadingText
+        className="info-subtitle"
+        dangerouslySetInnerHTML={{
+          __html: successMessage,
+        }}
+      />
+      <ImageWrapper>
+        <ProgressiveImage
+          alt="template information"
+          imageSource={getAssetUrl(successImageUrl)}
+          thumbnailSource={getInfoThumbnail()}
         />
-        <ImageWrapper>
-          <ProgressiveImage
-            alt="template information"
-            imageSource={getAssetUrl(successImageUrl)}
-            thumbnailSource={getInfoThumbnail()}
-          />
-        </ImageWrapper>
-      </Content>
-
-      <ActionButtonWrapper>
-        <Button
-          kind="primary"
-          onClick={() => {
-            onClose();
-          }}
-          size={"md"}
-        >
-          Got it
-        </Button>
-      </ActionButtonWrapper>
-    </>
+      </ImageWrapper>
+    </Content>
   );
 }
 
@@ -180,13 +163,17 @@ function GenCRUDSuccessModal(props: Props) {
             ) : null}
             {step === STEP.SHOW_INFO ? (
               <InfoContent
-                onClose={onClose}
                 successImageUrl={successImageUrl}
                 successMessage={successMessage}
               />
             ) : null}
           </Wrapper>
         </ModalBody>
+        <ModalFooter>
+          <Button kind="primary" onClick={onClose} size={"md"}>
+            Got it
+          </Button>
+        </ModalFooter>
       </ModalContent>
     </Modal>
   );

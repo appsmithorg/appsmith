@@ -1,15 +1,14 @@
 import React from "react";
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import { getPluginImages } from "selectors/entitiesSelector";
 import type {
   DropdownOption,
   RenderDropdownOptionType,
 } from "design-system-old";
-import { Classes, Text, TextType, TooltipComponent } from "design-system-old";
+import { Classes, Text, TextType } from "design-system-old";
 import _ from "lodash";
-import { Icon } from "design-system";
+import { Icon, Tooltip } from "design-system";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 // ---------- Helpers and constants ----------
@@ -36,7 +35,9 @@ const OptionWrapper = styled.div<{
 
   .${Classes.TEXT} {
     color: ${(props) =>
-      props.disabled ? Colors.GRAY2 : props.theme.colors.propertyPane.label};
+      props.disabled
+        ? "var(--ads-v2-color-fg-muted)"
+        : "var(--ads-v2-color-fg)"};
   }
 
   .${Classes.ICON} {
@@ -52,11 +53,11 @@ const OptionWrapper = styled.div<{
 const CreateIconWrapper = styled.div`
   margin: 0px 8px 0px 0px;
   cursor: pointer;
-  height: 20px;
+  height: 16px;
 `;
 
 const ImageWrapper = styled.div`
-  height: 20px;
+  height: 16px;
   width: auto;
   display: flex;
   align-items: center;
@@ -64,8 +65,8 @@ const ImageWrapper = styled.div`
 `;
 
 export const DatasourceImage = styled.img`
-  height: 20px;
-  width: auto;
+  height: 16px;
+  width: 16px;
 `;
 
 interface DataSourceOptionType extends RenderDropdownOptionType {
@@ -98,14 +99,11 @@ function DataSourceOption({
     ? ""
     : cypressSelector;
   return (
-    <TooltipComponent
+    <Tooltip
       content="Not supported for template generation"
-      disabled={
+      isDisabled={
         isSupportedForTemplate || isSelectedNode || isConnectNewDataSourceBtn
       }
-      styles={{
-        width: "100%",
-      }}
     >
       <OptionWrapper
         className={`t--dropdown-option ${
@@ -147,7 +145,7 @@ function DataSourceOption({
 
         <Text type={TextType.P1}>{label}</Text>
       </OptionWrapper>
-    </TooltipComponent>
+    </Tooltip>
   );
 }
 
