@@ -1,10 +1,11 @@
-import type CodeMirror from "codemirror";
+import CodeMirror from "codemirror";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import KeyboardShortcuts from "constants/KeyboardShortcuts";
 import type { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEditor/codeEditorUtils";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { getDatasourceStructuresFromDatasourceId } from "selectors/entitiesSelector";
 
 export const bindingHint: HintHelper = (editor) => {
   editor.setOption("extraKeys", {
@@ -52,3 +53,39 @@ export const bindingHint: HintHelper = (editor) => {
     },
   };
 };
+
+class SqlHintHelper {
+  datasourceStructure: ReturnType<
+    typeof getDatasourceStructuresFromDatasourceId
+  > = {};
+
+  constructor() {
+    this.hinter = this.hinter.bind(this);
+    this.setDatasourceStructure = this.setDatasourceStructure.bind(this);
+  }
+
+  setDatasourceStructure(
+    structure: ReturnType<typeof getDatasourceStructuresFromDatasourceId>,
+  ) {
+    this.datasourceStructure = structure;
+  }
+  hinter() {
+    return {
+      showHint: (editor: CodeMirror.Editor): boolean => {
+        editor.setOption("hintOptions", {
+          // @ts-expect-error: No type available
+          tables: this.datasourceStructure || {},
+        });
+        editor.showHint({
+          // @ts-expect-error: No type info
+          hint: CodeMirror.hint.sql,
+          completeSingle: false,
+        });
+
+        return true;
+      },
+    };
+  }
+}
+
+export const sqlHint = new SqlHintHelper();

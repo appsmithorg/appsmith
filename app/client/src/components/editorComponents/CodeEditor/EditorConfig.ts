@@ -4,6 +4,7 @@ import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTyp
 import type { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
 import type { ExpectedValueExample } from "utils/validation/common";
+import type { getDatasourceStructuresFromDatasourceId } from "selectors/entitiesSelector";
 
 export enum EditorModes {
   TEXT = "text/plain",
@@ -68,6 +69,9 @@ export type Hinter = {
     editor: CodeMirror.Editor,
     entityInformation: FieldEntityInformation,
     additionalData?: any,
+    datasourceStructure?: ReturnType<
+      typeof getDatasourceStructuresFromDatasourceId
+    >,
   ) => boolean;
   update?: (data: DataTree) => void;
   fireOnFocus?: boolean;
