@@ -19,13 +19,12 @@ import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.external.plugins.exceptions.OracleErrorMessages;
+import com.external.plugins.exceptions.OraclePluginError;
 import com.external.plugins.utils.OracleDatasourceUtils;
 import com.external.plugins.utils.OracleSpecificDataTypes;
 import com.zaxxer.hikari.HikariDataSource;
-import com.zaxxer.hikari.HikariPoolMXBean;
-import com.zaxxer.hikari.pool.HikariProxyConnection;
 import lombok.extern.slf4j.Slf4j;
-import oracle.jdbc.OraclePreparedStatement;
 import org.apache.commons.io.IOUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -45,7 +44,7 @@ import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.time.Duration;
+import java.text.MessageFormat;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,13 +68,14 @@ import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuest
 import static com.external.plugins.utils.OracleDatasourceUtils.JDBC_DRIVER;
 import static com.external.plugins.utils.OracleDatasourceUtils.createConnectionPool;
 import static com.external.plugins.utils.OracleDatasourceUtils.getConnectionFromConnectionPool;
+import static com.external.plugins.utils.OracleDatasourceUtils.logHikariCPStatus;
 import static com.external.plugins.utils.OracleExecuteUtils.closeConnectionPostExecution;
 import static com.external.plugins.utils.OracleExecuteUtils.isPLSQL;
 import static com.external.plugins.utils.OracleExecuteUtils.populateRowsAndColumns;
 import static com.external.plugins.utils.OracleExecuteUtils.removeSemicolonFromQuery;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
 public class OraclePlugin extends BasePlugin {
@@ -85,14 +85,15 @@ public class OraclePlugin extends BasePlugin {
     }
     @Extension
     public static class OraclePluginExecutor implements SmartSubstitutionInterface, PluginExecutor<HikariDataSource> {
-        private final Scheduler scheduler = Schedulers.boundedElastic();
+        public static final Scheduler scheduler = Schedulers.boundedElastic();
 
         @Override
         public Mono<HikariDataSource> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             try {
                 Class.forName(JDBC_DRIVER);
             } catch (ClassNotFoundException e) {
-                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Error loading Oracle JDBC Driver class."));
+                return Mono.error(new AppsmithPluginException(OraclePluginError.ORACLE_PLUGIN_ERROR,
+                        OracleErrorMessages.ORACLE_JDBC_DRIVER_LOADING_ERROR_MSG, e.getMessage()));
             }
 
             return Mono
@@ -115,7 +116,8 @@ public class OraclePlugin extends BasePlugin {
 
         @Override
         public Mono<ActionExecutionResult> execute(HikariDataSource connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
-            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
+            return Mono.error(
+                    new AppsmithPluginException(OraclePluginError.QUERY_EXECUTION_FAILED, "Unsupported Operation"));
         }
 
         @Override
@@ -123,10 +125,9 @@ public class OraclePlugin extends BasePlugin {
             final Map<String, Object> formData = actionConfiguration.getFormData();
             String query = getDataValueSafelyFromFormData(formData, BODY, STRING_TYPE, null);
             // Check for query parameter before performing the probably expensive fetch connection from the pool op.
-            if (isEmpty(query)) {
-                // Next TBD: update error based on new infra
+            if (isBlank(query)) {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "Missing required parameter: Query."));
+                        OracleErrorMessages.MISSING_QUERY_ERROR_MSG));
             }
 
             Boolean isPreparedStatement = TRUE;
@@ -165,7 +166,7 @@ public class OraclePlugin extends BasePlugin {
                     mustacheKeysInOrder, executeActionDTO);
         }
 
-        private Mono<ActionExecutionResult> executeCommon(HikariDataSource connection,
+        private Mono<ActionExecutionResult> executeCommon(HikariDataSource connectionPool,
                                                           DatasourceConfiguration datasourceConfiguration,
                                                           ActionConfiguration actionConfiguration,
                                                           Boolean preparedStatement,
@@ -177,10 +178,9 @@ public class OraclePlugin extends BasePlugin {
 
             final Map<String, Object> formData = actionConfiguration.getFormData();
             String query = getDataValueSafelyFromFormData(formData, BODY, STRING_TYPE, null);
-            if (isEmpty(query)) {
-                // Next TBD: update error based on new error infra
+            if (isBlank(query)) {
                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                        "Missing required parameter: Query."));
+                        OracleErrorMessages.MISSING_QUERY_ERROR_MSG));
             }
 
             Map<String, Object> psParams = preparedStatement ? new LinkedHashMap<>() : null;
@@ -191,8 +191,8 @@ public class OraclePlugin extends BasePlugin {
             return Mono.fromCallable(() -> {
                         Connection connectionFromPool;
 
-                        try {
-                            connectionFromPool = getConnectionFromConnectionPool(connection);
+                        try {   
+                            connectionFromPool = getConnectionFromConnectionPool(connectionPool);
                         } catch (SQLException | StaleConnectionException e) {
                             // The function can throw either StaleConnectionException or SQLException. The underlying hikari
                             // library throws SQLException in case the pool is closed or there is an issue initializing
@@ -211,15 +211,10 @@ public class OraclePlugin extends BasePlugin {
                         PreparedStatement preparedQuery = null;
                         boolean isResultSet;
 
-                        HikariPoolMXBean poolProxy = connection.getHikariPoolMXBean();
+                        // Log HikariCP status
+                        logHikariCPStatus(MessageFormat.format("Before executing Oracle query [{0}]", query),
+                                connectionPool);
 
-                        int idleConnections = poolProxy.getIdleConnections();
-                        int activeConnections = poolProxy.getActiveConnections();
-                        int totalConnections = poolProxy.getTotalConnections();
-                        int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                        log.debug("Before executing Oracle query [{}] : Hikari Pool stats : active - {} , idle - {}, " +
-                                        "awaiting - {} , total - {}", query, activeConnections, idleConnections,
-                                threadsAwaitingConnection, totalConnections);
                         try {
                             if (FALSE.equals(preparedStatement)) {
                                 statement = connectionFromPool.createStatement();
@@ -250,15 +245,13 @@ public class OraclePlugin extends BasePlugin {
                         } catch (SQLException e) {
                             log.debug(Thread.currentThread().getName() + ": In the OraclePlugin, got action execution error");
                             log.debug(e.getMessage());
-                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage()));
+                            return Mono.error(new AppsmithPluginException(OraclePluginError.QUERY_EXECUTION_FAILED,
+                                    OracleErrorMessages.QUERY_EXECUTION_FAILED_ERROR_MSG, e.getMessage(),
+                                    "SQLSTATE: " + e.getSQLState()));
                         } finally {
-                            idleConnections = poolProxy.getIdleConnections();
-                            activeConnections = poolProxy.getActiveConnections();
-                            totalConnections = poolProxy.getTotalConnections();
-                            threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                            log.debug("After executing Oracle query [{}] : Hikari Pool stats : active - {} , idle - " +
-                                            "{}, awaiting - {} , total - {}", query, activeConnections, idleConnections,
-                                    threadsAwaitingConnection, totalConnections);
+                            // Log HikariCP status
+                            logHikariCPStatus(MessageFormat.format("After executing Oracle query [{0}]", query),
+                                    connectionPool);
 
                             closeConnectionPostExecution(resultSet, statement, preparedQuery, connectionFromPool);
                         }
@@ -389,6 +382,7 @@ public class OraclePlugin extends BasePlugin {
                     // the query. Ignore the exception
                 } else {
                     throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                            String.format(OracleErrorMessages.QUERY_PREPARATION_FAILED_ERROR_MSG, value, binding),
                             e.getMessage());
                 }
             }
