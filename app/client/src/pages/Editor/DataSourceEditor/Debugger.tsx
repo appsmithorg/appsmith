@@ -2,7 +2,6 @@ import React, { useRef, useCallback } from "react";
 import type { RefObject } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import { Icon, IconSize } from "design-system-old";
 import {
   createMessage,
   DEBUGGER_ERRORS,
@@ -28,6 +27,7 @@ import {
   getResponsePaneHeight,
 } from "selectors/debuggerSelectors";
 import { ActionExecutionResizerHeight } from "../APIEditor/constants";
+import { Button } from "design-system";
 
 export const TabbedViewContainer = styled.div`
   ${ResizerCSS}
@@ -58,7 +58,7 @@ export const TabbedViewContainer = styled.div`
     padding: 9px 11px;
   }
   background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
-  border-top: 1px solid #e8e8e8;
+  border-top: 1px solid var(--ads-v2-color-border);
 `;
 
 export const ResizerMainContainer = styled.div`
@@ -77,6 +77,7 @@ export const ResizerContentContainer = styled.div`
   flex: 1;
   position: relative;
   display: flex;
+  padding: 0px var(--ads-v2-spaces-7);
 `;
 
 export default function Debugger() {
@@ -147,11 +148,13 @@ export default function Debugger() {
         tabs={DEBUGGER_TABS}
       />
 
-      <Icon
+      <Button
         className="close-debugger t--close-debugger"
-        name="close-modal"
+        isIconButton
+        kind="tertiary"
         onClick={onClose}
-        size={IconSize.XL}
+        size="md"
+        startIcon="close-modal"
       />
     </TabbedViewContainer>
   );

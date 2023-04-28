@@ -7,7 +7,7 @@ import { ActionType } from "entities/Datasource";
 import type { InjectedFormProps } from "redux-form";
 import { getFormValues, isDirty, reduxForm } from "redux-form";
 import type { RouteComponentProps } from "react-router";
-import { connect } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import {
   getDatasource,
@@ -59,6 +59,7 @@ import {
 import SaveOrDiscardDatasourceModal from "../DataSourceEditor/SaveOrDiscardDatasourceModal";
 import {
   createMessage,
+  DOCUMENTATION,
   GOOGLE_SHEETS_INFO_BANNER_MESSAGE,
   GSHEET_AUTHORIZATION_ERROR,
   SAVE_AND_AUTHORIZE_BUTTON_TEXT,
@@ -67,8 +68,12 @@ import { selectFeatureFlags } from "selectors/usersSelectors";
 import { Button } from "design-system";
 import { getDatasourceErrorMessage } from "./errorUtils";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { DocumentationLink } from "../QueryEditor/EditorJSONtoForm";
 import GoogleSheetFilePicker from "./GoogleSheetFilePicker";
+import {
+  setGlobalSearchQuery,
+  toggleShowGlobalSearchModal,
+} from "../../../actions/globalSearchActions";
+import AnalyticsUtil from "../../../utils/AnalyticsUtil";
 import DatasourceInformation from "./../DataSourceEditor/DatasourceSection";
 import styled from "styled-components";
 
@@ -320,6 +325,19 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       !isPluginAuthorized &&
       authErrorMessage == GSHEET_AUTHORIZATION_ERROR;
 
+    const dispatch = useDispatch();
+
+    const handleDocumentationClick = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      const query = plugin?.name || "Connecting to datasources";
+      dispatch(setGlobalSearchQuery(query));
+      dispatch(toggleShowGlobalSearchModal());
+      AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
+        source: "DATASOURCE_DOCUMENTATION_CLICK",
+        query,
+      });
+    };
+
     return (
       <>
         <form
@@ -358,6 +376,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                         }),
                       );
                     }}
+                    size="md"
                   >
                     Edit
                   </Button>
@@ -386,7 +405,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
               datasource?.id === TEMP_DATASOURCE_ID ? (
                 <AuthMessage
                   actionType={ActionType.DOCUMENTATION}
-                  calloutType="Notify"
+                  calloutType="info"
                   datasource={datasource}
                   description={googleSheetsInfoMessage}
                   pageId={pageId}
@@ -405,7 +424,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                   description={authErrorMessage}
                   pageId={pageId}
                   style={{
-                    paddingTop: "24px",
+                    paddingTop: "12px",
                   }}
                 />
               ) : null}
@@ -460,7 +479,17 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
           )}
         </form>
         {/* Documentation link opens up documentation in omnibar, for google sheets */}
-        {documentationLink && <DocumentationLink />}
+        {documentationLink && (
+          <Button
+            className="t--datasource-documentation-link"
+            kind="tertiary"
+            onClick={(e: React.MouseEvent) => handleDocumentationClick(e)}
+            size="sm"
+            startIcon="book-line"
+          >
+            {createMessage(DOCUMENTATION)}
+          </Button>
+        )}
         <SaveOrDiscardDatasourceModal
           datasourceId={datasourceId}
           datasourcePermissions={datasource?.userPermissions || []}

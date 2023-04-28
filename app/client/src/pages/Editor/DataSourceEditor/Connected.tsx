@@ -59,7 +59,7 @@ function Connected({
           <ConnectedText>
             <Icon
               color="var(--ads-v2-color-fg-success)"
-              name="checkbox-circle-fill"
+              name="success"
               size="lg"
             />
             <div style={{ marginLeft: "12px" }}>Datasource Saved</div>

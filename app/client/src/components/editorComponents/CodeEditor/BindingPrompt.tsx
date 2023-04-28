@@ -10,8 +10,8 @@ const Wrapper = styled.span<{
 }>`
   padding: ${(props) => (props.customMessage ? 6 : 8)}px;
   font-size: 12px;
-  color: var(--ads-v2-color-gray-500);
-  box-shadow: var(--ads-v2-shadow-popovers);
+  color: var(--ads-v2-color-fg);
+  box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.2), 0px 2px 10px rgba(0, 0, 0, 0.1);
   border-radius: var(--ads-v2-border-radius);
   background-color: var(--ads-v2-color-bg-muted);
   position: absolute;
@@ -21,12 +21,6 @@ const Wrapper = styled.span<{
   line-height: 13px;
   visibility: ${(props) => (props.visible ? "visible" : "hidden")};
   z-index: 3;
-`;
-
-const CurlyBraces = styled.span`
-  color: var(--ads-v2-color-gray-500);
-  background-color: ${(props) =>
-    props.theme.colors.codeMirror.background.hoverState};
 `;
 
 function BindingPrompt(props: {
@@ -52,10 +46,7 @@ function BindingPrompt(props: {
         props.promptMessage
       ) : (
         <>
-          Type{" "}
-          <CurlyBraces>
-            {props.showLightningMenu === false ? "{{" : "/"}
-          </CurlyBraces>{" "}
+          Type <span>{props.showLightningMenu === false ? "{{" : "/"}</span>{" "}
           {props.showLightningMenu === false
             ? "to see a list of variables"
             : "to access quick commands"}

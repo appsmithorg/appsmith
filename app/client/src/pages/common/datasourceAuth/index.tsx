@@ -91,9 +91,8 @@ const SaveButtonContainer = styled.div`
 `;
 
 const StyledAuthMessage = styled.div`
-  color: ${(props) => props.theme.colors.error};
+  color: var(--ads-v2-color-fg-error);
   margin-top: 15px;
-  padding-left: 20px;
   &:after {
     content: " *";
     color: inherit;
@@ -299,6 +298,7 @@ function DatasourceAuth({
               confirmDelete ? handleDatasourceDelete() : setConfirmDelete(true);
             }
           }}
+          size="md"
         >
           {isDeleting
             ? createMessage(CONFIRM_CONTEXT_DELETING)
@@ -314,6 +314,7 @@ function DatasourceAuth({
           key={buttonType}
           kind="secondary"
           onClick={handleDatasourceTest}
+          size="md"
         >
           Test
         </Button>
@@ -327,6 +328,7 @@ function DatasourceAuth({
           isLoading={isSaving}
           key={buttonType}
           onClick={handleDefaultAuthDatasourceSave}
+          size="md"
         >
           Save
         </Button>
@@ -338,6 +340,7 @@ function DatasourceAuth({
           isLoading={isSaving}
           key={buttonType}
           onClick={handleOauthDatasourceSave}
+          size="md"
         >
           Save and Authorize
         </Button>

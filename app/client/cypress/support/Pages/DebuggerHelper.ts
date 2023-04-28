@@ -60,7 +60,7 @@ export class DebuggerHelper {
   ClickDebuggerToggle(expand = true, index = 0) {
     cy.get(this.locators._debuggerToggle)
       .eq(index)
-      .invoke("attr", "data-isOpen")
+      .invoke("attr", "data-isopen")
       .then((arrow) => {
         if (expand && arrow == "false")
           cy.get(this.locators._debuggerToggle)

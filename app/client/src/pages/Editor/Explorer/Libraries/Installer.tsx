@@ -214,14 +214,12 @@ function StatusIcon(props: {
   );
   if (status === InstallState.Success || isInstalled)
     return (
-      <Tooltip content="Successfully installed" trigger="hover">
-        <Icon
-          className="installed"
-          color="var(--ads-v2-color-fg-success)"
-          name="oval-check-fill"
-          size="md"
-        />
-      </Tooltip>
+      <Icon
+        className="installed"
+        color="var(--ads-v2-color-fg-success)"
+        name="close-circle"
+        size="md"
+      />
     );
   if (status === InstallState.Failed)
     return (

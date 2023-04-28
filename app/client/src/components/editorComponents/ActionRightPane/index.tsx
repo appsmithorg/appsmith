@@ -1,10 +1,9 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
 import { Classes, getTypographyByKey } from "design-system-old";
-import { Button, Icon } from "design-system";
+import { Button, Icon, Link } from "design-system";
 import { useState } from "react";
-import history from "utils/history";
 import Connections from "./Connections";
 import SuggestedWidgets from "./SuggestedWidgets";
 import type { ReactNode } from "react";
@@ -34,9 +33,6 @@ import { builderURL } from "RouteBuilder";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 
 const SideBar = styled.div`
-  padding: ${(props) => props.theme.spaces[0]}px
-    ${(props) => props.theme.spaces[3]}px ${(props) => props.theme.spaces[4]}px;
-  overflow: auto;
   height: 100%;
   width: 100%;
   -webkit-animation: slide-left 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
@@ -46,9 +42,13 @@ const SideBar = styled.div`
     margin-top: ${(props) => props.theme.spaces[11]}px;
   }
 
+  & > a {
+    margin-top: 0;
+    margin-left: 0;
+  }
+
   .icon-text {
     display: flex;
-    margin-left: ${(props) => props.theme.spaces[2] + 1}px;
 
     .connection-type {
       ${getTypographyByKey("p1")}
@@ -87,7 +87,7 @@ const SideBar = styled.div`
   }
 `;
 
-const BackToCanvasButton = styled(Button)`
+const BackToCanvasLink = styled(Link)`
   margin-left: ${(props) => props.theme.spaces[1] + 1}px;
   margin-top: ${(props) => props.theme.spaces[11]}px;
 `;
@@ -102,7 +102,7 @@ const CollapsibleWrapper = styled.div<{ isOpen: boolean }>`
   }
 
   & > .icon-text:first-child {
-    color: ${(props) => props.theme.colors.actionSidePane.collapsibleIcon};
+    color: var(--ads-v2-color-fg);
     ${getTypographyByKey("h4")}
     cursor: pointer;
     .${Classes.ICON} {
@@ -231,9 +231,6 @@ function ActionSidebar({
       }),
     );
   };
-  const navigateToCanvas = useCallback(() => {
-    history.push(builderURL({ pageId }));
-  }, [pageId]);
 
   const hasWidgets = Object.keys(widgets).length > 1;
 
@@ -251,14 +248,14 @@ function ActionSidebar({
 
   return (
     <SideBar>
-      {/* TODO (tanvi): replace this with a link*/}
-      <BackToCanvasButton
-        kind="tertiary"
-        onClick={navigateToCanvas}
-        startIcon="chevron-left"
+      <BackToCanvasLink
+        kind="secondary"
+        startIcon="arrow-left-line"
+        target="_self"
+        to={builderURL({ pageId })}
       >
         {createMessage(BACK_TO_CANVAS)}
-      </BackToCanvasButton>
+      </BackToCanvasLink>
 
       {hasConnections && (
         <Connections

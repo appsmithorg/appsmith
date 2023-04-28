@@ -31,7 +31,7 @@ export interface ApiPaneReduxState {
   extraformData: Record<string, any>;
   selectedConfigTabIndex: number;
   selectedResponseTab: string;
-  selectedRightPaneTab?: number;
+  selectedRightPaneTab?: string;
 }
 
 const apiPaneReducer = createReducer(initialState, {

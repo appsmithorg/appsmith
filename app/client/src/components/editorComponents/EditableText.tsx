@@ -6,7 +6,7 @@ import {
 import styled from "styled-components";
 import _ from "lodash";
 import ErrorTooltip from "./ErrorTooltip";
-import { Icon, toast } from "design-system";
+import { Button, toast } from "design-system";
 
 export enum EditInteractionKind {
   SINGLE,
@@ -40,6 +40,8 @@ type EditableTextProps = {
   useFullWidth?: boolean;
 };
 
+// using the !important keyword here is mandatory because a style is being applied to that element using the style attribute
+// which has higher specificity than other css selectors. It seems the overriding style is being applied by the package itself.
 const EditableTextWrapper = styled.div<{
   isEditing: boolean;
   minimal: boolean;
@@ -52,9 +54,10 @@ const EditableTextWrapper = styled.div<{
     align-items: flex-start;
     width: 100%;
     & .${Classes.EDITABLE_TEXT} {
+      border-radius: var(--ads-v2-border-radius);
       background: ${(props) =>
         props.isEditing && !props.minimal
-          ? props.theme.colors.editableText.bg
+          ? "var(--ads-v2-color-bg-subtle)"
           : "none"};
       cursor: pointer;
       padding: ${(props) => (!props.minimal ? "5px 5px" : "0px")};
@@ -82,9 +85,6 @@ const EditableTextWrapper = styled.div<{
     }
   `}
 `;
-
-// using the !important keyword here is mandatory because a style is being applied to that element using the style attribute
-// which has higher specificity than other css selectors. It seems the overriding style is being applied by the package itself.
 const TextContainer = styled.div<{
   isValid: boolean;
   minimal: boolean;
@@ -95,6 +95,7 @@ const TextContainer = styled.div<{
     & .${Classes.EDITABLE_TEXT_CONTENT} {
       &:hover {
         text-decoration: ${(props) => (props.minimal ? "underline" : "none")};
+        text-decoration-color: var(--ads-v2-color-border);
       }
     }
   }
@@ -104,12 +105,17 @@ const TextContainer = styled.div<{
         ? `
         border-bottom-style: solid;
         border-bottom-width: 1px;
+        border-bottom-color: var(--ads-v2-color-border);
         width: fit-content;
       `
         : null}
   }
   & span.bp3-editable-text-content {
     height: auto !important;
+  }
+
+  && .t--action-name-edit-icon {
+    min-width: min-content;
   }
 `;
 
@@ -220,7 +226,7 @@ export function EditableText(props: EditableTextProps) {
       onDoubleClick={
         editInteractionKind === EditInteractionKind.DOUBLE ? edit : _.noop
       }
-      useFullWidth={useFullWidth && isEditing ? true : false}
+      useFullWidth={!!(useFullWidth && isEditing)}
     >
       <ErrorTooltip
         customClass={errorTooltipClass}
@@ -248,7 +254,13 @@ export function EditableText(props: EditableTextProps) {
             value={value}
           />
           {showEditIcon && (
-            <Icon className="t--action-name-edit-icon" name="edit" size="md" />
+            <Button
+              className="t--action-name-edit-icon"
+              isIconButton
+              kind="tertiary"
+              size="md"
+              startIcon="pencil-fill-icon"
+            />
           )}
         </TextContainer>
       </ErrorTooltip>
