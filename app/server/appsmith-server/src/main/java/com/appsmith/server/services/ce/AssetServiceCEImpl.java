@@ -60,25 +60,18 @@ public class AssetServiceCEImpl implements AssetServiceCE {
         return repository.findById(id);
     }
 
-    private Boolean checkMimeTypeValidationFromContent(DataBuffer dataBuffer, String contentSubType) throws IOException {
+    private Boolean checkImageTypeValidation(DataBuffer dataBuffer, MediaType contentType) throws IOException {
         BufferedImage bufferedImage = ImageIO.read(dataBuffer.asInputStream());
         if (bufferedImage == null) {
             /*
                 This is true for SVG and ICO images.
-                It is an edge case, when a user uploads a JSON type file and renames it to .svg
-                Since, we cannot read the content as bytes for svg and ico type images, we are returning true
-                i.e. no error from this function, for these cases it only relies on basic mime type check with
-                file extension.
+                If ImageIO.read returns bufferedImage as null and the contentType file extension is .png or .jpeg which
+                means the file is not an image type file rather any other corrupted file but the extension has been
+                changed to .png or .jpeg to upload the flawed file. This is a security vulnerability hence reject
              */
-            return true;
-        }
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ImageIO.write(bufferedImage, contentSubType, outputStream);
-        byte[] imageData = outputStream.toByteArray();
-        InputStream is = new BufferedInputStream(new ByteArrayInputStream(imageData));
-        String mimeType = URLConnection.guessContentTypeFromStream(is);
-        if (!ALLOWED_CONTENT_TYPES_STR.contains(mimeType)) {
-            return false;
+            if (ALLOWED_CONTENT_TYPES_STR.contains(contentType.toString())){
+                return false;
+            }
         }
         return true;
     }
@@ -144,16 +137,8 @@ public class AssetServiceCEImpl implements AssetServiceCE {
 
     private Asset createAsset(DataBuffer dataBuffer, MediaType srcContentType, boolean createThumbnail) throws IOException {
         MediaType contentType = srcContentType;
-        /*
-            We are doing an advanced mime type check here by reading the first four bytes from the file and detecting
-            whether it is PNG/JPEG or any other.
-            This is a second level check on top of the basic mime type validation that's in place which checks the file
-            extension.
-            With this check, if any user renames a JSON file to .png and then uploads in the profile section, it returns
-            VALIDATION_FAILURE error.
-         */
-        Boolean isMimeValid = checkMimeTypeValidationFromContent(dataBuffer, contentType.getSubtype());
-        if (isMimeValid != true) {
+        Boolean isValidImage = checkImageTypeValidation(dataBuffer, contentType);
+        if (isValidImage != true) {
             throw new AppsmithException(AppsmithError.VALIDATION_FAILURE, "Please upload a valid image. Only JPEG, PNG, SVG and ICO are allowed.");
         }
 
