@@ -21,7 +21,7 @@ export const StyledApplicationName = styled.div<{
   font-size: ${THEMEING_TEXT_SIZES.base};
   font-weight: ${({ fontWeight }) =>
     fontWeight === "regular" ? "400" : "600"};
-  ${({ forSidebar }) => (forSidebar ? "margin-left: 8px;" : "")};
+  ${({ forSidebar }) => (forSidebar ? "margin-left: 6px;" : "")};
 
   ${({ isMobile, navStyle }) => {
     if (isMobile) {
