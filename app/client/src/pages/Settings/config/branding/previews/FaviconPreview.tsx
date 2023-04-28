@@ -30,7 +30,7 @@ const FaviconPreview = (props: PreviewsProps) => {
               src={favicon}
             />
             <Text kind="body-s" renderAs="span">
-              Application Name
+              Application name
             </Text>
           </div>
           <Icon name="add-line" size="md" />
