@@ -40,6 +40,12 @@ export const getMetaWidgets = (state: AppState): MetaWidgetsReduxState => {
   return state.entities.metaWidgets;
 };
 
+export const getCanvasAndMetaWidgets = createSelector(
+  getWidgets,
+  getMetaWidgets,
+  (canvasWidget, metaWidget) => ({ ...canvasWidget, ...metaWidget }),
+);
+
 export const getWidgetsMeta = (state: AppState) => state.entities.meta;
 
 export const getWidgetMetaProps = createSelector(

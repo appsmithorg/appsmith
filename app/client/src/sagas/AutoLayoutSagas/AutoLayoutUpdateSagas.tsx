@@ -17,7 +17,7 @@ import {
   select,
   takeLatest,
 } from "redux-saga/effects";
-import { getWidgets } from "../selectors";
+import { getCanvasAndMetaWidgets, getWidgets } from "../selectors";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import {
@@ -36,9 +36,12 @@ import { getCanvasWidth as getMainCanvasWidth } from "selectors/editorSelectors"
 import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
 import { updateApplication } from "@appsmith/actions/applicationActions";
 import { getIsResizing } from "selectors/widgetSelectors";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ce/reducers";
 import { isEmpty } from "lodash";
-import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
+import {
+  updateMultipleMetaWidgetPropertiesAction,
+  updateMultipleWidgetPropertiesAction,
+} from "actions/controlActions";
 import {
   batchWidgetDimensionsUpdateForAutoLayout,
   getWidgetsWithDimensionChanges,
@@ -68,11 +71,28 @@ function* recalculatePositionsOfWidgetsSaga(payload: {
         processedWidgets,
       );
 
+      const canvasWidgetsToUpdate: UpdateWidgetsPayload = {};
+      const metaWidgetsToUpdate: UpdateWidgetsPayload = {};
+
+      for (const widgetId in widgetsToUpdate) {
+        const widget = processedWidgets[widgetId];
+        if (widget.isMetaWidget) {
+          metaWidgetsToUpdate[widgetId] = widgetsToUpdate[widgetId];
+        } else {
+          canvasWidgetsToUpdate[widgetId] = widgetsToUpdate[widgetId];
+        }
+      }
+
       // Push all updates to the CanvasWidgetsReducer.
       // Note that we're not calling `UPDATE_LAYOUT`
       // as we don't need to trigger an eval
-      if (!isEmpty(widgetsToUpdate)) {
-        yield put(updateMultipleWidgetPropertiesAction(widgetsToUpdate));
+      if (!isEmpty(canvasWidgetsToUpdate)) {
+        yield put(updateMultipleWidgetPropertiesAction(canvasWidgetsToUpdate));
+      }
+      if (!isEmpty(metaWidgetsToUpdate)) {
+        yield put(
+          updateMultipleMetaWidgetPropertiesAction(metaWidgetsToUpdate),
+        );
       }
     }
 
@@ -187,7 +207,9 @@ function* updateAutoLayoutWidgetDimensionsSaga(
 ) {
   let { height, width } = action.payload;
   const { widgetId } = action.payload;
-  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const allWidgets: CanvasWidgetsReduxState = yield select(
+    getCanvasAndMetaWidgets,
+  );
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
   const isWidgetResizing: boolean = yield select(getIsResizing);
