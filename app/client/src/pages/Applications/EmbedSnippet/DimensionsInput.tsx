@@ -1,6 +1,7 @@
 import React from "react";
 import { Input } from "design-system";
 import styled from "styled-components";
+import { Input } from "design-system";
 
 const StyledInput = styled(Input)`
   > .ads-v2-input__input-section > div {

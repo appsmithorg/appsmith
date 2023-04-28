@@ -1,14 +1,19 @@
 import type { ReactNode } from "react";
-import React, { useCallback } from "react";
-import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
+import React, { useState } from "react";
 import styled from "styled-components";
 import _, { noop } from "lodash";
-import { Button, SearchInput } from "design-system";
-import { useSelector, useDispatch } from "react-redux";
+import {
+  Button,
+  Modal,
+  ModalContent,
+  ModalBody,
+  ModalHeader,
+  SearchInput,
+} from "design-system";
+import { useSelector } from "react-redux";
 import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
 import { Indices } from "constants/Layers";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
-import { setShowAppInviteUsersDialog } from "@appsmith/actions/applicationActions";
 
 const SubHeaderWrapper = styled.div<{
   isMobile?: boolean;
@@ -56,20 +61,13 @@ type SubHeaderProps = {
 };
 
 export function ApplicationsSubHeader(props: SubHeaderProps) {
+  const [showModal, setShowModal] = useState(false);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isMobile = useIsMobileDevice();
-  const dispatch = useDispatch();
   const query =
     props.search &&
     props.search.queryFn &&
     _.debounce(props.search.queryFn, 250, { maxWait: 1000 });
-  const createTrigger = props.add && (
-    <Button size="md">{props.add.title}</Button>
-  );
-
-  const handleFormOpenOrClose = useCallback((isOpen: boolean) => {
-    dispatch(setShowAppInviteUsersDialog(isOpen));
-  }, []);
 
   return (
     <SubHeaderWrapper
@@ -89,12 +87,18 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
       </SearchContainer>
 
       {props.add && (
-        <FormDialogComponent
-          Form={props.add.form}
-          onOpenOrClose={handleFormOpenOrClose}
-          title={props.add.title}
-          trigger={createTrigger}
-        />
+        <>
+          <Button size="md">{props.add.title}</Button>
+          <Modal
+            onOpenChange={(isOpen) => setShowModal(isOpen)}
+            open={showModal}
+          >
+            <ModalContent>
+              <ModalHeader>{props.add.title}</ModalHeader>
+              <ModalBody>{props.add.form}</ModalBody>
+            </ModalContent>
+          </Modal>
+        </>
       )}
     </SubHeaderWrapper>
   );

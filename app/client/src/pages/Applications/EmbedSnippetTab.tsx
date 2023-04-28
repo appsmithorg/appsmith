@@ -1,7 +1,5 @@
 import React from "react";
-import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { Switch, Tooltip } from "design-system";
 import useUpdateEmbedSnippet from "./EmbedSnippet/useUpdateEmbedSnippet";
 import DimensionsInput from "./EmbedSnippet/DimensionsInput";
 import EmbedCodeSnippet from "./EmbedSnippet/Snippet";
@@ -10,22 +8,11 @@ import {
   IN_APP_EMBED_SETTING,
 } from "@appsmith/constants/messages";
 import classNames from "classnames";
-import { Icon, Link } from "design-system";
-
-const Text = styled.p`
-  font-size: var(--ads-v2-font-size-4);
-  font-weight: var(--ads-v2-font-weight-normal);
-  color: var(--ads-v2-color-fg);
-`;
-
-const StyledPreviewLink = styled.a`
-  :hover {
-    text-decoration: none;
-  }
-`;
+import { Icon, Link, Switch, Text, Tooltip } from "design-system";
 
 function EmbedSnippetTab() {
   const embedSnippet = useUpdateEmbedSnippet();
+
   return (
     <div>
       <div className="flex gap-3">
@@ -38,7 +25,9 @@ function EmbedSnippetTab() {
                     name={embedSnippet.embedSettingContent.icon}
                     size="md"
                   />
-                  <Text>{embedSnippet.embedSettingContent.label}</Text>
+                  <Text kind="action-m">
+                    {embedSnippet.embedSettingContent.label}
+                  </Text>
 
                   <Tooltip
                     content={embedSnippet.embedSettingContent.tooltip}
@@ -48,7 +37,6 @@ function EmbedSnippetTab() {
                   </Tooltip>
                 </div>
                 <Link
-                  kind="secondary"
                   target="_blank"
                   to="https://docs.appsmith.com/getting-started/setup/instance-configuration/frame-ancestors#why-should-i-control-this"
                 >
@@ -66,7 +54,8 @@ function EmbedSnippetTab() {
           >
             <div className="flex justify-between items-center">
               <Switch
-                data-cy="show-navigation-bar-toggle"
+                className="mb-0"
+                data-cy={"show-navigation-bar-toggle"}
                 defaultSelected={
                   embedSnippet.currentEmbedSetting?.showNavigationBar
                 }
@@ -83,7 +72,7 @@ function EmbedSnippetTab() {
           </div>
 
           <div className="flex justify-between pt-3.5">
-            <Text className="self-center">
+            <Text className="self-center" kind="action-m">
               {createMessage(IN_APP_EMBED_SETTING.embedSize)}
             </Text>
             <div className="flex gap-2">
@@ -110,16 +99,17 @@ function EmbedSnippetTab() {
       <div
         className={`flex justify-end border-t-2 mt-6 pt-5 border-[${Colors.GRAY_200}]`}
       >
-        {/* TODO (tanvi): replace with Link*/}
-        <StyledPreviewLink
-          className="flex gap-1 items-center self-end"
-          data-cy="preview-embed"
-          href={embedSnippet.appViewEndPoint}
-          target={"_blank"}
-        >
-          <Icon name="external-link-line" size="md" />
-          <Text>{createMessage(IN_APP_EMBED_SETTING.previewEmbeddedApp)}</Text>
-        </StyledPreviewLink>
+        <div className="flex gap-1 items-center">
+          <Link
+            data-cy="preview-embed"
+            endIcon="share-box-line"
+            kind="secondary"
+            target={"_blank"}
+            to={embedSnippet.appViewEndPoint}
+          >
+            {createMessage(IN_APP_EMBED_SETTING.previewEmbeddedApp)}
+          </Link>
+        </div>
       </div>
     </div>
   );

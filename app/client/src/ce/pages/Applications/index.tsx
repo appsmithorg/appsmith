@@ -34,7 +34,7 @@ import PageWrapper from "@appsmith/pages/common/PageWrapper";
 import SubHeader from "pages/common/SubHeader";
 import ApplicationCard from "pages/Applications/ApplicationCard";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
-import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
+import { Modal, ModalBody, ModalContent, ModalHeader } from "design-system";
 import type { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { CREATE_WORKSPACE_FORM_NAME } from "@appsmith/constants/forms";
@@ -63,7 +63,6 @@ import {
 } from "design-system";
 import {
   duplicateApplication,
-  setShowAppInviteUsersDialog,
   updateApplication,
 } from "@appsmith/actions/applicationActions";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
@@ -539,6 +538,7 @@ export function ApplicationsSection(props: any) {
   };
   const [warnLeavingWorkspace, setWarnLeavingWorkspace] = useState(false);
   const [warnDeleteWorkspace, setWarnDeleteWorkspace] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [workspaceToOpenMenu, setWorkspaceToOpenMenu] = useState<string | null>(
     null,
   );
@@ -634,10 +634,6 @@ export function ApplicationsSection(props: any) {
       },
     });
   };
-
-  const handleFormOpenOrClose = useCallback((isOpen: boolean) => {
-    dispatch(setShowAppInviteUsersDialog(isOpen));
-  }, []);
 
   let updatedWorkspaces;
   if (!isFetchingApplications) {
@@ -738,26 +734,35 @@ export function ApplicationsSection(props: any) {
                 <WorkspaceShareUsers>
                   <SharedUserList workspaceId={workspace.id} />
                   {canInviteToWorkspace && !isMobile && (
-                    <FormDialogComponent
-                      Form={WorkspaceInviteUsersForm}
-                      canOutsideClickClose
-                      onOpenOrClose={handleFormOpenOrClose}
-                      placeholder={createMessage(
-                        INVITE_USERS_PLACEHOLDER,
-                        cloudHosting,
-                      )}
-                      title={`Invite Users to ${workspace.name}`}
-                      trigger={
-                        <Button
-                          kind="secondary"
-                          size="md"
-                          startIcon={"share-line"}
-                        >
-                          Share
-                        </Button>
-                      }
-                      workspaceId={workspace.id}
-                    />
+                    <>
+                      <Button
+                        kind="secondary"
+                        onClick={() => setShowModal(true)}
+                        size="md"
+                        startIcon={"share-line"}
+                      >
+                        Share
+                      </Button>
+                      <Modal
+                        onOpenChange={(isOpen) => setShowModal(isOpen)}
+                        open={showModal}
+                      >
+                        <ModalContent>
+                          <ModalHeader>
+                            {`Invite Users to ${workspace.name}`}
+                          </ModalHeader>
+                          <ModalBody>
+                            <WorkspaceInviteUsersForm
+                              placeholder={createMessage(
+                                INVITE_USERS_PLACEHOLDER,
+                                cloudHosting,
+                              )}
+                              workspaceId={workspace.id}
+                            />
+                          </ModalBody>
+                        </ModalContent>
+                      </Modal>
+                    </>
                   )}
                   {hasCreateNewApplicationPermission &&
                     !isFetchingApplications &&
