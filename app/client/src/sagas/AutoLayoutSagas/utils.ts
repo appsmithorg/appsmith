@@ -373,7 +373,8 @@ function* processAutoLayoutMainCanvasHeight(
   isMobile: boolean,
 ) {
   const appMode: APP_MODE = yield select(getAppMode);
-  let processedWidgets = addWidgetDimensionProxy(dimensionMap, widgets);
+  let initialWidgets = { ...widgets };
+  const processedWidgets = addWidgetDimensionProxy(dimensionMap, widgets);
   const { bottomRow: bottomRowMap } = dimensionMap;
 
   // Let's consider the minimum Canvas Height
@@ -401,13 +402,13 @@ function* processAutoLayoutMainCanvasHeight(
     maxPossibleCanvasHeightInRows,
     maxCanvasHeightInRows,
   );
-  processedWidgets = {
-    ...processedWidgets,
+  initialWidgets = {
+    ...initialWidgets,
     [MAIN_CONTAINER_WIDGET_ID]: {
-      ...processedWidgets[MAIN_CONTAINER_WIDGET_ID],
+      ...initialWidgets[MAIN_CONTAINER_WIDGET_ID],
       [bottomRowMap]:
         maxCanvasHeightInRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
     },
   };
-  return processedWidgets;
+  return initialWidgets;
 }
