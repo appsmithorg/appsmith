@@ -14,7 +14,7 @@ import {
 import log from "loglevel";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import { getWidgets } from "sagas/selectors";
+import { getWidgets, getWidgetsMeta } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import {
   addNewLayer,
@@ -34,7 +34,7 @@ import {
 } from "selectors/editorSelectors";
 import { executeWidgetBlueprintBeforeOperations } from "sagas/WidgetBlueprintSagas";
 import { BlueprintOperationTypes } from "widgets/constants";
-import { recalculatePositionsForCurrentBreakPointAction } from "actions/autoLayoutActions";
+// import { recalculatePositionsForCurrentBreakPointAction } from "actions/autoLayoutActions";
 
 function* addWidgetAndReorderSaga(
   actionPayload: ReduxAction<{
@@ -102,13 +102,7 @@ function* addWidgetAndReorderSaga(
         isMobile,
       },
     );
-
-    yield put(
-      recalculatePositionsForCurrentBreakPointAction(
-        updatedWidgetsOnMove,
-        true,
-      ),
-    );
+    yield put(updateAndSaveLayout(updatedWidgetsOnMove));
 
     log.debug(
       "Auto Layout : add new widget took",
@@ -207,6 +201,10 @@ function* reorderAutolayoutChildren(params: {
   const mainCanvasWidth: number = yield select(getCanvasWidth);
   const selectedWidgets = [...movedWidgets];
 
+  const metaProps: Record<string, any> = yield select(getWidgetsMeta);
+  const selectedTabWidgetId: string | undefined =
+    metaProps[parentId]?.selectedTabWidgetId || undefined;
+
   let updatedWidgets: CanvasWidgetsReduxState = updateRelationships(
     selectedWidgets,
     widgets,
@@ -214,6 +212,7 @@ function* reorderAutolayoutChildren(params: {
     false,
     isMobile,
     mainCanvasWidth,
+    selectedTabWidgetId,
   );
 
   // Update flexLayers for a vertical stack.
@@ -288,12 +287,15 @@ function* reorderAutolayoutChildren(params: {
       bottomRow: parentWidget.topRow + height,
     };
   }
+
   const widgetsAfterPositionUpdate = updatePositionsOfParentAndSiblings(
     updatedWidgets,
     parentId,
     layerIndex,
     isMobile,
     mainCanvasWidth,
+    false,
+    selectedTabWidgetId, // To process selected tab in tab widget
   );
 
   return widgetsAfterPositionUpdate;

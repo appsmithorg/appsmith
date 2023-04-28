@@ -33,6 +33,7 @@ import { getCanvasDimensions } from "./AutoLayoutUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 import { isFunction } from "lodash";
+import { WidgetHeightLimits } from "constants/WidgetConstants";
 
 /**
  * Calculate widget position on canvas.
@@ -48,6 +49,7 @@ export function updateWidgetPositions(
   isMobile = false,
   mainCanvasWidth: number,
   firstTimeDSLUpdate = false,
+  selectedTabWidgetId?: string,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   try {
@@ -96,7 +98,18 @@ export function updateWidgetPositions(
       height -= rowGap;
     } else if (parent.children?.length) {
       // calculate the total height required by all widgets.
-      height = getHeightOfFixedCanvas(widgets, parent, isMobile);
+      height = getHeightOfFixedCanvas(
+        widgets,
+        parent,
+        isMobile,
+        selectedTabWidgetId,
+      );
+    } else if (
+      parent.type === "CANVAS_WIDGET" &&
+      parent.parentId &&
+      widgets[parent.parentId].type === "TABS_WIDGET"
+    ) {
+      height = WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS;
     } else return widgets;
 
     const divisor = parent.parentRowSpace === 1 ? 10 : 1;
@@ -132,6 +145,7 @@ export function updateWidgetPositions(
           isMobile,
           mainCanvasWidth,
           firstTimeDSLUpdate,
+          selectedTabWidgetId,
         );
     }
     return widgets;
@@ -698,10 +712,14 @@ function getHeightOfFixedCanvas(
   widgets: CanvasWidgetsReduxState,
   parent: FlattenedWidgetProps,
   isMobile: boolean,
+  selectedTabWidgetId?: string,
 ): number {
   if (!parent.children || !parent.children.length)
     return getWidgetRows(parent, isMobile);
-  return getTotalRowsOfAllChildren(widgets, parent.children, isMobile);
+  let children = parent?.children || [];
+  if (parent.type === "TABS_WIDGET" && selectedTabWidgetId)
+    children = [selectedTabWidgetId];
+  return getTotalRowsOfAllChildren(widgets, children, isMobile);
 }
 
 export function getTotalRowsOfAllChildren(
@@ -739,6 +757,7 @@ export function updatePositionsOfParentAndSiblings(
   isMobile: boolean,
   mainCanvasWidth: number,
   firstTimeDSLUpdate = false,
+  selectedTabWidgetId?: string,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   const parent = widgets[parentId];
@@ -773,6 +792,7 @@ export function updatePositionsOfParentAndSiblings(
       isMobile,
       mainCanvasWidth,
       firstTimeDSLUpdate,
+      selectedTabWidgetId,
     );
   }
 

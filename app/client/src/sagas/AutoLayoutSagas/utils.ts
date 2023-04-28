@@ -9,7 +9,7 @@ import {
   alterLayoutForMobile,
   getCanvasDimensions,
 } from "utils/autoLayout/AutoLayoutUtils";
-import { getWidgets } from "../selectors";
+import { getWidgets, getWidgetsMeta } from "../selectors";
 import type { DefaultDimensionMap } from "constants/WidgetConstants";
 import {
   GridDefaults,
@@ -76,9 +76,25 @@ export function* recalculatePositionsOfWidgets({
   }
 
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
+  const metaProps: Record<string, any> = yield select(getWidgetsMeta);
+  const selectedTabWidgetId: string | undefined =
+    metaProps[parentId]?.selectedTabWidgetId || undefined;
   const processedWidgets: CanvasWidgetsReduxState = isMobile
-    ? alterLayoutForMobile(allWidgets, parentId, canvasWidth, mainCanvasWidth)
-    : alterLayoutForDesktop(allWidgets, parentId, mainCanvasWidth);
+    ? alterLayoutForMobile(
+        allWidgets,
+        parentId,
+        canvasWidth,
+        mainCanvasWidth,
+        false,
+        selectedTabWidgetId,
+      )
+    : alterLayoutForDesktop(
+        allWidgets,
+        parentId,
+        mainCanvasWidth,
+        false,
+        selectedTabWidgetId,
+      );
   // const dimensionMap: typeof DefaultDimensionMap = yield select(
   //   getDimensionMap,
   // );
@@ -211,7 +227,7 @@ export function* processWidgetDimensionsSaga() {
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
-
+  const metaProps: Record<string, any> = yield select(getWidgetsMeta);
   const parentIds = new Set<string>();
   let processedWidgets: CanvasWidgetsReduxState = yield call(
     processAutoLayoutDimensionUpdatesFn,
@@ -223,11 +239,15 @@ export function* processWidgetDimensionsSaga() {
 
   // Update the position of all the widgets
   for (const parentId of parentIds) {
+    const selectedTabWidgetId: string | undefined =
+      metaProps[parentId]?.selectedTabWidgetId || undefined;
     processedWidgets = updateWidgetPositions(
       processedWidgets,
       parentId,
       isMobile,
       mainCanvasWidth,
+      false,
+      selectedTabWidgetId,
     );
   }
 

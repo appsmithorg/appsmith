@@ -45,6 +45,7 @@ import {
   processWidgetDimensionsSaga,
   recalculatePositionsOfWidgets,
 } from "./utils";
+import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
 
 function* recalculatePositionsOfWidgetsSaga(payload: {
   parentId: string;
@@ -265,6 +266,27 @@ function* shouldRunSaga(saga: any, action: ReduxAction<unknown>) {
 //   }
 // }
 
+function* updatePositionsOnTabChangeSaga(
+  action: ReduxAction<{ selectedTabWidgetId: string; widgetId: string }>,
+) {
+  const { selectedTabWidgetId } = action.payload;
+  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
+  const mainCanvasWidth: number = yield select(getMainCanvasWidth);
+  const tabWidget = allWidgets[selectedTabWidgetId];
+  if (!tabWidget) return;
+
+  const updatedWidgets: CanvasWidgetsReduxState = updateWidgetPositions(
+    allWidgets,
+    selectedTabWidgetId,
+    isMobile,
+    mainCanvasWidth,
+    false,
+    selectedTabWidgetId,
+  );
+  yield put(updateAndSaveLayout(updatedWidgets));
+}
+
 export default function* layoutUpdateSagas() {
   yield all([
     takeLatest(
@@ -291,6 +313,11 @@ export default function* layoutUpdateSagas() {
       ],
       shouldRunSaga,
       processWidgetDimensionsSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.UPDATE_POSITIONS_ON_TAB_CHANGE,
+      shouldRunSaga,
+      updatePositionsOnTabChangeSaga,
     ),
   ]);
 }

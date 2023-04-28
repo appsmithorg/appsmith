@@ -256,7 +256,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       // because the user has released the mouse button but not placed the widget
       // In these scenarios, the parent's height needs to be updated
       // in the same way as the auto height would have done
-      if (props.parentId) {
+      if (props.parentId && !props.useAutoLayout) {
         dispatch(checkContainersForAutoHeightAction());
       }
     }
