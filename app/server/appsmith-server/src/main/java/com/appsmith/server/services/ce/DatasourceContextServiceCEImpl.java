@@ -112,9 +112,9 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                 datasourceContextMap.put(datasourceContextIdentifier, datasourceContext);
             }
 
-            Mono<Object> connectionMono = pluginExecutor.datasourceCreate(datasource.getDatasourceConfiguration()).cache();
+            Mono<Object> connectionMonoCache = pluginExecutor.datasourceCreate(datasource.getDatasourceConfiguration()).cache();
 
-            Mono<DatasourceContext<Object>> datasourceContextMonoCache = connectionMono
+            Mono<DatasourceContext<Object>> datasourceContextMonoCache = connectionMonoCache
                     .flatMap(connection -> updateDatasourceAndSetAuthentication(connection, datasource,
                                                                                 datasourceContextIdentifier))
                     .map(connection -> {

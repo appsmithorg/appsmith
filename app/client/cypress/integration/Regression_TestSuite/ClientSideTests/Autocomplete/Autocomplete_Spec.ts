@@ -4,6 +4,7 @@ const {
   AggregateHelper: agHelper,
   CommonLocators: locator,
   EntityExplorer: ee,
+  JSEditor: jsEditor,
   LibraryInstaller: installer,
   PropertyPane: propPane,
 } = ObjectsRegistry;
@@ -108,5 +109,48 @@ describe("Autocomplete bug fixes", function () {
     installer.uninstallLibrary("uuidjs");
     propPane.TypeTextIntoField("Text", "{{UUID.");
     agHelper.AssertElementAbsence(locator._hints);
+  });
+
+  it("9. Bug #20449 Cursor should be between parenthesis when function is autocompleted (Property Pane)", function () {
+    ee.SelectEntityByName("Text1");
+    propPane.TypeTextIntoField("Text", "{{console.l");
+
+    agHelper.GetNClickByContains(locator._hints, "log");
+
+    propPane.TypeTextIntoField("Text", '"hello"', false);
+
+    // If the cursor was not between parenthesis, the following command will fail
+    propPane.ValidatePropertyFieldValue("Text", '{{console.log("hello")}}');
+  });
+
+  it("10. Bug #20449 Cursor should be between parenthesis when function is autocompleted (JS Object)", function () {
+    jsEditor.CreateJSObject(
+      `export default {
+    myFun1: () => {
+
+    },
+  }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+        prettify: false,
+      },
+    );
+
+    agHelper.GetNClick(jsEditor._lineinJsEditor(3));
+
+    agHelper.TypeText(locator._codeMirrorTextArea, "console.l");
+
+    agHelper.GetNClickByContains(locator._hints, "log");
+
+    agHelper.TypeText(locator._codeMirrorTextArea, "'hello'");
+
+    // If the cursor was not between parenthesis, the following command will fail
+    agHelper.GetNAssertContains(
+      jsEditor._lineinJsEditor(3),
+      "console.log('hello')",
+    );
   });
 });
