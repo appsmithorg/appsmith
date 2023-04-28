@@ -77,10 +77,11 @@ const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
 const CopyIconWrapper = styled(Button)`
   position: absolute;
   right: 0;
-  top: 0;
+  top: var(--ads-v2-spaces-2);
   cursor: pointer;
   padding: 0;
   display: none;
+  align-self: start;
 `;
 
 const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
