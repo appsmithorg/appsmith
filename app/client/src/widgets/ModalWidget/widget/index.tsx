@@ -36,7 +36,6 @@ import {
 } from "widgets/WidgetUtils";
 import ModalComponent from "../component";
 import type { AutocompletionDefinitions } from "widgets/constants";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 const minSize = 100;
 
@@ -284,13 +283,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         onModalClose={this.onModalClose}
         portalContainer={portalContainer}
         resizeModal={this.onModalResize}
-        scrollContents={
-          !!this.props.shouldScrollContents &&
-          !(
-            this.props.appPositioningType === AppPositioningTypes.AUTO &&
-            !this.props.isMobile
-          )
-        }
+        scrollContents={!!this.props.shouldScrollContents}
         settingsComponent={settingsComponent}
         widgetId={this.props.widgetId}
         widgetName={this.props.widgetName}

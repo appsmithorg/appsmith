@@ -71,6 +71,7 @@ export function updateRelationships(
   onlyUpdateFlexLayers = false,
   isMobile = false,
   mainCanvasWidth: number,
+  selectedTabWidgetId?: string,
 ): CanvasWidgetsReduxState {
   const widgets = { ...allWidgets };
   // Check if parent has changed
@@ -119,6 +120,8 @@ export function updateRelationships(
         id,
         isMobile,
         mainCanvasWidth,
+        false,
+        selectedTabWidgetId,
       );
       return updatedWidgets;
     }

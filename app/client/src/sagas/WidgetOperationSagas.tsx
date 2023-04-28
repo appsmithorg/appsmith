@@ -255,12 +255,17 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     }
     let updatedWidgetsAfterResizing = movedWidgets;
     if (appPositioningType === AppPositioningTypes.AUTO) {
+      const metaProps: Record<string, any> = yield select(getWidgetsMeta);
+      const selectedTabWidgetId: string | undefined =
+        metaProps[parentId]?.selectedTabWidgetId || undefined;
       updatedWidgetsAfterResizing = updatePositionsOfParentAndSiblings(
         movedWidgets,
         parentId,
         getLayerIndexOfWidget(widgets[parentId]?.flexLayers, widgetId),
         isMobile,
         mainCanvasWidth,
+        false,
+        selectedTabWidgetId,
       );
     }
     log.debug("resize computations took", performance.now() - start, "ms");
@@ -1742,6 +1747,11 @@ function* pasteWidgetSaga(
              */
             if (widget.parentId) {
               const pastingIntoWidget = widgets[widget.parentId];
+              const metaProps: Record<string, any> = yield select(
+                getWidgetsMeta,
+              );
+              const selectedTabWidgetId: string | undefined =
+                metaProps[widget.widgetId]?.selectedTabWidgetId || undefined;
               if (
                 pastingIntoWidget &&
                 isStack(widgets, pastingIntoWidget) &&
@@ -1749,7 +1759,7 @@ function* pasteWidgetSaga(
                   !flexLayers ||
                   flexLayers.length <= 0)
               ) {
-                if (widget.widgetId === widgetIdMap[copiedWidget.widgetId])
+                if (widget.widgetId === widgetIdMap[copiedWidget.widgetId]) {
                   widgets = pasteWidgetInFlexLayers(
                     widgets,
                     widget.parentId,
@@ -1757,14 +1767,16 @@ function* pasteWidgetSaga(
                     reverseWidgetIdMap[widget.widgetId],
                     isMobile,
                     mainCanvasWidth,
+                    selectedTabWidgetId,
                   );
-                else if (widget.type !== "CANVAS_WIDGET")
+                } else if (widget.type !== "CANVAS_WIDGET")
                   widgets = addChildToPastedFlexLayers(
                     widgets,
                     widget,
                     widgetIdMap,
                     isMobile,
                     mainCanvasWidth,
+                    selectedTabWidgetId,
                   );
               }
             }

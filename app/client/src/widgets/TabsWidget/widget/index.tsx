@@ -286,6 +286,12 @@ class TabsWidget extends BaseWidget<
     checkContainersForAutoHeight && checkContainersForAutoHeight();
   };
 
+  callPositionUpdates = (tabWidgetId: string) => {
+    const { updatePositionsOnTabChange } = this.context;
+    updatePositionsOnTabChange &&
+      updatePositionsOnTabChange(this.props.widgetId, tabWidgetId);
+  };
+
   onTabChange = (tabWidgetId: string) => {
     this.props.updateWidgetMetaProperty("selectedTabWidgetId", tabWidgetId, {
       triggerPropertyName: "onTabSelected",
@@ -295,6 +301,7 @@ class TabsWidget extends BaseWidget<
       },
     });
     setTimeout(this.callDynamicHeightUpdates, 0);
+    setTimeout(() => this.callPositionUpdates(tabWidgetId), 0);
   };
 
   static getStylesheetConfig(): Stylesheet {
@@ -339,14 +346,12 @@ class TabsWidget extends BaseWidget<
     };
     const isAutoHeightEnabled: boolean =
       isAutoHeightEnabledForWidget(this.props) &&
-      !isAutoHeightEnabledForWidgetWithLimits(this.props);
+      !isAutoHeightEnabledForWidgetWithLimits(this.props) &&
+      this.props.appPositioningType !== AppPositioningTypes.AUTO;
     return (
       <TabsComponent
         {...tabsComponentProps}
-        $noScroll={
-          isAutoHeightEnabled &&
-          this.props.appPositioningType !== AppPositioningTypes.AUTO
-        }
+        $noScroll={isAutoHeightEnabled}
         backgroundColor={this.props.backgroundColor}
         borderColor={this.props.borderColor}
         borderRadius={this.props.borderRadius}

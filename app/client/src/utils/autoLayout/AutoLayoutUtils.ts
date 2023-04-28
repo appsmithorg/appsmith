@@ -40,6 +40,7 @@ export function updateFlexLayersOnDelete(
   parentId: string,
   isMobile: boolean,
   mainCanvasWidth: number,
+  selectedTabWidgetId?: string,
 ): CanvasWidgetsReduxState {
   const widgets = { ...allWidgets };
   if (
@@ -97,6 +98,8 @@ export function updateFlexLayersOnDelete(
     layerIndex,
     isMobile,
     mainCanvasWidth,
+    false,
+    selectedTabWidgetId,
   );
 }
 
@@ -106,6 +109,7 @@ export function alterLayoutForMobile(
   canvasWidth: number,
   mainCanvasWidth: number,
   firstTimeDSLUpdate = false,
+  selectedTabWidgetId?: string,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   const parent = widgets[parentId];
@@ -162,6 +166,7 @@ export function alterLayoutForMobile(
       true,
       mainCanvasWidth,
       firstTimeDSLUpdate,
+      selectedTabWidgetId,
     );
   }
   widgets = updateWidgetPositions(
@@ -170,6 +175,7 @@ export function alterLayoutForMobile(
     true,
     mainCanvasWidth,
     firstTimeDSLUpdate,
+    selectedTabWidgetId,
   );
   return widgets;
 }
@@ -179,6 +185,7 @@ export function alterLayoutForDesktop(
   parentId: string,
   mainCanvasWidth: number,
   firstTimeDSLUpdate = false,
+  selectedTabWidgetId?: string,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   const parent = widgets[parentId];
@@ -197,6 +204,7 @@ export function alterLayoutForDesktop(
     false,
     mainCanvasWidth,
     firstTimeDSLUpdate,
+    selectedTabWidgetId,
   );
   for (const child of children) {
     widgets = alterLayoutForDesktop(
@@ -204,6 +212,7 @@ export function alterLayoutForDesktop(
       child,
       mainCanvasWidth,
       firstTimeDSLUpdate,
+      selectedTabWidgetId,
     );
   }
   return widgets;
@@ -220,6 +229,7 @@ export function pasteWidgetInFlexLayers(
   originalWidgetId: string,
   isMobile: boolean,
   mainCanvasWidth: number,
+  selectedTabWidgetId?: string,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   const parent = widgets[parentId];
@@ -290,6 +300,8 @@ export function pasteWidgetInFlexLayers(
     flexLayerIndex,
     isMobile,
     mainCanvasWidth,
+    false,
+    selectedTabWidgetId,
   );
 }
 
@@ -305,6 +317,7 @@ export function addChildToPastedFlexLayers(
   widgetIdMap: Record<string, string>,
   isMobile: boolean,
   mainCanvasWidth: number,
+  selectedTabWidgetId?: string,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   const parent = widgets[widget.parentId];
@@ -342,6 +355,8 @@ export function addChildToPastedFlexLayers(
     parent.widgetId,
     isMobile,
     mainCanvasWidth,
+    false,
+    selectedTabWidgetId,
   );
 }
 
