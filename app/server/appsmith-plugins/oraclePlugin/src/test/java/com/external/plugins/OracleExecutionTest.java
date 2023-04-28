@@ -151,6 +151,19 @@ public class OracleExecutionTest {
     }
 
     @Test
+    public void testQueryWorksWithSemicolonInTheEnd() {
+        String sqlSelectQuery = MessageFormat.format("SELECT c_number FROM {0} ORDER BY c_number;",
+                SELECT_TEST_WITHOUT_PREPARED_STMT_TABLE_NAME);
+        Map formData = setDataValueSafelyInFormData(null, "body", sqlSelectQuery);
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setFormData(formData);
+        Mono<ActionExecutionResult> executionResultMono = oraclePluginExecutor.executeParameterized(sharedConnectionPool, new ExecuteActionDTO(),
+                getDefaultDatasourceConfig(oracleDB), actionConfig);
+        String expectedResultString = "[{\"C_NUMBER\":\"1\"},{\"C_NUMBER\":\"2\"}]";
+        verifyColumnValue(executionResultMono, expectedResultString);
+    }
+
+    @Test
     public void testSelectQueryWithPreparedStatement() {
         String sqlSelectQuery = MessageFormat.format("SELECT c_number FROM {0} WHERE " +
                 "c_varchar2='{{'binding1'}}' ORDER BY c_number DESC", SELECT_TEST_WITH_PREPARED_STMT_TABLE_NAME);
