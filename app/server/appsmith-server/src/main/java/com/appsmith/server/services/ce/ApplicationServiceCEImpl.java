@@ -786,7 +786,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
                     final Mono<String> prevAssetIdMono = Mono.just(rootAppLogoAssetId);
 
-                    final Mono<Asset> uploaderMono = assetService.upload(List.of(filePart), MAX_LOGO_SIZE_KB, true);
+                    final Mono<Asset> uploaderMono = assetService.upload(List.of(filePart), MAX_LOGO_SIZE_KB, false);
 
                     return Mono.zip(prevAssetIdMono, uploaderMono)
                             .flatMap(tuple -> {
