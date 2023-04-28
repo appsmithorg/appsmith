@@ -1,20 +1,33 @@
 package com.external.plugins;
 
+import com.appsmith.external.datatypes.ClientDataType;
+import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionResult;
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.OracleContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.MessageFormat;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
+import static com.appsmith.external.helpers.PluginUtils.getExecuteDTOForTestWithBindingAndValueAndDataType;
+import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static com.external.plugins.OracleTestDBContainerManager.getDefaultDatasourceConfig;
 import static com.external.plugins.utils.OracleDatasourceUtils.getConnectionFromConnectionPool;
 import static com.external.plugins.utils.OracleExecuteUtils.closeConnectionPostExecution;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Testcontainers
 public class OracleExecutionTest {
@@ -37,30 +50,62 @@ public class OracleExecutionTest {
             "c_char char(20),\n" +
             "c_nchar nchar(20),\n" +
             "c_clob clob,\n" +
-            "c_nclob nclob,\n" +
+            "c_nclob nclob\n" +
             ")\n";
     private static final String SQL_QUERY_TO_INSERT_ONE_ROW_FORMAT =
             "insert into {0} values (\n" +
-            "'varchar2',\n" +
-            "'nvarchar2',\n" +
+            "''varchar2'',\n" +
+            "''nvarchar2'',\n" +
             "{1},\n" +
             "11.22,\n" +
-            "'03-OCT-02',\n" +
+            "''03-OCT-02'',\n" +
             "11.22,\n" +
             "11.22,\n" +
-            "TIMESTAMP'1997-01-01 09:26:50.124',\n" +
-            "TIMESTAMP'1997-01-01 09:26:56.66 +02:00',\n" +
-            "TIMESTAMP'1999-04-05 8:00:00 US/Pacific',\n" +
-            "INTERVAL '1' YEAR(3),\n" +
-            "INTERVAL '1' HOUR,\n" +
-            "'000001F8.0001.0006',\n" +
-            "'000001F8.0001.0006',\n" +
-            "'char',\n" +
-            "'nchar',\n" +
-            "'clob',\n" +
-            "'nclob',\n" +
+            "TIMESTAMP''1997-01-01 09:26:50.124'',\n" +
+            "TIMESTAMP''1997-01-01 09:26:56.66 +02:00'',\n" +
+            "TIMESTAMP''1999-04-05 8:00:00 US/Pacific'',\n" +
+            "INTERVAL ''1'' YEAR(3),\n" +
+            "INTERVAL ''1'' HOUR,\n" +
+            "''000001F8.0001.0006'',\n" +
+            "''000001F8.0001.0006'',\n" +
+            "''char'',\n" +
+            "''nchar'',\n" +
+            "''clob'',\n" +
+            "''nclob''\n" +
             ")";
-    OraclePlugin.OraclePluginExecutor oraclePluginExecutor = new OraclePlugin.OraclePluginExecutor();
+
+    private static final String SQL_QUERY_TO_INSERT_ONE_ROW_WITH_BINDING_FORMAT =
+            "insert into {0} values (\n" +
+                    "'{{'binding1'}}',\n" +
+                    "'{{'binding2'}}',\n" +
+                    "'{{'binding3'}}',\n" +
+                    "'{{'binding4'}}',\n" +
+                    "'{{'binding5'}}',\n" +
+                    "'{{'binding6'}}',\n" +
+                    "'{{'binding7'}}',\n" +
+                    "TO_TIMESTAMP('{{'binding8'}}', ''YYYY-MM-DD HH24:MI:SS.FF''),\n" +
+                    "TO_TIMESTAMP('{{'binding9'}}', ''YYYY-MM-DD HH24:MI:SS.FF''),\n" +
+                    "TO_TIMESTAMP('{{'binding10'}}', ''YYYY-MM-DD HH24:MI:SS.FF''),\n" +
+                    "NUMTOYMINTERVAL('{{'binding11'}}', ''YEAR''),\n" +
+                    "NUMTODSINTERVAL('{{'binding12'}}', ''HOUR''),\n" +
+                    "'{{'binding13'}}',\n" +
+                    "'{{'binding14'}}',\n" +
+                    "'{{'binding15'}}',\n" +
+                    "'{{'binding16'}}',\n" +
+                    "'{{'binding17'}}',\n" +
+                    "'{{'binding18'}}'\n" +
+                    ")";
+    
+    public static final String SELECT_TEST_WITHOUT_PREPARED_STMT_TABLE_NAME = "testSelectWithoutPreparedStatement";
+    public static final String SELECT_TEST_WITH_PREPARED_STMT_TABLE_NAME = "testSelectWithPreparedStatement";
+    public static final String INSERT_TEST_WITHOUT_PREPARED_STMT_TABLE_NAME = "testInsertWithoutPreparedStatement";
+    public static final String INSERT_TEST_WITH_PREPARED_STMT_TABLE_NAME = "testInsertWithPreparedStatement";
+    public static final String UPDATE_TEST_WITHOUT_PREPARED_STMT_TABLE_NAME = "testUpdateWithoutPreparedStatement";
+    public static final String UPDATE_TEST_WITH_PREPARED_STMT_TABLE_NAME = "testUpdateWithPreparedStatement";
+    public static final String DELETE_TEST_WITHOUT_PREPARED_STMT_TABLE_NAME = "testDeleteWithoutPreparedStatement";
+    public static final String DELETE_TEST_WITH_PREPARED_STMT_TABLE_NAME = "testDeleteWithPreparedStatement";
+
+    static OraclePlugin.OraclePluginExecutor oraclePluginExecutor = new OraclePlugin.OraclePluginExecutor();
 
     @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
     @Container
@@ -69,23 +114,23 @@ public class OracleExecutionTest {
     private static HikariDataSource sharedConnectionPool = null;
 
     @BeforeAll
-    public void setup() throws SQLException {
+    public static void setup() throws SQLException {
         sharedConnectionPool = oraclePluginExecutor.datasourceCreate(getDefaultDatasourceConfig(oracleDB)).block();
         createTablesForTest();
     }
 
-    public void createTablesForTest() throws SQLException {
-        createTableWithName("testSelectWithoutPreparedStatement");
-        createTableWithName("testSelectWithPreparedStatement");
-        createTableWithName("testInsertWithoutPreparedStatement");
-        createTableWithName("testInsertWithPreparedStatement");
-        createTableWithName("testUpdateWithoutPreparedStatement");
-        createTableWithName("testUpdateWithPreparedStatement");
-        createTableWithName("testDeleteWithoutPreparedStatement");
-        createTableWithName("testDeleteWithPreparedStatement");
+    public static void createTablesForTest() throws SQLException {
+        createTableWithName(SELECT_TEST_WITHOUT_PREPARED_STMT_TABLE_NAME);
+        createTableWithName(SELECT_TEST_WITH_PREPARED_STMT_TABLE_NAME);
+        createTableWithName(INSERT_TEST_WITHOUT_PREPARED_STMT_TABLE_NAME);
+        createTableWithName(INSERT_TEST_WITH_PREPARED_STMT_TABLE_NAME);
+        createTableWithName(UPDATE_TEST_WITHOUT_PREPARED_STMT_TABLE_NAME);
+        createTableWithName(UPDATE_TEST_WITH_PREPARED_STMT_TABLE_NAME);
+        createTableWithName(DELETE_TEST_WITHOUT_PREPARED_STMT_TABLE_NAME);
+        createTableWithName(DELETE_TEST_WITH_PREPARED_STMT_TABLE_NAME);
     }
 
-    private void createTableWithName(String tableName) throws SQLException {
+    private static void createTableWithName(String tableName) throws SQLException {
         String sqlQueryToCreateTable = MessageFormat.format(SQL_QUERY_CREATE_TABLE_FORMAT, tableName);
         runSQLQueryOnOracleTestDB(sqlQueryToCreateTable);
 
@@ -96,7 +141,7 @@ public class OracleExecutionTest {
         runSQLQueryOnOracleTestDB(sqlQueryToInsertRow2);
     }
 
-    private void runSQLQueryOnOracleTestDB(String sqlQuery) throws SQLException {
+    private static void runSQLQueryOnOracleTestDB(String sqlQuery) throws SQLException {
         Connection connectionFromPool = getConnectionFromConnectionPool(sharedConnectionPool);
         Statement statement = connectionFromPool.createStatement();
         statement.execute(sqlQuery);
@@ -105,7 +150,176 @@ public class OracleExecutionTest {
 
     @Test
     public void testSelectQueryWithoutPreparedStatement() {
-        String sqlSelectQuery = "select c_number from testSelectWithoutPreparedStatement";
+        String sqlSelectQuery = MessageFormat.format("SELECT c_number FROM {0} ORDER BY c_number",
+                SELECT_TEST_WITHOUT_PREPARED_STMT_TABLE_NAME);
+        Map formData = setDataValueSafelyInFormData(null, "body", sqlSelectQuery);
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setFormData(formData);
+        Mono<ActionExecutionResult> executionResultMono = oraclePluginExecutor.executeParameterized(sharedConnectionPool, new ExecuteActionDTO(),
+                getDefaultDatasourceConfig(oracleDB), actionConfig);
+        String expectedResultString = "[{\"C_NUMBER\":\"1\"},{\"C_NUMBER\":\"2\"}]";
+        verifyColumnValue(executionResultMono, expectedResultString);
+    }
 
+    @Test
+    public void testSelectQueryWithPreparedStatement() {
+        String sqlSelectQuery = MessageFormat.format("SELECT c_number FROM {0} WHERE " +
+                "c_varchar2='{{'binding1'}}' ORDER BY c_number DESC", SELECT_TEST_WITH_PREPARED_STMT_TABLE_NAME);
+        Map formData = setDataValueSafelyInFormData(null, "body", sqlSelectQuery);
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setFormData(formData);
+
+        LinkedHashMap<String, List> bindingNameToValueAndDataTypeMap = new LinkedHashMap<>();
+        bindingNameToValueAndDataTypeMap.put("binding1", List.of("varchar2", ClientDataType.STRING));
+        ExecuteActionDTO executeActionDTO =
+                getExecuteDTOForTestWithBindingAndValueAndDataType(bindingNameToValueAndDataTypeMap);
+
+        Mono<ActionExecutionResult> executionResultMono =
+                oraclePluginExecutor.executeParameterized(sharedConnectionPool, executeActionDTO,
+                        getDefaultDatasourceConfig(oracleDB), actionConfig);
+        String expectedResultString = "[{\"C_NUMBER\":\"2\"},{\"C_NUMBER\":\"1\"}]";
+        verifyColumnValue(executionResultMono, expectedResultString);
+    }
+
+    @Test
+    public void testInsertQueryReturnValueWithoutPreparedStatement() {
+        String sqlInsertQuery = MessageFormat.format(SQL_QUERY_TO_INSERT_ONE_ROW_FORMAT,
+                INSERT_TEST_WITHOUT_PREPARED_STMT_TABLE_NAME, 3);
+        Map insertQueryFormData = setDataValueSafelyInFormData(null, "body", sqlInsertQuery);
+        ActionConfiguration insertQueryActionConfig = new ActionConfiguration();
+        insertQueryActionConfig.setFormData(insertQueryFormData);
+        Mono<ActionExecutionResult> insertQueryExecutionResultMono =
+                oraclePluginExecutor.executeParameterized(sharedConnectionPool, new ExecuteActionDTO(),
+                        getDefaultDatasourceConfig(oracleDB), insertQueryActionConfig);
+        String insertQueryExpectedResultString = "[{\"affectedRows\":1}]";
+        verifyColumnValue(insertQueryExecutionResultMono, insertQueryExpectedResultString);
+    }
+
+    @Test
+    public void testInsertQueryVerifyNewRowAddedWithoutPreparedStatement() {
+        String sqlInsertQuery = MessageFormat.format(SQL_QUERY_TO_INSERT_ONE_ROW_FORMAT,
+                INSERT_TEST_WITHOUT_PREPARED_STMT_TABLE_NAME, 4);
+        Map insertQueryFormData = setDataValueSafelyInFormData(null, "body", sqlInsertQuery);
+        ActionConfiguration insertQueryActionConfig = new ActionConfiguration();
+        insertQueryActionConfig.setFormData(insertQueryFormData);
+        oraclePluginExecutor.executeParameterized(sharedConnectionPool, new ExecuteActionDTO(),
+                        getDefaultDatasourceConfig(oracleDB), insertQueryActionConfig).block();
+
+        String sqlSelectQuery = MessageFormat.format("SELECT * FROM {0} WHERE c_number=4",
+                INSERT_TEST_WITHOUT_PREPARED_STMT_TABLE_NAME);
+        Map selectQueryFormData = setDataValueSafelyInFormData(null, "body", sqlSelectQuery);
+        ActionConfiguration selectQueryActionConfig = new ActionConfiguration();
+        selectQueryActionConfig.setFormData(selectQueryFormData);
+        Mono<ActionExecutionResult> selectQueryExecutionResultMono =
+                oraclePluginExecutor.executeParameterized(sharedConnectionPool, new ExecuteActionDTO(),
+                        getDefaultDatasourceConfig(oracleDB), selectQueryActionConfig);
+        String selectQueryExpectedResultString = "[{\"C_VARCHAR2\":\"varchar2\",\"C_NVARCHAR2\":\"nvarchar2\"," +
+                "\"C_NUMBER\":\"4\",\"C_FLOAT\":\"11.22\",\"C_DATE\":\"2002-10-03\",\"C_BINARY_FLOAT\":\"11.22\"," +
+                "\"C_BINARY_DOUBLE\":\"11.22\",\"C_TIMESTAMP\":\"1997-01-01T09:26:50Z\"," +
+                "\"C_TIMESTAMP_TZ\":\"1997-01-01T09:26:56.66+02:00\",\"C_TIMESTAMP_LTZ\":\"1999-04-05T15:00:00Z\"," +
+                "\"C_INTERVAL_YEAR\":\"1-0\",\"C_INTERVAL_DAY\":\"0 1:0:0.0\",\"C_ROWID\":\"AAAAAAAAGAAAAH4AAB\"," +
+                "\"C_UROWID\":\"000001F8.0001.0006\",\"C_CHAR\":\"char                \",\"C_NCHAR\":\"nchar        " +
+                "       \",\"C_CLOB\":\"clob\",\"C_NCLOB\":\"nclob\"}]";
+        verifyColumnValue(selectQueryExecutionResultMono, selectQueryExpectedResultString);
+    }
+
+    @Test
+    public void testInsertQueryReturnValueWithPreparedStatement() {
+        String sqlInsertQuery = MessageFormat.format(SQL_QUERY_TO_INSERT_ONE_ROW_WITH_BINDING_FORMAT,
+                INSERT_TEST_WITH_PREPARED_STMT_TABLE_NAME);
+        Map insertQueryFormData = setDataValueSafelyInFormData(null, "body", sqlInsertQuery);
+        ActionConfiguration insertQueryActionConfig = new ActionConfiguration();
+        insertQueryActionConfig.setFormData(insertQueryFormData);
+
+        LinkedHashMap<String, List> bindingNameToValueAndDataTypeMap = new LinkedHashMap<>();
+        bindingNameToValueAndDataTypeMap.put("binding1", List.of("varchar2", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding2", List.of("nvarchar2", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding3", List.of("3", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding4", List.of("11.22", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding5", List.of("03-OCT-02", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding6", List.of("11.22", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding7", List.of("11.22", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding8", List.of("1997-01-01 09:26:50.124", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding9", List.of("1997-01-01 09:26:50.124", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding10", List.of("1997-01-01 09:26:50.124", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding11", List.of("1", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding12", List.of("1", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding13", List.of("000001F8.0001.0006", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding14", List.of("000001F8.0001.0006", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding15", List.of("char", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding16", List.of("nchar", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding17", List.of("clob", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding18", List.of("nclob", ClientDataType.NULL));
+
+        ExecuteActionDTO executeActionDTO =
+                getExecuteDTOForTestWithBindingAndValueAndDataType(bindingNameToValueAndDataTypeMap);
+
+        Mono<ActionExecutionResult> insertQueryExecutionResultMono =
+                oraclePluginExecutor.executeParameterized(sharedConnectionPool, executeActionDTO,
+                        getDefaultDatasourceConfig(oracleDB), insertQueryActionConfig);
+        String insertQueryExpectedResultString = "[{\"affectedRows\":1}]";
+        verifyColumnValue(insertQueryExecutionResultMono, insertQueryExpectedResultString);
+    }
+
+    @Test
+    public void testInsertQueryVerifyNewRowAddedWithPreparedStatement() {
+        String sqlInsertQuery = MessageFormat.format(SQL_QUERY_TO_INSERT_ONE_ROW_WITH_BINDING_FORMAT,
+                INSERT_TEST_WITH_PREPARED_STMT_TABLE_NAME);
+        Map insertQueryFormData = setDataValueSafelyInFormData(null, "body", sqlInsertQuery);
+        ActionConfiguration insertQueryActionConfig = new ActionConfiguration();
+        insertQueryActionConfig.setFormData(insertQueryFormData);
+
+        LinkedHashMap<String, List> bindingNameToValueAndDataTypeMap = new LinkedHashMap<>();
+        bindingNameToValueAndDataTypeMap.put("binding1", List.of("varchar2", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding2", List.of("nvarchar2", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding3", List.of("5", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding4", List.of("11.22", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding5", List.of("03-OCT-02", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding6", List.of("11.22", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding7", List.of("11.22", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding8", List.of("1997-01-01 09:26:50.124", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding9", List.of("1997-01-01 09:26:50.124", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding10", List.of("1997-01-01 09:26:50.124", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding11", List.of("1", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding12", List.of("1", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding13", List.of("000001F8.0001.0006", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding14", List.of("000001F8.0001.0006", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding15", List.of("char", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding16", List.of("nchar", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding17", List.of("clob", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding18", List.of("nclob", ClientDataType.NULL));
+
+        ExecuteActionDTO executeActionDTO =
+                getExecuteDTOForTestWithBindingAndValueAndDataType(bindingNameToValueAndDataTypeMap);
+        oraclePluginExecutor.executeParameterized(sharedConnectionPool, executeActionDTO,
+                getDefaultDatasourceConfig(oracleDB), insertQueryActionConfig).block();
+
+        String sqlSelectQuery = MessageFormat.format("SELECT * FROM {0} WHERE c_number=5",
+                INSERT_TEST_WITH_PREPARED_STMT_TABLE_NAME);
+        Map selectQueryFormData = setDataValueSafelyInFormData(null, "body", sqlSelectQuery);
+        ActionConfiguration selectQueryActionConfig = new ActionConfiguration();
+        selectQueryActionConfig.setFormData(selectQueryFormData);
+        Mono<ActionExecutionResult> selectQueryExecutionResultMono =
+                oraclePluginExecutor.executeParameterized(sharedConnectionPool, new ExecuteActionDTO(),
+                        getDefaultDatasourceConfig(oracleDB), selectQueryActionConfig);
+        String selectQueryExpectedResultString = "[{\"C_VARCHAR2\":\"varchar2\",\"C_NVARCHAR2\":\"nvarchar2\"," +
+                "\"C_NUMBER\":\"5\",\"C_FLOAT\":\"11.22\",\"C_DATE\":\"2002-10-03\",\"C_BINARY_FLOAT\":\"11.22\"," +
+                "\"C_BINARY_DOUBLE\":\"11.22\",\"C_TIMESTAMP\":\"1997-01-01T09:26:50Z\"," +
+                "\"C_TIMESTAMP_TZ\":\"1997-01-01T09:26:50.124+05:30\",\"C_TIMESTAMP_LTZ\":\"1997-01-01T03:56:50" +
+                ".124Z\",\"C_INTERVAL_YEAR\":\"1-0\",\"C_INTERVAL_DAY\":\"0 1:0:0.0\"," +
+                "\"C_ROWID\":\"AAAAAAAAGAAAAH4AAB\",\"C_UROWID\":\"000001F8.0001.0006\",\"C_CHAR\":\"char            " +
+                "    \",\"C_NCHAR\":\"nchar               \",\"C_CLOB\":\"clob\",\"C_NCLOB\":\"nclob\"}]";
+        verifyColumnValue(selectQueryExecutionResultMono, selectQueryExpectedResultString);
+    }
+
+    private void verifyColumnValue(Mono<ActionExecutionResult> executionResultMono, String expectedResult) {
+        StepVerifier.create(executionResultMono)
+                .assertNext(actionExecutionResult -> {
+                    assertTrue(actionExecutionResult.getIsExecutionSuccess(), actionExecutionResult.getBody().toString());
+                    if (expectedResult != null) {
+                        assertEquals(expectedResult, actionExecutionResult.getBody().toString());
+                    }
+                })
+                .verifyComplete();
     }
 }
