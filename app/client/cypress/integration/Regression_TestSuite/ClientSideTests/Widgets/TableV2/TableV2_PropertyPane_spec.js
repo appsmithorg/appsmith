@@ -395,6 +395,10 @@ describe("Table Widget V2 property pane feature validation", function () {
     // Check if currentRow works
     cy.editColumn("orderAmount");
     propPane.UpdatePropertyFieldValue("Min", "{{currentRow.id}}");
+    propPane.UpdatePropertyFieldValue(
+      "Error Message",
+      "Row at index {{currentIndex}} is not valid",
+    );
     cy.get(".t--evaluatedPopup-error").should("not.exist");
 
     // Update cell with row : 0, column : orderAmount. The min is set to 7 (i.e value of cell in id column)
@@ -403,10 +407,22 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.get(".bp3-popover-content").should("not.exist");
 
     cy.enterTableCellValue(4, 1, 6);
-    cy.get(".bp3-popover-content").contains("Invalid input");
+    cy.get(".bp3-popover-content").contains("Row at index 1 is not valid");
+
     cy.enterTableCellValue(4, 1, 8);
     cy.get(".bp3-popover-content").should("not.exist");
+
+    propPane.UpdatePropertyFieldValue(
+      "Error Message",
+      "Row with id {{currentRow.id}} is not valid",
+    );
+
+    cy.editTableCell(4, 1);
+    cy.enterTableCellValue(4, 1, 5);
+    cy.get(".bp3-popover-content").contains("Row with id 7 is not valid");
+
     propPane.UpdatePropertyFieldValue("Min", "");
+    propPane.UpdatePropertyFieldValue("Error Message", "");
 
     // Check for currentIndex property on Regex field
     cy.changeColumnType("Plain Text");

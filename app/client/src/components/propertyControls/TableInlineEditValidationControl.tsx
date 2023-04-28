@@ -1,4 +1,5 @@
 import React from "react";
+import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
@@ -119,6 +120,14 @@ class TableInlineEditValidationControl extends BaseControl<TableInlineEditValida
         ? this.getInputComputedValue(propertyValue, tableId)
         : propertyValue || defaultValue;
 
+    const columns: Record<string, ColumnProperties> =
+      widgetProperties.primaryColumns || {};
+
+    const currentRow: { [key: string]: any } = {};
+    Object.values(columns).forEach((column) => {
+      currentRow[column.alias || column.originalId] = undefined;
+    });
+
     // Load default value in evaluated value
     if (value && !propertyValue) {
       this.onTextChange(value);
@@ -126,6 +135,8 @@ class TableInlineEditValidationControl extends BaseControl<TableInlineEditValida
 
     const additionalDynamicData = {
       isNewRow: false,
+      currentIndex: -1,
+      currentRow,
     };
 
     return (
