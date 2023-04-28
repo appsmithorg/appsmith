@@ -5,6 +5,7 @@ import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { isHidden, isKVArray } from "components/formControls/utils";
 import log from "loglevel";
+import { ComparisonOperationsEnum } from "components/formControls/BaseControl";
 
 const Key = styled.div`
   color: ${Colors.DOVE_GRAY};
@@ -35,6 +36,7 @@ const FieldWrapper = styled.div`
 export default class RenderDatasourceInformation extends React.Component<{
   config: any;
   datasource: Datasource;
+  viewMode?: boolean;
 }> {
   renderKVArray = (children: Array<any>) => {
     try {
@@ -85,11 +87,12 @@ export default class RenderDatasourceInformation extends React.Component<{
   };
 
   renderDatasourceSection(section: any) {
-    const { datasource } = this.props;
+    const { datasource, viewMode } = this.props;
     return (
       <React.Fragment key={datasource.id}>
         {map(section.children, (section) => {
-          if (isHidden(datasource, section.hidden)) return null;
+          if (isHidden(datasource, section.hidden, undefined, viewMode))
+            return null;
           if ("children" in section) {
             if (isKVArray(section.children)) {
               return this.renderKVArray(section.children);
@@ -121,6 +124,15 @@ export default class RenderDatasourceInformation extends React.Component<{
                     value = option.label;
                   }
                 }
+              }
+
+              if (
+                !value &&
+                !!viewMode &&
+                "comparison" in section.hidden &&
+                section.hidden.comparison === ComparisonOperationsEnum.VIEW_MODE
+              ) {
+                value = section.initialValue;
               }
 
               if (!value || (isArray(value) && value.length < 1)) {
