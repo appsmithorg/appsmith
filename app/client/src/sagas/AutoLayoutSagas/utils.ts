@@ -9,7 +9,7 @@ import {
   alterLayoutForMobile,
   getCanvasDimensions,
 } from "utils/autoLayout/AutoLayoutUtils";
-import { getWidgets } from "../selectors";
+import { getCanvasAndMetaWidgets, getWidgets } from "../selectors";
 import type { DefaultDimensionMap } from "constants/WidgetConstants";
 import {
   GridDefaults,
@@ -66,7 +66,9 @@ export function* recalculatePositionsOfWidgets({
   if (isCurrentlyConvertingLayout) return;
 
   let allWidgets: CanvasWidgetsReduxState;
-  const widgetsOld: CanvasWidgetsReduxState = yield select(getWidgets);
+  const widgetsOld: CanvasWidgetsReduxState = yield select(
+    getCanvasAndMetaWidgets,
+  );
 
   if (payloadWidgets) {
     allWidgets = payloadWidgets;
@@ -110,7 +112,9 @@ const dimensionPropertiesToConsider = [
 export function* getWidgetsWithDimensionChanges(
   processedWidgets: CanvasWidgetsReduxState,
 ) {
-  const widgetsOld: CanvasWidgetsReduxState = yield select(getWidgets);
+  const widgetsOld: CanvasWidgetsReduxState = yield select(
+    getCanvasAndMetaWidgets,
+  );
   let widgetsToUpdate: UpdateWidgetsPayload = {};
   /**
    * Iterate over all widgets and check if any of their dimensions have changed
