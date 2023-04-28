@@ -30,15 +30,15 @@ export type RadioOptionProps = {
 };
 
 const StyledTag = styled(Tag)<{ selected?: boolean }>`
+  /* 
+  TODO: handle the colors on the Tag with the new component which will get introduced
   background-color: ${(props) =>
-    props.selected ? "var(--ads-v2-color-bg-warning)" : "inital"};
+    props.selected ? "var(--ads-v2-color-bg-warning)" : "inital"}; */
   margin-left: 4px;
-  .ads-v2-text {
+  /* .ads-v2-text {
     color: ${(props) =>
-      props.selected
-        ? "var(--ads-v2-color-fg-warning)"
-        : "var(--ads-v2-color-fg)"};
-  }
+    props.selected ? "var(--ads-v2-color-fg-warning)" : "initial"};
+  }*/
 `;
 
 const TooltipContent = styled.div`

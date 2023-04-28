@@ -6,19 +6,19 @@ import type { SettingComponentProps } from "./Common";
 import { FormGroup } from "./Common";
 import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
 import { createMessage } from "@appsmith/constants/messages";
-import { Switch } from "design-system";
+import { Switch, Text } from "design-system";
 
 const ToggleWrapper = styled.div`
-  display: flex;
-  margin-bottom: 8px;
+  margin-bottom: 16px;
 `;
 
-const ToggleStatus = styled.span``;
+const ToggleStatus = styled(Text)``;
 
 function FieldToggleWithToggleText(
   toggleText?: (value: boolean) => string,
   id?: string,
   isPropertyDisabled?: boolean,
+  label?: string,
 ) {
   return function FieldToggle(
     componentProps: FormTextFieldProps & {
@@ -50,8 +50,8 @@ function FieldToggleWithToggleText(
             {typeof toggleText == "function"
               ? createMessage(() => toggleText(val))
               : val
-              ? createMessage(() => "Enabled")
-              : createMessage(() => "Disabled")}
+              ? createMessage(() => `${label ? `${label} Enabled` : "Enabled"}`)
+              : createMessage(() => `${label ? `Enable ${label}` : "Enable"}`)}
           </ToggleStatus>
         </Switch>
       </ToggleWrapper>
@@ -66,12 +66,17 @@ const StyledFieldToggleGroup = styled.div`
 export function ToggleComponent({ setting }: SettingComponentProps) {
   return (
     <StyledFieldToggleGroup>
-      <FormGroup setting={setting}>
+      <FormGroup
+        className="t--admin-settings-toggle"
+        isToggle
+        setting={setting}
+      >
         <Field
           component={FieldToggleWithToggleText(
             setting.toggleText,
             setting.id,
             !setting.name?.toLowerCase().includes("enable"),
+            setting.label,
           )}
           name={setting.name}
         />

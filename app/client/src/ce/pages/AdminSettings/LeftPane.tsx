@@ -7,8 +7,7 @@ import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { useParams } from "react-router";
 import { createMessage, UPGRADE } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import camelCase from "lodash/camelCase";
-import { Icon } from "design-system";
+import { Icon, Text } from "design-system";
 
 export const Wrapper = styled.div`
   flex-basis: ${(props) =>
@@ -33,14 +32,10 @@ export const HeaderContainer = styled.div`
   margin: 0 12px;
 `;
 
-export const StyledHeader = styled.div`
-  font-size: 16px;
+export const StyledHeader = styled(Text)`
   height: 20px;
-  line-height: 1.5;
-  letter-spacing: -0.24px;
   margin: 8px 16px 8px;
-  color: var(--ads-v2-color-fg);
-  font-weight: 500;
+  color: var(--ads-v2-color-fg-emphasis);
 `;
 
 export const CategoryList = styled.ul`
@@ -58,8 +53,6 @@ export const StyledLink = styled(Link)<{ $active: boolean }>`
   border-radius: var(--ads-v2-border-radius);
   background-color: ${(props) =>
     props.$active ? `var(--ads-v2-color-bg-muted)` : ""};
-  font-weight: ${(props) => (props.$active ? 500 : 400)};
-  text-transform: capitalize;
   display: flex;
   gap: 12px;
 
@@ -70,10 +63,14 @@ export const StyledLink = styled(Link)<{ $active: boolean }>`
     text-decoration: none;
     background-color: var(--ads-v2-color-bg-subtle);
   }
+`;
 
-  & div {
-    align-self: center;
-  }
+export const SettingName = styled(Text)<{ active?: boolean }>`
+  color: ${(props) =>
+    props.active
+      ? "var(--ads-v2-color-fg-emphasis-plus)"
+      : "var(--ads-v2-color-fg)"};
+  font-weight: ${(props) => (props.active ? 500 : 400)};
 `;
 
 export function getSettingsCategory() {
@@ -95,37 +92,39 @@ export function Categories({
 }) {
   return (
     <CategoryList className="t--settings-category-list">
-      {categories?.map((config) => (
-        <CategoryItem key={config.slug}>
-          <StyledLink
-            $active={
-              !!currentSubCategory && showSubCategory
-                ? currentSubCategory == config.slug
-                : currentCategory == config.slug
-            }
-            className={`t--settings-category-${config.slug}`}
-            to={
-              !parentCategory
-                ? adminSettingsCategoryUrl({ category: config.slug })
-                : adminSettingsCategoryUrl({
-                    category: parentCategory.slug,
-                    selected: config.slug,
-                  })
-            }
-          >
-            <div>{config?.icon && <Icon name={config?.icon} size="md" />}</div>
-            <div>{config.title}</div>
-          </StyledLink>
-          {showSubCategory && (
-            <Categories
-              categories={config.children}
-              currentCategory={currentCategory}
-              currentSubCategory={currentSubCategory}
-              parentCategory={config}
-            />
-          )}
-        </CategoryItem>
-      ))}
+      {categories?.map((config) => {
+        const active =
+          !!currentSubCategory && showSubCategory
+            ? currentSubCategory == config.slug
+            : currentCategory == config.slug;
+        return (
+          <CategoryItem key={config.slug}>
+            <StyledLink
+              $active={active}
+              className={`t--settings-category-${config.slug}`}
+              to={
+                !parentCategory
+                  ? adminSettingsCategoryUrl({ category: config.slug })
+                  : adminSettingsCategoryUrl({
+                      category: parentCategory.slug,
+                      selected: config.slug,
+                    })
+              }
+            >
+              {config?.icon && <Icon name={config?.icon} size="md" />}
+              <SettingName active={active}>{config.title}</SettingName>
+            </StyledLink>
+            {showSubCategory && (
+              <Categories
+                categories={config.children}
+                currentCategory={currentCategory}
+                currentSubCategory={currentSubCategory}
+                parentCategory={config}
+              />
+            )}
+          </CategoryItem>
+        );
+      })}
     </CategoryList>
   );
 }
@@ -143,7 +142,9 @@ export default function LeftPane() {
   return (
     <Wrapper>
       <HeaderContainer>
-        <StyledHeader>Admin Settings</StyledHeader>
+        <StyledHeader kind="heading-s" renderAs="p">
+          Admin settings
+        </StyledHeader>
         <Categories
           categories={categories}
           currentCategory={category}
@@ -151,7 +152,9 @@ export default function LeftPane() {
         />
       </HeaderContainer>
       <HeaderContainer>
-        <StyledHeader>Business</StyledHeader>
+        <StyledHeader kind="heading-s" renderAs="p">
+          Business
+        </StyledHeader>
         <CategoryList data-testid="t--enterprise-settings-category-list">
           <CategoryItem>
             <StyledLink
@@ -159,10 +162,10 @@ export default function LeftPane() {
               data-testid="t--enterprise-settings-category-item-access-control"
               to="/settings/access-control"
             >
-              <div>
-                <Icon name="lock-2-line" size="md" />
-              </div>
-              <div>Access Control</div>
+              <Icon name="lock-2-line" size="md" />
+              <SettingName active={category === "access-control"}>
+                Access control
+              </SettingName>
             </StyledLink>
           </CategoryItem>
           <CategoryItem>
@@ -172,10 +175,10 @@ export default function LeftPane() {
               onClick={() => triggerAnalytics("AuditLogs")}
               to="/settings/audit-logs"
             >
-              <div>
-                <Icon name="lock-2-line" size="md" />
-              </div>
-              <div>Audit logs</div>
+              <Icon name="lock-2-line" size="md" />
+              <SettingName active={category === "audit-logs"}>
+                Audit logs
+              </SettingName>
             </StyledLink>
           </CategoryItem>
           <CategoryItem>
@@ -185,10 +188,10 @@ export default function LeftPane() {
               onClick={() => triggerAnalytics("BusinessEdition")}
               to="/settings/business-edition"
             >
-              <div>
-                <Icon name="arrow-up-line" size="md" />
-              </div>
-              <div>{camelCase(createMessage(UPGRADE))}</div>
+              <Icon name="arrow-up-line" size="md" />
+              <SettingName active={category === "business-edition"}>
+                {createMessage(UPGRADE)}
+              </SettingName>
             </StyledLink>
           </CategoryItem>
         </CategoryList>

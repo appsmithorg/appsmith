@@ -8,6 +8,7 @@ type FieldHelperProps = {
   setting: Setting;
   children: React.ReactNode;
   className?: string;
+  isToggle?: boolean;
 };
 
 export const StyledFormGroup = styled.div`
@@ -22,6 +23,10 @@ export const StyledFormGroup = styled.div`
     cursor: default;
     path {
     }
+  }
+  &.t--admin-settings-toggle {
+    width: fit-content;
+    min-width: 260px;
   }
 `;
 
@@ -39,16 +44,21 @@ export const StyledAsterisk = styled(Text)`
   margin-left: 2px;
 `;
 
-export function FormGroup({ children, className, setting }: FieldHelperProps) {
+export function FormGroup({
+  children,
+  className,
+  isToggle,
+  setting,
+}: FieldHelperProps) {
   return (
     <StyledFormGroup
-      className={className}
+      className={`${className}`}
       data-testid="admin-settings-form-group"
     >
       <StyledLabel>
-        {setting.label && (
+        {setting.label && !isToggle && (
           <Text
-            color="var(--ads-v2-color-fg-emphasis-plus)"
+            color="var(--ads-v2-color-fg)"
             data-testid="admin-settings-form-group-label"
             kind="body-m"
             renderAs="label"
@@ -56,7 +66,7 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
             {createMessage(() => setting.label || "")}
           </Text>
         )}
-        {setting.isRequired && (
+        {setting.isRequired && !isToggle && (
           <StyledAsterisk renderAs="span">*</StyledAsterisk>
         )}
         {setting.helpText && (

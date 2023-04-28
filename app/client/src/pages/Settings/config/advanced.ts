@@ -35,7 +35,7 @@ export const config: AdminConfigType = {
       category: SettingCategories.ADVANCED,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
-      label: "Custom Domain",
+      label: "Custom domain",
       subText: "Custom domain for your Appsmith instance",
     },
   ],

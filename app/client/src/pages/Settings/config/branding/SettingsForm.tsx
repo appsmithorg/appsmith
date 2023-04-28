@@ -53,7 +53,7 @@ function SettingsForm(props: SettingsFormProps) {
         {/* LOGO */}
         <div className="flex flex-col gap-2">
           <Text
-            color="var(--ads-v2-color-fg-emphasis)"
+            color="var(--ads-v2-color-fg)"
             htmlFor="APPSMITH_BRAND_LOGO"
             kind="heading-s"
             renderAs="label"
@@ -87,7 +87,7 @@ function SettingsForm(props: SettingsFormProps) {
         {/* FAVICON */}
         <div className="flex flex-col gap-2">
           <Text
-            color="var(--ads-v2-color-fg-emphasis)"
+            color="var(--ads-v2-color-fg)"
             htmlFor="APPSMITH_BRAND_FAVICON"
             kind="heading-s"
             renderAs="label"
@@ -122,7 +122,7 @@ function SettingsForm(props: SettingsFormProps) {
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-1">
             <Text
-              color="var(--ads-v2-color-fg-emphasis)"
+              color="var(--ads-v2-color-fg)"
               htmlFor="APPSMITH_BRAND_PRIMARY_COLOR"
               kind="heading-s"
               renderAs="label"
@@ -130,7 +130,7 @@ function SettingsForm(props: SettingsFormProps) {
               Color
             </Text>
             <Tooltip content={createMessage(ADMIN_BRANDING_COLOR_TOOLTIP)}>
-              <Icon name="question-fill" size="md" />
+              <Icon name="question-line" size="md" />
             </Tooltip>
           </div>
 

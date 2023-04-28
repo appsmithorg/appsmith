@@ -103,7 +103,7 @@ export default function Group({
     <GroupWrapper data-testid="admin-settings-group-wrapper">
       {name && (
         <GroupHeader
-          color="var(--ads-v2-color-fg-emphasis)"
+          color="var(--ads-v2-color-fg-emphasis-plus)"
           data-testid="admin-settings-form-group-label"
           renderAs="span"
         >

@@ -5,7 +5,6 @@ import DebuggingImage from "assets/svg/upgrade/audit-logs/debugging.svg";
 import IncidentManagementImage from "assets/svg/upgrade/audit-logs/incident-management.svg";
 import SecurityAndComplianceImage from "assets/svg/upgrade/audit-logs/security-and-compliance.svg";
 import {
-  AUDIT_LOGS,
   AUDIT_LOGS_UPGRADE_PAGE_SUB_HEADING,
   createMessage,
   DEBUGGING,
@@ -29,7 +28,7 @@ export function AuditLogsUpgradePage() {
   });
 
   const header: Header = {
-    heading: createMessage(INTRODUCING, createMessage(AUDIT_LOGS)),
+    heading: createMessage(INTRODUCING, "audit logs"),
     subHeadings: [createMessage(AUDIT_LOGS_UPGRADE_PAGE_SUB_HEADING)],
   };
   const carousel: Carousel = {
