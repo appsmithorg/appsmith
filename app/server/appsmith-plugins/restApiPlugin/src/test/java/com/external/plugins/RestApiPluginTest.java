@@ -2,6 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.dtos.ParamProperty;
 import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
 import com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils;
@@ -600,7 +601,9 @@ public class RestApiPluginTest {
         param.setPseudoBindingName("k0");
 
         executeActionDTO.setParams(Collections.singletonList(param));
-        executeActionDTO.setParamProperties(Collections.singletonMap("k0", "string"));
+        ParamProperty paramProperty = new ParamProperty();
+        paramProperty.setDatatype("string");
+        executeActionDTO.setParamProperties(Collections.singletonMap("k0", paramProperty));
         executeActionDTO.setParameterMap(Collections.singletonMap("Input1.text", "k0"));
         executeActionDTO.setInvertParameterMap(Collections.singletonMap("k0", "Input1.text"));
 
