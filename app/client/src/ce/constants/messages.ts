@@ -1381,12 +1381,12 @@ export const EMPTY_DATASOURCE_MAIN_TEXT = () => "No datasource to display";
 export const EMPTY_DATASOURCE_BUTTON_TEXT = () => "NEW DATASOURCE";
 
 // Templates
-export const MORE = () => "MORE";
-export const SHOW_LESS = () => "SHOW LESS";
+export const MORE = () => "More";
+export const SHOW_LESS = () => "Show less";
 export const CHOOSE_WHERE_TO_FORK = () => "Choose where to fork the template";
-export const SELECT_WORKSPACE = () => "Select Workspace";
+export const SELECT_WORKSPACE = () => "Select workspace";
 export const FORK_TEMPLATE = () => "Fork template";
-export const TEMPLATES = () => "TEMPLATES";
+export const TEMPLATES = () => "Templates";
 export const FORK_THIS_TEMPLATE = () => "Use template";
 export const COULDNT_FIND_TEMPLATE = () =>
   "Couldn’t find what you are looking for?";
@@ -1394,13 +1394,13 @@ export const COULDNT_FIND_TEMPLATE_DESCRIPTION = () =>
   "A github issue portal will be opened up for you to create an issue regarding what type of template you need.";
 export const REQUEST_TEMPLATE = () => "Request for a template";
 export const SEARCH_TEMPLATES = () => "Search templates";
-export const INTRODUCING_TEMPLATES = () => "Introducing Templates";
+export const INTRODUCING_TEMPLATES = () => "Introducing templates";
 export const TEMPLATE_NOTIFICATION_DESCRIPTION = () =>
   "Use these templates to learn, create, and build apps even faster";
 export const GO_BACK = () => "Back";
 export const OVERVIEW = () => "Overview";
 export const FUNCTION = () => "Function";
-export const INDUSTRY = () => "Use Case";
+export const INDUSTRY = () => "Use case";
 export const DATASOURCES = () => "Datasources";
 export const NOTE = () => "Note: ";
 export const NOTE_MESSAGE = () => "You can add your datasources as well";
