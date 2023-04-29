@@ -13,14 +13,11 @@
     "@capsizecss/metrics": "^1.0.1",
     "@design-system/headless": "*",
     "@design-system/theming": "*",
-    "colorjs.io": "^0.4.3",
-    "eslint-plugin-storybook": "^0.6.10",
-    "react": "*",
-    "react-dom": "*"
+    "@react-aria/utils": "^3.16.0",
+    "colorjs.io": "^0.4.3"
   },
   "devDependencies": {
-    "@types/react": "*",
-    "@types/react-dom": "*"
+    "eslint-plugin-storybook": "^0.6.10"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0-rc.1 || ^18.0.0"

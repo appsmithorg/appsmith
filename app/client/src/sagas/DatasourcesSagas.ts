@@ -38,11 +38,13 @@ import {
   getDatasources,
   getDatasourceActionRouteInfo,
   getPlugin,
+  getEditorConfig,
 } from "selectors/entitiesSelector";
 import type {
   UpdateDatasourceSuccessAction,
   executeDatasourceQueryReduxAction,
 } from "actions/datasourceActions";
+import { updateDatasourceAuthState } from "actions/datasourceActions";
 import {
   changeDatasource,
   fetchDatasourceStructure,
@@ -52,7 +54,6 @@ import {
   removeTempDatasource,
   createDatasourceSuccess,
   resetDefaultKeyValPairFlag,
-  updateDatasource,
 } from "actions/datasourceActions";
 import type { ApiResponse } from "api/ApiResponses";
 import type { CreateDatasourceConfig } from "api/DatasourcesApi";
@@ -60,7 +61,12 @@ import DatasourcesApi from "api/DatasourcesApi";
 import type { Datasource, TokenResponse } from "entities/Datasource";
 import { AuthenticationStatus } from "entities/Datasource";
 import { FilePickerActionStatus } from "entities/Datasource";
-import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
+import {
+  INTEGRATION_EDITOR_MODES,
+  INTEGRATION_TABS,
+  RESPONSE_STATUS,
+  SHOW_FILE_PICKER_KEY,
+} from "constants/routes";
 import history from "utils/history";
 import {
   API_EDITOR_FORM_NAME,
@@ -117,6 +123,9 @@ import {
   TEMP_DATASOURCE_ID,
 } from "constants/Datasource";
 import { getUntitledDatasourceSequence } from "utils/DatasourceSagaUtils";
+import { fetchPluginFormConfig } from "actions/pluginActions";
+import { addClassToDocumentBody } from "pages/utils";
+import { AuthorizationStatus } from "pages/common/datasourceAuth";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -747,6 +756,9 @@ function* createDatasourceFromFormSaga(
         createDatasourceSuccess(response.data, true, !!actionRouteInfo.apiId),
       );
 
+      // fetch the datasource structure.
+      yield put(fetchDatasourceStructure(response?.data?.id, true));
+
       Toaster.show({
         text: createMessage(DATASOURCE_CREATE, response.data.name),
         variant: Variant.success,
@@ -1201,11 +1213,12 @@ function* filePickerActionCallbackSaga(
     // Once users selects/cancels the file selection,
     // Sending sheet ids selected as part of datasource
     // config properties in order to save it in database
-    set(datasource, "datasourceConfiguration.properties[0]", {
+    // using the second index specifically for file ids.
+    set(datasource, "datasourceConfiguration.properties[1]", {
       key: createMessage(GSHEET_AUTHORISED_FILE_IDS_KEY),
       value: fileIds,
     });
-    yield put(updateDatasource(datasource));
+    yield put(updateDatasourceAuthState(datasource, authStatus));
   } catch (error) {
     yield put({
       type: ReduxActionTypes.SET_GSHEET_TOKEN,
@@ -1216,6 +1229,259 @@ function* filePickerActionCallbackSaga(
     });
   }
 }
+
+function* fetchGsheetSpreadhsheets(
+  action: ReduxAction<{
+    datasourceId: string;
+    pluginId: string;
+  }>,
+) {
+  let googleSheetEditorConfig: {
+    children: [
+      {
+        initialValue: string;
+      },
+    ];
+  }[] = yield select((state: AppState) =>
+    getEditorConfig(state, action.payload.pluginId),
+  );
+
+  try {
+    if (!googleSheetEditorConfig) {
+      yield put(
+        fetchPluginFormConfig({
+          pluginId: {
+            id: action.payload.pluginId,
+          },
+        }),
+      );
+
+      const fetchConfigAction: ReduxAction<unknown> = yield take([
+        ReduxActionTypes.FETCH_PLUGIN_FORM_SUCCESS,
+        ReduxActionErrorTypes.FETCH_PLUGIN_FORM_ERROR,
+      ]);
+
+      if (
+        fetchConfigAction.type === ReduxActionErrorTypes.FETCH_PLUGIN_FORM_ERROR
+      ) {
+        throw new Error("Unable to fetch plugin form config");
+      }
+
+      googleSheetEditorConfig = yield select((state: AppState) =>
+        getEditorConfig(state, action.payload.pluginId),
+      );
+    }
+    const requestObject: Record<string, string> = {};
+
+    if (googleSheetEditorConfig && googleSheetEditorConfig[0]) {
+      const configs = googleSheetEditorConfig[0]?.children;
+
+      if (Array.isArray(configs)) {
+        for (let index = 0; index < configs.length; index += 2) {
+          const keyConfig = configs[index];
+          const valueConfig = configs[index + 1];
+          if (keyConfig && valueConfig) {
+            const key = keyConfig?.initialValue;
+            const value = valueConfig?.initialValue;
+            if (key && value !== undefined) requestObject[key] = value;
+          }
+        }
+      }
+    }
+
+    const data = {
+      datasourceId: action.payload.datasourceId,
+      displayType: "DROP_DOWN",
+      pluginId: action.payload.pluginId,
+      requestType: "SPREADSHEET_SELECTOR",
+      ...requestObject,
+    };
+
+    const response: ApiResponse =
+      yield DatasourcesApi.executeGoogleSheetsDatasourceQuery({
+        datasourceId: action.payload.datasourceId,
+        data,
+      });
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_GSHEET_SPREADSHEETS_SUCCESS,
+        payload: {
+          id: action.payload.datasourceId,
+          // @ts-expect-error: type mismatch for response
+          data: response.data?.trigger,
+        },
+      });
+    }
+  } catch (error: any) {
+    yield put({
+      type: ReduxActionTypes.FETCH_GSHEET_SPREADSHEETS_FAILURE,
+      payload: {
+        id: action.payload.datasourceId,
+        error: error.message,
+      },
+    });
+  }
+}
+
+function* fetchGsheetSheets(
+  action: ReduxAction<{
+    datasourceId: string;
+    pluginId: string;
+    sheetUrl: string;
+  }>,
+) {
+  try {
+    const data = {
+      datasourceId: action.payload.datasourceId,
+      displayType: "DROP_DOWN",
+      parameters: {
+        sheetUrl: action.payload.sheetUrl,
+      },
+      pluginId: action.payload.pluginId,
+      requestType: "SHEET_SELECTOR",
+    };
+
+    const response: ApiResponse =
+      yield DatasourcesApi.executeGoogleSheetsDatasourceQuery({
+        datasourceId: action.payload.datasourceId,
+        data,
+      });
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_GSHEET_SHEETS_SUCCESS,
+        payload: {
+          // @ts-expect-error: type mismatch for response
+          data: response.data?.trigger,
+          id: action.payload.sheetUrl,
+        },
+      });
+    }
+  } catch (error: any) {
+    yield put({
+      type: ReduxActionTypes.FETCH_GSHEET_SHEETS_FAILURE,
+      payload: {
+        id: action.payload.sheetUrl,
+        error: error.message,
+      },
+    });
+  }
+}
+
+function* fetchGsheetColumns(
+  action: ReduxAction<{
+    datasourceId: string;
+    pluginId: string;
+    sheetName: string;
+    sheetUrl: string;
+    headerIndex: number;
+  }>,
+) {
+  try {
+    const data = {
+      datasourceId: action.payload.datasourceId,
+      displayType: "DROP_DOWN",
+      parameters: {
+        sheetName: action.payload.sheetName,
+        sheetUrl: action.payload.sheetUrl,
+        tableHeaderIndex: action.payload.headerIndex,
+      },
+      pluginId: action.payload.pluginId,
+      requestType: "COLUMNS_SELECTOR",
+    };
+
+    const response: ApiResponse =
+      yield DatasourcesApi.executeGoogleSheetsDatasourceQuery({
+        datasourceId: action.payload.datasourceId,
+        data,
+      });
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_GSHEET_COLUMNS_SUCCESS,
+        payload: {
+          // @ts-expect-error: type mismatch for response
+          data: response.data?.trigger,
+          id: action.payload.sheetName + "_" + action.payload.sheetUrl,
+        },
+      });
+    }
+  } catch (error: any) {
+    yield put({
+      type: ReduxActionTypes.FETCH_GSHEET_COLUMNS_FAILURE,
+      payload: {
+        id: action.payload.sheetName + "_" + action.payload.sheetUrl,
+        error: error.message,
+      },
+    });
+  }
+}
+
+function* loadFilePickerSaga() {
+  // This adds overlay on document body
+  // This is done for google sheets file picker, as file picker needs to be shown on blank page
+  // when overlay needs to be shown, we get showPicker search param in redirect url
+  const className = "overlay";
+  const appsmithToken = localStorage.getItem(APPSMITH_TOKEN_STORAGE_KEY);
+  const search = new URLSearchParams(window.location.search);
+  const isShowFilePicker = search.get(SHOW_FILE_PICKER_KEY);
+  const gapiScriptLoaded = (window as any).googleAPIsLoaded;
+  const authStatus = search.get(RESPONSE_STATUS);
+  if (
+    !!isShowFilePicker &&
+    !!authStatus &&
+    authStatus === AuthorizationStatus.SUCCESS &&
+    !!appsmithToken &&
+    !!gapiScriptLoaded
+  ) {
+    addClassToDocumentBody(className);
+  }
+}
+
+function* updateDatasourceAuthStateSaga(
+  actionPayload: ReduxAction<{
+    authStatus: AuthenticationStatus;
+    datasource: Datasource;
+  }>,
+) {
+  try {
+    const { authStatus, datasource } = actionPayload.payload;
+    const response: ApiResponse<Datasource> =
+      yield DatasourcesApi.updateDatasource(datasource, datasource.id);
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
+        payload: response.data,
+      });
+
+      Toaster.show({
+        text:
+          authStatus === AuthenticationStatus.SUCCESS
+            ? OAUTH_AUTHORIZATION_SUCCESSFUL
+            : OAUTH_AUTHORIZATION_FAILED,
+        variant:
+          authStatus === AuthenticationStatus.SUCCESS
+            ? Variant.success
+            : Variant.danger,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_DATASOURCE_ERROR,
+      payload: { error },
+    });
+    Toaster.show({
+      text: OAUTH_AUTHORIZATION_FAILED,
+      variant: Variant.danger,
+    });
+  }
+}
+
 export function* watchDatasourcesSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_DATASOURCES_INIT, fetchDatasourcesSaga),
@@ -1281,6 +1547,17 @@ export function* watchDatasourcesSagas() {
     takeEvery(
       ReduxActionTypes.FILE_PICKER_CALLBACK_ACTION,
       filePickerActionCallbackSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.FETCH_GSHEET_SPREADSHEETS,
+      fetchGsheetSpreadhsheets,
+    ),
+    takeLatest(ReduxActionTypes.FETCH_GSHEET_SHEETS, fetchGsheetSheets),
+    takeLatest(ReduxActionTypes.FETCH_GSHEET_COLUMNS, fetchGsheetColumns),
+    takeEvery(ReduxActionTypes.LOAD_FILE_PICKER_ACTION, loadFilePickerSaga),
+    takeEvery(
+      ReduxActionTypes.UPDATE_DATASOURCE_AUTH_STATE,
+      updateDatasourceAuthStateSaga,
     ),
   ]);
 }

@@ -7,6 +7,7 @@ import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
 
 import type { SettingComponentProps } from "./Common";
 import { FormGroup } from "./Common";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 type ImageInputProps = {
   value?: any;
@@ -59,7 +60,11 @@ export const ImageInput = (props: ImageInputProps) => {
         className ? className : ""
       }`}
     >
-      <img alt="Preview" className="h-8" src={preview || value} />
+      <img
+        alt="Preview"
+        className="h-8"
+        src={getAssetUrl((preview as any) || value)}
+      />
       <div className="absolute inset-0 items-center justify-center hidden gap-2 bg-black group-hover:flex bg-opacity-20">
         <Button
           icon="upload-line"

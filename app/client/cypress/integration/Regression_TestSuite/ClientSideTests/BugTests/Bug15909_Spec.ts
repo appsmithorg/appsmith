@@ -4,8 +4,7 @@ import { WIDGET } from "../../../../locators/WidgetLocators";
 const jsEditor = ObjectsRegistry.JSEditor,
   ee = ObjectsRegistry.EntityExplorer,
   agHelper = ObjectsRegistry.AggregateHelper,
-  propPane = ObjectsRegistry.PropertyPane,
-  CommonLocators = ObjectsRegistry.CommonLocators;
+  propPane = ObjectsRegistry.PropertyPane;
 
 describe("JS Function Execution", function () {
   before(() => {

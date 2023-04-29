@@ -55,8 +55,8 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
       super(props);
       const metaProperties = WrappedWidget.getMetaPropertiesMap();
       this.initialMetaState = fromPairs(
-        Object.values(metaProperties).map((key, value) => {
-          return [key, this.props[value]];
+        Object.entries(metaProperties).map(([key, value]) => {
+          return [key, value];
         }),
       );
       this.updatedProperties = {};
@@ -136,19 +136,6 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
       propertyValue: unknown,
       actionExecution?: DebouncedExecuteActionPayload,
     ): void => {
-      AppsmithConsole.info({
-        logType: LOG_TYPE.WIDGET_UPDATE,
-        text: "Widget property was updated",
-        source: {
-          type: ENTITY_TYPE.WIDGET,
-          id: this.props.widgetId,
-          name: this.props.widgetName,
-          propertyPath: propertyName,
-        },
-        state: {
-          [propertyName]: propertyValue,
-        },
-      });
       this.handleUpdateWidgetMetaProperty(
         propertyName,
         propertyValue,
