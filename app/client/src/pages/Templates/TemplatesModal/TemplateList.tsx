@@ -10,7 +10,6 @@ import { TemplatesContent } from "..";
 import Filters from "../Filters";
 import LoadingScreen from "./LoadingScreen";
 import type { Template } from "api/TemplatesApi";
-import TemplateModalHeader from "./Header";
 import {
   createMessage,
   FETCHING_TEMPLATE_LIST,
@@ -22,8 +21,8 @@ const Wrapper = styled.div`
   height: 85vh;
   overflow-y: hidden;
 
-  .modal-header {
-    padding-bottom: ${(props) => props.theme.spaces[4]}px;
+  .templates-search {
+    background-color: var(--ads-v2-color-bg);
   }
 `;
 
@@ -36,6 +35,7 @@ const FilterWrapper = styled.div`
 const ListWrapper = styled.div`
   height: 79vh;
   overflow: auto;
+  width: 100%;
   &&::-webkit-scrollbar-thumb {
     background-color: ${(props) => props.theme.colors.modal.scrollbar};
   }
@@ -69,11 +69,6 @@ function TemplateList(props: TemplateListProps) {
 
   return (
     <Wrapper className="flex flex-col">
-      <TemplateModalHeader
-        className="modal-header"
-        hideBackButton
-        onClose={props.onClose}
-      />
       <div className="flex">
         <FilterWrapper>
           <Filters />

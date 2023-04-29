@@ -2,13 +2,14 @@ import {
   createMessage,
   FETCHING_TEMPLATES,
   FORKING_TEMPLATE,
+  TEMPLATES_BACK_BUTTON,
 } from "@appsmith/constants/messages";
 import {
   getSimilarTemplatesInit,
   getTemplateInformation,
   importTemplateIntoApplication,
 } from "actions/templateActions";
-import { Text, TextType } from "design-system-old";
+import { Text } from "design-system-old";
 import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -24,16 +25,18 @@ import type { Template } from "api/TemplatesApi";
 import { generatePath, matchPath } from "react-router";
 import { isURLDeprecated, trimQueryString } from "utils/helpers";
 import { VIEWER_PATH, VIEWER_PATH_DEPRECATED } from "constants/routes";
-import TemplateModalHeader from "./Header";
+// import TemplateModalHeader from "./Header";
 import TemplateDescription from "../Template/TemplateDescription";
 import SimilarTemplates from "../Template/SimilarTemplates";
 import type { AppState } from "@appsmith/reducers";
+import { Link } from "design-system";
 
 const breakpointColumns = {
   default: 4,
-  2100: 3,
-  1600: 2,
-  1100: 1,
+  3000: 3,
+  1500: 3,
+  1024: 2,
+  800: 1,
 };
 
 const Wrapper = styled.div`
@@ -41,12 +44,14 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  .back-button {
+    margin-right: 8px;
+  }
 `;
 
 const Body = styled.div`
-  padding: 0 ${(props) => props.theme.spaces[11]}px;
-  padding-top: ${(props) => props.theme.spaces[7]}px;
-  height: 80vh;
+  margin-bottom: ${(props) => props.theme.spaces[7]}px;
+  height: 70vh;
   overflow: auto;
   &&::-webkit-scrollbar-thumb {
     background-color: ${(props) => props.theme.colors.modal.scrollbar};
@@ -135,13 +140,20 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
 
   return (
     <Wrapper ref={containerRef}>
-      <TemplateModalHeader
-        onBackPress={props.onBackPress}
-        onClose={props.onClose}
-      />
-      <Body className="flex flex-row">
+      <Body className="flex flex-row templates-body">
         <div className="flex flex-col flex-1">
-          <Text type={TextType.DANGER_HEADING}>{currentTemplate.title}</Text>
+          <div className="flex flex-row items-center ">
+            <Link
+              className="back-button"
+              kind="secondary"
+              onClick={props.onBackPress}
+              startIcon="back-control"
+              to="#"
+            >
+              {createMessage(TEMPLATES_BACK_BUTTON)}
+            </Link>
+            <Text type={"dangerHeading"}>{currentTemplate.title}</Text>
+          </div>
           <IframeWrapper>
             <IframeTopBar>
               <div className="round red" />

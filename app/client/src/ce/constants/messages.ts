@@ -1405,19 +1405,19 @@ export const DATASOURCES = () => "Datasources";
 export const NOTE = () => "Note: ";
 export const NOTE_MESSAGE = () => "You can add your datasources as well";
 export const WIDGET_USED = () => "Widgets";
-export const SIMILAR_TEMPLATES = () => "Similar Templates";
+export const SIMILAR_TEMPLATES = () => "Similar templates";
 export const VIEW_ALL_TEMPLATES = () => "View all templates";
 export const FILTERS = () => "Filters";
 export const TEMPLATE_CARD_TITLE = () => "Start from a template";
 export const TEMPLATE_CARD_DESCRIPTION = () =>
   "Create app from template by selecting pages";
 export const FILTER_SELECTALL = () => "Select all";
-export const FILTER_SELECT_PAGES = () => "ADD SELECTED PAGES";
+export const FILTER_SELECT_PAGES = () => "Add selected pages";
 export const FORKING_TEMPLATE = () => "Setting up the template";
 export const FETCHING_TEMPLATES = () => "Loading template details";
 export const FETCHING_TEMPLATE_LIST = () => "Loading templates list";
 
-export const TEMPLATES_BACK_BUTTON = () => "BACK TO TEMPLATES";
+export const TEMPLATES_BACK_BUTTON = () => "Back";
 
 export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
 
