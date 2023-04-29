@@ -30,7 +30,7 @@ public class Migration009RemoveStructureFromWithinDatasource {
     public void executeMigration() {
         Query query = query(where("structure").exists(true));
 
-        Update update = new Update().set("structure", null);
+        Update update = new Update().unset("structure");
 
         mongoOperations.updateMulti(query, update, Datasource.class);
     }

@@ -27,7 +27,7 @@ public class CustomDatasourceConfigurationStructureRepositoryCEImpl
 
     @Override
     public Mono<UpdateResult> updateStructure(String datasourceId, DatasourceStructure structure) {
-        return mongoOperations.updateFirst(
+        return mongoOperations.upsert(
                 query(where(fieldName(QDatasourceConfigurationStructure.datasourceConfigurationStructure.datasourceId)).is(datasourceId)),
                 Update.update(fieldName(QDatasourceConfigurationStructure.datasourceConfigurationStructure.structure), structure),
                 DatasourceConfigurationStructure.class
