@@ -99,44 +99,29 @@ export function updateWidgetPositions(
       height = getHeightOfFixedCanvas(widgets, parent, isMobile);
     } else return widgets;
 
-    // Disables auto-height calculations for List widget
-    if (
-      parent?.isListItemContainer ||
-      (parent.parentId && widgets[parent.parentId].type === "LIST_WIDGET_V2") ||
-      parent.type === "LIST_WIDGET_V2"
-    ) {
-      return widgets;
-    }
-
     const divisor = parent.parentRowSpace === 1 ? 10 : 1;
     // padding is 2 to respect padding on top and bottom(WIDGET_PADDING + CONTAINER_PADDING)
     // ToDo: use getCanvasHeightOffset to weigh in offset values as well.
     const paddingBufferForCanvas = parent.parentRowSpace === 1 ? 2 : 0;
     const parentHeight = getWidgetRows(parent, isMobile);
     const computedHeight = height + paddingBufferForCanvas;
-    if (parentHeight < computedHeight) {
+    if (
+      shouldUpdateParentHeight(parent, widgets, parentHeight, computedHeight)
+    ) {
       /**
        * if children height is greater than parent height,
        * update the parent height to match the children height
        * and add a buffer of 1 row to render the new layer highlights.
        */
-      const parentTopRow = getTopRow(parent, isMobile);
-      const updatedParent = setDimensions(
+      const updatedParent = updateParentHeight(
         parent,
-        parentTopRow,
-        parentTopRow + computedHeight * divisor,
-        null,
-        null,
+        computedHeight * divisor,
+        getModalHeight(parent, computedHeight, divisor),
         isMobile,
       );
       widgets = { ...widgets, [parent.widgetId]: updatedParent };
 
-      const shouldUpdateHeight =
-        parent.parentId &&
-        ["CONTAINER_WIDGET", "CANVAS_WIDGET"].includes(
-          allWidgets[parent.parentId].type,
-        );
-      if (shouldUpdateHeight && parent.parentId)
+      if (parent.parentId)
         return updateWidgetPositions(
           widgets,
           parent.parentId,
@@ -788,4 +773,73 @@ export function updatePositionsOfParentAndSiblings(
   }
 
   return widgets;
+}
+
+/**
+ *
+ * @param widget | FlattenedWidgetProps : Current widget.
+ * @param widgets | CanvasWidgetsReduxState : All widgets.
+ * @param parentHeight | number : Current height of the widget.
+ * @param computedHeight | number : Min height required to render all children.
+ * @param mainCanvasWidth | number : Width of the main canvas.
+ * @returns boolean
+ */
+function shouldUpdateParentHeight(
+  widget: FlattenedWidgetProps,
+  widgets: CanvasWidgetsReduxState,
+  parentHeight: number,
+  computedHeight: number,
+  // mainCanvasWidth: number,
+): boolean {
+  if (
+    widget?.isListItemContainer ||
+    (widget.parentId && widgets[widget.parentId].type === "LIST_WIDGET_V2") ||
+    widget.type === "LIST_WIDGET_V2"
+  )
+    return false;
+  return parentHeight !== computedHeight;
+}
+
+/**
+ * Set the new height of the parent widget.
+ * @param parent | FlattenedWidgetProps : Parent widget.
+ * @param height | number : Height to be set.
+ * @param isMobile | boolean : Is mobile viewport.
+ * @returns FlattenedWidgetProps
+ */
+function updateParentHeight(
+  parent: FlattenedWidgetProps,
+  height: number,
+  modalHeight: number,
+  isMobile = false,
+): FlattenedWidgetProps {
+  const parentTopRow: number = getTopRow(parent, isMobile);
+  let updatedParent = setDimensions(
+    parent,
+    parentTopRow,
+    parentTopRow + height,
+    null,
+    null,
+    isMobile,
+  );
+  if (parent.type === "MODAL_WIDGET") {
+    updatedParent = {
+      ...updatedParent,
+      height: modalHeight,
+    };
+  }
+  return updatedParent;
+}
+
+function getModalHeight(
+  parent: FlattenedWidgetProps,
+  computedHeight: number,
+  divisor: number,
+): number {
+  let res: number = computedHeight;
+  if (parent.parentRowSpace === 1) res -= 2;
+  res *= divisor;
+  if (parent.type === "MODAL_WIDGET")
+    res *= divisor === 1 ? GridDefaults.DEFAULT_GRID_ROW_HEIGHT : 1;
+  return res;
 }
