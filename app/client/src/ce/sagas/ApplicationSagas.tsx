@@ -59,6 +59,7 @@ import {
   DELETING_APPLICATION,
   DISCARD_SUCCESS,
   DUPLICATING_APPLICATION,
+  ERROR_IMPORTING_APPLICATION_TO_WORKSPACE,
 } from "@appsmith/constants/messages";
 import type { AppIconName } from "design-system-old";
 import { Toaster, Variant } from "design-system-old";
@@ -724,7 +725,7 @@ export function* showReconnectDatasourcesModalSaga(
 
 export function* importApplicationSaga(
   action: ReduxAction<ImportApplicationRequest>,
-): any {
+) {
   try {
     const response: ApiResponse = yield call(
       ApplicationApi.importApplicationToWorkspace,
@@ -734,7 +735,7 @@ export function* importApplicationSaga(
     const isApplicationUrl = urlObject.pathname.includes("/app/");
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const currentWorkspaceId = yield select(getCurrentWorkspaceId);
+      const currentWorkspaceId: string = yield select(getCurrentWorkspaceId);
       const allWorkspaces: Workspace[] = yield select(getCurrentWorkspace);
       const currentWorkspace = allWorkspaces.filter(
         (el: Workspace) => el.id === action.payload.workspaceId,
@@ -794,6 +795,9 @@ export function* importApplicationSaga(
       } else {
         yield put({
           type: ReduxActionErrorTypes.IMPORT_APPLICATION_ERROR,
+          payload: {
+            error: createMessage(ERROR_IMPORTING_APPLICATION_TO_WORKSPACE),
+          },
         });
       }
     }

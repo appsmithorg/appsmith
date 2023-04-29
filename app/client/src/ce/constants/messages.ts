@@ -558,6 +558,8 @@ export const NO_JS_FUNCTION_RETURN_VALUE = (JSFunctionName: string) =>
   `${JSFunctionName} did not return any data. Did you add a return statement?`;
 
 // Import/Export Application features
+export const ERROR_IMPORTING_APPLICATION_TO_WORKSPACE = () =>
+  "Error importing application. No workspace found";
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import application";
 export const IMPORT_APPLICATION_MODAL_LABEL = () =>
   "Where would you like to import your application from?";
