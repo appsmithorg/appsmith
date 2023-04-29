@@ -102,9 +102,13 @@ export function updateWidgetPositions(
     const divisor = parent.parentRowSpace === 1 ? 10 : 1;
     // padding is 2 to respect padding on top and bottom(WIDGET_PADDING + CONTAINER_PADDING)
     // ToDo: use getCanvasHeightOffset to weigh in offset values as well.
-    const paddingBufferForCanvas = parent.parentRowSpace === 1 ? 2 : 0;
     const parentHeight = getWidgetRows(parent, isMobile);
-    const computedHeight = height + paddingBufferForCanvas;
+    const computedHeight = getComputedHeight(
+      parent,
+      widgets,
+      height,
+      mainCanvasWidth,
+    );
     if (
       shouldUpdateParentHeight(parent, widgets, parentHeight, computedHeight)
     ) {
@@ -841,5 +845,49 @@ function getModalHeight(
   res *= divisor;
   if (parent.type === "MODAL_WIDGET")
     res *= divisor === 1 ? GridDefaults.DEFAULT_GRID_ROW_HEIGHT : 1;
+  return res;
+}
+
+/**
+ * Compute total height required by the canvas.
+ * @param parent | FlattenedWidgetProps : Parent widget.
+ * @param computedHeight | number : Min height required to render all children.
+ * @returns number
+ */
+function getComputedHeight(
+  parent: FlattenedWidgetProps,
+  widgets: CanvasWidgetsReduxState,
+  computedHeight: number,
+  mainCanvasWidth: number,
+): number {
+  let res: number = computedHeight;
+  // add padding buffer for canvas
+  if (parent.parentRowSpace === 1) res += 2;
+  // Add 4 rows to show tabs for tabs widget.
+  // if (parent.type === "TABS_WIDGET" && parent?.shouldShowTabs) res += 4;
+
+  const minHeight: number =
+    parent.widgetId !== MAIN_CONTAINER_WIDGET_ID
+      ? (getWidgetMinMaxDimensionsInPixel(parent, mainCanvasWidth)?.minHeight ||
+          0) / GridDefaults.DEFAULT_GRID_ROW_HEIGHT
+      : 0;
+  /**
+   * If the widget is a canvas widget and it's parent is not the main container,
+   * then we need to check the parent's minHeight as well.
+   * e.g. an empty canvas may require only 5 rows.
+   * However a tab widget requires a min of 30 rows. So the child canvas must comply.
+   */
+  let containerMinHeight = 0;
+  if (
+    parent.type === "CANVAS_WIDGET" &&
+    parent.parentId &&
+    parent.parentId !== MAIN_CONTAINER_WIDGET_ID
+  ) {
+    const container = widgets[parent.parentId];
+    containerMinHeight =
+      (getWidgetMinMaxDimensionsInPixel(container, mainCanvasWidth)
+        ?.minHeight || 0) / GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+  }
+  res = Math.max(res, minHeight, containerMinHeight);
   return res;
 }

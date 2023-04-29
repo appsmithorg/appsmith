@@ -336,7 +336,6 @@ class TabsWidget extends BaseWidget<
       tabs: this.getVisibleTabs(),
       width:
         (rightColumn - leftColumn) * parentColumnSpace - WIDGET_PADDING * 2,
-      height: this.props.useAutoLayout ? "auto" : "100% ",
     };
     const isAutoHeightEnabled: boolean =
       isAutoHeightEnabledForWidget(this.props) &&
