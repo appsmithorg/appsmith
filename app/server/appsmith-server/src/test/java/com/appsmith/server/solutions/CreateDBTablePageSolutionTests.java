@@ -4,6 +4,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceConfigurationStructure;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceStructure.Column;
 import com.appsmith.external.models.DatasourceStructure.Key;
@@ -29,6 +30,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.DatasourceConfigurationStructureService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
@@ -80,6 +82,9 @@ public class CreateDBTablePageSolutionTests {
     DatasourceService datasourceService;
 
     @Autowired
+    DatasourceConfigurationStructureService datasourceConfigurationStructureService;
+
+    @Autowired
     ApplicationPageService applicationPageService;
 
     @Autowired
@@ -97,6 +102,8 @@ public class CreateDBTablePageSolutionTests {
     private CRUDPageResourceDTO resource = new CRUDPageResourceDTO();
 
     private static Datasource testDatasource = new Datasource();
+
+    private static DatasourceConfigurationStructure testDatasourceConfigurationStructure = new DatasourceConfigurationStructure();
 
     private static Workspace testWorkspace;
 
@@ -210,12 +217,15 @@ public class CreateDBTablePageSolutionTests {
             testDatasource.setPluginId(postgreSQLPlugin.getId());
             testDatasource.setWorkspaceId(testWorkspace.getId());
             testDatasource.setName("CRUD-Page-Table-DS");
-            testDatasource.setStructure(structure);
             datasourceConfiguration.setUrl("http://test.com");
             testDatasource.setDatasourceConfiguration(datasourceConfiguration);
-            datasourceService.create(testDatasource).block();
+            Datasource datasource = datasourceService.create(testDatasource).block();
+
+            testDatasourceConfigurationStructure.setDatasourceId(datasource.getId());
+            testDatasourceConfigurationStructure.setStructure(structure);
+            datasourceConfigurationStructureService.save(testDatasourceConfigurationStructure).block();
         }
-        resource.setTableName(testDatasource.getStructure().getTables().get(0).getName());
+        resource.setTableName(structure.getTables().get(0).getName());
         resource.setDatasourceId(testDatasource.getId());
     }
 
@@ -423,7 +433,7 @@ public class CreateDBTablePageSolutionTests {
     public void createPageWithLessColumnsComparedToTemplateForPostgres() {
 
         CRUDPageResourceDTO resourceDTO = new CRUDPageResourceDTO();
-        resourceDTO.setTableName(testDatasource.getStructure().getTables().get(1).getName());
+        resourceDTO.setTableName(testDatasourceConfigurationStructure.getStructure().getTables().get(1).getName());
         resourceDTO.setDatasourceId(testDatasource.getId());
         resourceDTO.setApplicationId(testApp.getId());
         PageDTO newPage = new PageDTO();
@@ -480,7 +490,7 @@ public class CreateDBTablePageSolutionTests {
     public void createPageWithLessColumnsComparedToTemplateForSql() {
 
         CRUDPageResourceDTO resourceDTO = new CRUDPageResourceDTO();
-        resourceDTO.setTableName(testDatasource.getStructure().getTables().get(1).getName());
+        resourceDTO.setTableName(testDatasourceConfigurationStructure.getStructure().getTables().get(1).getName());
         resourceDTO.setDatasourceId(testDatasource.getId());
         resourceDTO.setApplicationId(testApp.getId());
         PageDTO newPage = new PageDTO();
@@ -495,9 +505,16 @@ public class CreateDBTablePageSolutionTests {
                     datasource.setPluginId(plugin.getId());
                     datasource.setWorkspaceId(testWorkspace.getId());
                     datasource.setName("MySql-CRUD-Page-Table-With-Less-Columns-DS");
-                    datasource.setStructure(structure);
                     datasource.setDatasourceConfiguration(datasourceConfiguration);
                     return datasourceService.create(datasource);
+                })
+                .flatMap(datasource -> {
+                    DatasourceConfigurationStructure datasourceConfigurationStructure = new DatasourceConfigurationStructure();
+                    datasourceConfigurationStructure.setDatasourceId(datasource.getId());
+                    datasourceConfigurationStructure.setStructure(structure);
+
+                    return datasourceConfigurationStructureService.save(datasourceConfigurationStructure)
+                            .thenReturn(datasource);
                 });
 
         Mono<CRUDPageResponseDTO> resultMono = datasourceMono
@@ -567,9 +584,16 @@ public class CreateDBTablePageSolutionTests {
                     datasource.setPluginId(plugin.getId());
                     datasource.setWorkspaceId(testWorkspace.getId());
                     datasource.setName("MySql-CRUD-Page-Table-DS");
-                    datasource.setStructure(structure);
                     datasource.setDatasourceConfiguration(datasourceConfiguration);
-                    return datasourceService.create(datasource);
+                    return datasourceService.create(datasource)
+                            .flatMap(datasource1 -> {
+                                DatasourceConfigurationStructure datasourceConfigurationStructure = new DatasourceConfigurationStructure();
+                                datasourceConfigurationStructure.setDatasourceId(datasource1.getId());
+                                datasourceConfigurationStructure.setStructure(structure);
+
+                                return datasourceConfigurationStructureService.save(datasourceConfigurationStructure)
+                                        .thenReturn(datasource1);
+                            });
                 });
 
         Mono<CRUDPageResponseDTO> resultMono = datasourceMono
@@ -631,9 +655,16 @@ public class CreateDBTablePageSolutionTests {
                     datasource.setPluginId(plugin.getId());
                     datasource.setWorkspaceId(testWorkspace.getId());
                     datasource.setName("Redshift-CRUD-Page-Table-DS");
-                    datasource.setStructure(structure);
                     datasource.setDatasourceConfiguration(datasourceConfiguration);
-                    return datasourceService.create(datasource);
+                    return datasourceService.create(datasource)
+                            .flatMap(datasource1 -> {
+                                DatasourceConfigurationStructure datasourceConfigurationStructure = new DatasourceConfigurationStructure();
+                                datasourceConfigurationStructure.setDatasourceId(datasource1.getId());
+                                datasourceConfigurationStructure.setStructure(structure);
+
+                                return datasourceConfigurationStructureService.save(datasourceConfigurationStructure)
+                                        .thenReturn(datasource1);
+                            });
                 });
 
         Mono<PageDTO> resultMono = datasourceMono
@@ -744,9 +775,17 @@ public class CreateDBTablePageSolutionTests {
                     datasource.setPluginId(plugin.getId());
                     datasource.setWorkspaceId(testWorkspace.getId());
                     datasource.setName("Snowflake-CRUD-Page-Table-DS");
-                    datasource.setStructure(structure);
                     datasource.setDatasourceConfiguration(datasourceConfiguration);
-                    return datasourceService.create(datasource);
+                    return datasourceService.create(datasource)
+                            .flatMap(datasource1 -> {
+                                DatasourceConfigurationStructure datasourceConfigurationStructure = new DatasourceConfigurationStructure();
+                                datasourceConfigurationStructure.setDatasourceId(datasource1.getId());
+                                datasourceConfigurationStructure.setStructure(structure);
+
+                                return datasourceConfigurationStructureService.save(datasourceConfigurationStructure)
+                                        .thenReturn(datasource1);
+                            });
+
                 });
 
         Mono<PageDTO> resultMono = datasourceMono
@@ -828,7 +867,6 @@ public class CreateDBTablePageSolutionTests {
                     assertThat(actions).hasSize(5);
                     for (NewAction action : actions) {
                         ActionConfiguration actionConfiguration = action.getUnpublishedAction().getActionConfiguration();
-                        assertThat(action.getUnpublishedAction().getDatasource().getStructure()).isNull();
                         assertThat(((Map<String, String>) actionConfiguration.getFormData().get("bucket")).get(DATA))
                                 .isEqualTo(resource.getTableName());
                         if (action.getUnpublishedAction().getName().equals(LIST_QUERY)) {
@@ -892,7 +930,6 @@ public class CreateDBTablePageSolutionTests {
                     assertThat(actions).hasSize(4);
                     for (NewAction action : actions) {
                         ActionConfiguration actionConfiguration = action.getUnpublishedAction().getActionConfiguration();
-                        assertThat(action.getUnpublishedAction().getDatasource().getStructure()).isNull();
                         if (SELECT_QUERY.equals(action.getUnpublishedAction().getName())) {
                             assertThat(action.getUnpublishedAction().getExecuteOnLoad()).isTrue();
                         } else {
@@ -926,9 +963,16 @@ public class CreateDBTablePageSolutionTests {
                     datasource.setPluginId(plugin.getId());
                     datasource.setWorkspaceId(testWorkspace.getId());
                     datasource.setName("Mongo-CRUD-Page-Table-DS");
-                    datasource.setStructure(structure);
                     datasource.setDatasourceConfiguration(datasourceConfiguration);
-                    return datasourceService.create(datasource);
+                    return datasourceService.create(datasource)
+                            .flatMap(datasource1 -> {
+                                DatasourceConfigurationStructure datasourceConfigurationStructure = new DatasourceConfigurationStructure();
+                                datasourceConfigurationStructure.setDatasourceId(datasource1.getId());
+                                datasourceConfigurationStructure.setStructure(structure);
+
+                                return datasourceConfigurationStructureService.save(datasourceConfigurationStructure)
+                                        .thenReturn(datasource1);
+                            });
                 });
 
         Mono<PageDTO> resultMono = datasourceMono
