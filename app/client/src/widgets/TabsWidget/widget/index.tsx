@@ -339,7 +339,8 @@ class TabsWidget extends BaseWidget<
     };
     const isAutoHeightEnabled: boolean =
       isAutoHeightEnabledForWidget(this.props) &&
-      !isAutoHeightEnabledForWidgetWithLimits(this.props);
+      !isAutoHeightEnabledForWidgetWithLimits(this.props) &&
+      this.props.appPositioningType !== AppPositioningTypes.AUTO;
     return (
       <TabsComponent
         {...tabsComponentProps}

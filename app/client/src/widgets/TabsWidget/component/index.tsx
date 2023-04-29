@@ -9,6 +9,7 @@ import { generateClassName, getCanvasClassName } from "utils/generators";
 import { Colors } from "constants/Colors";
 import PageTabs from "./PageTabs";
 import { scrollCSS } from "widgets/WidgetUtils";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 interface TabsComponentProps extends ComponentProps {
   children?: ReactNode;
@@ -30,6 +31,7 @@ interface TabsComponentProps extends ComponentProps {
   }>;
   width: number;
   $noScroll: boolean;
+  appPositioningType?: AppPositioningTypes;
 }
 
 const TabsContainerWrapper = styled.div<{
@@ -196,7 +198,11 @@ function TabsComponent(props: TabsComponentProps) {
       )}
 
       <ScrollCanvas
-        $shouldScrollContents={!!props.shouldScrollContents && !props.$noScroll}
+        $shouldScrollContents={
+          !!props.shouldScrollContents &&
+          !props.$noScroll &&
+          props.appPositioningType !== AppPositioningTypes.AUTO
+        }
         className={`${
           props.shouldScrollContents ? getCanvasClassName() : ""
         } ${generateClassName(props.widgetId)}`}
