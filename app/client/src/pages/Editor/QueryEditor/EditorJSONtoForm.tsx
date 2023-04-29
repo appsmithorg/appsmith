@@ -332,7 +332,7 @@ const SidebarWrapper = styled.div<{ show: boolean }>`
   display: ${(props) => (props.show ? "flex" : "none")};
   width: ${(props) => props.theme.actionSidePane.width}px;
   margin-top: 38px;
-  margin-left: var(--ads-v2-spaces-7);
+  /* margin-left: var(--ads-v2-spaces-7); */
 `;
 
 type QueryFormProps = {
