@@ -746,7 +746,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
 
         Mono<Workspace> workspaceMono = workspaceService.findById(
                 workspaceId, isGitSync ? Optional.empty() : Optional.of(workspacePermission.getApplicationCreatePermission())
-        ).cache();
+        );
 
         /* We need to take care of the null case in case someone is trying to import an older app where JS libs did
         not exist */
