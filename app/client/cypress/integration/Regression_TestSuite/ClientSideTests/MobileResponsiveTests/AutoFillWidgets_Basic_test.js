@@ -1,7 +1,4 @@
-const dsl = require("../../../../fixtures/AllWidgetsDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper;
 let widgets = [
   "switchwidget",
   "currencyinputwidget",
@@ -121,27 +118,37 @@ describe("Validating Mobile Views for Auto Fill Widgets", function () {
       cy.get(".t--widget-selectwidget")
         .invoke("css", "height")
         .then((newheight) => {
-          expect(parseFloat(height[widgets[3]])).to.not.equal(parseFloat(newheight));
+          expect(parseFloat(height[widgets[3]])).to.not.equal(
+            parseFloat(newheight),
+          );
         });
       cy.get(".t--widget-selectwidget")
         .invoke("css", "width")
         .then((newwidth) => {
-          expect(parseFloat(width[widgets[3]])).to.not.equal(parseFloat(newwidth));
+          expect(parseFloat(width[widgets[3]])).to.not.equal(
+            parseFloat(newwidth),
+          );
         });
       cy.get(".t--widget-checkboxwidget")
         .invoke("css", "width")
         .then((newwidth) => {
-          expect(parseFloat(width[widgets[4]])).to.not.equal(parseFloat(newwidth));
+          expect(parseFloat(width[widgets[4]])).to.not.equal(
+            parseFloat(newwidth),
+          );
         });
       cy.get(".t--widget-radiogroupwidget")
         .invoke("css", "height")
         .then((newheight) => {
-          expect(parseFloat(height[widgets[5]])).to.equal(parseFloat(newheight));
+          expect(parseFloat(height[widgets[5]])).to.equal(
+            parseFloat(newheight),
+          );
         });
       cy.get(".t--widget-radiogroupwidget")
         .invoke("css", "width")
         .then((newwidth) => {
-          expect(parseFloat(width[widgets[5]])).to.not.equal(parseFloat(newwidth));
+          expect(parseFloat(width[widgets[5]])).to.not.equal(
+            parseFloat(newwidth),
+          );
         });
       cy.get(".t--widget-datepickerwidget2")
         .scrollIntoView()
@@ -154,17 +161,23 @@ describe("Validating Mobile Views for Auto Fill Widgets", function () {
       cy.get(".t--widget-phoneinputwidget")
         .invoke("css", "height")
         .then((newheight) => {
-          expect(parseFloat(height[widgets[7]])).to.equal(parseFloat(newheight));
+          expect(parseFloat(height[widgets[7]])).to.equal(
+            parseFloat(newheight),
+          );
         });
       cy.get(".t--widget-phoneinputwidget")
         .invoke("css", "width")
         .then((newwidth) => {
-          expect(parseFloat(width[widgets[7]])).to.not.equal(parseFloat(newwidth));
+          expect(parseFloat(width[widgets[7]])).to.not.equal(
+            parseFloat(newwidth),
+          );
         });
       cy.get(".t--widget-categorysliderwidget")
         .invoke("css", "height")
         .then((newheight) => {
-          expect(parseFloat(height[widgets[8]])).to.equal(parseFloat(newheight));
+          expect(parseFloat(height[widgets[8]])).to.equal(
+            parseFloat(newheight),
+          );
         });
       cy.get(".t--widget-categorysliderwidget")
         .invoke("css", "width")
