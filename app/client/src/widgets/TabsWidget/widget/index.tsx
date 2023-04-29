@@ -339,12 +339,12 @@ class TabsWidget extends BaseWidget<
     };
     const isAutoHeightEnabled: boolean =
       isAutoHeightEnabledForWidget(this.props) &&
-      !isAutoHeightEnabledForWidgetWithLimits(this.props) &&
-      this.props.appPositioningType !== AppPositioningTypes.AUTO;
+      !isAutoHeightEnabledForWidgetWithLimits(this.props);
     return (
       <TabsComponent
         {...tabsComponentProps}
         $noScroll={isAutoHeightEnabled}
+        appPositioningType={this.props.appPositioningType}
         backgroundColor={this.props.backgroundColor}
         borderColor={this.props.borderColor}
         borderRadius={this.props.borderRadius}

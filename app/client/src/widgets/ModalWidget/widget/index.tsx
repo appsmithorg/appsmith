@@ -8,6 +8,7 @@ import type { AppState } from "@appsmith/reducers";
 import type { UIElementSize } from "components/editorComponents/ResizableUtils";
 import WidgetNameComponent from "components/editorComponents/WidgetNameComponent";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { MAX_MODAL_WIDTH_FROM_MAIN_WIDTH } from "constants/WidgetConstants";
 import type { RenderMode } from "constants/WidgetConstants";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
@@ -148,7 +149,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   };
 
   getMaxModalWidth() {
-    return this.props.mainCanvasWidth * 0.95;
+    return this.props.mainCanvasWidth * MAX_MODAL_WIDTH_FROM_MAIN_WIDTH;
   }
 
   getModalWidth(width: number) {
