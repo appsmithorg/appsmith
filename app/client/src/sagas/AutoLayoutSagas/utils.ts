@@ -44,7 +44,6 @@ import log from "loglevel";
 import { APP_MODE } from "entities/App";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getAppMode } from "selectors/entitiesSelector";
-import { MOBILE_ROW_GAP, ROW_GAP } from "utils/autoLayout/constants";
 
 export function* recalculatePositionsOfWidgets({
   canvasWidth,
@@ -88,7 +87,6 @@ export function* recalculatePositionsOfWidgets({
     processedWidgets,
     dimensionMap,
     mainCanvasWidth,
-    isMobile,
   );
   return processedWidgets;
 }
@@ -232,11 +230,7 @@ export function* getAutoLayoutMinHeightBasedOnChildren(
   dimensionMap: typeof DefaultDimensionMap,
   changesSoFar: Record<string, { bottomRow: number; topRow: number }>,
   widgets: CanvasWidgetsReduxState,
-  isMobile: boolean,
 ) {
-  const rowGap =
-    (isMobile ? MOBILE_ROW_GAP : ROW_GAP) /
-    GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
   const { bottomRow: bottomRowMap, topRow: topRowMap } = dimensionMap;
   // Starting with no height
   let minHeightInRows = 0;
@@ -284,19 +278,19 @@ export function* getAutoLayoutMinHeightBasedOnChildren(
 
       // If this child is collapsing, don't consider it
       if (!(shouldCollapse && collapsing)) {
-        minHeightInRows =
-          Math.max(minHeightInRows, changesSoFar[childWidgetId].bottomRow) +
-          rowGap;
+        minHeightInRows = Math.max(
+          minHeightInRows,
+          changesSoFar[childWidgetId].bottomRow,
+        );
       }
 
       // If we need to get the existing bottomRow from the state
     } else {
       // If this child is to collapse, don't consider it.
       if (!(shouldCollapse && bottomRow === topRow))
-        minHeightInRows = Math.max(minHeightInRows, bottomRow) + rowGap;
+        minHeightInRows = Math.max(minHeightInRows, bottomRow);
     }
   }
-  minHeightInRows -= rowGap;
 
   if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
     return minHeightInRows + GridDefaults.MAIN_CANVAS_EXTENSION_OFFSET;
@@ -309,7 +303,6 @@ export function* getUpdatesOfAllAutoLayoutCanvasHeight(
   widgets: CanvasWidgetsReduxState,
   dimensionMap: typeof DefaultDimensionMap,
   mainCanvasWidth: number,
-  isMobile: boolean,
 ) {
   const start = performance.now();
   const appMode: APP_MODE = yield select(getAppMode);
@@ -406,7 +399,6 @@ export function* getUpdatesOfAllAutoLayoutCanvasHeight(
             dimensionMap,
             {},
             stateWidgets,
-            isMobile,
           );
         // Add a canvas extension offset
         maxBottomRowBasedOnChildren += GridDefaults.CANVAS_EXTENSION_OFFSET;
@@ -511,7 +503,6 @@ export function* getUpdatesOfAllAutoLayoutCanvasHeight(
       dimensionMap,
       changesSoFar,
       processedWidgets,
-      isMobile,
     );
 
   maxCanvasHeightInRows = Math.max(
