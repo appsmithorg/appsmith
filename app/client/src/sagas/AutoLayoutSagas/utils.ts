@@ -481,8 +481,7 @@ export function* getUpdatesOfAllAutoLayoutCanvasHeight(
           ...updatedWidgets,
           [each]: {
             ...widget,
-            height:
-              (widgetTopRow + rows) * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+            height: rows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
           },
         };
       }
