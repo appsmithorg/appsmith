@@ -659,7 +659,12 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
         <Wrapper>
           <SecondaryWrapper>
             <TabbedViewContainer>
-              <Tabs className="h-full" defaultValue={API_EDITOR_TABS.HEADERS}>
+              <Tabs
+                className="h-full"
+                defaultValue={
+                  isGraphql ? API_EDITOR_TABS.BODY : API_EDITOR_TABS.HEADERS
+                }
+              >
                 <TabsList>
                   {Object.values(API_EDITOR_TABS).map((tab) => (
                     <Tab

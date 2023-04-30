@@ -1,6 +1,7 @@
 import { Radio, RadioGroup } from "design-system";
 import React, { useEffect, useState } from "react";
 import type { WrappedFieldInputProps } from "redux-form";
+import styled from "styled-components";
 
 export type RadioGroupWrapperProps = {
   placeholder: string;
@@ -11,6 +12,11 @@ export type RadioGroupWrapperProps = {
   columns?: number;
   rows?: number;
 };
+
+const RadioContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
 
 function RadioGroupWrapper(props: RadioGroupWrapperProps) {
   const selectedValueHandler = () => {
@@ -42,17 +48,18 @@ function RadioGroupWrapper(props: RadioGroupWrapperProps) {
       className={props.className}
       // columns={props.columns}
       defaultValue={selectedOption}
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       onChange={(value: string) => onSelectHandler(value)}
-      // options={props.options}
+      value={selectedOption}
       // rows={props.rows}
-      // selectedOptionElements={props.selectedOptionElements}
     >
-      {props.options.map((option) => (
-        <Radio key={option.value} value={option.value}>
-          {option.label}
-        </Radio>
+      {props.options.map((option, index) => (
+        <RadioContainer key={option.value}>
+          <Radio key={option.value} value={option.value}>
+            {option.label}
+          </Radio>
+          {selectedOption == option.value &&
+            props.selectedOptionElements?.[index]}
+        </RadioContainer>
       ))}
     </RadioGroup>
   );

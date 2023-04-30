@@ -33,7 +33,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   }
 
   &.${Severity.ERROR} {
-    background-color: #fff8f8;
+    background-color: var(--ads-v2-color-bg-error);
     border-bottom: 1px solid var(--ads-v2-color-border);
   }
 
@@ -316,15 +316,15 @@ function LogItem(props: LogItemProps) {
                     entity={props.source}
                     error={{ message: { name: "", message: "" } }}
                   >
-                    {/* TODO: fix bug where menu component doesn't open if it's trigger is wrapped in a tooltip */}
+                    {/* TODO (albin): fix bug where menu component doesn't open if it's trigger is wrapped in a tooltip */}
                     {/*<Tooltip*/}
                     {/*  content={createMessage(TROUBLESHOOT_ISSUE)}*/}
                     {/*  placement="bottomLeft"*/}
                     {/*>*/}
                     <Icon
                       className={`${Classes.ICON}`}
-                      name={"help"}
-                      size="sm"
+                      name={"question"}
+                      size="md"
                     />
                     {/*</Tooltip>*/}
                   </ContextualMenu>

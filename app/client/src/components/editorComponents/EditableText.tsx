@@ -5,8 +5,7 @@ import {
 } from "@blueprintjs/core";
 import styled from "styled-components";
 import _ from "lodash";
-import ErrorTooltip from "./ErrorTooltip";
-import { Button, toast } from "design-system";
+import { Button, toast, Tooltip } from "design-system";
 
 export enum EditInteractionKind {
   SINGLE,
@@ -229,10 +228,10 @@ export function EditableText(props: EditableTextProps) {
       }
       useFullWidth={!!(useFullWidth && isEditing)}
     >
-      <ErrorTooltip
-        customClass={errorTooltipClass}
-        isOpen={!!error}
-        message={errorMessage as string}
+      <Tooltip
+        className={errorTooltipClass}
+        content={errorMessage as string}
+        visible={!!error}
       >
         <TextContainer
           isValid={!error}
@@ -264,7 +263,7 @@ export function EditableText(props: EditableTextProps) {
             />
           )}
         </TextContainer>
-      </ErrorTooltip>
+      </Tooltip>
     </EditableTextWrapper>
   );
 }

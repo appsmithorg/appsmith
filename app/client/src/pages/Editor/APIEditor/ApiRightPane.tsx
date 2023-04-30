@@ -14,7 +14,15 @@ import { setApiRightPaneSelectedTab } from "actions/apiPaneActions";
 import { useDispatch, useSelector } from "react-redux";
 import { getApiRightPaneSelectedTab } from "selectors/apiPaneSelectors";
 import isUndefined from "lodash/isUndefined";
-import { Button, Divider, Tab, TabPanel, Tabs, TabsList } from "design-system";
+import {
+  Button,
+  Divider,
+  Tab,
+  TabPanel,
+  Tabs,
+  TabsList,
+  Tag,
+} from "design-system";
 
 const EmptyDatasourceContainer = styled.div`
   display: flex;
@@ -94,35 +102,6 @@ const DataSourceNameContainer = styled.div`
   }
   .cs-text {
     color: var(--ads-v2-color-fg);
-  }
-`;
-
-const TagContainer = styled.div`
-  border-radius: var(--ads-v2-border-radius);
-  display: inherit;
-`;
-
-const SelectedDatasourceInfoContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding: 2px 8px;
-  background-color: var(--ads-v2-color-bg-success);
-  border-radius: var(--ads-v2-border-radius);
-  margin-right: 2px;
-  margin-left: 3px;
-  text-transform: uppercase;
-  & p {
-    font-style: normal;
-    font-weight: 600;
-    font-size: 8px;
-    line-height: 10px;
-    display: flex;
-    align-items: center;
-    text-align: center;
-    letter-spacing: 0.4px;
-    color: var(--ads-v2-color-fg-success);
-    white-space: nowrap;
   }
 `;
 
@@ -257,29 +236,27 @@ function ApiRightPane(props: any) {
                           <Text type={TextType.H5} weight={FontWeight.BOLD}>
                             {d.name}
                           </Text>
-                          <TagContainer>
-                            {d?.id === props.currentActionDatasourceId && (
-                              <SelectedDatasourceInfoContainer>
-                                <p>In Use</p>
-                              </SelectedDatasourceInfoContainer>
-                            )}
-                            <Button
-                              isIconButton
-                              kind="tertiary"
-                              onClick={(e: React.MouseEvent) => {
-                                e.stopPropagation();
-                                history.push(
-                                  datasourcesEditorIdURL({
-                                    pageId: props.currentPageId,
-                                    datasourceId: d.id,
-                                    params: getQueryParams(),
-                                  }),
-                                );
-                              }}
-                              size="sm"
-                              startIcon="pencil-line"
-                            />
-                          </TagContainer>
+                          {d?.id === props.currentActionDatasourceId && (
+                            <Tag isClosable={false} size="md">
+                              In Use
+                            </Tag>
+                          )}
+                          <Button
+                            isIconButton
+                            kind="tertiary"
+                            onClick={(e: React.MouseEvent) => {
+                              e.stopPropagation();
+                              history.push(
+                                datasourcesEditorIdURL({
+                                  pageId: props.currentPageId,
+                                  datasourceId: d.id,
+                                  params: getQueryParams(),
+                                }),
+                              );
+                            }}
+                            size="sm"
+                            startIcon="pencil-line"
+                          />
                         </DataSourceNameContainer>
                         <DatasourceURL>
                           {d.datasourceConfiguration?.url}
