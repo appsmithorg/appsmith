@@ -132,7 +132,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           },
           {
             propertyName: "truncateButtonColor",
-            label: "Truncate Button Color",
+            label: "Truncate button color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -545,7 +545,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           },
           {
             propertyName: "truncateButtonColor",
-            label: "Truncate Button Color",
+            label: "Truncate button color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,

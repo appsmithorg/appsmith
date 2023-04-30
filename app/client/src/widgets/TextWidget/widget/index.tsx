@@ -266,7 +266,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           },
           {
             propertyName: "truncateButtonColor",
-            label: "Truncate Button Color",
+            label: "Truncate button color",
             helpText: "Controls the color of the truncate button",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,

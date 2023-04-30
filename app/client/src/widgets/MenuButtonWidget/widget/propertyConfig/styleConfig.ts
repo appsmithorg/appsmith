@@ -141,7 +141,7 @@ export default [
       {
         propertyName: "menuColor",
         helpText: "Sets the style of the Menu button",
-        label: "Button Color",
+        label: "Button color",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
         isBindProperty: true,

@@ -98,7 +98,7 @@ export default [
       {
         propertyName: "buttonColor",
         helpText: "Sets the background color of the button",
-        label: "Button Color",
+        label: "Button color",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
         isBindProperty: true,

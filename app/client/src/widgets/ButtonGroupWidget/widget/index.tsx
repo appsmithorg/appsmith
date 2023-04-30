@@ -402,7 +402,7 @@ class ButtonGroupWidget extends BaseWidget<
                       getStylesheetValue,
                       propertyName: "buttonColor",
                       helpText: "Changes the color of the button",
-                      label: "Button Color",
+                      label: "Button color",
                       controlType: "COLOR_PICKER",
                       isJSConvertible: true,
                       isBindProperty: true,

@@ -109,7 +109,7 @@ export const saveButtonStyleConfig = {
       children: [
         {
           propertyName: "saveButtonColor",
-          label: "Button Color",
+          label: "Button color",
           controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
           helpText: "Changes the color of the button",
           isJSConvertible: true,

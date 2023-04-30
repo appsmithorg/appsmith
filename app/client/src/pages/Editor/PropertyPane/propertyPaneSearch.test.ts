@@ -53,7 +53,7 @@ describe("Property configuration search", () => {
       sectionName: "Section Two",
       children: [
         {
-          label: "Button Color",
+          label: "Button color",
           propertyName: "buttonColor",
           ...commonProperties,
         },
@@ -179,7 +179,7 @@ describe("Property configuration search", () => {
         sectionName: "Section Two",
         children: [
           {
-            label: "Button Color",
+            label: "Button color",
             propertyName: "buttonColor",
             ...commonProperties,
           },
