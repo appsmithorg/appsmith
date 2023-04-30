@@ -882,21 +882,22 @@ export function ApplicationsSection(props: any) {
                               startIcon="logout"
                             >
                               {!warnLeavingWorkspace
-                                ? "Leave Workspace"
+                                ? "Leave workspace"
                                 : "Are you sure?"}
                             </MenuItem>
                           )}
                           {applications.length === 0 && canDeleteWorkspace && (
                             <MenuItem
+                              className="error-menuitem"
                               onSelect={() => {
                                 warnDeleteWorkspace
                                   ? handleDeleteWorkspace(workspace.id)
                                   : setWarnDeleteWorkspace(true);
                               }}
-                              startIcon="trash"
+                              startIcon="delete-bin-line"
                             >
                               {!warnDeleteWorkspace
-                                ? "Delete Workspace"
+                                ? "Delete workspace"
                                 : "Are you sure?"}
                             </MenuItem>
                           )}

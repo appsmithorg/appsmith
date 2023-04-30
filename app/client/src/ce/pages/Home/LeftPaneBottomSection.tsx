@@ -82,7 +82,7 @@ function LeftPaneBottomSection() {
           onSelect={() => {
             window.open("https://discord.gg/rBTTVJp", "_blank");
           }}
-          text={"Join our Discord"}
+          text={"Join our discord"}
         />
         <MenuItem
           icon="book"
@@ -110,7 +110,7 @@ function LeftPaneBottomSection() {
           onSelect={() => {
             setIsProductUpdatesModalOpen(true);
           }}
-          text="What's New?"
+          text="What's new?"
         />
         <ProductUpdatesModal
           isOpen={isProductUpdatesModalOpen}

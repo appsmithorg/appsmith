@@ -51,7 +51,7 @@ const HELP_MENU_ITEMS: HelpItem[] = [
   },
   {
     icon: "discord",
-    label: "Join our Discord",
+    label: "Join our discord",
     link: "https://discord.gg/rBTTVJp",
   },
 ];

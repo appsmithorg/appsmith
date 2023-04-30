@@ -207,9 +207,9 @@ export const EDITOR_HEADER = {
 // Homepage
 export const CREATE_NEW_APPLICATION = () => `Create new`;
 export const SEARCH_APPS = () => `Search for apps...`;
-export const GETTING_STARTED = () => `GETTING STARTED`;
+export const GETTING_STARTED = () => `Getting started`;
 export const WORKSPACES_HEADING = () => `Workspaces`;
-export const WELCOME_TOUR = () => `Welcome Tour`;
+export const WELCOME_TOUR = () => `Welcome tour`;
 export const NO_APPS_FOUND = () =>
   `Whale! Whale! This name doesn't ring a bell!`;
 
@@ -1120,7 +1120,7 @@ export const CLONE_TOOLTIP = () => "Clone";
 export const DELETE_TOOLTIP = () => "Delete";
 export const SETTINGS_TOOLTIP = () => "Settings";
 //settings
-export const ADMIN_SETTINGS = () => "Admin Settings";
+export const ADMIN_SETTINGS = () => "Admin settings";
 export const RESTART_BANNER_BODY = () =>
   "Hang in there. This should be done soon.";
 export const RESTART_BANNER_HEADER = () => "Restarting your server";
