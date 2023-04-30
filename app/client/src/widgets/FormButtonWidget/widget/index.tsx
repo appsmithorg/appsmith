@@ -131,7 +131,7 @@ class FormButtonWidget extends ButtonWidget {
             helpText:
               "Disabled if the form is invalid, if this widget exists directly within a Form widget.",
             propertyName: "disabledWhenInvalid",
-            label: "Disabled Invalid Forms",
+            label: "Disabled invalid forms",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -142,7 +142,7 @@ class FormButtonWidget extends ButtonWidget {
             helpText:
               "Resets the fields of the form, on click, if this widget exists directly within a Form widget.",
             propertyName: "resetFormOnClick",
-            label: "Reset Form on Success",
+            label: "Reset form on success",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
