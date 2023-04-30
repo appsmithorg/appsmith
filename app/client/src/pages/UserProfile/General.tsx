@@ -48,7 +48,7 @@ function General() {
     <Wrapper>
       <FieldWrapper>
         <LabelWrapper>
-          <Text kind="body-m">Display Picture</Text>
+          <Text kind="body-m">Display picture</Text>
         </LabelWrapper>
         <div className="user-profile-image-picker">
           <UserProfileImagePicker />
@@ -97,7 +97,7 @@ function General() {
               renderAs="a"
               size="md"
             >
-              Reset Password
+              Reset password
             </Button>
           )}
         </div>

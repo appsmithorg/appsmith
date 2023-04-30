@@ -64,7 +64,7 @@ export const LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER = () =>
 export const LOGIN_PAGE_INVALID_CREDS_ERROR = () =>
   `It looks like you may have entered incorrect/invalid credentials. Please try again or reset password using the button below.`;
 export const LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK = () =>
-  `Reset Password`;
+  `Reset password`;
 export const NEW_TO_APPSMITH = () => `Don't have an account?`;
 export const LOGIN_PAGE_TITLE = () => `Sign in`;
 export const LOGIN_PAGE_SUBTITLE = () => `Sign in to your account`;
