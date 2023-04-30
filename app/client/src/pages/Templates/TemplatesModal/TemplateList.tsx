@@ -1,6 +1,11 @@
-import { importTemplateIntoApplication } from "actions/templateActions";
+import {
+  FETCHING_TEMPLATE_LIST,
+  FORKING_TEMPLATE,
+  createMessage,
+} from "@appsmith/constants/messages";
+import type { Template } from "api/TemplatesApi";
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import {
   isFetchingTemplatesSelector,
   isImportingTemplateToAppSelector,
@@ -9,12 +14,6 @@ import styled from "styled-components";
 import { TemplatesContent } from "..";
 import Filters from "../Filters";
 import LoadingScreen from "./LoadingScreen";
-import type { Template } from "api/TemplatesApi";
-import {
-  createMessage,
-  FETCHING_TEMPLATE_LIST,
-  FORKING_TEMPLATE,
-} from "@appsmith/constants/messages";
 
 const Wrapper = styled.div`
   display: flex;
@@ -50,9 +49,8 @@ type TemplateListProps = {
 };
 
 function TemplateList(props: TemplateListProps) {
-  const dispatch = useDispatch();
   const onForkTemplateClick = (template: Template) => {
-    dispatch(importTemplateIntoApplication(template.id, template.title));
+    props.onTemplateClick(template.id);
   };
   const isImportingTemplateToApp = useSelector(
     isImportingTemplateToAppSelector,
