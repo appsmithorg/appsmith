@@ -19,7 +19,7 @@ export const ENTITY_ICON_SIZE = 16;
 const PagesIcon = MenuIcons.PAGES_ICON;
 export const pageGroupIcon = (
   <PagesIcon
-    color={Colors.CHARCOAL}
+    color="var(--ads-v2-color-fg)"
     height={ENTITY_ICON_SIZE}
     width={ENTITY_ICON_SIZE}
   />
@@ -28,20 +28,24 @@ export const pageGroupIcon = (
 const PageIcon = MenuIcons.PAGE_ICON;
 export const pageIcon = (
   <PageIcon
-    color={Colors.CHARCOAL}
+    color="var(--ads-v2-color-fg)"
     height={ENTITY_ICON_SIZE}
     width={ENTITY_ICON_SIZE}
   />
 );
 
 export const homePageIcon = (
-  <Icon color={Colors.CHARCOAL} icon="home" iconSize={ENTITY_ICON_SIZE} />
+  <Icon
+    color="var(--ads-v2-color-fg)"
+    icon="home"
+    iconSize={ENTITY_ICON_SIZE}
+  />
 );
 
 const DefaultPageIcon = MenuIcons.DEFAULT_HOMEPAGE_ICON;
 export const defaultPageIcon = (
   <DefaultPageIcon
-    color={Colors.MINE_SHAFT_2}
+    color="var(--ads-v2-color-fg)"
     data-icon="home"
     height={ENTITY_ICON_SIZE}
     width={ENTITY_ICON_SIZE}
@@ -51,7 +55,7 @@ export const defaultPageIcon = (
 const HiddenPageIcon = MenuIcons.EYES_OFF_ICON;
 export const hiddenPageIcon = (
   <HiddenPageIcon
-    color={Colors.CHARCOAL}
+    color="var(--ads-v2-color-fg)"
     height={ENTITY_ICON_SIZE}
     width={ENTITY_ICON_SIZE}
   />
@@ -90,7 +94,7 @@ const QueryMainIcon = MenuIcons.QUERY_MAIN;
 export function QueryIcon() {
   return (
     <QueryMainIcon
-      color={Colors.CHARCOAL}
+      color="var(--ads-v2-color-fg)"
       height={ENTITY_ICON_SIZE}
       width={ENTITY_ICON_SIZE}
     />
@@ -100,7 +104,7 @@ export function QueryIcon() {
 const DataSourceIcon = MenuIcons.DATASOURCES_ICON;
 export const datasourceIcon = (
   <DataSourceIcon
-    color={Colors.ALTO}
+    color="var(--ads-v2-color-fg)"
     height={ENTITY_ICON_SIZE}
     width={ENTITY_ICON_SIZE}
   />
@@ -185,7 +189,7 @@ export function MethodTag(props: { type: keyof typeof HTTP_METHOD }) {
 const CurrentPageIcon = MenuIcons.CURRENT_PAGE_ICON;
 export const currentPageIcon = (
   <CurrentPageIcon
-    color={Colors.CHARCOAL}
+    color="var(--ads-v2-color-fg)"
     height={ENTITY_ICON_SIZE}
     width={ENTITY_ICON_SIZE}
   />
@@ -194,7 +198,7 @@ export const currentPageIcon = (
 const SortIcon = MenuIcons.SORT_ICON;
 export const SortFileIcon = (
   <SortIcon
-    color={Colors.CHARCOAL}
+    color="var(--ads-v2-color-fg)"
     height={ENTITY_ICON_SIZE}
     width={ENTITY_ICON_SIZE}
   />
@@ -211,7 +215,7 @@ type EntityTextIconProps = {
 };
 
 const EntityTextIconWrapper = styled.div<{ fontSize?: number; color?: string }>`
-  color: ${({ color }) => (color ? color : Colors.SCORPION)};
+  color: ${({ color }) => (color ? color : "var(--ads-v2-color-fg)")};
   font-size: ${({ fontSize }) => fontSize + "%"};
   font-weight: 900;
   text-transform: uppercase;

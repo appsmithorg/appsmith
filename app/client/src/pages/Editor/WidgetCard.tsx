@@ -58,10 +58,10 @@ export const IconLabel = styled.h5`
   min-height: 32px;
   text-align: center;
   margin: 0;
-  text-transform: uppercase;
+  /* text-transform: uppercase; */
   font-weight: ${(props) => props.theme.fontWeights[1]};
   flex-shrink: 1;
-  font-size: ${(props) => props.theme.fontSizes[1]}px;
+  font-size: 11px;
   line-height: ${(props) => props.theme.lineHeights[2]}px;
 
   &::selection {

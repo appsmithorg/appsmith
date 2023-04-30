@@ -635,7 +635,7 @@ export const BUILD_FROM_SCRATCH_ACTION_SUBTITLE = () =>
 
 export const BUILD_FROM_SCRATCH_ACTION_TITLE = () => "Build with drag & drop";
 
-export const GENERATE_PAGE_ACTION_TITLE = () => "Generate Page With Data";
+export const GENERATE_PAGE_ACTION_TITLE = () => "Generate page with data";
 
 export const GENERATE_PAGE_FORM_TITLE = () => "Generate from data";
 
@@ -1355,8 +1355,8 @@ export const END_DESCRIPTION = () =>
   "Inspect properties of queries, components, etc.";
 export const END_BUTTON_TEXT = () => "Start building an app";
 
-export const CONTEXT_EDIT_NAME = () => "Edit Name";
-export const CONTEXT_SHOW_BINDING = () => "Show Bindings";
+export const CONTEXT_EDIT_NAME = () => "Edit name";
+export const CONTEXT_SHOW_BINDING = () => "Show bindings";
 export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
 export const CONTEXT_DELETE = () => "Delete";
@@ -1366,7 +1366,7 @@ export const CONTEXT_NO_PAGE = () => "No pages";
 export const CONTEXT_REFRESH = () => "Refresh";
 export const CONTEXT_CLONE = () => "Clone";
 export const CONTEXT_SETTINGS = () => "Settings";
-export const CONTEXT_SET_AS_HOME_PAGE = () => "Set as Home Page";
+export const CONTEXT_SET_AS_HOME_PAGE = () => "Set as home page";
 export const PAGE = () => "Page";
 export const PAGES = () => "Pages";
 
@@ -1459,12 +1459,12 @@ export const SEARCH_USERS = (
   cloudHosting?: boolean,
 ) => `Search for users`;
 
-export const CREATE_PAGE = () => "New Blank Page";
-export const CANVAS_NEW_PAGE_CARD = () => "Create New Page";
+export const CREATE_PAGE = () => "New blank page";
+export const CANVAS_NEW_PAGE_CARD = () => "Create new page";
 export const GENERATE_PAGE = () => "Generate page from data table";
 export const GENERATE_PAGE_DESCRIPTION = () =>
   "Start app with a simple CRUD UI and customize it";
-export const ADD_PAGE_FROM_TEMPLATE = () => "Add Page From Template";
+export const ADD_PAGE_FROM_TEMPLATE = () => "Add page from template";
 export const INVALID_URL = () =>
   "Please enter a valid URL, for example, https://example.com";
 export const SAVE_OR_DISCARD_DATASOURCE_WARNING = () =>

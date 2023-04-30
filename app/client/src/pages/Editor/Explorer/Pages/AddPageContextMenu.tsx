@@ -34,7 +34,7 @@ const Wrapper = styled.div`
   .title {
     display: flex;
     padding: ${(props) =>
-      `${props.theme.spaces[4]}px ${props.theme.spaces[7]}px`};
+      `${props.theme.spaces[4]}px ${props.theme.spaces[4]}px`};
   }
 `;
 

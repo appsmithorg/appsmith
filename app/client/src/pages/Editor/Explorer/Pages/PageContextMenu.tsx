@@ -10,7 +10,7 @@ import {
   updatePage,
 } from "actions/pageActions";
 import styled from "styled-components";
-import { Icon } from "@blueprintjs/core";
+import { Icon } from "design-system";
 import {
   CONTEXT_EDIT_NAME,
   CONTEXT_CLONE,
@@ -148,7 +148,7 @@ export function PageContextMenu(props: {
       label: (
         <CustomLabel>
           {props.isHidden ? "Show" : "Hide"}
-          <Icon icon={props.isHidden ? "eye-open" : "eye-off"} iconSize={14} />
+          <Icon name={props.isHidden ? "eye-on" : "eye-off"} size="md" />
         </CustomLabel>
       ) as ReactNode as string,
     },
