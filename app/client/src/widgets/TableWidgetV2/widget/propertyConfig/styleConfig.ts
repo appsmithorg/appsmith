@@ -198,7 +198,7 @@ export default [
     ],
   },
   {
-    sectionName: "Border and Shadow",
+    sectionName: "Border and shadow",
     children: [
       {
         propertyName: "variant",

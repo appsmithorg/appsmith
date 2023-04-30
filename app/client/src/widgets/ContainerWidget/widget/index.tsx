@@ -114,7 +114,7 @@ export class ContainerWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Border and Shadow",
+        sectionName: "Border and shadow",
         children: [
           {
             helpText: "Enter value for border width",

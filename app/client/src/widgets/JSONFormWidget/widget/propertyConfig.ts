@@ -495,7 +495,7 @@ export const styleConfig = [
     ],
   },
   {
-    sectionName: "Border and Shadow",
+    sectionName: "Border and shadow",
     children: [
       {
         propertyName: "borderWidth",
