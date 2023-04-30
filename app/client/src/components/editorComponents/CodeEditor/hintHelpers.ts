@@ -4,10 +4,13 @@ import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import KeyboardShortcuts from "constants/KeyboardShortcuts";
 import type { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEditor/codeEditorUtils";
+import {
+  checkIfCursorInsideBinding,
+  isEmptyToken,
+} from "components/editorComponents/CodeEditor/codeEditorUtils";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type { getDatasourceStructuresFromDatasourceId } from "selectors/entitiesSelector";
-import { isEmpty, trim } from "lodash";
+import { isEmpty } from "lodash";
 
 export const bindingHint: HintHelper = (editor) => {
   editor.setOption("extraKeys", {
@@ -101,7 +104,7 @@ class SqlHintHelper {
 
   handleCompletions(editor: CodeMirror.Editor): ReturnType<HandleCompletions> {
     const noHints = { showHints: false, completions: null } as const;
-    if (this.isEmptyToken(editor)) return noHints;
+    if (isEmptyToken(editor)) return noHints;
     // @ts-expect-error: No types available
     const completions: Hints = CodeMirror.hint.sql(editor, {
       tables: this.datasourceStructure,
@@ -109,19 +112,6 @@ class SqlHintHelper {
 
     if (isEmpty(completions.list)) return noHints;
     return { completions, showHints: true };
-  }
-
-  // Checks if string at the position of the cursor is empty
-  isEmptyToken(editor: CodeMirror.Editor) {
-    const currentCursorPosition = editor.getCursor();
-    const { string: stringAtCurrentPosition } = editor.getTokenAt(
-      currentCursorPosition,
-    );
-    const isEmptyString = !(
-      stringAtCurrentPosition && trim(stringAtCurrentPosition)
-    );
-
-    return isEmptyString;
   }
 }
 
