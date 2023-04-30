@@ -70,7 +70,7 @@ export const LOGIN_PAGE_TITLE = () => `Sign in`;
 export const LOGIN_PAGE_SUBTITLE = () => `Sign in to your account`;
 
 export const LOGIN_PAGE_LOGIN_BUTTON_TEXT = () => `Sign in`;
-export const LOGIN_PAGE_FORGOT_PASSWORD_TEXT = () => `Forgot Password`;
+export const LOGIN_PAGE_FORGOT_PASSWORD_TEXT = () => `Forgot password`;
 export const LOGIN_PAGE_REMEMBER_ME_LABEL = () => `Remember`;
 export const LOGIN_PAGE_SIGN_UP_LINK_TEXT = () => `Sign up`;
 export const SIGNUP_PAGE_TITLE = () => `Create your free account`;
