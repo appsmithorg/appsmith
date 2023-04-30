@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import moment from "moment";
 import "@github/g-emoji-element";
-import { Divider, Text, Button } from "design-system";
+import { Divider, Text, Button, Tag } from "design-system";
 
 const StyledContainer = styled.div`
   color: ${(props) => props.theme.colors.text.normal};
@@ -15,21 +15,6 @@ const TagContainer = styled.div`
   margin-bottom: 16px;
 `;
 
-const Tag = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px 8px;
-  font-size: 13px;
-  font-weight: 600;
-  background-color: var(--ads-v2-color-bg-subtle);
-  margin-right: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  color: var(--ads-v2-color-fg);
-  border-radius: var(--ads-v2-border-radius);
-`;
-
 const StyledDate = styled.div`
   font-weight: ${(props) => props.theme.typography.releaseList.fontWeight};
   font-size: 12px;
@@ -38,6 +23,7 @@ const StyledDate = styled.div`
     props.theme.typography.releaseList.letterSpacing}px;
   color: var(--ads-v2-color-fg);
   margin-top: ${(props) => props.theme.spaces[3]}px;
+  margin-left: 4px;
 `;
 
 const StyledContent = styled.div<{ maxHeight: number }>`
@@ -62,7 +48,7 @@ const StyledContent = styled.div<{ maxHeight: number }>`
 
   h2 {
     display: block;
-    font-size: 18px;
+    font-size: 16px;
     margin-block-start: 0.83em;
     margin-block-end: 0.83em;
     margin-inline-start: 0px;
@@ -118,8 +104,8 @@ const ReadMore = ({
     <Button
       endIcon={
         currentState === ReleaseComponentViewState.collapsed
-          ? "view-all"
-          : "view-less"
+          ? "arrow-right-line"
+          : "arrow-left-line"
       }
       kind="tertiary"
       onClick={onClick}
@@ -127,8 +113,8 @@ const ReadMore = ({
       startIcon=""
     >
       {currentState === ReleaseComponentViewState.collapsed
-        ? "read more"
-        : "read less"}
+        ? "Read more"
+        : "Read less"}
     </Button>
   </ReadMoreContainer>
 );
@@ -164,10 +150,12 @@ function ReleaseComponent({ release }: ReleaseProps) {
   return descriptionHtml ? (
     <StyledContainer>
       <TagContainer>
-        <Tag>{tagName}</Tag>
+        <Tag isClosable={false} size="md">
+          {tagName}
+        </Tag>
         <StyledDate>{moment(publishedAt).format("D MMM YYYY")}</StyledDate>
       </TagContainer>
-      <Text kind="heading-m">{name}</Text>
+      <Text kind="heading-s">{name}</Text>
       <StyledContent
         dangerouslySetInnerHTML={{ __html: descriptionHtml }}
         maxHeight={getHeight()}

@@ -15,14 +15,6 @@ const Container = styled.div`
   position: relative;
   width: 100%;
   height: 410px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  &&::-webkit-scrollbar-thumb {
-    background-color: ${(props) => props.theme.colors.modal.scrollbar};
-  }
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
 `;
 
 type ProductUpdatesModalProps = {
@@ -66,7 +58,7 @@ function ProductUpdatesModal(props: ProductUpdatesModalProps) {
   return Array.isArray(releaseItems) && releaseItems.length > 0 ? (
     <Modal onOpenChange={handleOnOpenChange} open={isOpen}>
       <ModalContent style={{ width: "580px" }}>
-        <ModalHeader>Product Updates</ModalHeader>
+        <ModalHeader>Product updates</ModalHeader>
         <ModalBody>
           <Container>
             {releaseItems.map((release: Release, index: number) => (
