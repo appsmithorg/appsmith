@@ -1122,3 +1122,20 @@ export function concatWithArray(
   if (makeUnique) return uniq(finalArr);
   return finalArr;
 }
+
+export const capitalizeFirstLetter = (str: string) => {
+  // Find the index of the first letter of the first sentence
+  const firstLetterIndex = str.search(/[a-z]/i);
+
+  // If there are no letters in the string, return the original string
+  if (firstLetterIndex === -1) {
+    return str;
+  }
+
+  // Capitalize the first letter of the first sentence and return the modified string
+  return (
+    str.slice(0, firstLetterIndex) +
+    str.charAt(firstLetterIndex).toUpperCase() +
+    str.slice(firstLetterIndex + 1).toLocaleLowerCase()
+  );
+};

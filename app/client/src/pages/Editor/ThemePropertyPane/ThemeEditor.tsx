@@ -32,6 +32,7 @@ import ThemeBoxShadowControl from "./controls/ThemeShadowControl";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import ThemeBorderRadiusControl from "./controls/ThemeBorderRadiusControl";
 import BetaCard from "components/editorComponents/BetaCard";
+import { capitalizeFirstLetter } from "utils/helpers";
 
 const THEMING_BETA_CARD_POPOVER_CLASSNAME = `theming-beta-card-popover`;
 
@@ -169,7 +170,9 @@ function ThemeEditor() {
             (fontFamilySectionName: string, index: number) => {
               return (
                 <section className="space-y-2" key={index}>
-                  <SubText>{startCase(fontFamilySectionName)}</SubText>
+                  <SubText>
+                    {capitalizeFirstLetter(startCase(fontFamilySectionName))}
+                  </SubText>
                   <ThemeFontControl
                     options={get(
                       selectedTheme,
@@ -213,7 +216,9 @@ function ThemeEditor() {
             (borderRadiusSectionName: string, index: number) => {
               return (
                 <section className="space-y-2" key={index}>
-                  <SubText>{startCase(borderRadiusSectionName)}</SubText>
+                  <SubText>
+                    {capitalizeFirstLetter(startCase(borderRadiusSectionName))}
+                  </SubText>
                   <ThemeBorderRadiusControl
                     options={get(
                       selectedTheme,
@@ -244,7 +249,9 @@ function ThemeEditor() {
             (boxShadowSectionName: string, index: number) => {
               return (
                 <section className="space-y-2" key={index}>
-                  <SubText>{startCase(boxShadowSectionName)}</SubText>
+                  <SubText>
+                    {capitalizeFirstLetter(startCase(boxShadowSectionName))}
+                  </SubText>
                   <ThemeBoxShadowControl
                     options={get(
                       selectedTheme,
