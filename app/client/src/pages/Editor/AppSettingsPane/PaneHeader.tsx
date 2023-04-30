@@ -19,7 +19,7 @@ const StyledHeader = styled.div`
 
 const StyledText = styled.div`
   font-size: 16px;
-  margin-left: 10px;
+  margin-left: 4px;
   color: var(--ads-v2-color-fg-emphasis);
 `;
 
@@ -34,7 +34,7 @@ function PaneHeader() {
           isIconButton
           kind="tertiary"
           onClick={() => dispatch(closeAppSettingsPaneAction())}
-          size="sm"
+          size="md"
           startIcon="double-arrow-right"
         />
       </Tooltip>

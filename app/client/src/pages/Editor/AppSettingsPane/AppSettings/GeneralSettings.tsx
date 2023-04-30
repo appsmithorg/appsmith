@@ -32,6 +32,15 @@ const IconSelectorWrapper = styled.div`
     }
     gap: 3px;
   }
+  .t--icon-selected {
+    background-color: var(--ads-v2-color-bg-muted);
+    svg path {
+      fill: var(--ads-v2-color-fg);
+    }
+  }
+  .t--icon-not-selected {
+    background-color: var(--ads-v2-color-bg-subtle);
+  }
   .icon-selector::-webkit-scrollbar-thumb {
     background-color: transparent;
   }

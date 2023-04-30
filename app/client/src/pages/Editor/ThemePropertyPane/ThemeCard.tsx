@@ -41,6 +41,7 @@ const MainContainer = styled.main<{ backgroundColor: string }>`
 const HeaderContainer = styled.main<{ primaryColor: string }>`
   background-color: ${({ primaryColor }) => primaryColor};
   color: ${({ primaryColor }) => getComplementaryGrayscaleColor(primaryColor)};
+  border-radius: var(--ads-v2-border-radius) var(--ads-v2-border-radius) 0 0;
 `;
 
 const MainText = styled.main<{ backgroundColor: string }>`
@@ -71,6 +72,15 @@ const ThemeColorButton = styled.main<{
     getComplementaryGrayscaleColor(backgroundColor)};
 `;
 
+const ThemeCardBody = styled.div`
+  border-radius: 0 0 var(--ads-v2-border-radius) var(--ads-v2-border-radius);
+`;
+
+const ThemeCardApplyButton = styled.div`
+  border-radius: 0 0 var(--ads-v2-border-radius) var(--ads-v2-border-radius);
+  background-color: var(--ads-v2-color-bg-emphasis-plus);
+  color: var(--ads-v2-color-fg-on-emphasis-plus);
+`;
 /**
  * ----------------------------------------------------------------------------
  * COMPONENT
@@ -158,7 +168,7 @@ export function ThemeCard(props: ThemeCard) {
         )}
         <div
           className={classNames({
-            "border relative group transition-all t--theme-card": true,
+            "border relative group transition-all t--theme-card rounded": true,
             "overflow-hidden": !selectable,
             "hover:shadow-xl cursor-pointer": selectable,
           })}
@@ -185,7 +195,7 @@ export function ThemeCard(props: ThemeCard) {
                 ))}
               </div>
             </section>
-            <section className="p-3">
+            <ThemeCardBody className="p-3">
               <div className="flex space-x-2">
                 <ThemeColorButton
                   backgroundColor={primaryColor}
@@ -206,17 +216,15 @@ export function ThemeCard(props: ThemeCard) {
                   Button
                 </ThemeColorButton>
               </div>
-            </section>
+            </ThemeCardBody>
           </MainContainer>
-          <aside
-            className={`absolute bottom-0 left-0 right-0 items-center justify-center hidden  bg-gray-900/80 ${
+          <ThemeCardApplyButton
+            className={`absolute bottom-0 left-0 right-0 items-center justify-center hidden  ${
               selectable ? "group-hover:flex" : ""
             }`}
           >
-            <div className="py-1 text-xs tracking-wide text-white uppercase">
-              Apply Theme
-            </div>
-          </aside>
+            <div className="py-1 text-xs tracking-wide">Apply theme</div>
+          </ThemeCardApplyButton>
           {props.children}
         </div>
       </div>

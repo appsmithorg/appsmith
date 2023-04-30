@@ -1,18 +1,9 @@
 import styled, { createGlobalStyle } from "styled-components";
 import { get, startCase } from "lodash";
-import MoreIcon from "remixicon-react/MoreFillIcon";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useCallback, useState } from "react";
-import Save2LineIcon from "remixicon-react/Save2LineIcon";
-import ArrowGoBackIcon from "remixicon-react/ArrowGoBackFillIcon";
 
 import ThemeCard from "./ThemeCard";
-import {
-  DropdownV2,
-  DropdownList,
-  DropdownItem,
-  DropdownTrigger,
-} from "design-system-old";
 import {
   AppThemingMode,
   getAppThemingStack,
@@ -30,7 +21,13 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import ThemeFontControl from "./controls/ThemeFontControl";
 import ThemeColorControl from "./controls/ThemeColorControl";
 import { Classes as CsClasses } from "design-system-old";
-import { Button } from "design-system";
+import {
+  Button,
+  Menu,
+  MenuContent,
+  MenuTrigger,
+  MenuItem,
+} from "design-system";
 import ThemeBoxShadowControl from "./controls/ThemeShadowControl";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import ThemeBorderRadiusControl from "./controls/ThemeBorderRadiusControl";
@@ -126,36 +123,28 @@ function ThemeEditor() {
       <header className="px-4 space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <SubText>Theme Properties</SubText>
+            <SubText>Theme properties</SubText>
             <BetaCard />
           </div>
           <div>
-            <DropdownV2
-              portalContainer={
-                document.getElementById("app-settings-portal") || undefined
-              }
-              position="bottom-right"
-            >
-              <DropdownTrigger>
-                <button className="p-1 hover:bg-gray-100 active:bg-gray-100">
-                  <MoreIcon className="w-5 h-5" />
-                </button>
-              </DropdownTrigger>
-              <DropdownList>
-                <DropdownItem
-                  className="flex items-center"
-                  icon={<Save2LineIcon className="w-4 h-4" />}
-                  onClick={onOpenSaveModal}
-                  text="Save theme"
+            <Menu>
+              <MenuTrigger>
+                <Button
+                  isIconButton
+                  kind="tertiary"
+                  size="md"
+                  startIcon="context-menu"
                 />
-                <DropdownItem
-                  className="flex items-center"
-                  icon={<ArrowGoBackIcon className="w-4 h-4" />}
-                  onClick={onResetTheme}
-                  text="Reset widget styles"
-                />
-              </DropdownList>
-            </DropdownV2>
+              </MenuTrigger>
+              <MenuContent align="end">
+                <MenuItem onClick={onOpenSaveModal} startIcon="edit">
+                  Save theme
+                </MenuItem>
+                <MenuItem onClick={onResetTheme} startIcon="edit">
+                  Reset widget styles
+                </MenuItem>
+              </MenuContent>
+            </Menu>
           </div>
         </div>
 
@@ -168,7 +157,7 @@ function ThemeEditor() {
               onClick={onClickChangeThemeButton}
               size="md"
             >
-              Change Theme
+              Change theme
             </Button>
           </aside>
         </ThemeCard>

@@ -2,7 +2,6 @@ import { setPageOrder } from "actions/pageActions";
 import styled from "styled-components";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 // import classNames from "classnames";
-import { Colors } from "constants/Colors";
 import { DraggableList } from "design-system-old";
 import { MenuIcons } from "icons/MenuIcons";
 import React, { useRef } from "react";
@@ -60,9 +59,13 @@ function PageListHeader(props: {
         <Icon name="drag-control" size="md" />
       </div>
       {props.page.isDefault ? (
-        <DefaultPageIcon color={Colors.GRAY_800} height={17} width={18} />
+        <DefaultPageIcon
+          color="var(--ads-v2-color-fg)"
+          height={16}
+          width={16}
+        />
       ) : (
-        <PageIcon color={Colors.GRAY_800} height={17} width={18} />
+        <PageIcon color="var(--ads-v2-color-fg)" height={16} width={16} />
       )}
       <PageName
         id={

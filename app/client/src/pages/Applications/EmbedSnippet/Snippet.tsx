@@ -47,7 +47,7 @@ function AppSettings(props: SnippetProps) {
         <Text>{createMessage(IN_APP_EMBED_SETTING.embedSnippetTitle)}</Text>
         <Icon
           className="cursor-pointer"
-          name="copy-control"
+          name="duplicate"
           onClick={props.onCopy}
           size="md"
         />

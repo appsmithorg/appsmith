@@ -1474,29 +1474,29 @@ export const APP_SETTINGS_PANE_HEADER = () => "Settings";
 export const APP_SETTINGS_CLOSE_TOOLTIP = () => "Close settings panel";
 
 export const GENERAL_SETTINGS_SECTION_HEADER = () => "General";
-export const GENERAL_SETTINGS_SECTION_CONTENT_HEADER = () => "General Settings";
+export const GENERAL_SETTINGS_SECTION_CONTENT_HEADER = () => "General settings";
 export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () =>
   "App name, icon and share";
-export const GENERAL_SETTINGS_APP_NAME_LABEL = () => "App Name";
+export const GENERAL_SETTINGS_APP_NAME_LABEL = () => "App name";
 export const GENERAL_SETTINGS_NAME_EMPTY_MESSAGE = () =>
   "App name cannot be empty";
 export const GENERAL_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR = () =>
   "Only alphanumeric or '-()' are allowed";
-export const GENERAL_SETTINGS_APP_ICON_LABEL = () => "App Icon";
+export const GENERAL_SETTINGS_APP_ICON_LABEL = () => "App icon";
 
 export const THEME_SETTINGS_SECTION_HEADER = () => "Theme";
-export const THEME_SETTINGS_SECTION_CONTENT_HEADER = () => "Theme Settings";
+export const THEME_SETTINGS_SECTION_CONTENT_HEADER = () => "Theme settings";
 export const THEME_SETTINGS_SECTION_HEADER_DESC = () =>
   "Set theme, color and font";
 
 export const PAGE_SETTINGS_SECTION_HEADER = () => "Page settings";
-export const PAGE_SETTINGS_SECTION_CONTENT_HEADER = () => "Settings";
-export const PAGE_SETTINGS_PAGE_NAME_LABEL = () => "Page Name";
+export const PAGE_SETTINGS_SECTION_CONTENT_HEADER = () => "settings";
+export const PAGE_SETTINGS_PAGE_NAME_LABEL = () => "Page name";
 export const PAGE_SETTINGS_NAME_EMPTY_MESSAGE = () =>
   "Page name cannot be empty";
 export const PAGE_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR = () =>
   "Only alphanumeric or '-' are allowed";
-export const PAGE_SETTINGS_PAGE_URL_LABEL = () => "Change Page URL";
+export const PAGE_SETTINGS_PAGE_URL_LABEL = () => "Change page URL";
 export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_1 = () => "Please";
 export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_2 = () => "update";
 export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_3 = () =>
@@ -1529,8 +1529,8 @@ export const IN_APP_EMBED_SETTING = {
   change: () => "Change",
   copiedEmbedCode: () => "Embed code copied to clipboard",
   embedSize: () => "Embed size",
-  previewEmbeddedApp: () => "Preview Embedded App",
-  sectionHeader: () => "Share & Embed",
+  previewEmbeddedApp: () => "Preview embedded app",
+  sectionHeader: () => "Share & embed",
   sectionContentHeader: () => "Share",
   sectionHeaderDesc: () => "Make public, embed properties",
   showNavigationBar: () => "Show navigation bar",

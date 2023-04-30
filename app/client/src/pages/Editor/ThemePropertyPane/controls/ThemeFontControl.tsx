@@ -1,6 +1,7 @@
 import React from "react";
 import { Select, Option } from "design-system";
 import type { AppTheme } from "entities/AppTheming";
+import styled from "styled-components";
 
 interface ThemeFontControlProps {
   theme: AppTheme;
@@ -13,6 +14,13 @@ interface ThemeFontControlProps {
 function ThemeFontControl(props: ThemeFontControlProps) {
   const { options, sectionName, selectedOption, theme, updateTheme } = props;
 
+  const FontText = styled.div`
+    border-radius: var(--ads-v2-border-radius);
+    border: 1px solid var(--ads-v2-color-border);
+    font-size: 11px;
+    height: 18px;
+    width: 18px;
+  `;
   const onSelect = (value: string) => {
     updateTheme({
       ...theme,
@@ -31,10 +39,10 @@ function ThemeFontControl(props: ThemeFontControlProps) {
       <Select defaultValue={selectedOption} onSelect={onSelect}>
         {options.map((option, index) => (
           <Option key={index} value={option}>
-            <div className="flex space-x-2  w-full cursor-pointer">
-              <div className="flex items-center justify-center w-6 h-6 bg-white border">
+            <div className="flex space-x-2  w-full cursor-pointer items-center">
+              <FontText className="flex items-center justify-center">
                 Aa
-              </div>
+              </FontText>
               <div className="leading-normal">{option}</div>
             </div>
           </Option>
