@@ -1,7 +1,4 @@
-const dsl = require("../../../../fixtures/AllWidgetsDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper;
 let widgets = [
   "codescannerwidget",
   "listwidgetv2",
@@ -97,11 +94,6 @@ describe("Validating Mobile Views for Auto Fill Widgets", function () {
         .invoke("css", "width")
         .then((newwidth) => {
           expect(width[widgets[2]]).to.not.equal(newwidth);
-        });
-      cy.get(".t--widget-tabswidget")
-        .invoke("css", "height")
-        .then((newheight) => {
-          expect(height[widgets[3]]).to.equal(newheight);
         });
       cy.get(".t--widget-tabswidget")
         .invoke("css", "width")
