@@ -51,7 +51,7 @@ const SubHeading = styled(Text)`
 `;
 
 const PaginationTypeView = styled.div`
-  margin: -16px 0 24px 28px;
+  margin-left: 22px;
   width: 100%;
   display: flex;
   flex-direction: column;

@@ -28,7 +28,7 @@ const SectionContainer = styled.div`
   justify-content: space-between;
   width: 270px;
   cursor: pointer;
-  margin-bottom: 5;
+  margin-bottom: 5px;
 `;
 
 const TopBorder = styled(Divider)`

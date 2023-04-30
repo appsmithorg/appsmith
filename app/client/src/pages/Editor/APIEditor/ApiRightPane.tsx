@@ -227,7 +227,6 @@ function ApiRightPane(props: any) {
                 >
                   {(sortedDatasources || []).map((d: any, idx: number) => {
                     const dataSourceInfo: string = getDatasourceInfo(d);
-                    console.log("datasource info", dataSourceInfo);
                     return (
                       <DatasourceCard
                         key={idx}
