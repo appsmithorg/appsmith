@@ -238,7 +238,7 @@ const PROPERTIES = {
       {
         propertyName: "defaultValue",
         helpText: "Selects the option with value by default",
-        label: "Default Selected Values",
+        label: "Default selected values",
         controlType: "JSON_FORM_COMPUTE_VALUE",
         placeholderText: "[GREEN]",
         isBindProperty: true,

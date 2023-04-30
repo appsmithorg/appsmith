@@ -151,7 +151,7 @@ export default [
       {
         propertyName: "showMarksLabel",
         helpText: "Controls the visibility of the marks Label widget",
-        label: "Show Marks",
+        label: "Show marks",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,

@@ -228,7 +228,7 @@ export default [
       {
         propertyName: "showMarksLabel",
         helpText: "Show the marks label below the slider",
-        label: "Show Marks",
+        label: "Show marks",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,

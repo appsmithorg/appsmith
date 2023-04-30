@@ -121,7 +121,7 @@ class CheckboxGroupWidget extends BaseWidget<
           {
             helpText: "Sets the values of the options checked by default",
             propertyName: "defaultSelectedValues",
-            label: "Default Selected Values",
+            label: "Default selected values",
             placeholderText: '["apple", "orange"]',
             controlType: "INPUT_TEXT",
             isBindProperty: true,

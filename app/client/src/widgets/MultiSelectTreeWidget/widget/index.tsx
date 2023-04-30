@@ -154,7 +154,7 @@ class MultiSelectTreeWidget extends BaseWidget<
           {
             helpText: "Selects the option with value by default",
             propertyName: "defaultOptionValue",
-            label: "Default Selected Values",
+            label: "Default selected values",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter option value",
             isBindProperty: true,
