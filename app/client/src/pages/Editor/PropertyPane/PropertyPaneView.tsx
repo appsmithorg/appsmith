@@ -135,7 +135,7 @@ function PropertyPaneView(
   }> => {
     return [
       {
-        tooltipContent: "Copy Widget",
+        tooltipContent: "Copy widget",
         icon: (
           <Button
             isIconButton
@@ -146,7 +146,7 @@ function PropertyPaneView(
         ),
       },
       {
-        tooltipContent: "Delete Widget",
+        tooltipContent: "Delete widget",
         icon: (
           <Button
             isIconButton

@@ -402,7 +402,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           {
             helpText: "Focus input automatically on load",
             propertyName: "autoFocus",
-            label: "Auto Focus",
+            label: "Auto focus",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,

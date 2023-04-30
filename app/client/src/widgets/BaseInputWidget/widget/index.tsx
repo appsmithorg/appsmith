@@ -235,7 +235,7 @@ class BaseInputWidget<
           {
             helpText: "Focus input automatically on load",
             propertyName: "autoFocus",
-            label: "Auto Focus",
+            label: "Auto focus",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,

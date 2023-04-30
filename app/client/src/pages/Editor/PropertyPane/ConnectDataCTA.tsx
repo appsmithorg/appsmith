@@ -55,7 +55,7 @@ function ConnectDataCTA(props: ConnectDataCTAProps) {
       <Text kind="heading-xs">Data Required</Text>
       <div className="flex gap-3">
         <Button onClick={onClick} tabIndex={0}>
-          Connect Data
+          Connect data
         </Button>
         <Button
           kind="secondary"
