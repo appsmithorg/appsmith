@@ -10,7 +10,7 @@ export default [
     children: [
       {
         propertyName: "iconName",
-        label: "Select Icon",
+        label: "Select icon",
         helpText: "Sets the icon to be used for the button",
         controlType: "ICON_SELECT",
         isBindProperty: false,

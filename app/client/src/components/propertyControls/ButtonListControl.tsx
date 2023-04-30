@@ -101,7 +101,7 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
             size="md"
             startIcon="plus"
           >
-            Add new Button
+            Add new button
           </Button>
         </div>
       </div>
