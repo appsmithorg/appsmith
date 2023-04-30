@@ -32,7 +32,7 @@ describe("Property configuration search", () => {
           ...commonProperties,
         },
         {
-          label: "Animate Loading",
+          label: "Animate loading",
           propertyName: "animateLoading",
           ...commonProperties,
         },
@@ -148,7 +148,7 @@ describe("Property configuration search", () => {
         sectionName: "Section One",
         children: [
           {
-            label: "Animate Loading",
+            label: "Animate loading",
             propertyName: "animateLoading",
             ...commonProperties,
           },

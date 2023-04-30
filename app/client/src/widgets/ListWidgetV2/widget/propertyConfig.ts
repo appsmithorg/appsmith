@@ -403,7 +403,7 @@ export const PropertyPaneContentConfig = [
       },
       {
         propertyName: "animateLoading",
-        label: "Animate Loading",
+        label: "Animate loading",
         controlType: "SWITCH",
         helpText:
           "Toggles the loading animation of this List on and off for end-users",
