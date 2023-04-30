@@ -284,7 +284,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
             {
               helpText: "Changes the type of data captured in the input",
               propertyName: "inputType",
-              label: "Data Type",
+              label: "Data type",
               controlType: "DROP_DOWN",
               options: [
                 {

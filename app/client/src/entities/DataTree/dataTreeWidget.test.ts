@@ -50,7 +50,7 @@ describe("generateDataTreeWidget", () => {
         children: [
           {
             propertyName: "inputType",
-            label: "Data Type",
+            label: "Data type",
             controlType: "DROP_DOWN",
             isBindProperty: false,
             isTriggerProperty: false,
