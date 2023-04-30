@@ -7,7 +7,7 @@ import { ActionType } from "entities/Datasource";
 import type { InjectedFormProps } from "redux-form";
 import { getFormValues, isDirty, reduxForm } from "redux-form";
 import type { RouteComponentProps } from "react-router";
-import { connect, useDispatch } from "react-redux";
+import { connect } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import {
   getDatasource,
@@ -119,7 +119,7 @@ type DatasourceSaaSEditorProps = StateProps &
     datasourceId: string;
     pageId: string;
     pluginPackageName: string;
-  }>;
+  }> & { dispatch: any };
 
 type Props = DatasourceSaaSEditorProps &
   InjectedFormProps<Datasource, DatasourceSaaSEditorProps>;
@@ -282,6 +282,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       datasource,
       datasourceButtonConfiguration,
       datasourceId,
+      dispatch,
       documentationLink,
       featureFlags,
       formConfig,
@@ -324,8 +325,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       isGoogleSheetPlugin &&
       !isPluginAuthorized &&
       authErrorMessage == GSHEET_AUTHORIZATION_ERROR;
-
-    const dispatch = useDispatch();
 
     const handleDocumentationClick = (e: React.MouseEvent) => {
       e.stopPropagation();
