@@ -544,7 +544,7 @@ class CodeEditor extends Component<Props, State> {
         );
       }
       if (this.props.datasourceStructure !== prevProps.datasourceStructure) {
-        sqlHint.setDatasourceStructure(this.props.datasourceStructure || {});
+        sqlHint.setDatasourceStructure(this.props.datasourceStructure);
       }
     });
   }

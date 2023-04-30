@@ -1,3 +1,4 @@
+import type { Hints } from "codemirror";
 import CodeMirror from "codemirror";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import KeyboardShortcuts from "constants/KeyboardShortcuts";
@@ -6,6 +7,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEditor/codeEditorUtils";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type { getDatasourceStructuresFromDatasourceId } from "selectors/entitiesSelector";
+import { isEmpty, trim } from "lodash";
 
 export const bindingHint: HintHelper = (editor) => {
   editor.setOption("extraKeys", {
@@ -54,6 +56,12 @@ export const bindingHint: HintHelper = (editor) => {
   };
 };
 
+type HandleCompletions = (
+  editor: CodeMirror.Editor,
+) =>
+  | { showHints: false; completions: null }
+  | { showHints: true; completions: Hints };
+
 class SqlHintHelper {
   datasourceStructure: ReturnType<
     typeof getDatasourceStructuresFromDatasourceId
@@ -67,24 +75,52 @@ class SqlHintHelper {
   setDatasourceStructure(
     structure: ReturnType<typeof getDatasourceStructuresFromDatasourceId>,
   ) {
-    this.datasourceStructure = structure;
+    this.datasourceStructure = structure || {};
   }
   hinter() {
     return {
       showHint: (editor: CodeMirror.Editor): boolean => {
-        editor.setOption("hintOptions", {
-          // @ts-expect-error: No type available
-          tables: this.datasourceStructure || {},
-        });
+        const { completions, showHints } = this.handleCompletions(editor);
+        if (!showHints) return false;
         editor.showHint({
-          // @ts-expect-error: No type info
-          hint: CodeMirror.hint.sql,
+          hint: () => {
+            return completions;
+          },
           completeSingle: false,
+          extraKeys: {
+            Tab: (editor: CodeMirror.Editor, handle) => {
+              handle.pick();
+            },
+          },
         });
-
         return true;
       },
     };
+  }
+
+  handleCompletions(editor: CodeMirror.Editor): ReturnType<HandleCompletions> {
+    const noHints = { showHints: false, completions: null } as const;
+    if (this.isEmptyToken(editor)) return noHints;
+    // @ts-expect-error: No types available
+    const completions: Hints = CodeMirror.hint.sql(editor, {
+      tables: this.datasourceStructure,
+    });
+
+    if (isEmpty(completions.list)) return noHints;
+    return { completions, showHints: true };
+  }
+
+  // Checks if string at the position of the cursor is empty
+  isEmptyToken(editor: CodeMirror.Editor) {
+    const currentCursorPosition = editor.getCursor();
+    const { string: stringAtCurrentPosition } = editor.getTokenAt(
+      currentCursorPosition,
+    );
+    const isEmptyString = !(
+      stringAtCurrentPosition && trim(stringAtCurrentPosition)
+    );
+
+    return isEmptyString;
   }
 }
 
