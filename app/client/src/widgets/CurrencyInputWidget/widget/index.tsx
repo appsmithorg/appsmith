@@ -220,7 +220,7 @@ class CurrencyInputWidget extends BaseInputWidget<
             {
               helpText: "No. of decimals in currency input",
               propertyName: "decimals",
-              label: "Decimals Allowed",
+              label: "Decimals allowed",
               controlType: "DROP_DOWN",
               options: [
                 {
