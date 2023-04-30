@@ -476,7 +476,7 @@ export const PropertyPaneStyleConfig = [
       },
       {
         propertyName: "boxShadow",
-        label: "Box Shadow",
+        label: "Box shadow",
         helpText: "Drops a shadow from the frame of this List",
         controlType: "BOX_SHADOW_OPTIONS",
         isJSConvertible: true,

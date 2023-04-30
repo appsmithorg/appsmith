@@ -299,7 +299,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
           },
           {
             propertyName: "boxShadow",
-            label: "Box Shadow",
+            label: "Box shadow",
             helpText:
               "Enables you to cast a drop shadow from the frame of the widget",
             controlType: "BOX_SHADOW_OPTIONS",
