@@ -20,8 +20,6 @@ type EntityBottomTabsProps = {
 type CollapsibleEntityBottomTabsProps = EntityBottomTabsProps &
   CollapsibleTabProps;
 
-// TODO (tanvi): Add a collapsible to the bottom tab
-
 // Using this if there are debugger related tabs
 function EntityBottomTabs(
   props: EntityBottomTabsProps | CollapsibleEntityBottomTabsProps,
