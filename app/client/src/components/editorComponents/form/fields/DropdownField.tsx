@@ -9,9 +9,15 @@ import { getAssetUrl } from "../../../../ce/utils/airgapHelpers";
 
 const Container = styled.div`
   display: flex;
+  align-items: center;
   gap: 8px;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  .plugin-image {
+    height: var(--ads-v2-spaces-5);
+    width: var(--ads-v2-spaces-5);
+  }
 `;
 const renderDropdown = (props: any) => {
   return (
