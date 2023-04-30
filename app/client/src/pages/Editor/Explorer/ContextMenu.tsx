@@ -10,17 +10,6 @@ import {
   MenuSubContent,
 } from "design-system";
 import { EntityClassNames } from "./Entity";
-import styled from "styled-components";
-
-const StyledMenuItem = styled(MenuItem)<{ intent?: string }>`
-  ${(props) =>
-    props.intent === "danger" &&
-    `
-    .ads-v2-text {
-      color: var(--ads-v2-color-fg-error);
-    }
- `}
-`;
 
 export type TreeDropdownOption = {
   label: string;
@@ -86,17 +75,18 @@ export default function TreeDropdown(props: TreeDropdownProps) {
     }
 
     return (
-      <StyledMenuItem
-        className={option.className}
+      <MenuItem
+        className={`${option.intent === "danger" ? "error-menuitem" : ""} ${
+          option.className
+        }`}
         disabled={option.disabled}
-        intent={option.intent}
         onClick={(e) => {
           handleSelect(option);
           e.stopPropagation();
         }}
       >
         {option.label}
-      </StyledMenuItem>
+      </MenuItem>
     );
   }
   const list = optionTree.map(renderTreeOption);
