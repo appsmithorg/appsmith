@@ -466,7 +466,7 @@ export const PropertyPaneStyleConfig = [
     children: [
       {
         propertyName: "borderRadius",
-        label: "Border Radius",
+        label: "Border radius",
         helpText: "Rounds the corners of the List's border",
         controlType: "BORDER_RADIUS_OPTIONS",
         isJSConvertible: true,

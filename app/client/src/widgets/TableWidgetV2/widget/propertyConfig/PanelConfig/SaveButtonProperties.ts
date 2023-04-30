@@ -170,7 +170,7 @@ export const saveButtonStyleConfig = {
         },
         {
           propertyName: "saveBorderRadius",
-          label: "Border Radius",
+          label: "Border radius",
           customJSControl: "TABLE_COMPUTE_VALUE",
           isJSConvertible: true,
           helpText: "Rounds the corners of the save button's outer border edge",

@@ -401,7 +401,7 @@ const COMMON_PROPERTIES = {
     borderShadow: [
       {
         propertyName: "borderRadius",
-        label: "Border Radius",
+        label: "Border radius",
         helpText: "Rounds the corners of the icon button's outer border edge",
         controlType: "BORDER_RADIUS_OPTIONS",
         customJSControl: "JSON_FORM_COMPUTE_VALUE",

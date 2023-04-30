@@ -11,7 +11,7 @@ export default {
   children: [
     {
       propertyName: "borderRadius",
-      label: "Border Radius",
+      label: "Border radius",
       customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
       helpText: "Rounds the corners of the icon button's outer border edge",

@@ -170,7 +170,7 @@ export const discardButtonStyleConfig = {
         },
         {
           propertyName: "discardBorderRadius",
-          label: "Border Radius",
+          label: "Border radius",
           customJSControl: "TABLE_COMPUTE_VALUE",
           isJSConvertible: true,
           helpText:

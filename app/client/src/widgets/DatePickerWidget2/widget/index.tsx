@@ -457,7 +457,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
           },
           {
             propertyName: "borderRadius",
-            label: "Border Radius",
+            label: "Border radius",
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",

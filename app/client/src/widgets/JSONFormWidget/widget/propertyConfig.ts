@@ -347,7 +347,7 @@ const generateButtonStyleControlsV2For = (prefix: string) => [
       },
       {
         propertyName: `${prefix}.borderRadius`,
-        label: "Border Radius",
+        label: "Border radius",
         helpText: "Rounds the corners of the icon button's outer border edge",
         controlType: "BORDER_RADIUS_OPTIONS",
         isJSConvertible: true,
@@ -510,7 +510,7 @@ export const styleConfig = [
       {
         propertyName: "borderRadius",
         helpText: "Enter value for border radius",
-        label: "Border Radius",
+        label: "Border radius",
         controlType: "BORDER_RADIUS_OPTIONS",
         isJSConvertible: true,
         isBindProperty: true,
