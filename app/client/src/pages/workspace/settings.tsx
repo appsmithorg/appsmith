@@ -21,7 +21,7 @@ import {
   setShowAppInviteUsersDialog,
 } from "@appsmith/actions/applicationActions";
 import { useMediaQuery } from "react-responsive";
-import { BackButton, StickyHeader } from "components/utils/helperComponents";
+import { BackButton } from "components/utils/helperComponents";
 import { debounce } from "lodash";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
@@ -46,31 +46,29 @@ const SentryRoute = Sentry.withSentryRouting(Route);
 const SettingsWrapper = styled.div<{
   isMobile?: boolean;
 }>`
-  width: ${(props) => (props.isMobile ? "345px" : "960px")};
-  margin: 0 auto;
+  width: ${(props) => (props.isMobile ? "345px" : "978px")};
+  margin: var(--ads-v2-spaces-7) auto;
   height: 100%;
+  padding-left: var(--ads-v2-spaces-7);
+  padding-left: ${(props) =>
+    props.isMobile ? "0" : "var(--ads-v2-spaces-7);"};
   &::-webkit-scrollbar {
     width: 0px;
   }
   .tabs-wrapper {
     height: 100%;
-    ${({ isMobile }) =>
-      !isMobile &&
-      `
-      padding: 110px 0 0;
-  `}
   }
 `;
 
-const StyledStickyHeader = styled(StickyHeader)<{ isMobile?: boolean }>`
+const StyledStickyHeader = styled.div<{ isMobile?: boolean }>`
   /* padding-top: 24px; */
-  ${({ isMobile }) =>
+  /* ${({ isMobile }) =>
     !isMobile &&
     `
-  top: 48px;
+  top: 72px;
   position: fixed;
-  width: 960px;
-  `}
+  width: 954px;
+  `} */
 `;
 
 export const TabsWrapper = styled.div`

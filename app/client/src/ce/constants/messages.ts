@@ -1328,7 +1328,7 @@ export const STEP_EIGHT_SUCCESS_TEXT = () =>
 export const STEP_NINE_TITLE = () => "Final step: Test & deploy your app";
 export const CONTINUE = () => "Continue";
 export const PROCEED_TO_NEXT_STEP = () => "Proceed to next step";
-export const PROCEED = () => "Procced";
+export const PROCEED = () => "Proceed";
 export const COMPLETE = () => "Complete";
 // -- Modal --
 export const DEVIATION = () => "You are deviating from the tutorial";

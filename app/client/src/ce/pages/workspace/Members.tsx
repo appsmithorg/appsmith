@@ -216,7 +216,7 @@ export const NoResultsText = styled.div`
   font-weight: 400;
   font-size: 16px;
   line-height: 24px;
-  color: var(--appsmith-color-black-700);
+  /* color: var(--appsmith-color-black-700); */
 `;
 
 export const RowWrapper = styled.div<{ isSubRow?: boolean }>`
