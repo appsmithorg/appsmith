@@ -1,22 +1,13 @@
-import homePage from "../../../../../locators/HomePage";
 const publish = require("../../../../../locators/publishWidgetspage.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const explorer = require("../../../../../locators/explorerlocators.json");
-const agHelper = ObjectsRegistry.AggregateHelper;
+const dsl = require("../../../../../fixtures/tableNewDsl.json");
 
 describe("Table Widget", function () {
+  before(() => {
+    cy.addDsl(dsl);
+  });
   it("1. Table Widget Functionality To Check with changing schema of tabledata", () => {
     let jsContext = `{{Switch1.isSwitchedOn?[{name: "joe"}]:[{employee_name: "john"}];}}`;
-    cy.NavigateToHome();
-    cy.get(homePage.createNew).first().click({ force: true });
-    cy.wait("@createNewApplication").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
-    cy.fixture("tableNewDsl").then((val = any) => {
-      agHelper.AddDsl(val);
-    });
     cy.wait(5000);
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("switchwidget", { x: 200, y: 200 });
