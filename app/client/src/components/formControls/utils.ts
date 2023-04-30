@@ -65,6 +65,7 @@ export const caculateIsHidden = (
   values: any,
   hiddenConfig?: HiddenType,
   featureFlags?: FeatureFlags,
+  viewMode?: boolean,
 ) => {
   if (!!hiddenConfig && !isBoolean(hiddenConfig)) {
     let valueAtPath;
@@ -102,6 +103,9 @@ export const caculateIsHidden = (
         // and show new configs if feature flag is enabled, if disabled/ not present,
         // previous config would be shown as is
         return !!featureFlags && featureFlags[flagValue] === value;
+      case "VIEW_MODE":
+        // This can be used to decide which form controls to show in view mode or edit mode depending on the value.
+        return viewMode === value;
       default:
         return true;
     }
@@ -112,13 +116,14 @@ export const isHidden = (
   values: any,
   hiddenConfig?: HiddenType,
   featureFlags?: FeatureFlags,
+  viewMode?: boolean,
 ) => {
   if (!!hiddenConfig && !isBoolean(hiddenConfig)) {
     if ("conditionType" in hiddenConfig) {
       //check if nested conditions exist
       return isHiddenConditionsEvaluation(values, hiddenConfig);
     } else {
-      return caculateIsHidden(values, hiddenConfig, featureFlags);
+      return caculateIsHidden(values, hiddenConfig, featureFlags, viewMode);
     }
   }
   return !!hiddenConfig;

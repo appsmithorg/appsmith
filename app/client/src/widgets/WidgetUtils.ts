@@ -752,7 +752,7 @@ export const flat = (array: DropdownOption[]) => {
  */
 
 export const isAutoHeightEnabledForWidgetWithLimits = (props: WidgetProps) => {
-  if (props.isFlexChild) return false;
+  if (props?.isFlexChild) return false;
 
   return props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
 };
@@ -763,7 +763,7 @@ export const isAutoHeightEnabledForWidgetWithLimits = (props: WidgetProps) => {
  */
 
 export const isAutoHeightEnabledForWidget = (props: WidgetProps) => {
-  if (props.isFlexChild) return false;
+  if (props?.isFlexChild) return false;
 
   return (
     props.dynamicHeight === DynamicHeight.AUTO_HEIGHT ||
