@@ -17,33 +17,26 @@ import {
   GoogleOAuthURL,
   GithubOAuthURL,
 } from "@appsmith/constants/ApiConstants";
-const {
-  disableLoginForm,
-  enableGithubOAuth,
-  enableGoogleOAuth,
-  enableOidcOAuth,
-  enableSamlOAuth,
-} = getAppsmithConfigs();
 
-export const connectedMethods = [
-  enableGoogleOAuth,
-  enableGithubOAuth,
-  enableOidcOAuth,
-  enableSamlOAuth,
-  !disableLoginForm,
-].filter(Boolean);
+const { disableLoginForm, enableOidcOAuth, enableSamlOAuth } =
+  getAppsmithConfigs();
 
-export const saveAllowed = (settings: any) => {
-  if (connectedMethods.length === 1) {
+export const saveAllowed = (settings: any, socialLoginList: string[]) => {
+  const connectedMethodsCount =
+    socialLoginList.length +
+    (disableLoginForm ? 0 : 1) +
+    (enableOidcOAuth ? 1 : 0) +
+    (enableSamlOAuth ? 1 : 0);
+  if (connectedMethodsCount === 1) {
     const checkFormLogin = !(
         "APPSMITH_FORM_LOGIN_DISABLED" in settings || disableLoginForm
       ),
       checkGoogleAuth =
         settings["APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"] !== "" &&
-        enableGoogleOAuth,
+        socialLoginList.includes("google"),
       checkGithubAuth =
         settings["APPSMITH_OAUTH2_GITHUB_CLIENT_ID"] !== "" &&
-        enableGithubOAuth,
+        socialLoginList.includes("github"),
       checkOidcAuth =
         settings["APPSMITH_OAUTH2_OIDC_CLIENT_ID"] !== "" && enableOidcOAuth;
 
@@ -55,7 +48,7 @@ export const saveAllowed = (settings: any) => {
       enableSamlOAuth
     );
   } else {
-    return connectedMethods.length >= 2;
+    return connectedMethodsCount >= 2;
   }
 };
 

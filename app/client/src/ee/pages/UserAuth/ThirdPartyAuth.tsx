@@ -1,14 +1,10 @@
 export * from "ce/pages/UserAuth/ThirdPartyAuth";
-import {
-  default as ThirdPartyAuth,
-  SocialLoginTypes as CE_SocialLoginTypes,
-} from "ce/pages/UserAuth/ThirdPartyAuth";
+import { default as ThirdPartyAuth } from "ce/pages/UserAuth/ThirdPartyAuth";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
 const { enableOidcOAuth, enableSamlOAuth } = getAppsmithConfigs();
 
 export const SocialLoginTypes = {
-  ...CE_SocialLoginTypes,
   SAML: "saml",
   OIDC: "oidc",
 };

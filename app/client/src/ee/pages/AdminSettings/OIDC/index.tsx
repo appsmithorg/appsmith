@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { saveSettings } from "@appsmith/actions/settingsAction";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import _ from "lodash";
-import { connect, useDispatch } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 import { useParams, withRouter } from "react-router";
 import type { AppState } from "@appsmith/reducers";
@@ -27,10 +27,7 @@ import {
   MANDATORY_FIELDS_ERROR,
 } from "@appsmith/constants/messages";
 import { Toaster, Variant } from "design-system-old";
-import {
-  connectedMethods,
-  saveAllowed,
-} from "@appsmith/utils/adminSettingsHelpers";
+import { saveAllowed } from "@appsmith/utils/adminSettingsHelpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   Wrapper,
@@ -42,6 +39,12 @@ import {
   MaxWidthWrapper,
 } from "pages/Settings/components";
 import { BackButton } from "components/utils/helperComponents";
+import { getThirdPartyAuths } from "@appsmith/selectors/tenantSelectors";
+import { getAppsmithConfigs } from "@appsmith/configs";
+import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
+
+const { disableLoginForm, enableOidcOAuth, enableSamlOAuth } =
+  getAppsmithConfigs();
 
 type FormProps = {
   settings: Record<string, string>;
@@ -77,10 +80,14 @@ export function OidcSettingsForm(
   const pageTitle = getSettingLabel(
     details?.title || (subCategory ?? category),
   );
+  const socialLoginList = [
+    ...useSelector(getThirdPartyAuths),
+    ...ThirdPartyLoginRegistry.get(),
+  ];
 
   const onSave = () => {
     if (checkMandatoryFileds()) {
-      if (saveAllowed(props.settings)) {
+      if (saveAllowed(props.settings, socialLoginList)) {
         AnalyticsUtil.logEvent("ADMIN_SETTINGS_SAVE", {
           method: pageTitle,
         });
@@ -195,7 +202,12 @@ export function OidcSettingsForm(
 
   const disconnect = (currentSettings: AdminConfig) => {
     const updatedSettings: any = {};
-    if (connectedMethods.length >= 2) {
+    const connectedMethodsCount =
+      socialLoginList.length +
+      (disableLoginForm ? 0 : 1) +
+      (enableOidcOAuth ? 1 : 0) +
+      (enableSamlOAuth ? 1 : 0);
+    if (connectedMethodsCount >= 2) {
       _.forEach(currentSettings, (setting: Setting) => {
         if (
           !setting.isHidden &&

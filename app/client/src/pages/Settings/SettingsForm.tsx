@@ -45,7 +45,8 @@ import { BackButton } from "components/utils/helperComponents";
 import { getThirdPartyAuths } from "@appsmith/selectors/tenantSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
 
-const { disableLoginForm } = getAppsmithConfigs();
+const { disableLoginForm, enableOidcOAuth, enableSamlOAuth } =
+  getAppsmithConfigs();
 
 type FormProps = {
   settings: Record<string, string>;
@@ -174,7 +175,10 @@ export function SettingsForm(
   const disconnect = (currentSettings: AdminConfig) => {
     const updatedSettings: any = {};
     const connectedMethodsCount =
-      socialLoginList.length + (disableLoginForm ? 0 : 1);
+      socialLoginList.length +
+      (disableLoginForm ? 0 : 1) +
+      (enableSamlOAuth ? 1 : 0) +
+      (enableOidcOAuth ? 1 : 0);
     if (connectedMethodsCount >= 2) {
       _.forEach(currentSettings, (setting: Setting) => {
         if (

@@ -1,9 +1,13 @@
+import { useSelector } from "react-redux";
+
 export * from "ce/pages/AdminSettings/config/authentication";
 import {
   config as CE_config,
   FormAuthCallout,
   GithubAuthCallout,
+  GithubAuth,
   GoogleAuthCallout,
+  GoogleAuth,
 } from "ce/pages/AdminSettings/config/authentication";
 import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
 import {
@@ -23,6 +27,7 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 import { OIDC_SIGNUP_SETUP_DOC } from "constants/ThirdPartyConstants";
 import { REDIRECT_URL_FORM } from "@appsmith/constants/forms";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { getThirdPartyAuths } from "@appsmith/selectors/tenantSelectors";
 
 const { enableOidcOAuth, enableSamlOAuth } = getAppsmithConfigs();
 
@@ -212,6 +217,11 @@ const AuthMethods = [
 );
 
 function AuthMain() {
+  const socialLoginList = useSelector(getThirdPartyAuths);
+  GoogleAuth.isConnected = GoogleAuthCallout.isConnected =
+    socialLoginList.includes("google");
+  GithubAuth.isConnected = GithubAuthCallout.isConnected =
+    socialLoginList.includes("github");
   return <AuthPage authMethods={AuthMethods} />;
 }
 
