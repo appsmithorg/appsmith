@@ -129,7 +129,7 @@ export const discardButtonStyleConfig = {
         },
         {
           propertyName: "discardButtonVariant",
-          label: "Button Variant",
+          label: "Button variant",
           controlType: "ICON_TABS",
           fullWidth: true,
           customJSControl: "TABLE_COMPUTE_VALUE",

@@ -58,7 +58,7 @@ describe("Property configuration search", () => {
           ...commonProperties,
         },
         {
-          label: "Button Variant",
+          label: "Button variant",
           propertyName: "buttonVariant",
           ...commonProperties,
         },
@@ -184,7 +184,7 @@ describe("Property configuration search", () => {
             ...commonProperties,
           },
           {
-            label: "Button Variant",
+            label: "Button variant",
             propertyName: "buttonVariant",
             ...commonProperties,
           },

@@ -312,7 +312,7 @@ const generateButtonStyleControlsV2For = (prefix: string) => [
       },
       {
         propertyName: `${prefix}.buttonVariant`,
-        label: "Button Variant",
+        label: "Button variant",
         controlType: "ICON_TABS",
         fullWidth: true,
         helpText: "Sets the variant of the icon button",

@@ -9,7 +9,7 @@ export default [
     children: [
       {
         propertyName: "menuVariant",
-        label: "Button Variant",
+        label: "Button variant",
         controlType: "DROP_DOWN",
         helpText: "Sets the variant of the menu button",
         options: [

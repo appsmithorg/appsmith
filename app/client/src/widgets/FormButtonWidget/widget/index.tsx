@@ -180,7 +180,7 @@ class FormButtonWidget extends ButtonWidget {
           },
           {
             propertyName: "buttonVariant",
-            label: "Button Variant",
+            label: "Button variant",
             controlType: "DROP_DOWN",
             helpText: "Sets the variant of the icon button",
             options: [

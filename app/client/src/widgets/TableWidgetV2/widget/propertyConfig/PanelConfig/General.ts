@@ -174,7 +174,7 @@ export const GeneralStyle = {
   children: [
     {
       propertyName: "buttonVariant",
-      label: "Button Variant",
+      label: "Button variant",
       controlType: "ICON_TABS",
       fullWidth: true,
       customJSControl: "TABLE_COMPUTE_VALUE",
@@ -221,7 +221,7 @@ export const GeneralStyle = {
     },
     {
       propertyName: "menuVariant",
-      label: "Button Variant",
+      label: "Button variant",
       controlType: "ICON_TABS",
       fullWidth: true,
       customJSControl: "TABLE_COMPUTE_VALUE",

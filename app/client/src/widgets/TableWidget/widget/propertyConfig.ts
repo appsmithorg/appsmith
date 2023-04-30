@@ -938,7 +938,7 @@ export default [
                 },
                 {
                   propertyName: "buttonVariant",
-                  label: "Button Variant",
+                  label: "Button variant",
                   controlType: "DROP_DOWN",
                   customJSControl: "COMPUTE_VALUE",
                   defaultValue: ButtonVariantTypes.PRIMARY,

@@ -199,7 +199,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         children: [
           {
             propertyName: "buttonVariant",
-            label: "Button Variant",
+            label: "Button variant",
             controlType: "ICON_TABS",
             fullWidth: true,
             helpText: "Sets the variant of the icon button",
