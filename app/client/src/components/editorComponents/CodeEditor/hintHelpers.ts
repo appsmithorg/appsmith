@@ -87,6 +87,7 @@ class SqlHintHelper {
             return completions;
           },
           completeSingle: false,
+          alignWithWord: false,
           extraKeys: {
             Tab: (editor: CodeMirror.Editor, handle) => {
               handle.pick();
