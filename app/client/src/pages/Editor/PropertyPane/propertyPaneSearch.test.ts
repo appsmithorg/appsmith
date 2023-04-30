@@ -88,7 +88,7 @@ describe("Property configuration search", () => {
       sectionName: "Another Button Section",
       children: [
         {
-          label: "Google reCAPTCHA Key",
+          label: "Google reCAPTCHA key",
           propertyName: "recaptchaKey",
           ...commonProperties,
         },
@@ -194,7 +194,7 @@ describe("Property configuration search", () => {
         sectionName: "Another Button Section",
         children: [
           {
-            label: "Google reCAPTCHA Key",
+            label: "Google reCAPTCHA key",
             propertyName: "recaptchaKey",
             ...commonProperties,
           },
@@ -294,7 +294,7 @@ describe("Property configuration search", () => {
         sectionName: "Another Button Section",
         children: [
           {
-            label: "Google reCAPTCHA Key",
+            label: "Google reCAPTCHA key",
             propertyName: "recaptchaKey",
             ...commonProperties,
           },
