@@ -215,7 +215,7 @@ const PROPERTIES = {
         propertyName: "defaultValue",
         helpText:
           "Sets the default text of the field. The text is updated if the default text changes",
-        label: "Default Value",
+        label: "Default value",
         controlType: "JSON_FORM_COMPUTE_VALUE",
         placeholderText: "John Doe",
         isBindProperty: true,

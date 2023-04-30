@@ -184,7 +184,7 @@ const PROPERTIES = {
         helpText:
           "Sets the default value of the field. The array is updated when the default value changes",
         propertyName: "defaultValue",
-        label: "Default Value",
+        label: "Default value",
         controlType: "JSON_FORM_COMPUTE_VALUE",
         placeholderText: "[]",
         isBindProperty: true,

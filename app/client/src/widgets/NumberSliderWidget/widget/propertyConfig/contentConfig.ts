@@ -79,7 +79,7 @@ export default [
       {
         propertyName: "defaultValue",
         helpText: "Sets the value of the widget",
-        label: "Default Value",
+        label: "Default value",
         controlType: "INPUT_TEXT",
         placeholderText: "Value:",
         isBindProperty: true,

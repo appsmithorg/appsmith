@@ -83,7 +83,7 @@ class PhoneInputWidget extends BaseInputWidget<
               helpText:
                 "Sets the default text of the widget. The text is updated if the default text changes",
               propertyName: "defaultText",
-              label: "Default Value",
+              label: "Default value",
               controlType: "INPUT_TEXT",
               placeholderText: "(000) 000-0000",
               isBindProperty: true,

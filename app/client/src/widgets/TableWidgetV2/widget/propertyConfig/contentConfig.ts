@@ -408,7 +408,7 @@ export default [
       {
         propertyName: "defaultNewRow",
         helpText: "Default new row values",
-        label: "Default Values",
+        label: "Default values",
         controlType: "INPUT_TEXT",
         dependencies: ["allowAddNewRow"],
         hidden: (props: TableWidgetProps) => {

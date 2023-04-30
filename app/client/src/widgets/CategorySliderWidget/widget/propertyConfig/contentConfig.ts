@@ -38,7 +38,7 @@ export default [
       {
         helpText: "Sets a default selected option",
         propertyName: "defaultOptionValue",
-        label: "Default Value",
+        label: "Default value",
         placeholderText: "Y",
         controlType: "INPUT_TEXT",
         isBindProperty: true,
