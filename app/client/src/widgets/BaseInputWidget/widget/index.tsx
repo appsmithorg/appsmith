@@ -182,7 +182,7 @@ class BaseInputWidget<
           {
             helpText: "Show arrows to increase or decrease values",
             propertyName: "showStepArrows",
-            label: "Show Step Arrows",
+            label: "Show step arrows",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
