@@ -284,7 +284,7 @@ const PROPERTIES = {
       },
       {
         propertyName: "allowCurrencyChange",
-        label: "Allow Currency Change",
+        label: "Allow currency change",
         helpText: "Search by currency or country",
         controlType: "SWITCH",
         isBindProperty: true,

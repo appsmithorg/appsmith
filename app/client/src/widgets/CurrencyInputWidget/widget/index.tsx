@@ -209,7 +209,7 @@ class CurrencyInputWidget extends BaseInputWidget<
             },
             {
               propertyName: "allowCurrencyChange",
-              label: "Allow Currency Change",
+              label: "Allow currency change",
               helpText: "Search by currency or country",
               controlType: "SWITCH",
               isJSConvertible: true,
