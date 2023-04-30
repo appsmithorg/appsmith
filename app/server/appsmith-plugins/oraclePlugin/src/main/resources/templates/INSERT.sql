@@ -5,4 +5,4 @@ VALUES
     {{ nameInput.text }},
     {{ genderDropdown.selectedOptionValue }},
     {{ emailInput.text }}
-  );
+  )
