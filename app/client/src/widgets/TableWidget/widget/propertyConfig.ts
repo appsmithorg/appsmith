@@ -581,7 +581,7 @@ export default [
               children: [
                 {
                   propertyName: "horizontalAlignment",
-                  label: "Text Align",
+                  label: "Text align",
                   controlType: "ICON_TABS",
                   options: [
                     {
@@ -620,7 +620,7 @@ export default [
                 },
                 {
                   propertyName: "textSize",
-                  label: "Text Size",
+                  label: "Text size",
                   controlType: "DROP_DOWN",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
@@ -698,7 +698,7 @@ export default [
                 },
                 {
                   propertyName: "verticalAlignment",
-                  label: "Vertical Alignment",
+                  label: "Vertical alignment",
                   controlType: "ICON_TABS",
                   options: [
                     {
@@ -1377,7 +1377,7 @@ export default [
       },
       {
         propertyName: "defaultSearchText",
-        label: "Default Search Text",
+        label: "Default search text",
         controlType: "INPUT_TEXT",
         placeholderText: "{{appsmith.user.name}}",
         isBindProperty: true,
@@ -1387,7 +1387,7 @@ export default [
       {
         helpText: "Selects row(s) by default",
         propertyName: "defaultSelectedRow",
-        label: "Default Selected Row",
+        label: "Default selected row",
         controlType: "INPUT_TEXT",
         placeholderText: "0",
         isBindProperty: true,
@@ -1408,7 +1408,7 @@ export default [
       {
         propertyName: "compactMode",
         helpText: "Selects row height",
-        label: "Default Row Height",
+        label: "Default row height",
         controlType: "DROP_DOWN",
         defaultValue: "DEFAULT",
         isBindProperty: true,
@@ -1608,7 +1608,7 @@ export default [
       },
       {
         propertyName: "delimiter",
-        label: "CSV Separator",
+        label: "CSV separator",
         controlType: "INPUT_TEXT",
         placeholderText: "Enter CSV separator",
         helpText: "The character used for separating the CSV download file.",
@@ -1660,7 +1660,7 @@ export default [
       },
       {
         propertyName: "textSize",
-        label: "Text Size",
+        label: "Text size",
         controlType: "DROP_DOWN",
         updateHook: updateColumnStyles,
         dependencies: ["primaryColumns", "derivedColumns"],
@@ -1712,7 +1712,7 @@ export default [
       },
       {
         propertyName: "horizontalAlignment",
-        label: "Text Align",
+        label: "Text align",
         controlType: "ICON_TABS",
         updateHook: updateColumnStyles,
         dependencies: ["primaryColumns", "derivedColumns"],
@@ -1736,7 +1736,7 @@ export default [
       },
       {
         propertyName: "verticalAlignment",
-        label: "Vertical Alignment",
+        label: "Vertical alignment",
         controlType: "ICON_TABS",
         updateHook: updateColumnStyles,
         dependencies: ["primaryColumns", "derivedColumns"],

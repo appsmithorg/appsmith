@@ -171,7 +171,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           },
           {
             propertyName: "fontSize",
-            label: "Text Size",
+            label: "Text size",
             controlType: "DROP_DOWN",
             defaultValue: "1rem",
             options: [
@@ -288,7 +288,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           },
           {
             propertyName: "textAlign",
-            label: "Text Align",
+            label: "Text align",
             controlType: "ICON_TABS",
             options: [
               {

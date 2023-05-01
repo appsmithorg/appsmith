@@ -19,7 +19,7 @@ describe("Table Widget property pane feature validation", function () {
     cy.editColumn("id");
     //cy.movetoStyleTab();
     agHelper.Sleep();
-    propPane.EnterJSContext("Text Align", testdata.bindingAlign);
+    propPane.EnterJSContext("Text align", testdata.bindingAlign);
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("0", "0", "justify-content", "flex-start");
     cy.readTabledataValidateCSS("1", "0", "justify-content", "flex-end");
@@ -37,7 +37,7 @@ describe("Table Widget property pane feature validation", function () {
   it("3. Table widget toggle test for vertical Alignment", function () {
     //cy.movetoStyleTab();
     agHelper.Sleep();
-    propPane.EnterJSContext("Vertical Alignment", testdata.bindingVerticalAlig);
+    propPane.EnterJSContext("Vertical alignment", testdata.bindingVerticalAlig);
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("0", "0", "align-items", "flex-start");
     cy.readTabledataValidateCSS("1", "0", "align-items", "flex-end");
@@ -46,7 +46,7 @@ describe("Table Widget property pane feature validation", function () {
   it("4. Table widget toggle test for text size", function () {
     //cy.movetoStyleTab();
     agHelper.Sleep();
-    propPane.EnterJSContext("Text Size", testdata.bindingSize);
+    propPane.EnterJSContext("Text size", testdata.bindingSize);
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("0", "0", "font-size", "14px");
     cy.readTabledataValidateCSS("1", "0", "font-size", "24px");

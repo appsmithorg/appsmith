@@ -16,7 +16,7 @@ export default {
   children: [
     {
       propertyName: "textSize",
-      label: "Text Size",
+      label: "Text size",
       helpText: "Controls the size of text in the column",
       controlType: "DROP_DOWN",
       isJSConvertible: true,
@@ -102,7 +102,7 @@ export default {
     },
     {
       propertyName: "horizontalAlignment",
-      label: "Text Align",
+      label: "Text align",
       helpText: "Sets the horizontal alignment of the content in the column",
       controlType: "ICON_TABS",
       fullWidth: true,
@@ -148,7 +148,7 @@ export default {
     },
     {
       propertyName: "verticalAlignment",
-      label: "Vertical Alignment",
+      label: "Vertical alignment",
       helpText: "Sets the vertical alignment of the content in the column",
       controlType: "ICON_TABS",
       fullWidth: true,

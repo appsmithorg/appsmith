@@ -167,8 +167,8 @@ describe("Table widget Add new row feature's", () => {
       [
         "Show pagination",
         "Allow searching",
-        "Allow Download",
-        "Allow Filtering",
+        "Allow download",
+        "Allow filtering",
         "Allow adding a row",
       ].forEach((val) => {
         propPane.ToggleOnOrOff(val, "Off");

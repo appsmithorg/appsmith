@@ -61,7 +61,7 @@ export default {
     },
     {
       propertyName: "verticalAlignment",
-      label: "Vertical Alignment",
+      label: "Vertical alignment",
       helpText: "Sets the vertical alignment of the content in the column",
       controlType: "ICON_TABS",
       options: [
