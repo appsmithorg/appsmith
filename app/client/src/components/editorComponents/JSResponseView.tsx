@@ -12,8 +12,6 @@ import {
   DEBUGGER_LOGS,
   DEBUGGER_ERRORS,
   EXECUTING_FUNCTION,
-  EMPTY_RESPONSE_FIRST_HALF,
-  EMPTY_JS_RESPONSE_LAST_HALF,
   NO_JS_FUNCTION_RETURN_VALUE,
   UPDATING_JS_COLLECTION,
 } from "@appsmith/constants/messages";
@@ -23,7 +21,7 @@ import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import type { JSCollection, JSAction } from "entities/JSCollection";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
-import { Button, Icon, Text } from "design-system";
+import { Button, Text } from "design-system";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
@@ -45,6 +43,7 @@ import {
   showDebugger,
 } from "actions/debuggerActions";
 import {
+  NoResponse,
   ResponseTabErrorContainer,
   ResponseTabErrorContent,
 } from "./ApiResponseView";
@@ -52,14 +51,13 @@ import LogHelper from "./Debugger/ErrorLogs/components/LogHelper";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { SourceEntity, Log } from "entities/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { Colors } from "constants/Colors";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS};
   width: 100%;
   // Minimum height of bottom tabs as it can be resized
   min-height: ${TAB_MIN_HEIGHT};
-  background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
+  background-color: var(--ads-v2-color-bg);
   height: ${ActionExecutionResizerHeight}px;
 
   .react-tabs__tab-panel {
@@ -67,7 +65,6 @@ const ResponseContainer = styled.div`
     overflow-y: auto;
     height: calc(100% - ${TAB_MIN_HEIGHT});
   }
-  border-top: 1px solid ${Colors.GREY_4};
 `;
 
 const ResponseTabWrapper = styled.div`
@@ -95,20 +92,6 @@ const TabbedViewWrapper = styled.div`
 
 const ResponseViewer = styled.div`
   width: 100%;
-`;
-
-const NoResponseContainer = styled.div`
-  height: 100%;
-  width: max-content;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  margin: 0 auto;
-
-  &.empty {
-    background-color: #fafafa;
-  }
 `;
 
 const NoReturnValueWrapper = styled.div`
@@ -261,23 +244,11 @@ function JSResponseView(props: Props) {
             <ResponseViewer>
               <>
                 {responseStatus === JSResponseState.NoResponse && (
-                  <NoResponseContainer>
-                    <Icon name="no-response" />
-                    <div style={{ gap: "4px" }}>
-                      <Text kind="body-m">
-                        {createMessage(EMPTY_RESPONSE_FIRST_HALF)}
-                        <Button
-                          isDisabled={disabled}
-                          isLoading={isLoading}
-                          onClick={() => onButtonClick}
-                          size="md"
-                        >
-                          Run
-                        </Button>
-                        {createMessage(EMPTY_JS_RESPONSE_LAST_HALF)}
-                      </Text>
-                    </div>
-                  </NoResponseContainer>
+                  <NoResponse
+                    isButtonDisabled={disabled}
+                    isQueryRunning={isLoading}
+                    onRunClick={() => onButtonClick}
+                  />
                 )}
                 {responseStatus === JSResponseState.IsExecuting && (
                   <LoadingOverlayScreen theme={props.theme}>
