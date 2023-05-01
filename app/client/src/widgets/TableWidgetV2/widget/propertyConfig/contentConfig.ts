@@ -27,7 +27,7 @@ export default [
         helpText:
           "Takes in an array of objects to display rows in the table. Bind data from an API using {{}}",
         propertyName: "tableData",
-        label: "Table Data",
+        label: "Table data",
         controlType: "INPUT_TEXT",
         placeholderText: '[{ "name": "John" }]',
         inputType: "ARRAY",

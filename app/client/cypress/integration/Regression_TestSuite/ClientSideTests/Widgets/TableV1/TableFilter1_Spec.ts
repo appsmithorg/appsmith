@@ -21,7 +21,7 @@ describe("Verify various Table_Filter combinations", function () {
   it("1. Adding Data to Table Widget", function () {
     ee.SelectEntityByName("Table1");
     propPane.UpdatePropertyFieldValue(
-      "Table Data",
+      "Table data",
       JSON.stringify(dataSet.TableInput),
     );
     agHelper.ValidateNetworkStatus("@updateLayout", 200);

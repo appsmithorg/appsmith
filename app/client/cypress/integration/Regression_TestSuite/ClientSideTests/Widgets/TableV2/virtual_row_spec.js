@@ -18,7 +18,7 @@ describe("Table Widget Virtualized Row", function () {
       step: i,
     }));
 
-    PropertyPane.UpdatePropertyFieldValue("Table Data", JSON.stringify(rows));
+    PropertyPane.UpdatePropertyFieldValue("Table data", JSON.stringify(rows));
     PropertyPane.ToggleOnOrOff("Server side pagination", "On");
     PropertyPane.ToggleOnOrOff("Show Pagination", "Off");
   });

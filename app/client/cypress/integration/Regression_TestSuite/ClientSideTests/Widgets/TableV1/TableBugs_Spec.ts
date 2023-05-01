@@ -20,7 +20,7 @@ describe("Verify various Table property bugs", function () {
   it("1. Adding Data to Table Widget", function () {
     ee.SelectEntityByName("Table1", "Widgets");
     propPane.UpdatePropertyFieldValue(
-      "Table Data",
+      "Table data",
       JSON.stringify(dataSet.TableURLColumnType),
     );
     agHelper.ValidateNetworkStatus("@updateLayout", 200);
@@ -154,7 +154,7 @@ describe("Verify various Table property bugs", function () {
   it("should allow ISO 8601 format date and not throw a disallowed validation error", () => {
     ee.SelectEntityByName("Table1", "Widgets");
     propPane.UpdatePropertyFieldValue(
-      "Table Data",
+      "Table data",
       '[{ "dateValue": "2023-02-02T13:39:38.367857Z" }]',
     );
     cy.wait(500);
