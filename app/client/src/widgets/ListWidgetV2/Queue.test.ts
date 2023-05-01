@@ -75,11 +75,11 @@ describe("#add", () => {
     const defaultQueueItems = [{ type: TestType.B, metadata: { foo: "bar " } }];
     const queue = new Queue<TestType>(defaultQueueItems);
 
-    const testCases = ([
+    const testCases = [
       null,
       undefined,
       { foo: "bar" },
-    ] as unknown) as TestType[];
+    ] as unknown as TestType[];
 
     testCases.forEach((input) => {
       expect(() => queue.add(input)).toThrowError(

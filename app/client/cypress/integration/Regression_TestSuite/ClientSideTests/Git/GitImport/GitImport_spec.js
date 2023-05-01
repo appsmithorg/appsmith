@@ -9,7 +9,7 @@ const mainBranch = "master";
 let repoName, newWorkspaceName;
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Git import flow ", function() {
+describe("Git import flow ", function () {
   before(() => {
     cy.NavigateToHome();
     cy.createWorkspace();
@@ -20,9 +20,7 @@ describe("Git import flow ", function() {
   });
   it("1. Import an app from JSON with Postgres, MySQL, Mongo db & then connect it to Git", () => {
     cy.NavigateToHome();
-    cy.get(homePage.optionsIcon)
-      .first()
-      .click();
+    cy.get(homePage.optionsIcon).first().click();
     cy.get(homePage.workspaceImportAppOption).click({ force: true });
     cy.get(homePage.workspaceImportAppModal).should("be.visible");
     cy.wait(1000);
@@ -82,13 +80,9 @@ describe("Git import flow ", function() {
       cy.CreateAppForWorkspace(newWorkspaceName, "gitImport");
     });
     cy.get(homePage.homeIcon).click();
-    cy.get(homePage.optionsIcon)
-      .first()
-      .click();
+    cy.get(homePage.optionsIcon).first().click();
     cy.get(homePage.workspaceImportAppOption).click({ force: true });
-    cy.get(".t--import-json-card")
-      .next()
-      .click();
+    cy.get(".t--import-json-card").next().click();
     cy.importAppFromGit(repoName);
     cy.wait(5000);
     cy.get(reconnectDatasourceModal.Modal).should("be.visible");
@@ -137,13 +131,9 @@ describe("Git import flow ", function() {
 
   it("3. Verfiy imported app should have all the data binding visible in view and edit mode", () => {
     // verify postgres data binded to table
-    cy.get(".tbody")
-      .first()
-      .should("contain.text", "Test user 7");
+    cy.get(".tbody").first().should("contain.text", "Test user 7");
     //verify MySQL data binded to table
-    cy.get(".tbody")
-      .last()
-      .should("contain.text", "New Config");
+    cy.get(".tbody").last().should("contain.text", "New Config");
     // verify api response binded to input widget
     cy.xpath("//input[@value='this is a test']").should("be.visible");
     // verify js object binded to input widget
@@ -157,13 +147,9 @@ describe("Git import flow ", function() {
       newBranch = branName;
       cy.log("newBranch is " + newBranch);
     });
-    cy.get(".tbody")
-      .first()
-      .should("contain.text", "Test user 7");
+    cy.get(".tbody").first().should("contain.text", "Test user 7");
     // verify MySQL data binded to table
-    cy.get(".tbody")
-      .last()
-      .should("contain.text", "New Config");
+    cy.get(".tbody").last().should("contain.text", "New Config");
     // verify api response binded to input widget
     cy.xpath("//input[@value='this is a test']");
     // verify js object binded to input widget
@@ -199,9 +185,7 @@ describe("Git import flow ", function() {
     // verify js object binded to input widget
     cy.xpath("//input[@value='Success']");
     // navigate to Page1 and verify data
-    cy.get(".t--page-switch-tab")
-      .contains("Page1")
-      .click({ force: true });
+    cy.get(".t--page-switch-tab").contains("Page1").click({ force: true });
     _.table.AssertTableLoaded();
     // verify api response binded to input widget
     cy.xpath("//input[@value='this is a test']");
@@ -216,18 +200,13 @@ describe("Git import flow ", function() {
     cy.wait(2000);
     // validate data binding in edit and deploy mode
     cy.latestDeployPreview();
-    cy.get(".tbody")
-      .first()
-      .should("contain.text", "Test user 7");
+    cy.get(".tbody").should("have.length", 2);
+    cy.get(".tbody").first().should("contain.text", "Test user 7");
     cy.xpath("//input[@value='this is a test']");
     cy.xpath("//input[@value='Success']");
     // navigate to Page1 and verify data
-    cy.get(".t--page-switch-tab")
-      .contains("Page1 Copy")
-      .click({ force: true });
-    cy.get(".tbody")
-      .first()
-      .should("contain.text", "Test user 7");
+    cy.get(".t--page-switch-tab").contains("Page1 Copy").click({ force: true });
+    cy.get(".tbody").first().should("contain.text", "Test user 7");
     cy.xpath("//input[@value='this is a test']");
     cy.xpath("//input[@value='Success']");
     cy.get(commonlocators.backToEditor).click();

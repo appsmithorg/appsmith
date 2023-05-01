@@ -1,24 +1,26 @@
-import { OccupiedSpace } from "constants/CanvasEditorConstants";
+import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { debounce, isEmpty, throttle } from "lodash";
-import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
-import React, { useEffect, useRef } from "react";
+import type { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
+import type React from "react";
+import { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
-import {
+import type {
   MovementLimitMap,
-  ReflowDirection,
   ReflowedSpaceMap,
   SpaceMap,
 } from "reflow/reflowTypes";
-import { getParentOffsetTop } from "selectors/autoLayoutSelectors";
+import { ReflowDirection } from "reflow/reflowTypes";
+import { getTotalTopOffset } from "selectors/autoLayoutSelectors";
 import { getCanvasScale } from "selectors/editorSelectors";
-import { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
+import type { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
 import { getNearestParentCanvas } from "utils/generators";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
-import { ReflowInterface, useReflow } from "utils/hooks/useReflow";
+import type { ReflowInterface } from "utils/hooks/useReflow";
+import { useReflow } from "utils/hooks/useReflow";
 import {
   getDraggingSpacesFromBlocks,
   getMousePositionsOnCanvas,
@@ -33,10 +35,8 @@ import {
   updateRectanglesPostReflow,
 } from "./canvasDraggingUtils";
 import { useAutoLayoutHighlights } from "./useAutoLayoutHighlights";
-import {
-  useBlocksToBeDraggedOnCanvas,
-  WidgetDraggingBlock,
-} from "./useBlocksToBeDraggedOnCanvas";
+import type { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
+import { useBlocksToBeDraggedOnCanvas } from "./useBlocksToBeDraggedOnCanvas";
 import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
 import { useRenderBlocksOnCanvas } from "./useRenderBlocksOnCanvas";
 
@@ -60,7 +60,8 @@ export const useCanvasDragging = (
   const currentDirection = useRef<ReflowDirection>(ReflowDirection.UNSET);
   let { devicePixelRatio: scale = 1 } = window;
   scale *= canvasScale;
-  const parentOffsetTop = useSelector(getParentOffsetTop(widgetId));
+  const parentOffsetTop = useSelector(getTotalTopOffset(widgetId));
+  const mainCanvas = document.querySelector("#canvas-viewport");
   const {
     blocksToDraw,
     defaultHandlePositions,
@@ -108,17 +109,14 @@ export const useCanvasDragging = (
 
   // eslint-disable-next-line prefer-const
 
-  const {
-    calculateHighlights,
-    cleanUpTempStyles,
-    getDropPosition,
-  } = useAutoLayoutHighlights({
-    blocksToDraw,
-    canvasId: widgetId,
-    isCurrentDraggedCanvas,
-    isDragging,
-    useAutoLayout,
-  });
+  const { calculateHighlights, cleanUpTempStyles, getDropPosition } =
+    useAutoLayoutHighlights({
+      blocksToDraw,
+      canvasId: widgetId,
+      isCurrentDraggedCanvas,
+      isDragging,
+      useAutoLayout,
+    });
   let selectedHighlight: HighlightInfo | undefined;
 
   if (useAutoLayout) {
@@ -131,11 +129,8 @@ export const useCanvasDragging = (
     }
   }
 
-  const {
-    setDraggingCanvas,
-    setDraggingNewWidget,
-    setDraggingState,
-  } = useWidgetDragResize();
+  const { setDraggingCanvas, setDraggingNewWidget, setDraggingState } =
+    useWidgetDragResize();
 
   const canScroll = useCanvasDragToScroll(
     slidingArenaRef,
@@ -412,8 +407,8 @@ export const useCanvasDragging = (
             currentRectanglesToDraw = drawingBlocks.map((each) => ({
               ...each,
               isNotColliding:
-                useAutoLayout ||
-                (!dropDisabled &&
+                !dropDisabled &&
+                (useAutoLayout ||
                   noCollision(
                     { x: each.left, y: each.top },
                     snapColumnSpace,
@@ -451,6 +446,7 @@ export const useCanvasDragging = (
               widgetId === MAIN_CONTAINER_WIDGET_ID,
               parentOffsetTop,
               useAutoLayout,
+              mainCanvas?.scrollTop,
             );
             scrollObj.lastMouseMoveEvent = {
               offsetX: e.offsetX,
@@ -554,11 +550,8 @@ export const useCanvasDragging = (
         // the onscroll that resets intersectionObserver in StickyCanvasArena.tsx
         const onScroll = () =>
           setTimeout(() => {
-            const {
-              lastMouseMoveEvent,
-              lastScrollHeight,
-              lastScrollTop,
-            } = scrollObj;
+            const { lastMouseMoveEvent, lastScrollHeight, lastScrollTop } =
+              scrollObj;
             if (
               lastMouseMoveEvent &&
               typeof lastScrollHeight === "number" &&

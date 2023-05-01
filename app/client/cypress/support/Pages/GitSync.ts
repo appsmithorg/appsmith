@@ -149,99 +149,99 @@ export class GitSync {
     });
   }
 
-    //#region Unused methods
+  //#region Unused methods
 
-    private AuthorizeLocalGitSSH(remoteUrl: string, assertConnect = true) {
-      let generatedKey;
-      this.OpenGitSyncModal();
-      this.agHelper.AssertAttribute(
-        this._gitRepoInput,
-        "placeholder",
-        "git@example.com:user/repository.git",
-      );
-      this.agHelper.TypeText(this._gitRepoInput, remoteUrl);
+  private AuthorizeLocalGitSSH(remoteUrl: string, assertConnect = true) {
+    let generatedKey;
+    this.OpenGitSyncModal();
+    this.agHelper.AssertAttribute(
+      this._gitRepoInput,
+      "placeholder",
+      "git@example.com:user/repository.git",
+    );
+    this.agHelper.TypeText(this._gitRepoInput, remoteUrl);
 
-      this.agHelper.ClickButton("Generate key");
+    this.agHelper.ClickButton("Generate key");
 
-      cy.wait(`@generateKey`).then((result: any) => {
-        generatedKey = result.response.body.data.publicKey;
-        generatedKey = generatedKey.slice(0, generatedKey.length - 1);
-        var formdata = new FormData();
-        cy.log("generatedKey is " + generatedKey);
-        formdata.set("sshkey", generatedKey);
-        // fetch the generated key and post to the github repo
-        cy.request({
-          method: "POST",
-          url: `http://${datasourceFormData["GITEA_API_BASE_TED"]}:${datasourceFormData["GITEA_API_PORT_TED"]}/v1/gitserver/addgitssh`,
-          //body: formdata,
-          body: {
-            sshkey: generatedKey,
-          },
-          form: true,
-          // headers: {
-          //   "Content-Type": "application/x-www-form-urlencoded"
-          // },
-        }).then((response) => {
-          expect(response.status).to.equal(200);
-        });
-        this.agHelper.GetNClick(this._useDefaultConfig); //Uncheck the Use default configuration
-        this.agHelper.TypeText(
-          this._gitConfigNameInput,
-          "testusername",
-          //`{selectall}${testUsername}`,
-        );
-        this.agHelper.TypeText(this._gitConfigEmailInput, "test@test.com");
-        this.agHelper.ClickButton("CONNECT");
-
-        if (assertConnect) {
-          //this.ReplaceForGit("cypress/fixtures/Bugs/GitConnectResponse.json", remoteUrl);
-          //cy.get('@connectGitLocalRepo').its('response.statusCode').should('equal', 200);
-          // cy.intercept("POST", "/api/v1/git/connect/app/*", {
-          //   fixture: "/Bugs/GitConnectResponse.json",
-          // });
-          this.agHelper.ValidateNetworkStatus("@connectGitLocalRepo");
-        }
-        this.CloseGitSyncModal();
-      });
-    }
-
-    private ReplaceForGit(fixtureFile: any, remoteUrl: string) {
-      let currentAppId, currentURL;
-      cy.readFile(
-        fixtureFile,
-        // (err: string) => {
-        // if (err) {
-        //   return console.error(err);
-        // }}
-      ).then((data) => {
-        cy.url().then((url) => {
-          currentURL = url;
-          const myRegexp = /page-1(.*)/;
-          const match = myRegexp.exec(currentURL);
-          cy.log(currentURL + "currentURL from intercept is");
-          currentAppId = match ? match[1].split("/")[1] : null;
-          data.data.id = currentAppId;
-          data.data.gitApplicationMetadata.defaultApplicationId = currentAppId;
-          data.data.gitApplicationMetadata.remoteUrl = remoteUrl;
-          cy.writeFile(fixtureFile, JSON.stringify(data));
-        });
-      });
-    }
-
-    private CreateLocalGithubRepo(repo: string) {
-      let remoteUrl: string = "";
+    cy.wait(`@generateKey`).then((result: any) => {
+      generatedKey = result.response.body.data.publicKey;
+      generatedKey = generatedKey.slice(0, generatedKey.length - 1);
+      let formdata = new FormData();
+      cy.log("generatedKey is " + generatedKey);
+      formdata.set("sshkey", generatedKey);
+      // fetch the generated key and post to the github repo
       cy.request({
-        method: "GET",
-        url:
-          `http://${datasourceFormData["GITEA_API_BASE_TED"]}:${datasourceFormData["GITEA_API_PORT_TED"]}/v1/gitserver/addrepo?reponame=` +
-          repo,
+        method: "POST",
+        url: `http://${datasourceFormData["GITEA_API_BASE_TED"]}:${datasourceFormData["GITEA_API_PORT_TED"]}/v1/gitserver/addgitssh`,
+        //body: formdata,
+        body: {
+          sshkey: generatedKey,
+        },
+        form: true,
+        // headers: {
+        //   "Content-Type": "application/x-www-form-urlencoded"
+        // },
       }).then((response) => {
-        remoteUrl = JSON.stringify(response.body).replace(/['"]+/g, "");
         expect(response.status).to.equal(200);
-        //cy.log("remoteUrl is"+ remoteUrl);
-        cy.wrap(remoteUrl).as("remoteUrl");
       });
-    }
+      this.agHelper.GetNClick(this._useDefaultConfig); //Uncheck the Use default configuration
+      this.agHelper.TypeText(
+        this._gitConfigNameInput,
+        "testusername",
+        //`{selectall}${testUsername}`,
+      );
+      this.agHelper.TypeText(this._gitConfigEmailInput, "test@test.com");
+      this.agHelper.ClickButton("CONNECT");
 
-    //#endregion
+      if (assertConnect) {
+        //this.ReplaceForGit("cypress/fixtures/Bugs/GitConnectResponse.json", remoteUrl);
+        //cy.get('@connectGitLocalRepo').its('response.statusCode').should('equal', 200);
+        // cy.intercept("POST", "/api/v1/git/connect/app/*", {
+        //   fixture: "/Bugs/GitConnectResponse.json",
+        // });
+        this.agHelper.ValidateNetworkStatus("@connectGitLocalRepo");
+      }
+      this.CloseGitSyncModal();
+    });
+  }
+
+  private ReplaceForGit(fixtureFile: any, remoteUrl: string) {
+    let currentAppId, currentURL;
+    cy.readFile(
+      fixtureFile,
+      // (err: string) => {
+      // if (err) {
+      //   return console.error(err);
+      // }}
+    ).then((data) => {
+      cy.url().then((url) => {
+        currentURL = url;
+        const myRegexp = /page-1(.*)/;
+        const match = myRegexp.exec(currentURL);
+        cy.log(currentURL + "currentURL from intercept is");
+        currentAppId = match ? match[1].split("/")[1] : null;
+        data.data.id = currentAppId;
+        data.data.gitApplicationMetadata.defaultApplicationId = currentAppId;
+        data.data.gitApplicationMetadata.remoteUrl = remoteUrl;
+        cy.writeFile(fixtureFile, JSON.stringify(data));
+      });
+    });
+  }
+
+  private CreateLocalGithubRepo(repo: string) {
+    let remoteUrl = "";
+    cy.request({
+      method: "GET",
+      url:
+        `http://${datasourceFormData["GITEA_API_BASE_TED"]}:${datasourceFormData["GITEA_API_PORT_TED"]}/v1/gitserver/addrepo?reponame=` +
+        repo,
+    }).then((response) => {
+      remoteUrl = JSON.stringify(response.body).replace(/['"]+/g, "");
+      expect(response.status).to.equal(200);
+      //cy.log("remoteUrl is"+ remoteUrl);
+      cy.wrap(remoteUrl).as("remoteUrl");
+    });
+  }
+
+  //#endregion
 }

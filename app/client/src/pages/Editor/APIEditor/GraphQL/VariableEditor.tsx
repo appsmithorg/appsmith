@@ -1,9 +1,9 @@
 import React from "react";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   CodeEditorBorder,
   EditorModes,
   EditorSize,
-  EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";

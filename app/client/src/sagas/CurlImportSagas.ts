@@ -1,12 +1,13 @@
 import { takeLatest, put, all, select } from "redux-saga/effects";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-  ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import { validateResponse } from "sagas/ErrorSagas";
-import CurlImportApi, { CurlImportRequest } from "api/ImportApi";
-import { ApiResponse } from "api/ApiResponses";
+import type { CurlImportRequest } from "api/ImportApi";
+import CurlImportApi from "api/ImportApi";
+import type { ApiResponse } from "api/ApiResponses";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import transformCurlImport from "transformers/CurlImportTransformer";

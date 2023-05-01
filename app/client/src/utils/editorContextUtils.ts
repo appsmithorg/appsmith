@@ -1,10 +1,7 @@
-import { Plugin } from "api/PluginApi";
+import type { Plugin } from "api/PluginApi";
 import { PluginPackageName } from "entities/Action";
-import {
-  AuthenticationStatus,
-  AuthType,
-  Datasource,
-} from "entities/Datasource";
+import type { Datasource } from "entities/Datasource";
+import { AuthenticationStatus, AuthType } from "entities/Datasource";
 export function isCurrentFocusOnInput() {
   return (
     ["input", "textarea"].indexOf(
@@ -48,16 +45,18 @@ export function getPropertyControlFocusElement(
       if (uiInputElement) {
         return uiInputElement;
       }
-      const codeEditorInputElement = propertyInputElement.getElementsByClassName(
-        "CodeEditorTarget",
-      )[0] as HTMLElement | undefined;
+      const codeEditorInputElement =
+        propertyInputElement.getElementsByClassName("CodeEditorTarget")[0] as
+          | HTMLElement
+          | undefined;
       if (codeEditorInputElement) {
         return codeEditorInputElement;
       }
 
-      const lazyCodeEditorInputElement = propertyInputElement.getElementsByClassName(
-        "LazyCodeEditor",
-      )[0] as HTMLElement | undefined;
+      const lazyCodeEditorInputElement =
+        propertyInputElement.getElementsByClassName("LazyCodeEditor")[0] as
+          | HTMLElement
+          | undefined;
       if (lazyCodeEditorInputElement) {
         return lazyCodeEditorInputElement;
       }
@@ -96,4 +95,29 @@ export function isDatasourceAuthorizedForQueryCreation(
   }
 
   return true;
+}
+
+/**
+ * Returns datasource property value from datasource?.datasourceConfiguration?.properties
+ * @param datasource Datasource
+ * @param propertyKey string
+ * @returns string | null
+ */
+export function getDatasourcePropertyValue(
+  datasource: Datasource,
+  propertyKey: string,
+): string | null {
+  if (!datasource) {
+    return null;
+  }
+
+  const properties = datasource?.datasourceConfiguration?.properties;
+  if (!!properties && properties.length > 0) {
+    const propertyObj = properties.find((prop) => prop.key === propertyKey);
+    if (!!propertyObj) {
+      return propertyObj.value;
+    }
+  }
+
+  return null;
 }

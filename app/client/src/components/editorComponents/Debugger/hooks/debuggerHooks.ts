@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router";
-import { ENTITY_TYPE, Log } from "entities/AppsmithConsole";
-import { AppState } from "@appsmith/reducers";
+import type { Log } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import type { AppState } from "@appsmith/reducers";
 import { getWidget } from "sagas/selectors";
 import {
   getCurrentApplicationId,
@@ -11,7 +12,7 @@ import {
 import { getAction, getPlugins } from "selectors/entitiesSelector";
 import { onApiEditor, onCanvas, onQueryEditor } from "../helpers";
 import { getLastSelectedWidget } from "selectors/ui";
-import { getDataTree } from "selectors/dataTreeSelectors";
+import { getConfigTree, getDataTree } from "selectors/dataTreeSelectors";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import {
@@ -44,9 +45,8 @@ export const useFilteredLogs = (query: string, filter?: any) => {
         return true;
       if (
         !!log.state &&
-        JSON.stringify(log.state)
-          .toUpperCase()
-          .indexOf(query.toUpperCase()) !== -1
+        JSON.stringify(log.state).toUpperCase().indexOf(query.toUpperCase()) !==
+          -1
       )
         return true;
     });
@@ -136,7 +136,9 @@ export const useEntityLink = () => {
   const navigateToEntity = useCallback(
     (name) => {
       const dataTree = getDataTree(store.getState());
+      const configTree = getConfigTree();
       const entity = dataTree[name];
+      const entityConfig = configTree[name];
       if (!pageId) return;
       if (isWidget(entity)) {
         navigateToWidget(
@@ -146,17 +148,19 @@ export const useEntityLink = () => {
           NavigationMethod.Debugger,
         );
       } else if (isAction(entity)) {
-        const actionConfig = getActionConfig(entity.pluginType);
+        const actionConfig = getActionConfig(entityConfig.pluginType);
         let plugin;
-        if (entity?.pluginType === PluginType.SAAS) {
-          plugin = plugins.find((plugin) => plugin?.id === entity?.pluginId);
+        if (entityConfig?.pluginType === PluginType.SAAS) {
+          plugin = plugins.find(
+            (plugin) => plugin?.id === entityConfig?.pluginId,
+          );
         }
         const url =
           applicationId &&
           actionConfig?.getURL(
             pageId,
             entity.actionId,
-            entity.pluginType,
+            entityConfig.pluginType,
             plugin,
           );
 

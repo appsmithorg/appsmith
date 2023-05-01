@@ -3,16 +3,14 @@ import _ from "lodash";
 import moment from "moment";
 import React, { useCallback, useContext, useMemo, useState } from "react";
 
-import BaseInputField, {
-  BaseInputComponentProps,
-  parseRegex,
-} from "./BaseInputField";
+import type { BaseInputComponentProps } from "./BaseInputField";
+import BaseInputField, { parseRegex } from "./BaseInputField";
 import CurrencyTypeDropdown, {
   CurrencyDropdownOptions,
   getDefaultCurrency,
 } from "widgets/CurrencyInputWidget/component/CurrencyCodeDropdown";
 import FormContext from "../FormContext";
-import { BaseFieldComponentProps } from "../constants";
+import type { BaseFieldComponentProps } from "../constants";
 import { RenderModes } from "constants/WidgetConstants";
 import { limitDecimalValue } from "widgets/CurrencyInputWidget/component/utilities";
 import derived from "widgets/CurrencyInputWidget/widget/derived";
@@ -26,9 +24,8 @@ type CurrencyInputComponentProps = BaseInputComponentProps & {
   decimalsInCurrency: number;
 };
 
-export type CurrencyInputFieldProps = BaseFieldComponentProps<
-  CurrencyInputComponentProps
->;
+export type CurrencyInputFieldProps =
+  BaseFieldComponentProps<CurrencyInputComponentProps>;
 
 type CurrencyTypeDropdownComponentProps = {
   allowCurrencyChange?: boolean;
@@ -90,9 +87,8 @@ function CurrencyTypeDropdownComponent({
   propertyPath,
 }: CurrencyTypeDropdownComponentProps) {
   const { renderMode, updateWidgetProperty } = useContext(FormContext);
-  const [metaCurrencyCountryCode, setMetaCurrencyCountryCode] = useState<
-    string
-  >();
+  const [metaCurrencyCountryCode, setMetaCurrencyCountryCode] =
+    useState<string>();
   const onCurrencyTypeChange = (code?: string) => {
     if (renderMode === RenderModes.CANVAS) {
       updateWidgetProperty?.(`${propertyPath}.currencyCountryCode`, code);

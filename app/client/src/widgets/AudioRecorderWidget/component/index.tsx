@@ -12,7 +12,7 @@ import { ReactComponent as RecorderNoPermissionIcon } from "assets/icons/widget/
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { darkenHover } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import { ThemeProp } from "widgets/constants";
+import type { ThemeProp } from "widgets/constants";
 
 export enum RecorderStatusTypes {
   PERMISSION_PROMPT = "PERMISSION_PROMPT",

@@ -1,15 +1,12 @@
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { GridDefaults } from "constants/WidgetConstants";
 import log from "loglevel";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { call, put, select } from "redux-saga/effects";
 import { getMinHeightBasedOnChildren, shouldWidgetsCollapse } from "./helpers";
-import { getWidgets } from "sagas/selectors";
 import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
-import { FlattenedWidgetProps } from "widgets/constants";
+import type { FlattenedWidgetProps } from "widgets/constants";
 import {
   getWidgetMaxAutoHeight,
   getWidgetMinAutoHeight,
@@ -17,15 +14,18 @@ import {
 } from "widgets/WidgetUtils";
 import { getChildOfContainerLikeWidget } from "./helpers";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import { getLayoutTree } from "./layoutTree";
+import { getWidgetsForBreakpoint } from "selectors/editorSelectors";
 
 export function* dynamicallyUpdateContainersSaga(
   action?: ReduxAction<{ resettingTabs: boolean }>,
 ) {
   const start = performance.now();
 
-  const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const stateWidgets: CanvasWidgetsReduxState = yield select(
+    getWidgetsForBreakpoint,
+  );
   const canvasWidgets: FlattenedWidgetProps[] | undefined = Object.values(
     stateWidgets,
   ).filter((widget: FlattenedWidgetProps) => {
@@ -54,7 +54,7 @@ export function* dynamicallyUpdateContainersSaga(
       // If the widget exists, is not visible and we can collapse widgets
       if (
         dataTreeWidget &&
-        (dataTreeWidget as DataTreeWidget).isVisible !== true &&
+        (dataTreeWidget as WidgetEntity).isVisible !== true &&
         shouldCollapse
       ) {
         continue;
@@ -64,11 +64,8 @@ export function* dynamicallyUpdateContainersSaga(
         // Get the child we need to consider
         // For a container widget, it will be the child canvas
         // For a tabs widget, it will be the currently open tab's canvas
-        const childWidgetId:
-          | string
-          | undefined = yield getChildOfContainerLikeWidget(
-          parentContainerWidget,
-        );
+        const childWidgetId: string | undefined =
+          yield getChildOfContainerLikeWidget(parentContainerWidget);
 
         // This can be different from the canvas widget in consideration
         // For example, if this canvas widget in consideration
@@ -103,12 +100,13 @@ export function* dynamicallyUpdateContainersSaga(
           Array.isArray(canvasWidget.children) &&
           canvasWidget.children.length > 0
         ) {
-          let maxBottomRowBasedOnChildren: number = yield getMinHeightBasedOnChildren(
-            canvasWidget.widgetId,
-            {},
-            true,
-            dynamicHeightLayoutTree,
-          );
+          let maxBottomRowBasedOnChildren: number =
+            yield getMinHeightBasedOnChildren(
+              canvasWidget.widgetId,
+              {},
+              true,
+              dynamicHeightLayoutTree,
+            );
           // Add a canvas extension offset
           maxBottomRowBasedOnChildren += GridDefaults.CANVAS_EXTENSION_OFFSET;
 

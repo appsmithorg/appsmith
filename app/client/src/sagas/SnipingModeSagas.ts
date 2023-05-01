@@ -1,10 +1,8 @@
 import { all, call, put, select, takeLeading } from "redux-saga/effects";
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { snipingModeBindToSelector } from "selectors/editorSelectors";
-import { ActionData } from "reducers/entityReducers/actionsReducer";
+import type { ActionData } from "reducers/entityReducers/actionsReducer";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import {
   setWidgetDynamicProperty,
@@ -19,7 +17,7 @@ import {
 } from "@appsmith/constants/messages";
 
 import WidgetFactory from "utils/WidgetFactory";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { setSnipingMode } from "actions/propertyPaneActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";

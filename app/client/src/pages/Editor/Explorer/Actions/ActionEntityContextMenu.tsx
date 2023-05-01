@@ -29,7 +29,7 @@ import {
 } from "@appsmith/constants/messages";
 import { builderURL } from "RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { TreeDropdownOption } from "design-system-old";
+import type { TreeDropdownOption } from "design-system-old";
 
 type EntityContextMenuProps = {
   id: string;

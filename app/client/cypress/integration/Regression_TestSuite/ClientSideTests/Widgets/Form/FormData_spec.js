@@ -1,11 +1,11 @@
 const dsl = require("../../../../../fixtures/formDataDsl.json");
 
-describe("Form data", function() {
+describe("Form data", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("CheckboxGroupWidget, MultiSelectTreeWidget, MultiSelectWidgetV2, SelectWidget, SingleSelectTreeWidget, SwitchGroupWidget, PhoneInputWidget, InputWidgetV2 and CurrencyInputWidget should have value props of which values are not null or undefined to be included as a form data", function() {
+  it("CheckboxGroupWidget, MultiSelectTreeWidget, MultiSelectWidgetV2, SelectWidget, SingleSelectTreeWidget, SwitchGroupWidget, PhoneInputWidget, InputWidgetV2 and CurrencyInputWidget should have value props of which values are not null or undefined to be included as a form data", function () {
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",

@@ -1,7 +1,8 @@
 import React from "react";
 
-import { Dropdown, DropdownOption, RenderOption } from "design-system-old";
-import { AppTheme } from "entities/AppTheming";
+import type { DropdownOption, RenderOption } from "design-system-old";
+import { Dropdown } from "design-system-old";
+import type { AppTheme } from "entities/AppTheming";
 
 interface ThemeFontControlProps {
   theme: AppTheme;

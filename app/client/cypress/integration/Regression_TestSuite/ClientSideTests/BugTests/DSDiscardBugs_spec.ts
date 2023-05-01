@@ -7,7 +7,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 
 const testString = "test";
 
-describe("datasource unsaved changes popup shows even without changes", function() {
+describe("datasource unsaved changes popup shows even without changes", function () {
   // In case of postgres and other plugins, host address and port key values are initialized by default making form dirty
   it("1. Bug 18664: Create postgres datasource, save it and edit it and go back, now unsaved changes popup should not be shown", () => {
     dataSources.NavigateToDSCreateNew();

@@ -1,6 +1,6 @@
-import { ValidationConfig } from "constants/PropertyControlConstants";
-import { ValidationResponse } from "constants/WidgetValidation";
-import { MenuButtonWidgetProps } from "./constants";
+import type { ValidationConfig } from "constants/PropertyControlConstants";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import type { MenuButtonWidgetProps } from "./constants";
 
 /**
  * Checks if the source data array

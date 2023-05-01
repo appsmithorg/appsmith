@@ -1,7 +1,7 @@
 import API from "api/Api";
-import { AxiosPromise } from "axios";
-import { AppTheme } from "entities/AppTheming";
-import { ApiResponse } from "./ApiResponses";
+import type { AxiosPromise } from "axios";
+import type { AppTheme } from "entities/AppTheming";
+import type { ApiResponse } from "./ApiResponses";
 
 class AppThemingApi extends API {
   static baseUrl = "/v1";

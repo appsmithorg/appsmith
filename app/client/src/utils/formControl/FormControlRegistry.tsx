@@ -1,47 +1,33 @@
 import React from "react";
 import FormControlFactory from "./FormControlFactory";
-import FixedKeyInputControl, {
-  FixedKeyInputControlProps,
-} from "components/formControls/FixedKeyInputControl";
-import InputTextControl, {
-  InputControlProps,
-} from "components/formControls/InputTextControl";
-import DropDownControl, {
-  DropDownControlProps,
-} from "components/formControls/DropDownControl";
-import SwitchControl, {
-  SwitchControlProps,
-} from "components/formControls/SwitchControl";
-import KeyValueArrayControl, {
-  KeyValueArrayControlProps,
-} from "components/formControls/KeyValueArrayControl";
-import FilePickerControl, {
-  FilePickerControlProps,
-} from "components/formControls/FilePickerControl";
-import DynamicTextControl, {
-  DynamicTextFieldProps,
-} from "components/formControls/DynamicTextFieldControl";
-import CheckboxControl, {
-  CheckboxControlProps,
-} from "components/formControls/CheckboxControl";
-import DynamicInputTextControl, {
-  DynamicInputControlProps,
-} from "components/formControls/DynamicInputTextControl";
-import FieldArrayControl, {
-  FieldArrayControlProps,
-} from "components/formControls/FieldArrayControl";
-import WhereClauseControl, {
-  WhereClauseControlProps,
-} from "components/formControls/WhereClauseControl";
-import PaginationControl, {
-  PaginationControlProps,
-} from "components/formControls/PaginationControl";
-import SortingControl, {
-  SortingControlProps,
-} from "components/formControls/SortingControl";
-import EntitySelectorControl, {
-  EntitySelectorControlProps,
-} from "components/formControls/EntitySelectorControl";
+import type { FixedKeyInputControlProps } from "components/formControls/FixedKeyInputControl";
+import FixedKeyInputControl from "components/formControls/FixedKeyInputControl";
+import type { InputControlProps } from "components/formControls/InputTextControl";
+import InputTextControl from "components/formControls/InputTextControl";
+import type { DropDownControlProps } from "components/formControls/DropDownControl";
+import DropDownControl from "components/formControls/DropDownControl";
+import type { SwitchControlProps } from "components/formControls/SwitchControl";
+import SwitchControl from "components/formControls/SwitchControl";
+import type { KeyValueArrayControlProps } from "components/formControls/KeyValueArrayControl";
+import KeyValueArrayControl from "components/formControls/KeyValueArrayControl";
+import type { FilePickerControlProps } from "components/formControls/FilePickerControl";
+import FilePickerControl from "components/formControls/FilePickerControl";
+import type { DynamicTextFieldProps } from "components/formControls/DynamicTextFieldControl";
+import DynamicTextControl from "components/formControls/DynamicTextFieldControl";
+import type { CheckboxControlProps } from "components/formControls/CheckboxControl";
+import CheckboxControl from "components/formControls/CheckboxControl";
+import type { DynamicInputControlProps } from "components/formControls/DynamicInputTextControl";
+import DynamicInputTextControl from "components/formControls/DynamicInputTextControl";
+import type { FieldArrayControlProps } from "components/formControls/FieldArrayControl";
+import FieldArrayControl from "components/formControls/FieldArrayControl";
+import type { WhereClauseControlProps } from "components/formControls/WhereClauseControl";
+import WhereClauseControl from "components/formControls/WhereClauseControl";
+import type { PaginationControlProps } from "components/formControls/PaginationControl";
+import PaginationControl from "components/formControls/PaginationControl";
+import type { SortingControlProps } from "components/formControls/SortingControl";
+import SortingControl from "components/formControls/SortingControl";
+import type { EntitySelectorControlProps } from "components/formControls/EntitySelectorControl";
+import EntitySelectorControl from "components/formControls/EntitySelectorControl";
 import formControlTypes from "./formControlTypes";
 
 /**

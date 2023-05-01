@@ -1,9 +1,9 @@
-import { PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
 import { Classes, ControlGroup } from "@blueprintjs/core";
 import styled, { createGlobalStyle } from "styled-components";
 import { Colors } from "constants/Colors";
 
-import { DropdownOption } from "../constants";
+import type { DropdownOption } from "../constants";
 import { Select } from "@blueprintjs/select";
 import { BlueprintCSSTransform } from "constants/DefaultTheme";
 import { isEmptyOrNill } from "../../../utils/helpers";
@@ -80,9 +80,9 @@ type StyledSingleDropDownProps = PropsWithChildren<{
 }>;
 
 const SingleDropDown = Select.ofType<DropdownOption>();
-export const StyledSingleDropDown = styled(SingleDropDown)<
-  StyledSingleDropDownProps
->`
+export const StyledSingleDropDown = styled(
+  SingleDropDown,
+)<StyledSingleDropDownProps>`
   div {
     flex: 1 1 auto;
   }
@@ -93,6 +93,7 @@ export const StyledSingleDropDown = styled(SingleDropDown)<
       height: 100%;
     }
   }
+
   &&&& .${Classes.BUTTON} {
     display: flex;
     width: 100%;
@@ -225,17 +226,17 @@ export const DropdownContainer = styled.div<{
 
   /**
     When the label is on the left it is not center aligned
-    here set height to auto and not 100% because the input 
+    here set height to auto and not 100% because the input
     has fixed height and stretch the container.
   */
     ${({ labelPosition }) => {
-      if (labelPosition === LabelPosition.Left) {
-        return `
+    if (labelPosition === LabelPosition.Left) {
+      return `
       height: auto !important;
       align-items: stretch;
       `;
-      }
-    }}
+    }
+  }}
 
   & .${LABEL_CONTAINER_CLASS} {
     label {

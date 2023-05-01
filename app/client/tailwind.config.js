@@ -25,16 +25,16 @@ module.exports = {
         warmGray: colors.stone,
 
         primary: {
-          "50": "#FFFFFF",
-          "100": "#FFF5F0",
-          "200": "#FDD2BF",
-          "300": "#FBAF8E",
-          "400": "#FA8D5C",
-          "500": "#F86A2B",
-          "600": "#E84D08",
-          "700": "#B73C06",
-          "800": "#862C04",
-          "900": "#541C03",
+          50: "#FFFFFF",
+          100: "#FFF5F0",
+          200: "#FDD2BF",
+          300: "#FBAF8E",
+          400: "#FA8D5C",
+          500: "#F86A2B",
+          600: "#E84D08",
+          700: "#B73C06",
+          800: "#862C04",
+          900: "#541C03",
         },
       },
       spacing: {
@@ -63,6 +63,7 @@ module.exports = {
         28: "7rem",
         32: "8rem",
         36: "9rem",
+        39: "9.75rem",
         40: "10rem",
         44: "11rem",
         48: "12rem",
@@ -177,12 +178,9 @@ module.exports = {
         sm: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
         DEFAULT:
           "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
-        md:
-          "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-        lg:
-          "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
-        xl:
-          "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+        md: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+        lg: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+        xl: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
         "2xl": "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
         inner: "inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)",
         none: "none",

@@ -1,10 +1,5 @@
-import React, {
-  useRef,
-  MutableRefObject,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import type { MutableRefObject } from "react";
+import React, { useRef, useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import Divider from "components/editorComponents/Divider";
 import Search from "./ExplorerSearch";
@@ -77,9 +72,8 @@ const StyledDivider = styled(Divider)`
 function EntityExplorer({ isActive }: { isActive: boolean }) {
   const dispatch = useDispatch();
   const [searchKeyword, setSearchKeyword] = useState("");
-  const searchInputRef: MutableRefObject<HTMLInputElement | null> = useRef(
-    null,
-  );
+  const searchInputRef: MutableRefObject<HTMLInputElement | null> =
+    useRef(null);
   PerformanceTracker.startTracking(PerformanceTransactionName.ENTITY_EXPLORER);
   useEffect(() => {
     PerformanceTracker.stopTracking();

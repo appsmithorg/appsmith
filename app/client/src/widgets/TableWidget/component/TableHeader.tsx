@@ -9,7 +9,7 @@ import {
 } from "./TableStyledWrappers";
 import { SearchComponent } from "design-system-old";
 import TableFilters from "./TableFilters";
-import {
+import type {
   ReactTableColumnProps,
   TableSizes,
   ReactTableFilter,

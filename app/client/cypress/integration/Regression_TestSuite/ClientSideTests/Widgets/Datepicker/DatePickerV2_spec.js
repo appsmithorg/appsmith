@@ -8,7 +8,7 @@ import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
 let agHelper = ObjectsRegistry.AggregateHelper;
 
-describe("DatePicker Widget Property pane tests with js bindings", function() {
+describe("DatePicker Widget Property pane tests with js bindings", function () {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });
@@ -21,7 +21,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.addDsl(dsl);
   });
 
-  it("1. Datepicker default date validation with js binding", function() {
+  it("1. Datepicker default date validation with js binding", function () {
     cy.wait(7000);
     cy.openPropertyPane("datepickerwidget2");
     cy.get(".t--property-control-defaultdate .bp3-input").clear();
@@ -47,7 +47,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
       */
   });
 
-  it("2. Text widgets binding with datepicker", function() {
+  it("2. Text widgets binding with datepicker", function () {
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{DatePicker1.formattedDate}}");
     cy.closePropertyPane();
@@ -57,7 +57,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.closePropertyPane();
   });
 
-  it("3. Text widgets binding with datepicker", function() {
+  it("3. Text widgets binding with datepicker", function () {
     cy.openPropertyPane("datepickerwidget2");
     cy.selectDateFormat("YYYY-MM-DD");
     cy.assertDateFormat();
@@ -72,7 +72,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.assertDateFormat();
   });
 
-  it("4. Datepicker default date validation message", function() {
+  it("4. Datepicker default date validation message", function () {
     cy.openPropertyPane("datepickerwidget2");
     cy.testJsontext("defaultdate", "24-12-2021");
     cy.evaluateErrorMessage("Value does not match: ISO 8601 date string");
@@ -109,7 +109,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     );
   });
 
-  it("6. Datepicker default date validation with strings", function() {
+  it("6. Datepicker default date validation with strings", function () {
     cy.addDsl(datedsl);
     cy.openPropertyPane("datepickerwidget2");
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
@@ -124,7 +124,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     cy.closePropertyPane();
   });
 
-  it("7. Datepicker input value changes to work with selected date formats", function() {
+  it("7. Datepicker input value changes to work with selected date formats", function () {
     cy.openPropertyPane("datepickerwidget2");
     cy.get(".t--property-control-mindate .bp3-input")
       .clear()
@@ -155,7 +155,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
       .should("contain.text", "May 4, 2021 6:25 AM");
   });
 
-  it("8. Check isDirty meta property", function() {
+  it("8. Check isDirty meta property", function () {
     cy.addDsl(datedsl);
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(".t--property-control-text", `{{DatePicker1.isDirty}}`);
@@ -171,9 +171,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
     );
     cy.closePropertyPane();
     // Check if initial value of isDirty is false
-    cy.get(".t--widget-textwidget")
-      .first()
-      .should("contain", "false");
+    cy.get(".t--widget-textwidget").first().should("contain", "false");
     // Interact with UI
     cy.get(".t--draggable-datepickerwidget2 .bp3-input")
       .clear({
@@ -182,9 +180,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
       .type("04/05/2021 06:25");
     cy.wait("@updateLayout");
     // Check if isDirty is set to true
-    cy.get(".t--widget-textwidget")
-      .first()
-      .should("contain", "true");
+    cy.get(".t--widget-textwidget").first().should("contain", "true");
     // Change defaultDate
     cy.openPropertyPane("datepickerwidget2");
     cy.testJsontext("defaultdate", "");
@@ -196,12 +192,10 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
       '{{moment("07/05/2021 05:25", "DD/MM/YYYY HH:mm").toISOString()}}',
     );
     // Check if isDirty is reset to false
-    cy.get(".t--widget-textwidget")
-      .first()
-      .should("contain", "false");
+    cy.get(".t--widget-textwidget").first().should("contain", "false");
   });
 
-  it("9. Datepicker default date validation with js binding", function() {
+  it("9. Datepicker default date validation with js binding", function () {
     cy.PublishtheApp();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(10000);
@@ -209,7 +203,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
   });
 });
 
-describe("DatePicker Widget Property tests onFocus and onBlur", function() {
+describe("DatePicker Widget Property tests onFocus and onBlur", function () {
   it("onBlur and onFocus should be triggered from the datePicker widget", () => {
     cy.Createpage("New Page");
     cy.dragAndDropToCanvas("datepickerwidget2", { x: 300, y: 600 });

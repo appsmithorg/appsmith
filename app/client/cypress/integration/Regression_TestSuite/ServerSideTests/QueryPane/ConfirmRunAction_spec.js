@@ -2,7 +2,7 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 const queryEditor = require("../../../../locators/QueryEditor.json");
 let datasourceName;
 
-describe("Confirm run action", function() {
+describe("Confirm run action", function () {
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
@@ -22,17 +22,9 @@ describe("Confirm run action", function() {
       .focus()
       .type("select * from configs");
     cy.get("li:contains('Settings')").click({ force: true });
-    cy.get("[data-cy=confirmBeforeExecute]")
-      .find("span")
-      .click();
-    cy.xpath(queryEditor.runQuery)
-      .last()
-      .click({ force: true })
-      .wait(1000);
-    cy.get(".bp3-dialog")
-      .find("button")
-      .contains("Yes")
-      .click();
+    cy.get("[data-cy=confirmBeforeExecute]").find("span").click();
+    cy.xpath(queryEditor.runQuery).last().click({ force: true }).wait(1000);
+    cy.get(".bp3-dialog").find("button").contains("Yes").click();
     cy.wait("@postExecute").should(
       "have.nested.property",
       "response.body.responseMeta.status",

@@ -8,12 +8,19 @@ let repoName;
 
 describe("Tests JS Library with Git", () => {
   before(() => {
+    cy.NavigateToHome();
+    cy.createWorkspace();
+    cy.wait("@createWorkspace").then((interception) => {
+      const newWorkspaceName = interception.response.body.data.name;
+      cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
+    });
     // connect app to git
     _.gitSync.CreateNConnectToGit(repoName);
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
     });
   });
+
   it("1. Install JS Library and commit changes, create branch and verify JS library changes are present on new branch ", () => {
     _.entityExplorer.ExpandCollapseEntity("Libraries");
     _.installer.openInstaller();

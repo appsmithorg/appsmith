@@ -1,10 +1,11 @@
-import React, { ReactNode, useCallback, useEffect, useState } from "react";
+import type { ReactNode } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled, { useTheme } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
   importApplication,
   setWorkspaceIdForImport,
-} from "actions/applicationActions";
+} from "@appsmith/actions/applicationActions";
 import {
   createMessage,
   IMPORT_APP_FROM_FILE_MESSAGE,
@@ -17,24 +18,24 @@ import {
   UPLOADING_JSON,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
+import type { SetProgress } from "design-system-old";
 import {
   DialogComponent as Dialog,
   FilePickerV2,
   FileType,
   Icon,
   IconSize,
-  SetProgress,
   Text,
   TextType,
 } from "design-system-old";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
-import { getIsImportingApplication } from "selectors/applicationSelectors";
+import { getIsImportingApplication } from "@appsmith/selectors/applicationSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Classes } from "@blueprintjs/core";
 import Statusbar from "pages/Editor/gitSync/components/Statusbar";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Theme } from "constants/DefaultTheme";
+import type { Theme } from "constants/DefaultTheme";
 
 const StyledDialog = styled(Dialog)`
   && .${Classes.DIALOG_HEADER} {

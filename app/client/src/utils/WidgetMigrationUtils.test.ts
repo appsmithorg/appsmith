@@ -1,5 +1,5 @@
 import { cloneDeep, noop } from "lodash";
-import { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "widgets/constants";
 import { traverseDSLAndMigrate } from "./WidgetMigrationUtils";
 
 const dsl = {
@@ -24,18 +24,18 @@ const dsl = {
 describe("traverseDSLAndMigrate", () => {
   it("should check that migration function is getting called for each widget in the tree", () => {
     const migrateFn = jest.fn();
-    traverseDSLAndMigrate((dsl as any) as DSLWidget, migrateFn);
+    traverseDSLAndMigrate(dsl as any as DSLWidget, migrateFn);
     expect(migrateFn).toHaveBeenCalledTimes(4);
   });
 
   it("should check that tree structure remain intact", () => {
     const copyDSL = cloneDeep(dsl);
-    traverseDSLAndMigrate((dsl as any) as DSLWidget, noop);
+    traverseDSLAndMigrate(dsl as any as DSLWidget, noop);
     expect(dsl).toEqual(copyDSL);
   });
 
   it("should check that migration function updates are written in the tree", () => {
-    traverseDSLAndMigrate((dsl as any) as DSLWidget, (widget) => {
+    traverseDSLAndMigrate(dsl as any as DSLWidget, (widget) => {
       widget.type = "widget";
     });
 

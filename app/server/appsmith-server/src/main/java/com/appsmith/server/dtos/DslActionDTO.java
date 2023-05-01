@@ -1,7 +1,9 @@
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.models.PluginType;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.appsmith.external.views.Views;
+import com.fasterxml.jackson.annotation.JsonView;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,17 +18,34 @@ import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXE
 @ToString
 @EqualsAndHashCode
 public class DslActionDTO {
+    @JsonView(Views.Public.class)
     String id;
-    @JsonIgnore
+
+    @JsonView(Views.Internal.class)
     String defaultActionId;
-    @JsonIgnore
+
+    @JsonView(Views.Internal.class)
     String defaultCollectionId;
+
+    @JsonView(Views.Public.class)
     String name;
+
+    @JsonView(Views.Public.class)
     String collectionId;
+
+    @JsonView(Views.Public.class)
     Boolean clientSideExecution;
+
+    @JsonView(Views.Public.class)
     Boolean confirmBeforeExecute;
+
+    @JsonView(Views.Public.class)
     PluginType pluginType;
+
+    @JsonView(Views.Public.class)
     Set<String> jsonPathKeys;
+
+    @JsonView(Views.Public.class)
     Integer timeoutInMillisecond = DEFAULT_ACTION_EXECUTION_TIMEOUT_MS;
 
     public void sanitiseForExport() {

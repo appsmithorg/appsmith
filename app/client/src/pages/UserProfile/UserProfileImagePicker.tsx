@@ -6,9 +6,11 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import { DisplayImageUpload } from "design-system-old";
 
-import Uppy from "@uppy/core";
+import type Uppy from "@uppy/core";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 function FormDisplayImage() {
+  const isAirgappedInstance = isAirgapped();
   const [file, setFile] = useState<any>();
   const dispatch = useDispatch();
   const user = useSelector(getCurrentUser);
@@ -53,6 +55,7 @@ function FormDisplayImage() {
 
   return (
     <DisplayImageUpload
+      disableUppyInformer={isAirgappedInstance}
       onChange={onSelectFile}
       onRemove={removeProfileImage}
       submit={upload}

@@ -2,7 +2,7 @@ import React from "react";
 import styled, { useTheme } from "styled-components";
 import { HelpIcons } from "icons/HelpIcons";
 import { Colors } from "constants/Colors";
-import { Theme } from "constants/DefaultTheme";
+import type { Theme } from "constants/DefaultTheme";
 
 const StyledUpdatesButton = styled.div`
   position: absolute;

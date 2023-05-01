@@ -2,7 +2,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 
 const widgetName = "currencyinputwidget";
 
-describe("Currency Widget showStepArrows Functionality - ", function() {
+describe("Currency Widget showStepArrows Functionality - ", function () {
   it("1. Validate that For new currency input widgets being dragged, the value for showStepArrows should be set to false", () => {
     cy.dragAndDropToCanvas(widgetName, { x: 300, y: 400 });
     cy.openPropertyPane(widgetName);

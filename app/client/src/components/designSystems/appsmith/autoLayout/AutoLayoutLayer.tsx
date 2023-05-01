@@ -1,7 +1,12 @@
-import React, { ReactNode } from "react";
+import { GridDefaults } from "constants/WidgetConstants";
+import type { ReactNode } from "react";
+import React from "react";
 import styled from "styled-components";
+import { getAlignmentMarginInfo } from "utils/autoLayout/AutoLayoutUtils";
 
-import { LayoutDirection } from "utils/autoLayout/constants";
+import { FlexLayerAlignment } from "utils/autoLayout/constants";
+import type { LayoutDirection } from "utils/autoLayout/constants";
+import { MOBILE_ROW_GAP, ROW_GAP } from "utils/autoLayout/constants";
 
 /**
  * 1. Given a direction if should employ flex in perpendicular direction.
@@ -21,6 +26,9 @@ export interface AutoLayoutLayerProps {
   wrapCenter: boolean;
   wrapEnd: boolean;
   wrapLayer: boolean;
+  startColumns: number;
+  centerColumns: number;
+  endColumns: number;
 }
 
 const LayoutLayerContainer = styled.div<{
@@ -37,6 +45,8 @@ const LayoutLayerContainer = styled.div<{
 
 const SubWrapper = styled.div<{
   wrap?: boolean;
+  isMobile?: boolean;
+  mBottom?: boolean;
 }>`
   flex: ${({ wrap }) => `1 1 ${wrap ? "100" : "33.3333"}%`};
   display: flex;
@@ -44,6 +54,9 @@ const SubWrapper = styled.div<{
   align-items: flex-start;
   align-self: stretch;
   flex-wrap: ${({ wrap }) => (wrap ? "wrap" : "nowrap")};
+  row-gap: ${(isMobile) => (isMobile ? MOBILE_ROW_GAP : ROW_GAP)}px;
+  margin-bottom: ${({ isMobile, mBottom }) =>
+    mBottom && isMobile ? MOBILE_ROW_GAP : 0}px;
 `;
 
 const StartWrapper = styled(SubWrapper)`
@@ -59,20 +72,71 @@ const CenterWrapper = styled(SubWrapper)`
 `;
 
 function AutoLayoutLayer(props: AutoLayoutLayerProps) {
+  const renderChildren = () => {
+    const {
+      center,
+      centerColumns,
+      end,
+      endColumns,
+      isMobile,
+      start,
+      startColumns,
+    } = props;
+    const marginInfo = getAlignmentMarginInfo([
+      {
+        alignment: FlexLayerAlignment.Start,
+        columns: startColumns,
+      },
+      {
+        alignment: FlexLayerAlignment.Center,
+        columns: centerColumns,
+      },
+      {
+        alignment: FlexLayerAlignment.End,
+        columns: endColumns,
+      },
+    ]);
+    const arr: (JSX.Element | null)[] = [
+      <StartWrapper
+        isMobile={props.isMobile}
+        key={0}
+        mBottom={marginInfo[0]}
+        wrap={props.wrapStart && props.isMobile}
+      >
+        {start}
+      </StartWrapper>,
+      <CenterWrapper
+        isMobile={props.isMobile}
+        key={1}
+        mBottom={marginInfo[1] && isMobile}
+        wrap={props.wrapCenter && props.isMobile}
+      >
+        {center}
+      </CenterWrapper>,
+      <EndWrapper
+        isMobile={props.isMobile}
+        key={2}
+        wrap={props.wrapEnd && props.isMobile}
+      >
+        {end}
+      </EndWrapper>,
+    ];
+    const isFull =
+      startColumns + centerColumns + endColumns ===
+        GridDefaults.DEFAULT_GRID_COLUMNS && !isMobile;
+    if (isFull) {
+      if (startColumns === 0) arr[0] = null;
+      if (centerColumns === 0) arr[1] = null;
+      if (endColumns === 0) arr[2] = null;
+    }
+    return arr.filter((item) => item !== null);
+  };
   return (
     <LayoutLayerContainer
       className={`auto-layout-layer-${props.widgetId}-${props.index}`}
       wrap={props.isMobile && props.wrapLayer}
     >
-      <StartWrapper wrap={props.wrapStart && props.isMobile}>
-        {props.start}
-      </StartWrapper>
-      <CenterWrapper wrap={props.wrapCenter && props.isMobile}>
-        {props.center}
-      </CenterWrapper>
-      <EndWrapper wrap={props.wrapEnd && props.isMobile}>
-        {props.end}
-      </EndWrapper>
+      {renderChildren()}
     </LayoutLayerContainer>
   );
 }

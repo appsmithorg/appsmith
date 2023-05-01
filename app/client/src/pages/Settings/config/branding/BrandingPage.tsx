@@ -5,9 +5,10 @@ import { useForm } from "react-hook-form";
 import Previews from "./previews";
 import SettingsForm from "./SettingsForm";
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
-import { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
+import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
 import { Wrapper } from "@appsmith/pages/AdminSettings/config/authentication/AuthPage";
 import UpgradeBanner from "@appsmith/pages/AdminSettings/config/branding/UpgradeBanner";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 export type brandColorsKeys =
   | "primary"
@@ -80,8 +81,8 @@ function BrandingPage(props: BrandingPageProps) {
         />
         <div className="flex-grow">
           <Previews
-            favicon={values.APPSMITH_BRAND_FAVICON}
-            logo={values.APPSMITH_BRAND_LOGO}
+            favicon={getAssetUrl(values.APPSMITH_BRAND_FAVICON)}
+            logo={getAssetUrl(values.APPSMITH_BRAND_LOGO)}
             shades={values.brandColors}
           />
         </div>

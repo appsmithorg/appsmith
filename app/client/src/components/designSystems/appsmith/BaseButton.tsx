@@ -2,22 +2,25 @@ import React from "react";
 import styled from "styled-components";
 import tinycolor from "tinycolor2";
 
-import { IButtonProps, Button, Alignment } from "@blueprintjs/core";
-import { IconName } from "@blueprintjs/icons";
+import type { IButtonProps } from "@blueprintjs/core";
+import { Button, Alignment } from "@blueprintjs/core";
+import type { IconName } from "@blueprintjs/icons";
 
-import { Theme } from "constants/DefaultTheme";
+import type { Theme } from "constants/DefaultTheme";
 
 import _ from "lodash";
+import type {
+  ButtonBorderRadius,
+  ButtonStyleType,
+  ButtonVariant,
+} from "components/constants";
 import {
   ButtonStyleTypes,
   ButtonBoxShadowTypes,
-  ButtonBorderRadius,
   ButtonBorderRadiusTypes,
-  ButtonStyleType,
-  ButtonVariant,
   ButtonVariantTypes,
 } from "components/constants";
-import { ThemeProp } from "widgets/constants";
+import type { ThemeProp } from "widgets/constants";
 
 const getCustomTextColor = (
   theme: Theme,
@@ -50,23 +53,17 @@ const getCustomHoverColor = (
   switch (buttonVariant) {
     case ButtonVariantTypes.SECONDARY:
       return backgroundColor
-        ? tinycolor(backgroundColor)
-            .lighten(40)
-            .toString()
+        ? tinycolor(backgroundColor).lighten(40).toString()
         : theme.colors.button.primary.secondary.hoverColor;
 
     case ButtonVariantTypes.TERTIARY:
       return backgroundColor
-        ? tinycolor(backgroundColor)
-            .lighten(40)
-            .toString()
+        ? tinycolor(backgroundColor).lighten(40).toString()
         : theme.colors.button.primary.tertiary.hoverColor;
 
     default:
       return backgroundColor
-        ? tinycolor(backgroundColor)
-            .darken(10)
-            .toString()
+        ? tinycolor(backgroundColor).darken(10).toString()
         : theme.colors.button.primary.primary.hoverColor;
   }
 };
@@ -255,20 +252,25 @@ const StyledButton = styled((props) => (
 
   box-shadow: ${({ boxShadow, boxShadowColor, theme }) =>
     boxShadow === ButtonBoxShadowTypes.VARIANT1
-      ? `0px 0px 4px 3px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant1}`
+      ? `0px 0px 4px 3px ${
+          boxShadowColor || theme.colors.button.boxShadow.default.variant1
+        }`
       : boxShadow === ButtonBoxShadowTypes.VARIANT2
-      ? `3px 3px 4px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant2}`
+      ? `3px 3px 4px ${
+          boxShadowColor || theme.colors.button.boxShadow.default.variant2
+        }`
       : boxShadow === ButtonBoxShadowTypes.VARIANT3
-      ? `0px 1px 3px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant3}`
+      ? `0px 1px 3px ${
+          boxShadowColor || theme.colors.button.boxShadow.default.variant3
+        }`
       : boxShadow === ButtonBoxShadowTypes.VARIANT4
-      ? `2px 2px 0px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant4}`
+      ? `2px 2px 0px ${
+          boxShadowColor || theme.colors.button.boxShadow.default.variant4
+        }`
       : boxShadow === ButtonBoxShadowTypes.VARIANT5
-      ? `-2px -2px 0px ${boxShadowColor ||
-          theme.colors.button.boxShadow.default.variant5}`
+      ? `-2px -2px 0px ${
+          boxShadowColor || theme.colors.button.boxShadow.default.variant5
+        }`
       : "none"} !important;
 `;
 

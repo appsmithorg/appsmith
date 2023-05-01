@@ -1,11 +1,12 @@
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
+import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { call, put, spawn, take } from "redux-saga/effects";
 import { logActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { setUserCurrentGeoLocation } from "actions/browserRequestActions";
-import { Channel, channel } from "redux-saga";
+import type { Channel } from "redux-saga";
+import { channel } from "redux-saga";
 import { evalWorker } from "sagas/EvaluationsSaga";
-import {
+import type {
   TGetGeoLocationDescription,
   TWatchGeoLocationDescription,
 } from "workers/Evaluation/fns/geolocationFns";
@@ -104,6 +105,7 @@ function* errorCallbackHandler(triggerMeta: TriggerMeta, listenerId?: string) {
       );
     logActionExecutionError(
       error.message,
+      true,
       triggerMeta.source,
       triggerMeta.triggerPropertyName,
     );
@@ -127,6 +129,7 @@ export function* getCurrentLocationSaga(
   } catch (error) {
     logActionExecutionError(
       (error as Error).message,
+      true,
       triggerMeta.source,
       triggerMeta.triggerPropertyName,
     );
@@ -149,6 +152,7 @@ export function* watchCurrentLocation(
     // at a given point in time, only one watch is active
     logActionExecutionError(
       "A watchLocation is already active. Clear it before before starting a new one",
+      true,
       triggerMeta.source,
       triggerMeta.triggerPropertyName,
     );
@@ -183,6 +187,7 @@ export function* stopWatchCurrentLocation(
   if (watchId === undefined) {
     logActionExecutionError(
       "No location watch active",
+      true,
       triggerMeta.source,
       triggerMeta.triggerPropertyName,
     );

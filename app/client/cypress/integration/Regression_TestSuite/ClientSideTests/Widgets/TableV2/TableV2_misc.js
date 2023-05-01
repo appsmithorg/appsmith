@@ -1,12 +1,12 @@
 const dsl = require("../../../../../fixtures/tableV2NewDsl.json");
 import { DEFAULT_COLUMN_NAME } from "../../../../../../src/widgets/TableWidgetV2/constants";
 
-describe("tests bug 20663 TypeError: Cannot read properties of undefined", function() {
+describe("tests bug 20663 TypeError: Cannot read properties of undefined", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("1. when the column label value is a valid string should show the evaluated string", function() {
+  it("1. when the column label value is a valid string should show the evaluated string", function () {
     cy.openPropertyPane("tablewidgetv2");
     cy.get(
       ".tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id='id'] input[type=text]",
@@ -22,7 +22,7 @@ describe("tests bug 20663 TypeError: Cannot read properties of undefined", funct
     );
   });
 
-  it("2. when the column label value is a boolean replace column name with default column name", function() {
+  it("2. when the column label value is a boolean replace column name with default column name", function () {
     cy.openPropertyPane("tablewidgetv2");
     cy.get(
       ".tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id='id'] input[type=text]",
@@ -37,7 +37,7 @@ describe("tests bug 20663 TypeError: Cannot read properties of undefined", funct
     );
   });
 
-  it("3. when the column label value is a number replace column name with default column name", function() {
+  it("3. when the column label value is a number replace column name with default column name", function () {
     cy.openPropertyPane("tablewidgetv2");
     cy.get(
       ".tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id='id'] input[type=text]",
@@ -64,7 +64,7 @@ describe("tests bug 20663 TypeError: Cannot read properties of undefined", funct
     );
   });
 
-  it("4. when the column label value is an object replace column name with default column name", function() {
+  it("4. when the column label value is an object replace column name with default column name", function () {
     cy.openPropertyPane("tablewidgetv2");
     cy.get(
       ".tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id='id'] input[type=text]",
@@ -79,7 +79,7 @@ describe("tests bug 20663 TypeError: Cannot read properties of undefined", funct
     );
   });
 
-  it("5. when the column label value is undefined replace column name with default column name", function() {
+  it("5. when the column label value is undefined replace column name with default column name", function () {
     cy.openPropertyPane("tablewidgetv2");
     cy.get(
       ".tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id='id'] input[type=text]",

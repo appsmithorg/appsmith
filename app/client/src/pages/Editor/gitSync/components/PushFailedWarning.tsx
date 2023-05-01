@@ -1,6 +1,6 @@
+import type { NotificationBannerProps } from "design-system-old";
 import {
   NotificationBanner,
-  NotificationBannerProps,
   NotificationVariant,
   Text,
   TextType,

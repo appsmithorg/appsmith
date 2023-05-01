@@ -1,14 +1,17 @@
 import React from "react";
 
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 
 import { Colors } from "constants/Colors";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { Stylesheet } from "entities/AppTheming";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import type { Stylesheet } from "entities/AppTheming";
 import ProgressComponent from "../component";
 import { ProgressType, ProgressVariant } from "../constants";
+import type { AutocompletionDefinitions } from "widgets/constants";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 
 class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -45,6 +48,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
             defaultValue: ProgressType.LINEAR,
             isBindProperty: false,
             isTriggerProperty: false,
+            hidden: isAutoLayout,
           },
           {
             helpText: "Sets the value of the progress indicator",
@@ -126,8 +130,17 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
     ];
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Progress indicators commonly known as spinners, express an unspecified wait time or display the length of a process.",
+      "!url": "https://docs.appsmith.com/widget-reference/progress",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      progress: "number",
+    };
   }
 
   static getPropertyPaneStyleConfig() {

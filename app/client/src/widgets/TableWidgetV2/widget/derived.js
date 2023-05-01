@@ -319,7 +319,7 @@ export default {
       const sortBycolumn = columns.find(
         (column) => column.id === sortByColumnId,
       );
-      const sortByColumnOriginalId = sortBycolumn.originalId;
+      const sortByColumnOriginalId = sortBycolumn.alias;
 
       const columnType =
         sortBycolumn && sortBycolumn.columnType
@@ -430,10 +430,7 @@ export default {
       startsWith: (a, b) => {
         try {
           return (
-            a
-              .toString()
-              .toLowerCase()
-              .indexOf(b.toString().toLowerCase()) === 0
+            a.toString().toLowerCase().indexOf(b.toString().toLowerCase()) === 0
           );
         } catch (e) {
           return false;
@@ -701,7 +698,7 @@ export default {
   //
   getEditableCellValidity: (props, moment, _) => {
     if (
-      (!props.editableCell.column && !props.isAddRowInProgress) ||
+      (!props.editableCell?.column && !props.isAddRowInProgress) ||
       !props.primaryColumns
     ) {
       return {};
@@ -755,11 +752,11 @@ export default {
         });
     } else {
       const editedColumn = Object.values(props.primaryColumns).find(
-        (column) => column.alias === props.editableCell.column,
+        (column) => column.alias === props.editableCell?.column,
       );
 
       if (validatableColumns.includes(editedColumn.columnType)) {
-        editableColumns.push([editedColumn, props.editableCell.value]);
+        editableColumns.push([editedColumn, props.editableCell?.value]);
       }
     }
 

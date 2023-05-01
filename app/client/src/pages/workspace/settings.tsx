@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   useRouteMatch,
   useLocation,
@@ -8,13 +8,17 @@ import {
 } from "react-router-dom";
 import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useSelector, useDispatch } from "react-redux";
-import { MenuItemProps, TabComponent, TabProp } from "design-system-old";
+import type { MenuItemProps, TabProp } from "design-system-old";
+import { TabComponent } from "design-system-old";
 import styled from "styled-components";
 
 import MemberSettings from "@appsmith/pages/workspace/Members";
 import { GeneralSettings } from "./General";
 import * as Sentry from "@sentry/react";
-import { getAllApplications } from "actions/applicationActions";
+import {
+  getAllApplications,
+  setShowAppInviteUsersDialog,
+} from "@appsmith/actions/applicationActions";
 import { useMediaQuery } from "react-responsive";
 import { BackButton, StickyHeader } from "components/utils/helperComponents";
 import { debounce } from "lodash";
@@ -29,8 +33,10 @@ import {
 import {
   createMessage,
   INVITE_USERS_PLACEHOLDER,
+  SEARCH_USERS,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { APPLICATIONS_URL } from "constants/routes";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -103,21 +109,49 @@ export default function Settings() {
 
   const currentTab = location.pathname.split("/").pop();
 
+  const isMemberofTheWorkspace = isPermitted(
+    currentWorkspace?.userPermissions || [],
+    PERMISSION_TYPE.INVITE_USER_TO_WORKSPACE,
+  );
+  const hasManageWorkspacePermissions = isPermitted(
+    currentWorkspace?.userPermissions,
+    PERMISSION_TYPE.MANAGE_WORKSPACE,
+  );
+  const shouldRedirect = useMemo(
+    () =>
+      currentWorkspace &&
+      ((!isMemberofTheWorkspace && currentTab === TABS.MEMBERS) ||
+        (!hasManageWorkspacePermissions && currentTab === TABS.GENERAL)),
+    [
+      currentWorkspace,
+      isMemberofTheWorkspace,
+      hasManageWorkspacePermissions,
+      currentTab,
+    ],
+  );
+
   const onButtonClick = () => {
     setShowModal(true);
   };
 
   useEffect(() => {
+    if (shouldRedirect) {
+      history.replace(APPLICATIONS_URL);
+    }
     if (currentWorkspace) {
       setPageTitle(`${currentWorkspace?.name}`);
     }
-  }, [currentWorkspace]);
+  }, [currentWorkspace, shouldRedirect]);
 
   useEffect(() => {
     if (!currentWorkspace) {
       dispatch(getAllApplications());
     }
   }, [dispatch, currentWorkspace]);
+
+  const handleFormOpenOrClose = useCallback((isOpen: boolean) => {
+    dispatch(setShowAppInviteUsersDialog(isOpen));
+  }, []);
 
   const GeneralSettingsComponent = (
     <SentryRoute
@@ -147,11 +181,6 @@ export default function Settings() {
       setSearchValue("");
     }
   }, 300);
-
-  const isMemberofTheWorkspace = isPermitted(
-    currentWorkspace?.userPermissions || [],
-    PERMISSION_TYPE.INVITE_USER_TO_WORKSPACE,
-  );
 
   const tabArr: TabProp[] = [
     isMemberofTheWorkspace && {
@@ -195,7 +224,7 @@ export default function Settings() {
             onButtonClick={onButtonClick}
             onSearch={onSearch}
             pageMenuItems={pageMenuItems}
-            searchPlaceholder="Search"
+            searchPlaceholder={createMessage(SEARCH_USERS, cloudHosting)}
             showMoreOptions={false}
             showSearchNButton={isMembersPage}
             title={pageTitle}
@@ -219,6 +248,7 @@ export default function Settings() {
         canOutsideClickClose
         isOpen={showModal}
         onClose={() => setShowModal(false)}
+        onOpenOrClose={handleFormOpenOrClose}
         placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
         title={`Invite Users to ${currentWorkspace?.name}`}
         trigger

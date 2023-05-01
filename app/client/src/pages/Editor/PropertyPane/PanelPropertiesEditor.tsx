@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { WidgetProps } from "widgets/BaseWidget";
-import { PanelConfig } from "constants/PropertyControlConstants";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { PanelConfig } from "constants/PropertyControlConstants";
 import PropertyControlsGenerator from "./PropertyControlsGenerator";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { get, isNumber, isPlainObject, isString } from "lodash";
-import { IPanelProps } from "@blueprintjs/core";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { IPanelProps } from "@blueprintjs/core";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import PropertyPaneTitle from "./PropertyPaneTitle";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import styled from "styled-components";

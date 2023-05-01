@@ -1,5 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { TableWidgetProps, ColumnTypes } from "widgets/TableWidgetV2/constants";
+import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
+import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import {
   showByColumnType,
   getColumnPath,

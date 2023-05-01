@@ -4,7 +4,7 @@ import FormControl from "pages/Editor/FormControl";
 import { Classes, Icon, IconSize } from "design-system-old";
 import styled, { css } from "styled-components";
 import { FieldArray, getFormValues } from "redux-form";
-import { ControlProps } from "./BaseControl";
+import type { ControlProps } from "./BaseControl";
 import { Colors } from "constants/Colors";
 import { getBindingOrConfigPathsForSortingControl } from "entities/Action/actionProperties";
 import { SortingSubComponent } from "./utils";

@@ -6,11 +6,8 @@ import {
   getPluginEditorConfigs,
   getJSCollectionsForCurrentPage,
 } from "./entitiesSelector";
-import {
-  DataTree,
-  DataTreeFactory,
-  DataTreeWidget,
-} from "entities/DataTree/dataTreeFactory";
+import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
+import { DataTreeFactory } from "entities/DataTree/dataTreeFactory";
 import {
   getMetaWidgets,
   getWidgetsForEval,
@@ -18,11 +15,13 @@ import {
 } from "sagas/selectors";
 import "url-search-params-polyfill";
 import { getPageList } from "./appViewSelectors";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { getSelectedAppThemeProperties } from "./appThemingSelectors";
-import { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
+import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 import { get } from "lodash";
-import { EvaluationError, getEvalErrorPath } from "utils/DynamicBindingUtils";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
+import { getEvalErrorPath } from "utils/DynamicBindingUtils";
+import ConfigTreeActions from "utils/configTree";
 
 export const getUnevaluatedDataTree = createSelector(
   getActionsForCurrentPage,
@@ -83,9 +82,13 @@ export const getIsWidgetLoading = createSelector(
 export const getDataTree = (state: AppState): DataTree =>
   state.evaluations.tree;
 
+export const getConfigTree = (): any => {
+  return ConfigTreeActions.getConfigTree();
+};
+
 export const getWidgetEvalValues = createSelector(
   [getDataTree, (_state: AppState, widgetName: string) => widgetName],
-  (tree: DataTree, widgetName: string) => tree[widgetName] as DataTreeWidget,
+  (tree: DataTree, widgetName: string) => tree[widgetName] as WidgetEntity,
 );
 
 // For autocomplete. Use actions cached responses if
@@ -96,6 +99,7 @@ export const getDataTreeForAutocomplete = createSelector(
     return tree;
   },
 );
+
 export const getPathEvalErrors = createSelector(
   [
     getDataTreeForAutocomplete,

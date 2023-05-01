@@ -31,15 +31,12 @@ export const smartSubstituteDynamicValues = (
   subSegments: string[],
   subSegmentValues: unknown[],
 ): string => {
-  const {
-    binding,
-    subBindings,
-    subValues,
-  } = filterBindingSegmentsAndRemoveQuotes(
-    originalBinding,
-    subSegments,
-    subSegmentValues,
-  );
+  const { binding, subBindings, subValues } =
+    filterBindingSegmentsAndRemoveQuotes(
+      originalBinding,
+      subSegments,
+      subSegmentValues,
+    );
   let finalBinding = binding;
   subBindings.forEach((b, i) => {
     const value = subValues[i];
@@ -71,15 +68,12 @@ export const parameterSubstituteDynamicValues = (
   subSegments: string[],
   subSegmentValues: unknown[],
 ) => {
-  const {
-    binding,
-    subBindings,
-    subValues,
-  } = filterBindingSegmentsAndRemoveQuotes(
-    originalBinding,
-    subSegments,
-    subSegmentValues,
-  );
+  const { binding, subBindings, subValues } =
+    filterBindingSegmentsAndRemoveQuotes(
+      originalBinding,
+      subSegments,
+      subSegmentValues,
+    );
   // if only one binding is provided in the whole string, we need to throw an error
   if (subSegments.length === 1 && subBindings.length === 1) {
     throw Error(

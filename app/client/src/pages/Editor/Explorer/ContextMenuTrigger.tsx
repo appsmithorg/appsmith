@@ -9,7 +9,7 @@ import {
   ENTITY_MORE_ACTIONS_TOOLTIP,
 } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import { Theme } from "constants/DefaultTheme";
+import type { Theme } from "constants/DefaultTheme";
 
 const ToggleIcon = styled(ControlIcons.MORE_VERTICAL_CONTROL)`
   &&& {

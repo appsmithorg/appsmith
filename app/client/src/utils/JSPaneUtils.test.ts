@@ -1,6 +1,7 @@
 import { PluginType } from "entities/Action";
-import { JSCollection } from "entities/JSCollection";
-import { getDifferenceInJSCollection, ParsedBody } from "./JSPaneUtils";
+import type { JSCollection } from "entities/JSCollection";
+import type { ParsedBody } from "./JSPaneUtils";
+import { getDifferenceInJSCollection } from "./JSPaneUtils";
 
 const JSObject1: JSCollection = {
   id: "1234",
@@ -101,8 +102,7 @@ const JSObject1: JSCollection = {
     },
   ],
   archivedActions: [],
-  body:
-    "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
+  body: "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
   variables: [
     {
       name: "myVar1",
@@ -214,8 +214,7 @@ const JSObject2: JSCollection = {
     },
   ],
   archivedActions: [],
-  body:
-    "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
+  body: "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}",
   variables: [
     {
       name: "myVar1",
@@ -435,8 +434,7 @@ const parsedBodyWithChangeInBody: ParsedBody = {
     },
     {
       name: "myFun2",
-      body:
-        "async () => {\n\t\t//use async-await or promises\n\tconsole.log('content changed')}",
+      body: "async () => {\n\t\t//use async-await or promises\n\tconsole.log('content changed')}",
       arguments: [],
       isAsync: true,
     },
@@ -479,8 +477,7 @@ const resultChangedBody = {
         timeoutInMillisecond: 10000,
         paginationType: "NONE",
         encodeParamsToggle: true,
-        body:
-          "async () => {\n\t\t//use async-await or promises\n\tconsole.log('content changed')}",
+        body: "async () => {\n\t\t//use async-await or promises\n\tconsole.log('content changed')}",
         jsArguments: [],
         isAsync: true,
       },

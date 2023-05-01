@@ -1,5 +1,5 @@
 import log from "loglevel";
-import { Def } from "tern";
+import type { Def } from "tern";
 
 function getTernDocType(obj: any) {
   const type = typeof obj;

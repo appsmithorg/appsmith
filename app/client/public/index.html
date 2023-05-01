@@ -33,7 +33,7 @@
     }
     const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__");
     const ZIPY_KEY = parseConfig("__APPSMITH_ZIPY_SDK_KEY__");
-    if(CLOUD_HOSTING && ZIPY_KEY) {
+    if (CLOUD_HOSTING && ZIPY_KEY) {
       const script = document.createElement('script');
       script.crossOrigin = "anonymous";
       script.defer = true;
@@ -45,7 +45,20 @@
       head && head.appendChild(script);
     }
 
+    // This function is triggered on load of google apis javascript library
+    // Even though the script is loaded asynchronously, in case of firefox run on windows
+    // The gapi script is getting loaded even before the last script of index.html
+    // Hence defining this function before loading gapi
+    // For more info: https://github.com/appsmithorg/appsmith/issues/21033
+    gapiLoaded = () => {
+      window.googleAPIsLoaded = true;
+    }
+    onError = () => {
+      window.googleAPIsLoaded = false;
+    };
   </script>
+  <!-- Adding this Library to access google file picker API in case of limiting google sheet access -->
+  <script async defer id="googleapis" src="https://apis.google.com/js/api.js" onload="gapiLoaded()" onerror="onError()"></script>
 </head>
 
 <body class="appsmith-light-theme">
@@ -134,8 +147,6 @@
       smartLook: {
         id: parseConfig("__APPSMITH_SMART_LOOK_ID__"),
       },
-      enableGoogleOAuth: parseConfig("__APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__"),
-      enableGithubOAuth: parseConfig("__APPSMITH_OAUTH2_GITHUB_CLIENT_ID__"),
       disableLoginForm: parseConfig("__APPSMITH_FORM_LOGIN_DISABLED__"),
       disableSignup: parseConfig("__APPSMITH_SIGNUP_DISABLED__"),
       enableRapidAPI: parseConfig("__APPSMITH_MARKETPLACE_ENABLED__"),
@@ -165,6 +176,8 @@
       googleRecaptchaSiteKey: parseConfig("__APPSMITH_RECAPTCHA_SITE_KEY__"),
       hideWatermark: parseConfig("__APPSMITH_HIDE_WATERMARK__"),
       disableIframeWidgetSandbox: parseConfig("__APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX__"),
+      customerPortalUrl: parseConfig("__APPSMITH_CUSTOMER_PORTAL_URL__") || "https://customer.appsmith.com",
+      pricingUrl: parseConfig("__APPSMITH_PRICING_URL__") || "https://www.appsmith.com/pricing",
     };
   </script>
 </body>

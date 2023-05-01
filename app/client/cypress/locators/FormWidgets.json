@@ -41,7 +41,7 @@
   "labelradio": ".t--draggable-radiogroupwidget label",
   "labelCheckboxGroup": ".t--draggable-checkboxgroupwidget label",
   "labelSwitchGroup": ".t--draggable-switchgroupwidget label",
-  "deleteradiovalue": ".t--property-control-options  svg.remixicon-icon ",
+  "deleteradiovalue": ".t--property-control-options .delete-icon svg.remixicon-icon ",
   "inputRadio": ".t--draggable-radiogroupwidget input",
   "defaultSelect": ".t--property-control-defaultselectedvalue .CodeMirror-code",
   "defaultSelectValues": ".t--property-control-defaultselectedvalues .CodeMirror-code",

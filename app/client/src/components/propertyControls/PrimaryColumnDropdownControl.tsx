@@ -1,10 +1,11 @@
 import React from "react";
-import BaseControl, { ControlProps } from "./BaseControl";
-import { ColumnProperties } from "widgets/TableWidget/component/Constants";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
+import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
-import { DropdownOption } from "design-system-old";
+import type { DropdownOption } from "design-system-old";
+import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
-  DSEventDetail,
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
@@ -41,8 +42,8 @@ class PrimaryColumnDropdownControl extends BaseControl<ControlProps> {
 
   render() {
     // Get columns from widget properties
-    const columns: Record<string, ColumnProperties> = this.props
-      .widgetProperties.primaryColumns;
+    const columns: Record<string, ColumnProperties> =
+      this.props.widgetProperties.primaryColumns;
     const options: any[] = [];
 
     for (const i in columns) {

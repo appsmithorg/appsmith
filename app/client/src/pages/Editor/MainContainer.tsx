@@ -23,11 +23,13 @@ import styled from "styled-components";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
-const Container = styled.div`
+const Container = styled.div<{
+  isPreviewMode: boolean;
+}>`
   display: flex;
   height: calc(
     100vh - ${(props) => props.theme.smallHeaderHeight} -
-      ${(props) => props.theme.bottomBarHeight}
+      ${(props) => (props.isPreviewMode ? "0px" : props.theme.bottomBarHeight)}
   );
   background-color: ${(props) => props.theme.appBackground};
 `;
@@ -59,7 +61,10 @@ function MainContainer() {
 
   return (
     <>
-      <Container className="relative w-full overflow-x-hidden">
+      <Container
+        className="relative w-full overflow-x-hidden"
+        isPreviewMode={isPreviewMode}
+      >
         <EntityExplorerSidebar
           onDragEnd={onLeftSidebarDragEnd}
           onWidthChange={onLeftSidebarWidthChange}

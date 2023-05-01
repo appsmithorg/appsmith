@@ -1,7 +1,7 @@
 const dsl = require("../../../../../fixtures/DividerDsl.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 
-describe("Divider Widget Functionality", function() {
+describe("Divider Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });

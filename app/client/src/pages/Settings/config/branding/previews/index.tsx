@@ -6,7 +6,7 @@ import LoginPreview from "./LoginPreview";
 import FaviconPreview from "./FaviconPreview";
 import NotFoundPreview from "./NotFoundPreview";
 import DashboardPreview from "./DashboardPreview";
-import { brandColorsKeys } from "../BrandingPage";
+import type { brandColorsKeys } from "../BrandingPage";
 
 export type PreviewsProps = {
   shades: Record<brandColorsKeys, string>;
@@ -33,7 +33,7 @@ const Previews = (props: PreviewsProps) => {
       const reader = new FileReader();
       reader.readAsDataURL(logo);
 
-      reader.onloadend = function() {
+      reader.onloadend = function () {
         setLogoPreview(reader.result);
       };
     }
@@ -52,7 +52,7 @@ const Previews = (props: PreviewsProps) => {
       const reader = new FileReader();
       reader.readAsDataURL(favicon);
 
-      reader.onloadend = function() {
+      reader.onloadend = function () {
         setFaviconPreview(reader.result);
       };
     }

@@ -1,5 +1,7 @@
-import React, { JSXElementConstructor } from "react";
-import { IconProps, IconWrapper } from "constants/IconConstants";
+import type { JSXElementConstructor } from "react";
+import React from "react";
+import type { IconProps } from "constants/IconConstants";
+import { IconWrapper } from "constants/IconConstants";
 import { ReactComponent as UpdatesIcon } from "assets/icons/help/updates.svg";
 import { Icon } from "@blueprintjs/core";
 import GithubIcon from "remixicon-react/GithubFillIcon";

@@ -1,7 +1,7 @@
 import {
   ApplicationVersion,
   updateApplication,
-} from "actions/applicationActions";
+} from "@appsmith/actions/applicationActions";
 import {
   Button,
   Category,
@@ -13,7 +13,8 @@ import {
 import { TooltipComponent, Text, TextType } from "design-system-old";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
 import { Colors } from "constants/Colors";
-import React, { ReactNode, useState } from "react";
+import type { ReactNode } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
@@ -253,6 +254,8 @@ function ManualUpgrades(props: {
       className={classNames({
         relative: true,
         "inline-block": props.inline,
+        padding: "9px 16px",
+        "border-left": "1px solid #e7e7e7",
       })}
       data-testid="update-indicator"
     >

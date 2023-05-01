@@ -1,11 +1,13 @@
 import { createReducer } from "utils/ReducerUtils";
-import {
+import type {
   ReduxAction,
-  ReduxActionTypes,
-  ReduxActionErrorTypes,
   ApplicationPayload,
 } from "@appsmith/constants/ReduxActionConstants";
 import {
+  ReduxActionTypes,
+  ReduxActionErrorTypes,
+} from "@appsmith/constants/ReduxActionConstants";
+import type {
   Workspaces,
   WorkspaceUser,
 } from "@appsmith/constants/workspaceConstants";
@@ -13,15 +15,17 @@ import {
   createMessage,
   ERROR_MESSAGE_CREATE_APPLICATION,
 } from "@appsmith/constants/messages";
-import {
+import type {
   AppEmbedSetting,
   PageDefaultMeta,
   UpdateApplicationRequest,
-} from "api/ApplicationApi";
-import { CreateApplicationFormValues } from "pages/Applications/helpers";
-import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
-import { ConnectToGitResponse } from "actions/gitSyncActions";
-import { AppIconName } from "design-system-old";
+} from "@appsmith/api/ApplicationApi";
+import type { CreateApplicationFormValues } from "pages/Applications/helpers";
+import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
+import type { ConnectToGitResponse } from "actions/gitSyncActions";
+import type { AppIconName } from "design-system-old";
+import type { NavigationSetting } from "constants/AppConstants";
+import { defaultNavigationSetting } from "constants/AppConstants";
 
 export const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
@@ -42,6 +46,9 @@ export const initialState: ApplicationsReduxState = {
   isImportAppModalOpen: false,
   workspaceIdForImport: null,
   pageIdForImport: "",
+  isAppSidebarPinned: true,
+  isSavingNavigationSetting: false,
+  isErrorSavingNavigationSetting: false,
 };
 
 export const handlers = {
@@ -130,13 +137,25 @@ export const handlers = {
   [ReduxActionTypes.FETCH_APPLICATION_SUCCESS]: (
     state: ApplicationsReduxState,
     action: ReduxAction<{ applicationList: ApplicationPayload[] }>,
-  ) => ({
-    ...state,
-    currentApplication: {
-      ...action.payload,
-    },
-    isFetchingApplication: false,
-  }),
+  ) => {
+    const newState = {
+      ...state,
+      currentApplication: {
+        applicationDetail: {
+          navigationSetting: defaultNavigationSetting,
+        },
+        ...action.payload,
+      },
+      isFetchingApplication: false,
+    };
+
+    if (!newState.currentApplication.applicationDetail.navigationSetting) {
+      newState.currentApplication.applicationDetail.navigationSetting =
+        defaultNavigationSetting;
+    }
+
+    return newState;
+  },
   [ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE]: (
     state: ApplicationsReduxState,
     action: ReduxAction<{ name: string; slug: string }>,
@@ -378,13 +397,31 @@ export const handlers = {
     action: ReduxAction<UpdateApplicationRequest>,
   ) => {
     let isSavingAppName = false;
+    let isSavingNavigationSetting = false;
+
     if (action.payload.name) {
       isSavingAppName = true;
     }
+    if (state.currentApplication && action.payload.applicationDetail) {
+      state.currentApplication.applicationDetail = {
+        ...state.currentApplication.applicationDetail,
+        ...action.payload.applicationDetail,
+      };
+    }
+
+    if (action.payload.applicationDetail?.navigationSetting) {
+      isSavingNavigationSetting = true;
+    }
+
     return {
       ...state,
-      isSavingAppName: isSavingAppName,
+      isSavingAppName,
       isErrorSavingAppName: false,
+      ...(action.payload.applicationDetail
+        ? { applicationDetail: action.payload.applicationDetail }
+        : {}),
+      isSavingNavigationSetting,
+      isErrorSavingNavigationSetting: false,
     };
   },
   [ReduxActionTypes.UPDATE_APPLICATION_SUCCESS]: (
@@ -411,12 +448,19 @@ export const handlers = {
       userWorkspaces: _workspaces,
       isSavingAppName: false,
       isErrorSavingAppName: false,
+      isSavingNavigationSetting: false,
+      isErrorSavingNavigationSetting: false,
     };
   },
   [ReduxActionErrorTypes.UPDATE_APPLICATION_ERROR]: (
     state: ApplicationsReduxState,
   ) => {
-    return { ...state, isSavingAppName: false, isErrorSavingAppName: true };
+    return {
+      ...state,
+      isSavingAppName: false,
+      isErrorSavingAppName: true,
+      isErrorSavingNavigationSetting: true,
+    };
   },
   [ReduxActionTypes.RESET_CURRENT_APPLICATION]: (
     state: ApplicationsReduxState,
@@ -523,6 +567,31 @@ export const handlers = {
       },
     };
   },
+  [ReduxActionTypes.UPDATE_NAVIGATION_SETTING]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<NavigationSetting>,
+  ) => {
+    return {
+      ...state,
+      currentApplication: {
+        ...state.currentApplication,
+        applicationDetail: {
+          ...state.currentApplication?.applicationDetail,
+          navigationSetting: {
+            ...defaultNavigationSetting,
+            ...action.payload,
+          },
+        },
+      },
+    };
+  },
+  [ReduxActionTypes.SET_APP_SIDEBAR_PINNED]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<boolean>,
+  ) => ({
+    ...state,
+    isAppSidebarPinned: action.payload,
+  }),
 };
 
 const applicationsReducer = createReducer(initialState, handlers);
@@ -552,6 +621,9 @@ export interface ApplicationsReduxState {
   workspaceIdForImport: any;
   pageIdForImport: string;
   isDatasourceConfigForImportFetched?: boolean;
+  isAppSidebarPinned: boolean;
+  isSavingNavigationSetting: boolean;
+  isErrorSavingNavigationSetting: boolean;
 }
 
 export interface Application {

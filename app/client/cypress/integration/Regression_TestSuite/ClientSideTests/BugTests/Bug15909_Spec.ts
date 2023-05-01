@@ -4,14 +4,13 @@ import { WIDGET } from "../../../../locators/WidgetLocators";
 const jsEditor = ObjectsRegistry.JSEditor,
   ee = ObjectsRegistry.EntityExplorer,
   agHelper = ObjectsRegistry.AggregateHelper,
-  propPane = ObjectsRegistry.PropertyPane,
-  CommonLocators = ObjectsRegistry.CommonLocators;
+  propPane = ObjectsRegistry.PropertyPane;
 
-describe("JS Function Execution", function() {
+describe("JS Function Execution", function () {
   before(() => {
     ee.DragDropWidgetNVerify(WIDGET.BUTTON, 200, 200);
   });
-  it("1. Shows js function data as part of autocompletion hints", function() {
+  it("1. Shows js function data as part of autocompletion hints", function () {
     jsEditor.CreateJSObject(
       `export default {
   	myFun1: ()=>{

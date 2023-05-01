@@ -25,7 +25,14 @@ export const useWidgetSelection = () => {
       [dispatch],
     ),
     deselectAll: useCallback(
-      () => dispatch(selectWidgetInitAction(SelectionRequestType.Empty)),
+      () =>
+        dispatch(
+          selectWidgetInitAction(
+            SelectionRequestType.Empty,
+            [],
+            NavigationMethod.CanvasClick,
+          ),
+        ),
       [dispatch],
     ),
   };

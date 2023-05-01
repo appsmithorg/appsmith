@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import history from "utils/history";
-import { Template as TemplateInterface } from "api/TemplatesApi";
+import type { Template as TemplateInterface } from "api/TemplatesApi";
 import {
   Button,
   getTypographyByKey,
@@ -118,14 +118,8 @@ export interface TemplateLayoutProps extends TemplateProps {
 }
 
 export function TemplateLayout(props: TemplateLayoutProps) {
-  const {
-    datasources,
-    description,
-    functions,
-    id,
-    screenshotUrls,
-    title,
-  } = props.template;
+  const { datasources, description, functions, id, screenshotUrls, title } =
+    props.template;
   const [showForkModal, setShowForkModal] = useState(false);
   const onClick = () => {
     if (props.onClick) {

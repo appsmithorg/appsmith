@@ -1,5 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { ICON_NAMES, MenuButtonWidgetProps } from "../../../constants";
+import type { MenuButtonWidgetProps } from "../../../constants";
+import { ICON_NAMES } from "../../../constants";
 import { getKeysFromSourceDataForEventAutocomplete } from "../../helper";
 
 export default {
@@ -70,7 +71,7 @@ export default {
       children: [
         {
           helpText:
-            "Triggers an action when the menu item is clicked. Can also be configured the using {{currentItem}} binding.",
+            "when the menu item is clicked. Can also be configured the using {{currentItem}} binding.",
           propertyName: "onClick",
           label: "onClick",
           controlType: "ACTION_SELECTOR",

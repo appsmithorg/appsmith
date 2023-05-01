@@ -1,4 +1,4 @@
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import {
   selectAllWidgetsInAreaAction,
   setCanvasSelectionStateAction,
@@ -14,8 +14,12 @@ import { throttle } from "lodash";
 import React, { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidget } from "sagas/selectors";
-import { getAppMode } from "selectors/applicationSelectors";
-import { getIsDraggingForSelection } from "selectors/canvasSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import {
+  getIsAutoLayout,
+  getIsDraggingForSelection,
+} from "selectors/canvasSelectors";
 import {
   getCurrentApplicationLayout,
   getCurrentPageId,
@@ -24,7 +28,7 @@ import {
 import { getNearestParentCanvas } from "utils/generators";
 import { getAbsolutePixels } from "utils/helpers";
 import { useCanvasDragToScroll } from "./hooks/useCanvasDragToScroll";
-import { XYCord } from "./hooks/useRenderBlocksOnCanvas";
+import type { XYCord } from "./hooks/useRenderBlocksOnCanvas";
 import { StickyCanvasArena } from "./StickyCanvasArena";
 
 export interface SelectedArenaDimensions {
@@ -52,8 +56,11 @@ export function CanvasSelectionArena({
   snapRowSpace: number;
 }) {
   const dispatch = useDispatch();
+  const isAutoLayout = useSelector(getIsAutoLayout);
   const canvasPadding =
-    widgetId === MAIN_CONTAINER_WIDGET_ID ? theme.canvasBottomPadding : 0;
+    !isAutoLayout && widgetId === MAIN_CONTAINER_WIDGET_ID
+      ? theme.canvasBottomPadding
+      : 0;
   const slidingArenaRef = React.useRef<HTMLDivElement>(null);
   const stickyCanvasRef = React.useRef<HTMLCanvasElement>(null);
   const parentWidget = useSelector((state: AppState) =>
@@ -65,6 +72,9 @@ export function CanvasSelectionArena({
   );
   const appMode = useSelector(getAppMode);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+    getIsAppSettingsPaneWithNavigationTabOpen,
+  );
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
@@ -152,6 +162,7 @@ export function CanvasSelectionArena({
   useEffect(() => {
     if (
       appMode === APP_MODE.EDIT &&
+      !isAutoLayout &&
       !isDragging &&
       slidingArenaRef.current &&
       stickyCanvasRef.current
@@ -275,12 +286,8 @@ export function CanvasSelectionArena({
           left: 0,
         };
         if (slidingArenaRef.current && startPoints) {
-          const {
-            height,
-            left,
-            top,
-            width,
-          } = slidingArenaRef.current.getBoundingClientRect();
+          const { height, left, top, width } =
+            slidingArenaRef.current.getBoundingClientRect();
           const outOfMaxBounds = {
             x: startPoints.x < left + width,
             y: startPoints.y < top + height,
@@ -394,11 +401,8 @@ export function CanvasSelectionArena({
         }
       };
       const onScroll = () => {
-        const {
-          lastMouseMoveEvent,
-          lastScrollHeight,
-          lastScrollTop,
-        } = scrollObj;
+        const { lastMouseMoveEvent, lastScrollHeight, lastScrollTop } =
+          scrollObj;
         if (
           lastMouseMoveEvent &&
           Number.isInteger(lastScrollHeight) &&
@@ -486,9 +490,14 @@ export function CanvasSelectionArena({
   ]);
 
   // Resizing state still shows selection arena to aid with scroll behavior
-
   const shouldShow =
-    appMode === APP_MODE.EDIT && !(isDragging || isPreviewMode || dropDisabled);
+    appMode === APP_MODE.EDIT &&
+    !(
+      isDragging ||
+      isPreviewMode ||
+      isAppSettingsPaneWithNavigationTabOpen ||
+      dropDisabled
+    );
 
   const canvasRef = React.useRef({
     slidingArenaRef,

@@ -15,8 +15,6 @@ import java.util.Set;
 
 public interface WorkspaceServiceCE extends CrudService<Workspace, String> {
 
-    String getDefaultNameForGroupInWorkspace(String prefix, String workspaceName);
-
     Mono<Workspace> create(Workspace workspace);
 
     Mono<Workspace> createDefault(Workspace workspace, User user);

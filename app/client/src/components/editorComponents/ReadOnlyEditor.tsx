@@ -1,7 +1,7 @@
-import React, { ChangeEvent } from "react";
-import CodeEditor, {
-  EditorProps,
-} from "components/editorComponents/CodeEditor";
+import type { ChangeEvent } from "react";
+import React from "react";
+import type { EditorProps } from "components/editorComponents/CodeEditor";
+import CodeEditor from "components/editorComponents/CodeEditor";
 import {
   EditorModes,
   EditorSize,

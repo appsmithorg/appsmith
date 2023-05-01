@@ -1,13 +1,8 @@
 import React from "react";
 import { Link, Redirect, useLocation } from "react-router-dom";
 import { connect, useSelector } from "react-redux";
-import {
-  InjectedFormProps,
-  reduxForm,
-  formValueSelector,
-  isDirty,
-  DecoratedFormProps,
-} from "redux-form";
+import type { InjectedFormProps, DecoratedFormProps } from "redux-form";
+import { reduxForm, formValueSelector, isDirty } from "redux-form";
 import {
   LOGIN_FORM_NAME,
   LOGIN_FORM_EMAIL_FIELD_NAME,
@@ -36,7 +31,7 @@ import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
 import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
 import { isEmail, isEmptyString } from "utils/formhelpers";
-import { LoginFormValues } from "pages/UserAuth/helpers";
+import type { LoginFormValues } from "pages/UserAuth/helpers";
 
 import {
   SpacedSubmitForm,
@@ -52,6 +47,7 @@ import PerformanceTracker, {
 import { getIsSafeRedirectURL } from "utils/helpers";
 import { getCurrentUser } from "selectors/usersSelectors";
 import Container from "pages/UserAuth/Container";
+import { getThirdPartyAuths } from "@appsmith/selectors/tenantSelectors";
 const { disableLoginForm } = getAppsmithConfigs();
 
 const validate = (values: LoginFormValues, props: ValidateProps) => {
@@ -90,7 +86,10 @@ export function Login(props: LoginFormProps) {
   const { emailValue: email, error, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);
   const location = useLocation();
-  const socialLoginList = ThirdPartyLoginRegistry.get();
+  const socialLoginList = [
+    ...useSelector(getThirdPartyAuths),
+    ...ThirdPartyLoginRegistry.get(),
+  ];
   const queryParams = new URLSearchParams(location.search);
   const invalidCredsForgotPasswordLinkText = createMessage(
     LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,

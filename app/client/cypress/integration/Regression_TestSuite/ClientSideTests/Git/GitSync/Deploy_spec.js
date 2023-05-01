@@ -3,7 +3,7 @@ import homePage from "../../../../../locators/HomePage";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 let repoName;
-describe("Git sync modal: deploy tab", function() {
+describe("Git sync modal: deploy tab", function () {
   before(() => {
     _.homePage.NavigateToHome();
     cy.createWorkspace();
@@ -18,7 +18,7 @@ describe("Git sync modal: deploy tab", function() {
     });
   });
 
-  it("1. Validate commit comment inputbox and last deployed preview", function() {
+  it("1. Validate commit comment inputbox and last deployed preview", function () {
     // last deployed preview
     // The deploy preview Link should be displayed only after the first commit done
     cy.get(gitSyncLocators.bottomBarCommitButton).click();
@@ -31,7 +31,7 @@ describe("Git sync modal: deploy tab", function() {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
   });
 
-  it("2. Post connection app name deploy menu", function() {
+  it("2. Post connection app name deploy menu", function () {
     // deploy
     _.agHelper.GetNClick(_.locators._publishButton);
 

@@ -73,7 +73,7 @@
           "configProperty": "actionConfiguration.formData.send.attachments",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
-          "placeholderText": "{{Filepicker.files[0]}}"
+          "placeholderText": "{{Filepicker.files}}"
         }
       ]
     }

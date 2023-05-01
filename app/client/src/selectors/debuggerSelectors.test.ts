@@ -1,7 +1,7 @@
 import { Severity, ENTITY_TYPE, LOG_CATEGORY } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { getFilteredErrors } from "./debuggerSelectors";
 
@@ -38,6 +38,7 @@ describe("getFilteredErrors", () => {
           severity: Severity.ERROR,
           timestamp: "02:40:10",
           category: LOG_CATEGORY.PLATFORM_GENERATED,
+          isExpanded: false,
         },
       },
       canvasWidgets: {
@@ -62,8 +63,8 @@ describe("getFilteredErrors", () => {
     const result = getFilteredErrors.resultFunc(
       TestData.debuggerErrors,
       false,
-      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
-      (TestData.dataTree as unknown) as DataTree,
+      TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
+      TestData.dataTree as unknown as DataTree,
     );
     expect(result).toStrictEqual(TestData.expectedResult);
   });
@@ -100,6 +101,7 @@ describe("getFilteredErrors", () => {
           severity: Severity.ERROR,
           category: LOG_CATEGORY.PLATFORM_GENERATED,
           timestamp: "02:40:10",
+          isExpanded: false,
         },
       },
       canvasWidgets: {
@@ -150,8 +152,8 @@ describe("getFilteredErrors", () => {
     const result = getFilteredErrors.resultFunc(
       TestData.debuggerErrors,
       false,
-      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
-      (TestData.dataTree as unknown) as DataTree,
+      TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
+      TestData.dataTree as unknown as DataTree,
     );
     expect(result).toStrictEqual(TestData.expectedResult);
   });
@@ -188,6 +190,7 @@ describe("getFilteredErrors", () => {
           severity: Severity.ERROR,
           category: LOG_CATEGORY.PLATFORM_GENERATED,
           timestamp: "02:40:10",
+          isExpanded: false,
         },
       },
       canvasWidgets: {
@@ -262,8 +265,8 @@ describe("getFilteredErrors", () => {
     const result = getFilteredErrors.resultFunc(
       TestData.debuggerErrors,
       false,
-      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
-      (TestData.dataTree as unknown) as DataTree,
+      TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
+      TestData.dataTree as unknown as DataTree,
     );
     expect(result).toStrictEqual(TestData.expectedResult);
   });
@@ -300,6 +303,7 @@ describe("getFilteredErrors", () => {
           severity: Severity.ERROR,
           category: LOG_CATEGORY.PLATFORM_GENERATED,
           timestamp: "02:40:10",
+          isExpanded: false,
         },
       },
       canvasWidgets: {
@@ -374,8 +378,8 @@ describe("getFilteredErrors", () => {
     const result = getFilteredErrors.resultFunc(
       TestData.debuggerErrors,
       false,
-      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
-      (TestData.dataTree as unknown) as DataTree,
+      TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
+      TestData.dataTree as unknown as DataTree,
     );
     expect(result).toStrictEqual(TestData.expectedResult);
   });
@@ -412,6 +416,7 @@ describe("getFilteredErrors", () => {
           severity: Severity.ERROR,
           category: LOG_CATEGORY.PLATFORM_GENERATED,
           timestamp: "02:40:10",
+          isExpanded: false,
         },
       },
       canvasWidgets: {
@@ -512,8 +517,8 @@ describe("getFilteredErrors", () => {
     const result = getFilteredErrors.resultFunc(
       TestData.debuggerErrors,
       false,
-      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
-      (TestData.dataTree as unknown) as DataTree,
+      TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
+      TestData.dataTree as unknown as DataTree,
     );
     expect(result).toStrictEqual(TestData.expectedResult);
   });
@@ -550,6 +555,7 @@ describe("getFilteredErrors", () => {
           severity: Severity.ERROR,
           category: LOG_CATEGORY.PLATFORM_GENERATED,
           timestamp: "02:40:10",
+          isExpanded: false,
         },
       },
       canvasWidgets: {
@@ -600,8 +606,8 @@ describe("getFilteredErrors", () => {
     const result = getFilteredErrors.resultFunc(
       TestData.debuggerErrors,
       false,
-      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
-      (TestData.dataTree as unknown) as DataTree,
+      TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
+      TestData.dataTree as unknown as DataTree,
     );
     expect(result).toStrictEqual(TestData.expectedResult);
   });
@@ -638,6 +644,7 @@ describe("getFilteredErrors", () => {
           severity: Severity.ERROR,
           category: LOG_CATEGORY.PLATFORM_GENERATED,
           timestamp: "02:40:10",
+          isExpanded: false,
         },
       },
       canvasWidgets: {
@@ -687,14 +694,15 @@ describe("getFilteredErrors", () => {
           },
           severity: Severity.ERROR,
           timestamp: "02:40:10",
+          isExpanded: false,
         },
       },
     };
     const result = getFilteredErrors.resultFunc(
       TestData.debuggerErrors,
       false,
-      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
-      (TestData.dataTree as unknown) as DataTree,
+      TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
+      TestData.dataTree as unknown as DataTree,
     );
     expect(result).toStrictEqual(TestData.expectedResult);
   });
@@ -731,6 +739,7 @@ describe("getFilteredErrors", () => {
           severity: Severity.ERROR,
           category: LOG_CATEGORY.PLATFORM_GENERATED,
           timestamp: "02:40:10",
+          isExpanded: false,
         },
       },
       canvasWidgets: {
@@ -807,14 +816,15 @@ describe("getFilteredErrors", () => {
 
           category: LOG_CATEGORY.PLATFORM_GENERATED,
           timestamp: "02:40:10",
+          isExpanded: false,
         },
       },
     };
     const result = getFilteredErrors.resultFunc(
       TestData.debuggerErrors,
       false,
-      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
-      (TestData.dataTree as unknown) as DataTree,
+      TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
+      TestData.dataTree as unknown as DataTree,
     );
     expect(result).toStrictEqual(TestData.expectedResult);
   });
@@ -851,6 +861,7 @@ describe("getFilteredErrors", () => {
           severity: Severity.ERROR,
           category: LOG_CATEGORY.PLATFORM_GENERATED,
           timestamp: "02:40:10",
+          isExpanded: false,
         },
       },
       canvasWidgets: {
@@ -901,8 +912,8 @@ describe("getFilteredErrors", () => {
     const result = getFilteredErrors.resultFunc(
       TestData.debuggerErrors,
       false,
-      (TestData.canvasWidgets as unknown) as CanvasWidgetsReduxState,
-      (TestData.dataTree as unknown) as DataTree,
+      TestData.canvasWidgets as unknown as CanvasWidgetsReduxState,
+      TestData.dataTree as unknown as DataTree,
     );
     expect(result).toStrictEqual(TestData.expectedResult);
   });

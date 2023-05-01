@@ -1,6 +1,6 @@
 import { Alignment } from "@blueprintjs/core";
-import { ColumnProperties } from "../component/Constants";
-import { TableWidgetProps } from "../constants";
+import type { ColumnProperties } from "../component/Constants";
+import type { TableWidgetProps } from "../constants";
 import { Colors } from "constants/Colors";
 import { get } from "lodash";
 import {

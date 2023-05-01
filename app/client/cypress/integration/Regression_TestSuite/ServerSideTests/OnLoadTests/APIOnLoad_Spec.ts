@@ -6,17 +6,17 @@ const ee = ObjectsRegistry.EntityExplorer,
   propPane = ObjectsRegistry.PropertyPane,
   apiPage = ObjectsRegistry.ApiPage;
 
-describe("JSObjects OnLoad Actions tests", function() {
+describe("JSObjects OnLoad Actions tests", function () {
   before(() => {
     cy.fixture("tableWidgetDsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    cy.fixture("testdata").then(function(data: any) {
+    cy.fixture("testdata").then(function (data: any) {
       dataSet = data;
     });
   });
 
-  it("1. Api mapping on page load", function() {
+  it("1. Api mapping on page load", function () {
     ee.NavigateToSwitcher("explorer");
     apiPage.CreateAndFillApi(dataSet.baseUrl + dataSet.methods, "PageLoadApi");
     agHelper.PressEscape();
@@ -33,13 +33,13 @@ describe("JSObjects OnLoad Actions tests", function() {
     agHelper.ValidateNetworkStatus("@postExecute");
   });
 
-  it("2. Shows when API failed to load on page load.", function() {
+  it("2. Shows when API failed to load on page load.", function () {
     apiPage.CreateAndFillApi(
       "https://abc.com/" + dataSet.methods,
       "PageLoadApi2",
     );
     apiPage.ToggleOnPageLoadRun(true);
-    ee.ExpandCollapseEntity("Widgets")
+    ee.ExpandCollapseEntity("Widgets");
     ee.ExpandCollapseEntity("Container3");
     ee.SelectEntityByName("Table1");
     propPane.UpdatePropertyFieldValue(

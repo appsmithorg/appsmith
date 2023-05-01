@@ -1,9 +1,10 @@
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import React, { CSSProperties, useMemo, useRef } from "react";
+import type { CSSProperties } from "react";
+import React, { useMemo, useRef } from "react";
 import styled from "styled-components";
-import { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/BaseWidget";
 import { useSelector } from "react-redux";
 import {
   previewModeSelector,
@@ -19,6 +20,7 @@ import {
   useShowTableFilterPane,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 
 const DraggableWrapper = styled.div`
   display: block;
@@ -46,7 +48,7 @@ const WidgetBoundaries = styled.div`
 `;
 
 /**
- * can drag helper function for react-dnd hook
+ * can drag helper function to know if drag and drop should apply
  *
  * @param isResizingOrDragging
  * @param isDraggingDisabled
@@ -61,13 +63,15 @@ export const canDrag = (
   props: any,
   isSnipingMode: boolean,
   isPreviewMode: boolean,
+  isAppSettingsPaneWithNavigationTabOpen: boolean,
 ) => {
   return (
     !isResizingOrDragging &&
     !isDraggingDisabled &&
     !props?.dragDisabled &&
     !isSnipingMode &&
-    !isPreviewMode
+    !isPreviewMode &&
+    !isAppSettingsPaneWithNavigationTabOpen
   );
 };
 
@@ -76,6 +80,9 @@ function DraggableComponent(props: DraggableComponentProps) {
   const { focusWidget, selectWidget } = useWidgetSelection();
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
+  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+    getIsAppSettingsPaneWithNavigationTabOpen,
+  );
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
   // The value is boolean
   const { setDraggingState } = useWidgetDragResize();
@@ -147,6 +154,7 @@ function DraggableComponent(props: DraggableComponentProps) {
     props,
     isSnipingMode,
     isPreviewMode,
+    isAppSettingsPaneWithNavigationTabOpen,
   );
   const className = `${classNameForTesting}`;
   const draggableRef = useRef<HTMLDivElement>(null);

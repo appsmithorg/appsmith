@@ -1,14 +1,15 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
+const publish = require("../../../../locators/publishWidgetspage.json");
 
 const locators = {
   errorPageTitle: ".t--error-page-title",
 };
 
-describe("Pages", function() {
+describe("Pages", function () {
   let veryLongPageName = `abcdefghijklmnopqrstuvwxyz1234`;
   let apiName = "someApi";
 
-  it("1. Clone page", function() {
+  it("1. Clone page", function () {
     //cy.NavigateToAPI_Panel();
     _.apiPage.CreateApi(apiName);
     _.entityExplorer.SelectEntityByName("Page1", "Pages");
@@ -29,7 +30,12 @@ describe("Pages", function() {
     });
   });
 
-  it("3. Checks if 404 is showing correct route", () => {
+  it("3. Check for Refrsh page and validate and 404 is showing correct route", () => {
+    //Automated as part Bug19654
+    cy.get(publish.backToEditor).click();
+    cy.reload();
+    _.entityExplorer.SelectEntityByName("Page1 Copy", "Pages");
+    //Checks if 404 is showing correct route
     cy.visit("/route-that-does-not-exist");
     cy.get(locators.errorPageTitle).should(($x) => {
       expect($x).contain(Cypress.env("MESSAGES").PAGE_NOT_FOUND());

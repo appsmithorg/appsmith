@@ -13,8 +13,8 @@ import {
 } from "design-system-old";
 import { useDispatch } from "react-redux";
 import { importTemplateIntoApplication } from "actions/templateActions";
-import { Template } from "api/TemplatesApi";
-import { ApplicationPagePayload } from "api/ApplicationApi";
+import type { Template } from "api/TemplatesApi";
+import type { ApplicationPagePayload } from "@appsmith/api/ApplicationApi";
 import {
   createMessage,
   FILTER_SELECTALL,

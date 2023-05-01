@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { getFormInitialValues, getFormValues, isDirty } from "redux-form";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { get, isEqual } from "lodash";
 import {
   getPluginImages,
@@ -25,11 +25,9 @@ import {
 } from "@appsmith/constants/forms";
 import DataSourceEditorForm from "./DBForm";
 import RestAPIDatasourceForm from "./RestAPIDatasourceForm";
-import { Datasource } from "entities/Datasource";
-import { RouteComponentProps } from "react-router";
+import type { Datasource } from "entities/Datasource";
+import type { RouteComponentProps } from "react-router";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import { setGlobalSearchQuery } from "actions/globalSearchActions";
-import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { DatasourceComponentTypes } from "api/PluginApi";
 import DatasourceSaasForm from "../SaaSEditor/DatasourceForm";
 
@@ -166,7 +164,6 @@ class DataSourceEditor extends React.Component<Props> {
       isNewDatasource,
       isSaving,
       isTesting,
-      openOmnibarReadMore,
       pageId,
       pluginId,
       pluginImages,
@@ -189,7 +186,6 @@ class DataSourceEditor extends React.Component<Props> {
         isNewDatasource={isNewDatasource}
         isSaving={isSaving}
         isTesting={isTesting}
-        openOmnibarReadMore={openOmnibarReadMore}
         pageId={pageId}
         pluginImage={pluginImages[pluginId]}
         pluginType={pluginType}
@@ -203,7 +199,6 @@ class DataSourceEditor extends React.Component<Props> {
 export interface DatasourcePaneFunctions {
   switchDatasource: (id: string) => void;
   setDatasourceViewMode: (viewMode: boolean) => void;
-  openOmnibarReadMore: (text: string) => void;
   discardTempDatasource: () => void;
   deleteTempDSFromDraft: () => void;
   toggleSaveActionFlag: (flag: boolean) => void;
@@ -500,7 +495,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const isFormDirty =
     datasourceId === TEMP_DATASOURCE_ID ? true : isDirty(formName)(state);
   const initialValue = getFormInitialValues(formName)(state) as Datasource;
-  const defaultKeyValueArrayConfig = datasourcePane?.defaultKeyValueArrayConfig as any;
+  const defaultKeyValueArrayConfig =
+    datasourcePane?.defaultKeyValueArrayConfig as any;
 
   return {
     datasourceId,
@@ -541,10 +537,6 @@ const mapDispatchToProps = (
   },
   setDatasourceViewMode: (viewMode: boolean) =>
     dispatch(setDatasourceViewMode(viewMode)),
-  openOmnibarReadMore: (text: string) => {
-    dispatch(setGlobalSearchQuery(text));
-    dispatch(toggleShowGlobalSearchModal());
-  },
   discardTempDatasource: () => dispatch(removeTempDatasource()),
   deleteTempDSFromDraft: () => dispatch(deleteTempDSFromDraft()),
   toggleSaveActionFlag: (flag) => dispatch(toggleSaveActionFlag(flag)),

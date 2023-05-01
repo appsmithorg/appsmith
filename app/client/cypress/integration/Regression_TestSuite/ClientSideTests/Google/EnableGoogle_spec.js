@@ -2,11 +2,10 @@ import adminSettings from "../../../../locators/AdminsSettings";
 const commonlocators = require("../../../../locators/commonlocators.json");
 import homePage from "../../../../locators/HomePage";
 
-describe("SSO with Google test functionality", function() {
-  it("1. Go to admin settings and enable Google with not all mandatory fields filled", function() {
+describe("SSO with Google test functionality", function () {
+  it("1. Go to admin settings and enable Google with not all mandatory fields filled", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
@@ -27,10 +26,9 @@ describe("SSO with Google test functionality", function() {
     );
   });
 
-  it("2. Go to admin settings and enable Google", function() {
+  it("2. Go to admin settings and enable Google", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");
@@ -60,10 +58,9 @@ describe("SSO with Google test functionality", function() {
     );
   });
 
-  it("3. Go to admin settings and disable Google", function() {
+  it("3. Go to admin settings and disable Google", function () {
     cy.LogOut();
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
     cy.get(".admin-settings-menu-option").should("be.visible");
     cy.get(".admin-settings-menu-option").click();
     cy.url().should("contain", "/settings/general");

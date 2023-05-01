@@ -7,7 +7,8 @@ import { Button, getTypographyByKey, Icon, IconSize } from "design-system-old";
 import { isArray } from "lodash";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
-import lottie, { AnimationItem } from "lottie-web";
+import type { AnimationItem } from "lottie-web";
+import lottie from "lottie-web";
 import indicator from "assets/lottie/guided-tour-tick-mark.json";
 import {
   getCurrentStep,

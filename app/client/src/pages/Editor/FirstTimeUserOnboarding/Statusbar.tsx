@@ -1,9 +1,11 @@
 import { Icon } from "@blueprintjs/core";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useIsWidgetActionConnectionPresent } from "pages/Editor/utils";
-import React, { SyntheticEvent } from "react";
+import type { SyntheticEvent } from "react";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RouteComponentProps, withRouter } from "react-router-dom";
+import type { RouteComponentProps } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import { getEvaluationInverseDependencyMap } from "selectors/dataTreeSelectors";
 import {
   getApplicationLastDeployedAt,

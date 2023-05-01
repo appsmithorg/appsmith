@@ -1,7 +1,7 @@
 import Api from "./Api";
-import { AxiosPromise } from "axios";
-import { ApiResponse } from "api/ApiResponses";
-import { Datasource } from "entities/Datasource";
+import type { AxiosPromise } from "axios";
+import type { ApiResponse } from "api/ApiResponses";
+import type { Datasource } from "entities/Datasource";
 
 class SaasApi extends Api {
   static url = "v1/saas";

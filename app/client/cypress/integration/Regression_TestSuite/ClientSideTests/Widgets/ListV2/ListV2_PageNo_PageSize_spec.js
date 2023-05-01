@@ -137,13 +137,6 @@ describe("List widget V2 page number and page size", () => {
     });
     cy.openPropertyPane("listwidgetv2");
 
-    // toggle serversidepagination -> true
-    cy.togglebar(".t--property-control-serversidepagination input");
-    cy.wait("@updateLayout");
-
-    // toggle serversidepagination -> false
-    cy.togglebarDisable(".t--property-control-serversidepagination input");
-
     cy.openPropertyPane("textwidget");
     cy.testJsontextclear("text");
     cy.testJsontext("text", `PageSize {{List1.pageSize}}`);
@@ -186,9 +179,7 @@ describe("List widget V2 page number and page size", () => {
     cy.get(queryLocators.queryNameField).type("Query1");
 
     // switching off Use Prepared Statement toggle
-    cy.get(queryLocators.switch)
-      .last()
-      .click({ force: true });
+    cy.get(queryLocators.switch).last().click({ force: true });
 
     //.1: Click on Write query area
     cy.get(queryLocators.templateMenu).click();

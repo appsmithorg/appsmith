@@ -1,4 +1,4 @@
-import { Datasource } from "entities/Datasource";
+import type { Datasource } from "entities/Datasource";
 import { isStoredDatasource, PluginType } from "entities/Action";
 import React, { memo, useCallback, useEffect, useState } from "react";
 import { isNil } from "lodash";
@@ -10,7 +10,7 @@ import {
   getActionsForCurrentPage,
 } from "selectors/entitiesSelector";
 import styled from "styled-components";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import history from "utils/history";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import RenderDatasourceInformation from "pages/Editor/DataSourceEditor/DatasourceSection";
@@ -25,7 +25,7 @@ import {
 } from "design-system-old";
 import { deleteDatasource } from "actions/datasourceActions";
 import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
-import { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
+import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import NewActionButton from "../DataSourceEditor/NewActionButton";
 import {
@@ -51,6 +51,7 @@ import {
   hasDeleteDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const Wrapper = styled.div`
   padding: 15px;
@@ -190,9 +191,8 @@ function DatasourceCard(props: DatasourceCardProps) {
     getGenerateCRUDEnabledPluginMap,
   );
   const { datasource, plugin } = props;
-  const supportTemplateGeneration = !!generateCRUDSupportedPlugin[
-    datasource.pluginId
-  ];
+  const supportTemplateGeneration =
+    !!generateCRUDSupportedPlugin[datasource.pluginId];
 
   const pageId = useSelector(getCurrentPageId);
 
@@ -305,7 +305,7 @@ function DatasourceCard(props: DatasourceCardProps) {
                 <DatasourceImage
                   alt="Datasource"
                   data-testid="active-datasource-image"
-                  src={pluginImages[datasource.pluginId]}
+                  src={getAssetUrl(pluginImages[datasource.pluginId])}
                 />
               </DatasourceIconWrapper>
               <DatasourceName data-testid="active-datasource-name">
@@ -417,7 +417,11 @@ function DatasourceCard(props: DatasourceCardProps) {
             e.stopPropagation();
           }}
         >
-          <CollapseComponent title="Show More" titleStyle={{ maxWidth: 120 }}>
+          <CollapseComponent
+            openTitle="Show Less"
+            title="Show More"
+            titleStyle={{ maxWidth: 120 }}
+          >
             <DatasourceInfo>
               <RenderDatasourceInformation
                 config={currentFormConfig[0]}

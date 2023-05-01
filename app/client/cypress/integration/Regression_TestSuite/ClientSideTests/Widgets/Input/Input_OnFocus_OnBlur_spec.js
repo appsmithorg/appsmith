@@ -12,7 +12,7 @@ const currencyInputWidget = widgetsPage.currencyInputWidget + " " + "input";
 
 const agHelper = ObjectsRegistry.AggregateHelper;
 
-describe("Input Widget Property tests onFocus and onBlur", function() {
+describe("Input Widget Property tests onFocus and onBlur", function () {
   it("1. onBlur and onFocus should be triggered from the input widget", () => {
     cy.dragAndDropToCanvas(inputWidgetName, { x: 300, y: 200 });
     cy.openPropertyPane(inputWidgetName);

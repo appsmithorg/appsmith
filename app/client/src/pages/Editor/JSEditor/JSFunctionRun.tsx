@@ -1,11 +1,11 @@
 import React from "react";
 import styled from "styled-components";
 import FlagBadge from "components/utils/FlagBadge";
-import { JSCollection } from "entities/JSCollection";
+import type { JSCollection } from "entities/JSCollection";
+import type { DropdownOnSelect } from "design-system-old";
 import {
   Button,
   Dropdown,
-  DropdownOnSelect,
   DropdownContainer,
   Size,
   StyledButton,
@@ -15,7 +15,7 @@ import {
   createMessage,
   NO_JS_FUNCTION_TO_RUN,
 } from "@appsmith/constants/messages";
-import { JSActionDropdownOption } from "./utils";
+import type { JSActionDropdownOption } from "./utils";
 import { RUN_BUTTON_DEFAULTS, testLocators } from "./constants";
 
 type Props = {

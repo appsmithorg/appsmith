@@ -2,7 +2,7 @@ import styled from "styled-components";
 import React from "react";
 import { Button, Size, Text, TextType } from "design-system-old";
 import { Variant } from "design-system-old/build/constants/variants";
-import { FooterProps } from "./types";
+import type { FooterProps } from "./types";
 import { createMessage } from "design-system-old/build/constants/messages";
 import { AVAILABLE_ON_BUSINESS, UPGRADE } from "../../constants/messages";
 

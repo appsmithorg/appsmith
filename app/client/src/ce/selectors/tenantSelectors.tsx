@@ -1,4 +1,4 @@
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 
 export const getTenantPermissions = (state: AppState) => {
   return state.tenant?.userPermissions;
@@ -33,6 +33,9 @@ export const isTenantLoading = (state: AppState) => {
 
 export const getGoogleMapsApiKey = (state: AppState): string | undefined =>
   state.tenant?.tenantConfiguration?.googleMapsKey as string | undefined;
+
+export const getThirdPartyAuths = (state: AppState): string[] =>
+  state.tenant?.tenantConfiguration?.thirdPartyAuths ?? [];
 
 export const getInstanceId = (state: AppState): string =>
   state.tenant?.instanceId;

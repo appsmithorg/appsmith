@@ -1,11 +1,12 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { AppState } from "@appsmith/reducers";
-import CodeMirror, {
+import type { AppState } from "@appsmith/reducers";
+import type {
   Annotation,
   EditorConfiguration,
   UpdateLintingCallback,
 } from "codemirror";
+import CodeMirror from "codemirror";
 import "codemirror/lib/codemirror.css";
 import "codemirror/theme/duotone-dark.css";
 import "codemirror/theme/duotone-light.css";
@@ -19,33 +20,35 @@ import "codemirror/addon/tern/tern.css";
 import "codemirror/addon/lint/lint";
 import "codemirror/addon/lint/lint.css";
 import "codemirror/addon/comment/comment";
-
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
-import { WrappedFieldInputProps } from "redux-form";
+import type { WrappedFieldInputProps } from "redux-form";
 import _, { debounce, isEqual } from "lodash";
+import scrollIntoView from "scroll-into-view-if-needed";
 
-import {
+import type {
   DataTree,
-  ENTITY_TYPE,
   EvaluationSubstitutionType,
 } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { Skin } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import "components/editorComponents/CodeEditor/modes";
-import {
+import type {
   CodeEditorBorder,
   EditorConfig,
+  FieldEntityInformation,
+  Hinter,
+  HintHelper,
+  MarkHelper,
+} from "components/editorComponents/CodeEditor/EditorConfig";
+import {
   EditorModes,
   EditorSize,
   EditorTheme,
   EditorThemes,
-  FieldEntityInformation,
-  Hinter,
-  HintHelper,
   isCloseKey,
   isModifierKey,
-  MarkHelper,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
@@ -53,8 +56,8 @@ import {
   EditorWrapper,
   IconContainer,
 } from "components/editorComponents/CodeEditor/styledComponents";
+import { bindingMarker } from "components/editorComponents/CodeEditor/MarkHelpers/bindingMarker";
 import {
-  bindingMarker,
   entityMarker,
   NAVIGATE_TO_ATTRIBUTE,
   PEEKABLE_ATTRIBUTE,
@@ -62,7 +65,7 @@ import {
   PEEKABLE_CH_START,
   PEEKABLE_LINE,
   PEEK_STYLE_PERSIST_CLASS,
-} from "components/editorComponents/CodeEditor/markHelpers";
+} from "components/editorComponents/CodeEditor/MarkHelpers/entityMarker";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
@@ -71,8 +74,8 @@ import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
 import * as Sentry from "@sentry/react";
+import type { EvaluationError } from "utils/DynamicBindingUtils";
 import {
-  EvaluationError,
   getEvalErrorPath,
   getEvalValuePath,
   isDynamicValue,
@@ -88,15 +91,15 @@ import {
 import { commandsHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getPluginIdToImageLocation } from "sagas/selectors";
-import { ExpectedValueExample } from "utils/validation/common";
+import type { ExpectedValueExample } from "utils/validation/common";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { Placement } from "@blueprintjs/popover2";
+import type { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations, getLintTooltipDirection } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { startingEntityUpdate } from "actions/editorActions";
-import { SlashCommandPayload } from "entities/Action";
-import { Indices } from "constants/Layers";
+import type { SlashCommandPayload } from "entities/Action";
+import type { Indices } from "constants/Layers";
 import { replayHighlightClass } from "globalStyles/portals";
 import {
   LINT_TOOLTIP_CLASS,
@@ -109,32 +112,33 @@ import {
 } from "./utils/autoIndentUtils";
 import { getMoveCursorLeftKey } from "./utils/cursorLeftMovement";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
-import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import {
   getCodeEditorLastCursorPosition,
   getIsInputFieldFocused,
 } from "selectors/editorContextSelectors";
-import {
-  CodeEditorFocusState,
-  setEditorFieldFocusAction,
-} from "actions/editorContextActions";
+import type { CodeEditorFocusState } from "actions/editorContextActions";
+import { setEditorFieldFocusAction } from "actions/editorContextActions";
 import { updateCustomDef } from "utils/autocomplete/customDefUtils";
 import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
 import { getEntityLintErrors } from "selectors/lintingSelectors";
 import { getCodeCommentKeyMap, handleCodeComment } from "./utils/codeComment";
-import {
-  EntityNavigationData,
-  getEntitiesForNavigation,
-} from "selectors/navigationSelectors";
+import type { EntityNavigationData } from "selectors/navigationSelectors";
+import { getEntitiesForNavigation } from "selectors/navigationSelectors";
 import history, { NavigationMethod } from "utils/history";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import type { PeekOverlayStateProps } from "./PeekOverlayPopup/PeekOverlayPopup";
 import {
   PeekOverlayPopUp,
-  PeekOverlayStateProps,
   PEEK_OVERLAY_DELAY,
 } from "./PeekOverlayPopup/PeekOverlayPopup";
+import ConfigTreeActions from "utils/configTree";
+import {
+  getSaveAndAutoIndentKey,
+  saveAndAutoIndentCode,
+} from "./utils/saveAndAutoIndent";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -143,6 +147,7 @@ export type CodeEditorExpected = {
   type: string;
   example: ExpectedValueExample;
   autocompleteDataType: AutocompleteDataType;
+  openExampleTextByDefault?: boolean;
 };
 
 export type EditorStyleProps = {
@@ -249,6 +254,7 @@ class CodeEditor extends Component<Props, State> {
   };
   // this is the higlighted element for any highlighted text in the codemirror
   highlightedUrlElement: HTMLElement | undefined;
+  // this is the outer element encompassing the editor
   codeEditorTarget = React.createRef<HTMLDivElement>();
   editor!: CodeMirror.Editor;
   hinters: Hinter[] = [];
@@ -317,14 +323,17 @@ class CodeEditor extends Component<Props, State> {
         options.scrollbarStyle = "null";
       }
 
-      const moveCursorLeftKey = getMoveCursorLeftKey();
       options.extraKeys = {
-        [moveCursorLeftKey]: "goLineStartSmart",
+        [getMoveCursorLeftKey()]: "goLineStartSmart",
         [getCodeCommentKeyMap()]: handleCodeComment(
           // We've provided the default props value for lineCommentString
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           this.props.lineCommentString!,
         ),
+        [getSaveAndAutoIndentKey()]: (editor) => {
+          saveAndAutoIndentCode(editor);
+          AnalyticsUtil.logEvent("PRETTIFY_AND_SAVE_KEYBOARD_SHORTCUT");
+        },
       };
 
       if (this.props.tabBehaviour === TabBehaviour.INPUT) {
@@ -361,7 +370,7 @@ class CodeEditor extends Component<Props, State> {
       options.value = removeNewLineCharsIfRequired(inputValue, this.props.size);
 
       // @ts-expect-error: Types are not available
-      options.finishInit = function(
+      options.finishInit = function (
         this: CodeEditor,
         editor: CodeMirror.Editor,
       ) {
@@ -381,6 +390,7 @@ class CodeEditor extends Component<Props, State> {
         editor.on("blur", this.handleEditorBlur);
         editor.on("postPick", () => this.handleAutocompleteVisibility(editor));
         editor.on("mousedown", this.handleClick);
+        editor.on("scrollCursorIntoView", this.handleScrollCursorIntoView);
         CodeMirror.on(
           editor.getWrapperElement(),
           "mousemove",
@@ -510,11 +520,16 @@ class CodeEditor extends Component<Props, State> {
         this.setEditorInput("");
       }
 
-      CodeEditor.updateMarkings(
-        this.editor,
-        this.props.marking,
-        this.props.entitiesForNavigation,
-      );
+      if (
+        this.props.entitiesForNavigation !== prevProps.entitiesForNavigation ||
+        this.props.marking !== prevProps.marking
+      ) {
+        CodeEditor.updateMarkings(
+          this.editor,
+          this.props.marking,
+          this.props.entitiesForNavigation,
+        );
+      }
     });
   }
 
@@ -573,6 +588,28 @@ class CodeEditor extends Component<Props, State> {
     (ev) => this.handleMouseOver(ev),
     PEEK_OVERLAY_DELAY,
   );
+
+  handleScrollCursorIntoView = (cm: CodeMirror.Editor, event: Event) => {
+    event.preventDefault();
+
+    const delayedWork = () => {
+      if (!this.state.isFocused) return;
+
+      const cursorElement = cm
+        .getScrollerElement()
+        .getElementsByClassName("CodeMirror-cursor")[0];
+      if (cursorElement) {
+        scrollIntoView(cursorElement, {
+          block: "nearest",
+        });
+      }
+    };
+
+    // We need to delay this because CodeMirror can fire scrollCursorIntoView as a view is being blurred
+    // and another is being focused. The blurred editor still has the focused state when this event fires.
+    // We don't want to scroll the blurred editor into view, only the focused editor.
+    setTimeout(delayedWork, 0);
+  };
 
   handleMouseOver = (event: MouseEvent) => {
     if (
@@ -685,7 +722,7 @@ class CodeEditor extends Component<Props, State> {
         }
         break;
       case "Escape":
-        if (this.state.isFocused) {
+        if (this.state.isFocused && !this.state.hinterOpen) {
           this.codeEditorTarget.current?.focus();
           this.codeEditorTarget.current?.dispatchEvent(
             interactionAnalyticsEvent({ key: e.key }),
@@ -754,9 +791,8 @@ class CodeEditor extends Component<Props, State> {
           },
           () => {
             if (entityToNavigate[0] in this.props.entitiesForNavigation) {
-              let navigationData = this.props.entitiesForNavigation[
-                entityToNavigate[0]
-              ];
+              let navigationData =
+                this.props.entitiesForNavigation[entityToNavigate[0]];
               for (let i = 1; i < entityToNavigate.length; i += 1) {
                 if (entityToNavigate[i] in navigationData.children) {
                   navigationData = navigationData.children[entityToNavigate[i]];
@@ -767,11 +803,6 @@ class CodeEditor extends Component<Props, State> {
                 history.push(navigationData.url, {
                   invokedBy: NavigationMethod.CommandClick,
                 });
-
-                // TODO fix the widget navigation issue to remove this
-                if (navigationData.type === ENTITY_TYPE.WIDGET) {
-                  this.props.selectWidget(navigationData.id);
-                }
                 this.hidePeekOverlay();
               }
             }
@@ -964,11 +995,13 @@ class CodeEditor extends Component<Props, State> {
       }
     }
 
-    if (this.editor) {
+    if (this.editor && changeObj) {
       CodeEditor.updateMarkings(
         this.editor,
         this.props.marking,
         this.props.entitiesForNavigation,
+        changeObj.from,
+        changeObj.to,
       );
     }
   };
@@ -999,17 +1032,17 @@ class CodeEditor extends Component<Props, State> {
   };
 
   getEntityInformation = (): FieldEntityInformation => {
-    const { dataTreePath, dynamicData, expected } = this.props;
+    const { dataTreePath, expected } = this.props;
+    const configTree = ConfigTreeActions.getConfigTree();
     const entityInformation: FieldEntityInformation = {
       expectedType: expected?.autocompleteDataType,
     };
 
     if (dataTreePath) {
-      const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-        dataTreePath,
-      );
+      const { entityName, propertyPath } =
+        getEntityNameAndPropertyPath(dataTreePath);
       entityInformation.entityName = entityName;
-      const entity = dynamicData[entityName];
+      const entity = configTree[entityName];
 
       if (entity) {
         if ("ENTITY_TYPE" in entity) {
@@ -1047,6 +1080,7 @@ class CodeEditor extends Component<Props, State> {
         datasources: this.props.datasources.list,
         pluginIdToImageLocation: this.props.pluginIdToImageLocation,
         recentEntities: this.props.recentEntities,
+        featureFlags: this.props.featureFlags,
         update: this.props.input.onChange?.bind(this),
         executeCommand: (payload: any) => {
           this.props.executeCommand({
@@ -1083,16 +1117,24 @@ class CodeEditor extends Component<Props, State> {
     const cursor = cm.getCursor();
     const line = cm.getLine(cursor.line);
     let showAutocomplete = false;
+    const prevChar = line[cursor.ch - 1];
+
     /* Check if the character before cursor is completable to show autocomplete which backspacing */
     if (key === "/" && !isCtrlOrCmdPressed) {
       showAutocomplete = true;
     } else if (event.code === "Backspace") {
-      const prevChar = line[cursor.ch - 1];
       showAutocomplete = !!prevChar && /[a-zA-Z_0-9.]/.test(prevChar);
     } else if (key === "{") {
       /* Autocomplete for { should show up only when a user attempts to write {{}} and not a code block. */
-      const prevChar = line[cursor.ch - 1];
       showAutocomplete = prevChar === "{";
+    } else if (key === "'" || key === '"') {
+      /* Autocomplete for [ should show up only when a user attempts to write {['']} for Object property suggestions. */
+      showAutocomplete = prevChar === "[";
+
+      if (!showAutocomplete) {
+        // @ts-expect-error: Types are not available
+        cm.closeHint();
+      }
     } else if (key.length == 1) {
       showAutocomplete = /[a-zA-Z_0-9.]/.test(key);
       /* Autocomplete should be triggered only for characters that make up valid variable names */
@@ -1129,8 +1171,10 @@ class CodeEditor extends Component<Props, State> {
     editor: CodeMirror.Editor,
     marking: Array<MarkHelper>,
     entityNavigationData: EntityNavigationData,
+    from?: CodeMirror.Position,
+    to?: CodeMirror.Position,
   ) => {
-    marking.forEach((helper) => helper(editor, entityNavigationData));
+    marking.forEach((helper) => helper(editor, entityNavigationData, from, to));
   };
 
   updatePropertyValue(value: string, cursor?: number) {
@@ -1204,9 +1248,8 @@ class CodeEditor extends Component<Props, State> {
       useValidationMessage,
     } = this.props;
 
-    const { evalErrors, pathEvaluatedValue } = this.getPropertyValidation(
-      dataTreePath,
-    );
+    const { evalErrors, pathEvaluatedValue } =
+      this.getPropertyValidation(dataTreePath);
 
     let errors = evalErrors,
       isInvalid = evalErrors.length > 0,
@@ -1257,6 +1300,7 @@ class CodeEditor extends Component<Props, State> {
             text="/"
           />
         )}
+
         <EvaluatedValuePopup
           dataTreePath={this.props.dataTreePath}
           editorRef={this.codeEditorTarget}
@@ -1311,7 +1355,7 @@ class CodeEditor extends Component<Props, State> {
               <img
                 alt="img"
                 className="leftImageStyles"
-                src={this.props.leftImage}
+                src={getAssetUrl(this.props.leftImage)}
               />
             )}
             <div
@@ -1365,12 +1409,11 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
     state,
     getEditorIdentifier(props),
   ),
-  entitiesForNavigation: props.isJSObject
-    ? addThisReference(
-        getEntitiesForNavigation(state),
-        props.dataTreePath?.split(".")[0],
-      )
-    : getEntitiesForNavigation(state),
+  entitiesForNavigation: getEntitiesForNavigation(
+    state,
+    props.dataTreePath?.split(".")[0],
+  ),
+  featureFlags: selectFeatureFlags(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -1379,23 +1422,8 @@ const mapDispatchToProps = (dispatch: any) => ({
   startingEntityUpdate: () => dispatch(startingEntityUpdate()),
   setCodeEditorLastFocus: (payload: CodeEditorFocusState) =>
     dispatch(setEditorFieldFocusAction(payload)),
-  selectWidget: (widgetId: string) =>
-    dispatch(selectWidgetInitAction(SelectionRequestType.One, [widgetId])),
 });
 
 export default Sentry.withProfiler(
   connect(mapStateToProps, mapDispatchToProps)(CodeEditor),
 );
-
-const addThisReference = (
-  navigationData: EntityNavigationData,
-  entityName?: string,
-) => {
-  if (entityName && entityName in navigationData) {
-    return {
-      ...navigationData,
-      this: navigationData[entityName],
-    };
-  }
-  return navigationData;
-};

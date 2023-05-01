@@ -1,9 +1,9 @@
 import { klona } from "klona";
 
-import { DSLWidget } from "widgets/constants";
+import type { DSLWidget } from "widgets/constants";
 import { migrateChildStylesheetFromDynamicBindingPathList } from "./ThemingMigrations";
 
-const inputDSL1 = ({
+const inputDSL1 = {
   widgetName: "MainContainer",
   backgroundColor: "none",
   rightColumn: 1224,
@@ -993,8 +993,7 @@ const inputDSL1 = ({
               },
               dynamicPropertyPathList: [
                 {
-                  key:
-                    "schema.__root_schema__.children.date_of_birth.defaultValue",
+                  key: "schema.__root_schema__.children.date_of_birth.defaultValue",
                 },
               ],
               displayName: "JSON Form",
@@ -1127,28 +1126,22 @@ const inputDSL1 = ({
                   key: "schema.__root_schema__.children.name.borderRadius",
                 },
                 {
-                  key:
-                    "schema.__root_schema__.children.date_of_birth.defaultValue",
+                  key: "schema.__root_schema__.children.date_of_birth.defaultValue",
                 },
                 {
-                  key:
-                    "schema.__root_schema__.children.date_of_birth.accentColor",
+                  key: "schema.__root_schema__.children.date_of_birth.accentColor",
                 },
                 {
-                  key:
-                    "schema.__root_schema__.children.date_of_birth.borderRadius",
+                  key: "schema.__root_schema__.children.date_of_birth.borderRadius",
                 },
                 {
-                  key:
-                    "schema.__root_schema__.children.employee_id.defaultValue",
+                  key: "schema.__root_schema__.children.employee_id.defaultValue",
                 },
                 {
-                  key:
-                    "schema.__root_schema__.children.employee_id.accentColor",
+                  key: "schema.__root_schema__.children.employee_id.accentColor",
                 },
                 {
-                  key:
-                    "schema.__root_schema__.children.employee_id.borderRadius",
+                  key: "schema.__root_schema__.children.employee_id.borderRadius",
                 },
                 {
                   key: "schema.__root_schema__.defaultValue",
@@ -1320,7 +1313,7 @@ const inputDSL1 = ({
       minDynamicHeight: 10,
     },
   ],
-} as unknown) as DSLWidget;
+} as unknown as DSLWidget;
 
 const outputDSL1 = {
   widgetName: "MainContainer",
@@ -2192,8 +2185,7 @@ const outputDSL1 = {
               },
               dynamicPropertyPathList: [
                 {
-                  key:
-                    "schema.__root_schema__.children.date_of_birth.defaultValue",
+                  key: "schema.__root_schema__.children.date_of_birth.defaultValue",
                 },
               ],
               displayName: "JSON Form",
@@ -2239,28 +2231,22 @@ const outputDSL1 = {
                   key: "schema.__root_schema__.children.name.borderRadius",
                 },
                 {
-                  key:
-                    "schema.__root_schema__.children.date_of_birth.defaultValue",
+                  key: "schema.__root_schema__.children.date_of_birth.defaultValue",
                 },
                 {
-                  key:
-                    "schema.__root_schema__.children.date_of_birth.accentColor",
+                  key: "schema.__root_schema__.children.date_of_birth.accentColor",
                 },
                 {
-                  key:
-                    "schema.__root_schema__.children.date_of_birth.borderRadius",
+                  key: "schema.__root_schema__.children.date_of_birth.borderRadius",
                 },
                 {
-                  key:
-                    "schema.__root_schema__.children.employee_id.defaultValue",
+                  key: "schema.__root_schema__.children.employee_id.defaultValue",
                 },
                 {
-                  key:
-                    "schema.__root_schema__.children.employee_id.accentColor",
+                  key: "schema.__root_schema__.children.employee_id.accentColor",
                 },
                 {
-                  key:
-                    "schema.__root_schema__.children.employee_id.borderRadius",
+                  key: "schema.__root_schema__.children.employee_id.borderRadius",
                 },
                 {
                   key: "schema.__root_schema__.defaultValue",

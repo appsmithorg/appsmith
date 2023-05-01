@@ -154,10 +154,7 @@ export class Table {
         30000,
       )
       .waitUntil(($ele) =>
-        cy
-          .wrap($ele)
-          .children("span")
-          .should("not.be.empty"),
+        cy.wrap($ele).children("span").should("not.be.empty"),
       );
   }
 
@@ -167,9 +164,7 @@ export class Table {
       timeout: 10000,
       interval: 2000,
     }).then(($children) => {
-      cy.wrap($children)
-        .children()
-        .should("have.length", 0); //or below
+      cy.wrap($children).children().should("have.length", 0); //or below
       //expect($children).to.have.lengthOf(0)
       this.agHelper.Sleep(500);
     });
@@ -313,7 +308,7 @@ export class Table {
       cy.get(this._previousPage(tableVersion)).should("have.attr", "disabled");
   }
 
-  public AssertSelectedRow(rowNum: number = 0) {
+  public AssertSelectedRow(rowNum = 0) {
     cy.xpath(this._tableSelectedRow)
       .invoke("attr", "data-rowindex")
       .then(($rowIndex) => {
@@ -352,16 +347,18 @@ export class Table {
   }
 
   public SearchTable(searchTxt: string, index = 0) {
-    cy.get(this._searchText)
-      .eq(index)
-      .type(searchTxt);
+    cy.get(this._searchText).eq(index).type(searchTxt);
+  }
+
+  public resetSearch() {
+    this.agHelper.GetNClick(this._searchBoxCross);
   }
 
   public RemoveSearchTextNVerify(
     cellDataAfterSearchRemoved: string,
     tableVersion: "v1" | "v2" = "v1",
   ) {
-    this.agHelper.GetNClick(this._searchBoxCross);
+    this.resetSearch();
     this.ReadTableRowColumnData(0, 0, tableVersion).then(
       (aftSearchRemoved: any) => {
         expect(aftSearchRemoved).to.eq(cellDataAfterSearchRemoved);
@@ -401,6 +398,12 @@ export class Table {
     //this.agHelper.ClickButton("APPLY")
   }
 
+  public RemoveFilter(toClose = true, removeOne = false, index = 0) {
+    if (removeOne) this.agHelper.GetNClick(this._removeFilter, index);
+    else this.agHelper.GetNClick(this._clearAllFilter);
+    if (toClose) this.CloseFilter();
+  }
+
   public RemoveFilterNVerify(
     cellDataAfterFilterRemoved: string,
     toClose = true,
@@ -408,9 +411,7 @@ export class Table {
     index = 0,
     tableVersion: "v1" | "v2" = "v1",
   ) {
-    if (removeOne) this.agHelper.GetNClick(this._removeFilter, index);
-    else this.agHelper.GetNClick(this._clearAllFilter);
-    if (toClose) this.CloseFilter();
+    this.RemoveFilter(toClose, removeOne, index);
     this.ReadTableRowColumnData(0, 0, tableVersion).then(
       (aftFilterRemoved: any) => {
         expect(aftFilterRemoved).to.eq(cellDataAfterFilterRemoved);
@@ -424,9 +425,7 @@ export class Table {
 
   public DownloadFromTable(filetype: "Download as CSV" | "Download as Excel") {
     cy.get(this._downloadBtn).click({ force: true });
-    cy.get(this._downloadOption)
-      .contains(filetype)
-      .click({ force: true });
+    cy.get(this._downloadOption).contains(filetype).click({ force: true });
   }
 
   public ValidateDownloadNVerify(fileName: string, textToBePresent: string) {
@@ -481,9 +480,7 @@ export class Table {
 
   public AddColumn(colId: string) {
     cy.get(this._addColumn).scrollIntoView();
-    cy.get(this._addColumn)
-      .should("be.visible")
-      .click({ force: true });
+    cy.get(this._addColumn).should("be.visible").click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(3000);
     cy.get(this._defaultColName).clear({
