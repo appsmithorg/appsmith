@@ -32,7 +32,14 @@ import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
+
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -163,6 +170,8 @@ public class SnowflakePluginTest {
 
     @Test
     public void verifyTemplatesHasQuotesAroundMustacheSubstitutions() throws IOException {
+
+        // reading meta file to get template file locations
         InputStream input = new ClassPathResource("templates/meta.json").getInputStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(input));
         String meta = reader.lines().collect(Collectors.joining(System.lineSeparator()));
@@ -178,15 +187,15 @@ public class SnowflakePluginTest {
 
         List<String> templates = new ArrayList<>();
 
+        // parsing each template file and putting to a string to process for mustache templates
         result.get("templates").forEach(entry -> {
             for (Map.Entry<String, String> mapEntry : entry.entrySet()) {
-                try {
-                    InputStream template = new ClassPathResource("templates/" + mapEntry.getValue()).getInputStream();
+                try(InputStream template = new ClassPathResource("templates/" + mapEntry.getValue()).getInputStream()) {
                     BufferedReader templateReader = new BufferedReader(new InputStreamReader(template));
                     String file = templateReader.lines().collect(Collectors.joining(System.lineSeparator()));
                     templates.add(file);
-                } catch(IOException ioe) {
-                    log.error("error while reading the template file:", ioe);
+                } catch (IOException e){
+                    throw new RuntimeException(e);
                 }
             }
         });
@@ -197,6 +206,7 @@ public class SnowflakePluginTest {
         String enclosedMustache = "\\'\\{\\{.*?}}'";
         Pattern enclosedMustachePattern = Pattern.compile(enclosedMustache);
 
+        // processing each template file in loop
         for(String template : templates) {
 
             Matcher mustacheMatcher = mustachePattern.matcher(template);
@@ -204,12 +214,20 @@ public class SnowflakePluginTest {
 
             int mustacheMatchCount = 0;
             int enclosedMustacheMatchCount = 0;
+
+            // finding count of mustache substitution expressions
             while( mustacheMatcher.find() ) {
                 mustacheMatchCount++;
             }
+
+            // finding count of mustache substitution expressions enclosed in single quotes
             while( enclosedMustacheMatcher.find() ) {
                 enclosedMustacheMatchCount++;
             }
+
+            // count of mustache substitution expression and enclosed expressions should be same in hint text
+            // current test is based on rationale that all fields in hint are text fields hence should be enclosed in quotes in an sql query.
+            // moving forward this condition can be deemed incompatible with introduction of numeric fields hence this test case can then be adjusted accordingly.
             assertEquals(mustacheMatchCount, enclosedMustacheMatchCount);
         }
     }
