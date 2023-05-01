@@ -6,7 +6,7 @@ import type { SettingComponentProps } from "./Common";
 import { FormGroup } from "./Common";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import { Position } from "@blueprintjs/core";
 import type { RadioProps } from "design-system";
 import { Icon, Link, Radio, RadioGroup, Tag, Text } from "design-system";
@@ -76,6 +76,18 @@ const NodeWrapper = styled.div`
   margin-top: 8px;
 `;
 
+const PopoverStyles = createGlobalStyle`
+  .bp3-popover, .bp3-popover2 {
+    box-shadow: none;
+    border-radius: var(--ads-v2-border-radius);
+    border: 1px solid var(--ads-v2-color-border);
+
+    .bp3-popover2-content {
+      border-radius: var(--ads-v2-border-radius);
+    }
+  }
+`;
+
 type RadioGroupProps = SettingComponentProps;
 
 function RadioFieldWrapper(
@@ -114,6 +126,7 @@ function RadioFieldWrapper(
 
   return (
     <RadioGroup onChange={onChangeHandler as any} value={value}>
+      <PopoverStyles />
       {componentProps.options.map((item) => {
         const isSelected = item.value === value;
 
@@ -129,6 +142,7 @@ function RadioFieldWrapper(
                 )}
                 {item.tooltip && (
                   <Popover2
+                    className="embed-settings-popover"
                     content={
                       <TooltipContent>
                         <Text
@@ -151,6 +165,7 @@ function RadioFieldWrapper(
                     }
                     interactionKind="hover"
                     position={Position.RIGHT}
+                    usePortal={false}
                   >
                     <Icon className="icon" name={item.tooltip.icon} size="md" />
                   </Popover2>
