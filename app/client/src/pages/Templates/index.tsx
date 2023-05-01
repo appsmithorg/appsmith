@@ -75,14 +75,19 @@ export const ResultsCount = styled(Text)`
 
 const SearchWrapper = styled.div<{ sticky?: boolean }>`
   margin-left: ${(props) => props.theme.spaces[11]}px;
-  max-width: 250px;
+  /* max-width: 250px; */
+  .templates-search {
+    max-width: 250px;
+  }
   ${(props) =>
     props.sticky &&
     `position: sticky;
   top: 0;
   position: -webkit-sticky;
   z-index: 1;
-  background-color: var(--ads-v2-color-bg)`}
+  background-color: var(--ads-v2-color-bg);
+  padding: var(--ads-v2-spaces-7);
+  margin-left: 0; `}
 `;
 
 function TemplateRoutes() {
@@ -182,13 +187,15 @@ export function TemplatesContent(props: TemplatesContentProps) {
   return (
     <>
       <SearchWrapper sticky={props.stickySearchBar}>
-        <SearchInput
-          data-test-id={"t--application-search-input"}
-          isDisabled={isLoading}
-          onChange={debouncedOnChange || noop}
-          placeholder={createMessage(SEARCH_TEMPLATES)}
-          value={templateSearchQuery}
-        />
+        <div className="templates-search">
+          <SearchInput
+            data-test-id={"t--application-search-input"}
+            isDisabled={isLoading}
+            onChange={debouncedOnChange || noop}
+            placeholder={createMessage(SEARCH_TEMPLATES)}
+            value={templateSearchQuery}
+          />
+        </div>
       </SearchWrapper>
       <ResultsCount kind="heading-m" renderAs="h1">
         {resultsText}
