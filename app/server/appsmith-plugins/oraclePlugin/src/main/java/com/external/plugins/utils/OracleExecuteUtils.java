@@ -3,7 +3,6 @@ package com.external.plugins.utils;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import oracle.jdbc.OracleArray;
 import oracle.sql.CLOB;
-import oracle.sql.Datum;
 import org.apache.commons.lang.ObjectUtils;
 
 import java.sql.Connection;
@@ -13,9 +12,9 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.MessageFormat;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +31,8 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
     public static final String TIMESTAMPLTZ_TYPE_NAME = "TIMESTAMP WITH LOCAL TIME ZONE";
     public static final String CLOB_TYPE_NAME = "CLOB";
     public static final String NCLOB_TYPE_NAME = "NCLOB";
+    public static final String RAW_TYPE_NAME = "RAW";
+    public static final String BLOB_TYPE_NAME = "BLOB";
     public static final String AFFECTED_ROWS_KEY = "affectedRows";
 
     /**
@@ -136,23 +137,26 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
                     } else if (DATE_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)) {
                         value = DateTimeFormatter.ISO_DATE.format(resultSet.getDate(i).toLocalDate());
 
-                    } else if (TIMESTAMP_TYPE_NAME.equalsIgnoreCase(typeName)) {
-                        value = DateTimeFormatter.ISO_DATE_TIME.format(
-                                LocalDateTime.of(
-                                        resultSet.getDate(i).toLocalDate(),
-                                        resultSet.getTime(i).toLocalTime()
-                                )
-                        ) + "Z";
-
-                    } else if (TIMESTAMPTZ_TYPE_NAME.equalsIgnoreCase(typeName) || TIMESTAMPLTZ_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                    } else if (TIMESTAMP_TYPE_NAME.equalsIgnoreCase(typeName) || TIMESTAMPTZ_TYPE_NAME.equalsIgnoreCase(typeName) || TIMESTAMPLTZ_TYPE_NAME.equalsIgnoreCase(typeName)) {
                         value = DateTimeFormatter.ISO_DATE_TIME.format(
                                 resultSet.getObject(i, OffsetDateTime.class)
                         );
-
                     } else if (CLOB_TYPE_NAME.equalsIgnoreCase(typeName) || NCLOB_TYPE_NAME.equals(typeName)) {
+                        /**
+                         * clob, nclob are textual data.
+                         * Ref: https://docs.oracle.com/javadb/10.10.1.2/ref/rrefclob.html
+                         */
                         value = String.valueOf(((CLOB)resultSet.getObject(i)).getTarget().getPrefetchedData());
                     } else if (resultSet.getObject(i) instanceof OracleArray) {
                         value = ((OracleArray)resultSet.getObject(i)).getArray();
+                    } else if (RAW_TYPE_NAME.equalsIgnoreCase(typeName) || BLOB_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                        /**
+                         * Raw / Blob data cannot be interpreted as anything but a byte array. Hence, send it back as a
+                         * base64 encoded string. The correct way to read the data for these types is for the user to
+                         * cast them to a type before reading them, example:
+                         * select utl_raw.cast_to_varchar2(c_raw) as c_raw, utl_raw.cast_to_varchar2(c_blob) as c_blob from TYPESTEST4
+                         */
+                        value = Base64.getEncoder().encodeToString((byte[]) resultSet.getObject(i));
                     }
                     else {
                         value = resultSet.getObject(i).toString();
