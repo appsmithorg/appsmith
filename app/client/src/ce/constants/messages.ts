@@ -495,7 +495,7 @@ export const NAVIGATE_TO = () => `Navigate to`;
 export const SHOW_ALERT = () => `Show Alert`;
 export const SHOW_MODAL = () => `Show modal`;
 export const CLOSE_MODAL = () => `Close modal`;
-export const CLOSE = () => `CLOSE`;
+export const CLOSE = () => `Close`;
 export const STORE_VALUE = () => `Store value`;
 export const REMOVE_VALUE = () => `Remove value`;
 export const CLEAR_STORE = () => `Clear store`;
@@ -505,9 +505,9 @@ export const RESET_WIDGET = () => `Reset widget`;
 export const EXECUTE_JS_FUNCTION = () => `Execute a JS function`;
 export const SET_INTERVAL = () => `Set interval`;
 export const CLEAR_INTERVAL = () => `Clear interval`;
-export const GET_GEO_LOCATION = () => `Get Geolocation`;
-export const WATCH_GEO_LOCATION = () => `Watch Geolocation`;
-export const STOP_WATCH_GEO_LOCATION = () => `Stop watching Geolocation`;
+export const GET_GEO_LOCATION = () => `Get geolocation`;
+export const WATCH_GEO_LOCATION = () => `Watch geolocation`;
+export const STOP_WATCH_GEO_LOCATION = () => `Stop watching geolocation`;
 export const POST_MESSAGE = () => `Post message`;
 
 //js actions

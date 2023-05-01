@@ -63,7 +63,7 @@ class ButtonGroupWidget extends BaseWidget<
                   children: [
                     {
                       propertyName: "buttonType",
-                      label: "Button Type",
+                      label: "Button type",
                       controlType: "ICON_TABS",
                       fullWidth: true,
                       helpText: "Sets button type",
