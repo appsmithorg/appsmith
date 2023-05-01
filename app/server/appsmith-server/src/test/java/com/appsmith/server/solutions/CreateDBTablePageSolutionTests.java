@@ -166,7 +166,7 @@ public class CreateDBTablePageSolutionTests {
     );
 
     @BeforeEach
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void setup() {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
@@ -225,7 +225,7 @@ public class CreateDBTablePageSolutionTests {
 
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createPageWithInvalidApplicationIdTest() {
 
         Mono<CRUDPageResponseDTO> resultMono = solution.createPageFromDBTable(testApp.getPages().get(0).getId(), resource, "");
@@ -239,7 +239,7 @@ public class CreateDBTablePageSolutionTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createPageWithInvalidDatasourceTest() {
 
         Datasource invalidDatasource = new Datasource();
@@ -264,7 +264,7 @@ public class CreateDBTablePageSolutionTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createPageWithInvalidRequestBodyTest() {
         Mono<CRUDPageResponseDTO> resultMono = solution.createPageFromDBTable(testApp.getPages().get(0).getId(), new CRUDPageResourceDTO(), "");
 
@@ -276,7 +276,7 @@ public class CreateDBTablePageSolutionTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createPage_withInvalidBranchName_throwException() {
         final String pageId = testApp.getPages().get(0).getId();
         resource.setApplicationId(testApp.getId());
@@ -290,7 +290,7 @@ public class CreateDBTablePageSolutionTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createPageWithNullPageId() {
 
         resource.setApplicationId(testApp.getId());
@@ -315,7 +315,7 @@ public class CreateDBTablePageSolutionTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createPage_withValidBranch_validDefaultIds() {
 
         Application gitConnectedApp = new Application();
@@ -372,7 +372,7 @@ public class CreateDBTablePageSolutionTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createPageWithValidPageIdForPostgresqlDS() {
 
         resource.setApplicationId(testApp.getId());
@@ -419,7 +419,7 @@ public class CreateDBTablePageSolutionTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createPageWithLessColumnsComparedToTemplateForPostgres() {
 
         CRUDPageResourceDTO resourceDTO = new CRUDPageResourceDTO();
@@ -476,7 +476,7 @@ public class CreateDBTablePageSolutionTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createPageWithLessColumnsComparedToTemplateForSql() {
 
         CRUDPageResourceDTO resourceDTO = new CRUDPageResourceDTO();
@@ -551,7 +551,7 @@ public class CreateDBTablePageSolutionTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createPageWithValidPageIdForMySqlDS() {
 
         resource.setApplicationId(testApp.getId());
@@ -617,7 +617,7 @@ public class CreateDBTablePageSolutionTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createPageWithValidPageIdForRedshiftDS() {
 
         resource.setApplicationId(testApp.getId());
@@ -678,7 +678,7 @@ public class CreateDBTablePageSolutionTests {
     // TODO this has been disabled as we don't have the getStructure method for mssql-plugin
     /*
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createPageWithNullPageIdForMSSqlDS() {
 
         resource.setApplicationId(testApp.getId());
@@ -733,7 +733,7 @@ public class CreateDBTablePageSolutionTests {
     */
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createPageWithNullPageIdForSnowflake() {
 
         resource.setApplicationId(testApp.getId());
@@ -786,7 +786,7 @@ public class CreateDBTablePageSolutionTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createPageWithNullPageIdForS3() {
 
         resource.setApplicationId(testApp.getId());
@@ -845,7 +845,7 @@ public class CreateDBTablePageSolutionTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createPageWithValidPageIdForGoogleSheet() {
 
         resource.setApplicationId(testApp.getId());
@@ -911,7 +911,7 @@ public class CreateDBTablePageSolutionTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createPageWithValidPageIdForMongoDB() {
 
         resource.setApplicationId(testApp.getId());

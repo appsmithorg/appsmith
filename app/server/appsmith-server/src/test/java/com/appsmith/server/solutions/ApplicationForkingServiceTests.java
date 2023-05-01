@@ -303,7 +303,7 @@ public class ApplicationForkingServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void test1_cloneWorkspaceWithItsContents() {
 
         Workspace targetWorkspace = new Workspace();
@@ -421,7 +421,7 @@ public class ApplicationForkingServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void test3_failForkApplicationWithInvalidPermission() {
 
         final Mono<Application> resultMono = applicationForkingService.forkApplicationToWorkspace(sourceAppId, testUserWorkspaceId);
@@ -433,7 +433,7 @@ public class ApplicationForkingServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void test4_validForkApplication_cancelledMidWay_createValidApplication() {
 
         Workspace targetWorkspace = new Workspace();
@@ -534,7 +534,7 @@ public class ApplicationForkingServiceTests {
     }
 
     @Test
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     public void forkApplicationToWorkspace_WhenAppHasUnsavedThemeCustomization_ForkedWithCustomizations() {
         // Fork application is currently a slow API because it needs to create application, clone all the pages, and then
         // copy all the actions and collections. This process may take time and since some of the test cases in
@@ -599,7 +599,7 @@ public class ApplicationForkingServiceTests {
     }
 
     @Test
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     public void forkApplicationToWorkspace_WhenAppHasSystemTheme_SystemThemeSet() {
         // Fork application is currently a slow API because it needs to create application, clone all the pages, and then
         // copy all the actions and collections. This process may take time and since some of the test cases in
@@ -649,7 +649,7 @@ public class ApplicationForkingServiceTests {
     }
 
     @Test
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     public void forkApplicationToWorkspace_WhenAppHasCustomSavedTheme_NewCustomThemeCreated() {
         // Fork application is currently a slow API because it needs to create application, clone all the pages, and then
         // copy all the actions and collections. This process may take time and since some of the test cases in
@@ -717,7 +717,7 @@ public class ApplicationForkingServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void forkApplication_deletePageAfterBeingPublished_deletedPageIsNotCloned() {
         // Fork application is currently a slow API because it needs to create application, clone all the pages, and then
         // copy all the actions and collections. This process may take time and since some of the test cases in
@@ -779,7 +779,7 @@ public class ApplicationForkingServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void forkGitConnectedApplication_defaultBranchUpdated_forkDefaultBranchApplication() {
         // Fork application is currently a slow API because it needs to create application, clone all the pages, and then
         // copy all the actions and collections. This process may take time and since some of the test cases in

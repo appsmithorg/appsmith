@@ -41,7 +41,7 @@ public class ApplicationSnapshotServiceTest {
     private ApplicationSnapshotRepository applicationSnapshotRepository;
 
     @Test
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     public void createApplicationSnapshot_WhenNoPreviousSnapshotExists_NewCreated() {
         // create a new workspace
         Workspace workspace = new Workspace();
@@ -70,7 +70,7 @@ public class ApplicationSnapshotServiceTest {
     }
 
     @Test
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     public void createApplicationSnapshot_WhenSnapshotExists_ExistingSnapshotUpdated() {
         // create a new workspace
         Workspace workspace = new Workspace();
@@ -101,7 +101,7 @@ public class ApplicationSnapshotServiceTest {
     }
 
     @Test
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     public void createApplicationSnapshot_WhenGitBranchExists_SnapshotCreatedWithBranchedAppId() {
         String uniqueString = UUID.randomUUID().toString();
         String testDefaultAppId = "default-app-" + uniqueString;
@@ -139,7 +139,7 @@ public class ApplicationSnapshotServiceTest {
     }
 
     @Test
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     public void createApplicationSnapshot_OlderSnapshotExists_OlderSnapshotsRemoved() {
         String uniqueString = UUID.randomUUID().toString();
         String testDefaultAppId = "default-app-" + uniqueString;
@@ -175,7 +175,7 @@ public class ApplicationSnapshotServiceTest {
     }
 
     @Test
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     public void restoreSnapshot_WhenNewPagesAddedAfterSnapshotTaken_NewPagesRemovedAfterSnapshotIsRestored() {
         String uniqueString = UUID.randomUUID().toString();
         String testDefaultAppId = "default-app-" + uniqueString;
@@ -228,7 +228,7 @@ public class ApplicationSnapshotServiceTest {
     }
 
     @Test
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     public void restoreSnapshot_WhenSuccessfullyRestored_SnapshotDeleted() {
         String uniqueString = UUID.randomUUID().toString();
 

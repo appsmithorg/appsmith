@@ -240,17 +240,17 @@ public class ApplicationServiceCETest {
     static Application gitConnectedApp = new Application();
 
     @BeforeEach
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void setup() {
 
         User currentUser = sessionUserService.getCurrentUser().block();
-        if (!currentUser.getEmail().equals("api_user")) {
+        if (!currentUser.getEmail().equals("api_user@test.com")) {
             // Don't do any setups
             return;
         }
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
-        User apiUser = userService.findByEmail("api_user").block();
+        User apiUser = userService.findByEmail("api_user@test.com").block();
 
         Workspace toCreate = new Workspace();
         toCreate.setName("ApplicationServiceTest");
@@ -307,7 +307,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createApplicationWithNullName() {
         Application application = new Application();
         Mono<Application> applicationMono = Mono.just(application)
@@ -320,7 +320,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createValidApplication() {
         Application testApplication = new Application();
         testApplication.setName("ApplicationServiceTest TestApp");
@@ -347,7 +347,7 @@ public class ApplicationServiceCETest {
                     assertThat(application.getName()).isEqualTo("ApplicationServiceTest TestApp");
                     assertThat(application.getPolicies()).isNotEmpty();
                     assertThat(application.getWorkspaceId()).isEqualTo(workspaceId);
-                    assertThat(application.getModifiedBy()).isEqualTo("api_user");
+                    assertThat(application.getModifiedBy()).isEqualTo("api_user@test.com");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     assertThat(application.getEvaluationVersion()).isEqualTo(EVALUATION_VERSION);
                     assertThat(application.getApplicationVersion()).isEqualTo(ApplicationVersion.LATEST_VERSION);
@@ -395,7 +395,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void defaultPageCreateOnCreateApplicationTest() {
         Application testApplication = new Application();
         testApplication.setName("ApplicationServiceTest TestAppForTestingPage");
@@ -405,10 +405,10 @@ public class ApplicationServiceCETest {
                 .flatMapMany(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false));
 
         Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
-                .users(Set.of("api_user"))
+                .users(Set.of("api_user@test.com"))
                 .build();
         Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
-                .users(Set.of("api_user"))
+                .users(Set.of("api_user@test.com"))
                 .build();
 
         StepVerifier
@@ -427,7 +427,7 @@ public class ApplicationServiceCETest {
     /* Tests for Get Application Flow */
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void getApplicationInvalidId() {
         Mono<Application> applicationMono = applicationService.getById("random-id");
         StepVerifier.create(applicationMono)
@@ -437,7 +437,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void getApplicationNullId() {
         Mono<Application> applicationMono = applicationService.getById(null);
         StepVerifier.create(applicationMono)
@@ -447,7 +447,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void validGetApplicationById() {
         Application application = new Application();
         application.setName("validGetApplicationById-Test");
@@ -464,7 +464,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void validGetApplicationsByName() {
         Application application = new Application();
         application.setName("validGetApplicationByName-Test");
@@ -485,7 +485,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void getApplicationByDefaultIdAndBranchName_emptyBranchName_success() {
         Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId("", gitConnectedApp.getId(), READ_APPLICATIONS);
         StepVerifier.create(applicationMono)
@@ -496,7 +496,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void getApplicationByDefaultIdAndBranchName_invalidBranchName_throwException() {
         Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId("randomBranch", gitConnectedApp.getId(), READ_APPLICATIONS);
         StepVerifier.create(applicationMono)
@@ -506,7 +506,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void getApplicationByDefaultIdAndBranchName_validBranchName_success() {
         Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId("testBranch", gitConnectedApp.getId(), READ_APPLICATIONS);
         StepVerifier.create(applicationMono)
@@ -517,7 +517,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void getApplicationsByBranchName_validBranchName_success() {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.set(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME, gitConnectedApp.getGitApplicationMetadata().getBranchName());
@@ -533,7 +533,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void validGetApplications() {
         Application application = new Application();
         application.setName("validGetApplications-Test");
@@ -584,7 +584,7 @@ public class ApplicationServiceCETest {
 
     /* Tests for Update Application Flow */
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void validUpdateApplication() {
         Application application = new Application();
         application.setName("validUpdateApplication-Test");
@@ -612,7 +612,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void invalidUpdateApplication() {
         Application testApp1 = new Application();
         testApp1.setName("validApplication1");
@@ -639,7 +639,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void updateApplicationByIdAndBranchName_validBranchName_success() {
         gitConnectedApp.setName("updatedGitConnectedApplication");
 
@@ -661,7 +661,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void reuseDeletedAppName() {
         Application firstApp = new Application();
         firstApp.setName("Ghost app");
@@ -690,7 +690,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void getAllApplicationsForHome() {
         Mockito.when(releaseNotesService.getReleaseNodes()).thenReturn(Mono.empty());
 
@@ -726,7 +726,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void getOnlyDefaultApplicationsConnectedToGitForHome() {
         Mockito.when(releaseNotesService.getReleaseNodes()).thenReturn(Mono.empty());
 
@@ -808,7 +808,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void validMakeApplicationPublic() {
         Application application = new Application();
         application.setName("validMakeApplicationPublic-Test");
@@ -894,7 +894,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void validMakeApplicationPrivate() {
         Application application = new Application();
         application.setName("validMakeApplicationPrivate-Test");
@@ -972,7 +972,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void makeApplicationPublic_applicationWithGitMetadata_success() {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
@@ -1085,7 +1085,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void makeApplicationPrivate_applicationWithGitMetadata_success() {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
@@ -1181,7 +1181,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void validMakeApplicationPublicWithActions() {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
@@ -1311,7 +1311,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void cloneApplication_applicationWithGitMetadata_success() {
 
         final String branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
@@ -1377,7 +1377,7 @@ public class ApplicationServiceCETest {
                     assertThat(clonedApplication.getName()).isEqualTo("gitConnectedApp Copy");
                     assertThat(clonedApplication.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
                     assertThat(clonedApplication.getWorkspaceId()).isEqualTo(workspaceId);
-                    assertThat(clonedApplication.getModifiedBy()).isEqualTo("api_user");
+                    assertThat(clonedApplication.getModifiedBy()).isEqualTo("api_user@test.com");
                     assertThat(clonedApplication.getUpdatedAt()).isNotNull();
                     assertThat(clonedApplication.getEvaluationVersion()).isNotNull();
                     assertThat(clonedApplication.getEvaluationVersion()).isEqualTo(gitConnectedApp.getEvaluationVersion());
@@ -1468,7 +1468,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void cloneApplication_applicationWithGitMetadataAndActions_success() {
 
         final String branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
@@ -1545,7 +1545,7 @@ public class ApplicationServiceCETest {
 
                     assertThat(clonedApplication.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
                     assertThat(clonedApplication.getWorkspaceId()).isEqualTo(workspaceId);
-                    assertThat(clonedApplication.getModifiedBy()).isEqualTo("api_user");
+                    assertThat(clonedApplication.getModifiedBy()).isEqualTo("api_user@test.com");
                     assertThat(clonedApplication.getUpdatedAt()).isNotNull();
 
                     Set<String> clonedPageId = clonedApplication.getPages().stream().map(page -> page.getId()).collect(Collectors.toSet());
@@ -1578,7 +1578,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void cloneApplication_withActionAndActionCollection_success() {
         Application testApplication = new Application();
         testApplication.setName("ApplicationServiceTest Clone Source TestApp");
@@ -1749,7 +1749,7 @@ public class ApplicationServiceCETest {
                     assertThat(application.getName()).isEqualTo("ApplicationServiceTest Clone Source TestApp Copy");
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
                     assertThat(application.getWorkspaceId()).isEqualTo(workspaceId);
-                    assertThat(application.getModifiedBy()).isEqualTo("api_user");
+                    assertThat(application.getModifiedBy()).isEqualTo("api_user@test.com");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     List<ApplicationPage> pages = application.getPages();
                     Set<String> pageIdsFromApplication = pages.stream().map(page -> page.getId()).collect(Collectors.toSet());
@@ -1899,7 +1899,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void cloneApplication_withDeletedActionInActionCollection_deletedActionIsNotCloned() {
         Application testApplication = new Application();
         testApplication.setName("ApplicationServiceTest-clone-application-deleted-action-within-collection");
@@ -2095,7 +2095,7 @@ public class ApplicationServiceCETest {
                     assertThat(application.getName()).isEqualTo("ApplicationServiceTest-clone-application-deleted-action-within-collection Copy");
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
                     assertThat(application.getWorkspaceId()).isEqualTo(workspaceId);
-                    assertThat(application.getModifiedBy()).isEqualTo("api_user");
+                    assertThat(application.getModifiedBy()).isEqualTo("api_user@test.com");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     List<ApplicationPage> pages = application.getPages();
                     Set<String> pageIdsFromApplication = pages.stream().map(ApplicationPage::getId).collect(Collectors.toSet());
@@ -2169,7 +2169,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void cloneGitConnectedApplication_withUpdatedDefaultBranch_sucess() {
         Application application = new Application();
         application.setName("cloneGitConnectedApplication_withUpdatedDefaultBranch_sucess");
@@ -2227,7 +2227,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void basicPublishApplicationTest() {
         Application testApplication = new Application();
         String appName = "ApplicationServiceTest Publish Application";
@@ -2279,7 +2279,7 @@ public class ApplicationServiceCETest {
      * Method to test if the action, pages and actionCollection are archived after the application is published
      */
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void publishApplication_withArchivedUnpublishedResources_resourcesArchived() {
 
         /*
@@ -2395,7 +2395,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void publishApplication_withGitConnectedApp_success() {
         GitApplicationMetadata gitData = gitConnectedApp.getGitApplicationMetadata();
         gitConnectedApp.setAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
@@ -2442,7 +2442,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void publishApplication_withPageIconSet_success() {
         Application testApplication = new Application();
         String appName = "ApplicationServiceTest Publish Application Page Icon";
@@ -2489,7 +2489,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void deleteUnpublishedPageFromApplication() {
         Application testApplication = new Application();
         String appName = "ApplicationServiceTest Publish Application Delete Page";
@@ -2536,7 +2536,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void deleteUnpublishedPage_FromApplicationConnectedToGit_success() {
 
         final String branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
@@ -2579,7 +2579,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void changeDefaultPageForAPublishedApplication() {
         Application testApplication = new Application();
         String appName = "ApplicationServiceTest Publish Application Change Default Page";
@@ -2643,7 +2643,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void getApplicationInViewMode() {
         Application testApplication = new Application();
         String appName = "ApplicationServiceTest Get Application In View Mode";
@@ -2704,7 +2704,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void validCloneApplicationWhenCancelledMidWay() {
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
@@ -2831,7 +2831,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void newApplicationShouldHavePublishedState() {
         Application testApplication = new Application();
         testApplication.setName("ApplicationServiceTest NewApp PublishedState");
@@ -2862,7 +2862,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void validGetApplicationPagesMultiPageApp() {
         Application app = new Application();
         app.setName("validGetApplicationPagesMultiPageApp-Test");
@@ -2916,7 +2916,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void validChangeViewAccessCancelledMidWay() {
 
         Application testApplication = new Application();
@@ -3083,7 +3083,7 @@ public class ApplicationServiceCETest {
 
     }
 
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     @Test
     public void saveLastEditInformation_WhenUserHasPermission_Updated() {
         Application testApplication = new Application();
@@ -3103,13 +3103,13 @@ public class ApplicationServiceCETest {
         StepVerifier.create(updatedApplication).assertNext(application -> {
             assertThat(application.getLastUpdateTime()).isNotNull();
             assertThat(application.getPolicies()).isNotNull().isNotEmpty();
-            assertThat(application.getModifiedBy()).isEqualTo("api_user");
+            assertThat(application.getModifiedBy()).isEqualTo("api_user@test.com");
             assertThat(application.getIsPublic()).isTrue();
             assertThat(application.getIsManualUpdate()).isTrue();
         }).verifyComplete();
     }
 
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     @Test
     public void generateSshKeyPair_WhenDefaultApplicationIdNotSet_CurrentAppUpdated() {
         Application unsavedApplication = new Application();
@@ -3132,7 +3132,7 @@ public class ApplicationServiceCETest {
                 .verifyComplete();
     }
 
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     @Test
     public void generateSshKeyPair_WhenDefaultApplicationIdSet_DefaultApplicationUpdated() {
 
@@ -3183,7 +3183,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void deleteApplication_withPagesActionsAndActionCollections_resourcesArchived() {
 
         /*
@@ -3292,7 +3292,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void deleteApplication_withNullGitData_Success() {
         Application testApplication = new Application();
         String appName = "deleteApplication_withNullGitData_Success";
@@ -3310,7 +3310,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void deleteApplication_WithDeployKeysNotConnectedToRemote_Success() {
         Application testApplication = new Application();
         String appName = "deleteApplication_WithDeployKeysNotConnectedToRemote_Success";
@@ -3334,7 +3334,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void cloneApplication_WithCustomSavedTheme_ThemesAlsoCopied() {
         Application testApplication = new Application();
         String appName = "cloneApplication_WithCustomSavedTheme_ThemesAlsoCopied";
@@ -3373,7 +3373,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void getApplicationConnectedToGit_defaultBranchUpdated_returnBranchSpecificApplication() {
         // Update the default Branch for the gitConected App
         gitConnectedApp.getGitApplicationMetadata().setDefaultBranchName("release");
@@ -3415,7 +3415,7 @@ public class ApplicationServiceCETest {
      *  3. Invoke the update method and assert the "isPublic" field in the response
      */
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void validPublicAppUpdateApplication() {
         Application application = new Application();
         application.setName("validPublicAppUpdateApplication-Test");
@@ -3458,7 +3458,7 @@ public class ApplicationServiceCETest {
      *  3. Invoke the update method and assert the "isPublic" field in the response
      */
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void validPrivateAppUpdateApplication() {
         Application application = new Application();
         application.setName("validPrivateAppUpdateApplication-Test");
@@ -3510,7 +3510,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testUploadAndDeleteNavigationLogo_validImage() {
         FilePart filepart = createMockFilePart();
         String createdApplicationId = createTestApplication("ApplicationServiceTest Upload/Delete Nav Logo");
@@ -3551,7 +3551,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testUploadNavigationLogo_invalidImageFormat(){
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils
@@ -3570,7 +3570,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testUploadNavigationLogo_invalidImageSize(){
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils

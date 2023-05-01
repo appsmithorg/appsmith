@@ -95,11 +95,11 @@ public class MockDataServiceTest {
     PageDTO testPage = null;
 
     @BeforeEach
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void setup() {
 
         if (!StringUtils.hasLength(workspaceId)) {
-            User apiUser = userService.findByEmail("api_user").block();
+            User apiUser = userService.findByEmail("api_user@test.com").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("MockDataServiceTest");
 
@@ -119,7 +119,7 @@ public class MockDataServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testGetMockDataSets() {
         StepVerifier
                 .create(mockDataService.getMockDataSet())
@@ -133,12 +133,12 @@ public class MockDataServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testCreateMockDataSetsMongo() {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        User apiUser = userService.findByEmail("api_user").block();
+        User apiUser = userService.findByEmail("api_user@test.com").block();
         Workspace toCreate = new Workspace();
         toCreate.setName("MockDataServiceTest testCreateMockDataSetsMongo");
 
@@ -204,7 +204,7 @@ public class MockDataServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testCreateMockDataSetsPostgres() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -264,12 +264,12 @@ public class MockDataServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testCreateMockDataSetsDuplicateName() {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        User apiUser = userService.findByEmail("api_user").block();
+        User apiUser = userService.findByEmail("api_user@test.com").block();
         Workspace toCreate = new Workspace();
         toCreate.setName("MockDataServiceTest testCreateMockDataSetsDuplicateName");
 

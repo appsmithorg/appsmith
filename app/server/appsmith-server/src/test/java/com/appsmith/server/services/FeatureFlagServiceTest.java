@@ -41,7 +41,7 @@ public class FeatureFlagServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testNullFeatureCheck() {
         StepVerifier.create(featureFlagService.check(null))
                 .assertNext(result -> {
@@ -51,7 +51,7 @@ public class FeatureFlagServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testFeatureCheckForPonderationStrategy() {
         Math.random();
         StepVerifier.create(featureFlagService.check(FeatureFlagEnum.TEST_FEATURE_2))
@@ -62,7 +62,7 @@ public class FeatureFlagServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testFeatureCheckForAppsmithUserStrategy() {
         StepVerifier.create(featureFlagService.check(FeatureFlagEnum.TEST_FEATURE_1))
                 .assertNext(result -> {
@@ -72,7 +72,7 @@ public class FeatureFlagServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testGetFeaturesForUser() {
         StepVerifier.create(featureFlagService.getAllFeatureFlagsForUser())
                 .assertNext(result -> {
@@ -83,7 +83,7 @@ public class FeatureFlagServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testFeatureCheckForEmailStrategy() {
         StepVerifier.create(featureFlagService.getAllFeatureFlagsForUser())
                 .assertNext(result -> {

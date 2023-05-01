@@ -130,11 +130,11 @@ public class PageServiceTest {
     static String workspaceId;
 
     @BeforeEach
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void setup() {
         purgeAllPages();
         if (StringUtils.isEmpty(workspaceId)) {
-            User apiUser = userService.findByEmail("api_user").block();
+            User apiUser = userService.findByEmail("api_user@test.com").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("PageServiceTest");
 
@@ -170,7 +170,7 @@ public class PageServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createPageWithNullName() {
         PageDTO page = new PageDTO();
         Mono<PageDTO> pageMono = Mono.just(page)
@@ -183,7 +183,7 @@ public class PageServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createPageWithNullApplication() {
         PageDTO page = new PageDTO();
         page.setName("Page without application");
@@ -197,7 +197,7 @@ public class PageServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createValidPage() throws ParseException {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
@@ -283,7 +283,7 @@ public class PageServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createValidPageWithLayout() throws ParseException {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
@@ -360,7 +360,7 @@ public class PageServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void validChangePageNameAndPageIcon() {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
@@ -438,7 +438,7 @@ public class PageServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void updatePage_WhenCustomSlugSet_CustomSlugIsNotUpdated() {
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
@@ -515,7 +515,7 @@ public class PageServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void clonePage() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -695,7 +695,7 @@ public class PageServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void clonePage_whenPageCloned_defaultIdsRetained() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -902,7 +902,7 @@ public class PageServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void reuseDeletedPageName() {
 
         PageDTO testPage = new PageDTO();
@@ -942,7 +942,7 @@ public class PageServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void reOrderPageFromHighOrderToLowOrder() {
 
         Application newApp = new Application();
@@ -991,7 +991,7 @@ public class PageServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void reOrderPageFromLowOrderToHighOrder() {
 
         Application newApp = new Application();
@@ -1040,7 +1040,7 @@ public class PageServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void reorderPage_pageReordered_success() {
 
         gitConnectedApplication = setupGitConnectedTestApplication("reorderPage");
@@ -1089,7 +1089,7 @@ public class PageServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void addDuplicatePageToApplication() {
 
         PageDTO testPage = new PageDTO();

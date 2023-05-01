@@ -25,7 +25,7 @@ public class ApplicationSnapshotRepositoryTest {
     private Gson gson;
 
     @Test
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     public void findWithoutData_WhenMatched_ReturnsMatchedDocumentWithoutData() {
         String testAppId1 = UUID.randomUUID().toString(),
                 testAppId2 = UUID.randomUUID().toString();
@@ -50,7 +50,7 @@ public class ApplicationSnapshotRepositoryTest {
     }
 
     @Test
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     public void findWithoutData_WhenMultipleChunksArePresent_ReturnsSingleOne() {
         String testAppId1 = UUID.randomUUID().toString();
 
@@ -73,7 +73,7 @@ public class ApplicationSnapshotRepositoryTest {
     }
 
     @Test
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     public void deleteAllByApplicationId_WhenMatched_ReturnsMatchedDocumentWithoutData() {
         String testAppId1 = UUID.randomUUID().toString(),
                 testAppId2 = UUID.randomUUID().toString();
@@ -107,7 +107,7 @@ public class ApplicationSnapshotRepositoryTest {
     }
 
     @Test
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     public void findByApplicationId_WhenMatched_ReturnsMatchedDocumentWithoutData() {
         String testAppId1 = UUID.randomUUID().toString(),
                 testAppId2 = UUID.randomUUID().toString();

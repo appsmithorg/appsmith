@@ -179,7 +179,7 @@ public class GitFileUtilsTest {
 
     @SneakyThrows
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void saveApplicationToLocalRepo_allResourcesArePresent_removePublishedResources() {
         ApplicationJson validAppJson = createAppJson(filePath).block();
 
@@ -209,7 +209,7 @@ public class GitFileUtilsTest {
 
     @SneakyThrows
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void reconstructApplicationFromLocalRepo_allResourcesArePresent_getClonedPublishedResources() {
         ApplicationJson applicationJson = createAppJson(filePath).block();
         // Prepare the JSON without published resources

@@ -25,7 +25,7 @@ public class EmailBasedRolloutStrategyTest {
     EmailBasedRolloutStrategy strategy = new EmailBasedRolloutStrategy();
 
     @BeforeEach
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void setup() {
         Map<String, String> initParams = new HashMap<>();
         initParams.put("emailDomains", "example.com,another-example.com");
@@ -33,7 +33,7 @@ public class EmailBasedRolloutStrategyTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testValidFeatureCheck() {
         FlippingExecutionContext executionContext = Mockito.mock(FlippingExecutionContext.class);
 
@@ -46,7 +46,7 @@ public class EmailBasedRolloutStrategyTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testInvalidFeatureCheck() {
         FlippingExecutionContext executionContext = Mockito.mock(FlippingExecutionContext.class);
 

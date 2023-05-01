@@ -85,7 +85,7 @@ public class ThemeServiceTest {
 
 
     @BeforeEach
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void setup() {
         Workspace workspace = new Workspace();
         workspace.setName("Theme Service Test workspace");
@@ -126,11 +126,11 @@ public class ThemeServiceTest {
         // Remove api_user from the workspace
         UpdatePermissionGroupDTO updatePermissionGroupDTO = new UpdatePermissionGroupDTO();
         updatePermissionGroupDTO.setNewPermissionGroupId(null);
-        updatePermissionGroupDTO.setUsername("api_user");
+        updatePermissionGroupDTO.setUsername("api_user@test.com");
         userWorkspaceService.updatePermissionGroupForMember(workspace.getId(), updatePermissionGroupDTO, origin).block();
     }
 
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     @Test
     public void getApplicationTheme_WhenThemeIsSet_ThemesReturned() {
 
@@ -163,7 +163,7 @@ public class ThemeServiceTest {
                 }).verifyComplete();
     }
 
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     @Test
     public void getApplicationTheme_WhenUserHasNoPermission_ExceptionThrows() {
 
@@ -199,7 +199,7 @@ public class ThemeServiceTest {
                 .verify();
     }
 
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     @Test
     public void getApplicationTheme_WhenNoThemeFoundWithId_DefaultThemeReturned() {
         Application savedApplication = createApplication();
@@ -215,7 +215,7 @@ public class ThemeServiceTest {
                 .verifyComplete();
     }
 
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     @Test
     public void changeCurrentTheme_WhenUserHasPermission_ThemesSetInEditMode() {
 
@@ -253,7 +253,7 @@ public class ThemeServiceTest {
                 }).verifyComplete();
     }
 
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     @Test
     public void changeCurrentTheme_WhenUserHasNoPermission_ThrowsException() {
 
@@ -281,7 +281,7 @@ public class ThemeServiceTest {
                 .verify();
     }
 
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     @Test
     public void changeCurrentTheme_WhenSystemThemeSet_NoNewThemeCreated() {
 
@@ -303,7 +303,7 @@ public class ThemeServiceTest {
                 }).verifyComplete();
     }
 
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     @Test
     public void changeCurrentTheme_WhenSystemThemeSetOverCustomTheme_NewThemeNotCreatedAndOldOneDeleted() {
 
@@ -345,7 +345,7 @@ public class ThemeServiceTest {
                 .verifyComplete();
     }
 
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     @Test
     public void cloneThemeToApplication_WhenSrcThemeIsSystemTheme_NoNewThemeCreated() {
 
@@ -366,7 +366,7 @@ public class ThemeServiceTest {
                 .verifyComplete();
     }
 
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     @Test
     public void cloneThemeToApplication_WhenSrcThemeIsCustomTheme_NewThemeCreated() {
 
@@ -397,7 +397,7 @@ public class ThemeServiceTest {
                 .verifyComplete();
     }
 
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     @Test
     public void cloneThemeToApplication_WhenSrcThemeIsCustomSavedTheme_NewCustomThemeCreated() {
 
@@ -428,7 +428,7 @@ public class ThemeServiceTest {
     }
 
 
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     @Test
     public void publishTheme_WhenSystemThemeIsSet_NoNewThemeCreated() {
 
@@ -452,7 +452,7 @@ public class ThemeServiceTest {
     }
 
 
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     @Test
     public void publishTheme_WhenCustomThemeIsSet_ThemeCopiedForPublishedMode() {
 
@@ -485,7 +485,7 @@ public class ThemeServiceTest {
                 }).verifyComplete();
     }
 
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     @Test
     public void updateTheme_WhenSystemThemeIsSet_NewThemeCreated() {
 
@@ -517,7 +517,7 @@ public class ThemeServiceTest {
                 }).verifyComplete();
     }
 
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     @Test
     public void updateTheme_WhenCustomThemeIsSet_ThemeIsOverridden() {
 
@@ -569,7 +569,7 @@ public class ThemeServiceTest {
                 }).verifyComplete();
     }
 
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     @Test
     public void publishTheme_WhenNoThemeIsSet_SystemDefaultThemeIsSetToPublishedMode() {
 
@@ -596,7 +596,7 @@ public class ThemeServiceTest {
                 }).verifyComplete();
     }
 
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     @Test
     public void publishTheme_WhenApplicationIsPublic_PublishedThemeIsPublic() {
 
@@ -658,7 +658,7 @@ public class ThemeServiceTest {
                 }).verifyComplete();
     }
 
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     @Test
     public void persistCurrentTheme_WhenCustomThemeIsSet_NewApplicationThemeCreated() {
 
@@ -703,7 +703,7 @@ public class ThemeServiceTest {
         }).verifyComplete();
     }
 
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     @Test
     public void delete_WhenSystemTheme_NotAllowed() {
         StepVerifier.create(themeService.getDefaultThemeId().flatMap(themeService::archiveById))
@@ -711,7 +711,7 @@ public class ThemeServiceTest {
                 .verify();
     }
 
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     @Test
     public void delete_WhenUnsavedCustomizedTheme_NotAllowed() {
         Application savedApplication = createApplication();
@@ -726,7 +726,7 @@ public class ThemeServiceTest {
                 .verify();
     }
 
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     @Test
     public void delete_WhenSavedCustomizedTheme_ThemeIsDeleted() {
         Application application = createApplication();
@@ -743,7 +743,7 @@ public class ThemeServiceTest {
         StepVerifier.create(deleteThemeMono).verifyComplete();
     }
 
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     @Test
     public void updateName_WhenSystemTheme_NotAllowed() {
         Mono<Theme> updateThemeNameMono = themeService.getDefaultThemeId().flatMap(themeId -> {
@@ -755,7 +755,7 @@ public class ThemeServiceTest {
         StepVerifier.create(updateThemeNameMono).expectError(AppsmithException.class).verify();
     }
 
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     @Test
     public void updateName_WhenCustomTheme_NameUpdated() {
         Application application = createApplication();
@@ -784,7 +784,7 @@ public class ThemeServiceTest {
         }).verifyComplete();
     }
 
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     @Test
     public void importThemesToApplication_WhenBothImportedThemesAreCustom_NewThemesCreated() {
         Application application = createApplication();

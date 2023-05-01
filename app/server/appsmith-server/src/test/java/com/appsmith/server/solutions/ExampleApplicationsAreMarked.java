@@ -56,7 +56,7 @@ public class ExampleApplicationsAreMarked {
     private InstanceConfig instanceConfig;
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void exampleApplicationsAreMarked() {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace 3");

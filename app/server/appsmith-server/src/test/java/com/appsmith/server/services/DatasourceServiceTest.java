@@ -108,9 +108,9 @@ public class DatasourceServiceTest {
     String workspaceId = "";
 
     @BeforeEach
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void setup() {
-        User apiUser = userService.findByEmail("api_user").block();
+        User apiUser = userService.findByEmail("api_user@test.com").block();
         Workspace toCreate = new Workspace();
         toCreate.setName("DatasourceServiceTest");
 
@@ -121,7 +121,7 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void datasourceDefaultNameCounterAsPerWorkspaceId() {
         //Create new workspace
         Workspace workspace11 = new Workspace();
@@ -167,11 +167,11 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createDatasourceWithNullPluginId() {
 
         if (!StringUtils.hasLength(workspaceId)) {
-            User apiUser = userService.findByEmail("api_user").block();
+            User apiUser = userService.findByEmail("api_user@test.com").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-createDatasourceWithNullPluginId");
 
@@ -190,7 +190,7 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createDatasourceWithNullWorkspaceId() {
         Datasource datasource = new Datasource();
         datasource.setName("DS-with-null-workspaceId");
@@ -206,7 +206,7 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createDatasourceWithId() {
         Datasource datasource = new Datasource();
         datasource.setId("randomId");
@@ -219,12 +219,12 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createDatasourceNotInstalledPlugin() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
-            User apiUser = userService.findByEmail("api_user").block();
+            User apiUser = userService.findByEmail("api_user@test.com").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-createDatasourceNotInstalledPlugin");
 
@@ -259,13 +259,13 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createDatasourceValid() {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
-            User apiUser = userService.findByEmail("api_user").block();
+            User apiUser = userService.findByEmail("api_user@test.com").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-createDatasourceValid");
 
@@ -338,12 +338,12 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createAndUpdateDatasourceValidDB() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
-            User apiUser = userService.findByEmail("api_user").block();
+            User apiUser = userService.findByEmail("api_user@test.com").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-createAndUpdateDatasourceValidDB");
 
@@ -408,12 +408,12 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createAndUpdateDatasourceDifferentAuthentication() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
-            User apiUser = userService.findByEmail("api_user").block();
+            User apiUser = userService.findByEmail("api_user@test.com").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-createAndUpdateDatasourceDifferentAuthentication");
 
@@ -481,12 +481,12 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createNamelessDatasource() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
-            User apiUser = userService.findByEmail("api_user").block();
+            User apiUser = userService.findByEmail("api_user@test.com").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-createNamelessDatasource");
 
@@ -532,11 +532,11 @@ public class DatasourceServiceTest {
 
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testDatasourceValid() {
 
         if (!StringUtils.hasLength(workspaceId)) {
-            User apiUser = userService.findByEmail("api_user").block();
+            User apiUser = userService.findByEmail("api_user@test.com").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-testDatasourceValid");
 
@@ -572,11 +572,11 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testDatasourceEmptyFields() {
 
         if (!StringUtils.hasLength(workspaceId)) {
-            User apiUser = userService.findByEmail("api_user").block();
+            User apiUser = userService.findByEmail("api_user@test.com").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-testDatasourceEmptyFields");
 
@@ -629,12 +629,12 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void deleteDatasourceWithoutActions() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
-            User apiUser = userService.findByEmail("api_user").block();
+            User apiUser = userService.findByEmail("api_user@test.com").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-deleteDatasourceWithoutActions");
 
@@ -670,13 +670,13 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void deleteDatasourceWithActions() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         String name = "DatasourceServiceTest-deleteDatasourceWithActions";
 
-        User apiUser = userService.findByEmail("api_user").block();
+        User apiUser = userService.findByEmail("api_user@test.com").block();
         Workspace toCreate = new Workspace();
         toCreate.setName(name);
 
@@ -714,7 +714,7 @@ public class DatasourceServiceTest {
                                         page.setApplicationId(application1.getId());
                                         page.setPolicies(new HashSet<>(Set.of(Policy.builder()
                                                 .permission(READ_PAGES.getValue())
-                                                .users(Set.of("api_user"))
+                                                .users(Set.of("api_user@test.com"))
                                                 .build()
                                         )));
                                         return applicationPageService.createPage(page);
@@ -745,12 +745,12 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void deleteDatasourceWithDeletedActions() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         String name = "DatasourceServiceTest-deleteDatasourceWithDeletedActions";
-        User apiUser = userService.findByEmail("api_user").block();
+        User apiUser = userService.findByEmail("api_user@test.com").block();
         Workspace toCreate = new Workspace();
         toCreate.setName(name);
 
@@ -788,7 +788,7 @@ public class DatasourceServiceTest {
                                         page.setApplicationId(application1.getId());
                                         page.setPolicies(new HashSet<>(Set.of(Policy.builder()
                                                 .permission(READ_PAGES.getValue())
-                                                .users(Set.of("api_user"))
+                                                .users(Set.of("api_user@test.com"))
                                                 .build()
                                         )));
                                         return applicationPageService.createPage(page);
@@ -827,14 +827,14 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void checkEncryptionOfAuthenticationDTOTest() {
         // For this test, simply inserting a new datasource with authentication should immediately
         // set the authentication object as encrypted
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
-            User apiUser = userService.findByEmail("api_user").block();
+            User apiUser = userService.findByEmail("api_user@test.com").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-checkEncryptionOfAuthenticationDTOTest");
 
@@ -872,12 +872,12 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void checkEncryptionOfAuthenticationDTONullPassword() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
-            User apiUser = userService.findByEmail("api_user").block();
+            User apiUser = userService.findByEmail("api_user@test.com").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-checkEncryptionOfAuthenticationDTONullPassword");
 
@@ -912,14 +912,14 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void checkEncryptionOfAuthenticationDTOAfterUpdate() {
         // Here, we're replacing an existing encrypted field with another
         // Encyption state would stay the same, that is, as true
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
-            User apiUser = userService.findByEmail("api_user").block();
+            User apiUser = userService.findByEmail("api_user@test.com").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-checkEncryptionOfAuthenticationDTOAfterUpdate");
 
@@ -971,14 +971,14 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void checkEncryptionOfAuthenticationDTOAfterRemoval() {
         // Here is when authentication is removed from a datasource
         // We want the entire authentication object to be discarded here to avoid reusing any sensitive data across types
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
-            User apiUser = userService.findByEmail("api_user").block();
+            User apiUser = userService.findByEmail("api_user@test.com").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-checkEncryptionOfAuthenticationDTOAfterRemoval");
 
@@ -1025,11 +1025,11 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createDatasourceWithInvalidCharsInHost() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        User apiUser = userService.findByEmail("api_user").block();
+        User apiUser = userService.findByEmail("api_user@test.com").block();
         Workspace toCreate = new Workspace();
         toCreate.setName("DatasourceServiceTest-createDatasourceWithInvalidCharsInHost");
 
@@ -1098,12 +1098,12 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createDatasourceWithHostnameStartingWithSpace() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
-            User apiUser = userService.findByEmail("api_user").block();
+            User apiUser = userService.findByEmail("api_user@test.com").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-createDatasourceWithHostnameStartingWithSpace");
 
@@ -1137,12 +1137,12 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testHintMessageOnLocalhostUrlOnTestDatasourceEvent() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
-            User apiUser = userService.findByEmail("api_user").block();
+            User apiUser = userService.findByEmail("api_user@test.com").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-testHintMessageOnLocalhostUrlOnTestDatasourceEvent");
 
@@ -1189,13 +1189,13 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testHintMessageOnLocalhostUrlOnCreateEventOnApiDatasource() {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
-            User apiUser = userService.findByEmail("api_user").block();
+            User apiUser = userService.findByEmail("api_user@test.com").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-testHintMessageOnLocalhostUrlOnCreateEventOnApiDatasource");
 
@@ -1233,12 +1233,12 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testHintMessageOnLocalhostUrlOnUpdateEventOnApiDatasource() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
-            User apiUser = userService.findByEmail("api_user").block();
+            User apiUser = userService.findByEmail("api_user@test.com").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-testHintMessageOnLocalhostUrlOnUpdateEventOnApiDatasource");
 
@@ -1293,7 +1293,7 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testHintMessageOnLocalhostUrlOnCreateEventOnNonApiDatasource() {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
@@ -1331,12 +1331,12 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testHintMessageOnLocalhostIPAddressOnUpdateEventOnNonApiDatasource() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
-            User apiUser = userService.findByEmail("api_user").block();
+            User apiUser = userService.findByEmail("api_user@test.com").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-testHintMessageOnLocalhostIPAddressOnUpdateEventOnNonApiDatasource");
 
@@ -1394,13 +1394,13 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testHintMessageNPE() {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         if (!StringUtils.hasLength(workspaceId)) {
-            User apiUser = userService.findByEmail("api_user").block();
+            User apiUser = userService.findByEmail("api_user@test.com").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("DatasourceServiceTest-testHintMessageNPE");
 
@@ -1435,7 +1435,7 @@ public class DatasourceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void get_WhenDatasourcesPresent_SortedAndIsRecentlyCreatedFlagSet() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 

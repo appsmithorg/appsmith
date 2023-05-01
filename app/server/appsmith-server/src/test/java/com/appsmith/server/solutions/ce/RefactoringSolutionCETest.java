@@ -137,10 +137,10 @@ class RefactoringSolutionCETest {
     Datasource jsDatasource;
 
     @BeforeEach
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void setup() {
         newPageService.deleteAll();
-        User apiUser = userService.findByEmail("api_user").block();
+        User apiUser = userService.findByEmail("api_user@test.com").block();
         Workspace toCreate = new Workspace();
         toCreate.setName("LayoutActionServiceTest");
 
@@ -226,7 +226,7 @@ class RefactoringSolutionCETest {
     }
 
     @AfterEach
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void cleanup() {
         applicationPageService.deleteApplication(testApp.getId()).block();
         testApp = null;
@@ -235,7 +235,7 @@ class RefactoringSolutionCETest {
 
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void refactorActionName() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -302,7 +302,7 @@ class RefactoringSolutionCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void refactorActionName_forGitConnectedAction_success() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -373,7 +373,7 @@ class RefactoringSolutionCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void refactorActionNameToDeletedName() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -422,7 +422,7 @@ class RefactoringSolutionCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testRefactorActionName_withInvalidName_throwsError() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -469,7 +469,7 @@ class RefactoringSolutionCETest {
 
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void refactorDuplicateActionName() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -548,7 +548,7 @@ class RefactoringSolutionCETest {
 
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void tableWidgetKeyEscapeRefactorName() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -595,7 +595,7 @@ class RefactoringSolutionCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void simpleWidgetNameRefactor() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -631,7 +631,7 @@ class RefactoringSolutionCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testRefactorWidgetName_forDefaultWidgetsInList_updatesBothWidgetsAndTemplateReferences() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -675,7 +675,7 @@ class RefactoringSolutionCETest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testWidgetNameRefactor_withSimpleUpdate_refactorsActionCollectionAndItsAction() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -743,7 +743,7 @@ class RefactoringSolutionCETest {
 
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testRefactorCollection_withModifiedName_ignoresName() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 

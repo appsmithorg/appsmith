@@ -34,7 +34,7 @@ public class ApplicationFetcherTest {
     private ApplicationFetcher applicationFetcher;
 
     @Test
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     public void getAllApplications_WhenUnpublishedPageExists_ReturnsApplications() {
         String randomUUID = UUID.randomUUID().toString();
         Workspace newWorkspace = new Workspace();

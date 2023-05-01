@@ -144,10 +144,10 @@ public class LayoutActionServiceTest {
     Plugin installedJsPlugin;
 
     @BeforeEach
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void setup() {
         newPageService.deleteAll();
-        User apiUser = userService.findByEmail("api_user").block();
+        User apiUser = userService.findByEmail("api_user@test.com").block();
         Workspace toCreate = new Workspace();
         toCreate.setName("LayoutActionServiceTest");
 
@@ -233,7 +233,7 @@ public class LayoutActionServiceTest {
     }
 
     @AfterEach
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void cleanup() {
         applicationPageService.deleteApplication(testApp.getId()).block();
         testApp = null;
@@ -241,7 +241,7 @@ public class LayoutActionServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void deleteUnpublishedAction_WhenActionDeleted_OnPageLoadActionsIsEmpty() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -285,7 +285,7 @@ public class LayoutActionServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void updateActionUpdatesLayout() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -374,7 +374,7 @@ public class LayoutActionServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void updateLayout_WhenOnLoadChanged_ActionExecuted() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -468,7 +468,7 @@ public class LayoutActionServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testHintMessageOnLocalhostUrlOnUpdateActionEvent() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -515,7 +515,7 @@ public class LayoutActionServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void tableWidgetKeyEscape() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -550,7 +550,7 @@ public class LayoutActionServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testIsNameAllowed_withRepeatedActionCollectionName_throwsError() {
         Mockito.doReturn(Flux.empty()).when(newActionService).getUnpublishedActions(Mockito.any());
 
@@ -568,7 +568,7 @@ public class LayoutActionServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void duplicateActionNameCreation() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -601,7 +601,7 @@ public class LayoutActionServiceTest {
 
     @SneakyThrows
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void OnLoadActionsWhenActionDependentOnActionViaWidget() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -696,7 +696,7 @@ public class LayoutActionServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void simpleOnPageLoadActionCreationTest() throws JsonProcessingException {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -795,7 +795,7 @@ public class LayoutActionServiceTest {
 
     @SneakyThrows
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void OnLoadActionsWhenActionDependentOnWidgetButNotPageLoadCandidate() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -878,7 +878,7 @@ public class LayoutActionServiceTest {
 
     @SneakyThrows(JsonProcessingException.class)
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void updateLayout_withSelfReferencingWidget_updatesLayout() {
         JSONObject parentDsl = new JSONObject(objectMapper.readValue(DEFAULT_PAGE_LAYOUT, new TypeReference<HashMap<String, Object>>() {
         }));
@@ -913,7 +913,7 @@ public class LayoutActionServiceTest {
 
     @SneakyThrows(JsonProcessingException.class)
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void updateMultipleLayouts_MultipleLayouts_LayoutsUpdated() {
         // clone the current page to create another page for testing
         PageDTO secondPage = applicationPageService.clonePage(testPage.getId()).block();
@@ -972,7 +972,7 @@ public class LayoutActionServiceTest {
      * @throws JsonProcessingException
      */
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testExecuteOnPageLoadOrderWhenAllActionsAreOnlyExplicitlySetToExecute() throws JsonProcessingException {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -1052,7 +1052,7 @@ public class LayoutActionServiceTest {
      * o bind `{{action1.data}}` in one of the widget fields.
      */
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void updateLayout_WhenPageLoadActionSetBothWaysExplicitlyAndImplicitlyViaWidget_ActionsSaved() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -1103,7 +1103,7 @@ public class LayoutActionServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void introduceCyclicDependencyAndRemoveLater() {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
@@ -1202,7 +1202,7 @@ public class LayoutActionServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void jsActionWithoutCollectionIdShouldBeIgnoredDuringNameChecking() {
         ActionDTO firstAction = new ActionDTO();
         firstAction.setPluginType(PluginType.JS);

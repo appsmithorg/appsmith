@@ -46,7 +46,7 @@ public class NewPageServiceTest {
     ApplicationService applicationService;
 
     @Test
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     public void testCreateDefault() {
         Set<String> permissionGroupIds = permissionGroupRepository.findAll().collectList().block().stream()
                 .map(PermissionGroup::getId).collect(Collectors.toSet());
@@ -67,7 +67,7 @@ public class NewPageServiceTest {
     }
 
     @Test
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     public void findApplicationPages_WhenApplicationIdAndPageIdNotPresent_ThrowsException() {
         StepVerifier.create(
                         newPageService.findApplicationPages(null, null, "master", ApplicationMode.EDIT)
@@ -77,7 +77,7 @@ public class NewPageServiceTest {
     }
 
     @Test
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     public void findApplicationPages_WhenApplicationIdPresent_ReturnsPages() {
         String randomId = UUID.randomUUID().toString();
         Workspace workspace = new Workspace();
@@ -108,7 +108,7 @@ public class NewPageServiceTest {
     }
 
     @Test
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     public void findApplicationPagesInViewMode_WhenApplicationIdPresent_ReturnsViewMode() {
         String randomId = UUID.randomUUID().toString();
         Workspace workspace = new Workspace();
@@ -142,7 +142,7 @@ public class NewPageServiceTest {
     }
 
     @Test
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     public void findApplicationPages_WhenPageIdPresent_ReturnsPages() {
         String randomId = UUID.randomUUID().toString();
         Workspace workspace = new Workspace();
@@ -172,7 +172,7 @@ public class NewPageServiceTest {
     }
 
     @Test
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     public void findApplicationPagesByApplicationIdViewMode_WhenApplicationHasNoHomePage_FirstPageIsSetAsHomePage() {
         String randomId = UUID.randomUUID().toString();
         Workspace workspace = new Workspace();
@@ -199,7 +199,7 @@ public class NewPageServiceTest {
     }
 
     @Test
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     public void findApplicationPage_CheckPageIcon_IsValid(){
         String randomId = UUID.randomUUID().toString();
         Workspace workspace = new Workspace();

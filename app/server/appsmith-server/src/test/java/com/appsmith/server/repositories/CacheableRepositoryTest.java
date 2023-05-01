@@ -37,10 +37,10 @@ public class CacheableRepositoryTest {
 
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void getUserPermissionsTest_onPermissionGroupDelete_valid() {
 
-        User api_user = userRepository.findByEmail("api_user").block();
+        User api_user = userRepository.findByEmail("api_user@test.com").block();
 
         Workspace workspace = new Workspace();
         workspace.setName("getUserPermissionsTest_onPermissionGroupDelete_valid Workspace");

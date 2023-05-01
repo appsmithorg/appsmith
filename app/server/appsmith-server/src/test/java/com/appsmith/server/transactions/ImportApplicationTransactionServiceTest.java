@@ -134,7 +134,7 @@ public class ImportApplicationTransactionServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplication_exceptionDuringActionSave_savedPagesAndApplicationReverted() {
 
         Workspace newWorkspace = new Workspace();

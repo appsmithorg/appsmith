@@ -71,7 +71,7 @@ public class SeedMongoData {
                            PolicyUtils policyUtils) {
 
         log.info("Seeding the data");
-        final String API_USER_EMAIL = "api_user";
+        final String API_USER_EMAIL = "api_user@test.com";
         final String TEST_USER_EMAIL = "usertest@usertest.com";
         final String ADMIN_USER_EMAIL = "admin@solutiontest.com";
         final String DEV_USER_EMAIL = "developer@solutiontest.com";
@@ -138,7 +138,7 @@ public class SeedMongoData {
 
         Object[][] userData = {
                 {"user test", TEST_USER_EMAIL, UserState.ACTIVATED, new HashSet<>(Arrays.asList(readTestUserPolicy, userManageWorkspacePolicy))},
-                {"api_user", API_USER_EMAIL, UserState.ACTIVATED, new HashSet<>(Arrays.asList(userManageWorkspacePolicy, readApiUserPolicy, manageApiUserPolicy))},
+                {"api_user@test.com", API_USER_EMAIL, UserState.ACTIVATED, new HashSet<>(Arrays.asList(userManageWorkspacePolicy, readApiUserPolicy, manageApiUserPolicy))},
                 {"admin test", ADMIN_USER_EMAIL, UserState.ACTIVATED, new HashSet<>(Arrays.asList(readAdminUserPolicy, userManageWorkspacePolicy))},
                 {"developer test", DEV_USER_EMAIL, UserState.ACTIVATED, new HashSet<>(Arrays.asList(readDevUserPolicy, userManageWorkspacePolicy))},
         };

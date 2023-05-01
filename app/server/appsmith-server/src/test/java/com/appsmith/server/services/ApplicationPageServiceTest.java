@@ -64,7 +64,7 @@ public class ApplicationPageServiceTest {
     }
 
     @Test
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     public void deleteUnpublishedPage_WhenPageDeleted_ApplicationEditDateSet() {
         Mono<Application> applicationMono = createPageMono(UUID.randomUUID().toString())
                 .flatMap(pageDTO -> {
@@ -83,7 +83,7 @@ public class ApplicationPageServiceTest {
     }
 
     @Test
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     public void cloneApplication_WhenClonedSuccessfully_ApplicationIsPublished() {
         Mono<Application> applicationMono = createPageMono(UUID.randomUUID().toString())
                 .flatMap(pageDTO -> applicationPageService.cloneApplication(pageDTO.getApplicationId(), null));

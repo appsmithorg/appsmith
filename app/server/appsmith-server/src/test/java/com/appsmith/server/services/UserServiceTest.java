@@ -328,7 +328,7 @@ public class UserServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void signUpAfterBeingInvitedToAppsmithWorkspace() {
         Workspace workspace = new Workspace();
         workspace.setName("SignUp after adding user to Test Workspace");
@@ -372,7 +372,7 @@ public class UserServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void getAllUsersTest() {
         Flux<User> userFlux = userService.get(CollectionUtils.toMultiValueMap(new LinkedCaseInsensitiveMap<>()));
 
@@ -412,26 +412,26 @@ public class UserServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void updateNameOfUser() {
         UserUpdateDTO updateUser = new UserUpdateDTO();
         updateUser.setName("New name of api_user");
         StepVerifier.create(userService.updateCurrentUser(updateUser, null))
                 .assertNext(user -> {
                     assertNotNull(user);
-                    assertThat(user.getEmail()).isEqualTo("api_user");
+                    assertThat(user.getEmail()).isEqualTo("api_user@test.com");
                     assertThat(user.getName()).isEqualTo("New name of api_user");
                 })
                 .verifyComplete();
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void updateRoleOfUser() {
         UserUpdateDTO updateUser = new UserUpdateDTO();
         updateUser.setRole("New role of user");
         final Mono<UserData> resultMono = userService.updateCurrentUser(updateUser, null)
-                .then(userDataService.getForUserEmail("api_user"));
+                .then(userDataService.getForUserEmail("api_user@test.com"));
         StepVerifier.create(resultMono)
                 .assertNext(userData -> {
                     assertNotNull(userData);
@@ -441,9 +441,9 @@ public class UserServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void updateIntercomConsentOfUser() {
-        final Mono<UserData> userDataMono = userDataService.getForUserEmail("api_user");
+        final Mono<UserData> userDataMono = userDataService.getForUserEmail("api_user@test.com");
         StepVerifier.create(userDataMono)
                 .assertNext(userData -> {
                     assertNotNull(userData);
@@ -474,7 +474,7 @@ public class UserServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void updateNameRoleAndUseCaseOfUser() {
         UserUpdateDTO updateUser = new UserUpdateDTO();
         updateUser.setName("New name of user here");
@@ -483,7 +483,7 @@ public class UserServiceTest {
         final Mono<Tuple2<User, UserData>> resultMono = userService.updateCurrentUser(updateUser, null)
                 .flatMap(user -> Mono.zip(
                         Mono.just(user),
-                        userDataService.getForUserEmail("api_user")
+                        userDataService.getForUserEmail("api_user@test.com")
                 ));
         StepVerifier.create(resultMono)
                 .assertNext(tuple -> {

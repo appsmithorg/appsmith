@@ -71,7 +71,7 @@ public class AuthenticationServiceTest {
     WorkspaceService workspaceService;
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testGetAuthorizationCodeURL_missingDatasource() {
         Mono<String> authorizationCodeUrlMono = authenticationService
                 .getAuthorizationCodeURLForGenericOauth2("invalidId", "irrelevantPageId", null);
@@ -87,7 +87,7 @@ public class AuthenticationServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testGetAuthorizationCodeURL_invalidDatasourceWithNullAuthentication() {
         Workspace testWorkspace = new Workspace();
         testWorkspace.setName("Another Test Workspace");
@@ -121,7 +121,7 @@ public class AuthenticationServiceTest {
 
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testGetAuthorizationCodeURL_validDatasource() {
         LinkedMultiValueMap<String, String> mockHeaders = new LinkedMultiValueMap<>(1);
         mockHeaders.add(HttpHeaders.REFERER, "https://mock.origin.com/source/uri");

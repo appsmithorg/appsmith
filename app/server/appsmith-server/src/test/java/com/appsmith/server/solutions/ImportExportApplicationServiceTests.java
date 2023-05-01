@@ -293,7 +293,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void exportApplicationWithNullApplicationIdTest() {
         Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(null, "");
 
@@ -305,7 +305,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void exportPublicApplicationTest() {
 
         Application application = new Application();
@@ -337,7 +337,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void exportApplication_withInvalidApplicationId_throwNoResourceFoundException() {
         Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById("invalidAppId", "");
 
@@ -349,7 +349,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void exportApplicationById_WhenContainsInternalFields_InternalFieldsNotExported() {
         Mono<ApplicationJson> resultMono = importExportApplicationService.exportApplicationById(testAppId, "");
 
@@ -369,7 +369,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createExportAppJsonWithDatasourceButWithoutActionsTest() {
 
         Application testApplication = new Application();
@@ -399,7 +399,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createExportAppJsonWithActionAndActionCollectionTest() {
 
         Workspace newWorkspace = new Workspace();
@@ -637,7 +637,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createExportAppJsonForGitTest() {
 
         StringBuilder pageName = new StringBuilder();
@@ -728,7 +728,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplicationFromInvalidFileTest() {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils
@@ -747,7 +747,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplicationWithNullWorkspaceIdTest() {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
 
@@ -762,7 +762,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplicationFromInvalidJsonFileWithoutPagesTest() {
 
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-json-without-pages.json");
@@ -776,7 +776,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplicationFromInvalidJsonFileWithoutApplicationTest() {
 
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-json-without-app.json");
@@ -790,7 +790,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplicationFromValidJsonFileTest() {
 
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
@@ -860,7 +860,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(application.getPages()).hasSize(2);
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
                     assertThat(application.getPublishedPages()).hasSize(1);
-                    assertThat(application.getModifiedBy()).isEqualTo("api_user");
+                    assertThat(application.getModifiedBy()).isEqualTo("api_user@test.com");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     assertThat(application.getEditModeThemeId()).isNotNull();
                     assertThat(application.getPublishedModeThemeId()).isNotNull();
@@ -921,7 +921,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importFromValidJson_cancelledMidway_importSuccess() {
 
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
@@ -956,7 +956,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplicationInWorkspace_WhenCustomizedThemes_ThemesCreated() {
         FilePart filePart = createFilePart(
                 "test_assets/ImportExportServiceTest/valid-application-with-custom-themes.json"
@@ -997,7 +997,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplication_withoutActionCollection_succeedsWithoutError() {
 
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application-without-action-collection.json");
@@ -1063,7 +1063,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(application.getPages()).hasSize(2);
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
                     assertThat(application.getPublishedPages()).hasSize(1);
-                    assertThat(application.getModifiedBy()).isEqualTo("api_user");
+                    assertThat(application.getModifiedBy()).isEqualTo("api_user@test.com");
                     assertThat(application.getUpdatedAt()).isNotNull();
 
                     assertThat(datasourceList).isNotEmpty();
@@ -1099,7 +1099,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplication_WithoutThemes_LegacyThemesAssigned() {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application-without-theme.json");
 
@@ -1121,7 +1121,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplication_withoutPageIdInActionCollection_succeeds() {
 
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-application-without-pageId-action-collection.json");
@@ -1167,7 +1167,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void exportImportApplication_importWithBranchName_updateApplicationResourcesWithBranch() {
         Application testApplication = new Application();
         testApplication.setName("Export-Import-Update-Branch_Test-App");
@@ -1231,7 +1231,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplication_incompatibleJsonFile_throwException() {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/incompatible_version.json");
         Mono<ApplicationImportDTO> resultMono = importExportApplicationService.extractFileAndSaveApplication(workspaceId, filePart);
@@ -1244,7 +1244,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplication_withUnConfiguredDatasources_Success() {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application-with-un-configured-datasource.json");
 
@@ -1313,7 +1313,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(application.getPages()).hasSize(1);
                     assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
                     assertThat(application.getPublishedPages()).hasSize(1);
-                    assertThat(application.getModifiedBy()).isEqualTo("api_user");
+                    assertThat(application.getModifiedBy()).isEqualTo("api_user@test.com");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     assertThat(application.getEditModeThemeId()).isNotNull();
                     assertThat(application.getPublishedModeThemeId()).isNotNull();
@@ -1416,7 +1416,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplicationIntoWorkspace_pageAddedInBranchApplication_Success() {
         Application testApplication = new Application();
         testApplication.setName("importApplicationIntoWorkspace_pageAddedInBranchApplication_Success");
@@ -1472,7 +1472,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importUpdatedApplicationIntoWorkspaceFromFile_publicApplication_visibilityFlagNotReset() {
         // Create a application and make it public
         // Now add a page and export the same import it to the app
@@ -1550,7 +1550,7 @@ public class ImportExportApplicationServiceTests {
      * 4. Added page will be removed
      */
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void discardChange_addNewPageAfterImport_addedPageRemoved() {
 
         /*
@@ -1589,7 +1589,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(application.getWorkspaceId()).isNotNull();
                     assertThat(application.getPages()).hasSize(3);
                     assertThat(application.getPublishedPages()).hasSize(1);
-                    assertThat(application.getModifiedBy()).isEqualTo("api_user");
+                    assertThat(application.getModifiedBy()).isEqualTo("api_user@test.com");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     assertThat(application.getEditModeThemeId()).isNotNull();
                     assertThat(application.getPublishedModeThemeId()).isNotNull();
@@ -1664,7 +1664,7 @@ public class ImportExportApplicationServiceTests {
      * 4. Added action will be removed
      */
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void discardChange_addNewActionAfterImport_addedActionRemoved() {
 
         Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
@@ -1754,7 +1754,7 @@ public class ImportExportApplicationServiceTests {
      * 4. Added actionCollection will be removed
      */
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void discardChange_addNewActionCollectionAfterImport_addedActionCollectionRemoved() {
 
         Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application-without-action-collection.json");
@@ -1861,7 +1861,7 @@ public class ImportExportApplicationServiceTests {
      * 4. Removed page will be restored
      */
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void discardChange_removeNewPageAfterImport_removedPageRestored() {
 
         Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
@@ -1945,7 +1945,7 @@ public class ImportExportApplicationServiceTests {
      * 4. Removed action will be restored
      */
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void discardChange_removeNewActionAfterImport_removedActionRestored() {
 
         Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
@@ -2032,7 +2032,7 @@ public class ImportExportApplicationServiceTests {
      * 4. Removed actionCollection along-with actions will be restored
      */
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void discardChange_removeNewActionCollection_removedActionCollectionRestored() {
 
         Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
@@ -2112,7 +2112,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void applySchemaMigration_jsonFileWithFirstVersion_migratedToLatestVersionSuccess() {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/file-with-v1.json");
 
@@ -2156,7 +2156,7 @@ public class ImportExportApplicationServiceTests {
      * This can be enabled with exportWithConfiguration: true
      */
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void exportApplication_withDatasourceConfig_exportedWithDecryptedFields() {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("template-org-with-ds");
@@ -2403,7 +2403,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplication_datasourceWithSameNameAndDifferentPlugin_importedWithValidActionsAndSuffixedDatasource() {
 
         ApplicationJson applicationJson = createAppJson("test_assets/ImportExportServiceTest/valid-application.json").block();
@@ -2456,7 +2456,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplication_datasourceWithSameNameAndPlugin_importedWithValidActionsWithoutSuffixedDatasource() {
 
         ApplicationJson applicationJson = createAppJson("test_assets/ImportExportServiceTest/valid-application.json").block();
@@ -2509,7 +2509,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void exportAndImportApplication_withMultiplePagesOrderSameInDeployAndEditMode_PagesOrderIsMaintainedInEditAndViewMode() {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("template-org-with-ds");
@@ -2614,7 +2614,7 @@ public class ImportExportApplicationServiceTests {
 
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void exportAndImportApplication_withMultiplePagesOrderDifferentInDeployAndEditMode_PagesOrderIsMaintainedInEditAndViewMode() {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("template-org-with-ds");
@@ -2778,7 +2778,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     public void mergeApplicationJsonWithApplication_WhenPageNameConflicts_PageNamesRenamed() {
         String uniqueString = UUID.randomUUID().toString();
 
@@ -2831,7 +2831,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails("api_user")
+    @WithUserDetails("api_user@test.com")
     public void mergeApplicationJsonWithApplication_WhenPageListIProvided_OnlyListedPagesAreMerged() {
         String uniqueString = UUID.randomUUID().toString();
 
@@ -2868,7 +2868,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void exportApplicationById_WhenThemeDoesNotExist_ExportedWithDefaultTheme() {
         Theme customTheme = new Theme();
         customTheme.setName("my-custom-theme");
@@ -2892,7 +2892,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplication_invalidPluginReferenceForDatasource_throwException() {
 
         Workspace newWorkspace = new Workspace();
@@ -2913,7 +2913,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplication_importSameApplicationTwice_applicationImportedLaterWithSuffixCount() {
 
         Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application-without-action-collection.json");
@@ -2945,7 +2945,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void mergeApplication_existingApplication_pageAddedSuccessfully() {
 
         //Create application
@@ -3009,7 +3009,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void mergeApplication_gitConnectedApplication_pageAddedSuccessfully() {
 
         //Create application connected to git
@@ -3085,7 +3085,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void mergeApplication_gitConnectedApplicationChildBranch_pageAddedSuccessfully() {
 
         //Create application connected to git
@@ -3180,7 +3180,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void mergeApplication_gitConnectedApplicationSelectedSpecificPages_selectedPageAddedSuccessfully() {
         //Create application connected to git
         Application testApplication = new Application();
@@ -3273,7 +3273,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void mergeApplication_gitConnectedApplicationSelectedAllPages_selectedPageAddedSuccessfully() {
         //Create application connected to git
         Application testApplication = new Application();
@@ -3366,7 +3366,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void mergeApplication_nonGitConnectedApplicationSelectedSpecificPages_selectedPageAddedSuccessfully() {
         //Create application
         Application application = new Application();
@@ -3428,7 +3428,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void mergeApplication_nonGitConnectedApplicationSelectedAllPages_selectedPageAddedSuccessfully() {
         //Create application
         Application application = new Application();
@@ -3490,7 +3490,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplication_invalidJson_createdAppIsDeleted() {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-json-without-pages.json");
 
@@ -3515,7 +3515,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void exportApplication_WithBearerTokenAndExportWithConfig_exportedWithDecryptedFields() {
         String randomUUID = UUID.randomUUID().toString();
 
@@ -3589,7 +3589,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void exportApplicationTest_WithNavigationSettings() {
 
         Application application = new Application();
@@ -3615,7 +3615,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void exportApplication_WithPageIcon_ValidPageIcon() {
         String randomId = UUID.randomUUID().toString();
         Application application = new Application();
@@ -3644,7 +3644,7 @@ public class ImportExportApplicationServiceTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplication_existingApplication_ApplicationReplacedWithImportedOne() {
         String randomUUID = UUID.randomUUID().toString();
         Mono<ApplicationJson> applicationJson = createAppJson("test_assets/ImportExportServiceTest/valid-application.json");
@@ -3722,7 +3722,7 @@ public class ImportExportApplicationServiceTests {
      * covered as a part of discard functionality
      */
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void extractFileAndUpdateExistingApplication_addNewPageAfterImport_addedPageRemoved() {
 
         /*
@@ -3758,7 +3758,7 @@ public class ImportExportApplicationServiceTests {
                     assertThat(application.getWorkspaceId()).isNotNull();
                     assertThat(application.getPages()).hasSize(3);
                     assertThat(application.getPublishedPages()).hasSize(1);
-                    assertThat(application.getModifiedBy()).isEqualTo("api_user");
+                    assertThat(application.getModifiedBy()).isEqualTo("api_user@test.com");
                     assertThat(application.getUpdatedAt()).isNotNull();
                     assertThat(application.getEditModeThemeId()).isNotNull();
                     assertThat(application.getPublishedModeThemeId()).isNotNull();

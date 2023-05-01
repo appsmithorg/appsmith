@@ -62,7 +62,7 @@ public class UserWorkspaceServiceUnitTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void getWorkspaceMembers_WhenRoleIsNull_ReturnsEmptyList() {
         // create a workspace object
         Workspace testWorkspace = new Workspace();
@@ -106,7 +106,7 @@ public class UserWorkspaceServiceUnitTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void getWorkspaceMembers_WhenUserHasProfilePhotoForOneWorkspace_ProfilePhotoIncluded() {
         // create workspace
         Workspace workspace = new Workspace();
@@ -126,7 +126,7 @@ public class UserWorkspaceServiceUnitTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void getWorkspaceMembers_WhenUserHasProfilePhotoForMultipleWorkspace_ProfilePhotoIncluded() {
         // create workspace
         Workspace firstWorkspace = new Workspace();

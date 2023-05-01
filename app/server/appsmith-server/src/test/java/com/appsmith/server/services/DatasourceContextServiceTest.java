@@ -80,7 +80,7 @@ public class DatasourceContextServiceTest {
     DatasourceContextServiceImpl datasourceContextService;
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testDatasourceCache_afterDatasourceDeleted_doesNotReturnOldConnection() {
         // Never require the datasource connectin to be stale
         doReturn(false).doReturn(false).when(datasourceContextService).getIsStale(any(), any());
@@ -129,11 +129,11 @@ public class DatasourceContextServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void checkDecryptionOfAuthenticationDTOTest() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        User apiUser = userService.findByEmail("api_user").block();
+        User apiUser = userService.findByEmail("api_user@test.com").block();
         Workspace toCreate = new Workspace();
         toCreate.setName("checkDecryptionOfAuthenticationDTOTest");
 
@@ -178,11 +178,11 @@ public class DatasourceContextServiceTest {
 
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void checkDecryptionOfAuthenticationDTONullPassword() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        User apiUser = userService.findByEmail("api_user").block();
+        User apiUser = userService.findByEmail("api_user@test.com").block();
         Workspace toCreate = new Workspace();
         toCreate.setName("checkDecryptionOfAuthenticationDTONullPassword");
 
@@ -226,7 +226,7 @@ public class DatasourceContextServiceTest {
      * the datasource creation only happens once.
      */
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testCachedDatasourceCreate() {
         doReturn(false).doReturn(false).when(datasourceContextService).getIsStale(any(), any());
 
@@ -259,7 +259,7 @@ public class DatasourceContextServiceTest {
      * the datasource creation happens again and again for UpdatableConnection types
      */
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testDatasourceCreate_withUpdatableConnection_recreatesConnectionAlways() {
         MockPluginExecutor mockPluginExecutor = new MockPluginExecutor();
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(mockPluginExecutor));
@@ -270,7 +270,7 @@ public class DatasourceContextServiceTest {
                 .doReturn(Mono.just((UpdatableConnection) auth -> new BasicAuth()))
                 .when(spyMockPluginExecutor).datasourceCreate(any());
 
-        User apiUser = userService.findByEmail("api_user").block();
+        User apiUser = userService.findByEmail("api_user@test.com").block();
         Workspace toCreate = new Workspace();
         toCreate.setName("testDatasourceCreate_withUpdatableConnection_recreatesConnectionAlways");
 

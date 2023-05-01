@@ -108,7 +108,7 @@ public class ShareWorkspacePermissionTests {
 
     @BeforeEach
     public void setup() {
-        User apiUser = userService.findByEmail("api_user").block();
+        User apiUser = userService.findByEmail("api_user@test.com").block();
 
         Workspace workspace = new Workspace();
         workspace.setName("Share Test Workspace");

@@ -91,7 +91,7 @@ public class UserWorkspaceServiceTest {
     private User user;
 
     @BeforeEach
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void setup() {
         Workspace workspace = new Workspace();
         workspace.setName("Test org");
@@ -110,7 +110,7 @@ public class UserWorkspaceServiceTest {
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
                 .findFirst().get();
 
-        User api_user = userService.findByEmail("api_user").block();
+        User api_user = userService.findByEmail("api_user@test.com").block();
         User usertest = userService.findByEmail("usertest@usertest.com").block();
 
         // Make api_user a developer and not an administrator
@@ -147,7 +147,7 @@ public class UserWorkspaceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void leaveWorkspace_WhenUserExistsInWorkspace_RemovesUser() {
         String randomString = UUID.randomUUID().toString();
 
@@ -164,7 +164,7 @@ public class UserWorkspaceServiceTest {
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
                 .findFirst().get();
 
-        User api_user = userService.findByEmail("api_user").block();
+        User api_user = userService.findByEmail("api_user@test.com").block();
         User usertest = userService.findByEmail("usertest@usertest.com").block();
 
         // Make api_user and user_test administrators
@@ -219,7 +219,7 @@ public class UserWorkspaceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void leaveWorkspace_WhenUserDoesNotExistInWorkspace_ThrowsException() {
         // Leave workspace once removes the api_user from the default workspace. The second time would reproduce the test
         // case scenario.
@@ -234,7 +234,7 @@ public class UserWorkspaceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void updateUserGroupForMember_WhenAdminUserGroupRemovedWithNoOtherAdmin_ThrowsExceptions() {
 
         // Now make api_user an administrator and not a developer
@@ -250,7 +250,7 @@ public class UserWorkspaceServiceTest {
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
                 .findFirst().get();
 
-        User api_user = userService.findByEmail("api_user").block();
+        User api_user = userService.findByEmail("api_user@test.com").block();
 
         // Make api_user an administrator
         // Make api_user not a developer
@@ -260,7 +260,7 @@ public class UserWorkspaceServiceTest {
         permissionGroupRepository.save(developerPermissionGroup).block();
 
         UpdatePermissionGroupDTO updatePermissionGroupDTO = new UpdatePermissionGroupDTO();
-        updatePermissionGroupDTO.setUsername("api_user");
+        updatePermissionGroupDTO.setUsername("api_user@test.com");
         updatePermissionGroupDTO.setNewPermissionGroupId(developerPermissionGroup.getId());
         String origin = "http://random-origin.test";
 
@@ -272,7 +272,7 @@ public class UserWorkspaceServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void updateUserGroupForMember_WhenAdminUserGroupRemovedButOtherAdminExists_MemberRemoved() {
 
         // Now make api_user an administrator along with usertest. Remove api_user as a developer
@@ -288,7 +288,7 @@ public class UserWorkspaceServiceTest {
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
                 .findFirst().get();
 
-        User api_user = userService.findByEmail("api_user").block();
+        User api_user = userService.findByEmail("api_user@test.com").block();
         User usertest = userService.findByEmail("usertest@usertest.com").block();
 
         // Make api_user an administrator
@@ -320,7 +320,7 @@ public class UserWorkspaceServiceTest {
 
     @AfterEach
     public void clear() {
-        User currentUser = userRepository.findByEmail("api_user").block();
+        User currentUser = userRepository.findByEmail("api_user@test.com").block();
         currentUser.getWorkspaceIds().remove(workspace.getId());
         userRepository.save(currentUser);
         workspaceRepository.deleteById(workspace.getId()).block();

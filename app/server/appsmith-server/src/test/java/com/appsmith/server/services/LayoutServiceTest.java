@@ -98,10 +98,10 @@ public class LayoutServiceTest {
     AstService astService;
 
     @BeforeEach
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void setup() {
         purgeAllPages();
-        User apiUser = userService.findByEmail("api_user").block();
+        User apiUser = userService.findByEmail("api_user@test.com").block();
         Workspace toCreate = new Workspace();
         toCreate.setName("LayoutServiceTest");
 
@@ -121,7 +121,7 @@ public class LayoutServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createLayoutWithNullPageId() {
         Layout layout = new Layout();
         Mono<Layout> layoutMono = layoutService.createLayout(null, layout);
@@ -133,7 +133,7 @@ public class LayoutServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createLayoutWithInvalidPageID() {
         Layout layout = new Layout();
         String pageId = "Some random ID which can never be a page's ID";
@@ -146,7 +146,7 @@ public class LayoutServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createValidLayout() {
         PageDTO testPage = new PageDTO();
         testPage.setName("createLayoutPageName");
@@ -193,7 +193,7 @@ public class LayoutServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void updateLayoutInvalidPageId() {
         Layout testLayout = new Layout();
         JSONObject obj = new JSONObject();
@@ -225,7 +225,7 @@ public class LayoutServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void updateLayoutInvalidAppId() {
         Layout testLayout = new Layout();
         JSONObject obj = new JSONObject();
@@ -257,7 +257,7 @@ public class LayoutServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void updateLayoutValidPageId() {
         Layout testLayout = new Layout();
         JSONObject obj = new JSONObject();
@@ -809,7 +809,7 @@ public class LayoutServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void getActionsExecuteOnLoadWithAstLogic_withAllTypesOfActionReferences() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -919,7 +919,7 @@ public class LayoutServiceTest {
      * 6. A string that happens to match an action reference IS NOT marked to run on page load
      */
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void getActionsExecuteOnLoadWithAstLogic() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -1055,7 +1055,7 @@ public class LayoutServiceTest {
      * 6. A string that happens to match an action reference DOES GET INCORRECTLY marked to run on page load
      */
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void getActionsExecuteOnLoadWithoutAstLogic() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding(Mockito.anyList(), Mockito.anyInt())).thenCallRealMethod();
@@ -1137,7 +1137,7 @@ public class LayoutServiceTest {
 
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testIncorrectDynamicBindingPathInDsl() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -1221,7 +1221,7 @@ public class LayoutServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testIncorrectMustacheExpressionInBindingInDsl() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 

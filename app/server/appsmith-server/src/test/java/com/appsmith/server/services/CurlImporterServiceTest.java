@@ -76,7 +76,7 @@ public class CurlImporterServiceTest {
         Mockito.when(this.pluginManager.getExtensions(Mockito.any(), Mockito.anyString()))
                 .thenReturn(List.of(this.pluginExecutor));
 
-        User apiUser = userService.findByEmail("api_user").block();
+        User apiUser = userService.findByEmail("api_user@test.com").block();
 
         Workspace toCreate = new Workspace();
         toCreate.setName("CurlImporterServiceTest");
@@ -159,7 +159,7 @@ public class CurlImporterServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testImportAction_EmptyLex() {
         setup();
         // Set up the application & page for which this import curl action would be added
@@ -181,7 +181,7 @@ public class CurlImporterServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importValidCurlCommand() {
         setup();
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));

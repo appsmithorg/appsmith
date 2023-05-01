@@ -178,7 +178,7 @@ public class ExamplesWorkspaceClonerTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void cloneEmptyWorkspace() {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
@@ -204,7 +204,7 @@ public class ExamplesWorkspaceClonerTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void cloneWorkspaceWithItsContents() {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
@@ -258,7 +258,7 @@ public class ExamplesWorkspaceClonerTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void cloneWorkspaceWithOnlyPublicApplications() {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace 2");
@@ -329,7 +329,7 @@ public class ExamplesWorkspaceClonerTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void cloneWorkspaceWithOnlyPrivateApplications() {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace 2");
@@ -372,7 +372,7 @@ public class ExamplesWorkspaceClonerTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void cloneApplicationMultipleTimes() {
         Workspace sourceOrg = new Workspace();
         sourceOrg.setName("Source Org 1");
@@ -428,7 +428,7 @@ public class ExamplesWorkspaceClonerTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void cloneWorkspaceWithOnlyDatasources() {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace 2");
@@ -487,7 +487,7 @@ public class ExamplesWorkspaceClonerTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void cloneWorkspaceWithOnlyDatasourcesSpecifiedExplicitly() {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace 2");
@@ -549,7 +549,7 @@ public class ExamplesWorkspaceClonerTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void cloneWorkspaceWithDatasourcesAndApplications() {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace 2");
@@ -625,7 +625,7 @@ public class ExamplesWorkspaceClonerTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void cloneWorkspaceWithDatasourcesAndApplicationsAndActionsAndCollections() {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace 2");
@@ -797,7 +797,7 @@ public class ExamplesWorkspaceClonerTests {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void cloneApplicationWithActionsThrice() {
         Workspace sourceOrg = new Workspace();
         sourceOrg.setName("Source Org 2");

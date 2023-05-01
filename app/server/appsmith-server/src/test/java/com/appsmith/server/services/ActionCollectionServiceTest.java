@@ -133,9 +133,9 @@ public class ActionCollectionServiceTest {
     String workspaceId;
 
     @BeforeEach
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void setup() {
-        User apiUser = userService.findByEmail("api_user").block();
+        User apiUser = userService.findByEmail("api_user@test.com").block();
         assert apiUser != null;
         Workspace toCreate = new Workspace();
         toCreate.setName("ActionCollectionServiceTest");
@@ -193,7 +193,7 @@ public class ActionCollectionServiceTest {
     }
 
     @AfterEach
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void cleanup() {
         applicationPageService.deleteApplication(testApp.getId()).block();
         testApp = null;
@@ -201,7 +201,7 @@ public class ActionCollectionServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testCreateActionCollection() {
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setName("testActionCollection");
@@ -230,7 +230,7 @@ public class ActionCollectionServiceTest {
      * update both fields.
      */
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testCreateActionCollection_verifySoftDeletedCollectionIsNotLoaded() {
         Application application = new Application();
         application.setName(UUID.randomUUID().toString());
@@ -259,7 +259,7 @@ public class ActionCollectionServiceTest {
 
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createValidActionCollectionAndCheckPermissions() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
@@ -324,7 +324,7 @@ public class ActionCollectionServiceTest {
      * Then the reference in testCollection2 should also get updated
      */
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void refactorNameForActionRefactorsNameInCollection() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
@@ -403,7 +403,7 @@ public class ActionCollectionServiceTest {
      * Then the reference in testCollection2 should also get updated
      */
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testRefactorActionName_withActionNameEqualsRun_doesNotRefactorApiRunCalls() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
@@ -482,7 +482,7 @@ public class ActionCollectionServiceTest {
      * Then the view mode collection should contain actions and variables
      */
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testActionCollectionInViewMode() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
@@ -546,7 +546,7 @@ public class ActionCollectionServiceTest {
      * Then the view mode should not contain testCollection
      */
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testDeleteActionCollection_afterApplicationPublish_clearsActionCollection() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
@@ -590,7 +590,7 @@ public class ActionCollectionServiceTest {
      * The executeOnLoad, confirmBeforeExecute and userSetOnLoad should be reset to false
      */
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testUpdateActionCollection_fromAsyncToSync_resetsSyncFunctionFields() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))

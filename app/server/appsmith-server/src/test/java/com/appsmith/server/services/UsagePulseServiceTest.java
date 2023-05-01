@@ -80,14 +80,14 @@ public class UsagePulseServiceTest {
      * To verify logged in user usage pulses are logged properly
      */
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void test_loggedInUserPulse_Success() {
         UsagePulseDTO usagePulseDTO = new UsagePulseDTO();
         usagePulseDTO.setViewMode(true);
 
         StepVerifier.create(usagePulseService.createPulse(usagePulseDTO))
                 .assertNext(usagePulse -> {
-                    String hashedUserEmail = DigestUtils.sha256Hex("api_user");
+                    String hashedUserEmail = DigestUtils.sha256Hex("api_user@test.com");
                     assertThat(usagePulse.getId()).isNotNull();
                     assertThat(usagePulse.getEmail()).isNull();
                     assertThat(usagePulse.getUser()).isEqualTo(hashedUserEmail);
@@ -103,7 +103,7 @@ public class UsagePulseServiceTest {
      * To verify usage pulses without viewMode will fail
      */
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void test_Invalid_ViewMode_ThrowsException() {
         UsagePulseDTO usagePulseDTO = new UsagePulseDTO();
 

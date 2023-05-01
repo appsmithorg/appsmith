@@ -178,7 +178,7 @@ public class GitServiceTest {
 
         if (StringUtils.isEmpty(workspaceId)) {
 
-            User apiUser = userService.findByEmail("api_user").block();
+            User apiUser = userService.findByEmail("api_user@test.com").block();
             Workspace toCreate = new Workspace();
             toCreate.setName("Git Service Test");
 
@@ -295,7 +295,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void connectApplicationToGit_EmptyRemoteUrl_ThrowInvalidParameterException() {
 
         GitConnectDTO gitConnectDTO = getConnectRequest(null, testUserProfile);
@@ -309,7 +309,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void connectApplicationToGit_EmptyOriginHeader_ThrowInvalidParameterException() {
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
@@ -323,7 +323,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void connectApplicationToGit_InvalidGitApplicationMetadata_ThrowInvalidGitConfigurationException() {
 
         Application testApplication = new Application();
@@ -348,7 +348,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void connectApplicationToGit_EmptyPrivateKey_ThrowInvalidGitConfigurationException() {
 
         Application testApplication = new Application();
@@ -372,7 +372,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void connectApplicationToGit_EmptyPublicKey_ThrowInvalidGitConfigurationException() {
 
         Application testApplication = new Application();
@@ -396,7 +396,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void connectApplicationToGit_InvalidRemoteUrl_ThrowInvalidRemoteUrl() throws IOException {
 
         Application testApplication = new Application();
@@ -425,7 +425,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void connectApplicationToGit_InvalidRemoteUrlHttp_ThrowInvalidRemoteUrl() throws ClassCastException {
 
         Application testApplication = new Application();
@@ -455,7 +455,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void connectApplicationToGit_InvalidFilePath_ThrowIOException() throws IOException {
 
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -484,7 +484,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void connectApplicationToGit_ClonedRepoNotEmpty_Failure() throws IOException {
 
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -513,7 +513,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void connectApplicationToGit_cloneException_throwGitException() throws IOException {
 
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -532,7 +532,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void connectApplicationToGit_WithEmptyPublishedPages_CloneSuccess() throws IOException, GitAPIException {
 
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -582,7 +582,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void connectApplicationToGit_WithoutGitProfileUsingDefaultProfile_CloneSuccess() throws IOException, GitAPIException {
 
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -632,7 +632,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void connectApplicationToGit_WithoutGitProfileUsingLocalProfile_ThrowAuthorNameUnavailableError() {
 
         GitProfile gitProfile = new GitProfile();
@@ -667,7 +667,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void connectApplicationToGit_WithNonEmptyPublishedPages_CloneSuccess() throws IOException, GitAPIException {
 
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -724,7 +724,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void connectApplicationToGit_moreThanThreePrivateRepos_throwException() throws IOException, GitAPIException {
         Workspace workspace = new Workspace();
         workspace.setName("Limit Private Repo Test Workspace");
@@ -769,7 +769,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void connectApplicationToGit_toggleAccessibilityToPublicForConnectedApp_connectSuccessful() throws IOException, GitAPIException {
         Workspace workspace = new Workspace();
         workspace.setName("Toggle Accessibility To Public From Private Repo Test Workspace");
@@ -822,7 +822,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void connectApplicationToGit_WithValidCustomGitDomain_CloneSuccess() throws IOException, GitAPIException {
 
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -872,7 +872,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void updateGitMetadata_EmptyData_Success() {
         Application testApplication = new Application();
         GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
@@ -898,7 +898,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void updateGitMetadata_validData_Success() {
         Application testApplication = new Application();
         GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
@@ -927,7 +927,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void detachRemote_applicationWithActionAndActionCollection_Success() {
         List<GitBranchDTO> branchList = new ArrayList<>();
         GitBranchDTO gitBranchDTO = new GitBranchDTO();
@@ -1124,7 +1124,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void detachRemote_EmptyGitData_NoChange() {
         Application testApplication = new Application();
         testApplication.setGitApplicationMetadata(null);
@@ -1141,7 +1141,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void listBranchForApplication_emptyGitMetadata_throwError() {
 
         Application testApplication = new Application();
@@ -1160,7 +1160,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void listBranchForApplication_applicationWithInvalidGitConfig_throwError() throws IOException {
 
         Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(Mockito.any(Path.class))).thenReturn(Mono.just(true));
@@ -1183,7 +1183,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void listBranchForApplication_defaultBranchNotChangesInRemote_Success() throws IOException, GitAPIException {
         List<GitBranchDTO> branchList = new ArrayList<>();
         GitBranchDTO gitBranchDTO = new GitBranchDTO();
@@ -1218,7 +1218,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void listBranchForApplication_defaultBranchChangesInRemoteExistsInDB_Success() throws IOException, GitAPIException {
         List<GitBranchDTO> branchList = new ArrayList<>();
         GitBranchDTO gitBranchDTO = new GitBranchDTO();
@@ -1270,7 +1270,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void listBranchForApplication_defaultBranchChangesInRemoteDoesNotExistsInDB_Success() throws IOException, GitAPIException {
         List<GitBranchDTO> branchList = new ArrayList<>();
         GitBranchDTO gitBranchDTO = new GitBranchDTO();
@@ -1323,7 +1323,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void pullChanges_upstreamChangesAvailable_pullSuccess() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("UpstreamChangesInRemote", "upstreamChangesInRemote");
         MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
@@ -1365,7 +1365,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void pullChanges_FileSystemAccessError_throwError() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("FileSystemAccessError", "fileSystemErr");
         MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
@@ -1390,7 +1390,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void pullChanges_noUpstreamChanges_nothingToPullMessage() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("noChangesInRemotePullException", "syncedBranch");
 
@@ -1425,7 +1425,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void isBranchMergeable_nonConflictingChanges_canBeMerged() throws IOException, GitAPIException {
 
         Application application = createApplicationConnectedToGit("noConflictsApp", "main");
@@ -1468,7 +1468,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void isBranchMergeable_conflictingChanges_canNotBeMerged() throws IOException, GitAPIException {
 
         Application application = createApplicationConnectedToGit("conflictingChanges", "branchWithConflicts");
@@ -1507,7 +1507,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void isBranchMergeable_remoteAhead_remoteAheadErrorMessage() throws IOException, GitAPIException {
 
         Application application1 = createApplicationConnectedToGit(gitConnectedApplication.getName(), "upstreamChangesBeforeMerge");
@@ -1552,7 +1552,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void isBranchMergeable_checkMergingWithRemoteBranch_throwsUnsupportedOperationException() {
 
         GitMergeDTO gitMergeDTO = new GitMergeDTO();
@@ -1569,7 +1569,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void checkoutRemoteBranch_notPresentInLocal_newApplicationCreated() throws GitAPIException, IOException {
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
@@ -1604,7 +1604,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void checkoutRemoteBranch_presentInLocal_throwError() {
 
         List<GitBranchDTO> branchList = new ArrayList<>();
@@ -1630,7 +1630,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void checkoutBranch_branchNotProvided_throwInvalidParameterError() {
 
         Mono<Application> applicationMono = gitService.checkoutBranch(gitConnectedApplication.getId(), null);
@@ -1643,7 +1643,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void commitApplication_noChangesInLocal_emptyCommitMessage() throws GitAPIException, IOException {
 
         GitCommitDTO commitDTO = new GitCommitDTO();
@@ -1666,7 +1666,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void commitApplication_applicationNotConnectedToGit_throwInvalidGitConfigException() {
 
         Application application = new Application();
@@ -1691,7 +1691,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void commitApplication_localRepoNotAvailable_throwRepoNotFoundException() throws GitAPIException, IOException {
 
         GitCommitDTO commitDTO = new GitCommitDTO();
@@ -1711,7 +1711,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void commitApplication_commitChanges_success() throws GitAPIException, IOException {
 
         GitCommitDTO commitDTO = new GitCommitDTO();
@@ -1734,7 +1734,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void commitAndPushApplication_commitAndPushChanges_success() throws GitAPIException, IOException {
 
         GitCommitDTO commitDTO = new GitCommitDTO();
@@ -1767,7 +1767,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void commitAndPushApplication_noChangesToCommitWithLocalCommitsToPush_pushSuccess() throws GitAPIException, IOException {
 
         GitCommitDTO commitDTO = new GitCommitDTO();
@@ -1798,7 +1798,7 @@ public class GitServiceTest {
      * To verify when a git push fails the application is not deployed
      */
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void commitApplication_pushFails_verifyAppNotPublished_throwUpstreamChangesFoundException() throws GitAPIException, IOException {
 
         // Create and fetch the application state before adding new page
@@ -1841,7 +1841,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void commitApplication_protectedBranch_pushFails() throws GitAPIException, IOException {
         // Create and fetch the application state before adding new page
         Application testApplication = createApplicationConnectedToGit("commitApplication_protectedBranch_pushFails", DEFAULT_BRANCH);
@@ -1872,7 +1872,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createBranch_branchWithOriginPrefix_throwUnsupportedException() {
 
         GitBranchDTO createGitBranchDTO = new GitBranchDTO();
@@ -1889,7 +1889,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createBranch_duplicateNameBranchPresentInRemote_throwDuplicateKeyException() {
 
         List<GitBranchDTO> branchList = new ArrayList<>();
@@ -1917,7 +1917,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createBranch_validCreateBranchRequest_newApplicationCreated() throws GitAPIException, IOException {
 
         GitBranchDTO createGitBranchDTO = new GitBranchDTO();
@@ -2122,7 +2122,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createBranch_SrcHasCustomTheme_newApplicationCreatedWithThemesCopied() throws GitAPIException, IOException {
         GitBranchDTO createGitBranchDTO = new GitBranchDTO();
         createGitBranchDTO.setBranchName("valid_branch");
@@ -2227,7 +2227,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createBranch_BranchHasCustomNavigationSettings_SrcBranchRemainsUnchanged() throws GitAPIException, IOException {
         GitBranchDTO createGitBranchDTO = new GitBranchDTO();
         createGitBranchDTO.setBranchName("valid_branch");
@@ -2296,7 +2296,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createBranch_BranchUploadLogo_SrcBranchRemainsUnchanged() throws GitAPIException, IOException {
         GitBranchDTO createGitBranchDTO = new GitBranchDTO();
         createGitBranchDTO.setBranchName("valid_branch");
@@ -2347,7 +2347,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createBranch_BranchDeleteLogo_SrcLogoRemainsUnchanged() throws GitAPIException, IOException {
         GitBranchDTO createGitBranchDTO = new GitBranchDTO();
         createGitBranchDTO.setBranchName("valid_branch");
@@ -2412,7 +2412,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createBranch_BranchSetPageIcon_SrcBranchPageIconRemainsNull() throws GitAPIException, IOException {
         GitBranchDTO createGitBranchDTO = new GitBranchDTO();
         createGitBranchDTO.setBranchName("valid_branch");
@@ -2476,7 +2476,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void connectApplicationToGit_cancelledMidway_cloneSuccess() throws IOException {
 
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -2533,7 +2533,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void commitAndPushApplication_cancelledMidway_pushSuccess() throws GitAPIException, IOException {
 
         GitCommitDTO commitDTO = new GitCommitDTO();
@@ -2581,7 +2581,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void createBranch_cancelledMidway_newApplicationCreated() throws GitAPIException, IOException {
 
         GitBranchDTO createGitBranchDTO = new GitBranchDTO();
@@ -2646,7 +2646,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void generateSSHKeyDefaultType_DataNotExistsInCollection_Success() {
         Mono<GitAuth> publicKey = gitService.generateSSHKey(null);
 
@@ -2661,7 +2661,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void generateSSHKeyRSAType_DataNotExistsInCollection_Success() {
         Mono<GitAuth> publicKey = gitService.generateSSHKey("RSA");
 
@@ -2676,7 +2676,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void generateSSHKeyDefaultType_KeyExistsInCollection_Success() {
         GitAuth publicKey = gitService.generateSSHKey(null).block();
 
@@ -2695,7 +2695,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void generateSSHKeyRSA_KeyExistsInCollection_Success() {
         GitAuth publicKey = gitService.generateSSHKey(null).block();
 
@@ -2714,7 +2714,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplicationFromGit_InvalidRemoteUrl_ThrowError() {
         GitConnectDTO gitConnectDTO = getConnectRequest(null, testUserProfile);
         Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit("testID", gitConnectDTO);
@@ -2727,7 +2727,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplicationFromGit_emptyWorkspaceId_ThrowError() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
         Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(null, gitConnectDTO);
@@ -2740,7 +2740,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplicationFromGit_privateRepoLimitReached_ThrowApplicationLimitError() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
         gitService.generateSSHKey(null).block();
@@ -2757,7 +2757,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplicationFromGit_emptyRepo_ThrowError() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
         GitAuth gitAuth = gitService.generateSSHKey(null).block();
@@ -2783,7 +2783,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplicationFromGit_validRequest_Success() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
         GitAuth gitAuth = gitService.generateSSHKey(null).block();
@@ -2816,7 +2816,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplicationFromGit_validRequestWithDuplicateApplicationName_Success() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitRepo.git", testUserProfile);
         GitAuth gitAuth = gitService.generateSSHKey(null).block();
@@ -2854,7 +2854,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplicationFromGit_validRequestWithDuplicateDatasourceOfSameType_Success() {
         Workspace workspace = new Workspace();
         workspace.setName("gitImportOrg");
@@ -2901,7 +2901,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplicationFromGit_validRequestWithDuplicateDatasourceOfSameTypeCancelledMidway_Success() {
         Workspace workspace = new Workspace();
         workspace.setName("gitImportOrgCancelledMidway");
@@ -2967,7 +2967,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplicationFromGit_validRequestWithDuplicateDatasourceOfDifferentType_ThrowError() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitImportRepo1.git", testUserProfile);
         gitService.generateSSHKey(null).block();
@@ -2999,7 +2999,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void importApplicationFromGit_validRequestWithEmptyRepo_ThrowError() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/emptyRepo.git", testUserProfile);
         GitAuth gitAuth = gitService.generateSSHKey(null).block();
@@ -3024,7 +3024,7 @@ public class GitServiceTest {
     // TODO TCs for merge is pending
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void deleteBranch_staleBranchNotInDB_Success() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("deleteBranch_staleBranchNotInDB_Success", "master");
         application.getGitApplicationMetadata().setDefaultBranchName("master");
@@ -3044,7 +3044,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void deleteBranch_existsInDB_Success() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("deleteBranch_existsInDB_Success", "master");
         application.getGitApplicationMetadata().setDefaultBranchName("test");
@@ -3064,7 +3064,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void deleteBranch_branchDoesNotExist_ThrowError() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("deleteBranch_branchDoesNotExist_ThrowError", "master");
         application.getGitApplicationMetadata().setDefaultBranchName("test");
@@ -3082,7 +3082,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void deleteBranch_defaultBranch_ThrowError() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("deleteBranch_defaultBranch_ThrowError", "master");
         application.getGitApplicationMetadata().setDefaultBranchName("master");
@@ -3100,7 +3100,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void deleteBranch_defaultBranchUpdated_Success() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("deleteBranch_defaultBranchUpdated_Success1", "master");
         application.getGitApplicationMetadata().setDefaultBranchName("f1");
@@ -3130,7 +3130,7 @@ public class GitServiceTest {
     // 2. Resource is deleted
     // and then discard is called will be covered in ImportExportApplicationServiceTests.java
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void discardChanges_upstreamChangesAvailable_discardSuccess() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("discard-changes", "discard-change-branch");
         MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
@@ -3171,7 +3171,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void discardChanges_cancelledMidway_discardSuccess() throws IOException, GitAPIException {
         Application application = createApplicationConnectedToGit("discard-changes-midway", "discard-change-midway-branch");
         MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
@@ -3226,7 +3226,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void deleteBranch_cancelledMidway_success() throws GitAPIException, IOException {
 
         final String DEFAULT_BRANCH = "master", TO_BE_DELETED_BRANCH = "deleteBranch";
@@ -3272,7 +3272,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void commitAndPushApplication_WithMultipleUsers_success() throws GitAPIException, IOException {
         GitCommitDTO commitDTO = new GitCommitDTO();
         commitDTO.setDoPush(true);
@@ -3308,7 +3308,7 @@ public class GitServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void getGitConnectedApps_privateRepositories_Success() throws GitAPIException, IOException {
 
         Workspace workspace = new Workspace();

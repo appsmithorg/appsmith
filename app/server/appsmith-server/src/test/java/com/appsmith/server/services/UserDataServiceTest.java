@@ -122,10 +122,10 @@ public class UserDataServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testUploadAndDeleteProfilePhoto_validImage() {
         FilePart filepart = createMockFilePart();
-        Mono<Tuple2<UserData, Asset>> loadProfileImageMono = userDataService.getForUserEmail("api_user")
+        Mono<Tuple2<UserData, Asset>> loadProfileImageMono = userDataService.getForUserEmail("api_user@test.com")
                 .flatMap(userData -> {
                     Mono<UserData> userDataMono = Mono.just(userData);
                     if (StringUtils.isEmpty(userData.getProfilePhotoAssetId())) {
@@ -160,7 +160,7 @@ public class UserDataServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testUploadProfilePhoto_invalidImageFormat() {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils
@@ -178,7 +178,7 @@ public class UserDataServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void testUploadProfilePhoto_invalidImageSize() {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils
@@ -197,7 +197,7 @@ public class UserDataServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void updateLastUsedAppAndWorkspaceList_WhenListIsEmpty_workspaceIdPrepended() {
         String sampleWorkspaceId = UUID.randomUUID().toString();
         Application application = new Application();
@@ -216,7 +216,7 @@ public class UserDataServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void updateLastUsedAppAndWorkspaceList_WhenListIsNotEmpty_workspaceIdPrepended() {
         final Mono<UserData> resultMono = userDataService.getForCurrentUser().flatMap(userData -> {
             // Set an initial list of org ids to the current user.
@@ -237,7 +237,7 @@ public class UserDataServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void updateLastUsedAppAndOrgList_TooManyRecentIds_ListsAreTruncated() {
         String sampleWorkspaceId = "sample-org-id", sampleAppId = "sample-app-id";
 
@@ -276,7 +276,7 @@ public class UserDataServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void addTemplateIdToLastUsedList_WhenListIsEmpty_templateIdPrepended() {
         final Mono<UserData> saveMono = userDataService.getForCurrentUser().flatMap(userData -> {
             // set recently used template ids to null
@@ -291,7 +291,7 @@ public class UserDataServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void addTemplateIdToLastUsedList_WhenListIsNotEmpty_templateIdPrepended() {
         final Mono<UserData> resultMono = userDataService.getForCurrentUser().flatMap(userData -> {
             // Set an initial list of template ids to the current user.
@@ -311,7 +311,7 @@ public class UserDataServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void addTemplateIdToLastUsedList_TooManyRecentIds_ListsAreTruncated() {
         String newTemplateId = "new-template-id";
 
@@ -336,7 +336,7 @@ public class UserDataServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void deleteProfilePhotot_WhenExists_RemovedFromAssetAndUserData() {
         // create an asset first
         Mono<Tuple2<UserData, Asset>> tuple2Mono = assetRepository.save(new Asset(MediaType.IMAGE_PNG, new byte[10]))
@@ -372,7 +372,7 @@ public class UserDataServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void saveProfilePhoto_WhenPhotoUploaded_PhotoChangedEventTriggered() {
         Part mockFilePart = createMockFilePart();
         Mono<UserData> userDataMono = userDataService.saveProfilePhoto(mockFilePart);
@@ -390,7 +390,7 @@ public class UserDataServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void saveConfig_AuthorEmailNull_ThrowInvalidParameterError() {
         GitProfile gitGlobalConfigDTO = createGitProfile(null, "Test 1");
 
@@ -403,7 +403,7 @@ public class UserDataServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void saveRepoLevelConfig_AuthorEmailNullAndName_SavesGitProfile() {
         GitProfile gitProfileDTO = createGitProfile(null, null);
 
@@ -420,7 +420,7 @@ public class UserDataServiceTest {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void saveConfig_AuthorNameEmptyString_ThrowInvalidParameterError() {
         GitProfile gitGlobalConfigDTO = createGitProfile("test@appsmith.com", null);
 
@@ -434,7 +434,7 @@ public class UserDataServiceTest {
 
 
     @Test
-    @WithUserDetails(value = "api_user")
+    @WithUserDetails(value = "api_user@test.com")
     public void getAndUpdateDefaultGitProfile_fallbackValueFromUserProfileIfEmpty_updateWithProfile() {
 
         Mono<GitProfile> gitConfigMono = gitService.getDefaultGitProfileOrCreateIfEmpty();
