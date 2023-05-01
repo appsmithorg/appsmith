@@ -38,10 +38,11 @@ const DsTitle = styled.div`
   display: flex;
   margin-bottom: ${(props) => props.theme.spaces[1]}px;
   .t--ds-list-title {
-    max-width: 120px;
+    max-width: 200px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    padding-right: 4px;
   }
   .cs-icon {
     margin-left: ${(props) => props.theme.spaces[2]}px;
