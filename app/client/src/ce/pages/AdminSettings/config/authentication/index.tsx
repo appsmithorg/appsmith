@@ -52,8 +52,8 @@ const FormAuth: AdminConfigType = {
       label: "Form signup",
       toggleText: (value: boolean) =>
         value
-          ? "Allow all users to signup"
-          : "Allow only invited users to signup",
+          ? "Allow only invited users to signup"
+          : "Allow all users to signup",
     },
     {
       id: "APPSMITH_FORM_CALLOUT_BANNER",
