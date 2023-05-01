@@ -3829,9 +3829,7 @@ public class ImportExportApplicationServiceTests {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         GitApplicationMetadata gitData = new GitApplicationMetadata();
-        String branch = UUID.randomUUID().toString();
-        gitData.setBranchName(branch);
-        gitData.setDefaultBranchName(branch);
+        gitData.setRemoteUrl("git@example.com:username/git-repo.git");
         testApplication.setGitApplicationMetadata(gitData);
         Application application = applicationPageService.createApplication(testApplication, workspaceId)
                 .flatMap(application1 -> {
@@ -3841,7 +3839,7 @@ public class ImportExportApplicationServiceTests {
 
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
         final Mono<ApplicationImportDTO> resultMono = importExportApplicationService
-                .extractFileAndUpdateNonGitConnectedApplication(workspaceId, filePart, application.getId(), branch);
+                .extractFileAndUpdateNonGitConnectedApplication(workspaceId, filePart, application.getId(), null);
 
         StepVerifier
                 .create(resultMono)

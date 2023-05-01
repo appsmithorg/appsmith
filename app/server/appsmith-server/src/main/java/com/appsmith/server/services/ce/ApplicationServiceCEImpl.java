@@ -823,7 +823,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
         return this.getById(applicationId)
-                .map(application -> application.getGitApplicationMetadata() != null);
+                .map(application -> application.getGitApplicationMetadata() != null
+                        && StringUtils.hasLength(application.getGitApplicationMetadata().getRemoteUrl()));
     }
 
     @Override
