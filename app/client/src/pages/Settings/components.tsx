@@ -55,3 +55,8 @@ export const ContentBox = styled.div`
     width: fit-content;
   }
 `;
+
+export const HelperText = styled(Text)`
+  font-size: 12px;
+  color: var(--ads-v2-color-fg-muted);
+`;

@@ -59,8 +59,12 @@ export const StyledLink = styled(Link)<{ $active: boolean }>`
   && {
     color: var(--ads-v2-color-fg);
   }
+
   &:hover {
     text-decoration: none;
+  }
+
+  &:hover:not(.active) {
     background-color: var(--ads-v2-color-bg-subtle);
   }
 `;
@@ -70,7 +74,7 @@ export const SettingName = styled(Text)<{ active?: boolean }>`
     props.active
       ? "var(--ads-v2-color-fg-emphasis-plus)"
       : "var(--ads-v2-color-fg)"};
-  font-weight: ${(props) => (props.active ? 500 : 400)};
+  font-weight: 400;
 `;
 
 export function getSettingsCategory() {
@@ -101,7 +105,9 @@ export function Categories({
           <CategoryItem key={config.slug}>
             <StyledLink
               $active={active}
-              className={`t--settings-category-${config.slug}`}
+              className={`t--settings-category-${config.slug} ${
+                active ? "active" : ""
+              }`}
               to={
                 !parentCategory
                   ? adminSettingsCategoryUrl({ category: config.slug })
@@ -159,6 +165,7 @@ export default function LeftPane() {
           <CategoryItem>
             <StyledLink
               $active={category === "access-control"}
+              className={`${category === "access-control" ? "active" : ""}`}
               data-testid="t--enterprise-settings-category-item-access-control"
               to="/settings/access-control"
             >
@@ -171,6 +178,7 @@ export default function LeftPane() {
           <CategoryItem>
             <StyledLink
               $active={category === "audit-logs"}
+              className={`${category === "audit-logs" ? "active" : ""}`}
               data-testid="t--enterprise-settings-category-item-audit-logs"
               onClick={() => triggerAnalytics("AuditLogs")}
               to="/settings/audit-logs"
@@ -184,6 +192,7 @@ export default function LeftPane() {
           <CategoryItem>
             <StyledLink
               $active={category === "business-edition"}
+              className={`${category === "business-edition" ? "active" : ""}`}
               data-testid="t--enterprise-settings-category-item-be"
               onClick={() => triggerAnalytics("BusinessEdition")}
               to="/settings/business-edition"

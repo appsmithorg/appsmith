@@ -27,6 +27,14 @@ import { ImageInput } from "pages/Settings/FormGroup/ImageInput";
 import { logoImageValidator, faivconImageValidator } from "utils/BrandingUtils";
 import { useBrandingForm } from "@appsmith/pages/AdminSettings/config/branding/useBrandingForm";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import styled from "styled-components";
+import { HelperText } from "pages/Settings/components";
+
+const Wrapper = styled.div`
+  .help-icon {
+    cursor: pointer;
+  }
+`;
 
 type SettingsFormProps = {
   disabled?: boolean;
@@ -49,7 +57,7 @@ function SettingsForm(props: SettingsFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="flex flex-col flex-grow gap-4">
+      <Wrapper className="flex flex-col flex-grow gap-4">
         {/* LOGO */}
         <div className="flex flex-col gap-2">
           <Text
@@ -79,9 +87,9 @@ function SettingsForm(props: SettingsFormProps) {
               />
             )}
           />
-          <Text renderAs="p">
-            {createMessage(ADMIN_BRANDING_LOGO_REQUIREMENT)}
-          </Text>
+          <HelperText renderAs="p">
+            * {createMessage(ADMIN_BRANDING_LOGO_REQUIREMENT)}
+          </HelperText>
         </div>
 
         {/* FAVICON */}
@@ -113,9 +121,9 @@ function SettingsForm(props: SettingsFormProps) {
               />
             )}
           />
-          <Text renderAs="p">
-            {createMessage(ADMIN_BRANDING_FAVICON_REQUIREMENT)}
-          </Text>
+          <HelperText renderAs="p">
+            * {createMessage(ADMIN_BRANDING_FAVICON_REQUIREMENT)}
+          </HelperText>
         </div>
 
         {/* COLOR */}
@@ -130,7 +138,7 @@ function SettingsForm(props: SettingsFormProps) {
               Color
             </Text>
             <Tooltip content={createMessage(ADMIN_BRANDING_COLOR_TOOLTIP)}>
-              <Icon name="question-line" size="md" />
+              <Icon className="help-icon" name="question-line" size="md" />
             </Tooltip>
           </div>
 
@@ -172,7 +180,7 @@ function SettingsForm(props: SettingsFormProps) {
         >
           Submit
         </Button>
-      </div>
+      </Wrapper>
     </form>
   );
 }

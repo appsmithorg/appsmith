@@ -26,7 +26,7 @@ const UpgradeBanner = () => {
 
   return (
     <div className="pb-4 pr-7">
-      <ContentBox className="flex items-center justify-between p-6 border">
+      <ContentBox className="flex items-center justify-between p-6 border upgrade-banner">
         <main>
           <Tag className="business-tag" isClosable={false}>
             Business

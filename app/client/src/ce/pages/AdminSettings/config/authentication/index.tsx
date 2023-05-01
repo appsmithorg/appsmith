@@ -184,6 +184,7 @@ export const FormAuthCallout: AuthMethodType = {
   label: "Form login",
   subText: "Enable your workspace to sign in with Appsmith Form.",
   image: Lock,
+  icon: "lock-password-line",
   isConnected: !disableLoginForm,
 };
 

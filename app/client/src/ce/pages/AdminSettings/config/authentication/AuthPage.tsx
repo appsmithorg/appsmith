@@ -46,6 +46,14 @@ const MethodCard = styled.div`
   display: flex;
   align-items: center;
   margin: 8px 0 0;
+
+  > .ads-v2-icon {
+    margin-right: 8px;
+    object-fit: cover;
+    border-radius: 50%;
+    padding: 5px;
+    align-self: baseline;
+  }
 `;
 
 const Image = styled.img`
@@ -93,6 +101,7 @@ export type AuthMethodType = {
   needsUpgrade?: boolean;
   isConnected?: boolean;
   calloutBanner?: banner;
+  icon?: string;
 };
 
 const Label = styled(Tag)<{ business?: boolean }>`
@@ -179,7 +188,11 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
             return (
               <>
                 <MethodCard key={method.id}>
-                  <Image alt={method.label} src={method.image} />
+                  {method.icon ? (
+                    <Icon name={method.icon} size="lg" />
+                  ) : (
+                    <Image alt={method.label} src={method.image} />
+                  )}
                   <MethodDetailsWrapper>
                     <MethodTitle
                       color="var(--ads-v2-color-fg)"
