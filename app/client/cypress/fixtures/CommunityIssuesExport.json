@@ -11,7 +11,7 @@
     "unreadCommentThreads": 0.0,
     "color": "#CCCCCC",
     "icon": "arrow-right",
-    "slug": "community-issues-1",
+    "slug": "community-issues",
     "unpublishedCustomJSLibs": [],
     "publishedCustomJSLibs": [],
     "evaluationVersion": 2.0,
@@ -3443,7 +3443,7 @@
                   "borderColor": "#E0DEDE",
                   "isVisibleDownload": true,
                   "iconSVG": "/static/media/icon.db8a9cbd2acd22a31ea91cc37ea2a46c.svg",
-                  "topRow": 5.0,
+                  "topRow": 6.0,
                   "isSortable": true,
                   "onPageChange": "{{fetch_issues.run()}}",
                   "type": "TABLE_WIDGET_V2",
@@ -3509,15 +3509,16 @@
                     }
                   },
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                  "columnUpdatedAt": 1.682937457693e12,
+                  "columnUpdatedAt": 1.682960727224e12,
                   "defaultSelectedRowIndices": [0.0],
-                  "mobileBottomRow": 41.0,
+                  "mobileBottomRow": 42.0,
                   "widgetName": "Table1",
                   "defaultPageSize": 0.0,
                   "columnOrder": [
                     "type",
                     "title",
                     "customColumn1",
+                    "states",
                     "total_reactions",
                     "unique_commentors",
                     "upvote_id",
@@ -3526,18 +3527,17 @@
                     "author",
                     "created_at",
                     "description",
-                    "states",
                     "labels",
                     "state",
                     "link",
                     "count",
                     "answer",
-                    "customColumn2",
-                    "updated_at"
+                    "updated_at",
+                    "customColumn2"
                   ],
                   "dynamicPropertyPathList": [],
                   "displayName": "Table",
-                  "bottomRow": 88.0,
+                  "bottomRow": 89.0,
                   "columnWidthMap": {
                     "task": 245.0,
                     "step": 70.0,
@@ -3549,9 +3549,9 @@
                   "parentColumnSpace": 7.859375,
                   "dynamicTriggerPathList": [
                     { "key": "primaryColumns.customColumn2.onClick" },
+                    { "key": "onPageChange" },
                     { "key": "onRowSelected" },
-                    { "key": "onSearchTextChanged" },
-                    { "key": "onPageChange" }
+                    { "key": "onSearchTextChanged" }
                   ],
                   "borderWidth": "1",
                   "primaryColumns": {
@@ -3566,7 +3566,9 @@
                       "horizontalAlignment": "LEFT",
                       "verticalAlignment": "CENTER",
                       "columnType": "text",
+                      "textColor": "",
                       "textSize": "0.875rem",
+                      "fontStyle": "",
                       "enableFilter": true,
                       "enableSort": true,
                       "isVisible": true,
@@ -3578,9 +3580,10 @@
                       "label": "Type",
                       "isSaveVisible": true,
                       "isDiscardVisible": true,
-                      "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.type))}}",
+                      "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"type\"]))}}",
                       "sticky": "",
-                      "validation": {}
+                      "validation": {},
+                      "cellBackground": ""
                     },
                     "title": {
                       "allowCellWrapping": false,
@@ -3593,7 +3596,9 @@
                       "horizontalAlignment": "LEFT",
                       "verticalAlignment": "CENTER",
                       "columnType": "text",
+                      "textColor": "",
                       "textSize": "0.875rem",
+                      "fontStyle": "",
                       "enableFilter": true,
                       "enableSort": true,
                       "isVisible": true,
@@ -3605,9 +3610,10 @@
                       "label": "Title",
                       "isSaveVisible": true,
                       "isDiscardVisible": true,
-                      "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.title))}}",
+                      "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"title\"]))}}",
                       "sticky": "",
-                      "validation": {}
+                      "validation": {},
+                      "cellBackground": ""
                     },
                     "total_reactions": {
                       "allowCellWrapping": false,
@@ -3620,21 +3626,24 @@
                       "horizontalAlignment": "LEFT",
                       "verticalAlignment": "CENTER",
                       "columnType": "number",
+                      "textColor": "",
                       "textSize": "0.875rem",
+                      "fontStyle": "",
                       "enableFilter": true,
                       "enableSort": true,
-                      "isVisible": false,
+                      "isVisible": true,
                       "isDisabled": false,
                       "isCellEditable": false,
                       "isEditable": false,
                       "isCellVisible": true,
                       "isDerived": false,
-                      "label": "States",
+                      "label": "+1",
                       "isSaveVisible": true,
                       "isDiscardVisible": true,
-                      "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.states))}}",
+                      "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"total_reactions\"]))}}",
                       "sticky": "",
-                      "validation": {}
+                      "validation": {},
+                      "cellBackground": ""
                     },
                     "unique_commentors": {
                       "allowCellWrapping": false,
@@ -3647,7 +3656,9 @@
                       "horizontalAlignment": "LEFT",
                       "verticalAlignment": "CENTER",
                       "columnType": "number",
+                      "textColor": "",
                       "textSize": "0.875rem",
+                      "fontStyle": "",
                       "enableFilter": true,
                       "enableSort": true,
                       "isVisible": true,
@@ -3656,12 +3667,13 @@
                       "isEditable": false,
                       "isCellVisible": true,
                       "isDerived": false,
-                      "label": "+1",
+                      "label": "Commentors",
                       "isSaveVisible": true,
                       "isDiscardVisible": true,
-                      "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.total_reactions))}}",
+                      "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"unique_commentors\"]))}}",
                       "sticky": "",
-                      "validation": {}
+                      "validation": {},
+                      "cellBackground": ""
                     },
                     "upvote_id": {
                       "allowCellWrapping": false,
@@ -3674,21 +3686,24 @@
                       "horizontalAlignment": "LEFT",
                       "verticalAlignment": "CENTER",
                       "columnType": "number",
+                      "textColor": "",
                       "textSize": "0.875rem",
+                      "fontStyle": "",
                       "enableFilter": true,
                       "enableSort": true,
-                      "isVisible": true,
+                      "isVisible": false,
                       "isDisabled": false,
                       "isCellEditable": false,
                       "isEditable": false,
                       "isCellVisible": true,
                       "isDerived": false,
-                      "label": "Commentors",
+                      "label": "upvote_id",
                       "isSaveVisible": true,
                       "isDiscardVisible": true,
-                      "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.total_reactions))}}",
+                      "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"upvote_id\"]))}}",
                       "sticky": "",
-                      "validation": {}
+                      "validation": {},
+                      "cellBackground": ""
                     },
                     "id": {
                       "allowCellWrapping": false,
@@ -3701,7 +3716,9 @@
                       "horizontalAlignment": "LEFT",
                       "verticalAlignment": "CENTER",
                       "columnType": "number",
+                      "textColor": "",
                       "textSize": "0.875rem",
+                      "fontStyle": "",
                       "enableFilter": true,
                       "enableSort": true,
                       "isVisible": false,
@@ -3710,12 +3727,13 @@
                       "isEditable": false,
                       "isCellVisible": true,
                       "isDerived": false,
-                      "label": "upvote_id",
+                      "label": "id",
                       "isSaveVisible": true,
                       "isDiscardVisible": true,
-                      "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.upvote_id))}}",
+                      "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"id\"]))}}",
                       "sticky": "",
-                      "validation": {}
+                      "validation": {},
+                      "cellBackground": ""
                     },
                     "github_issue_id": {
                       "allowCellWrapping": false,
@@ -3728,7 +3746,9 @@
                       "horizontalAlignment": "LEFT",
                       "verticalAlignment": "CENTER",
                       "columnType": "number",
+                      "textColor": "",
                       "textSize": "0.875rem",
+                      "fontStyle": "",
                       "enableFilter": true,
                       "enableSort": true,
                       "isVisible": false,
@@ -3737,12 +3757,13 @@
                       "isEditable": false,
                       "isCellVisible": true,
                       "isDerived": false,
-                      "label": "id",
+                      "label": "github_issue_id",
                       "isSaveVisible": true,
                       "isDiscardVisible": true,
-                      "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.id))}}",
+                      "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"github_issue_id\"]))}}",
                       "sticky": "",
-                      "validation": {}
+                      "validation": {},
+                      "cellBackground": ""
                     },
                     "author": {
                       "allowCellWrapping": false,
@@ -3755,7 +3776,9 @@
                       "horizontalAlignment": "LEFT",
                       "verticalAlignment": "CENTER",
                       "columnType": "text",
+                      "textColor": "",
                       "textSize": "0.875rem",
+                      "fontStyle": "",
                       "enableFilter": true,
                       "enableSort": true,
                       "isVisible": false,
@@ -3764,12 +3787,13 @@
                       "isEditable": false,
                       "isCellVisible": true,
                       "isDerived": false,
-                      "label": "github_issue_id",
+                      "label": "author",
                       "isSaveVisible": true,
                       "isDiscardVisible": true,
-                      "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.github_issue_id))}}",
+                      "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"author\"]))}}",
                       "sticky": "",
-                      "validation": {}
+                      "validation": {},
+                      "cellBackground": ""
                     },
                     "created_at": {
                       "allowCellWrapping": false,
@@ -3782,7 +3806,9 @@
                       "horizontalAlignment": "LEFT",
                       "verticalAlignment": "CENTER",
                       "columnType": "text",
+                      "textColor": "",
                       "textSize": "0.875rem",
+                      "fontStyle": "",
                       "enableFilter": true,
                       "enableSort": true,
                       "isVisible": false,
@@ -3791,12 +3817,13 @@
                       "isEditable": false,
                       "isCellVisible": true,
                       "isDerived": false,
-                      "label": "author",
+                      "label": "created_at",
                       "isSaveVisible": true,
                       "isDiscardVisible": true,
-                      "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.author))}}",
+                      "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"created_at\"]))}}",
                       "sticky": "",
-                      "validation": {}
+                      "validation": {},
+                      "cellBackground": ""
                     },
                     "description": {
                       "allowCellWrapping": false,
@@ -3809,142 +3836,9 @@
                       "horizontalAlignment": "LEFT",
                       "verticalAlignment": "CENTER",
                       "columnType": "text",
+                      "textColor": "",
                       "textSize": "0.875rem",
-                      "enableFilter": true,
-                      "enableSort": true,
-                      "isVisible": false,
-                      "isDisabled": false,
-                      "isCellEditable": false,
-                      "isEditable": false,
-                      "isCellVisible": true,
-                      "isDerived": false,
-                      "label": "created_at",
-                      "isSaveVisible": true,
-                      "isDiscardVisible": true,
-                      "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.created_at))}}",
-                      "sticky": "",
-                      "validation": {}
-                    },
-                    "labels": {
-                      "allowCellWrapping": false,
-                      "allowSameOptionsInNewRow": true,
-                      "index": 10.0,
-                      "width": 150.0,
-                      "originalId": "labels",
-                      "id": "labels",
-                      "alias": "labels",
-                      "horizontalAlignment": "LEFT",
-                      "verticalAlignment": "CENTER",
-                      "columnType": "text",
-                      "textSize": "0.875rem",
-                      "enableFilter": true,
-                      "enableSort": true,
-                      "isVisible": false,
-                      "isDisabled": false,
-                      "isCellEditable": false,
-                      "isEditable": false,
-                      "isCellVisible": true,
-                      "isDerived": false,
-                      "label": "labels",
-                      "isSaveVisible": true,
-                      "isDiscardVisible": true,
-                      "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"labels\"]))}}",
-                      "sticky": "",
-                      "validation": {}
-                    },
-                    "state": {
-                      "allowCellWrapping": false,
-                      "allowSameOptionsInNewRow": true,
-                      "index": 11.0,
-                      "width": 150.0,
-                      "originalId": "state",
-                      "id": "state",
-                      "alias": "state",
-                      "horizontalAlignment": "LEFT",
-                      "verticalAlignment": "CENTER",
-                      "columnType": "text",
-                      "textSize": "0.875rem",
-                      "enableFilter": true,
-                      "enableSort": true,
-                      "isVisible": false,
-                      "isDisabled": false,
-                      "isCellEditable": false,
-                      "isEditable": false,
-                      "isCellVisible": true,
-                      "isDerived": false,
-                      "label": "state",
-                      "isSaveVisible": true,
-                      "isDiscardVisible": true,
-                      "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"state\"]))}}",
-                      "sticky": "",
-                      "validation": {}
-                    },
-                    "answer": {
-                      "allowCellWrapping": false,
-                      "allowSameOptionsInNewRow": true,
-                      "index": 12.0,
-                      "width": 150.0,
-                      "originalId": "answer",
-                      "id": "answer",
-                      "alias": "answer",
-                      "horizontalAlignment": "LEFT",
-                      "verticalAlignment": "CENTER",
-                      "columnType": "text",
-                      "textSize": "0.875rem",
-                      "enableFilter": true,
-                      "enableSort": true,
-                      "isVisible": true,
-                      "isDisabled": false,
-                      "isCellEditable": false,
-                      "isEditable": false,
-                      "isCellVisible": true,
-                      "isDerived": false,
-                      "label": "Answer",
-                      "isSaveVisible": true,
-                      "isDiscardVisible": true,
-                      "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"answer\"]))}}",
-                      "sticky": "",
-                      "validation": {}
-                    },
-                    "link": {
-                      "allowCellWrapping": false,
-                      "allowSameOptionsInNewRow": true,
-                      "index": 13.0,
-                      "width": 150.0,
-                      "originalId": "link",
-                      "id": "link",
-                      "alias": "link",
-                      "horizontalAlignment": "LEFT",
-                      "verticalAlignment": "CENTER",
-                      "columnType": "text",
-                      "textSize": "0.875rem",
-                      "enableFilter": true,
-                      "enableSort": true,
-                      "isVisible": false,
-                      "isDisabled": false,
-                      "isCellEditable": false,
-                      "isEditable": false,
-                      "isCellVisible": true,
-                      "isDerived": false,
-                      "label": "link",
-                      "isSaveVisible": true,
-                      "isDiscardVisible": true,
-                      "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"link\"]))}}",
-                      "sticky": "",
-                      "validation": {}
-                    },
-                    "states": {
-                      "allowCellWrapping": false,
-                      "allowSameOptionsInNewRow": true,
-                      "index": 14.0,
-                      "width": 150.0,
-                      "originalId": "states",
-                      "id": "states",
-                      "alias": "states",
-                      "horizontalAlignment": "LEFT",
-                      "verticalAlignment": "CENTER",
-                      "columnType": "text",
-                      "textSize": "0.875rem",
+                      "fontStyle": "",
                       "enableFilter": true,
                       "enableSort": true,
                       "isVisible": false,
@@ -3958,7 +3852,158 @@
                       "isDiscardVisible": true,
                       "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"description\"]))}}",
                       "sticky": "",
-                      "validation": {}
+                      "validation": {},
+                      "cellBackground": ""
+                    },
+                    "labels": {
+                      "allowCellWrapping": false,
+                      "allowSameOptionsInNewRow": true,
+                      "index": 10.0,
+                      "width": 150.0,
+                      "originalId": "labels",
+                      "id": "labels",
+                      "alias": "labels",
+                      "horizontalAlignment": "LEFT",
+                      "verticalAlignment": "CENTER",
+                      "columnType": "text",
+                      "textColor": "",
+                      "textSize": "0.875rem",
+                      "fontStyle": "",
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "isVisible": false,
+                      "isDisabled": false,
+                      "isCellEditable": false,
+                      "isEditable": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "label": "labels",
+                      "isSaveVisible": true,
+                      "isDiscardVisible": true,
+                      "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"labels\"]))}}",
+                      "sticky": "",
+                      "validation": {},
+                      "cellBackground": ""
+                    },
+                    "state": {
+                      "allowCellWrapping": false,
+                      "allowSameOptionsInNewRow": true,
+                      "index": 11.0,
+                      "width": 150.0,
+                      "originalId": "state",
+                      "id": "state",
+                      "alias": "state",
+                      "horizontalAlignment": "LEFT",
+                      "verticalAlignment": "CENTER",
+                      "columnType": "text",
+                      "textColor": "",
+                      "textSize": "0.875rem",
+                      "fontStyle": "",
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "isVisible": false,
+                      "isDisabled": false,
+                      "isCellEditable": false,
+                      "isEditable": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "label": "state",
+                      "isSaveVisible": true,
+                      "isDiscardVisible": true,
+                      "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"state\"]))}}",
+                      "sticky": "",
+                      "validation": {},
+                      "cellBackground": ""
+                    },
+                    "answer": {
+                      "allowCellWrapping": false,
+                      "allowSameOptionsInNewRow": true,
+                      "index": 12.0,
+                      "width": 150.0,
+                      "originalId": "answer",
+                      "id": "answer",
+                      "alias": "answer",
+                      "horizontalAlignment": "LEFT",
+                      "verticalAlignment": "CENTER",
+                      "columnType": "text",
+                      "textColor": "",
+                      "textSize": "0.875rem",
+                      "fontStyle": "",
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "isVisible": true,
+                      "isDisabled": false,
+                      "isCellEditable": false,
+                      "isEditable": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "label": "Answer",
+                      "isSaveVisible": true,
+                      "isDiscardVisible": true,
+                      "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"answer\"]))}}",
+                      "sticky": "",
+                      "validation": {},
+                      "cellBackground": ""
+                    },
+                    "link": {
+                      "allowCellWrapping": false,
+                      "allowSameOptionsInNewRow": true,
+                      "index": 13.0,
+                      "width": 150.0,
+                      "originalId": "link",
+                      "id": "link",
+                      "alias": "link",
+                      "horizontalAlignment": "LEFT",
+                      "verticalAlignment": "CENTER",
+                      "columnType": "text",
+                      "textColor": "",
+                      "textSize": "0.875rem",
+                      "fontStyle": "",
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "isVisible": false,
+                      "isDisabled": false,
+                      "isCellEditable": false,
+                      "isEditable": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "label": "link",
+                      "isSaveVisible": true,
+                      "isDiscardVisible": true,
+                      "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"link\"]))}}",
+                      "sticky": "",
+                      "validation": {},
+                      "cellBackground": ""
+                    },
+                    "states": {
+                      "allowCellWrapping": false,
+                      "allowSameOptionsInNewRow": true,
+                      "index": 14.0,
+                      "width": 150.0,
+                      "originalId": "states",
+                      "id": "states",
+                      "alias": "states",
+                      "horizontalAlignment": "LEFT",
+                      "verticalAlignment": "CENTER",
+                      "columnType": "text",
+                      "textColor": "",
+                      "textSize": "0.875rem",
+                      "fontStyle": "",
+                      "enableFilter": true,
+                      "enableSort": true,
+                      "isVisible": false,
+                      "isDisabled": false,
+                      "isCellEditable": false,
+                      "isEditable": false,
+                      "isCellVisible": true,
+                      "isDerived": false,
+                      "label": "States",
+                      "isSaveVisible": true,
+                      "isDiscardVisible": true,
+                      "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"states\"]))}}",
+                      "sticky": "",
+                      "validation": {},
+                      "cellBackground": ""
                     },
                     "count": {
                       "allowCellWrapping": false,
@@ -3971,7 +4016,9 @@
                       "horizontalAlignment": "LEFT",
                       "verticalAlignment": "CENTER",
                       "columnType": "number",
+                      "textColor": "",
                       "textSize": "0.875rem",
+                      "fontStyle": "",
                       "enableFilter": true,
                       "enableSort": true,
                       "isVisible": true,
@@ -3985,7 +4032,8 @@
                       "isDiscardVisible": true,
                       "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"count\"]))}}",
                       "sticky": "",
-                      "validation": {}
+                      "validation": {},
+                      "cellBackground": ""
                     },
                     "updated_at": {
                       "allowCellWrapping": false,
@@ -3998,7 +4046,9 @@
                       "horizontalAlignment": "LEFT",
                       "verticalAlignment": "CENTER",
                       "columnType": "text",
+                      "textColor": "",
                       "textSize": "0.875rem",
+                      "fontStyle": "",
                       "enableFilter": true,
                       "enableSort": true,
                       "isVisible": false,
@@ -4012,7 +4062,8 @@
                       "isDiscardVisible": true,
                       "computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow[\"updated_at\"]))}}",
                       "sticky": "",
-                      "validation": {}
+                      "validation": {},
+                      "cellBackground": ""
                     },
                     "customColumn1": {
                       "allowCellWrapping": false,
@@ -4081,12 +4132,12 @@
                     }
                   },
                   "onRowSelected": "{{resetWidget(\"Tabs1\", true);}}",
-                  "key": "5j5qqpgzdf",
+                  "key": "eyftuk193m",
                   "canFreezeColumn": true,
                   "isDeprecated": false,
-                  "rightColumn": 44.0,
+                  "rightColumn": 43.0,
                   "textSize": "0.875rem",
-                  "widgetId": "x812iibeec",
+                  "widgetId": "t1du9nktbq",
                   "minWidth": 450.0,
                   "tableData": "{{IssueManager.getIssueData()}}",
                   "label": "Data",
@@ -4094,7 +4145,7 @@
                   "parentId": "0",
                   "serverSidePaginationEnabled": true,
                   "renderMode": "CANVAS",
-                  "mobileTopRow": 13.0,
+                  "mobileTopRow": 14.0,
                   "horizontalAlignment": "LEFT",
                   "isVisibleSearch": true,
                   "responsiveBehavior": "fill",
@@ -7722,85 +7773,6 @@
       "pluginType": "JS",
       "pluginId": "js-plugin",
       "unpublishedAction": {
-        "name": "getPodLabels",
-        "fullyQualifiedName": "Utils.getPodLabels",
-        "datasource": {
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "collectionId": "Issues_Utils",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "() => {\n  return Object.keys(fetch_label_config.data.runners[0].issue.labels).map(pod => {\n    return {\n      label: pod,\n      value: pod\n    };\n  });\n}",
-          "selfReferencingDataPaths": [],
-          "jsArguments": [],
-          "isAsync": false
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [
-          "() => {\n  return Object.keys(fetch_label_config.data.runners[0].issue.labels).map(pod => {\n    return {\n      label: pod,\n      value: pod\n    };\n  });\n}"
-        ],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "publishedAction": {
-        "name": "getPodLabels",
-        "fullyQualifiedName": "Utils.getPodLabels",
-        "datasource": {
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "collectionId": "Issues_Utils",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "() => {\n\t\treturn Object.keys(fetch_label_config.data.runners[0].issue.labels)\n\t\t\t.map((pod) => { \n\t\t\t\treturn {\n\t\t\t\t\tlabel: pod,\n\t\t\t\t\tvalue: pod\n\t\t\t\t}\n\t\t\t});\n\t}",
-          "selfReferencingDataPaths": [],
-          "jsArguments": [],
-          "isAsync": false
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [
-          "() => {\n\t\treturn Object.keys(fetch_label_config.data.runners[0].issue.labels)\n\t\t\t.map((pod) => { \n\t\t\t\treturn {\n\t\t\t\t\tlabel: pod,\n\t\t\t\t\tvalue: pod\n\t\t\t\t}\n\t\t\t});\n\t}"
-        ],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "id": "Issues_Utils.getPodLabels",
-      "deleted": false,
-      "gitSyncId": "623762992e5d3f189d0c3c23_623765f12e5d3f189d0c3c35"
-    },
-    {
-      "pluginType": "JS",
-      "pluginId": "js-plugin",
-      "unpublishedAction": {
         "name": "getConfig",
         "fullyQualifiedName": "Utils.getConfig",
         "datasource": {
@@ -7952,798 +7924,6 @@
       "gitSyncId": "623762992e5d3f189d0c3c23_6237662e2e5d3f189d0c3c38"
     },
     {
-      "pluginType": "JS",
-      "pluginId": "js-plugin",
-      "unpublishedAction": {
-        "name": "getPodForLabel",
-        "fullyQualifiedName": "Utils.getPodForLabel",
-        "datasource": {
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "collectionId": "Issues_Utils",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "(label = \"New JS Function\") => {\n  const labels = fetch_label_config.data.runners[0].issue.labels;\n  const pods = Utils.getPodLabels().map(pod => pod.label);\n  let foundPod;\n  pods.map(podLabel => {\n    const foundLabel = labels[podLabel].conditions.find(condition => {\n      return condition.label === label && podLabel !== label;\n    });\n    if (foundLabel) {\n      foundPod = podLabel;\n    }\n  });\n  return foundPod;\n}",
-          "selfReferencingDataPaths": [],
-          "jsArguments": [{ "name": "label" }],
-          "isAsync": false
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [
-          "(label = \"New JS Function\") => {\n  const labels = fetch_label_config.data.runners[0].issue.labels;\n  const pods = Utils.getPodLabels().map(pod => pod.label);\n  let foundPod;\n  pods.map(podLabel => {\n    const foundLabel = labels[podLabel].conditions.find(condition => {\n      return condition.label === label && podLabel !== label;\n    });\n    if (foundLabel) {\n      foundPod = podLabel;\n    }\n  });\n  return foundPod;\n}"
-        ],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "publishedAction": {
-        "name": "getPodForLabel",
-        "fullyQualifiedName": "Utils.getPodForLabel",
-        "datasource": {
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "collectionId": "Issues_Utils",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "(label = \"New JS Function\") => {\n\t\tconst labels = fetch_label_config.data.runners[0].issue.labels;\n\t\tconst pods = Utils.getPodLabels().map((pod) => pod.label);\n\t\tlet foundPod;\n\t\tpods.map((podLabel) => {\n\t\t\tconst foundLabel = labels[podLabel].conditions.find((condition) => {\n\t\t\t\treturn condition.label === label && podLabel !== label\n\t\t\t})\n\t\t\tif (foundLabel) {\n\t\t\t\tfoundPod = podLabel\n\t\t\t}\n\t\t});\n\t\treturn foundPod;\n\t}",
-          "selfReferencingDataPaths": [],
-          "jsArguments": [
-            { "name": "label" },
-            { "name": "", "value": "" },
-            { "name": "\"New" },
-            { "name": "JS" },
-            { "name": "Function\"" }
-          ],
-          "isAsync": false
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [
-          "(label = \"New JS Function\") => {\n\t\tconst labels = fetch_label_config.data.runners[0].issue.labels;\n\t\tconst pods = Utils.getPodLabels().map((pod) => pod.label);\n\t\tlet foundPod;\n\t\tpods.map((podLabel) => {\n\t\t\tconst foundLabel = labels[podLabel].conditions.find((condition) => {\n\t\t\t\treturn condition.label === label && podLabel !== label\n\t\t\t})\n\t\t\tif (foundLabel) {\n\t\t\t\tfoundPod = podLabel\n\t\t\t}\n\t\t});\n\t\treturn foundPod;\n\t}"
-        ],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "id": "Issues_Utils.getPodForLabel",
-      "deleted": false,
-      "gitSyncId": "623762992e5d3f189d0c3c23_623766592e5d3f189d0c3c3b"
-    },
-    {
-      "pluginType": "JS",
-      "pluginId": "js-plugin",
-      "unpublishedAction": {
-        "name": "getLabelsForPod",
-        "fullyQualifiedName": "Utils.getLabelsForPod",
-        "datasource": {
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "collectionId": "Issues_Utils",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "pod => {\n  return fetch_label_config.data.runners[0].issue.labels[pod].conditions.map(label => fetch_label_config.data.labels[label.label]).filter(label => label !== undefined);\n}",
-          "selfReferencingDataPaths": [],
-          "jsArguments": [{ "name": "pod" }],
-          "isAsync": false
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [
-          "pod => {\n  return fetch_label_config.data.runners[0].issue.labels[pod].conditions.map(label => fetch_label_config.data.labels[label.label]).filter(label => label !== undefined);\n}"
-        ],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "publishedAction": {
-        "name": "getLabelsForPod",
-        "fullyQualifiedName": "Utils.getLabelsForPod",
-        "datasource": {
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "collectionId": "Issues_Utils",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "(pod) => {\n\t\treturn fetch_label_config.data.runners[0]\n\t\t\t.issue.labels[pod].conditions.map((label) => \n\t\t\t\t\tfetch_label_config.data.labels[label.label])\n\t\t\t.filter((label) => label !== undefined)\n\t}",
-          "selfReferencingDataPaths": [],
-          "jsArguments": [{ "name": "pod" }],
-          "isAsync": false
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [
-          "(pod) => {\n\t\treturn fetch_label_config.data.runners[0]\n\t\t\t.issue.labels[pod].conditions.map((label) => \n\t\t\t\t\tfetch_label_config.data.labels[label.label])\n\t\t\t.filter((label) => label !== undefined)\n\t}"
-        ],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "id": "Issues_Utils.getLabelsForPod",
-      "deleted": false,
-      "gitSyncId": "623762992e5d3f189d0c3c23_623766812e5d3f189d0c3c3d"
-    },
-    {
-      "pluginType": "JS",
-      "pluginId": "js-plugin",
-      "unpublishedAction": {
-        "name": "csvToArr",
-        "fullyQualifiedName": "Utils.csvToArr",
-        "datasource": {
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "collectionId": "Issues_Utils",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "() => {}",
-          "selfReferencingDataPaths": [],
-          "jsArguments": [],
-          "isAsync": false
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": ["() => {}"],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "publishedAction": {
-        "name": "csvToArr",
-        "fullyQualifiedName": "Utils.csvToArr",
-        "datasource": {
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "collectionId": "Issues_Utils",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "() => {\n\t\t//const csvRows = FilePicker1.files[1].data.split(\"\\n\");\n\t\t//const objArr = [];\n\t\t//const headers = csvRows[0].split(',');\n\t\t\t//for(let i = 1; i < csvRows.length; i++) {\n\t\t\t\t//const rowObj = {};\n\t\t\t\t//objArr.push(rowObj);\n\t\t\t\t//const rowArr = csvRows[i].split(',');\n\t\t\t\t//rowArr.forEach((val, index) => {\n\t\t\t\t//rowObj[headers[index]] = val;\n\t\t\t\t//});\n\t\t\t//}\n\t\t//return objArr;\n\t}",
-          "selfReferencingDataPaths": [],
-          "jsArguments": [],
-          "isAsync": false
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [
-          "() => {\n\t\t//const csvRows = FilePicker1.files[1].data.split(\"\\n\");\n\t\t//const objArr = [];\n\t\t//const headers = csvRows[0].split(',');\n\t\t\t//for(let i = 1; i < csvRows.length; i++) {\n\t\t\t\t//const rowObj = {};\n\t\t\t\t//objArr.push(rowObj);\n\t\t\t\t//const rowArr = csvRows[i].split(',');\n\t\t\t\t//rowArr.forEach((val, index) => {\n\t\t\t\t//rowObj[headers[index]] = val;\n\t\t\t\t//});\n\t\t\t//}\n\t\t//return objArr;\n\t}"
-        ],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "id": "Issues_Utils.csvToArr",
-      "deleted": false,
-      "gitSyncId": "623762992e5d3f189d0c3c23_623766812e5d3f189d0c3c3e"
-    },
-    {
-      "pluginType": "JS",
-      "pluginId": "js-plugin",
-      "unpublishedAction": {
-        "name": "create_issue",
-        "fullyQualifiedName": "IssueManager.create_issue",
-        "datasource": {
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "collectionId": "Issues_IssueManager",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "() => {\n  const labels = IssueManager.getAssignedLabels(label_select.selectedOptionValues);\n  add_new_issue.run(() => {\n    fetch_issues.run(() => {\n      resetWidget('add_issue_modal', true);\n      closeModal('add_issue_modal');\n    });\n  }, undefined, {\n    labels: labels\n  });\n}",
-          "selfReferencingDataPaths": [],
-          "jsArguments": [],
-          "isAsync": false
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [
-          "() => {\n  const labels = IssueManager.getAssignedLabels(label_select.selectedOptionValues);\n  add_new_issue.run(() => {\n    fetch_issues.run(() => {\n      resetWidget('add_issue_modal', true);\n      closeModal('add_issue_modal');\n    });\n  }, undefined, {\n    labels: labels\n  });\n}"
-        ],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "publishedAction": {
-        "name": "create_issue",
-        "fullyQualifiedName": "IssueManager.create_issue",
-        "datasource": {
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "collectionId": "Issues_IssueManager",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "() => {\n\t\tconst labels = IssueManager.getAssignedLabels(label_select.selectedOptionValues);\n\t\tadd_new_issue.run(() => {\n\t\t\t\tfetch_issues.run(() => {\n\t\t\t\t\tresetWidget('add_issue_modal', true);\n\t\t\t\t\tcloseModal('add_issue_modal');\n\t\t\t\t});\n\t\t}, undefined, { labels: labels })\n\t}",
-          "selfReferencingDataPaths": [],
-          "jsArguments": [],
-          "isAsync": false
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [
-          "() => {\n\t\tconst labels = IssueManager.getAssignedLabels(label_select.selectedOptionValues);\n\t\tadd_new_issue.run(() => {\n\t\t\t\tfetch_issues.run(() => {\n\t\t\t\t\tresetWidget('add_issue_modal', true);\n\t\t\t\t\tcloseModal('add_issue_modal');\n\t\t\t\t});\n\t\t}, undefined, { labels: labels })\n\t}"
-        ],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "id": "Issues_IssueManager.create_issue",
-      "deleted": false,
-      "gitSyncId": "623762992e5d3f189d0c3c23_62382c40cb09660cd0f703bf"
-    },
-    {
-      "pluginType": "DB",
-      "pluginId": "postgres-plugin",
-      "unpublishedAction": {
-        "name": "add_new_comment",
-        "datasource": {
-          "pluginId": "postgres-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "id": "AForceDB",
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "INSERT INTO issue_upvote\n  (link, comment, author, created_at, issue_id, id)\nVALUES\n  (\n    '{{ comment_link_input.text }}',\n    '{{ comment_input.text }}',\n\t\t'{{ appsmith.user.email }}',\n\t\tnow(),\n\t\t{{Table1.selectedRow.id}},\n\t\t(SELECT max(id) + 1\nFROM public.\"issue_upvote\")\n  );",
-          "selfReferencingDataPaths": [],
-          "pluginSpecifiedTemplates": [{ "value": false }]
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [
-          "Table1.selectedRow.id",
-          "comment_input.text",
-          "appsmith.user.email",
-          "comment_link_input.text"
-        ],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "publishedAction": {
-        "name": "add_new_comment",
-        "datasource": {
-          "pluginId": "postgres-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "id": "AForceDB",
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "INSERT INTO issue_upvote\n  (link, comment, author, created_at, issue_id, id)\nVALUES\n  (\n    '{{ comment_link_input.text }}',\n    '{{ comment_input.text }}',\n\t\t'{{ appsmith.user.email }}',\n\t\tnow(),\n\t\t{{Table1.selectedRow.id}},\n\t\t(SELECT max(id) + 1\nFROM public.\"issue_upvote\")\n  );",
-          "selfReferencingDataPaths": [],
-          "pluginSpecifiedTemplates": [{ "value": false }]
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [
-          "Table1.selectedRow.id",
-          "comment_input.text",
-          "appsmith.user.email",
-          "comment_link_input.text"
-        ],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "id": "Issues_add_new_comment",
-      "deleted": false,
-      "gitSyncId": "623762992e5d3f189d0c3c23_62382bb0cb09660cd0f703b7"
-    },
-    {
-      "pluginType": "JS",
-      "pluginId": "js-plugin",
-      "unpublishedAction": {
-        "name": "getAssignedLabels",
-        "fullyQualifiedName": "IssueManager.getAssignedLabels",
-        "datasource": {
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "collectionId": "Issues_IssueManager",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "(allLabels = label_select.selectedOptionValues) => {\n  const labels = allLabels.filter(label => {\n    return Utils.checkIsPod(label) !== true;\n  });\n  const podMap = {};\n  labels.map(label => {\n    const pod = Utils.getPodForLabel(label);\n    if (pod) podMap[pod] = true;\n  });\n  return [...Object.keys(podMap), ...labels];\n}",
-          "selfReferencingDataPaths": [],
-          "jsArguments": [{ "name": "allLabels" }],
-          "isAsync": false
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [
-          "(allLabels = label_select.selectedOptionValues) => {\n  const labels = allLabels.filter(label => {\n    return Utils.checkIsPod(label) !== true;\n  });\n  const podMap = {};\n  labels.map(label => {\n    const pod = Utils.getPodForLabel(label);\n    if (pod) podMap[pod] = true;\n  });\n  return [...Object.keys(podMap), ...labels];\n}"
-        ],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "publishedAction": {
-        "name": "getAssignedLabels",
-        "fullyQualifiedName": "IssueManager.getAssignedLabels",
-        "datasource": {
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "collectionId": "Issues_IssueManager",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "(allLabels = label_select.selectedOptionValues) => {\n\t\tconst labels = allLabels.filter((label) => {\n\t\t\treturn Utils.checkIsPod(label) !== true;\n\t\t}); \n\t\tconst podMap = {};\n\t\tlabels.map((label) => {\n\t\t\tconst pod = Utils.getPodForLabel(label);\n\t\t\tif (pod)\n\t\t\t\tpodMap[pod] = true;\n\t\t});\n\t\treturn [...Object.keys(podMap), ...labels];\n\t}",
-          "selfReferencingDataPaths": [],
-          "jsArguments": [
-            { "name": "allLabels" },
-            { "name": "", "value": "" },
-            { "name": "label_select.selectedOptionValues" }
-          ],
-          "isAsync": false
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [
-          "(allLabels = label_select.selectedOptionValues) => {\n\t\tconst labels = allLabels.filter((label) => {\n\t\t\treturn Utils.checkIsPod(label) !== true;\n\t\t}); \n\t\tconst podMap = {};\n\t\tlabels.map((label) => {\n\t\t\tconst pod = Utils.getPodForLabel(label);\n\t\t\tif (pod)\n\t\t\t\tpodMap[pod] = true;\n\t\t});\n\t\treturn [...Object.keys(podMap), ...labels];\n\t}"
-        ],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "id": "Issues_IssueManager.getAssignedLabels",
-      "deleted": false,
-      "gitSyncId": "623762992e5d3f189d0c3c23_62382c40cb09660cd0f703c3"
-    },
-    {
-      "pluginType": "JS",
-      "pluginId": "js-plugin",
-      "unpublishedAction": {
-        "name": "getIssueData",
-        "fullyQualifiedName": "IssueManager.getIssueData",
-        "datasource": {
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "collectionId": "Issues_IssueManager",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "() => {\n  return fetch_issues.data.map(issue => {\n    if (issue.upvote_id > 0) issue.count = issue.count + 1;\n    return {\n      type: issue.type,\n      title: issue.title,\n      total_reactions: issue.total_reactions,\n      unique_commentors: issue.unique_commentors,\n      upvote_id: issue.upvote_id,\n      ...issue\n    };\n  });\n}",
-          "selfReferencingDataPaths": [],
-          "jsArguments": [],
-          "isAsync": false
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [
-          "() => {\n  return fetch_issues.data.map(issue => {\n    if (issue.upvote_id > 0) issue.count = issue.count + 1;\n    return {\n      type: issue.type,\n      title: issue.title,\n      total_reactions: issue.total_reactions,\n      unique_commentors: issue.unique_commentors,\n      upvote_id: issue.upvote_id,\n      ...issue\n    };\n  });\n}"
-        ],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "publishedAction": {
-        "name": "getIssueData",
-        "fullyQualifiedName": "IssueManager.getIssueData",
-        "datasource": {
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "collectionId": "Issues_IssueManager",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "() => {\n\t\treturn fetch_issues.data.map((issue) => {\n\t\t\tif (issue.upvote_id > 0)\n\t\t\t\tissue.count = issue.count + 1;\n\t\t\treturn { type: issue.type, title: issue.title, total_reactions: issue.total_reactions, unique_commentors: issue.unique_commentors, upvote_id: issue.upvote_id  ,...issue};\n\t\t});\n\t}",
-          "selfReferencingDataPaths": [],
-          "jsArguments": [],
-          "isAsync": false
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [
-          "() => {\n\t\treturn fetch_issues.data.map((issue) => {\n\t\t\tif (issue.upvote_id > 0)\n\t\t\t\tissue.count = issue.count + 1;\n\t\t\treturn { type: issue.type, title: issue.title, total_reactions: issue.total_reactions, unique_commentors: issue.unique_commentors, upvote_id: issue.upvote_id  ,...issue};\n\t\t});\n\t}"
-        ],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "id": "Issues_IssueManager.getIssueData",
-      "deleted": false,
-      "gitSyncId": "623762992e5d3f189d0c3c23_62382c40cb09660cd0f703c2"
-    },
-    {
-      "pluginType": "JS",
-      "pluginId": "js-plugin",
-      "unpublishedAction": {
-        "name": "fetchIssues",
-        "fullyQualifiedName": "IssueManager.fetchIssues",
-        "datasource": {
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "collectionId": "Issues_IssueManager",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "() => {\n  fetch_issues.run();\n}",
-          "selfReferencingDataPaths": [],
-          "jsArguments": [],
-          "isAsync": true
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": ["() => {\n  fetch_issues.run();\n}"],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "publishedAction": {
-        "name": "fetchIssues",
-        "fullyQualifiedName": "IssueManager.fetchIssues",
-        "datasource": {
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "collectionId": "Issues_IssueManager",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "() => {\n\t\tfetch_issues.run();\n\t}",
-          "selfReferencingDataPaths": [],
-          "jsArguments": [],
-          "isAsync": true
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": ["() => {\n\t\tfetch_issues.run();\n\t}"],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "id": "Issues_IssueManager.fetchIssues",
-      "deleted": false,
-      "gitSyncId": "623762992e5d3f189d0c3c23_62382c40cb09660cd0f703cf"
-    },
-    {
-      "pluginType": "DB",
-      "pluginId": "postgres-plugin",
-      "unpublishedAction": {
-        "name": "add_new_issue",
-        "datasource": {
-          "pluginId": "postgres-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "id": "AForceDB",
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "INSERT INTO global_issues\n  (title, description, github_issue_id, author, created_at, labels, type, answer, link, states, state, id)\nVALUES\n  (\n    '{{ title_input.text }}',\n    '{{ description_input.text }}',\n    {{ add_issue_select.selectedOptionValue }},\n\t\t'{{ appsmith.user.email }}',\n\t\tnow(),\n\t\t'{{ \"{\" + (this.params.labels ?? []).join(\",\") + \"}\" }}',\n\t\t'{{ type_select.selectedOptionValue }}',\n\t\t'{{answer_input.text}}',\n\t\t'{{link_input.text}}',\n\t\t'{{\"{\" + states_select.selectedOptionValues.join(\",\") + \"}\"}}',\n\t\t'Opened',\n\t\t(SELECT max(id) + 1 FROM public.\"global_issues\")\n  );",
-          "selfReferencingDataPaths": [],
-          "pluginSpecifiedTemplates": [{ "value": false }]
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [
-          "answer_input.text",
-          "description_input.text",
-          "add_issue_select.selectedOptionValue",
-          "appsmith.user.email",
-          "\"{\" + (this.params.labels ?? []).join(\",\") + \"}\"",
-          "\"{\" + states_select.selectedOptionValues.join(\",\") + \"}\"",
-          "type_select.selectedOptionValue",
-          "title_input.text",
-          "link_input.text"
-        ],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "publishedAction": {
-        "name": "add_new_issue",
-        "datasource": {
-          "pluginId": "postgres-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "id": "AForceDB",
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "INSERT INTO global_issues\n  (title, description, github_issue_id, author, created_at, labels, type, answer, link, states, state, id)\nVALUES\n  (\n    '{{ title_input.text }}',\n    '{{ description_input.text }}',\n    {{ add_issue_select.selectedOptionValue }},\n\t\t'{{ appsmith.user.email }}',\n\t\tnow(),\n\t\t'{{ \"{\" + (this.params.labels ?? []).join(\",\") + \"}\" }}',\n\t\t'{{ type_select.selectedOptionValue }}',\n\t\t'{{answer_input.text}}',\n\t\t'{{link_input.text}}',\n\t\t'{{\"{\" + states_select.selectedOptionValues.join(\",\") + \"}\"}}',\n\t\t'Opened',\n\t\t(SELECT max(id) + 1 FROM public.\"global_issues\")\n  );",
-          "selfReferencingDataPaths": [],
-          "pluginSpecifiedTemplates": [{ "value": false }]
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [
-          "answer_input.text",
-          "description_input.text",
-          "add_issue_select.selectedOptionValue",
-          "appsmith.user.email",
-          "\"{\" + (this.params.labels ?? []).join(\",\") + \"}\"",
-          "\"{\" + states_select.selectedOptionValues.join(\",\") + \"}\"",
-          "type_select.selectedOptionValue",
-          "title_input.text",
-          "link_input.text"
-        ],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "id": "Issues_add_new_issue",
-      "deleted": false,
-      "gitSyncId": "623762992e5d3f189d0c3c23_62382cf9cb09660cd0f703db"
-    },
-    {
-      "pluginType": "DB",
-      "pluginId": "postgres-plugin",
-      "unpublishedAction": {
-        "name": "fetch_comments",
-        "datasource": {
-          "pluginId": "postgres-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "id": "AForceDB",
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "select * from issue_upvote where issue_id = {{Table1.selectedRow.id}}",
-          "selfReferencingDataPaths": []
-        },
-        "executeOnLoad": true,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": ["Table1.selectedRow.id"],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "publishedAction": {
-        "name": "fetch_comments",
-        "datasource": {
-          "pluginId": "postgres-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "id": "AForceDB",
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "select * from issue_upvote where issue_id = {{Table1.selectedRow.id}}",
-          "selfReferencingDataPaths": []
-        },
-        "executeOnLoad": true,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": ["Table1.selectedRow.id"],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "id": "Issues_fetch_comments",
-      "deleted": false,
-      "gitSyncId": "623762992e5d3f189d0c3c23_623850eacb09660cd0f703ff"
-    },
-    {
       "pluginType": "DB",
       "pluginId": "postgres-plugin",
       "unpublishedAction": {
@@ -8832,6 +8012,330 @@
       "gitSyncId": "623762992e5d3f189d0c3c23_62383bb7cb09660cd0f703e5"
     },
     {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "getPodForLabel",
+        "fullyQualifiedName": "Utils.getPodForLabel",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "collectionId": "Issues_Utils",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "(label = \"New JS Function\") => {\n  const labels = fetch_label_config.data.runners[0].issue.labels;\n  const pods = Utils.getPodLabels().map(pod => pod.label);\n  let foundPod;\n  pods.map(podLabel => {\n    const foundLabel = labels[podLabel].conditions.find(condition => {\n      return condition.label === label && podLabel !== label;\n    });\n    if (foundLabel) {\n      foundPod = podLabel;\n    }\n  });\n  return foundPod;\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [{ "name": "label" }],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "(label = \"New JS Function\") => {\n  const labels = fetch_label_config.data.runners[0].issue.labels;\n  const pods = Utils.getPodLabels().map(pod => pod.label);\n  let foundPod;\n  pods.map(podLabel => {\n    const foundLabel = labels[podLabel].conditions.find(condition => {\n      return condition.label === label && podLabel !== label;\n    });\n    if (foundLabel) {\n      foundPod = podLabel;\n    }\n  });\n  return foundPod;\n}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "getPodForLabel",
+        "fullyQualifiedName": "Utils.getPodForLabel",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "collectionId": "Issues_Utils",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "(label = \"New JS Function\") => {\n\t\tconst labels = fetch_label_config.data.runners[0].issue.labels;\n\t\tconst pods = Utils.getPodLabels().map((pod) => pod.label);\n\t\tlet foundPod;\n\t\tpods.map((podLabel) => {\n\t\t\tconst foundLabel = labels[podLabel].conditions.find((condition) => {\n\t\t\t\treturn condition.label === label && podLabel !== label\n\t\t\t})\n\t\t\tif (foundLabel) {\n\t\t\t\tfoundPod = podLabel\n\t\t\t}\n\t\t});\n\t\treturn foundPod;\n\t}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [
+            { "name": "label" },
+            { "name": "", "value": "" },
+            { "name": "\"New" },
+            { "name": "JS" },
+            { "name": "Function\"" }
+          ],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "(label = \"New JS Function\") => {\n\t\tconst labels = fetch_label_config.data.runners[0].issue.labels;\n\t\tconst pods = Utils.getPodLabels().map((pod) => pod.label);\n\t\tlet foundPod;\n\t\tpods.map((podLabel) => {\n\t\t\tconst foundLabel = labels[podLabel].conditions.find((condition) => {\n\t\t\t\treturn condition.label === label && podLabel !== label\n\t\t\t})\n\t\t\tif (foundLabel) {\n\t\t\t\tfoundPod = podLabel\n\t\t\t}\n\t\t});\n\t\treturn foundPod;\n\t}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Issues_Utils.getPodForLabel",
+      "deleted": false,
+      "gitSyncId": "623762992e5d3f189d0c3c23_623766592e5d3f189d0c3c3b"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "csvToArr",
+        "fullyQualifiedName": "Utils.csvToArr",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "collectionId": "Issues_Utils",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "() => {}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": ["() => {}"],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "csvToArr",
+        "fullyQualifiedName": "Utils.csvToArr",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "collectionId": "Issues_Utils",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "() => {\n\t\t//const csvRows = FilePicker1.files[1].data.split(\"\\n\");\n\t\t//const objArr = [];\n\t\t//const headers = csvRows[0].split(',');\n\t\t\t//for(let i = 1; i < csvRows.length; i++) {\n\t\t\t\t//const rowObj = {};\n\t\t\t\t//objArr.push(rowObj);\n\t\t\t\t//const rowArr = csvRows[i].split(',');\n\t\t\t\t//rowArr.forEach((val, index) => {\n\t\t\t\t//rowObj[headers[index]] = val;\n\t\t\t\t//});\n\t\t\t//}\n\t\t//return objArr;\n\t}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "() => {\n\t\t//const csvRows = FilePicker1.files[1].data.split(\"\\n\");\n\t\t//const objArr = [];\n\t\t//const headers = csvRows[0].split(',');\n\t\t\t//for(let i = 1; i < csvRows.length; i++) {\n\t\t\t\t//const rowObj = {};\n\t\t\t\t//objArr.push(rowObj);\n\t\t\t\t//const rowArr = csvRows[i].split(',');\n\t\t\t\t//rowArr.forEach((val, index) => {\n\t\t\t\t//rowObj[headers[index]] = val;\n\t\t\t\t//});\n\t\t\t//}\n\t\t//return objArr;\n\t}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Issues_Utils.csvToArr",
+      "deleted": false,
+      "gitSyncId": "623762992e5d3f189d0c3c23_623766812e5d3f189d0c3c3e"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "getAssignedLabels",
+        "fullyQualifiedName": "IssueManager.getAssignedLabels",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "collectionId": "Issues_IssueManager",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "(allLabels = label_select.selectedOptionValues) => {\n  const labels = allLabels.filter(label => {\n    return Utils.checkIsPod(label) !== true;\n  });\n  const podMap = {};\n  labels.map(label => {\n    const pod = Utils.getPodForLabel(label);\n    if (pod) podMap[pod] = true;\n  });\n  return [...Object.keys(podMap), ...labels];\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [{ "name": "allLabels" }],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "(allLabels = label_select.selectedOptionValues) => {\n  const labels = allLabels.filter(label => {\n    return Utils.checkIsPod(label) !== true;\n  });\n  const podMap = {};\n  labels.map(label => {\n    const pod = Utils.getPodForLabel(label);\n    if (pod) podMap[pod] = true;\n  });\n  return [...Object.keys(podMap), ...labels];\n}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "getAssignedLabels",
+        "fullyQualifiedName": "IssueManager.getAssignedLabels",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "collectionId": "Issues_IssueManager",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "(allLabels = label_select.selectedOptionValues) => {\n\t\tconst labels = allLabels.filter((label) => {\n\t\t\treturn Utils.checkIsPod(label) !== true;\n\t\t}); \n\t\tconst podMap = {};\n\t\tlabels.map((label) => {\n\t\t\tconst pod = Utils.getPodForLabel(label);\n\t\t\tif (pod)\n\t\t\t\tpodMap[pod] = true;\n\t\t});\n\t\treturn [...Object.keys(podMap), ...labels];\n\t}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [
+            { "name": "allLabels" },
+            { "name": "", "value": "" },
+            { "name": "label_select.selectedOptionValues" }
+          ],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "(allLabels = label_select.selectedOptionValues) => {\n\t\tconst labels = allLabels.filter((label) => {\n\t\t\treturn Utils.checkIsPod(label) !== true;\n\t\t}); \n\t\tconst podMap = {};\n\t\tlabels.map((label) => {\n\t\t\tconst pod = Utils.getPodForLabel(label);\n\t\t\tif (pod)\n\t\t\t\tpodMap[pod] = true;\n\t\t});\n\t\treturn [...Object.keys(podMap), ...labels];\n\t}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Issues_IssueManager.getAssignedLabels",
+      "deleted": false,
+      "gitSyncId": "623762992e5d3f189d0c3c23_62382c40cb09660cd0f703c3"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "getLabelsForPod",
+        "fullyQualifiedName": "Utils.getLabelsForPod",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "collectionId": "Issues_Utils",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "pod => {\n  return fetch_label_config.data.runners[0].issue.labels[pod].conditions.map(label => fetch_label_config.data.labels[label.label]).filter(label => label !== undefined);\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [{ "name": "pod" }],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "pod => {\n  return fetch_label_config.data.runners[0].issue.labels[pod].conditions.map(label => fetch_label_config.data.labels[label.label]).filter(label => label !== undefined);\n}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "getLabelsForPod",
+        "fullyQualifiedName": "Utils.getLabelsForPod",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "collectionId": "Issues_Utils",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "(pod) => {\n\t\treturn fetch_label_config.data.runners[0]\n\t\t\t.issue.labels[pod].conditions.map((label) => \n\t\t\t\t\tfetch_label_config.data.labels[label.label])\n\t\t\t.filter((label) => label !== undefined)\n\t}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [{ "name": "pod" }],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "(pod) => {\n\t\treturn fetch_label_config.data.runners[0]\n\t\t\t.issue.labels[pod].conditions.map((label) => \n\t\t\t\t\tfetch_label_config.data.labels[label.label])\n\t\t\t.filter((label) => label !== undefined)\n\t}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Issues_Utils.getLabelsForPod",
+      "deleted": false,
+      "gitSyncId": "623762992e5d3f189d0c3c23_623766812e5d3f189d0c3c3d"
+    },
+    {
       "pluginType": "API",
       "pluginId": "restapi-plugin",
       "unpublishedAction": {
@@ -8917,6 +8421,385 @@
       "id": "Issues_fetch_labels",
       "deleted": false,
       "gitSyncId": "623762992e5d3f189d0c3c23_62389caf2d7f921bb707cf4b"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "fetchIssues",
+        "fullyQualifiedName": "IssueManager.fetchIssues",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "collectionId": "Issues_IssueManager",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "() => {\n  fetch_issues.run();\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": true
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": ["() => {\n  fetch_issues.run();\n}"],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "fetchIssues",
+        "fullyQualifiedName": "IssueManager.fetchIssues",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "collectionId": "Issues_IssueManager",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "() => {\n\t\tfetch_issues.run();\n\t}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": true
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": ["() => {\n\t\tfetch_issues.run();\n\t}"],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Issues_IssueManager.fetchIssues",
+      "deleted": false,
+      "gitSyncId": "623762992e5d3f189d0c3c23_62382c40cb09660cd0f703cf"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "create_issue",
+        "fullyQualifiedName": "IssueManager.create_issue",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "collectionId": "Issues_IssueManager",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "() => {\n  const labels = IssueManager.getAssignedLabels(label_select.selectedOptionValues);\n  add_new_issue.run(() => {\n    fetch_issues.run(() => {\n      resetWidget('add_issue_modal', true);\n      closeModal('add_issue_modal');\n    });\n  }, undefined, {\n    labels: labels\n  });\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "() => {\n  const labels = IssueManager.getAssignedLabels(label_select.selectedOptionValues);\n  add_new_issue.run(() => {\n    fetch_issues.run(() => {\n      resetWidget('add_issue_modal', true);\n      closeModal('add_issue_modal');\n    });\n  }, undefined, {\n    labels: labels\n  });\n}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "create_issue",
+        "fullyQualifiedName": "IssueManager.create_issue",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "collectionId": "Issues_IssueManager",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "() => {\n\t\tconst labels = IssueManager.getAssignedLabels(label_select.selectedOptionValues);\n\t\tadd_new_issue.run(() => {\n\t\t\t\tfetch_issues.run(() => {\n\t\t\t\t\tresetWidget('add_issue_modal', true);\n\t\t\t\t\tcloseModal('add_issue_modal');\n\t\t\t\t});\n\t\t}, undefined, { labels: labels })\n\t}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "() => {\n\t\tconst labels = IssueManager.getAssignedLabels(label_select.selectedOptionValues);\n\t\tadd_new_issue.run(() => {\n\t\t\t\tfetch_issues.run(() => {\n\t\t\t\t\tresetWidget('add_issue_modal', true);\n\t\t\t\t\tcloseModal('add_issue_modal');\n\t\t\t\t});\n\t\t}, undefined, { labels: labels })\n\t}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Issues_IssueManager.create_issue",
+      "deleted": false,
+      "gitSyncId": "623762992e5d3f189d0c3c23_62382c40cb09660cd0f703bf"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "getIssueData",
+        "fullyQualifiedName": "IssueManager.getIssueData",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "collectionId": "Issues_IssueManager",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "() => {\n  return fetch_issues.data.map(issue => {\n    if (issue.upvote_id > 0) issue.count = issue.count + 1;\n    return {\n      type: issue.type,\n      title: issue.title,\n      total_reactions: issue.total_reactions,\n      unique_commentors: issue.unique_commentors,\n      upvote_id: issue.upvote_id,\n      ...issue\n    };\n  });\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "() => {\n  return fetch_issues.data.map(issue => {\n    if (issue.upvote_id > 0) issue.count = issue.count + 1;\n    return {\n      type: issue.type,\n      title: issue.title,\n      total_reactions: issue.total_reactions,\n      unique_commentors: issue.unique_commentors,\n      upvote_id: issue.upvote_id,\n      ...issue\n    };\n  });\n}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "getIssueData",
+        "fullyQualifiedName": "IssueManager.getIssueData",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "collectionId": "Issues_IssueManager",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "() => {\n\t\treturn fetch_issues.data.map((issue) => {\n\t\t\tif (issue.upvote_id > 0)\n\t\t\t\tissue.count = issue.count + 1;\n\t\t\treturn { type: issue.type, title: issue.title, total_reactions: issue.total_reactions, unique_commentors: issue.unique_commentors, upvote_id: issue.upvote_id  ,...issue};\n\t\t});\n\t}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "() => {\n\t\treturn fetch_issues.data.map((issue) => {\n\t\t\tif (issue.upvote_id > 0)\n\t\t\t\tissue.count = issue.count + 1;\n\t\t\treturn { type: issue.type, title: issue.title, total_reactions: issue.total_reactions, unique_commentors: issue.unique_commentors, upvote_id: issue.upvote_id  ,...issue};\n\t\t});\n\t}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Issues_IssueManager.getIssueData",
+      "deleted": false,
+      "gitSyncId": "623762992e5d3f189d0c3c23_62382c40cb09660cd0f703c2"
+    },
+    {
+      "pluginType": "DB",
+      "pluginId": "postgres-plugin",
+      "unpublishedAction": {
+        "name": "fetch_comments",
+        "datasource": {
+          "pluginId": "postgres-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "id": "AForceDB",
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "select * from issue_upvote where issue_id = {{Table1.selectedRow.id}}",
+          "selfReferencingDataPaths": []
+        },
+        "executeOnLoad": true,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": ["Table1.selectedRow.id"],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "fetch_comments",
+        "datasource": {
+          "pluginId": "postgres-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "id": "AForceDB",
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "select * from issue_upvote where issue_id = {{Table1.selectedRow.id}}",
+          "selfReferencingDataPaths": []
+        },
+        "executeOnLoad": true,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": ["Table1.selectedRow.id"],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Issues_fetch_comments",
+      "deleted": false,
+      "gitSyncId": "623762992e5d3f189d0c3c23_623850eacb09660cd0f703ff"
+    },
+    {
+      "pluginType": "DB",
+      "pluginId": "postgres-plugin",
+      "unpublishedAction": {
+        "name": "add_new_comment",
+        "datasource": {
+          "pluginId": "postgres-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "id": "AForceDB",
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "INSERT INTO issue_upvote\n  (link, comment, author, created_at, issue_id, id)\nVALUES\n  (\n    '{{ comment_link_input.text }}',\n    '{{ comment_input.text }}',\n\t\t'{{ appsmith.user.email }}',\n\t\tnow(),\n\t\t{{Table1.selectedRow.id}},\n\t\t(SELECT max(id) + 1\nFROM public.\"issue_upvote\")\n  );",
+          "selfReferencingDataPaths": [],
+          "pluginSpecifiedTemplates": [{ "value": false }]
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "Table1.selectedRow.id",
+          "comment_input.text",
+          "appsmith.user.email",
+          "comment_link_input.text"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "add_new_comment",
+        "datasource": {
+          "pluginId": "postgres-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "id": "AForceDB",
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "INSERT INTO issue_upvote\n  (link, comment, author, created_at, issue_id, id)\nVALUES\n  (\n    '{{ comment_link_input.text }}',\n    '{{ comment_input.text }}',\n\t\t'{{ appsmith.user.email }}',\n\t\tnow(),\n\t\t{{Table1.selectedRow.id}},\n\t\t(SELECT max(id) + 1\nFROM public.\"issue_upvote\")\n  );",
+          "selfReferencingDataPaths": [],
+          "pluginSpecifiedTemplates": [{ "value": false }]
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "Table1.selectedRow.id",
+          "comment_input.text",
+          "appsmith.user.email",
+          "comment_link_input.text"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Issues_add_new_comment",
+      "deleted": false,
+      "gitSyncId": "623762992e5d3f189d0c3c23_62382bb0cb09660cd0f703b7"
     },
     {
       "pluginType": "JS",
@@ -9067,30 +8950,27 @@
       "gitSyncId": "623762992e5d3f189d0c3c23_62389e1e2d7f921bb707cf55"
     },
     {
-      "pluginType": "JS",
-      "pluginId": "js-plugin",
+      "pluginType": "DB",
+      "pluginId": "postgres-plugin",
       "unpublishedAction": {
-        "name": "addComment",
-        "fullyQualifiedName": "IssueManager.addComment",
+        "name": "add_new_issue",
         "datasource": {
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
+          "pluginId": "postgres-plugin",
           "messages": [],
           "isAutoGenerated": false,
+          "id": "AForceDB",
           "deleted": false,
           "policies": [],
           "userPermissions": []
         },
         "pageId": "Issues",
-        "collectionId": "Issues_IssueManager",
         "actionConfiguration": {
           "timeoutInMillisecond": 10000.0,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "() => {\n  add_new_comment.run(() => {\n    fetch_comments.run();\n    update_issue_labels.run(() => fetch_issues.run());\n    closeModal('upvote_modal');\n    resetWidget('upvote_modal', true);\n  });\n}",
+          "body": "INSERT INTO global_issues\n  (title, description, github_issue_id, author, created_at, labels, type, answer, link, states, state, id)\nVALUES\n  (\n    '{{ title_input.text }}',\n    '{{ description_input.text }}',\n    {{ add_issue_select.selectedOptionValue }},\n\t\t'{{ appsmith.user.email }}',\n\t\tnow(),\n\t\t'{{ \"{\" + (this.params.labels ?? []).join(\",\") + \"}\" }}',\n\t\t'{{ type_select.selectedOptionValue }}',\n\t\t'{{answer_input.text}}',\n\t\t'{{link_input.text}}',\n\t\t'{{\"{\" + states_select.selectedOptionValues.join(\",\") + \"}\"}}',\n\t\t'Opened',\n\t\t(SELECT max(id) + 1 FROM public.\"global_issues\")\n  );",
           "selfReferencingDataPaths": [],
-          "jsArguments": [],
-          "isAsync": true
+          "pluginSpecifiedTemplates": [{ "value": false }]
         },
         "executeOnLoad": false,
         "dynamicBindingPathList": [{ "key": "body" }],
@@ -9098,7 +8978,15 @@
         "invalids": [],
         "messages": [],
         "jsonPathKeys": [
-          "() => {\n  add_new_comment.run(() => {\n    fetch_comments.run();\n    update_issue_labels.run(() => fetch_issues.run());\n    closeModal('upvote_modal');\n    resetWidget('upvote_modal', true);\n  });\n}"
+          "answer_input.text",
+          "description_input.text",
+          "add_issue_select.selectedOptionValue",
+          "appsmith.user.email",
+          "\"{\" + (this.params.labels ?? []).join(\",\") + \"}\"",
+          "\"{\" + states_select.selectedOptionValues.join(\",\") + \"}\"",
+          "type_select.selectedOptionValue",
+          "title_input.text",
+          "link_input.text"
         ],
         "userSetOnLoad": false,
         "confirmBeforeExecute": false,
@@ -9106,8 +8994,56 @@
         "userPermissions": []
       },
       "publishedAction": {
-        "name": "addComment",
-        "fullyQualifiedName": "IssueManager.addComment",
+        "name": "add_new_issue",
+        "datasource": {
+          "pluginId": "postgres-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "id": "AForceDB",
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "INSERT INTO global_issues\n  (title, description, github_issue_id, author, created_at, labels, type, answer, link, states, state, id)\nVALUES\n  (\n    '{{ title_input.text }}',\n    '{{ description_input.text }}',\n    {{ add_issue_select.selectedOptionValue }},\n\t\t'{{ appsmith.user.email }}',\n\t\tnow(),\n\t\t'{{ \"{\" + (this.params.labels ?? []).join(\",\") + \"}\" }}',\n\t\t'{{ type_select.selectedOptionValue }}',\n\t\t'{{answer_input.text}}',\n\t\t'{{link_input.text}}',\n\t\t'{{\"{\" + states_select.selectedOptionValues.join(\",\") + \"}\"}}',\n\t\t'Opened',\n\t\t(SELECT max(id) + 1 FROM public.\"global_issues\")\n  );",
+          "selfReferencingDataPaths": [],
+          "pluginSpecifiedTemplates": [{ "value": false }]
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "answer_input.text",
+          "description_input.text",
+          "add_issue_select.selectedOptionValue",
+          "appsmith.user.email",
+          "\"{\" + (this.params.labels ?? []).join(\",\") + \"}\"",
+          "\"{\" + states_select.selectedOptionValues.join(\",\") + \"}\"",
+          "type_select.selectedOptionValue",
+          "title_input.text",
+          "link_input.text"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Issues_add_new_issue",
+      "deleted": false,
+      "gitSyncId": "623762992e5d3f189d0c3c23_62382cf9cb09660cd0f703db"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "update",
+        "fullyQualifiedName": "IssueManager.update",
         "datasource": {
           "name": "UNUSED_DATASOURCE",
           "pluginId": "js-plugin",
@@ -9123,7 +9059,7 @@
           "timeoutInMillisecond": 10000.0,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "() => {\n\t\tadd_new_comment.run(() => {\n\t\t\tfetch_comments.run();\n\t\t\tupdate_issue_labels.run(() => \n\t\t\t\tfetch_issues.run());\n\t\t\tcloseModal('upvote_modal');\n\t\t\tresetWidget('upvote_modal', true);\n\t\t});\n\t}",
+          "body": "async () => {\n  const labels = IssueManager.getAssignedLabels(edit_label_select.selectedOptionValues);\n  await update_issue.run({\n    labels: labels\n  });\n  await fetch_issues.run();\n}",
           "selfReferencingDataPaths": [],
           "jsArguments": [],
           "isAsync": true
@@ -9134,16 +9070,131 @@
         "invalids": [],
         "messages": [],
         "jsonPathKeys": [
-          "() => {\n\t\tadd_new_comment.run(() => {\n\t\t\tfetch_comments.run();\n\t\t\tupdate_issue_labels.run(() => \n\t\t\t\tfetch_issues.run());\n\t\t\tcloseModal('upvote_modal');\n\t\t\tresetWidget('upvote_modal', true);\n\t\t});\n\t}"
+          "async () => {\n  const labels = IssueManager.getAssignedLabels(edit_label_select.selectedOptionValues);\n  await update_issue.run({\n    labels: labels\n  });\n  await fetch_issues.run();\n}"
         ],
         "userSetOnLoad": false,
         "confirmBeforeExecute": false,
         "policies": [],
         "userPermissions": []
       },
-      "id": "Issues_IssueManager.addComment",
+      "publishedAction": {
+        "name": "update",
+        "fullyQualifiedName": "IssueManager.update",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "collectionId": "Issues_IssueManager",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "async () => {\n\t\tconst labels = IssueManager.getAssignedLabels(edit_label_select.selectedOptionValues);\n\t\tawait update_issue.run({ labels: labels });\n\t\tawait fetch_issues.run();\n\t}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": true
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "async () => {\n\t\tconst labels = IssueManager.getAssignedLabels(edit_label_select.selectedOptionValues);\n\t\tawait update_issue.run({ labels: labels });\n\t\tawait fetch_issues.run();\n\t}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Issues_IssueManager.update",
       "deleted": false,
-      "gitSyncId": "623762992e5d3f189d0c3c23_62394b6837307a6b1cf05f23"
+      "gitSyncId": "623762992e5d3f189d0c3c23_6239dff0a11e927e2cfc827a"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "delete",
+        "fullyQualifiedName": "IssueManager.delete",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "collectionId": "Issues_IssueManager",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "async () => {\n  await delete_issue.run(() => fetch_issues.run());\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": true
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "async () => {\n  await delete_issue.run(() => fetch_issues.run());\n}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "delete",
+        "fullyQualifiedName": "IssueManager.delete",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "collectionId": "Issues_IssueManager",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "async () => {\n\t\tawait delete_issue.run(() => fetch_issues.run());\n\t}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": true
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "async () => {\n\t\tawait delete_issue.run(() => fetch_issues.run());\n\t}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Issues_IssueManager.delete",
+      "deleted": false,
+      "gitSyncId": "623762992e5d3f189d0c3c23_623a10fba11e927e2cfc8284"
     },
     {
       "pluginType": "JS",
@@ -9223,6 +9274,85 @@
       "id": "Issues_GithubManager.getSelectedGithubIssue",
       "deleted": false,
       "gitSyncId": "623762992e5d3f189d0c3c23_6239d1a8a11e927e2cfc8276"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "getPodLabels",
+        "fullyQualifiedName": "Utils.getPodLabels",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "collectionId": "Issues_Utils",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "() => {\n  return Object.keys(fetch_label_config.data.runners[0].issue.labels).map(pod => {\n    return {\n      label: pod,\n      value: pod\n    };\n  });\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "() => {\n  return Object.keys(fetch_label_config.data.runners[0].issue.labels).map(pod => {\n    return {\n      label: pod,\n      value: pod\n    };\n  });\n}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "getPodLabels",
+        "fullyQualifiedName": "Utils.getPodLabels",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "collectionId": "Issues_Utils",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "() => {\n\t\treturn Object.keys(fetch_label_config.data.runners[0].issue.labels)\n\t\t\t.map((pod) => { \n\t\t\t\treturn {\n\t\t\t\t\tlabel: pod,\n\t\t\t\t\tvalue: pod\n\t\t\t\t}\n\t\t\t});\n\t}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "() => {\n\t\treturn Object.keys(fetch_label_config.data.runners[0].issue.labels)\n\t\t\t.map((pod) => { \n\t\t\t\treturn {\n\t\t\t\t\tlabel: pod,\n\t\t\t\t\tvalue: pod\n\t\t\t\t}\n\t\t\t});\n\t}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Issues_Utils.getPodLabels",
+      "deleted": false,
+      "gitSyncId": "623762992e5d3f189d0c3c23_623765f12e5d3f189d0c3c35"
     },
     {
       "pluginType": "DB",
@@ -9317,164 +9447,6 @@
       "pluginType": "JS",
       "pluginId": "js-plugin",
       "unpublishedAction": {
-        "name": "getTitleState",
-        "fullyQualifiedName": "Configs.getTitleState",
-        "datasource": {
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "collectionId": "Issues_Configs",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "states => {\n  return states ? states.map(state => Configs.statesMap[state]?.icon + \" \").join(\" \") : \"\";\n}",
-          "selfReferencingDataPaths": [],
-          "jsArguments": [{ "name": "states" }],
-          "isAsync": false
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [
-          "states => {\n  return states ? states.map(state => Configs.statesMap[state]?.icon + \" \").join(\" \") : \"\";\n}"
-        ],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "publishedAction": {
-        "name": "getTitleState",
-        "fullyQualifiedName": "Configs.getTitleState",
-        "datasource": {
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "collectionId": "Issues_Configs",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "(states) => {\n\t\treturn states ? states.map((state) => Configs.statesMap[state]?.icon + \" \").join(\" \") : \"\"\n\t}",
-          "selfReferencingDataPaths": [],
-          "jsArguments": [],
-          "isAsync": false
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [
-          "(states) => {\n\t\treturn states ? states.map((state) => Configs.statesMap[state]?.icon + \" \").join(\" \") : \"\"\n\t}"
-        ],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "id": "Issues_Configs.getTitleState",
-      "deleted": false,
-      "gitSyncId": "623762992e5d3f189d0c3c23_6239488837307a6b1cf05f1f"
-    },
-    {
-      "pluginType": "JS",
-      "pluginId": "js-plugin",
-      "unpublishedAction": {
-        "name": "delete",
-        "fullyQualifiedName": "IssueManager.delete",
-        "datasource": {
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "collectionId": "Issues_IssueManager",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "async () => {\n  await delete_issue.run(() => fetch_issues.run());\n}",
-          "selfReferencingDataPaths": [],
-          "jsArguments": [],
-          "isAsync": true
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [
-          "async () => {\n  await delete_issue.run(() => fetch_issues.run());\n}"
-        ],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "publishedAction": {
-        "name": "delete",
-        "fullyQualifiedName": "IssueManager.delete",
-        "datasource": {
-          "name": "UNUSED_DATASOURCE",
-          "pluginId": "js-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "collectionId": "Issues_IssueManager",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "async () => {\n\t\tawait delete_issue.run(() => fetch_issues.run());\n\t}",
-          "selfReferencingDataPaths": [],
-          "jsArguments": [],
-          "isAsync": true
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [
-          "async () => {\n\t\tawait delete_issue.run(() => fetch_issues.run());\n\t}"
-        ],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "id": "Issues_IssueManager.delete",
-      "deleted": false,
-      "gitSyncId": "623762992e5d3f189d0c3c23_623a10fba11e927e2cfc8284"
-    },
-    {
-      "pluginType": "JS",
-      "pluginId": "js-plugin",
-      "unpublishedAction": {
         "name": "getIssues",
         "fullyQualifiedName": "GithubManager.getIssues",
         "datasource": {
@@ -9549,148 +9521,6 @@
       "id": "Issues_GithubManager.getIssues",
       "deleted": false,
       "gitSyncId": "623762992e5d3f189d0c3c23_62389edb2d7f921bb707cf57"
-    },
-    {
-      "pluginType": "DB",
-      "pluginId": "postgres-plugin",
-      "unpublishedAction": {
-        "name": "delete_issue",
-        "datasource": {
-          "pluginId": "postgres-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "id": "AForceDB",
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "update global_issues set state = 'DELETED' where id = {{Table1.selectedRow.id.toString()}}",
-          "selfReferencingDataPaths": []
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": ["Table1.selectedRow.id.toString()"],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "publishedAction": {
-        "name": "delete_issue",
-        "datasource": {
-          "pluginId": "postgres-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "id": "AForceDB",
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "update global_issues set state = 'DELETED' where id = {{Table1.selectedRow.id.toString()}}",
-          "selfReferencingDataPaths": []
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": ["Table1.selectedRow.id.toString()"],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "id": "Issues_delete_issue",
-      "deleted": false,
-      "gitSyncId": "623762992e5d3f189d0c3c23_6239ce9ba11e927e2cfc8274"
-    },
-    {
-      "pluginType": "DB",
-      "pluginId": "postgres-plugin",
-      "unpublishedAction": {
-        "name": "update_issue_labels",
-        "datasource": {
-          "pluginId": "postgres-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "id": "AForceDB",
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "update global_issues set \nlabels = {{ \"{\" + IssueManager.getAssignedLabels(upvote_label_select.selectedOptionValues) + \"}\" }}::text[]\n where id = {{Table1.selectedRow.id}}",
-          "selfReferencingDataPaths": [],
-          "pluginSpecifiedTemplates": [{ "value": true }]
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [
-          "Table1.selectedRow.id",
-          "\"{\" + IssueManager.getAssignedLabels(upvote_label_select.selectedOptionValues) + \"}\""
-        ],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "publishedAction": {
-        "name": "update_issue_labels",
-        "datasource": {
-          "pluginId": "postgres-plugin",
-          "messages": [],
-          "isAutoGenerated": false,
-          "id": "AForceDB",
-          "deleted": false,
-          "policies": [],
-          "userPermissions": []
-        },
-        "pageId": "Issues",
-        "actionConfiguration": {
-          "timeoutInMillisecond": 10000.0,
-          "paginationType": "NONE",
-          "encodeParamsToggle": true,
-          "body": "update global_issues set \nlabels = {{ \"{\" + IssueManager.getAssignedLabels(upvote_label_select.selectedOptionValues) + \"}\" }}::text[]\n where id = {{Table1.selectedRow.id}}",
-          "selfReferencingDataPaths": [],
-          "pluginSpecifiedTemplates": [{ "value": true }]
-        },
-        "executeOnLoad": false,
-        "dynamicBindingPathList": [{ "key": "body" }],
-        "isValid": true,
-        "invalids": [],
-        "messages": [],
-        "jsonPathKeys": [
-          "Table1.selectedRow.id",
-          "\"{\" + IssueManager.getAssignedLabels(upvote_label_select.selectedOptionValues) + \"}\""
-        ],
-        "userSetOnLoad": false,
-        "confirmBeforeExecute": false,
-        "policies": [],
-        "userPermissions": []
-      },
-      "id": "Issues_update_issue_labels",
-      "deleted": false,
-      "gitSyncId": "623762992e5d3f189d0c3c23_62394b3e37307a6b1cf05f21"
     },
     {
       "pluginType": "API",
@@ -9777,8 +9607,8 @@
       "pluginType": "JS",
       "pluginId": "js-plugin",
       "unpublishedAction": {
-        "name": "update",
-        "fullyQualifiedName": "IssueManager.update",
+        "name": "addComment",
+        "fullyQualifiedName": "IssueManager.addComment",
         "datasource": {
           "name": "UNUSED_DATASOURCE",
           "pluginId": "js-plugin",
@@ -9794,7 +9624,7 @@
           "timeoutInMillisecond": 10000.0,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "async () => {\n  const labels = IssueManager.getAssignedLabels(edit_label_select.selectedOptionValues);\n  await update_issue.run({\n    labels: labels\n  });\n  await fetch_issues.run();\n}",
+          "body": "() => {\n  add_new_comment.run(() => {\n    fetch_comments.run();\n    update_issue_labels.run(() => fetch_issues.run());\n    closeModal('upvote_modal');\n    resetWidget('upvote_modal', true);\n  });\n}",
           "selfReferencingDataPaths": [],
           "jsArguments": [],
           "isAsync": true
@@ -9805,7 +9635,7 @@
         "invalids": [],
         "messages": [],
         "jsonPathKeys": [
-          "async () => {\n  const labels = IssueManager.getAssignedLabels(edit_label_select.selectedOptionValues);\n  await update_issue.run({\n    labels: labels\n  });\n  await fetch_issues.run();\n}"
+          "() => {\n  add_new_comment.run(() => {\n    fetch_comments.run();\n    update_issue_labels.run(() => fetch_issues.run());\n    closeModal('upvote_modal');\n    resetWidget('upvote_modal', true);\n  });\n}"
         ],
         "userSetOnLoad": false,
         "confirmBeforeExecute": false,
@@ -9813,8 +9643,8 @@
         "userPermissions": []
       },
       "publishedAction": {
-        "name": "update",
-        "fullyQualifiedName": "IssueManager.update",
+        "name": "addComment",
+        "fullyQualifiedName": "IssueManager.addComment",
         "datasource": {
           "name": "UNUSED_DATASOURCE",
           "pluginId": "js-plugin",
@@ -9830,7 +9660,7 @@
           "timeoutInMillisecond": 10000.0,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "async () => {\n\t\tconst labels = IssueManager.getAssignedLabels(edit_label_select.selectedOptionValues);\n\t\tawait update_issue.run({ labels: labels });\n\t\tawait fetch_issues.run();\n\t}",
+          "body": "() => {\n\t\tadd_new_comment.run(() => {\n\t\t\tfetch_comments.run();\n\t\t\tupdate_issue_labels.run(() => \n\t\t\t\tfetch_issues.run());\n\t\t\tcloseModal('upvote_modal');\n\t\t\tresetWidget('upvote_modal', true);\n\t\t});\n\t}",
           "selfReferencingDataPaths": [],
           "jsArguments": [],
           "isAsync": true
@@ -9841,19 +9671,321 @@
         "invalids": [],
         "messages": [],
         "jsonPathKeys": [
-          "async () => {\n\t\tconst labels = IssueManager.getAssignedLabels(edit_label_select.selectedOptionValues);\n\t\tawait update_issue.run({ labels: labels });\n\t\tawait fetch_issues.run();\n\t}"
+          "() => {\n\t\tadd_new_comment.run(() => {\n\t\t\tfetch_comments.run();\n\t\t\tupdate_issue_labels.run(() => \n\t\t\t\tfetch_issues.run());\n\t\t\tcloseModal('upvote_modal');\n\t\t\tresetWidget('upvote_modal', true);\n\t\t});\n\t}"
         ],
         "userSetOnLoad": false,
         "confirmBeforeExecute": false,
         "policies": [],
         "userPermissions": []
       },
-      "id": "Issues_IssueManager.update",
+      "id": "Issues_IssueManager.addComment",
       "deleted": false,
-      "gitSyncId": "623762992e5d3f189d0c3c23_6239dff0a11e927e2cfc827a"
+      "gitSyncId": "623762992e5d3f189d0c3c23_62394b6837307a6b1cf05f23"
+    },
+    {
+      "pluginType": "DB",
+      "pluginId": "postgres-plugin",
+      "unpublishedAction": {
+        "name": "update_issue_labels",
+        "datasource": {
+          "pluginId": "postgres-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "id": "AForceDB",
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "update global_issues set \nlabels = {{ \"{\" + IssueManager.getAssignedLabels(upvote_label_select.selectedOptionValues) + \"}\" }}::text[]\n where id = {{Table1.selectedRow.id}}",
+          "selfReferencingDataPaths": [],
+          "pluginSpecifiedTemplates": [{ "value": true }]
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "Table1.selectedRow.id",
+          "\"{\" + IssueManager.getAssignedLabels(upvote_label_select.selectedOptionValues) + \"}\""
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "update_issue_labels",
+        "datasource": {
+          "pluginId": "postgres-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "id": "AForceDB",
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "update global_issues set \nlabels = {{ \"{\" + IssueManager.getAssignedLabels(upvote_label_select.selectedOptionValues) + \"}\" }}::text[]\n where id = {{Table1.selectedRow.id}}",
+          "selfReferencingDataPaths": [],
+          "pluginSpecifiedTemplates": [{ "value": true }]
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "Table1.selectedRow.id",
+          "\"{\" + IssueManager.getAssignedLabels(upvote_label_select.selectedOptionValues) + \"}\""
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Issues_update_issue_labels",
+      "deleted": false,
+      "gitSyncId": "623762992e5d3f189d0c3c23_62394b3e37307a6b1cf05f21"
+    },
+    {
+      "pluginType": "JS",
+      "pluginId": "js-plugin",
+      "unpublishedAction": {
+        "name": "getTitleState",
+        "fullyQualifiedName": "Configs.getTitleState",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "collectionId": "Issues_Configs",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "states => {\n  return states ? states.map(state => Configs.statesMap[state]?.icon + \" \").join(\" \") : \"\";\n}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [{ "name": "states" }],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "states => {\n  return states ? states.map(state => Configs.statesMap[state]?.icon + \" \").join(\" \") : \"\";\n}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "getTitleState",
+        "fullyQualifiedName": "Configs.getTitleState",
+        "datasource": {
+          "name": "UNUSED_DATASOURCE",
+          "pluginId": "js-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "collectionId": "Issues_Configs",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "(states) => {\n\t\treturn states ? states.map((state) => Configs.statesMap[state]?.icon + \" \").join(\" \") : \"\"\n\t}",
+          "selfReferencingDataPaths": [],
+          "jsArguments": [],
+          "isAsync": false
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [
+          "(states) => {\n\t\treturn states ? states.map((state) => Configs.statesMap[state]?.icon + \" \").join(\" \") : \"\"\n\t}"
+        ],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Issues_Configs.getTitleState",
+      "deleted": false,
+      "gitSyncId": "623762992e5d3f189d0c3c23_6239488837307a6b1cf05f1f"
+    },
+    {
+      "pluginType": "DB",
+      "pluginId": "postgres-plugin",
+      "unpublishedAction": {
+        "name": "delete_issue",
+        "datasource": {
+          "pluginId": "postgres-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "id": "AForceDB",
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "update global_issues set state = 'DELETED' where id = {{Table1.selectedRow.id.toString()}}",
+          "selfReferencingDataPaths": []
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": ["Table1.selectedRow.id.toString()"],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "publishedAction": {
+        "name": "delete_issue",
+        "datasource": {
+          "pluginId": "postgres-plugin",
+          "messages": [],
+          "isAutoGenerated": false,
+          "id": "AForceDB",
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Issues",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000.0,
+          "paginationType": "NONE",
+          "encodeParamsToggle": true,
+          "body": "update global_issues set state = 'DELETED' where id = {{Table1.selectedRow.id.toString()}}",
+          "selfReferencingDataPaths": []
+        },
+        "executeOnLoad": false,
+        "dynamicBindingPathList": [{ "key": "body" }],
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": ["Table1.selectedRow.id.toString()"],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": []
+      },
+      "id": "Issues_delete_issue",
+      "deleted": false,
+      "gitSyncId": "623762992e5d3f189d0c3c23_6239ce9ba11e927e2cfc8274"
     }
   ],
   "actionCollectionList": [
+    {
+      "unpublishedCollection": {
+        "name": "Utils",
+        "pageId": "Issues",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {\n\tgetPodLabels: () => {\n\t\treturn Object.keys(fetch_label_config.data.runners[0].issue.labels)\n\t\t\t.map((pod) => { \n\t\t\t\treturn {\n\t\t\t\t\tlabel: pod,\n\t\t\t\t\tvalue: pod\n\t\t\t\t}\n\t\t\t});\n\t},\n\tcheckIsPod: (label) => {\n\t\treturn fetch_label_config.data.runners[0].issue.labels[label] !== undefined\n\t},\n\tgetConfig: () => {\n\t\treturn fetch_label_config.data;\n\t},\n\tgetPodForLabel: (label = \"New JS Function\") => {\n\t\tconst labels = fetch_label_config.data.runners[0].issue.labels;\n\t\tconst pods = this.getPodLabels().map((pod) => pod.label);\n\t\tlet foundPod;\n\t\tpods.map((podLabel) => {\n\t\t\tconst foundLabel = labels[podLabel].conditions.find((condition) => {\n\t\t\t\treturn condition.label === label && podLabel !== label\n\t\t\t})\n\t\t\tif (foundLabel) {\n\t\t\t\tfoundPod = podLabel\n\t\t\t}\n\t\t});\n\t\treturn foundPod;\n\t},\n\tgetLabelsForPod: (pod) => {\n\t\treturn fetch_label_config.data.runners[0]\n\t\t\t.issue.labels[pod].conditions.map((label) => \n\t\t\t\t\tfetch_label_config.data.labels[label.label])\n\t\t\t.filter((label) => label !== undefined)\n\t},\n\tcsvToArr: () => {\n\t\t//const csvRows = FilePicker1.files[1].data.split(\"\\n\");\n\t\t//const objArr = [];\n\t\t//const headers = csvRows[0].split(',');\n\t\t\t//for(let i = 1; i < csvRows.length; i++) {\n\t\t\t\t//const rowObj = {};\n\t\t\t\t//objArr.push(rowObj);\n\t\t\t\t//const rowArr = csvRows[i].split(',');\n\t\t\t\t//rowArr.forEach((val, index) => {\n\t\t\t\t//rowObj[headers[index]] = val;\n\t\t\t\t//});\n\t\t\t//}\n\t\t//return objArr;\n\t}\n}",
+        "variables": [],
+        "userPermissions": []
+      },
+      "publishedCollection": {
+        "name": "Utils",
+        "pageId": "Issues",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {\n\tgetPodLabels: () => {\n\t\treturn Object.keys(fetch_label_config.data.runners[0].issue.labels)\n\t\t\t.map((pod) => { \n\t\t\t\treturn {\n\t\t\t\t\tlabel: pod,\n\t\t\t\t\tvalue: pod\n\t\t\t\t}\n\t\t\t});\n\t},\n\tcheckIsPod: (label) => {\n\t\treturn fetch_label_config.data.runners[0].issue.labels[label] !== undefined\n\t},\n\tgetConfig: () => {\n\t\treturn fetch_label_config.data;\n\t},\n\tgetPodForLabel: (label = \"New JS Function\") => {\n\t\tconst labels = fetch_label_config.data.runners[0].issue.labels;\n\t\tconst pods = this.getPodLabels().map((pod) => pod.label);\n\t\tlet foundPod;\n\t\tpods.map((podLabel) => {\n\t\t\tconst foundLabel = labels[podLabel].conditions.find((condition) => {\n\t\t\t\treturn condition.label === label && podLabel !== label\n\t\t\t})\n\t\t\tif (foundLabel) {\n\t\t\t\tfoundPod = podLabel\n\t\t\t}\n\t\t});\n\t\treturn foundPod;\n\t},\n\tgetLabelsForPod: (pod) => {\n\t\treturn fetch_label_config.data.runners[0]\n\t\t\t.issue.labels[pod].conditions.map((label) => \n\t\t\t\t\tfetch_label_config.data.labels[label.label])\n\t\t\t.filter((label) => label !== undefined)\n\t},\n\tcsvToArr: () => {\n\t\t//const csvRows = FilePicker1.files[1].data.split(\"\\n\");\n\t\t//const objArr = [];\n\t\t//const headers = csvRows[0].split(',');\n\t\t\t//for(let i = 1; i < csvRows.length; i++) {\n\t\t\t\t//const rowObj = {};\n\t\t\t\t//objArr.push(rowObj);\n\t\t\t\t//const rowArr = csvRows[i].split(',');\n\t\t\t\t//rowArr.forEach((val, index) => {\n\t\t\t\t//rowObj[headers[index]] = val;\n\t\t\t\t//});\n\t\t\t//}\n\t\t//return objArr;\n\t}\n}",
+        "variables": [],
+        "userPermissions": []
+      },
+      "id": "Issues_Utils",
+      "deleted": false,
+      "gitSyncId": "623762992e5d3f189d0c3c23_623765e92e5d3f189d0c3c33"
+    },
+    {
+      "unpublishedCollection": {
+        "name": "GithubManager",
+        "pageId": "Issues",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {\n\tgetLabels: () => {\n\t\treturn fetch_labels.data.body.items.filter((label) => {\n\t\t\treturn !label.name.includes('Pod');\n\t\t}).map((item) => {\n\t\t\treturn { label: item.name, value: item.name  } \n\t\t}); \n\t}, \n\tgetIssues: () => {\n\t\treturn search_github_issues.data.map((item) => {\n\t\t\treturn {\n\t\t\t\tlabel: item.title,\n\t\t\t\tvalue: item.id + \"\"\n\t\t\t}\n\t\t})\n\t},\n\tgetSelectedGithubIssue: () => {\n\t\treturn search_github_issues.data.find((issue) => issue.id == add_issue_select.selectedOptionValue);\n\t}\n}",
+        "variables": [],
+        "userPermissions": []
+      },
+      "publishedCollection": {
+        "name": "GithubManager",
+        "pageId": "Issues",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {\n\tgetLabels: () => {\n\t\treturn fetch_labels.data.body.items.filter((label) => {\n\t\t\treturn !label.name.includes('Pod');\n\t\t}).map((item) => {\n\t\t\treturn { label: item.name, value: item.name  } \n\t\t}); \n\t}, \n\tgetIssues: () => {\n\t\treturn search_github_issues.data.map((item) => {\n\t\t\treturn {\n\t\t\t\tlabel: item.title,\n\t\t\t\tvalue: item.id + \"\"\n\t\t\t}\n\t\t})\n\t},\n\tgetSelectedGithubIssue: () => {\n\t\treturn search_github_issues.data.find((issue) => issue.id == add_issue_select.selectedOptionValue);\n\t}\n}",
+        "variables": [],
+        "userPermissions": []
+      },
+      "id": "Issues_GithubManager",
+      "deleted": false,
+      "gitSyncId": "623762992e5d3f189d0c3c23_62389d692d7f921bb707cf51"
+    },
+    {
+      "unpublishedCollection": {
+        "name": "IssueManager",
+        "pageId": "Issues",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {\n\tgetAssignedLabels: (allLabels = label_select.selectedOptionValues) => {\n\t\tconst labels = allLabels.filter((label) => {\n\t\t\treturn Utils.checkIsPod(label) !== true;\n\t\t}); \n\t\tconst podMap = {};\n\t\tlabels.map((label) => {\n\t\t\tconst pod = Utils.getPodForLabel(label);\n\t\t\tif (pod)\n\t\t\t\tpodMap[pod] = true;\n\t\t});\n\t\treturn [...Object.keys(podMap), ...labels];\n\t}, \n\tcreate_issue: () => {\n\t\tconst labels = this.getAssignedLabels(label_select.selectedOptionValues);\n\t\tadd_new_issue.run(() => {\n\t\t\t\tfetch_issues.run(() => {\n\t\t\t\t\tresetWidget('add_issue_modal', true);\n\t\t\t\t\tcloseModal('add_issue_modal');\n\t\t\t\t});\n\t\t}, undefined, { labels: labels })\n\t},\n\tfetchIssues: () => {\n\t\tfetch_issues.run();\n\t},\n\tgetIssueData: () => {\n\t\treturn fetch_issues.data.map((issue) => {\n\t\t\tif (issue.upvote_id > 0)\n\t\t\t\tissue.count = issue.count + 1;\n\t\t\treturn { type: issue.type, title: issue.title, total_reactions: issue.total_reactions, unique_commentors: issue.unique_commentors, upvote_id: issue.upvote_id  ,...issue};\n\t\t});\n\t},\n\taddComment: () => {\n\t\tadd_new_comment.run(() => {\n\t\t\tfetch_comments.run();\n\t\t\tupdate_issue_labels.run(() => \n\t\t\t\tfetch_issues.run());\n\t\t\tcloseModal('upvote_modal');\n\t\t\tresetWidget('upvote_modal', true);\n\t\t});\n\t},\n\tupdate: async () => {\n\t\tconst labels = this.getAssignedLabels(edit_label_select.selectedOptionValues);\n\t\tawait update_issue.run({ labels: labels });\n\t\tawait fetch_issues.run();\n\t},\n\tdelete: async () => {\n\t\tawait delete_issue.run(() => fetch_issues.run());\n\t}\n}",
+        "variables": [],
+        "userPermissions": []
+      },
+      "publishedCollection": {
+        "name": "IssueManager",
+        "pageId": "Issues",
+        "pluginId": "js-plugin",
+        "pluginType": "JS",
+        "actions": [],
+        "archivedActions": [],
+        "body": "export default {\n\tgetAssignedLabels: (allLabels = label_select.selectedOptionValues) => {\n\t\tconst labels = allLabels.filter((label) => {\n\t\t\treturn Utils.checkIsPod(label) !== true;\n\t\t}); \n\t\tconst podMap = {};\n\t\tlabels.map((label) => {\n\t\t\tconst pod = Utils.getPodForLabel(label);\n\t\t\tif (pod)\n\t\t\t\tpodMap[pod] = true;\n\t\t});\n\t\treturn [...Object.keys(podMap), ...labels];\n\t}, \n\tcreate_issue: () => {\n\t\tconst labels = this.getAssignedLabels(label_select.selectedOptionValues);\n\t\tadd_new_issue.run(() => {\n\t\t\t\tfetch_issues.run(() => {\n\t\t\t\t\tresetWidget('add_issue_modal', true);\n\t\t\t\t\tcloseModal('add_issue_modal');\n\t\t\t\t});\n\t\t}, undefined, { labels: labels })\n\t},\n\tfetchIssues: () => {\n\t\tfetch_issues.run();\n\t},\n\tgetIssueData: () => {\n\t\treturn fetch_issues.data.map((issue) => {\n\t\t\tif (issue.upvote_id > 0)\n\t\t\t\tissue.count = issue.count + 1;\n\t\t\treturn { type: issue.type, title: issue.title, total_reactions: issue.total_reactions, unique_commentors: issue.unique_commentors, upvote_id: issue.upvote_id  ,...issue};\n\t\t});\n\t},\n\taddComment: () => {\n\t\tadd_new_comment.run(() => {\n\t\t\tfetch_comments.run();\n\t\t\tupdate_issue_labels.run(() => \n\t\t\t\tfetch_issues.run());\n\t\t\tcloseModal('upvote_modal');\n\t\t\tresetWidget('upvote_modal', true);\n\t\t});\n\t},\n\tupdate: async () => {\n\t\tconst labels = this.getAssignedLabels(edit_label_select.selectedOptionValues);\n\t\tawait update_issue.run({ labels: labels });\n\t\tawait fetch_issues.run();\n\t},\n\tdelete: async () => {\n\t\tawait delete_issue.run(() => fetch_issues.run());\n\t}\n}",
+        "variables": [],
+        "userPermissions": []
+      },
+      "id": "Issues_IssueManager",
+      "deleted": false,
+      "gitSyncId": "623762992e5d3f189d0c3c23_62382c35cb09660cd0f703bd"
+    },
     {
       "unpublishedCollection": {
         "name": "Configs",
@@ -10019,87 +10151,6 @@
       "id": "Issues_Configs",
       "deleted": false,
       "gitSyncId": "623762992e5d3f189d0c3c23_623763562e5d3f189d0c3c2b"
-    },
-    {
-      "unpublishedCollection": {
-        "name": "Utils",
-        "pageId": "Issues",
-        "pluginId": "js-plugin",
-        "pluginType": "JS",
-        "actions": [],
-        "archivedActions": [],
-        "body": "export default {\n\tgetPodLabels: () => {\n\t\treturn Object.keys(fetch_label_config.data.runners[0].issue.labels)\n\t\t\t.map((pod) => { \n\t\t\t\treturn {\n\t\t\t\t\tlabel: pod,\n\t\t\t\t\tvalue: pod\n\t\t\t\t}\n\t\t\t});\n\t},\n\tcheckIsPod: (label) => {\n\t\treturn fetch_label_config.data.runners[0].issue.labels[label] !== undefined\n\t},\n\tgetConfig: () => {\n\t\treturn fetch_label_config.data;\n\t},\n\tgetPodForLabel: (label = \"New JS Function\") => {\n\t\tconst labels = fetch_label_config.data.runners[0].issue.labels;\n\t\tconst pods = this.getPodLabels().map((pod) => pod.label);\n\t\tlet foundPod;\n\t\tpods.map((podLabel) => {\n\t\t\tconst foundLabel = labels[podLabel].conditions.find((condition) => {\n\t\t\t\treturn condition.label === label && podLabel !== label\n\t\t\t})\n\t\t\tif (foundLabel) {\n\t\t\t\tfoundPod = podLabel\n\t\t\t}\n\t\t});\n\t\treturn foundPod;\n\t},\n\tgetLabelsForPod: (pod) => {\n\t\treturn fetch_label_config.data.runners[0]\n\t\t\t.issue.labels[pod].conditions.map((label) => \n\t\t\t\t\tfetch_label_config.data.labels[label.label])\n\t\t\t.filter((label) => label !== undefined)\n\t},\n\tcsvToArr: () => {\n\t\t//const csvRows = FilePicker1.files[1].data.split(\"\\n\");\n\t\t//const objArr = [];\n\t\t//const headers = csvRows[0].split(',');\n\t\t\t//for(let i = 1; i < csvRows.length; i++) {\n\t\t\t\t//const rowObj = {};\n\t\t\t\t//objArr.push(rowObj);\n\t\t\t\t//const rowArr = csvRows[i].split(',');\n\t\t\t\t//rowArr.forEach((val, index) => {\n\t\t\t\t//rowObj[headers[index]] = val;\n\t\t\t\t//});\n\t\t\t//}\n\t\t//return objArr;\n\t}\n}",
-        "variables": [],
-        "userPermissions": []
-      },
-      "publishedCollection": {
-        "name": "Utils",
-        "pageId": "Issues",
-        "pluginId": "js-plugin",
-        "pluginType": "JS",
-        "actions": [],
-        "archivedActions": [],
-        "body": "export default {\n\tgetPodLabels: () => {\n\t\treturn Object.keys(fetch_label_config.data.runners[0].issue.labels)\n\t\t\t.map((pod) => { \n\t\t\t\treturn {\n\t\t\t\t\tlabel: pod,\n\t\t\t\t\tvalue: pod\n\t\t\t\t}\n\t\t\t});\n\t},\n\tcheckIsPod: (label) => {\n\t\treturn fetch_label_config.data.runners[0].issue.labels[label] !== undefined\n\t},\n\tgetConfig: () => {\n\t\treturn fetch_label_config.data;\n\t},\n\tgetPodForLabel: (label = \"New JS Function\") => {\n\t\tconst labels = fetch_label_config.data.runners[0].issue.labels;\n\t\tconst pods = this.getPodLabels().map((pod) => pod.label);\n\t\tlet foundPod;\n\t\tpods.map((podLabel) => {\n\t\t\tconst foundLabel = labels[podLabel].conditions.find((condition) => {\n\t\t\t\treturn condition.label === label && podLabel !== label\n\t\t\t})\n\t\t\tif (foundLabel) {\n\t\t\t\tfoundPod = podLabel\n\t\t\t}\n\t\t});\n\t\treturn foundPod;\n\t},\n\tgetLabelsForPod: (pod) => {\n\t\treturn fetch_label_config.data.runners[0]\n\t\t\t.issue.labels[pod].conditions.map((label) => \n\t\t\t\t\tfetch_label_config.data.labels[label.label])\n\t\t\t.filter((label) => label !== undefined)\n\t},\n\tcsvToArr: () => {\n\t\t//const csvRows = FilePicker1.files[1].data.split(\"\\n\");\n\t\t//const objArr = [];\n\t\t//const headers = csvRows[0].split(',');\n\t\t\t//for(let i = 1; i < csvRows.length; i++) {\n\t\t\t\t//const rowObj = {};\n\t\t\t\t//objArr.push(rowObj);\n\t\t\t\t//const rowArr = csvRows[i].split(',');\n\t\t\t\t//rowArr.forEach((val, index) => {\n\t\t\t\t//rowObj[headers[index]] = val;\n\t\t\t\t//});\n\t\t\t//}\n\t\t//return objArr;\n\t}\n}",
-        "variables": [],
-        "userPermissions": []
-      },
-      "id": "Issues_Utils",
-      "deleted": false,
-      "gitSyncId": "623762992e5d3f189d0c3c23_623765e92e5d3f189d0c3c33"
-    },
-    {
-      "unpublishedCollection": {
-        "name": "IssueManager",
-        "pageId": "Issues",
-        "pluginId": "js-plugin",
-        "pluginType": "JS",
-        "actions": [],
-        "archivedActions": [],
-        "body": "export default {\n\tgetAssignedLabels: (allLabels = label_select.selectedOptionValues) => {\n\t\tconst labels = allLabels.filter((label) => {\n\t\t\treturn Utils.checkIsPod(label) !== true;\n\t\t}); \n\t\tconst podMap = {};\n\t\tlabels.map((label) => {\n\t\t\tconst pod = Utils.getPodForLabel(label);\n\t\t\tif (pod)\n\t\t\t\tpodMap[pod] = true;\n\t\t});\n\t\treturn [...Object.keys(podMap), ...labels];\n\t}, \n\tcreate_issue: () => {\n\t\tconst labels = this.getAssignedLabels(label_select.selectedOptionValues);\n\t\tadd_new_issue.run(() => {\n\t\t\t\tfetch_issues.run(() => {\n\t\t\t\t\tresetWidget('add_issue_modal', true);\n\t\t\t\t\tcloseModal('add_issue_modal');\n\t\t\t\t});\n\t\t}, undefined, { labels: labels })\n\t},\n\tfetchIssues: () => {\n\t\tfetch_issues.run();\n\t},\n\tgetIssueData: () => {\n\t\treturn fetch_issues.data.map((issue) => {\n\t\t\tif (issue.upvote_id > 0)\n\t\t\t\tissue.count = issue.count + 1;\n\t\t\treturn { type: issue.type, title: issue.title, total_reactions: issue.total_reactions, unique_commentors: issue.unique_commentors, upvote_id: issue.upvote_id  ,...issue};\n\t\t});\n\t},\n\taddComment: () => {\n\t\tadd_new_comment.run(() => {\n\t\t\tfetch_comments.run();\n\t\t\tupdate_issue_labels.run(() => \n\t\t\t\tfetch_issues.run());\n\t\t\tcloseModal('upvote_modal');\n\t\t\tresetWidget('upvote_modal', true);\n\t\t});\n\t},\n\tupdate: async () => {\n\t\tconst labels = this.getAssignedLabels(edit_label_select.selectedOptionValues);\n\t\tawait update_issue.run({ labels: labels });\n\t\tawait fetch_issues.run();\n\t},\n\tdelete: async () => {\n\t\tawait delete_issue.run(() => fetch_issues.run());\n\t}\n}",
-        "variables": [],
-        "userPermissions": []
-      },
-      "publishedCollection": {
-        "name": "IssueManager",
-        "pageId": "Issues",
-        "pluginId": "js-plugin",
-        "pluginType": "JS",
-        "actions": [],
-        "archivedActions": [],
-        "body": "export default {\n\tgetAssignedLabels: (allLabels = label_select.selectedOptionValues) => {\n\t\tconst labels = allLabels.filter((label) => {\n\t\t\treturn Utils.checkIsPod(label) !== true;\n\t\t}); \n\t\tconst podMap = {};\n\t\tlabels.map((label) => {\n\t\t\tconst pod = Utils.getPodForLabel(label);\n\t\t\tif (pod)\n\t\t\t\tpodMap[pod] = true;\n\t\t});\n\t\treturn [...Object.keys(podMap), ...labels];\n\t}, \n\tcreate_issue: () => {\n\t\tconst labels = this.getAssignedLabels(label_select.selectedOptionValues);\n\t\tadd_new_issue.run(() => {\n\t\t\t\tfetch_issues.run(() => {\n\t\t\t\t\tresetWidget('add_issue_modal', true);\n\t\t\t\t\tcloseModal('add_issue_modal');\n\t\t\t\t});\n\t\t}, undefined, { labels: labels })\n\t},\n\tfetchIssues: () => {\n\t\tfetch_issues.run();\n\t},\n\tgetIssueData: () => {\n\t\treturn fetch_issues.data.map((issue) => {\n\t\t\tif (issue.upvote_id > 0)\n\t\t\t\tissue.count = issue.count + 1;\n\t\t\treturn { type: issue.type, title: issue.title, total_reactions: issue.total_reactions, unique_commentors: issue.unique_commentors, upvote_id: issue.upvote_id  ,...issue};\n\t\t});\n\t},\n\taddComment: () => {\n\t\tadd_new_comment.run(() => {\n\t\t\tfetch_comments.run();\n\t\t\tupdate_issue_labels.run(() => \n\t\t\t\tfetch_issues.run());\n\t\t\tcloseModal('upvote_modal');\n\t\t\tresetWidget('upvote_modal', true);\n\t\t});\n\t},\n\tupdate: async () => {\n\t\tconst labels = this.getAssignedLabels(edit_label_select.selectedOptionValues);\n\t\tawait update_issue.run({ labels: labels });\n\t\tawait fetch_issues.run();\n\t},\n\tdelete: async () => {\n\t\tawait delete_issue.run(() => fetch_issues.run());\n\t}\n}",
-        "variables": [],
-        "userPermissions": []
-      },
-      "id": "Issues_IssueManager",
-      "deleted": false,
-      "gitSyncId": "623762992e5d3f189d0c3c23_62382c35cb09660cd0f703bd"
-    },
-    {
-      "unpublishedCollection": {
-        "name": "GithubManager",
-        "pageId": "Issues",
-        "pluginId": "js-plugin",
-        "pluginType": "JS",
-        "actions": [],
-        "archivedActions": [],
-        "body": "export default {\n\tgetLabels: () => {\n\t\treturn fetch_labels.data.body.items.filter((label) => {\n\t\t\treturn !label.name.includes('Pod');\n\t\t}).map((item) => {\n\t\t\treturn { label: item.name, value: item.name  } \n\t\t}); \n\t}, \n\tgetIssues: () => {\n\t\treturn search_github_issues.data.map((item) => {\n\t\t\treturn {\n\t\t\t\tlabel: item.title,\n\t\t\t\tvalue: item.id + \"\"\n\t\t\t}\n\t\t})\n\t},\n\tgetSelectedGithubIssue: () => {\n\t\treturn search_github_issues.data.find((issue) => issue.id == add_issue_select.selectedOptionValue);\n\t}\n}",
-        "variables": [],
-        "userPermissions": []
-      },
-      "publishedCollection": {
-        "name": "GithubManager",
-        "pageId": "Issues",
-        "pluginId": "js-plugin",
-        "pluginType": "JS",
-        "actions": [],
-        "archivedActions": [],
-        "body": "export default {\n\tgetLabels: () => {\n\t\treturn fetch_labels.data.body.items.filter((label) => {\n\t\t\treturn !label.name.includes('Pod');\n\t\t}).map((item) => {\n\t\t\treturn { label: item.name, value: item.name  } \n\t\t}); \n\t}, \n\tgetIssues: () => {\n\t\treturn search_github_issues.data.map((item) => {\n\t\t\treturn {\n\t\t\t\tlabel: item.title,\n\t\t\t\tvalue: item.id + \"\"\n\t\t\t}\n\t\t})\n\t},\n\tgetSelectedGithubIssue: () => {\n\t\treturn search_github_issues.data.find((issue) => issue.id == add_issue_select.selectedOptionValue);\n\t}\n}",
-        "variables": [],
-        "userPermissions": []
-      },
-      "id": "Issues_GithubManager",
-      "deleted": false,
-      "gitSyncId": "623762992e5d3f189d0c3c23_62389d692d7f921bb707cf51"
     }
   ],
   "updatedResources": {
