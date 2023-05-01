@@ -32,7 +32,7 @@ export default [
     ],
   },
   {
-    sectionName: "Text Formatting",
+    sectionName: "Text formatting",
     children: [
       {
         propertyName: "textSize",

@@ -564,7 +564,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "Text Formatting",
+        sectionName: "Text formatting",
         children: [
           {
             propertyName: "textAlign",

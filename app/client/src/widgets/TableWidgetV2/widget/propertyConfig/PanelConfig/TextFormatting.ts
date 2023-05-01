@@ -4,7 +4,7 @@ import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { hideByColumnType, showByColumnType } from "../../propertyUtils";
 
 export default {
-  sectionName: "Text Formatting",
+  sectionName: "Text formatting",
   hidden: (props: TableWidgetProps, propertyPath: string) => {
     return showByColumnType(
       props,
