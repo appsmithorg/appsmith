@@ -139,7 +139,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "borderWidth",
-            label: "Border Width (px)",
+            label: "Border width (px)",
             helpText: "Controls the size of the border in px",
             controlType: "INPUT_TEXT",
             isBindProperty: true,

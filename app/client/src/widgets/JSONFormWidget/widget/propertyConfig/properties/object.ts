@@ -44,7 +44,7 @@ const objectStyleProperties = [
   {
     propertyName: "borderWidth",
     helpText: "Enter value for border width",
-    label: "Border Width",
+    label: "Border width",
     placeholderText: "Enter value in px",
     controlType: "INPUT_TEXT",
     isBindProperty: true,
@@ -134,7 +134,7 @@ const PROPERTIES = {
           {
             propertyName: "cellBorderWidth",
             helpText: "Enter value for border width of the item",
-            label: "Border Width",
+            label: "Border width",
             placeholderText: "Enter value in px",
             controlType: "INPUT_TEXT",
             isBindProperty: true,

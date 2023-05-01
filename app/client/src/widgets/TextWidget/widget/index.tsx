@@ -343,7 +343,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             helpText:
               "Enter value for border width which can also use as margin",
             propertyName: "borderWidth",
-            label: "Border Width",
+            label: "Border width",
             placeholderText: "Enter value in px",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
