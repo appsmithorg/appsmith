@@ -37,8 +37,6 @@ export interface AppsmithUIConfigs {
   };
 
   enableRapidAPI: boolean;
-  enableGoogleOAuth: boolean;
-  enableGithubOAuth: boolean;
   disableLoginForm: boolean;
   disableSignup: boolean;
   enableMixpanel: boolean;
