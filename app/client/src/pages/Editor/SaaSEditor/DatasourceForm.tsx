@@ -433,7 +433,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                 }
                 showDatasourceSavedText={!isGoogleSheetPlugin}
               />
-              <div style={{ marginTop: "30px" }}>
+              <div>
                 {!_.isNil(formConfig) &&
                 !_.isNil(datasource) &&
                 !hideDatasourceSection ? (
