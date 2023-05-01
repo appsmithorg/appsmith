@@ -158,7 +158,7 @@ public enum AppsmithError {
     INVALID_LICENSE_KEY_ENTERED(400, AppsmithErrorCode.INVALID_LICENSE_KEY_ENTERED.getCode(), "The license key entered is invalid. Please try again.", AppsmithErrorAction.DEFAULT, "Invalid license key", ErrorType.ARGUMENT_ERROR, null),
     GIT_FILE_IN_USE(500, AppsmithErrorCode.GIT_FILE_IN_USE.getCode(), "Your Git repo is in use by another member of your team. Usually, this takes a few seconds. Please try again a little later.", AppsmithErrorAction.DEFAULT, "Git repo is locked", ErrorType.GIT_ACTION_EXECUTION_ERROR, null),
     CSRF_TOKEN_INVALID(403, AppsmithErrorCode.CSRF_TOKEN_INVALID.getCode(), "CSRF token missing/invalid. Please try again.", AppsmithErrorAction.DEFAULT, "CSRF token missing/invalid", ErrorType.BAD_REQUEST, null),
-    UNSUPPORTED_IMPORT_OPERATION_FOR_GIT_CONNECTED_APPLICATION(400, AppsmithErrorCode.UNSUPPORTED_IMPORT_OPERATION.getCode(), "Import application via file is not supported for git connected application. Please use git operations like merge, pull to update the application.", AppsmithErrorAction.DEFAULT, "Unsupported operation", ErrorType.BAD_REQUEST, null),
+    UNSUPPORTED_IMPORT_OPERATION_FOR_GIT_CONNECTED_APPLICATION(400, AppsmithErrorCode.UNSUPPORTED_IMPORT_OPERATION.getCode(), "Import application via file is not supported for git connected application. Please use Git Pull to update and sync your application.", AppsmithErrorAction.DEFAULT, "Unsupported operation", ErrorType.BAD_REQUEST, null),
     ;
 
     private final Integer httpErrorCode;
