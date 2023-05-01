@@ -183,7 +183,7 @@ function ManualUpgrades(props: {
   const [showModal, setShowModal] = React.useState(false);
 
   const tooltipContent = (
-    <div className="text-sm">
+    <div>
       {`${latestVersion - applicationVersion} pending update(s)`}
       <ul className="mt-1">
         {updates.slice(applicationVersion - 1).map((u) => (
