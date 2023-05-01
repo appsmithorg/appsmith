@@ -238,7 +238,7 @@ const PROPERTIES = {
       {
         propertyName: "dialCode",
         helpText: "Changes the country code",
-        label: "Default Country Code",
+        label: "Default country code",
         enableSearch: true,
         dropdownHeight: "195px",
         controlType: "DROP_DOWN",

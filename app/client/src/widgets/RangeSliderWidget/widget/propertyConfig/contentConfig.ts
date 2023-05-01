@@ -80,7 +80,7 @@ export default [
       {
         propertyName: "minRange",
         helpText: "Sets the min range of the widget",
-        label: "Min. Range",
+        label: "Min. range",
         controlType: "INPUT_TEXT",
         placeholderText: "10",
         isBindProperty: true,
@@ -100,7 +100,7 @@ export default [
       {
         propertyName: "defaultStartValue",
         helpText: "Sets the start value of the widget",
-        label: "Default Start Value",
+        label: "Default start value",
         controlType: "INPUT_TEXT",
         placeholderText: "Start Value:",
         isBindProperty: true,
@@ -120,7 +120,7 @@ export default [
       {
         propertyName: "defaultEndValue",
         helpText: "Sets the end value of the widget",
-        label: "Default End Value",
+        label: "Default end value",
         controlType: "INPUT_TEXT",
         placeholderText: "End Value:",
         isBindProperty: true,

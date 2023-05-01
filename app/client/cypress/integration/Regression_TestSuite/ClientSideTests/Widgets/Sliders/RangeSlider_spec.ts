@@ -78,63 +78,63 @@ describe("Range Slider spec", () => {
   });
 
   it("4. Validates Min Range", () => {
-    propPane.UpdatePropertyFieldValue("Min. Range", "0");
+    propPane.UpdatePropertyFieldValue("Min. range", "0");
 
     agHelper.VerifyEvaluatedErrorMessage("This value must be greater than 0.1");
 
-    propPane.UpdatePropertyFieldValue("Min. Range", "-10");
+    propPane.UpdatePropertyFieldValue("Min. range", "-10");
 
     agHelper.VerifyEvaluatedErrorMessage("This value must be greater than 0.1");
 
-    propPane.UpdatePropertyFieldValue("Min. Range", "asd");
+    propPane.UpdatePropertyFieldValue("Min. range", "asd");
 
     agHelper.VerifyEvaluatedErrorMessage("This value must be a number");
 
-    propPane.UpdatePropertyFieldValue("Min. Range", "110");
+    propPane.UpdatePropertyFieldValue("Min. range", "110");
 
     agHelper.VerifyEvaluatedErrorMessage("This value must be less than 100");
 
-    propPane.UpdatePropertyFieldValue("Min. Range", "10");
+    propPane.UpdatePropertyFieldValue("Min. range", "10");
   });
 
-  it("5. Validates Default Start Value", () => {
-    propPane.UpdatePropertyFieldValue("Default Start Value", "-100");
+  it("5. Validates Default start value", () => {
+    propPane.UpdatePropertyFieldValue("Default start value", "-100");
 
     agHelper.VerifyEvaluatedErrorMessage(
       "This value must be greater than or equal to the min value",
     );
 
-    propPane.UpdatePropertyFieldValue("Default Start Value", "110");
+    propPane.UpdatePropertyFieldValue("Default start value", "110");
 
     agHelper.VerifyEvaluatedErrorMessage(
       "This value must be less than defaultEnd value",
     );
 
-    propPane.UpdatePropertyFieldValue("Default Start Value", "asd");
+    propPane.UpdatePropertyFieldValue("Default start value", "asd");
 
     agHelper.VerifyEvaluatedErrorMessage("This value must be a number");
 
-    propPane.UpdatePropertyFieldValue("Default Start Value", "10");
+    propPane.UpdatePropertyFieldValue("Default start value", "10");
   });
 
-  it("6. Validates Default End Value", () => {
-    propPane.UpdatePropertyFieldValue("Default End Value", "-10");
+  it("6. Validates Default end value", () => {
+    propPane.UpdatePropertyFieldValue("Default end value", "-10");
 
     agHelper.VerifyEvaluatedErrorMessage(
       "This value must be greater than defaultStart value",
     );
 
-    propPane.UpdatePropertyFieldValue("Default End Value", "110");
+    propPane.UpdatePropertyFieldValue("Default end value", "110");
 
     agHelper.VerifyEvaluatedErrorMessage(
       "This value must be less than or equal to the max value",
     );
 
-    propPane.UpdatePropertyFieldValue("Default End Value", "asd");
+    propPane.UpdatePropertyFieldValue("Default end value", "asd");
 
     agHelper.VerifyEvaluatedErrorMessage("This value must be a number");
 
-    propPane.UpdatePropertyFieldValue("Default End Value", "100");
+    propPane.UpdatePropertyFieldValue("Default end value", "100");
   });
 
   it("7. Change Step size and check if binding value changes", () => {
@@ -152,7 +152,7 @@ describe("Range Slider spec", () => {
       });
 
     // Change the Step size to 10
-    propPane.UpdatePropertyFieldValue("Min. Range", "10");
+    propPane.UpdatePropertyFieldValue("Min. range", "10");
     propPane.UpdatePropertyFieldValue("Step size", "10");
 
     agHelper

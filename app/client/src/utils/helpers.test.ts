@@ -275,7 +275,7 @@ describe("#captureInvalidDynamicBindingPath", () => {
           {
             helpText: "Sets a default selected option",
             propertyName: "defaultOptionValue",
-            label: "Default Selected Value",
+            label: "Default selected value",
             // placeholderText: "Y",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
@@ -444,7 +444,7 @@ describe("#captureInvalidDynamicBindingPath", () => {
           {
             helpText: "Sets a default selected option",
             propertyName: "defaultOptionValue",
-            label: "Default Selected Value",
+            label: "Default selected value",
             // placeholderText: "Y",
             controlType: "INPUT_TEXT",
             isBindProperty: true,

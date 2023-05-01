@@ -50,7 +50,7 @@ export default [
       },
       {
         propertyName: "labelTextSize",
-        label: "Label Text Size",
+        label: "Label text size",
         helpText: "Control the font size of the label associated",
         controlType: "DROP_DOWN",
         defaultValue: "0.875rem",

@@ -206,7 +206,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
           {
             helpText: "Changes the country code",
             propertyName: "phoneNumberCountryCode",
-            label: "Default Country Code",
+            label: "Default country code",
             enableSearch: true,
             dropdownHeight: "195px",
             controlType: "DROP_DOWN",

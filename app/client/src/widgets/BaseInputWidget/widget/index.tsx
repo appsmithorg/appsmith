@@ -244,7 +244,7 @@ class BaseInputWidget<
           },
           {
             propertyName: "allowFormatting",
-            label: "Enable Formatting",
+            label: "Enable formatting",
             helpText: "Formats the phone number as per the country selected",
             controlType: "SWITCH",
             isJSConvertible: true,
