@@ -124,7 +124,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "borderColor",
-            label: "Border Color",
+            label: "Border color",
             helpText: "Controls the color of the border",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,

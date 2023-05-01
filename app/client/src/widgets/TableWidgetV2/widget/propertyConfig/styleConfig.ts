@@ -248,7 +248,7 @@ export default [
         helpText: "Use a html color name, HEX, RGB or RGBA value",
         placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
         propertyName: "borderColor",
-        label: "Border Color",
+        label: "Border color",
         controlType: "COLOR_PICKER",
         isBindProperty: true,
         isTriggerProperty: false,

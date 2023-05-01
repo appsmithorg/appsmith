@@ -26,7 +26,7 @@ const objectStyleProperties = [
   },
   {
     propertyName: "borderColor",
-    label: "Border Color",
+    label: "Border color",
     helpText: "Changes the border color of Object",
     controlType: "COLOR_PICKER",
     isJSConvertible: true,
@@ -116,7 +116,7 @@ const PROPERTIES = {
           },
           {
             propertyName: "cellBorderColor",
-            label: "Border Color",
+            label: "Border color",
             helpText: "Changes the border color of the item",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
