@@ -196,7 +196,7 @@ describe("Table widget inline editing validation functionality", () => {
     cy.editColumn("step");
     propPane.ToggleOnOrOff("Editable", "On");
     propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === '#1'}}");
-    propPane.UpdatePropertyFieldValue("Error Message", "You got error mate!!");
+    propPane.UpdatePropertyFieldValue("Error message", "You got error mate!!");
     cy.editTableCell(0, 0);
     cy.wait(1000);
     cy.enterTableCellValue(0, 0, "123");

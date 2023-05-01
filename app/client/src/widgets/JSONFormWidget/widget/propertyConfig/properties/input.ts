@@ -450,7 +450,7 @@ const PROPERTIES = {
         propertyName: "errorMessage",
         helpText:
           "The error message to display if the regex or valid property check fails",
-        label: "Error Message",
+        label: "Error message",
         controlType: "JSON_FORM_COMPUTE_VALUE",
         placeholderText: "Not a valid email!",
         inputType: "TEXT",

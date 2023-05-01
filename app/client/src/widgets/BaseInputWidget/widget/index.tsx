@@ -132,7 +132,7 @@ class BaseInputWidget<
             helpText:
               "The error message to display if the regex or valid property check fails",
             propertyName: "errorMessage",
-            label: "Error Message",
+            label: "Error message",
             controlType: "INPUT_TEXT",
             placeholderText: "Not a valid value!",
             isBindProperty: true,

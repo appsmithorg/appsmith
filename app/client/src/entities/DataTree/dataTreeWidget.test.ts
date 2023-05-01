@@ -81,7 +81,7 @@ describe("generateDataTreeWidget", () => {
           },
           {
             propertyName: "errorMessage",
-            label: "Error Message",
+            label: "Error message",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
