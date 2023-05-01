@@ -31,7 +31,7 @@ export const PropertyPaneContentConfig = [
         helpText:
           "Bind the List.pageNo property in your API and call it onPageChange",
         propertyName: "serverSidePaginationEnabled",
-        label: "Server Side Pagination",
+        label: "Server side pagination",
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,

@@ -289,7 +289,7 @@ export const PropertyPaneContentConfig = [
         propertyName: "serverSidePagination",
         helpText:
           "Triggered by onPageChange, this helps you show your data one page at a time for better performance.",
-        label: "Server Side Pagination",
+        label: "Server side pagination",
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,

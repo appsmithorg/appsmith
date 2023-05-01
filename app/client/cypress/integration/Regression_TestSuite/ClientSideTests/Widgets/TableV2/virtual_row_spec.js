@@ -19,7 +19,7 @@ describe("Table Widget Virtualized Row", function () {
     }));
 
     PropertyPane.UpdatePropertyFieldValue("Table Data", JSON.stringify(rows));
-    PropertyPane.ToggleOnOrOff("Server Side Pagination", "On");
+    PropertyPane.ToggleOnOrOff("Server side pagination", "On");
     PropertyPane.ToggleOnOrOff("Show Pagination", "Off");
   });
 
@@ -66,7 +66,7 @@ describe("Table Widget Virtualized Row", function () {
     cy.wait(500);
     PropertyPane.ToggleOnOrOff("Show Pagination", "On");
     cy.wait(500);
-    PropertyPane.ToggleOnOrOff("Server Side Pagination", "Off");
+    PropertyPane.ToggleOnOrOff("Server side pagination", "Off");
     cy.get(".tr[data-rowindex]").should("have.length", 5);
     cy.get(".t--virtual-row").should("not.exist");
   });
