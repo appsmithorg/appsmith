@@ -102,7 +102,7 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
           size="md"
           startIcon="plus"
         >
-          Add a new Menu Item
+          Add a new menu item
         </Button>
       </div>
     );

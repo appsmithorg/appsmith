@@ -100,10 +100,10 @@ class ButtonGroupWidget extends BaseWidget<
                         return buttonType !== "MENU";
                       },
                       dependencies: ["groupButtons"],
-                      helpText: "Menu Items",
+                      helpText: "Menu items",
                       propertyName: "menuItems",
                       controlType: "MENU_ITEMS",
-                      label: "Menu Items",
+                      label: "Menu items",
                       isBindProperty: false,
                       isTriggerProperty: false,
                       panelConfig: {

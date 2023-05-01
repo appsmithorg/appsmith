@@ -25,7 +25,7 @@ export default [
       {
         propertyName: "menuItemsSource",
         helpText: "Sets the source for the menu items",
-        label: "Menu Items Source",
+        label: "Menu items source",
         controlType: "ICON_TABS",
         fullWidth: true,
         options: [
@@ -49,7 +49,7 @@ export default [
         helpText: "Menu items",
         propertyName: "menuItems",
         controlType: "MENU_ITEMS",
-        label: "Menu Items",
+        label: "Menu items",
         isBindProperty: false,
         isTriggerProperty: false,
         hidden: (props: MenuButtonWidgetProps) =>
@@ -90,7 +90,7 @@ export default [
           label: "Item Configuration",
           icon: "settings-2-line",
         },
-        label: "Configure Menu Items",
+        label: "Configure menu items",
         isBindProperty: false,
         isTriggerProperty: false,
         hidden: (props: MenuButtonWidgetProps) =>

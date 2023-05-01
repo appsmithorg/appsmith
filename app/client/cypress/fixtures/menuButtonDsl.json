@@ -24,7 +24,7 @@
       "boxShadow": "none",
       "widgetName": "MenuButton1",
       "configureMenuItems": {
-        "label": "Configure Menu Items",
+        "label": "Configure menu items",
         "id": "config",
         "config": {
           "id": "config",
