@@ -52,7 +52,7 @@ function ConnectDataCTA(props: ConnectDataCTAProps) {
 
   return (
     <Container className="flex flex-col t--propertypane-connect-cta">
-      <Text kind="heading-xs">Data Required</Text>
+      <Text kind="heading-xs">Data required</Text>
       <div className="flex gap-3">
         <Button onClick={onClick} tabIndex={0}>
           Connect data

@@ -191,7 +191,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             helpText:
               "Changes the position of the cap if a valid cap is selected.",
             propertyName: "capSide",
-            label: "Cap Position",
+            label: "Cap position",
             controlType: "ICON_TABS",
             fullWidth: true,
             options: [
