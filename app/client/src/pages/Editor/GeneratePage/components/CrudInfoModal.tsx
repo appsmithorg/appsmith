@@ -59,6 +59,7 @@ const ImageWrapper = styled.div`
   & ${ProgressiveImageContainer} {
     width: 100%;
     height: 284px;
+    width: 526px;
   }
   .progressive-image--thumb,
   progressive-image--full {
@@ -84,7 +85,9 @@ const SuccessContentWrapper = styled.div`
 const InfoContentHeadingText = styled.span`
   color: var(--ads-v2-color-fg);
 `;
-
+const SuccessText = styled(Text)`
+  color: var(--ads-v2-color-fg-emphasis);
+`;
 const STEP = {
   SHOW_SUCCESS_GIF: "show_success_gif",
   SHOW_INFO: "show_info",
@@ -149,16 +152,16 @@ function GenCRUDSuccessModal(props: Props) {
 
   return (
     <Modal onOpenChange={onClose} open={crudInfoModalOpen}>
-      <ModalContent>
+      <ModalContent style={{ width: "640px" }}>
         <ModalBody>
           <Wrapper>
             {step === STEP.SHOW_SUCCESS_GIF ? (
               <SuccessContentWrapper>
                 <SuccessTick height="80px" width="80px" />
-                <Text kind="heading-l">
+                <SuccessText kind="heading-m">
                   {" "}
                   {createMessage(GEN_CRUD_SUCCESS_MESSAGE)}
-                </Text>
+                </SuccessText>
               </SuccessContentWrapper>
             ) : null}
             {step === STEP.SHOW_INFO ? (
