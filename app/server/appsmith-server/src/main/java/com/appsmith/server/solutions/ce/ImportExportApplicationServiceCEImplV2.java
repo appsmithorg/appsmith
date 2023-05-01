@@ -75,6 +75,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.mongodb.MongoTransactionException;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -1254,7 +1255,11 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                 .onErrorResume(throwable -> {
                     log.error("Error while importing the application, reason: {}", throwable.getMessage());
                     // Filter out transactional error as these are cryptic and don't provide much info on the error
-                    String errorMessage = throwable instanceof TransactionException ? "" : throwable.getMessage();
+                    String errorMessage
+                            = throwable instanceof TransactionException || throwable instanceof MongoTransactionException
+                            ? ""
+                            : "Error: " + throwable.getMessage();
+
                     return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
                 })
                 .as(transactionalOperator::transactional);

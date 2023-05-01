@@ -1256,7 +1256,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     String errorMessage
                             = throwable instanceof TransactionException || throwable instanceof MongoTransactionException
                             ? ""
-                            : throwable.getMessage();
+                            : "Error: " + throwable.getMessage();
 
                     return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
                 })
