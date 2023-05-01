@@ -2,10 +2,17 @@ import {
   ApplicationVersion,
   updateApplication,
 } from "@appsmith/actions/applicationActions";
-import { Button, Icon } from "design-system";
-import { TooltipComponent, Text, TextType } from "design-system-old";
-import ModalComponent from "components/designSystems/appsmith/ModalComponent";
-import { Colors } from "constants/Colors";
+import {
+  Button,
+  Tooltip,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  Callout,
+} from "design-system";
+import { Text, TextType } from "design-system-old";
 import type { ReactNode } from "react";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,7 +27,6 @@ import { createMessage, CLEAN_URL_UPDATE } from "@appsmith/constants/messages";
 import { useLocation } from "react-router";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import classNames from "classnames";
-import { BottomBarCTAStyles } from "./styles";
 
 const StyledList = styled.ul`
   list-style: disc;
@@ -32,46 +38,27 @@ const StyledList = styled.ul`
     letter-spacing: -0.24px;
     margin: 4px 0;
     a {
-      color: rgb(248, 106, 43);
+      color: var(--ads-v2-color-fg-brand);
     }
     code {
-      font-weight: 500;
-      background: #ebebeb;
-      padding: 0 5px;
-      border-radius: 5px;
+      padding: var(--ads-v2-spaces-2);
+      height: 22px;
+      background-color: var(--ads-v2-color-bg-subtle);
+      color: var(--ads-v2-color-fg);
+      border-radius: var(--ads-v2-border-radius);
+      box-sizing: border-box;
+      display: flex;
+      -webkit-box-align: center;
+      align-items: center;
+      font-size: 12px;
     }
   }
 `;
 
-const StyledIconContainer = styled.div`
-  background: rgb(231, 231, 231);
-  padding: 0.25rem;
-  margin-right: 0.5rem;
-  border-radius: 50%;
-`;
-
-const DisclaimerContainer = styled.div`
-  padding: 8px 16px;
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: center;
-  background: ${Colors.WARNING_ORANGE};
-  color: ${Colors.BROWN};
-  margin: 24px 0 0;
-`;
-
-const BodyContainer = styled.div`
-  .close-modal > svg {
-    height: 28px;
-    width: 28px;
-  }
-`;
-
-const StyledTrigger = styled.div`
-  ${BottomBarCTAStyles}
-  display: flex;
-  justify-content: center;
+const StyledTrigger = styled.div``;
+const Title = styled(Text)`
+  color: var(--ads-v2-color-fg-emphasis);
+  font-size: 16px;
 `;
 
 function UpdatesModal({
@@ -100,57 +87,29 @@ function UpdatesModal({
   const [isLoading, setIsLoading] = useState(false);
 
   return (
-    <ModalComponent
-      canEscapeKeyClose
-      canOutsideClickClose={false}
-      hasBackDrop
-      isOpen={showModal}
-      onClose={closeModal}
-      overlayClassName="manual-upgrades-overlay"
-      portalClassName="manual-upgrades"
-      scrollContents
-      width={600}
-    >
-      <BodyContainer className="p-6" id="manual-upgrades-modal">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center justify-start">
-            <StyledIconContainer>
-              <Icon name="upgrade" size="lg" />
-            </StyledIconContainer>
-            <Text type={TextType.H1}>Product Updates</Text>
-          </div>
-          <Button
-            className="close-modal"
-            isIconButton
-            kind="tertiary"
-            onClick={closeModal}
-            size="sm"
-            startIcon="close-modal"
-          />
-        </div>
-        {updates.slice(applicationVersion - 1).map((update) => (
-          <div className="mt-4 mb-6" key={update.name}>
-            <div className="mb-4">
-              <Text type={TextType.H3}>{update.name}</Text>
+    <Modal onOpenChange={closeModal} open={showModal}>
+      <ModalContent>
+        <ModalHeader>Product updates</ModalHeader>
+        <ModalBody id="manual-upgrades-modal">
+          {updates.slice(applicationVersion - 1).map((update) => (
+            <div className="" key={update.name}>
+              <div className="mb-4">
+                <Title type={TextType.H3}>{update.name}</Title>
+              </div>
+              <StyledList>
+                {update.description.map((desc, idx) => (
+                  <li dangerouslySetInnerHTML={{ __html: desc }} key={idx} />
+                ))}
+              </StyledList>
+              <Callout kind="warning">
+                <div
+                  dangerouslySetInnerHTML={{ __html: update.disclaimer.desc }}
+                />
+              </Callout>
             </div>
-            <StyledList>
-              {update.description.map((desc, idx) => (
-                <li dangerouslySetInnerHTML={{ __html: desc }} key={idx} />
-              ))}
-            </StyledList>
-            <DisclaimerContainer>
-              <Icon
-                color="var(--ads-v2-color-fg-warning)"
-                name="error-warning-line"
-                size="lg"
-              />
-              <span
-                dangerouslySetInnerHTML={{ __html: update.disclaimer.desc }}
-              />
-            </DisclaimerContainer>
-          </div>
-        ))}
-        <div className="flex justify-end gap-2 items-center">
+          ))}
+        </ModalBody>
+        <ModalFooter>
           <Button kind="secondary" onClick={closeModal} size="md">
             Dismiss
           </Button>
@@ -175,9 +134,9 @@ function UpdatesModal({
           >
             Update
           </Button>
-        </div>
-      </BodyContainer>
-    </ModalComponent>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 }
 
@@ -246,13 +205,7 @@ function ManualUpgrades(props: {
       })}
       data-testid="update-indicator"
     >
-      <TooltipComponent
-        content={tooltipContent}
-        disabled={!props.showTooltip}
-        modifiers={{
-          preventOverflow: { enabled: true },
-        }}
-      >
+      <Tooltip content={tooltipContent} isDisabled={!props.showTooltip}>
         <StyledTrigger
           onClick={() => {
             setShowModal(applicationVersion < latestVersion);
@@ -260,7 +213,7 @@ function ManualUpgrades(props: {
         >
           {props.children}
         </StyledTrigger>
-      </TooltipComponent>
+      </Tooltip>
       <UpdatesModal
         applicationVersion={applicationVersion}
         closeModal={() => {

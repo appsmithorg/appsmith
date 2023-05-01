@@ -21,7 +21,7 @@ import {
 import ManualUpgrades from "pages/Editor/BottomBar/ManualUpgrades";
 import { updateCurrentPage } from "actions/pageActions";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
-import { Icon } from "design-system";
+import { Button } from "design-system";
 
 describe("URL slug names", () => {
   beforeEach(async () => {
@@ -129,7 +129,13 @@ describe("URL slug names", () => {
     });
     const component = render(
       <ManualUpgrades showTooltip>
-        <Icon className="t--upgrade" name="upgrade" size="lg" />
+        <Button
+          className="t--upgrade"
+          isIconButton
+          kind="tertiary"
+          size="md"
+          startIcon="upgrade"
+        />
       </ManualUpgrades>,
     );
     expect(component.getByTestId("update-indicator")).toBeDefined();
