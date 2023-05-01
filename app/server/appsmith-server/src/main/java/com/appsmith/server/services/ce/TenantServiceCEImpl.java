@@ -104,8 +104,16 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                     configForClient.copyNonSensitiveValues(dbTenant.getTenantConfiguration());
                     tenantForClient.setUserPermissions(dbTenant.getUserPermissions());
 
-                    if (StringUtils.isEmpty(configForClient.getGoogleMapsKey())) {
+                    if (StringUtils.hasText(configForClient.getGoogleMapsKey())) {
                         configForClient.setGoogleMapsKey(System.getenv(EnvVariables.APPSMITH_GOOGLE_MAPS_API_KEY.name()));
+                    }
+
+                    if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"))) {
+                        configForClient.addThirdPartyAuth("google");
+                    }
+
+                    if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GITHUB_CLIENT_ID"))) {
+                        configForClient.addThirdPartyAuth("github");
                     }
 
                     return tenantForClient;
