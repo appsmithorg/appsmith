@@ -351,7 +351,7 @@ const TriggerNode = memo((props: TriggerNodeProps) => {
         placement={props.tooltipPosition}
       >
         <EntityText>
-          {props.entityCount ? `${props.entityCount} ${ENTITY}` : "No Entity"}
+          {props.entityCount ? `${props.entityCount} ${ENTITY}` : "No entity"}
         </EntityText>
       </Tooltip>
       {props.iconAlignment === "RIGHT" && (
