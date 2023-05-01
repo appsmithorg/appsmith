@@ -11,31 +11,31 @@ export const contentConfig = [
       {
         helpText: "Changes the visualisation of the chart data",
         propertyName: "chartType",
-        label: "Chart Type",
+        label: "Chart type",
         controlType: "DROP_DOWN",
         options: [
           {
-            label: "Line Chart",
+            label: "Line chart",
             value: "LINE_CHART",
           },
           {
-            label: "Bar Chart",
+            label: "Bar chart",
             value: "BAR_CHART",
           },
           {
-            label: "Pie Chart",
+            label: "Pie chart",
             value: "PIE_CHART",
           },
           {
-            label: "Column Chart",
+            label: "Column chart",
             value: "COLUMN_CHART",
           },
           {
-            label: "Area Chart",
+            label: "Area chart",
             value: "AREA_CHART",
           },
           {
-            label: "Custom Chart",
+            label: "Custom chart",
             value: "CUSTOM_FUSION_CHART",
           },
         ],
@@ -57,10 +57,10 @@ export const contentConfig = [
         },
       },
       {
-        helpText: "Configure a Custom FusionChart see docs.appsmith.com",
+        helpText: "Configure a custom FusionChart see docs.appsmith.com",
         placeholderText: `Fusion Chart Config`,
         propertyName: "customFusionChartConfig",
-        label: "Custom Fusion Chart",
+        label: "Custom fusion chart",
         controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,
@@ -136,7 +136,7 @@ export const contentConfig = [
         helpText: "Populates the chart with the data",
         propertyName: "chartData",
         placeholderText: '[{ "x": "2021", "y": "94000" }]',
-        label: "Chart Series",
+        label: "Chart series",
         controlType: "CHART_DATA",
         isBindProperty: false,
         isTriggerProperty: false,
@@ -147,7 +147,7 @@ export const contentConfig = [
           {
             helpText: "Series data",
             propertyName: "data",
-            label: "Series Data",
+            label: "Series data",
             controlType: "INPUT_TEXT_AREA",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -184,9 +184,9 @@ export const contentConfig = [
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
-            helpText: "Series Name",
+            helpText: "Series name",
             propertyName: "seriesName",
-            label: "Series Name",
+            label: "Series name",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -248,7 +248,7 @@ export const contentConfig = [
     children: [
       {
         propertyName: "setAdaptiveYMin",
-        label: "Adaptive Axis",
+        label: "Adaptive axis",
         helpText: "Define the minimum scale for X/Y axis",
         controlType: "SWITCH",
         isBindProperty: true,
@@ -259,7 +259,7 @@ export const contentConfig = [
         helpText: "Specifies the label of the x-axis",
         propertyName: "xAxisName",
         placeholderText: "Dates",
-        label: "x-axis Label",
+        label: "x-axis label",
         controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,
@@ -271,7 +271,7 @@ export const contentConfig = [
         helpText: "Specifies the label of the y-axis",
         propertyName: "yAxisName",
         placeholderText: "Revenue",
-        label: "y-axis Label",
+        label: "y-axis label",
         controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,
@@ -282,7 +282,7 @@ export const contentConfig = [
       {
         helpText: "Changes the x-axis label orientation",
         propertyName: "labelOrientation",
-        label: "x-axis Label Orientation",
+        label: "x-axis label orientation",
         hidden: (x: ChartWidgetProps) =>
           !isLabelOrientationApplicableFor(x.chartType),
         isBindProperty: false,

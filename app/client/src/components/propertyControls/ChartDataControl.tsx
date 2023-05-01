@@ -19,8 +19,7 @@ import CodeEditor from "components/editorComponents/LazyCodeEditorWrapper";
 import ColorPickerComponent from "./ColorPickerComponentV2";
 
 const Wrapper = styled.div`
-  background-color: ${(props) =>
-    props.theme.colors.propertyPane.dropdownSelectBg};
+  background-color: var(--ads-v2-color-bg-subtle);
   padding: 0 8px;
   margin-bottom: 5px;
   border-radius: var(--ads-v2-border-radius);
@@ -122,7 +121,7 @@ function DataControlComponent(props: RenderComponentProps) {
   return (
     <StyledOptionControlWrapper orientation={"VERTICAL"}>
       <ActionHolder>
-        <StyledLabel>Series Title</StyledLabel>
+        <StyledLabel>Series title</StyledLabel>
         {length > 1 && (
           <StyledDeleteButton
             isIconButton
@@ -161,7 +160,7 @@ function DataControlComponent(props: RenderComponentProps) {
       </StyledOptionControlWrapper>
       {!isPieChart && (
         <>
-          <StyledLabel>Series Color</StyledLabel>
+          <StyledLabel>Series color</StyledLabel>
           <StyledOptionControlWrapper orientation={"HORIZONTAL"}>
             <ColorPickerComponent
               changeColor={(
@@ -180,7 +179,7 @@ function DataControlComponent(props: RenderComponentProps) {
           </StyledOptionControlWrapper>
         </>
       )}
-      <StyledLabel>Series Data</StyledLabel>
+      <StyledLabel>Series data</StyledLabel>
       <StyledDynamicInput
         className={"t--property-control-chart-series-data-control"}
       >
@@ -274,7 +273,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
           size="md"
           startIcon="plus"
         >
-          Add Series
+          Add series
         </Button>
       </>
     );
