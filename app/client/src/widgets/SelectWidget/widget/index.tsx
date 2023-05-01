@@ -316,7 +316,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
           {
             helpText: "Enables server side filtering of the data",
             propertyName: "serverSideFiltering",
-            label: "Server Side Filtering",
+            label: "Server side filtering",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,

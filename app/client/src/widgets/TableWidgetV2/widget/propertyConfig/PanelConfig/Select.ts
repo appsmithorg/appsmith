@@ -128,7 +128,7 @@ export default {
     {
       propertyName: "serverSideFiltering",
       helpText: "Enables server side filtering of the data",
-      label: "Server Side Filtering",
+      label: "Server side filtering",
       controlType: "SWITCH",
       isJSConvertible: true,
       isBindProperty: true,

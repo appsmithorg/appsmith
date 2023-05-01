@@ -190,7 +190,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
           {
             helpText: "Enables server side filtering of the data",
             propertyName: "serverSideFiltering",
-            label: "Server Side Filtering",
+            label: "Server side filtering",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
