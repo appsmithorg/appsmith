@@ -17,6 +17,8 @@ export const APPSMITH_DISPLAY_VERSION = (
   version: string,
   cloudHosting: boolean,
 ) => `Appsmith ${!cloudHosting ? edition : ""} ${version}`;
+export const INTERCOM_CONSENT_MESSAGE = () =>
+  `Can we have your email for better support?`;
 export const YES = () => `Yes`;
 export const ARE_YOU_SURE = () => `Are you sure?`;
 export const ERROR_ADD_API_INVALID_URL = () =>
@@ -1535,7 +1537,6 @@ export const IN_APP_EMBED_SETTING = {
   showNavigationBar: () => "Show navigation bar",
   upgradeHeading: () =>
     "Please contact your workspace admin to make the app public before embedding",
-  upgradeHeadingForAppSettings: () => "Embed",
   upgradeHeadingForInviteModal: () =>
     "Make your app public in share settings to embed",
   upgradeContent: () => "Private embedding is now available in",
@@ -1572,8 +1573,7 @@ export const RECONNECT_BUTTON_TEXT = () => "RECONNECT";
 export const SAVE_BUTTON_TEXT = () => "SAVE";
 export const SAVE_AND_AUTHORIZE_BUTTON_TEXT = () => "SAVE AND AUTHORIZE";
 export const DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT = () => "DON'T SAVE";
-export const GSHEET_AUTHORISED_FILE_IDS_KEY = () =>
-  "Google sheets authorised file ids key";
+export const GSHEET_AUTHORISED_FILE_IDS_KEY = () => "userAuthorizedSheetIds";
 export const GOOGLE_SHEETS_INFO_BANNER_MESSAGE = () =>
   "Appsmith will require access to your google drive to access google sheets.";
 export const GOOGLE_SHEETS_AUTHORIZE_DATASOURCE = () => "Authorize Datasource";
