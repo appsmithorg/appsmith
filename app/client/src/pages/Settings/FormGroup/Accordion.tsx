@@ -12,7 +12,6 @@ const AccordionWrapper = styled.div`
 `;
 
 const AccordionHeader = styled(Text)`
-  text-transform: capitalize;
   margin-bottom: ${(props) => props.theme.spaces[9]}px;
   cursor: pointer;
   display: flex;

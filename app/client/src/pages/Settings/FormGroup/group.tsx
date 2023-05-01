@@ -42,7 +42,6 @@ const GroupWrapper = styled.div`
 `;
 
 const GroupHeader = styled(Text)`
-  text-transform: capitalize;
   margin-bottom: ${(props) => props.theme.spaces[9]}px;
   font-size: 20px;
   font-weight: 500;
