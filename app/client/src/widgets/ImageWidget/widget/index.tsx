@@ -92,7 +92,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
           {
             helpText: "Controls the max zoom of the widget",
             propertyName: "maxZoomLevel",
-            label: "Max Zoom Level",
+            label: "Max zoom level",
             controlType: "DROP_DOWN",
             options: [
               {

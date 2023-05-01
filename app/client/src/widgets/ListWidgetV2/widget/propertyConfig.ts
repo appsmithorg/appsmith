@@ -330,12 +330,12 @@ export const PropertyPaneContentConfig = [
     ],
   },
   {
-    sectionName: "Item Selection",
+    sectionName: "Item selection",
     children: [
       {
         propertyName: "defaultSelectedItem",
         helpText: "Selects Item by default by using a valid data identifier",
-        label: "Default Selected Item",
+        label: "Default selected item",
         controlType: "INPUT_TEXT",
         placeholderText: "001",
         isBindProperty: true,

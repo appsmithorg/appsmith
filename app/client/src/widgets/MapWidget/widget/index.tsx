@@ -170,7 +170,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "zoomLevel",
-            label: "Zoom Level",
+            label: "Zoom level",
             controlType: "STEP",
             helpText: "Changes the default zoom of the map",
             stepType: "ZOOM_PERCENTAGE",
@@ -208,7 +208,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
           },
           {
             propertyName: "isClickedMarkerCentered",
-            label: "Map & Marker centering",
+            label: "Map & marker centering",
             helpText:
               "Controls whether the clicked marker is centered on the map",
             controlType: "SWITCH",
@@ -237,7 +237,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "Create Marker",
+        sectionName: "Create marker",
         children: [
           {
             propertyName: "enableCreateMarker",
