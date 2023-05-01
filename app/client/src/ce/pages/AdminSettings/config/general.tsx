@@ -103,7 +103,7 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
         tooltip: {
           icon: "question-line",
           text: "Lets all domains, including malicious ones, embed your Appsmith apps. ",
-          linkText: "SEE WHY THIS IS RISKY",
+          linkText: "Find out why it's risky",
           link: "https://docs.appsmith.com/getting-started/setup/instance-configuration/frame-ancestors#why-should-i-control-this",
         },
         label: "Allow embedding everywhere",

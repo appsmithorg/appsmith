@@ -21,6 +21,9 @@ const HeaderWrapper = styled.div`
     margin-left: 8px;
     cursor: pointer;
   }
+  .title-text {
+    font-weight: 500;
+  }
 `;
 
 function CopyUrlForm(props: {
@@ -45,7 +48,12 @@ function CopyUrlForm(props: {
   return (
     <div>
       <HeaderWrapper>
-        <Text color="var(--ads-v2-color-fg)" kind="body-m" renderAs="label">
+        <Text
+          className="title-text"
+          color="var(--ads-v2-color-fg)"
+          kind="body-m"
+          renderAs="label"
+        >
           {props.title}
         </Text>
         {props.tooltip && (

@@ -9,7 +9,7 @@ import { Field } from "redux-form";
 import styled from "styled-components";
 import { Position } from "@blueprintjs/core";
 import type { RadioProps } from "design-system";
-import { Button, Icon, Radio, RadioGroup, Tag, Text } from "design-system";
+import { Icon, Link, Radio, RadioGroup, Tag, Text } from "design-system";
 
 type RadioOption = {
   node?: ReactElement;
@@ -134,21 +134,22 @@ function RadioFieldWrapper(
                         <Text
                           className="tooltip-text"
                           color="var(--ads-v2-color-fg)"
-                          kind="action-s"
+                          kind="action-m"
                           renderAs="p"
                         >
                           {item.tooltip.text}
                         </Text>
-                        <Button
-                          href={item.tooltip.link}
-                          renderAs="a"
-                          size="sm"
+                        <Link
+                          endIcon="arrow-right-line"
+                          kind="primary"
                           target="_blank"
+                          to={item.tooltip.link}
                         >
                           {item.tooltip.linkText}
-                        </Button>
+                        </Link>
                       </TooltipContent>
                     }
+                    interactionKind="hover"
                     position={Position.RIGHT}
                   >
                     <Icon className="icon" name={item.tooltip.icon} size="md" />

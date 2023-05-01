@@ -30,7 +30,7 @@ export const SettingsFormWrapper = styled.div`
 `;
 
 export const MaxWidthWrapper = styled.div`
-  max-width: 40rem;
+  max-width: 30rem;
 `;
 
 export const BottomSpace = styled.div`
@@ -50,4 +50,8 @@ export const LoaderContainer = styled.div`
 export const ContentBox = styled.div`
   border-radius: var(--ads-v2-border-radius);
   border-color: var(--ads-v2-color-border);
+
+  .business-tag {
+    width: fit-content;
+  }
 `;

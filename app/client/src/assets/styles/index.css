@@ -70,3 +70,8 @@ and .Toastify__toast-container--bottom-center classes, which messes with the pla
 .hidden-scrollbar::-webkit-scrollbar {
   display: none; /* for Chrome, Safari, and Opera */
 }
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--ads-v2-color-fg-subtle);
+}

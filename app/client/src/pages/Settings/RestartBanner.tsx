@@ -73,9 +73,7 @@ const HeaderContents = styled.div`
   gap: 8px;
 `;
 
-const Heading = styled(Text)`
-  text-transform: capitalize;
-`;
+const Heading = styled(Text)``;
 
 const AppIconWrapper = styled.div`
   background: var(--ads-v2-color-bg-error);

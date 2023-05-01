@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "design-system";
+import { Button, Tag } from "design-system";
 import { ContentBox } from "pages/Settings/components";
 import {
   ADMIN_BRANDING_SETTINGS_SUBTITLE,
@@ -28,9 +28,9 @@ const UpgradeBanner = () => {
     <div className="pb-4 pr-7">
       <ContentBox className="flex items-center justify-between p-6 border">
         <main>
-          <div className="inline-block px-1 text-xs text-blue-900 uppercase bg-blue-100">
+          <Tag className="business-tag" isClosable={false}>
             Business
-          </div>
+          </Tag>
           <SettingsHeader
             className="mt-1"
             color="var(--ads-v2-color-fg-emphasis-plus)"

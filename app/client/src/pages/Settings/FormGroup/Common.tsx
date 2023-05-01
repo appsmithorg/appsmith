@@ -12,7 +12,7 @@ type FieldHelperProps = {
 };
 
 export const StyledFormGroup = styled.div`
-  width: 40rem;
+  width: 30rem;
   margin-bottom: ${(props) => props.theme.spaces[7]}px;
   &.t--admin-settings-dropdown {
     div {
@@ -32,6 +32,9 @@ export const StyledFormGroup = styled.div`
 
 export const StyledLabel = styled.div`
   margin-bottom: 8px;
+  .admin-settings-form-group-label {
+    font-weight: 500;
+  }
 `;
 
 export const StyledSubtext = styled(Text)`
@@ -42,6 +45,7 @@ export const StyledSubtext = styled(Text)`
 export const StyledAsterisk = styled(Text)`
   color: var(--ads-v2-color-fg-error);
   margin-left: 2px;
+  font-weight: 500;
 `;
 
 export function FormGroup({
@@ -58,6 +62,7 @@ export function FormGroup({
       <StyledLabel>
         {setting.label && !isToggle && (
           <Text
+            className="admin-settings-form-group-label"
             color="var(--ads-v2-color-fg)"
             data-testid="admin-settings-form-group-label"
             kind="body-m"
