@@ -94,7 +94,7 @@ export class ContainerWidget extends BaseWidget<
             helpText: "Use a html color name, HEX, RGB or RGBA value",
             placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
             propertyName: "backgroundColor",
-            label: "Background Color",
+            label: "Background color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,

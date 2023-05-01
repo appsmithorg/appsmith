@@ -228,7 +228,7 @@ class ButtonGroupWidget extends BaseWidget<
                                 propertyName: "backgroundColor",
                                 helpText:
                                   "Sets the background color of a menu item",
-                                label: "Background Color",
+                                label: "Background color",
                                 controlType: "COLOR_PICKER",
                                 isJSConvertible: true,
                                 isBindProperty: true,

@@ -106,7 +106,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
           {
             propertyName: "backgroundColor",
             helpText: "Sets the background color of the widget",
-            label: "Background Color",
+            label: "Background color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,

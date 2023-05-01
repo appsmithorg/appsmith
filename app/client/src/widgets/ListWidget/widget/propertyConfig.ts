@@ -147,7 +147,7 @@ export const PropertyPaneStyleConfig = [
     children: [
       {
         propertyName: "itemBackgroundColor",
-        label: "Item Background Color",
+        label: "Item Background color",
         helpText: "Background color of the list item",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
@@ -167,7 +167,7 @@ export const PropertyPaneStyleConfig = [
       },
       {
         propertyName: "backgroundColor",
-        label: "Background Color",
+        label: "Background color",
         helpText: "Background color of the list container",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,

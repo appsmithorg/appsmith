@@ -236,7 +236,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           },
           {
             propertyName: "backgroundColor",
-            label: "Background Color",
+            label: "Background color",
             helpText: "Background color of the text added",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,

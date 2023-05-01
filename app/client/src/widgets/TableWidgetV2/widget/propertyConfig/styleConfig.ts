@@ -163,7 +163,7 @@ export default [
     children: [
       {
         propertyName: "cellBackground",
-        label: "Cell Background Color",
+        label: "Cell background color",
         helpText: "Changes the background color of the cell",
         controlType: "COLOR_PICKER",
         updateHook: updateColumnStyles,

@@ -99,7 +99,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "backgroundColor",
-            label: "Cell Background Color",
+            label: "Cell background color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -516,7 +516,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           },
           {
             propertyName: "backgroundColor",
-            label: "Background Color",
+            label: "Background color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
