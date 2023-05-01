@@ -234,24 +234,24 @@ public class OracleExecutionTest {
         insertQueryActionConfig.setFormData(insertQueryFormData);
 
         LinkedHashMap<String, List> bindingNameToValueAndDataTypeMap = new LinkedHashMap<>();
-        bindingNameToValueAndDataTypeMap.put("binding1", List.of("varchar2", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding2", List.of("nvarchar2", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding3", List.of("3", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding4", List.of("11.22", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding5", List.of("03-OCT-02", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding6", List.of("11.22", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding7", List.of("11.22", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding8", List.of("1997-01-01 09:26:50.124", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding9", List.of("1997-01-01 09:26:50.124", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding10", List.of("1997-01-01 09:26:50.124", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding11", List.of("1", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding12", List.of("1", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding13", List.of("000001F8.0001.0006", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding14", List.of("000001F8.0001.0006", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding15", List.of("char", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding16", List.of("nchar", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding17", List.of("clob", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding18", List.of("nclob", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding1", List.of("varchar2", ClientDataType.STRING));
+        bindingNameToValueAndDataTypeMap.put("binding2", List.of("nvarchar2", ClientDataType.STRING));
+        bindingNameToValueAndDataTypeMap.put("binding3", List.of("3", ClientDataType.NUMBER));
+        bindingNameToValueAndDataTypeMap.put("binding4", List.of("11.22", ClientDataType.NUMBER));
+        bindingNameToValueAndDataTypeMap.put("binding5", List.of("03-OCT-02", ClientDataType.STRING));
+        bindingNameToValueAndDataTypeMap.put("binding6", List.of("11.22", ClientDataType.NUMBER));
+        bindingNameToValueAndDataTypeMap.put("binding7", List.of("11.22", ClientDataType.NUMBER));
+        bindingNameToValueAndDataTypeMap.put("binding8", List.of("1997-01-01 09:26:50.124", ClientDataType.STRING));
+        bindingNameToValueAndDataTypeMap.put("binding9", List.of("1997-01-01 09:26:50.124", ClientDataType.STRING));
+        bindingNameToValueAndDataTypeMap.put("binding10", List.of("1997-01-01 09:26:50.124", ClientDataType.STRING));
+        bindingNameToValueAndDataTypeMap.put("binding11", List.of("1", ClientDataType.NUMBER));
+        bindingNameToValueAndDataTypeMap.put("binding12", List.of("1", ClientDataType.NUMBER));
+        bindingNameToValueAndDataTypeMap.put("binding13", List.of("000001F8.0001.0006", ClientDataType.STRING));
+        bindingNameToValueAndDataTypeMap.put("binding14", List.of("000001F8.0001.0006", ClientDataType.STRING));
+        bindingNameToValueAndDataTypeMap.put("binding15", List.of("char", ClientDataType.STRING));
+        bindingNameToValueAndDataTypeMap.put("binding16", List.of("nchar", ClientDataType.STRING));
+        bindingNameToValueAndDataTypeMap.put("binding17", List.of("clob", ClientDataType.STRING));
+        bindingNameToValueAndDataTypeMap.put("binding18", List.of("nclob", ClientDataType.STRING));
 
         ExecuteActionDTO executeActionDTO =
                 getExecuteDTOForTestWithBindingAndValueAndDataType(bindingNameToValueAndDataTypeMap);
@@ -272,24 +272,24 @@ public class OracleExecutionTest {
         insertQueryActionConfig.setFormData(insertQueryFormData);
 
         LinkedHashMap<String, List> bindingNameToValueAndDataTypeMap = new LinkedHashMap<>();
-        bindingNameToValueAndDataTypeMap.put("binding1", List.of("varchar2", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding2", List.of("nvarchar2", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding3", List.of("5", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding4", List.of("11.22", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding5", List.of("03-OCT-02", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding6", List.of("11.22", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding7", List.of("11.22", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding8", List.of("1997-01-01 09:26:50.124", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding9", List.of("1997-01-01 09:26:50.124", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding10", List.of("1997-01-01 09:26:50.124", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding11", List.of("1", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding12", List.of("1", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding13", List.of("000001F8.0001.0006", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding14", List.of("000001F8.0001.0006", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding15", List.of("char", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding16", List.of("nchar", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding17", List.of("clob", ClientDataType.NULL));
-        bindingNameToValueAndDataTypeMap.put("binding18", List.of("nclob", ClientDataType.NULL));
+        bindingNameToValueAndDataTypeMap.put("binding1", List.of("varchar2", ClientDataType.STRING));
+        bindingNameToValueAndDataTypeMap.put("binding2", List.of("nvarchar2", ClientDataType.STRING));
+        bindingNameToValueAndDataTypeMap.put("binding3", List.of("5", ClientDataType.NUMBER));
+        bindingNameToValueAndDataTypeMap.put("binding4", List.of("11.22", ClientDataType.NUMBER));
+        bindingNameToValueAndDataTypeMap.put("binding5", List.of("03-OCT-02", ClientDataType.STRING));
+        bindingNameToValueAndDataTypeMap.put("binding6", List.of("11.22", ClientDataType.NUMBER));
+        bindingNameToValueAndDataTypeMap.put("binding7", List.of("11.22", ClientDataType.NUMBER));
+        bindingNameToValueAndDataTypeMap.put("binding8", List.of("1997-01-01 09:26:50.124", ClientDataType.STRING));
+        bindingNameToValueAndDataTypeMap.put("binding9", List.of("1997-01-01 09:26:50.124", ClientDataType.STRING));
+        bindingNameToValueAndDataTypeMap.put("binding10", List.of("1997-01-01 09:26:50.124", ClientDataType.STRING));
+        bindingNameToValueAndDataTypeMap.put("binding11", List.of("1", ClientDataType.NUMBER));
+        bindingNameToValueAndDataTypeMap.put("binding12", List.of("1", ClientDataType.NUMBER));
+        bindingNameToValueAndDataTypeMap.put("binding13", List.of("000001F8.0001.0006", ClientDataType.STRING));
+        bindingNameToValueAndDataTypeMap.put("binding14", List.of("000001F8.0001.0006", ClientDataType.STRING));
+        bindingNameToValueAndDataTypeMap.put("binding15", List.of("char", ClientDataType.STRING));
+        bindingNameToValueAndDataTypeMap.put("binding16", List.of("nchar", ClientDataType.STRING));
+        bindingNameToValueAndDataTypeMap.put("binding17", List.of("clob", ClientDataType.STRING));
+        bindingNameToValueAndDataTypeMap.put("binding18", List.of("nclob", ClientDataType.STRING));
 
         ExecuteActionDTO executeActionDTO =
                 getExecuteDTOForTestWithBindingAndValueAndDataType(bindingNameToValueAndDataTypeMap);
