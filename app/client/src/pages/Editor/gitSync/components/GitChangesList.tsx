@@ -201,7 +201,7 @@ export default function GitChangesList() {
   }
   return loading ? (
     <DummyChange data-testid={"t--git-change-loading-dummy"} />
-  ) : (
+  ) : changes.length ? (
     <Changes data-testid={"t--git-change-statuses"}>{changes}</Changes>
-  );
+  ) : null;
 }

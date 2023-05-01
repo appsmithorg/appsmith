@@ -20,8 +20,11 @@ const Wrapper = styled.div`
   flex-direction: row;
   margin-top: ${(props) => `${props.theme.spaces[3]}px`};
   width: 45%;
-  align-items: center;
+  align-items: flex-start;
   gap: 5px;
+  .ads-v2-icon {
+    margin-top: 3px;
+  }
 `;
 
 function MergeStatus({
@@ -56,7 +59,7 @@ function MergeStatus({
             <Icon
               color="var(--ads-v2-color-fg-error)"
               name="alert-line"
-              size="lg"
+              size="md"
             />
             <Text color="var(--ads-v2-color-fg-error)" kind="body-m">
               {message}

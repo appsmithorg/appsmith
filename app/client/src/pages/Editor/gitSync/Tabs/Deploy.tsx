@@ -14,7 +14,6 @@ import {
   READ_DOCUMENTATION,
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
-import { ScrollIndicator } from "design-system-old";
 import {
   Button,
   Callout,
@@ -278,24 +277,17 @@ function Deploy() {
           data-testid={"t--deploy-tab-container"}
           ref={scrollWrapperRef}
         >
-          <Space size={2} />
           <Section>
             {hasChangesToCommit && (
               <Text
+                color={"var(--ads-v2-color-fg-emphasis)"}
                 data-testid={"t--git-deploy-change-reason-text"}
-                kind={"body-m"}
+                kind="heading-s"
               >
                 {changeReasonText}
               </Text>
             )}
             <GitChangesList />
-            <Row>
-              <Text>{createMessage(COMMIT_TO)}</Text>
-              <Text className="branch" color={"var(--ads-v2-color-fg-brand)"}>
-                &nbsp;{currentBranch}
-              </Text>
-            </Row>
-            <Space size={3} />
             <SubmitWrapper
               onSubmit={() => {
                 if (!commitButtonDisabled) handleCommit(true);
@@ -305,6 +297,17 @@ function Deploy() {
                 autoFocus
                 className="t--commit-comment-input"
                 isDisabled={commitInputDisabled}
+                label={
+                  <Row>
+                    <Text>{createMessage(COMMIT_TO)}</Text>
+                    <Text
+                      className="branch"
+                      color={"var(--ads-v2-color-fg-brand)"}
+                    >
+                      &nbsp;{currentBranch}
+                    </Text>
+                  </Row>
+                }
                 onChange={setCommitMessage}
                 placeholder={"Your commit message here"}
                 ref={commitInputRef}
@@ -395,11 +398,6 @@ function Deploy() {
           {!pullRequired && !isConflicting && (
             <DeployPreview showSuccess={isCommitAndPushSuccessful} />
           )}
-          <ScrollIndicator
-            containerRef={scrollWrapperRef}
-            mode="DARK"
-            top="37px"
-          />
         </Container>
       </ModalBody>
       <ModalFooter key="footer">

@@ -230,9 +230,10 @@ export default function Merge() {
     <>
       <ModalBody>
         <Container>
+          <Text color={"var(--ads-v2-color-fg-emphasis)"} kind="heading-s">
+            {createMessage(SELECT_BRANCH_TO_MERGE)}
+          </Text>
           <Space size={2} />
-          <Text>{createMessage(SELECT_BRANCH_TO_MERGE)}</Text>
-          <Space size={4} />
           <Row>
             <Select
               className="t--merge-branch-dropdown-destination"

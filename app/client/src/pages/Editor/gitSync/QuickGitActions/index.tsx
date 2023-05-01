@@ -52,6 +52,10 @@ type QuickActionButtonProps = {
   tooltipText: string;
 };
 
+const SpinnerContainer = styled.div`
+  padding: 0 10px;
+`;
+
 const QuickActionButtonContainer = styled.div<{ disabled?: boolean }>`
   margin: 0 ${(props) => props.theme.spaces[1]}px;
 
@@ -99,9 +103,9 @@ function QuickActionButton({
         onClick={onClick}
       >
         {loading ? (
-          <div className="t--loader-quick-git-action">
+          <SpinnerContainer className="t--loader-quick-git-action">
             <SpinnerLoader size="md" />
-          </div>
+          </SpinnerContainer>
         ) : (
           <div>
             <Button isIconButton kind="tertiary" size="md" startIcon={icon} />

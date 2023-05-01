@@ -5,6 +5,11 @@ import {
   getGitConnectError,
 } from "selectors/gitSyncSelectors";
 import { Callout, Text } from "design-system";
+import styled from "styled-components";
+
+const Container = styled.div`
+  width: calc(100% - 39px);
+`;
 
 export default function GitConnectError({
   onClose,
@@ -31,25 +36,27 @@ export default function GitConnectError({
   };
 
   return error ? (
-    <Callout
-      className="t--git-connection-error error"
-      isClosable
-      kind="error"
-      links={[
-        {
-          children: "Learn More",
-          onClick: learnMoreClickHandler,
-        },
-      ]}
-      onClose={onClose}
-    >
-      <Text kind="heading-s" style={{ marginBottom: "8px" }}>
-        {titleMessage}
-      </Text>
-      <br />
-      <Text kind="body-m" style={{ marginBottom: "8px" }}>
-        {error?.message}
-      </Text>
-    </Callout>
+    <Container>
+      <Callout
+        className="t--git-connection-error error"
+        isClosable
+        kind="error"
+        links={[
+          {
+            children: "Learn More",
+            onClick: learnMoreClickHandler,
+          },
+        ]}
+        onClose={onClose}
+      >
+        <Text kind="heading-s" style={{ marginBottom: "8px" }}>
+          {titleMessage}
+        </Text>
+        <br />
+        <Text kind="body-m" style={{ marginBottom: "8px" }}>
+          {error?.message}
+        </Text>
+      </Callout>
+    </Container>
   ) : null;
 }

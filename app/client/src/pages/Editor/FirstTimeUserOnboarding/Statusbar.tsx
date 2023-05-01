@@ -252,7 +252,7 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
       <TitleWrapper>
         {createMessage(ONBOARDING_STATUS_GET_STARTED)}
       </TitleWrapper>
-      <StatusText className="mt-2">
+      <StatusText className="mt-1">
         <span data-testid="statusbar-text">{content}</span>&nbsp;&nbsp;
         {!isChecklistPage && (
           <Icon className="hover-icons" name="right-arrow-2" size="md" />

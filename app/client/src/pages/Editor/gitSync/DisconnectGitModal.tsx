@@ -11,11 +11,12 @@ import {
   Callout,
   Input,
   Modal,
+  ModalBody,
   ModalContent,
+  ModalFooter,
   ModalHeader,
   Text,
 } from "design-system";
-import { Colors } from "constants/Colors";
 import {
   APPLICATION_NAME,
   createMessage,
@@ -26,11 +27,6 @@ import {
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Space } from "./components/StyledComponents";
-import styled from "styled-components";
-
-const ButtonContainer = styled.div`
-  width: 100px;
-`;
 
 function DisconnectGitModal() {
   const dispatch = useDispatch();
@@ -62,48 +58,47 @@ function DisconnectGitModal() {
     >
       <ModalContent>
         <ModalHeader>
-          <Text kind="heading-l">
-            {createMessage(GIT_REVOKE_ACCESS, disconnectingApp.name)}
-          </Text>
+          {createMessage(GIT_REVOKE_ACCESS, disconnectingApp.name)}
         </ModalHeader>
-        <Text color={Colors.OXFORD_BLUE}>
-          {createMessage(
-            GIT_TYPE_REPO_NAME_FOR_REVOKING_ACCESS,
-            disconnectingApp.name,
-          )}
-        </Text>
-        <Space size={2} />
-        <Input
-          className="t--git-app-name-input"
-          label={createMessage(APPLICATION_NAME)}
-          onBlur={(event: React.FocusEvent<any, Element>) => {
-            AnalyticsUtil.logEvent(
-              "GS_MATCHING_REPO_NAME_ON_GIT_DISCONNECT_MODAL",
+        <ModalBody>
+          <Text color={"var(--ads-v2-color-fg-emphasis)"} kind="heading-s">
+            {createMessage(
+              GIT_TYPE_REPO_NAME_FOR_REVOKING_ACCESS,
+              disconnectingApp.name,
+            )}
+          </Text>
+          <Space size={2} />
+          <Input
+            className="t--git-app-name-input"
+            label={createMessage(APPLICATION_NAME)}
+            onBlur={(event: React.FocusEvent<any, Element>) => {
+              AnalyticsUtil.logEvent(
+                "GS_MATCHING_REPO_NAME_ON_GIT_DISCONNECT_MODAL",
+                {
+                  value: event.target.value,
+                  expecting: disconnectingApp.name,
+                },
+              );
+            }}
+            onChange={(value: string) => setAppName(value)}
+            size="md"
+            value={appName}
+          />
+          <Space size={2} />
+          <Callout
+            kind="error"
+            links={[
               {
-                value: event.target.value,
-                expecting: disconnectingApp.name,
+                children: "Learn More",
+                to: gitDisconnectDocumentUrl,
+                className: "t--disconnect-learn-more",
               },
-            );
-          }}
-          onChange={(value: string) => setAppName(value)}
-          size="md"
-          value={appName}
-        />
-        <Space size={2} />
-        <Callout
-          kind="error"
-          links={[
-            {
-              children: "Learn More",
-              to: gitDisconnectDocumentUrl,
-              className: "t--disconnect-learn-more",
-            },
-          ]}
-        >
-          {createMessage(NONE_REVERSIBLE_MESSAGE)}
-        </Callout>
-        <Space size={2} />
-        <ButtonContainer>
+            ]}
+          >
+            {createMessage(NONE_REVERSIBLE_MESSAGE)}
+          </Callout>
+        </ModalBody>
+        <ModalFooter>
           <Button
             className="t--git-revoke-button"
             isDisabled={shouldDisableRevokeButton}
@@ -113,7 +108,7 @@ function DisconnectGitModal() {
           >
             {createMessage(REVOKE)}
           </Button>
-        </ButtonContainer>
+        </ModalFooter>
       </ModalContent>
     </Modal>
   );
