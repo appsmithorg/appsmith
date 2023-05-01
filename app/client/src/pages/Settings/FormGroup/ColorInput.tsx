@@ -52,11 +52,11 @@ const StyledColorInputIcon = styled.input`
   border: none;
   cursor: pointer;
   position: absolute;
-  top: 6px;
+  top: 8px;
   left: 8px;
   bottom: 0;
-  width: 22px;
-  height: 22px !important;
+  width: 20px;
+  height: 20px !important;
   padding-left: 0 !important;
   border: red;
   z-index: 1;

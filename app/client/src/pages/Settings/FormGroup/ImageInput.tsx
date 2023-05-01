@@ -66,7 +66,7 @@ export const ImageInput = (props: ImageInputProps) => {
         className="h-8"
         src={getAssetUrl((preview as any) || value)}
       />
-      <div className="absolute inset-0 items-center justify-center hidden gap-2 bg-black group-hover:flex bg-opacity-20">
+      <div className="absolute inset-0 items-center justify-center hidden gap-2 group-hover:flex bg-opacity-20 hover-state">
         <Button onClick={onFileInputClick} size="md" startIcon="upload-line">
           Upload file
         </Button>

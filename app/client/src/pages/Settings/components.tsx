@@ -54,6 +54,11 @@ export const ContentBox = styled.div`
   .business-tag {
     width: fit-content;
   }
+
+  .hover-state {
+    border-radius: var(--ads-v2-border-radius);
+    background-color: var(--ads-v2-color-bg-subtle);
+  }
 `;
 
 export const HelperText = styled(Text)`
