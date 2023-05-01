@@ -27,7 +27,7 @@ const SectionTitle = styled.span`
 
 const SectionWrapper = styled.div`
   position: relative;
-  border-top: 1px solid ${Colors.GREY_4};
+  border-top: 1px solid var(--ads-v2-color-border);
   padding: 12px 16px;
 
   &:first-of-type {
