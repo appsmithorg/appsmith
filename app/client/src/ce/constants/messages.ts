@@ -690,10 +690,10 @@ export const GIT_DISCONNECT_POPUP_SUBTITLE = () =>
   `Git features will no more be shown for this application`;
 export const GIT_DISCONNECT_POPUP_MAIN_HEADING = () => `Are you sure?`;
 
-export const GIT_CONNECTION = () => "Git Connection";
-export const GIT_IMPORT = () => "Git Import";
+export const GIT_CONNECTION = () => "Git connection";
+export const GIT_IMPORT = () => "Git import";
 export const MERGE = () => "Merge";
-export const GIT_SETTINGS = () => "Git Settings";
+export const GIT_SETTINGS = () => "Git settings";
 export const CONNECT_TO_GIT = () => "Connect to Git repository";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
   "Checkout branches, make commits, and deploy your application";
