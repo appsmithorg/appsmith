@@ -55,6 +55,7 @@ export interface UpdateUserRequest {
   email?: string;
   role?: string;
   useCase?: string;
+  intercomConsentGiven?: boolean;
 }
 
 export interface SendTestEmailPayload {

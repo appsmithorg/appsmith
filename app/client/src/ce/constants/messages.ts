@@ -17,6 +17,8 @@ export const APPSMITH_DISPLAY_VERSION = (
   version: string,
   cloudHosting: boolean,
 ) => `Appsmith ${!cloudHosting ? edition : ""} ${version}`;
+export const INTERCOM_CONSENT_MESSAGE = () =>
+  `Can we have your email for better support?`;
 export const YES = () => `Yes`;
 export const ARE_YOU_SURE = () => `Are you sure?`;
 export const ERROR_ADD_API_INVALID_URL = () =>
