@@ -1,5 +1,8 @@
 import React from "react";
-import { ConfirmRegeneration } from "./StyledComponents";
+import {
+  ConfirmRegeneration,
+  ConfirmRegenerationActions,
+} from "./StyledComponents";
 import {
   createMessage,
   DELETE_CONFIRMATION_MODAL_TITLE,
@@ -7,8 +10,7 @@ import {
   YES,
   CANCEL_DIALOG,
 } from "@appsmith/constants/messages";
-import { Text, TextType } from "design-system-old";
-import { Button, MenuItem } from "design-system";
+import { Button, MenuItem, Text } from "design-system";
 
 /**
  * getConfirmMenuItem
@@ -20,20 +22,20 @@ export function getConfirmMenuItem(
   cancel: () => void,
 ) {
   return (
-    <MenuItem>
-      <Text type={TextType.P3}>
-        {createMessage(REGENERATE_KEY_CONFIRM_MESSAGE)}
-      </Text>
+    <MenuItem className="menuitem-nohover">
+      <Text kind="body-s">{createMessage(REGENERATE_KEY_CONFIRM_MESSAGE)}</Text>
       <ConfirmRegeneration>
-        <Text type={TextType.P1}>
+        <Text kind="body-m">
           {createMessage(DELETE_CONFIRMATION_MODAL_TITLE)}
         </Text>
-        <Button kind="tertiary" onClick={cancel} size="sm">
-          {createMessage(CANCEL_DIALOG)}
-        </Button>
-        <Button onClick={regenerateKey} size="sm">
-          {createMessage(YES)}
-        </Button>
+        <ConfirmRegenerationActions>
+          <Button kind="secondary" onClick={cancel} size="sm">
+            {createMessage(CANCEL_DIALOG)}
+          </Button>
+          <Button onClick={regenerateKey} size="sm">
+            {createMessage(YES)}
+          </Button>
+        </ConfirmRegenerationActions>
       </ConfirmRegeneration>
     </MenuItem>
   );

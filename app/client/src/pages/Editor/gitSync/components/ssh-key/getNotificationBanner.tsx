@@ -8,13 +8,11 @@ import { Callout } from "design-system";
 
 /**
  * getNotificationBanner returns a notification banner about copying the key to repo settings.
- * @param link
  * @param learnMoreClickHandler {() => void} link that takes user to documentation
  * @param setShowKeyGeneratedMessage {( value: ((prevState: boolean) => boolean) | boolean ) => void}
  */
 export default function getNotificationBanner(
-  link: string,
-  learnMoreClickHandler: () => void,
+  learnMoreClickHandler: (e: React.MouseEvent) => void,
   setShowKeyGeneratedMessage: (value: boolean) => void,
 ): JSX.Element {
   return (
@@ -26,7 +24,6 @@ export default function getNotificationBanner(
         links={[
           {
             children: "Learn More",
-            to: link,
             onClick: learnMoreClickHandler,
           },
         ]}

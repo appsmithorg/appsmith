@@ -31,14 +31,20 @@ export const ConfirmRegeneration = styled(FlexRow)`
   justify-content: space-between;
 `;
 
-export const KeyType = styled.span<{ keyType: string }>`
+export const ConfirmRegenerationActions = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 5px;
+`;
+
+export const KeyType = styled.span`
   font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
-  color: var(--appsmith-color-black-900);
+  color: var(--ads-v2-color-fg);
 `;
 
-export const KeyText = styled.span<{ keyType: string }>`
+export const KeyText = styled.span`
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -46,7 +52,7 @@ export const KeyText = styled.span<{ keyType: string }>`
   font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
-  color: var(--ads-v2-color-gray-600);
+  color: var(--ads-v2-color-fg);
   direction: rtl;
   margin-right: 8px;
 `;
@@ -56,8 +62,8 @@ export const MoreMenuWrapper = styled.div`
   margin-top: 3px;
 `;
 
-export const ConfirmMenuItem = styled.div`
-  padding: 16px 12px;
+export const IconContainer = styled.div`
+  margin-top: -3px;
 `;
 
 export const NotificationBannerContainer = styled.div`

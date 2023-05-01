@@ -26,7 +26,6 @@ import styled from "styled-components";
 import { emailValidator, ScrollIndicator } from "design-system-old";
 import UserGitProfileSettings from "../components/UserGitProfileSettings";
 import { AUTH_TYPE_OPTIONS, Classes } from "../constants";
-// import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import copy from "copy-to-clipboard";
 import {
@@ -60,7 +59,6 @@ import Statusbar, {
 } from "pages/Editor/gitSync/components/Statusbar";
 import Keys from "../components/ssh-key";
 import GitConnectError from "../components/GitConnectError";
-// import Link from "../components/Link";
 import {
   Button,
   Input,
@@ -74,14 +72,9 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { GIT_DOC_URLs, isValidGitRemoteUrl } from "../utils";
 import { useGitConnect, useSSHKeyPair } from "../hooks";
 
-export const UrlOptionContainer = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
 const UrlContainer = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 3px;
 `;
 
@@ -356,45 +349,47 @@ function GitConnection({ isImport }: Props) {
           data-test="t--git-connection-container"
           ref={scrollWrapperRef}
         >
-          <Space size={2} />
-          <Text color={"var(--ads-v2-color-fg-emphasis)"} kind="body-m">
+          <Text color={"var(--ads-v2-color-fg-emphasis)"} kind="heading-s">
             {createMessage(CONNECT_TO_GIT_SUBTITLE)}
           </Text>
-          <Space size={1} />
-          <UrlOptionContainer data-test="t--remote-url-container">
-            <Text color="var(--ads-v2-color-fg)" renderAs="label">
-              {createMessage(REMOTE_URL)}
-            </Text>
-          </UrlOptionContainer>
-          {!SSHKeyPair ? (
-            <RemoteUrlInfoWrapper>
-              <Text kind="body-s">
-                {createMessage(isImport ? IMPORT_URL_INFO : REMOTE_URL_INFO)}
-              </Text>
-              <Link
-                className="t--learn-more-ssh-url learn-more-link"
-                kind="primary"
-                onClick={(e: React.MouseEvent) => {
-                  e.preventDefault();
-                  AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
-                    source: "REMOTE_URL_ON_GIT_CONNECTION_MODAL",
-                  });
-                  window.open(RepoUrlDocumentUrl, "_blank");
-                }}
-                target={"_blank"}
-                to={RepoUrlDocumentUrl}
-              >
-                {createMessage(LEARN_MORE)}
-              </Link>
-            </RemoteUrlInfoWrapper>
-          ) : null}
-          <UrlContainer>
+          <Space size={2} />
+          <UrlContainer data-test="t--remote-url-container">
             <Input
               className="t--git-repo-input"
+              description={
+                !SSHKeyPair ? (
+                  <RemoteUrlInfoWrapper>
+                    <Text kind="body-s">
+                      {createMessage(
+                        isImport ? IMPORT_URL_INFO : REMOTE_URL_INFO,
+                      )}
+                    </Text>
+                    <Link
+                      className="t--learn-more-ssh-url learn-more-link"
+                      kind="primary"
+                      onClick={(e: React.MouseEvent) => {
+                        e.preventDefault();
+                        AnalyticsUtil.logEvent(
+                          "GS_GIT_DOCUMENTATION_LINK_CLICK",
+                          {
+                            source: "REMOTE_URL_ON_GIT_CONNECTION_MODAL",
+                          },
+                        );
+                        window.open(RepoUrlDocumentUrl, "_blank");
+                      }}
+                      target={"_blank"}
+                      to={RepoUrlDocumentUrl}
+                    >
+                      {createMessage(LEARN_MORE)}
+                    </Link>
+                  </RemoteUrlInfoWrapper>
+                ) : null
+              }
               errorMessage={
                 isInvalidRemoteUrl ? createMessage(PASTE_SSH_URL_INFO) : ""
               }
               isDisabled={remoteUrl === remoteUrlInStore && !!remoteUrl}
+              label={createMessage(REMOTE_URL)}
               onChange={remoteUrlChangeHandler}
               placeholder={placeholderText}
               size="md"

@@ -278,24 +278,17 @@ function Deploy() {
           data-testid={"t--deploy-tab-container"}
           ref={scrollWrapperRef}
         >
-          <Space size={2} />
           <Section>
             {hasChangesToCommit && (
               <Text
+                color={"var(--ads-v2-color-fg-emphasis)"}
                 data-testid={"t--git-deploy-change-reason-text"}
-                kind={"body-m"}
+                kind="heading-s"
               >
                 {changeReasonText}
               </Text>
             )}
             <GitChangesList />
-            <Row>
-              <Text>{createMessage(COMMIT_TO)}</Text>
-              <Text className="branch" color={"var(--ads-v2-color-fg-brand)"}>
-                &nbsp;{currentBranch}
-              </Text>
-            </Row>
-            <Space size={3} />
             <SubmitWrapper
               onSubmit={() => {
                 if (!commitButtonDisabled) handleCommit(true);
@@ -305,6 +298,17 @@ function Deploy() {
                 autoFocus
                 className="t--commit-comment-input"
                 isDisabled={commitInputDisabled}
+                label={
+                  <Row>
+                    <Text>{createMessage(COMMIT_TO)}</Text>
+                    <Text
+                      className="branch"
+                      color={"var(--ads-v2-color-fg-brand)"}
+                    >
+                      &nbsp;{currentBranch}
+                    </Text>
+                  </Row>
+                }
                 onChange={setCommitMessage}
                 placeholder={"Your commit message here"}
                 ref={commitInputRef}

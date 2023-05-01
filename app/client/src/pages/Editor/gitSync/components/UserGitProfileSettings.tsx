@@ -135,8 +135,8 @@ function UserGitProfileSettings({
 
   return (
     <MainContainer>
-      <Text className="label" kind="heading-s">
-        {createMessage(USER_PROFILE_SETTINGS_TITLE).toUpperCase()}
+      <Text className="label" color="var(ads-v2-color-fg)" kind="heading-s">
+        {createMessage(USER_PROFILE_SETTINGS_TITLE)}
       </Text>
       {showDefaultConfig ? (
         <DefaultConfigContainer>

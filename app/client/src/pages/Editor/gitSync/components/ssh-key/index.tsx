@@ -1,11 +1,9 @@
-import { Colors } from "constants/Colors";
 import {
   createMessage,
   SSH_KEY,
   SSH_KEY_GENERATED,
 } from "@appsmith/constants/messages";
 import React, { useCallback, useState } from "react";
-import Key2LineIcon from "remixicon-react/Key2LineIcon";
 import { Space } from "pages/Editor/gitSync/components/StyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useSSHKeyPair } from "../../hooks";
@@ -29,6 +27,7 @@ import {
   MenuItem,
   MenuContent,
   Text,
+  Icon,
 } from "design-system";
 
 type KeysProps = {
@@ -63,10 +62,12 @@ function Keys(props: KeysProps) {
   const exactKeyType = keyType.startsWith("ecdsa") ? "ECDSA" : "RSA";
   const supportedKeys = supportedKeyTypeList(defaultKeyTypes, exactKeyType);
   const keyText = `${keyVal} ${keyName}`;
-  const learnMoreClickHandler = () => {
+  const learnMoreClickHandler = (e: React.MouseEvent) => {
+    e.preventDefault();
     AnalyticsUtil.logEvent("GS_GIT_DOCUMENTATION_LINK_CLICK", {
       source: "SSH_KEY_ON_GIT_CONNECTION_TAB",
     });
+    window.open(deployKeyDocUrl, "_blank");
   };
   const regenerateKey = useCallback(() => {
     AnalyticsUtil.logEvent("GS_REGENERATE_SSH_KEY_CONFIRM_CLICK", {
@@ -90,13 +91,14 @@ function Keys(props: KeysProps) {
       <FlexRow style={{ position: "relative" }}>
         <DeployedKeyContainer $marginTop={1}>
           <FlexRow>
-            <Key2LineIcon
-              color={Colors.DOVE_GRAY2}
-              size={20}
-              style={{ marginTop: -3, marginRight: 4 }}
+            <Icon
+              color="var(--ads-v2-color-fg)"
+              name="key-2-line"
+              size="md"
+              style={{ marginTop: -5, marginRight: 4 }}
             />
-            <KeyType keyType={exactKeyType}>{keyType}</KeyType>
-            <KeyText keyType={exactKeyType}>{keyText}</KeyText>
+            <KeyType>{keyType}</KeyType>
+            <KeyText>{keyText}</KeyText>
             {CopySSHKey(showCopied, copyToClipboard)}
           </FlexRow>
         </DeployedKeyContainer>
@@ -148,7 +150,6 @@ function Keys(props: KeysProps) {
       </FlexRow>
       {showKeyGeneratedMessage &&
         getNotificationBanner(
-          deployKeyDocUrl,
           learnMoreClickHandler,
           setShowKeyGeneratedMessage,
         )}
