@@ -138,10 +138,10 @@ function ThemeEditor() {
                 />
               </MenuTrigger>
               <MenuContent align="end">
-                <MenuItem onClick={onOpenSaveModal} startIcon="edit">
+                <MenuItem onClick={onOpenSaveModal} startIcon="save">
                   Save theme
                 </MenuItem>
-                <MenuItem onClick={onResetTheme} startIcon="edit">
+                <MenuItem onClick={onResetTheme} startIcon="arrow-go-back">
                   Reset widget styles
                 </MenuItem>
               </MenuContent>
