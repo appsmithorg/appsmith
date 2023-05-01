@@ -31,8 +31,8 @@ describe("Verify various Table_Filter combinations", function () {
       From this PR onwards columns with number data (like id and orderAmount here)
       will be auto-assigned as "NUMBER" type column
     */
-    table.ChangeColumnType("id", "Plain Text", "v2");
-    table.ChangeColumnType("orderAmount", "Plain Text", "v2");
+    table.ChangeColumnType("id", "Plain text", "v2");
+    table.ChangeColumnType("orderAmount", "Plain text", "v2");
 
     deployMode.DeployApp();
   });

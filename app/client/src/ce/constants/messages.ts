@@ -221,7 +221,7 @@ export const LIGHTNING_MENU_DATA_WIDGET = () => `Use data from a widget`;
 export const LIGHTNING_MENU_QUERY_CREATE_NEW = () => `Create new query`;
 export const LIGHTNING_MENU_API_CREATE_NEW = () => `Create new API`;
 
-export const LIGHTNING_MENU_OPTION_TEXT = () => `Plain Text`;
+export const LIGHTNING_MENU_OPTION_TEXT = () => `Plain text`;
 export const LIGHTNING_MENU_OPTION_JS = () => `Write JS`;
 export const LIGHTNING_MENU_OPTION_HTML = () => `Write HTML`;
 export const CHECK_REQUEST_BODY = () =>

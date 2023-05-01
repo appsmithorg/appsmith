@@ -83,7 +83,7 @@ export default {
     {
       propertyName: "allowCellWrapping",
       dependencies: ["primaryColumns", "columnType"],
-      label: "Cell Wrapping",
+      label: "Cell wrapping",
       helpText: "Allows content of the cell to be wrapped",
       defaultValue: false,
       controlType: "SWITCH",
@@ -145,7 +145,7 @@ export default {
         "Choose column that needs to be frozen left or right of the table",
       controlType: "ICON_TABS",
       defaultValue: StickyType.NONE,
-      label: "Column Freeze",
+      label: "Column freeze",
       fullWidth: true,
       isBindProperty: true,
       isTriggerProperty: false,

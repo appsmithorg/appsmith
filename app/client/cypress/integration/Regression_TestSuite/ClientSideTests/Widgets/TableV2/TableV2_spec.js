@@ -159,15 +159,15 @@ describe("Table Widget V2 Functionality", function () {
         expected: "not.contain",
       },
       {
-        columnType: "Menu Button",
+        columnType: "Menu button",
         expected: "not.contain",
       },
       {
-        columnType: "Icon Button",
+        columnType: "Icon button",
         expected: "not.contain",
       },
       {
-        columnType: "Plain Text",
+        columnType: "Plain text",
         expected: "contain",
       },
       {

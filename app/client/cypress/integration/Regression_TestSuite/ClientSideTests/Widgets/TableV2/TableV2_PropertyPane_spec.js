@@ -151,7 +151,7 @@ describe("Table Widget V2 property pane feature validation", function () {
       expect(tabData).to.not.equal("2736212");
       // Changing the Computed value from "id" to "Email"
       propPane.UpdatePropertyFieldValue(
-        "Computed Value",
+        "Computed value",
         testdata.currentRowEmail,
       );
       cy.wait(500);
@@ -170,7 +170,7 @@ describe("Table Widget V2 property pane feature validation", function () {
       expect(tabData).to.not.equal("lindsay.ferguson@reqres.in");
       // Email to "orderAmount"
       propPane.UpdatePropertyFieldValue(
-        "Computed Value",
+        "Computed value",
         testdata.currentRowOrderAmt,
       );
       cy.wait(500);
@@ -184,7 +184,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     // Changing Column data type from "Number" to "Date"
     cy.changeColumnType("Date");
     // orderAmout to "Moment Date"
-    propPane.UpdatePropertyFieldValue("Computed Value", testdata.momentDate);
+    propPane.UpdatePropertyFieldValue("Computed value", testdata.momentDate);
     cy.wait(500);
     cy.readTableV2dataPublish("1", "1").then((tabData) => {
       expect(tabData).to.not.equal("9.99");
@@ -197,7 +197,7 @@ describe("Table Widget V2 property pane feature validation", function () {
 
     cy.changeColumnType("Image");
     // "Moement "date" to "Image"
-    propPane.UpdatePropertyFieldValue("Computed Value", imageVal);
+    propPane.UpdatePropertyFieldValue("Computed value", imageVal);
     cy.wait(500);
     // Verifying the href of the image added.
     cy.readTableV2LinkPublish("1", "0").then((hrefVal) => {
@@ -209,7 +209,7 @@ describe("Table Widget V2 property pane feature validation", function () {
       cy.changeColumnType("URL");
       // "Image" to "url"
       propPane.UpdatePropertyFieldValue(
-        "Computed Value",
+        "Computed value",
         testdata.currentRowEmail,
       );
       cy.wait(500);
@@ -222,7 +222,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     });
 
     // change column data type to "icon button"
-    cy.changeColumnType("Icon Button");
+    cy.changeColumnType("Icon button");
     cy.wait(400);
     cy.get(commonlocators.selectedIcon).should("have.text", "add");
 

@@ -59,7 +59,7 @@
                                 "type": "ICON_BUTTON_WIDGET",
                                 "hideCard": false,
                                 "isDeprecated": false,
-                                "displayName": "Icon Button",
+                                "displayName": "Icon button",
                                 "key": "8tslbabdat",
                                 "iconSVG": "/static/media/icon.1a0c634ac75f9fa6b6ae7a8df882a3ba.svg",
                                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",

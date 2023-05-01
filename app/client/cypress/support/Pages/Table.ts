@@ -16,15 +16,15 @@ type filterTypes =
   | "less than"
   | "less than or equal to";
 type columnTypeValues =
-  | "Plain Text"
+  | "Plain text"
   | "URL"
   | "Number"
   | "Image"
   | "Video"
   | "Date"
   | "Button"
-  | "Menu Button"
-  | "Icon Button";
+  | "Menu button"
+  | "Icon button";
 
 export class Table {
   public agHelper = ObjectsRegistry.AggregateHelper;
@@ -455,7 +455,7 @@ export class Table {
         : this._columnSettingsV2(columnName);
 
     this.agHelper.GetNClick(colSettings);
-    this.agHelper.SelectDropdownList("Column Type", newDataType);
+    this.agHelper.SelectDropdownList("Column type", newDataType);
     this.agHelper.ValidateNetworkStatus("@updateLayout");
     if (tableVersion == "v2") this.propPane.NavigateBackToPropertyPane();
   }

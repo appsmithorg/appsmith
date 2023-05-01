@@ -9,7 +9,7 @@ import {
 } from "../../propertyUtils";
 
 export default {
-  sectionName: "Select Properties",
+  sectionName: "Select properties",
   hidden: (props: TableWidgetProps, propertyPath: string) => {
     return hideByColumnType(props, propertyPath, [ColumnTypes.SELECT], true);
   },

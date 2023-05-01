@@ -30,7 +30,7 @@
           "version": 1,
           "type": "ICON_BUTTON_WIDGET",
           "hideCard": false,
-          "displayName": "Icon Button",
+          "displayName": "Icon button",
           "iconName": "plus",
           "key": "igkr66w00x",
           "iconSVG": "/static/media/icon.1a0c634a.svg",

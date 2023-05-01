@@ -36,7 +36,7 @@ describe("Table widget inline editing validation functionality", () => {
     cy.wait("@updateLayout");
     cy.get(".t--property-pane-section-collapse-validation").should("exist");
     cy.get(commonlocators.changeColType).last().click();
-    cy.get(".t--dropdown-option").children().contains("Plain Text").click();
+    cy.get(".t--dropdown-option").children().contains("Plain text").click();
     cy.wait("@updateLayout");
     cy.get(".t--property-pane-section-collapse-validation").should("exist");
     cy.get(commonlocators.changeColType).last().click();
@@ -44,7 +44,7 @@ describe("Table widget inline editing validation functionality", () => {
     cy.wait("@updateLayout");
     cy.get(".t--property-pane-section-collapse-validation").should("exist");
     cy.get(commonlocators.changeColType).last().click();
-    cy.get(".t--dropdown-option").children().contains("Plain Text").click();
+    cy.get(".t--dropdown-option").children().contains("Plain text").click();
     cy.wait("@updateLayout");
     cy.get(".t--property-pane-section-collapse-validation").should("exist");
   });

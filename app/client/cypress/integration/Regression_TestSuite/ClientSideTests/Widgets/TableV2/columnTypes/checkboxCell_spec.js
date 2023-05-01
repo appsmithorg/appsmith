@@ -169,7 +169,7 @@ describe("Checkbox column type funtionality test", () => {
     cy.editColumn("customColumn1");
     cy.changeColumnType("Checkbox");
     propPane.UpdatePropertyFieldValue(
-      "Computed Value",
+      "Computed value",
       '{{currentRow["completed"]}}',
     );
     cy.get(".t--property-control-oncheckchange").should("not.exist");

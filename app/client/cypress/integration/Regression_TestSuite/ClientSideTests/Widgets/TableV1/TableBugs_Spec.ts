@@ -31,7 +31,7 @@ describe("Verify various Table property bugs", function () {
     ee.SelectEntityByName("Table1", "Widgets");
     table.ChangeColumnType("image", "URL");
     propPane.UpdatePropertyFieldValue(
-      "Display Text",
+      "Display text",
       `{{currentRow.image.toString().includes('7') ? currentRow.image.toString().split('full/')[1] : "" }}`,
     );
 
@@ -74,7 +74,7 @@ describe("Verify various Table property bugs", function () {
     agHelper.GetNClick(table._columnSettings("image"));
 
     propPane.UpdatePropertyFieldValue(
-      "Display Text",
+      "Display text",
       `{{currentRow.image.toString().includes('7') ? currentRow.image.toString().split('full/')[1] : null }}`,
     );
 
@@ -115,7 +115,7 @@ describe("Verify various Table property bugs", function () {
     agHelper.GetNClick(table._columnSettings("image"));
 
     propPane.UpdatePropertyFieldValue(
-      "Display Text",
+      "Display text",
       `{{currentRow.image.toString().includes('7') ? currentRow.image.toString().split('full/')[1] : undefined }}`,
     );
 

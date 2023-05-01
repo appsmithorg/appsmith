@@ -45,7 +45,7 @@ describe("Table Widget Virtualized Row", function () {
   it("3. should check that virtual rows feature is turned off when cell wrapping is enabled", () => {
     cy.editColumn("step");
     cy.wait(500);
-    PropertyPane.ToggleOnOrOff("Cell Wrapping", "On");
+    PropertyPane.ToggleOnOrOff("Cell wrapping", "On");
     cy.get(".tr[data-rowindex]").should("have.length", totalRows);
     cy.get(".tr[data-rowindex='0']").should("exist");
     cy.get(".tr[data-rowindex='98']").should("exist");
@@ -61,7 +61,7 @@ describe("Table Widget Virtualized Row", function () {
   });
 
   it("4. should check that virtual rows feature is turned off when server side pagination is disabled", () => {
-    PropertyPane.ToggleOnOrOff("Cell Wrapping", "Off");
+    PropertyPane.ToggleOnOrOff("Cell wrapping", "Off");
     PropertyPane.NavigateBackToPropertyPane();
     cy.wait(500);
     PropertyPane.ToggleOnOrOff("Show pagination", "On");

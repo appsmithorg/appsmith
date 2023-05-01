@@ -83,12 +83,12 @@ export default [
               children: [
                 {
                   propertyName: "columnType",
-                  label: "Column Type",
+                  label: "Column type",
                   controlType: "DROP_DOWN",
                   customJSControl: "COMPUTE_VALUE",
                   options: [
                     {
-                      label: "Plain Text",
+                      label: "Plain text",
                       value: "text",
                     },
                     {
@@ -116,11 +116,11 @@ export default [
                       value: "button",
                     },
                     {
-                      label: "Menu Button",
+                      label: "Menu button",
                       value: "menuButton",
                     },
                     {
-                      label: "Icon Button",
+                      label: "Icon button",
                       value: "iconButton",
                     },
                   ],
@@ -136,7 +136,7 @@ export default [
                 },
                 {
                   propertyName: "displayText",
-                  label: "Display Text",
+                  label: "Display text",
                   controlType: "COMPUTE_VALUE",
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnsHook,
@@ -161,7 +161,7 @@ export default [
                   helpText:
                     "The value computed & shown in each cell. Use {{currentRow}} to reference each row in the table. This property is not accessible outside the column settings.",
                   propertyName: "computedValue",
-                  label: "Computed Value",
+                  label: "Computed value",
                   controlType: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnsHook,
                   hidden: (props: TableWidgetProps, propertyPath: string) => {

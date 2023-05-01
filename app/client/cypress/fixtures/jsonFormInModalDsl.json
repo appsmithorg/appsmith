@@ -61,7 +61,7 @@
                             "widgetName": "IconButton1",
                             "onClick": "{{closeModal('Modal1')}}",
                             "buttonColor": "#2E3D49",
-                            "displayName": "Icon Button",
+                            "displayName": "Icon button",
                             "iconSVG": "/static/media/icon.1a0c634a.svg",
                             "topRow": 1,
                             "bottomRow": 5,

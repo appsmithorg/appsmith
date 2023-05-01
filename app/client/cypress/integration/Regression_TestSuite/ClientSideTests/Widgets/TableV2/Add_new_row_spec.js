@@ -153,7 +153,7 @@ describe("Table widget Add new row feature's", () => {
     it("1.10. should test that non data (iconBitton, button, menubutton) column cells are not showing up", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
-      ["Button", "Menu Button", "Icon Button"].forEach((columnType) => {
+      ["Button", "Menu button", "Icon button"].forEach((columnType) => {
         cy.get(commonlocators.changeColType).last().click();
         cy.get(".t--dropdown-option").children().contains(columnType).click();
         cy.wait("@updateLayout");
