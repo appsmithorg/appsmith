@@ -378,11 +378,11 @@ class MultiSelectWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Search & Filters",
+        sectionName: "Search & filters",
         children: [
           {
             propertyName: "isFilterable",
-            label: "Allow Searching",
+            label: "Allow searching",
             helpText: "Makes the dropdown list filterable",
             controlType: "SWITCH",
             isJSConvertible: true,
@@ -487,7 +487,7 @@ class MultiSelectWidget extends BaseWidget<
             helpText:
               "Controls the visibility of select all option in dropdown.",
             propertyName: "allowSelectAll",
-            label: "Allow Select All",
+            label: "Allow select all",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,

@@ -206,7 +206,7 @@ class MultiSelectWidget extends BaseWidget<
             helpText:
               "Controls the visibility of select all option in dropdown.",
             propertyName: "allowSelectAll",
-            label: "Allow Select All",
+            label: "Allow select all",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,

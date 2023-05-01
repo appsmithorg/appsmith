@@ -189,7 +189,7 @@ const PROPERTIES = {
     {
       propertyName: "allowSelectAll",
       helpText: "Controls the visibility of select all option in dropdown.",
-      label: "Allow Select All",
+      label: "Allow select all",
       controlType: "SWITCH",
       isJSConvertible: true,
       isBindProperty: true,
@@ -279,7 +279,7 @@ const PROPERTIES = {
       {
         propertyName: "allowSelectAll",
         helpText: "Controls the visibility of select all option in dropdown.",
-        label: "Allow Select All",
+        label: "Allow select all",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
@@ -308,7 +308,7 @@ const PROPERTIES = {
     searchAndFilters: [
       {
         propertyName: "isFilterable",
-        label: "Allow Searching",
+        label: "Allow searching",
         helpText: "Makes the dropdown list filterable",
         controlType: "SWITCH",
         isJSConvertible: true,

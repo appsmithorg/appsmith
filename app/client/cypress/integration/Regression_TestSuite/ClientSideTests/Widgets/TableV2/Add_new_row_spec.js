@@ -166,7 +166,7 @@ describe("Table widget Add new row feature's", () => {
       //disable all header widgets for the table
       [
         "Show Pagination",
-        "Allow Searching",
+        "Allow searching",
         "Allow Download",
         "Allow Filtering",
         "Allow adding a row",

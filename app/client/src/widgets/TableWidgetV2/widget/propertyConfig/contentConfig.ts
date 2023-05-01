@@ -194,12 +194,12 @@ export default [
     ],
   },
   {
-    sectionName: "Search & Filters",
+    sectionName: "Search & filters",
     children: [
       {
         propertyName: "isVisibleSearch",
         helpText: "Toggle visibility of the search box",
-        label: "Allow Searching",
+        label: "Allow searching",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
