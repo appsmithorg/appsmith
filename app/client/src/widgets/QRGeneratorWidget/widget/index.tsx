@@ -453,7 +453,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           },
           {
             propertyName: "fontSize",
-            label: "Font Size",
+            label: "Font size",
             controlType: "DROP_DOWN",
             defaultValue: "1rem",
             options: [

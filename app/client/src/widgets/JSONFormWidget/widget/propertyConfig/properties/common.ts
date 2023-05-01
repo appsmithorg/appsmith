@@ -334,7 +334,7 @@ const COMMON_PROPERTIES = {
       },
       {
         propertyName: "labelTextSize",
-        label: "Font Size",
+        label: "Font size",
         helpText: "Control the font size of the label associated",
         defaultValue: "0.875rem",
         controlType: "DROP_DOWN",
