@@ -320,13 +320,15 @@ public class ApplicationServiceCETest {
 
 
     /**
-     * Create an application with name "ApplicationServiceTest TestApp" and validate it.
-     * @param applicationFinalName This is the application resultant name and it can be different from original name
+     * Create an application and validate it.
+     * @param applicationName This is the initial name of the application which will try to create the application,
+     *                        but not guaranteed this will be the application's final name due to retry logic
+     * @param applicationFinalName This is the application final name and it can be different from initial name
      *                             due to retry if there is name clash.
      */
-    private void createAndVerifyValidApplication(String applicationFinalName){
+    private void createAndVerifyValidApplication(String applicationName, String applicationFinalName){
         Application testApplication = new Application();
-        testApplication.setName("ApplicationServiceTest TestApp");
+        testApplication.setName(applicationName);
         Mono<Application> applicationMono = applicationPageService.createApplication(testApplication, workspaceId);
 
         Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
@@ -400,18 +402,18 @@ public class ApplicationServiceCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void createValidApplication() {
-        this.createAndVerifyValidApplication("ApplicationServiceTest TestApp");
+        this.createAndVerifyValidApplication("ApplicationServiceTest TestApp", "ApplicationServiceTest TestApp");
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void createApplicationWithDuplicateName() {
         // Creating first App with name "ApplicationServiceTest TestApp"
-        this.createAndVerifyValidApplication("ApplicationServiceTest TestApp");
+        this.createAndVerifyValidApplication("ApplicationServiceTest TestApp", "ApplicationServiceTest TestApp");
 
         // Creating second App with same name "ApplicationServiceTest TestApp" but due to duplicate name its resultant
         // name will be ApplicationServiceTest TestApp (1)
-        this.createAndVerifyValidApplication("ApplicationServiceTest TestApp (1)");
+        this.createAndVerifyValidApplication("ApplicationServiceTest TestApp", "ApplicationServiceTest TestApp (1)");
     }
 
     @Test
