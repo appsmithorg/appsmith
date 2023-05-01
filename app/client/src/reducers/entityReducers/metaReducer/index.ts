@@ -3,6 +3,7 @@ import { createReducer } from "utils/ReducerUtils";
 import type {
   UpdateWidgetMetaPropertyPayload,
   ResetWidgetMetaPayload,
+  BatchUpdateWidgetMetaPropertyPayload,
 } from "actions/metaActions";
 
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
@@ -48,6 +49,20 @@ export const metaReducer = createReducer(initialState, {
         `${action.payload.widgetId}.${action.payload.propertyName}`,
         action.payload.propertyValue,
       );
+      return draftMetaState;
+    });
+
+    return nextState;
+  },
+  [ReduxActionTypes.BATCH_UPDATE_META_PROPS]: (
+    state: MetaState,
+    action: ReduxAction<BatchUpdateWidgetMetaPropertyPayload>,
+  ) => {
+    const nextState = produce(state, (draftMetaState) => {
+      const { batchMetaUpdates } = action.payload;
+      batchMetaUpdates.forEach(({ propertyName, propertyValue, widgetId }) => {
+        set(draftMetaState, `${widgetId}.${propertyName}`, propertyValue);
+      });
       return draftMetaState;
     });
 

@@ -15,7 +15,10 @@ import {
 } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { Colors } from "constants/Colors";
-import { entityTooltipCSS } from "./Entity";
+import {
+  EntityClassNames,
+  entityTooltipCSS,
+} from "pages/Editor/Explorer/Entity";
 import { useCloseMenuOnScroll } from "./hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
 
@@ -185,7 +188,10 @@ export default function TreeDropdown(props: TreeDropdownProps) {
 
   const list = optionTree.map(renderTreeOption);
   const menuItems = (
-    <StyledMenu className="t--entity-context-menu" width={menuWidth}>
+    <StyledMenu
+      className={`t--entity-context-menu ${EntityClassNames.CONTEXT_MENU_CONTENT}`}
+      width={menuWidth}
+    >
       {list}
     </StyledMenu>
   );

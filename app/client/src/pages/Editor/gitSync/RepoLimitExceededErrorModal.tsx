@@ -40,7 +40,7 @@ import {
   getCurrentApplication,
   getWorkspaceIdForImport,
   getUserApplicationsWorkspaces,
-} from "selectors/applicationSelectors";
+} from "@appsmith/selectors/applicationSelectors";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";

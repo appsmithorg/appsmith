@@ -10,7 +10,7 @@ import {
   getAppSidebarPinned,
   getSidebarWidth,
   getAppMode,
-} from "selectors/applicationSelectors";
+} from "@appsmith/selectors/applicationSelectors";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { PageView, PageViewContainer } from "./AppPage.styled";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";

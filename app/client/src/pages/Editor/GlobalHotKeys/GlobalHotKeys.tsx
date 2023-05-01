@@ -31,7 +31,7 @@ import {
 import { redoAction, undoAction } from "actions/pageActions";
 import { Toaster, Variant } from "design-system-old";
 
-import { getAppMode } from "selectors/applicationSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import type { APP_MODE } from "entities/App";
 
 import {
@@ -47,6 +47,7 @@ import { GitSyncModalTab } from "entities/GitSync";
 import { matchBuilderPath } from "constants/routes";
 import { toggleInstaller } from "actions/JSLibraryActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -381,7 +382,7 @@ class GlobalHotKeys extends React.Component<Props> {
 const mapStateToProps = (state: AppState) => ({
   selectedWidget: getLastSelectedWidget(state),
   selectedWidgets: getSelectedWidgets(state),
-  isDebuggerOpen: state.ui.debugger.isOpen,
+  isDebuggerOpen: showDebuggerFlag(state),
   appMode: getAppMode(state),
   isPreviewMode: previewModeSelector(state),
   isExplorerPinned: getExplorerPinned(state),

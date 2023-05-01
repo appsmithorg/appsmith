@@ -27,7 +27,7 @@ import {
   getIsSavingWorkspaceInfo,
   getUserApplicationsWorkspaces,
   getUserApplicationsWorkspacesList,
-} from "selectors/applicationSelectors";
+} from "@appsmith/selectors/applicationSelectors";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import PageWrapper from "@appsmith/pages/common/PageWrapper";
@@ -62,10 +62,11 @@ import {
 } from "design-system-old";
 import {
   duplicateApplication,
+  setShowAppInviteUsersDialog,
   updateApplication,
-} from "actions/applicationActions";
+} from "@appsmith/actions/applicationActions";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
-import type { UpdateApplicationPayload } from "api/ApplicationApi";
+import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -83,7 +84,6 @@ import { createWorkspaceSubmitHandler } from "@appsmith/pages/workspace/helpers"
 import ImportApplicationModal from "pages/Applications/ImportApplicationModal";
 import {
   createMessage,
-  INVITE_USERS_MESSAGE,
   INVITE_USERS_PLACEHOLDER,
   NO_APPS_FOUND,
   SEARCH_APPS,
@@ -649,6 +649,10 @@ export function ApplicationsSection(props: any) {
     });
   };
 
+  const handleFormOpenOrClose = useCallback((isOpen: boolean) => {
+    dispatch(setShowAppInviteUsersDialog(isOpen));
+  }, []);
+
   let updatedWorkspaces;
   if (!isFetchingApplications) {
     updatedWorkspaces = userWorkspaces;
@@ -743,10 +747,7 @@ export function ApplicationsSection(props: any) {
                     <FormDialogComponent
                       Form={WorkspaceInviteUsersForm}
                       canOutsideClickClose
-                      message={createMessage(
-                        INVITE_USERS_MESSAGE,
-                        cloudHosting,
-                      )}
+                      onOpenOrClose={handleFormOpenOrClose}
                       placeholder={createMessage(
                         INVITE_USERS_PLACEHOLDER,
                         cloudHosting,
@@ -925,12 +926,15 @@ export function ApplicationsSection(props: any) {
                       delete={deleteApplication}
                       duplicate={duplicateApplicationDispatch}
                       enableImportExport={enableImportExport}
-                      hasCreateNewApplicationPermission={
-                        hasCreateNewApplicationPermission
-                      }
                       isMobile={isMobile}
                       key={application.id}
+                      permissions={{
+                        hasCreateNewApplicationPermission,
+                        hasManageWorkspacePermissions,
+                        canInviteToWorkspace,
+                      }}
                       update={updateApplicationDispatch}
+                      workspaceId={workspace.id}
                     />
                   </PaddingWrapper>
                 );

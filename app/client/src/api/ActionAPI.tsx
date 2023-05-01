@@ -49,7 +49,13 @@ export interface ExecuteActionRequest extends APIRequest {
   params?: Property[];
   paginationField?: PaginationField;
   viewMode: boolean;
-  paramProperties: Record<string, string | Record<string, string[]>>;
+  paramProperties: Record<
+    string,
+    | string
+    | Record<string, Array<string>>
+    | Record<string, string>
+    | Record<string, Record<string, Array<string>>>
+  >;
 }
 
 export type ExecuteActionResponse = ApiResponse & {
@@ -196,6 +202,7 @@ class ActionAPI extends API {
       headers: {
         accept: "application/json",
         "Content-Type": "multipart/form-data",
+        Expect: "100-continue",
       },
       cancelToken: ActionAPI.abortActionExecutionTokenSource.token,
     });

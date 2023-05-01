@@ -1,4 +1,3 @@
-import { useContext, useEffect, useRef } from "react";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
@@ -35,6 +34,7 @@ import type { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCa
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { AlignItems, LayoutDirection } from "utils/autoLayout/constants";
 import type { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
+import { useContext, useEffect, useRef } from "react";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;
@@ -270,9 +270,6 @@ export const useBlocksToBeDraggedOnCanvas = ({
         alignment: dropPayload.alignment,
       },
     };
-    setTimeout(() => {
-      selectWidget(widgetPayload.newWidgetId);
-    }, 100);
     dispatch({
       type: ReduxActionTypes.AUTOLAYOUT_ADD_NEW_WIDGETS,
       payload: {
@@ -282,8 +279,12 @@ export const useBlocksToBeDraggedOnCanvas = ({
           ? MAIN_CONTAINER_WIDGET_ID
           : widgetId,
         direction,
+        addToBottom: newWidget.detachFromLayout,
       },
     });
+    setTimeout(() => {
+      selectWidget(SelectionRequestType.One, [widgetPayload.newWidgetId]);
+    }, 100);
   };
   const onDrop = (
     drawingBlocks: WidgetDraggingBlock[],

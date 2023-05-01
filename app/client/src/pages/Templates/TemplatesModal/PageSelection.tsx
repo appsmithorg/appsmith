@@ -14,7 +14,7 @@ import {
 import { useDispatch } from "react-redux";
 import { importTemplateIntoApplication } from "actions/templateActions";
 import type { Template } from "api/TemplatesApi";
-import type { ApplicationPagePayload } from "api/ApplicationApi";
+import type { ApplicationPagePayload } from "@appsmith/api/ApplicationApi";
 import {
   createMessage,
   FILTER_SELECTALL,

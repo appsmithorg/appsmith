@@ -12,13 +12,13 @@ import {
 import type { AppState } from "@appsmith/reducers";
 import { APP_MODE } from "entities/App";
 
-import { getAppMode } from "selectors/applicationSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { setPreviewModeInitAction } from "actions/editorActions";
 import { previewModeSelector } from "selectors/editorSelectors";
 
 import { isExploringSelector } from "selectors/onboardingSelectors";
 import { Colors } from "constants/Colors";
-import { createMessage, EDITOR_HEADER } from "ce/constants/messages";
+import { createMessage, EDITOR_HEADER } from "@appsmith/constants/messages";
 
 const StyledButton = styled(Button)<{ active: boolean }>`
   ${(props) =>

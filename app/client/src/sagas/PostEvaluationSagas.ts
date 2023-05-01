@@ -38,7 +38,7 @@ import {
 } from "@appsmith/constants/messages";
 import log from "loglevel";
 import type { AppState } from "@appsmith/reducers";
-import { getAppMode } from "selectors/applicationSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
@@ -286,11 +286,18 @@ export function* evalErrorHandler(
         break;
       }
       case EvalErrorTypes.CLONE_ERROR: {
-        Sentry.captureException(new Error(error.message), {
-          extra: {
-            request: error.context,
-          },
-        });
+        /*
+         * https://github.com/appsmithorg/appsmith/issues/2654
+         * This code is being commented out to prevent these errors from going to Sentry
+         * till we come up with a more definitive solution to prevent this error
+         * Proposed solution - adding lint errors to editor to prevent these from happening
+         * */
+
+        // Sentry.captureException(new Error(error.message), {
+        //   extra: {
+        //     request: error.context,
+        //   },
+        // });
         break;
       }
       case EvalErrorTypes.PARSE_JS_ERROR: {

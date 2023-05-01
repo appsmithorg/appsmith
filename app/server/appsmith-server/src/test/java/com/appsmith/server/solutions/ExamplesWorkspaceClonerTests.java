@@ -450,7 +450,7 @@ public class ExamplesWorkspaceClonerTests {
                     ds1.setPluginId(pluginId);
                     final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
                     ds1.setDatasourceConfiguration(datasourceConfiguration);
-                    datasourceConfiguration.setUrl("http://httpbin.org/get");
+                    datasourceConfiguration.setUrl("http://example.org/get");
                     datasourceConfiguration.setHeaders(List.of(
                             new Property("X-Answer", "42")
                     ));
@@ -505,7 +505,7 @@ public class ExamplesWorkspaceClonerTests {
                     ds1.setPluginId(installedPlugin.getId());
                     final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
                     ds1.setDatasourceConfiguration(datasourceConfiguration);
-                    datasourceConfiguration.setUrl("http://httpbin.org/get");
+                    datasourceConfiguration.setUrl("http://example.org/get");
                     datasourceConfiguration.setHeaders(List.of(
                             new Property("X-Answer", "42")
                     ));
@@ -1027,6 +1027,7 @@ public class ExamplesWorkspaceClonerTests {
                 })
                 .verifyComplete();
     }
+
 
     private List<String> getUnpublishedActionName(List<ActionDTO> actions) {
         List<String> names = new ArrayList<>();

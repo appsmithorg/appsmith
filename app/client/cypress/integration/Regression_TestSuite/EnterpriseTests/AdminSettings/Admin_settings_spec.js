@@ -21,8 +21,7 @@ describe("Admin settings page", function () {
 
   it("1. should test that settings page is redirected to default tab", () => {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.visit("/applications");
-    cy.wait(3000);
+    //cy.wait(3000);
     cy.visit("/settings");
     cy.url().should("contain", "/settings/general");
   });
@@ -58,10 +57,10 @@ describe("Admin settings page", function () {
     }
   });
   it("3. should test that Business features shows upgrade button and direct to pricing page", () => {
-    cy.visit("/settings");
-    cy.get(adminsSettings.accessControl).click();
-    cy.url().should("contain", "/settings/access-control");
+    cy.visit("/settings/general");
     if (CURRENT_REPO === REPO.CE) {
+      cy.get(adminsSettings.accessControl).click();
+      cy.url().should("contain", "/settings/access-control");
       stubPricingPage();
       cy.xpath(adminsSettings.upgrade).click();
       cy.get("@pricingPage").should("be.called");

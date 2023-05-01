@@ -9,7 +9,7 @@ import {
   DOCUMENTATION,
   WELCOME_TOUR,
 } from "@appsmith/constants/messages";
-import { getIsFetchingApplications } from "selectors/applicationSelectors";
+import { getIsFetchingApplications } from "@appsmith/selectors/applicationSelectors";
 import { getOnboardingWorkspaces } from "selectors/onboardingSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -63,7 +63,6 @@ function LeftPaneBottomSection() {
   const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
   const user = useSelector(getCurrentUser);
   const tenantPermissions = useSelector(getTenantPermissions);
-
   return (
     <Wrapper>
       {showAdminSettings(user) && !isFetchingApplications && (

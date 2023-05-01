@@ -9,6 +9,7 @@ const agHelper = ObjectsRegistry.AggregateHelper;
 const dataSources = ObjectsRegistry.DataSources;
 const ee = ObjectsRegistry.EntityExplorer;
 const apiPage = ObjectsRegistry.ApiPage;
+const locators = ObjectsRegistry.CommonLocators;
 
 describe("MaintainContext&Focus", function () {
   it("1. Import the test application", () => {
@@ -164,6 +165,7 @@ describe("MaintainContext&Focus", function () {
       "Rest_Api_1",
     );
   });
+
   it("9. Datasource edit mode has to be maintained", () => {
     ee.SelectEntityByName("Appsmith", "Datasources");
     dataSources.EditDatasource();
@@ -190,5 +192,14 @@ describe("MaintainContext&Focus", function () {
     agHelper.Sleep();
     agHelper.GetNClick(dataSources._queryResponse("SETTINGS"));
     cy.xpath(queryLocators.queryTimeout).should("be.focused");
+  });
+
+  it("11. Bug 21999 Maintain focus of code editor when Escape is pressed with autcomplete open", () => {
+    cy.SearchEntityandOpen("JSObject1");
+    cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 4 });
+    cy.get(locators._codeMirrorTextArea).type("showA");
+    agHelper.GetNAssertElementText(locators._hints, "showAlert()");
+    agHelper.PressEscape();
+    cy.assertCursorOnCodeInput(".js-editor", { ch: 7, line: 4 });
   });
 });

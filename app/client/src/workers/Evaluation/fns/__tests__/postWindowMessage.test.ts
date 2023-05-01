@@ -1,4 +1,4 @@
-import { addPlatformFunctionsToEvalContext } from "ce/workers/Evaluation/Actions";
+import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
 import TriggerEmitter, { BatchKey } from "../utils/TriggerEmitter";
 import { evalContext } from "../mock";
 
@@ -50,6 +50,8 @@ describe("Post window message works", () => {
         triggerPropertyName: undefined,
       },
       eventType: undefined,
+      enableJSFnPostProcessors: true,
+      enableJSVarUpdateTracking: true,
     });
     TriggerEmitter.removeListener(BatchKey.process_batched_triggers, batchSpy);
     batchSpy.mockClear();

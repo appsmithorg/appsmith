@@ -3,10 +3,11 @@ import { ContainerWidget } from "widgets/ContainerWidget/widget";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { Positioning } from "utils/autoLayout/constants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 class StatboxWidget extends ContainerWidget {
   static getPropertyPaneContentConfig() {
@@ -45,7 +46,6 @@ class StatboxWidget extends ContainerWidget {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
     ];
   }
 
@@ -128,6 +128,14 @@ class StatboxWidget extends ContainerWidget {
 
   static getWidgetType(): WidgetType {
     return "STATBOX_WIDGET";
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc": "Show and highlight stats from your data sources",
+      "!url": "https://docs.appsmith.com/widget-reference/stat-box",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+    };
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {

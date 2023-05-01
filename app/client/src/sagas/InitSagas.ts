@@ -16,9 +16,8 @@ import type {
   ReduxActionWithoutPayload,
 } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { resetApplicationWidgets, resetPageList } from "actions/pageActions";
-import { resetCurrentApplication } from "actions/applicationActions";
+import { resetCurrentApplication } from "@appsmith/actions/applicationActions";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import { resetRecentEntities } from "actions/globalSearchActions";
@@ -35,9 +34,10 @@ import type { AppEnginePayload } from "entities/Engine";
 import type AppEngine from "entities/Engine";
 import { AppEngineApiError } from "entities/Engine";
 import AppEngineFactory from "entities/Engine/factory";
-import type { ApplicationPagePayload } from "api/ApplicationApi";
+import type { ApplicationPagePayload } from "@appsmith/api/ApplicationApi";
 import { updateSlugNamesInURL } from "utils/helpers";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
+import { safeCrashAppRequest } from "../actions/errorActions";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -61,16 +61,9 @@ export function* failFastApiCalls(
     failure: take(failureActions),
   });
   if (effectRaceResult.failure) {
-    yield put({
-      type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
-      payload: {
-        code: get(
-          effectRaceResult,
-          "failure.payload.error.code",
-          ERROR_CODES.SERVER_ERROR,
-        ),
-      },
-    });
+    yield put(
+      safeCrashAppRequest(get(effectRaceResult, "failure.payload.error.code")),
+    );
     return false;
   }
   return true;
@@ -98,12 +91,7 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     log.error(e);
     if (e instanceof AppEngineApiError) return;
     Sentry.captureException(e);
-    yield put({
-      type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
-      payload: {
-        code: ERROR_CODES.SERVER_ERROR,
-      },
-    });
+    yield put(safeCrashAppRequest());
   }
 }
 
@@ -160,10 +148,22 @@ function* updateURLSaga(action: ReduxURLChangeAction) {
   });
 }
 
+function* appEngineSaga(action: ReduxAction<AppEnginePayload>) {
+  yield race({
+    task: call(startAppEngine, action),
+    cancel: take(ReduxActionTypes.RESET_EDITOR_REQUEST),
+  });
+}
+
 export default function* watchInitSagas() {
   yield all([
-    takeLatest(ReduxActionTypes.INITIALIZE_EDITOR, startAppEngine),
-    takeLatest(ReduxActionTypes.INITIALIZE_PAGE_VIEWER, startAppEngine),
+    takeLatest(
+      [
+        ReduxActionTypes.INITIALIZE_EDITOR,
+        ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
+      ],
+      appEngineSaga,
+    ),
     takeLatest(ReduxActionTypes.RESET_EDITOR_REQUEST, resetEditorSaga),
     takeEvery(URL_CHANGE_ACTIONS, updateURLSaga),
   ]);

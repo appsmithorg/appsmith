@@ -1,5 +1,6 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { REPO, CURRENT_REPO } from "../../fixtures/REPO";
+import HomePageLocators from "../../locators/HomePage";
 export class HomePage {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private locator = ObjectsRegistry.CommonLocators;
@@ -42,10 +43,10 @@ export class HomePage {
   public _closeBtn = ".bp3-dialog-close-button";
   private _appHome = "//a[@href='/applications']";
   _applicationCard = ".t--application-card";
-  private _homeIcon = ".t--appsmith-logo";
+  _homeIcon = ".t--appsmith-logo";
   private _homeAppsmithImage = "a.t--appsmith-logo";
   private _appContainer = ".t--applications-container";
-  private _homePageAppCreateBtn = this._appContainer + " .createnew";
+  _homePageAppCreateBtn = this._appContainer + " .createnew";
   private _existingWorkspaceCreateNewApp = (existingWorkspaceName: string) =>
     `//span[text()='${existingWorkspaceName}']/ancestor::div[contains(@class, 't--workspace-section')]//button[contains(@class, 't--new-button')]`;
   private _applicationName = ".t--application-name";
@@ -63,8 +64,7 @@ export class HomePage {
   //private _userRoleDropDown = (email: string) => "//td[text()='" + email + "']/following-sibling::td"
   private _leaveWorkspaceConfirmModal = ".t--member-delete-confirmation-modal";
   private _workspaceImportAppModal = ".t--import-application-modal";
-  private _leaveWorkspaceConfirmButton =
-    "[data - cy= t--workspace-leave - button]";
+  private _leaveWorkspaceConfirmButton = "[data-cy=t--workspace-leave-button]";
   private _lastWorkspaceInHomePage =
     "//div[contains(@class, 't--workspace-section')][last()]//span/span";
   private _leaveWorkspace = "//span[text()='Leave Workspace']";
@@ -92,6 +92,8 @@ export class HomePage {
     "//div[contains(@class, 't--applications-container')]//span[text()='" +
     wsName +
     "']";
+  _welcomeTour = ".t--welcome-tour";
+  _welcomeTourBuildingButton = ".t--start-building";
 
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
@@ -150,10 +152,16 @@ export class HomePage {
     email: string,
     role: string,
   ) {
-    const successMessage = "The user has been invited successfully";
+    const successMessage =
+      CURRENT_REPO === REPO.CE
+        ? "The user has been invited successfully"
+        : "The user/group have been invited successfully";
     this.StubPostHeaderReq();
     this.agHelper.AssertElementVisible(this._workspaceList(workspaceName));
     this.agHelper.GetNClick(this._shareWorkspace(workspaceName), 0, true);
+    this.agHelper.AssertElementExist(
+      "//span[text()='Users will have access to all applications in this workspace']",
+    );
     cy.xpath(this._email).click({ force: true }).type(email);
     cy.xpath(this._selectRole).first().click({ force: true });
     this.agHelper.Sleep(500);
@@ -188,6 +196,9 @@ export class HomePage {
     cy.intercept("POST", "/api/v1/users/invite", (req) => {
       req.headers["origin"] = "Cypress";
     }).as("mockPostInvite");
+    cy.intercept("POST", "/api/v1/applications/invite", (req) => {
+      req.headers["origin"] = "Cypress";
+    }).as("mockPostAppInvite");
   }
 
   public NavigateToHome() {
@@ -292,25 +303,28 @@ export class HomePage {
   }
 
   //Maps to deleteUserFromWorkspace in command.js
-  public DeleteUserFromWorkspace(workspaceName: string, email: string) {
+  public DeleteUserFromWorkspace(
+    appName: string,
+    workspaceName: string,
+    email: string,
+  ) {
     cy.get(this._workspaceList(workspaceName))
       .scrollIntoView()
       .should("be.visible");
-    cy.contains(workspaceName)
-      .closest(this._workspaceCompleteSection)
-      .find(this._workspaceName)
-      .find(this._optionsIcon)
-      .click({ force: true });
+    this.FilterApplication(appName, workspaceName);
+    this.agHelper.GetNClick(this._optionsIcon).click({ force: true });
     cy.xpath(this._visibleTextSpan("Members")).click({ force: true });
     cy.wait("@getMembers").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-    cy.get(this._deleteUser(email)).last().click({ force: true });
+    this.agHelper.UpdateInput(this._searchUsersInput, email);
+    cy.wait(2000);
+    cy.get(HomePageLocators.DeleteBtn).first().click({ force: true });
     cy.get(this._leaveWorkspaceConfirmModal).should("be.visible");
     cy.get(this._leaveWorkspaceConfirmButton).click({ force: true });
-    this.NavigateToHome();
+    cy.wait(4000);
   }
 
   public OpenMembersPageForWorkspace(workspaceName: string) {
@@ -343,12 +357,19 @@ export class HomePage {
   ) {
     this.OpenMembersPageForWorkspace(workspaceName);
     cy.log(workspaceName, email, currentRole);
+    this.agHelper.UpdateInput(this._searchUsersInput, email);
+    cy.get(".search-highlight").should("exist").contains(email);
     this.agHelper.Sleep(2000);
     cy.xpath(this._userRoleDropDown(currentRole))
       .first()
       .click({ force: true });
     this.agHelper.Sleep();
     //cy.xpath(this._userRoleDropDown(email)).first().click({force: true});
+    if (CURRENT_REPO === REPO.EE) {
+      this.agHelper.AssertElementExist(
+        this._visibleTextSpan("Assign Custom Role"),
+      );
+    }
     cy.xpath(this._visibleTextSpan(`${newRole}`))
       .last()
       .parent("div")
@@ -369,8 +390,14 @@ export class HomePage {
     this.agHelper.Sleep(3500);
   }
   public InviteUserToWorkspaceFromApp(email: string, role: string) {
-    const successMessage = "The user has been invited successfully";
+    const successMessage =
+      CURRENT_REPO === REPO.CE
+        ? "The user has been invited successfully"
+        : "The user/group have been invited successfully";
     this.StubPostHeaderReq();
+    this.agHelper.AssertElementExist(
+      "//span[text()='Users will have access to all applications in this workspace']",
+    );
     cy.xpath(this._email).click({ force: true }).type(email);
     cy.xpath(this._selectRole).first().click({ force: true });
     this.agHelper.Sleep(500);
@@ -381,6 +408,32 @@ export class HomePage {
       .should("have.property", "origin", "Cypress");
     cy.contains(email, { matchCase: false });
     cy.contains(successMessage);
+  }
+
+  public InviteUserToApplicationFromApp(email: string, role: string) {
+    const successMessage = "The user/group have been invited successfully";
+    this.StubPostHeaderReq();
+    this.agHelper.AssertElementExist(
+      "//span[text()='Users will only have access to this application']",
+    );
+    cy.xpath(this._email).click({ force: true }).type(email);
+    cy.xpath(this._selectRole).first().click({ force: true });
+    this.agHelper.Sleep(500);
+    cy.xpath(this._userRole(role)).click({ force: true });
+    this.agHelper.ClickButton("Invite");
+    cy.wait("@mockPostAppInvite")
+      .its("request.headers")
+      .should("have.property", "origin", "Cypress");
+    cy.contains(email, { matchCase: false });
+    cy.contains(successMessage);
+  }
+
+  public InviteUserToApplication(email: string, role: string) {
+    if (CURRENT_REPO === REPO.CE) {
+      this.InviteUserToWorkspaceFromApp(email, role);
+    } else {
+      this.InviteUserToApplicationFromApp(email, role);
+    }
   }
 
   public DeleteWorkspace(workspaceNameToDelete: string) {
