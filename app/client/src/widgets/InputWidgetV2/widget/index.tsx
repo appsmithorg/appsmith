@@ -357,7 +357,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
             {
               helpText: "Sets maximum allowed text length",
               propertyName: "maxChars",
-              label: "Max Characters",
+              label: "Max characters",
               controlType: "INPUT_TEXT",
               placeholderText: "255",
               isBindProperty: true,

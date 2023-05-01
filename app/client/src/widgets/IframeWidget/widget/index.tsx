@@ -152,7 +152,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
           },
           {
             propertyName: "borderOpacity",
-            label: "Border Opacity (%)",
+            label: "Border opacity (%)",
             helpText: "Controls the opacity of the border in percentage",
             controlType: "INPUT_TEXT",
             isBindProperty: true,

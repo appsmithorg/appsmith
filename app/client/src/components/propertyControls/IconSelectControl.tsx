@@ -88,13 +88,13 @@ const StyledMenuItem = styled(MenuItem)`
 
   > span.bp3-icon {
     margin-right: 0;
-    color: #939090 !important;
+    color: var(--ads-v2-color-fg) !important;
   }
 
   > div {
     width: 100%;
     text-align: center;
-    color: #939090 !important;
+    color: var(--ads-v2-color-fg) !important;
   }
 `;
 
