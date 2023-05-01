@@ -527,7 +527,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "labelTextColor",
-            label: "Text Color",
+            label: "Text color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,

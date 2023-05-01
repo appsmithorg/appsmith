@@ -303,7 +303,7 @@ class MultiSelectWidget extends BaseWidget<
           },
           {
             propertyName: "labelTextColor",
-            label: "Label Text Color",
+            label: "Label text color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,

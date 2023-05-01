@@ -246,7 +246,7 @@ class ButtonGroupWidget extends BaseWidget<
                               {
                                 propertyName: "textColor",
                                 helpText: "Sets the text color of a menu item",
-                                label: "Text Color",
+                                label: "Text color",
                                 controlType: "COLOR_PICKER",
                                 isBindProperty: false,
                                 isTriggerProperty: false,

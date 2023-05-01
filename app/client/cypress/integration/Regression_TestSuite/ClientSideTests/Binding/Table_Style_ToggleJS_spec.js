@@ -64,7 +64,7 @@ describe("Table Widget property pane feature validation", function () {
   it("6. Table widget toggle test for text color", function () {
     //cy.movetoStyleTab();
     agHelper.Sleep();
-    propPane.EnterJSContext("Text Color", testdata.bindingTextColor);
+    propPane.EnterJSContext("Text color", testdata.bindingTextColor);
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("0", "0", "color", "rgb(0, 128, 0)");
     cy.readTabledataValidateCSS("1", "0", "color", "rgb(255, 0, 0)");

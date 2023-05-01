@@ -78,7 +78,7 @@ export default {
     },
     {
       propertyName: "textColor",
-      label: "Text Color",
+      label: "Text color",
       helpText: "Controls the color of text in the column",
       controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
       isJSConvertible: true,

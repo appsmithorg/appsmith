@@ -277,7 +277,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "labelTextColor",
-            label: "Label Text Color",
+            label: "Label text color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,

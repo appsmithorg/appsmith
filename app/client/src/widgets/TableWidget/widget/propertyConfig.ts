@@ -737,7 +737,7 @@ export default [
                 },
                 {
                   propertyName: "textColor",
-                  label: "Text Color",
+                  label: "Text color",
                   controlType: "PRIMARY_COLUMNS_COLOR_PICKER",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
@@ -1649,7 +1649,7 @@ export default [
       },
       {
         propertyName: "textColor",
-        label: "Text Color",
+        label: "Text color",
         controlType: "COLOR_PICKER",
         updateHook: updateColumnStyles,
         dependencies: ["primaryColumns", "derivedColumns"],

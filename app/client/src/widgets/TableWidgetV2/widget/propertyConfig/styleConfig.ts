@@ -185,7 +185,7 @@ export default [
       },
       {
         propertyName: "textColor",
-        label: "Text Color",
+        label: "Text color",
         helpText: "Controls the color of text in the column",
         controlType: "COLOR_PICKER",
         updateHook: updateColumnStyles,
