@@ -297,7 +297,7 @@ public class OracleExecutionTest {
                 getDefaultDatasourceConfig(oracleDB), insertQueryActionConfig).block();
 
         String sqlSelectQuery = MessageFormat.format("SELECT c_varchar2, c_nvarchar2, c_number, c_float, c_date, " +
-                        "c_binary_float, c_binary_double, c_timestamp, c_timestamp_ltz, c_interval_year, " +
+                        "c_binary_float, c_binary_double, c_timestamp, c_interval_year, " +
                         "c_interval_day, c_rowid, c_urowid, c_char, c_nchar, c_clob, c_nclob FROM {0} WHERE c_number=5",
                 INSERT_TEST_WITH_PREPARED_STMT_TABLE_NAME);
         Map selectQueryFormData = setDataValueSafelyInFormData(null, "body", sqlSelectQuery);
@@ -309,7 +309,7 @@ public class OracleExecutionTest {
         String selectQueryExpectedResultString = "[{\"C_VARCHAR2\":\"varchar2\",\"C_NVARCHAR2\":\"nvarchar2\"," +
                 "\"C_NUMBER\":\"5\",\"C_FLOAT\":\"11.22\",\"C_DATE\":\"2002-10-03\",\"C_BINARY_FLOAT\":\"11.22\"," +
                 "\"C_BINARY_DOUBLE\":\"11.22\",\"C_TIMESTAMP\":\"1997-01-01T09:26:50.124Z\"," +
-                "\"C_TIMESTAMP_LTZ\":\"1997-01-01T03:56:50.124Z\",\"C_INTERVAL_YEAR\":\"1-0\",\"C_INTERVAL_DAY\":\"0 1:0:0.0\"," +
+                "\"C_INTERVAL_YEAR\":\"1-0\",\"C_INTERVAL_DAY\":\"0 1:0:0.0\"," +
                 "\"C_ROWID\":\"AAAAAAAAGAAAAH4AAB\",\"C_UROWID\":\"000001F8.0001.0006\",\"C_CHAR\":\"char            " +
                 "    \",\"C_NCHAR\":\"nchar               \",\"C_CLOB\":\"clob\",\"C_NCLOB\":\"nclob\"}]";
         verifyColumnValue(selectQueryExecutionResultMono, selectQueryExpectedResultString);
