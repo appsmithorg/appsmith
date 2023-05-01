@@ -17,7 +17,7 @@ function ServerTimeout() {
           className="button-position"
           kind="primary"
           onClick={() => window.location.reload()}
-          size="lg"
+          size="md"
         >
           Retry
         </Button>

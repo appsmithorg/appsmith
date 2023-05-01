@@ -584,7 +584,7 @@ export const SKIP_TO_APPLICATION_TOOLTIP_HEADER = () =>
   "This action is irreversible.";
 export const SKIP_TO_APPLICATION_TOOLTIP_DESCRIPTION = () =>
   `You can always reconnect the datasources later but until then the application might be unuseable.`;
-export const SKIP_TO_APPLICATION = () => "Skip to Application";
+export const SKIP_TO_APPLICATION = () => "Skip to application";
 export const SELECT_A_METHOD_TO_ADD_CREDENTIALS = () =>
   "Select a method to add credentials";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
@@ -1381,12 +1381,12 @@ export const EMPTY_DATASOURCE_MAIN_TEXT = () => "No datasource to display";
 export const EMPTY_DATASOURCE_BUTTON_TEXT = () => "NEW DATASOURCE";
 
 // Templates
-export const MORE = () => "MORE";
-export const SHOW_LESS = () => "SHOW LESS";
+export const MORE = () => "More";
+export const SHOW_LESS = () => "Show less";
 export const CHOOSE_WHERE_TO_FORK = () => "Choose where to fork the template";
-export const SELECT_WORKSPACE = () => "Select Workspace";
+export const SELECT_WORKSPACE = () => "Select workspace";
 export const FORK_TEMPLATE = () => "Fork template";
-export const TEMPLATES = () => "TEMPLATES";
+export const TEMPLATES = () => "Templates";
 export const FORK_THIS_TEMPLATE = () => "Use template";
 export const COULDNT_FIND_TEMPLATE = () =>
   "Couldn’t find what you are looking for?";
@@ -1394,30 +1394,30 @@ export const COULDNT_FIND_TEMPLATE_DESCRIPTION = () =>
   "A github issue portal will be opened up for you to create an issue regarding what type of template you need.";
 export const REQUEST_TEMPLATE = () => "Request for a template";
 export const SEARCH_TEMPLATES = () => "Search templates";
-export const INTRODUCING_TEMPLATES = () => "Introducing Templates";
+export const INTRODUCING_TEMPLATES = () => "Introducing templates";
 export const TEMPLATE_NOTIFICATION_DESCRIPTION = () =>
   "Use these templates to learn, create, and build apps even faster";
 export const GO_BACK = () => "Back";
 export const OVERVIEW = () => "Overview";
 export const FUNCTION = () => "Function";
-export const INDUSTRY = () => "Use Case";
+export const INDUSTRY = () => "Use case";
 export const DATASOURCES = () => "Datasources";
 export const NOTE = () => "Note: ";
 export const NOTE_MESSAGE = () => "You can add your datasources as well";
 export const WIDGET_USED = () => "Widgets";
-export const SIMILAR_TEMPLATES = () => "Similar Templates";
+export const SIMILAR_TEMPLATES = () => "Similar templates";
 export const VIEW_ALL_TEMPLATES = () => "View all templates";
 export const FILTERS = () => "Filters";
 export const TEMPLATE_CARD_TITLE = () => "Start from a template";
 export const TEMPLATE_CARD_DESCRIPTION = () =>
   "Create app from template by selecting pages";
 export const FILTER_SELECTALL = () => "Select all";
-export const FILTER_SELECT_PAGES = () => "ADD SELECTED PAGES";
+export const FILTER_SELECT_PAGES = () => "Add selected pages";
 export const FORKING_TEMPLATE = () => "Setting up the template";
 export const FETCHING_TEMPLATES = () => "Loading template details";
 export const FETCHING_TEMPLATE_LIST = () => "Loading templates list";
 
-export const TEMPLATES_BACK_BUTTON = () => "BACK TO TEMPLATES";
+export const TEMPLATES_BACK_BUTTON = () => "Back";
 
 export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
 
