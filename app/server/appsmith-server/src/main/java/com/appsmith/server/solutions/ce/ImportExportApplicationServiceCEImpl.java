@@ -590,8 +590,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                                                                      String applicationId,
                                                                                      String branchName) {
         /*
-            1. Check the validity of file part
-            2. Depending upon availability of applicationId update/save application to workspace
+            1. Verify if application is connected to git, in case if it's connected throw exception asking user to
+            update app via git ops like pull, merge etc.
+            2. Check the validity of file part
+            3. Depending upon availability of applicationId update/save application to workspace
          */
         final MediaType contentType = filePart.headers().getContentType();
 
@@ -612,6 +614,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     return new String(data);
                 });
 
+        // Check if the application is connected to git and if it's connected throw exception asking user to update
+        // app via git ops like pull, merge etc.
         Mono<Boolean> isConnectedToGitMono = Mono.just(false);
         if (!StringUtils.isEmpty(applicationId)) {
             isConnectedToGitMono = applicationService.isApplicationConnectedToGit(applicationId);
