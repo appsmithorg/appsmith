@@ -14,7 +14,6 @@ import {
   READ_DOCUMENTATION,
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
-import { ScrollIndicator } from "design-system-old";
 import {
   Button,
   Callout,
@@ -399,11 +398,6 @@ function Deploy() {
           {!pullRequired && !isConflicting && (
             <DeployPreview showSuccess={isCommitAndPushSuccessful} />
           )}
-          <ScrollIndicator
-            containerRef={scrollWrapperRef}
-            mode="DARK"
-            top="37px"
-          />
         </Container>
       </ModalBody>
       <ModalFooter key="footer">

@@ -23,7 +23,7 @@ import {
   UPDATE_CONFIG,
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
-import { emailValidator, ScrollIndicator } from "design-system-old";
+import { emailValidator } from "design-system-old";
 import UserGitProfileSettings from "../components/UserGitProfileSettings";
 import { AUTH_TYPE_OPTIONS, Classes } from "../constants";
 import { useDispatch, useSelector } from "react-redux";
@@ -452,11 +452,6 @@ function GitConnection({ isImport }: Props) {
               </ButtonContainer>
             </>
           ) : null}
-          <ScrollIndicator
-            containerRef={scrollWrapperRef}
-            mode="DARK"
-            top="37px"
-          />
         </Container>
       </ModalBody>
       <ModalFooter>
