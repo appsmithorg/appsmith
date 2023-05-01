@@ -129,6 +129,9 @@ export const EditorWrapper = styled.div<{
         }
       }
     }
+    .CodeMirror-guttermarker-subtle {
+      color: var(--ads-v2-color-fg-subtle);
+    }
     .cm-s-duotone-light .CodeMirror-gutters {
       background: var(--ads-v2-color-bg-subtle);
     }

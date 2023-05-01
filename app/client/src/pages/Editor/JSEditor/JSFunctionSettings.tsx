@@ -35,13 +35,13 @@ const SettingRow = styled.div<{ isHeading?: boolean; noBorder?: boolean }>`
   ${(props) =>
     !props.noBorder &&
     `
-  border-bottom: solid 1px ${props.theme.colors.table.border}};
+  border-bottom: solid 1px var(--ads-v2-color-border);
   `}
 
   ${(props) =>
     props.isHeading &&
     `
-  background: #f8f8f8;
+  background: var(--ads-v2-color-bg-subtle);
   font-size: ${props.theme.typography.h5.fontSize}px;
   `};
 `;
@@ -49,10 +49,6 @@ const SettingRow = styled.div<{ isHeading?: boolean; noBorder?: boolean }>`
 const StyledIcon = styled(Icon)`
   width: max-content;
   height: max-content;
-  & > svg {
-    width: 13px;
-    height: auto;
-  }
 `;
 
 const SettingColumn = styled.div<{ grow?: boolean; isHeading?: boolean }>`
