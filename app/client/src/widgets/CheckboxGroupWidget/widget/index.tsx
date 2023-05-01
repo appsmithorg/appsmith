@@ -462,7 +462,7 @@ class CheckboxGroupWidget extends BaseWidget<
           {
             propertyName: "accentColor",
             helpText: "Sets the checked state color of the checkbox",
-            label: "Accent Color",
+            label: "Accent color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,

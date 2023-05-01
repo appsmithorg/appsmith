@@ -175,7 +175,7 @@ export default [
       },
       {
         propertyName: "accentColor",
-        label: "Accent Color",
+        label: "Accent color",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
         isBindProperty: true,

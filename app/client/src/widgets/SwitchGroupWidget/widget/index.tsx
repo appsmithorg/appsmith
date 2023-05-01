@@ -364,7 +364,7 @@ class SwitchGroupWidget extends BaseWidget<
           {
             propertyName: "accentColor",
             helpText: "Sets the background color of the widget",
-            label: "Accent Color",
+            label: "Accent color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,

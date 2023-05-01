@@ -214,7 +214,7 @@ class TabsWidget extends BaseWidget<
           {
             propertyName: "accentColor",
             helpText: "Sets the color of the selected tab's underline ",
-            label: "Accent Color",
+            label: "Accent color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
