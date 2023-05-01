@@ -56,132 +56,129 @@ function SettingsForm(props: SettingsFormProps) {
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <Wrapper className="flex flex-col flex-grow gap-4">
-        {/* LOGO */}
-        <div className="flex flex-col gap-2">
-          <Text
-            color="var(--ads-v2-color-fg)"
-            htmlFor="APPSMITH_BRAND_LOGO"
-            kind="heading-s"
-            renderAs="label"
-          >
-            Logo
-          </Text>
-          <Controller
-            control={control}
-            name="APPSMITH_BRAND_LOGO"
-            render={({ field: { onChange, value } }) => (
-              <ImageInput
-                className="t--settings-brand-logo-input"
-                defaultValue={defaultValues.APPSMITH_BRAND_LOGO}
-                onChange={(e) => {
-                  onChange && onChange(e);
-
-                  AnalyticsUtil.logEvent("BRANDING_PROPERTY_UPDATE", {
-                    propertyName: "logo",
-                  });
-                }}
-                validate={logoImageValidator}
-                value={value}
-              />
-            )}
-          />
-          <HelperText renderAs="p">
-            * {createMessage(ADMIN_BRANDING_LOGO_REQUIREMENT)}
-          </HelperText>
-        </div>
-
-        {/* FAVICON */}
-        <div className="flex flex-col gap-2">
-          <Text
-            color="var(--ads-v2-color-fg)"
-            htmlFor="APPSMITH_BRAND_FAVICON"
-            kind="heading-s"
-            renderAs="label"
-          >
-            Favicon
-          </Text>
-          <Controller
-            control={control}
-            name="APPSMITH_BRAND_FAVICON"
-            render={({ field: { onChange, value } }) => (
-              <ImageInput
-                className="t--settings-brand-favicon-input"
-                defaultValue={defaultValues.APPSMITH_BRAND_FAVICON}
-                onChange={(e) => {
-                  onChange && onChange(e);
-
-                  AnalyticsUtil.logEvent("BRANDING_PROPERTY_UPDATE", {
-                    propertyName: "favicon",
-                  });
-                }}
-                validate={faivconImageValidator}
-                value={value}
-              />
-            )}
-          />
-          <HelperText renderAs="p">
-            * {createMessage(ADMIN_BRANDING_FAVICON_REQUIREMENT)}
-          </HelperText>
-        </div>
-
-        {/* COLOR */}
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-1">
-            <Text
-              color="var(--ads-v2-color-fg)"
-              htmlFor="APPSMITH_BRAND_PRIMARY_COLOR"
-              kind="heading-s"
-              renderAs="label"
-            >
-              Color
-            </Text>
-            <Tooltip content={createMessage(ADMIN_BRANDING_COLOR_TOOLTIP)}>
-              <Icon className="help-icon" name="question-line" size="md" />
-            </Tooltip>
-          </div>
-
-          <Controller
-            control={control}
-            name="brandColors"
-            render={({ field: { onChange, value } }) => (
-              <ColorInput
-                className="t--settings-brand-color-input"
-                defaultValue={defaultValues.brandColors}
-                filter={(key) => !["disabled", "hover"].includes(key)}
-                logEvent={(property: string) => {
-                  AnalyticsUtil.logEvent("BRANDING_PROPERTY_UPDATE", {
-                    propertyName: property,
-                  });
-                }}
-                onChange={onChange}
-                tooltips={{
-                  primary: createMessage(ADMIN_BRANDING_COLOR_TOOLTIP_PRIMARY),
-                  background: createMessage(
-                    ADMIN_BRANDING_COLOR_TOOLTIP_BACKGROUND,
-                  ),
-                  hover: createMessage(ADMIN_BRANDING_COLOR_TOOLTIP_HOVER),
-                  font: createMessage(ADMIN_BRANDING_COLOR_TOOLTIP_FONT),
-                  disabled: createMessage(
-                    ADMIN_BRANDING_COLOR_TOOLTIP_DISABLED,
-                  ),
-                }}
-                value={value}
-              />
-            )}
-          />
-        </div>
-
-        <Button
-          isDisabled={disabled || !hasDirtyFields}
-          size="md"
-          type="submit"
+    <Wrapper className="flex flex-col flex-grow gap-4">
+      {/* LOGO */}
+      <div className="flex flex-col gap-2">
+        <Text
+          color="var(--ads-v2-color-fg)"
+          htmlFor="APPSMITH_BRAND_LOGO"
+          kind="heading-s"
+          renderAs="label"
         >
-          Submit
-        </Button>
-      </Wrapper>
-    </form>
+          Logo
+        </Text>
+        <Controller
+          control={control}
+          name="APPSMITH_BRAND_LOGO"
+          render={({ field: { onChange, value } }) => (
+            <ImageInput
+              className="t--settings-brand-logo-input"
+              defaultValue={defaultValues.APPSMITH_BRAND_LOGO}
+              onChange={(e) => {
+                onChange && onChange(e);
+
+                AnalyticsUtil.logEvent("BRANDING_PROPERTY_UPDATE", {
+                  propertyName: "logo",
+                });
+              }}
+              validate={logoImageValidator}
+              value={value}
+            />
+          )}
+        />
+        <HelperText renderAs="p">
+          * {createMessage(ADMIN_BRANDING_LOGO_REQUIREMENT)}
+        </HelperText>
+      </div>
+
+      {/* FAVICON */}
+      <div className="flex flex-col gap-2">
+        <Text
+          color="var(--ads-v2-color-fg)"
+          htmlFor="APPSMITH_BRAND_FAVICON"
+          kind="heading-s"
+          renderAs="label"
+        >
+          Favicon
+        </Text>
+        <Controller
+          control={control}
+          name="APPSMITH_BRAND_FAVICON"
+          render={({ field: { onChange, value } }) => (
+            <ImageInput
+              className="t--settings-brand-favicon-input"
+              defaultValue={defaultValues.APPSMITH_BRAND_FAVICON}
+              onChange={(e) => {
+                onChange && onChange(e);
+
+                AnalyticsUtil.logEvent("BRANDING_PROPERTY_UPDATE", {
+                  propertyName: "favicon",
+                });
+              }}
+              validate={faivconImageValidator}
+              value={value}
+            />
+          )}
+        />
+        <HelperText renderAs="p">
+          * {createMessage(ADMIN_BRANDING_FAVICON_REQUIREMENT)}
+        </HelperText>
+      </div>
+
+      {/* COLOR */}
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-1">
+          <Text
+            color="var(--ads-v2-color-fg)"
+            htmlFor="APPSMITH_BRAND_PRIMARY_COLOR"
+            kind="heading-s"
+            renderAs="label"
+          >
+            Color
+          </Text>
+          <Tooltip content={createMessage(ADMIN_BRANDING_COLOR_TOOLTIP)}>
+            <Icon className="help-icon" name="question-line" size="md" />
+          </Tooltip>
+        </div>
+
+        <Controller
+          control={control}
+          name="brandColors"
+          render={({ field: { onChange, value } }) => (
+            <ColorInput
+              className="t--settings-brand-color-input"
+              defaultValue={defaultValues.brandColors}
+              filter={(key) => !["disabled", "hover"].includes(key)}
+              logEvent={(property: string) => {
+                AnalyticsUtil.logEvent("BRANDING_PROPERTY_UPDATE", {
+                  propertyName: property,
+                });
+              }}
+              onChange={onChange}
+              tooltips={{
+                primary: createMessage(ADMIN_BRANDING_COLOR_TOOLTIP_PRIMARY),
+                background: createMessage(
+                  ADMIN_BRANDING_COLOR_TOOLTIP_BACKGROUND,
+                ),
+                hover: createMessage(ADMIN_BRANDING_COLOR_TOOLTIP_HOVER),
+                font: createMessage(ADMIN_BRANDING_COLOR_TOOLTIP_FONT),
+                disabled: createMessage(ADMIN_BRANDING_COLOR_TOOLTIP_DISABLED),
+              }}
+              value={value}
+            />
+          )}
+        />
+      </div>
+
+      <Button
+        isDisabled={disabled || !hasDirtyFields}
+        onClick={handleSubmit(onSubmit)}
+        size="md"
+        type="submit"
+      >
+        Submit
+      </Button>
+    </Wrapper>
   );
 }
 
