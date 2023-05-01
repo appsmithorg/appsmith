@@ -1571,8 +1571,7 @@ export const RECONNECT_BUTTON_TEXT = () => "Reconnect";
 export const SAVE_BUTTON_TEXT = () => "Save";
 export const SAVE_AND_AUTHORIZE_BUTTON_TEXT = () => "Save and authorize";
 export const DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT = () => "Don't save";
-export const GSHEET_AUTHORISED_FILE_IDS_KEY = () =>
-  "Google sheets authorised file ids key";
+export const GSHEET_AUTHORISED_FILE_IDS_KEY = () => "userAuthorizedSheetIds";
 export const GOOGLE_SHEETS_INFO_BANNER_MESSAGE = () =>
   "Appsmith will require access to your google drive to access google sheets.";
 export const GOOGLE_SHEETS_AUTHORIZE_DATASOURCE = () => "Authorize Datasource";
