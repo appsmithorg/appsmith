@@ -20,63 +20,63 @@ describe("Number Slider spec", () => {
     });
   });
 
-  it("1. Validates Min. Value", () => {
+  it("1. Validates Min. value", () => {
     // open the Property Pane
     ee.SelectEntityByName("NumberSlider1", "Widgets");
 
-    propPane.UpdatePropertyFieldValue("Min. Value", "110");
+    propPane.UpdatePropertyFieldValue("Min. value", "110");
 
     agHelper.VerifyEvaluatedErrorMessage(
       "This value must be less than max value",
     );
 
-    propPane.UpdatePropertyFieldValue("Min. Value", "");
+    propPane.UpdatePropertyFieldValue("Min. value", "");
 
     agHelper.VerifyEvaluatedErrorMessage("This value is required");
 
-    propPane.UpdatePropertyFieldValue("Min. Value", "zero");
+    propPane.UpdatePropertyFieldValue("Min. value", "zero");
 
     agHelper.VerifyEvaluatedErrorMessage("This value must be a number");
 
-    propPane.UpdatePropertyFieldValue("Min. Value", "0");
+    propPane.UpdatePropertyFieldValue("Min. value", "0");
 
     // agHelper.VerifyEvaluatedValue("0");
   });
 
-  it("2. Validates Max. Value", () => {
-    propPane.UpdatePropertyFieldValue("Max. Value", "0");
+  it("2. Validates Max. value", () => {
+    propPane.UpdatePropertyFieldValue("Max. value", "0");
 
     agHelper.VerifyEvaluatedErrorMessage(
       "This value must be greater than min value",
     );
 
-    propPane.UpdatePropertyFieldValue("Max. Value", "");
+    propPane.UpdatePropertyFieldValue("Max. value", "");
 
     agHelper.VerifyEvaluatedErrorMessage("This value is required");
 
-    propPane.UpdatePropertyFieldValue("Max. Value", "asd");
+    propPane.UpdatePropertyFieldValue("Max. value", "asd");
 
     agHelper.VerifyEvaluatedErrorMessage("This value must be a number");
 
-    propPane.UpdatePropertyFieldValue("Max. Value", "100");
+    propPane.UpdatePropertyFieldValue("Max. value", "100");
 
     // agHelper.VerifyEvaluatedValue("100");
   });
 
   it("3. Validates Step Value", () => {
-    propPane.UpdatePropertyFieldValue("Step Size", "-10");
+    propPane.UpdatePropertyFieldValue("Step size", "-10");
 
     agHelper.VerifyEvaluatedErrorMessage("This value must be greater than 0.1");
 
-    propPane.UpdatePropertyFieldValue("Step Size", "110");
+    propPane.UpdatePropertyFieldValue("Step size", "110");
 
     agHelper.VerifyEvaluatedErrorMessage("This value must be less than 100");
 
-    propPane.UpdatePropertyFieldValue("Step Size", "asd");
+    propPane.UpdatePropertyFieldValue("Step size", "asd");
 
     agHelper.VerifyEvaluatedErrorMessage("This value must be a number");
 
-    propPane.UpdatePropertyFieldValue("Step Size", "10");
+    propPane.UpdatePropertyFieldValue("Step size", "10");
 
     // agHelper.VerifyEvaluatedValue("10");
   });
@@ -103,7 +103,7 @@ describe("Number Slider spec", () => {
     // agHelper.VerifyEvaluatedValue("10");
   });
 
-  it("5. Change Step Size and check if value changes", () => {
+  it("5. Change Step size and check if value changes", () => {
     // Assert Text widget has value 10
     agHelper.GetText(getWidgetSelector(WIDGET.TEXT)).then(($label) => {
       expect($label).to.eq("10");
@@ -112,8 +112,8 @@ describe("Number Slider spec", () => {
     // open the Property Pane
     ee.SelectEntityByName("NumberSlider1", "Widgets");
 
-    // Change the Step Size to 10
-    propPane.UpdatePropertyFieldValue("Step Size", "10");
+    // Change the Step size to 10
+    propPane.UpdatePropertyFieldValue("Step size", "10");
 
     // Change the slider value
     agHelper
