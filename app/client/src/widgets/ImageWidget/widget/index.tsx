@@ -46,7 +46,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
           {
             helpText: "Sets the default image to be displayed when load fails",
             propertyName: "defaultImage",
-            label: "Default Image",
+            label: "Default image",
             controlType: "INPUT_TEXT",
             placeholderText: "URL / Base64",
             isBindProperty: true,
@@ -62,7 +62,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             helpText:
               "Sets how the Image should be resized to fit its container.",
             propertyName: "objectFit",
-            label: "Object Fit",
+            label: "Object fit",
             controlType: "DROP_DOWN",
             defaultValue: "contain",
             options: [
@@ -148,7 +148,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
           {
             helpText: "Controls if the image is allowed to rotate",
             propertyName: "enableRotation",
-            label: "Enable Rotation",
+            label: "Enable rotation",
             controlType: "SWITCH",
             isJSConvertible: false,
             isBindProperty: true,
@@ -158,7 +158,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
           {
             helpText: "Controls if the image is allowed to download",
             propertyName: "enableDownload",
-            label: "Enable Download",
+            label: "Enable download",
             controlType: "SWITCH",
             isJSConvertible: false,
             isBindProperty: true,
