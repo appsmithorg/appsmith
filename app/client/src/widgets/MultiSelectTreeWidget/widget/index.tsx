@@ -341,7 +341,7 @@ class MultiSelectTreeWidget extends BaseWidget<
           },
           {
             propertyName: "allowClear",
-            label: "Allow Clearing Value",
+            label: "Allow clearing value",
             helpText: "Enables Icon to clear all Selections",
             controlType: "SWITCH",
             isJSConvertible: true,
@@ -351,7 +351,7 @@ class MultiSelectTreeWidget extends BaseWidget<
           },
           {
             propertyName: "expandAll",
-            label: "Expand all by Default",
+            label: "Expand all by default",
             helpText: "Expand All nested options",
             controlType: "SWITCH",
             isJSConvertible: true,
