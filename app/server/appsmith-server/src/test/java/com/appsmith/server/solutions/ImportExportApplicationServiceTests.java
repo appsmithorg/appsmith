@@ -3734,7 +3734,7 @@ public class ImportExportApplicationServiceTests {
 
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
         String workspaceId = createTemplateWorkspace().getId();
-        final Mono<Application> resultMonoWithoutDiscardOperation = importExportApplicationService.extractFileAndUpdateExistingApplication(workspaceId, filePart, null, null)
+        final Mono<Application> resultMonoWithoutDiscardOperation = importExportApplicationService.extractFileAndUpdateNonGitConnectedApplication(workspaceId, filePart, null, null)
                 .flatMap(applicationImportDTO -> {
                     PageDTO page = new PageDTO();
                     page.setName("discard-page-test");
@@ -3787,7 +3787,7 @@ public class ImportExportApplicationServiceTests {
         // Import the same application again to find if the added page is deleted
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation
                 .flatMap(importedApplication -> applicationService.save(importedApplication))
-                .flatMap(savedApplication -> importExportApplicationService.extractFileAndUpdateExistingApplication(workspaceId, filePart, savedApplication.getId(), null))
+                .flatMap(savedApplication -> importExportApplicationService.extractFileAndUpdateNonGitConnectedApplication(workspaceId, filePart, savedApplication.getId(), null))
                 .map(ApplicationImportDTO::getApplication);
 
         StepVerifier
@@ -3810,6 +3810,45 @@ public class ImportExportApplicationServiceTests {
                     assertThat(pageNames).doesNotContain("discard-page-test");
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void extractFileAndUpdateExistingApplication_gitConnectedApplication_throwUnsupportedOperationException() {
+
+        /*
+        1. Create application and mock git connectivity
+        2. Import the application from valid JSON with saved applicationId
+        3. Unsupported operation exception should be thrown
+         */
+
+        //Create application connected to git
+        Application testApplication = new Application();
+        testApplication.setName("extractFileAndUpdateExistingApplication_gitConnectedApplication_throwUnsupportedOperationException");
+        testApplication.setWorkspaceId(workspaceId);
+        testApplication.setUpdatedAt(Instant.now());
+        testApplication.setLastDeployedAt(Instant.now());
+        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        String branch = UUID.randomUUID().toString();
+        gitData.setBranchName(branch);
+        gitData.setDefaultBranchName(branch);
+        testApplication.setGitApplicationMetadata(gitData);
+        Application application = applicationPageService.createApplication(testApplication, workspaceId)
+                .flatMap(application1 -> {
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
+                    return applicationService.save(application1);
+                }).block();
+
+        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
+        final Mono<ApplicationImportDTO> resultMono = importExportApplicationService
+                .extractFileAndUpdateNonGitConnectedApplication(workspaceId, filePart, application.getId(), branch);
+
+        StepVerifier
+                .create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().equals(AppsmithError.UNSUPPORTED_IMPORT_OPERATION_FOR_GIT_CONNECTED_APPLICATION.getMessage()))
+                .verify();
+
     }
 
 }

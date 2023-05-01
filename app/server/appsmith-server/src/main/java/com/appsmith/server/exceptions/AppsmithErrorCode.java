@@ -108,6 +108,7 @@ public enum AppsmithErrorCode {
     TOO_MANY_REQUESTS("AE-TMR-4029", "Too many requests"),
     USER_NOT_FOUND("AE-USR-4004", "User not found"),
     CSRF_TOKEN_INVALID("AE-APP-4039", "CSRF token missing/invalid"),
+    UNSUPPORTED_IMPORT_OPERATION("AE-APP-4007", "Unsupported operation for import application via file"),
     ;
     private final String code;
     private final String description;
