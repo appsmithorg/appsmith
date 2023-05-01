@@ -313,11 +313,13 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
     >
       <TextWrapper>
         <Text color={Colors.COD_GRAY} type={TextType.P1}>
-          {createMessage(
-            importingApplication
-              ? UPLOADING_JSON
-              : IMPORT_APPLICATION_MODAL_LABEL,
-          )}
+          {toApp
+            ? null
+            : createMessage(
+                importingApplication
+                  ? UPLOADING_JSON
+                  : IMPORT_APPLICATION_MODAL_LABEL,
+              )}
         </Text>
       </TextWrapper>
       {!importingApplication && (

@@ -1519,6 +1519,8 @@ export const UPDATE_VIA_IMPORT_SETTING = {
   settingContent: () =>
     "This action will override your existing application. Please exercise caution while selecting the file to import.",
   settingActionButtonTxt: () => "Import",
+  disabledForGit: () =>
+    "This feature is not supported for apps connected to Git version control. Please use Git Pull to update and sync your app.",
 };
 
 export const IN_APP_EMBED_SETTING = {

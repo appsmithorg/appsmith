@@ -8,6 +8,7 @@ import ImportApplicationModal from "pages/Applications/ImportApplicationModal";
 import React from "react";
 import { useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { getIsGitConnected } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
 
 const SettingWrapper = styled.div`
@@ -33,6 +34,7 @@ const StyledText = styled(Text)`
 export function ImportAppSettings() {
   const appId = useSelector(getCurrentApplicationId);
   const workspace = useSelector(getCurrentAppWorkspace);
+  const isGitConnected = useSelector(getIsGitConnected);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   function handleClose() {
@@ -45,11 +47,14 @@ export function ImportAppSettings() {
           {createMessage(UPDATE_VIA_IMPORT_SETTING.settingHeader)}
         </StyledText>
         <StyledText type={TextType.P3}>
-          {createMessage(UPDATE_VIA_IMPORT_SETTING.settingContent)}
+          {isGitConnected
+            ? createMessage(UPDATE_VIA_IMPORT_SETTING.disabledForGit)
+            : createMessage(UPDATE_VIA_IMPORT_SETTING.settingContent)}
         </StyledText>
         <Button
           className="import-btn"
           cypressSelector="t--app-setting-import-btn"
+          disabled={isGitConnected}
           onClick={() => setIsModalOpen(true)}
           size="small"
           tag="button"
