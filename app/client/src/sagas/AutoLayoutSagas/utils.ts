@@ -1,5 +1,5 @@
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type {
-  CanvasWidgetsReduxState,
   FlattenedWidgetProps,
   UpdateWidgetsPayload,
 } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -9,7 +9,7 @@ import {
   alterLayoutForMobile,
   getCanvasDimensions,
 } from "utils/autoLayout/AutoLayoutUtils";
-import { getCanvasAndMetaWidgets, getWidgets } from "../selectors";
+import { getCanvasAndMetaWidgets, getWidgetMetaProps } from "../selectors";
 import type { DefaultDimensionMap } from "constants/WidgetConstants";
 import {
   GridDefaults,
@@ -44,6 +44,7 @@ import log from "loglevel";
 import { APP_MODE } from "entities/App";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getAppMode } from "selectors/entitiesSelector";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 export function* recalculatePositionsOfWidgets({
   canvasWidth,
@@ -75,10 +76,36 @@ export function* recalculatePositionsOfWidgets({
     allWidgets = { ...widgetsOld };
   }
 
+  let processedWidgets: CanvasWidgetsReduxState = {};
+
+  // In the case of LIST_WIDGET_V2, instead of its child canvas widget, we need to use the child meta widget
+  for (const widgetId in allWidgets) {
+    let widget = allWidgets[widgetId];
+    if (widget.type === "LIST_WIDGET_V2") {
+      const widgetLikeProps = {
+        widgetId: widget.widgetId,
+      } as WidgetProps;
+      const widgetMetaProps: Record<string, unknown> = yield select(
+        getWidgetMetaProps,
+        widgetLikeProps,
+      );
+      widget = {
+        ...widget,
+        children: [widgetMetaProps.metaCanvasWidgetId as string],
+      };
+    }
+    processedWidgets[widgetId] = widget;
+  }
+
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
-  let processedWidgets: CanvasWidgetsReduxState = isMobile
-    ? alterLayoutForMobile(allWidgets, parentId, canvasWidth, mainCanvasWidth)
-    : alterLayoutForDesktop(allWidgets, parentId, mainCanvasWidth);
+  processedWidgets = isMobile
+    ? alterLayoutForMobile(
+        processedWidgets,
+        parentId,
+        canvasWidth,
+        mainCanvasWidth,
+      )
+    : alterLayoutForDesktop(processedWidgets, parentId, mainCanvasWidth);
   const dimensionMap: typeof DefaultDimensionMap = yield select(
     getDimensionMap,
   );
@@ -208,7 +235,9 @@ export function* processAutoLayoutDimensionUpdatesFn(
 }
 
 export function* processWidgetDimensionsSaga() {
-  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const allWidgets: CanvasWidgetsReduxState = yield select(
+    getCanvasAndMetaWidgets,
+  );
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
 

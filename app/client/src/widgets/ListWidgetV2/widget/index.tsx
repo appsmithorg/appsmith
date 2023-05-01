@@ -478,6 +478,7 @@ class ListWidget extends BaseWidget<
       this.metaWidgetGenerator.withOptions(generatorOptions).generate();
 
     this.updateCurrentItemsViewBinding();
+    this.udpateMetaCanvasWidgetId();
     const mainCanvasWidget = this.generateMainMetaCanvasWidget();
     this.syncMetaContainerNames();
 
@@ -573,6 +574,13 @@ class ListWidget extends BaseWidget<
     if (metaWidget.dynamicHeight === "AUTO_HEIGHT") {
       metaWidget.dynamicHeight = "FIXED";
     }
+  };
+
+  udpateMetaCanvasWidgetId = () => {
+    this.props.updateWidgetMetaProperty(
+      "metaCanvasWidgetId",
+      this.prevMetaMainCanvasWidget?.widgetId,
+    );
   };
 
   updateCurrentItemsViewBinding = () => {
