@@ -27,6 +27,16 @@ body.dragging * {
   cursor: grabbing !important;
 }
 
+/**
+  over-riding the outline that comes from
+  blueprint. Please don't add important, we 
+  are using outline in adsv2 components.
+*/
+:focus {
+  outline: none;
+  outline-offset: 0;
+}
+
 body.overlay {
   opacity: 0;
   pointer-events: none;

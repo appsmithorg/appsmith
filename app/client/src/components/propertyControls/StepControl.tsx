@@ -1,7 +1,6 @@
 import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-// import { StepComponent } from "design-system-old";
 import { NumberInput } from "design-system";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {

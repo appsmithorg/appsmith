@@ -101,7 +101,6 @@ export const EditorWrapper = styled.div<{
       .cm-s-duotone-light.CodeMirror {
         cursor: pointer;
         border-radius: var(--ads-v2-border-radius);
-        background: ${Colors.GREY_1};
       }
     }
   }`
@@ -118,24 +117,28 @@ export const EditorWrapper = styled.div<{
     .cm-s-duotone-light.CodeMirror {
       padding: 0 6px;
       border-radius: var(--ads-v2-border-radius);
+      ${(props) =>
+        props.isFocused &&
+        `outline: var(--ads-v2-border-width-outline) solid var(--ads-v2-color-outline);
+        outline-offset: var(--ads-v2-offset-outline);`}
       border: 1px solid
         ${(props) => {
-          switch (true) {
-            case props.border === "none":
-              return "transparent";
-            case props.border === "bottom-side":
-              return Colors.MERCURY;
-            case props.hasError:
-              return "red";
-            case props.isFocused:
-              return "var(--ads-v2-color-border-emphasis)";
-            default:
-              return "var(--ads-v2-color-gray-300)";
-          }
-        }};
+        switch (true) {
+          case props.border === "none":
+            return "transparent";
+          case props.border === "bottom-side":
+            return Colors.MERCURY;
+          case props.hasError:
+            return "red";
+          case props.isFocused:
+            return "var(--ads-v2-color-border-emphasis)";
+          default:
+            return "var(--ads-v2-color-gray-300)";
+        }
+      }};
       ${(props) => props.border === "none" && "border: none"};
-      background: ${(props) => props.theme.colors.apiPane.bg};
-      color: ${Colors.CHARCOAL};
+      background: var(--ads-v2-color-bg);
+      color: var(--ads-v2-color-fg);
       & {
         span.cm-operator {
           color: ${(props) => props.theme.colors.textDefault};
@@ -224,8 +227,7 @@ export const EditorWrapper = styled.div<{
     }
     `}
     .CodeMirror pre.CodeMirror-placeholder {
-      color: ${(props) =>
-        props.theme.colors.apiPane.codeEditor.placeholderColor};
+      color: var(--ads-v2-color-fg-subtle);
     }
     ${(props) =>
       (props.size === EditorSize.COMPACT ||
@@ -279,7 +281,10 @@ export const EditorWrapper = styled.div<{
 
     &:focus {
       border-radius: var(--ads-v2-border-radius);
-      border: 1px solid var(--ads-v2-color-border-emphasis);
+      border: 1px solid var(--ads-v2-color-border-emphasis-plus);
+      outline: var(--ads-v2-border-width-outline) solid
+        var(--ads-v2-color-outline);
+      outline-offset: var(--ads-v2-offset-outline);
       .CodeMirror.cm-s-duotone-light {
         border: none;
       }

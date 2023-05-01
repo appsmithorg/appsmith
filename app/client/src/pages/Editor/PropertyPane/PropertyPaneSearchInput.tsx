@@ -14,6 +14,7 @@ const SearchInputWrapper = styled.div`
   position: sticky;
   top: 42px;
   z-index: 3;
+  height: 35px;
   padding: 0 1rem;
   background: var(--ads-v2-color-white);
 `;
