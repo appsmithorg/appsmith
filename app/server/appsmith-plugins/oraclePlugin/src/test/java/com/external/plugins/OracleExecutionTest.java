@@ -215,13 +215,28 @@ public class OracleExecutionTest {
         Mono<ActionExecutionResult> selectQueryExecutionResultMono =
                 oraclePluginExecutor.executeParameterized(sharedConnectionPool, new ExecuteActionDTO(),
                         getDefaultDatasourceConfig(oracleDB), selectQueryActionConfig);
-        String selectQueryExpectedResultString = "[{\"C_VARCHAR2\":\"varchar2\",\"C_NVARCHAR2\":\"nvarchar2\"," +
-                "\"C_NUMBER\":\"4\",\"C_FLOAT\":\"11.22\",\"C_DATE\":\"2002-10-03\",\"C_BINARY_FLOAT\":\"11.22\"," +
-                "\"C_BINARY_DOUBLE\":\"11.22\",\"C_TIMESTAMP\":\"1997-01-01T09:26:50.124Z\"," +
-                "\"C_TIMESTAMP_TZ\":\"1997-01-01T09:26:56.66+02:00\",\"C_TIMESTAMP_LTZ\":\"1999-04-05T15:00:00Z\"," +
-                "\"C_INTERVAL_YEAR\":\"1-0\",\"C_INTERVAL_DAY\":\"0 1:0:0.0\",\"C_ROWID\":\"AAAAAAAAGAAAAH4AAB\"," +
-                "\"C_UROWID\":\"000001F8.0001.0006\",\"C_CHAR\":\"char                \",\"C_NCHAR\":\"nchar         " +
-                "      \",\"C_CLOB\":\"clob\",\"C_NCLOB\":\"nclob\"}]";
+        String selectQueryExpectedResultString = "[\n" +
+                "  {\n" +
+                "    \"C_VARCHAR2\": \"varchar2\",\n" +
+                "    \"C_NVARCHAR2\": \"nvarchar2\",\n" +
+                "    \"C_NUMBER\": \"4\",\n" +
+                "    \"C_FLOAT\": \"11.22\",\n" +
+                "    \"C_DATE\": \"2002-10-03\",\n" +
+                "    \"C_BINARY_FLOAT\": \"11.22\",\n" +
+                "    \"C_BINARY_DOUBLE\": \"11.22\",\n" +
+                "    \"C_TIMESTAMP\": \"1997-01-01T09:26:50.124Z\",\n" +
+                "    \"C_TIMESTAMP_TZ\": \"1997-01-01T09:26:56.66+02:00\",\n" +
+                "    \"C_TIMESTAMP_LTZ\": \"1999-04-05T15:00:00Z\",\n" +
+                "    \"C_INTERVAL_YEAR\": \"1-0\",\n" +
+                "    \"C_INTERVAL_DAY\": \"0 1:0:0.0\",\n" +
+                "    \"C_ROWID\": \"AAAAAAAAGAAAAH4AAB\",\n" +
+                "    \"C_UROWID\": \"000001F8.0001.0006\",\n" +
+                "    \"C_CHAR\": \"char                \",\n" +
+                "    \"C_NCHAR\": \"nchar               \",\n" +
+                "    \"C_CLOB\": \"clob\",\n" +
+                "    \"C_NCLOB\": \"nclob\"\n" +
+                "  }\n" +
+                "]";
         verifyColumnValue(selectQueryExecutionResultMono, selectQueryExpectedResultString);
     }
 
@@ -306,12 +321,26 @@ public class OracleExecutionTest {
         Mono<ActionExecutionResult> selectQueryExecutionResultMono =
                 oraclePluginExecutor.executeParameterized(sharedConnectionPool, new ExecuteActionDTO(),
                         getDefaultDatasourceConfig(oracleDB), selectQueryActionConfig);
-        String selectQueryExpectedResultString = "[{\"C_VARCHAR2\":\"varchar2\",\"C_NVARCHAR2\":\"nvarchar2\"," +
-                "\"C_NUMBER\":\"5\",\"C_FLOAT\":\"11.22\",\"C_DATE\":\"2002-10-03\",\"C_BINARY_FLOAT\":\"11.22\"," +
-                "\"C_BINARY_DOUBLE\":\"11.22\",\"C_TIMESTAMP\":\"1997-01-01T09:26:50.124Z\"," +
-                "\"C_INTERVAL_YEAR\":\"1-0\",\"C_INTERVAL_DAY\":\"0 1:0:0.0\"," +
-                "\"C_ROWID\":\"AAAAAAAAGAAAAH4AAB\",\"C_UROWID\":\"000001F8.0001.0006\",\"C_CHAR\":\"char            " +
-                "    \",\"C_NCHAR\":\"nchar               \",\"C_CLOB\":\"clob\",\"C_NCLOB\":\"nclob\"}]";
+        String selectQueryExpectedResultString = "[\n" +
+                "  {\n" +
+                "    \"C_VARCHAR2\": \"varchar2\",\n" +
+                "    \"C_NVARCHAR2\": \"nvarchar2\",\n" +
+                "    \"C_NUMBER\": \"5\",\n" +
+                "    \"C_FLOAT\": \"11.22\",\n" +
+                "    \"C_DATE\": \"2002-10-03\",\n" +
+                "    \"C_BINARY_FLOAT\": \"11.22\",\n" +
+                "    \"C_BINARY_DOUBLE\": \"11.22\",\n" +
+                "    \"C_TIMESTAMP\": \"1997-01-01T09:26:50.124Z\",\n" +
+                "    \"C_INTERVAL_YEAR\": \"1-0\",\n" +
+                "    \"C_INTERVAL_DAY\": \"0 1:0:0.0\",\n" +
+                "    \"C_ROWID\": \"AAAAAAAAGAAAAH4AAB\",\n" +
+                "    \"C_UROWID\": \"000001F8.0001.0006\",\n" +
+                "    \"C_CHAR\": \"char                \",\n" +
+                "    \"C_NCHAR\": \"nchar               \",\n" +
+                "    \"C_CLOB\": \"clob\",\n" +
+                "    \"C_NCLOB\": \"nclob\"\n" +
+                "  }\n" +
+                "]";
         verifyColumnValue(selectQueryExecutionResultMono, selectQueryExpectedResultString);
     }
 
