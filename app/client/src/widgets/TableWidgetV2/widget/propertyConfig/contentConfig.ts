@@ -131,7 +131,7 @@ export default [
       {
         propertyName: "isVisiblePagination",
         helpText: "Toggle visibility of the pagination",
-        label: "Show Pagination",
+        label: "Show pagination",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,

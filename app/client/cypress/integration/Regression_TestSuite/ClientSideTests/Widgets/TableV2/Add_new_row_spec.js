@@ -165,7 +165,7 @@ describe("Table widget Add new row feature's", () => {
       cy.get(".t--discard-new-row").click({ force: true });
       //disable all header widgets for the table
       [
-        "Show Pagination",
+        "Show pagination",
         "Allow searching",
         "Allow Download",
         "Allow Filtering",
@@ -176,13 +176,13 @@ describe("Table widget Add new row feature's", () => {
       cy.wait(1000);
 
       //intially enable 2 sections to show pagination and "add new row" button to the header section
-      propPane.ToggleOnOrOff("Show Pagination", "On");
+      propPane.ToggleOnOrOff("Show pagination", "On");
       propPane.ToggleOnOrOff("Allow adding a row", "On");
 
       //"add new row" button should be present
       cy.get(".t--add-new-row").should("exist");
       //turn off pagination and now the "add new row" button should be the only component left in the header section
-      propPane.ToggleOnOrOff("Show Pagination", "Off");
+      propPane.ToggleOnOrOff("Show pagination", "Off");
       //"add new row" should continue to be present
       cy.get(".t--add-new-row").should("exist");
       //finally turn off allow adding a row then the "add new row" button should be removed from the header section

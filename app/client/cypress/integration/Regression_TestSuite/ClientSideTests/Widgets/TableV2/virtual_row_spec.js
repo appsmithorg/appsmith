@@ -20,7 +20,7 @@ describe("Table Widget Virtualized Row", function () {
 
     PropertyPane.UpdatePropertyFieldValue("Table data", JSON.stringify(rows));
     PropertyPane.ToggleOnOrOff("Server side pagination", "On");
-    PropertyPane.ToggleOnOrOff("Show Pagination", "Off");
+    PropertyPane.ToggleOnOrOff("Show pagination", "Off");
   });
 
   it("1. should check that row is getting rendered", () => {
@@ -64,7 +64,7 @@ describe("Table Widget Virtualized Row", function () {
     PropertyPane.ToggleOnOrOff("Cell Wrapping", "Off");
     PropertyPane.NavigateBackToPropertyPane();
     cy.wait(500);
-    PropertyPane.ToggleOnOrOff("Show Pagination", "On");
+    PropertyPane.ToggleOnOrOff("Show pagination", "On");
     cy.wait(500);
     PropertyPane.ToggleOnOrOff("Server side pagination", "Off");
     cy.get(".tr[data-rowindex]").should("have.length", 5);
