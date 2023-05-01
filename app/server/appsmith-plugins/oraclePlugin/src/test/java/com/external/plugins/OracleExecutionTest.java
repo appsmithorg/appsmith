@@ -94,14 +94,14 @@ public class OracleExecutionTest {
                     "'{{'binding18'}}'\n" +
                     ")";
     
-    public static final String SELECT_TEST_WITHOUT_PREPARED_STMT_TABLE_NAME = "testSelectWithoutPreparedStatement";
-    public static final String SELECT_TEST_WITH_PREPARED_STMT_TABLE_NAME = "testSelectWithPreparedStatement";
-    public static final String INSERT_TEST_WITHOUT_PREPARED_STMT_TABLE_NAME = "testInsertWithoutPreparedStatement";
-    public static final String INSERT_TEST_WITH_PREPARED_STMT_TABLE_NAME = "testInsertWithPreparedStatement";
-    public static final String UPDATE_TEST_WITHOUT_PREPARED_STMT_TABLE_NAME = "testUpdateWithoutPreparedStatement";
-    public static final String UPDATE_TEST_WITH_PREPARED_STMT_TABLE_NAME = "testUpdateWithPreparedStatement";
-    public static final String DELETE_TEST_WITHOUT_PREPARED_STMT_TABLE_NAME = "testDeleteWithoutPreparedStatement";
-    public static final String DELETE_TEST_WITH_PREPARED_STMT_TABLE_NAME = "testDeleteWithPreparedStatement";
+    public static final String SELECT_TEST_WITHOUT_PREPARED_STMT_TABLE_NAME = "testSelectWithPreparedStatementWithoutAnyBinding";
+    public static final String SELECT_TEST_WITH_PREPARED_STMT_TABLE_NAME = "testSelectWithPreparedStatementWithBinding";
+    public static final String INSERT_TEST_WITHOUT_PREPARED_STMT_TABLE_NAME = "testInsertWithPreparedStatementWithoutAnyBinding";
+    public static final String INSERT_TEST_WITH_PREPARED_STMT_TABLE_NAME = "testInsertWithPreparedStatementWithBinding";
+    public static final String UPDATE_TEST_WITHOUT_PREPARED_STMT_TABLE_NAME = "testUpdateWithPreparedStatementWithoutAnyBinding";
+    public static final String UPDATE_TEST_WITH_PREPARED_STMT_TABLE_NAME = "testUpdateWithPreparedStatementWithBinding";
+    public static final String DELETE_TEST_WITHOUT_PREPARED_STMT_TABLE_NAME = "testDeleteWithPreparedStatementWithoutAnyBinding";
+    public static final String DELETE_TEST_WITH_PREPARED_STMT_TABLE_NAME = "testDeleteWithPreparedStatementWithBinding";
 
     @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.
     @Container
@@ -138,7 +138,7 @@ public class OracleExecutionTest {
     }
 
     @Test
-    public void testSelectQueryWithoutPreparedStatement() {
+    public void testSelectQueryWithPreparedStatementWithoutAnyBinding() {
         String sqlSelectQuery = MessageFormat.format("SELECT c_number FROM {0} ORDER BY c_number",
                 SELECT_TEST_WITHOUT_PREPARED_STMT_TABLE_NAME);
         Map formData = setDataValueSafelyInFormData(null, "body", sqlSelectQuery);
@@ -164,7 +164,7 @@ public class OracleExecutionTest {
     }
 
     @Test
-    public void testSelectQueryWithPreparedStatement() {
+    public void testSelectQueryWithPreparedStatementWithBinding() {
         String sqlSelectQuery = MessageFormat.format("SELECT c_number FROM {0} WHERE " +
                 "c_varchar2='{{'binding1'}}' ORDER BY c_number DESC", SELECT_TEST_WITH_PREPARED_STMT_TABLE_NAME);
         Map formData = setDataValueSafelyInFormData(null, "body", sqlSelectQuery);
@@ -184,7 +184,7 @@ public class OracleExecutionTest {
     }
 
     @Test
-    public void testInsertQueryReturnValueWithoutPreparedStatement() {
+    public void testInsertQueryReturnValueWithPreparedStatementWithoutAnyBinding() {
         String sqlInsertQuery = MessageFormat.format(SQL_QUERY_TO_INSERT_ONE_ROW_FORMAT,
                 INSERT_TEST_WITHOUT_PREPARED_STMT_TABLE_NAME, 3);
         Map insertQueryFormData = setDataValueSafelyInFormData(null, "body", sqlInsertQuery);
@@ -198,7 +198,7 @@ public class OracleExecutionTest {
     }
 
     @Test
-    public void testInsertQueryVerifyNewRowAddedWithoutPreparedStatement() {
+    public void testInsertQueryVerifyNewRowAddedWithPreparedStatementWithoutAnyBinding() {
         String sqlInsertQuery = MessageFormat.format(SQL_QUERY_TO_INSERT_ONE_ROW_FORMAT,
                 INSERT_TEST_WITHOUT_PREPARED_STMT_TABLE_NAME, 4);
         Map insertQueryFormData = setDataValueSafelyInFormData(null, "body", sqlInsertQuery);
@@ -226,7 +226,7 @@ public class OracleExecutionTest {
     }
 
     @Test
-    public void testInsertQueryReturnValueWithPreparedStatement() {
+    public void testInsertQueryReturnValueWithPreparedStatementWithBinding() {
         String sqlInsertQuery = MessageFormat.format(SQL_QUERY_TO_INSERT_ONE_ROW_WITH_BINDING_FORMAT,
                 INSERT_TEST_WITH_PREPARED_STMT_TABLE_NAME);
         Map insertQueryFormData = setDataValueSafelyInFormData(null, "body", sqlInsertQuery);
@@ -264,7 +264,7 @@ public class OracleExecutionTest {
     }
 
     @Test
-    public void testInsertQueryVerifyNewRowAddedWithPreparedStatement() {
+    public void testInsertQueryVerifyNewRowAddedWithPreparedStatementWithBinding() {
         String sqlInsertQuery = MessageFormat.format(SQL_QUERY_TO_INSERT_ONE_ROW_WITH_BINDING_FORMAT,
                 INSERT_TEST_WITH_PREPARED_STMT_TABLE_NAME);
         Map insertQueryFormData = setDataValueSafelyInFormData(null, "body", sqlInsertQuery);
