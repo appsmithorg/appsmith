@@ -121,7 +121,7 @@ function generatePanelPropertyConfig(
     ],
     styleChildren: [
       {
-        sectionName: "Label Styles",
+        sectionName: "Label styles",
         children: [...COMMON_PROPERTIES.style.label],
       },
       {
