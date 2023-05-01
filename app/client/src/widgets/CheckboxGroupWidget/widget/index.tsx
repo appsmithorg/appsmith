@@ -283,7 +283,7 @@ class CheckboxGroupWidget extends BaseWidget<
           },
           {
             propertyName: "isSelectAll",
-            label: "Select All Options",
+            label: "Select all options",
             controlType: "SWITCH",
             helpText: "Controls whether select all option is shown",
             isJSConvertible: true,
