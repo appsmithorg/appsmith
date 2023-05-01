@@ -120,7 +120,7 @@ export default [
       {
         helpText: "Sets the fill color of the widget",
         propertyName: "accentColor",
-        label: "Fill Color",
+        label: "Fill color",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
         isBindProperty: true,
