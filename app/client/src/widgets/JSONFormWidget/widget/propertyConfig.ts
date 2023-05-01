@@ -114,7 +114,7 @@ export const contentConfig = [
       {
         propertyName: "sourceData",
         helpText: "Input JSON sample for default form layout",
-        label: "Source Data",
+        label: "Source data",
         controlType: "INPUT_TEXT",
         placeholderText: '{ "name": "John", "age": 24 }',
         isBindProperty: true,
@@ -136,7 +136,7 @@ export const contentConfig = [
         propertyName: "autoGenerateForm",
         helpText:
           "Caution: When auto generate form is enabled, the form fields would regenerate if there is any change of source data (keys change or value type changes eg from string to number). If disabled then the fields and their configuration won't change with the change of source data.",
-        label: "Auto Generate Form",
+        label: "Auto generate form",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
@@ -150,7 +150,7 @@ export const contentConfig = [
         controlType: "BUTTON",
         isJSConvertible: false,
         isBindProperty: false,
-        buttonLabel: "Generate Form",
+        buttonLabel: "Generate form",
         onClick: onGenerateFormClick,
         isDisabled: generateFormCTADisabled,
         isTriggerProperty: false,
@@ -166,7 +166,7 @@ export const contentConfig = [
       {
         propertyName: `schema.${ROOT_SCHEMA_KEY}.children`,
         helpText: "Field configuration",
-        label: "Field Configuration",
+        label: "Field configuration",
         controlType: "FIELD_CONFIGURATION",
         isBindProperty: false,
         isTriggerProperty: false,
@@ -201,7 +201,7 @@ export const contentConfig = [
       {
         propertyName: "useSourceData",
         helpText: "Use source data for hidden fields to show them in form data",
-        label: "Hidden Fields in Data",
+        label: "Hidden fields in data",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
@@ -252,7 +252,7 @@ export const contentConfig = [
       {
         propertyName: "showReset",
         helpText: "Show/Hide reset form button",
-        label: "Show Reset",
+        label: "Show reset",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
@@ -262,7 +262,7 @@ export const contentConfig = [
       {
         propertyName: "submitButtonLabel",
         helpText: "Changes the label of the submit button",
-        label: "Submit Button Label",
+        label: "Submit button label",
         controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,
@@ -271,7 +271,7 @@ export const contentConfig = [
       {
         propertyName: "resetButtonLabel",
         helpText: "Changes the label of the reset button",
-        label: "Reset Button Label",
+        label: "Reset button label",
         controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,
@@ -531,11 +531,11 @@ export const styleConfig = [
     ],
   },
   {
-    sectionName: "Submit Button Styles",
+    sectionName: "Submit button styles",
     children: generateButtonStyleControlsV2For("submitButtonStyles"),
   },
   {
-    sectionName: "Reset Button Styles",
+    sectionName: "Reset button styles",
     children: generateButtonStyleControlsV2For("resetButtonStyles"),
     dependencies: ["showReset"],
     hidden: (props: JSONFormWidgetProps) => !props.showReset,

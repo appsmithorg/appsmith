@@ -22,7 +22,7 @@ describe("Property configuration search", () => {
           ...commonProperties,
         },
         {
-          label: "Show Reset",
+          label: "Show reset",
           propertyName: "showReset",
           ...commonProperties,
         },
@@ -37,12 +37,12 @@ describe("Property configuration search", () => {
           ...commonProperties,
         },
         {
-          label: "Submit Button Label",
+          label: "Submit button label",
           propertyName: "submitButtonLabel",
           ...commonProperties,
         },
         {
-          label: "Reset Button Label",
+          label: "Reset button label",
           invisible: true,
           propertyName: "resetButtonLabel",
           ...commonProperties,
@@ -204,7 +204,7 @@ describe("Property configuration search", () => {
         sectionName: "Section One",
         children: [
           {
-            label: "Submit Button Label",
+            label: "Submit button label",
             propertyName: "submitButtonLabel",
             ...commonProperties,
           },
@@ -309,7 +309,7 @@ describe("Property configuration search", () => {
   });
 
   it("Shouldn't search for properties with invisible flag set", () => {
-    const result = searchPropertyPaneConfig(config, "Reset Button Label");
+    const result = searchPropertyPaneConfig(config, "Reset button label");
     expect(result).toEqual([]);
   });
 

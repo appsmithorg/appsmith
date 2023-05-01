@@ -60,7 +60,7 @@ export default [
       {
         helpText: "Takes in an array of items to display the menu items.",
         propertyName: "sourceData",
-        label: "Source Data",
+        label: "Source data",
         controlType: "INPUT_TEXT",
         placeholderText: "{{Query1.data}}",
         inputType: "ARRAY",

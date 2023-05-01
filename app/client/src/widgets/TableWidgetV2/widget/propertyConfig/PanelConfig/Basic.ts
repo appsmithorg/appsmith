@@ -118,7 +118,7 @@ export default {
     {
       helpText: "Takes in an array of items to display the menu items.",
       propertyName: "sourceData",
-      label: "Source Data",
+      label: "Source data",
       controlType: "TABLE_COMPUTE_VALUE",
       placeholderText: "{{Query1.data}}",
       isBindProperty: true,

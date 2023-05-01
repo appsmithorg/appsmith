@@ -43,8 +43,8 @@ function generatePanelPropertyConfig(
           ...ARRAY_PROPERTIES.content.data,
           {
             propertyName: "children",
-            label: "Field Configuration",
-            helpText: "Field Configuration",
+            label: "Field configuration",
+            helpText: "Field configuration",
             controlType: "FIELD_CONFIGURATION",
             isBindProperty: false,
             isTriggerProperty: false,
