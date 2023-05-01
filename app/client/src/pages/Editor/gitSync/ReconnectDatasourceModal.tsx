@@ -155,7 +155,8 @@ const ContentWrapper = styled.div`
 const ListContainer = styled.div`
   height: 100%;
   overflow: auto;
-  width: 206px;
+  width: 256px;
+  padding-right: 8px;
 
   .t--collapse-top-border {
     display: none;
@@ -180,9 +181,8 @@ const Message = styled.div`
   font-size: ${(props) => props.theme.typography["p0"].fontSize}px;
   line-height: ${(props) => props.theme.typography["p0"].lineHeight}px;
   letter-spacing: ${(props) => props.theme.typography["p0"].letterSpacing}px;
-  color: ${Colors.GREY_9};
   text-align: center;
-  margin-bottom: ${(props) => props.theme.spaces[7]}px;
+  margin-bottom: ${(props) => props.theme.spaces[6]}px;
 `;
 
 const SkipToAppButtonWrapper = styled.div``;
@@ -194,7 +194,7 @@ const TooltipWrapper = styled.div`
 `;
 
 const DBFormWrapper = styled.div`
-  width: calc(100% - 206px);
+  width: calc(100% - 256px);
   overflow: auto;
 
   div[class^="RestAPIDatasourceForm__RestApiForm-"] {
@@ -207,6 +207,9 @@ const DBFormWrapper = styled.div`
   }
 `;
 
+const ModalContentWrapper = styled(ModalContent)`
+  width: 100%;
+`;
 enum AuthorizationStatus {
   SUCCESS = "success",
   APPSMITH_ERROR = "appsmith_error",
@@ -495,7 +498,7 @@ function ReconnectDatasourceModal() {
 
   return (
     <Modal onOpenChange={handleClose} open={isModalOpen}>
-      <ModalContent>
+      <ModalContentWrapper>
         <ModalHeader> Reconnect datasources</ModalHeader>
         <ModalBody>
           <BodyContainer>
@@ -503,7 +506,7 @@ function ReconnectDatasourceModal() {
               {createMessage(RECONNECT_MISSING_DATASOURCE_CREDENTIALS)}
             </Title>
             <Section>
-              <Text color={Colors.BLACK} type={TextType.P1}>
+              <Text type={TextType.P1}>
                 {createMessage(
                   RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION,
                 )}
@@ -546,7 +549,7 @@ function ReconnectDatasourceModal() {
             </Tooltip>
           </SkipToAppButtonWrapper>
         </ModalFooter>
-      </ModalContent>
+      </ModalContentWrapper>
     </Modal>
   );
 }

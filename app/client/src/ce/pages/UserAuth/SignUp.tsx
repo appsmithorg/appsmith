@@ -32,7 +32,7 @@ import type { SignupFormValues } from "pages/UserAuth/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 import { SIGNUP_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -44,6 +44,7 @@ import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 
 import { getIsSafeRedirectURL } from "utils/helpers";
 import Container from "pages/UserAuth/Container";
+import { getThirdPartyAuths } from "@appsmith/selectors/tenantSelectors";
 
 declare global {
   interface Window {
@@ -86,7 +87,10 @@ export function SignUp(props: SignUpFormProps) {
   }, []);
   const { emailValue: email, error, pristine, submitting, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);
-  const socialLoginList = ThirdPartyLoginRegistry.get();
+  const socialLoginList = [
+    ...useSelector(getThirdPartyAuths),
+    ...ThirdPartyLoginRegistry.get(),
+  ];
   const shouldDisableSignupButton = pristine || !isFormValid;
   const location = useLocation();
 

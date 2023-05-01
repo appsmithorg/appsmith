@@ -11,13 +11,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.sql.Connection;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -451,5 +452,16 @@ public class PluginUtils {
         }
 
         return propertyValue.toString();
+    }
+
+    public static void safelyCloseSingleConnectionFromHikariCP(Connection connection, String logOnError) {
+        if (connection != null) {
+            try {
+                // Return the connection back to the pool
+                connection.close();
+            } catch (SQLException e) {
+                log.debug(logOnError, e);
+            }
+        }
     }
 }
