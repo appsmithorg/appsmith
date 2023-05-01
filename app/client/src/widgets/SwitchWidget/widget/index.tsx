@@ -77,7 +77,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "defaultSwitchState",
-            label: "Default State",
+            label: "Default state",
             helpText:
               "On / Off the Switch by default. Changes to the default selection update the widget state",
             controlType: "SWITCH",

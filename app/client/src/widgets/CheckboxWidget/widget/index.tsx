@@ -100,7 +100,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "defaultCheckedState",
-            label: "Default State",
+            label: "Default state",
             helpText: "Sets the default checked state of the widget",
             controlType: "SWITCH",
             isJSConvertible: true,
