@@ -116,7 +116,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "fontFamily",
-            label: "Font Family",
+            label: "Font family",
             helpText: "Controls the font family being used",
             controlType: "DROP_DOWN",
             options: [

@@ -35,7 +35,7 @@ function AddTabButtonComponent({ widgetId }: any) {
       size="md"
       startIcon="plus"
     >
-      Add a Tab
+      Add a tab
     </Button>
   );
 }
@@ -56,7 +56,7 @@ function TabControlComponent(props: RenderComponentProps<DroppableItem>) {
       {...props}
       deleteOption={deleteOption}
       isDelete
-      placeholder="Tab Title"
+      placeholder="Tab title"
     />
   );
 }

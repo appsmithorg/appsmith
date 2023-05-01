@@ -215,7 +215,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           },
           {
             propertyName: "fontFamily",
-            label: "Font Family",
+            label: "Font family",
             controlType: "DROP_DOWN",
             options: [
               {
@@ -399,7 +399,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "fontFamily",
-            label: "Font Family",
+            label: "Font family",
             controlType: "DROP_DOWN",
             options: [
               {

@@ -125,7 +125,7 @@ class TabsWidget extends BaseWidget<
             propertyName: "defaultTab",
             helpText: "Selects a tab name specified by default",
             placeholderText: "Tab 1",
-            label: "Default Tab",
+            label: "Default tab",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -181,7 +181,7 @@ class TabsWidget extends BaseWidget<
             propertyName: "shouldShowTabs",
             helpText:
               "Hides the tabs so that different widgets can be displayed based on the default tab",
-            label: "Show Tabs",
+            label: "Show tabs",
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
