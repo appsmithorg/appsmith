@@ -2,6 +2,7 @@ package com.external.plugins.utils;
 
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import oracle.jdbc.OracleArray;
+import oracle.jdbc.OracleBlob;
 import oracle.sql.CLOB;
 import org.apache.commons.lang.ObjectUtils;
 
@@ -149,7 +150,7 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
                         value = String.valueOf(((CLOB)resultSet.getObject(i)).getTarget().getPrefetchedData());
                     } else if (resultSet.getObject(i) instanceof OracleArray) {
                         value = ((OracleArray)resultSet.getObject(i)).getArray();
-                    } else if (RAW_TYPE_NAME.equalsIgnoreCase(typeName) || BLOB_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                    } else if (RAW_TYPE_NAME.equalsIgnoreCase(typeName)) {
                         /**
                          * Raw / Blob data cannot be interpreted as anything but a byte array. Hence, send it back as a
                          * base64 encoded string. The correct way to read the data for these types is for the user to
@@ -157,6 +158,16 @@ public class OracleExecuteUtils implements SmartSubstitutionInterface {
                          * select utl_raw.cast_to_varchar2(c_raw) as c_raw, utl_raw.cast_to_varchar2(c_blob) as c_blob from TYPESTEST4
                          */
                         value = Base64.getEncoder().encodeToString((byte[]) resultSet.getObject(i));
+                    }
+                    else if (BLOB_TYPE_NAME.equalsIgnoreCase(typeName)) {
+                        /**
+                         * Raw / Blob data cannot be interpreted as anything but a byte array. Hence, send it back as a
+                         * base64 encoded string. The correct way to read the data for these types is for the user to
+                         * cast them to a type before reading them, example:
+                         * select utl_raw.cast_to_varchar2(c_raw) as c_raw, utl_raw.cast_to_varchar2(c_blob) as c_blob from TYPESTEST4
+                         */
+                        value = ((OracleBlob)resultSet.getObject(i)).getBytes(1L,
+                                (int) ((OracleBlob)resultSet.getObject(i)).length());
                     }
                     else {
                         value = resultSet.getObject(i).toString();
