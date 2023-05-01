@@ -138,6 +138,7 @@ import {
 } from "./utils/saveAndAutoIndent";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { selectFeatureFlags } from "selectors/usersSelectors";
+import { SourceType, extractExpressionAtPosition } from "@shared/ast";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -619,28 +620,56 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleMouseOver = (event: MouseEvent) => {
-    if (event.target instanceof Element) {
-      const tokenElement = event.target;
+    const tokenElement = event.target;
+    if (
+      tokenElement instanceof Element &&
+      tokenElement.classList.contains("cm-m-javascript")
+    ) {
       const tokenPos = this.editor.coordsChar({
         left: event.clientX,
         top: event.clientY,
       });
+      // const docContent = this.editor.getValue();
+      // const hoverChIndex = this.editor.indexFromPos(tokenPos);
       const lineContent = this.editor.getLine(tokenPos.line);
-      console.log("on hover src element", tokenElement);
-      console.log("on hover line", lineContent);
+
+      // handle return keyword in line (throws ast error)
+      // handle module vs script looping
+      // performance concerns?
+      let lineExpression = extractExpressionAtPosition(
+        lineContent,
+        tokenPos.ch,
+        SourceType.script,
+      );
+      lineExpression = lineExpression.slice(0, lineExpression.length - 1);
+      // console.log("on hover src element", tokenPos, tokenElement);
+      // console.log("on hover line", lineContent);
+      console.log("on hover expression", lineExpression);
 
       if (tokenElement.classList.contains("cm-m-javascript")) {
         if (tokenElement.classList.contains("cm-variable")) {
           // JsObject1.data -> JsObject1
           // storeValue("x", 123) -> storeValue
-          console.log("on hover element - variable");
+          console.log("on hover element - variable", this.props.dynamicData);
           this.showNewPeekOverlay(tokenElement);
+          this.showPeekOverlay(
+            lineExpression,
+            tokenElement,
+            tokenElement.getBoundingClientRect(),
+            _.get(this.props.dynamicData, lineExpression),
+          );
         } else if (tokenElement.classList.contains("cm-property")) {
           // object definitions const obj = { x: 123 } -> x
           // local variables obj.x -> x (need to filter local variables)
           // JsObject1.data -> data
           // JsObject1.data.filter() -> filter (need identify function calls)
           console.log("on hover element - property");
+          this.showPeekOverlay(
+            lineExpression,
+            tokenElement,
+            tokenElement.getBoundingClientRect(),
+            _.get(this.props.dynamicData, lineExpression),
+          );
           this.showNewPeekOverlay(tokenElement);
         } else if (tokenElement.classList.contains("cm-keyword")) {
           // needed to handle this keyword
@@ -654,10 +683,13 @@ class CodeEditor extends Component<Props, State> {
           console.log("on hover element - string");
         } else {
           this.hideNewPeekOverlay();
+          this.hidePeekOverlay();
         }
       } else {
         this.hideNewPeekOverlay();
+        this.hidePeekOverlay();
       }
+      console.log("------------on hover------------");
     }
     // if (
     //   event.target instanceof Element &&
