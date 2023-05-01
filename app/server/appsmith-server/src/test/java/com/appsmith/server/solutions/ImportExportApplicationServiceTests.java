@@ -3734,6 +3734,107 @@ public class ImportExportApplicationServiceTests {
 
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
         String workspaceId = createTemplateWorkspace().getId();
+        final Mono<Application> resultMonoWithoutDiscardOperation = importExportApplicationService.extractFileAndUpdateExistingApplication(workspaceId, filePart, null, null)
+                .flatMap(applicationImportDTO -> {
+                    PageDTO page = new PageDTO();
+                    page.setName("discard-page-test");
+                    page.setApplicationId(applicationImportDTO.getApplication().getId());
+                    return applicationPageService.createPage(page);
+                })
+                .flatMap(page -> applicationRepository.findById(page.getApplicationId()))
+                .cache();
+
+        StepVerifier
+                .create(resultMonoWithoutDiscardOperation
+                        .flatMap(application -> Mono.zip(
+                                Mono.just(application),
+                                newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList()
+                        )))
+                .assertNext(tuple -> {
+                    final Application application = tuple.getT1();
+                    final List<PageDTO> pageList = tuple.getT2();
+
+                    assertThat(application.getName()).isEqualTo("valid_application");
+                    assertThat(application.getWorkspaceId()).isNotNull();
+                    assertThat(application.getPages()).hasSize(3);
+                    assertThat(application.getPublishedPages()).hasSize(1);
+                    assertThat(application.getModifiedBy()).isEqualTo("api_user");
+                    assertThat(application.getUpdatedAt()).isNotNull();
+                    assertThat(application.getEditModeThemeId()).isNotNull();
+                    assertThat(application.getPublishedModeThemeId()).isNotNull();
+
+                    assertThat(pageList).hasSize(3);
+
+                    ApplicationPage defaultAppPage = application.getPages()
+                            .stream()
+                            .filter(ApplicationPage::getIsDefault)
+                            .findFirst()
+                            .orElse(null);
+                    assertThat(defaultAppPage).isNotNull();
+
+                    PageDTO defaultPageDTO = pageList.stream()
+                            .filter(pageDTO -> pageDTO.getId().equals(defaultAppPage.getId())).findFirst().orElse(null);
+
+                    assertThat(defaultPageDTO).isNotNull();
+                    assertThat(defaultPageDTO.getLayouts().get(0).getLayoutOnLoadActions()).isNotEmpty();
+
+                    List<String> pageNames = new ArrayList<>();
+                    pageList.forEach(page -> pageNames.add(page.getName()));
+                    assertThat(pageNames).contains("discard-page-test");
+                })
+                .verifyComplete();
+
+        // Import the same application again to find if the added page is deleted
+        final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation
+                .flatMap(importedApplication -> applicationService.save(importedApplication))
+                .flatMap(savedApplication -> importExportApplicationService.extractFileAndUpdateExistingApplication(workspaceId, filePart, savedApplication.getId(), null))
+                .map(ApplicationImportDTO::getApplication);
+
+        StepVerifier
+                .create(resultMonoWithDiscardOperation
+                        .flatMap(application -> Mono.zip(
+                                Mono.just(application),
+                                newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList()
+                        )))
+                .assertNext(tuple -> {
+                    final Application application = tuple.getT1();
+                    final List<PageDTO> pageList = tuple.getT2();
+
+                    assertThat(application.getPages()).hasSize(2);
+                    assertThat(application.getPublishedPages()).hasSize(1);
+
+                    assertThat(pageList).hasSize(2);
+
+                    List<String> pageNames = new ArrayList<>();
+                    pageList.forEach(page -> pageNames.add(page.getName()));
+                    assertThat(pageNames).doesNotContain("discard-page-test");
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * Testcase for updating the existing application:
+     * 1. Import application in org
+     * 2. Add new page to the imported application
+     * 3. User tries to import application from same application json file
+     * 4. Added page will be removed
+     *
+     * We don't have to test all the flows for other resources like actions, JSObjects, themes as these are already
+     * covered as a part of discard functionality
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void extractFileAndUpdateExistingApplication_addNewPageAfterImport_addedPageRemoved() {
+
+        /*
+        1. Import application
+        2. Add single page to imported app
+        3. Import the application from same JSON with applicationId
+        4. Added page should be deleted from DB
+         */
+
+        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
+        String workspaceId = createTemplateWorkspace().getId();
         final Mono<Application> resultMonoWithoutDiscardOperation = importExportApplicationService.extractFileAndUpdateNonGitConnectedApplication(workspaceId, filePart, null, null)
                 .flatMap(applicationImportDTO -> {
                     PageDTO page = new PageDTO();
