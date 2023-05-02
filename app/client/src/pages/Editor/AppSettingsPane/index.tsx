@@ -26,6 +26,10 @@ function AppSettingsPane() {
       return;
     }
 
+    // No id property for `Dialog` component, so using class name
+    if (document.querySelector(".t--import-application-modal")) {
+      return;
+    }
     dispatch(closeAppSettingsPaneAction());
   });
 
