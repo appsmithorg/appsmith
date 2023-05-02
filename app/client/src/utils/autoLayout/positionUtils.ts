@@ -134,6 +134,7 @@ export function updateWidgetPositions(
           isMobile,
           mainCanvasWidth,
           firstTimeDSLUpdate,
+          metaProps,
         );
     }
     return widgets;

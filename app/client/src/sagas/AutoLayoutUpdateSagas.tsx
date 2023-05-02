@@ -413,7 +413,7 @@ export function* updateApplicationLayoutType(
 function* updatePositionsOnTabChangeSaga(
   action: ReduxAction<{ selectedTabWidgetId: string; widgetId: string }>,
 ) {
-  const { selectedTabWidgetId } = action.payload;
+  const { selectedTabWidgetId, widgetId } = action.payload;
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
@@ -426,7 +426,7 @@ function* updatePositionsOnTabChangeSaga(
     isMobile,
     mainCanvasWidth,
     false,
-    { selectedTabWidgetId },
+    { [widgetId]: { selectedTabWidgetId } },
   );
   yield put(updateAndSaveLayout(updatedWidgets));
 }
