@@ -31,6 +31,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -52,6 +53,10 @@ public class SnowflakePlugin extends BasePlugin {
 
     private static final int MAXIMUM_POOL_SIZE = 5;
     private static final int CONNECTION_TIMEOUT_MILLISECONDS = 25000;
+
+    private static final String SNOWFLAKE_DB_LOGIN_TIMEOUT_PROPERTY_KEY = "loginTimeout";
+
+    private static final int SNOWFLAKE_DB_LOGIN_TIMEOUT_VALUE_SEC = 15;
 
     public SnowflakePlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -153,6 +158,7 @@ public class SnowflakePlugin extends BasePlugin {
             /* Ref: https://github.com/appsmithorg/appsmith/issues/19784 */
             properties.setProperty("jdbc_query_result_format", "json");
             properties.setProperty("APPLICATION", "APPSMITH_JDBC_DRIVER");
+            properties.setProperty(SNOWFLAKE_DB_LOGIN_TIMEOUT_PROPERTY_KEY, String.valueOf(SNOWFLAKE_DB_LOGIN_TIMEOUT_VALUE_SEC));
 
             return Mono
                     .fromCallable(() -> {
