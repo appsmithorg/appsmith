@@ -178,6 +178,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final ActionPermission actionPermission;
 
     private final ObservationRegistry observationRegistry;
+    private final Map<String, Plugin> defaultPluginMap = new HashMap<>();
+    private final AtomicReference<Plugin> jsTypePluginReference = new AtomicReference<>();
 
     public NewActionServiceCEImpl(Scheduler scheduler,
                                   Validator validator,
@@ -1712,7 +1714,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
-    public Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params) {
+    public Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, Boolean includeJsActions) {
         String name = null;
         List<String> pageIds = new ArrayList<>();
 
@@ -1727,22 +1729,47 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             pageIds.add(params.getFirst(FieldName.PAGE_ID));
         }
 
+        Flux<NewAction> actionsFromRepository;
+
         if (params.getFirst(FieldName.APPLICATION_ID) != null) {
             // Fetch unpublished pages because GET actions is only called during edit mode. For view mode, different
             // function call is made which takes care of returning only the essential fields of an action
 
-            return repository.findByApplicationIdAndViewMode(params.getFirst(FieldName.APPLICATION_ID), false, actionPermission.getReadPermission())
-                    .collectList()
-                    .flatMapMany(this::sanitizeListOfActions)
-                    .flatMap(this::setTransientFieldsInUnpublishedAction);
+            if (FALSE.equals(includeJsActions)) {
+                actionsFromRepository = repository.findNonJsActionsByApplicationIdAndViewMode(params.getFirst(FieldName.APPLICATION_ID),
+                                                                                              false,
+                                                                                              actionPermission.getReadPermission());
+
+            } else {
+                actionsFromRepository = repository.findByApplicationIdAndViewMode(params.getFirst(FieldName.APPLICATION_ID),
+                                                                                  false,
+                                                                                  actionPermission.getReadPermission());
+            }
+
+        } else {
+
+            if (FALSE.equals(includeJsActions)) {
+                actionsFromRepository = repository.findAllNonJsActionsByNameAndPageIdsAndViewMode(name, pageIds, false,
+                                                                                                  actionPermission.getReadPermission(),
+                                                                                                  sort);
+            } else {
+                actionsFromRepository = repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false,
+                                                                                             actionPermission.getReadPermission(),
+                                                                                             sort);
+            }
         }
-        return repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false, actionPermission.getReadPermission(), sort)
-                .flatMap(this::sanitizeAction)
+
+        return actionsFromRepository
+//                .flatMap(this:: sanitizeAction)
+                .collectList()
+                .flatMapMany(this::sanitizeListOfActions)
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
     }
 
     @Override
-    public Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, String branchName) {
+    public Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params,
+                                                 String branchName,
+                                                 Boolean includeJsActions) {
 
         MultiValueMap<String, String> updatedParams = new LinkedMultiValueMap<>(params);
         // Get branched applicationId and pageId
@@ -1763,20 +1790,30 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     if (!CollectionUtils.isEmpty(params.get(FieldName.APPLICATION_ID)) && !StringUtils.isEmpty(applicationId)) {
                         updatedParams.set(FieldName.APPLICATION_ID, applicationId);
                     }
-                    return getUnpublishedActions(updatedParams);
+                    return getUnpublishedActions(updatedParams, includeJsActions);
                 })
                 .map(responseUtils::updateActionDTOWithDefaultResources);
     }
 
     @Override
+    public Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params) {
+        return getUnpublishedActions(params, TRUE);
+    }
+
+    @Override
+    public Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, String branchName) {
+        return getUnpublishedActions(params, branchName, TRUE);
+    }
+
+    @Override
     public Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params) {
-        return this.getUnpublishedActions(params)
+        return this.getUnpublishedActions(params, FALSE)
                 .filter(actionDTO -> !PluginType.JS.equals(actionDTO.getPluginType()));
     }
 
     @Override
     public Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params, String branchName) {
-        return this.getUnpublishedActions(params, branchName)
+        return this.getUnpublishedActions(params, branchName, FALSE)
                 .filter(actionDTO -> !PluginType.JS.equals(actionDTO.getPluginType()));
     }
 
@@ -1799,32 +1836,39 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     public Flux<NewAction> sanitizeListOfActions(List<NewAction> actionList) {
-        return pluginService.getDefaultPlugins()
-                .collectMap(Plugin::getId)
-                .flatMapMany(defaultPluginMap -> {
-                    Plugin jsPlugin = new Plugin();
-                    defaultPluginMap.forEach((pluginId, plugin) -> {
-                        if (JS_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName())) {
-                            jsPlugin.setId(pluginId);
-                        }
+
+        Mono<Map<String, Plugin>> pluginMapMono = Mono.just(defaultPluginMap);
+
+        /* This conditional would be false once per pod per restart, as soon as first request goes through
+        the default plugin map will have all the plugins and subsequent requests might not require to fetch again.
+         */
+
+        if (CollectionUtils.isEmpty(defaultPluginMap)) {
+            pluginMapMono = pluginService.getDefaultPlugins()
+                    .collectMap(Plugin::getId)
+                    .map(pluginMap -> {
+                        pluginMap.forEach((pluginId, plugin) -> {
+                            defaultPluginMap.put(pluginId, plugin);
+                            if (JS_PLUGIN_PACKAGE_NAME
+                                    .equals(plugin.getPackageName())) {
+                                jsTypePluginReference.set(plugin);
+                            }
+                        });
+                        return pluginMap;
                     });
+        }
 
-                    return Flux.fromIterable(actionList)
-                            .flatMap(action-> {
-                                if (!isPluginTypeOrPluginIdMissing(action)) {
-                                    return Mono.just(action);
-                                }
-
-                                return providePluginTypeAndIdToNewActionObjectUsingJSTypeOrDatasource(action,
-                                                                                                      defaultPluginMap,
-                                                                                                      jsPlugin);
-                            });
+        return pluginMapMono
+                .thenMany(Flux.fromIterable(actionList))
+                .flatMap(action-> {
+                    if (!isPluginTypeOrPluginIdMissing(action)) {
+                        return Mono.just(action);
+                    }
+                    return addMissingPluginDetailsToNewActionObjects(action);
                 });
     }
 
-    private Mono<NewAction> providePluginTypeAndIdToNewActionObjectUsingJSTypeOrDatasource(NewAction action,
-                                                                                           Map<String, Plugin> pluginMap,
-                                                                                           Plugin jsPlugin) {
+    private Mono<NewAction> addMissingPluginDetailsToNewActionObjects(NewAction action) {
         ActionDTO actionDTO = action.getUnpublishedAction();
         if (actionDTO == null) {
             return Mono.just(action);
@@ -1833,15 +1877,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         Datasource datasource = actionDTO.getDatasource();
         if (actionDTO.getCollectionId() != null) {
             action.setPluginType(JS_PLUGIN_TYPE);
-            action.setPluginId(jsPlugin.getId());
+            action.setPluginId(jsTypePluginReference.get().getId());
             return Mono.just(action);
 
         } else if (datasource != null && datasource.getPluginId() != null) {
             String pluginId = datasource.getPluginId();
             action.setPluginId(pluginId);
 
-            if (pluginMap.containsKey(pluginId)) {
-                Plugin plugin = pluginMap.get(pluginId);
+            if (defaultPluginMap.containsKey(pluginId)) {
+                Plugin plugin = defaultPluginMap.get(pluginId);
                 action.setPluginType(plugin.getType());
             } else {
                 setPluginTypeFromId(action, pluginId);
