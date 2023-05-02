@@ -1,5 +1,5 @@
 import type { RefObject } from "react";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import type { InjectedFormProps } from "redux-form";
 import { Tag } from "@blueprintjs/core";
 import { isString } from "lodash";
@@ -21,6 +21,7 @@ import {
   Divider,
   Icon,
   Option,
+  SegmentedControl,
   Spinner,
   Tab,
   TabPanel,
@@ -340,6 +341,13 @@ const SidebarWrapper = styled.div<{ show: boolean }>`
   /* margin-left: var(--ads-v2-spaces-7); */
 `;
 
+const SegmentedControlContainer = styled.div`
+  padding: 0 var(--ads-v2-spaces-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ads-v2-spaces-4);
+`;
+
 type QueryFormProps = {
   onDeleteClick: () => void;
   onRunClick: () => void;
@@ -655,6 +663,16 @@ export function EditorJSONtoForm(props: Props) {
       };
     });
 
+  const segmentedControlOptions =
+    responseBodyTabs &&
+    responseBodyTabs.map((item) => {
+      return { value: item.key, label: item.title };
+    });
+
+  const [selectedControl, setSelectedControl] = useState(
+    segmentedControlOptions[0]?.value,
+  );
+
   const onResponseTabSelect = (tabKey: string) => {
     if (tabKey === DEBUGGER_TAB_KEYS.ERROR_TAB) {
       AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
@@ -684,6 +702,7 @@ export function EditorJSONtoForm(props: Props) {
     name: currentActionConfig ? currentActionConfig.name : "",
     id: currentActionConfig ? currentActionConfig.id : "",
   };
+
   const responseTabs = [
     {
       key: "response",
@@ -759,12 +778,25 @@ export function EditorJSONtoForm(props: Props) {
             responseBodyTabs &&
             responseBodyTabs.length > 0 &&
             selectedTabIndex !== -1 && (
-              <EntityBottomTabs
-                onSelect={onResponseTabSelect}
-                responseViewer
-                selectedTabKey={responseDisplayFormat.value}
-                tabs={responseBodyTabs}
-              />
+              <SegmentedControlContainer>
+                <SegmentedControl
+                  //   selectedTabKey={responseDisplayFormat.value}
+                  //  TODO: need to have some version of the below in the component
+                  //  selectedValue = {selectedControl}
+                  defaultValue={selectedControl || ""}
+                  isFullWidth={false}
+                  onChange={(value) => {
+                    setSelectedControl(value);
+                    onResponseTabSelect(value);
+                  }}
+                  options={segmentedControlOptions}
+                />
+                {responseTabComponent(
+                  selectedControl,
+                  output,
+                  responsePaneHeight,
+                )}
+              </SegmentedControlContainer>
             )}
           {!output && !error && (
             <NoResponse
