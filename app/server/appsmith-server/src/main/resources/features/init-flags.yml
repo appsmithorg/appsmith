@@ -108,15 +108,6 @@ ff4j:
           - name: emailDomains
             value: appsmith.com
 
-    - uid: ORACLE_PLUGIN
-      enable: true
-      description: Selectively show Oracle DB integration
-      flipstrategy:
-        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
-        param:
-          - name: emails
-            value: integrations@appsmith.com
-
     - uid: ONE_CLICK_BINDING
       enable: true
       description: Show property controls to generate queries for table widget with just clicks
