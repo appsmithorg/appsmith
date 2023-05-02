@@ -59,6 +59,7 @@ import {
   DELETING_APPLICATION,
   DISCARD_SUCCESS,
   DUPLICATING_APPLICATION,
+  ERROR_IMPORTING_APPLICATION_TO_WORKSPACE,
 } from "@appsmith/constants/messages";
 import type { AppIconName } from "design-system-old";
 import { Toaster, Variant } from "design-system-old";
@@ -82,7 +83,10 @@ import {
   reconnectAppLevelWebsocket,
   reconnectPageLevelWebsocket,
 } from "actions/websocketActions";
-import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import {
+  getCurrentWorkspace,
+  getCurrentWorkspaceId,
+} from "@appsmith/selectors/workspaceSelectors";
 
 import { getCurrentStep, inGuidedTour } from "selectors/onboardingSelectors";
 import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
@@ -717,20 +721,22 @@ export function* importApplicationSaga(
       ApplicationApi.importApplicationToWorkspace,
       action.payload,
     );
+    const urlObject = new URL(window.location.href);
+    const isApplicationUrl = urlObject.pathname.includes("/app/");
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      const currentWorkspaceId: string = yield select(getCurrentWorkspaceId);
       const allWorkspaces: Workspace[] = yield select(getCurrentWorkspace);
       const currentWorkspace = allWorkspaces.filter(
         (el: Workspace) => el.id === action.payload.workspaceId,
       );
-      if (currentWorkspace.length > 0) {
+      if (currentWorkspaceId || currentWorkspace.length > 0) {
         const {
           // @ts-expect-error: response is of type unknown
           application: { pages },
           // @ts-expect-error: response is of type unknown
           isPartialImport,
         } = response.data;
-
         // @ts-expect-error: response is of type unknown
         yield put(importApplicationSuccess(response.data?.application));
 
@@ -748,10 +754,24 @@ export function* importApplicationSaga(
         } else {
           // @ts-expect-error: pages is of type any
           // TODO: Update route params here
-          const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
+          const { application } = response.data;
+          const defaultPage = pages.filter(
+            (eachPage: any) => !!eachPage.isDefault,
+          );
           const pageURL = builderURL({
             pageId: defaultPage[0].id,
           });
+          if (isApplicationUrl) {
+            const appId = application.id;
+            const pageId = application.defaultPageId;
+            yield put({
+              type: ReduxActionTypes.FETCH_APPLICATION_INIT,
+              payload: {
+                applicationId: appId,
+                pageId,
+              },
+            });
+          }
           history.push(pageURL);
           const guidedTour: boolean = yield select(inGuidedTour);
 
@@ -762,6 +782,13 @@ export function* importApplicationSaga(
             variant: Variant.success,
           });
         }
+      } else {
+        yield put({
+          type: ReduxActionErrorTypes.IMPORT_APPLICATION_ERROR,
+          payload: {
+            error: createMessage(ERROR_IMPORTING_APPLICATION_TO_WORKSPACE),
+          },
+        });
       }
     }
   } catch (error) {

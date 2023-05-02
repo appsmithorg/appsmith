@@ -38,6 +38,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
+import com.appsmith.server.helpers.ImportExportUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.migrations.JsonSchemaMigration;
@@ -75,10 +76,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.data.mongodb.MongoTransactionException;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
+import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -1251,8 +1255,8 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                             });
                 })
                 .onErrorResume(throwable -> {
-                    log.error("Error while importing the application, reason: {}", throwable.getMessage());
-                    return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, ""));
+                    String errorMessage = ImportExportUtils.getErrorMessage(throwable);
+                    return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
                 })
                 .as(transactionalOperator::transactional);
 
