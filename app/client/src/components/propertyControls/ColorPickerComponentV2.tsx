@@ -6,6 +6,7 @@ import React, {
   useCallback,
 } from "react";
 import styled from "styled-components";
+import { Icon } from "design-system";
 import {
   Popover,
   InputGroup,
@@ -64,7 +65,7 @@ const ColorIcon = styled.div<{ color: string }>`
 
 const ColorPickerIconContainer = styled.div`
   position: absolute;
-  top: 6px;
+  top: 11px;
   left: 6px;
   height: 24px;
   width: 24px;
@@ -330,7 +331,9 @@ function LeftIcon(props: LeftIconProps) {
     <ColorPickerIconContainer
       className="cursor-pointer"
       onClick={props.handleInputClick}
-    />
+    >
+      <Icon name="sip-line" size="md" />
+    </ColorPickerIconContainer>
   );
 }
 

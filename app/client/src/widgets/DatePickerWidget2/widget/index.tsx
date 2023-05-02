@@ -427,11 +427,11 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             controlType: "BUTTON_GROUP",
             options: [
               {
-                icon: "bold-font",
+                icon: "text-bold",
                 value: "BOLD",
               },
               {
-                icon: "italics-font",
+                icon: "text-italic",
                 value: "ITALIC",
               },
             ],

@@ -4,8 +4,7 @@ import equal from "fast-deep-equal/es6";
 import * as log from "loglevel";
 
 import { ControlWrapper } from "components/propertyControls/StyledControls";
-import { Icon } from "design-system-old";
-import { ToggleButton, Tooltip } from "design-system";
+import { ToggleButton, Tooltip, Icon } from "design-system";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
@@ -793,7 +792,7 @@ const PropertyControl = memo((props: Props) => {
                 disabled={false}
                 onClick={() => setShowEmptyBlock(true)}
               >
-                <Icon fillColor="#575757" name="plus" size="extraExtraLarge" />
+                <Icon name="plus" size="lg" />
               </button>
             )}
           </div>

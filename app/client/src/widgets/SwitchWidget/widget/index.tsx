@@ -207,11 +207,11 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
             controlType: "BUTTON_GROUP",
             options: [
               {
-                icon: "bold-font",
+                icon: "text-bold",
                 value: "BOLD",
               },
               {
-                icon: "italics-font",
+                icon: "text-italic",
                 value: "ITALIC",
               },
             ],

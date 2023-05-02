@@ -273,11 +273,11 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             controlType: "BUTTON_GROUP",
             options: [
               {
-                startIcon: "bold-font",
+                startIcon: "text-bold",
                 value: "BOLD",
               },
               {
-                startIcon: "italics-font",
+                startIcon: "text-italic",
                 value: "ITALIC",
               },
             ],
@@ -596,11 +596,11 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             controlType: "BUTTON_GROUP",
             options: [
               {
-                icon: "bold-font",
+                icon: "text-bold",
                 value: "BOLD",
               },
               {
-                icon: "italics-font",
+                icon: "text-italic",
                 value: "ITALIC",
               },
             ],

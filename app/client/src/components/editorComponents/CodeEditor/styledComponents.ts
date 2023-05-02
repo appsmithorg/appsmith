@@ -100,6 +100,7 @@ export const EditorWrapper = styled.div<{
       }
       .cm-s-duotone-light.CodeMirror {
         cursor: pointer;
+        border-color: var(--ads-v2-color-border-emphasis-plus);
         border-radius: var(--ads-v2-border-radius);
       }
     }

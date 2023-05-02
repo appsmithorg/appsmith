@@ -667,11 +667,11 @@ export default [
                   controlType: "BUTTON_GROUP",
                   options: [
                     {
-                      startIcon: "bold-font",
+                      startIcon: "text-bold",
                       value: "BOLD",
                     },
                     {
-                      startIcon: "italics-font",
+                      startIcon: "text-italic",
                       value: "ITALIC",
                     },
                     {
@@ -1699,11 +1699,11 @@ export default [
         dependencies: ["primaryColumns", "derivedColumns"],
         options: [
           {
-            startIcon: "bold-font",
+            startIcon: "text-bold",
             value: "BOLD",
           },
           {
-            startIcon: "italics-font",
+            startIcon: "text-italic",
             value: "ITALIC",
           },
         ],
