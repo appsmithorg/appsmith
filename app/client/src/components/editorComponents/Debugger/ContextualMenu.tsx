@@ -17,8 +17,15 @@ import {
   DEBUGGER_INTERCOM_TEXT,
   DEBUGGER_OPEN_DOCUMENTATION,
   DEBUGGER_SEARCH_SNIPPET,
+  TROUBLESHOOT_ISSUE,
 } from "@appsmith/constants/messages";
-import { Menu, MenuContent, MenuItem, MenuTrigger } from "design-system";
+import {
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuTrigger,
+  Tooltip,
+} from "design-system";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { SlashCommand } from "entities/Action";
 import type { FieldEntityInformation } from "../CodeEditor/EditorConfig";
@@ -182,7 +189,10 @@ const ContextualMenu = (props: ContextualMenuProps) => {
 
   return (
     <Menu className="t--debugger-contextual-error-menu">
-      <MenuTrigger>{props.children}</MenuTrigger>
+      <Tooltip content={createMessage(TROUBLESHOOT_ISSUE)} placement="bottom">
+        <MenuTrigger>{props.children}</MenuTrigger>
+      </Tooltip>
+
       <MenuContent align="end">
         {options.map((e) => {
           const menuProps = searchAction[e];

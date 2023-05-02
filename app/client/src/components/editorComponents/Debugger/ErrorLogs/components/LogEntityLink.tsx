@@ -77,7 +77,7 @@ export default function LogEntityLink(props: LogItemProps) {
     // this case is highly unlikely to happen.
     return <img alt="icon" src={undefined} />;
   };
-
+  const plugin = props.iconId ? pluginGroups[props.iconId] : undefined;
   return (
     <div>
       {props.source && (
@@ -95,6 +95,8 @@ export default function LogEntityLink(props: LogItemProps) {
             errorType={props.logType}
             id={props.source.id}
             name={props.source.name}
+            plugin={plugin}
+            pluginType={props.source.pluginType}
             type={props.source.type}
             uiComponent={DebuggerLinkUI.ENTITY_NAME}
           />

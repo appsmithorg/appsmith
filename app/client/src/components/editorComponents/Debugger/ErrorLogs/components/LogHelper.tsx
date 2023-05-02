@@ -1,6 +1,5 @@
 import type { PluginErrorDetails } from "api/ActionAPI";
-import { createMessage, TROUBLESHOOT_ISSUE } from "ce/constants/messages";
-import { Icon, Tooltip } from "design-system";
+import { Button } from "design-system";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import type LOG_TYPE from "entities/AppsmithConsole/logtype";
 import React from "react";
@@ -40,9 +39,7 @@ export default function LogHelper(props: {
         entity={props.source}
         error={{ message: { name: "", message: "" } }}
       >
-        <Tooltip content={createMessage(TROUBLESHOOT_ISSUE)} placement="bottom">
-          <Icon name="question" size="md" />
-        </Tooltip>
+        <Button isIconButton kind="tertiary" size="sm" startIcon="question" />
       </ContextualMenu>
     </ContextWrapper>
   );

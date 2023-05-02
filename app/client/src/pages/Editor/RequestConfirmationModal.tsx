@@ -11,6 +11,7 @@ import {
   Button,
   Modal,
   ModalBody,
+  ModalContent,
   ModalFooter,
   ModalHeader,
 } from "design-system";
@@ -70,43 +71,42 @@ class RequestConfirmationModal extends React.Component<Props> {
 
     // making sure that only modals that are set to be open are eventually opened.
     // basically filters out modals that have already been opened and prevents it from flashing after other modals have been confirmed.
-    const modalsToBeOpened = modals.filter((modal) => modal.modalOpen === true);
+    const modalsToBeOpened = modals.filter((modal) => modal.modalOpen);
 
     return (
       <>
-        {modalsToBeOpened.map((modalInfo: ModalInfo, index: number) => (
+        {modalsToBeOpened.map((modalInfo: ModalInfo) => (
           <Modal
-            // canEscapeKeyClose
-            // canOutsideClickClose
-            key={index}
+            key={modalInfo.name}
             onOpenChange={() => this.handleClose(modalInfo)}
             open={modalInfo?.modalOpen}
           >
-            <ModalHeader>Confirmation Dialog</ModalHeader>
-            <ModalBody>
-              {`${createMessage(QUERY_CONFIRMATION_MODAL_MESSAGE)} ${
-                modalInfo.name
-              }?`}
-            </ModalBody>
-            <ModalFooter>
-              <Button
-                kind="secondary"
-                onClick={() => {
-                  dispatch(cancelActionConfirmationModal(modalInfo.name));
-                  this.handleClose(modalInfo);
-                }}
-                size="md"
-              >
-                No
-              </Button>
-              <Button
-                kind="primary"
-                onClick={() => this.onConfirm(modalInfo)}
-                size="md"
-              >
-                Yes
-              </Button>
-            </ModalFooter>
+            <ModalContent>
+              <ModalHeader>Confirmation Dialog</ModalHeader>
+              <ModalBody>
+                {createMessage(QUERY_CONFIRMATION_MODAL_MESSAGE)}{" "}
+                <b>{modalInfo.name}</b> ?
+              </ModalBody>
+              <ModalFooter>
+                <Button
+                  kind="secondary"
+                  onClick={() => {
+                    dispatch(cancelActionConfirmationModal(modalInfo.name));
+                    this.handleClose(modalInfo);
+                  }}
+                  size="md"
+                >
+                  No
+                </Button>
+                <Button
+                  kind="primary"
+                  onClick={() => this.onConfirm(modalInfo)}
+                  size="md"
+                >
+                  Yes
+                </Button>
+              </ModalFooter>
+            </ModalContent>
           </Modal>
         ))}
       </>

@@ -54,6 +54,7 @@ import {
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { Tooltip } from "design-system";
+import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 type ReduxStateProps = {
   workspaceId: string;
@@ -264,7 +265,8 @@ class EmbeddedDatasourcePathComponent extends React.Component<
         editorInstance.lineCount() === 1 &&
         datasource &&
         "id" in datasource &&
-        datasource.id
+        datasource.id &&
+        datasource.id !== TEMP_DATASOURCE_ID
       ) {
         const end = get(datasource, "datasourceConfiguration.url", "").length;
         editorInstance.markText(

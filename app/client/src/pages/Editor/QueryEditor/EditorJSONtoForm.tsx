@@ -309,6 +309,10 @@ const TabContainerView = styled.div`
     margin-top: 12px;
   }
   position: relative;
+
+  .ads-v2-tabs__list {
+    z-index: 5;
+  }
 `;
 
 const Wrapper = styled.div`

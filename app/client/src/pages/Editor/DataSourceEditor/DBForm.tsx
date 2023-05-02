@@ -159,7 +159,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
             {messages &&
               messages.map((msg, i) => {
                 return (
-                  <Callout key={i} kind="warning">
+                  <Callout className="mt-4" key={i} kind="warning">
                     {msg}
                   </Callout>
                 );

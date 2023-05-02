@@ -375,7 +375,7 @@ export function* updateActionSaga(
     );
     yield put({
       type: ReduxActionErrorTypes.UPDATE_ACTION_ERROR,
-      payload: { error, id: actionPayload.payload.id },
+      payload: { error, id: actionPayload.payload.id, show: false },
     });
   }
 }

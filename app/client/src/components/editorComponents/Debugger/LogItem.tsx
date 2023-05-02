@@ -9,13 +9,8 @@ import styled from "styled-components";
 import EntityLink, { DebuggerLinkUI } from "./EntityLink";
 import { getLogIcon } from "./helpers";
 import { Classes, getTypographyByKey } from "design-system-old";
-// import {
-//   createMessage,
-//   TROUBLESHOOT_ISSUE,
-// } from "@appsmith/constants/messages";
 import ContextualMenu from "./ContextualMenu";
-import { Button, Icon } from "design-system";
-// import { Tooltip } from "design-system";
+import { Button } from "design-system";
 import moment from "moment";
 
 const InnerWrapper = styled.div`
@@ -316,17 +311,13 @@ function LogItem(props: LogItemProps) {
                     entity={props.source}
                     error={{ message: { name: "", message: "" } }}
                   >
-                    {/* TODO (albin): fix bug where menu component doesn't open if it's trigger is wrapped in a tooltip */}
-                    {/*<Tooltip*/}
-                    {/*  content={createMessage(TROUBLESHOOT_ISSUE)}*/}
-                    {/*  placement="bottomLeft"*/}
-                    {/*>*/}
-                    <Icon
+                    <Button
                       className={`${Classes.ICON}`}
-                      name={"question"}
-                      size="md"
+                      isIconButton
+                      kind="tertiary"
+                      size="sm"
+                      startIcon={"question"}
                     />
-                    {/*</Tooltip>*/}
                   </ContextualMenu>
                 </ContextWrapper>
               )}
