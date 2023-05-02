@@ -437,6 +437,7 @@ function* updatePositionsOnTabChangeSaga(
   yield put(updateAndSaveLayout(updatedWidgets));
 }
 
+// TODO: BATCH_UPDATE_MULTIPLE_WIDGETS_PROPERTY is already updating the height of tabs widget and the canvas. Why?
 function* updatePositionsSaga(action: ReduxAction<{ widgetId: string }>) {
   const { widgetId } = action.payload;
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);

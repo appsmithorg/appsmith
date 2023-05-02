@@ -56,6 +56,7 @@ export function updateWidgetPositions(
   metaProps?: Record<string, any>,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
+  // console.log(JSON.stringify(widgets));
   try {
     if (
       !widgets[MAIN_CONTAINER_WIDGET_ID].positioning ||
@@ -76,7 +77,6 @@ export function updateWidgetPositions(
     const rowGap =
       (isMobile ? MOBILE_ROW_GAP : ROW_GAP) /
       GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-
     if (parent.flexLayers && parent.flexLayers?.length) {
       /**
        * For each flex layer, calculate position of child widgets
@@ -114,7 +114,12 @@ export function updateWidgetPositions(
     const divisor = parent.parentRowSpace === 1 ? 10 : 1;
 
     const parentHeight = getWidgetRows(parent, isMobile);
-    const computedHeight: number = getComputedHeight(parent, height);
+    const computedHeight: number = getComputedHeight(
+      parent,
+      widgets,
+      height,
+      mainCanvasWidth,
+    );
     if (
       shouldUpdateParentHeight(widgets, parent, computedHeight, parentHeight)
     ) {
@@ -629,6 +634,7 @@ export function placeWrappedWidgets(
   const rows: Row[] = getWrappedRows(alignment, [], isMobile);
   for (const row of rows) {
     const { alignment, children, columns, height } = row;
+
     const result: {
       height: number;
       widgets: CanvasWidgetsReduxState;

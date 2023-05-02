@@ -1,5 +1,10 @@
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { FlattenedWidgetProps } from "widgets/constants";
+import { getWidgetMinMaxDimensionsInPixel } from "./flexWidgetUtils";
 
 /**
  * Determine whether the parent height should be updated or not.
@@ -24,7 +29,7 @@ export function shouldUpdateParentHeight(
     widget.type === "LIST_WIDGET_V2"
   )
     return false;
-  // console.log("#### here", widget.widgetName, computedHeight, parentHeight);
+
   return computedHeight !== parentHeight;
 }
 
@@ -36,9 +41,9 @@ export function shouldUpdateParentHeight(
  */
 export function getComputedHeight(
   parent: FlattenedWidgetProps,
-  // widgets: CanvasWidgetsReduxState,
+  widgets: CanvasWidgetsReduxState,
   computedHeight: number,
-  // mainCanvasWidth: number,
+  mainCanvasWidth: number,
 ): number {
   let res: number = computedHeight;
   /**
@@ -52,5 +57,32 @@ export function getComputedHeight(
    * add 4 rows to the height to accommodate the tab header.
    */
   if (parent.type === "TABS_WIDGET" && parent?.shouldShowTabs) res += 4;
+
+  const minHeight: number =
+    parent.widgetId !== MAIN_CONTAINER_WIDGET_ID
+      ? (getWidgetMinMaxDimensionsInPixel(parent, mainCanvasWidth)?.minHeight ||
+          0) / GridDefaults.DEFAULT_GRID_ROW_HEIGHT
+      : 0;
+  /**
+   * If the widget is a canvas widget and it's parent is not the main container,
+   * then we need to check the parent's minHeight as well.
+   * e.g. an empty canvas may require only 5 rows.
+   * However a tab widget requires a min of 30 rows. So the child canvas must comply.
+   */
+  let containerMinHeight = 0;
+  if (
+    parent.type === "CANVAS_WIDGET" &&
+    parent.parentId &&
+    parent.parentId !== MAIN_CONTAINER_WIDGET_ID
+  ) {
+    const container = widgets[parent.parentId];
+    containerMinHeight =
+      (getWidgetMinMaxDimensionsInPixel(container, mainCanvasWidth)
+        ?.minHeight || 0) / GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+    if (container.type === "TABS_WIDGET" && container?.shouldShowTabs)
+      containerMinHeight -= 4;
+  }
+  res = Math.max(res, minHeight, containerMinHeight);
+
   return res;
 }
