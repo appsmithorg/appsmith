@@ -38,6 +38,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
+import com.appsmith.server.helpers.ImportExportUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.migrations.JsonSchemaMigration;
@@ -78,7 +79,6 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
-import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -570,7 +570,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      * @return saved application in DB
      */
     public Mono<ApplicationImportDTO> extractFileAndSaveApplication(String workspaceId, Part filePart) {
-        return this.extractFileAndUpdateExistingApplication(workspaceId, filePart, null,null);
+        return this.extractFileAndUpdateNonGitConnectedApplication(workspaceId, filePart, null,null);
     }
 
     /**
@@ -584,13 +584,15 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      * @return saved application in DB
      */
     @Override
-    public Mono<ApplicationImportDTO> extractFileAndUpdateExistingApplication(String workspaceId,
-                                                                              Part filePart,
-                                                                              String applicationId,
-                                                                              String branchName) {
+    public Mono<ApplicationImportDTO> extractFileAndUpdateNonGitConnectedApplication(String workspaceId,
+                                                                                     Part filePart,
+                                                                                     String applicationId,
+                                                                                     String branchName) {
         /*
-            1. Check the validity of file part
-            2. Depending upon availability of applicationId update/save application to workspace
+            1. Verify if application is connected to git, in case if it's connected throw exception asking user to
+            update app via git ops like pull, merge etc.
+            2. Check the validity of file part
+            3. Depending upon availability of applicationId update/save application to workspace
          */
         final MediaType contentType = filePart.headers().getContentType();
 
@@ -611,7 +613,20 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     return new String(data);
                 });
 
-        Mono<ApplicationImportDTO> importedApplicationMono = stringifiedFile
+        // Check if the application is connected to git and if it's connected throw exception asking user to update
+        // app via git ops like pull, merge etc.
+        Mono<Boolean> isConnectedToGitMono = Mono.just(false);
+        if (!StringUtils.isEmpty(applicationId)) {
+            isConnectedToGitMono = applicationService.isApplicationConnectedToGit(applicationId);
+        }
+
+        Mono<ApplicationImportDTO> importedApplicationMono = isConnectedToGitMono
+                .flatMap(isConnectedToGit -> {
+                    if (isConnectedToGit) {
+                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_IMPORT_OPERATION_FOR_GIT_CONNECTED_APPLICATION));
+                    }
+                    return stringifiedFile;
+                })
                 .flatMap(data -> {
                     /*
                     // Use JsonObject to migrate when we remove some field from the collection which is being exported
@@ -1239,9 +1254,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             });
                 })
                 .onErrorResume(throwable -> {
-                    log.error("Error while importing the application, reason: {}", throwable.getMessage());
-                    // Filter out transactional error as these are cryptic and don't provide much info on the error
-                    String errorMessage = throwable instanceof TransactionException ? "" : throwable.getMessage();
+                    String errorMessage = ImportExportUtils.getErrorMessage(throwable);
                     return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
                 })
                 .as(transactionalOperator::transactional);
