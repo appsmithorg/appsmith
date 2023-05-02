@@ -23,6 +23,10 @@ const Container = styled.div`
   flex: 1;
   flex-direction: row;
   gap: ${(props) => props.theme.spaces[6]}px;
+
+  .cloud-icon {
+    fill: var(--ads-v2-color-fg);
+  }
 `;
 
 export default function DeployPreview(props: { showSuccess: boolean }) {
@@ -54,7 +58,7 @@ export default function DeployPreview(props: { showSuccess: boolean }) {
         {props.showSuccess ? (
           <SuccessTick height="30px" width="30px" />
         ) : (
-          <CloudyIcon />
+          <CloudyIcon className="cloud-icon" />
         )}
       </div>
       <div>

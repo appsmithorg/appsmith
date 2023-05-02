@@ -118,7 +118,7 @@ function GitSyncModal(props: { isImport?: boolean }) {
         }}
         open={isModalOpen}
       >
-        <ModalContentContainer>
+        <ModalContentContainer style={{ width: "535px" }}>
           <ModalHeader>
             {MENU_ITEMS_MAP[activeTabKey]?.modalTitle ?? ""}
           </ModalHeader>

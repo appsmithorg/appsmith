@@ -65,6 +65,7 @@ const Wrapper = styled.div<{ active: boolean }>`
 
 const TitleWrapper = styled.p`
   ${getTypographyByKey("p4")}
+  color: var(--ads-v2-color-fg);
 `;
 
 const StatusText = styled.p`

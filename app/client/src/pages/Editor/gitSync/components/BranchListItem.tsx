@@ -19,6 +19,7 @@ export function BranchListItem({
   const itemRef = React.useRef<HTMLDivElement>(null);
   const [hover] = useHover(itemRef);
   const textRef = React.useRef<HTMLSpanElement>(null);
+  const [isMoreMenuOpen, setIsMoreMenuOpen] = React.useState(false);
 
   useEffect(() => {
     if (itemRef.current && shouldScrollIntoView) {
@@ -51,7 +52,13 @@ export function BranchListItem({
           {isDefault && <DefaultTag />}
         </span>
       </Tooltip>
-      {hover && <BranchMoreMenu branchName={branch} />}
+      {(hover || isMoreMenuOpen) && (
+        <BranchMoreMenu
+          branchName={branch}
+          open={isMoreMenuOpen}
+          setOpen={setIsMoreMenuOpen}
+        />
+      )}
     </BranchListItemContainer>
   );
 }

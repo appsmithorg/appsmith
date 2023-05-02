@@ -31,7 +31,7 @@ const DummyChange = styled.div`
 
 const Wrapper = styled.div`
   height: ${(props) => props.theme.spaces[9]}px;
-  margin-bottom: ${(props) => props.theme.spaces[7]}px;
+  margin-bottom: var(--ads-v2-spaces-3);
   display: flex;
   gap: 6px;
 `;

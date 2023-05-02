@@ -28,6 +28,7 @@ import {
   MenuContent,
   Text,
   Icon,
+  MenuGroupName,
 } from "design-system";
 
 type KeysProps = {
@@ -82,6 +83,12 @@ function Keys(props: KeysProps) {
       kind: "success",
     });
   }, [newKeyType]);
+
+  const handleMenuClose = () => {
+    setShowConfirmation(false);
+    setIsMenuOpen(false);
+  };
+
   return (
     <>
       <Space size={2} />
@@ -124,26 +131,31 @@ function Keys(props: KeysProps) {
                 startIcon="more-2-fill"
               />
             </MenuTrigger>
-            <MenuContent align="end" width="250px">
-              {supportedKeys.map((supportedKey) => (
-                <MenuItem
-                  className={`t--regenerate-sshkey-${supportedKey.protocolName}`}
-                  endIcon={supportedKey.generated ? "check-line" : undefined}
-                  key={`supported-key-${supportedKey.protocolName}-menu-item`}
-                  onSelect={() => {
-                    setShowConfirmation(true);
-                    setNewKeyType(supportedKey.protocolName);
-                    setIsMenuOpen(true);
-                  }}
-                >
-                  {supportedKey.text}
-                </MenuItem>
-              ))}
+            <MenuContent
+              align="end"
+              onEscapeKeyDown={handleMenuClose}
+              onInteractOutside={handleMenuClose}
+              width="250px"
+            >
+              <MenuGroupName>Regenerate keys</MenuGroupName>
+              {!showConfirmation &&
+                supportedKeys.map((supportedKey) => (
+                  <MenuItem
+                    className={`t--regenerate-sshkey-${supportedKey.protocolName}`}
+                    endIcon={supportedKey.generated ? "check-line" : undefined}
+                    key={`supported-key-${supportedKey.protocolName}-menu-item`}
+                    onSelect={() => {
+                      setShowConfirmation(true);
+                      setNewKeyType(supportedKey.protocolName);
+                      setIsMenuOpen(true);
+                    }}
+                  >
+                    {supportedKey.text}
+                  </MenuItem>
+                ))}
               {isMenuOpen &&
                 showConfirmation &&
-                getConfirmMenuItem(regenerateKey, () =>
-                  setShowConfirmation(false),
-                )}
+                getConfirmMenuItem(regenerateKey)}
             </MenuContent>
           </Menu>
         </MoreMenuWrapper>

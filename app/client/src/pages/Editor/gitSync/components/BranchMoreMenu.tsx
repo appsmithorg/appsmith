@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { deleteBranchInit } from "actions/gitSyncActions";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,6 +22,8 @@ import {
 
 interface Props {
   branchName: string;
+  open: boolean;
+  setOpen: (open: boolean) => void;
 }
 
 function DeleteButton(
@@ -51,7 +53,7 @@ function DeleteButton(
 
   return (
     <MenuItem
-      className="git-branch-more-menu-item danger t--branch-more-menu-delete"
+      className="git-branch-more-menu-item danger t--branch-more-menu-delete error-menuitem"
       data-cy="t--branch-more-menu-delete"
       data-testid="t--branch-more-menu-delete"
       key={"delete-branch-button"}
@@ -63,13 +65,16 @@ function DeleteButton(
   );
 }
 
-export default function BranchMoreMenu({ branchName }: Props) {
-  const [open, setOpen] = useState(false);
+export default function BranchMoreMenu({ branchName, open, setOpen }: Props) {
   const dispatch = useDispatch();
 
   const buttons = [
     DeleteButton(branchName, useSelector(getCurrentAppGitMetaData), dispatch),
   ];
+
+  const handleMenuClose = () => {
+    setOpen(false);
+  };
 
   return (
     <Menu
@@ -92,7 +97,12 @@ export default function BranchMoreMenu({ branchName }: Props) {
           startIcon="comment-context-menu"
         />
       </MenuTrigger>
-      <MenuContent>{buttons}</MenuContent>
+      <MenuContent
+        onEscapeKeyDown={handleMenuClose}
+        onInteractOutside={handleMenuClose}
+      >
+        {buttons}
+      </MenuContent>
     </Menu>
   );
 }
