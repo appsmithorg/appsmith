@@ -415,12 +415,12 @@ public class UserServiceTest {
     @WithUserDetails(value = "api_user")
     public void updateNameOfUser() {
         UserUpdateDTO updateUser = new UserUpdateDTO();
-        updateUser.setName("New name of api_user");
+        updateUser.setName("New name of api user");
         StepVerifier.create(userService.updateCurrentUser(updateUser, null))
                 .assertNext(user -> {
                     assertNotNull(user);
                     assertThat(user.getEmail()).isEqualTo("api_user");
-                    assertThat(user.getName()).isEqualTo("New name of api_user");
+                    assertThat(user.getName()).isEqualTo("New name of api user");
                 })
                 .verifyComplete();
     }
