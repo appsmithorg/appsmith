@@ -20,7 +20,7 @@ export const PluginImageWrapper = styled.div`
   margin-right: 8px;
   flex-shrink: 0;
   img {
-    height: 100%;
+    height: 34px;
     width: auto;
   }
 `;
@@ -84,7 +84,7 @@ export const Header = styled.div`
 
 export const ActionWrapper = styled.div`
   display: flex;
-  gap: 4px;
+  gap: 8px;
 `;
 
 export interface JSONtoFormProps {
