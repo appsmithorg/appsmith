@@ -73,7 +73,7 @@ export const CONFIG = {
   migration: function (props: WidgetProps) {
     const modifications: any = [];
 
-    if (props.version === undefined || props.version === 0) {
+    if (props.text === "Submit") {
       modifications["text"] = "Updated Text";
     }
 
