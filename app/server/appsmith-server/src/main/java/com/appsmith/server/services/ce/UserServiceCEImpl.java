@@ -659,16 +659,31 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         return Flux.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 
+    private Boolean validateName(String name){
+        /*
+            Regex allows for Accented characters and alphanumeric with some special characters dot (.), apostrophe ('),
+            hyphen (-) and spaces
+         */
+        Boolean isValidName = name.matches("^[A-Za-zÀ-ÖØ-öø-ÿ0-9 .'-]+$");
+        return isValidName;
+    }
+
     @Override
     public Mono<User> updateCurrentUser(final UserUpdateDTO allUpdates, ServerWebExchange exchange) {
         List<Mono<Void>> monos = new ArrayList<>();
 
         Mono<User> updatedUserMono;
         Mono<UserData> updatedUserDataMono;
+        String inputName;
 
         if (allUpdates.hasUserUpdates()) {
             final User updates = new User();
-            updates.setName(allUpdates.getName());
+            inputName = allUpdates.getName();
+            Boolean isValidName = validateName(inputName);
+            if (isValidName != true){
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
+            }
+            updates.setName(inputName);
             updatedUserMono = sessionUserService.getCurrentUser()
                     .flatMap(user ->
                             update(user.getEmail(), updates, fieldName(QUser.user.email))

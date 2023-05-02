@@ -427,6 +427,30 @@ public class UserServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void updateNameOfUser_WithNotAllowedSpecialCharacter_InvalidName() {
+        UserUpdateDTO updateUser = new UserUpdateDTO();
+        updateUser.setName("invalid name@symbol");
+        StepVerifier.create(userService.updateCurrentUser(updateUser, null))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException && throwable.getMessage()
+                .contains(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.NAME)))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updateNameOfUser_WithAccentedCharacters_IsValid() {
+        UserUpdateDTO updateUser = new UserUpdateDTO();
+        updateUser.setName("ä ö ü è ß");
+        StepVerifier.create(userService.updateCurrentUser(updateUser, null))
+                .assertNext(user -> {
+                    assertNotNull(user);
+                    assertThat(user.getName()).isEqualTo("ä ö ü è ß");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void updateRoleOfUser() {
         UserUpdateDTO updateUser = new UserUpdateDTO();
         updateUser.setRole("New role of user");
