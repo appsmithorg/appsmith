@@ -41,13 +41,14 @@ describe("getFilteredAndSortedFileOperations", () => {
       "",
       [],
       [],
+      {},
       false,
     );
 
     expect(actionOperationsWithoutCreate.length).toEqual(0);
 
     const actionOperationsWithoutDatasourcePermission =
-      getFilteredAndSortedFileOperations("", [], [], true, false);
+      getFilteredAndSortedFileOperations("", [], [], {}, true, false);
 
     expect(actionOperationsWithoutDatasourcePermission.length).toEqual(4);
   });
@@ -79,6 +80,7 @@ describe("getFilteredAndSortedFileOperations", () => {
       "",
       [appDatasource],
       [otherDatasource],
+      {},
       true,
       true,
     );
@@ -105,6 +107,64 @@ describe("getFilteredAndSortedFileOperations", () => {
     expect(fileOptions[3]).toEqual(
       expect.objectContaining({
         title: "New Other datasource query",
+      }),
+    );
+  });
+
+  it("sorts datasources based on recency", () => {
+    const appDatasource: Datasource = {
+      datasourceConfiguration: {
+        url: "",
+      },
+      id: "123",
+      isValid: true,
+      pluginId: "",
+      workspaceId: "",
+      name: "App datasource",
+    };
+
+    const otherDatasource: Datasource = {
+      datasourceConfiguration: {
+        url: "",
+      },
+      id: "abc",
+      isValid: false,
+      pluginId: "",
+      workspaceId: "",
+      name: "Other datasource",
+    };
+
+    const fileOptions = getFilteredAndSortedFileOperations(
+      "",
+      [appDatasource],
+      [otherDatasource],
+      { abc: 1, "123": 3 },
+      true,
+      true,
+    );
+
+    expect(fileOptions[0]).toEqual(
+      expect.objectContaining({
+        title: "New JS Object",
+      }),
+    );
+
+    expect(fileOptions[1]).toEqual(
+      expect.objectContaining({
+        title: "CREATE A QUERY",
+        kind: SEARCH_ITEM_TYPES.sectionTitle,
+      }),
+    );
+
+    expect(fileOptions[2]).toEqual(
+      expect.objectContaining({
+        title: "New Other datasource query",
+      }),
+    );
+
+    expect(fileOptions[3]).toEqual(
+      expect.objectContaining({
+        title: "New App datasource query",
       }),
     );
   });
@@ -136,6 +196,7 @@ describe("getFilteredAndSortedFileOperations", () => {
       "App",
       [appDatasource],
       [otherDatasource],
+      {},
       true,
       true,
     );
@@ -174,6 +235,7 @@ describe("getFilteredAndSortedFileOperations", () => {
       "zzzz",
       [appDatasource],
       [otherDatasource],
+      {},
       true,
       true,
     );
