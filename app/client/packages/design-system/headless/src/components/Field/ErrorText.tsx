@@ -15,8 +15,8 @@ export const ErrorText = forwardRef(
 
     return (
       <div data-field-error-text="">
-        {showErrorIcon && <AlertIcon className="helpText-validationIcon" />}
-        <span {...errorMessageProps} className="helpText-text" ref={domRef}>
+        {showErrorIcon && <AlertIcon />}
+        <span {...errorMessageProps} ref={domRef}>
           {errorMessage}
         </span>
       </div>

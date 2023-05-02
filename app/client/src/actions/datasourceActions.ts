@@ -4,7 +4,11 @@ import type {
 } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { CreateDatasourceConfig } from "api/DatasourcesApi";
-import type { Datasource, FilePickerActionStatus } from "entities/Datasource";
+import type {
+  AuthenticationStatus,
+  Datasource,
+  FilePickerActionStatus,
+} from "entities/Datasource";
 import type { PluginType } from "entities/Action";
 import type { executeDatasourceQueryRequest } from "api/DatasourcesApi";
 import type { ResponseMeta } from "api/ApiResponses";
@@ -412,6 +416,20 @@ export const filePickerCallbackAction = (data: {
 export const loadFilePickerAction = () => {
   return {
     type: ReduxActionTypes.LOAD_FILE_PICKER_ACTION,
+  };
+};
+
+// updates google sheet datasource auth state, in case of selected sheets
+export const updateDatasourceAuthState = (
+  datasource: Datasource,
+  authStatus: AuthenticationStatus,
+) => {
+  return {
+    type: ReduxActionTypes.UPDATE_DATASOURCE_AUTH_STATE,
+    payload: {
+      datasource: datasource,
+      authStatus: authStatus,
+    },
   };
 };
 

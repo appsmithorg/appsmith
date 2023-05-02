@@ -190,32 +190,32 @@ describe("unit test case for property utils", () => {
       {
         propertyPath: "derivedColumns.action.menuColor",
         propertyValue:
-          "{{Table1.sanitizedTableData.map((currentRow) => ( appsmith.theme.colors.primaryColor))}}",
+          "{{Table1.sanitizedTableData.map((currentRow) => ( (appsmith.theme.colors.primaryColor)))}}",
       },
       {
         propertyPath: "primaryColumns.action.menuColor",
         propertyValue:
-          "{{Table1.sanitizedTableData.map((currentRow) => ( appsmith.theme.colors.primaryColor))}}",
+          "{{Table1.sanitizedTableData.map((currentRow) => ( (appsmith.theme.colors.primaryColor)))}}",
       },
       {
         propertyPath: "derivedColumns.action.borderRadius",
         propertyValue:
-          "{{Table1.sanitizedTableData.map((currentRow) => ( appsmith.theme.borderRadius.appBorderRadius))}}",
+          "{{Table1.sanitizedTableData.map((currentRow) => ( (appsmith.theme.borderRadius.appBorderRadius)))}}",
       },
       {
         propertyPath: "primaryColumns.action.borderRadius",
         propertyValue:
-          "{{Table1.sanitizedTableData.map((currentRow) => ( appsmith.theme.borderRadius.appBorderRadius))}}",
+          "{{Table1.sanitizedTableData.map((currentRow) => ( (appsmith.theme.borderRadius.appBorderRadius)))}}",
       },
       {
         propertyPath: "derivedColumns.action.boxShadow",
         propertyValue:
-          "{{Table1.sanitizedTableData.map((currentRow) => ( 'none'))}}",
+          '{{Table1.sanitizedTableData.map((currentRow) => ( "none"))}}',
       },
       {
         propertyPath: "primaryColumns.action.boxShadow",
         propertyValue:
-          "{{Table1.sanitizedTableData.map((currentRow) => ( 'none'))}}",
+          '{{Table1.sanitizedTableData.map((currentRow) => ( "none"))}}',
       },
       {
         propertyPath: "primaryColumns.action.columnType",
@@ -238,32 +238,32 @@ describe("unit test case for property utils", () => {
       {
         propertyPath: "derivedColumns.action.menuColor",
         propertyValue:
-          "{{Table1.sanitizedTableData.map((currentRow) => ( appsmith.theme.colors.primaryColor))}}",
+          "{{Table1.sanitizedTableData.map((currentRow) => ( (appsmith.theme.colors.primaryColor)))}}",
       },
       {
         propertyPath: "primaryColumns.action.menuColor",
         propertyValue:
-          "{{Table1.sanitizedTableData.map((currentRow) => ( appsmith.theme.colors.primaryColor))}}",
+          "{{Table1.sanitizedTableData.map((currentRow) => ( (appsmith.theme.colors.primaryColor)))}}",
       },
       {
         propertyPath: "derivedColumns.action.borderRadius",
         propertyValue:
-          "{{Table1.sanitizedTableData.map((currentRow) => ( appsmith.theme.borderRadius.appBorderRadius))}}",
+          "{{Table1.sanitizedTableData.map((currentRow) => ( (appsmith.theme.borderRadius.appBorderRadius)))}}",
       },
       {
         propertyPath: "primaryColumns.action.borderRadius",
         propertyValue:
-          "{{Table1.sanitizedTableData.map((currentRow) => ( appsmith.theme.borderRadius.appBorderRadius))}}",
+          "{{Table1.sanitizedTableData.map((currentRow) => ( (appsmith.theme.borderRadius.appBorderRadius)))}}",
       },
       {
         propertyPath: "derivedColumns.action.boxShadow",
         propertyValue:
-          "{{Table1.sanitizedTableData.map((currentRow) => ( 'none'))}}",
+          '{{Table1.sanitizedTableData.map((currentRow) => ( "none"))}}',
       },
       {
         propertyPath: "primaryColumns.action.boxShadow",
         propertyValue:
-          "{{Table1.sanitizedTableData.map((currentRow) => ( 'none'))}}",
+          '{{Table1.sanitizedTableData.map((currentRow) => ( "none"))}}',
       },
       {
         propertyPath: "primaryColumns.action.columnType",
