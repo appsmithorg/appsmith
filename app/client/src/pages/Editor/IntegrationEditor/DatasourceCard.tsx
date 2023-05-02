@@ -81,7 +81,7 @@ const MenuWrapper = styled.div`
 `;
 
 const DatasourceImage = styled.img`
-  height: 18px;
+  height: 34px;
   width: auto;
   margin: 0 auto;
   max-width: 100%;
@@ -117,7 +117,7 @@ const DatasourceNameWrapper = styled.div`
 `;
 
 const DatasourceInfo = styled.div`
-  padding: 0 10px;
+  padding: 0 10px 0 0;
 `;
 
 const Queries = styled.div`
@@ -335,14 +335,14 @@ function DatasourceCard(props: DatasourceCardProps) {
                       <MenuItem
                         className="t--datasource-option-edit"
                         onSelect={editDatasource}
-                        startIcon="pencil-fill-icon"
+                        startIcon="pencil-line"
                       >
                         Edit
                       </MenuItem>
                     )}
                     {canDeleteDatasource && (
                       <MenuItem
-                        className="t--datasource-option-delete"
+                        className="t--datasource-option-delete error-menuitem"
                         disabled={isDeletingDatasource}
                         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                         // @ts-ignore
@@ -355,7 +355,7 @@ function DatasourceCard(props: DatasourceCardProps) {
                               : setConfirmDelete(true);
                           }
                         }}
-                        startIcon="delete"
+                        startIcon="delete-bin-line"
                       >
                         {isDeletingDatasource
                           ? createMessage(CONFIRM_CONTEXT_DELETING)

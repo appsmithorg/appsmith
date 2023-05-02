@@ -75,7 +75,7 @@ const DatasourceCard = styled.div`
   }
 
   .dataSourceImage {
-    height: 28px;
+    height: 34px;
     width: auto;
     margin: 0 auto;
     max-width: 100%;
