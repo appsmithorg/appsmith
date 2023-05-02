@@ -346,6 +346,7 @@ const SegmentedControlContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: var(--ads-v2-spaces-4);
+  overflow: scroll;
 `;
 
 type QueryFormProps = {
@@ -686,6 +687,8 @@ export function EditorJSONtoForm(props: Props) {
     });
   };
 
+  // onResponseTabSelect(selectedControl);
+
   const selectedTabIndex =
     responseDataTypes &&
     responseDataTypes.findIndex(
@@ -781,9 +784,9 @@ export function EditorJSONtoForm(props: Props) {
               <SegmentedControlContainer>
                 <SegmentedControl
                   //   selectedTabKey={responseDisplayFormat.value}
-                  //  TODO: need to have some version of the below in the component
-                  //  selectedValue = {selectedControl}
-                  defaultValue={selectedControl || ""}
+                  //  TODO (albin): Even for when the default value is set, onResponseBodyTab needs to be called.
+                  //   To fix this issue in one go, this component needs to be controlled.
+                  defaultValue={segmentedControlOptions[0]?.value}
                   isFullWidth={false}
                   onChange={(value) => {
                     setSelectedControl(value);
