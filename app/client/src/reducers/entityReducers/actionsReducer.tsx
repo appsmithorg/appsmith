@@ -179,12 +179,9 @@ const actionsReducer = createImmerReducer(initialState, {
       return stateAction.config.id === action.payload.id;
     });
     if (foundAction) {
-      draftMetaState.forEach((stateAction) => {
-        if (stateAction.config.id === action.payload.id) {
-          stateAction.isLoading = false;
-          stateAction.data = action.payload.response;
-        }
-      });
+      foundAction.isLoading = false;
+      if (foundAction.data) _.assign(foundAction.data, action.payload.response);
+      else foundAction.data = action.payload.response;
     } else {
       const partialAction: PartialActionData = {
         isLoading: false,
@@ -244,7 +241,8 @@ const actionsReducer = createImmerReducer(initialState, {
     draftMetaState.forEach((a) => {
       if (a.config.id === actionId) {
         a.isLoading = false;
-        _.assign(a.data, action.payload[actionId]);
+        if (a.data) _.assign(a.data, action.payload[actionId]);
+        else a.data = action.payload[actionId];
       }
     });
   },
