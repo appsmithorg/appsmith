@@ -55,6 +55,13 @@ import { getIsResizing } from "selectors/widgetSelectors";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { AppState } from "@appsmith/reducers";
 
+function* shouldRunSaga(saga: any, action: ReduxAction<unknown>) {
+  const isAutoLayout: boolean = yield select(getIsAutoLayout);
+  if (isAutoLayout) {
+    yield call(saga, action);
+  }
+}
+
 export function* updateLayoutForMobileCheckpoint(
   actionPayload: ReduxAction<{
     parentId: string;
@@ -415,10 +422,9 @@ function* updatePositionsOnTabChangeSaga(
 ) {
   const { selectedTabWidgetId, widgetId } = action.payload;
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  if (!selectedTabWidgetId || !allWidgets[selectedTabWidgetId]) return;
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
-  const tabWidget = allWidgets[selectedTabWidgetId];
-  if (!tabWidget) return;
 
   const updatedWidgets: CanvasWidgetsReduxState = updateWidgetPositions(
     allWidgets,
@@ -427,6 +433,34 @@ function* updatePositionsOnTabChangeSaga(
     mainCanvasWidth,
     false,
     { [widgetId]: { selectedTabWidgetId } },
+  );
+  yield put(updateAndSaveLayout(updatedWidgets));
+}
+
+function* updatePositionsSaga(action: ReduxAction<{ widgetId: string }>) {
+  const { widgetId } = action.payload;
+  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  if (!widgetId || !allWidgets[widgetId]) return;
+  const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
+  const mainCanvasWidth: number = yield select(getMainCanvasWidth);
+  const metaProps: Record<string, any> = yield select(getWidgetsMeta);
+  let canvasId: string = widgetId;
+  if (allWidgets[canvasId].type === "TABS_WIDGET") {
+    // For tabs widget, recalculate the height of child canvas.
+    if (
+      metaProps &&
+      metaProps[canvasId] &&
+      metaProps[canvasId]?.selectedTabWidgetId
+    )
+      canvasId = metaProps[canvasId]?.selectedTabWidgetId;
+  }
+  const updatedWidgets: CanvasWidgetsReduxState = updateWidgetPositions(
+    allWidgets,
+    canvasId,
+    isMobile,
+    mainCanvasWidth,
+    false,
+    metaProps,
   );
   yield put(updateAndSaveLayout(updatedWidgets));
 }
@@ -452,7 +486,13 @@ export default function* layoutUpdateSagas() {
     ),
     takeLatest(
       ReduxActionTypes.UPDATE_POSITIONS_ON_TAB_CHANGE,
+      shouldRunSaga,
       updatePositionsOnTabChangeSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.CHECK_CONTAINERS_FOR_AUTO_HEIGHT,
+      shouldRunSaga,
+      updatePositionsSaga,
     ),
   ]);
 }
