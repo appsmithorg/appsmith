@@ -243,7 +243,7 @@ export const contentConfig = [
       {
         propertyName: "scrollContents",
         helpText: "Allows scrolling of the form",
-        label: "Scroll Contents",
+        label: "Scroll contents",
         controlType: "SWITCH",
         isBindProperty: true,
         isTriggerProperty: false,

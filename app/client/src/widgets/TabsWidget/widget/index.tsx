@@ -161,7 +161,7 @@ class TabsWidget extends BaseWidget<
           {
             helpText: "Enables scrolling for content inside the widget",
             propertyName: "shouldScrollContents",
-            label: "Scroll Contents",
+            label: "Scroll contents",
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,

@@ -28,7 +28,7 @@ class StatboxWidget extends ContainerWidget {
           {
             propertyName: "shouldScrollContents",
             helpText: "Enables scrolling for content inside the widget",
-            label: "Scroll Contents",
+            label: "Scroll contents",
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
