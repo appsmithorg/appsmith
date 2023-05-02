@@ -42,15 +42,13 @@ const StyledList = styled.ul`
     }
     code {
       padding: var(--ads-v2-spaces-2);
-      height: 22px;
       background-color: var(--ads-v2-color-bg-subtle);
       color: var(--ads-v2-color-fg);
       border-radius: var(--ads-v2-border-radius);
-      box-sizing: border-box;
       display: flex;
-      -webkit-box-align: center;
       align-items: center;
       font-size: 12px;
+      line-break: anywhere;
     }
   }
 `;
