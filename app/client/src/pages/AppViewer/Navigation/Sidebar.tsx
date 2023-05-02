@@ -152,7 +152,7 @@ export function Sidebar(props: SidebarProps) {
       sidebarHeight={calculateSidebarHeight()}
     >
       <StyledHeader>
-        <div className="flex-col">
+        <div className="flex flex-col gap-5">
           <NavigationLogo logoConfiguration={logoConfiguration} />
 
           {!isMinimal &&

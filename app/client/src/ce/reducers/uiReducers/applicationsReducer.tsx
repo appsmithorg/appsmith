@@ -461,6 +461,7 @@ export const handlers = {
       ...state,
       isSavingAppName: false,
       isErrorSavingAppName: true,
+      isSavingNavigationSetting: false,
       isErrorSavingNavigationSetting: true,
     };
   },

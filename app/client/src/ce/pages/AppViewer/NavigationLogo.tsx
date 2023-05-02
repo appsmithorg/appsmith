@@ -52,7 +52,7 @@ function NavigationLogo(props: NavigationLogoProps) {
     logoConfiguration ===
       NAVIGATION_SETTINGS.LOGO_CONFIGURATION.NO_LOGO_OR_APPLICATION_TITLE
   ) {
-    return <span />;
+    return null;
   }
 
   return (

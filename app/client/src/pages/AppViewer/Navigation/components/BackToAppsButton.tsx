@@ -47,7 +47,7 @@ const BackToAppsButton = (props: BackToAppsButtonProps) => {
   const currentUser: User | undefined = useSelector(getCurrentUser);
 
   if (currentUser?.username === ANONYMOUS_USERNAME) {
-    return <span />;
+    return null;
   }
 
   return (
