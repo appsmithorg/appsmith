@@ -23,6 +23,7 @@ import { CURRENT_REPO, REPO } from "../fixtures/REPO";
 
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
+const onboardingLocators = require("../locators/FirstTimeUserOnboarding.json");
 const datasource = require("../locators/DatasourcesEditor.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
 const generatePage = require("../locators/GeneratePage.json");
@@ -35,6 +36,7 @@ import { ObjectsRegistry } from "../support/Objects/Registry";
 const propPane = ObjectsRegistry.PropertyPane;
 const agHelper = ObjectsRegistry.AggregateHelper;
 const locators = ObjectsRegistry.CommonLocators;
+const onboarding = ObjectsRegistry.Onboarding;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -2097,4 +2099,9 @@ Cypress.Commands.add("SelectFromMultiSelect", (options) => {
     cy.document().its("body").find(option($each)).should("be.checked");
   });
   cy.document().its("body").type("{esc}");
+});
+
+Cypress.Commands.add("skipSignposting", () => {
+  onboarding.closeIntroModal();
+  onboarding.skipSignposting();
 });
