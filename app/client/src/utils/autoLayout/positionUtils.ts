@@ -33,6 +33,7 @@ import { getCanvasDimensions } from "./AutoLayoutUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 import { isFunction } from "lodash";
+import { shouldUpdateParentHeight } from "./heightUpdateUtils";
 
 /**
  * Calculate widget position on canvas.
@@ -105,7 +106,9 @@ export function updateWidgetPositions(
     const paddingBufferForCanvas = parent.parentRowSpace === 1 ? 2 : 0;
     const parentHeight = getWidgetRows(parent, isMobile);
     const computedHeight = height + paddingBufferForCanvas;
-    if (parentHeight < computedHeight) {
+    if (
+      shouldUpdateParentHeight(widgets, parent, computedHeight, parentHeight)
+    ) {
       /**
        * if children height is greater than parent height,
        * update the parent height to match the children height
@@ -122,12 +125,7 @@ export function updateWidgetPositions(
       );
       widgets = { ...widgets, [parent.widgetId]: updatedParent };
 
-      const shouldUpdateHeight =
-        parent.parentId &&
-        ["CONTAINER_WIDGET", "CANVAS_WIDGET"].includes(
-          allWidgets[parent.parentId].type,
-        );
-      if (shouldUpdateHeight && parent.parentId)
+      if (parent.parentId)
         return updateWidgetPositions(
           widgets,
           parent.parentId,
