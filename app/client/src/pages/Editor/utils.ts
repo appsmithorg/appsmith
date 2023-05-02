@@ -260,10 +260,16 @@ export function isWidgetDeprecated(WidgetType: WidgetType) {
     )?.displayName;
   }
 
+  let onMigration;
+  if (isDeprecated && currentWidgetConfig?.migration) {
+    onMigration = currentWidgetConfig.migration;
+  }
+
   return {
     isDeprecated,
     currentWidgetName: currentWidgetConfig?.displayName,
     widgetReplacedWith,
+    onMigration,
   };
 }
 

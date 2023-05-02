@@ -95,6 +95,7 @@ export const configureWidget = (config: WidgetConfiguration) => {
     isCanvas: config.isCanvas,
     canvasHeightOffset: config.canvasHeightOffset,
     needsHeightForContent: config.needsHeightForContent,
+    migration: config.migration,
   };
 
   const nonSerialisableWidgetConfigs: Record<string, unknown> = {};

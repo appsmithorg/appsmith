@@ -15,6 +15,7 @@ import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
 import type { WidgetProps } from "./BaseWidget";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 
 export type WidgetSizeConfig = {
   viewportMinWidth: number;
@@ -68,6 +69,7 @@ export interface WidgetConfiguration {
     stylesheetConfig?: Stylesheet;
     autocompleteDefinitions?: AutocompletionDefinitions;
   };
+  migration?: (props: WidgetProps) => BatchPropertyUpdatePayload;
 }
 
 export const GRID_DENSITY_MIGRATION_V1 = 4;

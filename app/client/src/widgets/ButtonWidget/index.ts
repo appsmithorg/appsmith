@@ -8,6 +8,7 @@ import { ResponsiveBehavior } from "utils/autoLayout/constants";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -15,6 +16,8 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   searchTags: ["click", "submit"],
+  isDeprecated: true,
+  replacement: "TEXT_WIDGET",
   defaults: {
     animateLoading: true,
     text: "Submit",
@@ -66,6 +69,19 @@ export const CONFIG = {
       horizontal: true,
       vertical: true,
     },
+  },
+  migration: function (props: WidgetProps) {
+    const modifications: any = [];
+
+    if (props.version === undefined || props.version === 0) {
+      modifications["text"] = "Updated Text";
+    }
+
+    modifications["type"] = "TEXT_WIDGET";
+
+    return {
+      modify: modifications,
+    };
   },
 };
 

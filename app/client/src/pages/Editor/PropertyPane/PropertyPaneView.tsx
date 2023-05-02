@@ -20,12 +20,13 @@ import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
 import { Colors } from "constants/Colors";
-import { BannerMessage, IconSize } from "design-system-old";
+import { BannerMessage, Button, IconSize } from "design-system-old";
 import WidgetFactory from "utils/WidgetFactory";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import { useSearchText } from "./helpers";
 import { PropertyPaneSearchInput } from "./PropertyPaneSearchInput";
 import { sendPropertyPaneSearchAnalytics } from "./propertyPaneSearch";
+import { batchUpdateWidgetProperty } from "actions/controlActions";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -172,7 +173,7 @@ function PropertyPaneView(
   if (!widgetProperties) return null;
 
   // Building Deprecation Messages
-  const { isDeprecated, widgetReplacedWith } = isWidgetDeprecated(
+  const { isDeprecated, onMigration, widgetReplacedWith } = isWidgetDeprecated(
     widgetProperties.type,
   );
   // generate messages
@@ -187,9 +188,22 @@ function PropertyPaneView(
     widgetProperties.type,
   ).length;
 
+  const onMigrate = () => {
+    const propertiesToUpdate = onMigration(widgetProperties);
+
+    if (propertiesToUpdate) {
+      dispatch(
+        batchUpdateWidgetProperty(
+          widgetProperties.widgetId,
+          propertiesToUpdate,
+        ),
+      );
+    }
+  };
+
   return (
     <div
-      className="w-full overflow-y-scroll h-full"
+      className="w-full h-full overflow-y-scroll"
       key={`property-pane-${widgetProperties.widgetId}`}
       ref={containerRef}
     >
@@ -223,6 +237,11 @@ function PropertyPaneView(
             message={deprecationMessage}
             textColor={Colors.BROWN}
           />
+        )}
+        {isDeprecated && onMigration && (
+          <Button onClick={onMigrate} text="Migrate">
+            Migrate
+          </Button>
         )}
       </div>
 
