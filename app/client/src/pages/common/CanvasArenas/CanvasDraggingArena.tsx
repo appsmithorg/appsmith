@@ -1,7 +1,9 @@
+import type { AppState } from "@appsmith/reducers";
 import { theme } from "constants/DefaultTheme";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
+import { isCurrentCanvasDragging } from "sagas/selectors";
 import { getIsAutoLayout } from "selectors/editorSelectors";
 import type { LayoutDirection } from "utils/autoLayout/constants";
 import { getNearestParentCanvas } from "utils/generators";
@@ -70,6 +72,10 @@ export function CanvasDraggingArena({
     stickyCanvasRef,
     slidingArenaRef,
   });
+
+  const isDragging = useSelector((state: AppState) =>
+    isCurrentCanvasDragging(state, widgetId),
+  );
   return showCanvas ? (
     <StickyCanvasArena
       canExtend={canExtend}
@@ -78,6 +84,7 @@ export function CanvasDraggingArena({
       getRelativeScrollingParent={getNearestParentCanvas}
       id={`div-dragarena-${widgetId}`}
       ref={canvasRef}
+      shouldObserveIntersection={isDragging}
       showCanvas={showCanvas}
       snapColSpace={snapColumnSpace}
       snapRowSpace={snapRowSpace}

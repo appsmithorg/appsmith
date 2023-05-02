@@ -18,6 +18,7 @@ interface StickyCanvasArenaProps {
   getRelativeScrollingParent: (child: HTMLDivElement) => Element | null;
   canExtend: boolean;
   ref: StickyCanvasArenaRef;
+  shouldObserveIntersection: boolean;
 }
 
 interface StickyCanvasArenaRef {
@@ -46,6 +47,7 @@ export const StickyCanvasArena = forwardRef(
       canvasPadding,
       getRelativeScrollingParent,
       id,
+      shouldObserveIntersection,
       showCanvas,
       snapColSpace,
       snapRows,
@@ -121,10 +123,17 @@ export const StickyCanvasArena = forwardRef(
         }
       }
     };
+
     const observeSlider = () => {
       interSectionObserver.current.disconnect();
       if (slidingArenaRef && slidingArenaRef.current) {
         interSectionObserver.current.observe(slidingArenaRef.current);
+      }
+    };
+
+    const observeSliderIfNecessary = () => {
+      if (shouldObserveIntersection) {
+        observeSlider();
       }
     };
 
@@ -139,24 +148,36 @@ export const StickyCanvasArena = forwardRef(
       snapColSpace,
       snapRowSpace,
       canvasScale,
+      shouldObserveIntersection,
     ]);
 
     useEffect(() => {
       let parentCanvas: Element | null;
       if (slidingArenaRef.current) {
         parentCanvas = getRelativeScrollingParent(slidingArenaRef.current);
-        parentCanvas?.addEventListener("scroll", observeSlider, false);
-        parentCanvas?.addEventListener("mouseover", observeSlider, false);
+        parentCanvas?.addEventListener(
+          "scroll",
+          observeSliderIfNecessary,
+          false,
+        );
+        parentCanvas?.addEventListener(
+          "mouseover",
+          observeSliderIfNecessary,
+          false,
+        );
       }
       resizeObserver.current.observe(slidingArenaRef.current);
       return () => {
-        parentCanvas?.removeEventListener("scroll", observeSlider);
-        parentCanvas?.removeEventListener("mouseover", observeSlider);
+        parentCanvas?.removeEventListener("scroll", observeSliderIfNecessary);
+        parentCanvas?.removeEventListener(
+          "mouseover",
+          observeSliderIfNecessary,
+        );
         if (slidingArenaRef && slidingArenaRef.current) {
           resizeObserver.current.unobserve(slidingArenaRef.current);
         }
       };
-    }, []);
+    }, [shouldObserveIntersection]);
     return (
       <>
         {/* Canvas will always be sticky to its scrollable parent's view port. i.e,
