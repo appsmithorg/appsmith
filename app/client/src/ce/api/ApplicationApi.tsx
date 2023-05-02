@@ -179,6 +179,7 @@ export interface ImportApplicationRequest {
   applicationFile?: File;
   progress?: (progressEvent: ProgressEvent) => void;
   onSuccessCallback?: () => void;
+  appId?: string;
 }
 
 export interface AppEmbedSetting {
@@ -341,7 +342,9 @@ export class ApplicationApi extends Api {
       formData.append("file", request.applicationFile);
     }
     return Api.post(
-      ApplicationApi.baseURL + "/import/" + request.workspaceId,
+      `${ApplicationApi.baseURL}/import/${request.workspaceId}${
+        request.appId ? `?applicationId=${request.appId}` : ""
+      }`,
       formData,
       null,
       {

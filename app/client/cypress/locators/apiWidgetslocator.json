@@ -34,7 +34,7 @@
   "apiInputTab": "li:contains('API Input')",
   "paginationOption": ".t--apiFormPaginationType div>input",
   "paginationWithTable": "//label[contains(text(),'Paginate with Table Page No')] ",
-  "paginationWithUrl": "//label[contains(text(),'Paginate with Response Url')]",
+  "paginationWithUrl": "//label[contains(text(),'Paginate with Response URL')]",
   "panigationNextUrl": ".t--apiFormPaginationNext div>textarea",
   "panigationPrevUrl": ".t--apiFormPaginationPrev div>textarea",
   "TestNextUrl": ".t--apiFormPaginationNextTest",
