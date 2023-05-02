@@ -10,6 +10,7 @@ import {
   getAllPageWidgets,
   getJSCollections,
   getPlugins,
+  getRecentDatasourceIds,
 } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 import type { EventLocation } from "utils/AnalyticsUtil";
@@ -36,6 +37,15 @@ import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 export const useFilteredFileOperations = (query = "") => {
   const { appWideDS = [], otherDS = [] } = useAppWideAndOtherDatasource();
+  const recentDatasourceIds = useSelector(getRecentDatasourceIds);
+  // helper map for sorting based on recent usage
+  const recentlyUsedOrderMap = recentDatasourceIds.reduce(
+    (map: Record<string, number>, id, index) => {
+      map[id] = index;
+      return map;
+    },
+    {},
+  );
   /**
    *  Work around to get the rest api cloud image.
    *  We don't have it store as a svg
@@ -69,6 +79,7 @@ export const useFilteredFileOperations = (query = "") => {
         query,
         appWideDS,
         otherDS,
+        recentlyUsedOrderMap,
         canCreateActions,
         canCreateDatasource,
         pagePermissions,
@@ -81,6 +92,7 @@ export const getFilteredAndSortedFileOperations = (
   query: string,
   appWideDS: Datasource[] = [],
   otherDS: Datasource[] = [],
+  recentlyUsedOrderMap: Record<string, number> = {},
   canCreateActions = true,
   canCreateDatasource = true,
   pagePermissions: string[] = [],
@@ -107,47 +119,42 @@ export const getFilteredAndSortedFileOperations = (
       });
     }
   }
-  if (appWideDS.length > 0) {
-    const appWideDSOperations = appWideDS
-      .filter((ds) =>
-        hasCreateDatasourceActionPermission([
-          ...(ds.userPermissions ?? []),
-          ...pagePermissions,
-        ]),
-      )
-      .map((ds) => ({
-        title: `New ${ds.name} query`,
-        shortTitle: `${ds.name} query`,
-        desc: `Create a query in ${ds.name}`,
-        pluginId: ds.pluginId,
-        kind: SEARCH_ITEM_TYPES.actionOperation,
-        action: (pageId: string, from: EventLocation) =>
-          createNewQueryAction(pageId, from, ds.id),
-      }));
 
-    fileOperations.push(...appWideDSOperations);
-  }
-  // Add other datasources
-  if (otherDS.length > 0) {
-    const otherDSOperations = otherDS
-      .filter((ds) =>
-        hasCreateDatasourceActionPermission([
-          ...(ds.userPermissions ?? []),
-          ...pagePermissions,
-        ]),
-      )
-      .map((ds) => ({
-        title: `New ${ds.name} query`,
-        shortTitle: `${ds.name} query`,
-        desc: `Create a query in ${ds.name}`,
-        pluginId: ds.pluginId,
-        kind: SEARCH_ITEM_TYPES.actionOperation,
-        action: (pageId: string, from: EventLocation) =>
-          createNewQueryAction(pageId, from, ds.id),
-      }));
+  // get all datasources, app ds listed first
+  const datasources = [...appWideDS, ...otherDS].filter((ds) =>
+    hasCreateDatasourceActionPermission([
+      ...(ds.userPermissions ?? []),
+      ...pagePermissions,
+    ]),
+  );
 
-    fileOperations.push(...otherDSOperations);
-  }
+  // Sort datasources based on recency
+  datasources.sort((a, b) => {
+    const orderA = recentlyUsedOrderMap[a.id];
+    const orderB = recentlyUsedOrderMap[b.id];
+    if (orderA !== undefined && orderB !== undefined) {
+      return orderA - orderB;
+    } else if (orderA !== undefined) {
+      return -1;
+    } else if (orderB !== undefined) {
+      return 1;
+    } else {
+      return 0;
+    }
+  });
+
+  // map into operations
+  const dsOperations = datasources.map((ds) => ({
+    title: `New ${ds.name} query`,
+    shortTitle: `${ds.name} query`,
+    desc: `Create a query in ${ds.name}`,
+    pluginId: ds.pluginId,
+    kind: SEARCH_ITEM_TYPES.actionOperation,
+    action: (pageId: string, from: EventLocation) =>
+      createNewQueryAction(pageId, from, ds.id),
+  }));
+  fileOperations.push(...dsOperations);
+
   // Add generic action creation
   fileOperations.push(
     ...actionOperations.filter((op) => op.title !== actionOperations[2].title),
