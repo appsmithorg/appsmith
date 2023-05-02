@@ -7,6 +7,7 @@ import type { DatasourceAuthentication, Datasource } from "entities/Datasource";
 export interface CreateDatasourceConfig {
   name: string;
   pluginId: string;
+  type?: string;
   datasourceConfiguration: {
     url: string;
     databaseName?: string;
