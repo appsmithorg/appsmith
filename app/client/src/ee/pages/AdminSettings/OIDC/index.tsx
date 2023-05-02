@@ -41,7 +41,6 @@ import {
 import { BackButton } from "components/utils/helperComponents";
 import { getThirdPartyAuths } from "@appsmith/selectors/tenantSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
 
 const { disableLoginForm } = getAppsmithConfigs();
 
@@ -79,10 +78,7 @@ export function OidcSettingsForm(
   const pageTitle = getSettingLabel(
     details?.title || (subCategory ?? category),
   );
-  const socialLoginList = [
-    ...useSelector(getThirdPartyAuths),
-    ...ThirdPartyLoginRegistry.get(),
-  ];
+  const socialLoginList = useSelector(getThirdPartyAuths);
   const isConnected = socialLoginList.includes("oidc");
 
   const onSave = () => {
