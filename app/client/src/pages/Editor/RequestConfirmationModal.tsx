@@ -7,13 +7,9 @@ import {
   cancelActionConfirmationModal,
   acceptActionConfirmationModal,
 } from "actions/pluginActionActions";
-import {
-  Button,
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-} from "design-system";
+import { DialogComponent } from "design-system-old";
+import styled from "styled-components";
+import { Button } from "design-system";
 import {
   createMessage,
   QUERY_CONFIRMATION_MODAL_MESSAGE,
@@ -24,6 +20,19 @@ type Props = {
   modals: ModalInfo[];
   dispatch: any;
 };
+
+const ModalBody = styled.div`
+  padding-bottom: 20px;
+`;
+
+const ModalFooter = styled.div`
+  display: flex;
+  justify-content: flex-end;
+
+  button {
+    margin-left: 12px;
+  }
+`;
 
 class RequestConfirmationModal extends React.Component<Props> {
   addEventListener = () => {
@@ -75,18 +84,20 @@ class RequestConfirmationModal extends React.Component<Props> {
     return (
       <>
         {modalsToBeOpened.map((modalInfo: ModalInfo, index: number) => (
-          <Modal
-            // canEscapeKeyClose
-            // canOutsideClickClose
+          <DialogComponent
+            canEscapeKeyClose
+            canOutsideClickClose
+            isOpen={modalInfo?.modalOpen}
             key={index}
-            onOpenChange={() => this.handleClose(modalInfo)}
-            open={modalInfo?.modalOpen}
+            maxHeight={"80vh"}
+            noModalBodyMarginTop
+            onClose={() => this.handleClose(modalInfo)}
+            title="Confirmation Dialog"
+            width={"580px"}
           >
-            <ModalHeader>Confirmation Dialog</ModalHeader>
             <ModalBody>
-              {`${createMessage(QUERY_CONFIRMATION_MODAL_MESSAGE)} ${
-                modalInfo.name
-              }?`}
+              {createMessage(QUERY_CONFIRMATION_MODAL_MESSAGE)}{" "}
+              <b>{modalInfo.name}</b> ?
             </ModalBody>
             <ModalFooter>
               <Button
@@ -107,7 +118,7 @@ class RequestConfirmationModal extends React.Component<Props> {
                 Yes
               </Button>
             </ModalFooter>
-          </Modal>
+          </DialogComponent>
         ))}
       </>
     );
