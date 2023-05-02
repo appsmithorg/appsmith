@@ -11,7 +11,7 @@ import type { APP_MODE } from "entities/App";
 import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
 import type { Datasource } from "entities/Datasource";
 import type { NavigationSetting } from "constants/AppConstants";
-import { getSnapShotAPIRoute } from "ce/constants/ApiConstants";
+import { getSnapShotAPIRoute } from "@appsmith/constants/ApiConstants";
 
 export type EvaluationVersion = number;
 
@@ -179,6 +179,7 @@ export interface ImportApplicationRequest {
   applicationFile?: File;
   progress?: (progressEvent: ProgressEvent) => void;
   onSuccessCallback?: () => void;
+  appId?: string;
 }
 
 export interface AppEmbedSetting {
@@ -341,7 +342,9 @@ export class ApplicationApi extends Api {
       formData.append("file", request.applicationFile);
     }
     return Api.post(
-      ApplicationApi.baseURL + "/import/" + request.workspaceId,
+      `${ApplicationApi.baseURL}/import/${request.workspaceId}${
+        request.appId ? `?applicationId=${request.appId}` : ""
+      }`,
       formData,
       null,
       {

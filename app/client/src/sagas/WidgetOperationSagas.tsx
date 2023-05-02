@@ -2002,7 +2002,9 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
 export function* groupWidgetsSaga() {
   const selectedWidgetIDs: string[] = yield select(getSelectedWidgets);
   const isMultipleWidgetsSelected = selectedWidgetIDs.length > 1;
-
+  // Grouping functionality has been temporarily disabled for auto layout canvas.
+  const isAutoLayout: boolean = yield select(getIsAutoLayout);
+  if (isAutoLayout) return;
   if (isMultipleWidgetsSelected) {
     try {
       yield put({

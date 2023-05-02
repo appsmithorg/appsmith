@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { createReducer } from "utils/ReducerUtils";
 
 export type SegmentState = "INIT_SUCCESS" | "INIT_UNCERTAIN";
