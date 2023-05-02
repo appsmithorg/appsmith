@@ -48,7 +48,7 @@ describe("Embed settings options", function () {
       .invoke("readText")
       .as("embeddedAppUrl");
     cy.enablePublicAccess();
-    cy.get(".t--back-to-home").click();
+    cy.get(".t--app-viewer-back-to-apps-button").click();
     homePage.CreateNewApplication();
     ee.DragDropWidgetNVerify("iframewidget", 100, 100);
     cy.get("@embeddedAppUrl").then((url) => {

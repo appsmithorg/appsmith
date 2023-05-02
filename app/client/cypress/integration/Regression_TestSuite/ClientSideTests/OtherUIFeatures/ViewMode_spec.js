@@ -9,7 +9,7 @@ describe("Preview mode functionality", function () {
 
   it("1. on click of apps on header, it should take to application home page", function () {
     cy.PublishtheApp();
-    cy.get(".t--back-to-home").click();
+    cy.get(".t--app-viewer-back-to-apps-button").click();
     cy.url().should("eq", BASE_URL + "applications");
   });
 });
