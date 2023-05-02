@@ -15,6 +15,7 @@ import { useHref } from "pages/Editor/utils";
 import { APP_MODE } from "entities/App";
 import { builderURL, viewerURL } from "RouteBuilder";
 import { get } from "lodash";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 type NavigationLogoProps = {
   logoConfiguration: NavigationSetting["logoConfiguration"];
@@ -65,7 +66,7 @@ function NavigationLogo(props: NavigationLogoProps) {
     >
       <StyledImage
         alt="Application's logo"
-        src={`/api/v1/assets/${logoAssetId}`}
+        src={getAssetUrl(`/api/v1/assets/${logoAssetId}`)}
       />
     </Link>
   );
