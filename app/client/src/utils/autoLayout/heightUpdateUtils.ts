@@ -4,7 +4,11 @@ import {
 } from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { FlattenedWidgetProps } from "widgets/constants";
-import { getWidgetMinMaxDimensionsInPixel } from "./flexWidgetUtils";
+import {
+  getTopRow,
+  getWidgetMinMaxDimensionsInPixel,
+  setDimensions,
+} from "./flexWidgetUtils";
 
 /**
  * Determine whether the parent height should be updated or not.
@@ -50,7 +54,7 @@ export function getComputedHeight(
    * add padding buffer for canvas.
    * if parentColumnSpace === 1, => type === CANVAS_WIDGET
    */
-  if (parent.parentRowSpace === 1) res += 2;
+  if (parent.type === "CANVAS_WIDGET") res += 2;
 
   /**
    * If widget is a Tabs widget, and tabs are visible,
@@ -83,6 +87,71 @@ export function getComputedHeight(
       containerMinHeight -= 4;
   }
   res = Math.max(res, minHeight, containerMinHeight);
+  console.log(
+    "#### getComputedHeight",
+    res,
+    "minHeight",
+    minHeight,
+    "containerHeight",
+    containerMinHeight,
+    "rowSpace",
+    parent.parentRowSpace,
+  );
+  return res;
+}
 
+/**
+ * Set the new height of the parent widget.
+ * @param parent | FlattenedWidgetProps : Parent widget.
+ * @param height | number : Height to be set.
+ * @param modalHeight | number : Height of the modal.
+ * @param isMobile | boolean : Is mobile viewport.
+ * @returns FlattenedWidgetProps
+ */
+export function updateParentHeight(
+  parent: FlattenedWidgetProps,
+  height: number,
+  modalHeight: number,
+  isMobile = false,
+): FlattenedWidgetProps {
+  const parentTopRow: number = getTopRow(parent, isMobile);
+  let updatedParent = setDimensions(
+    parent,
+    parentTopRow,
+    parentTopRow + height,
+    null,
+    null,
+    isMobile,
+  );
+  /**
+   * For Modal widget, set additional height property
+   */
+  if (parent.type === "MODAL_WIDGET") {
+    console.log("#### modalHeight", modalHeight, height);
+    updatedParent = {
+      ...updatedParent,
+      height: modalHeight,
+    };
+  }
+  return updatedParent;
+}
+
+/**
+ * Get height of modal widget. => rows * rowSpace
+ * @param parent | FlattenedWidgetProps
+ * @param computedHeight | number
+ * @param divisor | number
+ * @returns number
+ */
+export function getModalHeight(
+  parent: FlattenedWidgetProps,
+  computedHeight: number,
+  divisor: number,
+): number {
+  let res: number = computedHeight;
+  // if (parent.parentRowSpace === 1) res -= 2;
+  res *= divisor;
+  if (parent.type === "MODAL_WIDGET")
+    res *= divisor === 1 ? GridDefaults.DEFAULT_GRID_ROW_HEIGHT : 1;
   return res;
 }

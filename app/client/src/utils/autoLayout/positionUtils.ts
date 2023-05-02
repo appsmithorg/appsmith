@@ -36,7 +36,9 @@ import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 import { isFunction } from "lodash";
 import {
   getComputedHeight,
+  getModalHeight,
   shouldUpdateParentHeight,
+  updateParentHeight,
 } from "./heightUpdateUtils";
 
 /**
@@ -123,18 +125,10 @@ export function updateWidgetPositions(
     if (
       shouldUpdateParentHeight(widgets, parent, computedHeight, parentHeight)
     ) {
-      /**
-       * if children height is greater than parent height,
-       * update the parent height to match the children height
-       * and add a buffer of 1 row to render the new layer highlights.
-       */
-      const parentTopRow = getTopRow(parent, isMobile);
-      const updatedParent = setDimensions(
+      const updatedParent: FlattenedWidgetProps = updateParentHeight(
         parent,
-        parentTopRow,
-        parentTopRow + computedHeight * divisor,
-        null,
-        null,
+        computedHeight * divisor,
+        getModalHeight(parent, computedHeight, divisor),
         isMobile,
       );
       widgets = { ...widgets, [parent.widgetId]: updatedParent };

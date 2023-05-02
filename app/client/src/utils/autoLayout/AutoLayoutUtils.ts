@@ -11,6 +11,7 @@ import {
   WIDGET_PADDING,
   DefaultDimensionMap,
   AUTO_LAYOUT_CONTAINER_PADDING,
+  MAX_MODAL_WIDTH_FROM_MAIN_WIDTH,
 } from "constants/WidgetConstants";
 import type {
   CanvasWidgetsReduxState,
@@ -152,11 +153,15 @@ export function alterLayoutForMobile(
       widget.mobileTopRow = widget.topRow;
       widget.mobileBottomRow = widget.bottomRow;
     }
+    const widgetWidth: number =
+      widget.type === "MODAL_WIDGET"
+        ? canvasWidth * MAX_MODAL_WIDTH_FROM_MAIN_WIDTH
+        : (canvasWidth * (widget.mobileRightColumn || 1)) /
+          GridDefaults.DEFAULT_GRID_COLUMNS;
     widgets = alterLayoutForMobile(
       widgets,
       child,
-      (canvasWidth * (widget.mobileRightColumn || 1)) /
-        GridDefaults.DEFAULT_GRID_COLUMNS,
+      widgetWidth,
       mainCanvasWidth,
       firstTimeDSLUpdate,
       metaProps,
@@ -506,7 +511,10 @@ function getCanvasWidth(
 
   //modal will be the total width instead of the mainCanvasWidth
   if (widget.type === "MODAL_WIDGET") {
-    width = widget.width;
+    width = Math.min(
+      widget.width,
+      mainCanvasWidth * MAX_MODAL_WIDTH_FROM_MAIN_WIDTH,
+    );
   }
 
   while (stack.length) {
