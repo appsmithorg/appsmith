@@ -1822,9 +1822,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params, String branchName) {
         return this.getUnpublishedActions(params, branchName, FALSE)
+                .filter(actionDTO -> !PluginType.JS.equals(actionDTO.getPluginType()))
                 .name(GET_UNPUBLISHED_ACTION)
                 .tap(Micrometer.observation(observationRegistry));
-//                .filter(actionDTO -> !PluginType.JS.equals(actionDTO.getPluginType()));
     }
 
     /**
