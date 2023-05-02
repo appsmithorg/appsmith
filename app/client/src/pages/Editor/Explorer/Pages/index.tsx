@@ -80,6 +80,12 @@ const RelativeContainer = styled.div`
   position: relative;
 `;
 
+const ResizeHandler = styled.div`
+  &:hover {
+    background-color: var(--ads-v2-color-border);
+  }
+`;
+
 function Pages() {
   const applicationId = useSelector(getCurrentApplicationId);
   const pages: Page[] = useSelector(selectAllPages);
@@ -243,9 +249,9 @@ function Pages() {
         className={`absolute -bottom-2 left-0 w-full h-2 group cursor-ns-resize ${tailwindLayers.resizer}`}
         onMouseDown={() => setMouseDown(true)}
       >
-        <div
-          className={`w-full h-1 bg-transparent hover:bg-gray-300 transform transition
-          ${mouseDown ? "hover:bg-blue-500" : ""}
+        <ResizeHandler
+          className={`w-full h-1 bg-transparent hover:bg-transparent transform transition
+          ${mouseDown ? "" : ""}
           `}
         />
       </div>

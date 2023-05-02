@@ -8,7 +8,7 @@ import styled from "styled-components";
 import type { HTTP_METHOD } from "constants/ApiEditorConstants/CommonApiConstants";
 import { HTTP_METHODS_COLOR } from "constants/ApiEditorConstants/CommonApiConstants";
 import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
-import { Icon } from "@blueprintjs/core";
+import { Icon } from "design-system";
 import { ReactComponent as ApiIcon } from "assets/icons/menu/api-colored.svg";
 import { ReactComponent as CurlIcon } from "assets/images/Curl-logo.svg";
 import { ReactComponent as GraphqlIcon } from "assets/images/Graphql-logo.svg";
@@ -25,41 +25,13 @@ export const pageGroupIcon = (
   />
 );
 
-const PageIcon = MenuIcons.PAGE_ICON;
-export const pageIcon = (
-  <PageIcon
-    color="var(--ads-v2-color-fg)"
-    height={ENTITY_ICON_SIZE}
-    width={ENTITY_ICON_SIZE}
-  />
-);
+export const pageIcon = <Icon name="page-line" size="md" />;
 
-export const homePageIcon = (
-  <Icon
-    color="var(--ads-v2-color-fg)"
-    icon="home"
-    iconSize={ENTITY_ICON_SIZE}
-  />
-);
+export const homePageIcon = <Icon name="add-circle-control" size="md" />;
 
-const DefaultPageIcon = MenuIcons.DEFAULT_HOMEPAGE_ICON;
-export const defaultPageIcon = (
-  <DefaultPageIcon
-    color="var(--ads-v2-color-fg)"
-    data-icon="home"
-    height={ENTITY_ICON_SIZE}
-    width={ENTITY_ICON_SIZE}
-  />
-);
+export const defaultPageIcon = <Icon name="add-circle-control" size="md" />;
 
-const HiddenPageIcon = MenuIcons.EYES_OFF_ICON;
-export const hiddenPageIcon = (
-  <HiddenPageIcon
-    color="var(--ads-v2-color-fg)"
-    height={ENTITY_ICON_SIZE}
-    width={ENTITY_ICON_SIZE}
-  />
-);
+export const hiddenPageIcon = <Icon name="eye-off" size="md" />;
 
 const WidgetIcon = MenuIcons.WIDGETS_ICON;
 export const widgetIcon = (
@@ -110,14 +82,7 @@ export const datasourceIcon = (
   />
 );
 
-const DataSourceTableIcon = MenuIcons.DATASOURCES_TABLE_ICON;
-export const datasourceTableIcon = (
-  <DataSourceTableIcon
-    height={ENTITY_ICON_SIZE}
-    keepColors
-    width={ENTITY_ICON_SIZE}
-  />
-);
+export const datasourceTableIcon = <Icon name="layout-left-2-line" size="md" />;
 
 const PrimaryKeyIcon = MenuIcons.PRIMARY_KEY_ICON;
 export const primaryKeyIcon = (
@@ -137,13 +102,8 @@ export const foreignKeyIcon = (
   />
 );
 
-const DatasourceColumnIcon = MenuIcons.DATASOURCE_COLUMN_ICON;
 export const datasourceColumnIcon = (
-  <DatasourceColumnIcon
-    height={ENTITY_ICON_SIZE}
-    keepColors
-    width={ENTITY_ICON_SIZE}
-  />
+  <Icon name="layout-column-line" size="md" />
 );
 
 export const DATASOURCE_FIELD_ICONS_MAP: Record<string, ReactNode> = {
@@ -302,7 +262,7 @@ export function ApiMethodIcon(
   type: keyof typeof HTTP_METHOD,
   height = "18px",
   width = "36px",
-  fontSize = 56,
+  fontSize = 52,
 ) {
   return (
     <EntityIcon
