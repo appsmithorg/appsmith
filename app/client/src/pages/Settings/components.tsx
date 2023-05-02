@@ -4,7 +4,11 @@ import { Text } from "design-system";
 
 export const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
-  padding: 30px 0 0 24px;
+  padding: var(--ads-v2-spaces-7);
+
+  /* 84px is the height of save bottom bar */
+  height: calc(100vh - ${(props) => props.theme.homePage.header}px - 84px);
+  overflow: auto;
 `;
 
 export const HeaderWrapper = styled.div<{ margin?: string }>`
@@ -18,10 +22,6 @@ export const SettingsHeader = styled(Text)`
 export const SettingsSubHeader = styled(Text)``;
 
 export const SettingsFormWrapper = styled.div`
-  /* 84px is the height of save bottom bar */
-  height: calc(100vh - ${(props) => props.theme.homePage.header}px - 84px);
-  overflow: auto;
-
   .openid_tag {
     .${Classes.TAG_REMOVE} {
       display: none;

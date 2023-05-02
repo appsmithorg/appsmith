@@ -10,10 +10,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Icon, Text } from "design-system";
 
 export const Wrapper = styled.div`
-  flex-basis: ${(props) =>
-    props.theme.homePage.leftPane.width +
-    props.theme.homePage.leftPane.leftPadding}px;
-  padding: 0 0 0 ${(props) => props.theme.homePage.leftPane.leftPadding}px;
+  flex-basis: ${(props) => props.theme.sidebarWidth};
   overflow-y: auto;
   border-right: 1px solid var(--ads-v2-color-border);
   flex-shrink: 0;
@@ -29,7 +26,7 @@ export const Wrapper = styled.div`
 
 export const HeaderContainer = styled.div`
   padding: 20px 0;
-  margin: 0 12px;
+  margin: 0 16px;
 `;
 
 export const StyledHeader = styled(Text)`
