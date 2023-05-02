@@ -1,4 +1,5 @@
 const dsl = require("../../../../fixtures/previewMode.json");
+const appNavigationLocators = require("../../../../locators/AppNavigation.json");
 
 const BASE_URL = Cypress.config().baseUrl;
 
@@ -9,7 +10,9 @@ describe("Preview mode functionality", function () {
 
   it("1. on click of apps on header, it should take to application home page", function () {
     cy.PublishtheApp();
-    cy.get(".t--app-viewer-back-to-apps-button").click();
+    cy.get(
+      `${appNavigationLocators.header} ${appNavigationLocators.backToAppsButton}`,
+    ).click();
     cy.url().should("eq", BASE_URL + "applications");
   });
 });
