@@ -448,6 +448,7 @@ class DatasourceRestAPIEditor extends React.Component<
         className="t--section-general"
         data-cy="section-General"
         data-replay-id="section-General"
+        style={{ margin: "0 var(--ads-v2-spaces-7)" }}
       >
         <FormInputContainer data-replay-id={btoa("url")}>
           {this.renderInputTextControlViaFormControl({

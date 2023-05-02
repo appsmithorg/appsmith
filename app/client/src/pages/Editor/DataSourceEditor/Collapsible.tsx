@@ -37,7 +37,7 @@ const TopBorder = styled(Divider)`
 `;
 
 const SectionContentWrapper = styled.div`
-  /* padding: 0 20px; */
+  padding: 0 24px;
 `;
 
 interface ComponentProps {

@@ -141,8 +141,9 @@ type State = {
 const ViewModeWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  border-bottom: 1px solid #d0d7dd;
-  padding: 24px 20px;
+  border-bottom: 1px solid var(--ads-v2-color-border);
+  margin: 24px 20px;
+  padding-bottom: 24px;
 `;
 
 class DatasourceSaaSEditor extends JSONtoForm<Props, State> {

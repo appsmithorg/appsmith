@@ -247,8 +247,9 @@ const ActionsWrapper = styled.div`
 const DropdownSelect = styled.div`
   font-size: 14px;
   margin-right: 10px;
+  width: 230px;
 
-  .t--switch-datasource > div {
+  /* .t--switch-datasource > div {
     min-height: 30px;
     height: 30px;
 
@@ -264,7 +265,7 @@ const DropdownSelect = styled.div`
     & .appsmith-select__input > input[value=""] {
       caret-color: transparent;
     }
-  }
+  } */
 `;
 
 const CreateDatasource = styled.div`
@@ -889,10 +890,10 @@ export function EditorJSONtoForm(props: Props) {
                 options={DATASOURCES_OPTIONS}
                 placeholder="Datasource"
               >
-                <Option>
+                <Option className="add-new-datasource">
                   {canCreateDatasource && (
                     <CreateDatasource onClick={() => onCreateDatasourceClick()}>
-                      <Icon className="createIcon" name="plus" size="sm" />
+                      <Icon className="createIcon" name="plus" size="md" />
                       {createMessage(CREATE_NEW_DATASOURCE)}
                     </CreateDatasource>
                   )}

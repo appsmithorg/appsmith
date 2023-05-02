@@ -154,3 +154,15 @@ div.bp3-popover-arrow {
   background-color: transparent !important;
   cursor: default !important;
 }
+.select-with-fixed-option .rc-virtual-list-holder {
+  margin-bottom: 38px;
+}
+.select-with-fixed-option .add-new-datasource {
+  border-top: 1px solid var(--ads-v2-color-border) !important;
+  position: fixed !important;
+  bottom: -1px !important;
+  left: 0 !important;
+  right: 0 !important;
+  background: var(--ads-v2-color-bg) !important;
+  border-radius: 0;
+}
