@@ -9,7 +9,6 @@ import {
 import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useSelector, useDispatch } from "react-redux";
 import type { MenuItemProps, TabProp } from "design-system-old";
-// import { TabComponent } from "design-system-old";
 import { Tabs, Tab, TabsList, TabPanel } from "design-system";
 import styled from "styled-components";
 
@@ -54,13 +53,13 @@ const SettingsWrapper = styled.div<{
     ${({ isMobile }) =>
       !isMobile &&
       `
-      padding: 110px 0 0;
+      padding: 130px 0 0;
   `}
   }
 `;
 
 const StyledStickyHeader = styled(StickyHeader)<{ isMobile?: boolean }>`
-  /* padding-top: 24px; */
+  padding-top: 24px;
   ${({ isMobile }) =>
     !isMobile &&
     `
