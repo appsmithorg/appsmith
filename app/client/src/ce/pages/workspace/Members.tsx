@@ -9,7 +9,7 @@ import {
 import type { RouteComponentProps } from "react-router";
 import { useHistory } from "react-router";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { Table } from "design-system-old";
+import { HighlightText, Table } from "design-system-old";
 import {
   fetchUsersForWorkspace,
   fetchRolesForWorkspace,
@@ -17,7 +17,6 @@ import {
   changeWorkspaceUserRole,
   deleteWorkspaceUser,
 } from "@appsmith/actions/workspaceActions";
-import { HighlightText } from "design-system-old";
 import type { SelectOptionProps } from "design-system";
 import { Button, Option, Select, Text } from "design-system";
 import styled from "styled-components";
@@ -150,6 +149,10 @@ export const EachUser = styled.div`
   .user-icons {
     margin-right: 8px;
   }
+
+  .user-group-icons {
+    margin: 0 12px 0 4px;
+  }
 `;
 
 export const DeleteIcon = styled(Button)`
@@ -158,11 +161,8 @@ export const DeleteIcon = styled(Button)`
   right: ${(props) => props.theme.spaces[7]}px;
 `;
 
-export const NoResultsText = styled.div`
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 24px;
-  color: var(--appsmith-color-black-700);
+export const NoResultsText = styled(Text)`
+  color: var(--ads-v2-color-fg);
 `;
 
 export const RowWrapper = styled.div<{ isSubRow?: boolean }>`
@@ -447,7 +447,7 @@ export default function MemberSettings(props: PageProps) {
             data-testid="listing-table"
             isLoading={isFetchingAllUsers && isFetchingAllRoles}
             noDataComponent={
-              <NoResultsText>
+              <NoResultsText kind="heading-s">
                 {createMessage(NO_SEARCH_DATA_TEXT)}
               </NoResultsText>
             }
