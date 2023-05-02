@@ -14,7 +14,6 @@ export interface INJECTED_CONFIGS {
     id: string;
   };
   disableLoginForm: boolean;
-  disableSignup: boolean;
   enableRapidAPI: boolean;
   segment: {
     apiKey: string;
@@ -69,9 +68,6 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     },
     disableLoginForm: process.env.APPSMITH_FORM_LOGIN_DISABLED
       ? process.env.APPSMITH_FORM_LOGIN_DISABLED.length > 0
-      : false,
-    disableSignup: process.env.APPSMITH_SIGNUP_DISABLED
-      ? process.env.APPSMITH_SIGNUP_DISABLED.length > 0
       : false,
     segment: {
       apiKey: process.env.REACT_APP_SEGMENT_KEY || "",
@@ -240,8 +236,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       ENV_CONFIG.enableRapidAPI || APPSMITH_FEATURE_CONFIGS.enableRapidAPI,
     disableLoginForm:
       ENV_CONFIG.disableLoginForm || APPSMITH_FEATURE_CONFIGS.disableLoginForm,
-    disableSignup:
-      ENV_CONFIG.disableSignup || APPSMITH_FEATURE_CONFIGS.disableSignup,
     enableMixpanel:
       ENV_CONFIG.enableMixpanel || APPSMITH_FEATURE_CONFIGS.enableMixpanel,
     cloudHosting:

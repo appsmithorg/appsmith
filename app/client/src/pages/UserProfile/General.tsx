@@ -19,9 +19,8 @@ import {
 import { logoutUser, updateUserDetails } from "actions/userActions";
 import UserProfileImagePicker from "./UserProfileImagePicker";
 import { Wrapper, FieldWrapper, LabelWrapper } from "./StyledComponents";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-const { disableLoginForm } = getAppsmithConfigs();
+import { getIsFormLoginEnabled } from "../../ce/selectors/tenantSelectors";
 
 const ForgotPassword = styled.a`
   margin-top: 12px;
@@ -35,6 +34,7 @@ const ForgotPassword = styled.a`
 
 function General() {
   const user = useSelector(getCurrentUser);
+  const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
   const dispatch = useDispatch();
   const forgotPassword = async () => {
     try {
@@ -95,7 +95,7 @@ function General() {
         <div style={{ flexDirection: "column", display: "flex" }}>
           {<Text type={TextType.P1}>{user?.email}</Text>}
 
-          {!disableLoginForm && (
+          {isFormLoginEnabled && (
             <ForgotPassword onClick={forgotPassword}>
               Reset Password
             </ForgotPassword>

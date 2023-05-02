@@ -44,14 +44,17 @@ import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 
 import { getIsSafeRedirectURL } from "utils/helpers";
 import Container from "pages/UserAuth/Container";
-import { getThirdPartyAuths } from "@appsmith/selectors/tenantSelectors";
+import {
+  getIsFormLoginEnabled,
+  getThirdPartyAuths,
+} from "@appsmith/selectors/tenantSelectors";
 
 declare global {
   interface Window {
     grecaptcha: any;
   }
 }
-const { disableLoginForm, googleRecaptchaSiteKey } = getAppsmithConfigs();
+const { googleRecaptchaSiteKey } = getAppsmithConfigs();
 
 const validate = (values: SignupFormValues) => {
   const errors: SignupFormValues = {};
@@ -76,8 +79,9 @@ type SignUpFormProps = InjectedFormProps<
 
 export function SignUp(props: SignUpFormProps) {
   const history = useHistory();
+  const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
   useEffect(() => {
-    if (disableLoginForm) {
+    if (!isFormLoginEnabled) {
       const search = new URL(window.location.href)?.searchParams?.toString();
       history.replace({
         pathname: AUTH_LOGIN_URL,
@@ -168,7 +172,7 @@ export function SignUp(props: SignUpFormProps) {
       {socialLoginList.length > 0 && (
         <ThirdPartyAuth logins={socialLoginList} type={"SIGNUP"} />
       )}
-      {!disableLoginForm && (
+      {isFormLoginEnabled && (
         <SpacedSubmitForm
           action={signupURL.toString()}
           id="signup-form"
