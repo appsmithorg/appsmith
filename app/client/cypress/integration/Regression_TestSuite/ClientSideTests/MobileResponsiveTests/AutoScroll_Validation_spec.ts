@@ -1,6 +1,7 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
-let theight;
-let twidth;
+import commonlocators from "../../../../locators/commonlocators.json";
+
+let theight: string;
+let twidth: string;
 
 describe("Validating Mobile View related usecases for Autoscroll", function () {
   it("Capture the height/width of autofill widgets in webview", function () {
@@ -24,23 +25,24 @@ describe("Validating Mobile View related usecases for Autoscroll", function () {
     cy.wait(2000);
     cy.get(".t--widget-inputwidgetv2")
       .invoke("css", "height")
-      .then((newheight) => {
+      .then((newheight: string) => {
         theight = newheight;
       });
     cy.get(".t--widget-inputwidgetv2")
       .invoke("css", "width")
-      .then((newwidth) => {
+      .then((newwidth: string) => {
         twidth = newwidth;
       });
   });
 
-  let phones = [
+  let phones: Array<[number, number]> = [
     [390, 844],
     [360, 780],
   ];
-  phones.forEach((phone) => {
+
+  phones.forEach((phone: [number, number]) => {
     it(`${phone} port execution for autoscroll`, function () {
-      if (Cypress._.isArray(phone)) {
+      if (Array.isArray(phone)) {
         cy.viewport(phone[0], phone[1]);
       } else {
         cy.viewport(phone);
@@ -51,14 +53,14 @@ describe("Validating Mobile View related usecases for Autoscroll", function () {
           .eq(i)
           .scrollIntoView()
           .invoke("css", "height")
-          .then((newheight) => {
+          .then((newheight: string) => {
             expect(theight).to.equal(newheight);
           });
         cy.get(".t--widget-inputwidgetv2")
           .eq(i)
           .scrollIntoView()
           .invoke("css", "width")
-          .then((newwidth) => {
+          .then((newwidth: string) => {
             expect(twidth).to.not.equal(newwidth);
           });
       }
