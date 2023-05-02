@@ -71,6 +71,16 @@ const StyledStickyHeader = styled(StickyHeader)<{ isMobile?: boolean }>`
 
 export const TabsWrapper = styled.div`
   padding-top: var(--ads-v2-spaces-4);
+
+  .ads-v2-tabs {
+    height: 100%;
+    overflow: hidden;
+
+    .tab-panel {
+      overflow: auto;
+      height: calc(100% - 76px);
+    }
+  }
 `;
 
 enum TABS {
@@ -232,7 +242,7 @@ export default function Settings() {
             </TabsList>
             {tabArr.map((tab) => {
               return (
-                <TabPanel key={tab.key} value={tab.key}>
+                <TabPanel className="tab-panel" key={tab.key} value={tab.key}>
                   {tab.panelComponent}
                 </TabPanel>
               );
