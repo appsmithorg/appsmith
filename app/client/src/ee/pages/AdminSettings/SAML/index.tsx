@@ -28,8 +28,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getThirdPartyAuths } from "@appsmith/selectors/tenantSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
 
-const { disableLoginForm, enableOidcOAuth, enableSamlOAuth } =
-  getAppsmithConfigs();
+const { disableLoginForm } = getAppsmithConfigs();
 
 export function getSettingLabel(name = "") {
   return name.replace(/-/g, "");
@@ -55,8 +54,8 @@ export function Saml() {
     details?.title || (subCategory ?? category),
   );
   const dispatch = useDispatch();
-  const saved = details?.isConnected ? true : false;
   const socialLoginList = useSelector(getThirdPartyAuths);
+  const isConnected = socialLoginList.includes("saml");
 
   const saveBlocked = () => {
     AnalyticsUtil.logEvent("ADMIN_SETTINGS_ERROR", {
@@ -70,10 +69,7 @@ export function Saml() {
 
   const disconnect = () => {
     const connectedMethodsCount =
-      socialLoginList.length +
-      (disableLoginForm ? 0 : 1) +
-      (enableSamlOAuth ? 1 : 0) +
-      (enableOidcOAuth ? 1 : 0);
+      socialLoginList.length + (disableLoginForm ? 0 : 1);
     if (connectedMethodsCount >= 2) {
       dispatch(fetchSamlMetadata({ isEnabled: false }));
       AnalyticsUtil.logEvent("ADMIN_SETTINGS_DISCONNECT_AUTH_METHOD", {
@@ -95,8 +91,8 @@ export function Saml() {
               <SettingsSubHeader>{details.subText}</SettingsSubHeader>
             )}
           </HeaderWrapper>
-          {!saved && <ReadMetadata />}
-          {saved && (
+          {!isConnected && <ReadMetadata />}
+          {isConnected && (
             <>
               <SamlAuthTest />
               <DisconnectService

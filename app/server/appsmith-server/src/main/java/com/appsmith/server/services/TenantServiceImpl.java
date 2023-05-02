@@ -3,7 +3,6 @@ package com.appsmith.server.services;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.configurations.LicenseConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.LicenseStatus;
 import com.appsmith.server.domains.Tenant;
@@ -15,7 +14,6 @@ import com.appsmith.server.services.ce.TenantServiceCEImpl;
 import com.appsmith.server.solutions.LicenseValidator;
 import org.pf4j.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
@@ -78,6 +76,16 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                 .map(tuple -> {
                     final Tenant dbTenant = tuple.getT1();
                     final Tenant clientTenant = tuple.getT2();
+                    final TenantConfiguration config = clientTenant.getTenantConfiguration();
+
+                    if (org.springframework.util.StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_OIDC_CLIENT_ID"))) {
+                        config.addThirdPartyAuth("oidc");
+                    }
+
+                    if ("true".equals(System.getenv("APPSMITH_SSO_SAML_ENABLED"))) {
+                        config.addThirdPartyAuth("saml");
+                    }
+
                     return getClientPertinentTenant(dbTenant, clientTenant);
                 });
     }

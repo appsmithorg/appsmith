@@ -23,13 +23,10 @@ import { AuthPage } from "./AuthPage";
 import SamlSso from "assets/images/saml.svg";
 import OIDC from "assets/images/oidc.svg";
 import React from "react";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import { OIDC_SIGNUP_SETUP_DOC } from "constants/ThirdPartyConstants";
 import { REDIRECT_URL_FORM } from "@appsmith/constants/forms";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { getThirdPartyAuths } from "@appsmith/selectors/tenantSelectors";
-
-const { enableOidcOAuth, enableSamlOAuth } = getAppsmithConfigs();
 
 const SsoAuth: AdminConfigType = {
   type: SettingCategories.SAML_AUTH,
@@ -39,7 +36,6 @@ const SsoAuth: AdminConfigType = {
   subText:
     "Enable your workspace to sign in with your preferred SAML2 compliant provider.",
   canSave: true,
-  isConnected: enableSamlOAuth,
 };
 
 const OidcAuth: AdminConfigType = {
@@ -50,7 +46,6 @@ const OidcAuth: AdminConfigType = {
   subText:
     "Enable your workspace to sign in with your preferred OIDC compliant provider.",
   canSave: true,
-  isConnected: enableOidcOAuth,
   settings: [
     {
       id: "APPSMITH_OAUTH2_OIDC_READ_MORE",
@@ -189,7 +184,6 @@ export const SamlAuthCallout: AuthMethodType = {
   subText: `Enable your organization to sign in with your preferred SAML2 compliant provider.`,
   image: SamlSso,
   type: "LINK",
-  isConnected: enableSamlOAuth,
 };
 
 export const OidcAuthCallout: AuthMethodType = {
@@ -199,7 +193,6 @@ export const OidcAuthCallout: AuthMethodType = {
   subText: `Enable your organization to sign in with your preferred OIDC compliant provider.`,
   image: OIDC,
   type: "LINK",
-  isConnected: enableOidcOAuth,
 };
 
 const isAirgappedInstance = isAirgapped();
@@ -222,6 +215,10 @@ function AuthMain() {
     socialLoginList.includes("google");
   GithubAuth.isConnected = GithubAuthCallout.isConnected =
     socialLoginList.includes("github");
+  OidcAuth.isConnected = OidcAuthCallout.isConnected =
+    socialLoginList.includes("oidc");
+  SsoAuth.isConnected = SamlAuthCallout.isConnected =
+    socialLoginList.includes("saml");
   return <AuthPage authMethods={AuthMethods} />;
 }
 

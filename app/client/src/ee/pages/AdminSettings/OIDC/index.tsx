@@ -43,8 +43,7 @@ import { getThirdPartyAuths } from "@appsmith/selectors/tenantSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
 
-const { disableLoginForm, enableOidcOAuth, enableSamlOAuth } =
-  getAppsmithConfigs();
+const { disableLoginForm } = getAppsmithConfigs();
 
 type FormProps = {
   settings: Record<string, string>;
@@ -84,6 +83,7 @@ export function OidcSettingsForm(
     ...useSelector(getThirdPartyAuths),
     ...ThirdPartyLoginRegistry.get(),
   ];
+  const isConnected = socialLoginList.includes("oidc");
 
   const onSave = () => {
     if (checkMandatoryFileds()) {
@@ -203,10 +203,7 @@ export function OidcSettingsForm(
   const disconnect = (currentSettings: AdminConfig) => {
     const updatedSettings: any = {};
     const connectedMethodsCount =
-      socialLoginList.length +
-      (disableLoginForm ? 0 : 1) +
-      (enableOidcOAuth ? 1 : 0) +
-      (enableSamlOAuth ? 1 : 0);
+      socialLoginList.length + (disableLoginForm ? 0 : 1);
     if (connectedMethodsCount >= 2) {
       _.forEach(currentSettings, (setting: Setting) => {
         if (
@@ -265,7 +262,7 @@ export function OidcSettingsForm(
               valid={props.valid}
             />
           )}
-          {details?.isConnected && (
+          {isConnected && (
             <DisconnectService
               disconnect={() => disconnect(settingsDetails)}
               subHeader={createMessage(DISCONNECT_SERVICE_SUBHEADER)}
