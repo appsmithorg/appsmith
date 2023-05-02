@@ -8,6 +8,7 @@ import type {
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
+  WidgetHeightLimits,
 } from "constants/WidgetConstants";
 import type {
   CanvasWidgetsReduxState,
@@ -102,6 +103,12 @@ export function updateWidgetPositions(
     } else if (parent.children?.length) {
       // calculate the total height required by all widgets.
       height = getHeightOfFixedCanvas(widgets, parent, isMobile, metaProps);
+    } else if (
+      parent.type === "CANVAS_WIDGET" &&
+      parent.parentId &&
+      widgets[parent.parentId].type === "TABS_WIDGET"
+    ) {
+      height = WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS;
     } else return widgets;
 
     const divisor = parent.parentRowSpace === 1 ? 10 : 1;
