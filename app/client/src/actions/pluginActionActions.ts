@@ -95,6 +95,12 @@ export const runAction = (id: string, paginationField?: PaginationField) => {
   };
 };
 
+export const softRefreshActions = () => {
+  return {
+    type: ReduxActionTypes.PLUGIN_SOFT_REFRESH,
+  };
+};
+
 export const showActionConfirmationModal = (payload: ModalInfo) => {
   return {
     type: ReduxActionTypes.SHOW_ACTION_MODAL,

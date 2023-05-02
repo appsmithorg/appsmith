@@ -101,6 +101,7 @@ import EmbedSnippetForm from "@appsmith/pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { softRefreshActions } from "actions/pluginActionActions";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -302,6 +303,10 @@ export function EditorHeader(props: EditorHeaderProps) {
     }
   };
 
+  const refreshApplication = () => {
+    dispatch(softRefreshActions());
+  };
+
   const updateApplicationDispatch = (
     id: string,
     data: { name: string; currentApp: boolean },
@@ -487,6 +492,15 @@ export function EditorHeader(props: EditorHeaderProps) {
             alternative={<EndTour />}
             step={GUIDED_TOUR_STEPS.BUTTON_ONSUCCESS_BINDING}
           >
+            <Button
+              category={Category.secondary}
+              icon={"switch"}
+              iconPosition={IconPositions.left}
+              onClick={refreshApplication}
+              size={Size.medium}
+              tag={"button"}
+              text={"Switch"}
+            />
             <RealtimeAppEditors applicationId={applicationId} />
             <ToggleModeButton />
             {applicationId && (
