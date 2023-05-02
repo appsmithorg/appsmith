@@ -76,13 +76,8 @@ interface ReduxStateProps {
   initialValue: Datasource | undefined;
 }
 
-interface DatasourcEditorProps {
-  datasourceDeleteTrigger: () => void;
-}
-
 type Props = ReduxStateProps &
   DatasourcePaneFunctions &
-  DatasourcEditorProps &
   RouteComponentProps<{
     datasourceId: string;
     pageId: string;
@@ -103,98 +98,6 @@ type State = {
   unblock(): void;
   navigation(): void;
 };
-
-class DataSourceEditor extends React.Component<Props> {
-  componentDidUpdate(prevProps: Props) {
-    //Fix to prevent restapi datasource from being set in DatasourceDBForm in view mode
-    //TODO: Needs cleanup
-    if (
-      this.props.pluginDatasourceForm !== "RestAPIDatasourceForm" &&
-      this.props.datasourceId &&
-      this.props.datasourceId !== prevProps.datasourceId
-    ) {
-      this.props.switchDatasource(this.props.datasourceId);
-    }
-  }
-
-  componentDidMount() {
-    //Fix to prevent restapi datasource from being set in DatasourceDBForm in datasource view mode
-    //TODO: Needs cleanup
-    if (
-      this.props.datasourceId &&
-      this.props.pluginDatasourceForm !== "RestAPIDatasourceForm"
-    ) {
-      this.props.switchDatasource(this.props.datasourceId);
-    }
-
-    if (
-      this.props.pluginDatasourceForm === "RestAPIDatasourceForm" &&
-      this.props.location
-    ) {
-      const search = new URLSearchParams(this.props.location.search);
-      const responseStatus = search.get("response_status");
-      const responseMessage = search.get("display_message");
-      if (responseStatus) {
-        // Set default error message
-        let message = REST_API_AUTHORIZATION_FAILED;
-        let variant = Variant.danger;
-        if (responseStatus === "success") {
-          message = REST_API_AUTHORIZATION_SUCCESSFUL;
-          variant = Variant.success;
-        } else if (responseStatus === "appsmith_error") {
-          message = REST_API_AUTHORIZATION_APPSMITH_ERROR;
-        }
-        Toaster.show({
-          text: responseMessage || createMessage(message),
-          variant,
-        });
-      }
-    }
-  }
-
-  render() {
-    const {
-      datasourceDeleteTrigger,
-      datasourceId,
-      formConfig,
-      formData,
-      fromImporting,
-      isDeleting,
-      isFormDirty,
-      isNewDatasource,
-      isSaving,
-      isTesting,
-      pageId,
-      pluginId,
-      pluginImages,
-      pluginType,
-      setDatasourceViewMode,
-      viewMode,
-    } = this.props;
-
-    return (
-      <DataSourceEditorForm
-        applicationId={this.props.applicationId}
-        datasourceDeleteTrigger={datasourceDeleteTrigger}
-        datasourceId={datasourceId}
-        formConfig={formConfig}
-        formData={formData}
-        formName={DATASOURCE_DB_FORM}
-        hiddenHeader={fromImporting}
-        isDeleting={isDeleting}
-        isFormDirty={isFormDirty}
-        isNewDatasource={isNewDatasource}
-        isSaving={isSaving}
-        isTesting={isTesting}
-        pageId={pageId}
-        pluginImage={pluginImages[pluginId]}
-        pluginType={pluginType}
-        setDatasourceViewMode={setDatasourceViewMode}
-        viewMode={viewMode && !fromImporting}
-      />
-    );
-  }
-}
 
 export interface DatasourcePaneFunctions {
   switchDatasource: (id: string) => void;
@@ -225,10 +128,19 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     this.closeDialog = this.closeDialog.bind(this);
     this.onSave = this.onSave.bind(this);
     this.onDiscard = this.onDiscard.bind(this);
-    this.datasourceDeleteTrigger = this.datasourceDeleteTrigger.bind(this);
   }
 
   componentDidUpdate(prevProps: Props) {
+    //Fix to prevent restapi datasource from being set in DatasourceDBForm in view mode
+    if (
+      this.props.pluginDatasourceForm !==
+        DatasourceComponentTypes.RestAPIDatasourceForm &&
+      this.props.datasourceId &&
+      this.props.datasourceId !== prevProps.datasourceId
+    ) {
+      this.props.switchDatasource(this.props.datasourceId);
+    }
+
     // update block state when form becomes dirty/view mode is switched on
     if (prevProps.viewMode !== this.props.viewMode && !this.props.viewMode) {
       this.blockRoutes();
@@ -263,15 +175,52 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         pluginId,
       });
     }
+
     if (!this.props.viewMode) {
       this.blockRoutes();
     }
 
+    // In case of Rest API forms, we need to set view mode from query params
     if (
       this.props.pluginDatasourceForm ===
       DatasourceComponentTypes.RestAPIDatasourceForm
     ) {
       this.setViewModeFromQueryParams();
+    }
+
+    //Fix to prevent restapi datasource from being set in DatasourceDBForm in datasource view mode
+    //TODO: Needs cleanup
+    if (
+      this.props.datasourceId &&
+      this.props.pluginDatasourceForm !==
+        DatasourceComponentTypes.RestAPIDatasourceForm
+    ) {
+      this.props.switchDatasource(this.props.datasourceId);
+    }
+
+    if (
+      this.props.pluginDatasourceForm ===
+        DatasourceComponentTypes.RestAPIDatasourceForm &&
+      this.props.location
+    ) {
+      const search = new URLSearchParams(this.props.location.search);
+      const responseStatus = search.get("response_status");
+      const responseMessage = search.get("display_message");
+      if (responseStatus) {
+        // Set default error message
+        let message = REST_API_AUTHORIZATION_FAILED;
+        let variant = Variant.danger;
+        if (responseStatus === "success") {
+          message = REST_API_AUTHORIZATION_SUCCESSFUL;
+          variant = Variant.success;
+        } else if (responseStatus === "appsmith_error") {
+          message = REST_API_AUTHORIZATION_APPSMITH_ERROR;
+        }
+        Toaster.show({
+          text: responseMessage || createMessage(message),
+          variant,
+        });
+      }
     }
   }
 
@@ -397,12 +346,15 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
   render() {
     const {
       datasourceId,
+      formConfig,
+      formData,
       fromImporting,
       history,
       isDeleting,
       isFormDirty,
       isNewDatasource,
       isSaving,
+      isTesting,
       location,
       pageId,
       pluginDatasourceForm,
@@ -410,6 +362,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       pluginImages,
       pluginPackageName,
       pluginType,
+      setDatasourceViewMode,
       viewMode,
     } = this.props;
 
@@ -419,7 +372,10 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
 
     const shouldViewMode = viewMode && !fromImporting;
     // Check for specific form types first
-    if (pluginDatasourceForm === "RestAPIDatasourceForm" && !shouldViewMode) {
+    if (
+      pluginDatasourceForm === DatasourceComponentTypes.RestAPIDatasourceForm &&
+      !shouldViewMode
+    ) {
       return (
         <>
           <RestAPIDatasourceForm
@@ -463,15 +419,27 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       return null;
     }
 
-    // Default to old flow
-    // Todo: later refactor to make this "AutoForm"
+    // Default to DB Editor Form
     return (
       <>
-        <DataSourceEditor
-          {...this.props}
+        <DataSourceEditorForm
+          applicationId={this.props.applicationId}
           datasourceDeleteTrigger={this.datasourceDeleteTrigger}
           datasourceId={datasourceId}
+          formConfig={formConfig}
+          formData={formData}
+          formName={DATASOURCE_DB_FORM}
+          hiddenHeader={fromImporting}
+          isDeleting={isDeleting}
+          isFormDirty={isFormDirty}
+          isNewDatasource={isNewDatasource}
+          isSaving={isSaving}
+          isTesting={isTesting}
           pageId={pageId}
+          pluginImage={pluginImages[pluginId]}
+          pluginType={pluginType}
+          setDatasourceViewMode={setDatasourceViewMode}
+          viewMode={viewMode && !fromImporting}
         />
         {this.renderSaveDisacardModal()}
       </>
