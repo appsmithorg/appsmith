@@ -255,12 +255,15 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     }
     let updatedWidgetsAfterResizing = movedWidgets;
     if (appPositioningType === AppPositioningTypes.AUTO) {
+      const metaProps: Record<string, any> = yield select(getWidgetsMeta);
       updatedWidgetsAfterResizing = updatePositionsOfParentAndSiblings(
         movedWidgets,
         parentId,
         getLayerIndexOfWidget(widgets[parentId]?.flexLayers, widgetId),
         isMobile,
         mainCanvasWidth,
+        false,
+        metaProps,
       );
     }
     log.debug("resize computations took", performance.now() - start, "ms");
@@ -1749,6 +1752,9 @@ function* pasteWidgetSaga(
                   !flexLayers ||
                   flexLayers.length <= 0)
               ) {
+                const metaProps: Record<string, any> = yield select(
+                  getWidgetsMeta,
+                );
                 if (widget.widgetId === widgetIdMap[copiedWidget.widgetId])
                   widgets = pasteWidgetInFlexLayers(
                     widgets,
@@ -1757,6 +1763,7 @@ function* pasteWidgetSaga(
                     reverseWidgetIdMap[widget.widgetId],
                     isMobile,
                     mainCanvasWidth,
+                    metaProps,
                   );
                 else if (widget.type !== "CANVAS_WIDGET")
                   widgets = addChildToPastedFlexLayers(
@@ -1765,6 +1772,7 @@ function* pasteWidgetSaga(
                     widgetIdMap,
                     isMobile,
                     mainCanvasWidth,
+                    metaProps,
                   );
               }
             }

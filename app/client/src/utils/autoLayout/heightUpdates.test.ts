@@ -89,19 +89,26 @@ describe("auto layout: heightUpdates", () => {
     expect(Math.round(updatedWidgets["2"].bottomRow)).toBe(11);
 
     // Remove the button
-    delete data2["5"];
-    data2["3"].children = ["4"];
-    data2["3"].flexLayers = [
-      {
-        children: [
+    const data3 = {
+      "0": data["0"],
+      "2": data["2"],
+      "3": {
+        ...data["3"],
+        children: ["4"],
+        flexLayers: [
           {
-            id: "4",
-            align: "start",
+            children: [
+              {
+                id: "4",
+                align: "start",
+              },
+            ],
           },
         ],
       },
-    ];
-    updatedWidgets = updateWidgetPositions(data2, "3", false, 4896);
+      "4": data["4"],
+    };
+    updatedWidgets = updateWidgetPositions(data3, "3", false, 4896);
     expect(updatedWidgets["2"].bottomRow).toBe(6);
   });
 });

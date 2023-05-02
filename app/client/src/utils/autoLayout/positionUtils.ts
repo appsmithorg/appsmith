@@ -33,7 +33,10 @@ import { getCanvasDimensions } from "./AutoLayoutUtils";
 import WidgetFactory from "utils/WidgetFactory";
 import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 import { isFunction } from "lodash";
-import { shouldUpdateParentHeight } from "./heightUpdateUtils";
+import {
+  getComputedHeight,
+  shouldUpdateParentHeight,
+} from "./heightUpdateUtils";
 
 /**
  * Calculate widget position on canvas.
@@ -49,6 +52,7 @@ export function updateWidgetPositions(
   isMobile = false,
   mainCanvasWidth: number,
   firstTimeDSLUpdate = false,
+  metaProps?: Record<string, any>,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   try {
@@ -97,15 +101,13 @@ export function updateWidgetPositions(
       height -= rowGap;
     } else if (parent.children?.length) {
       // calculate the total height required by all widgets.
-      height = getHeightOfFixedCanvas(widgets, parent, isMobile);
+      height = getHeightOfFixedCanvas(widgets, parent, isMobile, metaProps);
     } else return widgets;
 
     const divisor = parent.parentRowSpace === 1 ? 10 : 1;
-    // padding is 2 to respect padding on top and bottom(WIDGET_PADDING + CONTAINER_PADDING)
-    // ToDo: use getCanvasHeightOffset to weigh in offset values as well.
-    const paddingBufferForCanvas = parent.parentRowSpace === 1 ? 2 : 0;
+
     const parentHeight = getWidgetRows(parent, isMobile);
-    const computedHeight = height + paddingBufferForCanvas;
+    const computedHeight: number = getComputedHeight(parent, height);
     if (
       shouldUpdateParentHeight(widgets, parent, computedHeight, parentHeight)
     ) {
@@ -696,10 +698,26 @@ function getHeightOfFixedCanvas(
   widgets: CanvasWidgetsReduxState,
   parent: FlattenedWidgetProps,
   isMobile: boolean,
+  metaProps?: Record<string, any>,
 ): number {
   if (!parent.children || !parent.children.length)
     return getWidgetRows(parent, isMobile);
-  return getTotalRowsOfAllChildren(widgets, parent.children, isMobile);
+  let children: string[] = parent?.children;
+
+  /**
+   * If the parent is a tabs widget,
+   * then we need to get the selected tab widget id
+   */
+  if (parent.type === "TABS_WIDGET") {
+    if (
+      metaProps &&
+      metaProps[parent.widgetId] &&
+      metaProps[parent.widgetId]?.selectedTabWidgetId
+    ) {
+      children = [metaProps[parent.widgetId]?.selectedTabWidgetId];
+    } else children = [parent.children[0]];
+  }
+  return getTotalRowsOfAllChildren(widgets, children, isMobile);
 }
 
 export function getTotalRowsOfAllChildren(
@@ -728,6 +746,8 @@ export function getTotalRowsOfAllChildren(
  * @param layerIndex | number: layer index of the affected flex layer.
  * @param isMobile | boolean: is mobile viewport.
  * @param mainCanvasWidth | number: width of the main canvas.
+ * @param firstTimeDSLUpdate | boolean: is this the first time DSL is being updated.
+ * @param metaProps | Record<string, any>: meta props of the widget.
  * @returns CanvasWidgetsReduxState
  */
 export function updatePositionsOfParentAndSiblings(
@@ -737,6 +757,7 @@ export function updatePositionsOfParentAndSiblings(
   isMobile: boolean,
   mainCanvasWidth: number,
   firstTimeDSLUpdate = false,
+  metaProps?: Record<string, any>,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   const parent = widgets[parentId];
@@ -771,6 +792,7 @@ export function updatePositionsOfParentAndSiblings(
       isMobile,
       mainCanvasWidth,
       firstTimeDSLUpdate,
+      metaProps,
     );
   }
 
