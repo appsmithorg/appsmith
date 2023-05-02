@@ -127,6 +127,9 @@ import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION
 import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_REQUEST_PARSING;
 import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_SERVER_EXECUTION;
 import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_VALIDATE_AUTHENTICATION;
+import static com.appsmith.external.constants.spans.ActionSpans.GET_ACTION_REPOSITORY_CALL;
+import static com.appsmith.external.constants.spans.ActionSpans.GET_UNPUBLISHED_ACTION;
+import static com.appsmith.external.constants.spans.ActionSpans.GET_VIEW_MODE_ACTION;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
@@ -1516,14 +1519,16 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     return Mono.just(action);
                 })
                 .collectList()
-                .flatMapMany(this::sanitizeListOfActions);
+                .flatMapMany(this::addMissingPluginDetailsIntoAllActions);
     }
 
     @Override
     public Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String branchName) {
         return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getReadPermission())
                 .flatMapMany(this::getActionsForViewMode)
-                .map(responseUtils::updateActionViewDTOWithDefaultResources);
+                .map(responseUtils::updateActionViewDTOWithDefaultResources)
+                .name(GET_VIEW_MODE_ACTION)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     @Override
@@ -1760,10 +1765,13 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         }
 
         return actionsFromRepository
-//                .flatMap(this:: sanitizeAction)
                 .collectList()
-                .flatMapMany(this::sanitizeListOfActions)
-                .flatMap(this::setTransientFieldsInUnpublishedAction);
+                .flatMapMany(this::addMissingPluginDetailsIntoAllActions)
+                .flatMap(this::setTransientFieldsInUnpublishedAction)
+                // this generates four different tags, (ApplicationId, FieldId) *(True, False)
+                .tag("includeJsAction", (params.get(FieldName.APPLICATION_ID) == null ? FieldName.PAGE_ID: FieldName.APPLICATION_ID )+ includeJsActions.toString())
+                .name(GET_ACTION_REPOSITORY_CALL)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     @Override
@@ -1814,7 +1822,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params, String branchName) {
         return this.getUnpublishedActions(params, branchName, FALSE)
-                .filter(actionDTO -> !PluginType.JS.equals(actionDTO.getPluginType()));
+                .name(GET_UNPUBLISHED_ACTION)
+                .tap(Micrometer.observation(observationRegistry));
+//                .filter(actionDTO -> !PluginType.JS.equals(actionDTO.getPluginType()));
     }
 
     /**
@@ -1835,7 +1845,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return actionMono;
     }
 
-    public Flux<NewAction> sanitizeListOfActions(List<NewAction> actionList) {
+    public Flux<NewAction> addMissingPluginDetailsIntoAllActions(List<NewAction> actionList) {
 
         Mono<Map<String, Plugin>> pluginMapMono = Mono.just(defaultPluginMap);
 
