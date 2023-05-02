@@ -31,10 +31,6 @@ const svgImportsMap: IconMapType = {
     16: () => import("assets/icons/blueprintjs/16px/add.svg"),
     20: () => import("assets/icons/blueprintjs/20px/add.svg"),
   },
-  "add-clip": {
-    16: () => import("assets/icons/blueprintjs/16px/add-clip.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/add-clip.svg"),
-  },
   "add-column-left": {
     16: () => import("assets/icons/blueprintjs/16px/add-column-left.svg"),
     20: () => import("assets/icons/blueprintjs/20px/add-column-left.svg"),
@@ -42,10 +38,6 @@ const svgImportsMap: IconMapType = {
   "add-column-right": {
     16: () => import("assets/icons/blueprintjs/16px/add-column-right.svg"),
     20: () => import("assets/icons/blueprintjs/20px/add-column-right.svg"),
-  },
-  "add-location": {
-    16: () => import("assets/icons/blueprintjs/16px/add-location.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/add-location.svg"),
   },
   "add-row-bottom": {
     16: () => import("assets/icons/blueprintjs/16px/add-row-bottom.svg"),
@@ -115,10 +107,6 @@ const svgImportsMap: IconMapType = {
     16: () => import("assets/icons/blueprintjs/16px/annotation.svg"),
     20: () => import("assets/icons/blueprintjs/20px/annotation.svg"),
   },
-  antenna: {
-    16: () => import("assets/icons/blueprintjs/16px/antenna.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/antenna.svg"),
-  },
   "app-header": {
     16: () => import("assets/icons/blueprintjs/16px/app-header.svg"),
     20: () => import("assets/icons/blueprintjs/20px/app-header.svg"),
@@ -134,10 +122,6 @@ const svgImportsMap: IconMapType = {
   archive: {
     16: () => import("assets/icons/blueprintjs/16px/archive.svg"),
     20: () => import("assets/icons/blueprintjs/20px/archive.svg"),
-  },
-  "area-of-interest": {
-    16: () => import("assets/icons/blueprintjs/16px/area-of-interest.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/area-of-interest.svg"),
   },
   array: {
     16: () => import("assets/icons/blueprintjs/16px/array.svg"),
@@ -263,10 +247,6 @@ const svgImportsMap: IconMapType = {
     16: () => import("assets/icons/blueprintjs/16px/bring-data.svg"),
     20: () => import("assets/icons/blueprintjs/20px/bring-data.svg"),
   },
-  buggy: {
-    16: () => import("assets/icons/blueprintjs/16px/buggy.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/buggy.svg"),
-  },
   build: {
     16: () => import("assets/icons/blueprintjs/16px/build.svg"),
     20: () => import("assets/icons/blueprintjs/20px/build.svg"),
@@ -298,10 +278,6 @@ const svgImportsMap: IconMapType = {
   "caret-up": {
     16: () => import("assets/icons/blueprintjs/16px/caret-up.svg"),
     20: () => import("assets/icons/blueprintjs/20px/caret-up.svg"),
-  },
-  "cargo-ship": {
-    16: () => import("assets/icons/blueprintjs/16px/cargo-ship.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/cargo-ship.svg"),
   },
   "cell-tower": {
     16: () => import("assets/icons/blueprintjs/16px/cell-tower.svg"),
@@ -370,10 +346,6 @@ const svgImportsMap: IconMapType = {
   clean: {
     16: () => import("assets/icons/blueprintjs/16px/clean.svg"),
     20: () => import("assets/icons/blueprintjs/20px/clean.svg"),
-  },
-  clip: {
-    16: () => import("assets/icons/blueprintjs/16px/clip.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/clip.svg"),
   },
   clipboard: {
     16: () => import("assets/icons/blueprintjs/16px/clipboard.svg"),
@@ -630,10 +602,6 @@ const svgImportsMap: IconMapType = {
   eject: {
     16: () => import("assets/icons/blueprintjs/16px/eject.svg"),
     20: () => import("assets/icons/blueprintjs/20px/eject.svg"),
-  },
-  emoji: {
-    16: () => import("assets/icons/blueprintjs/16px/emoji.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/emoji.svg"),
   },
   endorsed: {
     16: () => import("assets/icons/blueprintjs/16px/endorsed.svg"),
@@ -945,10 +913,6 @@ const svgImportsMap: IconMapType = {
     16: () => import("assets/icons/blueprintjs/16px/header-one.svg"),
     20: () => import("assets/icons/blueprintjs/20px/header-one.svg"),
   },
-  "header-three": {
-    16: () => import("assets/icons/blueprintjs/16px/header-three.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/header-three.svg"),
-  },
   "header-two": {
     16: () => import("assets/icons/blueprintjs/16px/header-two.svg"),
     20: () => import("assets/icons/blueprintjs/20px/header-two.svg"),
@@ -973,10 +937,6 @@ const svgImportsMap: IconMapType = {
     16: () => import("assets/icons/blueprintjs/16px/heatmap.svg"),
     20: () => import("assets/icons/blueprintjs/20px/heatmap.svg"),
   },
-  helicopter: {
-    16: () => import("assets/icons/blueprintjs/16px/helicopter.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/helicopter.svg"),
-  },
   help: {
     16: () => import("assets/icons/blueprintjs/16px/help.svg"),
     20: () => import("assets/icons/blueprintjs/20px/help.svg"),
@@ -984,10 +944,6 @@ const svgImportsMap: IconMapType = {
   "helper-management": {
     16: () => import("assets/icons/blueprintjs/16px/helper-management.svg"),
     20: () => import("assets/icons/blueprintjs/20px/helper-management.svg"),
-  },
-  "high-priority": {
-    16: () => import("assets/icons/blueprintjs/16px/high-priority.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/high-priority.svg"),
   },
   highlight: {
     16: () => import("assets/icons/blueprintjs/16px/highlight.svg"),
@@ -1022,10 +978,6 @@ const svgImportsMap: IconMapType = {
       import("assets/icons/blueprintjs/16px/horizontal-distribution.svg"),
     20: () =>
       import("assets/icons/blueprintjs/20px/horizontal-distribution.svg"),
-  },
-  hurricane: {
-    16: () => import("assets/icons/blueprintjs/16px/hurricane.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/hurricane.svg"),
   },
   "id-number": {
     16: () => import("assets/icons/blueprintjs/16px/id-number.svg"),
@@ -1167,10 +1119,6 @@ const svgImportsMap: IconMapType = {
     16: () => import("assets/icons/blueprintjs/16px/layer.svg"),
     20: () => import("assets/icons/blueprintjs/20px/layer.svg"),
   },
-  "layer-outline": {
-    16: () => import("assets/icons/blueprintjs/16px/layer-outline.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/layer-outline.svg"),
-  },
   layers: {
     16: () => import("assets/icons/blueprintjs/16px/layers.svg"),
     20: () => import("assets/icons/blueprintjs/20px/layers.svg"),
@@ -1241,10 +1189,6 @@ const svgImportsMap: IconMapType = {
     16: () => import("assets/icons/blueprintjs/16px/lightbulb.svg"),
     20: () => import("assets/icons/blueprintjs/20px/lightbulb.svg"),
   },
-  lightning: {
-    16: () => import("assets/icons/blueprintjs/16px/lightning.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/lightning.svg"),
-  },
   link: {
     16: () => import("assets/icons/blueprintjs/16px/link.svg"),
     20: () => import("assets/icons/blueprintjs/20px/link.svg"),
@@ -1284,14 +1228,6 @@ const svgImportsMap: IconMapType = {
   "manually-entered-data": {
     16: () => import("assets/icons/blueprintjs/16px/manually-entered-data.svg"),
     20: () => import("assets/icons/blueprintjs/20px/manually-entered-data.svg"),
-  },
-  "many-to-many": {
-    16: () => import("assets/icons/blueprintjs/16px/many-to-many.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/many-to-many.svg"),
-  },
-  "many-to-one": {
-    16: () => import("assets/icons/blueprintjs/16px/many-to-one.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/many-to-one.svg"),
   },
   map: {
     16: () => import("assets/icons/blueprintjs/16px/map.svg"),
@@ -1385,10 +1321,6 @@ const svgImportsMap: IconMapType = {
     16: () => import("assets/icons/blueprintjs/16px/music.svg"),
     20: () => import("assets/icons/blueprintjs/20px/music.svg"),
   },
-  nest: {
-    16: () => import("assets/icons/blueprintjs/16px/nest.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/nest.svg"),
-  },
   "new-drawing": {
     16: () => import("assets/icons/blueprintjs/16px/new-drawing.svg"),
     20: () => import("assets/icons/blueprintjs/20px/new-drawing.svg"),
@@ -1437,10 +1369,6 @@ const svgImportsMap: IconMapType = {
     16: () => import("assets/icons/blueprintjs/16px/notifications.svg"),
     20: () => import("assets/icons/blueprintjs/20px/notifications.svg"),
   },
-  "notifications-snooze": {
-    16: () => import("assets/icons/blueprintjs/16px/notifications-snooze.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/notifications-snooze.svg"),
-  },
   "notifications-updated": {
     16: () => import("assets/icons/blueprintjs/16px/notifications-updated.svg"),
     20: () => import("assets/icons/blueprintjs/20px/notifications-updated.svg"),
@@ -1468,14 +1396,6 @@ const svgImportsMap: IconMapType = {
   "one-column": {
     16: () => import("assets/icons/blueprintjs/16px/one-column.svg"),
     20: () => import("assets/icons/blueprintjs/20px/one-column.svg"),
-  },
-  "one-to-many": {
-    16: () => import("assets/icons/blueprintjs/16px/one-to-many.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/one-to-many.svg"),
-  },
-  "one-to-one": {
-    16: () => import("assets/icons/blueprintjs/16px/one-to-one.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/one-to-one.svg"),
   },
   outdated: {
     16: () => import("assets/icons/blueprintjs/16px/outdated.svg"),
@@ -1597,10 +1517,6 @@ const svgImportsMap: IconMapType = {
     16: () => import("assets/icons/blueprintjs/16px/pulse.svg"),
     20: () => import("assets/icons/blueprintjs/20px/pulse.svg"),
   },
-  rain: {
-    16: () => import("assets/icons/blueprintjs/16px/rain.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/rain.svg"),
-  },
   random: {
     16: () => import("assets/icons/blueprintjs/16px/random.svg"),
     20: () => import("assets/icons/blueprintjs/20px/random.svg"),
@@ -1608,10 +1524,6 @@ const svgImportsMap: IconMapType = {
   record: {
     16: () => import("assets/icons/blueprintjs/16px/record.svg"),
     20: () => import("assets/icons/blueprintjs/20px/record.svg"),
-  },
-  rectangle: {
-    16: () => import("assets/icons/blueprintjs/16px/rectangle.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/rectangle.svg"),
   },
   redo: {
     16: () => import("assets/icons/blueprintjs/16px/redo.svg"),
@@ -1672,14 +1584,6 @@ const svgImportsMap: IconMapType = {
   ring: {
     16: () => import("assets/icons/blueprintjs/16px/ring.svg"),
     20: () => import("assets/icons/blueprintjs/20px/ring.svg"),
-  },
-  rocket: {
-    16: () => import("assets/icons/blueprintjs/16px/rocket.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/rocket.svg"),
-  },
-  "rocket-slant": {
-    16: () => import("assets/icons/blueprintjs/16px/rocket-slant.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/rocket-slant.svg"),
   },
   "rotate-document": {
     16: () => import("assets/icons/blueprintjs/16px/rotate-document.svg"),
@@ -1773,25 +1677,13 @@ const svgImportsMap: IconMapType = {
     16: () => import("assets/icons/blueprintjs/16px/settings.svg"),
     20: () => import("assets/icons/blueprintjs/20px/settings.svg"),
   },
-  shapes: {
-    16: () => import("assets/icons/blueprintjs/16px/shapes.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/shapes.svg"),
-  },
   share: {
     16: () => import("assets/icons/blueprintjs/16px/share.svg"),
     20: () => import("assets/icons/blueprintjs/20px/share.svg"),
   },
-  "shared-filter": {
-    16: () => import("assets/icons/blueprintjs/16px/shared-filter.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/shared-filter.svg"),
-  },
   shield: {
     16: () => import("assets/icons/blueprintjs/16px/shield.svg"),
     20: () => import("assets/icons/blueprintjs/20px/shield.svg"),
-  },
-  ship: {
-    16: () => import("assets/icons/blueprintjs/16px/ship.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/ship.svg"),
   },
   shop: {
     16: () => import("assets/icons/blueprintjs/16px/shop.svg"),
@@ -1824,10 +1716,6 @@ const svgImportsMap: IconMapType = {
   "small-plus": {
     16: () => import("assets/icons/blueprintjs/16px/small-plus.svg"),
     20: () => import("assets/icons/blueprintjs/20px/small-plus.svg"),
-  },
-  "small-square": {
-    16: () => import("assets/icons/blueprintjs/16px/small-square.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/small-square.svg"),
   },
   "small-tick": {
     16: () => import("assets/icons/blueprintjs/16px/small-tick.svg"),
@@ -1882,10 +1770,6 @@ const svgImportsMap: IconMapType = {
   "stacked-chart": {
     16: () => import("assets/icons/blueprintjs/16px/stacked-chart.svg"),
     20: () => import("assets/icons/blueprintjs/20px/stacked-chart.svg"),
-  },
-  "stadium-geometry": {
-    16: () => import("assets/icons/blueprintjs/16px/stadium-geometry.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/stadium-geometry.svg"),
   },
   star: {
     16: () => import("assets/icons/blueprintjs/16px/star.svg"),
@@ -1947,10 +1831,6 @@ const svgImportsMap: IconMapType = {
     16: () => import("assets/icons/blueprintjs/16px/symbol-diamond.svg"),
     20: () => import("assets/icons/blueprintjs/20px/symbol-diamond.svg"),
   },
-  "symbol-rectangle": {
-    16: () => import("assets/icons/blueprintjs/16px/symbol-rectangle.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/symbol-rectangle.svg"),
-  },
   "symbol-square": {
     16: () => import("assets/icons/blueprintjs/16px/symbol-square.svg"),
     20: () => import("assets/icons/blueprintjs/20px/symbol-square.svg"),
@@ -1963,10 +1843,6 @@ const svgImportsMap: IconMapType = {
     16: () => import("assets/icons/blueprintjs/16px/symbol-triangle-up.svg"),
     20: () => import("assets/icons/blueprintjs/20px/symbol-triangle-up.svg"),
   },
-  syringe: {
-    16: () => import("assets/icons/blueprintjs/16px/syringe.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/syringe.svg"),
-  },
   tag: {
     16: () => import("assets/icons/blueprintjs/16px/tag.svg"),
     20: () => import("assets/icons/blueprintjs/20px/tag.svg"),
@@ -1975,21 +1851,9 @@ const svgImportsMap: IconMapType = {
     16: () => import("assets/icons/blueprintjs/16px/take-action.svg"),
     20: () => import("assets/icons/blueprintjs/20px/take-action.svg"),
   },
-  tank: {
-    16: () => import("assets/icons/blueprintjs/16px/tank.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/tank.svg"),
-  },
-  target: {
-    16: () => import("assets/icons/blueprintjs/16px/target.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/target.svg"),
-  },
   taxi: {
     16: () => import("assets/icons/blueprintjs/16px/taxi.svg"),
     20: () => import("assets/icons/blueprintjs/20px/taxi.svg"),
-  },
-  temperature: {
-    16: () => import("assets/icons/blueprintjs/16px/temperature.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/temperature.svg"),
   },
   "text-highlight": {
     16: () => import("assets/icons/blueprintjs/16px/text-highlight.svg"),
@@ -2014,10 +1878,6 @@ const svgImportsMap: IconMapType = {
   "th-list": {
     16: () => import("assets/icons/blueprintjs/16px/th-list.svg"),
     20: () => import("assets/icons/blueprintjs/20px/th-list.svg"),
-  },
-  "third-party": {
-    16: () => import("assets/icons/blueprintjs/16px/third-party.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/third-party.svg"),
   },
   "thumbs-down": {
     16: () => import("assets/icons/blueprintjs/16px/thumbs-down.svg"),
@@ -2195,10 +2055,6 @@ const svgImportsMap: IconMapType = {
     16: () => import("assets/icons/blueprintjs/16px/waterfall-chart.svg"),
     20: () => import("assets/icons/blueprintjs/20px/waterfall-chart.svg"),
   },
-  waves: {
-    16: () => import("assets/icons/blueprintjs/16px/waves.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/waves.svg"),
-  },
   widget: {
     16: () => import("assets/icons/blueprintjs/16px/widget.svg"),
     20: () => import("assets/icons/blueprintjs/20px/widget.svg"),
@@ -2214,10 +2070,6 @@ const svgImportsMap: IconMapType = {
   "widget-header": {
     16: () => import("assets/icons/blueprintjs/16px/widget-header.svg"),
     20: () => import("assets/icons/blueprintjs/20px/widget-header.svg"),
-  },
-  wind: {
-    16: () => import("assets/icons/blueprintjs/16px/wind.svg"),
-    20: () => import("assets/icons/blueprintjs/20px/wind.svg"),
   },
   wrench: {
     16: () => import("assets/icons/blueprintjs/16px/wrench.svg"),

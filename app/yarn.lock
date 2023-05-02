@@ -1908,13 +1908,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@blueprintjs/icons@npm:^3.10.0, @blueprintjs/icons@npm:^3.27.0, @blueprintjs/icons@npm:^3.33.0":
-  version: 3.33.0
-  resolution: "@blueprintjs/icons@npm:3.33.0"
+"@blueprintjs/icons@npm:3.22.0":
+  version: 3.22.0
+  resolution: "@blueprintjs/icons@npm:3.22.0"
   dependencies:
     classnames: ^2.2
-    tslib: ~2.3.1
-  checksum: 9b1485a3ce17a97596b7fa7276ddbe85e33c56f061358351a626d353bf3eab6ab1b36a1860aec2feb7933ef0293c5f8e1f3342a89051720d1953343aab753cb3
+    tslib: ~1.13.0
+  checksum: cb7c6bf0c05836a7658d0531e2bbcfa45b4673ad0e7fba6c344240cc9d1ff10aaf0b5a22ab51d546b1d99b95dc30383f1b24dd2194998d9727e1f5cb9b68999c
   languageName: node
   linkType: hard
 
@@ -8779,7 +8779,7 @@ __metadata:
     "@babel/helper-string-parser": ^7.19.4
     "@blueprintjs/core": ^3.43.0
     "@blueprintjs/datetime": ^3.23.6
-    "@blueprintjs/icons": ^3.10.0
+    "@blueprintjs/icons": 3.22.0
     "@blueprintjs/popover2": ^0.5.0
     "@blueprintjs/select": ^3.10.0
     "@craco/craco": ^7.0.0

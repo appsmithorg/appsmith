@@ -28,7 +28,8 @@
     "webpack": "5.76.0",
     "@blueprintjs/core@^3.43.0": "patch:@blueprintjs/core@npm%3A3.47.0#./.yarn/patches/@blueprintjs-core-npm-3.47.0-a5bc1ea927.patch",
     "@blueprintjs/core@^3.33.0": "patch:@blueprintjs/core@npm%3A3.47.0#./.yarn/patches/@blueprintjs-core-npm-3.47.0-a5bc1ea927.patch",
-    "@blueprintjs/core@^3.47.0": "patch:@blueprintjs/core@npm%3A3.47.0#./.yarn/patches/@blueprintjs-core-npm-3.47.0-a5bc1ea927.patch"
+    "@blueprintjs/core@^3.47.0": "patch:@blueprintjs/core@npm%3A3.47.0#./.yarn/patches/@blueprintjs-core-npm-3.47.0-a5bc1ea927.patch",
+    "@blueprintjs/icons": "3.22.0"
   },
   "packageManager": "yarn@3.4.1"
 }
