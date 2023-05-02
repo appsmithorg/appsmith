@@ -2,6 +2,9 @@
   "name": "appsmith",
   "version": "0.1.0",
   "private": true,
+  "exports": {
+    "./lib/*": "./lib/*.js"
+  },
   "engines": {
     "node": "^16.14.0",
     "npm": "^8.5.5"
