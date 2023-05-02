@@ -71,8 +71,8 @@ export const Form = styled.form`
 const ViewModeWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  border-bottom: 1px solid #d0d7dd;
-  padding: 24px 20px;
+  border-bottom: 1px solid var(--ads-v2-color-border);
+  padding: var(--ads-v2-spaces-7) 0;
 `;
 
 class DatasourceDBEditor extends JSONtoForm<Props> {

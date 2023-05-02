@@ -258,7 +258,7 @@ export function EditableText(props: EditableTextProps) {
               isIconButton
               kind="tertiary"
               size="md"
-              startIcon="pencil-fill-icon"
+              startIcon="pencil-line"
             />
           )}
         </TextContainer>
