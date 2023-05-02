@@ -744,6 +744,27 @@ public class FileUtilsImpl implements FileInterface {
         return resource;
     }
 
+    private Object readPageDSL(Path directoryPath, Gson gson, String keySuffix, Map<String, String> pageBodyMap) {
+        Map<String, String> resource = new HashMap<>();
+        readFile(directoryPath.resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson);
+        File directory = directoryPath.resolve(CommonConstants.WIDGETS).toFile();
+        if (directory.isDirectory()) {
+            // Read the widgets data
+            Arrays.stream(Objects.requireNonNull(directory.listFiles())).forEach(file -> {
+                String body = readFileAsString(file.toPath());
+                // Extract the widgetId from the file
+                // Replace the key as widgetId
+                resource.put("0", body);
+            });
+        }
+        // Read the page metadata
+        Object pageMetadata = readFile(directoryPath.resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson);
+        //De-normalise the Flattened DSL into hierarchical DSL
+        // pageBodyMap.put(CommonConstants.CANVAS + keySuffix, gson.toJson(resource.get(CommonConstants.CANVAS)));
+        pageBodyMap.put(keySuffix, gson.toJson(resource));
+        return pageMetadata;
+    }
+
     private ApplicationGitReference fetchApplicationReference(Path baseRepoPath, Gson gson) {
         ApplicationGitReference applicationGitReference = new ApplicationGitReference();
         // Extract application metadata from the json
@@ -776,6 +797,10 @@ public class FileUtilsImpl implements FileInterface {
                 updateGitApplicationReference(baseRepoPath, gson, applicationGitReference, pageDirectory, fileFormatVersion);
                 break;
 
+            case 5:
+                updateGitApplicationReferenceV2(baseRepoPath, gson, applicationGitReference, pageDirectory, fileFormatVersion);
+                break;
+
             default:
         }
         applicationGitReference.setMetadata(metadata);
@@ -787,6 +812,35 @@ public class FileUtilsImpl implements FileInterface {
         return applicationGitReference;
     }
 
+    private void updateGitApplicationReferenceV2(Path baseRepoPath, Gson gson, ApplicationGitReference applicationGitReference, Path pageDirectory, int fileFormatVersion) {
+        // Extract pages and nested actions and actionCollections
+        File directory = pageDirectory.toFile();
+        Map<String, Object> pageMap = new HashMap<>();
+        Map<String, String> pageDsl = new HashMap<>();
+        Map<String, Object> actionMap = new HashMap<>();
+        Map<String, String> actionBodyMap = new HashMap<>();
+        Map<String, Object> actionCollectionMap = new HashMap<>();
+        Map<String, String> actionCollectionBodyMap = new HashMap<>();
+        // TODO same approach should be followed for modules(app level actions, actionCollections, widgets etc)
+        if (directory.isDirectory()) {
+            // Loop through all the directories and nested directories inside the pages directory to extract
+            // pages, actions and actionCollections from the JSON files
+            for (File page : Objects.requireNonNull(directory.listFiles())) {
+                pageMap.put(page.getName(), readPageDSL(page.toPath(), gson, page.getName(), pageDsl));
+                actionMap.putAll(readAction(page.toPath().resolve(ACTION_DIRECTORY), gson, page.getName(), actionBodyMap));
+                actionCollectionMap.putAll(readActionCollection(page.toPath().resolve(ACTION_COLLECTION_DIRECTORY), gson, page.getName(), actionCollectionBodyMap));
+            }
+        }
+        applicationGitReference.setActions(actionMap);
+        applicationGitReference.setActionBody(actionBodyMap);
+        applicationGitReference.setActionCollections(actionCollectionMap);
+        applicationGitReference.setActionCollectionBody(actionCollectionBodyMap);
+        applicationGitReference.setPages(pageMap);
+        // Extract datasources
+        applicationGitReference.setDatasources(readFiles(baseRepoPath.resolve(DATASOURCE_DIRECTORY), gson, ""));
+    }
+
+    @Deprecated
     private void updateGitApplicationReference(Path baseRepoPath, Gson gson, ApplicationGitReference applicationGitReference, Path pageDirectory, int fileFormatVersion) {
         // Extract pages and nested actions and actionCollections
         File directory = pageDirectory.toFile();
@@ -795,7 +849,6 @@ public class FileUtilsImpl implements FileInterface {
         Map<String, String> actionBodyMap = new HashMap<>();
         Map<String, Object> actionCollectionMap = new HashMap<>();
         Map<String, String> actionCollectionBodyMap = new HashMap<>();
-        // TODO same approach should be followed for modules(app level actions, actionCollections, widgets etc)
         if (directory.isDirectory()) {
             // Loop through all the directories and nested directories inside the pages directory to extract
             // pages, actions and actionCollections from the JSON files
@@ -864,6 +917,22 @@ public class FileUtilsImpl implements FileInterface {
                 })
                 .block();
 
+    }
+
+    public JSONObject getDenormalizedDSL(String dsl) {
+            return webClient.post()
+                    .uri(RTS_BASE_URL+ "/rts-api/v1/git/dsl/denormalize")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .body(BodyInserters.fromValue(dsl))
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .map(jsonString -> {
+                        JSONObject jsonObject = new JSONObject(jsonString);
+                        return jsonObject;
+
+                    })
+                    .block();
     }
 
     @NoArgsConstructor
