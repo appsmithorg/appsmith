@@ -20,7 +20,7 @@ import { logoutUser, updateUserDetails } from "actions/userActions";
 import UserProfileImagePicker from "./UserProfileImagePicker";
 import { Wrapper, FieldWrapper, LabelWrapper } from "./StyledComponents";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { getIsFormLoginEnabled } from "../../ce/selectors/tenantSelectors";
+import { getIsFormLoginEnabled } from "@appsmith/selectors/tenantSelectors";
 
 const ForgotPassword = styled.a`
   margin-top: 12px;
