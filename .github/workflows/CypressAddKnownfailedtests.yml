@@ -3,7 +3,7 @@ name: Cypress Add Known failed tests
 on:
   issues:
     types: [opened, closed, reopened]
-   
+
 jobs:
   IssueOpened:
     if: (github.event.action == 'opened' || github.event.action == 'reopened') && contains( github.event.issue.labels.*.name, 'CI impacted')
@@ -26,9 +26,9 @@ jobs:
           echo "Issue body: $ISSUE_BODY"
           #echo "$GITHUB_CONTEXT"
           chmod a+x app/client/cypress/xataadd.sh
-          echo "${{ github.event.issue.title }}"|awk '{print $2}'
-          echo "${{ github.event.issue.title }}"|awk '{print $2}'|xargs app/client/cypress/xataadd.sh
-          
+          echo "$ISSUE_TITLE"|awk '{print $2}'
+          echo "$ISSUE_TITLE"|awk '{print $2}'|xargs app/client/cypress/xataadd.sh
+
   IssueClosed:
     if: github.event.action == 'closed' && contains( github.event.issue.labels.*.name, 'CI impacted')
     runs-on: ubuntu-latest
@@ -50,7 +50,4 @@ jobs:
           echo "Issue body: $ISSUE_BODY"
           #echo "$GITHUB_CONTEXT"
           chmod a+x app/client/cypress/xatadel.sh
-          echo "${{ github.event.issue.title }}"|awk '{print $2}'|xargs app/client/cypress/xatadel.sh
-          
-          
-          
+          echo "$ISSUE_TITLE"|awk '{print $2}'|xargs app/client/cypress/xatadel.sh
