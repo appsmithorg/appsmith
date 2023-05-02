@@ -13,7 +13,6 @@ export interface INJECTED_CONFIGS {
   smartLook: {
     id: string;
   };
-  disableLoginForm: boolean;
   enableRapidAPI: boolean;
   segment: {
     apiKey: string;
@@ -66,9 +65,6 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     smartLook: {
       id: process.env.REACT_APP_SMART_LOOK_ID || "",
     },
-    disableLoginForm: process.env.APPSMITH_FORM_LOGIN_DISABLED
-      ? process.env.APPSMITH_FORM_LOGIN_DISABLED.length > 0
-      : false,
     segment: {
       apiKey: process.env.REACT_APP_SEGMENT_KEY || "",
       ceKey: process.env.REACT_APP_SEGMENT_CE_KEY || "",
@@ -234,8 +230,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     },
     enableRapidAPI:
       ENV_CONFIG.enableRapidAPI || APPSMITH_FEATURE_CONFIGS.enableRapidAPI,
-    disableLoginForm:
-      ENV_CONFIG.disableLoginForm || APPSMITH_FEATURE_CONFIGS.disableLoginForm,
     enableMixpanel:
       ENV_CONFIG.enableMixpanel || APPSMITH_FEATURE_CONFIGS.enableMixpanel,
     cloudHosting:

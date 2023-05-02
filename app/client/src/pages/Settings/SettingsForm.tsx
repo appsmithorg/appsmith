@@ -86,7 +86,7 @@ export function SettingsForm(
 
   const onSave = () => {
     if (checkMandatoryFileds()) {
-      if (saveAllowed(props.settings, socialLoginList)) {
+      if (saveAllowed(props.settings, isFormLoginEnabled, socialLoginList)) {
         AnalyticsUtil.logEvent("ADMIN_SETTINGS_SAVE", {
           method: pageTitle,
         });
