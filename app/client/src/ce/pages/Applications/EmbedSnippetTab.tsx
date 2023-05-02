@@ -1,7 +1,7 @@
-import { Switch, Icon, Tooltip, Link, Text } from "design-system";
 import React from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
+import { Switch, Icon, Tooltip, Link, Text } from "design-system";
 import { Colors } from "constants/Colors";
 import useUpdateEmbedSnippet from "pages/Applications/EmbedSnippet/useUpdateEmbedSnippet";
 import EmbedCodeSnippet from "pages/Applications/EmbedSnippet/Snippet";
