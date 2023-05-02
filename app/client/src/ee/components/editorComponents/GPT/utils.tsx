@@ -4,20 +4,15 @@ import {
   isJSAction,
   isTrueObject,
   isWidget,
-} from "ce/workers/Evaluation/evaluationUtils";
-import Fuse from "fuse.js";
-import { find } from "lodash";
-import { useMemo } from "react";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
+import { useEffect, useMemo, useRef } from "react";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router";
 import { createSelector } from "reselect";
 import { getEntityInCurrentPath } from "sagas/RecentEntitiesSagas";
-import { getWidgets } from "sagas/selectors";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import {
-  getActionsForCurrentPage,
-  getJSCollectionsForCurrentPage,
-} from "selectors/entitiesSelector";
+import { getActionsForCurrentPage } from "selectors/entitiesSelector";
+import FuzzySet from "fuzzyset";
 
 export type TUserPrompt = {
   role: "user";
@@ -92,65 +87,50 @@ function getPotentialEntityNamesFromMessage(
     .split(" ")
     .filter(Boolean)
     .map((word) => word?.toLowerCase());
-  const fuse = new Fuse(words, {
-    isCaseSensitive: true,
-    includeScore: true,
-    threshold: 0.6,
-    minMatchCharLength: 2,
-    ignoreLocation: true,
-  });
-  const exactMatches = [];
-  const partialMatches = [];
-  for (const name of entityNames) {
-    const results = fuse.search(name);
-    if (results.length) {
-      const [match] = results;
-      if (match.score === 0) {
-        exactMatches.push(name);
+  const set = FuzzySet(entityNames);
+  const exactMatches = new Set<string>();
+  const partialMatches: [number, string][] = [];
+  for (const word of words) {
+    const matches = set.get(word);
+    if (!matches) continue;
+    for (const match of matches) {
+      const [score, entityName] = match;
+      if (score === 1) {
+        exactMatches.add(entityName);
       } else {
-        partialMatches.push(name);
+        partialMatches.push([score, entityName]);
       }
     }
   }
+  const pMatches = Array.from(
+    new Set(partialMatches.sort((a, b) => b[0] - a[0]).map((a) => a[1])),
+  );
 
-  return { exactMatches, partialMatches };
+  return { exactMatches: Array.from(exactMatches), partialMatches: pMatches };
 }
 
-const getGPTContextGenerator = createSelector(
-  getDataTree,
-  getWidgets,
-  getActionsForCurrentPage,
-  getJSCollectionsForCurrentPage,
-  (dataTree, widgets, actions, jsCollections) => {
-    return (entityName: string) => {
-      const entity = dataTree[entityName];
-      const context: TChatGPTContext = {};
-      if (isAction(entity)) {
-        const action = actions.find((a) => a.config.name === entityName);
-        context[entityName] = {
-          data: getActionData(action?.data?.body),
-          run: "() => {}",
-          type: "ACTION",
-        };
-      } else if (isWidget(entity)) {
-        const widget = find(
-          Object.values(widgets),
-          (widget) => widget.widgetName === entityName,
-        );
-        context[entityName] = { ...widget, type: "WIDGET" };
-      } else if (isJSAction(entity)) {
-        const jsAction = jsCollections.find(
-          (a) => a.config.name === entityName,
-        );
-        context[entityName] = {
-          body: jsAction?.config.body.replace(/export default/g, ""),
-          type: "JS_ACTION",
-        };
-      }
-      return context;
-    };
-  },
-);
+const getGPTContextGenerator = createSelector(getDataTree, (dataTree) => {
+  return (entityName: string) => {
+    const entity = dataTree[entityName];
+    const context: TChatGPTContext = {};
+    if (isAction(entity)) {
+      context[entityName] = {
+        data: getDataSkeleton(entity.data),
+        run: "() => {}",
+        type: "ACTION",
+      };
+    } else if (isWidget(entity)) {
+      const widgetSkeleton = getDataSkeleton(entity);
+      context[entityName] = { ...widgetSkeleton, type: "WIDGET" };
+    } else if (isJSAction(entity)) {
+      context[entityName] = {
+        body: entity.body.replace(/export default/g, ""),
+        type: "JS_ACTION",
+      };
+    }
+    return context;
+  };
+});
 
 export function useGPTContextGenerator() {
   const dataTree = useSelector(getDataTree);
@@ -189,13 +169,13 @@ export function useGPTContextGenerator() {
   return generator;
 }
 
-function getActionData(data: unknown): any {
+function getDataSkeleton(data: unknown): any {
   if (!data) return {};
   if (Array.isArray(data)) {
-    return [getActionData(data[0])];
+    return [getDataSkeleton(data[0])];
   } else if (isTrueObject(data)) {
     return Object.keys(data).reduce((acc, key) => {
-      acc[key] = getActionData(data[key]);
+      acc[key] = getDataSkeleton(data[key]);
       return acc;
     }, {} as any);
   } else {
@@ -211,6 +191,9 @@ export const selectEvaluatedResult = (messageId: string) => (state: AppState) =>
 
 export const selectGPTMessages = (state: AppState) => state.ai.messages;
 
+export const selectShowExamplePrompt = (state: AppState) =>
+  state.ai.showExamplePrompt;
+
 export const isUserPrompt = (prompt: TChatGPTPrompt): prompt is TUserPrompt =>
   prompt.role === "user";
 
@@ -221,3 +204,15 @@ export const isAssistantPrompt = (
 export const isGPTErrorPrompt = (
   prompt: TChatGPTPrompt,
 ): prompt is TErrorPrompt => prompt.role === "error";
+
+export function useChatScroll<T>(
+  dep: T,
+): React.MutableRefObject<HTMLDivElement | null> {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.scrollTop = ref.current.scrollHeight;
+    }
+  }, [dep]);
+  return ref;
+}

@@ -11,12 +11,14 @@ export interface AIReduxState {
   isAIWindowOpen: boolean;
   evaluationResults: Record<string, any>;
   messages: TChatGPTPrompt[];
+  showExamplePrompt: boolean;
 }
 
 const initialGPTState: AIReduxState = {
   isAIWindowOpen: false,
   evaluationResults: {},
   messages: [],
+  showExamplePrompt: false,
 };
 
 const handlers = {
@@ -25,6 +27,7 @@ const handlers = {
     action: ReduxAction<boolean>,
   ) => {
     state.isAIWindowOpen = action.payload;
+    state.showExamplePrompt = Boolean(!state.messages.length);
   },
   [ReduxActionTypes.EVALUATE_GPT_RESPONSE_COMPLETE]: (
     state: AIReduxState,
@@ -51,6 +54,12 @@ const handlers = {
       ...(state.messages[messageIndex] as TAssistantPrompt),
       ...action.payload,
     };
+  },
+  [ReduxActionTypes.SHOW_EXAMPLE_GPT_PROMPT]: (
+    state: AIReduxState,
+    action: ReduxAction<boolean>,
+  ) => {
+    state.showExamplePrompt = action.payload;
   },
 };
 

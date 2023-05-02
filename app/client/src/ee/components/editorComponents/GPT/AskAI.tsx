@@ -6,6 +6,8 @@ import Send from "remixicon-react/SendPlaneFillIcon";
 import classNames from "classnames";
 import BetaCard from "../../../../components/editorComponents/BetaCard";
 import type { GPTTask, TChatGPTContext, TChatGPTPrompt } from "./utils";
+import { selectShowExamplePrompt } from "./utils";
+import { useChatScroll } from "./utils";
 import { selectGPTMessages } from "./utils";
 import { useGPTTasks } from "./utils";
 import { useGPTContextGenerator } from "./utils";
@@ -15,7 +17,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import ArrowLeft from "remixicon-react/ArrowLeftSLineIcon";
 
 const QueryForm = styled.form`
   > div:focus-within {
@@ -40,16 +41,23 @@ const CHARACTER_LIMIT = 500;
 export function AskAI() {
   const [query, setQuery] = useState("");
   const ref = useRef<HTMLDivElement>(null);
-  const messageContainerRef = React.useRef<HTMLDivElement>(null);
   const messages = useSelector(selectGPTMessages);
+  const messageContainerRef = useChatScroll(messages);
   const contextGenerator = useGPTContextGenerator();
   const [isLoading, setLoading] = useState(false);
-  const [showExamplePrompt, setShowExamplePrompt] = useState(false);
+  const showExamplePrompt = useSelector(selectShowExamplePrompt);
   const allTasks = useGPTTasks();
   const [task, setTask] = useState<GPTTask>(() => {
     const enabled = allTasks.filter((t) => !t.disabled) as typeof allTasks;
     return enabled[0].id;
   });
+
+  const toggleExamplePrompt = (show: boolean) => {
+    dispatch({
+      type: ReduxActionTypes.SHOW_EXAMPLE_GPT_PROMPT,
+      payload: show,
+    });
+  };
 
   const addMessage = useCallback(
     (prompt: TChatGPTPrompt) => {
@@ -67,16 +75,6 @@ export function AskAI() {
   }, [allTasks]);
 
   useEffect(() => {
-    setShowExamplePrompt(messages.length === 0);
-    setTimeout(() => {
-      messageContainerRef.current?.scrollTo({
-        top: messageContainerRef.current.scrollHeight,
-        left: 0,
-      });
-    });
-  }, [messages.length]);
-
-  useEffect(() => {
     return () => {
       dispatch({
         type: ReduxActionTypes.TOGGLE_AI_WINDOW,
@@ -89,13 +87,10 @@ export function AskAI() {
     resizeTextArea(queryContainerRef);
   }, [query]);
 
-  useEffect(() => {
-    setShowExamplePrompt(Boolean(task));
-  }, [task]);
-
   const sendQuery = useCallback(() => {
     if (isLoading) return;
     if (!query) return;
+    toggleExamplePrompt(false);
     setLoading(true);
     const message: TChatGPTPrompt = {
       role: "user",
@@ -115,6 +110,7 @@ export function AskAI() {
       userQuery: query,
       context,
     });
+    const start = performance.now();
     try {
       const res: any = await fetch(
         `/api/v1/chat/chat-generation?type=${task}`,
@@ -151,12 +147,14 @@ export function AskAI() {
         generatedCode: message.content,
         userQuery: query,
         context,
+        timeTaken: performance.now() - start,
       });
     } catch (e) {
       setLoading(false);
       AnalyticsUtil.logEvent("AI_RESPONSE_GENERATED", {
         success: false,
         requestedOutputType: task,
+        timeTaken: performance.now() - start,
       });
       addMessage({ role: "error", content: (e as any).message, task });
     }
@@ -165,7 +163,8 @@ export function AskAI() {
   const queryContainerRef = useRef<HTMLTextAreaElement>(null);
 
   const handleEnter = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key == "Enter" && e.shiftKey == false) {
+    if (e.shiftKey || e.ctrlKey || e.metaKey) return;
+    if (e.key == "Enter") {
       e.preventDefault();
       sendQuery();
     }
@@ -198,7 +197,7 @@ export function AskAI() {
         />
       </div>
       <div
-        className="flex flex-col justify-start gap-2 px-4 pb-3 overflow-auto"
+        className="flex flex-col justify-start gap-2 px-4 pb-3 overflow-auto scroll-smooth"
         ref={messageContainerRef}
         style={{ height: "calc(100% - 150px)" }}
       >
@@ -229,15 +228,15 @@ export function AskAI() {
       <div
         className={classNames({
           "flex justify-end flex-shrink-0": true,
-          hidden: !task || showExamplePrompt,
+          hidden: !messages.length,
+          "px-4 font-normal hover:underline cursor-pointer": true,
         })}
       >
         <div
-          className="h-6 items-center px-4 gap-[2px] text-[11px] flex flex-row font-normal hover:underline cursor-pointer"
-          onClick={() => setShowExamplePrompt(true)}
+          className="h-6 text-xs flex items-center"
+          onClick={() => toggleExamplePrompt(!showExamplePrompt)}
         >
-          <ArrowLeft size={13} />
-          Show example prompts
+          {showExamplePrompt ? "Hide" : "Show"} example prompts
         </div>
       </div>
       <div
