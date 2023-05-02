@@ -6,10 +6,10 @@ import { PaginationType } from "entities/Action";
 import RadioFieldGroup from "components/editorComponents/form/fields/RadioGroupField";
 import type { DropdownOption } from "design-system-old";
 import {
-  Text,
-  TextType,
+  // Text,
+  // TextType,
   TooltipComponent as Tooltip,
-  Checkbox,
+  // Checkbox,
 } from "design-system-old";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { AnyAction, Dispatch } from "redux";
@@ -28,7 +28,7 @@ import {
 } from "utils/editor/EditorBindingPaths";
 import { log } from "loglevel";
 import { PaginationSubComponent } from "components/formControls/utils";
-import { Select, Option } from "design-system";
+import { Select, Option, Checkbox, Text } from "design-system";
 
 const PAGINATION_PREFIX =
   "actionConfiguration.pluginSpecifiedTemplates[2].value";
@@ -47,7 +47,7 @@ interface PaginationProps {
 const SubHeading = styled(Text)`
   display: block;
   margin-bottom: ${(props) => props.theme.spaces[4]}px;
-  color: ${(props) => props.theme.colors.apiPane.pagination.stepTitle};
+  // color: ${(props) => props.theme.colors.apiPane.pagination.stepTitle};
 `;
 
 const PaginationTypeView = styled.div`
@@ -306,12 +306,12 @@ function PaginationTypeBasedWrapper({
           onSeparateKeyChange && (
             <CheckboxFieldWrapper>
               <Checkbox
-                fill
-                isDefaultChecked={separateValueFlag}
-                label={separateKeyLabel}
+                defaultChecked={separateValueFlag}
                 name={separateKeyPath}
-                onCheckChange={onSeparateKeyChange}
-              />
+                onChange={onSeparateKeyChange}
+              >
+                <Text> {separateKeyLabel} </Text>
+              </Checkbox>
             </CheckboxFieldWrapper>
           )}
       </PaginationFieldWrapper>
@@ -395,7 +395,7 @@ function Pagination(props: PaginationProps) {
           selectedOptionElements={[
             null,
             <PaginationTypeView key={`${PaginationType.PAGE_NO}-element`}>
-              <Text type={TextType.P1}>
+              <Text kind="body-m" renderAs={"p"}>
                 Specify a specific limit (number of results) and offset (the
                 number of records that needed to be skipped).
               </Text>
@@ -475,7 +475,7 @@ function Pagination(props: PaginationProps) {
               </PaginationSection>
             </PaginationTypeView>,
             <PaginationTypeView key={`${PaginationType.CURSOR}-element`}>
-              <Text type={TextType.P1}>
+              <Text kind="body-m" renderAs={"p"}>
                 Specfiy the previous and next cursor variables along with a
                 limit value.{" "}
                 <a
@@ -489,7 +489,7 @@ function Pagination(props: PaginationProps) {
                 for more information
               </Text>
               <PaginationSection>
-                <SubHeading type={TextType.P1}>
+                <SubHeading kind="body-m" renderAs={"p"}>
                   Configure Previous Page
                 </SubHeading>
                 {/* Previous Limit Value */}
@@ -567,7 +567,9 @@ function Pagination(props: PaginationProps) {
                 />
               </PaginationSection>
               <PaginationSection>
-                <SubHeading type={TextType.P1}>Configure Next Page</SubHeading>
+                <SubHeading kind="body-m" renderAs={"p"}>
+                  Configure Next Page
+                </SubHeading>
                 {/* Next Limit Value */}
                 <PaginationTypeBasedWrapper
                   actionName={props.actionName}
