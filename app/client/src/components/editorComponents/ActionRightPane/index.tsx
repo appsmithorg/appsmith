@@ -96,7 +96,12 @@ const Label = styled.span`
   cursor: pointer;
 `;
 
+const SideBarScrollContainer = styled.div`
+  overflow: auto;
+  height: calc(100vh - 250px);
+`;
 const CollapsibleWrapper = styled.div<{ isOpen: boolean }>`
+  padding-top: var(--ads-v2-spaces-5);
   .${BPClasses.COLLAPSE_BODY} {
     padding-top: ${(props) => props.theme.spaces[3]}px;
   }
@@ -138,6 +143,7 @@ const Placeholder = styled.div`
   align-items: center;
   flex: 1;
   height: 100%;
+  width: 100%;
   padding: ${(props) => props.theme.spaces[8]}px;
   text-align: center;
 `;
@@ -256,35 +262,36 @@ function ActionSidebar({
       >
         {createMessage(BACK_TO_CANVAS)}
       </BackToCanvasLink>
-
-      {hasConnections && (
-        <Connections
-          actionName={actionName}
-          entityDependencies={entityDependencies}
-        />
-      )}
-      {canEditPage && hasResponse && Object.keys(widgets).length > 1 && (
-        <Collapsible label="Connect Widget">
-          {/*<div className="description">Go to canvas and select widgets</div>*/}
-          <SnipingWrapper>
-            <Button
-              className={"t--select-in-canvas"}
-              kind="secondary"
-              onClick={handleBindData}
-              size="md"
-            >
-              Select Widget
-            </Button>
-          </SnipingWrapper>
-        </Collapsible>
-      )}
-      {showSuggestedWidgets && (
-        <SuggestedWidgets
-          actionName={actionName}
-          hasWidgets={hasWidgets}
-          suggestedWidgets={suggestedWidgets as SuggestedWidget[]}
-        />
-      )}
+      <SideBarScrollContainer>
+        {hasConnections && (
+          <Connections
+            actionName={actionName}
+            entityDependencies={entityDependencies}
+          />
+        )}
+        {canEditPage && hasResponse && Object.keys(widgets).length > 1 && (
+          <Collapsible label="Connect widget">
+            {/*<div className="description">Go to canvas and select widgets</div>*/}
+            <SnipingWrapper>
+              <Button
+                className={"t--select-in-canvas"}
+                kind="secondary"
+                onClick={handleBindData}
+                size="md"
+              >
+                Select widget
+              </Button>
+            </SnipingWrapper>
+          </Collapsible>
+        )}
+        {showSuggestedWidgets && (
+          <SuggestedWidgets
+            actionName={actionName}
+            hasWidgets={hasWidgets}
+            suggestedWidgets={suggestedWidgets as SuggestedWidget[]}
+          />
+        )}
+      </SideBarScrollContainer>
     </SideBar>
   );
 }

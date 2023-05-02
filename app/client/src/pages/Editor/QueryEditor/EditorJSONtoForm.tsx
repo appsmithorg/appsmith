@@ -302,9 +302,9 @@ const TabContainerView = styled.div`
   display: flex;
   align-items: start;
   flex: 1;
-  overflow: auto;
+  overflow: hidden;
   padding: 0 var(--ads-v2-spaces-7);
-  ${thinScrollbar}
+  /* ${thinScrollbar} */
   a {
     font-size: 14px;
     line-height: 20px;
@@ -315,6 +315,10 @@ const TabContainerView = styled.div`
   .ads-v2-tabs__list {
     z-index: 5;
   }
+`;
+const StyledTabPanel = styled(TabPanel)`
+  overflow: auto;
+  height: calc(100vh - 230px);
 `;
 
 const Wrapper = styled.div`
@@ -333,10 +337,10 @@ const DocumentationButton = styled(Button)`
 const SidebarWrapper = styled.div<{ show: boolean }>`
   border-left: 1px solid var(--ads-v2-color-border);
   padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-7);
-  overflow: auto;
+  /* overflow: auto; */
   border-bottom: 0;
   display: ${(props) => (props.show ? "flex" : "none")};
-  width: ${(props) => props.theme.actionSidePane.width}px;
+  width: 272px;
   margin-top: 38px;
   /* margin-left: var(--ads-v2-spaces-7); */
 `;
@@ -956,7 +960,10 @@ export function EditorJSONtoForm(props: Props) {
                     <Tab value={EDITOR_TABS.QUERY}>Query</Tab>
                     <Tab value={EDITOR_TABS.SETTINGS}>Settings</Tab>
                   </TabsList>
-                  <TabPanel className="tab-panel" value={EDITOR_TABS.QUERY}>
+                  <StyledTabPanel
+                    className="tab-panel"
+                    value={EDITOR_TABS.QUERY}
+                  >
                     <SettingsWrapper>
                       {editorConfig && editorConfig.length > 0 ? (
                         renderConfig(editorConfig)
@@ -993,15 +1000,15 @@ export function EditorJSONtoForm(props: Props) {
                         </NoDataSourceContainer>
                       )}
                     </SettingsWrapper>
-                  </TabPanel>
-                  <TabPanel value={EDITOR_TABS.SETTINGS}>
+                  </StyledTabPanel>
+                  <StyledTabPanel value={EDITOR_TABS.SETTINGS}>
                     <SettingsWrapper>
                       <ActionSettings
                         actionSettingsConfig={settingConfig}
                         formName={formName}
                       />
                     </SettingsWrapper>
-                  </TabPanel>
+                  </StyledTabPanel>
                 </Tabs>
                 {documentationLink && (
                   <Tooltip

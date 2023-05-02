@@ -169,7 +169,7 @@ function KeyValueRow(
                 kind="tertiary"
                 onClick={() => props.fields.remove(index)}
                 size="md"
-                startIcon="delete"
+                startIcon="delete-bin-line"
               />
             )}
 

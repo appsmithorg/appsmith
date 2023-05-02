@@ -126,7 +126,7 @@ const SecondaryWrapper = styled.div`
 
 export const TabbedViewContainer = styled.div`
   flex: 1;
-  overflow: auto;
+  overflow: hidden;
   position: relative;
   height: 100%;
   padding: 0 var(--ads-v2-spaces-7);
@@ -293,9 +293,7 @@ const KeyValueStackContainer = styled.div`
 `;
 
 const KeyValueFlexContainer = styled.div`
-  padding: ${(props) => props.theme.spaces[4]}px
-    ${(props) => props.theme.spaces[14]}px 0
-    ${(props) => props.theme.spaces[11] + 2}px;
+  padding: 0 0 var(--ads-v2-spaces-4) 0;
 `;
 
 const FormRowWithLabel = styled(FormRow)`

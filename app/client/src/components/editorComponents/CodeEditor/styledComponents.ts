@@ -88,7 +88,6 @@ export const EditorWrapper = styled.div<{
       .cm-s-duotone-light.CodeMirror {
         cursor: pointer;
         border-radius: var(--ads-v2-border-radius);
-        background: var(--ads-v2-color-bg-muted);
       }
     }
   }`
