@@ -9,7 +9,6 @@ import {
   Text,
   TextType,
   TooltipComponent as Tooltip,
-  Dropdown,
   Checkbox,
 } from "design-system-old";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -29,6 +28,7 @@ import {
 } from "utils/editor/EditorBindingPaths";
 import { log } from "loglevel";
 import { PaginationSubComponent } from "components/formControls/utils";
+import { Select, Option } from "design-system";
 
 const PAGINATION_PREFIX =
   "actionConfiguration.pluginSpecifiedTemplates[2].value";
@@ -119,6 +119,15 @@ const DynamicTextFieldWrapper = styled(DynamicTextField)`
   &&&& .CodeMirror {
     background-color: ${(props) => props.disabled && "#eef2f5"};
   }
+`;
+
+const ErrorMsg = styled.span`
+  font-weight: normal;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: -0.221538px;
+  color: var(--ads-v2-color-fg-error);
+  margin-top: var(--ads-spaces-3);
 `;
 
 const graphqlParseVariables = (queryBody: string) => {
@@ -223,36 +232,51 @@ function PaginationTypeBasedWrapper({
             )}
           </FormLabel>
         </Step>
-        <Dropdown
-          boundary="viewport"
+        <Select
           className={`${className}Variable`}
-          dropdownMaxHeight={"200px"}
-          errorMsg={
-            !selectedVariable.value ||
-            dropdownOptions.some(
-              (option: DropdownOption) =>
-                option.value === selectedVariable.value,
+          onChange={(value) =>
+            onSelectVariable(
+              value,
+              dropdownOptions?.find((option) => option?.value === value),
             )
-              ? undefined
-              : "No such variable exist in query"
           }
-          fillOptions
-          onSelect={onSelectVariable}
-          options={dropdownOptions}
           placeholder={
             dropdownOptions.length > 0
               ? "Select a variable"
               : "Add variables in query to select here"
           }
-          selected={
+          value={
             (selectedVariable.label && selectedVariable.value
               ? selectedVariable
               : undefined) as any
           }
-          showEmptyOptions
-          showLabelOnly
-          width={"100%"}
-        />
+        >
+          {dropdownOptions.map((option) => {
+            return (
+              <Option
+                isDisabled={option?.disabled}
+                key={option?.label}
+                value={option?.label}
+              >
+                {option?.label}
+              </Option>
+            );
+          })}
+        </Select>
+        {!selectedVariable.value ||
+          (dropdownOptions.some(
+            (option: DropdownOption) => option.value === selectedVariable.value,
+          ) && (
+            <ErrorMsg>
+              {!selectedVariable.value ||
+              dropdownOptions.some(
+                (option: DropdownOption) =>
+                  option.value === selectedVariable.value,
+              )
+                ? undefined
+                : "No such variable exist in query"}
+            </ErrorMsg>
+          ))}
       </PaginationFieldWrapper>
       <PaginationFieldWrapper data-replay-id={dataReplayId}>
         <Step>
