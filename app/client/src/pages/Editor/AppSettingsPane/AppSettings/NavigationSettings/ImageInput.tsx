@@ -7,6 +7,7 @@ import {
 } from "@appsmith/selectors/applicationSelectors";
 import styled from "styled-components";
 import classNames from "classnames";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 type ImageInputProps = {
   value?: any;
@@ -81,7 +82,7 @@ export const ImageInput = (props: ImageInputProps) => {
             hidden: !isLogoLoaded,
           })}
           onLoad={() => setIsLogoLoaded(true)}
-          src={`/api/v1/assets/${value}`}
+          src={getAssetUrl(value)}
         />
       );
     } else {

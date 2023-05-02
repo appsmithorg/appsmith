@@ -21,7 +21,7 @@ import equal from "fast-deep-equal";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { updateApplication } from "@appsmith/actions/applicationActions";
 import { Spinner } from "design-system-old";
-import LogoInput from "./LogoInput";
+import LogoInput from "@appsmith/pages/Editor/NavigationSettings/LogoInput";
 import SwitchSettingForLogoConfiguration from "./SwitchSettingForLogoConfiguration";
 
 /**

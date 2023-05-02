@@ -1,16 +1,16 @@
 import React from "react";
-import { ImageInput } from "./ImageInput";
+import { ImageInput } from "../../../../pages/Editor/AppSettingsPane/AppSettings/NavigationSettings/ImageInput";
 import { TextType, Text, Icon } from "design-system-old";
 import {
   createMessage,
   APP_NAVIGATION_SETTING,
 } from "@appsmith/constants/messages";
-import type { UpdateSetting } from ".";
+import type { UpdateSetting } from "../../../../pages/Editor/AppSettingsPane/AppSettings/NavigationSettings";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { NavigationSetting } from "constants/AppConstants";
-import { logoImageValidation } from "./utils";
+import { logoImageValidation } from "../../../../pages/Editor/AppSettingsPane/AppSettings/NavigationSettings/utils";
 import {
   getIsDeletingNavigationLogo,
   getIsUploadingNavigationLogo,
@@ -72,7 +72,11 @@ const LogoInput = ({ navigationSetting }: ButtonGroupSettingProps) => {
             handleChange && handleChange(file);
           }}
           validate={logoImageValidation}
-          value={navigationSetting?.logoAssetId}
+          value={
+            navigationSetting?.logoAssetId?.length
+              ? `/api/v1/assets/${navigationSetting?.logoAssetId}`
+              : ""
+          }
         />
       </div>
     </div>
