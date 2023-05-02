@@ -376,7 +376,7 @@ export function WorkspaceMenuItem({
       containerClassName={
         isFetchingApplications ? BlueprintClasses.SKELETON : ""
       }
-      ellipsize={20}
+      ellipsize={19}
       href={`${window.location.pathname}#${workspace.workspace.id}`}
       icon="workspace"
       key={workspace.workspace.id}
@@ -701,11 +701,15 @@ export function ApplicationsSection(props: any) {
           hasCreateNewApplicationPermission ||
           (canDeleteWorkspace && applications.length === 0);
 
+        const handleResetMenuState = () => {
+          setWorkspaceToOpenMenu(null);
+          setWarnLeavingWorkspace(false);
+          setWarnDeleteWorkspace(false);
+        };
+
         const handleWorkspaceMenuClose = (open: boolean) => {
           if (!open && !warnLeavingWorkspace && !warnDeleteWorkspace) {
-            setWorkspaceToOpenMenu(null);
-            setWarnLeavingWorkspace(false);
-            setWarnDeleteWorkspace(false);
+            handleResetMenuState();
           }
         };
 
@@ -802,7 +806,12 @@ export function ApplicationsSection(props: any) {
                             startIcon="context-menu"
                           />
                         </MenuTrigger>
-                        <MenuContent align="end" width="205px">
+                        <MenuContent
+                          align="end"
+                          onEscapeKeyDown={handleResetMenuState}
+                          onInteractOutside={handleResetMenuState}
+                          width="205px"
+                        >
                           {hasManageWorkspacePermissions && (
                             <>
                               <div className="px-3 py-2">
@@ -893,6 +902,7 @@ export function ApplicationsSection(props: any) {
                           )}
                           {applications.length === 0 && canDeleteWorkspace && (
                             <MenuItem
+                              className="error-menuitem"
                               onSelect={() => {
                                 warnDeleteWorkspace
                                   ? handleDeleteWorkspace(workspace.id)
