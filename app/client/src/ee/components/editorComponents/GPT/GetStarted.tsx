@@ -1,6 +1,6 @@
 import React from "react";
-import { GPTTask } from "./utils";
-import { UserPrompt } from "./GPTPrompt";
+import { GPTTask, useGPTTasks } from "./utils";
+import { UserPromptWrapper } from "./GPTPrompt";
 
 const examplePrompts = {
   [GPTTask.JS_EXPRESSION]: [
@@ -14,7 +14,12 @@ const examplePrompts = {
     "Calls getUserName function from get_users_utils js object and capitalizes the result",
     "Setup a timer to run get_users every 5 seconds",
   ],
-  [GPTTask.SQL_QUERY]: [],
+  [GPTTask.SQL_QUERY]: [
+    "Fetch all users from users table where age > 30",
+    "Update first_name of users table to 'John' where id = 1",
+    "Delete all users from users table where age < 30",
+  ],
+  [GPTTask.REFACTOR_CODE]: [],
 };
 
 export function GettingStarted({
@@ -24,20 +29,17 @@ export function GettingStarted({
   onClick: (text: string) => void;
   task: GPTTask;
 }) {
+  const allTasks = useGPTTasks();
+  const taskDescription = allTasks.find((t) => t.id === task)?.desc;
   return (
     <div className="flex flex-col">
       <div className="flex flex-col gap-1">
-        {/* <div className="text-md font-medium">Getting started</div> */}
-        <p className="text-[13px]">
-          Quickly generate JS bindings and code snippets typing a prompt.
-        </p>
-        <div className="flex flex-col gap-2 pt-2">
-          <div className="text-xs font-medium">Example Prompts</div>
-          <div className="flex flex-col gap-2">
-            {examplePrompts[task].map((prompt) => (
-              <ExamplePrompt key={prompt} onClick={onClick} prompt={prompt} />
-            ))}
-          </div>
+        <p className="text-[13px] font-semibold pb-2">{taskDescription}</p>
+        <div className="text-xs font-medium">Example Prompts</div>
+        <div className="flex flex-col gap-2">
+          {examplePrompts[task].map((prompt) => (
+            <ExamplePrompt key={prompt} onClick={onClick} prompt={prompt} />
+          ))}
         </div>
       </div>
     </div>
@@ -51,8 +53,8 @@ function ExamplePrompt({
   onClick: (text: string) => void;
 }) {
   return (
-    <div className="flex justify-start bg-gray-100 w-full font-medium">
-      <UserPrompt>{prompt}</UserPrompt>
+    <div className="flex justify-start bg-gray-100 w-full font-normal">
+      <UserPromptWrapper>{prompt}</UserPromptWrapper>
     </div>
   );
 }

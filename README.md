@@ -447,4 +447,4 @@ Lets build great software together.
 
 ## License
 
-Appsmith EE is a private source code and not available for distribution or reproduction. Use it wisely.
+Appsmith EE is a private source code and not available for distribution or reproduction. Use it wisely. 
