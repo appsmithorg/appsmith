@@ -365,8 +365,8 @@ class CodeMirrorTernService {
     return obj;
   }
 
-  getHint(cm: CodeMirror.Editor) {
-    return new Promise((resolve) => {
+  async getHint(cm: CodeMirror.Editor) {
+    const hints = await new Promise((resolve) => {
       this.request(
         cm,
         {
@@ -382,6 +382,18 @@ class CodeMirrorTernService {
         (error, data) => this.requestCallback(error, data, cm, resolve),
       );
     });
+
+    // When a function is picked, move the cursor between the parenthesis
+    CodeMirror.on(hints, "pick", (selected: CommandsCompletion) => {
+      if (selected.type === AutocompleteDataType.FUNCTION) {
+        cm.setCursor({
+          line: cm.getCursor().line,
+          ch: cm.getCursor().ch - 1,
+        });
+      }
+    });
+
+    return hints;
   }
 
   showContextInfo(cm: CodeMirror.Editor, queryName: string, callbackFn?: any) {
