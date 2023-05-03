@@ -341,7 +341,7 @@ const SidebarWrapper = styled.div<{ show: boolean }>`
   /* margin-left: var(--ads-v2-spaces-7); */
 `;
 
-const SegmentedControlContainer = styled.div`
+export const SegmentedControlContainer = styled.div`
   padding: 0 var(--ads-v2-spaces-4);
   display: flex;
   flex-direction: column;

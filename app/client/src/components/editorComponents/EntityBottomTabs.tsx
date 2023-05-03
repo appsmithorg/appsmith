@@ -6,8 +6,8 @@ import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import { Tab, TabPanel, Tabs, TabsList } from "design-system";
 
 type EntityBottomTabsProps = {
+  className?: string;
   tabs: any;
-  responseViewer?: boolean;
   onSelect?: (tab: any) => void;
   selectedTabKey: string;
   canCollapse?: boolean;
