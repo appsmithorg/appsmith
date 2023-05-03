@@ -22,7 +22,6 @@ import "tinymce/plugins/emoticons/js/emojis";
 import "tinymce/plugins/print";
 import "tinymce/themes/silver";
 import "tinymce/skins/ui/oxide/skin.min.css";
-import "tinymce/skins/ui/oxide/content.min.css";
 import React, { useRef, useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import { Editor } from "@tinymce/tinymce-react";
