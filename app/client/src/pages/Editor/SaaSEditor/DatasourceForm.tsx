@@ -59,7 +59,6 @@ import {
 import SaveOrDiscardDatasourceModal from "../DataSourceEditor/SaveOrDiscardDatasourceModal";
 import {
   createMessage,
-  DOCUMENTATION,
   GOOGLE_SHEETS_INFO_BANNER_MESSAGE,
   GSHEET_AUTHORIZATION_ERROR,
   SAVE_AND_AUTHORIZE_BUTTON_TEXT,
@@ -69,11 +68,6 @@ import { Button } from "design-system";
 import { getDatasourceErrorMessage } from "./errorUtils";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import GoogleSheetFilePicker from "./GoogleSheetFilePicker";
-import {
-  setGlobalSearchQuery,
-  toggleShowGlobalSearchModal,
-} from "../../../actions/globalSearchActions";
-import AnalyticsUtil from "../../../utils/AnalyticsUtil";
 import DatasourceInformation from "./../DataSourceEditor/DatasourceSection";
 import styled from "styled-components";
 
@@ -291,8 +285,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       datasource,
       datasourceButtonConfiguration,
       datasourceId,
-      dispatch,
-      documentationLink,
       featureFlags,
       formConfig,
       formData,
@@ -334,17 +326,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       isGoogleSheetPlugin &&
       !isPluginAuthorized &&
       authErrorMessage == GSHEET_AUTHORIZATION_ERROR;
-
-    const handleDocumentationClick = (e: React.MouseEvent) => {
-      e.stopPropagation();
-      const query = plugin?.name || "Connecting to datasources";
-      dispatch(setGlobalSearchQuery(query));
-      dispatch(toggleShowGlobalSearchModal());
-      AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
-        source: "DATASOURCE_DOCUMENTATION_CLICK",
-        query,
-      });
-    };
 
     return (
       <>
@@ -486,18 +467,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
             />
           )}
         </form>
-        {/* Documentation link opens up documentation in omnibar, for google sheets */}
-        {documentationLink && (
-          <Button
-            className="t--datasource-documentation-link"
-            kind="tertiary"
-            onClick={(e: React.MouseEvent) => handleDocumentationClick(e)}
-            size="sm"
-            startIcon="book-line"
-          >
-            {createMessage(DOCUMENTATION)}
-          </Button>
-        )}
         <SaveOrDiscardDatasourceModal
           datasourceId={datasourceId}
           datasourcePermissions={datasource?.userPermissions || []}
