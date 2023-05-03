@@ -279,6 +279,24 @@ const COMMON_PROPERTIES = {
         dependencies: ["schema", "sourceData"],
         updateHook: updateChildrenDisabledStateHook,
       },
+      {
+        propertyName: "shouldAllowAutofill",
+        label: "Allow autofill",
+        helpText: "Allow users to autofill values from browser",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+        hidden: (...args: HiddenFnParams) => {
+          //should be shown for only inputWidgetV2 and for email or password input types
+          return getSchemaItem(...args).fieldTypeNotIncludes([
+            FieldType.EMAIL_INPUT,
+            FieldType.PASSWORD_INPUT,
+          ]);
+        },
+        dependencies: ["schema", "sourceData"],
+      },
     ],
     events: [
       {

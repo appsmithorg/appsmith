@@ -2199,10 +2199,13 @@ __metadata:
     "@react-aria/utils": ^3.16.0
     "@react-aria/visually-hidden": ^3.8.0
     "@react-spectrum/utils": ^3.9.0
+    "@react-stately/checkbox": ^3.4.1
     "@react-stately/toggle": ^3.5.1
     "@react-types/button": ^3.7.1
     "@react-types/checkbox": ^3.4.3
+    "@react-types/label": ^3.7.3
     "@react-types/shared": ^3.17.0
+    classnames: "*"
     eslint: ^8.38.0
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
@@ -8559,6 +8562,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ally.js@npm:^1.4.1":
+  version: 1.4.1
+  resolution: "ally.js@npm:1.4.1"
+  dependencies:
+    css.escape: ^1.5.0
+    platform: 1.3.3
+  checksum: 78c397235c9c063854e880757795ff181a0668d918d9c3d7cde1a5288c583a0a65842631a565582bd01f429e16e2a2942d8b810c3164fd2c48f90a2bf83f5841
+  languageName: node
+  linkType: hard
+
 "ansi-align@npm:^3.0.0":
   version: 3.0.1
   resolution: "ansi-align@npm:3.0.1"
@@ -8733,6 +8746,7 @@ __metadata:
     cypress-image-snapshot: ^4.0.1
     cypress-log-to-output: ^1.1.2
     cypress-multi-reporters: ^1.2.4
+    cypress-plugin-tab: ^1.0.5
     cypress-real-events: ^1.7.1
     cypress-wait-until: ^1.7.2
     cypress-xpath: ^1.4.0
@@ -8884,6 +8898,7 @@ __metadata:
     cypress-log-to-output: ^1.1.2
     cypress-multi-reporters: ^1.2.4
     cypress-network-idle: ^1.14.2
+    cypress-plugin-tab: ^1.0.5
     cypress-real-events: ^1.7.1
     cypress-wait-until: ^1.7.2
     cypress-xpath: ^1.4.0
@@ -10814,7 +10829,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"classnames@npm:2.x, classnames@npm:^2.2, classnames@npm:^2.2.1, classnames@npm:^2.2.5, classnames@npm:^2.2.6, classnames@npm:^2.3.1":
+"classnames@npm:*, classnames@npm:2.x, classnames@npm:^2.2, classnames@npm:^2.2.1, classnames@npm:^2.2.5, classnames@npm:^2.2.6, classnames@npm:^2.3.1":
   version: 2.3.2
   resolution: "classnames@npm:2.3.2"
   checksum: 2c62199789618d95545c872787137262e741f9db13328e216b093eea91c85ef2bfb152c1f9e63027204e2559a006a92eb74147d46c800a9f96297ae1d9f96f4e
@@ -11913,7 +11928,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"css.escape@npm:^1.5.1":
+"css.escape@npm:^1.5.0, css.escape@npm:^1.5.1":
   version: 1.5.1
   resolution: "css.escape@npm:1.5.1"
   checksum: f6d38088d870a961794a2580b2b2af1027731bb43261cfdce14f19238a88664b351cc8978abc20f06cc6bbde725699dec8deb6fe9816b139fc3f2af28719e774
@@ -12144,6 +12159,15 @@ __metadata:
   version: 1.14.2
   resolution: "cypress-network-idle@npm:1.14.2"
   checksum: 3f4780a38713ac3b6a07d5a6f0bb524c336a88b82020e323c09ab745a22031c345556bfea34043e30e2a89a147ca14ebe2f950ffa43362150a385a9314eb1829
+  languageName: node
+  linkType: hard
+
+"cypress-plugin-tab@npm:^1.0.5":
+  version: 1.0.5
+  resolution: "cypress-plugin-tab@npm:1.0.5"
+  dependencies:
+    ally.js: ^1.4.1
+  checksum: 87d68c8caf03bb8d330901c68caa4253442d7c5364dae92899c744286a459dd16fd47c3633288eb35940655b3079502d425c83fbb489841722c7f4d7c77dd212
   languageName: node
   linkType: hard
 
@@ -21872,6 +21896,13 @@ __metadata:
   dependencies:
     find-up: ^3.0.0
   checksum: 5bac346b7c7c903613c057ae3ab722f320716199d753f4a7d053d38f2b5955460f3e6ab73b4762c62fd3e947f58e04f1343e92089e7bb6091c90877406fcd8c8
+  languageName: node
+  linkType: hard
+
+"platform@npm:1.3.3":
+  version: 1.3.3
+  resolution: "platform@npm:1.3.3"
+  checksum: e7a95273e0ec33b6fcf85ba1464bb8ae028f101530dc51f2ee3430fa0b93783511da874af75a5fc065084376619b2382aad7fce0377bcce82dd9f6d3c812183a
   languageName: node
   linkType: hard
 

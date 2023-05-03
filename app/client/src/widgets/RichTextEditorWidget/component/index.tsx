@@ -298,7 +298,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
   const initialRender = useRef(true);
 
   const toolbarConfig =
-    "insertfile undo redo | formatselect | bold italic underline backcolor forecolor | lineheight | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | table | print preview media | emoticons |help";
+    "insertfile undo redo | formatselect | bold italic underline backcolor forecolor | lineheight | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | table | print preview media | emoticons | code | help";
 
   const handleEditorChange = useCallback(
     (newValue: string, editor: any) => {
@@ -389,6 +389,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
               "searchreplace visualblocks code fullscreen",
               "insertdatetime media table paste code help",
               "emoticons",
+              "code",
             ],
             contextmenu: "link useBrowserSpellcheck image table",
             setup: function (editor) {

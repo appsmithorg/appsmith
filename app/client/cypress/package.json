@@ -31,6 +31,7 @@
     "cypress-image-snapshot": "^4.0.1",
     "cypress-log-to-output": "^1.1.2",
     "cypress-multi-reporters": "^1.2.4",
+    "cypress-plugin-tab": "^1.0.5",
     "cypress-real-events": "^1.7.1",
     "cypress-wait-until": "^1.7.2",
     "cypress-xpath": "^1.4.0",

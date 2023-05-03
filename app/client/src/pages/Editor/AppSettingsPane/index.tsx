@@ -9,11 +9,14 @@ function AppSettingsPane() {
   const dispatch = useDispatch();
   const paneRef = useRef(null);
   const portalRef = useRef(null);
-
   useOnClickOutside([paneRef, portalRef], () => {
     if (document.getElementById("save-theme-modal")) return;
     if (document.getElementById("delete-theme-modal")) return;
     if (document.getElementById("manual-upgrades-modal")) return;
+    // No id property for `Dialog` component, so using class name
+    if (document.querySelector(".t--import-application-modal")) {
+      return;
+    }
     dispatch(closeAppSettingsPaneAction());
   });
 
