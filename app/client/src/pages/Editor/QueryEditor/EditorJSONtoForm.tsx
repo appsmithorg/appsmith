@@ -1,5 +1,5 @@
 import type { RefObject } from "react";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import type { InjectedFormProps } from "redux-form";
 import { Tag } from "@blueprintjs/core";
 import { isString } from "lodash";
@@ -21,6 +21,7 @@ import {
   Divider,
   Icon,
   Option,
+  SegmentedControl,
   Spinner,
   Tab,
   TabPanel,
@@ -247,8 +248,9 @@ const ActionsWrapper = styled.div`
 const DropdownSelect = styled.div`
   font-size: 14px;
   margin-right: 10px;
+  width: 230px;
 
-  .t--switch-datasource > div {
+  /* .t--switch-datasource > div {
     min-height: 30px;
     height: 30px;
 
@@ -264,7 +266,7 @@ const DropdownSelect = styled.div`
     & .appsmith-select__input > input[value=""] {
       caret-color: transparent;
     }
-  }
+  } */
 `;
 
 const CreateDatasource = styled.div`
@@ -292,7 +294,6 @@ const NoDataSourceContainer = styled.div`
     text-align: center;
     margin-bottom: 23px;
     font-size: 18px;
-    // TODO: What does this become?
   }
 `;
 
@@ -337,6 +338,14 @@ const SidebarWrapper = styled.div<{ show: boolean }>`
   width: ${(props) => props.theme.actionSidePane.width}px;
   margin-top: 38px;
   /* margin-left: var(--ads-v2-spaces-7); */
+`;
+
+export const SegmentedControlContainer = styled.div`
+  padding: 0 var(--ads-v2-spaces-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ads-v2-spaces-4);
+  overflow: scroll;
 `;
 
 type QueryFormProps = {
@@ -654,6 +663,16 @@ export function EditorJSONtoForm(props: Props) {
       };
     });
 
+  const segmentedControlOptions =
+    responseBodyTabs &&
+    responseBodyTabs.map((item) => {
+      return { value: item.key, label: item.title };
+    });
+
+  const [selectedControl, setSelectedControl] = useState(
+    segmentedControlOptions[0]?.value,
+  );
+
   const onResponseTabSelect = (tabKey: string) => {
     if (tabKey === DEBUGGER_TAB_KEYS.ERROR_TAB) {
       AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
@@ -666,6 +685,8 @@ export function EditorJSONtoForm(props: Props) {
       value: tabKey,
     });
   };
+
+  // onResponseTabSelect(selectedControl);
 
   const selectedTabIndex =
     responseDataTypes &&
@@ -683,6 +704,7 @@ export function EditorJSONtoForm(props: Props) {
     name: currentActionConfig ? currentActionConfig.name : "",
     id: currentActionConfig ? currentActionConfig.id : "",
   };
+
   const responseTabs = [
     {
       key: "response",
@@ -758,12 +780,25 @@ export function EditorJSONtoForm(props: Props) {
             responseBodyTabs &&
             responseBodyTabs.length > 0 &&
             selectedTabIndex !== -1 && (
-              <EntityBottomTabs
-                onSelect={onResponseTabSelect}
-                responseViewer
-                selectedTabKey={responseDisplayFormat.value}
-                tabs={responseBodyTabs}
-              />
+              <SegmentedControlContainer>
+                <SegmentedControl
+                  //   selectedTabKey={responseDisplayFormat.value}
+                  //  TODO (albin): Even for when the default value is set, onResponseBodyTab needs to be called.
+                  //   To fix this issue in one go, this component needs to be controlled.
+                  defaultValue={segmentedControlOptions[0]?.value}
+                  isFullWidth={false}
+                  onChange={(value) => {
+                    setSelectedControl(value);
+                    onResponseTabSelect(value);
+                  }}
+                  options={segmentedControlOptions}
+                />
+                {responseTabComponent(
+                  selectedControl,
+                  output,
+                  responsePaneHeight,
+                )}
+              </SegmentedControlContainer>
             )}
           {!output && !error && (
             <NoResponse
@@ -889,10 +924,10 @@ export function EditorJSONtoForm(props: Props) {
                 options={DATASOURCES_OPTIONS}
                 placeholder="Datasource"
               >
-                <Option>
+                <Option className="add-new-datasource">
                   {canCreateDatasource && (
                     <CreateDatasource onClick={() => onCreateDatasourceClick()}>
-                      <Icon className="createIcon" name="plus" size="sm" />
+                      <Icon className="createIcon" name="plus" size="md" />
                       {createMessage(CREATE_NEW_DATASOURCE)}
                     </CreateDatasource>
                   )}
@@ -1020,7 +1055,7 @@ export function EditorJSONtoForm(props: Props) {
                             }}
                             size="md"
                           >
-                            Cancel Request
+                            Cancel request
                           </Button>
                         </LoadingOverlayContainer>
                       </>

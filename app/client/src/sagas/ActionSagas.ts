@@ -698,12 +698,17 @@ export function* setActionPropertySaga(
     "actionConfiguration",
     "config",
   );
+
+  if (!actionObj) {
+    return;
+  }
+
   AppsmithConsole.info({
     logType: LOG_TYPE.ACTION_UPDATE,
     text: "Configuration updated",
     source: {
       type: ENTITY_TYPE.ACTION,
-      name: actionObj.name,
+      name: actionObj?.name,
       id: actionId,
       propertyPath: fieldToBeUpdated,
     },

@@ -13,7 +13,7 @@ describe("Chart Widget Skeleton Loading Functionality", function () {
      * 1. Open Datasource editor
      * 2. Click on sample(mock) user database.
      * 3. Choose the first data source which consists of users keyword
-     * 4. Click on the "New Query +"" button
+     * 4. Click on the "New query +"" button
      * 5. Name the Query as "Query1"
      * 6. Write the query as "SELECT * FROM users ORDER BY id LIMIT 10;"
      * 7. Run the Query

@@ -69,30 +69,26 @@ export const EditorWrapper = styled.div<{
   flex: 1;
   flex-direction: row;
   text-transform: none;
-  ${(props) =>
-    props.hoverInteraction
-      ? `
   &:hover {
     && {
-      .cm-s-duotone-dark.CodeMirror {
-        cursor: pointer;
-        border-radius: 0px;
-        background: ${
-          !props.isNotHover
-            ? Colors.SHARK2
-            : props.isFocused
-            ? Colors.NERO
-            : Colors.BALTIC_SEA
-        };
-      }
       .cm-s-duotone-light.CodeMirror {
         cursor: pointer;
         border-radius: var(--ads-v2-border-radius);
-        background: var(--ads-v2-color-bg-muted);
+        border-color: var(--ads-v2-color-border-emphasis);
       }
     }
-  }`
-      : null};
+  }
+  &:focus,
+  &:focus-visible {
+    && {
+      .cm-s-duotone-light.CodeMirror {
+        cursor: pointer;
+        border-radius: var(--ads-v2-border-radius);
+        border-color: var(--ads-v2-color-border-emphasis-plus);
+      }
+    }
+  }
+
   && {
     .CodeMirror-cursor {
       border-right: none;
@@ -135,25 +131,7 @@ export const EditorWrapper = styled.div<{
     .cm-s-duotone-light .CodeMirror-gutters {
       background: var(--ads-v2-color-bg-subtle);
     }
-    .cm-s-duotone-dark.CodeMirror {
-      border-radius: 0;
-      ${(props) =>
-        props.border === "none"
-          ? `border: 0px`
-          : props.border === "bottom-side"
-          ? `border-bottom: 1px solid ${Colors.NERO}`
-          : `border: 1px solid ${Colors.NERO}`};
-      background: ${(props) =>
-        props.isFocused || props.fillUp ? Colors.NERO : "#262626"};
-      color: ${Colors.LIGHT_GREY};
-    }
     .cm-s-duotone-light .CodeMirror-linenumber,
-    .cm-s-duotone-dark .CodeMirror-linenumber {
-      color: var(--ads-v2-color-fg);
-    }
-    .cm-s-duotone-dark .CodeMirror-gutters {
-      background: ${Colors.SHARK2};
-    }
     .binding-brackets {
       color: ${(props) =>
         props.editorTheme === EditorTheme.DARK
@@ -163,7 +141,7 @@ export const EditorWrapper = styled.div<{
     }
 
     .${PEEKABLE_CLASSNAME}:hover, .${PEEK_STYLE_PERSIST_CLASS} {
-      background-color: var(--ads-v2-color-bg-subtle);
+      border-color: var(--ads-v2-color-border-emphasis);
     }
 
     .${NAVIGATION_CLASSNAME} {
@@ -192,11 +170,11 @@ export const EditorWrapper = styled.div<{
       margin-right: 2px;
     }
     .datasource-highlight-error {
-      background: #fff0f0;
+      background: var(--ads-v2-color-bg-error);
       border: 1px solid var(--ads-v2-color-border-error);
     }
     .datasource-highlight-success {
-      background: #e3fff3;
+      background: var(--ads-v2-color-bg-success);
       border: 1px solid var(--ads-v2-color-border-success);
     }
     .CodeMirror {
@@ -231,7 +209,7 @@ export const EditorWrapper = styled.div<{
   && {
     .CodeMirror-lines {
       padding: ${(props) => props.theme.spaces[2]}px 0px;
-      background-color: ${(props) => props.disabled && "#eef2f5"};
+      opacity: ${(props) => props.disabled && "var(--ads-v2-opacity-disabled)"};
       cursor: ${(props) => (props.disabled ? "not-allowed" : "text")};
     }
   }
@@ -267,7 +245,7 @@ export const EditorWrapper = styled.div<{
     width: 100%;
 
     &:focus {
-      border: 1px solid var(--ads-v2-color-border-emphasis);
+      border: 1px solid var(--ads-v2-color-border-emphasis-plus);
       .CodeMirror.cm-s-duotone-light {
         border: none;
       }

@@ -21,7 +21,8 @@ import {
 
 const StyledAuthMessage = styled.div`
   width: fit-content;
-  margin-bottom: var(--ads-v2-space-4);
+  margin-bottom: var(--ads-v2-spaces-4);
+  margin-left: 24px;
 `;
 
 type AuthMessageProps = {

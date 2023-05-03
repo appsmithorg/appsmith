@@ -1,5 +1,5 @@
 import type { PropsWithChildren, RefObject } from "react";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 import { withRouter } from "react-router";
@@ -36,7 +36,7 @@ import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import EntityDeps from "./Debugger/EntityDependecies";
 import { Classes, TAB_MIN_HEIGHT, Text, TextType } from "design-system-old";
-import { Button, Callout } from "design-system";
+import { Button, Callout, SegmentedControl } from "design-system";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import Table from "pages/Editor/QueryEditor/Table";
@@ -62,6 +62,7 @@ import {
 import LogHelper from "./Debugger/ErrorLogs/components/LogHelper";
 import { getUpdateTimestamp } from "./Debugger/ErrorLogs/ErrorLogItem";
 import type { Action } from "entities/Action";
+import { SegmentedControlContainer } from "../../pages/Editor/QueryEditor/EditorJSONtoForm";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
@@ -76,7 +77,7 @@ const ResponseContainer = styled.div`
   background-color: var(--ads-v2-color-bg);
   border-top: 1px solid var(--ads-v2-color-border);
 
-  .react-tabs__tab-panel {
+  .ads-v2-tabs__panel {
     overflow: hidden;
   }
   .CodeMirror-code {
@@ -97,6 +98,7 @@ const ResponseMetaWrapper = styled.div`
   position: absolute;
   right: ${(props) => props.theme.spaces[17] + 1}px;
   top: ${(props) => props.theme.spaces[2] + 1}px;
+  z-index: 6;
 `;
 
 const ResponseTabWrapper = styled.div`
@@ -117,14 +119,14 @@ const TabbedViewWrapper = styled.div`
   }
 
   &&& {
-    ul.react-tabs__tab-list {
+    ul.ads-v2-tabs__list {
       margin: 0 ${(props) => props.theme.spaces[11]}px;
       height: ${TAB_MIN_HEIGHT};
     }
   }
 
   & {
-    .react-tabs__tab-panel {
+    .ads-v2-tabs__panel {
       height: calc(100% - ${TAB_MIN_HEIGHT});
     }
   }
@@ -227,8 +229,8 @@ export const EMPTY_RESPONSE: ActionResponse = {
 const StatusCodeText = styled(BaseText)<PropsWithChildren<{ code: string }>>`
   color: ${(props) =>
     props.code.startsWith("2")
-      ? props.theme.colors.primaryOld
-      : props.theme.colors.debugger.floatingButton.errorCount};
+      ? "var(--ads-v2-color-fg-success)"
+      : "var(--ads-v2-color-fg-error)"};
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
@@ -425,6 +427,31 @@ function ApiResponseView(props: Props) {
     }
   }
 
+  const responseTabs =
+    filteredResponseDataTypes &&
+    filteredResponseDataTypes.map((dataType, index) => {
+      return {
+        index: index,
+        key: dataType.key,
+        title: dataType.title,
+        panelComponent: responseTabComponent(
+          dataType.key,
+          response?.body,
+          responsePaneHeight,
+        ),
+      };
+    });
+
+  const segmentedControlOptions =
+    responseTabs &&
+    responseTabs.map((item) => {
+      return { value: item.key, label: item.title };
+    });
+
+  const [selectedControl, setSelectedControl] = useState(
+    segmentedControlOptions[0]?.value,
+  );
+
   const selectedTabIndex =
     filteredResponseDataTypes &&
     filteredResponseDataTypes.findIndex(
@@ -449,20 +476,6 @@ function ApiResponseView(props: Props) {
     dispatch(setResponsePaneHeight(height));
   }, []);
 
-  const responseTabs =
-    filteredResponseDataTypes &&
-    filteredResponseDataTypes.map((dataType, index) => {
-      return {
-        index: index,
-        key: dataType.key,
-        title: dataType.title,
-        panelComponent: responseTabComponent(
-          dataType.key,
-          response?.body,
-          responsePaneHeight,
-        ),
-      };
-    });
   // get request timestamp formatted to human readable format.
   const responseState = getUpdateTimestamp(response.request);
   // action source for analytics.
@@ -543,12 +556,25 @@ function ApiResponseView(props: Props) {
                   ) : responseTabs &&
                     responseTabs.length > 0 &&
                     selectedTabIndex !== -1 ? (
-                    <EntityBottomTabs
-                      onSelect={onResponseTabSelect}
-                      responseViewer
-                      selectedTabKey={responseDisplayFormat.value}
-                      tabs={responseTabs}
-                    />
+                    <SegmentedControlContainer>
+                      <SegmentedControl
+                        //   selectedTabKey={responseDisplayFormat.value}
+                        //  TODO (albin): Even for when the default value is set, onResponseBodyTab needs to be called.
+                        //   To fix this issue in one go, this component needs to be controlled.
+                        defaultValue={segmentedControlOptions[0]?.value}
+                        isFullWidth={false}
+                        onChange={(value) => {
+                          setSelectedControl(value);
+                          onResponseTabSelect(value);
+                        }}
+                        options={segmentedControlOptions}
+                      />
+                      {responseTabComponent(
+                        selectedControl,
+                        response?.body,
+                        responsePaneHeight,
+                      )}
+                    </SegmentedControlContainer>
                   ) : null}
                 </ResponseBodyContainer>
               )}
@@ -648,7 +674,7 @@ function ApiResponseView(props: Props) {
               }}
               size="md"
             >
-              Cancel Request
+              Cancel request
             </Button>
           </LoadingOverlayContainer>
         </>

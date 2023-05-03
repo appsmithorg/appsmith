@@ -234,7 +234,7 @@ describe("getConfigInitialValues test", () => {
             sectionName: "Connection",
             children: [
               {
-                label: "Host Address (for overriding endpoint only)",
+                label: "Host address (for overriding endpoint only)",
                 configProperty: "datasourceConfiguration.endpoints[*].host",
                 controlType: "KEYVALUE_ARRAY",
                 initialValue: ["jsonplaceholder.typicode.com"],
@@ -814,10 +814,10 @@ describe("UQI form render methods", () => {
       {
         input: {
           controlType: "SECTION",
-          label: "Select Bucket to Query",
+          label: "Select bucket to query",
           children: [
             {
-              label: "Bucket Name",
+              label: "Bucket name",
               configProperty: "actionConfiguration.formData.bucket.data",
               controlType: "QUERY_DYNAMIC_INPUT_TEXT",
               evaluationSubstitutionType: "TEMPLATE",
@@ -830,10 +830,10 @@ describe("UQI form render methods", () => {
       },
       {
         input: {
-          label: "Select Bucket to Query",
+          label: "Select bucket to query",
           children: [
             {
-              label: "Bucket Name",
+              label: "Bucket name",
               configProperty: "actionConfiguration.formData.bucket.data",
               controlType: "QUERY_DYNAMIC_INPUT_TEXT",
               evaluationSubstitutionType: "TEMPLATE",

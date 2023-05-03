@@ -34,7 +34,6 @@ import * as FontFamilies from "constants/Fonts";
 import { AuthType } from "entities/Datasource/RestAPIForm";
 
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { Colors } from "constants/Colors";
 import { Indices } from "constants/Layers";
 import { getExpectedValue } from "utils/validation/common";
 import { ValidationTypes } from "constants/WidgetValidation";
@@ -85,9 +84,9 @@ const DatasourceContainer = styled.div`
   align-items: center;
   height: 36px;
   .t--datasource-editor {
-    background-color: ${Colors.WHITE};
+    background-color: var(--ads-v2-color-bg);
     .cm-s-duotone-light.CodeMirror {
-      background: ${Colors.WHITE};
+      background: var(--ads-v2-color-bg);
     }
     .CodeEditorTarget {
       z-index: ${Indices.Layer5};

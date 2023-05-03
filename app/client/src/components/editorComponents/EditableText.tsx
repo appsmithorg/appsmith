@@ -74,6 +74,9 @@ const EditableTextWrapper = styled.div<{
       text-transform: none;
       width: 100%;
     }
+    /* .title-editable-text {
+      max-width: 284px;
+    } */
   }
 
   ${({ useFullWidth }) =>
@@ -111,7 +114,7 @@ const TextContainer = styled.div<{
         : null}
   }
   & span.bp3-editable-text-content {
-    height: auto !important;
+    /* height: auto !important; */
   }
 
   && .t--action-name-edit-icon {
@@ -259,7 +262,7 @@ export function EditableText(props: EditableTextProps) {
               isIconButton
               kind="tertiary"
               size="md"
-              startIcon="pencil-fill-icon"
+              startIcon="pencil-line"
             />
           )}
         </TextContainer>

@@ -104,7 +104,7 @@ export function useDatasource() {
       },
       {
         id: "Insert Snippet",
-        label: "Insert Snippet",
+        label: "Insert snippet",
         value: "Insert Snippet",
         icon: <Icon name="code" size={IconSize.XXXL} />,
         onSelect: addSnippet,

@@ -97,7 +97,13 @@ export const TabbedViewContainer = styled.div<{ isExecuting: boolean }>`
     }
   }
   &&& {
-    .js-editor-tab {
+    ul.ads-v2-tabs__list {
+      padding: 0px ${(props) => props.theme.spaces[11]}px;
+      background-color: ${(props) =>
+        props.theme.colors.apiPane.responseBody.bg};
+    }
+    .ads-v2-tabs__panel {
+      ${CodeEditorWithGutterStyles};
       height: calc(100% - 32px);
       background-color: var(--ads-v2-color-bg);
       .CodeEditorTarget {

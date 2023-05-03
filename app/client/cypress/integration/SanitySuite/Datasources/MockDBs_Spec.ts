@@ -6,7 +6,7 @@ describe("Validate Mock Query Active Ds querying & count", () => {
     _.dataSources.CreateMockDB("Movies").then((mockDBName) => {
       dsName = mockDBName;
       _.dataSources.CreateQueryFromActiveTab(mockDBName, false);
-      _.dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)");
+      _.dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
       _.agHelper.EnterValue("movies", {
         propFieldName: "",
         directInput: false,
@@ -21,7 +21,7 @@ describe("Validate Mock Query Active Ds querying & count", () => {
         );
 
       _.entityExplorer.CreateNewDsQuery(mockDBName);
-      _.dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)");
+      _.dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
       _.agHelper.EnterValue("movies", {
         propFieldName: "",
         directInput: false,

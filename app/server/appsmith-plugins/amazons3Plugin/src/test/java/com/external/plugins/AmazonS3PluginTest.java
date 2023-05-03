@@ -130,7 +130,7 @@ public class AmazonS3PluginTest {
         DBAuth authDTOWithEmptyAccessKey = new DBAuth();
         authDTOWithEmptyAccessKey.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
         authDTOWithEmptyAccessKey.setPassword(secretKey);
-        /* Do not configure Access Key */
+        /* Do not configure Access key */
 
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         datasourceConfiguration.setAuthentication(authDTOWithEmptyAccessKey);
@@ -144,7 +144,7 @@ public class AmazonS3PluginTest {
                     assertNotEquals(0, res.size());
 
                     List<String> errorList = new ArrayList<>(res);
-                    assertTrue(errorList.get(0).contains("Mandatory parameter 'Access Key' is empty"));
+                    assertTrue(errorList.get(0).contains("Mandatory parameter 'Access key' is empty"));
                 })
                 .verifyComplete();
     }
@@ -154,7 +154,7 @@ public class AmazonS3PluginTest {
         DBAuth authDTOWithEmptyAccessKey = new DBAuth();
         authDTOWithEmptyAccessKey.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
         authDTOWithEmptyAccessKey.setUsername(accessKey);
-        /* Do not configure Secret Key */
+        /* Do not configure Secret key */
 
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         datasourceConfiguration.setAuthentication(authDTOWithEmptyAccessKey);
@@ -236,7 +236,7 @@ public class AmazonS3PluginTest {
                     assertNotEquals(0, datasourceTestResult.getInvalids().size());
 
                     List<String> errorList = new ArrayList<>(datasourceTestResult.getInvalids());
-                    assertTrue(errorList.get(0).contains("The AWS Access Key Id you provided does not exist in our records"));
+                    assertTrue(errorList.get(0).contains("The AWS access key Id you provided does not exist in our records"));
                 })
                 .verifyComplete();
     }
@@ -357,7 +357,7 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
                     String message = result.getPluginErrorDetails().getDownstreamErrorMessage();
-                    assertTrue(message.contains("The AWS Access Key Id you provided does not exist in " +
+                    assertTrue(message.contains("The AWS access key Id you provided does not exist in " +
                             "our records"));
                     assertEquals(S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED.getTitle(), result.getTitle());
                 })
@@ -398,7 +398,7 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
                     String message = result.getPluginErrorDetails().getDownstreamErrorMessage();
-                    assertTrue(message.contains("The AWS Access Key Id you provided does not exist in " +
+                    assertTrue(message.contains("The AWS access key Id you provided does not exist in " +
                             "our records"));
                     assertEquals(S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED.getTitle(), result.getTitle());
                 })
@@ -444,7 +444,7 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
                     String message = result.getPluginErrorDetails().getDownstreamErrorMessage();
-                    assertTrue(message.contains("The AWS Access Key Id you provided does not exist in " +
+                    assertTrue(message.contains("The AWS access key Id you provided does not exist in " +
                             "our records"));
                     assertEquals(S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED.getTitle(), result.getTitle());
                 })
@@ -533,7 +533,7 @@ public class AmazonS3PluginTest {
                     String message = (String) result.getBody();
                     assertTrue(message.contains("File content is not base64 encoded. " +
                                                         "File content needs to be base64 encoded when the " +
-                                                        "'File Data Type: Base64/Text' field is selected 'Yes'."));
+                                                        "'File data type: Base64/Text' field is selected 'Yes'."));
                     assertEquals(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getTitle(), result.getTitle());
 
                     /*
@@ -588,7 +588,7 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
                     String message = result.getPluginErrorDetails().getDownstreamErrorMessage();
-                    assertTrue(message.contains("The AWS Access Key Id you provided does not exist in " +
+                    assertTrue(message.contains("The AWS access key Id you provided does not exist in " +
                             "our records"));
                     assertEquals(S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED.getTitle(), result.getTitle());
                 })
@@ -1042,7 +1042,7 @@ public class AmazonS3PluginTest {
                     expectedRequestParams.add(new RequestParamDTO(LIST_EXPIRY, "5", null,
                             null, null)); // Expiry duration
                     expectedRequestParams.add(new RequestParamDTO(LIST_UNSIGNED_URL, "NO", null,
-                            null, null)); // Generate Un-signed URL
+                            null, null)); // Generate unsigned URL
                     assertEquals(expectedRequestParams.toString(), result.getRequest().getRequestParams().toString());
                 })
                 .verifyComplete();
@@ -1162,7 +1162,7 @@ public class AmazonS3PluginTest {
         s3ClientBuilder = getS3ClientBuilder(datasourceConfiguration);
         assertEquals("ap-northeast-1", s3ClientBuilder.getEndpoint().getSigningRegion());
 
-        // Test for Digital Ocean Spaces
+        // Test for Digital Ocean spaces
         datasourceConfiguration.getProperties().get(1).setValue("digital-ocean-spaces");
         datasourceConfiguration.getEndpoints().get(0).setHost("fra1.digitaloceanspaces.com");
 

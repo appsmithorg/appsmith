@@ -22,6 +22,7 @@ const Container = styled.div`
 const renderDropdown = (props: any) => {
   return (
     <Select
+      dropdownClassName="select-with-fixed-option"
       onSelect={(value) => {
         // take the string value that rc-select gives us and use it to find the object that the string value contains,
         // which is what our backend wants.
@@ -31,6 +32,7 @@ const renderDropdown = (props: any) => {
         props.input.onChange(obj);
       }}
       value={props.input.value}
+      virtual={false}
     >
       {props.options.map((option: SelectOptionProps) => (
         <Option key={option.value} value={option.value}>

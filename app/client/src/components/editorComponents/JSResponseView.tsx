@@ -60,7 +60,7 @@ const ResponseContainer = styled.div`
   background-color: var(--ads-v2-color-bg);
   height: ${ActionExecutionResizerHeight}px;
 
-  .react-tabs__tab-panel {
+  .ads-v2-tabs__panel {
     ${CodeEditorWithGutterStyles};
     overflow-y: auto;
     height: calc(100% - ${TAB_MIN_HEIGHT});
@@ -85,8 +85,15 @@ const TabbedViewWrapper = styled.div`
 
   .close-debugger {
     position: absolute;
-    top: 0;
-    right: 0;
+    top: 0px;
+    right: 0px;
+    padding: 9px 11px;
+  }
+  &&& {
+    ul.ads-v2-tabs__list {
+      padding: 0px ${(props) => props.theme.spaces[11]}px;
+      height: ${TAB_MIN_HEIGHT};
+    }
   }
 `;
 

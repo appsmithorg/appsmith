@@ -134,7 +134,7 @@ const NoEntityFoundWrapper = styled.div`
 export const getDatasourceInfo = (datasource: any): string => {
   const info = [];
   const headers = get(datasource, "datasourceConfiguration.headers", []);
-  const queryParamters = get(
+  const queryParameters = get(
     datasource,
     "datasourceConfiguration.queryParameters",
     [],
@@ -145,11 +145,11 @@ export const getDatasourceInfo = (datasource: any): string => {
     "",
   ).toUpperCase();
   if (headers.length)
-    info.push(`${headers.length} HEADER${headers.length > 1 ? "S" : ""}`);
-  if (queryParamters.length)
+    info.push(`${headers.length} Header${headers.length > 1 ? "s" : ""}`);
+  if (queryParameters.length)
     info.push(
-      `${queryParamters.length} QUERY PARAMETER${
-        queryParamters.length > 1 ? "S" : ""
+      `${queryParameters.length} query parameters${
+        queryParameters.length > 1 ? "s" : ""
       }`,
     );
   if (authType.length) info.push(authType);
@@ -238,7 +238,7 @@ function ApiRightPane(props: any) {
                           </Text>
                           {d?.id === props.currentActionDatasourceId && (
                             <Tag isClosable={false} size="md">
-                              In Use
+                              In use
                             </Tag>
                           )}
                           <Button

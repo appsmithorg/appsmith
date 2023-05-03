@@ -442,7 +442,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
           >
             <h1>{"Map Widget disabled"}</h1>
             <mark>Key: x{this.props.googleMapsApiKey}x</mark>
-            <p>{"Map widget requires a Google Maps API Key"}</p>
+            <p>{"Map widget requires a Google Maps API key"}</p>
             <p>
               {"See our"}
               <a
@@ -452,7 +452,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
               >
                 {" documentation "}
               </a>
-              {"to configure API Keys"}
+              {"to configure API keys"}
             </p>
           </DisabledContainer>
         )}
