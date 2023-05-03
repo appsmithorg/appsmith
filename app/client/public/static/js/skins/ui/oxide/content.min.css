@@ -725,7 +725,9 @@ table[style*="border-width: 0px"] th {
 .mce-shy::after {
   content: "-";
 }
-
+body {
+  font-family: sans-serif;
+}
 table {
   border-collapse: collapse;
 }
