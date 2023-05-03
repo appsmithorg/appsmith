@@ -9,7 +9,6 @@ import { FormGroup } from "./Common";
 
 const ButtonWrapper = styled.div`
   width: 357px;
-  margin-bottom: ${(props) => props.theme.spaces[11]}px;
   margin-top: 3px;
 `;
 

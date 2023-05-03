@@ -36,6 +36,10 @@ const Wrapper = styled.div`
   }
 `;
 
+const StyledText = styled(Text)`
+  font-weight: 500;
+`;
+
 type SettingsFormProps = {
   disabled?: boolean;
   control: Control<Inputs, any>;
@@ -59,14 +63,14 @@ function SettingsForm(props: SettingsFormProps) {
     <Wrapper className="flex flex-col flex-grow gap-4">
       {/* LOGO */}
       <div className="flex flex-col gap-2">
-        <Text
+        <StyledText
           color="var(--ads-v2-color-fg)"
           htmlFor="APPSMITH_BRAND_LOGO"
-          kind="heading-s"
+          kind="body-m"
           renderAs="label"
         >
           Logo
-        </Text>
+        </StyledText>
         <Controller
           control={control}
           name="APPSMITH_BRAND_LOGO"
@@ -93,14 +97,14 @@ function SettingsForm(props: SettingsFormProps) {
 
       {/* FAVICON */}
       <div className="flex flex-col gap-2">
-        <Text
+        <StyledText
           color="var(--ads-v2-color-fg)"
           htmlFor="APPSMITH_BRAND_FAVICON"
-          kind="heading-s"
+          kind="body-m"
           renderAs="label"
         >
           Favicon
-        </Text>
+        </StyledText>
         <Controller
           control={control}
           name="APPSMITH_BRAND_FAVICON"
@@ -128,14 +132,14 @@ function SettingsForm(props: SettingsFormProps) {
       {/* COLOR */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-1">
-          <Text
+          <StyledText
             color="var(--ads-v2-color-fg)"
             htmlFor="APPSMITH_BRAND_PRIMARY_COLOR"
-            kind="heading-s"
+            kind="body-m"
             renderAs="label"
           >
             Color
-          </Text>
+          </StyledText>
           <Tooltip content={createMessage(ADMIN_BRANDING_COLOR_TOOLTIP)}>
             <Icon className="help-icon" name="question-line" size="md" />
           </Tooltip>

@@ -24,10 +24,6 @@ export const StyledFormGroup = styled.div`
     path {
     }
   }
-  &.t--admin-settings-toggle {
-    width: fit-content;
-    min-width: 260px;
-  }
 `;
 
 export const StyledLabel = styled.div`
@@ -40,6 +36,7 @@ export const StyledLabel = styled.div`
 export const StyledSubtext = styled(Text)`
   font-size: 12px;
   color: var(--ads-v2-color-fg-muted);
+  margin-top: 4px;
 `;
 
 export const StyledAsterisk = styled(Text)`
@@ -48,19 +45,14 @@ export const StyledAsterisk = styled(Text)`
   font-weight: 500;
 `;
 
-export function FormGroup({
-  children,
-  className,
-  isToggle,
-  setting,
-}: FieldHelperProps) {
+export function FormGroup({ children, className, setting }: FieldHelperProps) {
   return (
     <StyledFormGroup
       className={`${className}`}
       data-testid="admin-settings-form-group"
     >
       <StyledLabel>
-        {setting.label && !isToggle && (
+        {setting.label && (
           <Text
             className="admin-settings-form-group-label"
             color="var(--ads-v2-color-fg)"
@@ -71,7 +63,7 @@ export function FormGroup({
             {createMessage(() => setting.label || "")}
           </Text>
         )}
-        {setting.isRequired && !isToggle && (
+        {setting.isRequired && (
           <StyledAsterisk renderAs="span">*</StyledAsterisk>
         )}
         {setting.helpText && (

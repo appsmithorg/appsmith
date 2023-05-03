@@ -28,16 +28,15 @@ const renderComponent = (
     />
   ) : (
     <Input
-      {...componentProps}
       {...componentProps.input}
+      {...componentProps}
       errorMessage={
         !componentProps.hideErrorMessage &&
         showError &&
-        componentProps.meta.error &&
         componentProps.meta.error
       }
-      renderAs="input"
-      size={"md"}
+      renderAs={"input"}
+      size="md"
     />
   );
 };
@@ -45,12 +44,14 @@ const renderComponent = (
 export type FormTextFieldProps = {
   name: string;
   placeholder: string;
+  description?: string;
   type?: InputType;
   label?: string;
   intent?: Intent;
   disabled?: boolean;
   autoFocus?: boolean;
   hideErrorMessage?: boolean;
+  isRequired?: boolean;
 };
 
 function ReduxFormTextField(props: FormTextFieldProps) {

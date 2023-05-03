@@ -4,7 +4,6 @@ import { Field } from "redux-form";
 import type { Intent } from "constants/DefaultTheme";
 import { FieldError } from "design-system-old";
 import { Input } from "design-system";
-import { FormGroup } from "./Common";
 import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
 
 const renderComponent = (
@@ -49,14 +48,21 @@ export type FormTextAreaFieldProps = {
 function FormTextAreaField(props: FormTextAreaFieldProps) {
   const { setting } = props;
   return (
-    <FormGroup
+    <div
       className={`t--admin-settings-text-area-input t--admin-settings-${
         setting.name || setting.id
       }`}
-      setting={setting}
     >
-      <Field component={renderComponent} {...props} asyncControl />
-    </FormGroup>
+      <Field
+        component={renderComponent}
+        description={setting.subText}
+        isRequired={setting.isRequired}
+        label={setting.label}
+        name={setting.name || setting.id || ""}
+        {...props}
+        asyncControl
+      />
+    </div>
   );
 }
 

@@ -73,6 +73,10 @@ const StyledColorInputIcon = styled.input`
   }
 `;
 
+const StyledText = styled(Text)`
+  font-weight: 500;
+`;
+
 type ColorInputProps = {
   value: Record<brandColorsKeys, string>;
   onChange?: (value: any) => void;
@@ -164,9 +168,13 @@ export const ColorInput = (props: ColorInputProps) => {
 
       {/* label with tooltip */}
       <div className="flex items-center gap-1">
-        <Text color="var(--ads-v2-color-fg)" kind="heading-s" renderAs="label">
+        <StyledText
+          color="var(--ads-v2-color-fg)"
+          kind="body-m"
+          renderAs="label"
+        >
           {startCase(selectedIndex)}
-        </Text>
+        </StyledText>
         <Tooltip
           content={tooltips && tooltips[selectedIndex]}
           key={`tooltip-${selectedIndex}`}

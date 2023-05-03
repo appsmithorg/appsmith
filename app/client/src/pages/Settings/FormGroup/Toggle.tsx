@@ -3,7 +3,6 @@ import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
 import styled from "styled-components";
 import type { SettingComponentProps } from "./Common";
-import { FormGroup } from "./Common";
 import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
 import { createMessage } from "@appsmith/constants/messages";
 import { Switch, Text } from "design-system";
@@ -66,11 +65,7 @@ const StyledFieldToggleGroup = styled.div`
 export function ToggleComponent({ setting }: SettingComponentProps) {
   return (
     <StyledFieldToggleGroup>
-      <FormGroup
-        className="t--admin-settings-toggle"
-        isToggle
-        setting={setting}
-      >
+      <div className="t--admin-settings-toggle">
         <Field
           component={FieldToggleWithToggleText(
             setting.toggleText,
@@ -80,7 +75,7 @@ export function ToggleComponent({ setting }: SettingComponentProps) {
           )}
           name={setting.name}
         />
-      </FormGroup>
+      </div>
     </StyledFieldToggleGroup>
   );
 }

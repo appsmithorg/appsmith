@@ -85,6 +85,15 @@ const GroupBody = styled.div`
       border: 1px solid var(--ads-v2-color-border-emphasis-plus);
     }
   }
+
+  label:first-child {
+    font-weight: 500;
+  }
+
+  .t--admin-settings-toggle {
+    width: fit-content;
+    min-width: 260px;
+  }
 `;
 
 const formValuesSelector = getFormValues(SETTINGS_FORM_NAME);
@@ -230,7 +239,7 @@ export default function Group({
                     />
                   </div>
                 );
-              case SettingTypes.UNEDITABLEFIELD: //TODO: Need to create custom component
+              case SettingTypes.UNEDITABLEFIELD:
                 return (
                   <div
                     className={setting.isHidden ? "hide" : ""}

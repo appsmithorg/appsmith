@@ -60,7 +60,7 @@ export const config: AdminConfigType = {
         }
       },
       subText:
-        "You will need to verify your from email address to begin sending emails",
+        "* You will need to verify your from email address to begin sending emails",
     },
     {
       id: "APPSMITH_REPLY_TO",
@@ -75,7 +75,7 @@ export const config: AdminConfigType = {
         }
       },
       subText:
-        "You will need to verify your to email address to begin receiving emails",
+        "* You will need to verify your to email address to begin receiving emails",
     },
     {
       id: "APPSMITH_MAIL_SMTP_TLS_ENABLED",
