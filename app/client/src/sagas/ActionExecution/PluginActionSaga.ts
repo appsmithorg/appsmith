@@ -1,5 +1,6 @@
 import { all, call, put, select, take, takeLatest } from "redux-saga/effects";
 import {
+  clearActionResponse,
   executePluginActionError,
   executePluginActionRequest,
   executePluginActionSuccess,
@@ -134,6 +135,8 @@ import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
 import type { TRunDescription } from "workers/Evaluation/fns/actionFns";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
+import { getActionsForCurrentPage } from "selectors/entitiesSelector";
+import type { ActionData } from "reducers/entityReducers/actionsReducer";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -1326,8 +1329,25 @@ function* openDebugger() {
   yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
 }
 
+// Function to clear the action responses for the actions which are not executeOnLoad.
+function* clearTriggerActionResponse() {
+  const currentPageActions: ActionData[] = yield select(
+    getActionsForCurrentPage,
+  );
+  for (const action of currentPageActions) {
+    // Clear the action response if the action has data and is not executeOnLoad.
+    if (action.data && !action.config.executeOnLoad) {
+      yield put(clearActionResponse(action.config.id));
+    }
+  }
+}
+
+// Function to soft refresh the all the actions on the page.
 function* softRefreshActionsSaga() {
+  //Rerun all the page load actions on the page
   yield call(executePageLoadActionsSaga);
+  // Clear all the action responses on the page
+  yield call(clearTriggerActionResponse);
 }
 
 export function* watchPluginActionExecutionSagas() {
