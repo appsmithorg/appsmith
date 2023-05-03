@@ -3,7 +3,7 @@ const dsl = require("../../../../fixtures/omnibarDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-const locators = ObjectsRegistry.CommonLocators;
+const ee = ObjectsRegistry.EntityExplorer;
 
 describe("Omnibar functionality test cases", () => {
   const apiName = "Omnibar1";
@@ -137,8 +137,7 @@ describe("Omnibar functionality test cases", () => {
   });
 
   it("6. Verify Navigate section shows recently opened widgets and datasources", function () {
-    cy.get(".bp3-icon-chevron-left").click({ force: true });
-    cy.openPropertyPane("buttonwidget");
+    ee.SelectEntityByName("Button1", "Widgets");
     cy.get(omnibar.globalSearch).click({ force: true });
     cy.get(omnibar.categoryTitle).eq(0).click();
     // verify recently opened items with their subtext i.e page name
