@@ -178,7 +178,7 @@ export const RowWrapper = styled.div<{ isSubRow?: boolean }>`
 
   ${({ isSubRow }) => (isSubRow ? `padding-left: 12px;` : ``)}
 
-  .cs-icon {
+  .ads-v2-icon {
     margin: 0 4px 0 0;
     position: relative;
     left: -4px;

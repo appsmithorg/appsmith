@@ -48,7 +48,6 @@ import {
   fetchUsersForWorkspace,
   fetchWorkspace,
 } from "@appsmith/actions/workspaceActions";
-// import { useHistory } from "react-router-dom";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
 
@@ -96,17 +95,12 @@ export const UserList = styled.div`
   }
 `;
 
-export const User = styled.div<{ isApplicationInvite?: boolean }>`
+export const User = styled.div`
   display: flex;
   align-items: center;
   min-height: 54px;
   justify-content: space-between;
   border-bottom: 1px solid var(--ads-v2-color-border);
-
-  &:last-child {
-    ${({ isApplicationInvite }) =>
-      isApplicationInvite && `border-bottom: none;`}
-  }
 `;
 
 export const UserInfo = styled.div`
@@ -231,8 +225,7 @@ function WorkspaceInviteUsersForm(props: any) {
   const {
     allUsers,
     anyTouched,
-    disableManageUsers = false,
-    disableUserList = false,
+    customProps = {},
     error,
     fetchAllRoles,
     fetchCurrentWorkspace,
@@ -247,6 +240,12 @@ function WorkspaceInviteUsersForm(props: any) {
     submitting,
     valid,
   } = props;
+
+  const {
+    disableDropdown = false,
+    disableManageUsers = false,
+    disableUserList = false,
+  } = customProps;
 
   // set state for checking number of users invited
   const [numberOfUsersInvited, updateNumberOfUsersInvited] = useState(0);
@@ -380,7 +379,7 @@ function WorkspaceInviteUsersForm(props: any) {
           <div style={{ width: "40%" }}>
             <Select
               data-cy="t--invite-role-input"
-              isDisabled={props.disableDropdown}
+              isDisabled={disableDropdown}
               isMultiSelect={isMultiSelectDropdown}
               onDeselect={onRemoveOptions}
               onSelect={onSelect}
@@ -433,10 +432,7 @@ function WorkspaceInviteUsersForm(props: any) {
                     photoId?: string;
                   }) => {
                     return (
-                      <User
-                        isApplicationInvite={isApplicationInvite}
-                        key={user.username}
-                      >
+                      <User key={user.username}>
                         <UserInfo>
                           <Avatar
                             firstLetter={user.initials}
@@ -518,6 +514,8 @@ export default connect(
       workspaceId?: string;
       isApplicationInvite?: boolean;
       placeholder?: string;
+      customProps?: any;
+      selected?: any;
     }
   >({
     validate,
