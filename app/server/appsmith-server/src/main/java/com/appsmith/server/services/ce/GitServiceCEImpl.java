@@ -2548,13 +2548,15 @@ public class GitServiceCEImpl implements GitServiceCE {
                     }
                     return this.getApplicationCountWithPrivateRepo(workspaceId)
                             .map(privateRepoCount -> {
-                                if (limit >= privateRepoCount) {
-                                    if (isClearCache) {
-                                        return Boolean.TRUE;
-                                    }
+                                // isClearCache is false for the commit flow
+                                // isClearCache is true for the connect & import flow
+                                if (!isClearCache && limit >= privateRepoCount) {
                                     return Boolean.FALSE;
+                                } else if (limit > privateRepoCount) {
+                                    return Boolean.FALSE;
+                                } else {
+                                    return Boolean.TRUE;
                                 }
-                                return Boolean.TRUE;
                             });
                 });
     }
