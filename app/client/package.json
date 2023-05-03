@@ -28,7 +28,6 @@
     "generate:widget": "plop --plopfile generators/index.js",
     "postinstall": "patch-package && CURRENT_SCOPE=client node ../shared/install-dependencies.js",
     "preinstall": "CURRENT_SCOPE=client node ../shared/build-shared-dep.js",
-    "install": "node ./node_modules/cypress/apply-patches.js",
     "storybook": "yarn workspace @design-system/storybook storybook",
     "lint:ci": "eslint --cache --ext .js,.ts ./src && eslint --cache --ext .js,.ts ./cypress && yarn run lint:packages",
     "lint:packages": "workspaces-foreach -pt yarn lint:ci",
