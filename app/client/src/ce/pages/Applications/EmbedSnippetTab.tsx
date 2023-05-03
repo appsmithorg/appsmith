@@ -71,6 +71,7 @@ function ShareModal() {
           </div>
           <Link
             data-testid="t--change-embedding-restriction"
+            target="_self"
             to={ADMIN_SETTINGS_PATH}
           >
             {createMessage(IN_APP_EMBED_SETTING.change)}
@@ -132,6 +133,7 @@ function AppSettings() {
           <Link
             data-testid="t--change-embedding-restriction"
             endIcon="pencil-line"
+            target="_self"
             to={ADMIN_SETTINGS_PATH}
           >
             {""}
