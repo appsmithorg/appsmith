@@ -4,8 +4,7 @@ import styled from "styled-components";
 import _ from "lodash";
 import { DATASOURCE_DB_FORM } from "@appsmith/constants/forms";
 import { Icon } from "@blueprintjs/core";
-import FormTitle from "./FormTitle";
-import { Callout, Category, Variant } from "design-system-old";
+import { Callout, Variant } from "design-system-old";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import Connected from "./Connected";
 import type { Datasource } from "entities/Datasource";
@@ -17,22 +16,14 @@ import { convertArrayToSentence } from "utils/helpers";
 import { PluginType } from "entities/Action";
 import type { AppState } from "@appsmith/reducers";
 import type { JSONtoFormProps } from "./JSONtoForm";
-import {
-  EditDatasourceButton,
-  FormTitleContainer,
-  Header,
-  JSONtoForm,
-  PluginImage,
-} from "./JSONtoForm";
+import { JSONtoForm } from "./JSONtoForm";
 import DatasourceAuth from "pages/common/datasourceAuth";
 import { getDatasourceFormButtonConfig } from "selectors/entitiesSelector";
-import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import Debugger, {
   ResizerContentContainer,
   ResizerMainContainer,
 } from "./Debugger";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import DatasourceInformation from "./DatasourceSection";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
@@ -122,13 +113,11 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
       return null;
     }
 
-    const content = this.renderDataSourceConfigForm(formConfig);
-    return this.renderForm(content);
+    return this.renderDataSourceConfigForm(formConfig);
   }
 
   renderDataSourceConfigForm = (sections: any) => {
     const {
-      canManageDatasource,
       datasource,
       datasourceButtonConfiguration,
       datasourceDeleteTrigger,
@@ -141,37 +130,12 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
       viewMode,
     } = this.props;
 
-    const createFlow = datasourceId === TEMP_DATASOURCE_ID;
     return (
       <Form
         onSubmit={(e) => {
           e.preventDefault();
         }}
       >
-        {!this.props.hiddenHeader && (
-          <Header>
-            <FormTitleContainer>
-              <PluginImage
-                alt="Datasource"
-                src={getAssetUrl(this.props.pluginImage)}
-              />
-              <FormTitle
-                disabled={!createFlow && !canManageDatasource}
-                focusOnMount={this.props.isNewDatasource}
-              />
-            </FormTitleContainer>
-            {viewMode && (
-              <EditDatasourceButton
-                category={Category.secondary}
-                className="t--edit-datasource"
-                onClick={() => {
-                  this.props.setDatasourceViewMode(false);
-                }}
-                text="EDIT"
-              />
-            )}
-          </Header>
-        )}
         <ResizerMainContainer>
           <ResizerContentContainer className="db-form-resizer-content">
             {messages &&
@@ -260,18 +224,11 @@ const mapStateToProps = (state: AppState, props: any) => {
     props?.formData?.pluginId,
   );
 
-  const datasourcePermissions = datasource.userPermissions || [];
-
-  const canManageDatasource = hasManageDatasourcePermission(
-    datasourcePermissions,
-  );
-
   return {
     messages: hintMessages,
     datasource,
     datasourceButtonConfiguration,
     isReconnectingModalOpen: state.entities.datasources.isReconnectingModalOpen,
-    canManageDatasource: canManageDatasource,
     datasourceName: datasource?.name ?? "",
     isDatasourceBeingSavedFromPopup:
       state.entities.datasources.isDatasourceBeingSavedFromPopup,

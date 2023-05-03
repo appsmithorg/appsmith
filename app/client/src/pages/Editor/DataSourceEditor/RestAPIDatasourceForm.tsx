@@ -2,7 +2,6 @@ import React from "react";
 import styled from "styled-components";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { DATASOURCE_REST_API_FORM } from "@appsmith/constants/forms";
-import FormTitle from "./FormTitle";
 import type { Datasource } from "entities/Datasource";
 import type { InjectedFormProps } from "redux-form";
 import { getFormMeta, getFormValues, reduxForm } from "redux-form";
@@ -42,16 +41,9 @@ import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
 import { Callout } from "design-system-old";
-import CloseEditor from "components/editorComponents/CloseEditor";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import {
-  FormContainer,
-  FormContainerBody,
-  FormTitleContainer,
-  Header,
-  PluginImage,
-} from "./JSONtoForm";
+import { FormContainer, FormContainerBody } from "./JSONtoForm";
 import DatasourceAuth, {
   DatasourceButtonType,
 } from "pages/common/datasourceAuth";
@@ -63,7 +55,6 @@ import Debugger, {
   ResizerContentContainer,
   ResizerMainContainer,
 } from "./Debugger";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
 interface DatasourceRestApiEditorProps {
@@ -340,20 +331,16 @@ class DatasourceRestAPIEditor extends React.Component<
   };
 
   render = () => {
-    const { datasource, formData, hiddenHeader, pageId, showDebugger } =
-      this.props;
+    const { datasource, formData, pageId, showDebugger } = this.props;
 
     return (
       <FormContainer>
-        {/* this is true during import flow */}
-        {!hiddenHeader && <CloseEditor />}
         <FormContainerBody>
           <form
             onSubmit={(e) => {
               e.preventDefault();
             }}
           >
-            {this.renderHeader()}
             <ResizerMainContainer>
               <ResizerContentContainer className="api-datasource-content-container">
                 {this.renderEditor()}
@@ -378,31 +365,6 @@ class DatasourceRestAPIEditor extends React.Component<
         </FormContainerBody>
       </FormContainer>
     );
-  };
-
-  renderHeader = () => {
-    const {
-      datasource,
-      datasourceId,
-      hiddenHeader,
-      isNewDatasource,
-      pluginImage,
-    } = this.props;
-    const createMode = datasourceId === TEMP_DATASOURCE_ID;
-    const canManageDatasource = hasManageDatasourcePermission(
-      datasource?.userPermissions || [],
-    );
-    return !hiddenHeader ? (
-      <Header>
-        <FormTitleContainer>
-          <PluginImage alt="Datasource" src={getAssetUrl(pluginImage)} />
-          <FormTitle
-            disabled={!createMode && !canManageDatasource}
-            focusOnMount={isNewDatasource}
-          />
-        </FormTitleContainer>
-      </Header>
-    ) : null;
   };
 
   renderEditor = () => {

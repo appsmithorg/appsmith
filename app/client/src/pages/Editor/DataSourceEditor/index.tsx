@@ -43,13 +43,25 @@ import {
   REST_API_AUTHORIZATION_SUCCESSFUL,
   SAVE_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
-import { Toaster, Variant } from "design-system-old";
+import { Category, Toaster, Variant } from "design-system-old";
 import { isDatasourceInViewMode } from "selectors/ui";
 import { getQueryParams } from "utils/URLUtils";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import SaveOrDiscardDatasourceModal from "./SaveOrDiscardDatasourceModal";
+import {
+  EditDatasourceButton,
+  FormTitleContainer,
+  Header,
+  PluginImage,
+} from "./JSONtoForm";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
+import FormTitle from "./FormTitle";
+import styled from "styled-components";
+import CloseEditor from "components/editorComponents/CloseEditor";
 
 interface ReduxStateProps {
+  canManageDatasource: boolean;
   datasourceId: string;
   formData: Datasource;
   isSaving: boolean;
@@ -75,6 +87,15 @@ interface ReduxStateProps {
   defaultKeyValueArrayConfig: Array<string>;
   initialValue: Datasource | undefined;
 }
+
+const Form = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  /* margin-top: ${({ theme }) => theme.backBanner}; */
+  overflow: hidden;
+  flex: 1;
+`;
 
 type Props = ReduxStateProps &
   DatasourcePaneFunctions &
@@ -343,7 +364,8 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       />
     );
   }
-  render() {
+
+  renderForm() {
     const {
       datasourceId,
       formConfig,
@@ -365,10 +387,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       setDatasourceViewMode,
       viewMode,
     } = this.props;
-
-    if (!pluginId && datasourceId) {
-      return <EntityNotFoundPane />;
-    }
 
     const shouldViewMode = viewMode && !fromImporting;
     // Check for specific form types first
@@ -445,6 +463,63 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       </>
     );
   }
+
+  renderHeader() {
+    const {
+      canManageDatasource,
+      datasourceId,
+      isNewDatasource,
+      pluginId,
+      pluginImages,
+      setDatasourceViewMode,
+      viewMode,
+    } = this.props;
+
+    const pluginImage = pluginImages[pluginId];
+    const createFlow = datasourceId === TEMP_DATASOURCE_ID;
+    return (
+      <Header style={{ paddingTop: "20px" }}>
+        <FormTitleContainer>
+          <PluginImage alt="Datasource" src={getAssetUrl(pluginImage)} />
+          <FormTitle
+            disabled={!createFlow && !canManageDatasource}
+            focusOnMount={isNewDatasource}
+          />
+        </FormTitleContainer>
+        {viewMode && (
+          <EditDatasourceButton
+            category={Category.secondary}
+            className="t--edit-datasource"
+            onClick={() => {
+              setDatasourceViewMode(false);
+            }}
+            text="EDIT"
+          />
+        )}
+      </Header>
+    );
+  }
+
+  render() {
+    const { datasourceId, fromImporting, pluginId } = this.props;
+
+    if (!pluginId && datasourceId) {
+      return <EntityNotFoundPane />;
+    }
+
+    return (
+      <Form
+        className="t--json-to-form-wrapper"
+        onSubmit={(e) => {
+          e.preventDefault();
+        }}
+      >
+        <CloseEditor />
+        {!fromImporting && this.renderHeader()}
+        {this.renderForm()}
+      </Form>
+    );
+  }
 }
 
 const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
@@ -452,7 +527,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const { datasourcePane } = state.ui;
   const { datasources, plugins } = state.entities;
   const viewMode = isDatasourceInViewMode(state);
-  const datasource = getDatasource(state, datasourceId);
+  const datasource = getDatasource(state, datasourceId) as Datasource;
   const { formConfigs } = plugins;
   const formData = getFormValues(DATASOURCE_DB_FORM)(state) as Datasource;
   const pluginId = get(datasource, "pluginId", "");
@@ -466,7 +541,14 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const defaultKeyValueArrayConfig =
     datasourcePane?.defaultKeyValueArrayConfig as any;
 
+  const datasourcePermissions = datasource.userPermissions || [];
+
+  const canManageDatasource = hasManageDatasourcePermission(
+    datasourcePermissions,
+  );
+
   return {
+    canManageDatasource,
     datasourceId,
     pluginImages: getPluginImages(state),
     formData,
