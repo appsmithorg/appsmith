@@ -166,8 +166,15 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
+    const urlObject = new URL(window?.location?.href);
+    const pluginId = urlObject?.searchParams?.get("pluginId");
     // update block state when form becomes dirty/view mode is switched on
-    if (prevProps.viewMode !== this.props.viewMode && !this.props.viewMode) {
+
+    if (
+      prevProps.viewMode !== this.props.viewMode &&
+      !this.props.viewMode &&
+      !!pluginId
+    ) {
       this.blockRoutes();
     }
 
@@ -190,19 +197,20 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
   }
 
   componentDidMount() {
+    const urlObject = new URL(window?.location?.href);
+    const pluginId = urlObject?.searchParams?.get("pluginId");
     // Create Temp Datasource on component mount,
     // if user hasnt saved datasource for the first time and refreshed the page
     if (
       !this.props.datasource &&
       this.props.match.params.datasourceId === TEMP_DATASOURCE_ID
     ) {
-      const urlObject = new URL(window.location.href);
-      const pluginId = urlObject?.searchParams.get("pluginId");
       this.props.createTempDatasource({
         pluginId,
       });
     }
-    if (!this.props.viewMode) {
+
+    if (!this.props.viewMode && !!pluginId) {
       this.blockRoutes();
     }
     this.props.loadFilePickerAction();
