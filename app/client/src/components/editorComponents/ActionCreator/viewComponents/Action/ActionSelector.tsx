@@ -134,7 +134,7 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
       className="flex flex-col w-full action-selector-popup t--action-selector-popup"
       ref={ref}
     >
-      <div className="flex mb-2 w-full justify-between px-2 py-1 bg-gray-50">
+      <div className="flex mb-2 w-full justify-between px-2 py-1">
         <Text kind="action-m">
           {isChainedAction ? "Configure action" : label}
         </Text>

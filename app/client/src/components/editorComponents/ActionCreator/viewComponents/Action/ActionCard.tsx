@@ -54,9 +54,8 @@ function ActionCard(props: TActionCardProps) {
       className = clsx(
         className,
         `border-[1px] main-block-radius action-card-border`,
-        selected &&
-          props.showCallbacks &&
-          "border-b-transparent main-block-radius-selected",
+        props.showCallbacks && "main-block-radius-selected",
+        selected && "border-b-transparent",
       );
       break;
     case "callbackBlock":
@@ -81,7 +80,7 @@ function ActionCard(props: TActionCardProps) {
     >
       <div className="flex flex-row justify-between w-full">
         <div className="flex flex-col items-center gap-1 overflow-hidden">
-          <div className="flex flex-row gap-1 w-full flex-start items-center">
+          <div className="text-[color:var(--ads-v2-color-fg)] flex flex-row gap-1 w-full flex-start items-center">
             <MainActionIcon />
             <Text kind="action-s">{actionTypeLabel}</Text>
           </div>

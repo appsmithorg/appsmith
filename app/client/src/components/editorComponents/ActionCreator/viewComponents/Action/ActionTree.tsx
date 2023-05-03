@@ -12,12 +12,6 @@ import ActionSelector from "./ActionSelector";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getActionTypeLabel } from "../ActionBlockTree/utils";
 
-/**
- * --ads-v2-border-radius
- * border-color: var(--ads-v2-color-border)
- * var(--ads-v2-color-border-emphasis-plus);
- */
-
 const CallbackBlockContainer = styled.div<{
   isSelected: boolean;
   isExpanded: boolean;
