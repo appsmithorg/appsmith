@@ -55,9 +55,13 @@ function ShareModal() {
     <div className="flex flex-col gap-6">
       {embedSnippet.isSuperUser && (
         <div className="flex justify-between">
-          <div className="flex">
+          <div className="flex gap-1">
+            <Icon
+              className="icon"
+              name={embedSnippet.embedSettingContent.icon}
+              size="md"
+            />
             <Text>{embedSnippet.embedSettingContent.label}</Text>
-
             <Tooltip
               content={embedSnippet.embedSettingContent.tooltip}
               placement="top"
@@ -124,12 +128,19 @@ function AppSettings() {
 
       {embedSnippet.isSuperUser && (
         <div className="flex justify-between">
-          <StyledPropertyHelpLabel
-            label={embedSnippet.embedSettingContent.label}
-            lineHeight="1.17"
-            maxWidth="217px"
-            tooltip={embedSnippet.embedSettingContent.tooltip}
-          />
+          <div className="flex gap-1">
+            <Icon
+              className="icon"
+              name={embedSnippet.embedSettingContent.icon}
+              size="md"
+            />
+            <StyledPropertyHelpLabel
+              label={embedSnippet.embedSettingContent.label}
+              lineHeight="1.17"
+              maxWidth="217px"
+              tooltip={embedSnippet.embedSettingContent.tooltip}
+            />
+          </div>
           <Link
             data-testid="t--change-embedding-restriction"
             endIcon="pencil-line"
