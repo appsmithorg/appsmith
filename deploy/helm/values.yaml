@@ -70,7 +70,7 @@ initContainer: {}
 ##
 image:
   registry: index.docker.io
-  repository: appsmith/appsmith-ce
+  repository: appsmith/appsmith-ee
   pullPolicy: IfNotPresent
   pullSecrets: ""
   # Overrides the image tag whose default is the chart appVersion.
@@ -209,7 +209,7 @@ resources:
      memory: 3000Mi
 
 autoscaling:
-  enabled: true
+  enabled: false
   minReplicas: 2
   maxReplicas: 2
   targetCPUUtilizationPercentage: 5
