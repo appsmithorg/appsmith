@@ -2,13 +2,13 @@ import tinycolor from "tinycolor2";
 import { useSelector } from "react-redux";
 
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const useBrandingTheme = () => {
   const config = useSelector(getTenantConfig);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const hsl = tinycolor(config.brandColors.primary).toHsl();
     const hue = hsl.h;
     const saturation = hsl.s;
@@ -39,7 +39,7 @@ const useBrandingTheme = () => {
       document.getElementsByTagName("head")[0].appendChild(favicon);
     }
 
-    favicon.href = getAssetUrl(config.brandFaviconUr);
+    favicon.href = getAssetUrl(config.brandFaviconUrl);
   }, [
     config.brandColors.primary,
     config.brandColors.background,
