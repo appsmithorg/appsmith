@@ -10,6 +10,7 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
   WIDGET_PADDING,
   DefaultDimensionMap,
+  MAX_MODAL_WIDTH_FROM_MAIN_WIDTH,
   AUTO_LAYOUT_CONTAINER_PADDING,
   MAX_MODAL_WIDTH_FROM_MAIN_WIDTH,
 } from "constants/WidgetConstants";
@@ -23,6 +24,7 @@ import {
   FlexLayerAlignment,
   Positioning,
   ResponsiveBehavior,
+  SNAPSHOT_EXPIRY_IN_DAYS,
 } from "utils/autoLayout/constants";
 import {
   updatePositionsOfParentAndSiblings,
@@ -34,6 +36,13 @@ import {
   getWidgetWidth,
 } from "./flexWidgetUtils";
 import type { DSLWidget } from "widgets/constants";
+import { getHumanizedTime, getReadableDateInFormat } from "utils/dayJsUtils";
+
+export type ReadableSnapShotDetails = {
+  timeSince: string;
+  timeTillExpiration: string;
+  readableDate: string;
+};
 
 export function updateFlexLayersOnDelete(
   allWidgets: CanvasWidgetsReduxState,
@@ -708,4 +717,40 @@ export function getAlignmentMarginInfo(
   };
 
   return marginInfo[wrapInfo.map((x) => x.length).join("")](arr);
+}
+
+/**
+ * Gets readable values from the date String arguments
+ * @param dateString
+ * @returns
+ */
+export function getReadableSnapShotDetails(
+  dateString: string | undefined,
+): ReadableSnapShotDetails | undefined {
+  if (!dateString) return;
+
+  const lastUpdatedDate = new Date(dateString);
+
+  if (Date.now() - lastUpdatedDate.getTime() <= 0) return;
+
+  const millisecondsPerHour = 60 * 60 * 1000;
+  const ExpirationInMilliseconds =
+    SNAPSHOT_EXPIRY_IN_DAYS * 24 * millisecondsPerHour;
+  const timePassedSince = Date.now() - lastUpdatedDate.getTime();
+
+  const timeSince: string = getHumanizedTime(timePassedSince);
+  const timeTillExpiration: string = getHumanizedTime(
+    ExpirationInMilliseconds - timePassedSince,
+  );
+
+  const readableDate = getReadableDateInFormat(
+    lastUpdatedDate,
+    "Do MMMM, YYYY h:mm a",
+  );
+
+  return {
+    timeSince,
+    timeTillExpiration,
+    readableDate,
+  };
 }

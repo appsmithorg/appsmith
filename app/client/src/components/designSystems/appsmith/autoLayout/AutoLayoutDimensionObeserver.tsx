@@ -1,4 +1,4 @@
-import { FLEXBOX_PADDING } from "constants/WidgetConstants";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 import React, { useState } from "react";
 import { useEffect, useRef } from "react";
 import type { PropsWithChildren } from "react";
@@ -16,6 +16,8 @@ interface AutoLayoutDimensionObserverProps {
   width: number;
   height: number;
   isFillWidget: boolean;
+  minWidth: number;
+  minHeight: number;
 }
 
 export default function AutoLayoutDimensionObserver(
@@ -39,22 +41,24 @@ export default function AutoLayoutDimensionObserver(
   );
 
   useEffect(() => {
-    if (currentDimension.width === 0 || currentDimension.height === 0) return;
-    const widthDiff = Math.abs(
-      props.width - 2 * FLEXBOX_PADDING - currentDimension.width,
-    );
-    const heightDiff = Math.abs(
-      props.height - 2 * FLEXBOX_PADDING - currentDimension.height,
-    );
-    if (widthDiff >= 1 || heightDiff >= 1) {
+    // Top down data flow (from store to widget) (Canvas resizing / adding more widgets in the same row)
+    // Only updated when min size violated or
+    // bounding box is larger than component size (Button widget)
+    if (
+      props.width < props.minWidth ||
+      props.height < props.minHeight ||
+      props.width > currentDimension.width + WIDGET_PADDING * 2
+    ) {
       onDimensionUpdate(currentDimension.width, currentDimension.height);
     }
-  }, [
-    props.width,
-    props.height,
-    currentDimension.width,
-    currentDimension.height,
-  ]);
+  }, [props.width, props.height]);
+
+  useEffect(() => {
+    // Component dimensions have changed first.
+    // Bottom up data flow (from widget to store)
+    // Always updated
+    onDimensionUpdate(currentDimension.width, currentDimension.height);
+  }, [currentDimension.width, currentDimension.height]);
 
   useEffect(() => {
     if (ref.current) {

@@ -1,17 +1,17 @@
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.models.Datasource;
-import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.external.models.DatasourceConfigurationStructure;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Transient;
@@ -46,6 +46,9 @@ public class ApplicationJson {
     @JsonView(Views.Public.class)
     List<Datasource> datasourceList;
 
+    @JsonView(Views.Public.class)
+    List<DatasourceConfigurationStructure> datasourceConfigurationStructureList;
+
     @JsonView({Views.Public.class, Views.Export.class})
     List<CustomJSLib> customJSLibList;
 
@@ -67,7 +70,7 @@ public class ApplicationJson {
     @Deprecated
     @JsonView(Views.Public.class)
     String unpublishedDefaultPageName;
-    
+
     @JsonView(Views.Public.class)
     List<NewAction> actionList;
 

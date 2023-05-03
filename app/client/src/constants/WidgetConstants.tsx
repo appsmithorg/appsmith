@@ -217,6 +217,11 @@ export const WIDGET_PROPS_TO_SKIP_FROM_EVAL = {
  */
 export const FLEXBOX_PADDING = 4;
 
+/**
+ * max width of modal widget constant as a multiplier of Main canvasWidth
+ */
+export const MAX_MODAL_WIDTH_FROM_MAIN_WIDTH = 0.95;
+
 export const FILE_SIZE_LIMIT_FOR_BLOBS = 5000 * 1024; // 5MB
 
 /**
