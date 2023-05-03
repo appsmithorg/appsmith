@@ -37,6 +37,11 @@ describe("Test getDisplayMessageFromError", () => {
       input: "Please enter a target origin URL.",
       expected: "Please enter a target origin URL.",
     },
+    {
+      index: 7,
+      input: "TypeError: Cannot read properties of null (reading ':')",
+      expected: "Cannot read properties of null (reading ':')",
+    },
   ];
 
   test.each(cases.map((x) => [x.index, x.input, x.expected]))(
