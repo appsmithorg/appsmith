@@ -2,27 +2,51 @@
 @tailwind components;
 @tailwind utilities;
 
+.action-card-border {
+  border-color: var(--ads-v2-color-border);
+}
+
+.action-card-next-selected {
+  border-bottom: 1px solid var(--ads-v2-color-border-emphasis-plus);
+}
+
+.action-card-border-selected {
+  border-color: var(--ads-v2-color-border-emphasis-plus) !important;
+}
+
+.action-card-last-block {
+  border-radius: 0px 0px var(--ads-v2-border-radius) var(--ads-v2-border-radius);
+}
+
+.main-block-radius {
+  border-radius: var(--ads-v2-border-radius);
+}
+
+.main-block-radius-selected {
+  border-radius: var(--ads-v2-border-radius) var(--ads-v2-border-radius) 0px 0px;
+}
+
 .action-callback-add .icon:hover,
 .action-callback-add.selected .icon {
-  @apply bg-gray-900;
+  /* @apply bg-gray-900; */
 }
 
 .action-callback-add .icon:hover span svg path {
-  @apply !fill-white;
+  /* @apply !fill-white; */
 }
 
 .add-action:hover:not(.disabled) {
-  @apply bg-black;
+  /* @apply bg-black; */
 }
 
 .add-action:hover:not(.disabled) span svg path {
-  @apply !fill-white;
+  /* @apply !fill-white; */
 }
 
 .add-action.disabled span {
-  @apply cursor-not-allowed;
+  cursor: not-allowed;
 }
 
 .add-action.disabled span svg path {
-  @apply !fill-gray-500;
+  /* @apply !fill-gray-500; */
 }
