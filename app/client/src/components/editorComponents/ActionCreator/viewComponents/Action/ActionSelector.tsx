@@ -1,7 +1,7 @@
 import { Popover2 } from "@blueprintjs/popover2";
 import { isModalOpenSelector } from "components/editorComponents/GlobalSearch";
 import type { TreeDropdownOption } from "design-system-old";
-import { Icon } from "design-system-old";
+import { Text, Icon } from "design-system";
 import React, { useCallback, useRef } from "react";
 import { useSelector } from "react-redux";
 import { getWidgetOptionsTree } from "sagas/selectors";
@@ -134,25 +134,22 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
       className="flex flex-col w-full action-selector-popup t--action-selector-popup"
       ref={ref}
     >
-      <div className="flex mb-2 w-full justify-between px-2 py-1 bg-gray-50">
-        <div className="text-sm font-medium text-gray">
+      <div className="flex mb-2 w-full justify-between px-2 py-1">
+        <Text kind="action-m">
           {isChainedAction ? "Configure action" : label}
-        </div>
+        </Text>
         <Icon
-          className="t--close"
-          fillColor="var(--ads-color-black-700)"
+          className="t--close cursor-pointer"
           name="cross"
           onClick={() => selectBlock("-1")}
-          size="extraSmall"
+          size="sm"
         />
       </div>
 
       <div className="flex w-full justify-between px-3 mb-[4px]">
-        <div className="text-xs text-gray-600">Action</div>
+        <Text kind="action-s">Action</Text>
         <Icon
-          className="t--delete"
-          fillColor="var(--ads-color-black-500)"
-          hoverFillColor="var(--ads-color-black-700)"
+          className="t--delete cursor-pointer"
           name="delete"
           onClick={() => {
             onChange(
@@ -166,7 +163,7 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
             );
             selectBlock("-1");
           }}
-          size="extraLarge"
+          size="md"
         />
       </div>
 
