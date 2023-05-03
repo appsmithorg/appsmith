@@ -1056,7 +1056,7 @@ export function EditorJSONtoForm(props: Props) {
                             }}
                             size="md"
                           >
-                            Cancel Request
+                            Cancel request
                           </Button>
                         </LoadingOverlayContainer>
                       </>

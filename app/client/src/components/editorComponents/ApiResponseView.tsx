@@ -648,7 +648,7 @@ function ApiResponseView(props: Props) {
               }}
               size="md"
             >
-              Cancel Request
+              Cancel request
             </Button>
           </LoadingOverlayContainer>
         </>
