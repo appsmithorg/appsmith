@@ -70,7 +70,7 @@ export function getComputedHeight(
     parent.widgetId !== MAIN_CONTAINER_WIDGET_ID
       ? (getWidgetMinMaxDimensionsInPixel(parent, mainCanvasWidth)?.minHeight ||
           0) / GridDefaults.DEFAULT_GRID_ROW_HEIGHT
-      : 0;
+      : (parent.minHeight || 0) / GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
   /**
    * If the widget is a canvas widget and it's parent is not the main container,
    * then we need to check the parent's minHeight as well.
@@ -91,17 +91,7 @@ export function getComputedHeight(
       containerMinHeight -= 4;
   }
   res = Math.max(res, minHeight, containerMinHeight);
-  parent.widgetId === MAIN_CONTAINER_WIDGET_ID &&
-    console.log(
-      "#### getComputedHeight",
-      res,
-      "minHeight",
-      minHeight,
-      "containerHeight",
-      containerMinHeight,
-      "rowSpace",
-      parent.parentRowSpace,
-    );
+
   return res;
 }
 
