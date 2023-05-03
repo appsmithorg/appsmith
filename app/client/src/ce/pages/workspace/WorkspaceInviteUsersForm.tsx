@@ -155,7 +155,7 @@ export const MailConfigContainer = styled.div`
   }
 `;
 
-const ManageUsersContainer = styled.div`
+export const ManageUsersContainer = styled.div`
   display: flex;
   padding: 12px 0;
   margin-left: 0.7rem;
@@ -228,9 +228,9 @@ function WorkspaceInviteUsersForm(props: any) {
     () =>
       selectedId &&
       props.selected && {
-        label: props.selected.rolename,
+        description: props.selected.rolename,
         value: props.selected.rolename,
-        id: props.selected.id,
+        key: props.selected.id,
       },
     [selectedId],
   );
@@ -289,7 +289,7 @@ function WorkspaceInviteUsersForm(props: any) {
       ? props.options
       : props.roles.map((role: any) => {
           return {
-            id: role.id,
+            key: role.id,
             value: role.name?.split(" - ")[0],
             description: role.description,
           };
@@ -313,12 +313,6 @@ function WorkspaceInviteUsersForm(props: any) {
   );
 
   const onSelect = (value: string) => {
-    // const option = styledRoles.find((role: any) => role.id === value);
-
-    // if (option.link) {
-    //   history.push(option.link);
-    // }
-
     if (isMultiSelectDropdown) {
       setSelectedOption((selectedOptions) => [...selectedOptions, value]);
     } else {
@@ -394,7 +388,7 @@ function WorkspaceInviteUsersForm(props: any) {
           <div style={{ width: "40%" }}>
             <Select
               data-cy="t--invite-role-input"
-              disabled={props.disableDropdown}
+              isDisabled={props.disableDropdown}
               isMultiSelect={isMultiSelectDropdown}
               onDeselect={onRemoveOptions}
               onSelect={onSelect}
@@ -403,7 +397,7 @@ function WorkspaceInviteUsersForm(props: any) {
               value={selectedOption}
             >
               {styledRoles.map((role: any) => (
-                <Option key={role.id} label={role.value} value={role.id}>
+                <Option key={role.key} label={role.value} value={role.key}>
                   <div className="flex flex-col gap-1">
                     <Text kind="heading-xs">{role.value}</Text>
                     <Text kind="body-s">{role.description}</Text>

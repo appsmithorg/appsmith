@@ -158,7 +158,8 @@ export const EachUser = styled.div`
   }
 
   .user-group-icons {
-    margin: 0 12px 0 4px;
+    width: 32px;
+    margin-right: 8px;
   }
 `;
 
