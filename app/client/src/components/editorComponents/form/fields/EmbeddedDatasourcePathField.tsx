@@ -382,9 +382,9 @@ class EmbeddedDatasourcePathComponent extends React.Component<
       if (evaluatedPath && evaluatedPath.indexOf("?") > -1) {
         evaluatedPath = extractApiUrlPath(evaluatedPath);
       }
-      const evaluatedQueryParameters = entity.config.queryParameters
+      const evaluatedQueryParameters = entity?.config?.queryParameters
         ?.filter((p: KeyValuePair) => p.key)
-        .map(
+        ?.map(
           (p: KeyValuePair, i: number) =>
             `${i === 0 ? "?" : "&"}${p.key}=${p.value}`,
         )
