@@ -87,7 +87,8 @@ export default function BranchMoreMenu({ branchName, open, setOpen }: Props) {
         <Button
           isIconButton
           kind="tertiary"
-          onClick={() => {
+          onClick={(e) => {
+            e.stopPropagation();
             setOpen(true);
             AnalyticsUtil.logEvent("GS_BRANCH_MORE_MENU_OPEN", {
               source: "GS_OPEN_BRANCH_LIST_POPUP",
@@ -98,6 +99,7 @@ export default function BranchMoreMenu({ branchName, open, setOpen }: Props) {
         />
       </MenuTrigger>
       <MenuContent
+        align="end"
         onEscapeKeyDown={handleMenuClose}
         onInteractOutside={handleMenuClose}
       >

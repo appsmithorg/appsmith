@@ -17,6 +17,8 @@ const ButtonContainer = styled(Button)`
   display: flex;
   align-items: center;
   margin: 0 ${(props) => props.theme.spaces[4]}px;
+  max-width: 122px;
+  min-width: unset !important;
 `;
 
 function BranchButton() {
@@ -25,7 +27,7 @@ function BranchButton() {
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
   const fetchBranches = () => dispatch(fetchBranchesInit());
-  const labelTarget = useRef<HTMLButtonElement>(null);
+  const labelTarget = useRef<HTMLSpanElement>(null);
   const status = useSelector(getGitStatus);
 
   useEffect(() => {
@@ -59,10 +61,19 @@ function BranchButton() {
           className="t--branch-button"
           data-testid={"t--branch-button-currentBranch"}
           kind="secondary"
-          ref={labelTarget}
           startIcon="git-branch"
         >
-          {currentBranch}
+          <span
+            ref={labelTarget}
+            style={{
+              width: "100%",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {currentBranch}
+          </span>
           {!status?.isClean && "*"}
         </ButtonContainer>
       </Tooltip>

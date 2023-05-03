@@ -57,7 +57,7 @@ import Statusbar, {
 import GitChangesList from "../components/GitChangesList";
 import ConflictInfo from "../components/ConflictInfo";
 
-import { isMacOrIOS } from "utils/helpers";
+import { isEllipsisActive, isMacOrIOS } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   getApplicationLastDeployedAt,
@@ -299,13 +299,32 @@ function Deploy() {
                 isDisabled={commitInputDisabled}
                 label={
                   <Row>
-                    <Text>{createMessage(COMMIT_TO)}</Text>
-                    <Text
-                      className="branch"
-                      color={"var(--ads-v2-color-fg-brand)"}
-                    >
-                      &nbsp;{currentBranch}
+                    <Text style={{ minWidth: "fit-content" }}>
+                      {createMessage(COMMIT_TO)}
                     </Text>
+                    <Tooltip
+                      content={currentBranch}
+                      isDisabled={
+                        !isEllipsisActive(
+                          document.getElementById(
+                            "git-branch-name-commmit-tab",
+                          ),
+                        )
+                      }
+                    >
+                      <Text
+                        className="branch"
+                        color={"var(--ads-v2-color-fg-brand)"}
+                        id="git-branch-name-commmit-tab"
+                        style={{
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        &nbsp;{currentBranch}
+                      </Text>
+                    </Tooltip>
                   </Row>
                 }
                 onChange={setCommitMessage}

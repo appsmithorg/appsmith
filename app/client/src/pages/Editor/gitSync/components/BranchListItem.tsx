@@ -43,11 +43,22 @@ export function BranchListItem({
     >
       <Tooltip
         content={branch}
-        isDisabled={!isEllipsisActive(textRef.current)}
+        isDisabled={!isEllipsisActive(document.getElementById(branch))}
         placement="top"
       >
         <span className="branch-list-item-text" ref={textRef}>
-          <Text kind={"body-m"}>{branch}</Text>
+          <Text
+            id={branch}
+            kind={"body-m"}
+            style={{
+              width: "100%",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {branch}
+          </Text>
           {isDefault && <DefaultTag />}
         </span>
       </Tooltip>

@@ -72,11 +72,13 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { GIT_DOC_URLs, isValidGitRemoteUrl } from "../utils";
 import { useGitConnect, useSSHKeyPair } from "../hooks";
 
-const UrlContainer = styled.div`
+const UrlContainer = styled.div<{
+  isConnected: boolean;
+}>`
   display: flex;
   align-items: flex-end;
   gap: 3px;
-  width: calc(100% - 39px);
+  width: ${({ isConnected }) => (isConnected ? "100%" : "calc(100% - 39px)")};
 `;
 
 const ButtonContainer = styled.div<{ topMargin: number }>`
@@ -354,7 +356,10 @@ function GitConnection({ isImport }: Props) {
             {createMessage(CONNECT_TO_GIT_SUBTITLE)}
           </Text>
           <Space size={2} />
-          <UrlContainer data-test="t--remote-url-container">
+          <UrlContainer
+            data-test="t--remote-url-container"
+            isConnected={isGitConnected}
+          >
             <Input
               className="t--git-repo-input"
               description={
@@ -397,7 +402,7 @@ function GitConnection({ isImport }: Props) {
               type="url"
               value={remoteUrl}
             />
-            {isGitConnected && (
+            {SSHKeyPair && isGitConnected && (
               <Tooltip content="Disconnect git">
                 <Button
                   className="t--git-disconnect-icon"
