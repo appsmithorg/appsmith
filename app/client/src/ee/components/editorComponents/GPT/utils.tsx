@@ -45,38 +45,28 @@ export enum GPTTask {
   REFACTOR_CODE = "REFACTOR_CODE",
 }
 
-export const GPT_TASKS = [
-  {
-    id: GPTTask.JS_EXPRESSION,
-    desc: "Generate a JS expression that transforms your query/API data",
-    title: "JS expression",
-    disabled: (pageType: string) => !["canvas", "jsEditor"].includes(pageType),
-  },
-  {
-    id: GPTTask.JS_FUNCTION,
-    title: "JS function",
-    desc: "Generate a JS function that contains your workflow logic and data transformations",
-    disabled: (pageType: string) => !["canvas", "jsEditor"].includes(pageType),
-  },
-  {
-    id: GPTTask.SQL_QUERY,
-    title: "SQL query",
-    desc: "Generate a SQL query",
-    disabled: (pageType: string) => pageType !== "queryEditor",
-  },
-];
+export const GPT_JS_EXPRESSION = {
+  id: GPTTask.JS_EXPRESSION,
+  desc: "Generate a JS expression that transforms your query/API data",
+  title: "JS expression",
+};
+
+export const GPT_SQL_QUERY = {
+  id: GPTTask.SQL_QUERY,
+  title: "SQL query",
+  desc: "Generate a SQL query",
+};
+
+export const GPT_TASKS = [GPT_JS_EXPRESSION, GPT_SQL_QUERY];
 
 export const useGPTTasks = () => {
   const location = useLocation();
   const { pageType } = getEntityInCurrentPath(location.pathname);
-  return useMemo(() => {
-    return GPT_TASKS.map((task) => {
-      return {
-        ...task,
-        disabled: task.disabled(pageType || ""),
-      };
-    });
-  }, [pageType]);
+  const GPT_TASKS = [GPT_JS_EXPRESSION, GPT_SQL_QUERY];
+  if (pageType === "queryEditor") {
+    GPT_TASKS.reverse();
+  }
+  return GPT_TASKS;
 };
 
 function getPotentialEntityNamesFromMessage(
