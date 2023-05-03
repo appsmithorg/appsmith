@@ -31,7 +31,7 @@ export default [
         },
       },
       {
-        label: "Query Parameters",
+        label: "Query parameters",
         configProperty: "actionConfiguration.queryParameters",
         controlType: "ARRAY_FIELD",
         schema: [

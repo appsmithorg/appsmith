@@ -8,7 +8,7 @@
           "sectionName": null,
           "children": [
             {
-              "label": "Host Address",
+              "label": "Host address",
               "configProperty": "datasourceConfiguration.endpoints[*].host",
               "controlType": "KEYVALUE_ARRAY",
               "validationMessage": "Please enter a valid host",
@@ -23,7 +23,7 @@
           ]
         },
         {
-          "label": "Database Number",
+          "label": "Database number",
           "configProperty": "datasourceConfiguration.authentication.databaseName",
           "controlType": "INPUT_TEXT",
           "dataType": "NUMBER",

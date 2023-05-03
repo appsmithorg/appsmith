@@ -5,14 +5,14 @@
       "id": 1,
       "children": [
         {
-          "label": "Connection Mode",
+          "label": "Connection mode",
           "configProperty": "datasourceConfiguration.connection.mode",
           "controlType": "DROP_DOWN",
           "isRequired": true,
           "initialValue": "READ_WRITE",
           "options": [
             {
-              "label": "Read Only",
+              "label": "Read only",
               "value": "READ_ONLY"
             },
             {
@@ -25,7 +25,7 @@
           "sectionName": null,
           "children": [
             {
-              "label": "Host Address",
+              "label": "Host address",
               "configProperty": "datasourceConfiguration.endpoints[*].host",
               "controlType": "KEYVALUE_ARRAY",
               "validationMessage": "Please enter a valid host",
@@ -40,7 +40,7 @@
           ]
         },
         {
-          "label": "Database Name",
+          "label": "Database name",
           "configProperty": "datasourceConfiguration.authentication.databaseName",
           "controlType": "INPUT_TEXT",
           "placeholderText": "Database name",
@@ -79,7 +79,7 @@
       "hidden": true,
       "children": [
         {
-          "label": "SSL Mode",
+          "label": "SSL mode",
           "configProperty": "datasourceConfiguration.connection.ssl.authType",
           "controlType": "DROP_DOWN",
           "options": [

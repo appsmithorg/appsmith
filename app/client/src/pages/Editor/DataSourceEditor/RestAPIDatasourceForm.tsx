@@ -475,7 +475,7 @@ class DatasourceRestAPIEditor extends React.Component<
         <FormInputContainer data-replay-id={btoa("queryParameters")}>
           {this.renderKeyValueControlViaFormControl(
             "queryParameters",
-            "Query Parameters",
+            "Query parameters",
             "",
             false,
           )}
@@ -503,7 +503,7 @@ class DatasourceRestAPIEditor extends React.Component<
           <FormInputContainer data-replay-id={btoa("sessionSignatureKey")}>
             {this.renderInputTextControlViaFormControl({
               configProperty: "sessionSignatureKey",
-              label: "Session Details Signature Key",
+              label: "Session details signature key",
               placeholderText: "",
               dataType: "TEXT",
               encrypted: false,
@@ -528,15 +528,15 @@ class DatasourceRestAPIEditor extends React.Component<
                 value: AuthType.OAuth2,
               },
               {
-                label: "API Key",
+                label: "API key",
                 value: AuthType.apiKey,
               },
               {
-                label: "Bearer Token",
+                label: "Bearer token",
                 value: AuthType.bearerToken,
               },
             ],
-            "Authentication Type",
+            "Authentication type",
             "",
             false,
             "",
@@ -636,7 +636,7 @@ class DatasourceRestAPIEditor extends React.Component<
           >
             {this.renderInputTextControlViaFormControl({
               configProperty: "authentication.headerPrefix",
-              label: "Header Prefix",
+              label: "Header prefix",
               placeholderText: "eg: Bearer ",
               dataType: "TEXT",
               encrypted: false,
@@ -653,8 +653,8 @@ class DatasourceRestAPIEditor extends React.Component<
       <FormInputContainer data-replay-id={btoa("authentication.bearerToken")}>
         {this.renderInputTextControlViaFormControl({
           configProperty: "authentication.bearerToken",
-          label: "Bearer Token",
-          placeholderText: "Bearer Token",
+          label: "Bearer token",
+          placeholderText: "Bearer token",
           dataType: "TEXT",
           encrypted: true,
           isRequired: false,
@@ -719,7 +719,7 @@ class DatasourceRestAPIEditor extends React.Component<
                 value: GrantType.AuthorizationCode,
               },
             ],
-            "Grant Type",
+            "Grant type",
             "",
             false,
             "",
@@ -761,7 +761,7 @@ class DatasourceRestAPIEditor extends React.Component<
           >
             {this.renderInputTextControlViaFormControl({
               configProperty: "authentication.headerPrefix",
-              label: "Header Prefix",
+              label: "Header prefix",
               placeholderText: "eg: Bearer ",
               dataType: "TEXT",
               encrypted: false,
@@ -774,7 +774,7 @@ class DatasourceRestAPIEditor extends React.Component<
         >
           {this.renderInputTextControlViaFormControl({
             configProperty: "authentication.accessTokenUrl",
-            label: "Access Token URL",
+            label: "Access token URL",
             placeholderText: "https://example.com/login/oauth/access_token",
             dataType: "TEXT",
             encrypted: false,
@@ -797,8 +797,8 @@ class DatasourceRestAPIEditor extends React.Component<
         >
           {this.renderInputTextControlViaFormControl({
             configProperty: "authentication.clientSecret",
-            label: "Client Secret",
-            placeholderText: "Client Secret",
+            label: "Client secret",
+            placeholderText: "Client secret",
             dataType: "PASSWORD",
             encrypted: true,
             isRequired: false,

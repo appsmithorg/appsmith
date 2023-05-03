@@ -19,7 +19,7 @@ public class S3ErrorMessages {
     public static final String UNPARSABLE_CONTENT_ERROR_MSG = "Unable to parse content. Expected to receive an object with `data` and `type`.";
 
     public static final String UNEXPECTED_ENCODING_IN_FILE_CONTENT_ERROR_MSG = "File content is not base64 encoded. File content needs to be base64 encoded when the " +
-            "'File Data Type: Base64/Text' field is selected 'Yes'.";
+            "'File data type: Base64/Text' field is selected 'Yes'.";
 
     public static final String SIGNED_URL_FETCHING_ERROR_MSG = "Appsmith has encountered an unexpected error while fetching url from AmazonS3 after file " +
             "creation. Please reach out to Appsmith customer support to resolve this.";
@@ -27,19 +27,19 @@ public class S3ErrorMessages {
     public static final String FILE_UPLOAD_INTERRUPTED_ERROR_MSG = "File upload interrupted.";
 
     public static final String MANDATORY_FIELD_MISSING_ERROR_MSG = "At least one of the mandatory fields in S3 query creation form is empty - 'Action'/" +
-            "'Bucket Name'/'File Path'/'Content'. Please fill all the mandatory fields and try " +
+            "'Bucket name'/'File path'/'Content'. Please fill all the mandatory fields and try " +
             "again.";
 
     public static final String MANDATORY_PARAMETER_COMMAND_MISSING_ERROR_MSG = "Mandatory parameter 'Command' is missing. Did you forget to select one of the commands" +
             " from the Command dropdown ?";
 
-    public static final String MANDATORY_PARAMETER_BUCKET_MISSING_ERROR_MSG = "Mandatory parameter 'Bucket Name' is missing. Did you forget to edit the 'Bucket " +
+    public static final String MANDATORY_PARAMETER_BUCKET_MISSING_ERROR_MSG = "Mandatory parameter 'Bucket name' is missing. Did you forget to edit the 'Bucket " +
             "Name' field in the query form ?";
 
     public static final String MANDATORY_PARAMETER_CONTENT_MISSING_ERROR_MSG = "Mandatory parameter 'Content' is missing. Did you forget to edit the 'Content' " +
             "field in the query form ?";
 
-    public static final String MANDATORY_PARAMETER_FILE_PATH_MISSING_ERROR_MSG = "Required parameter 'File Path' is missing. Did you forget to edit the 'File Path' field " +
+    public static final String MANDATORY_PARAMETER_FILE_PATH_MISSING_ERROR_MSG = "Required parameter 'File path' is missing. Did you forget to edit the 'File path' field " +
             "in the query form ? This field cannot be left empty with the chosen action.";
 
     public static final String EXPIRY_DURATION_NOT_A_NUMBER_ERROR_MSG = "Parameter 'Expiry Duration of Signed URL' is NOT a number. Please ensure that the " +
@@ -83,17 +83,17 @@ public class S3ErrorMessages {
      ************************************************************************************************************************************************
      */
     public static final String DS_AT_LEAST_ONE_MANDATORY_PARAMETER_MISSING_ERROR_MSG = "At least one of the mandatory fields in S3 datasource creation form is empty - " +
-            "'Access Key'/'Secret Key'/'Region'. Please fill all the mandatory fields and try again.";
+            "'Access key'/'Secret key'/'Region'. Please fill all the mandatory fields and try again.";
 
-    public static final String DS_MANDATORY_PARAMETER_ACCESS_KEY_MISSING_ERROR_MSG = "Mandatory parameter 'Access Key' is empty. Did you forget to edit the 'Access Key' " +
+    public static final String DS_MANDATORY_PARAMETER_ACCESS_KEY_MISSING_ERROR_MSG = "Mandatory parameter 'Access key' is empty. Did you forget to edit the 'Access key' " +
             "field in the datasource creation form ? You need to fill it with your AWS Access " +
             "Key.";
 
-    public static final String DS_MANDATORY_PARAMETER_SECRET_KEY_MISSING_ERROR_MSG = "Mandatory parameter 'Secret Key' is empty. Did you forget to edit the 'Secret Key' " +
+    public static final String DS_MANDATORY_PARAMETER_SECRET_KEY_MISSING_ERROR_MSG = "Mandatory parameter 'Secret key' is empty. Did you forget to edit the 'Secret key' " +
             "field in the datasource creation form ? You need to fill it with your AWS Secret " +
             "Key.";
 
-    public static final String DS_S3_SERVICE_PROVIDER_PROPERTIES_FETCHING_ERROR_MSG = "Appsmith has failed to fetch the 'S3 Service Provider' field properties. Please " +
+    public static final String DS_S3_SERVICE_PROVIDER_PROPERTIES_FETCHING_ERROR_MSG = "Appsmith has failed to fetch the 'S3 service provider' field properties. Please " +
             "reach out to Appsmith customer support to resolve this.";
 
     public static final String DS_MANDATORY_PARAMETER_ENDPOINT_URL_MISSING_ERROR_MSG = "Required parameter 'Endpoint URL' is empty. Did you forget to edit the 'Endpoint" +

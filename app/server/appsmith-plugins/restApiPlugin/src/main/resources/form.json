@@ -21,7 +21,7 @@
           "controlType": "KEYVALUE_ARRAY"
         },
         {
-          "label": "Send Authentication Information Key (Do not edit)",
+          "label": "Send authentication Information key (do not edit)",
           "configProperty": "datasourceConfiguration.properties[0].key",
           "controlType": "INPUT_TEXT",
           "hidden": true,
@@ -45,14 +45,14 @@
           ]
         },
         {
-          "label": "Session Details Signature Key Key (Do not edit)",
+          "label": "Session details signature key key (do not edit)",
           "configProperty": "datasourceConfiguration.properties[1].key",
           "controlType": "INPUT_TEXT",
           "hidden": true,
           "initialValue": "sessionSignatureKey"
         },
         {
-          "label": "Session Details Signature Key",
+          "label": "Session details signature key",
           "configProperty": "datasourceConfiguration.properties[1].value",
           "controlType": "INPUT_TEXT",
           "hidden": {
@@ -62,7 +62,7 @@
           }
         },
         {
-          "label": "Authentication Type",
+          "label": "Authentication type",
           "configProperty": "datasourceConfiguration.authentication.authenticationType",
           "controlType": "DROP_DOWN",
           "options": [
@@ -79,24 +79,24 @@
               "value": "oAuth2"
             },
             {
-              "label": "API Key",
+              "label": "API key",
               "value": "apiKey"
             },
             {
-              "label": "Bearer Token",
+              "label": "Bearer token",
               "value": "bearerToken"
             }
           ]
         },
         {
-          "label": "Grant Type",
+          "label": "Grant type",
           "configProperty": "datasourceConfiguration.authentication.grantType",
           "controlType": "INPUT_TEXT",
           "isRequired": false,
           "hidden": true
         },
         {
-          "label": "Access Token URL",
+          "label": "Access token URL",
           "configProperty": "datasourceConfiguration.authentication.accessTokenUrl",
           "controlType": "INPUT_TEXT",
           "isRequired": false,
@@ -118,7 +118,7 @@
           }
         },
         {
-          "label": "Client Secret",
+          "label": "Client secret",
           "configProperty": "datasourceConfiguration.authentication.clientSecret",
           "dataType": "PASSWORD",
           "controlType": "INPUT_TEXT",
@@ -141,7 +141,7 @@
           }
         },
         {
-          "label": "Header Prefix",
+          "label": "Header prefix",
           "configProperty": "datasourceConfiguration.authentication.headerPrefix",
           "controlType": "INPUT_TEXT",
           "placeholderText": "Bearer (default)",

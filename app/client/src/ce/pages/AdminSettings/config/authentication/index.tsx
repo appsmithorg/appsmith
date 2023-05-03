@@ -123,7 +123,7 @@ export const GoogleAuth: AdminConfigType = {
       subCategory: SettingSubCategories.GOOGLE,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
-      label: "Client Secret",
+      label: "Client secret",
       isRequired: true,
     },
     {
@@ -169,7 +169,7 @@ export const GithubAuth: AdminConfigType = {
       subCategory: SettingSubCategories.GITHUB,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
-      label: "Client Secret",
+      label: "Client secret",
       isRequired: true,
     },
   ],
