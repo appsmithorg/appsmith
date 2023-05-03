@@ -200,6 +200,8 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     table.WaitUntilTableLoad(); //page 2
     agHelper.AssertElementVisible(locator._jsonFormWidget); // JSON form should be present
 
+    table.NavigateToNextPage(); //page 3
+    agHelper.Sleep(3000); //wait for table navigation to take effect!
     table.WaitForTableEmpty(); //page 3
     agHelper.AssertElementAbsence(locator._jsonFormWidget); //JSON form also should not be present
 
