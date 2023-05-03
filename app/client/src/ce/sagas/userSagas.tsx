@@ -74,6 +74,7 @@ import type FeatureFlags from "entities/FeatureFlags";
 import UsagePulse from "usagePulse";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { UPDATE_USER_DETAILS_FAILED } from "ce/constants/messages";
+import { createMessage } from "design-system-old/build/constants/messages";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -387,7 +388,8 @@ export function* updateUserDetailsSaga(action: ReduxAction<UpdateUserRequest>) {
     const payload: ErrorActionPayload = {
       show: true,
       error: {
-        message: (error as Error).message ?? UPDATE_USER_DETAILS_FAILED(),
+        message:
+          (error as Error).message ?? createMessage(UPDATE_USER_DETAILS_FAILED),
       },
     };
     yield put({
