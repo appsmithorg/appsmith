@@ -351,7 +351,7 @@ function DatasourceCard(props: DatasourceCardProps) {
                   !isDatasourceAuthorizedForQueryCreation(datasource, plugin)
                 }
                 eventFrom="active-datasources"
-                plugin={plugin}
+                pluginType={plugin.type}
               />
             )}
             {(canDeleteDatasource || canEditDatasource) && (

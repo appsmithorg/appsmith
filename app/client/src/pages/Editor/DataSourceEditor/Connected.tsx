@@ -69,7 +69,7 @@ function Connected({
             datasource={datasource}
             disabled={!canCreateDatasourceActions}
             eventFrom="datasource-pane"
-            plugin={plugin}
+            pluginType={plugin?.type}
           />
         </Header>
       )}
