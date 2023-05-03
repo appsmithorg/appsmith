@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import WidgetFactory from "utils/WidgetFactory";
 import type { CanvasWidgetStructure } from "widgets/constants";
 
@@ -28,6 +28,12 @@ const Container = styled.section<{
   background: ${({ background }) => background};
   width: ${({ $isAutoLayout, width }) =>
     $isAutoLayout ? `100%` : `${width}px`};
+
+  ${({ $isAutoLayout }) =>
+    $isAutoLayout &&
+    css`
+      height: 100%;
+    `};
 `;
 const Canvas = (props: CanvasProps) => {
   const { canvasWidth } = props;

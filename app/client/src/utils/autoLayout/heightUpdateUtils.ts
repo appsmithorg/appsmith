@@ -54,7 +54,11 @@ export function getComputedHeight(
    * add padding buffer for canvas.
    * if parentColumnSpace === 1, => type === CANVAS_WIDGET
    */
-  if (parent.type === "CANVAS_WIDGET") res += 2;
+  if (parent.type === "CANVAS_WIDGET")
+    res +=
+      parent.widgetId === MAIN_CONTAINER_WIDGET_ID
+        ? GridDefaults.MAIN_CANVAS_EXTENSION_OFFSET
+        : 2;
 
   /**
    * If widget is a Tabs widget, and tabs are visible,
@@ -87,16 +91,17 @@ export function getComputedHeight(
       containerMinHeight -= 4;
   }
   res = Math.max(res, minHeight, containerMinHeight);
-  console.log(
-    "#### getComputedHeight",
-    res,
-    "minHeight",
-    minHeight,
-    "containerHeight",
-    containerMinHeight,
-    "rowSpace",
-    parent.parentRowSpace,
-  );
+  parent.widgetId === MAIN_CONTAINER_WIDGET_ID &&
+    console.log(
+      "#### getComputedHeight",
+      res,
+      "minHeight",
+      minHeight,
+      "containerHeight",
+      containerMinHeight,
+      "rowSpace",
+      parent.parentRowSpace,
+    );
   return res;
 }
 
@@ -127,7 +132,6 @@ export function updateParentHeight(
    * For Modal widget, set additional height property
    */
   if (parent.type === "MODAL_WIDGET") {
-    console.log("#### modalHeight", modalHeight, height);
     updatedParent = {
       ...updatedParent,
       height: modalHeight,
