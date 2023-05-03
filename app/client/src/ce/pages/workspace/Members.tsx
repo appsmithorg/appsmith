@@ -82,7 +82,7 @@ export const MembersWrapper = styled.div<{
           word-break: break-word;
           padding: 0 var(--ads-spaces-9);
           border-bottom: none;
-          line-height: 2.9;
+          line-height: 2;
 
           &:first-child {
             text-align: left;
