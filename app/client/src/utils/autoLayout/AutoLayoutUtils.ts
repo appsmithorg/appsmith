@@ -43,6 +43,23 @@ export type ReadableSnapShotDetails = {
   readableDate: string;
 };
 
+/**
+ * Update flex layers of parent canvas upon deleting a child widget.
+ * Logic:
+ * 1. Find the layer in which the deleted widget exists.
+ *   - Parse all flex layers, checking for deleted widgetId.
+ *   - If found, use the index of the flex layer to update it.
+ * 2. Update the flex layer.
+ *  - Remove the deleted widget from the children array.
+ * 3. Recalculate the dimensions of the canvas and it's widgets.
+ * @param allWidgets | CanvasWidgetsReduxState : All widgets.
+ * @param widgetId | string : id of widget to be deleted.
+ * @param parentId | string : Parent widget id.
+ * @param isMobile | boolean : Is the canvas mobile.
+ * @param mainCanvasWidth | number : Width of the main canvas.
+ * @param metaProps | Record<string, any> : Meta properties of the widget.
+ * @returns CanvasWidgetsReduxState
+ */
 export function updateFlexLayersOnDelete(
   allWidgets: CanvasWidgetsReduxState,
   widgetId: string,
@@ -91,7 +108,7 @@ export function updateFlexLayersOnDelete(
       children: updatedChildren,
     },
     ...flexLayers.slice(layerIndex + 1),
-  ];
+  ].filter((layer: FlexLayer) => layer?.children?.length);
 
   parent = {
     ...parent,

@@ -105,11 +105,7 @@ export function updateWidgetPositions(
     } else if (parent.children?.length) {
       // calculate the total height required by all widgets.
       height = getHeightOfFixedCanvas(widgets, parent, isMobile, metaProps);
-    } else if (
-      parent.type === "CANVAS_WIDGET" &&
-      parent.parentId &&
-      widgets[parent.parentId].type === "TABS_WIDGET"
-    ) {
+    } else if (parent.type === "CANVAS_WIDGET" && parent.parentId) {
       height = WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS;
     } else return widgets;
 
@@ -776,13 +772,13 @@ export function updatePositionsOfParentAndSiblings(
   const parent = widgets[parentId];
   if (!parent) return widgets;
   const { children, flexLayers } = parent;
-  if (!children || !children?.length || !flexLayers || !flexLayers?.length)
-    return widgets;
+  if (children === undefined || flexLayers === undefined) return widgets;
+
   // Extract all widgets to be updated. => parent canvas + all other canvas containing widgets in the same flex layer.
   let widgetsToBeParsed: string[] = [parentId];
   if (
     layerIndex > -1 &&
-    layerIndex < flexLayers.length &&
+    layerIndex < flexLayers?.length &&
     flexLayers[layerIndex]?.children?.length
   ) {
     flexLayers[layerIndex]?.children.forEach((child: LayerChild) => {
