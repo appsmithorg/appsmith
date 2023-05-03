@@ -83,7 +83,7 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
           data-testid="admin-settings-form-group-subtext"
           renderAs="p"
         >
-          * {createMessage(() => setting.subText || "")}
+          {createMessage(() => setting.subText || "")}
         </StyledSubtext>
       )}
     </StyledFormGroup>

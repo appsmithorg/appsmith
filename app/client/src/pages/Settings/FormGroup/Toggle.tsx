@@ -64,18 +64,16 @@ const StyledFieldToggleGroup = styled.div`
 
 export function ToggleComponent({ setting }: SettingComponentProps) {
   return (
-    <StyledFieldToggleGroup>
-      <div className="t--admin-settings-toggle">
-        <Field
-          component={FieldToggleWithToggleText(
-            setting.toggleText,
-            setting.id,
-            !setting.name?.toLowerCase().includes("enable"),
-            setting.label,
-          )}
-          name={setting.name}
-        />
-      </div>
+    <StyledFieldToggleGroup className="t--admin-settings-toggle">
+      <Field
+        component={FieldToggleWithToggleText(
+          setting.toggleText,
+          setting.id,
+          !setting.name?.toLowerCase().includes("enable"),
+          setting.label,
+        )}
+        name={setting.name}
+      />
     </StyledFieldToggleGroup>
   );
 }

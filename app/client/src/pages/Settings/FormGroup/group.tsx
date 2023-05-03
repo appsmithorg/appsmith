@@ -86,10 +86,6 @@ const GroupBody = styled.div`
     }
   }
 
-  label:first-child {
-    font-weight: 500;
-  }
-
   .t--admin-settings-toggle {
     width: fit-content;
     min-width: 260px;
