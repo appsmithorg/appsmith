@@ -21,6 +21,7 @@ import { PageSettings } from "../Pages/AppSettings/PageSettings";
 import { ThemeSettings } from "../Pages/AppSettings/ThemeSettings";
 import { EmbedSettings } from "../Pages/AppSettings/EmbedSettings";
 import { Templates } from "../Pages/Templates";
+import { Onboarding } from "../Pages/Onboarding";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -205,6 +206,14 @@ export class ObjectsRegistry {
       ObjectsRegistry.templates__ = new Templates();
     }
     return ObjectsRegistry.templates__;
+  }
+
+  private static onboarding__: Onboarding;
+  static get Onboarding(): Onboarding {
+    if (ObjectsRegistry.onboarding__ === undefined) {
+      ObjectsRegistry.onboarding__ = new Onboarding();
+    }
+    return ObjectsRegistry.onboarding__;
   }
 }
 
