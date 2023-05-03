@@ -74,6 +74,7 @@ import type FeatureFlags from "entities/FeatureFlags";
 import UsagePulse from "usagePulse";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { USER_PROFILE_PICTURE_UPLOAD_FAILED } from "ce/constants/messages";
+import { createMessage } from "design-system-old/build/constants/messages";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -490,7 +491,9 @@ export function* updatePhoto(
     const payload: ErrorActionPayload = {
       show: true,
       error: {
-        message: (error as any).message ?? USER_PROFILE_PICTURE_UPLOAD_FAILED(),
+        message:
+          (error as any).message ??
+          createMessage(USER_PROFILE_PICTURE_UPLOAD_FAILED),
       },
     };
     yield put({
