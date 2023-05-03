@@ -16,6 +16,7 @@ import PageApi from "api/PageApi";
 import { APP_MODE } from "entities/App";
 import type { FetchApplicationResponse } from "ce/api/ApplicationApi";
 import type { AxiosResponse } from "axios";
+import { getFirstTimeUserOnboardingIntroModalVisibility } from "utils/storage";
 
 class UsagePulse {
   static userAnonymousId: string | undefined;
@@ -31,6 +32,11 @@ class UsagePulse {
   static async isTrackableUrl(path: string) {
     if (isViewerPath(path)) {
       if (UsagePulse.isAnonymousUser) {
+        /*
+          In App view mode for non-logged in user, first we must have to check if the app is public or not.
+          If it is private app with non-logged in user, we do not send pulse at this point instead we redirect to the login page.
+          And for login page no usage pulse is required.
+        */
         const response: AxiosResponse<FetchApplicationResponse, any> =
           await PageApi.fetchAppAndPages({
             pageId: getAppViewerPageIdFromPath(path),
@@ -42,8 +48,16 @@ class UsagePulse {
         }
       }
       return true;
+    } else if (isEditorPath(path)) {
+      /*
+        During onboarding we show the Intro Modal and let user use the app for the first time.
+        During this exploration period, we do no send usage pulse.
+      */
+      const isFirstTimeOnboarding =
+        await getFirstTimeUserOnboardingIntroModalVisibility();
+      if (!isFirstTimeOnboarding) return true;
     }
-    return isEditorPath(path);
+    return false;
   }
 
   static sendPulse() {
