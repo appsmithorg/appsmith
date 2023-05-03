@@ -58,6 +58,9 @@ const CardStyles = css`
 `;
 
 const FileImportCard = styled.div`
+  .upload-form-container-box {
+    border: none;
+  }
   ${CardStyles}
   & > div {
     background: transparent none;
