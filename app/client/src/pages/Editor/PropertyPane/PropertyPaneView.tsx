@@ -20,7 +20,7 @@ import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
 import { Colors } from "constants/Colors";
-import { BannerMessage, Button, IconSize } from "design-system-old";
+import { BannerMessage, Button, IconSize, Size } from "design-system-old";
 import WidgetFactory from "utils/WidgetFactory";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import { useSearchText } from "./helpers";
@@ -239,9 +239,11 @@ function PropertyPaneView(
           />
         )}
         {isDeprecated && onMigration && (
-          <Button onClick={onMigrate} text="Migrate">
-            Migrate
-          </Button>
+          <div className="m-3">
+            <Button onClick={onMigrate} size={Size.medium} text="Migrate">
+              Migrate
+            </Button>
+          </div>
         )}
       </div>
 
