@@ -3,6 +3,7 @@ package com.appsmith.server.solutions;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
+import com.appsmith.server.configurations.OAuth2ClientRegistrationRepository;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -80,6 +81,9 @@ public class EnvManagerTest {
     @MockBean
     private ObjectMapper objectMapper;
 
+    @MockBean
+    private OAuth2ClientRegistrationRepository oAuth2ClientRegistrationRepository;
+
     EnvManager envManager;
 
     @BeforeEach
@@ -99,7 +103,8 @@ public class EnvManagerTest {
                 configService,
                 userUtils,
                 tenantService,
-                objectMapper);
+                objectMapper,
+                oAuth2ClientRegistrationRepository);
     }
 
     @Test

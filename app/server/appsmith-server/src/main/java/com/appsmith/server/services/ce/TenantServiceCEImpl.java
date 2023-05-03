@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.configurations.OAuth2ClientRegistrationRepository;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
@@ -27,15 +28,19 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     private final ConfigService configService;
 
+    private final OAuth2ClientRegistrationRepository oAuth2ClientRegistrationRepository;
+
     public TenantServiceCEImpl(Scheduler scheduler,
                                Validator validator,
                                MongoConverter mongoConverter,
                                ReactiveMongoTemplate reactiveMongoTemplate,
                                TenantRepository repository,
                                AnalyticsService analyticsService,
-                               ConfigService configService) {
+                               ConfigService configService,
+                               OAuth2ClientRegistrationRepository oAuth2ClientRegistrationRepository) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.configService = configService;
+        this.oAuth2ClientRegistrationRepository = oAuth2ClientRegistrationRepository;
     }
 
     @Override
@@ -91,12 +96,8 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
                     config.setGoogleMapsKey(System.getenv("APPSMITH_GOOGLE_MAPS_API_KEY"));
 
-                    if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"))) {
-                        config.addThirdPartyAuth("google");
-                    }
-
-                    if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GITHUB_CLIENT_ID"))) {
-                        config.addThirdPartyAuth("github");
+                    for (final String clientId : oAuth2ClientRegistrationRepository.getAvailableClientIds()) {
+                        config.addThirdPartyAuth(clientId);
                     }
 
                     return tenant;
