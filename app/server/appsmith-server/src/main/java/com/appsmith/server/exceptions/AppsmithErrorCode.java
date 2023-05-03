@@ -31,7 +31,6 @@ public enum AppsmithErrorCode {
     VALIDATION_FAILURE("AE-APP-4028", "Validation failure"),
     WORKSPACE_ID_NOT_GIVEN("AE-APP-4031", "Workspace id not given"),
     REMOVE_LAST_WORKSPACE_ADMIN_ERROR("AE-APP-4038", "Remove last workspace admin error"),
-    CSRF_TOKEN_INVALID("AE-APP-4039", "CSRF token missing/invalid"),
     UNKNOWN_PLUGIN_REFERENCE("AE-APP-4052", "Unknown plugin reference"),
     INVALID_LICENSE_KEY_ENTERED("AE-APP-4053", "Invalid license key"),
     HEALTHCHECK_TIMEOUT("AE-APP-4080", "Connection timeout during health check"),
@@ -63,7 +62,6 @@ public enum AppsmithErrorCode {
     PLUGIN_EXECUTION_TIMEOUT("AE-APP-5040", "Plugin execution timeout"),
     MARKETPLACE_TIMEOUT("AE-APP-5041", "Marketplace timeout"),
     GOOGLE_RECAPTCHA_TIMEOUT("AE-APP-5042", "Google recaptcha timeout"),
-
     NAME_CLASH_NOT_ALLOWED_IN_REFACTOR("AE-AST-4009", "Name clash not allowed in refactor"),
     GENERIC_BAD_REQUEST("AE-BAD-4000", "Generic bad request"),
     GOOGLE_RECAPTCHA_FAILED("AE-CAP-4035", "Google recaptcha failed"),
@@ -110,6 +108,8 @@ public enum AppsmithErrorCode {
     SIGNUP_DISABLED("AE-SGN-4033", "Signup disabled"),
     TOO_MANY_REQUESTS("AE-TMR-4029", "Too many requests"),
     USER_NOT_FOUND("AE-USR-4004", "User not found"),
+    CSRF_TOKEN_INVALID("AE-APP-4039", "CSRF token missing/invalid"),
+    UNSUPPORTED_IMPORT_OPERATION("AE-APP-4040", "Unsupported operation for import application via file"),
     ;
     private final String code;
     private final String description;

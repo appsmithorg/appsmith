@@ -852,6 +852,16 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     @Override
+    public Mono<Boolean> isApplicationConnectedToGit(String applicationId) {
+        if (!StringUtils.hasLength(applicationId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+        return this.getById(applicationId)
+                .map(application -> application.getGitApplicationMetadata() != null
+                        && StringUtils.hasLength(application.getGitApplicationMetadata().getRemoteUrl()));
+    }
+
+    @Override
     public Mono<Void> deleteAppNavigationLogo(String branchName, String applicationId){
         return this.findByBranchNameAndDefaultApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
                 .flatMap(branchedApplication -> {

@@ -44,6 +44,7 @@ import type {
   UpdateDatasourceSuccessAction,
   executeDatasourceQueryReduxAction,
 } from "actions/datasourceActions";
+import { updateDatasourceAuthState } from "actions/datasourceActions";
 import {
   changeDatasource,
   fetchDatasourceStructure,
@@ -53,7 +54,6 @@ import {
   removeTempDatasource,
   createDatasourceSuccess,
   resetDefaultKeyValPairFlag,
-  updateDatasource,
 } from "actions/datasourceActions";
 import type { ApiResponse } from "api/ApiResponses";
 import type { CreateDatasourceConfig } from "api/DatasourcesApi";
@@ -120,6 +120,7 @@ import {
 } from "RouteBuilder";
 import {
   DATASOURCE_NAME_DEFAULT_PREFIX,
+  GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS,
   TEMP_DATASOURCE_ID,
 } from "constants/Datasource";
 import { getUntitledDatasourceSequence } from "utils/DatasourceSagaUtils";
@@ -1213,11 +1214,12 @@ function* filePickerActionCallbackSaga(
     // Once users selects/cancels the file selection,
     // Sending sheet ids selected as part of datasource
     // config properties in order to save it in database
-    set(datasource, "datasourceConfiguration.properties[0]", {
+    // using the second index specifically for file ids.
+    set(datasource, "datasourceConfiguration.properties[1]", {
       key: createMessage(GSHEET_AUTHORISED_FILE_IDS_KEY),
       value: fileIds,
     });
-    yield put(updateDatasource(datasource));
+    yield put(updateDatasourceAuthState(datasource, authStatus));
   } catch (error) {
     yield put({
       type: ReduxActionTypes.SET_GSHEET_TOKEN,
@@ -1424,18 +1426,59 @@ function* loadFilePickerSaga() {
   // This adds overlay on document body
   // This is done for google sheets file picker, as file picker needs to be shown on blank page
   // when overlay needs to be shown, we get showPicker search param in redirect url
-  const className = "overlay";
   const appsmithToken = localStorage.getItem(APPSMITH_TOKEN_STORAGE_KEY);
   const search = new URLSearchParams(window.location.search);
   const isShowFilePicker = search.get(SHOW_FILE_PICKER_KEY);
+  const gapiScriptLoaded = (window as any).googleAPIsLoaded;
   const authStatus = search.get(RESPONSE_STATUS);
   if (
     !!isShowFilePicker &&
     !!authStatus &&
     authStatus === AuthorizationStatus.SUCCESS &&
-    !!appsmithToken
+    !!appsmithToken &&
+    !!gapiScriptLoaded
   ) {
-    addClassToDocumentBody(className);
+    addClassToDocumentBody(GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS);
+  }
+}
+
+function* updateDatasourceAuthStateSaga(
+  actionPayload: ReduxAction<{
+    authStatus: AuthenticationStatus;
+    datasource: Datasource;
+  }>,
+) {
+  try {
+    const { authStatus, datasource } = actionPayload.payload;
+    const response: ApiResponse<Datasource> =
+      yield DatasourcesApi.updateDatasource(datasource, datasource.id);
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
+        payload: response.data,
+      });
+
+      Toaster.show({
+        text:
+          authStatus === AuthenticationStatus.SUCCESS
+            ? OAUTH_AUTHORIZATION_SUCCESSFUL
+            : OAUTH_AUTHORIZATION_FAILED,
+        variant:
+          authStatus === AuthenticationStatus.SUCCESS
+            ? Variant.success
+            : Variant.danger,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_DATASOURCE_ERROR,
+      payload: { error },
+    });
+    Toaster.show({
+      text: OAUTH_AUTHORIZATION_FAILED,
+      variant: Variant.danger,
+    });
   }
 }
 
@@ -1512,5 +1555,9 @@ export function* watchDatasourcesSagas() {
     takeLatest(ReduxActionTypes.FETCH_GSHEET_SHEETS, fetchGsheetSheets),
     takeLatest(ReduxActionTypes.FETCH_GSHEET_COLUMNS, fetchGsheetColumns),
     takeEvery(ReduxActionTypes.LOAD_FILE_PICKER_ACTION, loadFilePickerSaga),
+    takeEvery(
+      ReduxActionTypes.UPDATE_DATASOURCE_AUTH_STATE,
+      updateDatasourceAuthStateSaga,
+    ),
   ]);
 }
