@@ -231,6 +231,12 @@ export enum StickyType {
   RIGHT = "right",
   NONE = "",
 }
+
+export const SORT_ORDER = {
+  left: -1,
+  right: 1,
+  none: 0,
+};
 export interface TableColumnProps {
   id: string;
   Header: string;
