@@ -47,10 +47,7 @@ export function AskAI() {
   const [isLoading, setLoading] = useState(false);
   const showExamplePrompt = useSelector(selectShowExamplePrompt);
   const allTasks = useGPTTasks();
-  const [task, setTask] = useState<GPTTask>(() => {
-    const enabled = allTasks.filter((t) => !t.disabled) as typeof allTasks;
-    return enabled[0].id;
-  });
+  const [task, setTask] = useState<GPTTask>(allTasks[0].id);
 
   const toggleExamplePrompt = (show: boolean) => {
     dispatch({
@@ -70,8 +67,7 @@ export function AskAI() {
   );
 
   useEffect(() => {
-    const enabled = allTasks.filter((t) => !t.disabled) as typeof allTasks;
-    setTask(enabled[0].id);
+    setTask(allTasks[0].id);
   }, [allTasks]);
 
   useEffect(() => {
@@ -254,7 +250,7 @@ export function AskAI() {
                 className={classNames({
                   "!bg-gray-200": task === t.id,
                 })}
-                disabled={t.disabled || isLoading}
+                disabled={isLoading}
                 key={t.id}
                 onClick={() => handleTaskSelection(t)}
                 text={t.title}
