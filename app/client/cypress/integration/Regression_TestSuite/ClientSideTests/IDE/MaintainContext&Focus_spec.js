@@ -12,7 +12,7 @@ const apiPage = ObjectsRegistry.ApiPage;
 const locators = ObjectsRegistry.CommonLocators;
 
 describe("MaintainContext&Focus", function () {
-  it.only("1. Import the test application", () => {
+  it("1. Import the test application", () => {
     homePage.NavigateToHome();
     cy.intercept("GET", "/api/v1/users/features", {
       fixture: "featureFlags.json",
@@ -34,7 +34,7 @@ describe("MaintainContext&Focus", function () {
     });
   });
 
-  it.only("2. Focus on different entities", () => {
+  it("2. Focus on different entities", () => {
     cy.CheckAndUnfoldEntityItem("Queries/JS");
 
     cy.SearchEntityandOpen("Text1");
@@ -194,7 +194,7 @@ describe("MaintainContext&Focus", function () {
     cy.xpath(queryLocators.queryTimeout).should("be.focused");
   });
 
-  it.only("11. Bug 21999 Maintain focus of code editor when Escape is pressed with autcomplete open", () => {
+  it("11. Bug 21999 Maintain focus of code editor when Escape is pressed with autcomplete open", () => {
     cy.SearchEntityandOpen("JSObject1");
     cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 4 });
     cy.get(locators._codeMirrorTextArea).type("showA");
@@ -203,7 +203,7 @@ describe("MaintainContext&Focus", function () {
     cy.assertCursorOnCodeInput(".js-editor", { ch: 7, line: 4 });
   });
 
-  it.only("11. Bug 22960 Maintain focus of code editor when Escape is pressed", () => {
+  it("11. Bug 22960 Maintain focus of code editor when Escape is pressed", () => {
     agHelper.PressEscape();
     cy.assertCursorOnCodeInput(".js-editor", { ch: 7, line: 4 });
   });
