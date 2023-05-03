@@ -98,6 +98,7 @@ const ResponseMetaWrapper = styled.div`
   position: absolute;
   right: ${(props) => props.theme.spaces[17] + 1}px;
   top: ${(props) => props.theme.spaces[2] + 1}px;
+  z-index: 6;
 `;
 
 const ResponseTabWrapper = styled.div`
