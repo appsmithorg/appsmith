@@ -16,6 +16,7 @@ import type { WidgetFeatures } from "utils/WidgetFeatures";
 import type { WidgetProps } from "./BaseWidget";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type {
+  WidgetQueryConfig,
   WidgetQueryGenerationConfig,
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
@@ -84,7 +85,7 @@ type GetQueryGenerationConfig = (
 ) => WidgetQueryGenerationConfig;
 
 type GetPropertyUpdatesForQueryBinding = (
-  queryConfig: Record<string, unknown>,
+  queryConfig: WidgetQueryConfig,
   widget: WidgetProps,
   formConfig: WidgetQueryGenerationFormConfig,
 ) => Record<string, unknown>;

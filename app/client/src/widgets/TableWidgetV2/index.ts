@@ -70,12 +70,12 @@ export const CONFIG = {
     },
     getPropertyUpdatesForQueryBinding: (
       queryConfig: WidgetQueryConfig,
-      widget: TableWidgetProps,
+      widget: WidgetProps,
       formConfig: WidgetQueryGenerationFormConfig,
     ) => {
       return Widget.getPropertyUpdatesForQueryBinding(
         queryConfig,
-        widget,
+        widget as TableWidgetProps,
         formConfig,
       );
     },
