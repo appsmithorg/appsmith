@@ -5,7 +5,10 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import log from "loglevel";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type {
+  CanvasWidgetsReduxState,
+  UpdateWidgetsPayload,
+} from "reducers/entityReducers/canvasWidgetsReducer";
 import {
   all,
   call,
@@ -19,7 +22,7 @@ import {
   alterLayoutForMobile,
   getCanvasDimensions,
 } from "utils/autoLayout/AutoLayoutUtils";
-import { getWidgets } from "./selectors";
+import { getCanvasAndMetaWidgets, getWidgets } from "./selectors";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import {
   GridDefaults,
@@ -46,7 +49,10 @@ import {
   setBottomRow,
   setRightColumn,
 } from "utils/autoLayout/flexWidgetUtils";
-import { updateMultipleWidgetPropertiesAction } from "actions/controlActions";
+import {
+  updateMultipleMetaWidgetPropertiesAction,
+  updateMultipleWidgetPropertiesAction,
+} from "actions/controlActions";
 import { isEmpty } from "lodash";
 import { mutation_setPropertiesToUpdate } from "./autoHeightSagas/helpers";
 import { updateApplication } from "@appsmith/actions/applicationActions";
@@ -206,7 +212,9 @@ function* updateWidgetDimensionsSaga(
 ) {
   let { height, width } = action.payload;
   const { widgetId } = action.payload;
-  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const allWidgets: CanvasWidgetsReduxState = yield select(
+    getCanvasAndMetaWidgets,
+  );
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
   const isWidgetResizing: boolean = yield select(getIsResizing);
@@ -272,7 +280,9 @@ function* updateWidgetDimensionsSaga(
 function* processAutoLayoutDimensionUpdatesSaga() {
   if (Object.keys(autoLayoutWidgetDimensionUpdateBatch).length === 0) return;
 
-  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const allWidgets: CanvasWidgetsReduxState = yield select(
+    getCanvasAndMetaWidgets,
+  );
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
 
@@ -368,11 +378,26 @@ function* processAutoLayoutDimensionUpdatesSaga() {
     );
   }
 
+  const canvasWidgetsToUpdate: UpdateWidgetsPayload = {};
+  const metaWidgetsToUpdate: UpdateWidgetsPayload = {};
+
+  for (const widgetId in widgetsToUpdate) {
+    const widget = widgets[widgetId];
+    if (widget.isMetaWidget) {
+      metaWidgetsToUpdate[widgetId] = widgetsToUpdate[widgetId];
+    } else {
+      canvasWidgetsToUpdate[widgetId] = widgetsToUpdate[widgetId];
+    }
+  }
+
   // Push all updates to the CanvasWidgetsReducer.
   // Note that we're not calling `UPDATE_LAYOUT`
   // as we don't need to trigger an eval
-  if (!isEmpty(widgetsToUpdate)) {
-    yield put(updateMultipleWidgetPropertiesAction(widgetsToUpdate));
+  if (!isEmpty(canvasWidgetsToUpdate)) {
+    yield put(updateMultipleWidgetPropertiesAction(canvasWidgetsToUpdate));
+  }
+  if (!isEmpty(metaWidgetsToUpdate)) {
+    yield put(updateMultipleMetaWidgetPropertiesAction(metaWidgetsToUpdate));
   }
 
   // clear the batch after processing
