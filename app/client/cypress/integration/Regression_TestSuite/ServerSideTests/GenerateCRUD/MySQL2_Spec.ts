@@ -197,8 +197,8 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     table.NavigateToNextPage(); //page 2
     agHelper.Sleep(3000); //wait for table navigation to take effect!
-    table.WaitForTableEmpty(); //page 2
-    agHelper.AssertElementAbsence(locator._jsonFormWidget); //JSON form also should not be present
+    table.WaitUntilTableLoad(); //page 2
+    agHelper.AssertElementVisible(locator._jsonFormWidget); // JSON form should be present
 
     //Try to add via to Insert Modal - JSON fields not showing correct fields, Open bug 14122
 
