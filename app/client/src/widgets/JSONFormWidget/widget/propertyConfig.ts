@@ -251,7 +251,7 @@ export const contentConfig = [
       },
       {
         propertyName: "showReset",
-        helpText: "Show/Hide reset form button",
+        helpText: "Show/hide reset form button",
         label: "Show reset",
         controlType: "SWITCH",
         isJSConvertible: true,
