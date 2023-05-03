@@ -446,7 +446,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                     // Check if the private repo count is less than the allowed repo count
                     final String workspaceId = defaultApplication.getWorkspaceId();
                     return applicationMono
-                            .then(isRepoLimitReached(workspaceId, false))
+                            .map(application -> {
+                                return isRepoLimitReached(workspaceId, false);
+                            })
                             .flatMap(isRepoLimitReached -> {
                                 if (Boolean.FALSE.equals(isRepoLimitReached)) {
                                     return Mono.just(defaultApplication);
@@ -2380,20 +2382,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     @Override
     public Mono<Long> getApplicationCountWithPrivateRepo(String workspaceId) {
-        return applicationService.getGitConnectedApplicationsByWorkspaceId(workspaceId)
-                .flatMap(application -> {
-                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
-                    final Boolean isRepoPrivate = gitData.getIsRepoPrivate();
-                    return GitUtils.isRepoPrivate(application.getGitApplicationMetadata().getBrowserSupportedRemoteUrl())
-                            .flatMap(isPrivate -> {
-                                if (!isRepoPrivate.equals(gitData.getIsRepoPrivate())) {
-                                    // Repo accessibility is changed
-                                    return applicationService.save(application);
-                                }
-                                return Mono.just(application);
-                            });
-                })
-                .then(applicationService.getGitConnectedApplicationsCountWithPrivateRepoByWorkspaceId(workspaceId));
+        return applicationService.getGitConnectedApplicationsCountWithPrivateRepoByWorkspaceId(workspaceId);
     }
 
     /**
@@ -2559,7 +2548,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                     }
                     return this.getApplicationCountWithPrivateRepo(workspaceId)
                             .map(privateRepoCount -> {
-                                if (limit > privateRepoCount) {
+                                if (limit >= privateRepoCount) {
+                                    if (isClearCache) {
+                                        return Boolean.TRUE;
+                                    }
                                     return Boolean.FALSE;
                                 }
                                 return Boolean.TRUE;
