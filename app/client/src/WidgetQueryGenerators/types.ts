@@ -43,3 +43,19 @@ export type WidgetQueryConfig = Record<
     run: string;
   }
 >;
+
+export type MongoDBFormData = {
+  aggregate: object;
+  smartSubstitution: object;
+  find: object;
+  updateMany: object;
+  insert: object;
+  count: object;
+};
+export type ActionConfigurationMongoDB = {
+  formData: MongoDBFormData;
+};
+
+export type ActionConfigurationPostgreSQL = {
+  pluginSpecifiedTemplates: Array<object>;
+};
