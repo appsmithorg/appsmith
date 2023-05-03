@@ -69,9 +69,6 @@ export const EditorWrapper = styled.div<{
   flex: 1;
   flex-direction: row;
   text-transform: none;
-  ${(props) =>
-    props.hoverInteraction
-      ? `
   &:hover {
     && {
       .cm-s-duotone-light.CodeMirror {
@@ -79,12 +76,19 @@ export const EditorWrapper = styled.div<{
         border-radius: var(--ads-v2-border-radius);
         border-color: var(--ads-v2-color-border-emphasis);
       }
-      &:active {
-      border-color: var(--ads-v2-color-border-emphasis-plus);
+    }
+  }
+  &:focus,
+  &:focus-visible {
+    && {
+      .cm-s-duotone-light.CodeMirror {
+        cursor: pointer;
+        border-radius: var(--ads-v2-border-radius);
+        border-color: var(--ads-v2-color-border-emphasis-plus);
       }
     }
-  }`
-      : null};
+  }
+
   && {
     .CodeMirror-cursor {
       border-right: none;
