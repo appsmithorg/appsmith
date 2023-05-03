@@ -65,7 +65,7 @@ export const StickyCanvasArena = forwardRef(
     );
     const resizeObserver = useRef(
       new ResizeObserver(() => {
-        observeSlider();
+        observeSliderIfNecessary();
       }),
     );
 
@@ -113,14 +113,16 @@ export const StickyCanvasArena = forwardRef(
       entry: IntersectionObserverEntry,
     ) => {
       if (slidingArenaRef.current) {
-        const parentCanvas: Element | null = getRelativeScrollingParent(
-          slidingArenaRef.current,
-        );
+        requestAnimationFrame(() => {
+          const parentCanvas: Element | null = getRelativeScrollingParent(
+            slidingArenaRef.current,
+          );
 
-        if (parentCanvas && stickyCanvasRef.current) {
-          repositionSliderCanvas(entry);
-          rescaleSliderCanvas(entry);
-        }
+          if (parentCanvas && stickyCanvasRef.current) {
+            repositionSliderCanvas(entry);
+            rescaleSliderCanvas(entry);
+          }
+        });
       }
     };
 
@@ -139,7 +141,7 @@ export const StickyCanvasArena = forwardRef(
 
     useEffect(() => {
       if (slidingArenaRef.current) {
-        observeSlider();
+        observeSliderIfNecessary();
       }
     }, [
       showCanvas,
