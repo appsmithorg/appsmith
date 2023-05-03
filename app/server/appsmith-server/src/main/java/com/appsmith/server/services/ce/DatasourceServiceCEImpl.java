@@ -22,7 +22,6 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -36,13 +35,14 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
+import jakarta.validation.Validator;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -53,8 +53,6 @@ import reactor.util.function.Tuple2;
 import reactor.util.function.Tuple3;
 import reactor.util.function.Tuples;
 
-import jakarta.validation.Validator;
-import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -66,13 +64,11 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
-import static com.appsmith.server.featureflags.FeatureFlagEnum.ORACLE_PLUGIN;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 
 @Slf4j
 public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, Datasource, String> implements DatasourceServiceCE {
 
-    private static final String ORACLE_PLUGIN_PACKAGE_NAME = "oracle-plugin";
     private final WorkspaceService workspaceService;
     private final SessionUserService sessionUserService;
     private final PluginService pluginService;
@@ -143,29 +139,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
             datasource.setGitSyncId(datasource.getWorkspaceId() + "_" + new ObjectId());
         }
 
-        Mono<Datasource> datasourceMono =  pluginService.findById(datasource.getPluginId())
-                .flatMap(plugin -> {
-                    /**
-                     * Oracle plugin is currently under feature flag. Hence, datasource creation will only be allowed
-                     * if the flag is enabled.
-                     */
-                    if (ORACLE_PLUGIN_PACKAGE_NAME.equalsIgnoreCase(plugin.getPackageName())) {
-                        return featureFlagService.check(ORACLE_PLUGIN);
-                    }
-                    else {
-                        return Mono.just(true);
-                    }
-                })
-                .flatMap(isPluginEnabled -> {
-                    if (isPluginEnabled) {
-                        return Mono.just(datasource);
-                    }
-                    else {
-                        return Mono.error(new AppsmithException(AppsmithError.PLUGIN_NOT_INSTALLED,
-                                datasource.getPluginId()));
-                    }
-                });
-
+        Mono<Datasource> datasourceMono = Mono.just(datasource);
         if (!StringUtils.hasLength(datasource.getName())) {
             datasourceMono = sequenceService
                     .getNextAsSuffix(Datasource.class, " for workspace with _id : " + workspaceId)
