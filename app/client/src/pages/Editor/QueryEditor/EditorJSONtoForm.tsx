@@ -294,7 +294,6 @@ const NoDataSourceContainer = styled.div`
     text-align: center;
     margin-bottom: 23px;
     font-size: 18px;
-    // TODO: What does this become?
   }
 `;
 
