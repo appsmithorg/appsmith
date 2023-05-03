@@ -63,7 +63,7 @@ const ResponseContainer = styled.div`
   background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
   height: ${ActionExecutionResizerHeight}px;
 
-  .react-tabs__tab-panel {
+  .ads-v2-tabs__panel {
     ${CodeEditorWithGutterStyles};
     overflow-y: auto;
     height: calc(100% - ${TAB_MIN_HEIGHT});
@@ -94,7 +94,7 @@ const TabbedViewWrapper = styled.div`
     padding: 9px 11px;
   }
   &&& {
-    ul.react-tabs__tab-list {
+    ul.ads-v2-tabs__list {
       padding: 0px ${(props) => props.theme.spaces[11]}px;
       height: ${TAB_MIN_HEIGHT};
     }

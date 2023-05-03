@@ -77,7 +77,7 @@ const ResponseContainer = styled.div`
   background-color: var(--ads-v2-color-bg);
   border-top: 1px solid var(--ads-v2-color-border);
 
-  .react-tabs__tab-panel {
+  .ads-v2-tabs__panel {
     overflow: hidden;
   }
   .CodeMirror-code {
@@ -118,14 +118,14 @@ const TabbedViewWrapper = styled.div`
   }
 
   &&& {
-    ul.react-tabs__tab-list {
+    ul.ads-v2-tabs__list {
       margin: 0 ${(props) => props.theme.spaces[11]}px;
       height: ${TAB_MIN_HEIGHT};
     }
   }
 
   & {
-    .react-tabs__tab-panel {
+    .ads-v2-tabs__panel {
       height: calc(100% - ${TAB_MIN_HEIGHT});
     }
   }
