@@ -117,7 +117,7 @@ function AppSettings() {
   const embedSnippet = useUpdateEmbedSnippet();
 
   return (
-    <div className="px-4 flex flex-col gap-3">
+    <div className="px-4 flex flex-col gap-6">
       <Text className="pt-3" kind="heading-xs">
         {createMessage(IN_APP_EMBED_SETTING.embed)}
       </Text>
