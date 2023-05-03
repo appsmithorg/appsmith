@@ -4,6 +4,8 @@ import { QUERY_TYPE } from "WidgetQueryGenerators/types";
 import type {
   WidgetQueryGenerationConfig,
   WidgetQueryGenerationFormConfig,
+  ActionConfigurationMongoDB,
+  MongoDBFormData,
 } from "WidgetQueryGenerators/types";
 
 enum COMMAND_TYPES {
@@ -94,7 +96,7 @@ export default abstract class MongoDB extends BaseQueryGenerator {
   private static buildUpdate(
     widgetConfig: WidgetQueryGenerationConfig,
     formConfig: WidgetQueryGenerationFormConfig,
-  ) {
+  ): Record<string, object | string> | undefined {
     const { update } = widgetConfig;
 
     if (update) {
@@ -146,9 +148,9 @@ export default abstract class MongoDB extends BaseQueryGenerator {
   }
 
   private static createPayload(
-    initialValues: Record<string, any>,
+    initialValues: MongoDBFormData,
     commandKey: string,
-    builtValues: Record<string, any> | undefined,
+    builtValues: Record<string, object | string> | undefined,
   ) {
     if (!builtValues || isEmpty(builtValues)) {
       return;
@@ -159,11 +161,11 @@ export default abstract class MongoDB extends BaseQueryGenerator {
     }
 
     const scrubedOutInitalValues = [...ALLOWED_INITAL_VALUE_KEYS, commandKey]
-      .filter((key) => initialValues[key])
+      .filter((key) => initialValues[key as keyof MongoDBFormData])
       .reduce((acc, key) => {
-        acc[key] = initialValues[key];
+        acc[key] = initialValues[key as keyof MongoDBFormData];
         return acc;
-      }, {} as Record<string, any>);
+      }, {} as Record<string, object>);
 
     const { formData, ...rest } = builtValues;
 
@@ -178,7 +180,7 @@ export default abstract class MongoDB extends BaseQueryGenerator {
   static build(
     widgetConfig: WidgetQueryGenerationConfig,
     formConfig: WidgetQueryGenerationFormConfig,
-    pluginInitalValues: { actionConfiguration: any },
+    pluginInitalValues: { actionConfiguration: ActionConfigurationMongoDB },
   ) {
     const configs = [];
 
