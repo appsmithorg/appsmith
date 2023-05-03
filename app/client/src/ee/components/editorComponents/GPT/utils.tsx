@@ -62,11 +62,13 @@ export const GPT_TASKS = [GPT_JS_EXPRESSION, GPT_SQL_QUERY];
 export const useGPTTasks = () => {
   const location = useLocation();
   const { pageType } = getEntityInCurrentPath(location.pathname);
-  const GPT_TASKS = [GPT_JS_EXPRESSION, GPT_SQL_QUERY];
-  if (pageType === "queryEditor") {
-    GPT_TASKS.reverse();
-  }
-  return GPT_TASKS;
+  return useMemo(() => {
+    const GPT_TASKS = [GPT_JS_EXPRESSION, GPT_SQL_QUERY];
+    if (pageType === "queryEditor") {
+      GPT_TASKS.reverse();
+    }
+    return GPT_TASKS;
+  }, [location.pathname]);
 };
 
 function getPotentialEntityNamesFromMessage(
