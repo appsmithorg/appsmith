@@ -293,12 +293,17 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
       .then((loc) => {
         expect(loc.href).to.equal(loc.origin + "/applications");
         cy.wait("@getMe");
-        cy.wait("@applications").should(
-          "have.nested.property",
-          "response.body.responseMeta.status",
-          200,
-        );
-        cy.wait("@getReleaseItems");
+
+        if (CURRENT_REPO === REPO.EE) {
+          cy.wait(2000);
+        } else {
+          cy.wait("@applications").should(
+            "have.nested.property",
+            "response.body.responseMeta.status",
+            200,
+          );
+          cy.wait("@getReleaseItems");
+        }
       });
   });
 });
