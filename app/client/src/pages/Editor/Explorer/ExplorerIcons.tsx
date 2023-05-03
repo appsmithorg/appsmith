@@ -16,20 +16,13 @@ import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 export const ENTITY_ICON_SIZE = 16;
 
-const PagesIcon = MenuIcons.PAGES_ICON;
-export const pageGroupIcon = (
-  <PagesIcon
-    color="var(--ads-v2-color-fg)"
-    height={ENTITY_ICON_SIZE}
-    width={ENTITY_ICON_SIZE}
-  />
-);
+export const pageGroupIcon = <Icon name="home-3-line" size="md" />;
 
 export const pageIcon = <Icon name="page-line" size="md" />;
 
-export const homePageIcon = <Icon name="add-circle-control" size="md" />;
+export const homePageIcon = <Icon name="home-3-line" size="md" />;
 
-export const defaultPageIcon = <Icon name="add-circle-control" size="md" />;
+export const defaultPageIcon = <Icon name="home-3-line" size="md" />;
 
 export const hiddenPageIcon = <Icon name="eye-off" size="md" />;
 
@@ -84,23 +77,9 @@ export const datasourceIcon = (
 
 export const datasourceTableIcon = <Icon name="layout-left-2-line" size="md" />;
 
-const PrimaryKeyIcon = MenuIcons.PRIMARY_KEY_ICON;
-export const primaryKeyIcon = (
-  <PrimaryKeyIcon
-    height={ENTITY_ICON_SIZE}
-    keepColors
-    width={ENTITY_ICON_SIZE}
-  />
-);
+export const primaryKeyIcon = <Icon name="key-2-line" size="md" />;
 
-export const ForeignKeyIcon = MenuIcons.FOREIGN_KEY_ICON;
-export const foreignKeyIcon = (
-  <ForeignKeyIcon
-    height={ENTITY_ICON_SIZE}
-    keepColors
-    width={ENTITY_ICON_SIZE}
-  />
-);
+export const foreignKeyIcon = <Icon name="key-2-line" size="md" />;
 
 export const datasourceColumnIcon = (
   <Icon name="layout-column-line" size="md" />
