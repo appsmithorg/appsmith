@@ -16,7 +16,7 @@ describe("Autocomplete bug fixes", function () {
     ee.SelectEntityByName("Text1");
     propPane.TypeTextIntoField("Text", "{{Table1.");
     agHelper.AssertElementExist(locator._hints);
-    agHelper.GetNAssertElementText(locator._hints, "Best Match");
+    agHelper.GetNAssertElementText(locator._hints, "Best match");
     agHelper.GetNAssertElementText(
       locator._hints,
       "selectedRow",
@@ -51,7 +51,7 @@ describe("Autocomplete bug fixes", function () {
     propPane.UpdatePropertyFieldValue("Text", "");
     propPane.TypeTextIntoField("Text", "{{Te");
     agHelper.AssertElementExist(locator._hints);
-    agHelper.GetNAssertElementText(locator._hints, "Best Match");
+    agHelper.GetNAssertElementText(locator._hints, "Best match");
     agHelper.GetNAssertElementText(
       locator._hints,
       "Text1Copy.text",

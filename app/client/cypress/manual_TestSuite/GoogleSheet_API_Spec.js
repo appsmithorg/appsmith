@@ -23,7 +23,7 @@ describe("Test Ideas for GooglSheet API", function () {
     //Ensure response :id,name,createdTime,modifiedTime,permissions
   });
 
-  it("Create New Sheet", function () {
+  it("Create new Sheet", function () {
     //Ensure the response is appropriate
     //Ensure to select the method
     //Ensure to select a new name to the spreadsheet

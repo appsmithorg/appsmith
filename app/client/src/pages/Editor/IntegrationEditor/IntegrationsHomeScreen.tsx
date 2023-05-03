@@ -182,7 +182,7 @@ const SECONDARY_MENU: TabProp[] = [
 const getSecondaryMenu = (hasActiveSources: boolean) => {
   const mockDbMenu = {
     key: "MOCK_DATABASE",
-    title: "Sample Databases",
+    title: "Sample databases",
     panelComponent: <div />,
   };
   return hasActiveSources
@@ -226,7 +226,7 @@ function UseMockDatasources({ active, mockDatasources }: MockDataSourcesProps) {
   }, [active]);
   return (
     <div id="mock-database" ref={useMockRef}>
-      <Text type={TextType.H2}>Sample Databases</Text>
+      <Text type={TextType.H2}>Sample databases</Text>
       <MockDataSources mockDatasources={mockDatasources} />
     </div>
   );
@@ -456,7 +456,7 @@ class IntegrationsHomeScreen extends React.Component<
         ? [
             {
               key: "CREATE_NEW",
-              title: "Create New",
+              title: "Create new",
               panelComponent: <div />,
               icon: "plus",
               iconSize: IconSize.XS,

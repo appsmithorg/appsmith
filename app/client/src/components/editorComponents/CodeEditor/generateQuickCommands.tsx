@@ -145,18 +145,18 @@ export const generateQuickCommands = (
   entityId: any,
   propertyPath: any,
 ) => {
-  const suggestionsHeader: CommandsCompletion = commandsHeader("Bind Data");
+  const suggestionsHeader: CommandsCompletion = commandsHeader("Bind data");
   const createNewHeader: CommandsCompletion = commandsHeader("Create a Query");
   recentEntities.reverse();
   const newBinding: CommandsCompletion = generateCreateNewCommand({
     text: "{{}}",
-    displayText: "New Binding",
+    displayText: "New binding",
     shortcut: Shortcuts.BINDING,
     triggerCompletionsPostPick: true,
   });
   const insertSnippet: CommandsCompletion = generateCreateNewCommand({
     text: "",
-    displayText: "Insert Snippet",
+    displayText: "Insert snippet",
     shortcut: Shortcuts.FUNCTION,
     action: () =>
       executeCommand({

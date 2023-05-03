@@ -62,7 +62,7 @@ function Connected({
               name="success"
               size="lg"
             />
-            <div style={{ marginLeft: "12px" }}>Datasource Saved</div>
+            <div style={{ marginLeft: "12px" }}>Datasource saved</div>
           </ConnectedText>
           <NewActionButton
             datasource={datasource}

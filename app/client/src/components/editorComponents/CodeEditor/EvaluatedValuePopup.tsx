@@ -398,7 +398,7 @@ const ControlledCurrentValueViewer = memo(
             data-testid="evaluated-value-popup-title"
             onClick={toggleEvaluatedValue}
           >
-            Evaluated Value
+            Evaluated value
             <CollapseToggle isOpen={openEvaluatedValue} />
           </StyledTitle>
         )}
@@ -548,7 +548,7 @@ function PopoverContent(props: PopoverContentProps) {
       {props.expected && props.expected.type !== UNDEFINED_VALIDATION && (
         <>
           <StyledTitle onClick={toggleExpectedDataType}>
-            Expected Structure
+            Expected structure
             <CollapseToggle isOpen={openExpectedDataType} />
           </StyledTitle>
           <Collapse isOpen={openExpectedDataType}>
@@ -566,7 +566,7 @@ function PopoverContent(props: PopoverContentProps) {
       {props.expected && props.expected.type !== UNDEFINED_VALIDATION && (
         <>
           <StyledTitle onClick={toggleExpectedExample}>
-            Expected Structure - Example
+            Expected structure - example
             <CollapseToggle isOpen={openExpectedExample} />
           </StyledTitle>
           <Collapse isOpen={openExpectedExample}>

@@ -88,7 +88,7 @@ export default [
         ],
       },
       {
-        label: "Query Variables",
+        label: "Query variables",
         configProperty: "actionConfiguration.pluginSpecifiedTemplates[1].value",
         controlType: "QUERY_DYNAMIC_INPUT_TEXT",
         evaluationSubstitutionType: "SMART_SUBSTITUTE",
@@ -99,7 +99,7 @@ export default [
         },
       },
       {
-        label: "Query Variables",
+        label: "Query variables",
         configProperty: "actionConfiguration.pluginSpecifiedTemplates[1].value",
         controlType: "QUERY_DYNAMIC_INPUT_TEXT",
         evaluationSubstitutionType: "TEMPLATE",
