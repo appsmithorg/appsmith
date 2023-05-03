@@ -22,7 +22,7 @@ import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   getFirstTimeUserOnboardingComplete,
-  getIsFirstTimeUserOnboardingEnabled,
+  getEnableFirstTimeUserOnboarding,
 } from "selectors/onboardingSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
@@ -234,7 +234,7 @@ export default function OnboardingChecklist() {
   const isDeployed = !!useSelector(getApplicationLastDeployedAt);
   const isCompleted = useSelector(getFirstTimeUserOnboardingComplete);
   const isFirstTimeUserOnboardingEnabled = useSelector(
-    getIsFirstTimeUserOnboardingEnabled,
+    getEnableFirstTimeUserOnboarding,
   );
   if (!isFirstTimeUserOnboardingEnabled && !isCompleted) {
     return <Redirect to={builderURL({ pageId })} />;
@@ -561,7 +561,7 @@ export default function OnboardingChecklist() {
       {!isAirgappedInstance && (
         <StyledFooter
           className="flex"
-          onClick={() => triggerWelcomeTour(dispatch, applicationId)}
+          onClick={() => triggerWelcomeTour(dispatch)}
         >
           <StyledImg
             alt="rocket"

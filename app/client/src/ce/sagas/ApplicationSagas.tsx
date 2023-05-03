@@ -76,7 +76,6 @@ import {
 
 import {
   deleteRecentAppEntities,
-  getEnableStartSignposting,
   setPostWelcomeTourState,
 } from "utils/storage";
 import {
@@ -88,7 +87,12 @@ import {
   getCurrentWorkspaceId,
 } from "@appsmith/selectors/workspaceSelectors";
 
-import { getCurrentStep, inGuidedTour } from "selectors/onboardingSelectors";
+import {
+  getCurrentStep,
+  getEnableFirstTimeUserOnboarding,
+  getFirstTimeUserOnboardingApplicationId,
+  inGuidedTour,
+} from "selectors/onboardingSelectors";
 import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
 import {
   fetchDatasources,
@@ -597,7 +601,12 @@ export function* createApplicationSaga(
             application,
           },
         });
-
+        const isFirstTimeUserOnboardingEnabled: boolean = yield select(
+          getEnableFirstTimeUserOnboarding,
+        );
+        const FirstTimeUserOnboardingApplicationId: string = yield select(
+          getFirstTimeUserOnboardingApplicationId,
+        );
         // All new apps will have the Entity Explorer unfurled so that users
         // can find the entities they have created
         yield put(
@@ -608,9 +617,10 @@ export function* createApplicationSaga(
           }),
         );
 
-        const enableSignposting: boolean | null =
-          yield getEnableStartSignposting();
-        if (enableSignposting) {
+        if (
+          isFirstTimeUserOnboardingEnabled &&
+          FirstTimeUserOnboardingApplicationId === ""
+        ) {
           yield put({
             type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
             payload: application.id,

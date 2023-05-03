@@ -13,9 +13,9 @@ export const STORAGE_KEYS: {
   RECENT_ENTITIES: "RecentEntities",
   TEMPLATES_NOTIFICATION_SEEN: "TEMPLATES_NOTIFICATION_SEEN",
   ONBOARDING_FORM_IN_PROGRESS: "ONBOARDING_FORM_IN_PROGRESS",
-  ENABLE_START_SIGNPOSTING: "ENABLE_START_SIGNPOSTING",
-  FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS:
-    "FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS",
+  ENABLE_FIRST_TIME_USER_ONBOARDING: "ENABLE_FIRST_TIME_USER_ONBOARDING",
+  FIRST_TIME_USER_ONBOARDING_APPLICATION_ID:
+    "FIRST_TIME_USER_ONBOARDING_APPLICATION_ID",
   FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY:
     "FIRST_TIME_USER_ONBOARDING_INTRO_MODAL_VISIBILITY",
   HIDE_CONCURRENT_EDITOR_WARNING_TOAST: "HIDE_CONCURRENT_EDITOR_WARNING_TOAST",
@@ -185,113 +185,56 @@ export const getOnboardingFormInProgress = async () => {
   }
 };
 
-export const setEnableStartSignposting = async (flag: boolean) => {
+export const setEnableFirstTimeUserOnboarding = async (flag: boolean) => {
   try {
-    await store.setItem(STORAGE_KEYS.ENABLE_START_SIGNPOSTING, flag);
+    await store.setItem(STORAGE_KEYS.ENABLE_FIRST_TIME_USER_ONBOARDING, flag);
     return true;
   } catch (error) {
-    log.error("An error occurred while setting ENABLE_START_SIGNPOSTING");
+    log.error(
+      "An error occurred while setting ENABLE_FIRST_TIME_USER_ONBOARDING",
+    );
     log.error(error);
   }
 };
 
-export const getEnableStartSignposting = async () => {
+export const getEnableFirstTimeUserOnboarding = async () => {
   try {
-    const enableStartSignposting: string | null = await store.getItem(
-      STORAGE_KEYS.ENABLE_START_SIGNPOSTING,
+    const enableFirstTimeUserOnboarding: string | null = await store.getItem(
+      STORAGE_KEYS.ENABLE_FIRST_TIME_USER_ONBOARDING,
     );
-    return enableStartSignposting;
+    return enableFirstTimeUserOnboarding;
   } catch (error) {
-    log.error("An error occurred while fetching ENABLE_START_SIGNPOSTING");
+    log.error(
+      "An error occurred while fetching ENABLE_FIRST_TIME_USER_ONBOARDING",
+    );
     log.error(error);
   }
 };
 
 export const setFirstTimeUserOnboardingApplicationId = async (id: string) => {
   try {
-    let ids: unknown = await store.getItem(
-      STORAGE_KEYS.FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS,
-    );
-
-    if (ids) {
-      ids = JSON.parse(ids as string);
-      if (Array.isArray(ids) && !ids.includes(id)) {
-        ids.push(id);
-      }
-    } else {
-      ids = [id];
-    }
     await store.setItem(
-      STORAGE_KEYS.FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS,
-      JSON.stringify(ids),
+      STORAGE_KEYS.FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
+      id,
     );
     return true;
   } catch (error) {
     log.error(
-      "An error occurred while setting FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS",
+      "An error occurred while setting FIRST_TIME_USER_ONBOARDING_APPLICATION_ID",
     );
     log.error(error);
   }
 };
 
-export const removeFirstTimeUserOnboardingApplicationId = async (
-  id: string,
-) => {
+export const getFirstTimeUserOnboardingApplicationId = async () => {
   try {
-    let ids: unknown = await store.getItem(
-      STORAGE_KEYS.FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS,
+    const id = await store.getItem(
+      STORAGE_KEYS.FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
     );
-
-    if (ids) {
-      ids = JSON.parse(ids as string);
-      if (Array.isArray(ids)) {
-        ids = ids.filter((exisitingId) => exisitingId !== id);
-        await store.setItem(
-          STORAGE_KEYS.FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS,
-          JSON.stringify(ids),
-        );
-      }
-    }
-    return true;
+    return id;
   } catch (error) {
     log.error(
-      "An error occurred while setting FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS",
-    );
-    log.error(error);
-  }
-};
-
-export const removeAllFirstTimeUserOnboardingApplicationIds = async () => {
-  try {
-    await store.setItem(
-      STORAGE_KEYS.FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS,
-      JSON.stringify([]),
-    );
-    return true;
-  } catch (error) {
-    log.error(
-      "An error occurred while resetting FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS",
-    );
-    log.error(error);
-  }
-};
-
-export const getFirstTimeUserOnboardingApplicationIds = async () => {
-  try {
-    const ids = await store.getItem(
-      STORAGE_KEYS.FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS,
-    );
-
-    if (ids) {
-      if (Array.isArray(JSON.parse(ids as string))) {
-        return JSON.parse(ids as string);
-      }
-    }
-
-    return [];
-  } catch (error) {
-    log.error(
-      "An error occurred while fetching FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS",
+      "An error occurred while fetching FIRST_TIME_USER_ONBOARDING_APPLICATION_ID",
     );
     log.error(error);
   }

@@ -13,10 +13,7 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 import {
-  getFirstTimeUserOnboardingApplicationIds,
-  removeAllFirstTimeUserOnboardingApplicationIds,
-  removeFirstTimeUserOnboardingApplicationId,
-  setEnableStartSignposting,
+  setEnableFirstTimeUserOnboarding as storeEnableFirstTimeUserOnboarding,
   setFirstTimeUserOnboardingApplicationId as storeFirstTimeUserOnboardingApplicationId,
   setFirstTimeUserOnboardingIntroModalVisibility as storeFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
@@ -26,6 +23,7 @@ import history from "utils/history";
 import TourApp from "pages/Editor/GuidedTour/app.json";
 
 import {
+  getFirstTimeUserOnboardingApplicationId,
   getHadReachedStep,
   getOnboardingWorkspaces,
   getQueryAction,
@@ -34,11 +32,9 @@ import {
 import { Toaster, Variant } from "design-system-old";
 import type { Workspaces } from "@appsmith/constants/workspaceConstants";
 import {
-  disableStartSignpostingAction,
   enableGuidedTour,
   focusWidgetProperty,
   loadGuidedTour,
-  removeFirstTimeUserOnboardingApplicationId as removeFirstTimeUserOnboardingApplicationIdAction,
   setCurrentStep,
   toggleLoader,
 } from "actions/onboardingActions";
@@ -377,28 +373,12 @@ function* selectWidgetSaga(
 }
 
 // Signposting sagas
-function* setFirstTimeUserOnboardingApplicationId(action: ReduxAction<string>) {
-  yield storeFirstTimeUserOnboardingApplicationId(action.payload);
-
-  const applicationIds: string[] =
-    yield getFirstTimeUserOnboardingApplicationIds();
-  yield put({
-    type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS,
-    payload: [...applicationIds, ...action.payload],
-  });
+function* setEnableFirstTimeUserOnboarding(action: ReduxAction<boolean>) {
+  yield storeEnableFirstTimeUserOnboarding(action.payload);
 }
 
-function* removeFirstTimeUserOnboardingApplicationIdSaga(
-  action: ReduxAction<string>,
-) {
-  yield call(removeFirstTimeUserOnboardingApplicationId, action.payload);
-
-  const applicationIds: string[] =
-    yield getFirstTimeUserOnboardingApplicationIds();
-  yield put({
-    type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS,
-    payload: applicationIds.filter((id) => id !== action.payload),
-  });
+function* setFirstTimeUserOnboardingApplicationId(action: ReduxAction<string>) {
+  yield storeFirstTimeUserOnboardingApplicationId(action.payload);
 }
 
 function* setFirstTimeUserOnboardingIntroModalVisibility(
@@ -409,13 +389,16 @@ function* setFirstTimeUserOnboardingIntroModalVisibility(
 
 function* endFirstTimeUserOnboardingSaga() {
   const firstTimeUserExperienceAppId: string = yield select(
-    getCurrentApplicationId,
+    getFirstTimeUserOnboardingApplicationId,
   );
-  yield put(
-    removeFirstTimeUserOnboardingApplicationIdAction(
-      firstTimeUserExperienceAppId,
-    ),
-  );
+  yield put({
+    type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
+    payload: false,
+  });
+  yield put({
+    type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
+    payload: "",
+  });
   Toaster.show({
     text: createMessage(ONBOARDING_SKIPPED_FIRST_TIME_USER),
     hideProgressBar: false,
@@ -430,6 +413,10 @@ function* endFirstTimeUserOnboardingSaga() {
 
 function* undoEndFirstTimeUserOnboardingSaga(action: ReduxAction<string>) {
   yield put({
+    type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
+    payload: true,
+  });
+  yield put({
     type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
     payload: action.payload,
   });
@@ -438,7 +425,10 @@ function* undoEndFirstTimeUserOnboardingSaga(action: ReduxAction<string>) {
 function* firstTimeUserOnboardingInitSaga(
   action: ReduxAction<{ applicationId: string; pageId: string }>,
 ) {
-  yield call(setEnableStartSignposting, true);
+  yield put({
+    type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
+    payload: true,
+  });
   yield put({
     type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
     payload: action.payload.applicationId,
@@ -452,17 +442,6 @@ function* firstTimeUserOnboardingInitSaga(
       pageId: action.payload.pageId,
     }),
   );
-}
-
-function* setFirstTimeUserOnboardingCompleteSaga(action: ReduxAction<boolean>) {
-  if (action.payload) {
-    yield put(disableStartSignpostingAction());
-  }
-}
-
-function* disableStartFirstTimeUserOnboardingSaga() {
-  yield call(removeAllFirstTimeUserOnboardingApplicationIds);
-  yield call(setEnableStartSignposting, false);
 }
 
 export default function* onboardingActionSagas() {
@@ -483,12 +462,12 @@ export default function* onboardingActionSagas() {
     takeLatest(ReduxActionTypes.FOCUS_WIDGET_PROPERTY, focusWidgetPropertySaga),
     takeLatest(ReduxActionTypes.LOAD_GUIDED_TOUR_INIT, loadGuidedTourInitSaga),
     takeLatest(
-      ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
-      setFirstTimeUserOnboardingApplicationId,
+      ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
+      setEnableFirstTimeUserOnboarding,
     ),
     takeLatest(
-      ReduxActionTypes.REMOVE_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
-      removeFirstTimeUserOnboardingApplicationIdSaga,
+      ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
+      setFirstTimeUserOnboardingApplicationId,
     ),
     takeLatest(
       ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
@@ -505,14 +484,6 @@ export default function* onboardingActionSagas() {
     takeLatest(
       ReduxActionTypes.FIRST_TIME_USER_ONBOARDING_INIT,
       firstTimeUserOnboardingInitSaga,
-    ),
-    takeLatest(
-      ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_COMPLETE,
-      setFirstTimeUserOnboardingCompleteSaga,
-    ),
-    takeLatest(
-      ReduxActionTypes.DISABLE_START_SIGNPOSTING,
-      disableStartFirstTimeUserOnboardingSaga,
     ),
   ]);
 }

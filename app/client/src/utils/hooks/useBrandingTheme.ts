@@ -39,7 +39,7 @@ const useBrandingTheme = () => {
       document.getElementsByTagName("head")[0].appendChild(favicon);
     }
 
-    favicon.href = getAssetUrl(config.brandFaviconUrl);
+    favicon.href = getAssetUrl(config.brandFaviconUr);
   }, [
     config.brandColors.primary,
     config.brandColors.background,

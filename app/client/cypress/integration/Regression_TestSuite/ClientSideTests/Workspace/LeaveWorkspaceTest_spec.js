@@ -1,19 +1,20 @@
 /// <reference types="Cypress" />
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+let HomePage = ObjectsRegistry.HomePage;
 
 describe("Leave workspace test spec", function () {
   let newWorkspaceName;
 
   it("1. Only admin user can not leave workspace validation", function () {
     cy.visit("/applications");
-    _.agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      newWorkspaceName = "LeaveWorkspace" + uid;
-      _.homePage.CreateNewWorkspace(newWorkspaceName);
+    cy.createWorkspace();
+    cy.wait("@createWorkspace").then((interception) => {
+      newWorkspaceName = interception.response.body.data.name;
+      cy.visit("/applications");
       cy.openWorkspaceOptionsPopup(newWorkspaceName);
       // verify leave workspace is visible
-      cy.contains("Leave Workspace").scrollIntoView().click({ force: true });
-      cy.contains("Are you sure").scrollIntoView().click({ force: true });
+      cy.contains("Leave Workspace").click();
+      cy.contains("Are you sure").click();
       cy.wait("@leaveWorkspaceApiCall").then((httpResponse) => {
         expect(httpResponse.status).to.equal(400);
       });
@@ -23,11 +24,11 @@ describe("Leave workspace test spec", function () {
 
   it("2. Bug 17235 & 17987 - Non admin users can only access leave workspace popup menu validation", function () {
     cy.visit("/applications");
-    _.agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      newWorkspaceName = "LeaveWorkspace" + uid;
-      _.homePage.CreateNewWorkspace(newWorkspaceName);
-      _.homePage.InviteUserToWorkspace(
+    cy.createWorkspace();
+    cy.wait("@createWorkspace").then((interception) => {
+      newWorkspaceName = interception.response.body.data.name;
+      cy.visit("/applications");
+      HomePage.InviteUserToWorkspace(
         newWorkspaceName,
         Cypress.env("TESTUSERNAME1"),
         "App Viewer",

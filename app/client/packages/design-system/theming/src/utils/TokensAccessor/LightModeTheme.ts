@@ -1,11 +1,11 @@
+import { contrast, lighten, setLch } from "../colorUtils";
 import { ColorsAccessor } from "../ColorsAccessor";
 
-import type Color from "colorjs.io";
 import type { ColorTypes } from "colorjs.io/types/src/color";
 import type { ColorModeTheme } from "./types";
 
 export class LightModeTheme implements ColorModeTheme {
-  private readonly seedColor: Color;
+  private readonly seedColor: string;
   private readonly seedLightness: number;
   private readonly seedChroma: number;
   private readonly seedHue: number;
@@ -14,16 +14,9 @@ export class LightModeTheme implements ColorModeTheme {
   private readonly seedIsVeryLight: boolean;
 
   constructor(private color: ColorTypes) {
-    const {
-      chroma,
-      color: seedColor,
-      hue,
-      isAchromatic,
-      isCold,
-      isVeryLight,
-      lightness,
-    } = new ColorsAccessor(color);
-    this.seedColor = seedColor;
+    const { chroma, hex, hue, isAchromatic, isCold, isVeryLight, lightness } =
+      new ColorsAccessor(color);
+    this.seedColor = hex;
     this.seedLightness = lightness;
     this.seedChroma = chroma;
     this.seedHue = hue;
@@ -34,22 +27,20 @@ export class LightModeTheme implements ColorModeTheme {
 
   public getColors = () => {
     return {
-      bg: this.bg.toString({ format: "hex" }),
-      bgAccent: this.bgAccent.toString({ format: "hex" }),
-      bgAccentHover: this.bgAccentHover.toString({ format: "hex" }),
-      bgAccentActive: this.bgAccentActive.toString({ format: "hex" }),
-      bgAccentSubtleHover: this.bgAccentSubtleHover.toString({ format: "hex" }),
-      bgAccentSubtleActive: this.bgAccentSubtleActive.toString({
-        format: "hex",
-      }),
-      fg: this.fg.toString({ format: "hex" }),
-      fgAccent: this.fgAccent.toString({ format: "hex" }),
-      fgOnAccent: this.fgOnAccent.toString({ format: "hex" }),
+      bg: this.bg,
+      bgAccent: this.bgAccent,
+      bgAccentHover: this.bgAccentHover,
+      bgAccentActive: this.bgAccentActive,
+      bgAccentSubtleHover: this.bgAccentSubtleHover,
+      bgAccentSubtleActive: this.bgAccentSubtleActive,
+      fg: this.fg,
+      fgAccent: this.fgAccent,
+      fgOnAccent: this.fgOnAccent,
       fgNegative: this.fgNegative,
-      bdAccent: this.bdAccent.toString({ format: "hex" }),
-      bdNeutral: this.bdNeutral.toString({ format: "hex" }),
-      bdNeutralHover: this.bdNeutralHover.toString({ format: "hex" }),
-      bdFocus: this.bdFocus.toString({ format: "hex" }),
+      bdAccent: this.bdAccent,
+      bdNeutral: this.bdNeutral,
+      bdNeutralHover: this.bdNeutralHover,
+      bdFocus: this.bdFocus,
       bdNegative: this.bdNegative,
       bdNegativeHover: this.bdNegativeHover,
     };
@@ -59,183 +50,223 @@ export class LightModeTheme implements ColorModeTheme {
    * Background colors
    */
   private get bg() {
-    const color = this.seedColor.clone();
+    let currentColor = this.seedColor;
 
     if (this.seedIsVeryLight) {
-      color.oklch.l = 0.9;
+      currentColor = setLch(currentColor, {
+        l: 0.9,
+      });
     }
 
     if (!this.seedIsVeryLight) {
-      color.oklch.l = 0.985;
+      currentColor = setLch(currentColor, {
+        l: 0.985,
+      });
     }
 
     if (this.seedIsCold) {
-      color.oklch.c = 0.009;
+      currentColor = setLch(currentColor, {
+        c: 0.009,
+      });
     }
 
     if (!this.seedIsCold) {
-      color.oklch.c = 0.007;
+      currentColor = setLch(currentColor, {
+        c: 0.007,
+      });
     }
 
     if (this.seedIsAchromatic) {
-      color.oklch.c = 0;
+      currentColor = setLch(currentColor, {
+        c: 0,
+      });
     }
 
-    return color;
+    return currentColor;
   }
 
   private get bgAccent() {
-    const color = this.seedColor.clone();
+    let currentColor = this.seedColor;
 
     if (this.seedIsVeryLight) {
-      color.oklch.l = 0.975;
+      currentColor = setLch(currentColor, {
+        l: 0.975,
+      });
     }
 
-    return color;
+    return currentColor;
   }
 
   private get bgAccentHover() {
-    const color = this.bgAccent.clone();
+    let currentColor = this.bgAccent;
 
     if (this.seedLightness < 0.18) {
-      color.oklch.l = this.seedLightness + 0.3;
+      currentColor = setLch(currentColor, {
+        l: this.seedLightness + 0.3,
+      });
     }
 
     if (this.seedLightness >= 0.18 && this.seedLightness < 0.4) {
-      color.oklch.l = this.seedLightness + 0.15;
+      currentColor = setLch(currentColor, {
+        l: this.seedLightness + 0.15,
+      });
     }
 
     if (this.seedLightness >= 0.4 && this.seedLightness < 0.7) {
-      color.oklch.l = this.seedLightness + 0.05;
+      currentColor = setLch(currentColor, {
+        l: this.seedLightness + 0.05,
+      });
     }
 
     if (this.seedLightness >= 0.7) {
-      color.oklch.l = this.seedLightness + 0.03;
+      currentColor = setLch(currentColor, {
+        l: this.seedLightness + 0.03,
+      });
     }
 
     if (this.seedIsVeryLight) {
-      color.oklch.l = 0.95;
-      color.oklch.c = this.seedChroma * 1.15;
-      color.oklch.h = this.seedHue;
+      currentColor = setLch(currentColor, {
+        l: 0.95,
+        c: this.seedChroma * 1.15,
+        h: this.seedHue,
+      });
     }
 
-    return color;
+    return currentColor;
   }
 
   private get bgAccentActive() {
-    const color = this.bgAccent.clone();
+    let currentColor = this.bgAccent;
 
     if (this.seedLightness < 0.4) {
-      color.oklch.l = this.seedLightness - 0.04;
+      currentColor = setLch(currentColor, {
+        l: this.seedLightness - 0.04,
+      });
     }
 
     if (this.seedLightness >= 0.4 && this.seedLightness < 0.7) {
-      color.oklch.l = this.seedLightness - 0.02;
+      currentColor = setLch(currentColor, {
+        l: this.seedLightness - 0.02,
+      });
     }
 
     if (this.seedLightness >= 0.7) {
-      color.oklch.l = this.seedLightness - 0.01;
+      currentColor = setLch(currentColor, {
+        l: this.seedLightness - 0.01,
+      });
     }
 
     if (this.seedIsVeryLight) {
-      color.oklch.l = 0.935;
-      color.oklch.c = this.seedChroma * 1.15;
-      color.oklch.h = this.seedHue;
+      currentColor = setLch(currentColor, {
+        l: 0.935,
+        c: this.seedChroma * 1.15,
+        h: this.seedHue,
+      });
     }
 
-    return color;
+    return currentColor;
   }
 
   // used only for generating child colors, not used as a token
   private get bgAccentSubtle() {
-    const color = this.seedColor.clone();
+    let currentColor = this.seedColor;
 
     if (this.seedLightness < 0.94) {
-      color.oklch.l = 0.94;
+      currentColor = setLch(currentColor, {
+        l: 0.94,
+      });
     }
 
     if (this.seedChroma > 0.1 && this.seedIsCold) {
-      color.oklch.c = 0.1;
+      currentColor = setLch(currentColor, {
+        c: 0.1,
+      });
     }
 
     if (this.seedChroma > 0.06 && !this.seedIsCold) {
-      color.oklch.c = 0.06;
+      currentColor = setLch(currentColor, {
+        c: 0.06,
+      });
     }
 
     if (this.seedIsAchromatic) {
-      color.oklch.c = 0;
+      currentColor = setLch(currentColor, {
+        c: 0,
+      });
     }
 
-    return color;
+    return currentColor;
   }
 
   private get bgAccentSubtleHover() {
-    return this.bgAccentSubtle.lighten(0.02);
+    return lighten(this.bgAccentSubtle, 1.02);
   }
 
   private get bgAccentSubtleActive() {
-    return this.bgAccentSubtle.darken(0.01);
+    return lighten(this.bgAccentSubtle, 0.99);
   }
 
   /*
    * Foreground colors
    */
   private get fg() {
-    const color = this.seedColor.clone();
-
     if (this.seedIsAchromatic) {
-      color.oklch.l = 0.12;
-      color.oklch.c = 0;
+      return setLch(this.seedColor, {
+        l: 0.12,
+        c: 0,
+      });
     }
 
-    color.oklch.l = 0.12;
-    color.oklch.c = 0.032;
-
-    return color;
+    return setLch(this.seedColor, {
+      l: 0.12,
+      c: 0.032,
+    });
   }
 
   private get fgAccent() {
-    const color = this.seedColor.clone();
-
-    if (this.seedColor.contrastAPCA(this.bg) >= -60) {
+    if (contrast(this.seedColor, this.bg) >= -60) {
       if (this.seedIsAchromatic) {
-        color.oklch.l = 0.25;
-        color.oklch.c = 0;
-        return color;
+        return setLch(this.seedColor, {
+          l: 0.25,
+          c: 0,
+        });
       }
 
-      color.oklch.l = 0.25;
-      color.oklch.c = 0.064;
-      return color;
+      return setLch(this.seedColor, {
+        l: 0.25,
+        c: 0.064,
+      });
     }
 
-    return color;
+    return this.seedColor;
   }
 
   private get fgOnAccent() {
-    const color = this.seedColor.clone();
-
-    if (this.seedColor.contrastAPCA(this.bg) <= -60) {
+    if (contrast(this.seedColor, this.bg) <= -60) {
       if (this.seedIsAchromatic) {
-        color.oklch.l = 0.985;
-        color.oklch.c = 0;
-        return color;
+        return setLch(this.seedColor, {
+          l: 0.985,
+          c: 0,
+        });
       }
 
-      color.oklch.l = 0.985;
-      color.oklch.c = 0.016;
-      return color;
+      return setLch(this.seedColor, {
+        l: 0.985,
+        c: 0.016,
+      });
     }
 
     if (this.seedIsAchromatic) {
-      color.oklch.l = 0.15;
-      color.oklch.c = 0;
-      return color;
+      return setLch(this.seedColor, {
+        l: 0.15,
+        c: 0,
+      });
     }
 
-    color.oklch.l = 0.15;
-    color.oklch.c = 0.064;
-    return color;
+    return setLch(this.seedColor, {
+      l: 0.15,
+      c: 0.064,
+    });
   }
 
   private get fgNegative() {
@@ -246,56 +277,57 @@ export class LightModeTheme implements ColorModeTheme {
    * Border colors
    */
   private get bdAccent() {
-    const color = this.seedColor.clone();
-
-    if (this.seedColor.contrastAPCA(this.bg) >= -25) {
+    if (contrast(this.seedColor, this.bg) >= -25) {
       if (this.seedIsAchromatic) {
-        color.oklch.l = 0.15;
-        color.oklch.c = 0;
-        return color;
+        return setLch(this.seedColor, {
+          l: 0.15,
+          c: 0,
+        });
       }
 
-      color.oklch.l = 0.15;
-      color.oklch.c = 0.064;
-      return color;
+      return setLch(this.seedColor, {
+        l: 0.15,
+        c: 0.064,
+      });
     }
 
-    return color;
+    return this.seedColor;
   }
 
   private get bdNeutral() {
-    const color = this.seedColor.clone();
-
-    if (this.seedColor.contrastAPCA(this.bg) <= -25 && !this.seedIsAchromatic) {
-      color.oklch.c = 0.016;
-      return color;
+    if (contrast(this.seedColor, this.bg) <= -25 && !this.seedIsAchromatic) {
+      return setLch(this.seedColor, {
+        c: 0.016,
+      });
     }
 
     if (this.seedIsAchromatic) {
-      color.oklch.l = 0.15;
-      color.oklch.c = 0;
-      return color;
+      return setLch(this.seedColor, {
+        l: 0.15,
+        c: 0,
+      });
     }
 
-    color.oklch.l = 0.15;
-    color.oklch.c = 0.064;
-    return color;
+    return setLch(this.seedColor, {
+      l: 0.15,
+      c: 0.064,
+    });
   }
 
   private get bdNeutralHover() {
-    return this.bdNeutral.clone().lighten(0.06);
+    return lighten(this.bdNeutral, 1.06);
   }
 
   private get bdFocus() {
-    const color = this.seedColor.clone();
+    let currentColor = this.seedColor;
 
-    color.oklch.h = this.seedHue - 180;
+    currentColor = setLch(currentColor, { h: this.seedHue - 180 });
 
     if (this.seedLightness > 0.7) {
-      color.oklch.l = 0.7;
+      currentColor = setLch(currentColor, { l: 0.7 });
     }
 
-    return color;
+    return currentColor;
   }
 
   private get bdNegative() {

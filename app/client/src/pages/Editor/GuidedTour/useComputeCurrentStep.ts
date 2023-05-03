@@ -6,7 +6,6 @@ import {
   forceShowContent,
   focusWidgetProperty,
   setCurrentStepInit,
-  disableStartSignpostingAction,
 } from "actions/onboardingActions";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -327,7 +326,6 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
       if (isDeployed) {
         hideIndicator();
         dispatch(enableGuidedTour(false));
-        dispatch(disableStartSignpostingAction());
       }
     }
   }, [step, isDeployed]);

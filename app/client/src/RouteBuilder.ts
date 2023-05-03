@@ -12,7 +12,6 @@ import type {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
-import { isNil } from "lodash";
 
 export type URLBuilderParams = {
   suffix?: string;
@@ -45,11 +44,9 @@ export function getQueryStringfromObject(
   const queryParams: string[] = [];
   if (paramKeys) {
     paramKeys.forEach((paramKey: string) => {
-      if (!isNil(params[paramKey])) {
-        const value = encodeURIComponent(params[paramKey]);
-        if (paramKey && value) {
-          queryParams.push(`${paramKey}=${value}`);
-        }
+      const value = params[paramKey];
+      if (paramKey && value) {
+        queryParams.push(`${paramKey}=${value}`);
       }
     });
   }

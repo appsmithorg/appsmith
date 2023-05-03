@@ -1,13 +1,18 @@
-import Color from "colorjs.io";
+import type Color from "colorjs.io";
 import type { ColorTypes } from "colorjs.io/types/src/color";
+import { parse } from "../";
 
 export class ColorsAccessor {
-  color: Color;
+  private color: Color;
 
   constructor(color: ColorTypes) {
-    this.color = new Color(color);
+    this.color = parse(color);
 
     return this;
+  }
+
+  get hex() {
+    return this.color.toString({ format: "hex" });
   }
 
   /* Lightness */

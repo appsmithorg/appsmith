@@ -13,7 +13,10 @@ import { useDispatch, useSelector } from "react-redux";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
+import {
+  getFirstTimeUserOnboardingComplete,
+  getIsFirstTimeUserOnboardingEnabled,
+} from "selectors/onboardingSelectors";
 import Explorer from "pages/Editor/Explorer";
 import { setExplorerActiveAction } from "actions/explorerActions";
 import {
@@ -63,6 +66,9 @@ export const EntityExplorerSidebar = memo((props: Props) => {
     props.onDragEnd,
   );
   const [tooltipIsOpen, setTooltipIsOpen] = useState(false);
+  const isFirstTimeUserOnboardingComplete = useSelector(
+    getFirstTimeUserOnboardingComplete,
+  );
   const isEditingEntityName = useSelector(getEditingEntityName);
   PerformanceTracker.startTracking(PerformanceTransactionName.SIDE_BAR_MOUNT);
   useEffect(() => {
@@ -193,7 +199,8 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         ref={sidebarRef}
         style={{ width: props.width }}
       >
-        {enableFirstTimeUserOnboarding && <OnboardingStatusbar />}
+        {(enableFirstTimeUserOnboarding ||
+          isFirstTimeUserOnboardingComplete) && <OnboardingStatusbar />}
         {/* PagesContainer */}
         <Pages />
         {/* Popover that contains the bindings info */}
