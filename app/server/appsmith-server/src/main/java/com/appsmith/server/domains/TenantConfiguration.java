@@ -17,6 +17,12 @@ import java.time.Instant;
 
 @Data
 public class TenantConfiguration extends TenantConfigurationCE {
+
+    // To remove public internet dependency for airgap we have saved the default Appsmith logo to Asset collection. Also
+    // to keep the consistency, this behaviour is same for EE and airgap image going forward.
+    // use this constant as identifier (name field) in Asset document to save default whiteLabelLogo while creating new tenant
+    public final static String APPSMITH_DEFAULT_LOGO = "appsmith_default_logo";
+
     @JsonProperty("APPSMITH_BRAND_ENABLE")
     String whiteLabelEnable;
 
@@ -27,6 +33,8 @@ public class TenantConfiguration extends TenantConfigurationCE {
     String whiteLabelFavicon;
 
     BrandColors brandColors;
+
+    public final static String ASSET_PREFIX = "asset:";
 
     public String getBrandLogoUrl() {
         return assetToUrl(whiteLabelLogo, UserServiceImpl.DEFAULT_APPSMITH_LOGO);
@@ -45,8 +53,8 @@ public class TenantConfiguration extends TenantConfigurationCE {
     private static String assetToUrl(String assetSpec, String defaultValue) {
         if (StringUtils.isEmpty(assetSpec)) {
             return defaultValue;
-        } else if (assetSpec.startsWith("asset:")) {
-            return Url.ASSET_URL + "/" + assetSpec.substring("asset:".length());
+        } else if (assetSpec.startsWith(ASSET_PREFIX)) {
+            return Url.ASSET_URL + "/" + assetSpec.substring(ASSET_PREFIX.length());
         } else {
             return assetSpec;
         }

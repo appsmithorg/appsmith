@@ -36,6 +36,7 @@ export class LightModeTheme implements ColorModeTheme {
       fg: this.fg,
       fgAccent: this.fgAccent,
       fgOnAccent: this.fgOnAccent,
+      fgNegative: this.fgNegative,
       bdAccent: this.bdAccent,
       bdNeutral: this.bdNeutral,
       bdNeutralHover: this.bdNeutralHover,
@@ -97,11 +98,73 @@ export class LightModeTheme implements ColorModeTheme {
   }
 
   private get bgAccentHover() {
-    return lighten(this.bgAccent, 1.06);
+    let currentColor = this.bgAccent;
+
+    if (this.seedLightness < 0.18) {
+      currentColor = setLch(currentColor, {
+        l: this.seedLightness + 0.3,
+      });
+    }
+
+    if (this.seedLightness >= 0.18 && this.seedLightness < 0.4) {
+      currentColor = setLch(currentColor, {
+        l: this.seedLightness + 0.15,
+      });
+    }
+
+    if (this.seedLightness >= 0.4 && this.seedLightness < 0.7) {
+      currentColor = setLch(currentColor, {
+        l: this.seedLightness + 0.05,
+      });
+    }
+
+    if (this.seedLightness >= 0.7) {
+      currentColor = setLch(currentColor, {
+        l: this.seedLightness + 0.03,
+      });
+    }
+
+    if (this.seedIsVeryLight) {
+      currentColor = setLch(currentColor, {
+        l: 0.95,
+        c: this.seedChroma * 1.15,
+        h: this.seedHue,
+      });
+    }
+
+    return currentColor;
   }
 
   private get bgAccentActive() {
-    return lighten(this.bgAccent, 0.9);
+    let currentColor = this.bgAccent;
+
+    if (this.seedLightness < 0.4) {
+      currentColor = setLch(currentColor, {
+        l: this.seedLightness - 0.04,
+      });
+    }
+
+    if (this.seedLightness >= 0.4 && this.seedLightness < 0.7) {
+      currentColor = setLch(currentColor, {
+        l: this.seedLightness - 0.02,
+      });
+    }
+
+    if (this.seedLightness >= 0.7) {
+      currentColor = setLch(currentColor, {
+        l: this.seedLightness - 0.01,
+      });
+    }
+
+    if (this.seedIsVeryLight) {
+      currentColor = setLch(currentColor, {
+        l: 0.935,
+        c: this.seedChroma * 1.15,
+        h: this.seedHue,
+      });
+    }
+
+    return currentColor;
   }
 
   // used only for generating child colors, not used as a token
@@ -204,6 +267,10 @@ export class LightModeTheme implements ColorModeTheme {
       l: 0.15,
       c: 0.064,
     });
+  }
+
+  private get fgNegative() {
+    return "#d91921";
   }
 
   /*

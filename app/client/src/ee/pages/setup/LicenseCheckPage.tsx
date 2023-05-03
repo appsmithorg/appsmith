@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Category,
   Icon,
@@ -38,6 +38,9 @@ import Page from "pages/common/ErrorPages/Page";
 import styled from "styled-components";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { getAppsmithConfigs } from "@appsmith/configs";
+
+const { intercomAppID } = getAppsmithConfigs();
 
 const StyledIcon = styled(Icon)`
   transform: scale(1.5);
@@ -47,6 +50,20 @@ const StyledIcon = styled(Icon)`
 function LicenseCheckPage() {
   const showLicenseUpdateForm = useSelector(isAdminUser);
   const isAirgappedInstance = isAirgapped();
+
+  function hideIntercomLauncher(val: boolean) {
+    if (intercomAppID && window.Intercom) {
+      window.Intercom("boot", {
+        app_id: intercomAppID,
+        hide_default_launcher: val,
+      });
+    }
+  }
+
+  useEffect(() => {
+    hideIntercomLauncher(false);
+    return () => hideIntercomLauncher(true);
+  }, []);
 
   if (!showLicenseUpdateForm) {
     return (

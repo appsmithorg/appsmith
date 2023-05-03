@@ -153,6 +153,9 @@ export const StyledText = styled(Text)<StyledTextProps>`
     white-space: pre-wrap;
     text-align: ${(props) => props.textAlign.toLowerCase()};
   }
+  .auto-layout & span {
+    min-height: 32px;
+  }
 `;
 
 const ModalContent = styled.div<{

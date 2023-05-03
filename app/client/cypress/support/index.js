@@ -35,6 +35,7 @@ import "./AdminSettingsCommands";
 import "./RBACCommands";
 import "./LicenseCommands";
 import { CURRENT_REPO, REPO } from "../fixtures/REPO";
+import "cypress-plugin-tab";
 /// <reference types="cypress-xpath" />
 
 Cypress.on("uncaught:exception", () => {
