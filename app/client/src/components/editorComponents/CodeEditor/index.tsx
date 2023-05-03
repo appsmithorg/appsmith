@@ -146,7 +146,7 @@ import {
 } from "./utils/saveAndAutoIndent";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { selectFeatureFlags } from "selectors/usersSelectors";
-import { getDatasourceStructuresFromDatasourceId } from "selectors/entitiesSelector";
+import { getAllDatasourceTableKeys } from "selectors/entitiesSelector";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -431,7 +431,7 @@ class CodeEditor extends Component<Props, State> {
           }
         }, 200);
       }.bind(this);
-      sqlHint.setDatasourceStructure(this.props.datasourceStructure);
+      sqlHint.setDatasourceTableKeys(this.props.datasourceTableKeys);
 
       // Finally create the Codemirror editor
       this.editor = CodeMirror(this.codeEditorTarget.current, options);
@@ -539,8 +539,8 @@ class CodeEditor extends Component<Props, State> {
           this.props.entitiesForNavigation,
         );
       }
-      if (this.props.datasourceStructure !== prevProps.datasourceStructure) {
-        sqlHint.setDatasourceStructure(this.props.datasourceStructure);
+      if (this.props.datasourceTableKeys !== prevProps.datasourceTableKeys) {
+        sqlHint.setDatasourceTableKeys(this.props.datasourceTableKeys);
       }
     });
   }
@@ -1278,6 +1278,7 @@ class CodeEditor extends Component<Props, State> {
     if (this.props.isInvalid !== undefined) {
       isInvalid = Boolean(this.props.isInvalid);
     }
+    // console.log(this.editor.getModeAt(this.editor.getCursor()), "$$$");
 
     // show features like evaluatedvaluepopup or binding prompts
     const showFeatures =
@@ -1426,10 +1427,7 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
     props.dataTreePath?.split(".")[0],
   ),
   featureFlags: selectFeatureFlags(state),
-  datasourceStructure: getDatasourceStructuresFromDatasourceId(
-    state,
-    props.dataTreePath || "",
-  ),
+  datasourceTableKeys: getAllDatasourceTableKeys(state, props.dataTreePath),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

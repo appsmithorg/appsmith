@@ -9,12 +9,11 @@ import type {
   Datasource,
   MockDatasource,
   DatasourceStructure,
-  DatasourceTable,
 } from "entities/Datasource";
 import { isEmbeddedRestDatasource } from "entities/Datasource";
 import type { Action } from "entities/Action";
 import { PluginPackageName, PluginType } from "entities/Action";
-import { find, get, isEmpty, sortBy } from "lodash";
+import { find, get, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -41,6 +40,7 @@ import {
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
 import type { TJSLibrary } from "workers/common/JSLibrary";
+import { getEntityNameAndPropertyPath } from "ce/workers/Evaluation/evaluationUtils";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -1010,32 +1010,34 @@ export const selectJSCollectionByName = (collectionName: string) =>
     );
   });
 
-export const getDatasourceStructuresFromDatasourceId = createSelector(
+export const getAllDatasourceTableKeys = createSelector(
   (state: AppState) => getDatasourcesStructure(state),
   (state: AppState) => getActions(state),
-  (state: AppState, dataTreePath: string) => dataTreePath,
-  (datasourceStructures: any, actions: any, dataTreePath: string) => {
-    const actionName = dataTreePath.split(".")[0];
-
-    const action = find(actions, (a) => a.config.name === actionName);
-    let datasourceId = "";
-    if (action) {
-      datasourceId = action?.config?.datasource?.id;
-    }
-    let structures: DatasourceStructure | undefined = undefined;
+  (state: AppState, dataTreePath: string | undefined) => dataTreePath,
+  (
+    datasourceStructures: ReturnType<typeof getDatasourcesStructure>,
+    actions: ReturnType<typeof getActions>,
+    dataTreePath: string | undefined,
+  ) => {
+    if (!dataTreePath || !datasourceStructures) return;
+    const { entityName } = getEntityNameAndPropertyPath(dataTreePath);
+    const action = find(actions, ({ config: { name } }) => name === entityName);
+    if (!action) return;
+    const datasource = action.config.datasource;
+    const datasourceId = "id" in datasource ? datasource.id : undefined;
+    if (!datasourceId || !(datasourceId in datasourceStructures)) return;
     const tables: Record<string, string[]> = {};
-
-    if (datasourceId in datasourceStructures) {
-      structures = datasourceStructures[datasourceId];
-
-      if (structures && structures.tables) {
-        structures?.tables.forEach((table: DatasourceTable) => {
-          if (table?.name) {
-            tables[table.name] = table.columns.map((column) => column.name);
-          }
+    const { tables: datasourceTable } = datasourceStructures[datasourceId];
+    if (!datasourceTable) return;
+    datasourceTable.forEach((table) => {
+      if (table?.name) {
+        tables[table.name] = [];
+        table.columns.forEach((column) => {
+          tables[`${table.name}.${column.name}`] = [];
         });
       }
-    }
-    return isEmpty(tables) ? undefined : tables;
+    });
+
+    return tables;
   },
 );
