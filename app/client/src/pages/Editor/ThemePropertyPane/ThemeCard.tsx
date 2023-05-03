@@ -36,6 +36,7 @@ type ThemeCard = React.PropsWithChildren<{
 
 const MainContainer = styled.main<{ backgroundColor: string }>`
   background-color: ${({ backgroundColor }) => backgroundColor};
+  border-radius: var(--ads-v2-border-radius);
 `;
 
 const HeaderContainer = styled.main<{ primaryColor: string }>`
