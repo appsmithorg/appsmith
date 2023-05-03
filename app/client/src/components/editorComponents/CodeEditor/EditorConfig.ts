@@ -69,9 +69,6 @@ export type Hinter = {
     editor: CodeMirror.Editor,
     entityInformation: FieldEntityInformation,
     additionalData?: any,
-    datasourceStructure?: ReturnType<
-      typeof getDatasourceStructuresFromDatasourceId
-    >,
   ) => boolean;
   update?: (data: DataTree) => void;
   fireOnFocus?: boolean;

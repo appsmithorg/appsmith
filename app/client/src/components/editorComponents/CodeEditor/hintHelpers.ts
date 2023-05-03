@@ -3,14 +3,15 @@ import CodeMirror from "codemirror";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import KeyboardShortcuts from "constants/KeyboardShortcuts";
 import type { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
+import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   checkIfCursorInsideBinding,
-  isEmptyToken,
+  isCursorOnEmptyToken,
 } from "components/editorComponents/CodeEditor/codeEditorUtils";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import type { getDatasourceStructuresFromDatasourceId } from "selectors/entitiesSelector";
 import { isEmpty } from "lodash";
+import type { getAllDatasourceTableKeys } from "selectors/entitiesSelector";
 
 export const bindingHint: HintHelper = (editor) => {
   editor.setOption("extraKeys", {
@@ -66,19 +67,17 @@ type HandleCompletions = (
   | { showHints: true; completions: Hints };
 
 class SqlHintHelper {
-  datasourceStructure: ReturnType<
-    typeof getDatasourceStructuresFromDatasourceId
-  > = {};
+  datasourceTableKeys: Record<string, string[]> = {};
 
   constructor() {
     this.hinter = this.hinter.bind(this);
-    this.setDatasourceStructure = this.setDatasourceStructure.bind(this);
+    this.setDatasourceTableKeys = this.setDatasourceTableKeys.bind(this);
   }
 
-  setDatasourceStructure(
-    structure: ReturnType<typeof getDatasourceStructuresFromDatasourceId>,
+  setDatasourceTableKeys(
+    datasourceTableKeys: ReturnType<typeof getAllDatasourceTableKeys>,
   ) {
-    this.datasourceStructure = structure || {};
+    this.datasourceTableKeys = datasourceTableKeys || {};
   }
   hinter() {
     return {
@@ -102,14 +101,18 @@ class SqlHintHelper {
     };
   }
 
+  isSqlMode(editor: CodeMirror.Editor) {
+    const editorMode = editor.getModeAt(editor.getCursor());
+    return editorMode?.name === EditorModes.SQL;
+  }
+
   handleCompletions(editor: CodeMirror.Editor): ReturnType<HandleCompletions> {
     const noHints = { showHints: false, completions: null } as const;
-    if (isEmptyToken(editor)) return noHints;
+    if (isCursorOnEmptyToken(editor) || !this.isSqlMode(editor)) return noHints;
     // @ts-expect-error: No types available
     const completions: Hints = CodeMirror.hint.sql(editor, {
-      tables: this.datasourceStructure,
+      tables: this.datasourceTableKeys,
     });
-
     if (isEmpty(completions.list)) return noHints;
     return { completions, showHints: true };
   }

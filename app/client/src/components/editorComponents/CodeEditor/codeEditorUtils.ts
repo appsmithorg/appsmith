@@ -124,7 +124,7 @@ export const removeNewLineCharsIfRequired = (
 };
 
 // Checks if string at the position of the cursor is empty
-export function isEmptyToken(editor: CodeMirror.Editor) {
+export function isCursorOnEmptyToken(editor: CodeMirror.Editor) {
   const currentCursorPosition = editor.getCursor();
   const { string: stringAtCurrentPosition } = editor.getTokenAt(
     currentCursorPosition,
