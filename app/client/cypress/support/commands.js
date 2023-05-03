@@ -23,6 +23,7 @@ import { CURRENT_REPO, REPO } from "../fixtures/REPO";
 
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
+const onboardingLocators = require("../locators/FirstTimeUserOnboarding.json");
 const datasource = require("../locators/DatasourcesEditor.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
 const generatePage = require("../locators/GeneratePage.json");
@@ -35,6 +36,7 @@ import { ObjectsRegistry } from "../support/Objects/Registry";
 const propPane = ObjectsRegistry.PropertyPane;
 const agHelper = ObjectsRegistry.AggregateHelper;
 const locators = ObjectsRegistry.CommonLocators;
+const onboarding = ObjectsRegistry.Onboarding;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -272,11 +274,14 @@ Cypress.Commands.add("Signup", (uname, pword) => {
 
 Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
   cy.location().then((loc) => {
+    let baseURL = Cypress.config().baseUrl;
+    baseURL = baseURL.endsWith("/") ? baseURL.slice(0, -1) : baseURL;
+
     cy.visit({
       method: "POST",
       url: "api/v1/login",
       headers: {
-        origin: loc.origin,
+        origin: baseURL,
       },
       followRedirect: true,
       body: {
@@ -288,9 +293,15 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
       .then((loc) => {
         //window.localStorage.setItem("SESSION", "remember_token");
         expect(loc.href).to.equal(loc.origin + "/applications");
+        cy.wait("@getMe");
+        cy.wait("@applications").should(
+          "have.nested.property",
+          "response.body.responseMeta.status",
+          200,
+        );
+        cy.wait("@getReleaseItems");
       });
   });
-  cy.wait(2000); //for the page elements to load!
 });
 
 Cypress.Commands.add("saveCookies", () => {
@@ -623,18 +634,16 @@ Cypress.Commands.add("generateUUID", () => {
 
 Cypress.Commands.add("addDsl", (dsl) => {
   let currentURL, pageid, layoutId, appId;
-  appId = localStorage.getItem("applicationId");
   cy.url().then((url) => {
     currentURL = url;
     pageid = currentURL.split("/")[5]?.split("-").pop();
-    cy.log(pageidcopy + "page id copy");
-    cy.log(pageid + "page id");
-    appId = localStorage.getItem("applicationId");
+
     //Fetch the layout id
     cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
       const respBody = JSON.stringify(response.body);
-      layoutId = JSON.parse(respBody).data.layouts[0].id;
-      cy.log("appid:" + appId);
+      const data = JSON.parse(respBody).data;
+      layoutId = data.layouts[0].id;
+      appId = data.applicationId;
       // Dumping the DSL to the created page
       cy.request({
         method: "PUT",
@@ -653,6 +662,7 @@ Cypress.Commands.add("addDsl", (dsl) => {
         cy.log(response.body);
         expect(response.status).equal(200);
         cy.reload();
+        cy.wait("@getWorkspace");
       });
     });
   });
@@ -950,6 +960,9 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "/api/v1/datasources?workspaceId=*").as("getDataSources");
   cy.intercept("GET", "/api/v1/pages?*mode=EDIT").as("getPagesForCreateApp");
   cy.intercept("GET", "/api/v1/pages?*mode=PUBLISHED").as("getPagesForViewApp");
+  cy.intercept("GET", "/api/v1/applications/releaseItems").as(
+    "getReleaseItems",
+  );
 
   cy.intercept("POST");
   cy.intercept("GET", "/api/v1/pages/*").as("getPage");
@@ -2142,4 +2155,9 @@ Cypress.Commands.add("SelectFromMultiSelect", (options) => {
     cy.document().its("body").find(option($each)).should("be.checked");
   });
   cy.document().its("body").type("{esc}");
+});
+
+Cypress.Commands.add("skipSignposting", () => {
+  onboarding.closeIntroModal();
+  onboarding.skipSignposting();
 });
