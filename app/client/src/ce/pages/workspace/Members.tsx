@@ -18,12 +18,11 @@ import {
   deleteWorkspaceUser,
 } from "@appsmith/actions/workspaceActions";
 import type { SelectOptionProps } from "design-system";
-import { Button, Option, Select, Text } from "design-system";
+import { Avatar, Button, Option, Select, Text } from "design-system";
 import styled from "styled-components";
 import DeleteConfirmationModal from "pages/workspace/DeleteConfirmationModal";
 import { useMediaQuery } from "react-responsive";
 import { Card } from "@blueprintjs/core";
-import ProfileImage from "pages/common/ProfileImage";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import type { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
 import {
@@ -37,6 +36,7 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
+import { getInitials } from "utils/AppsmithUtils";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -158,7 +158,7 @@ export const EachUser = styled.div`
   }
 
   .user-group-icons {
-    width: 32px;
+    width: 24px;
     margin-right: 8px;
   }
 `;
@@ -328,15 +328,16 @@ export default function MemberSettings(props: PageProps) {
         return (
           <EachUser>
             <>
-              <ProfileImage
+              <Avatar
                 className="user-icons"
-                size="md"
-                source={
+                firstLetter={getInitials(member.username)}
+                image={
                   member.photoId
                     ? `/api/${USER_PHOTO_ASSET_URL}/${member.photoId}`
                     : undefined
                 }
-                userName={member.username}
+                label={member.username}
+                size="sm"
               />
               <HighlightText highlight={searchValue} text={member.username} />
             </>
@@ -483,15 +484,16 @@ export default function MemberSettings(props: PageProps) {
               return (
                 <UserCard key={index}>
                   <>
-                    <ProfileImage
+                    <Avatar
                       className="avatar"
-                      size="md"
-                      source={
+                      firstLetter={getInitials(member.username)}
+                      image={
                         member.photoId
                           ? `/api/${USER_PHOTO_ASSET_URL}/${member.photoId}`
                           : undefined
                       }
-                      userName={member.username}
+                      label={member.username}
+                      size="sm"
                     />
                     <HighlightText
                       highlight={searchValue}
