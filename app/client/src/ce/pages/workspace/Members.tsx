@@ -524,6 +524,7 @@ export default function MemberSettings(props: PageProps) {
                       onSelect={(_value: string, option: any) => {
                         selectRole(option.key, member.username);
                       }}
+                      size="md"
                       value={role}
                     >
                       {roles.map((role: Partial<SelectOptionProps>) => (
