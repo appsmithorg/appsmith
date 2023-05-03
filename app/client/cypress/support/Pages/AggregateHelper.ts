@@ -590,7 +590,7 @@ export class AggregateHelper {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
-    return locator.eq(index).focus().wait(100).type(value, {
+    return locator.eq(index).wait(100).type(value, {
       parseSpecialCharSequences: parseSpecialCharSeq,
       //delay: 3,
       force: true,
@@ -1118,6 +1118,10 @@ export class AggregateHelper {
         .should(exists);
     else
       return this.GetElement(selector, timeout).contains(text).should(exists);
+  }
+
+  public VisitURL(url: string) {
+    cy.visit(url);
   }
 
   public ValidateURL(url: string) {

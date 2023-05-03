@@ -83,6 +83,7 @@ export class HomePage {
     applicationName +
     "']/ancestor::div[contains(@class, 't--application-card')]//span[@name= 'context-menu']";
   private _forkApp = '[data-cy="t--fork-app"]';
+  private _exportApp = '[data-cy="t--export-app"]';
   private _duplicateApp = '[data-cy="t--duplicate"]';
   private _deleteApp = '[data-cy="t--delete-confirm"]';
   private _deleteAppConfirm = '[data-cy="t--delete"]';
@@ -463,6 +464,22 @@ export class HomePage {
     this.agHelper.AssertContains("Application imported successfully");
     this.agHelper.Sleep(5000); //for imported app to settle!
     cy.get(this.locator._loading).should("not.exist");
+  }
+
+  public ExportApplication(appName: string) {
+    this.agHelper.GetNClick(this._applicationContextMenu(appName));
+    this.agHelper.GetNClick(this._exportApp);
+    cy.get(`a[id=t--export-app-link]`).then((anchor: any) => {
+      const url = anchor.prop("href");
+      cy.request(url).then(({ body, headers }) => {
+        expect(headers).to.have.property("content-type", "application/json");
+        expect(headers).to.have.property(
+          "content-disposition",
+          `attachment; filename*=UTF-8''${appName}.json`,
+        );
+        cy.writeFile("cypress/fixtures/exportedApp.json", body, "utf-8");
+      });
+    });
   }
 
   public ForkApplication(appliName: string) {
