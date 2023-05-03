@@ -206,7 +206,7 @@ const validate = (values: any) => {
 
 function WorkspaceInviteUsersForm(props: any) {
   const [emailError, setEmailError] = useState("");
-  const [selectedOption, setSelectedOption] = useState<string[]>([]);
+  const [selectedOption, setSelectedOption] = useState<any[]>([]);
   const userRef = React.createRef<HTMLDivElement>();
   // const history = useHistory();
   const selectedId = props?.selected?.id;
@@ -304,11 +304,11 @@ function WorkspaceInviteUsersForm(props: any) {
     [allUsers],
   );
 
-  const onSelect = (value: string) => {
+  const onSelect = (value: string, option?: any) => {
     if (isMultiSelectDropdown) {
-      setSelectedOption((selectedOptions) => [...selectedOptions, value]);
+      setSelectedOption((selectedOptions) => [...selectedOptions, option]);
     } else {
-      setSelectedOption([value]);
+      setSelectedOption([option]);
     }
   };
 
@@ -316,10 +316,10 @@ function WorkspaceInviteUsersForm(props: any) {
     setEmailError(error);
   };
 
-  const onRemoveOptions = (value: string) => {
+  const onRemoveOptions = (value: string, option?: any) => {
     if (isMultiSelectDropdown) {
       setSelectedOption((selectedOptions) =>
-        selectedOptions.filter((option) => option !== value),
+        selectedOptions.filter((opt) => opt.value !== option.value),
       );
     }
   };
@@ -329,8 +329,8 @@ function WorkspaceInviteUsersForm(props: any) {
       <StyledForm
         onSubmit={handleSubmit((values: any, dispatch: any) => {
           const roles = isMultiSelectDropdown
-            ? selectedOption.join(",")
-            : selectedOption[0];
+            ? selectedOption.map((option: any) => option.value).join(",")
+            : selectedOption[0].value;
           validateFormValues({ ...values, role: roles });
           const usersAsStringsArray = values.users.split(",");
           // update state to show success message correctly
@@ -516,6 +516,8 @@ export default connect(
       placeholder?: string;
       customProps?: any;
       selected?: any;
+      options?: any;
+      isMultiSelectDropdown?: boolean;
     }
   >({
     validate,
