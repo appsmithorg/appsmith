@@ -124,13 +124,13 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       updateNVerify(6, 4, newStoreSecret as string);
     });
 
-    table.SelectTableRow(18);
-    dataSources.AssertJSONFormHeader(18, 0, "store_id");
-    generateStoresSecretInfo(18);
+    table.SelectTableRow(17);
+    dataSources.AssertJSONFormHeader(17, 0, "store_id");
+    generateStoresSecretInfo(17);
     cy.get("@secretInfo").then(($secretInfo) => {
       newStoreSecret = $secretInfo;
       cy.log("newStoreSecret is : " + newStoreSecret);
-      updateNVerify(18, 4, newStoreSecret as string);
+      updateNVerify(17, 4, newStoreSecret as string);
     });
 
     //Hidden field bug - to add here aft secret codes are updated for some fields!
