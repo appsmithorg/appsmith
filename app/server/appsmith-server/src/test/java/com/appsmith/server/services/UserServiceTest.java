@@ -419,8 +419,8 @@ public class UserServiceTest {
         StepVerifier.create(userService.updateCurrentUser(updateUser, null))
                 .assertNext(user -> {
                     assertNotNull(user);
-                    assertThat(user.getEmail()).isEqualTo("api_user");
-                    assertThat(user.getName()).isEqualTo("New name of api user");
+                    assertEquals("api_user", user.getEmail());
+                    assertEquals("New name of api user", user.getName());
                 })
                 .verifyComplete();
     }
@@ -431,8 +431,11 @@ public class UserServiceTest {
         UserUpdateDTO updateUser = new UserUpdateDTO();
         updateUser.setName("invalid name@symbol");
         StepVerifier.create(userService.updateCurrentUser(updateUser, null))
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException && throwable.getMessage()
-                .contains(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.NAME)))
+                .expectErrorMatches(throwable ->
+                        throwable instanceof AppsmithException
+                                &&
+                        throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.NAME))
+                )
                 .verify();
     }
 
@@ -440,11 +443,11 @@ public class UserServiceTest {
     @WithUserDetails(value = "api_user")
     public void updateNameOfUser_WithAccentedCharacters_IsValid() {
         UserUpdateDTO updateUser = new UserUpdateDTO();
-        updateUser.setName("ä ö ü è ß");
+        updateUser.setName("ä ö ü è ß Test .  '- ðƒ 你好 123'");
         StepVerifier.create(userService.updateCurrentUser(updateUser, null))
                 .assertNext(user -> {
                     assertNotNull(user);
-                    assertThat(user.getName()).isEqualTo("ä ö ü è ß");
+                    assertEquals("ä ö ü è ß Test .  '- ðƒ 你好 123'", user.getName());
                 })
                 .verifyComplete();
     }
@@ -515,9 +518,9 @@ public class UserServiceTest {
                     final UserData userData = tuple.getT2();
                     assertNotNull(user);
                     assertNotNull(userData);
-                    assertThat(user.getName()).isEqualTo("New name of user here");
-                    assertThat(userData.getRole()).isEqualTo("New role of user");
-                    assertThat(userData.getUseCase()).isEqualTo("New use case");
+                    assertEquals("New name of user here", user.getName());
+                    assertEquals("New role of user", userData.getRole());
+                    assertEquals("New use case", userData.getUseCase());
                 })
                 .verifyComplete();
     }

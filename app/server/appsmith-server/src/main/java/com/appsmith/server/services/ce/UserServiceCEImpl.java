@@ -70,6 +70,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.appsmith.git.helpers.FileUtilsImpl.ALLOWED_ACCENTED_CHARACTERS_PATTERN;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
@@ -659,12 +660,13 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         return Flux.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 
-    private Boolean validateName(String name){
+    private boolean validateName(String name){
         /*
             Regex allows for Accented characters and alphanumeric with some special characters dot (.), apostrophe ('),
             hyphen (-) and spaces
          */
-        Boolean isValidName = name.matches("^[A-Za-zÀ-ÖØ-öø-ÿ0-9 .'-]+$");
+//        boolean isValidName = name.matches("^[\\p{L} 0-9 .\'\\-]+$");
+        boolean isValidName = ALLOWED_ACCENTED_CHARACTERS_PATTERN.matcher(name).matches();
         return isValidName;
     }
 
@@ -674,12 +676,11 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
         Mono<User> updatedUserMono;
         Mono<UserData> updatedUserDataMono;
-        String inputName;
 
         if (allUpdates.hasUserUpdates()) {
             final User updates = new User();
-            inputName = allUpdates.getName();
-            Boolean isValidName = validateName(inputName);
+            String inputName = allUpdates.getName();
+            boolean isValidName = validateName(inputName);
             if (isValidName != true){
                 return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
             }
