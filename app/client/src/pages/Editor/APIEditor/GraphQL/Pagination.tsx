@@ -12,7 +12,6 @@ import { connect } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { FormLabel } from "components/editorComponents/form/fields/StyledFormComponents";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import { Colors } from "constants/Colors";
 import type { GRAPHQL_PAGINATION_TYPE } from "constants/ApiEditorConstants/GraphQLEditorConstants";
 import {
   LIMITBASED_PREFIX,
@@ -90,7 +89,6 @@ const Step = styled.div`
   }
 
   & label .label-icon-wrapper {
-    border-bottom: 1px dashed ${Colors.LIGHT_GREYISH_BLUE};
     cursor: help;
   }
 `;
