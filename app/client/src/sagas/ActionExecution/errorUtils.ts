@@ -139,24 +139,9 @@ export const getErrorAsString = (error: unknown): string => {
 };
 
 export const getDisplayMessageFromError = (errorMessage: string) => {
-  const errorMessageLabels = [
-    "ReferenceError",
-    "UncaughtPromiseRejection",
-    "TypeError",
-  ];
-  const errorMessageDelimiter = ":";
-  let requiredMessageHeading = null;
-
-  for (const message of errorMessageLabels) {
-    const messageHeading = message + errorMessageDelimiter;
-    if (errorMessage.indexOf(messageHeading) >= 0) {
-      requiredMessageHeading = messageHeading;
-      break;
-    }
-  }
-
-  if (requiredMessageHeading) {
-    return errorMessage.split(requiredMessageHeading)[1].trimStart();
+  const firstWord = errorMessage.split(" ")[0];
+  if (firstWord[firstWord.length - 1] === ":") {
+    return errorMessage.split(firstWord)[1].trimStart();
   } else {
     return errorMessage.trimStart();
   }
