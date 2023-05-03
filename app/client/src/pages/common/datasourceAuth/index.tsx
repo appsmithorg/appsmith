@@ -86,7 +86,8 @@ const SaveButtonContainer = styled.div`
   margin-top: 24px;
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  gap: 9px;
+  padding-right: 20px;
 `;
 
 const StyledAuthMessage = styled.div`
@@ -341,7 +342,7 @@ function DatasourceAuth({
           onClick={handleOauthDatasourceSave}
           size="md"
         >
-          Save and authorize
+          Save and Authorize
         </Button>
       ),
     }[buttonType];

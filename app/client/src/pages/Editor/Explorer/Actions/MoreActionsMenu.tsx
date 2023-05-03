@@ -170,7 +170,7 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
                 ? deleteActionFromPage(props.id, props.name)
                 : setConfirmDelete(true);
             }}
-            startIcon="delete-bin-line"
+            startIcon="trash"
           >
             {confirmDelete
               ? createMessage(CONFIRM_CONTEXT_DELETE)

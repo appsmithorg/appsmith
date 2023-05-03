@@ -410,7 +410,7 @@ function getApiAndQueryOptions(
   handleClose: () => void,
 ) {
   const createQueryObject: TreeDropdownOption = {
-    label: "New query",
+    label: "New Query",
     value: "datasources",
     id: "create",
     icon: "plus",
