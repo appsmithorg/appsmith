@@ -5,12 +5,6 @@ import FormRow from "components/editorComponents/FormRow";
 import { PaginationType } from "entities/Action";
 import RadioFieldGroup from "components/editorComponents/form/fields/RadioGroupField";
 import type { DropdownOption } from "design-system-old";
-import {
-  // Text,
-  // TextType,
-  TooltipComponent as Tooltip,
-  // Checkbox,
-} from "design-system-old";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { AnyAction, Dispatch } from "redux";
 import { bindActionCreators } from "redux";
@@ -28,7 +22,7 @@ import {
 } from "utils/editor/EditorBindingPaths";
 import { log } from "loglevel";
 import { PaginationSubComponent } from "components/formControls/utils";
-import { Select, Option, Checkbox, Text } from "design-system";
+import { Select, Option, Checkbox, Text, Tooltip, Link } from "design-system";
 
 const PAGINATION_PREFIX =
   "actionConfiguration.pluginSpecifiedTemplates[2].value";
@@ -95,7 +89,7 @@ const Step = styled.div`
     min-width: unset;
   }
 
-  & label .bp3-popover-target .label-icon-wrapper {
+  & label .label-icon-wrapper {
     border-bottom: 1px dashed ${Colors.LIGHT_GREYISH_BLUE};
     cursor: help;
   }
@@ -224,7 +218,7 @@ function PaginationTypeBasedWrapper({
         <Step>
           <FormLabel>
             {variableTooltip ? (
-              <Tooltip content={variableTooltip} hoverOpenDelay={500}>
+              <Tooltip content={variableTooltip}>
                 <span className="label-icon-wrapper">{variableLabel}</span>
               </Tooltip>
             ) : (
@@ -282,7 +276,7 @@ function PaginationTypeBasedWrapper({
         <Step>
           <FormLabel>
             {valueTooltip ? (
-              <Tooltip content={valueTooltip} hoverOpenDelay={500}>
+              <Tooltip content={valueTooltip}>
                 <span className="label-icon-wrapper">{valueLabel}</span>
               </Tooltip>
             ) : (
@@ -478,14 +472,13 @@ function Pagination(props: PaginationProps) {
               <Text kind="body-m" renderAs={"p"}>
                 Specfiy the previous and next cursor variables along with a
                 limit value.{" "}
-                <a
-                  href="https://graphql.org/learn/pagination/"
-                  rel="noreferrer"
-                  style={{ textDecoration: "underline" }}
+                <Link
+                  style={{ display: "inline" }}
                   target={"_blank"}
+                  to="https://graphql.org/learn/pagination/"
                 >
                   Refer documentation
-                </a>{" "}
+                </Link>{" "}
                 for more information
               </Text>
               <PaginationSection>
