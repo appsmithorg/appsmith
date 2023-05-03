@@ -8,11 +8,18 @@ import {
 } from "react-router-dom";
 import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useSelector, useDispatch } from "react-redux";
-import type { MenuItemProps, TabProp } from "design-system-old";
-import { Tabs, Tab, TabsList, TabPanel } from "design-system";
 import styled from "styled-components";
 
-import { Modal, ModalBody, ModalContent, ModalHeader } from "design-system";
+import {
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+  Tabs,
+  Tab,
+  TabsList,
+  TabPanel,
+} from "design-system";
 import MemberSettings from "@appsmith/pages/workspace/Members";
 import { GeneralSettings } from "./General";
 import * as Sentry from "@sentry/react";
@@ -38,6 +45,13 @@ import { APPLICATIONS_URL } from "constants/routes";
 const { cloudHosting } = getAppsmithConfigs();
 
 const SentryRoute = Sentry.withSentryRouting(Route);
+
+type TabProp = {
+  key: string;
+  title: string;
+  count?: number;
+  panelComponent?: JSX.Element;
+};
 
 const SettingsWrapper = styled.div<{
   isMobile?: boolean;
@@ -189,7 +203,7 @@ export default function Settings() {
     },
   ].filter(Boolean) as TabProp[];
 
-  const pageMenuItems: MenuItemProps[] = [
+  const pageMenuItems: any[] = [
     {
       icon: "book-line",
       className: "documentation-page-menu-item",

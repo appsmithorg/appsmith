@@ -34,7 +34,6 @@ import PageWrapper from "@appsmith/pages/common/PageWrapper";
 import SubHeader from "pages/common/SubHeader";
 import ApplicationCard from "pages/Applications/ApplicationCard";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
-import { Modal, ModalBody, ModalContent, ModalHeader } from "design-system";
 import type { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { CREATE_WORKSPACE_FORM_NAME } from "@appsmith/constants/forms";
@@ -60,6 +59,10 @@ import {
   MenuItem,
   MenuContent,
   MenuTrigger,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
 } from "design-system";
 import {
   duplicateApplication,

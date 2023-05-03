@@ -23,21 +23,12 @@ const SubHeaderWrapper = styled.div<{
   display: flex;
   justify-content: space-between;
   ${(props) => (props.isBannerVisible ? "margin-top: 96px" : "")};
-  background: ${(props) => props.theme.colors.homepageBackground};
-  z-index: ${Indices.Layer9};
+  background: var(--ads-v2-color-bg);
   z-index: ${({ isMobile }) => (isMobile ? Indices.Layer8 : Indices.Layer9)};
   ${({ isMobile }) => isMobile && `padding: 12px 16px; margin: 0px;`}
 `;
 const SearchContainer = styled.div`
   flex-grow: 1;
-  .bp3-control-group {
-    display: block;
-  }
-  && {
-    .bp3-input {
-      width: 40%;
-    }
-  }
 `;
 
 type SubHeaderProps = {

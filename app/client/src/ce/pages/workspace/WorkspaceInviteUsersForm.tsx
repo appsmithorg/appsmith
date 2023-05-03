@@ -30,7 +30,7 @@ import {
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-configured.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import type { DropdownOption } from "design-system-old";
+import type { SelectOptionProps } from "design-system";
 import {
   Callout,
   Avatar,
@@ -61,7 +61,7 @@ export const WorkspaceInviteWrapper = styled.div`
 
 export const StyledForm = styled.form`
   width: 100%;
-  background: ${(props) => props.theme.colors.modal.bg};
+  background: var(--ads-v2-color-bg);
   &&& {
     .wrapper > div:nth-child(1) {
       width: 60%;
@@ -138,9 +138,7 @@ export const MailConfigContainer = styled.div`
   padding-bottom: 0;
   align-items: center;
   && > span {
-    color: ${(props) => props.theme.colors.modal.email.message};
-    font-weight: 500;
-    font-size: 14px;
+    color: var(--ads-v2-color-fg);
   }
 `;
 
@@ -151,7 +149,7 @@ export const ManageUsersContainer = styled.div`
 const validateFormValues = (values: {
   users: string;
   role?: string;
-  roles?: Partial<DropdownOption>[];
+  roles?: Partial<SelectOptionProps>[];
 }) => {
   if (values.users && values.users.length > 0) {
     const _users = values.users.split(",").filter(Boolean);

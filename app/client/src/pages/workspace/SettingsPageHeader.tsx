@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import type { DebouncedFunc } from "lodash";
-import type { MenuItemProps } from "design-system-old";
 import {
   Button,
   Menu,
@@ -21,7 +20,7 @@ type PageHeaderProps = {
   searchPlaceholder: string;
   onButtonClick?: () => void;
   onSearch?: DebouncedFunc<(search: string) => void>;
-  pageMenuItems: MenuItemProps[];
+  pageMenuItems: any[];
   title?: string;
   showMoreOptions?: boolean;
   showSearchNButton?: boolean;
@@ -33,14 +32,6 @@ const Container = styled.div<{ isMobile?: boolean }>`
   align-items: center;
   gap: 24px;
   flex-wrap: ${(props) => (props.isMobile ? "wrap" : "nowrap")};
-
-  .actions-icon {
-    color: var(--appsmith-color-black-400);
-
-    &:hover {
-      color: var(--appsmith-color-black-700);
-    }
-  }
 `;
 
 const SearchWrapper = styled.div`
@@ -77,7 +68,7 @@ export function SettingsPageHeader(props: PageHeaderProps) {
 
   const onOptionSelect = (
     e: React.MouseEvent<Element, MouseEvent>,
-    menuItem: MenuItemProps,
+    menuItem: any,
   ) => {
     if (menuItem.label === "delete") {
       setShowOptions(true);

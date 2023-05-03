@@ -2,7 +2,6 @@ import React from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { Switch, Icon, Tooltip, Link, Text } from "design-system";
-import { Colors } from "constants/Colors";
 import useUpdateEmbedSnippet from "pages/Applications/EmbedSnippet/useUpdateEmbedSnippet";
 import EmbedCodeSnippet from "pages/Applications/EmbedSnippet/Snippet";
 import {
@@ -21,6 +20,10 @@ export const StyledPropertyHelpLabel = styled(PropertyHelpLabel)`
     display: flex;
     align-items: center;
   }
+`;
+
+export const BottomWrapper = styled.div`
+  border-top: 1px solid var(--ads-v2-color-border);
 `;
 
 export function EmbedSnippetTab({
@@ -100,9 +103,8 @@ function ShareModal() {
         isAppSettings={false}
         snippet={embedSnippet.appViewEndPoint}
       />
-      <div
-        className={`flex justify-end border-t-2 pt-5 border-[${Colors.GRAY_200}]`}
-      >
+
+      <BottomWrapper className={`flex justify-end pt-5`}>
         <Link
           className="flex gap-1 items-center self-end"
           data-cy="preview-embed"
@@ -112,7 +114,7 @@ function ShareModal() {
         >
           {createMessage(IN_APP_EMBED_SETTING.previewEmbeddedApp)}
         </Link>
-      </div>
+      </BottomWrapper>
     </div>
   );
 }
