@@ -69,8 +69,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
-import static com.appsmith.git.helpers.FileUtilsImpl.ALLOWED_ACCENTED_CHARACTERS_PATTERN;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
@@ -101,6 +101,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s";
     private static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/signup?email=%s";
     public static final String INVITE_USER_EMAIL_TEMPLATE = "email/inviteUserTemplate.html";
+    private static final Pattern ALLOWED_ACCENTED_CHARACTERS_PATTERN = Pattern.compile("^[\\p{L} 0-9 .\'\\-]+$");
 
     @Autowired
     public UserServiceCEImpl(Scheduler scheduler,
@@ -679,7 +680,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             final User updates = new User();
             String inputName = allUpdates.getName();
             boolean isValidName = validateName(inputName);
-            if (isValidName != true){
+            if (!isValidName){
                 return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
             }
             updates.setName(inputName);
