@@ -273,7 +273,7 @@ function ActionSidebar({
               onClick={handleBindData}
               size="md"
             >
-              Select Widget
+              Select widget
             </Button>
           </SnipingWrapper>
         </Collapsible>
