@@ -7,6 +7,7 @@ import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceConfigurationStructure;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceStructure.Column;
 import com.appsmith.external.models.DatasourceStructure.PrimaryKey;
@@ -273,7 +274,15 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                         );
                     }
 
-                    DatasourceStructure templateStructure = templateDatasource.getStructure();
+                    DatasourceConfigurationStructure templateDatasourceConfigurationStructure = applicationJson
+                            .getDatasourceConfigurationStructureList()
+                            .stream()
+                            .filter(configurationStructure -> StringUtils.equals(configurationStructure.getDatasourceId(), templateDatasource.getName()))
+                            .findAny()
+                            .orElse(null);
+
+
+                    DatasourceStructure templateStructure = templateDatasourceConfigurationStructure.getStructure();
                     // We are supporting datasources for both with and without datasource structure. So if datasource
                     // structure is present then we can assign the mapping dynamically as per the template datasource tables.
                     // Those datasources for which we don't have structure like Google sheet etc we are following a
@@ -287,7 +296,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                                 .findAny()
                                 .orElse(null);
 
-                        Table table = getTable(datasource, tableName);
+                        Table table = getTable(templateDatasourceConfigurationStructure, tableName);
                         if (table == null) {
                             return Mono.error(
                                     new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE_STRUCTURE, datasource.getName())
@@ -464,16 +473,16 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
     }
 
     /**
-     * @param datasource resource from which table has to be filtered
-     * @param tableName  to filter the available tables in the datasource
+     * @param datasourceConfigurationStructure resource from which table has to be filtered
+     * @param tableName                        to filter the available tables in the datasource
      * @return Table from the provided datasource if structure is present
      */
-    private Table getTable(Datasource datasource, String tableName) {
+    private Table getTable(DatasourceConfigurationStructure datasourceConfigurationStructure, String tableName) {
         /*
             1. Get structure from datasource
             2. Filter by tableName
         */
-        DatasourceStructure datasourceStructure = datasource.getStructure();
+        DatasourceStructure datasourceStructure = datasourceConfigurationStructure.getStructure();
         if (datasourceStructure != null) {
             return datasourceStructure.getTables()
                     .stream()
