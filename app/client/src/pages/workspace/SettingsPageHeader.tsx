@@ -8,7 +8,6 @@ import { Button, SearchInput, Tooltip } from "design-system";
 import { HeaderWrapper } from "pages/Settings/components";
 import {
   HelpPopoverStyle,
-  // StyledSearchInput,
   SettingsHeader,
 } from "components/utils/helperComponents";
 import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";
@@ -31,9 +30,6 @@ const Container = styled.div<{ isMobile?: boolean }>`
   align-items: center;
   gap: 24px;
   flex-wrap: ${(props) => (props.isMobile ? "wrap" : "nowrap")};
-  h2 {
-    text-transform: unset;
-  }
 
   .actions-icon {
     color: var(--appsmith-color-black-400);
@@ -102,7 +98,13 @@ export function SettingsPageHeader(props: PageHeaderProps) {
           content={title}
           isDisabled={title && title.length < 32 ? true : false}
         >
-          <SettingsHeader data-testid="t--page-title">{title}</SettingsHeader>
+          <SettingsHeader
+            data-testid="t--page-title"
+            kind="heading-m"
+            renderAs="h2"
+          >
+            {title}
+          </SettingsHeader>
         </Tooltip>
       </HeaderWrapper>
       <Container isMobile={isMobile}>

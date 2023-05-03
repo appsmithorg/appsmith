@@ -101,6 +101,13 @@ export const MembersWrapper = styled.div<{
           .cs-text {
             text-align: left;
           }
+
+          .ads-v2-select {
+            width: fit-content;
+            > .rc-select-selector {
+              border: none;
+            }
+          }
         }
       }
     }
@@ -175,6 +182,11 @@ export const RowWrapper = styled.div<{ isSubRow?: boolean }>`
     position: relative;
     left: -4px;
   }
+`;
+
+export const StyledText = styled(Text)`
+  padding: var(--ads-v2-spaces-3) var(--ads-v2-spaces-3);
+  min-height: 36px;
 `;
 
 export default function MemberSettings(props: PageProps) {
@@ -366,7 +378,11 @@ export default function MemberSettings(props: PageProps) {
             cellProps.cell.value?.split(" - ")[0],
         );
         if (data.username === currentUser?.username) {
-          return cellProps.cell.value?.split(" - ")[0];
+          return (
+            <StyledText renderAs="p">
+              {cellProps.cell.value?.split(" - ")[0]}
+            </StyledText>
+          );
         }
         return (
           <Select
@@ -380,6 +396,7 @@ export default function MemberSettings(props: PageProps) {
                 changeWorkspaceUserRole(workspaceId, option.key, data.username),
               );
             }}
+            size="md"
             value={selectedRole}
           >
             {roles.map((role: Partial<SelectOptionProps>) => (
