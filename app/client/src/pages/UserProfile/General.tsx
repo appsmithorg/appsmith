@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
-import { debounce } from "lodash";
 import {
   notEmptyValidator,
   Text,
@@ -21,6 +20,8 @@ import UserProfileImagePicker from "./UserProfileImagePicker";
 import { Wrapper, FieldWrapper, LabelWrapper } from "./StyledComponents";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
+import { ALL_LANGUAGE_CHARACTERS_REGEX } from "constants/Regex";
+
 const { disableLoginForm } = getAppsmithConfigs();
 
 const ForgotPassword = styled.a`
@@ -33,8 +34,31 @@ const ForgotPassword = styled.a`
   display: inline-block;
 `;
 
+const nameValidator = (
+  value: string,
+): {
+  isValid: boolean;
+  message: string;
+} => {
+  const notEmpty = notEmptyValidator(value);
+  if (!notEmpty.isValid) {
+    return notEmpty;
+  }
+  if (!new RegExp(`^[${ALL_LANGUAGE_CHARACTERS_REGEX} 0-9.'-]+$`).test(value)) {
+    return {
+      isValid: false,
+      message: "No special characters allowed except .'-",
+    };
+  }
+  return {
+    isValid: true,
+    message: "",
+  };
+};
+
 function General() {
   const user = useSelector(getCurrentUser);
+  const [name, setName] = useState(user?.name);
   const dispatch = useDispatch();
   const forgotPassword = async () => {
     try {
@@ -51,15 +75,15 @@ function General() {
       });
     }
   };
-
-  const timeout = 1000;
-  const onNameChange = debounce((newName: string) => {
-    dispatch(
-      updateUserDetails({
-        name: newName,
-      }),
-    );
-  }, timeout);
+  const saveName = () => {
+    name &&
+      nameValidator(name).isValid &&
+      dispatch(
+        updateUserDetails({
+          name,
+        }),
+      );
+  };
 
   if (user?.email === ANONYMOUS_USERNAME) return null;
 
@@ -79,11 +103,17 @@ function General() {
           <div style={{ flex: 1 }}>
             <TextInput
               cypressSelector="t--display-name"
-              defaultValue={user?.name}
+              defaultValue={name}
               fill={false}
-              onChange={onNameChange}
+              onBlur={saveName}
+              onChange={setName}
+              onKeyPress={(ev: React.KeyboardEvent) => {
+                if (ev.key === "Enter") {
+                  saveName();
+                }
+              }}
               placeholder="Display name"
-              validator={notEmptyValidator}
+              validator={nameValidator}
             />
           </div>
         }
