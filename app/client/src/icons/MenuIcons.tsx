@@ -24,13 +24,13 @@ import { ReactComponent as DataSourcesIconV2 } from "assets/icons/menu/datasourc
 import { ReactComponent as CurlIcon } from "assets/images/Curl-logo.svg";
 import { ReactComponent as JSIconV2 } from "assets/icons/menu/js-icon.svg";
 import { ReactComponent as QueryMain } from "assets/icons/menu/query-main.svg";
-import DefaultHomeIcon from "remixicon-react/Home3LineIcon";
 import CurrentPageIcon from "remixicon-react/CheckLineIcon";
 import EyeOff from "remixicon-react/EyeOffLineIcon";
 import { Icon } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import SortIcon from "remixicon-react/ArrowUpDownLineIcon";
+import { Icon as DSIcon } from "design-system";
 /* eslint-disable react/display-name */
 
 const StyledDataSourcesIconV2 = styled(DataSourcesIconV2)`
@@ -173,7 +173,7 @@ export const MenuIcons: {
   ),
   DEFAULT_HOMEPAGE_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
-      <DefaultHomeIcon />
+      <DSIcon name="home-3-line" />
     </IconWrapper>
   ),
   EYES_OFF_ICON: (props: IconProps) => (
