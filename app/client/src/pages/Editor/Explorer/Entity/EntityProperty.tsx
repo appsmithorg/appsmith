@@ -11,10 +11,10 @@ import useClipboard from "utils/hooks/useClipboard";
 // import { Colors } from "constants/Colors";
 import { Skin } from "constants/DefaultTheme";
 import { EntityClassNames } from ".";
-import { Tooltip } from "design-system";
+import { Tooltip, Icon } from "design-system";
 import { COPY_ELEMENT, createMessage } from "@appsmith/constants/messages";
 import CollapseToggle from "./CollapseToggle";
-import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
+// import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Wrapper = styled.div<{ step: number }>`
@@ -65,14 +65,12 @@ const Wrapper = styled.div<{ step: number }>`
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
-          /* color: var(--ads-v2-color-fg-brand) !important; */
         }
       }
     }
 
     .type-text {
       font-size: 12px;
-      /* color: #716e6e; */
     }
   }
 `;
@@ -82,7 +80,7 @@ const CopyBox = styled.div`
   position: relative;
   padding: 0 8px;
   .copy-icon {
-    margin-right: 5px;
+    /* margin-right: 5px; */
     opacity: 0;
   }
   &:hover {
@@ -163,7 +161,12 @@ export const EntityProperty = memo((props: any) => {
             skin={Skin.LIGHT}
           />
           <Tooltip content={createMessage(COPY_ELEMENT)} placement="right">
-            <CopyIcon className="copy-icon" onClick={copyBindingToClipboard} />
+            <Icon
+              className="copy-icon"
+              name="duplicate"
+              onClick={copyBindingToClipboard}
+              size="md"
+            />
           </Tooltip>
         </div>
       </CopyBox>

@@ -1,9 +1,7 @@
 import React, { useEffect } from "react";
-import styled from "styled-components";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { SegmentedControl } from "design-system";
-import { Colors } from "constants/Colors";
 import { tailwindLayers } from "constants/Layers";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
@@ -18,12 +16,6 @@ import WidgetSidebar from "../WidgetSidebar";
 import EntityExplorer from "./EntityExplorer";
 import { getExplorerSwitchIndex } from "selectors/editorContextSelectors";
 import { setExplorerSwitchIndex } from "actions/editorContextActions";
-
-const StyledSegmentedControl = styled(SegmentedControl)`
-  > .ads-v2-segmented-control__segments-container {
-    flex: 1 1 0%;
-  }
-`;
 
 const selectForceOpenWidgetPanel = (state: AppState) =>
   state.ui.onBoarding.forceOpenWidgetPanel;
@@ -86,10 +78,8 @@ function ExplorerContent() {
     <div
       className={`flex-1 flex flex-col overflow-hidden ${tailwindLayers.entityExplorer}`}
     >
-      <div
-        className={`flex-shrink-0 px-3 mt-1 py-2 border-t border-[${Colors.Gallery}]`}
-      >
-        <StyledSegmentedControl
+      <div className={`flex-shrink-0 px-3 mt-1 py-2 border-t`}>
+        <SegmentedControl
           defaultValue={activeOption}
           onChange={onChange}
           options={options}

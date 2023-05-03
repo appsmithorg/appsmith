@@ -17,7 +17,7 @@ describe("Property configuration search", () => {
           ...commonProperties,
         },
         {
-          label: "Scroll Contents",
+          label: "Scroll contents",
           propertyName: "scrollContents",
           ...commonProperties,
         },

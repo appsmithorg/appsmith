@@ -24,7 +24,14 @@ import { AddEntity, EmptyComponent } from "../common";
 import ExplorerSubMenu from "./Submenu";
 import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
 import { Icon, Text } from "design-system";
+import styled from "styled-components";
 
+const StyledText = styled(Text)`
+  color: var(--ads-v2-color-fg-emphasis);
+  display: block;
+  padding-top: 8px;
+  padding-bottom: 4px;
+`;
 function Files() {
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId) as string;
@@ -65,13 +72,13 @@ function Files() {
       files.map(({ entity, type }: any) => {
         if (type === "group") {
           return (
-            <Text
+            <StyledText
               className="pl-8 overflow-hidden overflow-ellipsis whitespace-nowrap"
               key={entity.name || "Queries"}
               kind="heading-xs"
             >
               {entity.name}
-            </Text>
+            </StyledText>
           );
         } else if (type === "JS") {
           return (
