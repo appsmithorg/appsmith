@@ -13,7 +13,10 @@ import { getPageWidgets } from "selectors/entitiesSelector";
 import { convertNormalizedDSLToFixed } from "utils/DSLConversions/autoToFixedLayout";
 import convertToAutoLayout from "utils/DSLConversions/fixedToAutoLayout";
 import type { DSLWidget } from "widgets/constants";
-import { createSnapshotSaga } from "./SnapshotSagas";
+import {
+  createSnapshotSaga,
+  deleteApplicationSnapshotSaga,
+} from "./SnapshotSagas";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import { saveAllPagesSaga } from "./PageSagas";
@@ -28,6 +31,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
  */
 function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
   let appId = "";
+  let snapshotSaveSuccess = false;
   try {
     appId = yield select(getCurrentApplicationId);
     const pageWidgetsList: PageWidgetsReduxState = yield select(getPageWidgets);
@@ -41,6 +45,8 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
     AnalyticsUtil.logEvent("CONVERT_AUTO_TO_FIXED", {
       isNewApp: !notEmptyApp,
     });
+    snapshotSaveSuccess = true;
+
     //Set conversion form to indicated conversion loading state
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.CONVERSION_SPINNER),
@@ -90,6 +96,10 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
     }
 
     log.error(error);
+
+    if (snapshotSaveSuccess) {
+      yield call(deleteApplicationSnapshotSaga);
+    }
     //update conversion form state to error
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_ERROR, error),
@@ -108,6 +118,7 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
  */
 function* convertFromFixedToAutoSaga() {
   let appId = "";
+  let snapshotSaveSuccess = false;
   try {
     appId = yield select(getCurrentApplicationId);
     const pageWidgetsList: PageWidgetsReduxState = yield select(getPageWidgets);
@@ -122,6 +133,8 @@ function* convertFromFixedToAutoSaga() {
       isNewApp: !notEmptyApp,
       appId,
     });
+    snapshotSaveSuccess = true;
+
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.CONVERSION_SPINNER),
     );
@@ -165,6 +178,9 @@ function* convertFromFixedToAutoSaga() {
 
     log.error(error);
     //update conversion form state to error
+    if (snapshotSaveSuccess) {
+      yield call(deleteApplicationSnapshotSaga);
+    }
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_ERROR, error),
     );

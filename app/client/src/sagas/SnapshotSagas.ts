@@ -4,7 +4,6 @@ import {
 } from "actions/autoLayoutActions";
 import type { ApiResponse } from "api/ApiResponses";
 import ApplicationApi from "@appsmith/api/ApplicationApi";
-import type { PageDefaultMeta } from "@appsmith/api/ApplicationApi";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import log from "loglevel";
 import type { SnapShotDetails } from "reducers/uiReducers/layoutConversionReducer";
@@ -96,20 +95,6 @@ function* restoreApplicationFromSnapshotSaga() {
       getLogToSentryFromResponse(response),
     );
 
-    // update the pages list temporarily with incomplete data.
-    if (response?.data?.pages) {
-      yield put({
-        type: ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
-        payload: {
-          pages: response.data.pages.map((page: PageDefaultMeta) => ({
-            pageId: page.id,
-            isDefault: page.isDefault,
-          })),
-          applicationId,
-        },
-      });
-    }
-
     //update layout positioning type from
     yield call(
       updateApplicationLayoutType,
@@ -117,6 +102,14 @@ function* restoreApplicationFromSnapshotSaga() {
         ? AppPositioningTypes.AUTO
         : AppPositioningTypes.FIXED,
     );
+
+    if (response?.data?.applicationDetail?.appPositioning?.type) {
+      //update layout positioning type from response
+      yield call(
+        updateApplicationLayoutType,
+        response.data.applicationDetail.appPositioning.type,
+      );
+    }
 
     if (isValidResponse) {
       //update conversion form state to success
@@ -146,7 +139,7 @@ function* restoreApplicationFromSnapshotSaga() {
 }
 
 //Saga to delete application snapshot
-function* deleteApplicationSnapshotSaga() {
+export function* deleteApplicationSnapshotSaga() {
   let response: ApiResponse | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
