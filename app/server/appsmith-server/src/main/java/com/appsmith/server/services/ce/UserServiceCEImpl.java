@@ -665,9 +665,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             Regex allows for Accented characters and alphanumeric with some special characters dot (.), apostrophe ('),
             hyphen (-) and spaces
          */
-//        boolean isValidName = name.matches("^[\\p{L} 0-9 .\'\\-]+$");
-        boolean isValidName = ALLOWED_ACCENTED_CHARACTERS_PATTERN.matcher(name).matches();
-        return isValidName;
+        return ALLOWED_ACCENTED_CHARACTERS_PATTERN.matcher(name).matches();
     }
 
     @Override
