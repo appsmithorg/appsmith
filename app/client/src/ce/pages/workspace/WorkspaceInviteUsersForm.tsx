@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import styled, { createGlobalStyle } from "styled-components";
+import styled from "styled-components";
 import TagListField from "components/editorComponents/form/fields/TagListField";
 import { reduxForm, SubmissionError } from "redux-form";
 import { connect, useSelector } from "react-redux";
@@ -83,12 +83,6 @@ export const StyledInviteFieldGroup = styled.div`
   align-items: baseline;
   justify-content: space-between;
   gap: 0.8rem;
-`;
-
-export const InviteModalStyles = createGlobalStyle`
-    .label-container > * {
-      word-break: break-word;
-    }
 `;
 
 export const UserList = styled.div`
@@ -334,7 +328,6 @@ function WorkspaceInviteUsersForm(props: any) {
 
   return (
     <WorkspaceInviteWrapper>
-      <InviteModalStyles />
       <StyledForm
         onSubmit={handleSubmit((values: any, dispatch: any) => {
           const roles = isMultiSelectDropdown
