@@ -5,9 +5,9 @@ describe("Update a user's display picture", function () {
   beforeEach(() => {
     _.homePage.GotoEditProfile();
 
-    _.agHelper.GetText(".ads-dialog-trigger .label").then((text) => {
+    _.agHelper.GetText(_.locators._ds_imageSelector_label).then((text) => {
       if (text === "Remove") {
-        _.agHelper.GetNClick(".ads-dialog-trigger .label");
+        _.agHelper.GetNClick(_.locators._ds_imageSelector_label);
       }
     });
 
@@ -17,8 +17,8 @@ describe("Update a user's display picture", function () {
   });
 
   it("1. Update a user's picture with valid file", function () {
-    _.agHelper.GetNClick(".ads-dialog-trigger");
-    cy.get(".uppy-Dashboard-input").as("fileInput");
+    _.agHelper.GetNClick(_.locators._ds_imageSelector);
+    cy.get(_.locators._ds_uppy_fileInput).as("fileInput");
 
     cy.fixture("Files/valid-image.jpeg").then((fileContent) => {
       cy.get("@fileInput").attachFile({
@@ -28,8 +28,8 @@ describe("Update a user's display picture", function () {
         encoding: "base64",
       });
 
-      _.agHelper.GetNClick(".uppy-ImageCropper-controls .uppy-c-btn");
-      _.agHelper.GetNClick(".uppy-StatusBar-actionBtn--upload");
+      _.agHelper.GetNClick(_.locators._ds_uppy_crop_confirm);
+      _.agHelper.GetNClick(_.locators._ds_uppy_upload_btn);
       // API is finished even before wait begins
       // cy.wait("@savePhoto");
       _.agHelper.AssertElementExist(".image-view img");
@@ -37,8 +37,8 @@ describe("Update a user's display picture", function () {
   });
 
   it("2. Invalid file throws error", function () {
-    _.agHelper.GetNClick(".ads-dialog-trigger");
-    cy.get(".uppy-Dashboard-input").as("fileInput");
+    _.agHelper.GetNClick(_.locators._ds_imageSelector);
+    cy.get(_.locators._ds_uppy_fileInput).as("fileInput");
 
     cy.fixture("Files/invalid-image.png").then((fileContent) => {
       cy.get("@fileInput").attachFile({
