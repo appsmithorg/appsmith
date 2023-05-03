@@ -113,6 +113,60 @@ describe("auto layout: heightUpdates", () => {
     updatedWidgets = updateWidgetPositions(data3, "3", false, 4896);
     expect(updatedWidgets["2"].bottomRow).toBe(6);
   });
+
+  it("should update canvas height on deleting all children", () => {
+    const data: { [k: string]: any } = { ...MAIN_CONTAINER_WIDGET_WITH_BUTTON };
+    // Add a button in a new row
+    const newButton = buttonData("5", "3");
+    const data2 = {
+      ...data,
+      "5": newButton,
+      "3": {
+        ...data["3"],
+        children: ["4", "5"],
+        flexLayers: [
+          {
+            children: [
+              {
+                id: "4",
+                align: "start",
+              },
+            ],
+          },
+          {
+            children: [
+              {
+                id: "5",
+                align: "start",
+              },
+            ],
+          },
+        ],
+      },
+    };
+    let updatedWidgets = updateWidgetPositions(data2, "3", false, 4896);
+    expect(Math.round(updatedWidgets["2"].bottomRow)).toBe(11);
+
+    // Remove all child widgets
+    const data3 = {
+      "0": data["0"],
+      "2": data["2"],
+      "3": {
+        ...data["3"],
+        children: [],
+        flexLayers: [],
+      },
+      "4": data["4"],
+    };
+    updatedWidgets = updateWidgetPositions(data3, "3", false, 4896);
+    /**
+     * Container
+     *   Canvas (minHeight = 10)
+     *
+     * total height = 10 + 2 (buffer) = 12
+     */
+    expect(updatedWidgets["2"].bottomRow).toBe(12);
+  });
 });
 
 describe("auto layout dynamic height: tabs widget", () => {
