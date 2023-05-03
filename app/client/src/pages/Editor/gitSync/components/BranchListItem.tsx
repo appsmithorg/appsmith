@@ -37,6 +37,7 @@ export function BranchListItem({
       className={className}
       data-testid="t--branch-list-item"
       isDefault={isDefault}
+      onClick={onClick}
       ref={itemRef}
       selected={selected}
     >
@@ -46,9 +47,7 @@ export function BranchListItem({
         placement="top"
       >
         <span className="branch-list-item-text" ref={textRef}>
-          <Text kind={"body-m"} onClick={onClick}>
-            {branch}
-          </Text>
+          <Text kind={"body-m"}>{branch}</Text>
           {isDefault && <DefaultTag />}
         </span>
       </Tooltip>

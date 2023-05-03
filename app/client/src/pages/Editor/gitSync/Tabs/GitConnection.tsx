@@ -76,6 +76,7 @@ const UrlContainer = styled.div`
   display: flex;
   align-items: flex-end;
   gap: 3px;
+  width: calc(100% - 39px);
 `;
 
 const ButtonContainer = styled.div<{ topMargin: number }>`

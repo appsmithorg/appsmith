@@ -9,6 +9,10 @@ import styled from "styled-components";
 
 const Container = styled.div`
   width: calc(100% - 39px);
+
+  & .t--git-connection-error > .ads-v2-callout__children {
+    margin-top: 0;
+  }
 `;
 
 export default function GitConnectError({

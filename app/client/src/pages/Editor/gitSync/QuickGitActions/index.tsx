@@ -96,24 +96,24 @@ function QuickActionButton({
   const content = capitalizeFirstLetter(tooltipText);
 
   return (
-    <Tooltip content={content}>
-      <QuickActionButtonContainer
-        className={className}
-        disabled={disabled}
-        onClick={onClick}
-      >
-        {loading ? (
-          <SpinnerContainer className="t--loader-quick-git-action">
-            <SpinnerLoader size="md" />
-          </SpinnerContainer>
-        ) : (
+    <QuickActionButtonContainer
+      className={className}
+      disabled={disabled}
+      onClick={onClick}
+    >
+      {loading ? (
+        <SpinnerContainer className="t--loader-quick-git-action">
+          <SpinnerLoader size="md" />
+        </SpinnerContainer>
+      ) : (
+        <Tooltip content={content}>
           <div>
             <Button isIconButton kind="tertiary" size="md" startIcon={icon} />
             {count > 0 && <span className="count">{count}</span>}
           </div>
-        )}
-      </QuickActionButtonContainer>
-    </Tooltip>
+        </Tooltip>
+      )}
+    </QuickActionButtonContainer>
   );
 }
 
