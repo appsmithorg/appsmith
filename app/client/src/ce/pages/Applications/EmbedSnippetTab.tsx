@@ -62,7 +62,11 @@ function ShareModal() {
               content={embedSnippet.embedSettingContent.tooltip}
               placement="top"
             >
-              <Icon className="ml-1" name="question-fill" size="md" />
+              <Icon
+                className="ml-1 cursor-pointer"
+                name="question-fill"
+                size="md"
+              />
             </Tooltip>
           </div>
           <Link
@@ -92,7 +96,7 @@ function ShareModal() {
         snippet={embedSnippet.appViewEndPoint}
       />
       <div
-        className={`flex justify-end border-t-2 mt-6 pt-5 border-[${Colors.GRAY_200}]`}
+        className={`flex justify-end border-t-2 pt-5 border-[${Colors.GRAY_200}]`}
       >
         <Link
           className="flex gap-1 items-center self-end"
@@ -128,7 +132,7 @@ function AppSettings() {
           <Link
             data-testid="t--change-embedding-restriction"
             endIcon="pencil-line"
-            href={ADMIN_SETTINGS_PATH}
+            to={ADMIN_SETTINGS_PATH}
           >
             {""}
           </Link>

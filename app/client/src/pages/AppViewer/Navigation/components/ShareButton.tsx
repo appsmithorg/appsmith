@@ -61,7 +61,7 @@ const ShareButton = (props: ShareButtonProps) => {
           <Icon
             color={getApplicationNameTextColor(primaryColor, navColorStyle)}
             name="share-line"
-            size="lg"
+            size="md"
           />
         }
         insideSidebar={insideSidebar}
@@ -76,6 +76,7 @@ const ShareButton = (props: ShareButtonProps) => {
           <ModalHeader>{currentApplicationDetails?.name}</ModalHeader>
           <ModalBody>
             <AppInviteUsersForm
+              applicationId={currentApplicationDetails?.id}
               placeholder={createMessage(
                 INVITE_USERS_PLACEHOLDER,
                 cloudHosting,

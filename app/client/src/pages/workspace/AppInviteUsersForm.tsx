@@ -22,7 +22,7 @@ import {
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { hasInviteUserToApplicationPermission } from "@appsmith/utils/permissionHelpers";
-import { Button, Switch } from "design-system";
+import { Link, Switch } from "design-system";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -68,7 +68,8 @@ function AppInviteUsersForm(props: any) {
     userAppPermissions,
     PERMISSION_TYPE.MAKE_PUBLIC_APPLICATION,
   );
-  const copyToClipboard = () => {
+  const copyToClipboard = (e: any) => {
+    e.preventDefault();
     if (navigator.clipboard) {
       navigator.clipboard.writeText(appViewEndPoint);
     } else {
@@ -119,32 +120,30 @@ function AppInviteUsersForm(props: any) {
         canInviteToApplication={canInviteToApplication}
         className={`${canInviteToApplication ? "pt-3" : ""}`}
       >
-        <Button
+        <Link
           className="flex gap-1.5 cursor-pointer"
           data-cy={"copy-application-url"}
           endIcon="links-line"
-          kind="tertiary"
-          onClick={copyToClipboard}
-          size="md"
+          onClick={(e) => copyToClipboard(e)}
         >
           {`${
             isCopied
               ? createMessage(IN_APP_EMBED_SETTING.copied)
               : createMessage(IN_APP_EMBED_SETTING.copy)
           } ${createMessage(IN_APP_EMBED_SETTING.applicationUrl)}`}
-        </Button>
+        </Link>
         {canShareWithPublic && (
           <SwitchContainer className="t--share-public-toggle">
             {currentApplicationDetails && (
               <Switch
                 isDisabled={isChangingViewAccess || isFetchingApplication}
+                isSelected={currentApplicationDetails.isPublic}
                 onChange={() => {
                   changeAppViewAccess(
                     applicationId,
                     !currentApplicationDetails.isPublic,
                   );
                 }}
-                value={currentApplicationDetails.isPublic}
               >
                 {createMessage(MAKE_APPLICATION_PUBLIC)}
               </Switch>

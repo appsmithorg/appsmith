@@ -120,6 +120,7 @@ export const UserInfo = styled.div`
 export const UserRole = styled.div`
   span {
     word-break: break-word;
+    margin-right: 8px;
   }
 `;
 
@@ -150,9 +151,7 @@ export const MailConfigContainer = styled.div`
 `;
 
 export const ManageUsersContainer = styled.div`
-  display: flex;
   padding: 12px 0;
-  margin-left: 0.7rem;
 `;
 
 const validateFormValues = (values: {
