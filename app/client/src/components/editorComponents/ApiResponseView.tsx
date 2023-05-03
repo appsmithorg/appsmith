@@ -227,8 +227,8 @@ export const EMPTY_RESPONSE: ActionResponse = {
 const StatusCodeText = styled(BaseText)<PropsWithChildren<{ code: string }>>`
   color: ${(props) =>
     props.code.startsWith("2")
-      ? props.theme.colors.primaryOld
-      : props.theme.colors.debugger.floatingButton.errorCount};
+      ? "var(--ads-v2-color-fg-success)"
+      : "var(--ads-v2-color-fg-error)"};
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
