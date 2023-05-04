@@ -10,10 +10,11 @@ describe("Leave workspace test spec", function () {
     cy.get("@guid").then((uid) => {
       newWorkspaceName = "LeaveWorkspace" + uid;
       _.homePage.CreateNewWorkspace(newWorkspaceName);
+      cy.get(_.homePage._homeIcon).click();
       cy.openWorkspaceOptionsPopup(newWorkspaceName);
       // verify leave workspace is visible
-      cy.contains("Leave Workspace").scrollIntoView().click({ force: true });
-      cy.contains("Are you sure").scrollIntoView().click({ force: true });
+      cy.contains("Leave Workspace").click();
+      cy.contains("Are you sure").click();
       cy.wait("@leaveWorkspaceApiCall").then((httpResponse) => {
         expect(httpResponse.status).to.equal(400);
       });
