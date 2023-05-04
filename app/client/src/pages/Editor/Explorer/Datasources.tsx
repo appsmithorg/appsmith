@@ -113,7 +113,7 @@ const Datasources = React.memo(() => {
   return (
     <Entity
       addButtonHelptext={createMessage(CREATE_DATASOURCE_TOOLTIP)}
-      className={"datasources"}
+      className={"group datasources"}
       entityId="datasources_section"
       icon={null}
       isDefaultExpanded={
