@@ -246,13 +246,18 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       [widgetId],
       bottomRow,
     );
-    if (updatedCanvasBottomRow) {
+    // If it is a fixed canvas, update bottomRow directly.
+    if (
+      updatedCanvasBottomRow &&
+      appPositioningType !== AppPositioningTypes.AUTO
+    ) {
       const canvasWidget = movedWidgets[parentId];
       movedWidgets[parentId] = {
         ...canvasWidget,
         bottomRow: updatedCanvasBottomRow,
       };
     }
+    // If it is an auto layout canvas, then use positionUtils to update canvas bottomRow.
     let updatedWidgetsAfterResizing = movedWidgets;
     if (appPositioningType === AppPositioningTypes.AUTO) {
       const metaProps: Record<string, any> = yield select(getWidgetsMeta);
