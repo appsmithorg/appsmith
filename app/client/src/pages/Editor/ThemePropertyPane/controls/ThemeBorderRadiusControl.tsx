@@ -44,7 +44,10 @@ function ThemeBorderRadiusControl(props: ThemeBorderRadiusControlProps) {
       <Tooltip content={optionKey} key={optionKey}>
         <div
           className="w-5 h-5 border-t-2 border-l-2 border-gray-500"
-          style={{ borderTopLeftRadius: options[optionKey] }}
+          style={{
+            borderTopLeftRadius: options[optionKey],
+            borderColor: "var(--ads-v2-color-fg)",
+          }}
         />
       </Tooltip>
     ),

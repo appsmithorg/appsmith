@@ -30,6 +30,10 @@ const StyledOptionControlWrapper = styled(ControlWrapper)`
   justify-content: flex-start;
   padding: 0;
   width: 100%;
+
+  > div {
+    width: 100%;
+  }
 `;
 
 const StyledDynamicInput = styled.div`
@@ -246,7 +250,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
     }
 
     return (
-      <>
+      <div className="flex flex-col gap-1">
         <Wrapper>
           {Object.keys(chartData).map((key: string) => {
             const data = get(chartData, `${key}`);
@@ -268,14 +272,15 @@ class ChartDataControl extends BaseControl<ControlProps> {
         </Wrapper>
 
         <Button
-          kind="secondary"
+          className="self-end"
+          kind="tertiary"
           onClick={this.addOption}
-          size="md"
+          size="sm"
           startIcon="plus"
         >
           Add series
         </Button>
-      </>
+      </div>
     );
   }
 

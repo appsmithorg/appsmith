@@ -214,15 +214,15 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
         );
       })}
 
-      <div className="flex flex-row-reverse">
+      <div className="flex flex-row-reverse mt-1">
         <Button
           className="t--property-control-options-add"
-          kind="secondary"
+          kind="tertiary"
           onClick={addPair}
-          size="md"
+          size="sm"
           startIcon="plus"
         >
-          {props.addLabel || "Option"}
+          {props.addLabel || "Add option"}
         </Button>
       </div>
     </>

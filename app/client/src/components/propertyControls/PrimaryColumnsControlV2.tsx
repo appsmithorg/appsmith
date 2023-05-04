@@ -32,12 +32,6 @@ import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { Button } from "design-system";
 
-const TabsWrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-`;
-
 const EdtiableCheckboxWrapper = styled.div<{ rightPadding: boolean | null }>`
   position: relative;
   ${(props) => props.rightPadding && `right: 6px;`}
@@ -220,7 +214,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
             </EdtiableCheckboxWrapper>
           )}
         </div>
-        <TabsWrapper>
+        <div className="flex flex-col w-full gap-1">
           <EvaluatedValuePopupWrapper {...this.props} isFocused={isFocused}>
             <DraggableListControl
               className={LIST_CLASSNAME}
@@ -247,15 +241,15 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
             />
           </EvaluatedValuePopupWrapper>
           <Button
-            className="t--add-column-btn"
-            kind="secondary"
+            className="self-end t--add-column-btn"
+            kind="tertiary"
             onClick={this.addNewColumn}
-            size="md"
+            size="sm"
             startIcon="plus"
           >
-            Add a new column
+            Add new column
           </Button>
-        </TabsWrapper>
+        </div>
       </>
     );
   }

@@ -73,7 +73,7 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
 
   render() {
     return (
-      <div className="flex flex-col">
+      <div className="flex flex-col gap-1">
         <DraggableListControl
           deleteOption={this.deleteOption}
           fixedHeight={370}
@@ -94,16 +94,16 @@ class ButtonListControl extends BaseControl<ControlProps, State> {
           updateItems={this.updateItems}
           updateOption={this.updateOption}
         />
-        <div className="flex justify-center mt-2.5">
-          <Button
-            kind="secondary"
-            onClick={this.addOption}
-            size="md"
-            startIcon="plus"
-          >
-            Add new button
-          </Button>
-        </div>
+
+        <Button
+          className="self-end"
+          kind="tertiary"
+          onClick={this.addOption}
+          size="sm"
+          startIcon="plus"
+        >
+          Add new button
+        </Button>
       </div>
     );
   }
