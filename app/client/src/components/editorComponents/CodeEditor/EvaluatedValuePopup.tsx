@@ -116,14 +116,36 @@ const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
   -ms-overflow-style: none;
   padding: ${(props) => props.theme.spaces[3]}px;
   padding-right: 30px;
-  background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
+  background-color: var(--ads-v2-color-bg);
   position: relative;
   &:hover {
     ${CopyIconWrapper} {
       display: flex;
     }
   }
-  border: 1px solid #b3b3b3;
+
+  /* for audit logs */
+  .pushed-content .object-key-val,
+  .variable-row {
+    border-left: 1px solid var(--ads-v2-color-border) !important;
+
+    .object-key,
+    .object-key span,
+    span {
+      color: var(--ads-v2-color-fg) !important;
+      opacity: 1 !important;
+    }
+
+    .variable-value > div span {
+      color: var(--ads-v2-color-fg-brand) !important;
+    }
+  }
+
+  .object-key-val {
+    .collapsed-icon svg {
+      color: var(--ads-v2-color-fg-brand) !important;
+    }
+  }
 `;
 
 const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
@@ -161,7 +183,7 @@ const ErrorText = styled.p`
   letter-spacing: -0.24px;
   background-color: rgba(226, 44, 44, 0.08);
   border: 1.2px solid ${(props) => props.theme.colors.errorMessage};
-  color: ${(props) => props.theme.colors.errorMessage};
+  color: var(--ads-v2-color-fg-error);
   margin-top: 15px;
 `;
 
