@@ -327,6 +327,7 @@ const DocumentationButton = styled(Button)`
   position: absolute !important;
   right: 24px;
   margin: 7px 0px 0px;
+  z-index: 6;
 `;
 
 const SidebarWrapper = styled.div<{ show: boolean }>`
