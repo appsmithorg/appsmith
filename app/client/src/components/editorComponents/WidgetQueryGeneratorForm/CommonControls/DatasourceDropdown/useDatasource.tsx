@@ -55,83 +55,31 @@ export function useDatasource() {
 
   const mockDatasources: MockDatasource[] = useSelector(getMockDatasources);
 
-  const datasourceOptions = useMemo(() => {
+  const [actualDatasourceOptions, mockDatasourceOptions] = useMemo(() => {
     const availableDatasources = datasources.filter(({ pluginId }) =>
       WidgetQueryGeneratorRegistry.has(pluginsPackageNamesMap[pluginId]),
     );
 
-    if (availableDatasources.length) {
-      return availableDatasources.map((datasource) => ({
-        id: datasource.id,
-        label: datasource.name,
-        value: datasource.name,
-        data: {
-          pluginId: datasource.pluginId,
-          isValid: datasource.isValid,
-          pluginPackageName: pluginsPackageNamesMap[datasource.pluginId],
-          isSample: false,
-        },
-        icon: (
-          <ImageWrapper>
-            <DatasourceImage
-              alt=""
-              className="dataSourceImage"
-              src={pluginImages[datasource.pluginId]}
-            />
-          </ImageWrapper>
-        ),
-        onSelect: function (value?: string, valueOption?: DropdownOptionType) {
-          if (config.datasource !== valueOption?.id) {
-            const pluginId: string = valueOption?.data.pluginId;
-            updateConfig("datasource", valueOption?.id);
+    let datasourceOptions: DropdownOptionType[] = [];
 
-            if (valueOption?.id) {
-              switch (pluginsPackageNamesMap[pluginId]) {
-                case PluginPackageName.GOOGLE_SHEETS:
-                  dispatch(
-                    fetchGheetSpreadsheets({
-                      datasourceId: valueOption.id,
-                      pluginId: pluginId,
-                    }),
-                  );
-                  break;
-                default: {
-                  dispatch(fetchDatasourceStructure(valueOption.id, true));
-                  break;
-                }
-              }
-            }
-          }
-        },
-      }));
-    } else {
-      return mockDatasources
-        .filter(({ packageName }) =>
-          WidgetQueryGeneratorRegistry.has(packageName),
-        )
-        .map((datasource) => ({
-          id: datasource.name,
+    if (availableDatasources.length) {
+      datasourceOptions = datasourceOptions.concat(
+        availableDatasources.map((datasource) => ({
+          id: datasource.id,
           label: datasource.name,
           value: datasource.name,
           data: {
-            pluginId: invert(pluginsPackageNamesMap)[
-              datasource.packageName as string
-            ],
-            pluginPackageName: datasource.packageName,
-            isSample: true,
+            pluginId: datasource.pluginId,
+            isValid: datasource.isValid,
+            pluginPackageName: pluginsPackageNamesMap[datasource.pluginId],
+            isSample: false,
           },
           icon: (
             <ImageWrapper>
               <DatasourceImage
                 alt=""
                 className="dataSourceImage"
-                src={
-                  pluginImages[
-                    invert(pluginsPackageNamesMap)[
-                      datasource.packageName as string
-                    ]
-                  ]
-                }
+                src={pluginImages[datasource.pluginId]}
               />
             </ImageWrapper>
           ),
@@ -139,15 +87,82 @@ export function useDatasource() {
             value?: string,
             valueOption?: DropdownOptionType,
           ) {
-            updateConfig("datasource", valueOption?.id);
-            setIsMockDatasource(true);
+            if (config.datasource !== valueOption?.id) {
+              const pluginId: string = valueOption?.data.pluginId;
+              updateConfig("datasource", valueOption?.id);
 
-            if (valueOption?.id) {
-              dispatch(addAndFetchMockDatasourceStructure(datasource));
+              if (valueOption?.id) {
+                switch (pluginsPackageNamesMap[pluginId]) {
+                  case PluginPackageName.GOOGLE_SHEETS:
+                    dispatch(
+                      fetchGheetSpreadsheets({
+                        datasourceId: valueOption.id,
+                        pluginId: pluginId,
+                      }),
+                    );
+                    break;
+                  default: {
+                    dispatch(fetchDatasourceStructure(valueOption.id, true));
+                    break;
+                  }
+                }
+              }
             }
           },
-        }));
+        })),
+      );
     }
+
+    let mockDatasourceOptions: DropdownOptionType[] = [];
+
+    if (mockDatasources.length) {
+      mockDatasourceOptions = mockDatasourceOptions.concat(
+        mockDatasources
+          .filter(({ packageName }) =>
+            WidgetQueryGeneratorRegistry.has(packageName),
+          )
+          .map((datasource) => ({
+            id: datasource.name,
+            label: datasource.name,
+            value: datasource.name,
+            data: {
+              pluginId: invert(pluginsPackageNamesMap)[
+                datasource.packageName as string
+              ],
+              pluginPackageName: datasource.packageName,
+              isSample: true,
+            },
+            icon: (
+              <ImageWrapper>
+                <DatasourceImage
+                  alt=""
+                  className="dataSourceImage"
+                  src={
+                    pluginImages[
+                      invert(pluginsPackageNamesMap)[
+                        datasource.packageName as string
+                      ]
+                    ]
+                  }
+                />
+              </ImageWrapper>
+            ),
+            onSelect: function (
+              value?: string,
+              valueOption?: DropdownOptionType,
+            ) {
+              updateConfig("datasource", valueOption?.id);
+              setIsMockDatasource(true);
+
+              if (valueOption?.id) {
+                dispatch(addAndFetchMockDatasourceStructure(datasource));
+              }
+            },
+          })),
+      );
+    }
+
+    return [datasourceOptions, mockDatasourceOptions];
   }, [
     datasources,
     updateConfig,
@@ -215,6 +230,10 @@ export function useDatasource() {
     }));
   }, [queries, pluginImages, addBinding]);
 
+  const datasourceOptions = useMemo(() => {
+    return [...actualDatasourceOptions, ...mockDatasourceOptions];
+  }, [actualDatasourceOptions, mockDatasourceOptions]);
+
   /*
    * When user selects the sample datasource and the plaform creates a new datasource out of it
    * we need to choose the newly created datasource as the selected value.
@@ -223,10 +242,13 @@ export function useDatasource() {
     if (
       isMockDatasource &&
       !isDatasourceLoading &&
-      datasourceOptions.length === 1
+      actualDatasourceOptions.length
     ) {
       setIsMockDatasource(false);
-      updateConfig("datasource", datasourceOptions[0].id);
+      updateConfig(
+        "datasource",
+        actualDatasourceOptions[actualDatasourceOptions.length - 1].id,
+      );
     }
   }, [isMockDatasource, isDatasourceLoading, datasourceOptions]);
 
