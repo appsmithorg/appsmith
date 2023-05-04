@@ -21,6 +21,7 @@ import UserApi from "@appsmith/api/UserApi";
 import { AUTH_LOGIN_URL, SETUP } from "constants/routes";
 import history from "utils/history";
 import type { ApiResponse } from "api/ApiResponses";
+import type { ErrorActionPayload } from "sagas/ErrorSagas";
 import {
   validateResponse,
   getResponseErrorMessage,
@@ -72,6 +73,8 @@ import type { SegmentState } from "reducers/uiReducers/analyticsReducer";
 import type FeatureFlags from "entities/FeatureFlags";
 import UsagePulse from "usagePulse";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { UPDATE_USER_DETAILS_FAILED } from "ce/constants/messages";
+import { createMessage } from "design-system-old/build/constants/messages";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
@@ -382,9 +385,16 @@ export function* updateUserDetailsSaga(action: ReduxAction<UpdateUserRequest>) {
       });
     }
   } catch (error) {
+    const payload: ErrorActionPayload = {
+      show: true,
+      error: {
+        message:
+          (error as Error).message ?? createMessage(UPDATE_USER_DETAILS_FAILED),
+      },
+    };
     yield put({
       type: ReduxActionErrorTypes.UPDATE_USER_DETAILS_ERROR,
-      payload: (error as Error).message,
+      payload,
     });
   }
 }
