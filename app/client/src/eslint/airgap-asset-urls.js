@@ -3,7 +3,7 @@ module.exports = {
     type: "problem",
     docs: {
       description:
-        "Enforce wrapping of src attribute in getAssetUrl function for img, video, and audio elements",
+        "Enforce wrapping of src attribute in getAssetUrl function in all elements which have src to support Airgap.",
       category: "Possible Errors",
       recommended: true,
     },
@@ -21,15 +21,19 @@ module.exports = {
           const srcAttribute = node.attributes.find(
             (attr) => attr.name?.name === "src",
           );
-          if (
-            srcAttribute &&
-            ["img", "video", "audio"].includes(parentTagName)
-          ) {
+          if (srcAttribute) {
             const srcValue =
               srcAttribute.value &&
               (srcAttribute.value.type === "Literal"
                 ? srcAttribute.value.value
-                : srcAttribute.value.expression.name);
+                : srcAttribute.value.expression?.name ||
+                  srcAttribute.value.expression?.callee?.name ||
+                  (srcAttribute.value.expression?.type === "CallExpression" &&
+                    `"${context
+                      .getSourceCode()
+                      .getText(srcAttribute.value.expression)}"`) ||
+                  srcAttribute.value.expression?.name ||
+                  srcAttribute.value.expression?.value);
             if (
               srcValue &&
               !srcValue.startsWith("{getAssetUrl(") &&
@@ -38,12 +42,24 @@ module.exports = {
               context.report({
                 node,
                 message:
-                  "The src attribute of {{tagName}} element must be wrapped in getAssetUrl function",
+                  "The src attribute of {{tagName}} element must be wrapped in getAssetUrl function to support Airgap.",
                 data: {
                   tagName: parentTagName,
                 },
                 fix(fixer) {
-                  const fixedSrcValue = `{getAssetUrl("${srcValue}")}`;
+                  let fixedSrcValue;
+                  if (
+                    srcValue.startsWith("http://") ||
+                    srcValue.startsWith("https://")
+                  ) {
+                    fixedSrcValue = `{getAssetUrl("${srcValue}")}`;
+                  } else if (
+                    srcAttribute.value.expression?.type === "CallExpression"
+                  ) {
+                    fixedSrcValue = `{getAssetUr(${srcValue}())}`;
+                  } else {
+                    fixedSrcValue = `{getAssetUrl(${srcValue})}`;
+                  }
                   return fixer.replaceText(srcAttribute.value, fixedSrcValue);
                 },
               });
