@@ -12,6 +12,66 @@ import { MongoDefaultActionConfig } from "constants/DatasourceEditorConstants";
 import type { Action } from "@sentry/react/dist/types";
 import { klona } from "klona/full";
 import type FeatureFlags from "entities/FeatureFlags";
+import _ from "lodash";
+import { getType, Types } from "utils/TypeHelpers";
+
+export const getTrimmedData = (formData: any) => {
+  const dataType = getType(formData);
+  const isArrayorObject = (type: ReturnType<typeof getType>) =>
+    type === Types.ARRAY || type === Types.OBJECT;
+
+  if (isArrayorObject(dataType)) {
+    Object.keys(formData).map((key) => {
+      const valueType = getType(formData[key]);
+      if (isArrayorObject(valueType)) {
+        getTrimmedData(formData[key]);
+      } else if (valueType === Types.STRING) {
+        _.set(formData, key, formData[key].trim());
+      }
+    });
+  }
+  return formData;
+};
+
+export const normalizeValues = (
+  formData: any,
+  configDetails: Record<string, string>,
+) => {
+  const checked: Record<string, any> = {};
+  const configProperties = Object.keys(configDetails);
+
+  for (const configProperty of configProperties) {
+    const controlType = configDetails[configProperty];
+
+    if (controlType === "KEYVALUE_ARRAY") {
+      const properties = configProperty.split("[*].");
+
+      if (checked[properties[0]]) continue;
+
+      checked[properties[0]] = 1;
+      const values = _.get(formData, properties[0], []);
+      const newValues: ({ [s: string]: unknown } | ArrayLike<unknown>)[] = [];
+
+      values.forEach(
+        (object: { [s: string]: unknown } | ArrayLike<unknown>) => {
+          const isEmpty = Object.values(object).every((x) => x === "");
+
+          if (!isEmpty) {
+            newValues.push(object);
+          }
+        },
+      );
+
+      if (newValues.length) {
+        formData = _.set(formData, properties[0], newValues);
+      } else {
+        formData = _.set(formData, properties[0], []);
+      }
+    }
+  }
+
+  return formData;
+};
 
 export const evaluateCondtionWithType = (
   conditions: Array<boolean> | undefined,

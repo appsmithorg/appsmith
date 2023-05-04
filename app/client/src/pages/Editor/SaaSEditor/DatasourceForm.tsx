@@ -27,7 +27,10 @@ import {
   JSONtoForm,
   PluginImage,
 } from "../DataSourceEditor/JSONtoForm";
-import { getConfigInitialValues } from "components/formControls/utils";
+import {
+  getConfigInitialValues,
+  normalizeValues,
+} from "components/formControls/utils";
 import {
   getCurrentApplicationId,
   getGsheetProjectID,
@@ -265,7 +268,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
 
   getSanitizedData = () => {
     return {
-      ...this.normalizeValues(),
+      ...normalizeValues(this.props.formData, this.configDetails),
       name: this.props.datasourceName,
     };
   };

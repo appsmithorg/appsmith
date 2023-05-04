@@ -22,6 +22,7 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import DatasourceInformation from "./DatasourceSection";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import { selectFeatureFlags } from "selectors/usersSelectors";
+import { getTrimmedData, normalizeValues } from "components/formControls/utils";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -87,8 +88,8 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
   }
   // returns normalized and trimmed datasource form data
   getSanitizedData = () => {
-    return this.getTrimmedData({
-      ...this.normalizeValues(),
+    return getTrimmedData({
+      ...normalizeValues(this.props.formData, this.configDetails),
       name: this.props.datasourceName,
     });
   };

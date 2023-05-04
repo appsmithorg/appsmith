@@ -8,7 +8,6 @@ import type { Datasource } from "entities/Datasource";
 import { isHidden, isKVArray } from "components/formControls/utils";
 import log from "loglevel";
 import CloseEditor from "components/editorComponents/CloseEditor";
-import { getType, Types } from "utils/TypeHelpers";
 import { Colors } from "constants/Colors";
 import { Button } from "design-system-old";
 import type FeatureFlags from "entities/FeatureFlags";
@@ -172,63 +171,6 @@ export class JSONtoForm<
     });
 
     return !_.isEmpty(errors);
-  };
-
-  normalizeValues = () => {
-    let { formData } = this.props;
-
-    const checked: Record<string, any> = {};
-    const configProperties = Object.keys(this.configDetails);
-
-    for (const configProperty of configProperties) {
-      const controlType = this.configDetails[configProperty];
-
-      if (controlType === "KEYVALUE_ARRAY") {
-        const properties = configProperty.split("[*].");
-
-        if (checked[properties[0]]) continue;
-
-        checked[properties[0]] = 1;
-        const values = _.get(formData, properties[0], []);
-        const newValues: ({ [s: string]: unknown } | ArrayLike<unknown>)[] = [];
-
-        values.forEach(
-          (object: { [s: string]: unknown } | ArrayLike<unknown>) => {
-            const isEmpty = Object.values(object).every((x) => x === "");
-
-            if (!isEmpty) {
-              newValues.push(object);
-            }
-          },
-        );
-
-        if (newValues.length) {
-          formData = _.set(formData, properties[0], newValues);
-        } else {
-          formData = _.set(formData, properties[0], []);
-        }
-      }
-    }
-
-    return formData;
-  };
-
-  getTrimmedData = (formData: any) => {
-    const dataType = getType(formData);
-    const isArrayorObject = (type: ReturnType<typeof getType>) =>
-      type === Types.ARRAY || type === Types.OBJECT;
-
-    if (isArrayorObject(dataType)) {
-      Object.keys(formData).map((key) => {
-        const valueType = getType(formData[key]);
-        if (isArrayorObject(valueType)) {
-          this.getTrimmedData(formData[key]);
-        } else if (valueType === Types.STRING) {
-          _.set(formData, key, formData[key].trim());
-        }
-      });
-    }
-    return formData;
   };
 
   renderForm = (formContent: any) => {
