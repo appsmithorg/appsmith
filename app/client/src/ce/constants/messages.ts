@@ -1204,7 +1204,7 @@ export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
 export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
 export const JS_TOGGLE_DISABLED_MESSAGE = "Clear the field to toggle back";
 export const PROPERTY_PANE_EMPTY_SEARCH_RESULT_MESSAGE =
-  "No Properties found based on your search";
+  "No properties found based on your search";
 export const PROPERTY_SEARCH_INPUT_PLACEHOLDER =
   "Search for controls, labels etc";
 
@@ -1548,15 +1548,15 @@ export const IN_APP_EMBED_SETTING = {
 export const APP_NAVIGATION_SETTING = {
   sectionHeader: () => "Navigation",
   sectionHeaderDesc: () => "Customize the navigation bar",
-  showNavbarLabel: () => "Show Navbar",
+  showNavbarLabel: () => "Show navbar",
   orientationLabel: () => "Orientation",
   navStyleLabel: () => "Variant",
   positionLabel: () => "Position",
-  itemStyleLabel: () => "Item Style",
+  itemStyleLabel: () => "Item style",
   colorStyleLabel: () => "Background color",
   logoLabel: () => "Logo",
   logoConfigurationLabel: () => "Logo Configuration",
-  showSignInLabel: () => "Show Sign In",
+  showSignInLabel: () => "Show sign in",
   showSignInTooltip: () =>
     "Toggle to show the sign-in button for users who are not logged in.",
 };
