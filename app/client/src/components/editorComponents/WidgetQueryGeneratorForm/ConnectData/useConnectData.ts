@@ -40,17 +40,14 @@ export function useConnectData() {
     getPluginPackageFromDatasourceId(state, config.datasource),
   );
 
-  const show =
-    !!config.datasource &&
-    !!config.table &&
-    (selectedDatasourcePluginPackageName !== PluginPackageName.GOOGLE_SHEETS ||
-      !!config.sheet);
+  const show = !!config.datasource;
 
   const disabled =
-    selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS &&
-    (!config.tableHeaderIndex ||
-      !isNumber(Number(config.tableHeaderIndex)) ||
-      isNaN(Number(config.tableHeaderIndex)));
+    !config.table ||
+    (selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS &&
+      (!config.tableHeaderIndex ||
+        !isNumber(Number(config.tableHeaderIndex)) ||
+        isNaN(Number(config.tableHeaderIndex))));
 
   return {
     show,

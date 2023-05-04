@@ -226,6 +226,7 @@ export function useDatasource() {
       ),
       onSelect: function (value?: string, valueOption?: DropdownOptionType) {
         addBinding(valueOption?.value, false);
+        updateConfig("datasource", "");
       },
     }));
   }, [queries, pluginImages, addBinding]);
