@@ -121,9 +121,11 @@ export function updateParentHeight(
    * For Modal widget, set additional height property
    */
   if (parent.type === "MODAL_WIDGET") {
+    // Add a couple of pixels to the modal height to avoid scrollbars.
+    const bufferForModal = 2;
     updatedParent = {
       ...updatedParent,
-      height: modalHeight,
+      height: modalHeight + bufferForModal,
     };
   }
   return updatedParent;
