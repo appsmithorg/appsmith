@@ -117,7 +117,6 @@ before(function () {
   //cy.restoreLocalStorage();
 
   cy.LoginFromAPI(username, password);
-  cy.wait("@getMe");
   cy.wait(3000);
   //cy.loadCookies();
 
