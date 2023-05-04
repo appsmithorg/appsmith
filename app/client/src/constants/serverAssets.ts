@@ -17,7 +17,7 @@ export const arangodbIcon = `${ASSETS_CDN_URL}/logo/arangodb.svg`;
 export const jsFileIcon = `${ASSETS_CDN_URL}/JSFile.svg`;
 export const smtpIcon = `${ASSETS_CDN_URL}/smtp-icon.svg`;
 export const graphqlIcon = `${ASSETS_CDN_URL}/logo/graphql.svg`;
-export const oracleIcon = `${ASSETS_CDN_URL}/oracle-db.jpg`;
+export const oracleIcon = `${ASSETS_CDN_URL}/oracle.svg`;
 
 // Unsupported plugin assets
 export const openaiLogo = `${ASSETS_CDN_URL}/integrations/openai-logo-png.jpg`;
