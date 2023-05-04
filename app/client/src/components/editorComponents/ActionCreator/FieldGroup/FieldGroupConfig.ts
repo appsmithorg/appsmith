@@ -22,6 +22,9 @@ import {
   WATCH_GEO_LOCATION,
 } from "@appsmith/constants/messages";
 import type { FieldGroupConfig } from "../types";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+
+const isAirgappedInstance = isAirgapped();
 
 export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
   [AppsmithFunction.none]: {
@@ -137,26 +140,32 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
     defaultParams: `""`,
     icon: "clear-interval",
   },
-  [AppsmithFunction.getGeolocation]: {
-    label: createMessage(GET_GEO_LOCATION),
-    fields: [FieldType.CALLBACK_FUNCTION_FIELD_GEOLOCATION],
-    defaultParams: `(location) => {
+  ...(!isAirgappedInstance && {
+    [AppsmithFunction.getGeolocation]: {
+      label: createMessage(GET_GEO_LOCATION),
+      fields: [FieldType.CALLBACK_FUNCTION_FIELD_GEOLOCATION],
+      defaultParams: `(location) => {
       // add code here
     }`,
-    icon: "get-geolocation",
-  },
-  [AppsmithFunction.watchGeolocation]: {
-    label: createMessage(WATCH_GEO_LOCATION),
-    fields: [],
-    defaultParams: "",
-    icon: "watch-geolocation",
-  },
-  [AppsmithFunction.stopWatchGeolocation]: {
-    label: createMessage(STOP_WATCH_GEO_LOCATION),
-    fields: [],
-    defaultParams: "",
-    icon: "stop-watch-geolocation",
-  },
+      icon: "get-geolocation",
+    },
+  }),
+  ...(!isAirgappedInstance && {
+    [AppsmithFunction.watchGeolocation]: {
+      label: createMessage(WATCH_GEO_LOCATION),
+      fields: [],
+      defaultParams: "",
+      icon: "watch-geolocation",
+    },
+  }),
+  ...(!isAirgappedInstance && {
+    [AppsmithFunction.stopWatchGeolocation]: {
+      label: createMessage(STOP_WATCH_GEO_LOCATION),
+      fields: [],
+      defaultParams: "",
+      icon: "stop-watch-geolocation",
+    },
+  }),
   [AppsmithFunction.postWindowMessage]: {
     label: createMessage(POST_MESSAGE),
     fields: [
