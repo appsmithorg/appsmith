@@ -31,6 +31,7 @@ const CallbackButton = styled.button`
   border: 1px solid var(--ads-v2-color-border);
   border-top: none;
   border-radius: 0px 0px var(--ads-v2-border-radius) var(--ads-v2-border-radius);
+  background: var(--ads-v2-color-bg-subtle);
 `;
 
 const EMPTY_ACTION_BLOCK: TActionBlock = {
@@ -174,7 +175,7 @@ export default function ActionTree(props: {
       </ActionSelector>
       {showCallbacks && areCallbacksApplicable ? (
         <CallbackButton
-          className="callback-collapse flex w-full justify-between bg-gray-50 px-2 py-1 border-t-transparent t--action-callbacks"
+          className="callback-collapse flex w-full justify-between px-2 py-1 border-t-transparent t--action-callbacks"
           onClick={() => {
             setCallbacksExpanded((prev) => !prev);
             setTouched(true);
