@@ -10,7 +10,7 @@ const homePage = ObjectsRegistry.HomePage;
 const deployMode = ObjectsRegistry.DeployMode;
 const debuggerHelper = ObjectsRegistry.DebuggerHelper;
 
-describe("Tests JS Libraries", () => {
+describe("excludeForAirgap", "Tests JS Libraries", () => {
   it("1. Validates Library install/uninstall", () => {
     explorer.ExpandCollapseEntity("Libraries");
     installer.openInstaller();

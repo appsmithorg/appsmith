@@ -110,27 +110,31 @@ describe("Omnibar functionality test cases", () => {
     cy.get('p:contains("Import from CURL")').should("be.visible");
   });
 
-  it("5. On an invalid search, discord link should be displayed and on clicking that link, should open discord in new tab", function () {
-    // typing a random string in search bar
-    cy.get(omnibar.globalSearch).click({ force: true });
-    cy.wait(1000);
-    cy.get(omnibar.globalSearchInput).type("vnjkv");
-    cy.wait(2000);
-    cy.get(omnibar.globalSearchInput).should("have.value", "vnjkv");
-    // discord link should be visible
-    cy.get(omnibar.discordLink).should("be.visible");
-    cy.window().then((win) => {
-      cy.stub(win, "open", (url) => {
-        win.location.href = "https://discord.com/invite/rBTTVJp";
-      }).as("discordLink");
-    });
-    // clicking on discord link should open discord
-    cy.get(omnibar.discordLink).click();
-    cy.get("@discordLink").should("be.called");
-    cy.wait(500);
-    cy.go(-1);
-    cy.wait(2000);
-  });
+  it(
+    "excludeForAirgap",
+    "5. On an invalid search, discord link should be displayed and on clicking that link, should open discord in new tab",
+    function () {
+      // typing a random string in search bar
+      cy.get(omnibar.globalSearch).click({ force: true });
+      cy.wait(1000);
+      cy.get(omnibar.globalSearchInput).type("vnjkv");
+      cy.wait(2000);
+      cy.get(omnibar.globalSearchInput).should("have.value", "vnjkv");
+      // discord link should be visible
+      cy.get(omnibar.discordLink).should("be.visible");
+      cy.window().then((win) => {
+        cy.stub(win, "open", (url) => {
+          win.location.href = "https://discord.com/invite/rBTTVJp";
+        }).as("discordLink");
+      });
+      // clicking on discord link should open discord
+      cy.get(omnibar.discordLink).click();
+      cy.get("@discordLink").should("be.called");
+      cy.wait(500);
+      cy.go(-1);
+      cy.wait(2000);
+    },
+  );
 
   it("6. Verify Navigate section shows recently opened widgets and datasources", function () {
     cy.get(".bp3-icon-chevron-left").click({ force: true });
@@ -165,18 +169,22 @@ describe("Omnibar functionality test cases", () => {
     cy.xpath(omnibar.recentlyopenItem).eq(4).should("have.text", "Page1");
   });
 
-  it("7. Verify documentation should open in new tab, on clicking open documentation", function () {
-    //cy.get(omnibar.category).click()
-    cy.get(omnibar.globalSearch).click({ force: true });
-    cy.get(omnibar.categoryTitle).eq(3).click({ force: true });
-    cy.get(omnibar.openDocumentationLink)
-      .invoke("removeAttr", "target")
-      .click()
-      .wait(2000);
-    cy.url().should(
-      "contain",
-      "https://docs.appsmith.com/core-concepts/connecting-to-data-sources",
-    ); // => true
-    cy.go(-1);
-  });
+  it(
+    "excludeForAirgap",
+    "7. Verify documentation should open in new tab, on clicking open documentation",
+    function () {
+      //cy.get(omnibar.category).click()
+      cy.get(omnibar.globalSearch).click({ force: true });
+      cy.get(omnibar.categoryTitle).eq(3).click({ force: true });
+      cy.get(omnibar.openDocumentationLink)
+        .invoke("removeAttr", "target")
+        .click()
+        .wait(2000);
+      cy.url().should(
+        "contain",
+        "https://docs.appsmith.com/core-concepts/connecting-to-data-sources",
+      ); // => true
+      cy.go(-1);
+    },
+  );
 });

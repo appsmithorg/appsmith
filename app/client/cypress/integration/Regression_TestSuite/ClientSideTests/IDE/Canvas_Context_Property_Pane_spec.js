@@ -50,21 +50,25 @@ describe("Canvas context Property Pane", function () {
     );
   });
 
-  it("3. DropDown Property controls should have focus while switching between widgets, pages and Editor Panes", function () {
-    const propertyControlClickSelector = `.t--property-control-googlerecaptchaversion div:nth-child(2) .bp3-popover-target div`;
-    const propertyControlVerifySelector =
-      ".t--property-control-googlerecaptchaversion .ur--has-border";
+  it(
+    "excludeForAirgap",
+    "3. DropDown Property controls should have focus while switching between widgets, pages and Editor Panes",
+    function () {
+      const propertyControlClickSelector = `.t--property-control-googlerecaptchaversion div:nth-child(2) .bp3-popover-target div`;
+      const propertyControlVerifySelector =
+        ".t--property-control-googlerecaptchaversion .ur--has-border";
 
-    verifyPropertyPaneContext(
-      () => {
-        cy.get(propertyControlClickSelector).eq(0).click({ force: true });
-      },
-      () => {
-        cy.get(propertyControlVerifySelector).should("be.focused");
-      },
-      "Button1",
-    );
-  });
+      verifyPropertyPaneContext(
+        () => {
+          cy.get(propertyControlClickSelector).eq(0).click({ force: true });
+        },
+        () => {
+          cy.get(propertyControlVerifySelector).should("be.focused");
+        },
+        "Button1",
+      );
+    },
+  );
 
   it("4. Icon Button Property controls should have focus while switching between widgets, pages and Editor Panes", function () {
     const propertyControlClickSelector = `.t--property-control-borderradius div[aria-selected="true"]`;

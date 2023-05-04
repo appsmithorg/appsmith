@@ -1,7 +1,9 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 
 const OnboardingLocator = require("../../locators/FirstTimeUserOnboarding.json");
+const datasource = require("../../locators/DatasourcesEditor.json");
 
+let datasourceName;
 export class Onboarding {
   private _aggregateHelper = ObjectsRegistry.AggregateHelper;
 
@@ -17,7 +19,18 @@ export class Onboarding {
     cy.get(OnboardingLocator.checklistDatasourceBtn).should("not.be.disabled");
     cy.get(OnboardingLocator.checklistDatasourceBtn).click();
     cy.get(OnboardingLocator.datasourcePage).should("be.visible");
-    cy.get(OnboardingLocator.datasourceMock).first().click();
+    if (Cypress.env("AIRGAPPED")) {
+      const cyObj = cy as any;
+      cyObj.get(datasource.MongoDB).click();
+      cyObj.fillMongoDatasourceForm();
+      cyObj.generateUUID().then((uid: any) => {
+        datasourceName = `Mongo CRUD ds ${uid}`;
+        cyObj.renameDatasource(datasourceName);
+      });
+      cyObj.testSaveDatasource();
+    } else {
+      cy.get(OnboardingLocator.datasourceMock).first().click();
+    }
     cy.wait(1000);
     cy.get(OnboardingLocator.statusbar).click();
     cy.get(OnboardingLocator.checklistStatus).should("contain", "1 of 5");

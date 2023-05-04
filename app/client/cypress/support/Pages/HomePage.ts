@@ -308,7 +308,7 @@ export class HomePage {
   }
 
   public FilterApplication(appName: string, workspaceId: string) {
-    cy.get(this._searchInput).type(appName);
+    cy.get(this._searchInput).type(appName, { force: true });
     this.agHelper.Sleep(2000);
     cy.get(this._appContainer).contains(workspaceId);
     cy.xpath(this.locator._spanButton("Share")).first().should("be.visible");

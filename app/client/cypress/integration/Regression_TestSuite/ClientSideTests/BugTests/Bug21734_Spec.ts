@@ -7,7 +7,7 @@ const dataSources = ObjectsRegistry.DataSources,
 describe("Bug 21734: On exiting from the Datasources page without saving changes, an error is thrown and the app becomes unresponsive.", function () {
   it("1. Navigating from intermediary datasource to new page", function () {
     dataSources.NavigateToDSCreateNew();
-    dataSources.CreatePlugIn("Google Sheets");
+    dataSources.CreatePlugIn("Mongo");
 
     ee.AddNewPage();
 
