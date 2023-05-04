@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import TreeStructure from "components/utils/TreeStructure";
-import { Text, Icon, Tooltip } from "design-system";
+import { Text, Icon, Button, Tooltip } from "design-system";
 import { klona } from "klona/lite";
 import React, { useCallback, useEffect } from "react";
 import { ActionCreatorContext } from "../..";
@@ -181,7 +181,7 @@ export default function ActionTree(props: {
           }}
         >
           <Text kind="action-s">Callbacks</Text>
-          <div className="flex gap-1">
+          <div className="flex items-center gap-1">
             <Text kind="action-s">
               {actionsCount > 0 ? actionsCount : "No"} actions
             </Text>
@@ -220,10 +220,11 @@ export default function ActionTree(props: {
                         onClick={handleAddBlock}
                       >
                         <span className="icon w-7 h-7 flex items-center justify-center">
-                          <Icon
-                            color="var(--ads-v2-color-fg)"
-                            name="plus"
-                            size="md"
+                          <Button
+                            isIconButton
+                            kind="tertiary"
+                            size="sm"
+                            startIcon="plus"
                           />
                         </span>
                       </button>

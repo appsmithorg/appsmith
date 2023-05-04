@@ -1,6 +1,6 @@
 import React from "react";
 import clsx from "classnames";
-import { Text } from "design-system";
+import { Text, Tag } from "design-system";
 import { ActionCreatorContext } from "../..";
 import { AppsmithFunction } from "../../constants";
 import type { TActionBlock, VariantType } from "../../types";
@@ -80,7 +80,7 @@ function ActionCard(props: TActionCardProps) {
     >
       <div className="flex flex-row justify-between w-full">
         <div className="flex flex-col items-center gap-1 overflow-hidden">
-          <div className="text-[color:var(--ads-v2-color-fg)] flex flex-row gap-1 w-full flex-start items-center">
+          <div className="text-[color:var(--ads-v2\-color-fg)] flex flex-row gap-1 w-full flex-start items-center">
             <MainActionIcon />
             <Text kind="action-s">{actionTypeLabel}</Text>
           </div>
@@ -96,9 +96,7 @@ function ActionCard(props: TActionCardProps) {
           )}
         </div>
         {actionsCount > 0 ? (
-          <div className="flex items-center justify-center flex-shrink-0 rounded-full min-h-5 min-w-5 max-h-5 max-w-5 bg-gray-100">
-            <Text kind="action-s">+{actionsCount}</Text>
-          </div>
+          <Tag isClosable={false}>+{actionsCount}</Tag>
         ) : null}
       </div>
     </button>

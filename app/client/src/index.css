@@ -92,6 +92,10 @@ add-action.disabled span {
 /** 
   action selector block styles
 **/
+.bp3-submenu.bp3-popover > .bp3-popover-content {
+  box-shadow: none;
+}
+
 .action-card-border {
   border-color: var(--ads-v2-color-border);
 }

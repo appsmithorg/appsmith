@@ -89,7 +89,7 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
     label: createMessage(REMOVE_VALUE),
     fields: [FieldType.KEY_TEXT_FIELD_REMOVE_VALUE],
     defaultParams: `""`,
-    icon: "remove-store",
+    icon: "folder-line",
   },
   [AppsmithFunction.clearStore]: {
     label: createMessage(CLEAR_STORE),
