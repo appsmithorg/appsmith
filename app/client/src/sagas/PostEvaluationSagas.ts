@@ -379,14 +379,6 @@ export function* logSuccessfulBindings(
       const hasErrors = errors.length > 0;
       if (!hasErrors) {
         if (!isCreateFirstTree) {
-          // we only aim to log binding success which were added by user
-          // for first evaluation, bindings are not added by user hence skipping it.
-          AnalyticsUtil.logEvent("BINDING_SUCCESS", {
-            unevalValue,
-            entityType,
-            propertyPath,
-          });
-
           /**Log the binding only if it doesn't already exist */
           if (
             !successfulBindingPaths[evaluatedPath] ||
