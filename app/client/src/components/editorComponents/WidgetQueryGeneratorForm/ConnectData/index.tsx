@@ -8,7 +8,11 @@ export function ConnectData() {
 
   if (show) {
     return (
-      <StyledButton disabled={disabled} isLoading={isLoading} onClick={onClick}>
+      <StyledButton
+        isDisabled={disabled}
+        isLoading={isLoading}
+        onClick={onClick}
+      >
         CONNECT DATA
       </StyledButton>
     );
