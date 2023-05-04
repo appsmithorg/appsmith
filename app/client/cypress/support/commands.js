@@ -1344,7 +1344,8 @@ Cypress.Commands.add("SignupFromAPI", (uname, pword) => {
     followRedirect: false,
     form: true,
     body: {
-      name: uname,
+      // remove special characters since it's not allowed in display name
+      name: uname.replace(/[^a-zA-Z0-9 ]/g, ""),
       email: uname,
       password: pword,
     },
