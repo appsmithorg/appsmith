@@ -99,7 +99,7 @@ import localStorage from "utils/localStorage";
 import log from "loglevel";
 import { APPSMITH_TOKEN_STORAGE_KEY } from "pages/Editor/SaaSEditor/constants";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
-import { PluginType } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { getQueryParams } from "utils/URLUtils";
@@ -121,6 +121,7 @@ import {
 import {
   DATASOURCE_NAME_DEFAULT_PREFIX,
   GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS,
+  GOOGLE_SHEET_SPECIFIC_SHEETS_SCOPE,
   TEMP_DATASOURCE_ID,
 } from "constants/Datasource";
 import { getUntitledDatasourceSequence } from "utils/DatasourceSagaUtils";
@@ -349,7 +350,23 @@ function* updateDatasourceSaga(
   try {
     const queryParams = getQueryParams();
     const datasourcePayload = omit(actionPayload.payload, "name");
+    const pluginPackageName: PluginPackageName = yield select(
+      getPluginPackageFromDatasourceId,
+      datasourcePayload?.id,
+    );
     datasourcePayload.isConfigured = true; // when clicking save button, it should be changed as configured
+
+    // When importing app with google sheets with specific sheets scope
+    // We do not want to set isConfigured to true immediately on save
+    // instead we want to wait for authorisation as well as file selection to be complete
+    if (pluginPackageName === PluginPackageName.GOOGLE_SHEETS) {
+      const scopeString: string = (
+        datasourcePayload?.datasourceConfiguration?.authentication as any
+      )?.scopeString;
+      if (scopeString.includes(GOOGLE_SHEET_SPECIFIC_SHEETS_SCOPE)) {
+        datasourcePayload.isConfigured = false;
+      }
+    }
 
     const response: ApiResponse<Datasource> =
       yield DatasourcesApi.updateDatasource(
@@ -1210,6 +1227,9 @@ function* filePickerActionCallbackSaga(
       "datasourceConfiguration.authentication.authenticationStatus",
       authStatus,
     );
+
+    // Once files are selected in case of import, set this flag
+    set(datasource, "isConfigured", true);
 
     // Once users selects/cancels the file selection,
     // Sending sheet ids selected as part of datasource
