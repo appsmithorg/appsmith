@@ -48,6 +48,17 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "16.14.0"
+      
+      - name: Install dependencies
+        run: |
+          cd app/client
+          yarn install
+        
+      - name: Upload the yarn.lock
+        uses: actions/upload-artifact@v3
+        with:
+          name: yarn
+          path: app/client/yarn.lock
 
 #       - name: Download Docker image artifact
 #         uses: dawidd6/action-download-artifact@v2
