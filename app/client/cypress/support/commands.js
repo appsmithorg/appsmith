@@ -765,7 +765,7 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
     .trigger("dragstart", { force: true })
     .trigger("mousemove", x, y, { force: true });
 
-  const option = { eventConstructor: "MouseEvent", force: true };
+  const option = { eventConstructor: "MouseEvent" };
 
   cy.get(explorer.dropHere)
     .trigger("mousemove", x, y, option)
