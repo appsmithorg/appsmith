@@ -175,6 +175,8 @@ export const UPDATE_USER_DETAILS_FAILED = () =>
   "Unable to update user details.";
 export const USER_DISPLAY_PICTURE_FILE_INVALID = () =>
   "File content doesn't seem to be an image. Please verify.";
+export const USER_DISPLAY_NAME_CHAR_CHECK_FAILED = () =>
+  "No special characters allowed except .'-";
 
 export const CREATE_PASSWORD_RESET_SUCCESS = () => `Your password has been set`;
 export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = () => `Login`;

@@ -13,7 +13,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { forgotPasswordSubmitHandler } from "pages/UserAuth/helpers";
 import {
   FORGOT_PASSWORD_SUCCESS_TEXT,
-  createMessage,
+  USER_DISPLAY_NAME_CHAR_CHECK_FAILED,
 } from "@appsmith/constants/messages";
 import { logoutUser, updateUserDetails } from "actions/userActions";
 import UserProfileImagePicker from "./UserProfileImagePicker";
@@ -21,6 +21,7 @@ import { Wrapper, FieldWrapper, LabelWrapper } from "./StyledComponents";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { ALL_LANGUAGE_CHARACTERS_REGEX } from "constants/Regex";
+import { createMessage } from "design-system-old/build/constants/messages";
 
 const { disableLoginForm } = getAppsmithConfigs();
 
@@ -47,7 +48,7 @@ const nameValidator = (
   if (!new RegExp(`^[${ALL_LANGUAGE_CHARACTERS_REGEX} 0-9.'-]+$`).test(value)) {
     return {
       isValid: false,
-      message: "No special characters allowed except .'-",
+      message: createMessage(USER_DISPLAY_NAME_CHAR_CHECK_FAILED),
     };
   }
   return {
