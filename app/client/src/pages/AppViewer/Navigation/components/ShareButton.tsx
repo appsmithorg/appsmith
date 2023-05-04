@@ -13,13 +13,8 @@ import {
   INVITE_USERS_PLACEHOLDER,
   SHARE_APP,
 } from "@appsmith/constants/messages";
-import {
-  Icon,
-  Modal,
-  ModalHeader,
-  ModalContent,
-  ModalBody,
-} from "design-system";
+import { Icon } from "design-system";
+import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -71,21 +66,18 @@ const ShareButton = (props: ShareButtonProps) => {
         primaryColor={primaryColor}
         text={insideSidebar && !isMinimal && createMessage(SHARE_APP)}
       />
-      <Modal onOpenChange={(isOpen) => setShowModal(isOpen)} open={showModal}>
-        <ModalContent>
-          <ModalHeader>{currentApplicationDetails?.name}</ModalHeader>
-          <ModalBody>
-            <AppInviteUsersForm
-              applicationId={currentApplicationDetails?.id}
-              placeholder={createMessage(
-                INVITE_USERS_PLACEHOLDER,
-                cloudHosting,
-              )}
-              workspaceId={currentWorkspaceId}
-            />
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+      {currentWorkspaceId && (
+        <FormDialogComponent
+          Form={AppInviteUsersForm}
+          applicationId={currentApplicationDetails?.id}
+          hideDefaultTrigger
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
+          title={currentApplicationDetails?.name}
+          workspace={{ id: currentWorkspaceId }}
+        />
+      )}
     </>
   );
 };

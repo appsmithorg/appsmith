@@ -59,13 +59,10 @@ import {
   MenuItem,
   MenuContent,
   MenuTrigger,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalHeader,
 } from "design-system";
 import {
   duplicateApplication,
+  setShowAppInviteUsersDialog,
   updateApplication,
 } from "@appsmith/actions/applicationActions";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
@@ -115,6 +112,7 @@ import {
 } from "@appsmith/utils/permissionHelpers";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -541,7 +539,6 @@ export function ApplicationsSection(props: any) {
   };
   const [warnLeavingWorkspace, setWarnLeavingWorkspace] = useState(false);
   const [warnDeleteWorkspace, setWarnDeleteWorkspace] = useState(false);
-  const [showModal, setShowModal] = useState(false);
   const [workspaceToOpenMenu, setWorkspaceToOpenMenu] = useState<string | null>(
     null,
   );
@@ -637,6 +634,10 @@ export function ApplicationsSection(props: any) {
       },
     });
   };
+
+  const handleFormOpenOrClose = useCallback((isOpen: boolean) => {
+    dispatch(setShowAppInviteUsersDialog(isOpen));
+  }, []);
 
   let updatedWorkspaces;
   if (!isFetchingApplications) {
@@ -741,35 +742,15 @@ export function ApplicationsSection(props: any) {
                 <WorkspaceShareUsers>
                   <SharedUserList workspaceId={workspace.id} />
                   {canInviteToWorkspace && !isMobile && (
-                    <>
-                      <Button
-                        kind="secondary"
-                        onClick={() => setShowModal(true)}
-                        size="md"
-                        startIcon={"share-line"}
-                      >
-                        Share
-                      </Button>
-                      <Modal
-                        onOpenChange={(isOpen) => setShowModal(isOpen)}
-                        open={showModal}
-                      >
-                        <ModalContent>
-                          <ModalHeader>
-                            {`Invite Users to ${workspace.name}`}
-                          </ModalHeader>
-                          <ModalBody>
-                            <WorkspaceInviteUsersForm
-                              placeholder={createMessage(
-                                INVITE_USERS_PLACEHOLDER,
-                                cloudHosting,
-                              )}
-                              workspaceId={workspace.id}
-                            />
-                          </ModalBody>
-                        </ModalContent>
-                      </Modal>
-                    </>
+                    <FormDialogComponent
+                      Form={WorkspaceInviteUsersForm}
+                      onOpenOrClose={handleFormOpenOrClose}
+                      placeholder={createMessage(
+                        INVITE_USERS_PLACEHOLDER,
+                        cloudHosting,
+                      )}
+                      workspace={workspace}
+                    />
                   )}
                   {hasCreateNewApplicationPermission &&
                     !isFetchingApplications &&
