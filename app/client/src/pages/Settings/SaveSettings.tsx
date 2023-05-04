@@ -44,7 +44,7 @@ const saveAdminSettings = (props: SaveAdminSettingsProps) => {
         onClick={onSave}
         size="md"
       >
-        {createMessage(() => "Save & restart")}
+        {createMessage(() => "Save & Restart")}
       </Button>
       <Button
         className="t--admin-settings-reset-button"
