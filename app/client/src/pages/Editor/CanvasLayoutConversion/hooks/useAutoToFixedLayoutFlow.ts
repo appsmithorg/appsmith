@@ -23,10 +23,11 @@ import { useState } from "react";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
 import { useSelector } from "react-redux";
-import { getReadableSnapShotDetails } from "selectors/autoLayoutSelectors";
+import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { snapShotFlow } from "./useSnapShotForm";
 import { commonConversionFlows } from "./CommonConversionFlows";
+import { getReadableSnapShotDetails } from "utils/autoLayout/AutoLayoutUtils";
 
 //returns props for Auto to Fixed Layout conversion flows based on which the Conversion Form can be rendered
 export const useAutoToFixedLayoutFlow = (
@@ -36,7 +37,8 @@ export const useAutoToFixedLayoutFlow = (
 } => {
   const [selectedLayout, setSelectedLayout] = useState<string>("DESKTOP");
 
-  const readableSnapShotDetails = useSelector(getReadableSnapShotDetails);
+  const lastUpdatedTime = useSelector(getSnapshotUpdatedTime);
+  const readableSnapShotDetails = getReadableSnapShotDetails(lastUpdatedTime);
 
   return {
     [CONVERSION_STATES.START]: {

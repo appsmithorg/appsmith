@@ -31,13 +31,7 @@ describe("Git sync apps", function () {
   });
   it("1. Generate postgreSQL crud page , connect to git, clone the page, rename page with special character in it", () => {
     cy.NavigateToHome();
-    cy.get(homePage.createNew).first().click({ force: true });
-
-    cy.wait("@createNewApplication").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
+    _.homePage.CreateNewApplication();
 
     // create New App and  generate Postgres CRUD page
     cy.get(generatePage.generateCRUDPageActionCard).click();

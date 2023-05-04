@@ -1,12 +1,13 @@
 import { useSelector } from "react-redux";
 
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const useBrandingTheme = () => {
   const config = useSelector(getTenantConfig);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const cssVariables: Record<string, string> = {
       "bg-brand": config.brandColors.primary,
       "fg-brand": config.brandColors.primary,
@@ -38,7 +39,7 @@ const useBrandingTheme = () => {
       document.getElementsByTagName("head")[0].appendChild(favicon);
     }
 
-    favicon.href = config.brandFaviconUrl;
+    favicon.href = getAssetUrl(config.brandFaviconUrl);
   }, [
     config.brandColors.primary,
     config.brandColors.background,
