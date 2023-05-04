@@ -1,13 +1,16 @@
 name: CI Debugging
 
 on:
-  # This line enables manual triggering of this workflow.
-  workflow_dispatch:
-     inputs:
-       run_id:
-         description: 'Run id to download artifacts:'
-         required: true
-         type: number      
+    workflow_dispatch:
+    
+    
+#   # This line enables manual triggering of this workflow.
+#   workflow_dispatch:
+#      inputs:
+#        run_id:
+#          description: 'Run id to download artifacts:'
+#          required: true
+#          type: number      
 
 jobs:
   ci-debugger:
