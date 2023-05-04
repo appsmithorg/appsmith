@@ -335,7 +335,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     }
                                     newPage.sanitiseToExportDBObject();
                                 });
-
                                 applicationJson.setPageList(newPageList);
                                 applicationJson.setUpdatedResources(new HashMap<String, Set<String>>() {{
                                     put(FieldName.PAGE_LIST, updatedPageSet);
@@ -829,7 +828,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 .flatMap(workspace -> {
                     // Check if the request is to hydrate the application to DB for particular branch
                     // Application id will be present for GIT sync
-                    if (!StringUtils.isEmpty(applicationId)) {
+                    if (applicationId != null) {
                         // No need to hydrate the datasource as we expect user will configure the datasource
                         return existingDatasourceFlux.collectList();
                     }
@@ -2073,7 +2072,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             authResponse.setExpiresAt(Instant.now());
             auth2.setAuthenticationResponse(authResponse);
             datasource.getDatasourceConfiguration().setAuthentication(auth2);
-        } else if (StringUtils.equals(authType, BearerTokenAuth.class.getName())) {
+        } else if (org.apache.commons.lang.StringUtils.equals(authType, BearerTokenAuth.class.getName())) {
             BearerTokenAuth auth = new BearerTokenAuth();
             auth.setBearerToken(decryptedFields.getBearerTokenAuth().getBearerToken());
             datasource.getDatasourceConfiguration().setAuthentication(auth);
