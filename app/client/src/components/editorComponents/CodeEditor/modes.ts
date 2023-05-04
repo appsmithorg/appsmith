@@ -1,5 +1,8 @@
 import CodeMirror from "codemirror";
-import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
+import {
+  ALL_SQL_MIME_TYPES,
+  EditorModes,
+} from "components/editorComponents/CodeEditor/EditorConfig";
 import "codemirror/addon/mode/multiplex";
 import "codemirror/mode/javascript/javascript";
 import "codemirror/mode/sql/sql";
@@ -33,20 +36,6 @@ CodeMirror.defineMode(EditorModes.JSON_WITH_BINDING, function (config) {
   );
 });
 
-CodeMirror.defineMode(EditorModes.SQL_WITH_BINDING, function (config) {
-  // @ts-expect-error: Types are not available
-  return CodeMirror.multiplexingMode(
-    CodeMirror.getMode(config, EditorModes.SQL),
-    {
-      open: "{{",
-      close: "}}",
-      mode: CodeMirror.getMode(config, {
-        name: "javascript",
-      }),
-    },
-  );
-});
-
 CodeMirror.defineMode(EditorModes.GRAPHQL_WITH_BINDING, function (config) {
   // @ts-expect-error: Types are not available
   return CodeMirror.multiplexingMode(
@@ -67,3 +56,19 @@ CodeMirror.defineMode(EditorModes.GRAPHQL_WITH_BINDING, function (config) {
     },
   );
 });
+
+for (const sqlMimeType of Object.values(ALL_SQL_MIME_TYPES)) {
+  CodeMirror.defineMode(sqlMimeType, function (config) {
+    // @ts-expect-error: Types are not available
+    return CodeMirror.multiplexingMode(
+      CodeMirror.getMode(config, EditorModes.SQL),
+      {
+        open: "{{",
+        close: "}}",
+        mode: CodeMirror.getMode(config, {
+          name: "javascript",
+        }),
+      },
+    );
+  });
+}
