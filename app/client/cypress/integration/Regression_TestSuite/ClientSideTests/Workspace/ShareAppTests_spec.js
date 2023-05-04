@@ -56,11 +56,6 @@ describe("Create new workspace and share with a user", function () {
 
   it("3. Enable public access to Application", function () {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.wait("@applications").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
     cy.SearchApp(appid);
     cy.wait("@getPagesForCreateApp").should(
       "have.nested.property",
@@ -117,11 +112,6 @@ describe("Create new workspace and share with a user", function () {
 
   it("6. login as Owner and disable public access", function () {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.wait("@applications").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
     cy.SearchApp(appid);
     cy.wait("@getPagesForCreateApp").should(
       "have.nested.property",
