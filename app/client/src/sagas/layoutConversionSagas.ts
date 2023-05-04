@@ -14,7 +14,10 @@ import { getPageWidgets } from "selectors/entitiesSelector";
 import { convertNormalizedDSLToFixed } from "utils/DSLConversions/autoToFixedLayout";
 import convertToAutoLayout from "utils/DSLConversions/fixedToAutoLayout";
 import type { DSLWidget } from "widgets/constants";
-import { createSnapshotSaga } from "./SnapshotSagas";
+import {
+  createSnapshotSaga,
+  deleteApplicationSnapshotSaga,
+} from "./SnapshotSagas";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import { saveAllPagesSaga } from "./PageSagas";
@@ -30,6 +33,7 @@ import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
  * @param action
  */
 function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
+  let snapshotSaveSuccess = false;
   try {
     const pageList: Page[] = yield select(getPageList);
     const pageWidgetsList: PageWidgetsReduxState = yield select(getPageWidgets);
@@ -37,6 +41,8 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
     if (getShouldSaveSnapShot(pageWidgetsList)) {
       yield call(createSnapshotSaga);
     }
+
+    snapshotSaveSuccess = true;
 
     //Set conversion form to indicated conversion loading state
     yield put(
@@ -79,6 +85,10 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
     );
   } catch (e) {
     log.error(e);
+
+    if (snapshotSaveSuccess) {
+      yield call(deleteApplicationSnapshotSaga);
+    }
     //update conversion form state to error
     yield put(
       setLayoutConversionStateAction(
@@ -94,6 +104,7 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
  * @param action
  */
 function* convertFromFixedToAutoSaga() {
+  let snapshotSaveSuccess = false;
   try {
     const pageList: Page[] = yield select(getPageList);
     const pageWidgetsList: PageWidgetsReduxState = yield select(getPageWidgets);
@@ -101,6 +112,8 @@ function* convertFromFixedToAutoSaga() {
     if (getShouldSaveSnapShot(pageWidgetsList)) {
       yield call(createSnapshotSaga);
     }
+
+    snapshotSaveSuccess = true;
 
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.CONVERSION_SPINNER),
@@ -137,6 +150,9 @@ function* convertFromFixedToAutoSaga() {
   } catch (e) {
     log.error(e);
     //update conversion form state to error
+    if (snapshotSaveSuccess) {
+      yield call(deleteApplicationSnapshotSaga);
+    }
     yield put(
       setLayoutConversionStateAction(
         CONVERSION_STATES.COMPLETED_ERROR,

@@ -16,13 +16,14 @@ import type { Dispatch } from "redux";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { ReadableSnapShotDetails } from "selectors/autoLayoutSelectors";
-import { getReadableSnapShotDetails } from "selectors/autoLayoutSelectors";
+import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
 import { Colors } from "constants/Colors";
 import { commonConversionFlows } from "./CommonConversionFlows";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { Variant } from "design-system-old";
+import type { ReadableSnapShotDetails } from "utils/autoLayout/AutoLayoutUtils";
+import { getReadableSnapShotDetails } from "utils/autoLayout/AutoLayoutUtils";
 
 //returns props for using snapshot flows based on which the Conversion Form can be rendered
 export const snapShotFlow = (
@@ -107,7 +108,9 @@ export const useSnapShotForm = (onCancel: () => void) => {
   const conversionState = useSelector(
     (state: AppState) => state.ui.layoutConversion.conversionState,
   );
-  const readableSnapShotDetails = useSelector(getReadableSnapShotDetails);
+  const lastUpdatedTime = useSelector(getSnapshotUpdatedTime);
+  const readableSnapShotDetails = getReadableSnapShotDetails(lastUpdatedTime);
+
   const dispatch = useDispatch();
 
   const snapshotFlowStates = snapShotFlow(
