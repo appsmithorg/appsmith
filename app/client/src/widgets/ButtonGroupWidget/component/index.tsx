@@ -69,112 +69,115 @@ interface WrapperStyleProps {
   buttonVariant: ButtonVariant;
 }
 
-const ButtonGroupWrapper = styled.div<ThemeProp & WrapperStyleProps>`
-  height: 100%;
-  width: 100%;
-  position: relative;
-  display: flex;
-  justify-content: stretch;
-  align-items: stretch;
-  overflow: hidden;
-  cursor: not-allowed;
-  gap: ${({ buttonVariant }) =>
-    `${buttonVariant === ButtonVariantTypes.PRIMARY ? "1px" : "0px"}`};
-
-  ${(props) =>
-    props.isHorizontal ? "flex-direction: row" : "flex-direction: column"};
-  box-shadow: ${({ boxShadow }) => boxShadow};
-  border-radius: ${({ borderRadius }) => borderRadius};
-
-  & > *:first-child,
-  & > *:first-child button {
-    border-radius: ${({ borderRadius, isHorizontal }) =>
-      isHorizontal
-        ? `${borderRadius} 0px 0px ${borderRadius}`
-        : `${borderRadius} ${borderRadius} 0px 0px`};
-  }
-
-  & > *:last-child,
-  & > *:last-child button {
-    border-radius: ${({ borderRadius, isHorizontal }) =>
-      isHorizontal
-        ? `0px ${borderRadius} ${borderRadius} 0`
-        : `0px 0px ${borderRadius} ${borderRadius}`};
-  }
-`;
-
-const MenuButtonWrapper = styled.div<{ renderMode: RenderMode }>`
-  flex: 1 1 auto;
-  cursor: pointer;
-  position: relative;
-
-  ${({ renderMode }) => renderMode === RenderModes.CANVAS && `height: 100%`};
-
-  & > .${Classes.POPOVER2_TARGET} > button {
-    width: 100%;
-    height: 100%;
-  }
-
-  & > .${Classes.POPOVER2_TARGET} {
-    height: 100%;
-  }
-`;
-
-const PopoverStyles = createGlobalStyle<{
-  minPopoverWidth: number;
-  popoverTargetWidth?: number;
-  id: string;
-  borderRadius?: string;
-}>`
-  ${({ borderRadius, id, minPopoverWidth, popoverTargetWidth }) => `
-    .${id}.${Classes.POPOVER2} {
-      background: none;
-      box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
-      margin-top: 8px !important;
-      margin-bottom: 8px !important;
-      border-radius: ${
-        borderRadius === THEMEING_TEXT_SIZES.lg ? `0.375rem` : borderRadius
-      };
-      box-shadow: none;
-      overflow: hidden;
-      ${popoverTargetWidth && `width: ${popoverTargetWidth}px`};
-      min-width: ${minPopoverWidth}px;
-    }
-
-    .button-group-menu-popover > .${Classes.POPOVER2_CONTENT} {
-      background: none;
-    }
-  `}
-`;
-
-interface ButtonStyleProps {
-  isHorizontal: boolean;
-  borderRadius?: string;
-  buttonVariant?: ButtonVariant; // solid | outline | ghost
-  buttonColor?: string;
-  iconAlign?: string;
-  placement?: ButtonPlacement;
-  isLabel: boolean;
+interface ButtonGroupComponentState {
+  itemRefs: Record<string, RefObject<HTMLButtonElement>>;
+  itemWidths: Record<string, number>;
+  loadedBtnId: string;
+  numButtons: number;
 }
 
-/*
-  Don't use buttonHoverActiveStyles in a nested function it won't work -
+class ButtonGroupComponent extends React.Component<
+  ButtonGroupComponentProps,
+  ButtonGroupComponentState
+> {
+  state: ButtonGroupComponentState = {
+    itemRefs: {},
+    itemWidths: {},
+    loadedBtnId: "",
+    numButtons: Object.keys(this.props.groupButtons).length,
+  };
 
-  const buttonHoverActiveStyles = css ``
+  componentDidMount() {
+    this.setButtonWidths();
+  }
 
-  const Button = styled.button`
-  // won't work
-    ${({ buttonColor, theme }) => {
-      &:hover, &:active {
-        ${buttonHoverActiveStyles}
+  componentDidUpdate(prevProps: ButtonGroupComponentProps) {
+    if (prevProps.groupButtons !== this.props.groupButtons) {
+      this.setState(
+        {
+          numButtons: Object.keys(this.props.groupButtons).length,
+        },
+        () => this.setButtonWidths()
+      );
+    }
+  }
+
+  setButtonWidths = () => {
+    const itemRefs: Record<string, RefObject<HTMLButtonElement>> = {};
+    const itemWidths: Record<string, number> = {};
+    let loadedBtnId = "";
+
+    Object.keys(this.props.groupButtons).forEach((btnId) => {
+      const ref = createRef<HTMLButtonElement>();
+      itemRefs[btnId] = ref;
+
+      if (this.state.loadedBtnId === btnId) {
+        loadedBtnId = btnId;
       }
-    }}
 
-  // will work
-  &:hover, &:active {
-    ${buttonHoverActiveStyles}
-  }`
-*/
+      if (ref.current) {
+        itemWidths[btnId] = ref.current.offsetWidth;
+      } else {
+        itemWidths[btnId] = 0;
+      }
+    });
+
+    this.setState({
+      itemRefs,
+      itemWidths,
+      loadedBtnId,
+    });
+  };
+
+  getButtonWidthSum = () => {
+    return Object.values(this.state.itemWidths).reduce(
+      (acc, width) => acc + width,
+      0
+    );
+  };
+
+  render() {
+    const {
+      borderRadius = "0.25rem",
+      boxShadow,
+      buttonVariant,
+      buttonClickHandler,
+      groupButtons,
+      isDisabled,
+      orientation,
+      renderMode,
+      minPopoverWidth,
+      widgetId,
+    } = this.props;
+
+    const { itemRefs, itemWidths, loadedBtnId, numButtons } = this.state;
+
+    const isHorizontal = orientation === ButtonGroupOrientation.HORIZONTAL;
+
+    const buttonWidthSum = this.getButtonWidthSum();
+
+    const buttonGroupWrapperStyle = {
+      width: buttonWidthSum + numButtons - 1, // account for gap between buttons
+    };
+
+    return (
+      <ButtonGroupWrapper
+        borderRadius={borderRadius}
+        boxShadow={boxShadow}
+        buttonVariant={buttonVariant}
+        isDisabled={isDisabled}
+        orientation={orientation}
+        renderMode={renderMode}
+        style={buttonGroupWrapperStyle} // set width using style prop
+      >
+        {Object.keys(groupButtons).map((buttonId, index) => {
+          const buttonProps = groupButtons[buttonId];
+          const {
+            icon,
+            label,
+            tooltip,
+           
+
 
 const StyledButton = styled.button<ThemeProp & ButtonStyleProps>`
   flex: 1 1 auto;
