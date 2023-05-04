@@ -6,7 +6,6 @@ import { DATASOURCE_DB_FORM } from "@appsmith/constants/forms";
 import { Icon } from "@blueprintjs/core";
 import { Callout, Variant } from "design-system-old";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
-import Connected from "./Connected";
 import type { Datasource } from "entities/Datasource";
 import type { InjectedFormProps } from "redux-form";
 import { reduxForm } from "redux-form";
@@ -175,16 +174,13 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
             )}
             {viewMode && (
               <ViewModeWrapper>
-                <Connected />
-                <div style={{ marginTop: "30px" }}>
-                  {!_.isNil(formConfig) && !_.isNil(datasource) ? (
-                    <DatasourceInformation
-                      config={formConfig[0]}
-                      datasource={datasource}
-                      viewMode={viewMode}
-                    />
-                  ) : undefined}
-                </div>
+                {!_.isNil(formConfig) && !_.isNil(datasource) ? (
+                  <DatasourceInformation
+                    config={formConfig[0]}
+                    datasource={datasource}
+                    viewMode={viewMode}
+                  />
+                ) : undefined}
               </ViewModeWrapper>
             )}
             {/* Render datasource form call-to-actions */}
