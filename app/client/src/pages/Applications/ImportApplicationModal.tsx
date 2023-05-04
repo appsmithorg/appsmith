@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import React, { useCallback, useEffect, useState } from "react";
-import styled, { useTheme, css } from "styled-components";
+import styled, { useTheme } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
   importApplication,
@@ -41,8 +41,8 @@ const Row = styled.div`
   gap: 16px;
 `;
 
-const CardStyles = css`
-  width: 320px;
+const CardStyles = styled.div<{ fillCardWidth: boolean }>`
+  width: ${(props) => (props.fillCardWidth ? "100%" : "320px")};
   height: 200px;
   border: 1px solid var(--ads-v2-color-border);
   border-radius: var(--ads-v2-border-radius);
@@ -57,7 +57,7 @@ const CardStyles = css`
   }
 `;
 
-const FileImportCard = styled.div`
+const FileImportCard = styled.div<{ fillCardWidth: boolean }>`
   ${CardStyles}
   & > div {
     background: transparent none;
@@ -180,10 +180,12 @@ type ImportApplicationModalProps = {
   workspaceId?: string;
   isModalOpen?: boolean;
   onClose?: () => void;
+  appId?: string;
+  toApp?: boolean;
 };
 
 function ImportApplicationModal(props: ImportApplicationModalProps) {
-  const { isModalOpen, onClose, workspaceId } = props;
+  const { appId, isModalOpen, onClose, toApp = false, workspaceId } = props;
   const [appFileToBeUploaded, setAppFileToBeUploaded] = useState<{
     file: File;
     setProgress: SetProgress;
@@ -218,6 +220,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
         });
         dispatch(
           importApplication({
+            appId: appId as string,
             workspaceId: workspaceId as string,
             applicationFile: file,
           }),
@@ -257,16 +260,21 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
         </ModalHeader>
         <TextWrapper>
           <Text kind="body-m">
-            {createMessage(
-              importingApplication
-                ? UPLOADING_JSON
-                : IMPORT_APPLICATION_MODAL_LABEL,
-            )}
+            {toApp
+              ? null
+              : createMessage(
+                  importingApplication
+                    ? UPLOADING_JSON
+                    : IMPORT_APPLICATION_MODAL_LABEL,
+                )}
           </Text>
         </TextWrapper>
         {!importingApplication && (
           <Row>
-            <FileImportCard className="t--import-json-card">
+            <FileImportCard
+              className="t--import-json-card"
+              fillCardWidth={toApp}
+            >
               <FilePickerV2
                 containerClickable
                 description={createMessage(IMPORT_APP_FROM_FILE_MESSAGE)}
@@ -278,7 +286,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
                 uploadIcon="file-line"
               />
             </FileImportCard>
-            <GitImportCard handler={onGitImport} />
+            {!toApp && <GitImportCard handler={onGitImport} />}
           </Row>
         )}
         {importingApplication && (

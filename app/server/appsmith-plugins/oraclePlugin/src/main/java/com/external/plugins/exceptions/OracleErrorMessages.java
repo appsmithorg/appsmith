@@ -19,7 +19,8 @@ public class OracleErrorMessages {
 
     public static final String INVALID_SSL_OPTION_ERROR_MSG = "The Appsmith server has found an unexpected SSL option: %s.";
 
-    public static final String CONNECTION_POOL_CREATION_FAILED_ERROR_MSG = "An exception occurred while creating connection pool. One or more arguments in the datasource configuration may be invalid.";
+    public static final String CONNECTION_POOL_CREATION_FAILED_ERROR_MSG = "An exception occurred while creating " +
+            "connection pool. One or more arguments in the datasource configuration may be invalid.";
 
     /*
      ************************************************************************************************************************************************

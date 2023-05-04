@@ -115,13 +115,18 @@ public class OraclePlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<ActionExecutionResult> execute(HikariDataSource connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
+        public Mono<ActionExecutionResult> execute(HikariDataSource connection,
+                                                   DatasourceConfiguration datasourceConfiguration,
+                                                   ActionConfiguration actionConfiguration) {
             return Mono.error(
                     new AppsmithPluginException(OraclePluginError.QUERY_EXECUTION_FAILED, "Unsupported Operation"));
         }
 
         @Override
-        public Mono<ActionExecutionResult> executeParameterized(HikariDataSource connection, ExecuteActionDTO executeActionDTO, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
+        public Mono<ActionExecutionResult> executeParameterized(HikariDataSource connectionPool,
+                                                                ExecuteActionDTO executeActionDTO,
+                                                                DatasourceConfiguration datasourceConfiguration,
+                                                                ActionConfiguration actionConfiguration) {
             final Map<String, Object> formData = actionConfiguration.getFormData();
             String query = getDataValueSafelyFromFormData(formData, BODY, STRING_TYPE, null);
             // Check for query parameter before performing the probably expensive fetch connection from the pool op.
@@ -144,7 +149,7 @@ public class OraclePlugin extends BasePlugin {
             // In case of non-prepared statement, simply do binding-replacement and execute
             if (FALSE.equals(isPreparedStatement)) {
                 prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
-                return executeCommon(connection, datasourceConfiguration, actionConfiguration, FALSE, null, null);
+                return executeCommon(connectionPool, datasourceConfiguration, actionConfiguration, FALSE, null, null);
             }
 
             // First extract all the bindings in order
@@ -162,7 +167,7 @@ public class OraclePlugin extends BasePlugin {
                 updatedQuery = removeSemicolonFromQuery(updatedQuery);
             }
             setDataValueSafelyInFormData(formData, BODY, updatedQuery);
-            return executeCommon(connection, datasourceConfiguration, actionConfiguration, TRUE,
+            return executeCommon(connectionPool, datasourceConfiguration, actionConfiguration, TRUE,
                     mustacheKeysInOrder, executeActionDTO);
         }
 
@@ -288,8 +293,9 @@ public class OraclePlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<DatasourceStructure> getStructure(HikariDataSource connection, DatasourceConfiguration datasourceConfiguration) {
-            return OracleDatasourceUtils.getStructure(connection, datasourceConfiguration);
+        public Mono<DatasourceStructure> getStructure(HikariDataSource connectionPool,
+                                                      DatasourceConfiguration datasourceConfiguration) {
+            return OracleDatasourceUtils.getStructure(connectionPool, datasourceConfiguration);
         }
 
         private Set<String> populateHintMessages(List<String> columnNames) {

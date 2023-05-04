@@ -1,7 +1,7 @@
 import type { Datasource } from "entities/Datasource";
 import { isStoredDatasource, PluginType } from "entities/Action";
 import React, { memo, useCallback, useEffect, useState } from "react";
-import { isNil } from "lodash";
+import { debounce, isNil } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import CollapseComponent from "components/utils/CollapseComponent";
 import {
@@ -187,6 +187,8 @@ function DatasourceCard(props: DatasourceCardProps) {
 
   const isDeletingDatasource = !!datasource.isDeleting;
 
+  const onCloseMenu = debounce(() => setConfirmDelete(false), 20);
+
   useEffect(() => {
     if (confirmDelete && !isDeletingDatasource) {
       setConfirmDelete(false);
@@ -320,8 +322,13 @@ function DatasourceCard(props: DatasourceCardProps) {
               />
             )}
             {(canDeleteDatasource || canEditDatasource) && (
-              <MenuWrapper className="t--datasource-menu-option">
-                <StyledMenu>
+              <MenuWrapper
+                className="t--datasource-menu-option"
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              >
+                <StyledMenu onOpenChange={onCloseMenu}>
                   <MenuTrigger>
                     <Button
                       isIconButton
