@@ -66,6 +66,11 @@ import styled from "styled-components";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import NewActionButton from "./NewActionButton";
 import { isDatasourceAuthorizedForQueryCreation } from "utils/editorContextUtils";
+import Debugger, {
+  ResizerContentContainer,
+  ResizerMainContainer,
+} from "./Debugger";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -95,6 +100,7 @@ interface ReduxStateProps {
   datasource: Datasource | undefined;
   defaultKeyValueArrayConfig: Array<string>;
   initialValue: Datasource | undefined;
+  showDebugger: boolean;
 }
 
 const Form = styled.div`
@@ -525,7 +531,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
   }
 
   render() {
-    const { datasourceId, fromImporting, pluginId } = this.props;
+    const { datasourceId, fromImporting, pluginId, showDebugger } = this.props;
 
     if (!pluginId && datasourceId) {
       return <EntityNotFoundPane />;
@@ -540,7 +546,12 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       >
         <CloseEditor />
         {!fromImporting && this.renderHeader()}
-        {this.renderForm()}
+        <ResizerMainContainer>
+          <ResizerContentContainer className="db-form-resizer-content">
+            {this.renderForm()}
+          </ResizerContentContainer>
+          {showDebugger && <Debugger />}
+        </ResizerMainContainer>
       </Form>
     );
   }
@@ -576,6 +587,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     ...datasourcePermissions,
     ...pagePermissions,
   ]);
+  // Debugger render flag
+  const showDebugger = showDebuggerFlag(state);
 
   const isPluginAuthorized =
     plugin && isDatasourceAuthorizedForQueryCreation(formData, plugin);
@@ -609,6 +622,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     datasource,
     defaultKeyValueArrayConfig,
     initialValue,
+    showDebugger,
   };
 };
 

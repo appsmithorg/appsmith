@@ -43,7 +43,6 @@ import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
 import { Callout } from "design-system-old";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import { FormContainer, FormContainerBody } from "./JSONtoForm";
 import DatasourceAuth, {
   DatasourceButtonType,
 } from "pages/common/datasourceAuth";
@@ -51,11 +50,6 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { getPlugin } from "../../../selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
-import Debugger, {
-  ResizerContentContainer,
-  ResizerMainContainer,
-} from "./Debugger";
-import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
 interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
@@ -81,7 +75,6 @@ interface DatasourceRestApiEditorProps {
   formMeta: any;
   messages?: Array<string>;
   hiddenHeader?: boolean;
-  showDebugger: boolean;
   responseStatus?: string;
   responseMessage?: string;
   datasourceName: string;
@@ -331,39 +324,30 @@ class DatasourceRestAPIEditor extends React.Component<
   };
 
   render = () => {
-    const { datasource, formData, pageId, showDebugger } = this.props;
+    const { datasource, formData, pageId } = this.props;
 
     return (
-      <FormContainer>
-        <FormContainerBody>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-            }}
-          >
-            <ResizerMainContainer>
-              <ResizerContentContainer className="api-datasource-content-container">
-                {this.renderEditor()}
-                <DatasourceAuth
-                  datasource={datasource}
-                  datasourceButtonConfiguration={[
-                    DatasourceButtonType.DELETE,
-                    DatasourceButtonType.SAVE,
-                  ]}
-                  datasourceDeleteTrigger={this.props.datasourceDeleteTrigger}
-                  formData={formData}
-                  getSanitizedFormData={this.getSanitizedFormData}
-                  isFormDirty={this.props.isFormDirty}
-                  isInvalid={this.validate()}
-                  pageId={pageId}
-                  shouldRender
-                />
-              </ResizerContentContainer>
-              {showDebugger && <Debugger />}
-            </ResizerMainContainer>
-          </form>
-        </FormContainerBody>
-      </FormContainer>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+        }}
+      >
+        {this.renderEditor()}
+        <DatasourceAuth
+          datasource={datasource}
+          datasourceButtonConfiguration={[
+            DatasourceButtonType.DELETE,
+            DatasourceButtonType.SAVE,
+          ]}
+          datasourceDeleteTrigger={this.props.datasourceDeleteTrigger}
+          formData={formData}
+          getSanitizedFormData={this.getSanitizedFormData}
+          isFormDirty={this.props.isFormDirty}
+          isInvalid={this.validate()}
+          pageId={pageId}
+          shouldRender
+        />
+      </form>
     );
   };
 
@@ -1157,9 +1141,6 @@ const mapStateToProps = (state: AppState, props: any) => {
     (e) => e.id === props.datasourceId,
   ) as Datasource;
 
-  // Debugger render flag
-  const showDebugger = showDebuggerFlag(state);
-
   const plugin = getPlugin(state, datasource?.pluginId || "") || undefined;
 
   const hintMessages = datasource && datasource.messages;
@@ -1175,7 +1156,6 @@ const mapStateToProps = (state: AppState, props: any) => {
     formMeta: getFormMeta(DATASOURCE_REST_API_FORM)(state),
     messages: hintMessages,
     datasourceName: datasource?.name ?? "",
-    showDebugger,
   };
 };
 
