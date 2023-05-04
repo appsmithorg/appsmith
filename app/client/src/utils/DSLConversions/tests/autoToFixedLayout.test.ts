@@ -1,4 +1,5 @@
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { convertNormalizedDSLToFixed } from "../autoToFixedLayout";
 // import { convertNormalizedDSLToFixed } from "../autoToFixedLayout";
 
 describe("test Auto to Fixed Conversion methods", () => {
@@ -489,7 +490,7 @@ describe("test Auto to Fixed Conversion methods", () => {
 
   const fixedLayoutWidgets = {
     "0": {
-      bottomRow: 870,
+      bottomRow: 932,
       canExtend: true,
       children: [
         "3rp273r2sw",
@@ -517,7 +518,7 @@ describe("test Auto to Fixed Conversion methods", () => {
       widgetName: "MainContainer",
     },
     "007w6lokqp": {
-      bottomRow: 390,
+      bottomRow: 380,
       children: ["fjt4m0ern5", "nepom5s2di", "zencnl8sel"],
       flexLayers: [],
       leftColumn: 0,
@@ -570,20 +571,20 @@ describe("test Auto to Fixed Conversion methods", () => {
       widgetName: "Button10",
     },
     "8o21a70kqn": {
-      bottomRow: 625,
+      bottomRow: 85.2,
       children: ["007w6lokqp"],
       leftColumn: 0,
       minWidth: 450,
       parentId: "0",
       positioning: "fixed",
       rightColumn: 64,
-      topRow: 235,
+      topRow: 47.2,
       type: "FORM_WIDGET",
       widgetId: "8o21a70kqn",
       widgetName: "Form1",
     },
     eh5p39ko9z: {
-      bottomRow: 108.2,
+      bottomRow: 19.4,
       children: ["mw6t1nvt67"],
       leftColumn: 15,
       minWidth: 450,
@@ -659,7 +660,7 @@ describe("test Auto to Fixed Conversion methods", () => {
       widgetName: "Image1",
     },
     m9mrywyvpj: {
-      bottomRow: 233.8,
+      bottomRow: 46,
       children: ["vv54unn046"],
       leftColumn: 0,
       minWidth: 450,
@@ -671,7 +672,7 @@ describe("test Auto to Fixed Conversion methods", () => {
       widgetName: "Container1",
     },
     mw6t1nvt67: {
-      bottomRow: 100,
+      bottomRow: 112.00000000000001,
       children: ["0cb5t22zd2", "u0cd188upj"],
       leftColumn: 0,
       minHeight: 100,
@@ -747,7 +748,7 @@ describe("test Auto to Fixed Conversion methods", () => {
       widgetName: "Button12",
     },
     vv54unn046: {
-      bottomRow: 210,
+      bottomRow: 222,
       children: ["5c6gd8ynfa", "wixla6nh38", "krrqtqc1o3", "eh5p39ko9z"],
       leftColumn: 0,
       minHeight: 210,
@@ -822,6 +823,8 @@ describe("test Auto to Fixed Conversion methods", () => {
       direction: "Vertical",
       leftColumn: 0,
       minHeight: 870,
+      mobileBottomRow: 1168,
+      mobileTopRow: 0,
       positioning: "fixed",
       rightColumn: 4896,
       topRow: 0,
@@ -837,7 +840,7 @@ describe("test Auto to Fixed Conversion methods", () => {
       leftColumn: 0,
       minHeight: 390,
       minWidth: 450,
-      mobileBottomRow: 390,
+      mobileBottomRow: 380,
       mobileLeftColumn: 0,
       mobileRightColumn: 64,
       mobileTopRow: 0,
@@ -884,20 +887,20 @@ describe("test Auto to Fixed Conversion methods", () => {
       widgetName: "Button10",
     },
     "8o21a70kqn": {
-      bottomRow: 772.6,
+      bottomRow: 108.8,
       children: ["007w6lokqp"],
       leftColumn: 0,
       minWidth: 450,
       parentId: "0",
       positioning: "fixed",
       rightColumn: 64,
-      topRow: 382.6,
+      topRow: 70.8,
       type: "FORM_WIDGET",
       widgetId: "8o21a70kqn",
       widgetName: "Form1",
     },
     eh5p39ko9z: {
-      bottomRow: 125.4,
+      bottomRow: 36.2,
       children: ["mw6t1nvt67"],
       leftColumn: 0,
       minWidth: 450,
@@ -973,7 +976,7 @@ describe("test Auto to Fixed Conversion methods", () => {
       widgetName: "Image1",
     },
     m9mrywyvpj: {
-      bottomRow: 381.8,
+      bottomRow: 70,
       children: ["vv54unn046"],
       leftColumn: 0,
       minWidth: 450,
@@ -990,7 +993,7 @@ describe("test Auto to Fixed Conversion methods", () => {
       leftColumn: 0,
       minHeight: 100,
       minWidth: 450,
-      mobileBottomRow: 100,
+      mobileBottomRow: 108,
       mobileLeftColumn: 0,
       mobileRightColumn: 64,
       mobileTopRow: 0,
@@ -1066,7 +1069,7 @@ describe("test Auto to Fixed Conversion methods", () => {
       leftColumn: 0,
       minHeight: 210,
       minWidth: 450,
-      mobileBottomRow: 350,
+      mobileBottomRow: 382,
       mobileLeftColumn: 0,
       mobileRightColumn: 64,
       mobileTopRow: 0,
@@ -1116,20 +1119,14 @@ describe("test Auto to Fixed Conversion methods", () => {
   };
 
   it("Convert Normalized auto DSL to fixed Normalized DSl without wrap", () => {
-    // expect(convertNormalizedDSLToFixed(autoLayoutWidgets, "DESKTOP")).toEqual(
-    //   fixedLayoutWidgets,
-    // );
-    expect(autoLayoutWidgets["0"].bottomRow).toEqual(
-      fixedLayoutWidgets["0"].bottomRow,
+    expect(convertNormalizedDSLToFixed(autoLayoutWidgets, "DESKTOP")).toEqual(
+      fixedLayoutWidgets,
     );
   });
 
   it("Convert Normalized auto DSL to fixed Normalized DSl in mobile layout", () => {
-    // expect(convertNormalizedDSLToFixed(autoLayoutWidgets, "MOBILE")).toEqual(
-    //   fixedLayoutMobileWidgets,
-    // );
-    expect(autoLayoutWidgets["0"].bottomRow).toEqual(
-      fixedLayoutMobileWidgets["0"].bottomRow,
+    expect(convertNormalizedDSLToFixed(autoLayoutWidgets, "MOBILE")).toEqual(
+      fixedLayoutMobileWidgets,
     );
   });
 });
