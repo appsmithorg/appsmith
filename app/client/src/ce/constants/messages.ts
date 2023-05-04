@@ -175,6 +175,8 @@ export const USER_PROFILE_PICTURE_UPLOAD_FAILED = () =>
   "Unable to upload display picture.";
 export const UPDATE_USER_DETAILS_FAILED = () =>
   "Unable to update user details.";
+export const USER_DISPLAY_PICTURE_FILE_INVALID = () =>
+  "File content doesn't seem to be an image. Please verify.";
 
 export const CREATE_PASSWORD_RESET_SUCCESS = () => `Your password has been set`;
 export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = () => `Login`;
