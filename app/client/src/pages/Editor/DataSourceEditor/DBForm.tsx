@@ -26,6 +26,7 @@ import Debugger, {
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import DatasourceInformation from "./DatasourceSection";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -226,6 +227,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     datasourceButtonConfiguration,
     isReconnectingModalOpen: state.entities.datasources.isReconnectingModalOpen,
     datasourceName: datasource?.name ?? "",
+    featureFlags: selectFeatureFlags(state),
     isDatasourceBeingSavedFromPopup:
       state.entities.datasources.isDatasourceBeingSavedFromPopup,
     showDebugger,
