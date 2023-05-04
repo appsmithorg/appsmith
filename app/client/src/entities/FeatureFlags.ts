@@ -11,7 +11,6 @@ type FeatureFlags = {
   MULTIPLE_PANES?: boolean;
   AUTO_LAYOUT?: boolean;
   LAZY_CANVAS_RENDERING?: boolean;
-  ORACLE_PLUGIN?: boolean;
   ONE_CLICK_BINDING?: boolean;
   CHAT_AI?: boolean;
 };

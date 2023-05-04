@@ -29,7 +29,6 @@ import {
 } from "../DataSourceEditor/JSONtoForm";
 import { getConfigInitialValues } from "components/formControls/utils";
 import Connected from "../DataSourceEditor/Connected";
-
 import {
   getCurrentApplicationId,
   getGsheetProjectID,
@@ -70,6 +69,8 @@ import { getDatasourceErrorMessage } from "./errorUtils";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { DocumentationLink } from "../QueryEditor/EditorJSONtoForm";
 import GoogleSheetFilePicker from "./GoogleSheetFilePicker";
+import DatasourceInformation from "./../DataSourceEditor/DatasourceSection";
+import styled from "styled-components";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -131,6 +132,13 @@ type State = {
   unblock(): void;
   navigation(): void;
 };
+
+const ViewModeWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid #d0d7dd;
+  padding: 24px 20px;
+`;
 
 class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
   constructor(props: Props) {
@@ -270,6 +278,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       datasourceButtonConfiguration,
       datasourceId,
       documentationLink,
+      formConfig,
       formData,
       gsheetProjectID,
       gsheetToken,
@@ -406,20 +415,32 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
             </>
           )}
           {viewMode && (
-            <Connected
-              errorComponent={
-                datasource && isGoogleSheetPlugin && !isPluginAuthorized ? (
-                  <AuthMessage
-                    actionType={ActionType.AUTHORIZE}
+            <ViewModeWrapper>
+              <Connected
+                errorComponent={
+                  datasource && isGoogleSheetPlugin && !isPluginAuthorized ? (
+                    <AuthMessage
+                      actionType="authorize"
+                      datasource={datasource}
+                      description={authErrorMessage}
+                      pageId={pageId}
+                    />
+                  ) : null
+                }
+                showDatasourceSavedText={!isGoogleSheetPlugin}
+              />
+              <div style={{ marginTop: "30px" }}>
+                {!_.isNil(formConfig) &&
+                !_.isNil(datasource) &&
+                !hideDatasourceSection ? (
+                  <DatasourceInformation
+                    config={formConfig[0]}
                     datasource={datasource}
-                    description={authErrorMessage}
-                    pageId={pageId}
+                    viewMode={!!viewMode}
                   />
-                ) : null
-              }
-              hideDatasourceRenderSection={hideDatasourceSection}
-              showDatasourceSavedText={!isGoogleSheetPlugin}
-            />
+                ) : undefined}
+              </div>
+            </ViewModeWrapper>
           )}
           {/* Render datasource form call-to-actions */}
           {datasource && (
