@@ -1,0 +1,9 @@
+{
+  "name": "eslint-plugin-appsmith",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Custom ESLint plugin rules for appsmith",
+  "main": "index.js",
+  "author": "Sangeeth Sivan <sangeeth@appsmith.com>",
+  "license": "MIT"
+}
