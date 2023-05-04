@@ -127,7 +127,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final NewActionService newActionService;
     private final ActionCollectionService actionCollectionService;
     private final GitFileUtils fileUtils;
-    private final @Qualifier("importExportServiceCEImplV2") ImportExportApplicationService importExportApplicationService;
+    private final ImportExportApplicationService importExportApplicationService;
     private final GitExecutor gitExecutor;
     private final ResponseUtils responseUtils;
     private final EmailConfig emailConfig;
