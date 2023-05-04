@@ -14,6 +14,10 @@ import { forgotPasswordSubmitHandler } from "pages/UserAuth/helpers";
 import {
   FORGOT_PASSWORD_SUCCESS_TEXT,
   USER_DISPLAY_NAME_CHAR_CHECK_FAILED,
+  USER_DISPLAY_NAME_PLACEHOLDER,
+  USER_DISPLAY_PICTURE_PLACEHOLDER,
+  USER_EMAIL_PLACEHOLDER,
+  USER_RESET_PASSWORD,
 } from "@appsmith/constants/messages";
 import { logoutUser, updateUserDetails } from "actions/userActions";
 import UserProfileImagePicker from "./UserProfileImagePicker";
@@ -92,13 +96,17 @@ function General() {
     <Wrapper>
       <FieldWrapper>
         <LabelWrapper>
-          <Text type={TextType.H4}>Display Picture</Text>
+          <Text type={TextType.H4}>
+            {createMessage(USER_DISPLAY_PICTURE_PLACEHOLDER)}
+          </Text>
         </LabelWrapper>
         <UserProfileImagePicker />
       </FieldWrapper>
       <FieldWrapper>
         <LabelWrapper>
-          <Text type={TextType.H4}>Display name</Text>
+          <Text type={TextType.H4}>
+            {createMessage(USER_DISPLAY_NAME_PLACEHOLDER)}
+          </Text>
         </LabelWrapper>
         {
           <div style={{ flex: 1 }}>
@@ -113,7 +121,7 @@ function General() {
                   saveName();
                 }
               }}
-              placeholder="Display name"
+              placeholder={createMessage(USER_DISPLAY_NAME_PLACEHOLDER)}
               validator={nameValidator}
             />
           </div>
@@ -121,14 +129,16 @@ function General() {
       </FieldWrapper>
       <FieldWrapper>
         <LabelWrapper>
-          <Text type={TextType.H4}>Email</Text>
+          <Text type={TextType.H4}>
+            {createMessage(USER_EMAIL_PLACEHOLDER)}
+          </Text>
         </LabelWrapper>
         <div style={{ flexDirection: "column", display: "flex" }}>
           {<Text type={TextType.P1}>{user?.email}</Text>}
 
           {!disableLoginForm && (
             <ForgotPassword onClick={forgotPassword}>
-              Reset Password
+              {createMessage(USER_RESET_PASSWORD)}
             </ForgotPassword>
           )}
         </div>
