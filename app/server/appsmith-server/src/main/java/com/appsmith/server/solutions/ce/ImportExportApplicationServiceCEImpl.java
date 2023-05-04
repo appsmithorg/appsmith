@@ -1287,6 +1287,10 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 .onErrorResume(throwable -> {
                     String errorMessage = ImportExportUtils.getErrorMessage(throwable);
                     log.error("Error importing application. Error: {}", errorMessage, throwable);
+<<<<<<< HEAD
+=======
+                    log.debug("Error importing application. Error: {}", errorMessage, throwable);
+>>>>>>> d1af97c302 (removed v2 service for git import export)
                     return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
                 })
                 .as(transactionalOperator::transactional);
