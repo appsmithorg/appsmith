@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
-import { getReadableSnapShotDetails } from "selectors/autoLayoutSelectors";
 import { useSnapShotForm } from "./hooks/useSnapShotForm";
 import { ConversionForm } from "./ConversionForm";
 import {
@@ -27,6 +26,7 @@ import {
   Callout,
   Text,
 } from "design-system";
+import { getReadableSnapShotDetails } from "../../../utils/autoLayout/AutoLayoutUtils";
 
 export function SnapShotBannerCTA() {
   const [showModal, setShowModal] = useState(false);
