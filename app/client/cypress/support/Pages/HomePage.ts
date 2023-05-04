@@ -4,6 +4,8 @@ import HomePageLocators from "../../locators/HomePage";
 export class HomePage {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private locator = ObjectsRegistry.CommonLocators;
+  private entityExplorer = ObjectsRegistry.EntityExplorer;
+  private onboarding = ObjectsRegistry.Onboarding;
 
   private _username = "input[name='username']";
   private _password = "input[name='password']";
@@ -209,10 +211,16 @@ export class HomePage {
     this.agHelper.AssertElementVisible(this._homeAppsmithImage);
   }
 
-  public CreateNewApplication() {
+  public CreateNewApplication(skipSignposting = true) {
     cy.get(this._homePageAppCreateBtn).first().click({ force: true });
     this.agHelper.ValidateNetworkStatus("@createNewApplication", 201);
     cy.get(this.locator._loading).should("not.exist");
+
+    if (skipSignposting) {
+      this.agHelper.AssertElementVisible(this.entityExplorer._entityExplorer);
+      this.onboarding.closeIntroModal();
+      this.onboarding.skipSignposting();
+    }
   }
 
   //Maps to CreateAppForWorkspace in command.js
