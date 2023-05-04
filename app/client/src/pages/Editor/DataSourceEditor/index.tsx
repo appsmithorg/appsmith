@@ -84,7 +84,7 @@ interface ReduxStateProps {
   isNewDatasource: boolean;
   isPluginAuthorized: boolean;
   pageId: string;
-  pluginImages: Record<string, string>;
+  pluginImage: string;
   pluginId: string;
   viewMode: boolean;
   pluginType: string;
@@ -395,8 +395,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       location,
       pageId,
       pluginDatasourceForm,
-      pluginId,
-      pluginImages,
+      pluginImage,
       pluginPackageName,
       pluginType,
       setDatasourceViewMode,
@@ -422,7 +421,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
             isSaving={isSaving}
             location={location}
             pageId={pageId}
-            pluginImage={pluginImages[pluginId]}
+            pluginImage={pluginImage}
             triggerSave={this.props.triggerSave}
           />
           {this.renderSaveDisacardModal()}
@@ -469,7 +468,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           isSaving={isSaving}
           isTesting={isTesting}
           pageId={pageId}
-          pluginImage={pluginImages[pluginId]}
+          pluginImage={pluginImage}
           pluginType={pluginType}
           setDatasourceViewMode={setDatasourceViewMode}
           viewMode={viewMode && !fromImporting}
@@ -487,14 +486,12 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       datasourceId,
       isNewDatasource,
       isPluginAuthorized,
-      pluginId,
-      pluginImages,
+      pluginImage,
       pluginType,
       setDatasourceViewMode,
       viewMode,
     } = this.props;
 
-    const pluginImage = pluginImages[pluginId];
     const createFlow = datasourceId === TEMP_DATASOURCE_ID;
     return (
       <Header style={{ paddingTop: "20px" }}>
@@ -597,7 +594,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     canCreateDatasourceActions,
     canManageDatasource,
     datasourceId,
-    pluginImages: getPluginImages(state),
+    pluginImage: getPluginImages(state)[pluginId],
     formData,
     fromImporting: props.fromImporting ?? false,
     pluginId,
