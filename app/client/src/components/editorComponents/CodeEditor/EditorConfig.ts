@@ -14,7 +14,37 @@ export enum EditorModes {
   JAVASCRIPT = "javascript",
   GRAPHQL = "graphql",
   GRAPHQL_WITH_BINDING = "graphql-js",
+  POSTGRESQL_WITH_BINDING = "pgsql-js",
+  MYSQL_WITH_BINDING = "mysql-js",
+  MSSQL_WITH_BINDING = "mssql-js",
+  PLSQL_WITH_BINDING = "plsql-js",
+  SNOWFLAKE_WITH_BINDING = "snowflakesql-js",
+  ARANGO_WITH_BINDING = "arangosql-js",
+  REDIS_WITH_BINDING = "redissql-js",
 }
+
+export enum ALL_SQL_MIME_TYPES {
+  POSTGRESQL_WITH_BINDING = "pgsql-js",
+  MYSQL_WITH_BINDING = "mysql-js",
+  MSSQL_WITH_BINDING = "mssql-js",
+  PLSQL_WITH_BINDING = "plsql-js",
+  SNOWFLAKE_WITH_BINDING = "snowflakesql-js",
+  ARANGO_WITH_BINDING = "arangosql-js",
+  REDIS_WITH_BINDING = "redissql-js",
+  //  Generic sql
+  SQL_WITH_BINDING = "sql-js",
+}
+
+export const pluginToMIME: Record<string, EditorModes> = {
+  PostgreSQL: EditorModes.POSTGRESQL_WITH_BINDING,
+  MySQL: EditorModes.MYSQL_WITH_BINDING,
+  "Microsoft SQL Server": EditorModes.MSSQL_WITH_BINDING,
+  Oracle: EditorModes.PLSQL_WITH_BINDING,
+  Redshift: EditorModes.PLSQL_WITH_BINDING,
+  Snowflake: EditorModes.SNOWFLAKE_WITH_BINDING,
+  ArangoDB: EditorModes.ARANGO_WITH_BINDING,
+  Redis: EditorModes.REDIS_WITH_BINDING,
+};
 
 export enum EditorTheme {
   LIGHT = "LIGHT",
@@ -127,3 +157,7 @@ export const INDENTATION_CHARACTERS = {
 export const isNavKey = (key: any): key is AUTOCOMPLETE_NAVIGATION => {
   return AUTOCOMPLETE_NAVIGATION.hasOwnProperty(key);
 };
+
+export function getSqlEditorModeFromPluginName(name: string) {
+  return pluginToMIME[name] ?? EditorModes.SQL_WITH_BINDING;
+}

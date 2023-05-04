@@ -37,6 +37,7 @@ import type {
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { Skin } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import "components/editorComponents/CodeEditor/customMimes";
 import "components/editorComponents/CodeEditor/modes";
 import type {
   CodeEditorBorder,
@@ -1278,7 +1279,6 @@ class CodeEditor extends Component<Props, State> {
     if (this.props.isInvalid !== undefined) {
       isInvalid = Boolean(this.props.isInvalid);
     }
-    // console.log(this.editor.getModeAt(this.editor.getCursor()), "$$$");
 
     // show features like evaluatedvaluepopup or binding prompts
     const showFeatures =
