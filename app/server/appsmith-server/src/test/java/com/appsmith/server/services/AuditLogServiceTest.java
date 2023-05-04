@@ -9,6 +9,7 @@ import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceConfigurationStructure;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.PluginType;
@@ -233,6 +234,9 @@ public class AuditLogServiceTest {
 
     @Autowired
     CreateDBTablePageSolution createDBTablePageSolution;
+
+    @Autowired
+    DatasourceConfigurationStructureService datasourceConfigurationStructureService;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -2731,7 +2735,8 @@ public class AuditLogServiceTest {
         AuditLogMetadata auditLogMetadataRoleAssignedToUser = auditLogRoleAssignedToUser.getMetadata();
         assertThat(auditLogMetadataRoleAssignedToUser.getAppsmithVersion()).isNotEmpty();
 
-        AuditLogResource auditLogResourceRoleAssignedToUser = auditLogRoleAssignedToUser.getResource();;
+        AuditLogResource auditLogResourceRoleAssignedToUser = auditLogRoleAssignedToUser.getResource();
+
         assertThat(auditLogResourceRoleAssignedToUser.getType()).isEqualTo("Role");
         assertThat(auditLogResourceRoleAssignedToUser.getId()).isEqualTo(defaultRoleForWorkspace.getId());
         assertThat(auditLogResourceRoleAssignedToUser.getName()).isEqualTo(defaultRoleForWorkspace.getName());
@@ -3195,12 +3200,19 @@ public class AuditLogServiceTest {
         testDatasource.setPluginId(postgreSQLPlugin.getId());
         testDatasource.setWorkspaceId(createdWorkspace.getId());
         testDatasource.setName("CRUD-Page-Table-DS");
-        testDatasource.setStructure(structure);
         datasourceConfiguration.setUrl("http://test.com");
         testDatasource.setDatasourceConfiguration(datasourceConfiguration);
-        datasourceService.create(testDatasource).block();
+        datasourceService.create(testDatasource)
+                .flatMap(datasource -> {
+                    DatasourceConfigurationStructure datasourceConfigurationStructure = new DatasourceConfigurationStructure();
+                    datasourceConfigurationStructure.setDatasourceId(datasource.getId());
+                    datasourceConfigurationStructure.setStructure(structure);
 
-        crudPageResourceDTO.setTableName(testDatasource.getStructure().getTables().get(0).getName());
+                    return datasourceConfigurationStructureService.save(datasourceConfigurationStructure)
+                            .thenReturn(datasource);
+                }).block();
+
+        crudPageResourceDTO.setTableName(structure.getTables().get(0).getName());
         crudPageResourceDTO.setDatasourceId(testDatasource.getId());
 
         crudPageResourceDTO.setApplicationId(createdApplication.getId());
@@ -3336,6 +3348,7 @@ public class AuditLogServiceTest {
 
     /**
      * To update layout of a page
+     *
      * @param pageDTO
      * @return Mono of LayoutDTO
      * @throws JsonProcessingException
@@ -3380,7 +3393,6 @@ public class AuditLogServiceTest {
         String resourceType = auditLogService.getResourceType(new NewPage());
 
         NewPage newPage = newPageService.getById(pageDTO.getId()).block();
-
 
 
         MultiValueMap<String, String> params = getAuditLogRequest(null, "page.updated", resourceType, pageDTO.getId(), null, null, null, null, null);
@@ -3834,7 +3846,8 @@ public class AuditLogServiceTest {
                     AuditLogMetadata auditLogMetadata = auditLog.getMetadata();
                     assertThat(auditLogMetadata.getAppsmithVersion()).isNotEmpty();
 
-                    AuditLogResource auditLogResource = auditLog.getResource();;
+                    AuditLogResource auditLogResource = auditLog.getResource();
+
                     assertThat(auditLogResource.getType()).isEqualTo("Role");
                     assertThat(auditLogResource.getId()).isEqualTo(dbPermissionGroup.getId());
                     assertThat(auditLogResource.getName()).isEqualTo(dbPermissionGroup.getName());
@@ -3880,7 +3893,8 @@ public class AuditLogServiceTest {
                     AuditLogMetadata auditLogMetadata = auditLog.getMetadata();
                     assertThat(auditLogMetadata.getAppsmithVersion()).isNotEmpty();
 
-                    AuditLogResource auditLogResource = auditLog.getResource();;
+                    AuditLogResource auditLogResource = auditLog.getResource();
+
                     assertThat(auditLogResource.getType()).isEqualTo("Role");
                     assertThat(auditLogResource.getId()).isEqualTo(dbPermissionGroup.getId());
                     assertThat(auditLogResource.getName()).isEqualTo(dbPermissionGroup.getName());
@@ -3926,7 +3940,8 @@ public class AuditLogServiceTest {
                     AuditLogMetadata auditLogMetadata = auditLog.getMetadata();
                     assertThat(auditLogMetadata.getAppsmithVersion()).isNotEmpty();
 
-                    AuditLogResource auditLogResource = auditLog.getResource();;
+                    AuditLogResource auditLogResource = auditLog.getResource();
+
                     assertThat(auditLogResource.getType()).isEqualTo("Role");
                     assertThat(auditLogResource.getId()).isEqualTo(dbPermissionGroup.getId());
                     assertThat(auditLogResource.getName()).isEqualTo(dbPermissionGroup.getName());
@@ -3972,7 +3987,8 @@ public class AuditLogServiceTest {
                     AuditLogMetadata auditLogMetadata = auditLog.getMetadata();
                     assertThat(auditLogMetadata.getAppsmithVersion()).isNotEmpty();
 
-                    AuditLogResource auditLogResource = auditLog.getResource();;
+                    AuditLogResource auditLogResource = auditLog.getResource();
+
                     assertThat(auditLogResource.getType()).isEqualTo("Role");
                     assertThat(auditLogResource.getId()).isEqualTo(dbPermissionGroup.getId());
                     assertThat(auditLogResource.getName()).isEqualTo(dbPermissionGroup.getName());
@@ -4013,12 +4029,14 @@ public class AuditLogServiceTest {
                     AuditLogMetadata auditLogMetadata = auditLog.getMetadata();
                     assertThat(auditLogMetadata.getAppsmithVersion()).isNotEmpty();
 
-                    AuditLogResource auditLogResource = auditLog.getResource();;
+                    AuditLogResource auditLogResource = auditLog.getResource();
+
                     assertThat(auditLogResource.getType()).isEqualTo("Role");
                     assertThat(auditLogResource.getId()).isEqualTo(deletedPermissionGroup.getId());
                     assertThat(auditLogResource.getName()).isEqualTo(deletedPermissionGroup.getName());
                 }).verifyComplete();
     }
+
     @Test
     @WithUserDetails(value = "api_user")
     public void exportAuditLogs_Success() {
@@ -4032,37 +4050,37 @@ public class AuditLogServiceTest {
         Mono<ExportFileDTO> fileDTOMono = auditLogService.exportAuditLogs(new LinkedMultiValueMap<>());
 
         StepVerifier.create(fileDTOMono)
-            .assertNext(fileDTO -> {
-                assertThat(fileDTO).isNotNull();
-                assertThat(fileDTO.getApplicationResource()).isNotNull();
-                assertThat(fileDTO.getHttpHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-                AuditLogExportDTO auditLogExport = (AuditLogExportDTO) fileDTO.getApplicationResource();
-                assertThat(auditLogExport.getData()).hasSize(2);
-                List<AuditLog> auditLogs = auditLogExport.getData();
-                List<String> eventTypes = auditLogs.stream().map(AuditLog::getEvent).collect(Collectors.toList());
-                assertThat(eventTypes).contains("application.created");
-                assertThat(eventTypes).contains("application.cloned");
-            })
-            .verifyComplete();
+                .assertNext(fileDTO -> {
+                    assertThat(fileDTO).isNotNull();
+                    assertThat(fileDTO.getApplicationResource()).isNotNull();
+                    assertThat(fileDTO.getHttpHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+                    AuditLogExportDTO auditLogExport = (AuditLogExportDTO) fileDTO.getApplicationResource();
+                    assertThat(auditLogExport.getData()).hasSize(2);
+                    List<AuditLog> auditLogs = auditLogExport.getData();
+                    List<String> eventTypes = auditLogs.stream().map(AuditLog::getEvent).collect(Collectors.toList());
+                    assertThat(eventTypes).contains("application.created");
+                    assertThat(eventTypes).contains("application.cloned");
+                })
+                .verifyComplete();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void exportAuditLogs_NoRecords(){
+    public void exportAuditLogs_NoRecords() {
         clearAuditLogs();
 
         Mono<ExportFileDTO> fileDTOMono = auditLogService.exportAuditLogs(new LinkedMultiValueMap<>());
 
         StepVerifier.create(fileDTOMono)
-            .assertNext(fileDTO -> {
-                assertThat(fileDTO).isNotNull();
-                assertThat(fileDTO.getApplicationResource()).isNotNull();
-                assertThat(fileDTO.getHttpHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
-                AuditLogExportDTO auditLogExport = (AuditLogExportDTO) fileDTO.getApplicationResource();
-                assertThat(auditLogExport.getData()).hasSize(0);
-                assertThat(auditLogExport.getQuery()).hasSize(0);
-            })
-            .verifyComplete();
+                .assertNext(fileDTO -> {
+                    assertThat(fileDTO).isNotNull();
+                    assertThat(fileDTO.getApplicationResource()).isNotNull();
+                    assertThat(fileDTO.getHttpHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_JSON);
+                    AuditLogExportDTO auditLogExport = (AuditLogExportDTO) fileDTO.getApplicationResource();
+                    assertThat(auditLogExport.getData()).hasSize(0);
+                    assertThat(auditLogExport.getQuery()).hasSize(0);
+                })
+                .verifyComplete();
     }
 
     private void clearAuditLogs() {
@@ -4167,7 +4185,8 @@ public class AuditLogServiceTest {
                     AuditLogMetadata auditLogMetadata = auditLog.getMetadata();
                     assertThat(auditLogMetadata.getAppsmithVersion()).isNotEmpty();
 
-                    AuditLogResource auditLogResource = auditLog.getResource();;
+                    AuditLogResource auditLogResource = auditLog.getResource();
+
                     assertThat(auditLogResource.getType()).isEqualTo("Role");
                     assertThat(auditLogResource.getId()).isEqualTo(createdPermissionGroup.getId());
                     assertThat(auditLogResource.getName()).isEqualTo(createdPermissionGroup.getName());
@@ -4209,7 +4228,7 @@ public class AuditLogServiceTest {
                     assertThat(auditLogGacEntityMetadataActionCollection.isPresent()).isTrue();
                     assertThat(auditLogGacEntityMetadataActionCollection.get().getName()).isEqualTo(createdActionCollectionDTO.getName());
                     assertThat(auditLogGacEntityMetadataActionCollection.get().getType()).isEqualTo("JS Object");
-                    assertThat(auditLogGacEntityMetadataActionCollection .get().getPermissions()).isEqualTo(List.of(EDIT, DELETE, VIEW));
+                    assertThat(auditLogGacEntityMetadataActionCollection.get().getPermissions()).isEqualTo(List.of(EDIT, DELETE, VIEW));
                 })
                 .verifyComplete();
 
@@ -4326,7 +4345,8 @@ public class AuditLogServiceTest {
                     AuditLogMetadata auditLogMetadata = auditLog.getMetadata();
                     assertThat(auditLogMetadata.getAppsmithVersion()).isNotEmpty();
 
-                    AuditLogResource auditLogResource = auditLog.getResource();;
+                    AuditLogResource auditLogResource = auditLog.getResource();
+
                     assertThat(auditLogResource.getType()).isEqualTo("Role");
                     assertThat(auditLogResource.getId()).isEqualTo(createdPermissionGroupAfterUserDelete.getId());
                     assertThat(auditLogResource.getName()).isEqualTo(createdPermissionGroupAfterUserDelete.getName());
@@ -4367,7 +4387,8 @@ public class AuditLogServiceTest {
                     AuditLogMetadata auditLogMetadata = auditLog.getMetadata();
                     assertThat(auditLogMetadata.getAppsmithVersion()).isNotEmpty();
 
-                    AuditLogResource auditLogResource = auditLog.getResource();;
+                    AuditLogResource auditLogResource = auditLog.getResource();
+
                     assertThat(auditLogResource.getType()).isEqualTo("User");
                     assertThat(auditLogResource.getId()).isEqualTo(createdUser.getId());
                     assertThat(auditLogResource.getName()).isEqualTo(createdUser.getUsername());
@@ -4449,7 +4470,8 @@ public class AuditLogServiceTest {
         AuditLogMetadata auditLogMetadataRoleAssignedToUser = auditLogRoleAssignedToUser.getMetadata();
         assertThat(auditLogMetadataRoleAssignedToUser.getAppsmithVersion()).isNotEmpty();
 
-        AuditLogResource auditLogResourceRoleAssignedToUser = auditLogRoleAssignedToUser.getResource();;
+        AuditLogResource auditLogResourceRoleAssignedToUser = auditLogRoleAssignedToUser.getResource();
+
         assertThat(auditLogResourceRoleAssignedToUser.getType()).isEqualTo("Role");
         assertThat(auditLogResourceRoleAssignedToUser.getId()).isEqualTo(applicationDeveloperRole.getId());
         assertThat(auditLogResourceRoleAssignedToUser.getName()).isEqualTo(applicationDeveloperRole.getName());
@@ -4492,7 +4514,8 @@ public class AuditLogServiceTest {
         AuditLogMetadata auditLogMetadataRoleAssignedToGroup = auditLogRoleAssignedToGroup.getMetadata();
         assertThat(auditLogMetadataRoleAssignedToGroup.getAppsmithVersion()).isNotEmpty();
 
-        AuditLogResource auditLogResourceRoleAssignedToGroup = auditLogRoleAssignedToGroup.getResource();;
+        AuditLogResource auditLogResourceRoleAssignedToGroup = auditLogRoleAssignedToGroup.getResource();
+
         assertThat(auditLogResourceRoleAssignedToGroup.getType()).isEqualTo("Role");
         assertThat(auditLogResourceRoleAssignedToGroup.getId()).isEqualTo(applicationDeveloperRole.getId());
         assertThat(auditLogResourceRoleAssignedToGroup.getName()).isEqualTo(applicationDeveloperRole.getName());
@@ -4592,7 +4615,8 @@ public class AuditLogServiceTest {
         AuditLogMetadata auditLogMetadataRoleUnAssignedFromUser = auditLogRoleUnAssignedFromUser.getMetadata();
         assertThat(auditLogMetadataRoleUnAssignedFromUser.getAppsmithVersion()).isNotEmpty();
 
-        AuditLogResource auditLogResourceRoleUnAssignedFromUser = auditLogRoleUnAssignedFromUser.getResource();;
+        AuditLogResource auditLogResourceRoleUnAssignedFromUser = auditLogRoleUnAssignedFromUser.getResource();
+
         assertThat(auditLogResourceRoleUnAssignedFromUser.getType()).isEqualTo("Role");
         assertThat(auditLogResourceRoleUnAssignedFromUser.getId()).isEqualTo(applicationDeveloperRole.getId());
         assertThat(auditLogResourceRoleUnAssignedFromUser.getName()).isEqualTo(applicationDeveloperRole.getName());
@@ -4635,7 +4659,8 @@ public class AuditLogServiceTest {
         AuditLogMetadata auditLogMetadataRoleUnAssignedFromGroup = auditLogRoleUnAssignedFromGroup.getMetadata();
         assertThat(auditLogMetadataRoleUnAssignedFromGroup.getAppsmithVersion()).isNotEmpty();
 
-        AuditLogResource auditLogResourceRoleUnAssignedFromGroup = auditLogRoleUnAssignedFromGroup.getResource();;
+        AuditLogResource auditLogResourceRoleUnAssignedFromGroup = auditLogRoleUnAssignedFromGroup.getResource();
+
         assertThat(auditLogResourceRoleUnAssignedFromGroup.getType()).isEqualTo("Role");
         assertThat(auditLogResourceRoleUnAssignedFromGroup.getId()).isEqualTo(applicationDeveloperRole.getId());
         assertThat(auditLogResourceRoleUnAssignedFromGroup.getName()).isEqualTo(applicationDeveloperRole.getName());
@@ -4678,7 +4703,8 @@ public class AuditLogServiceTest {
         AuditLogMetadata auditLogMetadataRoleAssignedToUser = auditLogRoleAssignedToUser.getMetadata();
         assertThat(auditLogMetadataRoleAssignedToUser.getAppsmithVersion()).isNotEmpty();
 
-        AuditLogResource auditLogResourceRoleAssignedToUser = auditLogRoleAssignedToUser.getResource();;
+        AuditLogResource auditLogResourceRoleAssignedToUser = auditLogRoleAssignedToUser.getResource();
+
         assertThat(auditLogResourceRoleAssignedToUser.getType()).isEqualTo("Role");
         assertThat(auditLogResourceRoleAssignedToUser.getId()).isEqualTo(applicationViewerRole.getId());
         assertThat(auditLogResourceRoleAssignedToUser.getName()).isEqualTo(applicationViewerRole.getName());
@@ -4721,7 +4747,8 @@ public class AuditLogServiceTest {
         AuditLogMetadata auditLogMetadataRoleAssignedToGroup = auditLogRoleAssignedToGroup.getMetadata();
         assertThat(auditLogMetadataRoleAssignedToGroup.getAppsmithVersion()).isNotEmpty();
 
-        AuditLogResource auditLogResourceRoleAssignedToGroup = auditLogRoleAssignedToGroup.getResource();;
+        AuditLogResource auditLogResourceRoleAssignedToGroup = auditLogRoleAssignedToGroup.getResource();
+
         assertThat(auditLogResourceRoleAssignedToGroup.getType()).isEqualTo("Role");
         assertThat(auditLogResourceRoleAssignedToGroup.getId()).isEqualTo(applicationViewerRole.getId());
         assertThat(auditLogResourceRoleAssignedToGroup.getName()).isEqualTo(applicationViewerRole.getName());
