@@ -28,7 +28,6 @@ import {
   PluginImage,
 } from "../DataSourceEditor/JSONtoForm";
 import { getConfigInitialValues } from "components/formControls/utils";
-import Connected from "../DataSourceEditor/Connected";
 import {
   getCurrentApplicationId,
   getGsheetProjectID,
@@ -420,19 +419,14 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
           )}
           {viewMode && (
             <ViewModeWrapper>
-              <Connected
-                errorComponent={
-                  datasource && isGoogleSheetPlugin && !isPluginAuthorized ? (
-                    <AuthMessage
-                      actionType="authorize"
-                      datasource={datasource}
-                      description={authErrorMessage}
-                      pageId={pageId}
-                    />
-                  ) : null
-                }
-                showDatasourceSavedText={!isGoogleSheetPlugin}
-              />
+              {datasource && isGoogleSheetPlugin && !isPluginAuthorized ? (
+                <AuthMessage
+                  actionType="authorize"
+                  datasource={datasource}
+                  description={authErrorMessage}
+                  pageId={pageId}
+                />
+              ) : null}
               <div style={{ marginTop: "30px" }}>
                 {!_.isNil(formConfig) &&
                 !_.isNil(datasource) &&
