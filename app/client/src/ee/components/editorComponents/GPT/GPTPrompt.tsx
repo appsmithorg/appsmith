@@ -29,6 +29,8 @@ import classNames from "classnames";
 import LikeIcon from "remixicon-react/ThumbUpLineIcon";
 import DislikeIcon from "remixicon-react/ThumbDownLineIcon";
 import { Colors } from "constants/Colors";
+import sql from "react-syntax-highlighter/dist/cjs/languages/prism/sql";
+SyntaxHighlighter.registerLanguage("sql", sql);
 
 const ResponseContainer = styled.div`
   background: #f5f5f5;
@@ -219,7 +221,10 @@ function AssistantPrompt(props: { prompt: TAssistantPrompt }) {
           </div>
         </div>
         <div className="flex pt-2 pb-1 flex-col">
-          <SyntaxHighlighter language="javascript" style={duotoneLight}>
+          <SyntaxHighlighter
+            language={task === GPTTask.SQL_QUERY ? "sql" : "javascript"}
+            style={duotoneLight}
+          >
             {text}
           </SyntaxHighlighter>
         </div>
@@ -280,8 +285,6 @@ function AssistantPrompt(props: { prompt: TAssistantPrompt }) {
                 })}
               >
                 <ReadOnlyEditor
-                  // border={CodeEditorBorder.NONE}
-                  // className="js-editor"
                   folding={false}
                   height="100%"
                   input={{
