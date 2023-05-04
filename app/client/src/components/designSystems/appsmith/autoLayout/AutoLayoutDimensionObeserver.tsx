@@ -49,7 +49,7 @@ export default function AutoLayoutDimensionObserver(
      */
     if (
       props.type === "BUTTON_WIDGET" &&
-      props.width !== currentDimension.width
+      props.width !== currentDimension.width + WIDGET_PADDING * 2
     )
       onDimensionUpdate(currentDimension.width, currentDimension.height);
     /**
