@@ -32,6 +32,7 @@ export enum EntityClassNames {
   CONTEXT_MENU_CONTENT = "entity-context-menu-content",
   RIGHT_ICON = "entity-right-icon",
   PRE_RIGHT_ICON = "entity-pre-right-icon",
+  ICON = "entity-icon",
   ADD_BUTTON = "t--entity-add-btn",
   NAME = "t--entity-name",
   COLLAPSE_TOGGLE = "t--entity-collapse-toggle",
@@ -55,6 +56,11 @@ const Wrapper = styled.div<{ active: boolean }>`
       width: auto;
     }
   }
+
+  &.group {
+    font-weight: 500;
+  }
+  font-weight: 400;
 `;
 
 export const entityTooltipCSS = css`
@@ -67,6 +73,7 @@ export const entityTooltipCSS = css`
 export const EntityItem = styled.div<{
   active: boolean;
   step: number;
+  disabled?: boolean;
   spaced: boolean;
   highlight: boolean;
   isSticky: boolean;
@@ -96,17 +103,23 @@ export const EntityItem = styled.div<{
   grid-auto-flow: column dense;
   border-radius: var(--ads-v2-border-radius);
   color: var(--ads-v2-color-fg);
-  font-weight: 500;
   cursor: pointer;
   align-items: center;
   &:hover {
     background: var(--ads-v2-color-bg-subtle);
   }
 
-  .${Classes.COLLAPSE_BODY} & {
-    color: var(--ads-v2-color-fg);
-    font-weight: 400;
-  }
+  ${(props) =>
+    props.disabled &&
+    `
+    color: var(--ads-v2-color-fg-subtle);
+    &:hover {
+      background: transparent;
+    }
+    .${EntityClassNames.ICON} .ads-v2-icon {
+      color: var(--ads-v2-color-fg-subtle);
+    }
+  `}
 
   scroll-margin-top: 36px;
   scroll-snap-margin-top: 36px;
@@ -342,6 +355,7 @@ export const Entity = forwardRef(
             } t--entity-item`}
             data-guided-tour-id={`explorer-entity-${props.name}`}
             data-guided-tour-iid={props.name}
+            disabled={!!props.disabled}
             highlight={!!props.highlight}
             id={"entity-" + props.entityId}
             isSticky={props.isSticky === true}
@@ -356,7 +370,12 @@ export const Entity = forwardRef(
               isVisible={!!props.children}
               onClick={toggleChildren}
             />
-            <IconWrapper onClick={handleClick}>{props.icon}</IconWrapper>
+            <IconWrapper
+              className={`${EntityClassNames.ICON}`}
+              onClick={handleClick}
+            >
+              {props.icon}
+            </IconWrapper>
             <EntityName
               className={`${EntityClassNames.NAME}`}
               enterEditMode={enterEditMode}

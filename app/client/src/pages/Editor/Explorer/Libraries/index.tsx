@@ -296,7 +296,7 @@ function JSDependencies() {
 
   return (
     <Entity
-      className={"libraries"}
+      className={"group libraries"}
       customAddButton={
         <Tooltip
           content={createMessage(customJSLibraryMessages.ADD_JS_LIBRARY)}

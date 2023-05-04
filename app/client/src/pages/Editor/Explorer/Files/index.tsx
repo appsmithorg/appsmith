@@ -118,7 +118,6 @@ function Files() {
           openMenu={isMenuOpen}
         />
       }
-      disabled={false}
       entityId={pageId + "_widgets"}
       icon={null}
       isDefaultExpanded={
