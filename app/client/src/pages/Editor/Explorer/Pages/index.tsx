@@ -104,10 +104,6 @@ function Pages() {
   );
 
   useEffect(() => {
-    document.getElementsByClassName("activePage")[0]?.scrollIntoView();
-  }, [currentPageId]);
-
-  useEffect(() => {
     if ((isPagesOpen === null ? true : isPagesOpen) && pageResizeRef.current) {
       pageResizeRef.current.style.height = storedHeight + "px";
     }
