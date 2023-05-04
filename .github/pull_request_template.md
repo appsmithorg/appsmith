@@ -60,10 +60,10 @@ Fixes # (issue number)
 
 
 #### QA activity:
-- [ ] Speedbreak features have been covered, if applicable
-- [ ] Test plan has been approved by project stakeholders
+- [ ] Speedbreak features, if applicable, have been covered
+- [ ] Test plan has been reviewed by project stakeholders
 - [ ] Test plan has been peer reviewed by QA
+- [ ] Organized project review with relevant stakeholders after Round 2 of QA for large changes
 - [ ] Cypress test cases have been added and approved by SDET/manual QA
-- [ ] Organized project review with relevant stakeholders after Round 2 of QA
-- [ ] Added Test Plan Approved label after reveiwing all Cypress test
-- [ ] Added Test Plan Approved label after developers review JUnit tests
+- [ ] Added `Test Plan Approved` label after reviewing all Cypress test
+- [ ] Added `Test Plan Approved` label after developers review JUnit tests
