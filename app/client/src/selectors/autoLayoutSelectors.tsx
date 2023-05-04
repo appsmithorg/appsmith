@@ -1,9 +1,5 @@
 import type { AppState } from "@appsmith/reducers";
 import { FLEXBOX_PADDING, GridDefaults } from "constants/WidgetConstants";
-import dayjs from "dayjs";
-import duration from "dayjs/plugin/duration";
-import relativeTime from "dayjs/plugin/relativeTime";
-import advancedFormat from "dayjs/plugin/advancedFormat";
 import { createSelector } from "reselect";
 import { getWidgets } from "sagas/selectors";
 import type {
@@ -15,17 +11,6 @@ import type {
 import { getAlignmentColumnInfo } from "utils/autoLayout/AutoLayoutUtils";
 import { getIsAutoLayoutMobileBreakPoint } from "./editorSelectors";
 
-//add formatting plugins
-dayjs.extend(duration);
-dayjs.extend(relativeTime);
-dayjs.extend(advancedFormat);
-
-export type ReadableSnapShotDetails = {
-  timeSince: string;
-  timeTillExpiration: string;
-  readableDate: string;
-};
-
 export const getIsCurrentlyConvertingLayout = (state: AppState) =>
   state.ui.layoutConversion.isConverting;
 
@@ -36,6 +21,9 @@ export const getFlexLayers = (parentId: string) => {
     return parent?.flexLayers || [];
   });
 };
+
+export const getSnapshotUpdatedTime = (state: AppState) =>
+  state.ui.layoutConversion.snapshotDetails?.lastUpdatedTime;
 
 export const getLayerIndex = (widgetId: string, parentId: string) => {
   return createSelector(
@@ -77,6 +65,8 @@ export const getTotalTopOffset = (widgetId: string) => {
             ? parent.mobileTopRow
             : parent.topRow;
         offset += top * GridDefaults.DEFAULT_GRID_ROW_HEIGHT + FLEXBOX_PADDING;
+        if (parent.type === "TABS_WIDGET" && parent?.shouldShowTabs)
+          offset += GridDefaults.DEFAULT_GRID_ROW_HEIGHT * 4; // 4 rows for tabs header
         widget = parent;
       }
       return offset;
@@ -99,39 +89,6 @@ export const getParentOffsetTop = (widgetId: string) =>
       return top * GridDefaults.DEFAULT_GRID_ROW_HEIGHT + FLEXBOX_PADDING;
     },
   );
-
-export const getReadableSnapShotDetails = createSelector(
-  (state: AppState) =>
-    state.ui.layoutConversion.snapshotDetails?.lastUpdatedTime,
-  (
-    lastUpdatedDateString: string | undefined,
-  ): ReadableSnapShotDetails | undefined => {
-    if (!lastUpdatedDateString) return;
-
-    const lastUpdatedDate = new Date(lastUpdatedDateString);
-
-    if (Date.now() - lastUpdatedDate.getTime() <= 0) return;
-
-    const millisecondsPerHour = 60 * 60 * 1000;
-    const ExpirationInMilliseconds = 5 * 24 * millisecondsPerHour;
-    const timePassedSince = Date.now() - lastUpdatedDate.getTime();
-
-    const timeSince: string = dayjs
-      .duration(timePassedSince, "milliseconds")
-      .humanize();
-    const timeTillExpiration: string = dayjs
-      .duration(ExpirationInMilliseconds - timePassedSince, "milliseconds")
-      .humanize();
-
-    const readableDate = dayjs(lastUpdatedDate).format("Do MMMM, YYYY h:mm a");
-
-    return {
-      timeSince,
-      timeTillExpiration,
-      readableDate,
-    };
-  },
-);
 
 export const getAlignmentColumns = (widgetId: string, layerIndex: number) =>
   createSelector(
