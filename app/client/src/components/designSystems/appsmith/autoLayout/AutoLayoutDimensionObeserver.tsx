@@ -12,12 +12,13 @@ const SimpleContainer = styled.div`
 `;
 
 interface AutoLayoutDimensionObserverProps {
-  onDimensionUpdate: (width: number, height: number) => void;
-  width: number;
   height: number;
   isFillWidget: boolean;
-  minWidth: number;
   minHeight: number;
+  minWidth: number;
+  onDimensionUpdate: (width: number, height: number) => void;
+  type: string;
+  width: number;
 }
 
 export default function AutoLayoutDimensionObserver(
@@ -41,9 +42,21 @@ export default function AutoLayoutDimensionObserver(
   );
 
   useEffect(() => {
-    // Top down data flow (from store to widget) (Canvas resizing / adding more widgets in the same row)
-    // Only updated when min size violated or
-    // bounding box is larger than component size (Button widget)
+    /**
+     * BUTTON_WIDGET is a special case
+     * as the component tries to preserve it's width on all viewports.
+     * So bounding box must be adjusted to the component's width.
+     */
+    if (
+      props.type === "BUTTON_WIDGET" &&
+      props.width !== currentDimension.width
+    )
+      onDimensionUpdate(currentDimension.width, currentDimension.height);
+    /**
+     * Top down data flow (from store to widget) (Canvas resizing / adding more widgets in the same row)
+     * Only updated when min size is violated or
+     * bounding box is larger than component size.
+     */
     if (
       props.width < props.minWidth ||
       props.height < props.minHeight ||
@@ -54,9 +67,11 @@ export default function AutoLayoutDimensionObserver(
   }, [props.width, props.height]);
 
   useEffect(() => {
-    // Component dimensions have changed first.
-    // Bottom up data flow (from widget to store)
-    // Always updated
+    /**
+     * Component dimensions have changed first.
+     * Bottom up data flow (from widget to store)
+     * Always update the store with the latest dimensions.
+     */
     onDimensionUpdate(currentDimension.width, currentDimension.height);
   }, [currentDimension.width, currentDimension.height]);
 
