@@ -52,7 +52,7 @@ export function getComputedHeight(
   let res: number = computedHeight;
   /**
    * add padding buffer for canvas.
-   * if parentColumnSpace === 1, => type === CANVAS_WIDGET
+   * if parentRowSpace === 1, => type === CANVAS_WIDGET
    */
   if (parent.type === "CANVAS_WIDGET")
     res +=
@@ -91,7 +91,6 @@ export function getComputedHeight(
       containerMinHeight -= 4;
   }
   res = Math.max(res, minHeight, containerMinHeight);
-
   return res;
 }
 
@@ -148,4 +147,10 @@ export function getModalHeight(
   if (parent.type === "MODAL_WIDGET")
     res *= divisor === 1 ? GridDefaults.DEFAULT_GRID_ROW_HEIGHT : 1;
   return res;
+}
+
+export function getDivisor(widget: FlattenedWidgetProps): number {
+  return widget.type === "CANVAS_WIDGET"
+    ? GridDefaults.DEFAULT_GRID_ROW_HEIGHT
+    : 1;
 }

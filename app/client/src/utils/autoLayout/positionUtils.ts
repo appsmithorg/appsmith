@@ -36,6 +36,7 @@ import { checkIsDropTarget } from "utils/WidgetFactoryHelpers";
 import { isFunction } from "lodash";
 import {
   getComputedHeight,
+  getDivisor,
   getModalHeight,
   shouldUpdateParentHeight,
   updateParentHeight,
@@ -58,7 +59,6 @@ export function updateWidgetPositions(
   metaProps?: Record<string, any>,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
-  // console.log(JSON.stringify(widgets));
   try {
     if (
       !widgets[MAIN_CONTAINER_WIDGET_ID].positioning ||
@@ -109,7 +109,7 @@ export function updateWidgetPositions(
       height = WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS;
     } else return widgets;
 
-    const divisor = parent.parentRowSpace === 1 ? 10 : 1;
+    const divisor = getDivisor(parent);
 
     const parentHeight = getWidgetRows(parent, isMobile);
     const computedHeight: number = getComputedHeight(
@@ -740,7 +740,7 @@ export function getTotalRowsOfAllChildren(
   for (const childId of children) {
     const child = widgets[childId];
     if (!child) continue;
-    const divisor = child.parentRowSpace === 1 ? 10 : 1;
+    const divisor = getDivisor(child);
     top = Math.min(top, getTopRow(child, isMobile));
     bottom = Math.max(bottom, getBottomRow(child, isMobile) / divisor);
   }
