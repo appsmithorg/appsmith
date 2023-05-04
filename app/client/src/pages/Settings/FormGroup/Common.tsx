@@ -30,6 +30,7 @@ export const StyledLabel = styled.div`
   margin-bottom: 8px;
   .admin-settings-form-group-label {
     font-weight: 500;
+    user-select: none;
   }
 `;
 
