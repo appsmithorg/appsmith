@@ -4,17 +4,13 @@ import { Button } from "./";
 <Meta
   title="Design-system/widgets/Button"
   component={Button}
-  parameters={{
-    height: 32,
-    width: 180,
-  }}
   args={{
     children: "Button",
   }}
 />
 
 export const Template = (args, { globals: { fontFamily } }) => (
-  <Button isFitContainer {...args} fontFamily={fontFamily} />
+  <Button {...args} fontFamily={fontFamily} />
 );
 
 # Button

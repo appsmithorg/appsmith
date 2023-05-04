@@ -40,6 +40,7 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.DatasourceStructureSolution;
 import com.appsmith.server.solutions.PagePermission;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -87,6 +88,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
     private final DatasourcePermission datasourcePermission;
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
+    private final DatasourceStructureSolution datasourceStructureSolution;
 
     private static final String FILE_PATH = "CRUD-DB-Table-Template-Application.json";
 
@@ -204,13 +206,16 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
         return datasourceMono
                 .zipWhen(datasource -> Mono.zip(
                                 pageMono,
-                                pluginService.findById(datasource.getPluginId())
+                                pluginService.findById(datasource.getPluginId()),
+                        datasourceStructureSolution.getStructure(datasource, false, null)
                         )
                 )
                 .flatMap(tuple -> {
                     Datasource datasource = tuple.getT1();
                     NewPage page = tuple.getT2().getT1();
                     Plugin plugin = tuple.getT2().getT2();
+                    DatasourceStructure datasourceStructure = tuple.getT2().getT3();
+
                     final String layoutId = page.getUnpublishedPage().getLayouts().get(0).getId();
                     final String savedPageId = page.getId();
 
@@ -296,7 +301,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                                 .findAny()
                                 .orElse(null);
 
-                        Table table = getTable(templateDatasourceConfigurationStructure, tableName);
+                        Table table = getTable(datasourceStructure, tableName);
                         if (table == null) {
                             return Mono.error(
                                     new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE_STRUCTURE, datasource.getName())
@@ -473,16 +478,15 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
     }
 
     /**
-     * @param datasourceConfigurationStructure resource from which table has to be filtered
+     * @param datasourceStructure              resource from which table has to be filtered
      * @param tableName                        to filter the available tables in the datasource
      * @return Table from the provided datasource if structure is present
      */
-    private Table getTable(DatasourceConfigurationStructure datasourceConfigurationStructure, String tableName) {
+    private Table getTable(DatasourceStructure datasourceStructure, String tableName) {
         /*
             1. Get structure from datasource
             2. Filter by tableName
         */
-        DatasourceStructure datasourceStructure = datasourceConfigurationStructure.getStructure();
         if (datasourceStructure != null) {
             return datasourceStructure.getTables()
                     .stream()
