@@ -81,7 +81,7 @@ ff4j:
             value: multipanes@appsmith.com,ndx@appsmith.com
 
     - uid: AUTO_LAYOUT
-      enable: true
+      enable: false
       description: Enable auto layout editor by email domain of user.
       flipstrategy:
         class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
