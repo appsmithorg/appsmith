@@ -18,7 +18,8 @@ import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 // Design
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import styled from "styled-components";
-import { Spinner, Button } from "@blueprintjs/core";
+import { Spinner } from "design-system";
+import { Button } from "@blueprintjs/core";
 import DatasourceCard from "pages/Editor/SaaSEditor/DatasourceCard";
 import {
   getCurrentApplicationId,
@@ -159,7 +160,7 @@ class ListView extends React.Component<Props> {
   renderLoading() {
     return (
       <LoadingContainer>
-        <Spinner size={30} />
+        <Spinner size="lg" />
       </LoadingContainer>
     );
   }

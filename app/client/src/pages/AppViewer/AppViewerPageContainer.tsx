@@ -6,7 +6,7 @@ import { getIsFetchingPage } from "selectors/appViewSelectors";
 import styled from "styled-components";
 import type { AppViewerRouteParams } from "constants/routes";
 import { theme } from "constants/DefaultTheme";
-import { Icon, NonIdealState, Spinner } from "@blueprintjs/core";
+import { Icon, NonIdealState } from "@blueprintjs/core";
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import AppPage from "./AppPage";
 import { getCanvasWidth, getCurrentPageName } from "selectors/editorSelectors";
@@ -19,6 +19,7 @@ import {
 import { builderURL } from "RouteBuilder";
 import { getCanvasWidgetsStructure } from "selectors/entitiesSelector";
 import equal from "fast-deep-equal/es6";
+import { Spinner } from "design-system";
 
 const Section = styled.section`
   height: 100%;
@@ -81,7 +82,7 @@ function AppViewerPageContainer(props: AppViewerPageContainerProps) {
 
   const pageLoading = (
     <Centered>
-      <Spinner />
+      <Spinner size="lg" />
     </Centered>
   );
 

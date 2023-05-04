@@ -11,7 +11,7 @@ import type { AppState } from "@appsmith/reducers";
 import type { Action } from "entities/Action";
 
 import { saveActionName } from "actions/pluginActionActions";
-import { Spinner } from "@blueprintjs/core";
+import { Spinner } from "design-system";
 import { Classes } from "@blueprintjs/core";
 import { getAction, getPlugin } from "selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
@@ -122,7 +122,7 @@ function ActionNameEditor(props: ActionNameEditorProps) {
               updating={saveStatus.isSaving}
               valueTransform={removeSpecialChars}
             />
-            {saveStatus.isSaving && <Spinner size={16} />}
+            {saveStatus.isSaving && <Spinner size="sm" />}
           </div>
         </ApiNameWrapper>
       )}

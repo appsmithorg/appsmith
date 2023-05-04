@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet";
 import { connect } from "react-redux";
 import type { RouteComponentProps } from "react-router-dom";
 import { withRouter } from "react-router-dom";
-import { Spinner } from "@blueprintjs/core";
+import { Spinner } from "design-system";
 import type { BuilderRouteParams } from "constants/routes";
 import type { AppState } from "@appsmith/reducers";
 import MainContainer from "./MainContainer";
@@ -167,7 +167,7 @@ class Editor extends Component<Props> {
         <CenteredWrapper
           style={{ height: `calc(100vh - ${theme.smallHeaderHeight})` }}
         >
-          <Spinner />
+          <Spinner size="lg" />
         </CenteredWrapper>
       );
     }

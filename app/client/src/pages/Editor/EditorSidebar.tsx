@@ -6,7 +6,6 @@ import styled from "styled-components";
 import type { AppState } from "@appsmith/reducers";
 import type { APIEditorRouteParams } from "constants/routes";
 import type { IIconProps } from "@blueprintjs/core";
-import { Spinner } from "@blueprintjs/core";
 import { BaseTextInput } from "components/designSystems/appsmith/TextInputComponent";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import Fuse from "fuse.js";
@@ -16,7 +15,7 @@ import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
 import { Colors } from "constants/Colors";
-import { Icon } from "design-system";
+import { Icon, Spinner } from "design-system";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -308,7 +307,7 @@ class EditorSidebar extends React.Component<Props, State> {
 
     return isLoading ? (
       <LoadingContainer>
-        <Spinner size={30} />
+        <Spinner size="lg" />
       </LoadingContainer>
     ) : (
       <Wrapper>
