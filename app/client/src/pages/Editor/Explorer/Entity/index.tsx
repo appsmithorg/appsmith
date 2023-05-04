@@ -13,7 +13,6 @@ import EntityName from "./Name";
 import AddButton from "./AddButton";
 import Collapse from "./Collapse";
 import { useEntityUpdateState, useEntityEditState } from "../hooks";
-import Loader from "./Loader";
 import { Classes } from "@blueprintjs/core";
 import { noop } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
@@ -26,7 +25,7 @@ import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { getEntityCollapsibleState } from "selectors/editorContextSelectors";
 import type { AppState } from "@appsmith/reducers";
 import { setEntityCollapsibleState } from "actions/editorContextActions";
-import { Tooltip } from "design-system";
+import { Tooltip, Icon } from "design-system";
 
 export enum EntityClassNames {
   CONTEXT_MENU = "entity-context-menu",
@@ -93,7 +92,7 @@ export const EntityItem = styled.div<{
   height: 36px;
   width: 100%;
   display: inline-grid;
-  grid-template-columns: 20px auto 1fr auto auto auto;
+  grid-template-columns: 20px auto 1fr auto auto auto auto;
   grid-auto-flow: column dense;
   border-radius: var(--ads-v2-border-radius);
   color: var(--ads-v2-color-fg);
@@ -371,6 +370,11 @@ export const Entity = forwardRef(
               searchKeyword={props.searchKeyword}
               updateEntityName={updateNameCallback}
             />
+            {isUpdating && (
+              <IconWrapper>
+                <Icon name="loader-line" />
+              </IconWrapper>
+            )}
             {props.preRightIcon && (
               <IconWrapper
                 className={`${EntityClassNames.PRE_RIGHT_ICON} w-full h-full`}
@@ -391,7 +395,6 @@ export const Entity = forwardRef(
             {props.contextMenu && (
               <ContextMenuWrapper>{props.contextMenu}</ContextMenuWrapper>
             )}
-            <Loader isVisible={isUpdating} />
           </EntityItem>
           <Collapse
             active={props.active}
