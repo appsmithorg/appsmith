@@ -146,6 +146,13 @@ class TableInlineEditValidationControl extends BaseControl<TableInlineEditValida
         expected={expected}
         label={label}
         onChange={this.onTextChange}
+        promptMessage={
+          <PromptMessage>
+            Access the current cell using <CurlyBraces>{"{{"}</CurlyBraces>
+            currentRow.columnName
+            <CurlyBraces>{"}}"}</CurlyBraces>
+          </PromptMessage>
+        }
         theme={theme}
         value={value}
       />

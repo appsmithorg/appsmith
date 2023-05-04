@@ -515,4 +515,19 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.backFromPropertyPanel();
     cy.makeColumnEditable("orderAmount");
   });
+
+  it("14. Verify default prompt message for min field", function () {
+    cy.openPropertyPane("tablewidgetv2");
+    cy.makeColumnEditable("orderAmount");
+    cy.editColumn("orderAmount");
+    cy.changeColumnType("Number");
+    propPane.UpdatePropertyFieldValue("Min", "test");
+    cy.get(".t--property-control-min .t--no-binding-prompt > span").should(
+      "have.text",
+      "Access the current cell using {{currentRow.columnName}}",
+    );
+    cy.changeColumnType("Plain Text");
+    cy.backFromPropertyPanel();
+    cy.makeColumnEditable("orderAmount");
+  });
 });
