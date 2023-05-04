@@ -50,7 +50,7 @@ function GetIconForAction(
       return () => <Icon name="folder-reduce-line" />;
 
     case AppsmithFunction.removeValue:
-      return () => <Icon name="remove-store" />;
+      return () => <Icon name="folder-line" />;
 
     case AppsmithFunction.setInterval:
       return () => <Icon name="timer-flash-line" />;

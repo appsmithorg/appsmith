@@ -4,7 +4,7 @@ import equal from "fast-deep-equal/es6";
 import * as log from "loglevel";
 
 import { ControlWrapper } from "components/propertyControls/StyledControls";
-import { ToggleButton, Tooltip, Icon } from "design-system";
+import { ToggleButton, Tooltip, Button } from "design-system";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
@@ -783,17 +783,18 @@ const PropertyControl = memo((props: Props) => {
               </>
             )}
             {!isDynamic && config.controlType === "ACTION_SELECTOR" && (
-              <button
+              <Button
                 className={clsx(
                   `${config.label}`,
                   "add-action flex items-center justify-center text-center h-7 w-7 ml-auto",
                   `t--add-action-${config.label}`,
                 )}
                 disabled={false}
+                isIconButton
+                kind="tertiary"
                 onClick={() => setShowEmptyBlock(true)}
-              >
-                <Icon name="plus" size="lg" />
-              </button>
+                startIcon="plus"
+              />
             )}
           </div>
           {PropertyControlFactory.createControl(
