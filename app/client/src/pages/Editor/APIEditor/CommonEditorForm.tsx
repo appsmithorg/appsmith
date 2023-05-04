@@ -108,7 +108,7 @@ const ActionButtons = styled.div`
 `;
 
 const HelpSection = styled.div`
-  padding: var(--ads-v2-spaces-4) 0 var(--ads-v2-spaces-7) 0;
+  padding: var(--ads-v2-spaces-4) var(--ads-v2-spaces-7);
 `;
 
 const DatasourceWrapper = styled.div`
