@@ -87,7 +87,7 @@ export default [
         propertyName: "configureMenuItems",
         controlType: "OPEN_CONFIG_PANEL",
         buttonConfig: {
-          label: "Item Configuration",
+          label: "Configure",
           icon: "settings-2-line",
         },
         label: "Configure menu items",

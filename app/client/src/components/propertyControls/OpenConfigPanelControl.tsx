@@ -22,17 +22,15 @@ class OpenConfigPanelControl extends BaseControl<OpenConfigPanelControlProps> {
     const { widgetName } = widgetProperties;
 
     return (
-      <div className="flex flex-col">
-        <Button
-          className={`self-end t--${widgetName}-open-next-panel-button`}
-          endIcon={icon}
-          kind="tertiary"
-          onClick={this.openConfigPanel}
-          size="sm"
-        >
-          {label}
-        </Button>
-      </div>
+      <Button
+        className={` t--${widgetName}-open-next-panel-button`}
+        kind="secondary"
+        onClick={this.openConfigPanel}
+        size="sm"
+        startIcon={icon}
+      >
+        {label}
+      </Button>
     );
   }
 

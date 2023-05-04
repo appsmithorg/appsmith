@@ -7,7 +7,7 @@ import {
 } from "@appsmith/constants/messages";
 import classNames from "classnames";
 import type { AppIconName } from "design-system-old";
-import { Input } from "design-system";
+import { Input, Text } from "design-system";
 import { IconSelector } from "design-system-old";
 import { debounce } from "lodash";
 import React, { useCallback, useState } from "react";
@@ -38,21 +38,12 @@ const IconSelectorWrapper = styled.div`
       fill: var(--ads-v2-color-fg);
     }
   }
-  .t--icon-not-selected {
-    background-color: var(--ads-v2-color-bg-subtle);
-  }
   .icon-selector::-webkit-scrollbar-thumb {
     background-color: transparent;
   }
   .icon-selector::-webkit-scrollbar {
     width: 0px;
   }
-`;
-
-const Text = styled.p`
-  font-size: var(--ads-v2-font-size-4);
-  font-weight: var(--ads-v2-font-weight-normal);
-  color: var(--ads-v2-color-fg);
 `;
 
 function GeneralSettings() {
@@ -133,7 +124,7 @@ function GeneralSettings() {
         />
       </div>
 
-      <Text>{GENERAL_SETTINGS_APP_ICON_LABEL()}</Text>
+      <Text kind="action-m">{GENERAL_SETTINGS_APP_ICON_LABEL()}</Text>
       <IconSelectorWrapper className="pt-1" id="t--general-settings-app-icon">
         <IconSelector
           className="icon-selector"
