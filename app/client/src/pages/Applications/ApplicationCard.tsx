@@ -305,9 +305,6 @@ const IconScrollWrapper = styled.div`
       }
     }
   }
-  .icon-selector::-webkit-scrollbar-thumb {
-    background-color: transparent;
-  }
   .icon-selector::-webkit-scrollbar {
     width: 0px;
   }

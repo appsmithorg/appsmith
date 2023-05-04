@@ -83,18 +83,7 @@ const AppListContainer = styled.div`
   margin-top: 16px;
   overflow-y: auto;
   overflow-x: hidden;
-  scrollbar-width: none;
   padding-right: 5px;
-
-  &::-webkit-scrollbar-thumb {
-    background-color: rgba(75, 72, 72, 0.5);
-    width: 4px;
-    border-radius: ${(props) => props.theme.radii[3]}px;
-  }
-
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
   position: relative;
 `;
 

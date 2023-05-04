@@ -124,9 +124,6 @@ export const UserList = styled.div`
   margin-top: 24px;
   max-height: 260px;
   overflow-y: auto;
-  &&::-webkit-scrollbar-thumb {
-    background-color: ${(props) => props.theme.colors.modal.scrollbar};
-  }
 `;
 
 export const User = styled.div<{ isApplicationInvite?: boolean }>`

@@ -60,7 +60,6 @@ import {
 import Statusbar, {
   StatusbarWrapper,
 } from "pages/Editor/gitSync/components/Statusbar";
-import { ScrollIndicator } from "design-system-old";
 import Keys from "../components/ssh-key";
 import GitConnectError from "../components/GitConnectError";
 import Link from "../components/Link";
@@ -102,15 +101,6 @@ const Container = styled.div`
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  scrollbar-width: none;
-
-  &::-webkit-scrollbar-thumb {
-    background-color: transparent;
-  }
-
-  &::-webkit-scrollbar {
-    width: 0;
-  }
 `;
 
 const RemoteUrlInfoWrapper = styled.div`
@@ -535,7 +525,6 @@ function GitConnection({ isImport }: Props) {
           </ButtonContainer>
         </>
       ) : null}
-      <ScrollIndicator containerRef={scrollWrapperRef} mode="DARK" top="37px" />
     </Container>
   );
 }

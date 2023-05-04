@@ -9,7 +9,6 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { useDispatch, useSelector } from "react-redux";
-import { ScrollIndicator } from "design-system-old";
 
 import { ReactComponent as NoEntityFoundSvg } from "assets/svg/no_entities_found.svg";
 import { Colors } from "constants/Colors";
@@ -31,12 +30,7 @@ import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 const Wrapper = styled.div`
   height: 100%;
   overflow-y: auto;
-  scrollbar-width: none;
   -ms-overflow-style: none;
-  &::-webkit-scrollbar {
-    width: 0px;
-    -webkit-appearance: none;
-  }
 `;
 
 const NoResult = styled(NonIdealState)`
@@ -145,7 +139,6 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
       <StyledDivider />
       <Datasources />
       <JSDependencies />
-      <ScrollIndicator containerRef={explorerRef} />
     </Wrapper>
   );
 }

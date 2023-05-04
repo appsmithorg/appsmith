@@ -45,25 +45,6 @@ const UrlPreviewWrapper = styled.div`
 const UrlPreviewScroll = styled.div`
   height: 48px;
   overflow-y: auto;
-
-  /* width */
-  ::-webkit-scrollbar {
-    width: 3px;
-  }
-  /* Track */
-  ::-webkit-scrollbar-track {
-    background: #f1f1f1;
-  }
-
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
-    background: #bec4c4;
-  }
-
-  /* Handle on hover */
-  ::-webkit-scrollbar-thumb:hover {
-    background: #555;
-  }
 `;
 
 const specialCharacterCheckRegex = /^[A-Za-z0-9\s\-]+$/g;

@@ -887,16 +887,6 @@ export const scrollCSS = css`
   overflow-y: auto;
   overflow-x: hidden;
   overflow-y: overlay;
-
-  scrollbar-color: #cccccc transparent;
-  scroolbar-width: thin;
-
-  &::-webkit-scrollbar-thumb {
-    background: #cccccc !important;
-  }
-  &::-webkit-scrollbar-track {
-    background: transparent !important;
-  }
 `;
 
 export const widgetTypeClassname = (widgetType: string): string =>

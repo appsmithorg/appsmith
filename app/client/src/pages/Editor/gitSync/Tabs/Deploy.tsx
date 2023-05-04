@@ -18,7 +18,6 @@ import styled, { useTheme } from "styled-components";
 import {
   getTypographyByKey,
   LabelContainer,
-  ScrollIndicator,
   Text,
   TextInput,
   TextType,
@@ -108,15 +107,6 @@ const Container = styled.div`
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  scrollbar-width: none;
-
-  &::-webkit-scrollbar-thumb {
-    background-color: transparent;
-  }
-
-  &::-webkit-scrollbar {
-    width: 0;
-  }
 
   && ${LabelContainer} span {
     color: ${Colors.CHARCOAL};
@@ -494,7 +484,6 @@ function Deploy() {
       {!pullRequired && !isConflicting && (
         <DeployPreview showSuccess={isCommitAndPushSuccessful} />
       )}
-      <ScrollIndicator containerRef={scrollWrapperRef} mode="DARK" top="37px" />
     </Container>
   );
 }

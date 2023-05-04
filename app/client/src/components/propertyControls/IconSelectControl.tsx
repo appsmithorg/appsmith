@@ -57,15 +57,6 @@ const StyledMenu = styled.ul<GridListProps>`
   max-height: 170px !important;
   padding-left: 5px !important;
   padding-right: 5px !important;
-  &::-webkit-scrollbar {
-    width: 8px;
-    background-color: #eeeeee;
-  }
-  &::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-    background-color: #939090;
-  }
   & li {
     list-style: none;
   }

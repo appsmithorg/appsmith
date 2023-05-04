@@ -11,15 +11,6 @@ import { toast, Icon } from "design-system";
 
 const StyledText = styled(Text)`
   line-height: 1.5;
-
-  /* width */
-  ::-webkit-scrollbar {
-    width: 3px;
-  }
-  /* Track */
-  ::-webkit-scrollbar-track {
-    background: ${Colors.GRAY_100};
-  }
 `;
 
 const EmbedSnippetContainer = styled.div`

@@ -29,7 +29,6 @@ import type {
 import { TABLE_SIZES, CompactModeTypes } from "./Constants";
 import { Colors } from "constants/Colors";
 
-import { ScrollIndicator } from "design-system-old";
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Scrollbars } from "react-custom-scrollbars";
 
@@ -414,11 +413,6 @@ export function Table(props: TableProps) {
           </div>
         </Scrollbars>
       </div>
-      <ScrollIndicator
-        containerRef={tableBodyRef}
-        mode="LIGHT"
-        top={props.editMode ? "70px" : "73px"}
-      />
     </TableWrapper>
   );
 }
