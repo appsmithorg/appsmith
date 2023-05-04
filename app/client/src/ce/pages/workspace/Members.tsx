@@ -404,7 +404,9 @@ export default function MemberSettings(props: PageProps) {
             {roles.map((role: Partial<SelectOptionProps>) => (
               <Option key={role.key} label={role.value} value={role.key}>
                 <div className="flex flex-col gap-1">
-                  <Text kind="heading-xs">{role.value}</Text>
+                  <Text kind={role.description && "heading-xs"}>
+                    {role.value}
+                  </Text>
                   <Text kind="body-s">{role.description}</Text>
                 </div>
               </Option>
@@ -537,7 +539,9 @@ export default function MemberSettings(props: PageProps) {
                           value={role.key}
                         >
                           <div className="flex flex-col gap-1">
-                            <Text kind="heading-xs">{role.value}</Text>
+                            <Text kind={role.description && "heading-xs"}>
+                              {role.value}
+                            </Text>
                             <Text kind="body-s">{role.description}</Text>
                           </div>
                         </Option>
