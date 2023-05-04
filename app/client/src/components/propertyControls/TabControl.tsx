@@ -29,13 +29,13 @@ function AddTabButtonComponent({ widgetId }: any) {
   };
   return (
     <Button
-      className="t--add-tab-btn"
-      kind="secondary"
+      className="self-end t--add-tab-btn"
+      kind="tertiary"
       onClick={addOption}
-      size="md"
+      size="sm"
       startIcon="plus"
     >
-      Add a tab
+      Add tab
     </Button>
   );
 }

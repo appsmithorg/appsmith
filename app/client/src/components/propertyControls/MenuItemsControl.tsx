@@ -73,7 +73,7 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
 
   render() {
     return (
-      <div className="flex flex-col">
+      <div className="flex flex-col gap-1">
         <DraggableListControl
           deleteOption={this.deleteOption}
           fixedHeight={370}
@@ -96,13 +96,12 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
         />
 
         <Button
-          className="t--add-menu-item-btn"
-          kind="secondary"
+          className="self-end t--add-menu-item-btn"
+          kind="tertiary"
           onClick={this.addOption}
-          size="md"
           startIcon="plus"
         >
-          Add a new menu item
+          Add new menu item
         </Button>
       </div>
     );

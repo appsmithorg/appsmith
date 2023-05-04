@@ -9,14 +9,14 @@ import type { DSEventDetail } from "utils/AppsmithUtils";
 import { DSEventTypes, DS_EVENT } from "utils/AppsmithUtils";
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 
-const StyledSelect = styled(Select)`
-  /*
-    We use this font family to show emoji flags
-    on windows devices
-  */
-  .left-icon-wrapper {
-    font-family: "Twemoji Country Flags";
-  }
+const FlagWrapper = styled.span`
+  font-family: "Twemoji Country Flags";
+  font-size: 20px;
+  line-height: 19px;
+  margin-right: 10px;
+  height: 100%;
+  position: relative;
+  top: 1px;
 `;
 
 type DropdownOption = {
@@ -105,7 +105,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 
     return (
       <div className="w-full h-full" ref={this.containerRef}>
-        <StyledSelect
+        <Select
           isMultiSelect={this.props.isMultiSelect}
           onDeselect={this.onDeselect}
           onSelect={this.onSelect}
@@ -113,12 +113,15 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           showSearch={this.props.enableSearch}
           value={defaultSelected}
         >
-          {options.map((option) => (
-            <Option key={option.value} value={option.value}>
+          {options.map((option, index) => (
+            <Option key={index} value={option.value}>
+              {option.leftElement && (
+                <FlagWrapper>{option.leftElement}</FlagWrapper>
+              )}
               {option.label}
             </Option>
           ))}
-        </StyledSelect>
+        </Select>
       </div>
     );
   }

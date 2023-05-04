@@ -4,19 +4,14 @@ import React, { memo, useState, createContext, useCallback } from "react";
 import { Collapse } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { AppIcon as Icon, Size } from "design-system-old";
+import { Icon, Tag } from "design-system";
 import type { AppState } from "@appsmith/reducers";
 import { useDispatch, useSelector } from "react-redux";
 import { getPropertySectionState } from "selectors/editorContextSelectors";
 import { getCurrentWidgetId } from "selectors/propertyPaneSelectors";
 import { setPropertySectionState } from "actions/propertyPaneActions";
 
-const Label = styled.div`
-  font-size: 11px;
-  background: ${Colors.GRAY_100};
-  color: ${Colors.GRAY_600};
-  padding: 2px 4px;
-`;
+const TagContainer = styled.div``;
 
 const SectionTitle = styled.span`
   color: var(--ads-v2-color-gray-600);
@@ -41,7 +36,7 @@ const SectionWrapper = styled.div`
     &:first-of-type {
       margin-top: 0;
     }
-    ${Label} {
+    ${TagContainer} {
       display: none;
     }
   }
@@ -64,13 +59,6 @@ const SectionWrapper = styled.div`
 
   .bp3-collapse {
     transition: none;
-  }
-`;
-
-const StyledIcon = styled(Icon)`
-  margin-left: auto;
-  svg path {
-    fill: ${Colors.GRAY_700};
   }
 `;
 
@@ -148,15 +136,20 @@ export const PropertySection = memo((props: PropertySectionProps) => {
       >
         <SectionTitle>{props.name}</SectionTitle>
         {props.tag && (
-          <Label className={`t--property-section-tag-${props.tag}`}>
-            {props.tag}
-          </Label>
+          <TagContainer>
+            <Tag
+              className={`capitalize t--property-section-tag-${props.tag}`}
+              isClosable={false}
+            >
+              {props.tag.toLowerCase()}
+            </Tag>
+          </TagContainer>
         )}
         {props.collapsible && (
-          <StyledIcon
-            className="t--chevron-icon"
+          <Icon
+            className="ml-auto t--chevron-icon"
             name={isOpen ? "arrow-down" : "arrow-right"}
-            size={Size.small}
+            size="xs"
           />
         )}
       </div>

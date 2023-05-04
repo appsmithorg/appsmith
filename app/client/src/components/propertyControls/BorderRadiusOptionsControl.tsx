@@ -20,7 +20,10 @@ const options = Object.keys(borderRadiusOptions).map((optionKey) => ({
     <Tooltip content={optionKey} key={optionKey}>
       <div
         className="w-5 h-5 border-t-2 border-l-2 border-gray-500"
-        style={{ borderTopLeftRadius: borderRadiusOptions[optionKey] }}
+        style={{
+          borderColor: "var(--ads-v2-color-fg)",
+          borderTopLeftRadius: borderRadiusOptions[optionKey],
+        }}
       />
     </Tooltip>
   ),
