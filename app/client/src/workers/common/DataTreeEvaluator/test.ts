@@ -21,6 +21,7 @@ import { parseJSActions } from "workers/Evaluation/JSObject";
 import type { ActionEntityConfig } from "entities/DataTree/types";
 import type { WidgetConfiguration } from "widgets/constants";
 import { setEvalContext } from "workers/Evaluation/evaluate";
+import { replaceThisDotParams } from "./utils";
 import { isDataField } from "./utils";
 
 const widgetConfigMap: Record<
@@ -628,6 +629,83 @@ describe("DataTreeEvaluator", () => {
       expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
         "Button3.onClick": ["Api1.run", "Api2.run"],
       });
+    });
+  });
+});
+
+describe("replaceThisDotParams", () => {
+  describe("no optional chaining this.params", () => {
+    it("1. IIFEE with function keyword", () => {
+      const code = "{{ (function() { return this.params.condition })() }}";
+      const replaced = replaceThisDotParams(code);
+
+      expect(replaced).toBe(
+        "{{ (function() { return $params.condition })() }}",
+      );
+    });
+
+    it("2. IIFEE with arrow function", () => {
+      const code = "{{ (() => { return this.params.condition })() }}";
+      const replaced = replaceThisDotParams(code);
+
+      expect(replaced).toBe("{{ (() => { return $params.condition })() }}");
+    });
+
+    it("3. normal binding", () => {
+      const code = "{{ this.params.condition }}";
+      const replaced = replaceThisDotParams(code);
+
+      expect(replaced).toBe("{{ $params.condition }}");
+    });
+  });
+
+  describe("optional chaining this?.params", () => {
+    it("1. IIFEE with function keyword", () => {
+      const code = "{{ (function() { return this?.params.condition })() }}";
+      const replaced = replaceThisDotParams(code);
+
+      expect(replaced).toBe(
+        "{{ (function() { return $params.condition })() }}",
+      );
+    });
+
+    it("2. IIFEE with arrow function", () => {
+      const code = "{{ (() => { return this?.params.condition })() }}";
+      const replaced = replaceThisDotParams(code);
+
+      expect(replaced).toBe("{{ (() => { return $params.condition })() }}");
+    });
+
+    it("3. normal binding", () => {
+      const code = "{{ this?.params.condition }}";
+      const replaced = replaceThisDotParams(code);
+
+      expect(replaced).toBe("{{ $params.condition }}");
+    });
+  });
+
+  describe("optional chaining this?.params?.condition", () => {
+    it("1. IIFEE with function keyword", () => {
+      const code = "{{ (function() { return this?.params?.condition })() }}";
+      const replaced = replaceThisDotParams(code);
+
+      expect(replaced).toBe(
+        "{{ (function() { return $params?.condition })() }}",
+      );
+    });
+
+    it("2. IIFEE with arrow function", () => {
+      const code = "{{ (() => { return this?.params?.condition })() }}";
+      const replaced = replaceThisDotParams(code);
+
+      expect(replaced).toBe("{{ (() => { return $params?.condition })() }}");
+    });
+
+    it("3. normal binding", () => {
+      const code = "{{ this?.params?.condition }}";
+      const replaced = replaceThisDotParams(code);
+
+      expect(replaced).toBe("{{ $params?.condition }}");
     });
   });
 });
