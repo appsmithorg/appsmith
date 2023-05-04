@@ -9,7 +9,6 @@ import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.services.CustomJSLibService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewActionService;
@@ -54,14 +53,12 @@ public class ImportExportApplicationServiceImplV2 extends ImportExportApplicatio
                                                 PagePermission pagePermission,
                                                 ActionPermission actionPermission,
                                                 Gson gson,
-                                                TransactionalOperator transactionalOperator,
-                                                ApplicationSnapshotService applicationSnapshotService) {
+                                                TransactionalOperator transactionalOperator) {
 
         super(datasourceService, sessionUserService, newActionRepository, datasourceRepository, pluginRepository,
                 workspaceService, applicationService, newPageService, applicationPageService, newPageRepository,
                 newActionService, sequenceService, examplesWorkspaceCloner, actionCollectionRepository,
                 actionCollectionService, themeService, analyticsService, customJSLibService, datasourcePermission,
-                workspacePermission, applicationPermission, pagePermission, actionPermission, gson, transactionalOperator,
-                applicationSnapshotService);
+                workspacePermission, applicationPermission, pagePermission, actionPermission, gson, transactionalOperator);
     }
 }

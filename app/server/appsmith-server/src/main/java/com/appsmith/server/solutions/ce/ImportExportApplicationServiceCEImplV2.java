@@ -52,7 +52,6 @@ import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.services.CustomJSLibService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewActionService;
@@ -76,13 +75,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.dao.InvalidDataAccessApiUsageException;
-import org.springframework.data.mongodb.MongoTransactionException;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
-import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -139,7 +135,6 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
     private final ActionPermission actionPermission;
     private final Gson gson;
     private final TransactionalOperator transactionalOperator;
-    private final ApplicationSnapshotService applicationSnapshotService;
 
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(MediaType.APPLICATION_JSON);
     private static final String INVALID_JSON_FILE = "invalid json file";
@@ -2270,5 +2265,90 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
 
                     return analyticsService.sendObjectEvent(event, application, data);
                 });
+    }
+
+    /**
+     * This function will take the Json filepart and updates/creates the application in workspace depending on presence
+     * of applicationId field
+     *
+     * @param workspaceId   Workspace to which the application needs to be hydrated
+     * @param filePart      Json file which contains the entire application object
+     * @param applicationId Optional field for application ref which needs to be overridden by the incoming JSON file
+     * @param branchName    If application is connected to git update the branched app
+     * @return saved application in DB
+     */
+    @Override
+    public Mono<ApplicationImportDTO> extractFileAndUpdateNonGitConnectedApplication(String workspaceId,
+                                                                                     Part filePart,
+                                                                                     String applicationId,
+                                                                                     String branchName) {
+        /*
+            1. Verify if application is connected to git, in case if it's connected throw exception asking user to
+            update app via git ops like pull, merge etc.
+            2. Check the validity of file part
+            3. Depending upon availability of applicationId update/save application to workspace
+         */
+        final MediaType contentType = filePart.headers().getContentType();
+
+        if (workspaceId == null || workspaceId.isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+        }
+
+        if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
+            log.error("Invalid content type, {}", contentType);
+            return Mono.error(new AppsmithException(AppsmithError.VALIDATION_FAILURE, INVALID_JSON_FILE));
+        }
+
+        Mono<String> stringifiedFile = DataBufferUtils.join(filePart.content())
+                .map(dataBuffer -> {
+                    byte[] data = new byte[dataBuffer.readableByteCount()];
+                    dataBuffer.read(data);
+                    DataBufferUtils.release(dataBuffer);
+                    return new String(data);
+                });
+
+        // Check if the application is connected to git and if it's connected throw exception asking user to update
+        // app via git ops like pull, merge etc.
+        Mono<Boolean> isConnectedToGitMono = Mono.just(false);
+        if (!StringUtils.isEmpty(applicationId)) {
+            isConnectedToGitMono = applicationService.isApplicationConnectedToGit(applicationId);
+        }
+
+        Mono<ApplicationImportDTO> importedApplicationMono = isConnectedToGitMono
+                .flatMap(isConnectedToGit -> {
+                    if (isConnectedToGit) {
+                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_IMPORT_OPERATION_FOR_GIT_CONNECTED_APPLICATION));
+                    }
+                    return stringifiedFile;
+                })
+                .flatMap(data -> {
+                    /*
+                    // Use JsonObject to migrate when we remove some field from the collection which is being exported
+                    JsonObject json = gson.fromJson(data, JsonObject.class);
+                    JsonObject update = new JsonObject();
+                    update.addProperty("slug", "update_name");
+                    update.addProperty("name", "update name");
+                    ((JsonObject) json.get("exportedApplication")).add("name", update);
+                    json.get("random") == null => true
+                    ((JsonArray) json.get("pageList"))
+                    */
+
+                    Type fileType = new TypeToken<ApplicationJson>() {
+                    }.getType();
+                    ApplicationJson jsonFile = gson.fromJson(data, fileType);
+                    return importApplicationInWorkspace(workspaceId, jsonFile, applicationId, branchName)
+                            .onErrorResume(error -> {
+                                if (error instanceof AppsmithException) {
+                                    return Mono.error(error);
+                                }
+                                return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, error.getMessage()));
+                            });
+                })
+                // Add un-configured datasource to the list to response
+                .flatMap(application -> getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application));
+
+        return Mono.create(sink -> importedApplicationMono
+                .subscribe(sink::success, sink::error, null, sink.currentContext())
+        );
     }
 }
