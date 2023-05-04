@@ -454,6 +454,7 @@ function* updatePositionsOnTabChangeSaga(
   if (!selectedTabWidgetId || !allWidgets[selectedTabWidgetId]) return;
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
+  const metaProps: Record<string, any> = yield select(getWidgetsMeta);
 
   const updatedWidgets: CanvasWidgetsReduxState = updateWidgetPositions(
     allWidgets,
@@ -461,7 +462,10 @@ function* updatePositionsOnTabChangeSaga(
     isMobile,
     mainCanvasWidth,
     false,
-    { [widgetId]: { selectedTabWidgetId } },
+    {
+      ...metaProps,
+      [widgetId]: { ...metaProps[widgetId], selectedTabWidgetId },
+    },
   );
   yield put(updateAndSaveLayout(updatedWidgets));
 }

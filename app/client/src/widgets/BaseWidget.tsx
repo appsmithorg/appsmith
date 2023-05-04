@@ -657,7 +657,7 @@ abstract class BaseWidget<
 
       const { minHeight, minWidth } = getWidgetMinMaxDimensionsInPixel(
         this.props,
-        this.props.mainCanvasWidth,
+        this.props.mainCanvasWidth || 0,
       );
 
       return (
