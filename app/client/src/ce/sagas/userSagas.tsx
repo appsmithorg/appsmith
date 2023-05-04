@@ -74,6 +74,7 @@ import type FeatureFlags from "entities/FeatureFlags";
 import UsagePulse from "usagePulse";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { USER_PROFILE_PICTURE_UPLOAD_FAILED } from "ce/constants/messages";
+import { UPDATE_USER_DETAILS_FAILED } from "ce/constants/messages";
 import { createMessage } from "design-system-old/build/constants/messages";
 
 export function* createUserSaga(
@@ -385,9 +386,16 @@ export function* updateUserDetailsSaga(action: ReduxAction<UpdateUserRequest>) {
       });
     }
   } catch (error) {
+    const payload: ErrorActionPayload = {
+      show: true,
+      error: {
+        message:
+          (error as Error).message ?? createMessage(UPDATE_USER_DETAILS_FAILED),
+      },
+    };
     yield put({
       type: ReduxActionErrorTypes.UPDATE_USER_DETAILS_ERROR,
-      payload: (error as Error).message,
+      payload,
     });
   }
 }
