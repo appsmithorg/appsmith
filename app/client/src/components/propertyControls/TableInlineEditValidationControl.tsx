@@ -20,13 +20,17 @@ import {
   ORIGINAL_INDEX_KEY,
   PRIMARY_COLUMN_KEY_VALUE,
 } from "widgets/TableWidgetV2/constants";
+import { Colors } from "constants/Colors";
 
 const PromptMessage = styled.span`
   line-height: 17px;
 `;
+export const StyledCode = styled.span`
+  color: ${Colors.PRIMARY_ORANGE};
+`;
+
 export const CurlyBraces = styled.span`
-  color: ${(props) => props.theme.colors.codeMirror.background.hoverState};
-  background-color: #ffffff;
+  color: ${Colors.PRIMARY_ORANGE};
   border-radius: 2px;
   padding: 2px;
   margin: 0px 2px;
@@ -149,7 +153,7 @@ class TableInlineEditValidationControl extends BaseControl<TableInlineEditValida
         promptMessage={
           <PromptMessage>
             Access the current cell using <CurlyBraces>{"{{"}</CurlyBraces>
-            currentRow.columnName
+            <StyledCode>currentRow.columnName</StyledCode>
             <CurlyBraces>{"}}"}</CurlyBraces>
           </PromptMessage>
         }

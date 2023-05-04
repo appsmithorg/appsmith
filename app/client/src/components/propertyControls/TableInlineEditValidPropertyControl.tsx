@@ -7,6 +7,7 @@ import {
 } from "widgets/TableWidgetV2/constants";
 import TableInlineEditValidationControlProperty, {
   CurlyBraces,
+  StyledCode,
   InputText,
 } from "./TableInlineEditValidationControl";
 import { isString } from "lodash";
@@ -80,7 +81,7 @@ class TableInlineEditValidPropertyControl extends TableInlineEditValidationContr
         promptMessage={
           <>
             Access the current cell using <CurlyBraces>{"{{"}</CurlyBraces>
-            currentRow.columnName
+            <StyledCode>currentRow.columnName</StyledCode>
             <CurlyBraces>{"}}"}</CurlyBraces>
           </>
         }
