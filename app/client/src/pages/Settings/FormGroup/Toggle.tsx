@@ -48,8 +48,6 @@ function FieldToggleWithToggleText(
           <ToggleStatus>
             {typeof toggleText == "function"
               ? createMessage(() => toggleText(val))
-              : val
-              ? createMessage(() => `${label ? `${label} Enabled` : "Enabled"}`)
               : createMessage(() => `${label ? `Enable ${label}` : "Enable"}`)}
           </ToggleStatus>
         </Switch>

@@ -40,9 +40,7 @@ const FormAuth: AdminConfigType = {
       category: SettingCategories.FORM_AUTH,
       subCategory: SettingSubCategories.FORMLOGIN,
       controlType: SettingTypes.TOGGLE,
-      label: "Form login",
-      toggleText: (value: boolean) =>
-        value ? "Enable form login" : "Form login enabled",
+      label: "form login",
     },
     {
       id: "APPSMITH_SIGNUP_DISABLED",
