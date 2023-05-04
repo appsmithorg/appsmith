@@ -73,6 +73,7 @@ import type { SegmentState } from "reducers/uiReducers/analyticsReducer";
 import type FeatureFlags from "entities/FeatureFlags";
 import UsagePulse from "usagePulse";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { USER_PROFILE_PICTURE_UPLOAD_FAILED } from "ce/constants/messages";
 import { UPDATE_USER_DETAILS_FAILED } from "ce/constants/messages";
 import { createMessage } from "design-system-old/build/constants/messages";
 
@@ -486,11 +487,27 @@ export function* updatePhoto(
     const response: ApiResponse = yield call(UserApi.uploadPhoto, {
       file: action.payload.file,
     });
+    if (!response.responseMeta.success) {
+      throw response.responseMeta.error;
+    }
     //@ts-expect-error: response is of type unknown
     const photoId = response.data?.profilePhotoAssetId; //get updated photo id of iploaded image
     if (action.payload.callback) action.payload.callback(photoId);
   } catch (error) {
     log.error(error);
+
+    const payload: ErrorActionPayload = {
+      show: true,
+      error: {
+        message:
+          (error as any).message ??
+          createMessage(USER_PROFILE_PICTURE_UPLOAD_FAILED),
+      },
+    };
+    yield put({
+      type: ReduxActionErrorTypes.USER_PROFILE_PICTURE_UPLOAD_FAILED,
+      payload,
+    });
   }
 }
 
