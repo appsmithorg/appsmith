@@ -7434,14 +7434,10 @@ class-utils@^0.3.5:
     isobject "^3.0.0"
     static-extend "^0.1.1"
 
-classnames@*:
+classnames@*, classnames@2.x, classnames@^2.2, classnames@^2.2.1, classnames@^2.2.5, classnames@^2.2.6, classnames@^2.3.1, classnames@^2.3.2:
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.3.2.tgz#351d813bf0137fcc6a76a16b88208d2560a0d924"
   integrity sha512-CSbhY4cFEJRe6/GQzIk5qXZ4Jeg5pcsP7b5peFSDpffpe1cqjASH/n9UTjBwOp6XpMSTwQ8Za2K5V02ueA7Tmw==
-
-classnames@2.x, classnames@^2.3.1:
-  version "2.3.1"
-  resolved "https://registry.npmjs.org/classnames/-/classnames-2.3.1.tgz"
 
 clean-css@^4.2.3:
   version "4.2.4"
@@ -13154,11 +13150,7 @@ js-beautify@^1.14.0:
 js-levenshtein@^1.1.6:
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/js-levenshtein/-/js-levenshtein-1.1.6.tgz#c6cee58eb3550372df8deb85fad5ce66ce01d59d"
-
-js-regex-pl@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/js-regex-pl/-/js-regex-pl-1.0.1.tgz#a0e4d76c7c2b4a503b17bc6b32ce8c5b0e39bca1"
-  integrity sha512-Cj291//fFojnJrYxh46mhK1jINe4F4WXk+/FNGaPy+2q61pKRX0n9LyY3rtZNlH06s41DtoNVh9UR7bTeuAhGg==
+  integrity sha512-X2BB11YZtrRqY4EnQcLX5Rh373zbK4alC1FW7D7MBhL2gtcC17cTnr6DmfHZeS0s2rTHjUTMMHfG7gO8SSdw+g==
 
 js-regex-pl@^1.0.1:
   version "1.0.1"

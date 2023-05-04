@@ -56,7 +56,7 @@ module.exports = {
                   } else if (
                     srcAttribute.value.expression?.type === "CallExpression"
                   ) {
-                    fixedSrcValue = `{getAssetUr(${srcValue}())}`;
+                    fixedSrcValue = `{getAssetUrl(${srcValue}())}`;
                   } else {
                     fixedSrcValue = `{getAssetUrl(${srcValue})}`;
                   }
