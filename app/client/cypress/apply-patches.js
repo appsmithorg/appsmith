@@ -1,4 +1,4 @@
-const { getVersionDir } = require("../node_modules/cypress/lib/tasks/state");
+const { getVersionDir } = require("cypress/lib/tasks/state/version");
 const chalk = require("chalk");
 const Diff = require("diff");
 const fs = require("fs/promises");
