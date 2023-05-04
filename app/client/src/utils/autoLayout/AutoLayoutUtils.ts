@@ -1,12 +1,17 @@
-import type { FlexLayer, LayerChild } from "./autoLayoutTypes";
+import type {
+  AlignmentColumnData,
+  FlexLayer,
+  LayerChild,
+} from "./autoLayoutTypes";
 import {
   FLEXBOX_PADDING,
   layoutConfigurations,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   WIDGET_PADDING,
-  CONTAINER_GRID_PADDING,
   DefaultDimensionMap,
+  MAX_MODAL_WIDTH_FROM_MAIN_WIDTH,
+  AUTO_LAYOUT_CONTAINER_PADDING,
 } from "constants/WidgetConstants";
 import type {
   CanvasWidgetsReduxState,
@@ -18,6 +23,7 @@ import {
   FlexLayerAlignment,
   Positioning,
   ResponsiveBehavior,
+  SNAPSHOT_EXPIRY_IN_DAYS,
 } from "utils/autoLayout/constants";
 import {
   updatePositionsOfParentAndSiblings,
@@ -29,6 +35,13 @@ import {
   getWidgetWidth,
 } from "./flexWidgetUtils";
 import type { DSLWidget } from "widgets/constants";
+import { getHumanizedTime, getReadableDateInFormat } from "utils/dayJsUtils";
+
+export type ReadableSnapShotDetails = {
+  timeSince: string;
+  timeTillExpiration: string;
+  readableDate: string;
+};
 
 export function updateFlexLayersOnDelete(
   allWidgets: CanvasWidgetsReduxState,
@@ -485,7 +498,10 @@ function getCanvasWidth(
 
   //modal will be the total width instead of the mainCanvasWidth
   if (widget.type === "MODAL_WIDGET") {
-    width = widget.width;
+    width = Math.min(
+      widget.width,
+      mainCanvasWidth * MAX_MODAL_WIDTH_FROM_MAIN_WIDTH,
+    );
   }
 
   while (stack.length) {
@@ -507,9 +523,9 @@ function getPadding(canvas: FlattenedWidgetProps): number {
   if (canvas.widgetId === MAIN_CONTAINER_WIDGET_ID) {
     padding = FLEXBOX_PADDING * 2;
   } else if (canvas.type === "CONTAINER_WIDGET") {
-    padding = (CONTAINER_GRID_PADDING + FLEXBOX_PADDING) * 2;
+    padding = (AUTO_LAYOUT_CONTAINER_PADDING + FLEXBOX_PADDING) * 2;
   } else if (canvas.isCanvas) {
-    padding = CONTAINER_GRID_PADDING * 2;
+    padding = AUTO_LAYOUT_CONTAINER_PADDING * 2;
   }
 
   if (canvas.noPad) {
@@ -590,4 +606,129 @@ export function getNewFlexLayers(
 
 export function checkIsDSLAutoLayout(dsl: DSLWidget): boolean {
   return dsl.useAutoLayout && dsl.positioning === Positioning.Vertical;
+}
+
+/**
+ * Find out which alignment is placed in which row upon flex wrap.
+ *
+ * In case of flex wrap,
+ * - alignments within a FlexLayer are placed in multiple rows.
+ * Logic:
+ *  - for each alignment in arr
+ *    - if alignment.columns < 64
+ *      -  add it to the current row (res[resIndex])
+ *      - and track the total occupied columns in this row (total)
+ *    - else
+ *     - add the current row to the output rows
+ *    - and start a new row to repeat the process recursively.
+ * @param arr | AlignmentColumnData[]: array of alignment and its columns.
+ * @param res | FlexLayerAlignment[][]: array of rows of alignments.
+ * @param resIndex | number: index of the current row.
+ * @returns FlexLayerAlignment[][]
+ */
+export function getLayerWrappingInfo(
+  arr: AlignmentColumnData[],
+  res: FlexLayerAlignment[][] = [[], [], []],
+  resIndex = 0,
+): FlexLayerAlignment[][] {
+  if (arr.length === 0) return res;
+  if (arr.length === 1) {
+    res[resIndex].push(arr[0].alignment);
+    return res;
+  }
+  let index = 0;
+  let total = 0;
+  for (const each of arr) {
+    if (total + each.columns > GridDefaults.DEFAULT_GRID_COLUMNS) {
+      let x = index;
+      if (!res[resIndex].length) {
+        res[resIndex].push(arr[0].alignment);
+        x += 1;
+      }
+      return getLayerWrappingInfo(arr.slice(x), res, resIndex + 1);
+    }
+    total += each.columns;
+    index += 1;
+    res[resIndex].push(each.alignment);
+  }
+  return res;
+}
+
+/**
+ * If a layer is flex wrapped, then individual sub-wrappers will have bottom margins, except the last sub-wrapper.
+ * @param arr | AlignmentColumnData[]: array of alignment and its columns.
+ * @param res | FlexLayerAlignment[][]: array of rows of alignments.
+ * @param resIndex | number: index of the current row.
+ * @returns boolean[]
+ */
+export function getAlignmentMarginInfo(
+  arr: AlignmentColumnData[],
+  res: FlexLayerAlignment[][] = [[], [], []],
+  resIndex = 0,
+): boolean[] {
+  if (!arr.length) return [];
+  const wrapInfo: FlexLayerAlignment[][] = getLayerWrappingInfo(
+    arr,
+    res,
+    resIndex,
+  );
+  const marginInfo: {
+    [key: string]: (arr: AlignmentColumnData[]) => boolean[];
+  } = {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    "300": (arr): boolean[] => [false, false, false],
+    "120": (arr): boolean[] => [
+      arr[0].columns > 0 && arr[1].columns + arr[2].columns > 0,
+      false,
+      false,
+    ],
+    "210": (arr): boolean[] => [
+      arr[0].columns > 0 && arr[2].columns > 0,
+      arr[1].columns > 0 && arr[2].columns > 0,
+      false,
+    ],
+    "111": (arr): boolean[] => [
+      arr[0].columns > 0,
+      arr[1].columns > 0 && arr[2].columns > 0,
+      false,
+    ],
+  };
+
+  return marginInfo[wrapInfo.map((x) => x.length).join("")](arr);
+}
+
+/**
+ * Gets readable values from the date String arguments
+ * @param dateString
+ * @returns
+ */
+export function getReadableSnapShotDetails(
+  dateString: string | undefined,
+): ReadableSnapShotDetails | undefined {
+  if (!dateString) return;
+
+  const lastUpdatedDate = new Date(dateString);
+
+  if (Date.now() - lastUpdatedDate.getTime() <= 0) return;
+
+  const millisecondsPerHour = 60 * 60 * 1000;
+  const ExpirationInMilliseconds =
+    SNAPSHOT_EXPIRY_IN_DAYS * 24 * millisecondsPerHour;
+  const timePassedSince = Date.now() - lastUpdatedDate.getTime();
+
+  const timeSince: string = getHumanizedTime(timePassedSince);
+  const timeTillExpiration: string = getHumanizedTime(
+    ExpirationInMilliseconds - timePassedSince,
+  );
+
+  const readableDate = getReadableDateInFormat(
+    lastUpdatedDate,
+    "Do MMMM, YYYY h:mm a",
+  );
+
+  return {
+    timeSince,
+    timeTillExpiration,
+    readableDate,
+  };
 }

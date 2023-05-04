@@ -12,7 +12,7 @@ import type {
 } from "entities/Datasource";
 import { isEmbeddedRestDatasource } from "entities/Datasource";
 import type { Action } from "entities/Action";
-import { PluginPackageName, PluginType } from "entities/Action";
+import { PluginType } from "entities/Action";
 import { find, get, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -53,6 +53,23 @@ export const getDatasourcesStructure = (
 ): Record<string, DatasourceStructure> => {
   return state.entities.datasources.structure;
 };
+
+export const getDatasourceStructureById =
+  (id: string) =>
+  (state: AppState): DatasourceStructure => {
+    return state.entities.datasources.structure[id];
+  };
+
+export const getDatasourceTableColumns =
+  (datasourceId: string, tableName: string) => (state: AppState) => {
+    const structure = getDatasourceStructureById(datasourceId)(state);
+
+    if (structure) {
+      const table = structure.tables?.find((d) => d.name === tableName);
+
+      return table?.columns;
+    }
+  };
 
 export const getIsFetchingDatasourceStructure = (state: AppState): boolean => {
   return state.entities.datasources.fetchingDatasourceStructure;
@@ -241,16 +258,8 @@ export const getPluginDependencyConfig = (state: AppState) =>
 export const getPluginSettingConfigs = (state: AppState, pluginId: string) =>
   state.entities.plugins.settingConfigs[pluginId];
 
-export const getDBPlugins = createSelector(
-  getPlugins,
-  selectFeatureFlags,
-  (plugins, featureFlags) =>
-    plugins.filter((plugin) =>
-      featureFlags.ORACLE_PLUGIN
-        ? plugin.type === PluginType.DB
-        : plugin.type === PluginType.DB &&
-          plugin.packageName !== PluginPackageName.ORACLE,
-    ),
+export const getDBPlugins = createSelector(getPlugins, (plugins) =>
+  plugins.filter((plugin) => plugin.type === PluginType.DB),
 );
 
 export const getDBAndRemotePlugins = createSelector(getPlugins, (plugins) =>
@@ -368,6 +377,17 @@ export const getGenerateCRUDEnabledPluginMap = createSelector(
       }
     });
     return pluginIdGenerateCRUDPageEnabled;
+  },
+);
+
+export const getPluginIdPackageNamesMap = createSelector(
+  getPlugins,
+  (plugins) => {
+    return plugins.reduce((obj: Record<string, string>, plugin) => {
+      obj[plugin.id] = plugin.packageName;
+
+      return obj;
+    }, {});
   },
 );
 
@@ -968,3 +988,15 @@ export const getAllJSActionsData = (state: AppState) => {
   });
   return jsActionsData;
 };
+
+export const selectActionByName = (actionName: string) =>
+  createSelector(getActionsForCurrentPage, (actions) => {
+    return actions.find((action) => action.config.name === actionName);
+  });
+
+export const selectJSCollectionByName = (collectionName: string) =>
+  createSelector(getJSCollectionsForCurrentPage, (collections) => {
+    return collections.find(
+      (collection) => collection.config.name === collectionName,
+    );
+  });

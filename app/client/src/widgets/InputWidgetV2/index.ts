@@ -40,6 +40,7 @@ export const CONFIG = {
     contentConfig: Widget.getPropertyPaneContentConfig(),
     styleConfig: Widget.getPropertyPaneStyleConfig(),
     stylesheetConfig: Widget.getStylesheetConfig(),
+    autocompleteDefinitions: Widget.getAutocompleteDefinitions(),
   },
   autoLayout: {
     disabledPropsDefaults: {
@@ -50,7 +51,7 @@ export const CONFIG = {
       height: props.inputType !== "MULTI_LINE_TEXT",
     }),
     defaults: {
-      rows: 7,
+      rows: 6.6,
     },
     widgetSize: [
       {

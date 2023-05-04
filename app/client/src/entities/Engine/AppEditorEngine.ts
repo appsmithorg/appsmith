@@ -25,7 +25,10 @@ import {
   fetchActions,
 } from "actions/pluginActionActions";
 import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import type {
+  ApplicationPayload,
+  ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -52,7 +55,9 @@ import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import {
   waitForSegmentInit,
   waitForFetchUserSuccess,
-} from "ce/sagas/userSagas";
+} from "@appsmith/sagas/userSagas";
+import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelectors";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -154,7 +159,8 @@ export default class AppEditorEngine extends AppEngine {
   }
 
   private *loadPluginsAndDatasources() {
-    const initActions = [
+    const isAirgappedInstance = isAirgapped();
+    const initActions: ReduxAction<unknown>[] = [
       // action called in addMockDbToDatasources, ApplicationSagas
       // api called only with this action
       // uses workspaceId
@@ -164,29 +170,38 @@ export default class AppEditorEngine extends AppEngine {
       // api called only with this action
       // uses workspaceId
       fetchDatasources(),
-
-      // action & api called only with this action
-      fetchMockDatasources(),
-
-      // action called only here
-      // api called in multiple places
-      // uses pageIds -> relies on pagelist
-      fetchPageDSLs(),
     ];
+
+    if (!isAirgappedInstance) {
+      // action & api called only with this action
+      initActions.push(fetchMockDatasources() as ReduxAction<{ type: string }>);
+    }
+    // action called only here
+    // api called in multiple places
+    // uses pageIds -> relies on pagelist
+    initActions.push(fetchPageDSLs() as ReduxAction<{ type: string }>);
 
     const successActions = [
       ReduxActionTypes.FETCH_PLUGINS_SUCCESS,
       ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
       ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS,
       ReduxActionTypes.FETCH_PAGE_DSLS_SUCCESS,
-    ];
+    ].filter((action) =>
+      !isAirgappedInstance
+        ? true
+        : action !== ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS,
+    );
 
     const errorActions = [
       ReduxActionErrorTypes.FETCH_PLUGINS_ERROR,
       ReduxActionErrorTypes.FETCH_DATASOURCES_ERROR,
       ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR,
       ReduxActionErrorTypes.POPULATE_PAGEDSLS_ERROR,
-    ];
+    ].filter((action) =>
+      !isAirgappedInstance
+        ? true
+        : action !== ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR,
+    );
 
     const initActionCalls: boolean = yield call(
       failFastApiCalls,
@@ -216,6 +231,9 @@ export default class AppEditorEngine extends AppEngine {
   }
 
   public *completeChore() {
+    const isFirstTimeUserOnboardingComplete: boolean = yield select(
+      getFirstTimeUserOnboardingComplete,
+    );
     const currentApplication: ApplicationPayload = yield select(
       getCurrentApplication,
     );
@@ -224,6 +242,12 @@ export default class AppEditorEngine extends AppEngine {
       appName: currentApplication.name,
     });
     yield put(loadGuidedTourInit());
+    if (isFirstTimeUserOnboardingComplete) {
+      yield put({
+        type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS,
+        payload: [],
+      });
+    }
     yield put({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
     });

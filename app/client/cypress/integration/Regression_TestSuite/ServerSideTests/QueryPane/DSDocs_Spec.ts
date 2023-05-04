@@ -8,11 +8,9 @@ describe("Check datasource doc links", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       _.dataSources.CreateQueryAfterDSSaved();
-      _.agHelper.GetNClick(_.dataSources._queryDoc);
-      _.agHelper.AssertElementVisible(_.dataSources._globalSearchModal);
-      _.agHelper.AssertElementVisible(
-        _.dataSources._globalSearchInput("PostgreSQL"),
-      );
+      _.agHelper.AssertNewTabOpened(() => {
+        _.agHelper.GetNClick(_.dataSources._queryDoc);
+      });
     });
   });
 
@@ -21,11 +19,9 @@ describe("Check datasource doc links", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       _.dataSources.CreateQueryAfterDSSaved();
-      _.agHelper.GetNClick(_.dataSources._queryDoc);
-      _.agHelper.AssertElementVisible(_.dataSources._globalSearchModal);
-      _.agHelper.AssertElementVisible(
-        _.dataSources._globalSearchInput("MongoDB"),
-      );
+      _.agHelper.AssertNewTabOpened(() => {
+        _.agHelper.GetNClick(_.dataSources._queryDoc);
+      });
     });
   });
 
@@ -34,11 +30,9 @@ describe("Check datasource doc links", function () {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       _.dataSources.CreateQueryAfterDSSaved();
-      _.agHelper.GetNClick(_.dataSources._queryDoc);
-      _.agHelper.AssertElementVisible(_.dataSources._globalSearchModal);
-      _.agHelper.AssertElementVisible(
-        _.dataSources._globalSearchInput("MySQL"),
-      );
+      _.agHelper.AssertNewTabOpened(() => {
+        _.agHelper.GetNClick(_.dataSources._queryDoc);
+      });
     });
   });
 

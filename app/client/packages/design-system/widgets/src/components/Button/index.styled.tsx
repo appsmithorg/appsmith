@@ -15,7 +15,7 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
   user-select: none;
 
   // TODO: remove this when we use only flex layout
-  &[data-fit-container="true"] {
+  &[data-fit-container] {
     width: 100%;
     height: 100%;
   }
@@ -29,11 +29,11 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
     color: var(--color-fg-on-accent);
     border-color: transparent;
 
-    &.is-hovered {
+    &[data-hovered] {
       background-color: var(--color-bg-accent-hover);
     }
 
-    &.is-active {
+    &[data-active] {
       background-color: var(--color-bg-accent-active);
     }
   }
@@ -44,11 +44,11 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
     border-color: var(--color-bd-accent);
     border-width: var(--border-width-1);
 
-    &.is-hovered {
+    &[data-hovered] {
       background-color: var(--color-bg-accent-subtle-hover);
     }
 
-    &.is-active {
+    &[data-active] {
       background-color: var(--color-bg-accent-subtle-active);
     }
   }
@@ -59,21 +59,22 @@ export const StyledButton = styled(HeadlessButton)<ButtonProps>`
     border-color: transparent;
     border-width: 0;
 
-    &.is-hovered {
+    &[data-hovered] {
       background: var(--color-bg-accent-subtle-hover);
     }
 
-    &.is-active {
+    &[data-active] {
       background: var(--color-bg-accent-subtle-active);
     }
   }
 
   // we don't use :focus-visible because not all browsers (safari) have it yet
-  &:not([data-loading]).focus-ring {
-    box-shadow: 0 0 0 2px white, 0 0 0 4px var(--color-bd-focus);
+  &[data-focused]:not([data-loading]),
+  &[data-focus="true"] {
+    box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-bd-focus);
   }
 
-  &.is-disabled {
+  &[data-disabled] {
     pointer-events: none;
     opacity: var(--opacity-disabled);
   }

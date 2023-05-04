@@ -1,4 +1,7 @@
-import { isEditorPath, isViewerPath } from "ce/pages/Editor/Explorer/helpers";
+import {
+  isEditorPath,
+  isViewerPath,
+} from "@appsmith/pages/Editor/Explorer/helpers";
 import history from "utils/history";
 import { fetchWithRetry, getUsagePulsePayload } from "./utils";
 import {

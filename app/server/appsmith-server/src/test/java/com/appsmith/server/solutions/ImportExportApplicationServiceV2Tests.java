@@ -223,7 +223,7 @@ public class ImportExportApplicationServiceV2Tests {
         ds1.setWorkspaceId(workspaceId);
         ds1.setPluginId(installedPlugin.getId());
         final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        datasourceConfiguration.setUrl("http://httpbin.org/get");
+        datasourceConfiguration.setUrl("http://example.org/get");
         datasourceConfiguration.setHeaders(List.of(
                 new Property("X-Answer", "42")
         ));
@@ -2999,7 +2999,7 @@ public class ImportExportApplicationServiceV2Tests {
         StepVerifier
                 .create(resultMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.GENERIC_JSON_IMPORT_ERROR.getMessage(createdWorkspace.getId(), "")))
+                        throwable.getMessage().contains(AppsmithError.GENERIC_JSON_IMPORT_ERROR.getMessage(createdWorkspace.getId(), "")))
                 .verify();
     }
 

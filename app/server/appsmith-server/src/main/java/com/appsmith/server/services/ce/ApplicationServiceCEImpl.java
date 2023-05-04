@@ -786,7 +786,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
                     final Mono<String> prevAssetIdMono = Mono.just(rootAppLogoAssetId);
 
-                    final Mono<Asset> uploaderMono = assetService.upload(List.of(filePart), MAX_LOGO_SIZE_KB, true);
+                    final Mono<Asset> uploaderMono = assetService.upload(List.of(filePart), MAX_LOGO_SIZE_KB, false);
 
                     return Mono.zip(prevAssetIdMono, uploaderMono)
                             .flatMap(tuple -> {
@@ -815,6 +815,16 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     @Override
     public Mono<Application> findByNameAndWorkspaceId(String applicationName, String workspaceId, AclPermission permission) {
         return repository.findByNameAndWorkspaceId(applicationName, workspaceId, permission);
+    }
+
+    @Override
+    public Mono<Boolean> isApplicationConnectedToGit(String applicationId) {
+        if (!StringUtils.hasLength(applicationId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+        return this.getById(applicationId)
+                .map(application -> application.getGitApplicationMetadata() != null
+                        && StringUtils.hasLength(application.getGitApplicationMetadata().getRemoteUrl()));
     }
 
     @Override

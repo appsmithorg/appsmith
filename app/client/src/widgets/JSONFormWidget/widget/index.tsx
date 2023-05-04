@@ -28,6 +28,8 @@ import type {
 } from "entities/AppTheming";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 export interface JSONFormWidgetProps extends WidgetProps {
   autoGenerateForm?: boolean;
@@ -218,6 +220,19 @@ class JSONFormWidget extends BaseWidget<
         },
       },
     };
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return (widget: JSONFormWidgetProps) => ({
+      "!doc":
+        "JSON Form widget can be used to auto-generate forms by providing a JSON source data.",
+      // TODO: Update the url
+      "!url": "https://docs.appsmith.com/widget-reference",
+      formData: generateTypeDef(widget.formData),
+      sourceData: generateTypeDef(widget.sourceData),
+      fieldState: generateTypeDef(widget.fieldState),
+      isValid: "bool",
+    });
   }
 
   static defaultProps = {};
