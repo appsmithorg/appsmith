@@ -25,7 +25,8 @@ import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
-import type { ReactTableFilter, StickyType } from "../component/Constants";
+import { SORT_ORDER } from "../component/Constants";
+import type { StickyType, ReactTableFilter } from "../component/Constants";
 import { AddNewRowActions, DEFAULT_FILTER } from "../component/Constants";
 import type {
   EditableCell,
@@ -342,7 +343,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   createTablePrimaryColumns = ():
     | Record<string, ColumnProperties>
     | undefined => {
-    const { tableData = [], primaryColumns = {} } = this.props;
+    const { primaryColumns = {}, tableData = [] } = this.props;
 
     if (!_.isArray(tableData) || tableData.length === 0) {
       return;
@@ -450,6 +451,21 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           // Maintain original columnOrder and keep new columns at the end
           let newColumnOrder = _.intersection(columnOrder, newColumnIds);
           newColumnOrder = _.union(newColumnOrder, newColumnIds);
+
+          const compareColumns = (a: string, b: string) => {
+            const aSticky = tableColumns[a].sticky || "none";
+            const bSticky = tableColumns[b].sticky || "none";
+
+            if (aSticky === bSticky) {
+              return 0;
+            }
+
+            return SORT_ORDER[aSticky] - SORT_ORDER[bSticky];
+          };
+
+          // Sort the column order to retain the position of frozen columns
+          newColumnOrder.sort(compareColumns);
+
           propertiesToAdd["columnOrder"] = newColumnOrder;
         }
 
@@ -814,14 +830,14 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   getPageView() {
     const {
-      totalRecordsCount,
       delimiter,
-      pageSize,
       filteredTableData = [],
       isVisibleDownload,
       isVisibleFilters,
       isVisiblePagination,
       isVisibleSearch,
+      pageSize,
+      totalRecordsCount,
     } = this.props;
     const tableColumns = this.getTableColumns() || emptyArr;
     const transformedData = this.transformData(filteredTableData, tableColumns);
@@ -1132,13 +1148,13 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
    * This function just pushes the meta update
    */
   pushOnColumnEvent = ({
-    rowIndex,
     action,
-    onComplete = noop,
-    triggerPropertyName,
-    eventType,
-    row,
     additionalData = {},
+    eventType,
+    onComplete = noop,
+    row,
+    rowIndex,
+    triggerPropertyName,
   }: OnColumnEventArgs) => {
     const { filteredTableData = [], pushBatchMetaUpdates } = this.props;
 
@@ -1161,13 +1177,13 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
    * Function to handle customColumn button type click interactions
    */
   onColumnEvent = ({
-    rowIndex,
     action,
-    onComplete = noop,
-    triggerPropertyName,
-    eventType,
-    row,
     additionalData = {},
+    eventType,
+    onComplete = noop,
+    row,
+    rowIndex,
+    triggerPropertyName,
   }: OnColumnEventArgs) => {
     if (action) {
       const { commitBatchMetaUpdates } = this.props;
@@ -1504,11 +1520,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     const isHidden = !column.isVisible;
     const {
+      compactMode = CompactModeTypes.DEFAULT,
       filteredTableData = [],
       multiRowSelection,
       selectedRowIndex,
       selectedRowIndices,
-      compactMode = CompactModeTypes.DEFAULT,
     } = this.props;
     let row;
     let originalIndex: number;

@@ -9,6 +9,7 @@ import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import type { RenderMode } from "constants/WidgetConstants";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { previewModeSelector } from "selectors/editorSelectors";
 
 interface IframeContainerProps {
   borderColor?: string;
@@ -134,6 +135,7 @@ function IframeComponent(props: IframeComponentProps) {
   }, [srcDoc]);
 
   const appMode = useSelector(getAppMode);
+  const isPreviewMode = useSelector(previewModeSelector);
   const selectedWidget = useSelector(getWidgetPropsForPropertyPane);
 
   return (
@@ -144,9 +146,9 @@ function IframeComponent(props: IframeComponentProps) {
       borderWidth={borderWidth}
       boxShadow={props.boxShadow}
     >
-      {appMode === APP_MODE.EDIT && widgetId !== selectedWidget?.widgetId && (
-        <OverlayDiv />
-      )}
+      {appMode === APP_MODE.EDIT &&
+        !isPreviewMode &&
+        widgetId !== selectedWidget?.widgetId && <OverlayDiv />}
 
       {message ? (
         message
@@ -160,7 +162,7 @@ function IframeComponent(props: IframeComponentProps) {
               ? undefined
               : "allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-scripts allow-top-navigation-by-user-activation"
           }
-          src={source}
+          src={getAssetUrl(source)}
           srcDoc={srcDoc}
           title={title}
         />
@@ -169,7 +171,7 @@ function IframeComponent(props: IframeComponentProps) {
           allow="camera; microphone"
           id={`iframe-${widgetName}`}
           ref={frameRef}
-          src={source}
+          src={getAssetUrl(source)}
           title={title}
         />
       )}
