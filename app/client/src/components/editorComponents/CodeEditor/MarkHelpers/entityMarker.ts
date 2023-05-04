@@ -27,22 +27,24 @@ export const entityMarker: MarkHelper = (
 ) => {
   let markers: CodeMirror.TextMarker[] = [];
   if (from && to) {
-    markers = editor.findMarks(
-      {
-        line: from.line,
-        ch: 0,
-      },
-      {
-        line: to.line,
-        // when a line is deleted?
-        ch: editor.getLine(to.line).length - 1,
-      },
-    );
-    clearMarkers(markers);
+    const toLine = editor.getLine(to.line);
+    if (toLine) {
+      markers = editor.findMarks(
+        {
+          line: from.line,
+          ch: 0,
+        },
+        {
+          line: to.line,
+          ch: toLine.length - 1,
+        },
+      );
+      clearMarkers(markers);
 
-    editor.eachLine(from.line, to.line, (line: CodeMirror.LineHandle) => {
-      addMarksForLine(editor, line, entityNavigationData);
-    });
+      editor.eachLine(from.line, to.line, (line: CodeMirror.LineHandle) => {
+        addMarksForLine(editor, line, entityNavigationData);
+      });
+    }
   } else {
     markers = editor.getAllMarks();
     clearMarkers(markers);

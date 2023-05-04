@@ -1,12 +1,13 @@
 import React, { forwardRef } from "react";
-import { Text } from "../Text";
-import { Spinner } from "../Spinner";
-import { StyledButton } from "./index.styled";
-import type { fontFamilyTypes } from "../../utils/typography";
 import type {
   ButtonProps as HeadlessButtonProps,
   ButtonRef as HeadlessButtonRef,
 } from "@design-system/headless";
+
+import { Text } from "../Text";
+import { Spinner } from "../Spinner";
+import { StyledButton } from "./index.styled";
+import type { fontFamilyTypes } from "../../utils/typography";
 
 export type ButtonVariants = "primary" | "secondary" | "tertiary";
 
@@ -15,12 +16,11 @@ export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {
    *  @default primary
    */
   variant?: ButtonVariants;
-  children?: React.ReactNode;
-  isDisabled?: boolean;
   isLoading?: boolean;
   fontFamily?: fontFamilyTypes;
   isFitContainer?: boolean;
   isFocused?: boolean;
+  iconPosition?: "start" | "end";
 }
 
 export const Button = forwardRef(
@@ -28,53 +28,35 @@ export const Button = forwardRef(
     const {
       children,
       fontFamily,
-      isActive,
-      isDisabled,
       isFitContainer = false,
-      isFocused,
-      isHover,
       isLoading,
-      onBlur,
-      onFocus,
-      onFocusChange,
-      onKeyDown,
-      onPress,
-      onPressChange,
-      onPressEnd,
-      onPressStart,
-      onPressUp,
+      // eslint-disable-next-line -- TODO add onKeyUp when the bug is fixedhttps://github.com/adobe/react-spectrum/issues/4350
+      onKeyUp,
       variant = "primary",
+      ...rest
     } = props;
+
+    const renderChildren = () => {
+      if (isLoading) {
+        return <Spinner />;
+      }
+
+      return (
+        <Text fontFamily={fontFamily} lineClamp={1}>
+          {children}
+        </Text>
+      );
+    };
 
     return (
       <StyledButton
-        data-fit-container={isFitContainer}
-        data-focus={isFocused}
-        data-loading={isLoading}
+        data-fit-container={isFitContainer ? "" : undefined}
+        data-loading={isLoading ? "" : undefined}
         data-variant={variant}
-        isActive={isActive}
-        isDisabled={isDisabled}
-        isHover={isHover}
-        onBlur={onBlur}
-        onFocus={onFocus}
-        onFocusChange={onFocusChange}
-        onKeyDown={onKeyDown}
-        // TODO Return onKeyUp when the bug is fixed https://github.com/adobe/react-spectrum/issues/4350
-        // onKeyUp={onKeyUp}
-        onPress={onPress}
-        onPressChange={onPressChange}
-        onPressEnd={onPressEnd}
-        onPressStart={onPressStart}
-        onPressUp={onPressUp}
         ref={ref}
+        {...rest}
       >
-        {isLoading && <Spinner />}
-
-        {!isLoading && (
-          <Text fontFamily={fontFamily} lineClamp={1}>
-            {children}
-          </Text>
-        )}
+        {renderChildren()}
       </StyledButton>
     );
   },

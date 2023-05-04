@@ -44,6 +44,7 @@ import type {
   UpdateDatasourceSuccessAction,
   executeDatasourceQueryReduxAction,
 } from "actions/datasourceActions";
+import { updateDatasourceAuthState } from "actions/datasourceActions";
 import {
   changeDatasource,
   fetchDatasourceStructure,
@@ -53,7 +54,6 @@ import {
   removeTempDatasource,
   createDatasourceSuccess,
   resetDefaultKeyValPairFlag,
-  updateDatasource,
 } from "actions/datasourceActions";
 import type { ApiResponse } from "api/ApiResponses";
 import type { CreateDatasourceConfig } from "api/DatasourcesApi";
@@ -64,6 +64,7 @@ import { FilePickerActionStatus } from "entities/Datasource";
 import {
   INTEGRATION_EDITOR_MODES,
   INTEGRATION_TABS,
+  RESPONSE_STATUS,
   SHOW_FILE_PICKER_KEY,
 } from "constants/routes";
 import history from "utils/history";
@@ -98,7 +99,7 @@ import localStorage from "utils/localStorage";
 import log from "loglevel";
 import { APPSMITH_TOKEN_STORAGE_KEY } from "pages/Editor/SaaSEditor/constants";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
-import { PluginType } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { getQueryParams } from "utils/URLUtils";
@@ -119,11 +120,14 @@ import {
 } from "RouteBuilder";
 import {
   DATASOURCE_NAME_DEFAULT_PREFIX,
+  GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS,
+  GOOGLE_SHEET_SPECIFIC_SHEETS_SCOPE,
   TEMP_DATASOURCE_ID,
 } from "constants/Datasource";
 import { getUntitledDatasourceSequence } from "utils/DatasourceSagaUtils";
 import { fetchPluginFormConfig } from "actions/pluginActions";
 import { addClassToDocumentBody } from "pages/utils";
+import { AuthorizationStatus } from "pages/common/datasourceAuth";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -346,7 +350,23 @@ function* updateDatasourceSaga(
   try {
     const queryParams = getQueryParams();
     const datasourcePayload = omit(actionPayload.payload, "name");
+    const pluginPackageName: PluginPackageName = yield select(
+      getPluginPackageFromDatasourceId,
+      datasourcePayload?.id,
+    );
     datasourcePayload.isConfigured = true; // when clicking save button, it should be changed as configured
+
+    // When importing app with google sheets with specific sheets scope
+    // We do not want to set isConfigured to true immediately on save
+    // instead we want to wait for authorisation as well as file selection to be complete
+    if (pluginPackageName === PluginPackageName.GOOGLE_SHEETS) {
+      const scopeString: string = (
+        datasourcePayload?.datasourceConfiguration?.authentication as any
+      )?.scopeString;
+      if (scopeString.includes(GOOGLE_SHEET_SPECIFIC_SHEETS_SCOPE)) {
+        datasourcePayload.isConfigured = false;
+      }
+    }
 
     const response: ApiResponse<Datasource> =
       yield DatasourcesApi.updateDatasource(
@@ -753,6 +773,9 @@ function* createDatasourceFromFormSaga(
       yield put(
         createDatasourceSuccess(response.data, true, !!actionRouteInfo.apiId),
       );
+
+      // fetch the datasource structure.
+      yield put(fetchDatasourceStructure(response?.data?.id, true));
 
       Toaster.show({
         text: createMessage(DATASOURCE_CREATE, response.data.name),
@@ -1205,14 +1228,18 @@ function* filePickerActionCallbackSaga(
       authStatus,
     );
 
+    // Once files are selected in case of import, set this flag
+    set(datasource, "isConfigured", true);
+
     // Once users selects/cancels the file selection,
     // Sending sheet ids selected as part of datasource
     // config properties in order to save it in database
-    set(datasource, "datasourceConfiguration.properties[0]", {
+    // using the second index specifically for file ids.
+    set(datasource, "datasourceConfiguration.properties[1]", {
       key: createMessage(GSHEET_AUTHORISED_FILE_IDS_KEY),
       value: fileIds,
     });
-    yield put(updateDatasource(datasource));
+    yield put(updateDatasourceAuthState(datasource, authStatus));
   } catch (error) {
     yield put({
       type: ReduxActionTypes.SET_GSHEET_TOKEN,
@@ -1419,12 +1446,59 @@ function* loadFilePickerSaga() {
   // This adds overlay on document body
   // This is done for google sheets file picker, as file picker needs to be shown on blank page
   // when overlay needs to be shown, we get showPicker search param in redirect url
-  const className = "overlay";
   const appsmithToken = localStorage.getItem(APPSMITH_TOKEN_STORAGE_KEY);
   const search = new URLSearchParams(window.location.search);
-  const status = search.get(SHOW_FILE_PICKER_KEY);
-  if (!!status && !!appsmithToken) {
-    addClassToDocumentBody(className);
+  const isShowFilePicker = search.get(SHOW_FILE_PICKER_KEY);
+  const gapiScriptLoaded = (window as any).googleAPIsLoaded;
+  const authStatus = search.get(RESPONSE_STATUS);
+  if (
+    !!isShowFilePicker &&
+    !!authStatus &&
+    authStatus === AuthorizationStatus.SUCCESS &&
+    !!appsmithToken &&
+    !!gapiScriptLoaded
+  ) {
+    addClassToDocumentBody(GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS);
+  }
+}
+
+function* updateDatasourceAuthStateSaga(
+  actionPayload: ReduxAction<{
+    authStatus: AuthenticationStatus;
+    datasource: Datasource;
+  }>,
+) {
+  try {
+    const { authStatus, datasource } = actionPayload.payload;
+    const response: ApiResponse<Datasource> =
+      yield DatasourcesApi.updateDatasource(datasource, datasource.id);
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_DATASOURCE_SUCCESS,
+        payload: response.data,
+      });
+
+      Toaster.show({
+        text:
+          authStatus === AuthenticationStatus.SUCCESS
+            ? OAUTH_AUTHORIZATION_SUCCESSFUL
+            : OAUTH_AUTHORIZATION_FAILED,
+        variant:
+          authStatus === AuthenticationStatus.SUCCESS
+            ? Variant.success
+            : Variant.danger,
+      });
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.UPDATE_DATASOURCE_ERROR,
+      payload: { error },
+    });
+    Toaster.show({
+      text: OAUTH_AUTHORIZATION_FAILED,
+      variant: Variant.danger,
+    });
   }
 }
 
@@ -1501,5 +1575,9 @@ export function* watchDatasourcesSagas() {
     takeLatest(ReduxActionTypes.FETCH_GSHEET_SHEETS, fetchGsheetSheets),
     takeLatest(ReduxActionTypes.FETCH_GSHEET_COLUMNS, fetchGsheetColumns),
     takeEvery(ReduxActionTypes.LOAD_FILE_PICKER_ACTION, loadFilePickerSaga),
+    takeEvery(
+      ReduxActionTypes.UPDATE_DATASOURCE_AUTH_STATE,
+      updateDatasourceAuthStateSaga,
+    ),
   ]);
 }

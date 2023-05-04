@@ -19,7 +19,7 @@ public class FieldNameCE {
     public static final String NAME = "name";
     public static String PAGE_ID = "pageId";
     public static String LAYOUT_ID = "layoutId";
-    public static String APPLICATION_ID = "applicationId";
+    public static final String APPLICATION_ID = "applicationId";
     public static String SOURCE_APPLICATION_ID = "sourceApplicationId";
     public static final String DEFAULT_RESOURCES = "defaultResources";
     public static String PLUGIN_ID = "pluginId";
@@ -150,6 +150,7 @@ public class FieldNameCE {
     public static final String ACTION_EXECUTION_TIME = "actionExecutionTime";
     public static final String WEBSITE = "website";
     public static final String TEMPLATE_APPLICATION_NAME = "templateAppName";
+    public static final String IS_SUPPORTED_FOR_AIR_GAP = "isSupportedForAirGap";
 
     // this key will present in the analytics as a diff b/w server and user invoked flows
     public static final String IS_DATASOURCE_UPDATE_USER_INVOKED_KEY = "isDatasourceUpdateUserInvoked";
@@ -165,5 +166,9 @@ public class FieldNameCE {
     public static final String VIEW_MODE = "viewMode";
     public static final String USER_EMAILS = "userEmails";
     public static final String NUMBER_OF_USERS_INVITED = "numberOfUsersInvited";
-}
 
+    public static final String ASSIGNED_USERS_TO_PERMISSION_GROUPS = "assigned_users";
+    public static final String UNASSIGNED_USERS_FROM_PERMISSION_GROUPS = "unassigned_users";
+    public static final String NUMBER_OF_ASSIGNED_USERS = "numberOfAssignedUsers";
+    public static final String NUMBER_OF_UNASSIGNED_USERS = "numberOfUnassignedUsers";
+}

@@ -253,6 +253,15 @@ function* formValueChangeSaga(
       return;
     }
 
+    // get datasource configuration based on datasource id
+    // pass it to run form evaluations method
+    // This is required for google sheets, as we need to modify query
+    // state based on datasource config
+    const datasource: Datasource | undefined = yield select(
+      getDatasource,
+      values.datasource.id,
+    );
+
     // Editing form fields triggers evaluations.
     // We pass the action to run form evaluations when the dataTree evaluation is complete
     const postEvalActions =
@@ -265,6 +274,7 @@ function* formValueChangeSaga(
               values.pluginId,
               field,
               hasRouteChanged,
+              datasource?.datasourceConfiguration,
             ),
           ]
         : [];

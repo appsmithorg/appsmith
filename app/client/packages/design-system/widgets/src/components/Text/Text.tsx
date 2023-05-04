@@ -17,6 +17,7 @@ export type TextProps = {
   lineGap?: number;
   as?: keyof JSX.IntrinsicElements;
   lineClamp?: number;
+  className?: string;
 };
 
 export const Text = React.forwardRef<HTMLParagraphElement, TextProps>(

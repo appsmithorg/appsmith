@@ -44,6 +44,7 @@ import {
   hasDeleteDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
+import { SHOW_FILE_PICKER_KEY } from "constants/routes";
 
 interface Props {
   datasource: Datasource;
@@ -61,7 +62,7 @@ interface Props {
 
 export type DatasourceFormButtonTypes = Record<string, string[]>;
 
-enum AuthorizationStatus {
+export enum AuthorizationStatus {
   SUCCESS = "success",
   APPSMITH_ERROR = "appsmith_error",
 }
@@ -171,8 +172,12 @@ function DatasourceAuth({
       const status = search.get("response_status");
       const queryIsImport = search.get("importForGit");
       const queryDatasourceId = search.get("datasourceId");
+      const showFilePicker = search.get(SHOW_FILE_PICKER_KEY);
       const shouldNotify =
-        !queryIsImport || (queryIsImport && queryDatasourceId === datasourceId);
+        !queryIsImport ||
+        (queryIsImport &&
+          queryDatasourceId === datasourceId &&
+          !showFilePicker);
       if (status && shouldNotify) {
         const display_message = search.get("display_message");
         const variant = Variant.danger;

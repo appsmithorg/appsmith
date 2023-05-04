@@ -24,7 +24,7 @@ import {
 } from "@appsmith/constants/messages";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
-import { getCurrentTenant } from "ce/actions/tenantActions";
+import { getCurrentTenant } from "@appsmith/actions/tenantActions";
 
 export function* FetchAdminSettingsSaga() {
   const response: ApiResponse = yield call(UserApi.fetchAdminSettings);
