@@ -23,7 +23,6 @@ import {
 } from "@appsmith/constants/messages";
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
-import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
 import { Button, FormGroup, FormMessage, Size } from "design-system-old";
 
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
@@ -91,10 +90,7 @@ export function SignUp(props: SignUpFormProps) {
   }, []);
   const { emailValue: email, error, pristine, submitting, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);
-  const socialLoginList = [
-    ...useSelector(getThirdPartyAuths),
-    ...ThirdPartyLoginRegistry.get(),
-  ];
+  const socialLoginList = useSelector(getThirdPartyAuths);
   const shouldDisableSignupButton = pristine || !isFormValid;
   const location = useLocation();
 

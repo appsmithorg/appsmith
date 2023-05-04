@@ -99,7 +99,7 @@ import localStorage from "utils/localStorage";
 import log from "loglevel";
 import { APPSMITH_TOKEN_STORAGE_KEY } from "pages/Editor/SaaSEditor/constants";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
-import { PluginType } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { getQueryParams } from "utils/URLUtils";
@@ -120,6 +120,8 @@ import {
 } from "RouteBuilder";
 import {
   DATASOURCE_NAME_DEFAULT_PREFIX,
+  GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS,
+  GOOGLE_SHEET_SPECIFIC_SHEETS_SCOPE,
   TEMP_DATASOURCE_ID,
 } from "constants/Datasource";
 import { getUntitledDatasourceSequence } from "utils/DatasourceSagaUtils";
@@ -348,7 +350,23 @@ function* updateDatasourceSaga(
   try {
     const queryParams = getQueryParams();
     const datasourcePayload = omit(actionPayload.payload, "name");
+    const pluginPackageName: PluginPackageName = yield select(
+      getPluginPackageFromDatasourceId,
+      datasourcePayload?.id,
+    );
     datasourcePayload.isConfigured = true; // when clicking save button, it should be changed as configured
+
+    // When importing app with google sheets with specific sheets scope
+    // We do not want to set isConfigured to true immediately on save
+    // instead we want to wait for authorisation as well as file selection to be complete
+    if (pluginPackageName === PluginPackageName.GOOGLE_SHEETS) {
+      const scopeString: string = (
+        datasourcePayload?.datasourceConfiguration?.authentication as any
+      )?.scopeString;
+      if (scopeString.includes(GOOGLE_SHEET_SPECIFIC_SHEETS_SCOPE)) {
+        datasourcePayload.isConfigured = false;
+      }
+    }
 
     const response: ApiResponse<Datasource> =
       yield DatasourcesApi.updateDatasource(
@@ -1210,6 +1228,9 @@ function* filePickerActionCallbackSaga(
       authStatus,
     );
 
+    // Once files are selected in case of import, set this flag
+    set(datasource, "isConfigured", true);
+
     // Once users selects/cancels the file selection,
     // Sending sheet ids selected as part of datasource
     // config properties in order to save it in database
@@ -1425,7 +1446,6 @@ function* loadFilePickerSaga() {
   // This adds overlay on document body
   // This is done for google sheets file picker, as file picker needs to be shown on blank page
   // when overlay needs to be shown, we get showPicker search param in redirect url
-  const className = "overlay";
   const appsmithToken = localStorage.getItem(APPSMITH_TOKEN_STORAGE_KEY);
   const search = new URLSearchParams(window.location.search);
   const isShowFilePicker = search.get(SHOW_FILE_PICKER_KEY);
@@ -1438,7 +1458,7 @@ function* loadFilePickerSaga() {
     !!appsmithToken &&
     !!gapiScriptLoaded
   ) {
-    addClassToDocumentBody(className);
+    addClassToDocumentBody(GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS);
   }
 }
 
