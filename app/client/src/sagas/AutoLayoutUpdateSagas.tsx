@@ -301,12 +301,8 @@ function* updateWidgetDimensionsSaga(
  * when the widget component get resized internally.
  * It also updates the position of other affected widgets as well.
  */
-function* processAutoLayoutDimensionUpdatesSaga(
-  action: ReduxAction<{ canvasWidth?: number }>,
-) {
+function* processAutoLayoutDimensionUpdatesSaga() {
   if (Object.keys(autoLayoutWidgetDimensionUpdateBatch).length === 0) return;
-
-  const { canvasWidth } = action.payload;
 
   const allWidgets: CanvasWidgetsReduxState = yield select(
     getCanvasAndMetaWidgets,
@@ -328,7 +324,7 @@ function* processAutoLayoutDimensionUpdatesSaga(
     const { columnSpace } = getCanvasDimensions(
       widgets[parentId],
       widgets,
-      canvasWidth || mainCanvasWidth,
+      mainCanvasWidth,
       isMobile,
     );
 
@@ -363,7 +359,7 @@ function* processAutoLayoutDimensionUpdatesSaga(
       widgets,
       parentId,
       isMobile,
-      canvasWidth || mainCanvasWidth,
+      mainCanvasWidth,
       false,
       metaProps,
     );

@@ -347,7 +347,6 @@ export const useDynamicAppLayout = () => {
       );
       dispatch({
         type: ReduxActionTypes.PROCESS_AUTO_LAYOUT_DIMENSION_UPDATES,
-        payload: { canvasWidth },
       });
     }
   }, [isAutoCanvasResizing]);
