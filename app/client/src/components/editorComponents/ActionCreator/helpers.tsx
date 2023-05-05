@@ -407,7 +407,7 @@ function getApiAndQueryOptions(
   handleClose: () => void,
 ) {
   const createQueryObject: TreeDropdownOption = {
-    label: "New Query",
+    label: "New query",
     value: "datasources",
     id: "create",
     icon: "plus",
@@ -475,7 +475,7 @@ export function getJSOptions(
   dispatch: any,
 ) {
   const createJSObject: TreeDropdownOption = {
-    label: "New JS Object",
+    label: "New JS object",
     value: AppsmithFunction.jsFunction,
     id: "create",
     icon: "plus",
