@@ -7,60 +7,95 @@ import type { ExpectedValueExample } from "utils/validation/common";
 import type { getDatasourceStructuresFromDatasourceId } from "selectors/entitiesSelector";
 import { find } from "lodash";
 
-export enum EditorModes {
-  TEXT = "text/plain",
-  SQL = "sql",
-  TEXT_WITH_BINDING = "text-js",
-  JSON = "application/json",
-  JSON_WITH_BINDING = "json-js",
-  JAVASCRIPT = "javascript",
-  GRAPHQL = "graphql",
-  GRAPHQL_WITH_BINDING = "graphql-js",
-  POSTGRESQL_WITH_BINDING = "pgsql-js",
-  SQL_WITH_BINDING = "sql-js",
-  MYSQL_WITH_BINDING = "mysql-js",
-  MSSQL_WITH_BINDING = "mssql-js",
-  PLSQL_WITH_BINDING = "plsql-js",
-  // Custom SQL mime types
-  SNOWFLAKE_WITH_BINDING = "snowflakesql-js",
-  ARANGO_WITH_BINDING = "arangosql-js",
-  REDIS_WITH_BINDING = "redissql-js",
-}
+export const editorSQLModes = {
+  // SQL only
+  SQL: "sql",
+  // SQL flavour + JS
+  SNOWFLAKE_WITH_BINDING: "snowflakesql-js",
+  ARANGO_WITH_BINDING: "arangosql-js",
+  REDIS_WITH_BINDING: "redissql-js",
+  POSTGRESQL_WITH_BINDING: "pgsql-js",
+  SQL_WITH_BINDING: "sql-js",
+  MYSQL_WITH_BINDING: "mysql-js",
+  MSSQL_WITH_BINDING: "mssql-js",
+  PLSQL_WITH_BINDING: "plsql-js",
+} as const;
 
-export const sqlModesConfig = [
-  // Mime available in sql mode https://github.com/codemirror/codemirror5/blob/9974ded36bf01746eb2a00926916fef834d3d0d0/mode/sql/sql.js#L290
+export const EditorModes = {
+  TEXT: "text/plain",
+  TEXT_WITH_BINDING: "text-js",
+  JSON: "application/json",
+  JSON_WITH_BINDING: "json-js",
+  JAVASCRIPT: "javascript",
+  GRAPHQL: "graphql",
+  GRAPHQL_WITH_BINDING: "graphql-js",
+  ...editorSQLModes,
+} as const;
+
+type ValueOf<T> = T[keyof T];
+export type TEditorModes = ValueOf<typeof EditorModes>;
+export type TEditorSqlModes = ValueOf<typeof editorSQLModes>;
+type SqlModeConfig = Record<
+  TEditorSqlModes,
   {
+    mime: string;
+    mode: TEditorSqlModes;
+    // CodeMirror.multiplexingMode
+    isMultiplex: boolean;
+  }
+>;
+
+// Mime available in sql mode https://github.com/codemirror/codemirror5/blob/9974ded36bf01746eb2a00926916fef834d3d0d0/mode/sql/sql.js#L290
+export const sqlModesConfig: SqlModeConfig = {
+  [editorSQLModes.SQL]: {
+    mime: "sql",
+    mode: editorSQLModes.SQL,
+    isMultiplex: false,
+  },
+  [editorSQLModes.SQL_WITH_BINDING]: {
     mime: "text/x-sql",
-    mode: EditorModes.SQL_WITH_BINDING,
+    mode: editorSQLModes.SQL_WITH_BINDING,
+    isMultiplex: true,
   },
-  {
+  [editorSQLModes.MYSQL_WITH_BINDING]: {
     mime: "text/x-mysql",
-    mode: EditorModes.MYSQL_WITH_BINDING,
+    mode: editorSQLModes.MYSQL_WITH_BINDING,
+    isMultiplex: true,
   },
-  {
+  [editorSQLModes.MSSQL_WITH_BINDING]: {
     mime: "text/x-mssql",
-    mode: EditorModes.MSSQL_WITH_BINDING,
+    mode: editorSQLModes.MSSQL_WITH_BINDING,
+    isMultiplex: true,
   },
-  {
+  [editorSQLModes.PLSQL_WITH_BINDING]: {
     mime: "text/x-plsql",
-    mode: EditorModes.PLSQL_WITH_BINDING,
+    mode: editorSQLModes.PLSQL_WITH_BINDING,
+    isMultiplex: true,
+  },
+  [editorSQLModes.POSTGRESQL_WITH_BINDING]: {
+    mime: "text/x-pgsql",
+    mode: editorSQLModes.REDIS_WITH_BINDING,
+    isMultiplex: true,
   },
   // Custom mimes
-  {
+  [editorSQLModes.SNOWFLAKE_WITH_BINDING]: {
     mime: "text/x-snowflakesql",
-    mode: EditorModes.SNOWFLAKE_WITH_BINDING,
+    mode: editorSQLModes.SNOWFLAKE_WITH_BINDING,
+    isMultiplex: true,
   },
-  {
+  [editorSQLModes.ARANGO_WITH_BINDING]: {
     mime: "text/x-arangosql",
-    mode: EditorModes.ARANGO_WITH_BINDING,
+    mode: editorSQLModes.ARANGO_WITH_BINDING,
+    isMultiplex: true,
   },
-  {
+  [editorSQLModes.REDIS_WITH_BINDING]: {
     mime: "text/x-redis",
-    mode: EditorModes.REDIS_WITH_BINDING,
+    mode: editorSQLModes.REDIS_WITH_BINDING,
+    isMultiplex: true,
   },
-];
+};
 
-export const pluginNameToMIME: Record<string, EditorModes> = {
+export const pluginNameToMIME: Record<string, ValueOf<typeof EditorModes>> = {
   PostgreSQL: EditorModes.POSTGRESQL_WITH_BINDING,
   MySQL: EditorModes.MYSQL_WITH_BINDING,
   "Microsoft SQL Server": EditorModes.MSSQL_WITH_BINDING,
@@ -88,7 +123,7 @@ export enum EditorSize {
 
 export type EditorConfig = {
   theme: EditorTheme;
-  mode: EditorModes;
+  mode: ValueOf<typeof EditorModes>;
   tabBehaviour: TabBehaviour;
   size: EditorSize;
   hinting?: Array<HintHelper>;
@@ -189,7 +224,11 @@ export function getSqlEditorModeFromPluginName(name: string) {
   return pluginNameToMIME[name] ?? EditorModes.SQL_WITH_BINDING;
 }
 
-export function getSqlMimeFromMode(mode: EditorModes) {
+export function getSqlMimeFromMode(mode: ValueOf<typeof editorSQLModes>) {
   const modeConfig = find(sqlModesConfig, { mode });
   return modeConfig?.mime ?? "text/x-sql";
+}
+
+export function isSqlMode(mode: TEditorModes) {
+  return !!Object.keys(sqlModesConfig).includes(mode);
 }
