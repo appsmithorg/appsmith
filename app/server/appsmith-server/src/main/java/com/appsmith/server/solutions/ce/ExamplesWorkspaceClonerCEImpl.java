@@ -556,10 +556,10 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                                  * Ref: getApplicationImportDTO()
                                  */
 
-                                Boolean setIsConfigured = (templateDatasource.getDatasourceConfiguration() != null
+                                Boolean isConfigured = (templateDatasource.getDatasourceConfiguration() != null
                                         && templateDatasource.getDatasourceConfiguration().getAuthentication() != null);
 
-                                if (setIsConfigured && templateDatasource.getDatasourceConfiguration().getAuthentication().getAuthenticationResponse() != null){
+                                if (isConfigured && templateDatasource.getDatasourceConfiguration().getAuthentication().getAuthenticationResponse() != null){
                                     /**
                                      * This is the case for GSheet datasource, since for Gsheet, we don't want to copy the token to the new workspace
                                      * as it is user's personal token. Hence, in case of forking to a new workspace the gsheet needs to be re-authorised.
@@ -568,7 +568,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                                     templateDatasource.getDatasourceConfiguration().getAuthentication().setAuthenticationResponse(null);
                                 }
                                 else {
-                                    templateDatasource.setIsConfigured(setIsConfigured);
+                                    templateDatasource.setIsConfigured(isConfigured);
                                 }
 
                                 return createSuffixedDatasource(templateDatasource);
