@@ -9126,6 +9126,11 @@ class-utils@^0.3.5:
     isobject "^3.0.0"
     static-extend "^0.1.1"
 
+classnames@*, classnames@^2.3.2:
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.3.2.tgz#351d813bf0137fcc6a76a16b88208d2560a0d924"
+  integrity sha512-CSbhY4cFEJRe6/GQzIk5qXZ4Jeg5pcsP7b5peFSDpffpe1cqjASH/n9UTjBwOp6XpMSTwQ8Za2K5V02ueA7Tmw==
+
 classnames@2.x, classnames@^2.3.1:
   version "2.3.1"
   resolved "https://registry.npmjs.org/classnames/-/classnames-2.3.1.tgz"
@@ -9133,11 +9138,6 @@ classnames@2.x, classnames@^2.3.1:
 classnames@^2.2, classnames@^2.2.1, classnames@^2.2.5, classnames@^2.2.6:
   version "2.2.6"
   resolved "https://registry.npmjs.org/classnames/-/classnames-2.2.6.tgz"
-
-classnames@^2.3.2:
-  version "2.3.2"
-  resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.3.2.tgz#351d813bf0137fcc6a76a16b88208d2560a0d924"
-  integrity sha512-CSbhY4cFEJRe6/GQzIk5qXZ4Jeg5pcsP7b5peFSDpffpe1cqjASH/n9UTjBwOp6XpMSTwQ8Za2K5V02ueA7Tmw==
 
 clean-css@^4.2.3:
   version "4.2.4"
@@ -10423,17 +10423,17 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system-old@npm:@appsmithorg/design-system-old@1.1.6-alpha.6":
-  version "1.1.6-alpha.6"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system-old/-/design-system-old-1.1.6-alpha.6.tgz#315f8ba4d2f4734abc8af54a503e1df6feea354b"
-  integrity sha512-VC6r7epLMkLVyyVVc7xWf0OIbz8avCj2VOQlaw1+PgDkkSYU55bBaMHGED0H6KQjSlZU6TTVM9/rDXU+5HSe+A==
+"design-system-old@npm:@appsmithorg/design-system-old@1.1.7-alpha.3":
+  version "1.1.7-alpha.3"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system-old/-/design-system-old-1.1.7-alpha.3.tgz#b37b19a1c8e894a6c3997e04a29e2efe56f7f3e1"
+  integrity sha512-c+v7PVv+mA2ry4TfwIIk60WB20vJNSFlBIq5Fnt/tevomBTzPX1YaCQ6q5vtyj3DjhVrXpDStK70GnWXep4fEA==
   dependencies:
     emoji-mart "3.0.1"
 
-"design-system@npm:@appsmithorg/design-system@2.1.8-alpha.10":
-  version "2.1.8-alpha.10"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-2.1.8-alpha.10.tgz#28392b3196fa4b0a3f424564fd92a859f8364c55"
-  integrity sha512-EQUmgkXhFECqDBAeAqt1GQZ8nfMNCkT4ro/qw1dUk7aRvT9EqpQPw3603JdNUpHIvvnMkh4pdpeDmUe+uhH1qw==
+"design-system@npm:@appsmithorg/design-system@2.1.8-alpha.30":
+  version "2.1.8-alpha.30"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-2.1.8-alpha.30.tgz#19d4d523e4b689373cabfdaff7ee4c27009ab629"
+  integrity sha512-EdsgZZK1Dr76w+uUyX2xGvkkrR3E5P9omZkDV+VSst/LsLGClIz9yvU6sLqmciTIlM1+jKisnhfsiZrGRL9IuA==
   dependencies:
     "@radix-ui/react-dialog" "^1.0.2"
     "@radix-ui/react-dropdown-menu" "^2.0.4"

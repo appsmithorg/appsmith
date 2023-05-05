@@ -422,7 +422,7 @@ export default function MemberSettings(props: PageProps) {
         return (
           <Button
             className="t--deleteUser"
-            data-cy="t--deleteUser"
+            data-testid="t--deleteUser"
             isIconButton
             isLoading={
               deletingUserInfo &&
@@ -550,7 +550,7 @@ export default function MemberSettings(props: PageProps) {
                   )}
                   <DeleteIcon
                     className="t--deleteUser"
-                    data-cy="t--deleteUser"
+                    data-testid="t--deleteUser"
                     isIconButton
                     kind="error"
                     onClick={() => {

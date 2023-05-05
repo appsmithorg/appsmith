@@ -87,7 +87,7 @@ function ShareModal() {
       )}
 
       <Switch
-        data-cy={"show-navigation-bar-toggle"}
+        data-testid={"show-navigation-bar-toggle"}
         defaultSelected={embedSnippet.currentEmbedSetting?.showNavigationBar}
         onChange={() =>
           embedSnippet.onChange({
@@ -107,7 +107,7 @@ function ShareModal() {
       <BottomWrapper className={`flex justify-end pt-5`}>
         <Link
           className="flex gap-1 items-center self-end"
-          data-cy="preview-embed"
+          data-testid="preview-embed"
           endIcon="share-box-line"
           href={embedSnippet.appViewEndPoint}
           target={"_blank"}
@@ -155,7 +155,7 @@ function AppSettings() {
       )}
 
       <Switch
-        data-cy={"show-navigation-bar-toggle"}
+        data-testid={"show-navigation-bar-toggle"}
         defaultSelected={embedSnippet.currentEmbedSetting?.showNavigationBar}
         onChange={() =>
           embedSnippet.onChange({

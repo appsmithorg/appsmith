@@ -122,7 +122,7 @@ function AppInviteUsersForm(props: any) {
       >
         <Link
           className="flex gap-1.5 cursor-pointer"
-          data-cy={"copy-application-url"}
+          data-testid={"copy-application-url"}
           endIcon="links-line"
           onClick={(e) => copyToClipboard(e)}
         >

@@ -51,7 +51,7 @@ function AppSettings(props: SnippetProps) {
           size="md"
         />
       </div>
-      <EmbedSnippetContainer data-cy="t--embed-snippet">
+      <EmbedSnippetContainer data-testid="t--embed-snippet">
         <StyledText
           className="break-all max-h-32 overflow-y-auto"
           kind="action-m"
@@ -67,7 +67,7 @@ function ShareModal(props: SnippetProps) {
   return (
     <>
       <Text>{createMessage(IN_APP_EMBED_SETTING.embedSnippetTitle)}</Text>
-      <EmbedSnippetContainer data-cy="t--embed-snippet">
+      <EmbedSnippetContainer data-testid="t--embed-snippet">
         <StyledText
           className="break-all max-h-32 overflow-y-auto"
           kind="action-m"
