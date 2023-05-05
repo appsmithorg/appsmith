@@ -14315,6 +14315,11 @@ js-levenshtein@^1.1.6:
   version "1.1.6"
   resolved "https://registry.npmjs.org/js-levenshtein/-/js-levenshtein-1.1.6.tgz"
 
+js-regex-pl@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/js-regex-pl/-/js-regex-pl-1.0.1.tgz#a0e4d76c7c2b4a503b17bc6b32ce8c5b0e39bca1"
+  integrity sha512-Cj291//fFojnJrYxh46mhK1jINe4F4WXk+/FNGaPy+2q61pKRX0n9LyY3rtZNlH06s41DtoNVh9UR7bTeuAhGg==
+
 js-sdsl@^4.1.4:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/js-sdsl/-/js-sdsl-4.3.0.tgz#aeefe32a451f7af88425b11fdb5f58c90ae1d711"

@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Set;
+
 @Getter
 @Setter
 public class PageNameIdDTO {
@@ -29,6 +31,9 @@ public class PageNameIdDTO {
 
     @JsonView(Views.Public.class)
     Boolean isHidden;
+
+    @JsonView(Views.Public.class)
+    Set<String> userPermissions;
 
     // This field will represent the default pageId for current page in git system where we are connecting resources
     // among the branches
