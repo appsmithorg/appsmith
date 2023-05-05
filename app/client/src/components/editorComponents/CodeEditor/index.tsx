@@ -1012,6 +1012,7 @@ class CodeEditor extends Component<Props, State> {
     const configTree = ConfigTreeActions.getConfigTree();
     const entityInformation: FieldEntityInformation = {
       expectedType: expected?.autocompleteDataType,
+      example: expected?.example,
     };
 
     if (dataTreePath) {
