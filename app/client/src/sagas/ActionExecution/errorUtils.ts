@@ -20,10 +20,12 @@ const APPSMITH_CONFIGS = getAppsmithConfigs();
  */
 export class TriggerFailureError extends Error {
   error?: Error;
+  toasterMessage: string;
 
   constructor(reason: string, error?: Error) {
     super(reason);
     this.error = error;
+    this.toasterMessage = reason;
   }
 }
 
@@ -89,7 +91,7 @@ export const logActionExecutionError = (
 
   isExecuteJSFunc &&
     Toaster.show({
-      text: getDisplayMessageFromError(errorMessage) as string,
+      text: errorMessage,
       variant: Variant.danger,
       showDebugButton: !!triggerPropertyName && {
         component: DebugButton,
@@ -129,20 +131,13 @@ export class UserCancelledActionExecutionError extends PluginActionExecutionErro
 }
 
 export class UncaughtPromiseError extends Error {
-  constructor(message: string) {
-    super(message);
+  toasterMessage: string;
+  constructor(message: { debuggerMessage: string; toasterMessage: string }) {
+    super(message.debuggerMessage);
+    this.toasterMessage = message.toasterMessage;
   }
 }
 
 export const getErrorAsString = (error: unknown): string => {
   return isString(error) ? error : JSON.stringify(error);
-};
-
-export const getDisplayMessageFromError = (errorMessage: string) => {
-  const firstWord = errorMessage.split(" ")[0];
-  if (firstWord[firstWord.length - 1] === ":") {
-    return errorMessage.split(firstWord)[1].trimStart();
-  } else {
-    return errorMessage.trimStart();
-  }
 };

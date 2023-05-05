@@ -275,6 +275,9 @@ export default function evaluateSync(
     } catch (error) {
       const { errorCategory, errorMessage } = errorModifier.run(error as Error);
       errors.push({
+        name: "",
+        toasterMessage: "",
+        debuggerMessage: "",
         errorMessage,
         severity: Severity.ERROR,
         raw: script,
@@ -324,6 +327,9 @@ export async function evaluateAsync(
             message: `${error.message}`,
           };
       errors.push({
+        name: error.name || "UncaughtPromiseRejection",
+        toasterMessage: error.message,
+        debuggerMessage: "",
         errorMessage: errorMessage,
         severity: Severity.ERROR,
         raw: script,

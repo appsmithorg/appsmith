@@ -71,12 +71,14 @@ describe("evaluateSync", () => {
       result: undefined,
       errors: [
         {
+          debuggerMessage: "",
           errorMessage: {
             name: "ReferenceError",
             message: "wrongJS is not defined",
           },
           errorType: "PARSE",
           kind: undefined,
+          name: "",
           raw: `
   function $$closedFn () {
     const $$result = wrongJS
@@ -85,6 +87,7 @@ describe("evaluateSync", () => {
   $$closedFn.call(THIS_CONTEXT)
   `,
           severity: "error",
+          toasterMessage: "",
           originalBinding: "wrongJS",
         },
       ],
@@ -94,12 +97,14 @@ describe("evaluateSync", () => {
       result: undefined,
       errors: [
         {
+          debuggerMessage: "",
           errorMessage: {
             name: "TypeError",
             message: "{}.map is not a function",
           },
           errorType: "PARSE",
           kind: undefined,
+          name: "",
           raw: `
   function $$closedFn () {
     const $$result = {}.map()
@@ -108,6 +113,7 @@ describe("evaluateSync", () => {
   $$closedFn.call(THIS_CONTEXT)
   `,
           severity: "error",
+          toasterMessage: "",
           originalBinding: "{}.map()",
         },
       ],
@@ -125,12 +131,14 @@ describe("evaluateSync", () => {
       result: undefined,
       errors: [
         {
+          debuggerMessage: "",
           errorMessage: {
             name: "ReferenceError",
             message: "setImmediate is not defined",
           },
           errorType: "PARSE",
           kind: undefined,
+          name: "",
           raw: `
   function $$closedFn () {
     const $$result = setImmediate(() => {}, 100)
@@ -139,6 +147,7 @@ describe("evaluateSync", () => {
   $$closedFn.call(THIS_CONTEXT)
   `,
           severity: "error",
+          toasterMessage: "",
           originalBinding: "setImmediate(() => {}, 100)",
         },
       ],
@@ -218,14 +227,17 @@ describe("evaluateAsync", () => {
     expect(result).toStrictEqual({
       errors: [
         {
+          debuggerMessage: "",
           errorMessage: {
             name: "ReferenceError",
             message: "randomKeyword is not defined",
           },
           errorType: "PARSE",
+          name: "ReferenceError",
           originalBinding: expect.stringContaining("Promise"),
           raw: expect.stringContaining("Promise"),
           severity: "error",
+          toasterMessage: "randomKeyword is not defined",
         },
       ],
       result: undefined,

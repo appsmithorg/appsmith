@@ -154,8 +154,14 @@ function* initiateActionTriggerExecution(
     }
   } catch (e) {
     if (e instanceof UncaughtPromiseError || e instanceof TriggerFailureError) {
-      logActionExecutionError(e.message, true, source, triggerPropertyName);
+      logActionExecutionError(
+        e.toasterMessage,
+        true,
+        source,
+        triggerPropertyName,
+      );
     }
+
     // handle errors here
     if (event.callback) {
       event.callback({ success: false });
