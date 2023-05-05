@@ -21,11 +21,7 @@ export function Icon(props: IconProps) {
     ...otherProps
   } = props;
 
-  let ariaHidden = ariaHiddenProp;
-
-  if (!ariaHiddenProp) {
-    ariaHidden = undefined;
-  }
+  const ariaHidden = !ariaHiddenProp ? undefined : ariaHiddenProp;
 
   return React.cloneElement(children, {
     ...filterDOMProps(otherProps),
