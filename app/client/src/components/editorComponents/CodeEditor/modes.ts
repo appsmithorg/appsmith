@@ -1,7 +1,7 @@
 import CodeMirror from "codemirror";
 import {
-  ALL_SQL_MIME_TYPES,
   EditorModes,
+  sqlModesConfig,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import "codemirror/addon/mode/multiplex";
 import "codemirror/mode/javascript/javascript";
@@ -57,11 +57,11 @@ CodeMirror.defineMode(EditorModes.GRAPHQL_WITH_BINDING, function (config) {
   );
 });
 
-for (const sqlMimeType of Object.values(ALL_SQL_MIME_TYPES)) {
-  CodeMirror.defineMode(sqlMimeType, function (config) {
+for (const sqlModeConfig of Object.values(sqlModesConfig)) {
+  CodeMirror.defineMode(sqlModeConfig.mode, function (config) {
     // @ts-expect-error: Types are not available
     return CodeMirror.multiplexingMode(
-      CodeMirror.getMode(config, EditorModes.SQL),
+      CodeMirror.getMode(config, sqlModeConfig.mime),
       {
         open: "{{",
         close: "}}",
