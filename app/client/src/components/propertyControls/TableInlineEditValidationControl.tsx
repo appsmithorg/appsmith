@@ -21,10 +21,15 @@ import {
   PRIMARY_COLUMN_KEY_VALUE,
 } from "widgets/TableWidgetV2/constants";
 import { Colors } from "constants/Colors";
+import {
+  createMessage,
+  TABLE_WIDGET_VALIDATION_ASSIST_PROMPT,
+} from "@appsmith/constants/messages";
 
-const PromptMessage = styled.span`
+export const PromptMessage = styled.span`
   line-height: 17px;
 `;
+
 export const StyledCode = styled.span`
   color: ${Colors.PRIMARY_ORANGE};
 `;
@@ -152,7 +157,8 @@ class TableInlineEditValidationControl extends BaseControl<TableInlineEditValida
         onChange={this.onTextChange}
         promptMessage={
           <PromptMessage>
-            Access the current cell using <CurlyBraces>{"{{"}</CurlyBraces>
+            {createMessage(TABLE_WIDGET_VALIDATION_ASSIST_PROMPT)}
+            <CurlyBraces>{"{{"}</CurlyBraces>
             <StyledCode>currentRow.columnName</StyledCode>
             <CurlyBraces>{"}}"}</CurlyBraces>
           </PromptMessage>
