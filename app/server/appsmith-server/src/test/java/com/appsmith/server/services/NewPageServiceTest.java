@@ -103,6 +103,7 @@ public class NewPageServiceTest {
                     assertThat(applicationPagesDTO.getApplication().getViewMode()).isFalse();
                     assertThat(applicationPagesDTO.getApplication().getName()).isEqualTo("app_" + randomId);
                     assertThat(applicationPagesDTO.getPages()).isNotEmpty();
+                    applicationPagesDTO.getPages().forEach(pageNameIdDTO -> assertThat(pageNameIdDTO.getUserPermissions()).isNotEmpty());
                 })
                 .verifyComplete();
     }
@@ -137,6 +138,7 @@ public class NewPageServiceTest {
                     assertThat(applicationPagesDTO.getApplication().getViewMode()).isTrue();
                     assertThat(applicationPagesDTO.getApplication().getName()).isEqualTo("app_" + randomId);
                     assertThat(applicationPagesDTO.getPages()).isNotEmpty();
+                    applicationPagesDTO.getPages().forEach(pageNameIdDTO -> assertThat(pageNameIdDTO.getUserPermissions()).isNotEmpty());
                 })
                 .verifyComplete();
     }
@@ -167,6 +169,7 @@ public class NewPageServiceTest {
                     assertThat(applicationPagesDTO.getApplication()).isNotNull();
                     assertThat(applicationPagesDTO.getApplication().getName()).isEqualTo("app_" + randomId);
                     assertThat(applicationPagesDTO.getPages()).isNotEmpty();
+                    applicationPagesDTO.getPages().forEach(pageNameIdDTO -> assertThat(pageNameIdDTO.getUserPermissions()).isNotEmpty());
                 })
                 .verifyComplete();
     }

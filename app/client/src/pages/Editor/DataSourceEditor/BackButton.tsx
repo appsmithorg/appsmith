@@ -18,6 +18,7 @@ const Back = styled.span`
   align-items: center;
   cursor: pointer;
   padding-left: 16px;
+  width: fit-content;
 `;
 
 function BackButton() {
