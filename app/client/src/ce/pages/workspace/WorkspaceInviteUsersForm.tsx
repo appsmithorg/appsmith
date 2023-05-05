@@ -388,7 +388,10 @@ function WorkspaceInviteUsersForm(props: any) {
               {styledRoles.map((role: any) => (
                 <Option key={role.key} label={role.value} value={role.key}>
                   <div className="flex flex-col gap-1">
-                    <Text kind={role.description && "heading-xs"}>
+                    <Text
+                      color="var(--ads-v2-color-fg-emphasis)"
+                      kind={role.description && "heading-xs"}
+                    >
                       {role.value}
                     </Text>
                     <Text kind="body-s">{role.description}</Text>
@@ -446,7 +449,12 @@ function WorkspaceInviteUsersForm(props: any) {
                           />
                           <UserName>
                             <Tooltip content={user.username} placement="top">
-                              <Text kind="heading-xs">{user.name}</Text>
+                              <Text
+                                color="var(--ads-v2-color-fg)"
+                                kind="heading-xs"
+                              >
+                                {user.name}
+                              </Text>
                             </Tooltip>
                           </UserName>
                         </UserInfo>

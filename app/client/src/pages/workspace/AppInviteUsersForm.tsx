@@ -19,15 +19,16 @@ import {
   INVITE_USERS_PLACEHOLDER,
   IN_APP_EMBED_SETTING,
   MAKE_APPLICATION_PUBLIC,
+  MAKE_APPLICATION_PUBLIC_TOOLTIP,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { hasInviteUserToApplicationPermission } from "@appsmith/utils/permissionHelpers";
-import { Button, Switch } from "design-system";
+import { Button, Icon, Switch, Tooltip } from "design-system";
 
 const { cloudHosting } = getAppsmithConfigs();
 
 const SwitchContainer = styled.div`
-  flex-basis: 200px;
+  flex-basis: 220px;
 `;
 
 const BottomContainer = styled.div<{ canInviteToApplication?: boolean }>`
@@ -147,7 +148,19 @@ function AppInviteUsersForm(props: any) {
                   );
                 }}
               >
-                {createMessage(MAKE_APPLICATION_PUBLIC)}
+                <div className="flex">
+                  {createMessage(MAKE_APPLICATION_PUBLIC)}
+                  <Tooltip
+                    content={createMessage(MAKE_APPLICATION_PUBLIC_TOOLTIP)}
+                    placement="top"
+                  >
+                    <Icon
+                      className="ml-1 cursor-pointer"
+                      name="question-line"
+                      size="md"
+                    />
+                  </Tooltip>
+                </div>
               </Switch>
             )}
           </SwitchContainer>

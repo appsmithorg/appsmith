@@ -71,7 +71,7 @@ function ShareModal() {
             >
               <Icon
                 className="ml-1 cursor-pointer"
-                name="question-fill"
+                name="question-line"
                 size="md"
               />
             </Tooltip>
@@ -109,8 +109,8 @@ function ShareModal() {
           className="flex gap-1 items-center self-end"
           data-testid="preview-embed"
           endIcon="share-box-line"
-          href={embedSnippet.appViewEndPoint}
           target={"_blank"}
+          to={embedSnippet.appViewEndPoint}
         >
           {createMessage(IN_APP_EMBED_SETTING.previewEmbeddedApp)}
         </Link>

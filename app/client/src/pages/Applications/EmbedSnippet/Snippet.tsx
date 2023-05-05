@@ -46,7 +46,7 @@ function AppSettings(props: SnippetProps) {
         <Text>{createMessage(IN_APP_EMBED_SETTING.embedSnippetTitle)}</Text>
         <Icon
           className="cursor-pointer"
-          name="copy-control"
+          name="duplicate"
           onClick={props.onCopy}
           size="md"
         />
@@ -76,9 +76,9 @@ function ShareModal(props: SnippetProps) {
         </StyledText>
         <Icon
           className="cursor-pointer"
-          name="copy-control"
+          name="duplicate"
           onClick={props.onCopy}
-          size="lg"
+          size="md"
         />
       </EmbedSnippetContainer>
     </>
