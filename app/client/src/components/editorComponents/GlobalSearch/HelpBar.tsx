@@ -10,7 +10,7 @@ import { filterCategories, SEARCH_CATEGORY_ID } from "./utils";
 
 const StyledHelpBar = styled.div`
   padding: 0 var(--ads-v2-spaces-3);
-  margin: var(--ads-v2-spaces-3);
+  margin: var(--ads-v2-spaces-2);
   .placeholder-text {
     ${getTypographyByKey("p2")}
   }
