@@ -58,6 +58,7 @@ CodeMirror.defineMode(EditorModes.GRAPHQL_WITH_BINDING, function (config) {
 });
 
 for (const sqlModeConfig of Object.values(sqlModesConfig)) {
+  if (!sqlModeConfig.isMultiplex) continue;
   CodeMirror.defineMode(sqlModeConfig.mode, function (config) {
     // @ts-expect-error: Types are not available
     return CodeMirror.multiplexingMode(
