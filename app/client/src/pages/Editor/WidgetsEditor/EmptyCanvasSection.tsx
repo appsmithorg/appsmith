@@ -1,9 +1,6 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
-import { ReactComponent as Layout } from "assets/images/layout.svg";
-import { ReactComponent as Database } from "assets/images/database.svg";
 import { Text, TextType } from "design-system-old";
-import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getIsAutoLayout,
@@ -28,6 +25,7 @@ import { selectFeatureFlags } from "selectors/usersSelectors";
 import type FeatureFlags from "entities/FeatureFlags";
 import { deleteCanvasCardsState } from "actions/editorActions";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { Icon } from "design-system";
 
 const Wrapper = styled.div`
   margin: ${(props) =>
@@ -40,12 +38,13 @@ const Wrapper = styled.div`
 const Card = styled.div<{ centerAlign?: boolean }>`
   padding: ${(props) =>
     `${props.theme.spaces[5]}px ${props.theme.spaces[9]}px`};
-  border: solid 1px ${Colors.GREY_4};
-  background-color: ${Colors.WHITE};
+  border: solid 1px var(--ads-v2-color-border);
+  background: var(--ads-v2-color-bg);
   flex: 1;
   display: flex;
   flex-direction: row;
   align-items: center;
+  border-radius: var(--ads-v2-border-radius);
   ${(props) =>
     props.centerAlign &&
     `
@@ -57,9 +56,11 @@ const Card = styled.div<{ centerAlign?: boolean }>`
     height: 24px;
     width: 24px;
   }
-
-  &:hover svg path {
-    fill: var(--appsmith-color-orange-500);
+  &:hover {
+    background-color: var(--ads-v2-color-bg-muted);
+    svg path {
+      fill: var(--ads-v2-color-fg-brand);
+    }
   }
 `;
 
@@ -119,9 +120,12 @@ function CanvasTopSection() {
         !isAutoLayout &&
         !isAirgappedInstance && (
           <Card data-cy="start-from-template" onClick={showTemplatesModal}>
-            <Layout />
+            <Icon name="layout-2-line" size="lg" />
             <Content>
-              <Text color={Colors.COD_GRAY} type={TextType.P1}>
+              <Text
+                color={"var(--ads-v2-color-fg-emphasis)"}
+                type={TextType.H5}
+              >
                 {createMessage(TEMPLATE_CARD_TITLE)}
               </Text>
               <Text type={TextType.P3}>
@@ -135,9 +139,9 @@ function CanvasTopSection() {
         data-cy="generate-app"
         onClick={onGeneratePageClick}
       >
-        <Database />
+        <Icon name="database-2-line" size="lg" />
         <Content>
-          <Text color={Colors.COD_GRAY} type={TextType.P1}>
+          <Text color={"var(--ads-v2-color-fg-emphasis)"} type={TextType.H5}>
             {createMessage(GENERATE_PAGE)}
           </Text>
           <Text type={TextType.P3}>
