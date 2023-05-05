@@ -220,7 +220,7 @@ describe("View Permission flow ", function () {
     cy.get(homePage.applicationCard).trigger("mouseover");
     cy.get(homePage.appEditIcon).should("not.exist");
     cy.launchApp(appName);
-    cy.get(homePage.backtoHome).click({ force: true });
+    cy.get(homePage.backtoHome).eq(0).click({ force: true });
     cy.LogOut();
   });
 

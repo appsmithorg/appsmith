@@ -1,5 +1,4 @@
 export * from "ce/pages/Editor/NavigationSettings/LogoInput";
-
 import React from "react";
 import { ImageInput } from "../../../../pages/Editor/AppSettingsPane/AppSettings/NavigationSettings/ImageInput";
 import { TextType, Text, TooltipComponent } from "design-system-old";
