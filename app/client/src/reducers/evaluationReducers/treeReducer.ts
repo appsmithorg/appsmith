@@ -2,10 +2,7 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { Diff } from "deep-diff";
 import { applyChange } from "deep-diff";
-import type {
-  DataTree,
-  DataTreeEntity,
-} from "entities/DataTree/dataTreeFactory";
+import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { createImmerReducer } from "utils/ReducerUtils";
 import * as Sentry from "@sentry/react";
 
@@ -44,11 +41,7 @@ const evaluatedTreeReducer = createImmerReducer(initialState, {
     }
   },
   [ReduxActionTypes.FETCH_PAGE_INIT]: () => initialState,
-  [ReduxActionTypes.RESET_DATA_TREE]: () => {
-    const state = { ...initialState };
-    state.dataTree = {} as DataTreeEntity;
-    return state;
-  },
+  [ReduxActionTypes.RESET_DATA_TREE]: () => initialState,
 });
 
 export default evaluatedTreeReducer;
