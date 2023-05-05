@@ -69,6 +69,7 @@ function DropdownWrapper(props: DropdownWrapperProps) {
 
   return (
     <Select
+      defaultValue={props.isMultiSelect ? selectedOption : selectedOption[0]}
       isDisabled={props.disabled}
       isMultiSelect={props.isMultiSelect}
       onDeselect={onRemoveOptions}
