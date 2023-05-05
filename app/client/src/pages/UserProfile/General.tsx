@@ -1,23 +1,52 @@
-import React from "react";
-import { debounce } from "lodash";
-import { Button, Input, toast } from "design-system";
+import React, { useState } from "react";
+import { Button, Input, toast, Text } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { forgotPasswordSubmitHandler } from "pages/UserAuth/helpers";
 import {
   FORGOT_PASSWORD_SUCCESS_TEXT,
-  createMessage,
+  USER_DISPLAY_NAME_CHAR_CHECK_FAILED,
+  USER_DISPLAY_NAME_PLACEHOLDER,
+  USER_DISPLAY_PICTURE_PLACEHOLDER,
+  USER_EMAIL_PLACEHOLDER,
+  USER_RESET_PASSWORD,
 } from "@appsmith/constants/messages";
 import { logoutUser, updateUserDetails } from "actions/userActions";
 import UserProfileImagePicker from "./UserProfileImagePicker";
 import { Wrapper, FieldWrapper, LabelWrapper } from "./StyledComponents";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { Text } from "design-system";
+import { ALL_LANGUAGE_CHARACTERS_REGEX } from "constants/Regex";
+import { createMessage } from "design-system-old/build/constants/messages";
+import { notEmptyValidator } from "design-system-old";
+
 const { disableLoginForm } = getAppsmithConfigs();
+
+const nameValidator = (
+  value: string,
+): {
+  isValid: boolean;
+  message: string;
+} => {
+  const notEmpty = notEmptyValidator(value);
+  if (!notEmpty.isValid) {
+    return notEmpty;
+  }
+  if (!new RegExp(`^[${ALL_LANGUAGE_CHARACTERS_REGEX} 0-9.'-]+$`).test(value)) {
+    return {
+      isValid: false,
+      message: createMessage(USER_DISPLAY_NAME_CHAR_CHECK_FAILED),
+    };
+  }
+  return {
+    isValid: true,
+    message: "",
+  };
+};
 
 function General() {
   const user = useSelector(getCurrentUser);
+  const [name, setName] = useState(user?.name);
   const dispatch = useDispatch();
   const forgotPassword = async () => {
     try {
@@ -32,15 +61,15 @@ function General() {
       });
     }
   };
-
-  const timeout = 1000;
-  const onNameChange = debounce((newName: string) => {
-    dispatch(
-      updateUserDetails({
-        name: newName,
-      }),
-    );
-  }, timeout);
+  const saveName = () => {
+    name &&
+      nameValidator(name).isValid &&
+      dispatch(
+        updateUserDetails({
+          name,
+        }),
+      );
+  };
 
   if (user?.email === ANONYMOUS_USERNAME) return null;
 
@@ -48,7 +77,9 @@ function General() {
     <Wrapper>
       <FieldWrapper>
         <LabelWrapper>
-          <Text kind="body-m">Display picture</Text>
+          <Text kind="body-m">
+            {createMessage(USER_DISPLAY_PICTURE_PLACEHOLDER)}
+          </Text>
         </LabelWrapper>
         <div className="user-profile-image-picker">
           <UserProfileImagePicker />
@@ -56,13 +87,19 @@ function General() {
       </FieldWrapper>
       <FieldWrapper>
         <Input
-          data-test-id="t--display-name"
-          defaultValue={user?.name}
+          data-testid="t--display-name"
+          defaultValue={name}
           isRequired
-          label="Display name"
+          label={createMessage(USER_DISPLAY_NAME_PLACEHOLDER)}
           labelPosition="top"
-          onChange={onNameChange}
-          placeholder="Display name"
+          onBlur={saveName}
+          onChange={setName}
+          onKeyPress={(ev: React.KeyboardEvent) => {
+            if (ev.key === "Enter") {
+              saveName();
+            }
+          }}
+          placeholder={createMessage(USER_DISPLAY_NAME_PLACEHOLDER)}
           renderAs="input"
           size="md"
           type="text"
@@ -70,13 +107,13 @@ function General() {
       </FieldWrapper>
       <FieldWrapper>
         <Input
-          data-test-id="t--display-name"
+          data-testid="t--user-name"
           defaultValue={user?.email}
           isDisabled
           isReadOnly
-          label="Email"
+          label={createMessage(USER_EMAIL_PLACEHOLDER)}
           labelPosition="top"
-          placeholder="Display name"
+          placeholder={createMessage(USER_EMAIL_PLACEHOLDER)}
           renderAs="input"
           size="md"
           type="text"
@@ -97,7 +134,7 @@ function General() {
               renderAs="a"
               size="md"
             >
-              Reset password
+              {createMessage(USER_RESET_PASSWORD)}
             </Button>
           )}
         </div>
