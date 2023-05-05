@@ -240,11 +240,13 @@ const EntityIconWrapper = styled.div<{
   width?: string;
   height?: string;
   noBorder?: boolean;
+  noBackground?: boolean;
   bgColor?: string;
 }>`
   height: ${({ height }) => (height ? height : "18px")};
   width: ${({ width }) => (width ? width : "18px")};
-  background: ${({ bgColor }) => bgColor ?? Colors.WHITE};
+  background: ${({ bgColor, noBackground }) =>
+    noBackground ? "transparent" : bgColor ?? Colors.WHITE};
   border: ${({ borderColor, height, noBorder }) =>
     noBorder
       ? "none"
@@ -270,6 +272,7 @@ type EntityIconType = {
   width?: string;
   height?: string;
   noBorder?: boolean;
+  noBackground?: boolean;
   bgColor?: string;
 };
 
@@ -279,6 +282,7 @@ function EntityIcon(props: EntityIconType): JSX.Element {
       bgColor={props.bgColor}
       borderColor={props.borderColor}
       height={props.height}
+      noBackground={props.noBackground}
       noBorder={props.noBorder}
       width={props.width}
     >
@@ -334,9 +338,19 @@ export function CurlIconV2() {
 
 // height and width are set to 18px by default. This is to maintain the current icon sizes.
 // fontSize is set to 56% by default.
-export function JsFileIconV2(height = 18, width = 18) {
+export function JsFileIconV2(
+  height = 18,
+  width = 18,
+  noBackground = false,
+  noBorder = false,
+) {
   return (
-    <EntityIcon height={height + "px"} width={width + "px"}>
+    <EntityIcon
+      height={height + "px"}
+      noBackground={noBackground}
+      noBorder={noBorder}
+      width={width + "px"}
+    >
       <EntityIcon.textIcon fontSize={height * 3.05}>JS</EntityIcon.textIcon>
     </EntityIcon>
   );

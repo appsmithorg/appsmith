@@ -83,6 +83,11 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
     [dispatch],
   );
 
+  const confirmDeletion = (event: Event, value: boolean) => {
+    event.preventDefault();
+    setConfirmDelete(value);
+  };
+
   const menuPages = useSelector(getPageListAsOptions);
 
   const options = [
@@ -154,10 +159,10 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
             confirmDelete: confirmDelete,
             icon: "trash" as IconName,
             value: "delete",
-            onSelect: () => {
+            onSelect: (event: Event): void => {
               confirmDelete
                 ? deleteJSCollectionFromPage(props.id, props.name)
-                : setConfirmDelete(true);
+                : confirmDeletion(event, true);
             },
             label: confirmDelete
               ? createMessage(CONFIRM_CONTEXT_DELETE)
@@ -202,7 +207,7 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
           return (
             <MenuItem
               key={option.value}
-              onSelect={option.onSelect}
+              onSelect={option.onSelect as any}
               startIcon={option.icon}
             >
               <div>

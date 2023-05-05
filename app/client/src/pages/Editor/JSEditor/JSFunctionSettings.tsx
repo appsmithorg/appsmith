@@ -61,7 +61,6 @@ const SettingColumn = styled.div<{ grow?: boolean; isHeading?: boolean }>`
   ${(props) =>
     props.isHeading &&
     `
-  text-transform: uppercase;
   font-weight: ${props.theme.fontWeights[2]};
   font-size: ${props.theme.fontSizes[2]}px
   margin-right: 9px;

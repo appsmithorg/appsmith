@@ -95,7 +95,11 @@ const SecondaryWrapper = styled.div`
   &&& {
     .ads-v2-tabs__panel {
       height: calc(100% - 30px);
-      padding-top: 1px;
+    }
+
+    .ads-v2-tabs,
+    &.js-editor-tab {
+      height: 100%;
     }
   }
 `;
@@ -307,7 +311,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
         }}
       >
         <CloseEditor />
-        <Form>
+        <Form onSubmit={(event) => event.preventDefault()}>
           <StyledFormRow className="form-row-header">
             <NameWrapper className="t--nameOfJSObject">
               <JSObjectNameEditor

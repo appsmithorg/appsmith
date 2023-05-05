@@ -96,7 +96,7 @@ export const TabbedViewContainer = styled.div<{ isExecuting: boolean }>`
       margin-right: 0px;
     }
   }
-  &&& {
+  &&&& {
     ul.ads-v2-tabs__list {
       padding: 0px ${(props) => props.theme.spaces[11]}px;
       background-color: ${(props) =>
@@ -104,7 +104,8 @@ export const TabbedViewContainer = styled.div<{ isExecuting: boolean }>`
     }
     .ads-v2-tabs__panel {
       ${CodeEditorWithGutterStyles};
-      height: calc(100% - 32px);
+      height: calc(100% - 40px);
+      margin-top: 0px;
       background-color: var(--ads-v2-color-bg);
       .CodeEditorTarget {
         outline: none;
@@ -117,6 +118,11 @@ export const TabbedViewContainer = styled.div<{ isExecuting: boolean }>`
       }
       `}
       ${CodeEditorWithGutterStyles}
+    }
+
+    .ads-v2-tabs,
+    .js-editor-tab {
+      height: 100%;
     }
   }
 `;

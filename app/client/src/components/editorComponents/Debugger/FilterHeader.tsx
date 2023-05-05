@@ -27,6 +27,10 @@ const Wrapper = styled.div`
     width: 220px;
   }
 
+  .debugger-filter .rc-select-selector {
+    height: 28px;
+  }
+
   .input-container {
     max-width: 560px;
     min-width: 220px;

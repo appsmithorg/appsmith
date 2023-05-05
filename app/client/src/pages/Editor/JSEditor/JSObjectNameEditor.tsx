@@ -59,11 +59,19 @@ type JSObjectNameEditorProps = {
   disabled?: boolean;
 };
 
-const JSIconWrapper = styled.img`
-  width: 24px;
-  height: 24px;
+const IconContainer = styled.div`
+  height: 34px;
+  width: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-right: 8px;
-  align-self: center;
+  flex-shrink: 0;
+`;
+
+const JSIcon = styled.img`
+  width: 34px;
+  height: auto;
 `;
 
 export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
@@ -97,12 +105,18 @@ export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
         saveStatus: { isSaving: boolean; error: boolean };
       }) => (
         <JSObjectNameWrapper page={props.page}>
-          <div>
+          <div
+            style={{
+              display: "flex",
+            }}
+          >
             {currentPlugin && (
-              <JSIconWrapper
-                alt={currentPlugin.name}
-                src={getAssetUrl(currentPlugin.iconLocation)}
-              />
+              <IconContainer>
+                <JSIcon
+                  alt={currentPlugin.name}
+                  src={getAssetUrl(currentPlugin.iconLocation)}
+                />
+              </IconContainer>
             )}
             <EditableText
               className="t--js-action-name-edit-field"

@@ -21,18 +21,18 @@ export const NO_FUNCTION_DROPDOWN_OPTION: JSActionDropdownOption = {
 };
 export const SETTINGS_HEADINGS = [
   {
-    text: "Function name",
+    text: "Function Name",
     hasInfo: false,
     key: "func_name",
   },
   {
-    text: "Run on page load",
+    text: "Run On Page Load",
     hasInfo: true,
     info: "Allow function run when page loads",
     key: "run_on_pageload",
   },
   {
-    text: "Confirm before calling ",
+    text: "Confirm Before Calling ",
     hasInfo: true,
     info: "Ask for confirmation before executing function",
     key: "run_before_calling",
