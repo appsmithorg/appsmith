@@ -60,7 +60,7 @@ Fixes # (issue number)
 
 
 #### QA activity:
-- [ ] (Speedbreak features)[https://github.com/appsmithorg/TestSmith/wiki/Test-plan-implementation#speedbreaker-features-to-consider-for-every-change], if applicable, have been covered
+- [ ] Speedbreak features, if applicable, have been covered
 - [ ] My test plan has been reviewed by project stakeholders
 - [ ] My test plan has been peer reviewed by other QA members
 - [ ] I have manually tested functionality on generated DP
