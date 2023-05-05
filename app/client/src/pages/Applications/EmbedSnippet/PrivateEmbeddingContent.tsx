@@ -115,9 +115,10 @@ function SnippetTabContent({
 
       {canMakeAppPublic && (
         <Button
+          className="mt-2"
           data-testid="t--share-settings-btn"
           onClick={changeTab}
-          size="md"
+          size="sm"
         >
           Share settings
         </Button>

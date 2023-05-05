@@ -22,7 +22,7 @@ import {
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { hasInviteUserToApplicationPermission } from "@appsmith/utils/permissionHelpers";
-import { Link, Switch } from "design-system";
+import { Button, Switch } from "design-system";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -120,18 +120,20 @@ function AppInviteUsersForm(props: any) {
         canInviteToApplication={canInviteToApplication}
         className={`${canInviteToApplication ? "pt-3" : ""}`}
       >
-        <Link
+        <Button
           className="flex gap-1.5 cursor-pointer"
           data-testid={"copy-application-url"}
           endIcon="links-line"
+          kind="tertiary"
           onClick={(e) => copyToClipboard(e)}
+          size="md"
         >
           {`${
             isCopied
               ? createMessage(IN_APP_EMBED_SETTING.copied)
               : createMessage(IN_APP_EMBED_SETTING.copy)
           } ${createMessage(IN_APP_EMBED_SETTING.applicationUrl)}`}
-        </Link>
+        </Button>
         {canShareWithPublic && (
           <SwitchContainer className="t--share-public-toggle">
             {currentApplicationDetails && (
