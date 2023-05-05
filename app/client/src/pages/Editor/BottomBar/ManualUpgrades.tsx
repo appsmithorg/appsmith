@@ -86,7 +86,11 @@ function UpdatesModal({
 
   return (
     <Modal onOpenChange={closeModal} open={showModal}>
-      <ModalContent>
+      <ModalContent
+        onEscapeKeyDown={(e) => e.preventDefault()}
+        // Don't close Modal when pressed outside
+        onInteractOutside={(e) => e.preventDefault()}
+      >
         <ModalHeader>Product updates</ModalHeader>
         <ModalBody id="manual-upgrades-modal">
           {updates.slice(applicationVersion - 1).map((update) => (
@@ -108,9 +112,6 @@ function UpdatesModal({
           ))}
         </ModalBody>
         <ModalFooter>
-          <Button kind="secondary" onClick={closeModal} size="md">
-            Dismiss
-          </Button>
           <Button
             className="t--upgrade-confirm"
             isLoading={isLoading}
