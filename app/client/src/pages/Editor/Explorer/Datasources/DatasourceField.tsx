@@ -1,12 +1,12 @@
-import React from "react";
+import React, { useRef } from "react";
 import {
   DATASOURCE_FIELD_ICONS_MAP,
   datasourceColumnIcon,
 } from "../ExplorerIcons";
 import styled from "styled-components";
 import type { DatasourceColumns, DatasourceKeys } from "entities/Datasource";
-import { EntityClassNames } from "pages/Editor/Explorer/Entity";
-import { Menu, MenuContent, MenuTrigger } from "design-system";
+import { Tooltip } from "design-system";
+import { isEllipsisActive } from "utils/helpers";
 
 const Wrapper = styled.div<{ step: number }>`
   padding-left: ${(props) =>
@@ -50,34 +50,6 @@ const Content = styled.div`
   justify-content: space-between;
 `;
 
-const PopoverContent = styled.div`
-  flex-direction: row;
-  display: flex;
-  flex: 1;
-  gap: 30px;
-  margin-left: 4px;
-  align-items: flex-end;
-  justify-content: space-between;
-`;
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: row;
-  background-color: var(--ads-v2-color-bg);
-  padding: 11px;
-`;
-
-const PopupValue = styled.div`
-  color: var(--ads-v2-color-fg);
-  font-size: 12px;
-  :nth-child(2) {
-    text-align: right;
-    font-size: 10px;
-    padding-top: 3px;
-    font-weight: 300;
-  }
-`;
-
 type DatabaseFieldProps = {
   field: DatasourceColumns | DatasourceKeys;
   step: number;
@@ -88,30 +60,23 @@ export function DatabaseColumns(props: DatabaseFieldProps) {
   const fieldName = field.name;
   const fieldType = field.type;
   const icon = DATASOURCE_FIELD_ICONS_MAP[fieldType] || datasourceColumnIcon;
+  const nameRef = useRef<HTMLDivElement | null>(null);
 
-  const content = (
+  return (
     <Wrapper className="t--datasource-column" step={props.step}>
       {icon}
       <Content>
-        <FieldName>{fieldName}</FieldName>
+        <Tooltip
+          content={fieldName}
+          isDisabled={!!isEllipsisActive(nameRef.current)}
+          mouseEnterDelay={2}
+          showArrow={false}
+        >
+          <FieldName ref={nameRef}>{fieldName}</FieldName>
+        </Tooltip>
         <FieldValue>{fieldType}</FieldValue>
       </Content>
     </Wrapper>
-  );
-
-  return (
-    <Menu>
-      <MenuTrigger>{content}</MenuTrigger>
-      <MenuContent align="start" side="right">
-        <Container className={EntityClassNames.CONTEXT_MENU_CONTENT}>
-          {icon}
-          <PopoverContent>
-            <PopupValue>{fieldName}</PopupValue>
-            <PopupValue>{fieldType}</PopupValue>
-          </PopoverContent>
-        </Container>
-      </MenuContent>
-    </Menu>
   );
 }
 
