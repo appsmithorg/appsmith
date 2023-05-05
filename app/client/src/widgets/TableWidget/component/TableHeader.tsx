@@ -239,7 +239,13 @@ function TableHeader(props: TableHeaderProps) {
               !!props.totalRecordsCount && props.pageNo === props.pageCount - 1
             }
             onClick={() => {
-              props.nextPageClick();
+              if (
+                !(
+                  !!props.totalRecordsCount &&
+                  props.pageNo === props.pageCount - 1
+                )
+              )
+                props.nextPageClick();
             }}
           >
             <Icon color={Colors.HIT_GRAY} icon="chevron-right" iconSize={16} />
