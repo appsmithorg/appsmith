@@ -6,9 +6,6 @@ import { Checkbox } from "../Checkbox";
 <Meta
   title="Design-system/widgets/CheckboxGroup"
   component={CheckboxGroup}
-  parameters={{
-    width: "200px",
-  }}
   args={{
     label: "Checkbox Group",
     defaultValue: ["value-1"],
@@ -21,9 +18,7 @@ import { Checkbox } from "../Checkbox";
   }}
 />
 
-export const Template = (args, { globals: { fontFamily } }) => (
-  <CheckboxGroup {...args} />
-);
+export const Template = (args) => <CheckboxGroup {...args} />;
 
 # Checkbox Group
 

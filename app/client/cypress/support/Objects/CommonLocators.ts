@@ -180,4 +180,10 @@ export class CommonLocators {
   _canvas = "[data-testid=widgets-editor]";
   _enterPreviewMode = "[data-cy='edit-mode']";
   _exitPreviewMode = "[data-cy='preview-mode']";
+
+  _ds_imageSelector = ".ads-dialog-trigger";
+  _ds_imageSelector_label = ".ads-dialog-trigger .label";
+  _ds_uppy_fileInput = ".uppy-Dashboard-input";
+  _ds_uppy_crop_confirm = ".uppy-ImageCropper-controls .uppy-c-btn";
+  _ds_uppy_upload_btn = ".uppy-StatusBar-actionBtn--upload";
 }
