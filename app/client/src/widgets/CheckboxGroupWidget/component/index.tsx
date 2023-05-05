@@ -49,7 +49,6 @@ const InputContainer = styled.div<ThemeProp & InputContainerProps>`
   flex-grow: 1;
   height: 100%;
   border: 1px solid transparent;
-  min-width: 232px;
 
   .${Classes.CONTROL} {
     display: flex;
