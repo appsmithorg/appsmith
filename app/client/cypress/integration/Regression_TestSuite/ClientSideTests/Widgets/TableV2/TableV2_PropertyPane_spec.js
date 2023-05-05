@@ -372,6 +372,7 @@ describe("Table Widget V2 property pane feature validation", function () {
       "customColumn99",
     );
     cy.backFromPropertyPanel();
+    cy.deleteColumn("customColumn1");
   });
 
   it("14. It provides currentRow and currentIndex properties in min validation field", function () {
@@ -459,6 +460,7 @@ describe("Table Widget V2 property pane feature validation", function () {
 
     cy.wait(500);
     cy.discardTableRow(5, 1);
+    cy.wait(500);
 
     // Value isn't required in Row Index 2
     cy.editTableCell(4, 2);
@@ -488,6 +490,7 @@ describe("Table Widget V2 property pane feature validation", function () {
 
     cy.wait(500);
     cy.discardTableRow(5, 1);
+    cy.wait(500);
 
     // Value isn't required in Row Index 2
     cy.editTableCell(4, 2);
