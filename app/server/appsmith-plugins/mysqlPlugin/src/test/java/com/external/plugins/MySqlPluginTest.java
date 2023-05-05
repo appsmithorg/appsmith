@@ -226,8 +226,10 @@ public class MySqlPluginTest {
 
         StepVerifier
                 .create(datasourceTestResultMono)
-                .expectErrorMessage(expectedErrorMessage)
-                .verify();
+                .assertNext(result -> {
+                    assertTrue(result.getInvalids().contains(expectedErrorMessage));
+                })
+                .verifyComplete();
     }
 
         @Test
