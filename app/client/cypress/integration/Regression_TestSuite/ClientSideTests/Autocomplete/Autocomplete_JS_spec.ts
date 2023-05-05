@@ -18,6 +18,7 @@ describe("Autocomplete tests", () => {
   it("1. Bug #13613 Verify widgets autocomplete: ButtonGroup & Document viewer widget", () => {
     _.entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON_GROUP, 200, 200);
     _.entityExplorer.DragDropWidgetNVerify(WIDGET.DOCUMENT_VIEWER, 200, 500);
+
     // create js object
     _.jsEditor.CreateJSObject(jsObjectBody, {
       paste: true,
@@ -60,6 +61,7 @@ describe("Autocomplete tests", () => {
   it("2. Check for bindings not available in other page", () => {
     // dependent on above case: 1st page should have DocumentViewer widget
     _.entityExplorer.AddNewPage();
+
     // create js object
     _.jsEditor.CreateJSObject(jsObjectBody, {
       paste: true,
@@ -288,6 +290,7 @@ describe("Autocomplete tests", () => {
 
   it("8. Multiple binding in single line", () => {
     _.dataSources.CreateDataSource("Postgres", true, false);
+
     _.dataSources.CreateQueryAfterDSSaved(
       "SELECT * FROM worldCountryInfo where {{appsmith.store}} {{appsmith}}",
     );
@@ -338,9 +341,9 @@ describe("Autocomplete tests", () => {
 
     // Same check in JSObject1
     _.entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    _.agHelper.Sleep();
     _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(5));
     _.agHelper.TypeText(_.locators._codeMirrorTextArea, "JSObject2");
-    _.agHelper.Sleep();
     _.agHelper.TypeText(_.locators._codeMirrorTextArea, ".");
 
     _.agHelper.GetNAssertElementText(
