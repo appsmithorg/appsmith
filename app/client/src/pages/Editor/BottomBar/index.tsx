@@ -7,9 +7,6 @@ import { Colors } from "constants/Colors";
 import HelpButton from "pages/Editor/HelpButton";
 import ManualUpgrades from "./ManualUpgrades";
 import { Icon, IconSize } from "design-system-old";
-import PaneCountSwitcher from "pages/common/PaneCountSwitcher";
-import { useSelector } from "react-redux";
-import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 import { GPTTrigger } from "@appsmith/components/editorComponents/GPT/trigger";
 
 const Container = styled.div`
@@ -31,7 +28,6 @@ const Wrapper = styled.div`
 `;
 
 export default function BottomBar(props: { className?: string }) {
-  const isMultiPane = useSelector(isMultiPaneActive);
   return (
     <Container className={props.className ?? ""}>
       <QuickGitActions />
@@ -47,7 +43,6 @@ export default function BottomBar(props: { className?: string }) {
         </ManualUpgrades>
         <DebuggerTrigger />
         <HelpButton />
-        {isMultiPane && <PaneCountSwitcher />}
       </Wrapper>
     </Container>
   );

@@ -15,7 +15,6 @@ import type {
 } from "reflow/reflowTypes";
 import { ReflowDirection } from "reflow/reflowTypes";
 import { getTotalTopOffset } from "selectors/autoLayoutSelectors";
-import { getCanvasScale } from "selectors/editorSelectors";
 import type { HighlightInfo } from "utils/autoLayout/autoLayoutTypes";
 import { getNearestParentCanvas } from "utils/generators";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
@@ -56,10 +55,8 @@ export const useCanvasDragging = (
     widgetId,
   }: CanvasDraggingArenaProps,
 ) => {
-  const canvasScale = useSelector(getCanvasScale);
   const currentDirection = useRef<ReflowDirection>(ReflowDirection.UNSET);
-  let { devicePixelRatio: scale = 1 } = window;
-  scale *= canvasScale;
+  const { devicePixelRatio: scale = 1 } = window;
   const parentOffsetTop = useSelector(getTotalTopOffset(widgetId));
   const mainCanvas = document.querySelector("#canvas-viewport");
   const {

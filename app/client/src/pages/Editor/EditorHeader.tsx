@@ -99,7 +99,6 @@ import { viewerURL } from "RouteBuilder";
 import { useHref } from "./utils";
 import EmbedSnippetForm from "@appsmith/pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 
 const { cloudHosting } = getAppsmithConfigs();
@@ -281,7 +280,6 @@ export function EditorHeader(props: EditorHeaderProps) {
   const applicationList = useSelector(getApplicationList);
   const isPreviewMode = useSelector(previewModeSelector);
   const deployLink = useHref(viewerURL, { pageId });
-  const isMultiPane = useSelector(isMultiPaneActive);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
@@ -378,52 +376,49 @@ export function EditorHeader(props: EditorHeaderProps) {
         data-testid="t--appsmith-editor-header"
       >
         <HeaderSection className="space-x-2">
-          {!isMultiPane && (
-            <HamburgerContainer
-              className={classNames({
-                "relative flex items-center justify-center p-0 text-gray-800 transition-all transform duration-400":
-                  true,
-                "-translate-x-full opacity-0": isPreviewingApp,
-                "translate-x-0 opacity-100": !isPreviewingApp,
-              })}
-            >
-              <TooltipComponent
-                content={
-                  <div className="flex items-center justify-between">
-                    <span>
-                      {!pinned
-                        ? createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)
-                        : createMessage(CLOSE_ENTITY_EXPLORER_MESSAGE)}
-                    </span>
-                    <span className="ml-4 text-xs text-gray-300">
-                      {modText()} /
-                    </span>
-                  </div>
-                }
-                position="bottom-left"
-              >
-                <div
-                  className="relative w-4 h-4 text-trueGray-600 group t--pin-entity-explorer"
-                  onMouseEnter={onMenuHover}
-                >
-                  <MenuIcon className="absolute w-3.5 h-3.5 transition-opacity cursor-pointer fill-current group-hover:opacity-0" />
-                  {!pinned && (
-                    <UnpinIcon
-                      className="absolute w-3.5 h-3.5 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
-                      onClick={onPin}
-                    />
-                  )}
-                  {pinned && (
-                    <PinIcon
-                      className="absolute w-3.5 h-3.5 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
-                      onClick={onPin}
-                    />
-                  )}
+          <HamburgerContainer
+            className={classNames({
+              "relative flex items-center justify-center p-0 text-gray-800 transition-all transform duration-400":
+                true,
+              "-translate-x-full opacity-0": isPreviewingApp,
+              "translate-x-0 opacity-100": !isPreviewingApp,
+            })}
+          >
+            <TooltipComponent
+              content={
+                <div className="flex items-center justify-between">
+                  <span>
+                    {!pinned
+                      ? createMessage(LOCK_ENTITY_EXPLORER_MESSAGE)
+                      : createMessage(CLOSE_ENTITY_EXPLORER_MESSAGE)}
+                  </span>
+                  <span className="ml-4 text-xs text-gray-300">
+                    {modText()} /
+                  </span>
                 </div>
-              </TooltipComponent>
-            </HamburgerContainer>
-          )}
-
+              }
+              position="bottom-left"
+            >
+              <div
+                className="relative w-4 h-4 text-trueGray-600 group t--pin-entity-explorer"
+                onMouseEnter={onMenuHover}
+              >
+                <MenuIcon className="absolute w-3.5 h-3.5 transition-opacity cursor-pointer fill-current group-hover:opacity-0" />
+                {!pinned && (
+                  <UnpinIcon
+                    className="absolute w-3.5 h-3.5 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
+                    onClick={onPin}
+                  />
+                )}
+                {pinned && (
+                  <PinIcon
+                    className="absolute w-3.5 h-3.5 transition-opacity opacity-0 cursor-pointer fill-current group-hover:opacity-100"
+                    onClick={onPin}
+                  />
+                )}
+              </div>
+            </TooltipComponent>
+          </HamburgerContainer>
           <TooltipComponent
             content={createMessage(LOGO_TOOLTIP)}
             hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}

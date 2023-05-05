@@ -72,7 +72,6 @@ import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducer
 import lintErrorReducer from "reducers/lintingReducers";
 import type { AutoHeightUIState } from "reducers/uiReducers/autoHeightReducer";
 import type { AnalyticsReduxState } from "reducers/uiReducers/analyticsReducer";
-import type { MultiPaneReduxState } from "reducers/uiReducers/multiPaneReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import type { layoutConversionReduxState } from "reducers/uiReducers/layoutConversionReducer";
 
@@ -135,7 +134,6 @@ export interface AppState {
     editorContext: EditorContextState;
     libraries: LibraryState;
     autoHeightUI: AutoHeightUIState;
-    multiPaneConfig: MultiPaneReduxState;
     layoutConversion: layoutConversionReduxState;
   };
   entities: {

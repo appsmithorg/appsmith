@@ -8,7 +8,6 @@ type FeatureFlags = {
   CONTEXT_SWITCHING?: boolean;
   USAGE_AND_BILLING?: boolean;
   DATASOURCE_ENVIRONMENTS?: boolean;
-  MULTIPLE_PANES?: boolean;
   AUTO_LAYOUT?: boolean;
   LIMITING_GOOGLE_SHEET_ACCESS?: boolean;
   LAZY_CANVAS_RENDERING?: boolean;
