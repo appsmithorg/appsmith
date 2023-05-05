@@ -45,7 +45,7 @@ const evaluatedTreeReducer = createImmerReducer(initialState, {
     const state = { ...initialState };
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    state.dataTree = undefined;
+    state.dataTree = {};
     return state;
   },
 });
