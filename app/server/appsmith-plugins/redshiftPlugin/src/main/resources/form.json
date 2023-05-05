@@ -76,7 +76,6 @@
     {
       "id": 3,
       "sectionName": "SSL (optional)",
-      "hidden": true,
       "children": [
         {
           "label": "SSL Mode",
@@ -107,14 +106,6 @@
             {
               "label": "Disable",
               "value": "DISABLE"
-            },
-            {
-              "label": "Verify-CA",
-              "value": "VERIFY_CA"
-            },
-            {
-              "label": "Verify-Full",
-              "value": "VERIFY_FULL"
             }
           ]
         },
