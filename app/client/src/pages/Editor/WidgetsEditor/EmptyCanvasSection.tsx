@@ -57,10 +57,7 @@ const Card = styled.div<{ centerAlign?: boolean }>`
     width: 24px;
   }
   &:hover {
-    background-color: var(--ads-v2-color-bg-muted);
-    svg path {
-      fill: var(--ads-v2-color-fg-brand);
-    }
+    background-color: var(--ads-v2-color-bg-subtle);
   }
 `;
 
