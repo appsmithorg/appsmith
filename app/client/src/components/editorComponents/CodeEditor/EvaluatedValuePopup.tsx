@@ -15,10 +15,8 @@ import {
 import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { IPopoverSharedProps } from "@blueprintjs/core";
-import { Button, Classes, Collapse, Icon } from "@blueprintjs/core";
-import { IconNames } from "@blueprintjs/icons";
+import { Classes, Collapse } from "@blueprintjs/core";
 import { UNDEFINED_VALIDATION } from "utils/validation/common";
-import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import copy from "copy-to-clipboard";
 
 import type { EvaluationError } from "utils/DynamicBindingUtils";
@@ -37,7 +35,7 @@ import { showDebugger } from "actions/debuggerActions";
 import { modText } from "utils/helpers";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getJSFunctionNavigationUrl } from "selectors/navigationSelectors";
-import { toast } from "design-system";
+import { Button, Icon, toast } from "design-system";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -98,8 +96,7 @@ const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
   pointer-events: all;
 `;
 
-const CopyIconWrapper = styled(Button)<{ colorTheme: EditorTheme }>`
-  color: ${(props) => THEMES[props.colorTheme].textColor};
+const CopyIconWrapper = styled.div`
   position: absolute;
   right: 0;
   top: 0;
@@ -142,8 +139,14 @@ const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
   }
 
   .object-key-val {
-    .collapsed-icon svg {
+    .collapsed-icon svg,
+    .expanded-icon svg {
+      color: var(--ads-v2-color-fg) !important;
+    }
+
+    .node-ellipsis {
       color: var(--ads-v2-color-fg-brand) !important;
+      letter-spacing: -2px;
     }
   }
 `;
@@ -233,7 +236,7 @@ function CollapseToggle(props: { isOpen: boolean }) {
   return (
     <StyledIcon
       className={isOpen ? "open-collapse" : ""}
-      icon={IconNames.CHEVRON_RIGHT}
+      name="chevron-right"
     />
   );
 }
@@ -462,14 +465,16 @@ const ControlledCurrentValueViewer = memo(
           >
             {content}
             {props.hasOwnProperty("evaluatedValue") && (
-              <CopyIconWrapper
-                colorTheme={props.theme}
-                minimal
-                onClick={() =>
-                  copyContent(props.evaluatedValue, onCopyContentText)
-                }
-              >
-                <CopyIcon height={34} />
+              <CopyIconWrapper>
+                <Button
+                  isIconButton
+                  kind="tertiary"
+                  onClick={() =>
+                    copyContent(props.evaluatedValue, onCopyContentText)
+                  }
+                  size="md"
+                  startIcon="copy-control"
+                />
               </CopyIconWrapper>
             )}
           </CurrentValueWrapper>
