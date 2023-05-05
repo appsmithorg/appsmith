@@ -20,6 +20,7 @@ export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {
   fontFamily?: fontFamilyTypes;
   isFitContainer?: boolean;
   isFocused?: boolean;
+  icon?: React.ReactNode;
   iconPosition?: "start" | "end";
 }
 
@@ -28,6 +29,8 @@ export const Button = forwardRef(
     const {
       children,
       fontFamily,
+      icon,
+      iconPosition = "start",
       isFitContainer = false,
       isFocused,
       isLoading,
@@ -43,9 +46,12 @@ export const Button = forwardRef(
       }
 
       return (
-        <Text fontFamily={fontFamily} lineClamp={1}>
-          {children}
-        </Text>
+        <>
+          {icon}
+          <Text fontFamily={fontFamily} lineClamp={1}>
+            {children}
+          </Text>
+        </>
       );
     };
 
@@ -53,6 +59,7 @@ export const Button = forwardRef(
       <StyledButton
         data-fit-container={isFitContainer ? "" : undefined}
         data-focused={isFocused}
+        data-icon-position={iconPosition === "start" ? undefined : "end"}
         data-loading={isLoading ? "" : undefined}
         data-variant={variant}
         ref={ref}
