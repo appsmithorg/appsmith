@@ -66,7 +66,7 @@ Fixes # (issue number)
 - [ ] My test plan has been reviewed by project stakeholders
 - [ ] My test plan has been peer reviewed by other QA members
 - [ ] Manually tested functionality on generated DP
-- [ ] We had an implementation review call with relevant stakeholders post QA Round 2
+- [ ] We had an implementation alignment call with stakeholders post QA Round 2
 - [ ] Cypress test cases have been added and approved by SDET/manual QA
 - [ ] Added `Test Plan Approved` label after Cypress tests were reviewed
 - [ ] Added `Test Plan Approved` label after JUnit tests were reviewed
