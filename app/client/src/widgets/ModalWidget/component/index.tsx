@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import type { ReactNode, RefObject } from "react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
@@ -174,9 +175,9 @@ export default function ModalComponent(props: ModalComponentProps) {
   const theme = useSelector(getCurrentThemeDetails);
 
   useEffect(() => {
-    setTimeout(() => {
-      setModalPosition("unset");
-    }, 100);
+    // setTimeout(() => {
+    //   setModalPosition("unset");
+    // }, 100);
 
     return () => {
       // handle modal close events when this component unmounts
