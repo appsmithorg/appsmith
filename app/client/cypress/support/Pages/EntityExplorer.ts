@@ -235,10 +235,12 @@ export class EntityExplorer {
   public CreateNewDsQuery(dsName: string, isQuery = true) {
     cy.get(this.locator._createNew).last().click({ force: true });
     const searchText = isQuery ? dsName + " query" : dsName;
+    this.SearchAndClickOmnibar(searchText);
+  }
+
+  public SearchAndClickOmnibar(searchText: string) {
     cy.get(`[data-testId="t--search-file-operation"]`).type(searchText);
-    let overlayItem = isQuery
-      ? this._visibleTextSpan(searchText)
-      : this._visibleTextSpan(searchText);
+    let overlayItem = this._visibleTextSpan(searchText);
     this.agHelper.GetNClick(overlayItem);
   }
 

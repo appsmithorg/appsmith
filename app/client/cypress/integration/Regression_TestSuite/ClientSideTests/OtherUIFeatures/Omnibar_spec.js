@@ -100,15 +100,14 @@ describe("Omnibar functionality test cases", () => {
     cy.get(omnibar.categoryTitle).eq(1).click();
     cy.wait(1000);
 
-    // 4 is the index value of the Blank Api in omnibar ui
-    cy.get(omnibar.createNew).eq(1).click();
+    ee.SearchAndClickOmnibar("New Blank API");
     cy.wait(1000);
     cy.wait("@createNewApi");
     cy.renameWithInPane(apiName);
     cy.get(omnibar.globalSearch).click({ force: true });
     cy.get(omnibar.categoryTitle).eq(1).click();
 
-    cy.get(omnibar.createNew).eq(3).click();
+    ee.SearchAndClickOmnibar("New cURL Import");
     cy.wait(1000);
     cy.url().should("include", "curl-import?");
     cy.get('p:contains("Import from CURL")').should("be.visible");
