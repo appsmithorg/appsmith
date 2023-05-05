@@ -82,6 +82,7 @@ export const MembersWrapper = styled.div<{
           word-break: break-word;
           padding: 0 var(--ads-spaces-9);
           border-bottom: none;
+          height: 40px;
 
           &:first-child {
             text-align: left;
@@ -174,6 +175,8 @@ export const NoResultsText = styled(Text)`
 
 export const RowWrapper = styled.div<{ isSubRow?: boolean }>`
   display: flex;
+  height: 100%;
+  align-items: center;
 
   ${({ isSubRow }) => (isSubRow ? `padding-left: 12px;` : ``)}
 
