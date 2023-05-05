@@ -25,7 +25,6 @@ import {
   JSONtoForm,
   PluginImage,
 } from "../DataSourceEditor/JSONtoForm";
-import { getConfigInitialValues } from "components/formControls/utils";
 import Connected from "../DataSourceEditor/Connected";
 import {
   getCurrentApplicationId,
@@ -494,10 +493,14 @@ const mapStateToProps = (state: AppState, props: any) => {
   const plugin = getPlugin(state, pluginId);
   const formConfig = formConfigs[pluginId];
   const initialValues = {};
-  if (formConfig) {
-    merge(initialValues, getConfigInitialValues(formConfig));
+  if (!!datasource) {
+    merge(initialValues, datasource);
   }
-  merge(initialValues, datasource);
+  // We have to also merge the current formValue state here since we don't directly mutate the datasource when a form field changes
+  // Hence, the updated values are in the redux-form state and hence have to be merged to the initial values in the case of a re-render
+  if (formData) {
+    merge(initialValues, formData);
+  }
 
   const datasourceButtonConfiguration = getDatasourceFormButtonConfig(
     state,

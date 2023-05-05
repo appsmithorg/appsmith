@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Button from "./AppViewerButton";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import {
@@ -9,6 +9,7 @@ import {
 import {
   getCurrentApplication,
   getCurrentPageId,
+  previewModeSelector,
 } from "selectors/editorSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import {
@@ -24,9 +25,10 @@ import { viewerURL } from "RouteBuilder";
 import { useHistory } from "react-router";
 import { useHref } from "pages/Editor/utils";
 import type { NavigationSetting } from "constants/AppConstants";
-import { Icon } from "design-system";
+import { Icon, Tooltip } from "design-system";
 import { getApplicationNameTextColor } from "./utils";
 import { ButtonVariantTypes } from "components/constants";
+import { setPreviewModeInitAction } from "actions/editorActions";
 
 /**
  * ---------------------------------------------------------------------------------------------------
@@ -66,6 +68,8 @@ function PrimaryCTA(props: Props) {
   const userPermissions = currentApplication?.userPermissions ?? [];
   const canEdit = isPermitted(userPermissions, permissionRequired);
   const [isForkModalOpen, setIsForkModalOpen] = useState(false);
+  const isPreviewMode = useSelector(previewModeSelector);
+  const dispatch = useDispatch();
 
   const appViewerURL = useHref(viewerURL, {
     pageId: currentPageID,
@@ -96,25 +100,35 @@ function PrimaryCTA(props: Props) {
   const PrimaryCTA = useMemo(() => {
     if (url && canEdit) {
       return (
-        <Button
-          borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
-          className={className}
-          icon={
-            <Icon
-              color={getApplicationNameTextColor(primaryColor, navColorStyle)}
-              name="pencil-line"
-              size="md"
-            />
-          }
-          insideSidebar={insideSidebar}
-          isMinimal={isMinimal}
-          navColorStyle={navColorStyle}
-          onClick={() => {
-            history.push(url);
-          }}
-          primaryColor={primaryColor}
-          text={insideSidebar && !isMinimal && createMessage(EDIT_APP)}
-        />
+        <Tooltip
+          content={createMessage(EDIT_APP)}
+          isDisabled={insideSidebar}
+          placement="bottom"
+        >
+          <Button
+            borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
+            className={className}
+            icon={
+              <Icon
+                color={getApplicationNameTextColor(primaryColor, navColorStyle)}
+                name="pencil-line"
+                size="md"
+              />
+            }
+            insideSidebar={insideSidebar}
+            isMinimal={isMinimal}
+            navColorStyle={navColorStyle}
+            onClick={() => {
+              if (isPreviewMode) {
+                dispatch(setPreviewModeInitAction(!isPreviewMode));
+              } else {
+                history.push(url);
+              }
+            }}
+            primaryColor={primaryColor}
+            text={insideSidebar && !isMinimal && createMessage(EDIT_APP)}
+          />
+        </Tooltip>
       );
     }
 
@@ -138,6 +152,7 @@ function PrimaryCTA(props: Props) {
           }}
           primaryColor={primaryColor}
           text={createMessage(FORK_APP)}
+          varient={ButtonVariantTypes.SECONDARY}
         />
       );
     }
