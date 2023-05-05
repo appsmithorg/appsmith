@@ -3,6 +3,7 @@ import type { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import type { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
+import { find } from "lodash";
 
 export enum EditorModes {
   TEXT = "text/plain",
@@ -10,32 +11,54 @@ export enum EditorModes {
   TEXT_WITH_BINDING = "text-js",
   JSON = "application/json",
   JSON_WITH_BINDING = "json-js",
-  SQL_WITH_BINDING = "sql-js",
   JAVASCRIPT = "javascript",
   GRAPHQL = "graphql",
   GRAPHQL_WITH_BINDING = "graphql-js",
   POSTGRESQL_WITH_BINDING = "pgsql-js",
-  MYSQL_WITH_BINDING = "mysql-js",
-  MSSQL_WITH_BINDING = "mssql-js",
-  PLSQL_WITH_BINDING = "plsql-js",
-  SNOWFLAKE_WITH_BINDING = "snowflakesql-js",
-  ARANGO_WITH_BINDING = "arangosql-js",
-  REDIS_WITH_BINDING = "redissql-js",
-}
-
-export enum ALL_SQL_MIME_TYPES {
-  POSTGRESQL_WITH_BINDING = "pgsql-js",
-  MYSQL_WITH_BINDING = "mysql-js",
-  MSSQL_WITH_BINDING = "mssql-js",
-  PLSQL_WITH_BINDING = "plsql-js",
-  SNOWFLAKE_WITH_BINDING = "snowflakesql-js",
-  ARANGO_WITH_BINDING = "arangosql-js",
-  REDIS_WITH_BINDING = "redissql-js",
-  //  Generic sql
   SQL_WITH_BINDING = "sql-js",
+  MYSQL_WITH_BINDING = "mysql-js",
+  MSSQL_WITH_BINDING = "mssql-js",
+  PLSQL_WITH_BINDING = "plsql-js",
+  // Custom SQL mime types
+  SNOWFLAKE_WITH_BINDING = "snowflakesql-js",
+  ARANGO_WITH_BINDING = "arangosql-js",
+  REDIS_WITH_BINDING = "redissql-js",
 }
 
-export const pluginToMIME: Record<string, EditorModes> = {
+export const sqlModesConfig = [
+  // Mime available in sql mode https://github.com/codemirror/codemirror5/blob/9974ded36bf01746eb2a00926916fef834d3d0d0/mode/sql/sql.js#L290
+  {
+    mime: "text/x-sql",
+    mode: EditorModes.SQL_WITH_BINDING,
+  },
+  {
+    mime: "text/x-mysql",
+    mode: EditorModes.MYSQL_WITH_BINDING,
+  },
+  {
+    mime: "text/x-mssql",
+    mode: EditorModes.MSSQL_WITH_BINDING,
+  },
+  {
+    mime: "text/x-plsql",
+    mode: EditorModes.PLSQL_WITH_BINDING,
+  },
+  // Custom mimes
+  {
+    mime: "text/x-snowflakesql",
+    mode: EditorModes.SNOWFLAKE_WITH_BINDING,
+  },
+  {
+    mime: "text/x-arangosql",
+    mode: EditorModes.ARANGO_WITH_BINDING,
+  },
+  {
+    mime: "text/x-redis",
+    mode: EditorModes.REDIS_WITH_BINDING,
+  },
+];
+
+export const pluginNameToMIME: Record<string, EditorModes> = {
   PostgreSQL: EditorModes.POSTGRESQL_WITH_BINDING,
   MySQL: EditorModes.MYSQL_WITH_BINDING,
   "Microsoft SQL Server": EditorModes.MSSQL_WITH_BINDING,
@@ -159,5 +182,10 @@ export const isNavKey = (key: any): key is AUTOCOMPLETE_NAVIGATION => {
 };
 
 export function getSqlEditorModeFromPluginName(name: string) {
-  return pluginToMIME[name] ?? EditorModes.SQL_WITH_BINDING;
+  return pluginNameToMIME[name] ?? EditorModes.SQL_WITH_BINDING;
+}
+
+export function getSqlMimeFromMode(mode: EditorModes) {
+  const modeConfig = find(sqlModesConfig, { mode });
+  return modeConfig?.mime ?? "text/x-sql";
 }

@@ -1,6 +1,6 @@
 import CodeMirror from "codemirror";
 import { merge } from "lodash";
-import { EditorModes } from "../EditorConfig";
+import { EditorModes, getSqlMimeFromMode } from "../EditorConfig";
 import { spaceSeparatedStringToObject } from "./utils";
 
 // @ts-expect-error: No type available
@@ -9,10 +9,13 @@ const defaultSQLConfig = CodeMirror.resolveMode("text/x-sql");
 export const snowflakeKeywordsMap = {
   // Ref:  https://docs.snowflake.com/en/sql-reference/reserved-keywords
   keywords: spaceSeparatedStringToObject(
-    "ACCOUNT ALL ALTER AND ANY AS BETWEEN BY CASE CAST CHECK COLUMN CONNECT CONNECTION CONSTRAINT CREATE CROSS CURRENT CURRENT_DATE CURRENT_TIME CURRENT_TIMESTAMP CURRENT_USER DATABASE DELETE DISTINCT DROP ELSE EXISTS FALSE FOLLOWING FOR FROM FULL GRANT GROUP GSCLUSTER HAVING ILIKE IN INCREMENT INNER INSERT INTERSECT INTO IS ISSUE JOIN LATERAL LEFT LIKE LOCALTIME LOCALTIMESTAMP MINUS NATURAL NOT NULL OF ON OR ORDER ORGANIZATION QUALIFY REGEXP REVOKE RIGHT RLIKE ROW ROWS SAMPLE SCHEMA SELECT SET SOME START TABLE TABLESAMPLE THEN TO TRIGGER TRUE TRY_CAST UNION UNIQUE UPDATE USING VALUES  VIEW WHEN WHENEVER WHERE WITH",
+    "account all alter and any as between by case cast check column connect connection constraint create cross current current_date current_time current_timestamp current_user database delete distinct drop else exists false following for from full grant group gscluster having ilike in increment inner insert intersect into is issue join lateral left like localtime localtimestamp minus natural not null of on or order organization qualify regexp revoke right rlike row rows sample schema select set some start table tablesample then to trigger true try_cast union unique update using values  view when whenever where with",
   ),
 };
 const snowflakeConfig = merge(defaultSQLConfig, snowflakeKeywordsMap);
 
 // Inspired by https://github.com/codemirror/codemirror5/blob/9974ded36bf01746eb2a00926916fef834d3d0d0/mode/sql/sql.js#L290
-CodeMirror.defineMIME(EditorModes.SNOWFLAKE_WITH_BINDING, snowflakeConfig);
+CodeMirror.defineMIME(
+  getSqlMimeFromMode(EditorModes.SNOWFLAKE_WITH_BINDING),
+  snowflakeConfig,
+);
