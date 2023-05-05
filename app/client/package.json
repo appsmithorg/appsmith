@@ -30,7 +30,7 @@
     "preinstall": "CURRENT_SCOPE=client node ../shared/build-shared-dep.js",
     "install": "node cypress/apply-patches.js",
     "storybook": "yarn workspace @design-system/storybook storybook",
-    "lint:ci": "eslint --cache --ext .js,.ts ./src && eslint --cache --ext .js,.ts ./cypress && yarn run lint:packages",
+    "lint:ci": "eslint --cache --ext .js,.ts,.tsx ./src && eslint --cache --ext .js,.ts ./cypress && yarn run lint:packages",
     "lint:packages": "workspaces-foreach -pt yarn lint:ci",
     "prettier:ci": "prettier --check ./src && prettier --check ./cypress && yarn run prettier:packages",
     "prettier:packages": "workspaces-foreach -pt yarn prettier:ci",
