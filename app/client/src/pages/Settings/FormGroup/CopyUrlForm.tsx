@@ -70,7 +70,7 @@ function CopyUrlForm(props: {
       <BodyContainer>
         <Input
           description={`* ${props.helpText}`}
-          endIcon="copy-control"
+          endIcon="duplicate"
           endIconProps={{
             className: "copy-icon",
             onClick: handleCopy,

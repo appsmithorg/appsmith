@@ -473,7 +473,7 @@ const ControlledCurrentValueViewer = memo(
                     copyContent(props.evaluatedValue, onCopyContentText)
                   }
                   size="md"
-                  startIcon="copy-control"
+                  startIcon="duplicate"
                 />
               </CopyIconWrapper>
             )}
