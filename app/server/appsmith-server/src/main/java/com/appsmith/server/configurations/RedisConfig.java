@@ -70,7 +70,7 @@ public class RedisConfig {
     @Bean
     ReactiveRedisTemplate<String, Object> reactiveRedisTemplate(ReactiveRedisConnectionFactory factory) {
         RedisSerializer<String> keySerializer = new StringRedisSerializer();
-        RedisSerializer<Object> defaultSerializer = new JdkSerializationRedisSerializer(getClass().getClassLoader());
+        RedisSerializer<Object> defaultSerializer = new JSONSessionRedisSerializer();
         RedisSerializationContext<String, Object> serializationContext = RedisSerializationContext
                 .<String, Object>newSerializationContext(defaultSerializer).key(keySerializer).hashKey(keySerializer)
                 .build();
