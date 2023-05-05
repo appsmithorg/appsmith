@@ -8,7 +8,6 @@ import type {
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
-  WidgetHeightLimits,
 } from "constants/WidgetConstants";
 import type {
   CanvasWidgetsReduxState,
@@ -106,7 +105,8 @@ export function updateWidgetPositions(
       // calculate the total height required by all widgets.
       height = getHeightOfFixedCanvas(widgets, parent, isMobile, metaProps);
     } else if (parent.type === "CANVAS_WIDGET" && parent.parentId) {
-      height = WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS;
+      // Set a minimal height of an empty canvas to trigger height calculation for parent.
+      height = 1;
     } else return widgets;
 
     const divisor = getDivisor(parent);

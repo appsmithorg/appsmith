@@ -7,6 +7,26 @@ import {
 import { EMPTY_TABS_DATA, TABS_DATA } from "./data/tabsData";
 
 describe("auto layout: heightUpdates", () => {
+  beforeEach(() => {
+    jest
+      .spyOn(utils, "getWidgetMinMaxDimensionsInPixel")
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      .mockImplementation((widget: any, width: number) => {
+        if (widget?.type === "CONTAINER_WIDGET")
+          return {
+            minWidth: 280,
+            minHeight: 50,
+            maxWidth: undefined,
+            maxHeight: undefined,
+          };
+        return {
+          minWidth: undefined,
+          minHeight: undefined,
+          maxWidth: undefined,
+          maxHeight: undefined,
+        };
+      });
+  });
   it("Canvas and container should increase in height on adding new widgets in a new row", () => {
     const data: { [k: string]: any } = { ...MAIN_CONTAINER_WIDGET_WITH_BUTTON };
     let updatedWidgets = updateWidgetPositions(data, "3", false, 4896);
@@ -160,12 +180,12 @@ describe("auto layout: heightUpdates", () => {
     };
     updatedWidgets = updateWidgetPositions(data3, "3", false, 4896);
     /**
-     * Container
-     *   Canvas (minHeight = 10)
+     * Container (minHeight = 5)
+     *   Canvas
      *
-     * total height = 10 + 2 (buffer) = 12
+     * total height = 5
      */
-    expect(updatedWidgets["2"].bottomRow).toBe(12);
+    expect(updatedWidgets["2"].bottomRow).toBe(5);
   });
 });
 
