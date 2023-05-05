@@ -170,7 +170,7 @@ describe("View Permission flow ", function () {
     cy.get(homePage.applicationCard).trigger("mouseover");
     cy.get(homePage.appEditIcon).should("not.exist");
     cy.launchApp(appName);
-    cy.get(homePage.backtoHome).click();
+    cy.get(homePage.backtoHome).click({ force: true });
     cy.wait(2000);
     cy.get(homePage.searchInput).clear().type(AppName2);
     cy.wait(2000);
@@ -220,7 +220,7 @@ describe("View Permission flow ", function () {
     cy.get(homePage.applicationCard).trigger("mouseover");
     cy.get(homePage.appEditIcon).should("not.exist");
     cy.launchApp(appName);
-    cy.get(homePage.backtoHome).click();
+    cy.get(homePage.backtoHome).click({ force: true });
     cy.LogOut();
   });
 
