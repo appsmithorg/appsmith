@@ -1,7 +1,9 @@
+import type { AppState } from "ce/reducers";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import React, { useState } from "react";
 import { useEffect, useRef } from "react";
 import type { PropsWithChildren } from "react";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
 
 const SimpleContainer = styled.div`
@@ -25,6 +27,9 @@ export default function AutoLayoutDimensionObserver(
   props: PropsWithChildren<AutoLayoutDimensionObserverProps>,
 ) {
   const { onDimensionUpdate } = props;
+  const isAutoCanvasResizing = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+  );
   const [currentDimension, setCurrentDimension] = useState({
     width: 0,
     height: 0,
@@ -42,38 +47,32 @@ export default function AutoLayoutDimensionObserver(
   );
 
   useEffect(() => {
-    /**
-     * BUTTON_WIDGET is a special case
-     * as the component tries to preserve it's width on all viewports.
-     * So bounding box must be adjusted to the component's width.
-     */
-    if (
-      props.type === "BUTTON_WIDGET" &&
-      props.width !== currentDimension.width + WIDGET_PADDING * 2
-    )
+    if (currentDimension.width === 0 || isAutoCanvasResizing) return;
+    const padding = WIDGET_PADDING * 2;
+    const widthDiff = Math.abs(props.width - currentDimension.width - padding);
+    if (widthDiff >= 1 && props.type === "BUTTON_WIDGET")
       onDimensionUpdate(currentDimension.width, currentDimension.height);
-    /**
-     * Top down data flow (from store to widget) (Canvas resizing / adding more widgets in the same row)
-     * Only updated when min size is violated or
-     * bounding box is larger than component size.
-     */
-    if (
-      props.width < props.minWidth ||
-      props.height < props.minHeight ||
-      props.width > currentDimension.width + WIDGET_PADDING * 2
-    ) {
+    if (props.width < props.minWidth)
       onDimensionUpdate(currentDimension.width, currentDimension.height);
-    }
-  }, [props.width, props.height]);
+  }, [props.width, currentDimension.width]);
 
   useEffect(() => {
-    /**
-     * Component dimensions have changed first.
-     * Bottom up data flow (from widget to store)
-     * Always update the store with the latest dimensions.
-     */
-    onDimensionUpdate(currentDimension.width, currentDimension.height);
-  }, [currentDimension.width, currentDimension.height]);
+    if (currentDimension.height === 0 || isAutoCanvasResizing) return;
+    const padding = WIDGET_PADDING * 2;
+    const heightDiff = Math.abs(
+      props.height - currentDimension.height - padding,
+    );
+    if (heightDiff >= 1)
+      onDimensionUpdate(currentDimension.width, currentDimension.height);
+  }, [props.height, currentDimension.height]);
+
+  useEffect(() => {
+    // Don't observe when the canvas is resizing.
+    if (ref.current) {
+      if (!isAutoCanvasResizing) observer.current.observe(ref.current);
+      else observer.current.unobserve(ref.current);
+    }
+  }, [isAutoCanvasResizing]);
 
   useEffect(() => {
     if (ref.current) {

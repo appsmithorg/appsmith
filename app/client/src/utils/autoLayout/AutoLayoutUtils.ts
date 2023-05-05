@@ -30,12 +30,11 @@ import {
   updateWidgetPositions,
 } from "utils/autoLayout/positionUtils";
 import type { AlignmentColumnInfo } from "./autoLayoutTypes";
-import {
-  getWidgetMinMaxDimensionsInPixel,
-  getWidgetWidth,
-} from "./flexWidgetUtils";
+import { getWidgetWidth } from "./flexWidgetUtils";
 import type { DSLWidget } from "widgets/constants";
 import { getHumanizedTime, getReadableDateInFormat } from "utils/dayJsUtils";
+import WidgetFactory from "utils/WidgetFactory";
+import { isFunction } from "lodash";
 
 export type ReadableSnapShotDetails = {
   timeSince: string;
@@ -148,36 +147,6 @@ export function alterLayoutForMobile(
 
   for (const child of children) {
     const widget = { ...widgets[child] };
-    const { minWidth } = getWidgetMinMaxDimensionsInPixel(
-      widget,
-      mainCanvasWidth,
-    );
-    if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
-      widget.mobileRightColumn = GridDefaults.DEFAULT_GRID_COLUMNS;
-      widget.mobileLeftColumn = 0;
-    } else if (minWidth) {
-      const { leftColumn, rightColumn } = widget;
-      const columnSpace =
-        (canvasWidth - FLEXBOX_PADDING * 2) / GridDefaults.DEFAULT_GRID_COLUMNS;
-      if (columnSpace * (rightColumn - leftColumn) < minWidth) {
-        widget.mobileLeftColumn = 0;
-        widget.mobileRightColumn = Math.min(
-          minWidth / columnSpace,
-          GridDefaults.DEFAULT_GRID_COLUMNS,
-        );
-      }
-    } else {
-      widget.mobileLeftColumn = widget.leftColumn;
-      widget.mobileRightColumn = widget.rightColumn;
-    }
-    if (
-      widget.mobileTopRow === undefined ||
-      widget.mobileBottomRow === undefined ||
-      widget.mobileTopRow + widget.mobileBottomRow === 0
-    ) {
-      widget.mobileTopRow = widget.topRow;
-      widget.mobileBottomRow = widget.bottomRow;
-    }
     const widgetWidth: number =
       widget.type === "MODAL_WIDGET"
         ? canvasWidth * MAX_MODAL_WIDTH_FROM_MAIN_WIDTH
@@ -769,4 +738,18 @@ export function getReadableSnapShotDetails(
     timeTillExpiration,
     readableDate,
   };
+}
+
+export function isWidgetSizeObserved(widget: FlattenedWidgetProps): boolean {
+  const autoDimensionConfig = WidgetFactory.getWidgetAutoLayoutConfig(
+    widget.type,
+  ).autoDimension;
+
+  const shouldObserveWidth = isFunction(autoDimensionConfig)
+    ? autoDimensionConfig(widget).width
+    : autoDimensionConfig?.width;
+  const shouldObserveHeight = isFunction(autoDimensionConfig)
+    ? autoDimensionConfig(widget).height
+    : autoDimensionConfig?.height;
+  return !!shouldObserveWidth || !!shouldObserveHeight;
 }
