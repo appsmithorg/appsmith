@@ -5,7 +5,7 @@ import type { ControlType } from "constants/PropertyControlConstants";
 import type { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
 import type { InputType } from "components/constants";
-import type { InputType as DSInputType } from "design-system";
+import type { InputTypes as DSInputType } from "design-system";
 import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
 import { Field, formValueSelector } from "redux-form";
 import { connect } from "react-redux";
