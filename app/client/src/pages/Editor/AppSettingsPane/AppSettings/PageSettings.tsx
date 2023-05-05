@@ -38,9 +38,9 @@ import { isNameValid, resolveAsSpaceChar } from "utils/helpers";
 
 const UrlPreviewWrapper = styled.div`
   height: 56px;
-  color: var(--ads-v2-color-gray-500);
+  color: var(--ads-v2-color-fg);
   border-radius: var(--ads-v2-border-radius);
-  background-color: var(--ads-v2-color-bg-muted);
+  background-color: var(--ads-v2-color-bg-subtle);
   line-height: 1.17;
 `;
 
