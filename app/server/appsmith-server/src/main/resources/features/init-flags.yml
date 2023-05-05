@@ -81,13 +81,13 @@ ff4j:
             value: multipanes@appsmith.com,ndx@appsmith.com
 
     - uid: AUTO_LAYOUT
-      enable: false
-      description: Enable auto layout editor by email domain of user.
+      enable: true
+      description: Enable auto layout editor for everyone
       flipstrategy:
-        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        class: org.ff4j.strategy.PonderationStrategy
         param:
-          - name: emailDomains
-            value: appsmith.com,moolya.com
+          - name: weight
+            value: 1
 
     - uid: LIMITING_GOOGLE_SHEET_ACCESS
       enable: true
