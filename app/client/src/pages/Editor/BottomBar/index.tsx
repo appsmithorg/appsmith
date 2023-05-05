@@ -8,7 +8,7 @@ import ManualUpgrades from "./ManualUpgrades";
 import PaneCountSwitcher from "pages/common/PaneCountSwitcher";
 import { useSelector } from "react-redux";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
-import { Icon } from "design-system";
+import { Button } from "design-system";
 import { GPTTrigger } from "@appsmith/components/editorComponents/GPT/trigger";
 
 const Container = styled.div`
@@ -37,7 +37,13 @@ export default function BottomBar(props: { className?: string }) {
       <Wrapper>
         <GPTTrigger />
         <ManualUpgrades showTooltip>
-          <Icon className="t--upgrade" name="upgrade" size="lg" />
+          <Button
+            className="t--upgrade"
+            isIconButton
+            kind="tertiary"
+            size="md"
+            startIcon="upgrade"
+          />
         </ManualUpgrades>
         <DebuggerTrigger />
         <HelpButton />

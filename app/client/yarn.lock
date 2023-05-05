@@ -10430,10 +10430,10 @@ depd@~1.1.2:
   dependencies:
     emoji-mart "3.0.1"
 
-"design-system@npm:@appsmithorg/design-system@2.1.8-alpha.30":
-  version "2.1.8-alpha.30"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-2.1.8-alpha.30.tgz#19d4d523e4b689373cabfdaff7ee4c27009ab629"
-  integrity sha512-EdsgZZK1Dr76w+uUyX2xGvkkrR3E5P9omZkDV+VSst/LsLGClIz9yvU6sLqmciTIlM1+jKisnhfsiZrGRL9IuA==
+"design-system@npm:@appsmithorg/design-system@2.1.8-alpha.31":
+  version "2.1.8-alpha.31"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-2.1.8-alpha.31.tgz#17c7bbce78c70356a16893108ed6d7849d811965"
+  integrity sha512-oalqpgscVUgmyHH4GLJvSHKW6dGa/yyuPHYrHyp1K55HzJbHhgtPXUJx7GYYlI8/K14tdqdBOfxHheSpP7unvQ==
   dependencies:
     "@radix-ui/react-dialog" "^1.0.2"
     "@radix-ui/react-dropdown-menu" "^2.0.4"
@@ -14787,6 +14787,11 @@ js-beautify@^1.14.0:
 js-levenshtein@^1.1.6:
   version "1.1.6"
   resolved "https://registry.npmjs.org/js-levenshtein/-/js-levenshtein-1.1.6.tgz"
+
+js-regex-pl@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/js-regex-pl/-/js-regex-pl-1.0.1.tgz#a0e4d76c7c2b4a503b17bc6b32ce8c5b0e39bca1"
+  integrity sha512-Cj291//fFojnJrYxh46mhK1jINe4F4WXk+/FNGaPy+2q61pKRX0n9LyY3rtZNlH06s41DtoNVh9UR7bTeuAhGg==
 
 js-sdsl@^4.1.4:
   version "4.3.0"
