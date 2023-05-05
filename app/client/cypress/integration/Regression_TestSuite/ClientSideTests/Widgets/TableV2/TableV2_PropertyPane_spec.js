@@ -376,6 +376,7 @@ describe("Table Widget V2 property pane feature validation", function () {
   });
 
   it("14. It provides currentRow and currentIndex properties in min validation field", function () {
+    cy.addDsl(dsl);
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("orderAmount");
     cy.editColumn("orderAmount");
