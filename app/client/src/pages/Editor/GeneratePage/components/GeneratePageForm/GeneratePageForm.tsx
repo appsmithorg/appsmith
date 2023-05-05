@@ -19,7 +19,10 @@ import { INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
 import { getQueryParams } from "utils/URLUtils";
 import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
-import DataSourceOption, { DatasourceImage } from "../DataSourceOption";
+import DataSourceOption, {
+  CONNECT_NEW_DATASOURCE_OPTION_ID,
+  DatasourceImage,
+} from "../DataSourceOption";
 import { getQueryStringfromObject } from "RouteBuilder";
 import type { DropdownOption } from "design-system-old";
 import { Button, Icon, Text, Select, Option, Tooltip } from "design-system";
@@ -680,8 +683,20 @@ function GeneratePageForm() {
             }
           >
             {dataSourceOptions.map((option) => {
+              const isConnectNewDataSourceBtn =
+                CONNECT_NEW_DATASOURCE_OPTION_ID ===
+                (option as DropdownOption).id;
+              const isSupportedForTemplate = (option as DropdownOption)?.data
+                ?.isSupportedForTemplate;
+              const isNotSupportedDatasource =
+                !isSupportedForTemplate && !isConnectNewDataSourceBtn;
+
               return (
-                <Option key={option.value} value={option.value}>
+                <Option
+                  disabled={isNotSupportedDatasource}
+                  key={option.value}
+                  value={option.value}
+                >
                   <DataSourceOption
                     cypressSelector="t--datasource-dropdown-option"
                     extraProps={{ routeToCreateNewDatasource }}
