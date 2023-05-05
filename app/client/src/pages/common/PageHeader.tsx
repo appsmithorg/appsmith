@@ -15,6 +15,8 @@ import {
   TEMPLATES_PATH,
   TEMPLATES_ID_PATH,
   matchTemplatesIdPath,
+  matchPackagesPath,
+  PACKAGES_URL,
 } from "constants/routes";
 import history from "utils/history";
 import Button from "components/editorComponents/Button";
@@ -188,7 +190,9 @@ export function PageHeader(props: PageHeaderProps) {
           <>
             <TabName
               className="t--apps-tab"
-              isSelected={matchApplicationPath(location.pathname)}
+              isSelected={
+                matchApplicationPath(location.pathname) && !matchPackagesPath()
+              }
               onClick={() => history.push(APPLICATIONS_URL)}
             >
               <div>Apps</div>
@@ -209,6 +213,14 @@ export function PageHeader(props: PageHeaderProps) {
                 <div>Templates</div>
               </TabName>
             )}
+
+            <TabName
+              className="t--packages-tab"
+              isSelected={matchPackagesPath()}
+              onClick={() => history.push(PACKAGES_URL)}
+            >
+              <div>Packages</div>
+            </TabName>
           </>
         )}
       </Tabs>

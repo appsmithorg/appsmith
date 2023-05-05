@@ -33,8 +33,12 @@ import {
 import HotKeys from "../Files/SubmenuHotkeys";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getIsAutoLayout } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getIsAutoLayout,
+} from "selectors/editorSelectors";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { isPackage } from "ce/pages/Applications/helper";
 
 const MenuItem = styled.div<{ active: boolean }>`
   display: flex;
@@ -78,6 +82,7 @@ function AddPageContextMenu({
   const [activeItemIdx, setActiveItemIdx] = useState(0);
   const featureFlags = useSelector(selectFeatureFlags);
   const isAutoLayout = useSelector(getIsAutoLayout);
+  const applicationId = useSelector(getCurrentApplicationId);
   const isAirgappedInstance = isAirgapped();
 
   const menuRef = useCallback(
@@ -92,7 +97,9 @@ function AddPageContextMenu({
   const ContextMenuItems = useMemo(() => {
     const items = [
       {
-        title: createMessage(CREATE_PAGE),
+        title: isPackage(applicationId)
+          ? "New Blank Module"
+          : createMessage(CREATE_PAGE),
         icon: FileAddIcon,
         onClick: createPageCallback,
         "data-cy": "add-page",
@@ -119,6 +126,10 @@ function AddPageContextMenu({
         "data-cy": "add-page-from-template",
         key: "ADD_PAGE_FROM_TEMPLATE",
       });
+    }
+
+    if (isPackage(applicationId)) {
+      return [items[0]];
     }
 
     return items;
@@ -166,7 +177,9 @@ function AddPageContextMenu({
             tabIndex={0}
           >
             <Text autofocus className="title" type={TextType.H5}>
-              {createMessage(CANVAS_NEW_PAGE_CARD)}
+              {isPackage(applicationId)
+                ? "Create New Module"
+                : createMessage(CANVAS_NEW_PAGE_CARD)}
             </Text>
             {ContextMenuItems.map((item, idx) => {
               const MenuIcon = item.icon;

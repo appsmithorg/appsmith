@@ -18,14 +18,14 @@ const Label = styled.div`
   padding: 2px 4px;
 `;
 
-const SectionTitle = styled.span`
+export const SectionTitle = styled.span`
   color: ${Colors.GRAY_800};
   font-size: ${(props) => props.theme.fontSizes[3]}px;
   font-weight: 500;
   margin-right: 8px;
 `;
 
-const SectionWrapper = styled.div`
+export const SectionWrapper = styled.div`
   position: relative;
   border-top: 1px solid ${Colors.GREY_4};
   padding: 12px 16px;

@@ -112,6 +112,8 @@ import {
 } from "@appsmith/utils/permissionHelpers";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { matchPackagesPath } from "constants/routes";
+import { isPackage } from "./helper";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -556,6 +558,12 @@ export function ApplicationsSection(props: any) {
   const [workspaceToOpenMenu, setWorkspaceToOpenMenu] = useState<string | null>(
     null,
   );
+  const [workspaceToOpenCreateApp, setWorkspaceToOpenCreateApp] = useState<
+    string | null
+  >(null);
+  const openCreateNewPopup = (id: string) => setWorkspaceToOpenCreateApp(id);
+  const closeCreateNewPopup = () => setWorkspaceToOpenCreateApp(null);
+
   const updateApplicationDispatch = (
     id: string,
     data: UpdateApplicationPayload,
@@ -633,6 +641,7 @@ export function ApplicationsSection(props: any) {
   const createNewApplication = (
     applicationName: string,
     workspaceId: string,
+    appType = "APP",
   ) => {
     const color = getRandomPaletteColor(theme.colors.appCardColors);
     const icon =
@@ -645,6 +654,7 @@ export function ApplicationsSection(props: any) {
         workspaceId,
         icon,
         color,
+        appType,
       },
     });
   };
@@ -659,6 +669,32 @@ export function ApplicationsSection(props: any) {
   } else {
     updatedWorkspaces = loadingUserWorkspaces as any;
   }
+
+  const getNames = (workspaceId: string) => {
+    const workspace = userWorkspaces.find(
+      ({ workspace }) => workspace.id === workspaceId,
+    );
+
+    if (!workspace) return [];
+
+    return workspace.applications.map(({ name }) => name);
+  };
+
+  const workspaces: any[] = [];
+  updatedWorkspaces.forEach(({ applications, workspace }: any) => {
+    const apps = applications.filter((app: any) => {
+      const isPkg = isPackage(app.id);
+      const shouldShow = matchPackagesPath() ? isPkg : !isPkg;
+
+      return shouldShow;
+    });
+
+    if (apps.length) {
+      workspaces.push({ applications: apps, workspace });
+    }
+  });
+
+  updatedWorkspaces = workspaces;
 
   let workspacesListComponent;
   if (
@@ -698,17 +734,17 @@ export function ApplicationsSection(props: any) {
         const hasCreateNewApplicationPermission =
           hasCreateNewAppPermission(workspace.userPermissions) && !isMobile;
 
-        const onClickAddNewButton = (workspaceId: string) => {
+        const onClickAddNewButton = (workspaceId: string, appType = "APP") => {
           if (
             Object.entries(creatingApplicationMap).length === 0 ||
             (creatingApplicationMap && !creatingApplicationMap[workspaceId])
           ) {
+            const namePrefix =
+              appType === "APP" ? "Untitled application " : "Untitled package ";
             createNewApplication(
-              getNextEntityName(
-                "Untitled application ",
-                applications.map((el: any) => el.name),
-              ),
+              getNextEntityName(namePrefix, getNames(workspace.id)),
               workspaceId,
+              appType,
             );
           }
         };
@@ -768,18 +804,42 @@ export function ApplicationsSection(props: any) {
                   {hasCreateNewApplicationPermission &&
                     !isFetchingApplications &&
                     applications.length !== 0 && (
-                      <Button
-                        className="t--new-button createnew"
-                        icon={"plus"}
-                        isLoading={
-                          creatingApplicationMap &&
-                          creatingApplicationMap[workspace.id]
+                      <Menu
+                        autoFocus={false}
+                        className="t--createnewapporpackage"
+                        closeOnItemClick
+                        cypressSelector="t--workspace-name"
+                        disabled={isFetchingApplications}
+                        isOpen={workspaceToOpenCreateApp === workspace.id}
+                        onClose={closeCreateNewPopup}
+                        onClosing={openCreateNewPopup}
+                        position={Position.BOTTOM_RIGHT}
+                        target={
+                          <Button
+                            className="t--new-button createnew"
+                            icon={"plus"}
+                            isLoading={
+                              creatingApplicationMap &&
+                              creatingApplicationMap[workspace.id]
+                            }
+                            onClick={() => openCreateNewPopup(workspace.id)}
+                            size={Size.medium}
+                            tag="button"
+                            text="New"
+                          />
                         }
-                        onClick={() => onClickAddNewButton(workspace.id)}
-                        size={Size.medium}
-                        tag="button"
-                        text={"New"}
-                      />
+                      >
+                        <MenuItem
+                          onSelect={() => onClickAddNewButton(workspace.id)}
+                          text="New App"
+                        />
+                        <MenuItem
+                          onSelect={() => {
+                            onClickAddNewButton(workspace.id, "PACKAGE");
+                          }}
+                          text="New Package"
+                        />
+                      </Menu>
                     )}
                   {(currentUser || isFetchingApplications) &&
                     !isMobile &&

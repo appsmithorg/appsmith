@@ -46,6 +46,7 @@ import {
   hasManagePagePermission,
 } from "@appsmith/utils/permissionHelpers";
 import type { AppState } from "@appsmith/reducers";
+import { isPackage } from "ce/pages/Applications/helper";
 
 const ENTITY_HEIGHT = 36;
 const MIN_PAGES_HEIGHT = 60;
@@ -134,8 +135,9 @@ function Pages() {
   const [isMenuOpen, openMenu] = useState(false);
 
   const createPageCallback = useCallback(() => {
+    const isPkg = isPackage(applicationId);
     const name = getNextEntityName(
-      "Page",
+      isPkg ? "Module " : "Page ",
       pages.map((page: Page) => page.pageName),
     );
 
@@ -229,7 +231,7 @@ function Pages() {
         isDefaultExpanded={
           isPagesOpen === null || isPagesOpen === undefined ? true : isPagesOpen
         }
-        name="Pages"
+        name={isPackage(applicationId) ? "Modules" : "Pages"}
         onClickPreRightIcon={onPin}
         onToggle={onPageToggle}
         pagesSize={ENTITY_HEIGHT * pages.length}

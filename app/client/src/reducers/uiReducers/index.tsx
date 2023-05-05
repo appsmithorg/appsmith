@@ -48,6 +48,7 @@ import autoHeightUIReducer from "./autoHeightReducer";
 import analyticsReducer from "./analyticsReducer";
 import multiPaneReducer from "./multiPaneReducer";
 import layoutConversionReducer from "./layoutConversionReducer";
+import moduleReducer from "./moduleReducer";
 
 const uiReducer = combineReducers({
   analytics: analyticsReducer,
@@ -99,6 +100,7 @@ const uiReducer = combineReducers({
   autoHeightUI: autoHeightUIReducer,
   multiPaneConfig: multiPaneReducer,
   layoutConversion: layoutConversionReducer,
+  mods: moduleReducer,
 });
 
 export default uiReducer;

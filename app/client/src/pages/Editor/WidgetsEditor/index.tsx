@@ -1,8 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
 import Debugger from "components/editorComponents/Debugger";
-
 import {
   getCurrentPageId,
   getCurrentPageName,
@@ -56,6 +54,16 @@ import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
 import { getReadableSnapShotDetails } from "utils/autoLayout/AutoLayoutUtils";
+import { isPackage } from "ce/pages/Applications/helper";
+import type { AppState } from "ce/reducers";
+import FunctionalModuleHeroImg from "assets/images/functional-module-hero.png";
+import styled from "styled-components";
+
+const StyledImg = styled.img`
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+`;
 
 function WidgetsEditor() {
   const { deselectAll, focusWidget } = useWidgetSelection();
@@ -86,6 +94,11 @@ function WidgetsEditor() {
   const isMobile = useIsMobileDevice();
   const isPreviewingNavigation =
     isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
+
+  const isPkg = isPackage(currentApp?.id || "");
+  const hasUI = useSelector((state: AppState) => {
+    return state.ui.mods.config[currentPageId]?.hasUI || false;
+  });
 
   const shouldShowSnapShotBanner =
     !!readableSnapShotDetails && !isPreviewingNavigation;
@@ -183,74 +196,76 @@ function WidgetsEditor() {
 
           <div className="relative flex flex-row w-full overflow-hidden">
             <div className="relative flex flex-col w-full overflow-hidden">
-              <CanvasTopSection />
-              <div
-                className="relative flex flex-row w-full overflow-hidden"
-                data-testid="widgets-editor"
-                draggable
-                id="widgets-editor"
-                onClick={handleWrapperClick}
-                onDragStart={onDragStart}
-                style={{
-                  fontFamily: fontFamily,
-                }}
-              >
-                {showNavigation()}
-
-                <PageViewContainer
-                  className="relative flex flex-row w-full justify-center overflow-hidden"
-                  hasPinnedSidebar={
-                    isPreviewingNavigation && !isMobile
-                      ? currentApplicationDetails?.applicationDetail
-                          ?.navigationSetting?.orientation ===
-                          NAVIGATION_SETTINGS.ORIENTATION.SIDE &&
-                        isAppSidebarPinned
-                      : false
-                  }
-                  isPreviewMode={isPreviewMode}
-                  isPublished={isPublished}
-                  sidebarWidth={isPreviewingNavigation ? sidebarWidth : 0}
+              {!isPackage(currentApp?.id || "") && <CanvasTopSection />}
+              {(!isPkg || (isPkg && hasUI)) && (
+                <div
+                  className="relative flex flex-row w-full overflow-hidden"
+                  data-testid="widgets-editor"
+                  draggable
+                  id="widgets-editor"
+                  onClick={handleWrapperClick}
+                  onDragStart={onDragStart}
+                  style={{
+                    fontFamily: fontFamily,
+                  }}
                 >
-                  {shouldShowSnapShotBanner && (
-                    <div className="absolute top-0 z-1 w-full">
-                      <BannerMessage
-                        backgroundColor={Colors.WARNING_ORANGE}
-                        ctaChildren={<SnapShotBannerCTA />}
-                        fontWeight="400"
-                        icon="warning-line"
-                        iconColor={Colors.WARNING_SOLID}
-                        iconFlexPosition="start"
-                        iconSize={IconSize.XXXXL}
-                        intentLine
-                        message={createMessage(SNAPSHOT_BANNER_MESSAGE)}
-                        messageHeader={
-                          readableSnapShotDetails
-                            ? createMessage(
-                                SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE,
-                                readableSnapShotDetails.timeTillExpiration,
-                              )
-                            : ""
-                        }
-                        textColor={Colors.GRAY_800}
-                      />
-                    </div>
-                  )}
-                  <CanvasContainer
-                    isAppSettingsPaneWithNavigationTabOpen={
-                      AppSettingsTabs.Navigation ===
-                      appSettingsPaneContext?.type
+                  {showNavigation()}
+
+                  <PageViewContainer
+                    className="relative flex flex-row w-full justify-center overflow-hidden"
+                    hasPinnedSidebar={
+                      isPreviewingNavigation && !isMobile
+                        ? currentApplicationDetails?.applicationDetail
+                            ?.navigationSetting?.orientation ===
+                            NAVIGATION_SETTINGS.ORIENTATION.SIDE &&
+                          isAppSidebarPinned
+                        : false
                     }
                     isPreviewMode={isPreviewMode}
-                    navigationHeight={navigationHeight}
-                    shouldShowSnapShotBanner={shouldShowSnapShotBanner}
-                  />
-                </PageViewContainer>
+                    isPublished={isPublished}
+                    sidebarWidth={isPreviewingNavigation ? sidebarWidth : 0}
+                  >
+                    {shouldShowSnapShotBanner && (
+                      <div className="absolute top-0 z-1 w-full">
+                        <BannerMessage
+                          backgroundColor={Colors.WARNING_ORANGE}
+                          ctaChildren={<SnapShotBannerCTA />}
+                          fontWeight="400"
+                          icon="warning-line"
+                          iconColor={Colors.WARNING_SOLID}
+                          iconFlexPosition="start"
+                          iconSize={IconSize.XXXXL}
+                          intentLine
+                          message={createMessage(SNAPSHOT_BANNER_MESSAGE)}
+                          messageHeader={
+                            readableSnapShotDetails
+                              ? createMessage(
+                                  SNAPSHOT_TIME_TILL_EXPIRATION_MESSAGE,
+                                  readableSnapShotDetails.timeTillExpiration,
+                                )
+                              : ""
+                          }
+                          textColor={Colors.GRAY_800}
+                        />
+                      </div>
+                    )}
+                    <CanvasContainer
+                      isAppSettingsPaneWithNavigationTabOpen={
+                        AppSettingsTabs.Navigation ===
+                        appSettingsPaneContext?.type
+                      }
+                      isPreviewMode={isPreviewMode}
+                      navigationHeight={navigationHeight}
+                      shouldShowSnapShotBanner={shouldShowSnapShotBanner}
+                    />
+                  </PageViewContainer>
 
-                <CrudInfoModal />
-              </div>
+                  <CrudInfoModal />
+                </div>
+              )}
+              {isPkg && !hasUI && <StyledImg src={FunctionalModuleHeroImg} />}
               <Debugger />
             </div>
-
             {!isMultiPane && <PropertyPaneContainer />}
           </div>
         </>

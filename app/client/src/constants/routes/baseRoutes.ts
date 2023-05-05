@@ -5,6 +5,7 @@ export const WORKSPACE_URL = "/workspace";
 export const PAGE_NOT_FOUND_URL = "/404";
 export const SERVER_ERROR_URL = "/500";
 export const APPLICATIONS_URL = `/applications`;
+export const PACKAGES_URL = `/applications?packages=true`;
 export const LICENSE_CHECK_PATH = "/license";
 
 export const TEMPLATES_PATH = "/templates";
@@ -26,5 +27,8 @@ export const WORKSPACE_INVITE_USERS_PAGE_URL = `${WORKSPACE_URL}/invite`;
 export const WORKSPACE_SETTINGS_PAGE_URL = `${WORKSPACE_URL}/settings`;
 
 export const matchApplicationPath = match(APPLICATIONS_URL);
+export const matchPackagesPath = () => {
+  return location.search === "?packages=true";
+};
 export const matchTemplatesPath = match(TEMPLATES_PATH);
 export const matchTemplatesIdPath = match(TEMPLATES_ID_PATH);

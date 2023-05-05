@@ -114,6 +114,7 @@ import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { safeCrashAppRequest } from "actions/errorActions";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { setAllEntityCollapsibleStates } from "../../actions/editorContextActions";
+import { updatePageSaga } from "sagas/PageSagas";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -537,9 +538,11 @@ export function* createApplicationSaga(
     workspaceId: string;
     resolve: any;
     reject: any;
+    appType: string;
   }>,
 ) {
-  const { applicationName, color, icon, reject, workspaceId } = action.payload;
+  const { applicationName, appType, color, icon, reject, workspaceId } =
+    action.payload;
   try {
     const userWorkspaces: Workspaces[] = yield select(
       getUserApplicationsWorkspacesList,
@@ -583,6 +586,28 @@ export function* createApplicationSaga(
           ...response.data,
           defaultPageId: getDefaultPageId(response.data.pages) as string,
         };
+
+        yield updatePageSaga({
+          type: ReduxActionTypes.UPDATE_PAGE_INIT,
+          payload: {
+            id: application.defaultPageId,
+            name: "Module1",
+          },
+        });
+
+        if (appType === "PACKAGE") {
+          const packages: string[] = JSON.parse(
+            localStorage.getItem("__APPSMITH_PACKAGES__") || "[]",
+          );
+
+          packages.push(application.id);
+
+          localStorage.setItem(
+            "__APPSMITH_PACKAGES__",
+            JSON.stringify(packages),
+          );
+        }
+
         AnalyticsUtil.logEvent("CREATE_APP", {
           appName: application.name,
         });
