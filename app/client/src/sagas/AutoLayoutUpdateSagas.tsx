@@ -105,21 +105,20 @@ export function* updateLayoutForMobileCheckpoint(
       allWidgets = yield select(getWidgets);
     }
 
-    const mainCanvasWidth: number = yield select(getMainCanvasWidth);
     const metaProps: Record<string, any> = yield select(getWidgetsMeta);
     const updatedWidgets: CanvasWidgetsReduxState = isMobile
       ? alterLayoutForMobile(
           allWidgets,
           parentId,
           canvasWidth,
-          mainCanvasWidth,
+          canvasWidth,
           false,
           metaProps,
         )
       : alterLayoutForDesktop(
           allWidgets,
           parentId,
-          mainCanvasWidth,
+          canvasWidth,
           false,
           metaProps,
         );
@@ -302,15 +301,18 @@ function* updateWidgetDimensionsSaga(
  * when the widget component get resized internally.
  * It also updates the position of other affected widgets as well.
  */
-function* processAutoLayoutDimensionUpdatesSaga() {
+function* processAutoLayoutDimensionUpdatesSaga(
+  action: ReduxAction<{ canvasWidth?: number }>,
+) {
   if (Object.keys(autoLayoutWidgetDimensionUpdateBatch).length === 0) return;
+
+  const { canvasWidth } = action.payload;
 
   const allWidgets: CanvasWidgetsReduxState = yield select(
     getCanvasAndMetaWidgets,
   );
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
-
   let widgets = allWidgets;
   const widgetsOld = { ...widgets };
   const parentIds = new Set<string>();
@@ -326,7 +328,7 @@ function* processAutoLayoutDimensionUpdatesSaga() {
     const { columnSpace } = getCanvasDimensions(
       widgets[parentId],
       widgets,
-      mainCanvasWidth,
+      canvasWidth || mainCanvasWidth,
       isMobile,
     );
 
@@ -361,7 +363,7 @@ function* processAutoLayoutDimensionUpdatesSaga() {
       widgets,
       parentId,
       isMobile,
-      mainCanvasWidth,
+      canvasWidth || mainCanvasWidth,
       false,
       metaProps,
     );
