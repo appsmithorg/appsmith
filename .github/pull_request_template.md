@@ -4,8 +4,10 @@
 >
 ## Description
 > Add a TL;DR when description is extra long (helps content team)
+>
 > Please include a summary of the changes and which issue has been fixed. Please also include relevant motivation
 > and context. List any dependencies that are required for this change
+>
 > Links to Notion, Figma or any other documents that might be relevant to the PR
 >
 >
@@ -63,7 +65,7 @@ Fixes # (issue number)
 - [ ] Speedbreak features, if applicable, have been covered
 - [ ] My test plan has been reviewed by project stakeholders
 - [ ] My test plan has been peer reviewed by other QA members
-- [ ] I have manually tested functionality on generated DP
+- [ ] Manually tested functionality on generated DP
 - [ ] We had an implementation review call with relevant stakeholders post QA Round 2
 - [ ] Cypress test cases have been added and approved by SDET/manual QA
 - [ ] I have added `Test Plan Approved` label after Cypress tests were reviewed
