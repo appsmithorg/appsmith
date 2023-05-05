@@ -525,7 +525,6 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                             ? null : templateDatasource.getDatasourceConfiguration().getAuthentication();
                     if (authentication != null) {
                         authentication.setIsAuthorized(null);
-                        authentication.setAuthenticationResponse(null);
                     }
 
                     return Flux.fromIterable(existingDatasources)
@@ -534,7 +533,6 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                                         ? null : ds.getDatasourceConfiguration().getAuthentication();
                                 if (auth != null) {
                                     auth.setIsAuthorized(null);
-                                    auth.setAuthenticationResponse(null);
                                 }
                                 return ds;
                             })
@@ -552,10 +550,27 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                                     }
                                     templateDatasource.setDatasourceConfiguration(dsConfig);
                                 }
-                                //updating the datasource isConfigured field, which will be used to return if the forking is a partialImport or not
-                                //post forking any application, datasource reconnection modal will appear based on isConfigured property
-                                //Ref: getApplicationImportDTO()
-                                templateDatasource.setIsConfigured(templateDatasource.getDatasourceConfiguration() != null && templateDatasource.getDatasourceConfiguration().getAuthentication() != null);
+                                /**
+                                 * updating the datasource isConfigured field, which will be used to return if the forking is a partialImport or not
+                                 * post forking any application, datasource reconnection modal will appear based on isConfigured property
+                                 * Ref: getApplicationImportDTO()
+                                 */
+
+                                Boolean setIsConfigured = (templateDatasource.getDatasourceConfiguration() != null
+                                        && templateDatasource.getDatasourceConfiguration().getAuthentication() != null);
+
+                                if (setIsConfigured && templateDatasource.getDatasourceConfiguration().getAuthentication().getAuthenticationResponse() != null){
+                                    /**
+                                     * This is the case for GSheet datasource, since for Gsheet, we don't want to copy the token to the new workspace
+                                     * as it is user's personal token. Hence, in case of forking to a new workspace the gsheet needs to be re-authorised.
+                                     */
+                                    templateDatasource.setIsConfigured(false);
+                                    templateDatasource.getDatasourceConfiguration().getAuthentication().setAuthenticationResponse(null);
+                                }
+                                else {
+                                    templateDatasource.setIsConfigured(setIsConfigured);
+                                }
+
                                 return createSuffixedDatasource(templateDatasource);
                             }));
                 });
