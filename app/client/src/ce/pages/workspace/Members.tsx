@@ -155,11 +155,13 @@ export const EachUser = styled.div`
 
   .user-icons {
     margin-right: 8px;
+    flex-shrink: 0;
   }
 
   .user-group-icons {
     width: 24px;
     margin-right: 8px;
+    flex-shrink: 0;
   }
 `;
 
@@ -405,7 +407,10 @@ export default function MemberSettings(props: PageProps) {
             {roles.map((role: Partial<SelectOptionProps>) => (
               <Option key={role.key} label={role.value} value={role.key}>
                 <div className="flex flex-col gap-1">
-                  <Text kind={role.description && "heading-xs"}>
+                  <Text
+                    color="var(--ads-v2-color-fg-emphasis)"
+                    kind={role.description && "heading-xs"}
+                  >
                     {role.value}
                   </Text>
                   <Text kind="body-s">{role.description}</Text>
@@ -540,7 +545,10 @@ export default function MemberSettings(props: PageProps) {
                           value={role.key}
                         >
                           <div className="flex flex-col gap-1">
-                            <Text kind={role.description && "heading-xs"}>
+                            <Text
+                              color="var(--ads-v2-color-fg-emphasis)"
+                              kind={role.description && "heading-xs"}
+                            >
                               {role.value}
                             </Text>
                             <Text kind="body-s">{role.description}</Text>
