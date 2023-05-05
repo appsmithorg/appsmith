@@ -1,4 +1,4 @@
-export { TokensAccessor } from "./TokensAccessor";
-export { ColorsAccessor } from "./ColorsAccessor";
+export * from "./TokensAccessor";
+export * from "./ColorsAccessor";
 
 export type { ThemeTokens, TokenSource } from "./TokensAccessor";
