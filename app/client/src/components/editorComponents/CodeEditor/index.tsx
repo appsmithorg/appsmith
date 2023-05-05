@@ -1013,6 +1013,7 @@ class CodeEditor extends Component<Props, State> {
     const entityInformation: FieldEntityInformation = {
       expectedType: expected?.autocompleteDataType,
       example: expected?.example,
+      mode: this.props.mode,
     };
 
     if (dataTreePath) {

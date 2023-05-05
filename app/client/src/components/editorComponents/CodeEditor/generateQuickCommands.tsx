@@ -17,6 +17,7 @@ import MagicIcon from "remixicon-react/MagicLineIcon";
 import { addAISlashCommand } from "@appsmith/components/editorComponents/GPT/trigger";
 import type FeatureFlags from "entities/FeatureFlags";
 import type { FieldEntityInformation } from "./EditorConfig";
+import { EditorModes } from "./EditorConfig";
 
 enum Shortcuts {
   PLUS = "PLUS",
@@ -148,6 +149,7 @@ export const generateQuickCommands = (
     entityId,
     example,
     expectedType = "string",
+    mode,
     propertyPath,
   } = entityInfo || {};
   const suggestionsHeader: CommandsCompletion = commandsHeader("Bind Data");
@@ -257,7 +259,9 @@ export const generateQuickCommands = (
   if (
     addAISlashCommand &&
     featureFlags.CHAT_AI &&
-    currentEntityType !== ENTITY_TYPE.ACTION
+    (currentEntityType !== ENTITY_TYPE.ACTION ||
+      mode === EditorModes.SQL ||
+      mode === EditorModes.SQL_WITH_BINDING)
   ) {
     const askGPT: CommandsCompletion = generateCreateNewCommand({
       text: "",
@@ -272,6 +276,7 @@ export const generateQuickCommands = (
             entityId: entityId,
             propertyPath: propertyPath,
             example,
+            mode,
           },
         }),
     });

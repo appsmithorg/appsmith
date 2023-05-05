@@ -55,6 +55,7 @@ export type FieldEntityInformation = {
   propertyPath?: string;
   blockCompletions?: Array<{ parentPath: string; subPath: string }>;
   example?: ExpectedValueExample;
+  mode?: EditorModes;
 };
 
 export type HintHelper = (
