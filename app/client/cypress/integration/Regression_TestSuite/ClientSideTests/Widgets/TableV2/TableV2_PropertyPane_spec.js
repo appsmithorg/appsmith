@@ -516,7 +516,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.makeColumnEditable("orderAmount");
   });
 
-  it("14. Verify default prompt message for min field", function () {
+  it("15. Verify default prompt message for min field", function () {
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("orderAmount");
     cy.editColumn("orderAmount");
