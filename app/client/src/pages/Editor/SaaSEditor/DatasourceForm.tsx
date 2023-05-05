@@ -341,7 +341,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                 />
               </FormTitleContainer>
 
-              {viewMode && (
+              {!!viewMode && (
                 <ActionWrapper>
                   <EditDatasourceButton
                     category={Category.secondary}
@@ -418,7 +418,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
               {""}
             </>
           )}
-          {viewMode && (
+          {!!viewMode && (
             <ViewModeWrapper>
               <Connected
                 errorComponent={
