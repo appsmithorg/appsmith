@@ -327,7 +327,7 @@ function GoogleSheetForm(props: Props) {
             <Input
               data-testid="t--tableHeaderIndex"
               onChange={tableHeaderIndexChangeHandler}
-              placeholder="Table Header Index"
+              placeholder="Table header index"
               size="md"
               type="text"
               value={tableHeaderIndex}

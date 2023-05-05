@@ -44,7 +44,7 @@ const Wrapper = styled.div`
   flex-direction: column;
   height: 100%;
   max-height: 700px;
-  min-height: 500px;
+  min-height: 400px;
 
   .info-subtitle {
     text-align: center;
@@ -52,7 +52,7 @@ const Wrapper = styled.div`
 `;
 
 const ImageWrapper = styled.div`
-  padding: 50px 10px 10px;
+  padding: 40px 0px 10px;
   display: flex;
   flex: 1;
   justify-content: center;

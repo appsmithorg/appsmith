@@ -136,7 +136,7 @@ const OptionWrapper = styled.div`
 
   .datasource-sub-text {
     position: absolute;
-    right: 0;
+    right: 4px;
     font-size: 12px;
   }
 `;
@@ -171,7 +171,7 @@ function GeneratePageSubmitBtn({
         onClick={() => !disabled && onSubmit()}
         size="md"
       >
-        Generate Page
+        Generate page
       </Button>
     </div>
   ) : null;
@@ -770,7 +770,7 @@ function GeneratePageForm() {
         {showEditDatasourceBtn && (
           <div>
             <Button kind="primary" onClick={goToEditDatasource} size="md">
-              Edit Datasource
+              Edit datasource
             </Button>
           </div>
         )}
