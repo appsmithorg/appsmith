@@ -76,12 +76,14 @@ function* addWidgetAndReorderSaga(
 
     let widgetIndex = index;
     let currLayerIndex = layerIndex;
+    let newLayer = isNewLayer;
 
     const canvasWidget = updatedWidgetsOnAddition[parentId];
 
     if (addToBottom && canvasWidget.children && canvasWidget.flexLayers) {
       widgetIndex = canvasWidget.children.length;
       currLayerIndex = canvasWidget.flexLayers.length;
+      newLayer = true;
     }
 
     const updatedWidgetsOnMove: CanvasWidgetsReduxState = yield call(
@@ -89,7 +91,7 @@ function* addWidgetAndReorderSaga(
       {
         movedWidgets: [newWidget.newWidgetId],
         index: widgetIndex,
-        isNewLayer,
+        isNewLayer: newLayer,
         parentId,
         allWidgets: updatedWidgetsOnAddition,
         alignment,

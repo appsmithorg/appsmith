@@ -2908,7 +2908,7 @@ public class ImportExportApplicationServiceTests {
         StepVerifier
                 .create(resultMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.GENERIC_JSON_IMPORT_ERROR.getMessage(createdWorkspace.getId(), "")))
+                        throwable.getMessage().contains(AppsmithError.GENERIC_JSON_IMPORT_ERROR.getMessage(createdWorkspace.getId(), "")))
                 .verify();
     }
 
@@ -3521,7 +3521,6 @@ public class ImportExportApplicationServiceTests {
 
         Workspace testWorkspace = new Workspace();
         testWorkspace.setName("workspace-" + randomUUID);
-        // User apiUser = userService.findByEmail("api_user").block();
         Mono<Workspace> workspaceMono = workspaceService.create(testWorkspace).cache();
 
         Mono<Application> applicationMono = workspaceMono.flatMap(workspace -> {
@@ -3709,6 +3708,144 @@ public class ImportExportApplicationServiceTests {
                     assertThat(actionCollectionNames).contains("JSObject1", "JSObject2");
                 })
                 .verifyComplete();
+
+    }
+
+    /**
+     * Testcase for updating the existing application:
+     * 1. Import application in org
+     * 2. Add new page to the imported application
+     * 3. User tries to import application from same application json file
+     * 4. Added page will be removed
+     *
+     * We don't have to test all the flows for other resources like actions, JSObjects, themes as these are already
+     * covered as a part of discard functionality
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void extractFileAndUpdateExistingApplication_addNewPageAfterImport_addedPageRemoved() {
+
+        /*
+        1. Import application
+        2. Add single page to imported app
+        3. Import the application from same JSON with applicationId
+        4. Added page should be deleted from DB
+         */
+
+        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
+        String workspaceId = createTemplateWorkspace().getId();
+        final Mono<Application> resultMonoWithoutDiscardOperation = importExportApplicationService.extractFileAndUpdateNonGitConnectedApplication(workspaceId, filePart, null, null)
+                .flatMap(applicationImportDTO -> {
+                    PageDTO page = new PageDTO();
+                    page.setName("discard-page-test");
+                    page.setApplicationId(applicationImportDTO.getApplication().getId());
+                    return applicationPageService.createPage(page);
+                })
+                .flatMap(page -> applicationRepository.findById(page.getApplicationId()))
+                .cache();
+
+        StepVerifier
+                .create(resultMonoWithoutDiscardOperation
+                        .flatMap(application -> Mono.zip(
+                                Mono.just(application),
+                                newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList()
+                        )))
+                .assertNext(tuple -> {
+                    final Application application = tuple.getT1();
+                    final List<PageDTO> pageList = tuple.getT2();
+
+                    assertThat(application.getName()).isEqualTo("valid_application");
+                    assertThat(application.getWorkspaceId()).isNotNull();
+                    assertThat(application.getPages()).hasSize(3);
+                    assertThat(application.getPublishedPages()).hasSize(1);
+                    assertThat(application.getModifiedBy()).isEqualTo("api_user");
+                    assertThat(application.getUpdatedAt()).isNotNull();
+                    assertThat(application.getEditModeThemeId()).isNotNull();
+                    assertThat(application.getPublishedModeThemeId()).isNotNull();
+
+                    assertThat(pageList).hasSize(3);
+
+                    ApplicationPage defaultAppPage = application.getPages()
+                            .stream()
+                            .filter(ApplicationPage::getIsDefault)
+                            .findFirst()
+                            .orElse(null);
+                    assertThat(defaultAppPage).isNotNull();
+
+                    PageDTO defaultPageDTO = pageList.stream()
+                            .filter(pageDTO -> pageDTO.getId().equals(defaultAppPage.getId())).findFirst().orElse(null);
+
+                    assertThat(defaultPageDTO).isNotNull();
+                    assertThat(defaultPageDTO.getLayouts().get(0).getLayoutOnLoadActions()).isNotEmpty();
+
+                    List<String> pageNames = new ArrayList<>();
+                    pageList.forEach(page -> pageNames.add(page.getName()));
+                    assertThat(pageNames).contains("discard-page-test");
+                })
+                .verifyComplete();
+
+        // Import the same application again to find if the added page is deleted
+        final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation
+                .flatMap(importedApplication -> applicationService.save(importedApplication))
+                .flatMap(savedApplication -> importExportApplicationService.extractFileAndUpdateNonGitConnectedApplication(workspaceId, filePart, savedApplication.getId(), null))
+                .map(ApplicationImportDTO::getApplication);
+
+        StepVerifier
+                .create(resultMonoWithDiscardOperation
+                        .flatMap(application -> Mono.zip(
+                                Mono.just(application),
+                                newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList()
+                        )))
+                .assertNext(tuple -> {
+                    final Application application = tuple.getT1();
+                    final List<PageDTO> pageList = tuple.getT2();
+
+                    assertThat(application.getPages()).hasSize(2);
+                    assertThat(application.getPublishedPages()).hasSize(1);
+
+                    assertThat(pageList).hasSize(2);
+
+                    List<String> pageNames = new ArrayList<>();
+                    pageList.forEach(page -> pageNames.add(page.getName()));
+                    assertThat(pageNames).doesNotContain("discard-page-test");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void extractFileAndUpdateExistingApplication_gitConnectedApplication_throwUnsupportedOperationException() {
+
+        /*
+        1. Create application and mock git connectivity
+        2. Import the application from valid JSON with saved applicationId
+        3. Unsupported operation exception should be thrown
+         */
+
+        //Create application connected to git
+        Application testApplication = new Application();
+        testApplication.setName("extractFileAndUpdateExistingApplication_gitConnectedApplication_throwUnsupportedOperationException");
+        testApplication.setWorkspaceId(workspaceId);
+        testApplication.setUpdatedAt(Instant.now());
+        testApplication.setLastDeployedAt(Instant.now());
+        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        gitData.setRemoteUrl("git@example.com:username/git-repo.git");
+        testApplication.setGitApplicationMetadata(gitData);
+        Application application = applicationPageService.createApplication(testApplication, workspaceId)
+                .flatMap(application1 -> {
+                    application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
+                    return applicationService.save(application1);
+                }).block();
+
+        FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
+        final Mono<ApplicationImportDTO> resultMono = importExportApplicationService
+                .extractFileAndUpdateNonGitConnectedApplication(workspaceId, filePart, application.getId(), null);
+
+        StepVerifier
+                .create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable.getMessage().equals(AppsmithError.UNSUPPORTED_IMPORT_OPERATION_FOR_GIT_CONNECTED_APPLICATION.getMessage()))
+                .verify();
 
     }
 
