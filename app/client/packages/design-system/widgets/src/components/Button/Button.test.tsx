@@ -31,7 +31,7 @@ describe("@design-system/widgets/Button", () => {
     expect(screen.getByRole("button")).toHaveAttribute("data-loading");
   });
 
-  it("renders icon if provided", () => {
+  it("renders icon when passed", () => {
     const { container } = render(
       <Button
         icon={
@@ -44,5 +44,15 @@ describe("@design-system/widgets/Button", () => {
 
     const icon = container.querySelector("button [data-icon]") as HTMLElement;
     expect(icon).toBeInTheDocument();
+  });
+
+  it("sets icon position attribute based on the prop ", () => {
+    const { container } = render(<Button iconPosition="end" />);
+
+    const button = container.querySelector("button") as HTMLElement;
+    expect(button).toHaveAttribute("data-icon-position", "end");
+
+    const styles = window.getComputedStyle(button);
+    expect(styles.flexDirection).toBe("row-reverse");
   });
 });
