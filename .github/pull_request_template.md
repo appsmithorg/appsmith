@@ -60,10 +60,11 @@ Fixes # (issue number)
 
 
 #### QA activity:
-- [ ] Speedbreak features, if applicable, have been covered
-- [ ] Test plan has been reviewed by project stakeholders
-- [ ] Test plan has been peer reviewed by QA
-- [ ] Organized project review with relevant stakeholders after Round 2 of QA for large changes
+- [ ] (Speedbreak features)[https://github.com/appsmithorg/TestSmith/wiki/Test-plan-implementation#speedbreaker-features-to-consider-for-every-change], if applicable, have been covered
+- [ ] My test plan has been reviewed by project stakeholders
+- [ ] My test plan has been peer reviewed by other QA members
+- [ ] I have manually tested functionality on generated DP
+- [ ] We had an implementation review call with relevant stakeholders post QA Round 2
 - [ ] Cypress test cases have been added and approved by SDET/manual QA
-- [ ] Added `Test Plan Approved` label after reviewing all Cypress test
-- [ ] Added `Test Plan Approved` label after developers review JUnit tests
+- [ ] I have added `Test Plan Approved` label after Cypress tests were reviewed
+- [ ] I have added `Test Plan Approved` label after JUnit tests were reviewed by a developer 
