@@ -273,7 +273,9 @@ function* reorderAutolayoutChildren(params: {
   };
   const parentWidget =
     allWidgets[allWidgets[parentId].parentId || MAIN_CONTAINER_WIDGET_ID];
-  const isAutoLayoutContainerCanvas = parentWidget.type === "CONTAINER_WIDGET";
+  const isAutoLayoutContainerCanvas =
+    parentWidget.type === "CONTAINER_WIDGET" &&
+    !parentWidget.isListItemContainer;
   if (isAutoLayoutContainerCanvas) {
     const height =
       allWidgets[parentId].bottomRow / GridDefaults.DEFAULT_GRID_ROW_HEIGHT;

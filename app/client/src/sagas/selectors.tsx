@@ -6,7 +6,7 @@ import type {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetProps } from "widgets/BaseWidget";
-import _, { omit } from "lodash";
+import _, { defaults, omit } from "lodash";
 import type { WidgetType } from "constants/WidgetConstants";
 import { WIDGET_PROPS_TO_SKIP_FROM_EVAL } from "constants/WidgetConstants";
 import type { ActionData } from "reducers/entityReducers/actionsReducer";
@@ -43,7 +43,7 @@ export const getMetaWidgets = (state: AppState): MetaWidgetsReduxState => {
 export const getCanvasAndMetaWidgets = createSelector(
   getWidgets,
   getMetaWidgets,
-  (canvasWidget, metaWidget) => ({ ...canvasWidget, ...metaWidget }),
+  (canvasWidget, metaWidget) => defaults({}, canvasWidget, metaWidget),
 );
 
 export const getWidgetsMeta = (state: AppState) => state.entities.meta;
