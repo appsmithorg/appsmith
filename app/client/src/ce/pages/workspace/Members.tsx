@@ -82,7 +82,6 @@ export const MembersWrapper = styled.div<{
           word-break: break-word;
           padding: 0 var(--ads-spaces-9);
           border-bottom: none;
-          line-height: 2;
 
           &:first-child {
             text-align: left;
@@ -186,8 +185,7 @@ export const RowWrapper = styled.div<{ isSubRow?: boolean }>`
 `;
 
 export const StyledText = styled(Text)`
-  padding: var(--ads-v2-spaces-3) var(--ads-v2-spaces-3);
-  min-height: 36px;
+  padding: var(--ads-v2-spaces-2) var(--ads-v2-spaces-3);
 `;
 
 export default function MemberSettings(props: PageProps) {
