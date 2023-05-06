@@ -202,4 +202,9 @@ describe("MaintainContext&Focus", function () {
     agHelper.PressEscape();
     cy.assertCursorOnCodeInput(".js-editor", { ch: 7, line: 4 });
   });
+
+  it("11. Bug 22960 Maintain focus of code editor when Escape is pressed", () => {
+    agHelper.PressEscape();
+    cy.assertCursorOnCodeInput(".js-editor", { ch: 7, line: 4 });
+  });
 });
