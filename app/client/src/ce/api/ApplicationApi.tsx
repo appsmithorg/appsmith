@@ -222,6 +222,16 @@ export interface PageDefaultMeta {
   default: boolean;
 }
 
+export interface UploadNavigationLogoRequest {
+  applicationId: string;
+  logo: File;
+  onSuccessCallback?: () => void;
+}
+
+export interface DeleteNavigationLogoRequest {
+  applicationId: string;
+}
+
 export interface snapShotApplicationRequest {
   applicationId: string;
 }
@@ -354,6 +364,35 @@ export class ApplicationApi extends Api {
         },
         onUploadProgress: request.progress,
       },
+    );
+  }
+
+  static uploadNavigationLogo(
+    request: UploadNavigationLogoRequest,
+  ): AxiosPromise<ApiResponse> {
+    const formData = new FormData();
+
+    if (request.logo) {
+      formData.append("file", request.logo);
+    }
+
+    return Api.post(
+      ApplicationApi.baseURL + "/" + request.applicationId + "/logo",
+      formData,
+      null,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+  }
+
+  static deleteNavigationLogo(
+    request: DeleteNavigationLogoRequest,
+  ): AxiosPromise<ApiResponse> {
+    return Api.delete(
+      ApplicationApi.baseURL + "/" + request.applicationId + "/logo",
     );
   }
 
