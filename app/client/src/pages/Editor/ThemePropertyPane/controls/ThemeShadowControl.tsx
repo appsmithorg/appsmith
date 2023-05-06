@@ -45,7 +45,7 @@ function ThemeBoxShadowControl(props: ThemeBoxShadowControlProps) {
       <Tooltip content={optionKey} key={optionKey}>
         {optionKey === "none" ? (
           <div className="flex items-center justify-center w-5 h-5">
-            <Icon name="close-x" size="8px" />
+            <Icon name="close-line" size="md" />
           </div>
         ) : (
           <div
