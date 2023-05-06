@@ -7,11 +7,6 @@ import {
   isAction,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type {
-  // DefaultDropDownValueNodeProps,
-  DropdownOption,
-} from "design-system-old";
-import { Classes } from "design-system-old";
 import { useEntityLink } from "components/editorComponents/Debugger/hooks/debuggerHooks";
 import { useGetEntityInfo } from "components/editorComponents/Debugger/hooks/useGetEntityInfo";
 import {
@@ -35,7 +30,6 @@ import { mapValues, pick } from "lodash";
 import { createSelector } from "reselect";
 import type { TooltipPlacement } from "design-system";
 import {
-  // Icon,
   Tooltip,
   Button,
   Menu,
@@ -45,7 +39,11 @@ import {
   MenuSeparator,
 } from "design-system";
 
-// const CONNECTION_HEIGHT = 28;
+type DropdownOption = {
+  label?: string;
+  value?: string;
+  id?: string;
+};
 
 const TopLayer = styled.div`
   display: flex;
@@ -88,11 +86,6 @@ const OptionContentWrapper = styled.div<{
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    /* max-width: 130px; */
-  }
-
-  .${Classes.ICON} {
-    margin-right: ${(props) => props.theme.spaces[5]}px;
   }
 `;
 
@@ -228,7 +221,7 @@ function OptionNode(props: any) {
   );
 }
 
-const TriggerNode = memo((props: TriggerNodeProps) => {
+const TriggerNode = (props: TriggerNodeProps) => {
   const ENTITY = props.entityCount > 1 ? "entities" : "entity";
   const tooltipText = !!props.entityCount
     ? `See ${props.connectionType.toLowerCase()} connections`
@@ -257,11 +250,9 @@ const TriggerNode = memo((props: TriggerNodeProps) => {
       </Button>
     </Tooltip>
   );
-});
+};
 
 TriggerNode.displayName = "TriggerNode";
-
-// const selectedOption = { label: "", value: "" };
 
 function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
   const dependencies = useDependencyList(props.widgetName);
@@ -311,23 +302,10 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
     );
   }, [dependencies.inverseDependencyOptions, debuggerErrors]);
 
-  // const [isMenuOpen, setIsMenuOpen] = useState(false);
-  // const handleMenuOnClose = (open: boolean) => {
-  //   if (!open) {
-  //     setIsMenuOpen(false);
-  //   } else {
-  //     setIsMenuOpen(true);
-  //   }
-  // };
   return (
     <TopLayer ref={topLayerRef}>
-      <Menu
-      // onOpenChange={() =>
-      //   handleMenuOnClose(!!dependencies.dependencyOptions.length)
-      // }
-      // open={isMenuOpen}
-      >
-        <MenuTrigger>
+      <Menu>
+        <MenuTrigger disabled={!dependencies.dependencyOptions.length}>
           <div>
             <TriggerNode
               connectionType="INCOMING"
@@ -336,7 +314,6 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
               hasError={errorIncomingConnections}
               iconAlignment={"LEFT"}
               justifyContent={"flex-start"}
-              // {...(selectedValueProps: DefaultDropDownValueNodeProps)}
               tooltipPosition="bottomLeft"
             />
           </div>
@@ -345,25 +322,13 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
           <MenuItem className="menuitem-nohover">Incoming connections</MenuItem>
           <MenuSeparator />
           {dependencies.dependencyOptions.map((option, key) => (
-            // <MenuItem key={key}>
-            <OptionNode
-              key={key}
-              // isHighlighted={optionProps.isHighlighted}
-              // isSelectedNode={optionProps.isSelectedNode}
-              option={option}
-            />
-            // </MenuItem>
+            <OptionNode key={key} option={option} />
           ))}
         </MenuContent>
       </Menu>
-      {/* <PopperDragHandle /> */}
-      <Menu
-      // onOpenChange={() =>
-      //   handleMenuOnClose(!!dependencies.inverseDependencyOptions.length)
-      // }
-      // open={isMenuOpen}
-      >
-        <MenuTrigger>
+
+      <Menu>
+        <MenuTrigger disabled={!dependencies.inverseDependencyOptions.length}>
           <div>
             <TriggerNode
               connectionType="OUTGOING"
@@ -372,7 +337,6 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
               hasError={errorOutgoingConnections}
               iconAlignment={"RIGHT"}
               justifyContent={"flex-end"}
-              // {...(selectedValueProps: DefaultDropDownValueNodeProps)}
               tooltipPosition="bottomRight"
             />
           </div>
@@ -381,14 +345,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
           <MenuItem className="menuitem-nohover">Outgoing connections</MenuItem>
           <MenuSeparator />
           {dependencies.inverseDependencyOptions.map((option, key) => (
-            // <MenuItem key={key}>
-            <OptionNode
-              key={key}
-              // isHighlighted={optionProps.isHighlighted}
-              // isSelectedNode={optionProps.isSelectedNode}
-              option={option}
-            />
-            // </MenuItem>
+            <OptionNode key={key} option={option} />
           ))}
         </MenuContent>
       </Menu>
