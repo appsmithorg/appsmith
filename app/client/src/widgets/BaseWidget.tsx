@@ -669,6 +669,8 @@ abstract class BaseWidget<
           minHeight={minHeight ?? 0}
           minWidth={minWidth ?? 0}
           onDimensionUpdate={this.updateWidgetDimensions}
+          shouldObserveHeight={shouldObserveHeight || false}
+          shouldObserveWidth={shouldObserveWidth || false}
           type={this.props.type}
           width={componentWidth}
         >
