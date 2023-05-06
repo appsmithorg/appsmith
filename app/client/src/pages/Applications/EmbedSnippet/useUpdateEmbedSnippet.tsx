@@ -13,6 +13,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import debounce from "lodash/debounce";
 import { updateApplication } from "@appsmith/actions/applicationActions";
 import { viewerURL } from "RouteBuilder";
+import { cssDimensionValidator } from "./DimensionsInput";
 import {
   createMessage,
   IN_APP_EMBED_SETTING,
@@ -35,18 +36,6 @@ const embedSettingContentConfig = {
     tooltip: createMessage(IN_APP_EMBED_SETTING.disableEmbeddingTooltip),
   },
 };
-
-function cssDimensionValidator(value: string) {
-  let isValid = false;
-  const regex = /^[1-9][0-9]{0,3}((px)|(em)|(%)|(vw)|(vh))?$/;
-  if (value) {
-    isValid = regex.test(value);
-  }
-  return {
-    isValid: isValid,
-    message: "",
-  };
-}
 
 type EmbedSetting = keyof typeof embedSettingContentConfig;
 
