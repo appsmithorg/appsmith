@@ -10,8 +10,9 @@ import {
   isCursorOnEmptyToken,
 } from "components/editorComponents/CodeEditor/codeEditorUtils";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { isEmpty } from "lodash";
+import { isEmpty, isString } from "lodash";
 import type { getAllDatasourceTableKeys } from "selectors/entitiesSelector";
+import { renderHint } from "./customHints";
 
 export const bindingHint: HintHelper = (editor) => {
   editor.setOption("extraKeys", {
@@ -72,6 +73,8 @@ class SqlHintHelper {
   constructor() {
     this.hinter = this.hinter.bind(this);
     this.setDatasourceTableKeys = this.setDatasourceTableKeys.bind(this);
+    this.addCustomRendererToCompletions =
+      this.addCustomRendererToCompletions.bind(this);
   }
 
   setDatasourceTableKeys(
@@ -106,6 +109,17 @@ class SqlHintHelper {
     return editorMode?.name === EditorModes.SQL;
   }
 
+  addCustomRendererToCompletions(completions: Hints): Hints {
+    completions.list = completions.list.map((completion) => {
+      if (isString(completion)) return completion;
+      completion.render = (LiElement, data, currentHint) => {
+        renderHint(LiElement, currentHint.text, currentHint.className);
+      };
+      return completion;
+    });
+    return completions;
+  }
+
   handleCompletions(editor: CodeMirror.Editor): ReturnType<HandleCompletions> {
     const noHints = { showHints: false, completions: null } as const;
     if (isCursorOnEmptyToken(editor) || !this.isSqlMode(editor)) return noHints;
@@ -114,7 +128,10 @@ class SqlHintHelper {
       tables: this.datasourceTableKeys,
     });
     if (isEmpty(completions.list)) return noHints;
-    return { completions, showHints: true };
+    return {
+      completions: this.addCustomRendererToCompletions(completions),
+      showHints: true,
+    };
   }
 }
 
