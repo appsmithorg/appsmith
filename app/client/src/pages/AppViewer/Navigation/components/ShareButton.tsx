@@ -1,7 +1,7 @@
 import React from "react";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import Button from "../../AppViewerButton";
-import { Icon } from "design-system";
+import { Icon, Tooltip } from "design-system";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import { useSelector } from "react-redux";
 import { showAppInviteUsersDialogSelector } from "@appsmith/selectors/applicationSelectors";
@@ -61,23 +61,29 @@ const ShareButton = (props: ShareButtonProps) => {
       placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
       title={currentApplicationDetails?.name}
       trigger={
-        <Button
-          borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
-          className="h-8 t--app-viewer-share-button"
-          data-cy="viewmode-share"
-          icon={
-            <Icon
-              color={getApplicationNameTextColor(primaryColor, navColorStyle)}
-              name="share-line"
-              size="md"
-            />
-          }
-          insideSidebar={insideSidebar}
-          isMinimal={isMinimal}
-          navColorStyle={navColorStyle}
-          primaryColor={primaryColor}
-          text={insideSidebar && !isMinimal && createMessage(SHARE_APP)}
-        />
+        <Tooltip
+          content={createMessage(SHARE_APP)}
+          isDisabled={insideSidebar}
+          placement="bottom"
+        >
+          <Button
+            borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
+            className="h-8 t--app-viewer-share-button"
+            data-cy="viewmode-share"
+            icon={
+              <Icon
+                color={getApplicationNameTextColor(primaryColor, navColorStyle)}
+                name="share-line"
+                size="md"
+              />
+            }
+            insideSidebar={insideSidebar}
+            isMinimal={isMinimal}
+            navColorStyle={navColorStyle}
+            primaryColor={primaryColor}
+            text={insideSidebar && !isMinimal && createMessage(SHARE_APP)}
+          />
+        </Tooltip>
       }
       workspaceId={currentWorkspaceId}
     />
