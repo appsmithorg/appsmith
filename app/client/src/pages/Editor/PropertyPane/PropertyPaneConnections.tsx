@@ -8,17 +8,10 @@ import {
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type {
-  DefaultDropDownValueNodeProps,
+  // DefaultDropDownValueNodeProps,
   DropdownOption,
-  RenderDropdownOptionType,
 } from "design-system-old";
-import {
-  Classes,
-  Dropdown,
-  getTypographyByKey,
-  Text,
-  TextType,
-} from "design-system-old";
+import { Classes } from "design-system-old";
 import { useEntityLink } from "components/editorComponents/Debugger/hooks/debuggerHooks";
 import { useGetEntityInfo } from "components/editorComponents/Debugger/hooks/useGetEntityInfo";
 import {
@@ -31,7 +24,6 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { DebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { showDebugger } from "actions/debuggerActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Colors } from "constants/Colors";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import type { InteractionAnalyticsEventDetail } from "utils/AppsmithUtils";
 import {
@@ -42,70 +34,24 @@ import equal from "fast-deep-equal";
 import { mapValues, pick } from "lodash";
 import { createSelector } from "reselect";
 import type { TooltipPlacement } from "design-system";
-import { Icon, Tooltip } from "design-system";
+import {
+  // Icon,
+  Tooltip,
+  Button,
+  Menu,
+  MenuContent,
+  MenuTrigger,
+  MenuItem,
+  MenuSeparator,
+} from "design-system";
 
-const CONNECTION_HEIGHT = 28;
-
-const EntityText = styled.p`
-  font-size: var(--ads-v2-font-size-2);
-  font-weight: var(--ads-v2-font-weight-bold);
-  color: var(--ads-v2-color-fg-emphasis);
-`;
+// const CONNECTION_HEIGHT = 28;
 
 const TopLayer = styled.div`
   display: flex;
   flex: 1;
   justify-content: space-between;
   padding: 0 1rem;
-
-  .connection-dropdown {
-    box-shadow: none;
-    border: none;
-    background-color: ${Colors.WHITE};
-    padding: 0;
-    width: auto;
-  }
-
-  .error {
-    border: 1px solid
-      ${(props) => props.theme.colors.propertyPane.connections.error};
-    border-bottom: none;
-  }
-`;
-
-const SelectedNodeWrapper = styled.div<{
-  entityCount: number;
-  hasError: boolean;
-  justifyContent: string;
-}>`
-  display: flex;
-  align-items: center;
-  width: 100%;
-  justify-content: ${(props) => props.justifyContent};
-  color: ${(props) =>
-    props.hasError
-      ? props.theme.colors.propertyPane.connections.error
-      : props.theme.colors.propertyPane.connections.connectionsCount};
-  ${getTypographyByKey("p3")}
-  opacity: ${(props) => (!!props.entityCount ? 1 : 0.5)};
-
-  & > *:nth-child(2) {
-    padding: 0 4px;
-  }
-
-  .${Classes.ICON} {
-    margin-top: 1px;
-
-    ${(props) =>
-      props.hasError &&
-      `
-    svg {
-      path {
-        fill: ${props.theme.colors.propertyPane.connections.error}
-      }
-    }
-    `}
-  }
 `;
 
 const OptionWrapper = styled.div<{ hasError: boolean; fillIconColor: boolean }>`
@@ -114,33 +60,15 @@ const OptionWrapper = styled.div<{ hasError: boolean; fillIconColor: boolean }>`
   overflow: hidden;
 
   .debug {
-    height: ${CONNECTION_HEIGHT}px;
     margin-top: 0px;
     display: none;
+    position: absolute;
+    right: 4px;
   }
-
-  ${(props) =>
-    props.fillIconColor &&
-    `&:not(:hover) {
-    svg {
-      path {
-        fill: #6a86ce;
-      }
-    }
-  }`}
 
   &:hover {
     .debug {
       display: flex;
-    }
-
-    background-color: ${(props) =>
-      props.hasError && props.theme.colors.propertyPane.connections.optionBg};
-
-    &&& svg {
-      rect {
-        fill: ${(props) => props.theme.colors.textOnDarkBG};
-      }
     }
   }
 `;
@@ -149,44 +77,22 @@ const OptionContentWrapper = styled.div<{
   hasError: boolean;
   isSelected: boolean;
 }>`
-  padding: ${(props) => props.theme.spaces[2] + 1}px
-    ${(props) => props.theme.spaces[5]}px;
-  cursor: pointer;
   display: flex;
   align-items: center;
-  line-height: 8px;
   flex: 1;
   min-width: 0;
-  background-color: ${(props) =>
-    props.isSelected &&
-    !props.hasError &&
-    props.theme.colors.dropdown.hovered.bg};
 
-  span:first-child {
-    font-size: 10px;
-    font-weight: normal;
-  }
-
-  .${Classes.TEXT} {
+  .menu-text {
     margin-left: 6px;
     letter-spacing: 0px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    color: ${(props) =>
-      props.hasError
-        ? props.theme.colors.propertyPane.connections.error
-        : props.theme.colors.propertyPane.label};
+    /* max-width: 130px; */
   }
 
   .${Classes.ICON} {
     margin-right: ${(props) => props.theme.spaces[5]}px;
-  }
-
-  &:hover,
-  &.highlighted {
-    background-color: ${(props) =>
-      !props.hasError && props.theme.colors.dropdown.hovered.bg};
   }
 `;
 
@@ -195,13 +101,14 @@ type PropertyPaneConnectionsProps = {
   widgetType: string;
 };
 
-type TriggerNodeProps = DefaultDropDownValueNodeProps & {
+type TriggerNodeProps = {
   entityCount: number;
   iconAlignment: "LEFT" | "RIGHT";
   connectionType: "INCOMING" | "OUTGOING";
   hasError: boolean;
   justifyContent: string;
   tooltipPosition?: TooltipPlacement;
+  disabled?: boolean;
 };
 
 const doConnectionsHaveErrors = (
@@ -293,29 +200,31 @@ function OptionNode(props: any) {
   }, [props.isSelectedNode, props.isHighlighted]);
 
   return (
-    <OptionWrapper
-      className={`t--dropdown-option`}
-      fillIconColor={!entityInfo?.datasourceName}
-      hasError={!!entityInfo?.hasError}
-    >
-      <OptionContentWrapper
-        className={`${props.isHighlighted ? "highlighted" : ""}`}
+    <MenuItem>
+      <OptionWrapper
+        className={`t--dropdown-option`}
+        fillIconColor={!entityInfo?.datasourceName}
         hasError={!!entityInfo?.hasError}
-        isSelected={props.isSelectedNode}
-        onClick={onClick}
       >
-        <span>{entityInfo?.icon}</span>
-        <Text type={TextType.H6}>
-          {props.option.label}{" "}
-          {entityInfo?.datasourceName && (
-            <span>from {entityInfo?.datasourceName}</span>
-          )}
-        </Text>
-      </OptionContentWrapper>
-      {!!entityInfo?.hasError && (
-        <DebugButton className="debug" onClick={onClick} />
-      )}
-    </OptionWrapper>
+        <OptionContentWrapper
+          className={`${props.isHighlighted ? "highlighted" : ""}`}
+          hasError={!!entityInfo?.hasError}
+          isSelected={props.isSelectedNode}
+          onClick={onClick}
+        >
+          {entityInfo?.icon}
+          <div className="menu-text">
+            {props.option.label}{" "}
+            {entityInfo?.datasourceName && (
+              <span>from {entityInfo?.datasourceName}</span>
+            )}
+          </div>
+        </OptionContentWrapper>
+        {!!entityInfo?.hasError && (
+          <DebugButton className="debug" onClick={onClick} />
+        )}
+      </OptionWrapper>
+    </MenuItem>
   );
 }
 
@@ -330,49 +239,33 @@ const TriggerNode = memo((props: TriggerNodeProps) => {
   };
 
   return (
-    <SelectedNodeWrapper
-      className={props.hasError ? "t--connection-error" : "t--connection"}
-      entityCount={props.entityCount}
-      hasError={props.hasError}
-      justifyContent={props.justifyContent}
-      onClick={onClick}
+    <Tooltip
+      content={tooltipText}
+      isDisabled={props.disabled}
+      placement={props.tooltipPosition}
     >
-      {props.iconAlignment === "LEFT" && (
-        <Icon
-          color={props.hasError ? "var(--ads-v2-color-fg-error)" : "inherit"}
-          name="trending-flat"
-          size="md"
-        />
-      )}
-
-      <Tooltip
-        content={tooltipText}
-        isDisabled={props.isOpen}
-        placement={props.tooltipPosition}
+      <Button
+        className={props.hasError ? "t--connection-error" : "t--connection"}
+        endIcon={props.iconAlignment === "RIGHT" ? "right-arrow" : ""}
+        isDisabled={props.disabled}
+        kind={props.hasError ? "error" : "tertiary"}
+        onClick={onClick}
+        size="sm"
+        startIcon={props.iconAlignment === "LEFT" ? "right-arrow" : ""}
       >
-        <EntityText>
-          {props.entityCount ? `${props.entityCount} ${ENTITY}` : "No entity"}
-        </EntityText>
-      </Tooltip>
-      {props.iconAlignment === "RIGHT" && (
-        <Icon
-          color={props.hasError ? "var(--ads-v2-color-fg-error)" : "inherit"}
-          name="trending-flat"
-          size="md"
-        />
-      )}
-      <Icon name="expand-more" size="sm" />
-    </SelectedNodeWrapper>
+        {props.entityCount ? `${props.entityCount} ${ENTITY}` : "No entity"}
+      </Button>
+    </Tooltip>
   );
 });
 
 TriggerNode.displayName = "TriggerNode";
 
-const selectedOption = { label: "", value: "" };
+// const selectedOption = { label: "", value: "" };
 
 function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
   const dependencies = useDependencyList(props.widgetName);
-  const { navigateToEntity } = useEntityLink();
+  // const { navigateToEntity } = useEntityLink();
   const debuggerErrors = useSelector(getFilteredErrors);
   const topLayerRef = useRef<HTMLDivElement>(null);
 
@@ -418,80 +311,87 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
     );
   }, [dependencies.inverseDependencyOptions, debuggerErrors]);
 
+  // const [isMenuOpen, setIsMenuOpen] = useState(false);
+  // const handleMenuOnClose = (open: boolean) => {
+  //   if (!open) {
+  //     setIsMenuOpen(false);
+  //   } else {
+  //     setIsMenuOpen(true);
+  //   }
+  // };
   return (
     <TopLayer ref={topLayerRef}>
-      <Dropdown
-        SelectedValueNode={(
-          selectedValueProps: DefaultDropDownValueNodeProps,
-        ) => (
-          <TriggerNode
-            iconAlignment={"LEFT"}
-            justifyContent={"flex-start"}
-            {...selectedValueProps}
-            connectionType="INCOMING"
-            entityCount={dependencies.dependencyOptions.length}
-            hasError={errorIncomingConnections}
-            tooltipPosition="bottomLeft"
-          />
-        )}
-        className={`connection-dropdown ${
-          errorIncomingConnections ? "error" : ""
-        }`}
-        disabled={!dependencies.dependencyOptions.length}
-        headerLabel="Incoming connections"
-        height={`${CONNECTION_HEIGHT}px`}
-        options={dependencies.dependencyOptions}
-        renderOption={(optionProps: RenderDropdownOptionType) => {
-          return (
-            <OptionNode
-              isHighlighted={optionProps.isHighlighted}
-              isSelectedNode={optionProps.isSelectedNode}
-              option={optionProps.option}
+      <Menu
+      // onOpenChange={() =>
+      //   handleMenuOnClose(!!dependencies.dependencyOptions.length)
+      // }
+      // open={isMenuOpen}
+      >
+        <MenuTrigger>
+          <div>
+            <TriggerNode
+              connectionType="INCOMING"
+              disabled={!dependencies.dependencyOptions.length}
+              entityCount={dependencies.dependencyOptions.length}
+              hasError={errorIncomingConnections}
+              iconAlignment={"LEFT"}
+              justifyContent={"flex-start"}
+              // {...(selectedValueProps: DefaultDropDownValueNodeProps)}
+              tooltipPosition="bottomLeft"
             />
-          );
-        }}
-        selected={selectedOption}
-        showDropIcon={false}
-        showLabelOnly
-        width="100%"
-      />
+          </div>
+        </MenuTrigger>
+        <MenuContent align="start" style={{ width: "250px" }}>
+          <MenuItem className="menuitem-nohover">Incoming connections</MenuItem>
+          <MenuSeparator />
+          {dependencies.dependencyOptions.map((option, key) => (
+            // <MenuItem key={key}>
+            <OptionNode
+              key={key}
+              // isHighlighted={optionProps.isHighlighted}
+              // isSelectedNode={optionProps.isSelectedNode}
+              option={option}
+            />
+            // </MenuItem>
+          ))}
+        </MenuContent>
+      </Menu>
       {/* <PopperDragHandle /> */}
-      <Dropdown
-        SelectedValueNode={(
-          selectedValueProps: DefaultDropDownValueNodeProps,
-        ) => (
-          <TriggerNode
-            iconAlignment={"RIGHT"}
-            justifyContent={"flex-end"}
-            {...selectedValueProps}
-            connectionType="OUTGOING"
-            entityCount={dependencies.inverseDependencyOptions.length}
-            hasError={errorOutgoingConnections}
-            tooltipPosition="bottomRight"
-          />
-        )}
-        className={`connection-dropdown ${
-          errorOutgoingConnections ? "error" : ""
-        }`}
-        disabled={!dependencies.inverseDependencyOptions.length}
-        headerLabel="Outgoing connections"
-        height={`${CONNECTION_HEIGHT}px`}
-        onSelect={navigateToEntity}
-        options={dependencies.inverseDependencyOptions}
-        renderOption={(optionProps: RenderDropdownOptionType) => {
-          return (
-            <OptionNode
-              isHighlighted={optionProps.isHighlighted}
-              isSelectedNode={optionProps.isSelectedNode}
-              option={optionProps.option}
+      <Menu
+      // onOpenChange={() =>
+      //   handleMenuOnClose(!!dependencies.inverseDependencyOptions.length)
+      // }
+      // open={isMenuOpen}
+      >
+        <MenuTrigger>
+          <div>
+            <TriggerNode
+              connectionType="OUTGOING"
+              disabled={!dependencies.inverseDependencyOptions.length}
+              entityCount={dependencies.inverseDependencyOptions.length}
+              hasError={errorOutgoingConnections}
+              iconAlignment={"RIGHT"}
+              justifyContent={"flex-end"}
+              // {...(selectedValueProps: DefaultDropDownValueNodeProps)}
+              tooltipPosition="bottomRight"
             />
-          );
-        }}
-        selected={{ label: "", value: "" }}
-        showDropIcon={false}
-        showLabelOnly
-        width={`100%`}
-      />
+          </div>
+        </MenuTrigger>
+        <MenuContent align="end" style={{ width: "250px" }}>
+          <MenuItem className="menuitem-nohover">Outgoing connections</MenuItem>
+          <MenuSeparator />
+          {dependencies.inverseDependencyOptions.map((option, key) => (
+            // <MenuItem key={key}>
+            <OptionNode
+              key={key}
+              // isHighlighted={optionProps.isHighlighted}
+              // isSelectedNode={optionProps.isSelectedNode}
+              option={option}
+            />
+            // </MenuItem>
+          ))}
+        </MenuContent>
+      </Menu>
     </TopLayer>
   );
 }
