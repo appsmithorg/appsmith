@@ -81,7 +81,7 @@ function AppSettingsContent({
       className="px-4 pt-3 flex flex-col gap-1 items-start"
       data-testid="t--upgrade-content"
     >
-      <Text kind="heading-xs">{createMessage(IN_APP_EMBED_SETTING.embed)}</Text>
+      <Text kind="heading-s">{createMessage(IN_APP_EMBED_SETTING.embed)}</Text>
       <Text kind="action-m" renderAs="p">
         {canMakeAppPublic
           ? createMessage(IN_APP_EMBED_SETTING.secondaryHeadingForAppSettings)
