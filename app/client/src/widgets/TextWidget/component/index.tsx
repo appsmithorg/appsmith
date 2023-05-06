@@ -20,7 +20,9 @@ export type TextAlign = "LEFT" | "CENTER" | "RIGHT" | "JUSTIFY";
 
 const ELLIPSIS_HEIGHT = 15;
 
-export const TextContainer = styled.div`
+export const TextContainer = styled.div<{
+  fontFamily?: string;
+}>`
   & {
     height: 100%;
     width: 100%;
@@ -81,6 +83,12 @@ export const TextContainer = styled.div`
       text-decoration: underline;
     }
   }
+
+  ${(props) =>
+    props.fontFamily &&
+    `
+    font-family: ${props.fontFamily};
+  `}
 `;
 
 const StyledIcon = styled(Icon)<{ backgroundColor?: string }>`
@@ -281,6 +289,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
       backgroundColor,
       disableLink,
       ellipsize,
+      fontFamily,
       fontSize,
       fontStyle,
       overflow,
@@ -293,9 +302,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
     return (
       <>
         <TextContainer
-          style={{
-            fontFamily: this.props.fontFamily,
-          }}
+          fontFamily={fontFamily !== "System Default" ? fontFamily : undefined}
         >
           <StyledText
             backgroundColor={backgroundColor}

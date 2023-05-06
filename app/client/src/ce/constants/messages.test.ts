@@ -149,7 +149,7 @@ describe("messages without input", () => {
       key: "ERROR_WHILE_PULLING_CHANGES",
       value: "ERROR WHILE PULLING CHANGES",
     },
-    { key: "SUBMIT", value: "SUBMIT" },
+    { key: "SUBMIT", value: "Submit" },
     {
       key: "GIT_USER_UPDATED_SUCCESSFULLY",
       value: "Git user updated successfully",

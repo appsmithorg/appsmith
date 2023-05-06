@@ -17,6 +17,8 @@ export const APPSMITH_DISPLAY_VERSION = (
   version: string,
   cloudHosting: boolean,
 ) => `Appsmith ${!cloudHosting ? edition : ""} ${version}`;
+export const INTERCOM_CONSENT_MESSAGE = () =>
+  `Can we have your email for better support?`;
 export const YES = () => `Yes`;
 export const ARE_YOU_SURE = () => `Are you sure?`;
 export const ERROR_ADD_API_INVALID_URL = () =>
@@ -169,6 +171,19 @@ export const USERS_HAVE_ACCESS_TO_ONLY_THIS_APP = () =>
   "Users will only have access to this application";
 export const NO_USERS_INVITED = () => "You haven't invited any users yet";
 
+export const USER_PROFILE_PICTURE_UPLOAD_FAILED = () =>
+  "Unable to upload display picture.";
+export const UPDATE_USER_DETAILS_FAILED = () =>
+  "Unable to update user details.";
+export const USER_DISPLAY_PICTURE_FILE_INVALID = () =>
+  "File content doesn't seem to be an image. Please verify.";
+export const USER_DISPLAY_NAME_CHAR_CHECK_FAILED = () =>
+  "No special characters allowed except .'-";
+export const USER_DISPLAY_NAME_PLACEHOLDER = () => "Display name";
+export const USER_DISPLAY_PICTURE_PLACEHOLDER = () => "Display picture";
+export const USER_EMAIL_PLACEHOLDER = () => "Email";
+export const USER_RESET_PASSWORD = () => "Reset Password";
+
 export const CREATE_PASSWORD_RESET_SUCCESS = () => `Your password has been set`;
 export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = () => `Login`;
 
@@ -193,6 +208,7 @@ export const EDIT_APP = () => `Edit App`;
 export const FORK_APP = () => `Fork App`;
 export const SIGN_IN = () => `Sign in`;
 export const SHARE_APP = () => `Share app`;
+export const ALL_APPS = () => `All apps`;
 
 export const EDITOR_HEADER = {
   saving: () => "Saving",
@@ -558,6 +574,8 @@ export const NO_JS_FUNCTION_RETURN_VALUE = (JSFunctionName: string) =>
   `${JSFunctionName} did not return any data. Did you add a return statement?`;
 
 // Import/Export Application features
+export const ERROR_IMPORTING_APPLICATION_TO_WORKSPACE = () =>
+  "Error importing application. No workspace found";
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import application";
 export const IMPORT_APPLICATION_MODAL_LABEL = () =>
   "Where would you like to import your application from?";
@@ -584,7 +602,7 @@ export const SKIP_TO_APPLICATION_TOOLTIP_HEADER = () =>
   "This action is irreversible.";
 export const SKIP_TO_APPLICATION_TOOLTIP_DESCRIPTION = () =>
   `You can always reconnect the datasources later but until then the application might be unuseable.`;
-export const SKIP_TO_APPLICATION = () => "Skip to Application";
+export const SKIP_TO_APPLICATION = () => "Skip to application";
 export const SELECT_A_METHOD_TO_ADD_CREDENTIALS = () =>
   "Select a method to add credentials";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
@@ -1381,12 +1399,12 @@ export const EMPTY_DATASOURCE_MAIN_TEXT = () => "No datasource to display";
 export const EMPTY_DATASOURCE_BUTTON_TEXT = () => "NEW DATASOURCE";
 
 // Templates
-export const MORE = () => "MORE";
-export const SHOW_LESS = () => "SHOW LESS";
+export const MORE = () => "More";
+export const SHOW_LESS = () => "Show less";
 export const CHOOSE_WHERE_TO_FORK = () => "Choose where to fork the template";
-export const SELECT_WORKSPACE = () => "Select Workspace";
+export const SELECT_WORKSPACE = () => "Select workspace";
 export const FORK_TEMPLATE = () => "Fork template";
-export const TEMPLATES = () => "TEMPLATES";
+export const TEMPLATES = () => "Templates";
 export const FORK_THIS_TEMPLATE = () => "Use template";
 export const COULDNT_FIND_TEMPLATE = () =>
   "Couldn’t find what you are looking for?";
@@ -1394,30 +1412,30 @@ export const COULDNT_FIND_TEMPLATE_DESCRIPTION = () =>
   "A github issue portal will be opened up for you to create an issue regarding what type of template you need.";
 export const REQUEST_TEMPLATE = () => "Request for a template";
 export const SEARCH_TEMPLATES = () => "Search templates";
-export const INTRODUCING_TEMPLATES = () => "Introducing Templates";
+export const INTRODUCING_TEMPLATES = () => "Introducing templates";
 export const TEMPLATE_NOTIFICATION_DESCRIPTION = () =>
   "Use these templates to learn, create, and build apps even faster";
 export const GO_BACK = () => "Back";
 export const OVERVIEW = () => "Overview";
 export const FUNCTION = () => "Function";
-export const INDUSTRY = () => "Use Case";
+export const INDUSTRY = () => "Use case";
 export const DATASOURCES = () => "Datasources";
 export const NOTE = () => "Note: ";
 export const NOTE_MESSAGE = () => "You can add your datasources as well";
 export const WIDGET_USED = () => "Widgets";
-export const SIMILAR_TEMPLATES = () => "Similar Templates";
+export const SIMILAR_TEMPLATES = () => "Similar templates";
 export const VIEW_ALL_TEMPLATES = () => "View all templates";
 export const FILTERS = () => "Filters";
 export const TEMPLATE_CARD_TITLE = () => "Start from a template";
 export const TEMPLATE_CARD_DESCRIPTION = () =>
   "Create app from template by selecting pages";
 export const FILTER_SELECTALL = () => "Select all";
-export const FILTER_SELECT_PAGES = () => "ADD SELECTED PAGES";
+export const FILTER_SELECT_PAGES = () => "Add selected pages";
 export const FORKING_TEMPLATE = () => "Setting up the template";
 export const FETCHING_TEMPLATES = () => "Loading template details";
 export const FETCHING_TEMPLATE_LIST = () => "Loading templates list";
 
-export const TEMPLATES_BACK_BUTTON = () => "BACK TO TEMPLATES";
+export const TEMPLATES_BACK_BUTTON = () => "Back";
 
 export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
 
@@ -1474,8 +1492,7 @@ export const APP_SETTINGS_CLOSE_TOOLTIP = () => "Close settings panel";
 
 export const GENERAL_SETTINGS_SECTION_HEADER = () => "General";
 export const GENERAL_SETTINGS_SECTION_CONTENT_HEADER = () => "General Settings";
-export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () =>
-  "App name, icon and share";
+export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () => "App name and icon";
 export const GENERAL_SETTINGS_APP_NAME_LABEL = () => "App Name";
 export const GENERAL_SETTINGS_NAME_EMPTY_MESSAGE = () =>
   "App name cannot be empty";
@@ -1510,6 +1527,17 @@ export const PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE = () =>
   "Set this page as your home page. This will override your previously set home page.";
 export const PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR = (name: string) =>
   `${name} is already being used.`;
+
+export const UPDATE_VIA_IMPORT_SETTING = {
+  settingHeader: () => "Update through file import",
+  settingDesc: () => "Update app by importing file",
+  settingLabel: () => "Import",
+  settingContent: () =>
+    "This action will override your existing application. Please exercise caution while selecting the file to import.",
+  settingActionButtonTxt: () => "Import",
+  disabledForGit: () =>
+    "This feature is not supported for apps connected to Git version control. Please use Git Pull to update and sync your app.",
+};
 
 export const IN_APP_EMBED_SETTING = {
   applicationUrl: () => "application url",
@@ -1547,17 +1575,21 @@ export const IN_APP_EMBED_SETTING = {
 export const APP_NAVIGATION_SETTING = {
   sectionHeader: () => "Navigation",
   sectionHeaderDesc: () => "Customize the navigation bar",
-  showNavbarLabel: () => "Show Navbar",
+  showNavbarLabel: () => "Show navbar",
   orientationLabel: () => "Orientation",
   navStyleLabel: () => "Variant",
   positionLabel: () => "Position",
   itemStyleLabel: () => "Item Style",
   colorStyleLabel: () => "Background color",
   logoLabel: () => "Logo",
-  logoConfigurationLabel: () => "Logo Configuration",
-  showSignInLabel: () => "Show Sign In",
+  logoConfigurationLabel: () => "Logo configuration",
+  showSignInLabel: () => "Show sign in",
   showSignInTooltip: () =>
     "Toggle to show the sign-in button for users who are not logged in.",
+  logoUploadFormatError: () => `Uploaded file must be in .PNG or .JPG formats.`,
+  logoUploadSizeError: () => `Uploaded file must be less than 1MB.`,
+  showLogoLabel: () => "Show logo",
+  showApplicationTitleLabel: () => "Show application title",
 };
 
 export const LOCK_SIDEBAR_MESSAGE = () => `Lock sidebar open`;

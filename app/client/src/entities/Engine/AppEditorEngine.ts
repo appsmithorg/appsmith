@@ -56,6 +56,7 @@ import {
   waitForSegmentInit,
   waitForFetchUserSuccess,
 } from "@appsmith/sagas/userSagas";
+import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelectors";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 export default class AppEditorEngine extends AppEngine {
@@ -206,6 +207,9 @@ export default class AppEditorEngine extends AppEngine {
   }
 
   public *completeChore() {
+    const isFirstTimeUserOnboardingComplete: boolean = yield select(
+      getFirstTimeUserOnboardingComplete,
+    );
     const currentApplication: ApplicationPayload = yield select(
       getCurrentApplication,
     );
@@ -214,6 +218,12 @@ export default class AppEditorEngine extends AppEngine {
       appName: currentApplication.name,
     });
     yield put(loadGuidedTourInit());
+    if (isFirstTimeUserOnboardingComplete) {
+      yield put({
+        type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS,
+        payload: [],
+      });
+    }
     yield put({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
     });
