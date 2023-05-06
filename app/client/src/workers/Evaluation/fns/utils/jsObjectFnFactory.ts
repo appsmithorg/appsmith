@@ -38,14 +38,15 @@ export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
     try {
       const result = fn.call(this, ...args);
       if (isPromise(result)) {
-        result.then((res) => {
-          postProcessors.forEach((p) => p(name, res));
-          return res;
-        });
-        result.catch((e) => {
-          postProcessors.forEach((p) => p(name, undefined));
-          throw e;
-        });
+        return result
+          .then((res) => {
+            postProcessors.forEach((p) => p(name, res));
+            return res;
+          })
+          .catch((e) => {
+            postProcessors.forEach((p) => p(name, undefined));
+            throw e;
+          });
       } else {
         postProcessors.forEach((p) => p(name, result));
       }
