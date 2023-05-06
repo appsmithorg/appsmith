@@ -19,15 +19,16 @@ import {
   INVITE_USERS_PLACEHOLDER,
   IN_APP_EMBED_SETTING,
   MAKE_APPLICATION_PUBLIC,
+  MAKE_APPLICATION_PUBLIC_TOOLTIP,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { hasInviteUserToApplicationPermission } from "@appsmith/utils/permissionHelpers";
-import { Button, Switch } from "design-system";
+import { Button, Icon, Switch, Tooltip } from "design-system";
 
 const { cloudHosting } = getAppsmithConfigs();
 
 const SwitchContainer = styled.div`
-  flex-basis: 200px;
+  flex-basis: 220px;
 `;
 
 const BottomContainer = styled.div<{ canInviteToApplication?: boolean }>`
@@ -68,7 +69,8 @@ function AppInviteUsersForm(props: any) {
     userAppPermissions,
     PERMISSION_TYPE.MAKE_PUBLIC_APPLICATION,
   );
-  const copyToClipboard = () => {
+  const copyToClipboard = (e: any) => {
+    e.preventDefault();
     if (navigator.clipboard) {
       navigator.clipboard.writeText(appViewEndPoint);
     } else {
@@ -121,10 +123,10 @@ function AppInviteUsersForm(props: any) {
       >
         <Button
           className="flex gap-1.5 cursor-pointer"
-          data-cy={"copy-application-url"}
+          data-testid={"copy-application-url"}
           endIcon="links-line"
           kind="tertiary"
-          onClick={copyToClipboard}
+          onClick={(e) => copyToClipboard(e)}
           size="md"
         >
           {`${
@@ -138,15 +140,27 @@ function AppInviteUsersForm(props: any) {
             {currentApplicationDetails && (
               <Switch
                 isDisabled={isChangingViewAccess || isFetchingApplication}
+                isSelected={currentApplicationDetails.isPublic}
                 onChange={() => {
                   changeAppViewAccess(
                     applicationId,
                     !currentApplicationDetails.isPublic,
                   );
                 }}
-                value={currentApplicationDetails.isPublic}
               >
-                {createMessage(MAKE_APPLICATION_PUBLIC)}
+                <div className="flex">
+                  {createMessage(MAKE_APPLICATION_PUBLIC)}
+                  <Tooltip
+                    content={createMessage(MAKE_APPLICATION_PUBLIC_TOOLTIP)}
+                    placement="top"
+                  >
+                    <Icon
+                      className="ml-1 cursor-pointer"
+                      name="question-line"
+                      size="md"
+                    />
+                  </Tooltip>
+                </div>
               </Switch>
             )}
           </SwitchContainer>

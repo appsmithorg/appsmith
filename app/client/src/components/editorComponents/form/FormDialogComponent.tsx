@@ -1,193 +1,76 @@
-import type { ReactNode } from "react";
 import React, { useState, useEffect } from "react";
-import { isPermitted } from "@appsmith/utils/permissionHelpers";
-import type { TabProp } from "design-system-old";
-import { TabComponent, Text, TextType } from "design-system-old";
-import styled from "styled-components";
-import { Colors } from "constants/Colors";
-import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
 import {
-  Icon,
+  Button,
   Modal,
   ModalBody,
   ModalContent,
   ModalHeader,
 } from "design-system";
 
-const LabelText = styled(Text)`
-  font-size: 14px;
-  color: ${Colors.GREY_8};
-  margin-bottom: 8px;
-  line-height: 1.57;
-  letter-spacing: -0.24px;
-`;
-
-const TabWrapper = styled.div<{ hasMessage: boolean }>`
-  position: relative;
-  .react-tabs__tab-list {
-    margin: ${(props) => (props.hasMessage ? `16px 0` : `0 0 16px`)};
-    border-bottom: 2px solid var(--appsmith-color-black-200);
-  }
-`;
-
-const TabCloseBtnContainer = styled.div`
-  position: absolute;
-  right: 0;
-  top: 0;
-`;
-
 type FormDialogComponentProps = {
   isOpen?: boolean;
-  canOutsideClickClose?: boolean;
-  canEscapeKeyClose?: boolean;
-  isCloseButtonShown?: boolean;
-  noModalBodyMarginTop?: boolean;
-  workspaceId?: string;
+  workspace?: any;
   title?: string;
   message?: string;
   Form: any;
-  trigger: ReactNode;
   onClose?: () => void;
   onOpenOrClose?: (isOpen: boolean) => void;
-  customProps?: any;
-  permissionRequired?: string;
-  permissions?: string[];
-  setMaxWidth?: boolean;
   applicationId?: string;
-  headerIcon?: {
-    name: string;
-    fillColor?: string;
-    hoverColor?: string;
-    bgColor?: string;
-  };
-  selected?: any;
-  tabs?: any[];
-  options?: any[];
   placeholder?: string;
-  getHeader?: () => ReactNode;
-};
-
-const getTabs = (
-  tabs: any[],
-  setIsOpen: (val: boolean) => void,
-  applicationId?: string,
-  workspaceId?: string,
-  changeTab?: (value: number) => void,
-) => {
-  return tabs && tabs.length > 0
-    ? tabs.map((tab) => {
-        const TabForm = tab.component;
-        return {
-          key: tab.key,
-          title: tab.title,
-          panelComponent: (
-            <TabForm
-              {...tab.customProps}
-              {...(tab.customProps?.onSubmitHandler
-                ? {
-                    onSubmitHandler: (values: any) =>
-                      tab.customProps.onSubmitHandler({
-                        ...values,
-                        selectedTab: tab.key,
-                      }),
-                  }
-                : {})}
-              applicationId={applicationId}
-              changeTab={() => changeTab?.(tab.customProps.changeTabIndex)}
-              dropdownMaxHeight={tab.dropdownMaxHeight}
-              dropdownPlaceholder={tab.dropdownPlaceholder}
-              formName={`${INVITE_USERS_TO_WORKSPACE_FORM}_${tab.key}`}
-              onCancel={() => setIsOpen(false)}
-              options={tab.options}
-              placeholder={tab.placeholder || ""}
-              workspaceId={workspaceId}
-            />
-          ),
-        };
-      })
-    : [];
+  hideDefaultTrigger?: boolean;
 };
 
 export function FormDialogComponent(props: FormDialogComponentProps) {
-  const [isOpen, setIsOpenState] = useState(!!props.isOpen);
-  const [selectedTabIndex, setSelectedTabIndex] = useState(0);
+  const [isModalOpen, setIsModalOpenState] = useState(!!props.isOpen);
 
   useEffect(() => {
     setIsOpen(!!props.isOpen);
   }, [props.isOpen]);
 
   const setIsOpen = (isOpen: boolean) => {
-    setIsOpenState(isOpen);
+    setIsModalOpenState(isOpen);
     props.onOpenOrClose && props.onOpenOrClose(isOpen);
   };
 
-  const onCloseHandler = () => {
+  const onOpenChange = (isOpen: boolean) => {
     props?.onClose?.();
-    setIsOpen(false);
+    setIsOpen(isOpen);
   };
-
-  const changeTab = (index: number) => {
-    setSelectedTabIndex(index);
-  };
-
-  const updatedTabs: TabProp[] =
-    props.tabs && props.tabs.length > 0
-      ? getTabs(
-          props.tabs,
-          setIsOpen,
-          props.applicationId,
-          props.workspaceId,
-          changeTab,
-        )
-      : [];
 
   const Form = props.Form;
 
-  if (
-    props.permissions &&
-    props.permissionRequired &&
-    !isPermitted(props.permissions, props.permissionRequired)
-  )
-    return null;
-
   return (
-    <Modal onOpenChange={() => setIsOpen(true)} open={isOpen}>
-      <ModalContent>
-        <ModalHeader>{props.title}</ModalHeader>
-        <ModalBody>
-          {updatedTabs && updatedTabs.length > 0 ? (
-            <TabWrapper hasMessage={!!props.message}>
-              {!props.message && (
-                <TabCloseBtnContainer
-                  className="t--close-form-dialog"
-                  onClick={onCloseHandler}
-                >
-                  <Icon name="close-modal" size="lg" />
-                </TabCloseBtnContainer>
-              )}
-              {props.message && (
-                <LabelText type={TextType.P0}>{props.message}</LabelText>
-              )}
-              <TabComponent
-                onSelect={setSelectedTabIndex}
-                selectedIndex={selectedTabIndex}
-                tabs={updatedTabs}
-              />
-            </TabWrapper>
-          ) : (
+    <>
+      {!props.hideDefaultTrigger && (
+        <Button
+          kind="secondary"
+          onClick={() => setIsOpen(true)}
+          size="md"
+          startIcon={"share-line"}
+        >
+          Share
+        </Button>
+      )}
+      <Modal
+        onOpenChange={(isOpen) => isModalOpen && onOpenChange(isOpen)}
+        open={isModalOpen}
+      >
+        <ModalContent>
+          <ModalHeader>
+            <div className="text-ellipsis overflow-hidden whitespace-nowrap">
+              {props.title || `Invite Users to ${props.workspace.name}`}
+            </div>
+          </ModalHeader>
+          <ModalBody>
             <Form
-              {...props.customProps}
               applicationId={props.applicationId}
-              message={props.message}
-              onCancel={() => setIsOpen(false)}
               placeholder={props.placeholder}
-              selected={props.selected}
-              workspaceId={props.workspaceId}
+              workspaceId={props.workspace.id}
             />
-          )}
-        </ModalBody>
-      </ModalContent>
-    </Modal>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+    </>
   );
 }
 
