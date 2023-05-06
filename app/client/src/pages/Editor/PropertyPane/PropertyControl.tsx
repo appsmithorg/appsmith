@@ -53,7 +53,11 @@ import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
 import WidgetFactory from "utils/WidgetFactory";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import clsx from "clsx";
+import styled from "styled-components";
 
+const StyledDeviated = styled.div`
+  background-color: var(--ads-v2-color-bg-brand);
+`;
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
   theme: EditorTheme;
@@ -774,7 +778,7 @@ const PropertyControl = memo((props: Props) => {
             {isPropertyDeviatedFromTheme && (
               <>
                 <Tooltip content="Value deviated from theme">
-                  <div className="w-2 h-2 rounded-full bg-primary-500" />
+                  <StyledDeviated className="w-2 h-2 rounded-full" />
                 </Tooltip>
                 <button
                   className="hidden ml-auto focus:ring-2 group-hover:block reset-button"

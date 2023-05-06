@@ -29,12 +29,18 @@ const IconSelectContainerStyles = createGlobalStyle<{
         margin: 5px !important;
       }
     }
+    .bp3-button-text {
+      color: var(--ads-v2-color-fg) !important;
+    }
+    .bp3-icon {
+      color: var(--ads-v2-color-fg) !important;
+    }
   `}
 `;
 
 const StyledButton = styled(Button)`
   box-shadow: none !important;
-  border: 1px solid var(--ads-v2-color-gray-300);
+  border: 1px solid var(--ads-v2-color-border);
   border-radius: var(--ads-v2-border-radius);
   height: 36px;
   background-color: #ffffff !important;
