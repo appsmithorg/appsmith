@@ -1,5 +1,4 @@
 import { startCase } from "lodash";
-import classNames from "classnames";
 import React, { useState } from "react";
 import styled from "styled-components";
 
@@ -18,6 +17,14 @@ const ColorBox = styled.div<{
   // selectedColor: string;
 }>`
   background: ${({ background }) => background};
+  border: 2px solid var(--ads-v2-color-border);
+  width: 20px;
+  height: 20px;
+  border-radius: var(--ads-v2-border-radius-circle);
+  cursor: pointer;
+  &.selected {
+    border-color: var(--ads-v2-color-border-emphasis);
+  }
 `;
 
 function ThemeColorControl(props: ThemeColorControlProps) {
@@ -39,11 +46,7 @@ function ThemeColorControl(props: ThemeColorControlProps) {
                 <ColorBox
                   background={userDefinedColors[colorName]}
                   // selectedColor={colorName}
-                  className={classNames({
-                    "w-6 h-6 rounded-full border-2 cursor-pointer ring-gray-700":
-                      true,
-                    "ring-1": selectedColor === colorName,
-                  })}
+                  className={selectedColor === colorName ? "selected" : ""}
                   onClick={() => {
                     setAutoFocus(
                       selectedColor === colorName ? !autoFocus : true,
