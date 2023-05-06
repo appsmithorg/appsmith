@@ -81,7 +81,7 @@ export default [
       {
         propertyName: "inlineEditingSaveOption",
         helpText: "Choose the save experience to save the edited cell",
-        label: "Update Mode",
+        label: "Update mode",
         controlType: "ICON_TABS",
         fullWidth: true,
         isBindProperty: true,

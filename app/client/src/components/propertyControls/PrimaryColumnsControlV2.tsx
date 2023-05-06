@@ -35,6 +35,12 @@ import { Button } from "design-system";
 const EdtiableCheckboxWrapper = styled.div<{ rightPadding: boolean | null }>`
   position: relative;
   ${(props) => props.rightPadding && `right: 6px;`}
+  align-items: center;
+  .ads-v2-checkbox {
+    width: 16px;
+    height: 16px;
+    padding: 0;
+  }
 `;
 
 interface ReduxStateProps {

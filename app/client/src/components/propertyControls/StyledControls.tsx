@@ -56,30 +56,15 @@ export const FieldWrapper = styled.div`
   width: 100%;
 `;
 
-export const StyledDragIcon = styled(Icon)`
+export const StyledIcon = styled(Icon)`
   padding: 0;
   position: absolute;
   margin-right: 15px;
   cursor: move;
   z-index: 1;
   left: 4px;
-  && svg {
-    position: relative;
-    top: 2px;
-  }
-`;
-
-export const StyledPinIcon = styled(Icon)`
-  padding: 0;
-  position: absolute;
-  margin-right: 15px;
-  cursor: default;
-  z-index: 1;
-  left: 4px;
-  && svg {
-    position: relative;
-    top: 2px;
-  }
+  top: 50%;
+  transform: translateY(-50%);
 `;
 
 /* Used in Draggable List Card component in Property pane */

@@ -2,9 +2,8 @@ import React, { useCallback, useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 import _ from "lodash";
 import {
-  StyledDragIcon,
+  StyledIcon,
   StyledActionContainer,
-  StyledPinIcon,
   InputGroup,
 } from "components/propertyControls/StyledControls";
 import { Colors } from "constants/Colors";
@@ -53,6 +52,13 @@ const StyledInputGroup = styled(InputGroup)`
   }
 `;
 
+const StyledCheckbox = styled(Checkbox)`
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  margin-top: 4px;
+  margin-left: 4px;
+`;
 export function DraggableListCard(props: RenderComponentProps) {
   const [value, setValue] = useState(props.item.label);
   const [isEditing, setEditing] = useState(false);
@@ -131,7 +137,7 @@ export function DraggableListCard(props: RenderComponentProps) {
           toggleVisibility && toggleVisibility(index);
         }}
         size="sm"
-        startIcon="show-column"
+        startIcon="eye-on"
       />
     ) : (
       <Button
@@ -143,7 +149,7 @@ export function DraggableListCard(props: RenderComponentProps) {
           toggleVisibility && toggleVisibility(index);
         }}
         size="sm"
-        startIcon="hide-column"
+        startIcon="eye-off"
       />
     );
   };
@@ -152,9 +158,9 @@ export function DraggableListCard(props: RenderComponentProps) {
   return (
     <ItemWrapper className={item.isDuplicateLabel ? "has-duplicate-label" : ""}>
       {item?.isDragDisabled ? (
-        <StyledPinIcon name="pin" size="lg" />
+        <StyledIcon name="pin-3" size="md" />
       ) : (
-        <StyledDragIcon name="drag-control" size="md" />
+        <StyledIcon name="drag-control" size="md" />
       )}
 
       <StyledInputGroup
@@ -185,7 +191,7 @@ export function DraggableListCard(props: RenderComponentProps) {
             onEdit && onEdit(index);
           }}
           size="sm"
-          startIcon="settings-control"
+          startIcon="settings-2-line"
         />
         {showDelete && (
           <Button
@@ -206,7 +212,7 @@ export function DraggableListCard(props: RenderComponentProps) {
          * to be generic and reusable.
          */}
         {showCheckbox && (
-          <Checkbox
+          <StyledCheckbox
             className={`t--card-checkbox ${
               item.isChecked ? "t--checked" : "t--unchecked"
             }`}
