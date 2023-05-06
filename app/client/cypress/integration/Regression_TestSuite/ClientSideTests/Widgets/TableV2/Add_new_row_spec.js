@@ -193,6 +193,7 @@ describe("Table widget Add new row feature's", () => {
 
   describe("Validation flow", () => {
     before(() => {
+      cy.startServerAndRoutes();
       agHelper.RestoreLocalStorageCache();
       cy.addDsl(dsl);
     });
@@ -350,6 +351,7 @@ describe("Table widget Add new row feature's", () => {
 
   describe("Actions flow (save, discard)", () => {
     before(() => {
+      cy.startServerAndRoutes();
       agHelper.RestoreLocalStorageCache();
       cy.addDsl(dsl);
     });

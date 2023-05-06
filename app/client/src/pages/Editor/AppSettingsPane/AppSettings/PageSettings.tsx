@@ -88,7 +88,9 @@ function PageSettings(props: { page: Page }) {
 
   const [pageName, setPageName] = useState(page.pageName);
   const [isPageNameSaving, setIsPageNameSaving] = useState(false);
-  const [isPageNameValid, setIsPageNameValid] = useState(true);
+  const [isPageNameValid, setIsPageNameValid] = useState<string | undefined>(
+    undefined,
+  );
 
   const [customSlug, setCustomSlug] = useState(page.customSlug);
   const [isCustomSlugSaving, setIsCustomSlugSaving] = useState(false);
@@ -173,6 +175,18 @@ function PageSettings(props: { page: Page }) {
     [page.pageId, isShown],
   );
 
+  const onPageNameChange = (value: string) => {
+    let isValid = undefined;
+    if (!value || value.trim().length === 0) {
+      isValid = PAGE_SETTINGS_NAME_EMPTY_MESSAGE();
+    } else if (value !== page.pageName && hasActionNameConflict(value)) {
+      isValid = PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR(value);
+    }
+
+    setIsPageNameValid(isValid);
+    setPageName(resolveAsSpaceChar(value, 30));
+  };
+
   return (
     <>
       <div
@@ -184,14 +198,15 @@ function PageSettings(props: { page: Page }) {
         {isPageNameSaving && <TextLoaderIcon />}
         <Input
           defaultValue={pageName}
+          errorMessage={isPageNameValid}
           id="t--page-settings-name"
           isDisabled={!canManagePages}
           label={PAGE_SETTINGS_PAGE_NAME_LABEL()}
           onBlur={savePageName}
-          onChange={(value: string) =>
-            setPageName(resolveAsSpaceChar(value, 30))
+          onChange={
+            (value: string) => onPageNameChange(value)
+            // setPageName(resolveAsSpaceChar(value, 30))
           }
-          // @ts-expect-error: onKeyPress does not exists on Input
           onKeyPress={(ev: React.KeyboardEvent) => {
             if (ev.key === "Enter") {
               savePageName();
@@ -200,27 +215,6 @@ function PageSettings(props: { page: Page }) {
           placeholder="Page name"
           size="md"
           type="text"
-          validator={(value: string) => {
-            let result: { isValid: boolean; message?: string } = {
-              isValid: true,
-            };
-            if (!value || value.trim().length === 0) {
-              result = {
-                isValid: false,
-                message: PAGE_SETTINGS_NAME_EMPTY_MESSAGE(),
-              };
-            } else if (
-              value !== page.pageName &&
-              hasActionNameConflict(value)
-            ) {
-              result = {
-                isValid: false,
-                message: PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR(value),
-              };
-            }
-            setIsPageNameValid(result.isValid);
-            return result;
-          }}
           value={pageName}
         />
       </div>
@@ -252,6 +246,7 @@ function PageSettings(props: { page: Page }) {
           defaultValue={customSlug}
           id="t--page-settings-custom-slug"
           isDisabled={!canManagePages}
+          isReadOnly={appNeedsUpdate}
           label={PAGE_SETTINGS_PAGE_URL_LABEL()}
           onBlur={saveCustomSlug}
           onChange={(value: string) =>
@@ -259,14 +254,12 @@ function PageSettings(props: { page: Page }) {
               ? specialCharacterCheckRegex.test(value) && setCustomSlug(value)
               : setCustomSlug(value)
           }
-          // @ts-expect-error: onKeyPress does not exists on Input
           onKeyPress={(ev: React.KeyboardEvent) => {
             if (ev.key === "Enter") {
               saveCustomSlug();
             }
           }}
           placeholder="Page URL"
-          readOnly={appNeedsUpdate}
           size="md"
           type="text"
           value={customSlug}

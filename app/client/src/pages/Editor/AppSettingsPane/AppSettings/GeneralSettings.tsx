@@ -110,7 +110,6 @@ function GeneralSettings() {
           label={GENERAL_SETTINGS_APP_NAME_LABEL()}
           onBlur={() => updateAppSettings()}
           onChange={onChange}
-          // @ts-expect-error: onKeyPress does not exists on Input
           onKeyPress={(ev: React.KeyboardEvent) => {
             if (ev.key === "Enter") {
               // undefined sent implicitly - parameter "icon"

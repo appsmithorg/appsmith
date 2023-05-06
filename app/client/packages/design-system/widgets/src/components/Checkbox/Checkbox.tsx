@@ -8,9 +8,7 @@ import type {
 import { Text } from "../Text";
 import { StyledCheckbox } from "./index.styled";
 
-export type CheckboxProps = HeadlessCheckboxProps & {
-  labelPosition?: "left" | "right";
-};
+export type CheckboxProps = HeadlessCheckboxProps;
 
 export const Checkbox = forwardRef(
   (props: CheckboxProps, ref: HeadlessCheckboxRef) => {
@@ -18,7 +16,11 @@ export const Checkbox = forwardRef(
 
     return (
       <StyledCheckbox labelPosition={labelPosition} ref={ref} {...rest}>
-        {children && <Text className="label">{children}</Text>}
+        {children && (
+          <div className="label">
+            <Text>{children}</Text>
+          </div>
+        )}
       </StyledCheckbox>
     );
   },

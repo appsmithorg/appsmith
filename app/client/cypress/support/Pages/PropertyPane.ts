@@ -316,8 +316,10 @@ export class PropertyPane {
     toVerifySave && this.agHelper.AssertAutoSave();
   }
 
-  public TypeTextIntoField(endp: string, value: string) {
-    this.RemoveText(endp);
+  public TypeTextIntoField(endp: string, value: string, removeText = true) {
+    if (removeText) {
+      this.RemoveText(endp);
+    }
     cy.get(
       this.locator._propertyControl +
         endp.replace(/ +/g, "").toLowerCase() +
