@@ -1,4 +1,5 @@
 import React from "react";
+import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
@@ -15,6 +16,10 @@ import styled from "styled-components";
 import { isString } from "utils/helpers";
 import { JSToString, stringToJS } from "./utils";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import {
+  ORIGINAL_INDEX_KEY,
+  PRIMARY_COLUMN_KEY_VALUE,
+} from "widgets/TableWidgetV2/constants";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -77,14 +82,22 @@ export function InputText(props: InputTextProp) {
 
 const bindingPrefix = `{{
   (
-    (isNewRow) => (
+    (isNewRow, currentIndex, currentRow) => (
 `;
 
 const getBindingSuffix = (tableId: string) => {
   return `
     ))
     (
-      ${tableId}.isAddRowInProgress
+      ${tableId}.isAddRowInProgress,
+      ${tableId}.isAddRowInProgress ? -1 : ${tableId}.editableCell.index,
+      ${tableId}.isAddRowInProgress ? ${tableId}.newRow : (${tableId}.processedTableData[${tableId}.editableCell.index] ||
+        Object.keys(${tableId}.processedTableData[0])
+          .filter(key => ["${ORIGINAL_INDEX_KEY}", "${PRIMARY_COLUMN_KEY_VALUE}"].indexOf(key) === -1)
+          .reduce((prev, curr) => {
+            prev[curr] = "";
+            return prev;
+          }, {}))
     )
   }}
   `;
@@ -107,6 +120,14 @@ class TableInlineEditValidationControl extends BaseControl<TableInlineEditValida
         ? this.getInputComputedValue(propertyValue, tableId)
         : propertyValue || defaultValue;
 
+    const columns: Record<string, ColumnProperties> =
+      widgetProperties.primaryColumns || {};
+
+    const currentRow: { [key: string]: any } = {};
+    Object.values(columns).forEach((column) => {
+      currentRow[column.alias || column.originalId] = undefined;
+    });
+
     // Load default value in evaluated value
     if (value && !propertyValue) {
       this.onTextChange(value);
@@ -114,6 +135,8 @@ class TableInlineEditValidationControl extends BaseControl<TableInlineEditValida
 
     const additionalDynamicData = {
       isNewRow: false,
+      currentIndex: -1,
+      currentRow,
     };
 
     return (
