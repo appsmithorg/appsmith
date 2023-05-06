@@ -432,28 +432,30 @@ export function EditorHeader(props: EditorHeaderProps) {
           >
             <RealtimeAppEditors applicationId={applicationId} />
             <ToggleModeButton />
-            <Tooltip
-              content={
-                filteredSharedUserList.length
-                  ? createMessage(
-                      SHARE_BUTTON_TOOLTIP_WITH_USER(
-                        filteredSharedUserList.length,
-                      ),
-                    )
-                  : createMessage(SHARE_BUTTON_TOOLTIP)
-              }
-              placement="bottom"
-            >
-              <Button
-                className="t--application-share-btn"
-                kind="tertiary"
-                onClick={() => setShowModal(true)}
-                size="md"
-                startIcon="share-line"
+            {applicationId && (
+              <Tooltip
+                content={
+                  filteredSharedUserList.length
+                    ? createMessage(
+                        SHARE_BUTTON_TOOLTIP_WITH_USER(
+                          filteredSharedUserList.length,
+                        ),
+                      )
+                    : createMessage(SHARE_BUTTON_TOOLTIP)
+                }
+                placement="bottom"
               >
-                {createMessage(EDITOR_HEADER.share)}
-              </Button>
-            </Tooltip>
+                <Button
+                  className="t--application-share-btn"
+                  kind="tertiary"
+                  onClick={() => setShowModal(true)}
+                  size="md"
+                  startIcon="share-line"
+                >
+                  {createMessage(EDITOR_HEADER.share)}
+                </Button>
+              </Tooltip>
+            )}
             <Modal
               onOpenChange={(isOpen) => setShowModal(isOpen)}
               open={showModal}
@@ -473,6 +475,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                     </TabsList>
                     <TabPanel value="invite">
                       <AppInviteUsersForm
+                        applicationId={applicationId}
                         placeholder={createMessage(
                           INVITE_USERS_PLACEHOLDER,
                           cloudHosting,

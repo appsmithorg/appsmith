@@ -105,7 +105,7 @@ function SnippetTabContent({
       className="flex flex-col gap-1 items-start"
       data-testid="t--upgrade-content"
     >
-      <Text kind="heading-s">
+      <Text color="var(--ads-v2-color-fg-emphasis)" kind="heading-s">
         {canMakeAppPublic
           ? createMessage(IN_APP_EMBED_SETTING.upgradeHeadingForInviteModal)
           : createMessage(IN_APP_EMBED_SETTING.upgradeHeading)}
@@ -115,6 +115,7 @@ function SnippetTabContent({
 
       {canMakeAppPublic && (
         <Button
+          className="mt-2"
           data-testid="t--share-settings-btn"
           onClick={changeTab}
           size="md"

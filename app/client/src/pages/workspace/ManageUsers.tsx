@@ -15,6 +15,7 @@ function ManageUsers({
     <Link
       endIcon="arrow-right-s-line"
       kind="secondary"
+      target="_self"
       to={`/workspace/${workspaceId}/settings/members`}
     >
       Manage Users

@@ -13,13 +13,8 @@ import {
   INVITE_USERS_PLACEHOLDER,
   SHARE_APP,
 } from "@appsmith/constants/messages";
-import {
-  Icon,
-  Modal,
-  ModalHeader,
-  ModalContent,
-  ModalBody,
-} from "design-system";
+import { Icon, Tooltip } from "design-system";
+import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -53,38 +48,42 @@ const ShareButton = (props: ShareButtonProps) => {
 
   return (
     <>
-      <Button
-        borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
-        className="h-8 t--app-viewer-share-button"
-        data-cy="viewmode-share"
-        icon={
-          <Icon
-            color={getApplicationNameTextColor(primaryColor, navColorStyle)}
-            name="share-line"
-            size="lg"
-          />
-        }
-        insideSidebar={insideSidebar}
-        isMinimal={isMinimal}
-        navColorStyle={navColorStyle}
-        onClick={() => setShowModal(true)}
-        primaryColor={primaryColor}
-        text={insideSidebar && !isMinimal && createMessage(SHARE_APP)}
-      />
-      <Modal onOpenChange={(isOpen) => setShowModal(isOpen)} open={showModal}>
-        <ModalContent>
-          <ModalHeader>{currentApplicationDetails?.name}</ModalHeader>
-          <ModalBody>
-            <AppInviteUsersForm
-              placeholder={createMessage(
-                INVITE_USERS_PLACEHOLDER,
-                cloudHosting,
-              )}
-              workspaceId={currentWorkspaceId}
+      <Tooltip
+        content={createMessage(SHARE_APP)}
+        isDisabled={insideSidebar}
+        placement="bottom"
+      >
+        <Button
+          borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
+          className="h-8 t--app-viewer-share-button"
+          data-testid="viewmode-share"
+          icon={
+            <Icon
+              color={getApplicationNameTextColor(primaryColor, navColorStyle)}
+              name="share-line"
+              size="md"
             />
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+          }
+          insideSidebar={insideSidebar}
+          isMinimal={isMinimal}
+          navColorStyle={navColorStyle}
+          onClick={() => setShowModal(true)}
+          primaryColor={primaryColor}
+          text={insideSidebar && !isMinimal && createMessage(SHARE_APP)}
+        />
+      </Tooltip>
+      {currentWorkspaceId && (
+        <FormDialogComponent
+          Form={AppInviteUsersForm}
+          applicationId={currentApplicationDetails?.id}
+          hideDefaultTrigger
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
+          title={currentApplicationDetails?.name}
+          workspace={{ id: currentWorkspaceId }}
+        />
+      )}
     </>
   );
 };
