@@ -32,14 +32,15 @@ import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-co
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { SelectOptionProps } from "design-system";
 import {
-  Callout,
   Avatar,
   Button,
+  Icon,
   Select,
   Spinner,
   Text,
   Option,
   Tooltip,
+  toast,
 } from "design-system";
 import { getInitialsFromName } from "utils/AppsmithUtils";
 import ManageUsers from "pages/workspace/ManageUsers";
@@ -144,6 +145,22 @@ export const MailConfigContainer = styled.div`
 
 export const ManageUsersContainer = styled.div`
   padding: 12px 0;
+`;
+
+export const ErrorTextContainer = styled.div`
+  display: flex;
+  margin-top: 4px;
+  gap: 8px;
+
+  > p {
+    color: var(--ads-v2-color-fg-error);
+  }
+
+  svg {
+    path {
+      fill: var(--ads-v2-color-fg-error);
+    }
+  }
 `;
 
 const validateFormValues = (values: {
@@ -274,6 +291,17 @@ function WorkspaceInviteUsersForm(props: any) {
     }
   }, []);
 
+  useEffect(() => {
+    if (submitSucceeded) {
+      toast.show(
+        numberOfUsersInvited > 1
+          ? createMessage(INVITE_USERS_SUBMIT_SUCCESS)
+          : createMessage(INVITE_USER_SUBMIT_SUCCESS),
+        { kind: "success" },
+      );
+    }
+  }, [submitSucceeded]);
+
   const styledRoles =
     props.options && props.options.length > 0
       ? props.options
@@ -373,6 +401,12 @@ function WorkspaceInviteUsersForm(props: any) {
               placeholder={placeholder || "Enter email address(es)"}
               type="email"
             />
+            {((submitFailed && error) || emailError) && (
+              <ErrorTextContainer>
+                <Icon name="alert-line" size="md" />
+                <Text renderAs="p">{error || emailError}</Text>
+              </ErrorTextContainer>
+            )}
           </div>
           <div style={{ width: "40%" }}>
             <Select
@@ -471,18 +505,6 @@ function WorkspaceInviteUsersForm(props: any) {
             )}
           </>
         )}
-        <ErrorBox message={submitSucceeded || submitFailed}>
-          {submitSucceeded && (
-            <Callout kind="success">
-              {numberOfUsersInvited > 1
-                ? createMessage(INVITE_USERS_SUBMIT_SUCCESS)
-                : createMessage(INVITE_USER_SUBMIT_SUCCESS)}
-            </Callout>
-          )}
-          {((submitFailed && error) || emailError) && (
-            <Callout kind="error">{error || emailError}</Callout>
-          )}
-        </ErrorBox>
         {canManage && !disableManageUsers && (
           <ManageUsersContainer>
             <ManageUsers
