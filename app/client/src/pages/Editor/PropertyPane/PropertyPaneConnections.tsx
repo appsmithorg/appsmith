@@ -30,13 +30,14 @@ import { mapValues, pick } from "lodash";
 import { createSelector } from "reselect";
 import type { TooltipPlacement } from "design-system";
 import {
-  Tooltip,
   Button,
   Menu,
   MenuContent,
   MenuTrigger,
   MenuItem,
   MenuSeparator,
+  Text,
+  Tooltip,
 } from "design-system";
 
 type DropdownOption = {
@@ -59,16 +60,16 @@ const OptionWrapper = styled.div<{ hasError: boolean; fillIconColor: boolean }>`
 
   .debug {
     margin-top: 0px;
-    display: none;
+    /* display: none; */
     position: absolute;
     right: 4px;
   }
 
-  &:hover {
+  /* &:hover {
     .debug {
       display: flex;
     }
-  }
+  } */
 `;
 
 const OptionContentWrapper = styled.div<{
@@ -209,11 +210,11 @@ function OptionNode(props: any) {
           <div className="menu-text">
             {props.option.label}{" "}
             {entityInfo?.datasourceName && (
-              <span>from {entityInfo?.datasourceName}</span>
+              <Text kind="action-s">from {entityInfo?.datasourceName}</Text>
             )}
           </div>
         </OptionContentWrapper>
-        {!!entityInfo?.hasError && (
+        {entityInfo?.hasError && (
           <DebugButton className="debug" onClick={onClick} />
         )}
       </OptionWrapper>
