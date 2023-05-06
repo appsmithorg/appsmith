@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Button from "../../AppViewerButton";
+import { Icon, Tooltip } from "design-system";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import { useSelector } from "react-redux";
 import { getAppsmithConfigs } from "@appsmith/configs";
@@ -13,7 +14,6 @@ import {
   INVITE_USERS_PLACEHOLDER,
   SHARE_APP,
 } from "@appsmith/constants/messages";
-import { Icon } from "design-system";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 
 const { cloudHosting } = getAppsmithConfigs();
@@ -48,24 +48,30 @@ const ShareButton = (props: ShareButtonProps) => {
 
   return (
     <>
-      <Button
-        borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
-        className="h-8 t--app-viewer-share-button"
-        data-testid="viewmode-share"
-        icon={
-          <Icon
-            color={getApplicationNameTextColor(primaryColor, navColorStyle)}
-            name="share-line"
-            size="md"
-          />
-        }
-        insideSidebar={insideSidebar}
-        isMinimal={isMinimal}
-        navColorStyle={navColorStyle}
-        onClick={() => setShowModal(true)}
-        primaryColor={primaryColor}
-        text={insideSidebar && !isMinimal && createMessage(SHARE_APP)}
-      />
+      <Tooltip
+        content={createMessage(SHARE_APP)}
+        isDisabled={insideSidebar}
+        placement="bottom"
+      >
+        <Button
+          borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
+          className="h-8 t--app-viewer-share-button"
+          data-testid="viewmode-share"
+          icon={
+            <Icon
+              color={getApplicationNameTextColor(primaryColor, navColorStyle)}
+              name="share-line"
+              size="md"
+            />
+          }
+          insideSidebar={insideSidebar}
+          isMinimal={isMinimal}
+          navColorStyle={navColorStyle}
+          onClick={() => setShowModal(true)}
+          primaryColor={primaryColor}
+          text={insideSidebar && !isMinimal && createMessage(SHARE_APP)}
+        />
+      </Tooltip>
       {currentWorkspaceId && (
         <FormDialogComponent
           Form={AppInviteUsersForm}
