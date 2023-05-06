@@ -169,13 +169,16 @@ function PrimaryCTA(props: Props) {
             icon="fork"
             insideSidebar={insideSidebar}
             navColorStyle={navColorStyle}
+            onClick={() => {
+              setIsForkModalOpen(true);
+            }}
             primaryColor={primaryColor}
             text={createMessage(FORK_APP)}
           />
           <ForkApplicationModal
             applicationId={currentApplication?.id || ""}
             isModalOpen={isForkModalOpen}
-            setModalClose={() => setIsForkModalOpen(false)}
+            setModalClose={setIsForkModalOpen}
           />
         </div>
       );
@@ -217,6 +220,7 @@ function PrimaryCTA(props: Props) {
     selectedTheme.properties.borderRadius.appBorderRadius,
     navColorStyle,
     primaryColor,
+    isForkModalOpen,
   ]);
 
   return <div>{PrimaryCTA}</div>;
