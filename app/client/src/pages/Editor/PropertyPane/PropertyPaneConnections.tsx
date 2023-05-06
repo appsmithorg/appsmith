@@ -55,21 +55,9 @@ const TopLayer = styled.div`
 
 const OptionWrapper = styled.div<{ hasError: boolean; fillIconColor: boolean }>`
   display: flex;
+  align-items: center;
   width: 100%;
   overflow: hidden;
-
-  .debug {
-    margin-top: 0px;
-    /* display: none; */
-    position: absolute;
-    right: 4px;
-  }
-
-  /* &:hover {
-    .debug {
-      display: flex;
-    }
-  } */
 `;
 
 const OptionContentWrapper = styled.div<{
@@ -82,11 +70,11 @@ const OptionContentWrapper = styled.div<{
   min-width: 0;
 
   .menu-text {
-    margin-left: 6px;
+    width: 150px;
+    word-wrap: break-word;
     letter-spacing: 0px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    display: flex;
+    gap: 6px;
   }
 `;
 
@@ -206,13 +194,14 @@ function OptionNode(props: any) {
           isSelected={props.isSelectedNode}
           onClick={onClick}
         >
-          {entityInfo?.icon}
-          <div className="menu-text">
-            {props.option.label}{" "}
-            {entityInfo?.datasourceName && (
-              <Text kind="action-s">from {entityInfo?.datasourceName}</Text>
-            )}
-          </div>
+          <span className="menu-text">
+            {entityInfo?.icon}
+            <Text>
+              {props.option.label}{" "}
+              {entityInfo?.datasourceName &&
+                `from ${entityInfo?.datasourceName}`}
+            </Text>
+          </span>
         </OptionContentWrapper>
         {entityInfo?.hasError && (
           <DebugButton className="debug" onClick={onClick} />
