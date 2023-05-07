@@ -8904,7 +8904,7 @@ __metadata:
     cypress-xpath: ^1.4.0
     dayjs: ^1.10.6
     deep-diff: ^1.0.2
-    design-system-old: "npm:@appsmithorg/design-system-old@1.1.5"
+    design-system-old: "npm:@appsmithorg/design-system-old@1.1.6"
     diff: ^5.0.0
     dotenv: ^8.1.0
     downloadjs: ^1.4.7
@@ -8939,6 +8939,7 @@ __metadata:
     jest-preview: ^0.3.1
     jest-styled-components: ^7.0.8
     js-beautify: ^1.14.0
+    js-regex-pl: ^1.0.1
     js-sha256: ^0.9.0
     jshint: ^2.13.4
     klona: ^2.0.5
@@ -12556,9 +12557,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"design-system-old@npm:@appsmithorg/design-system-old@1.1.5":
-  version: 1.1.5
-  resolution: "@appsmithorg/design-system-old@npm:1.1.5"
+"design-system-old@npm:@appsmithorg/design-system-old@1.1.6":
+  version: 1.1.6
+  resolution: "@appsmithorg/design-system-old@npm:1.1.6"
   dependencies:
     emoji-mart: 3.0.1
   peerDependencies:
@@ -12578,7 +12579,7 @@ __metadata:
     remixicon-react: ^1.0.0
     styled-components: 5.3.6
     tinycolor2: ^1.4.2
-  checksum: 42884788fb40160fc36e7b1d882d1de3a347a08d14e0592398e902b5ed23450248a87dda048ef5dd21139fd517f67b537e82bb67dec644885a679b96e929e8c0
+  checksum: 92bef56fd85e5af1a7a1b1451866ac98af34d11db2c6705a89ca6bd62c86a8a2f4bd0448fdbb210b4d65511a7b7af88e57bba6f5a83b2efc19c6da3ee3079618
   languageName: node
   linkType: hard
 
@@ -18723,6 +18724,13 @@ __metadata:
   version: 1.1.6
   resolution: "js-levenshtein@npm:1.1.6"
   checksum: 409f052a7f1141be4058d97da7860e08efd97fc588b7a4c5cfa0548bc04f6d576644dae65ab630266dff685d56fb90d494e03d4d79cb484c287746b4f1bf0694
+  languageName: node
+  linkType: hard
+
+"js-regex-pl@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "js-regex-pl@npm:1.0.1"
+  checksum: c80e05ccea8a0ce12e432e8bd8278e5351affd0c255cd23d68d7efe04b2e1cd44f2949f7efc3f12e8871ad95d0ef86c43eac3bab665cd5c69599829b1f94c0de
   languageName: node
   linkType: hard
 
