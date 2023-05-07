@@ -171,6 +171,19 @@ export const USERS_HAVE_ACCESS_TO_ONLY_THIS_APP = () =>
   "Users will only have access to this application";
 export const NO_USERS_INVITED = () => "You haven't invited any users yet";
 
+export const USER_PROFILE_PICTURE_UPLOAD_FAILED = () =>
+  "Unable to upload display picture.";
+export const UPDATE_USER_DETAILS_FAILED = () =>
+  "Unable to update user details.";
+export const USER_DISPLAY_PICTURE_FILE_INVALID = () =>
+  "File content doesn't seem to be an image. Please verify.";
+export const USER_DISPLAY_NAME_CHAR_CHECK_FAILED = () =>
+  "No special characters allowed except .'-";
+export const USER_DISPLAY_NAME_PLACEHOLDER = () => "Display name";
+export const USER_DISPLAY_PICTURE_PLACEHOLDER = () => "Display picture";
+export const USER_EMAIL_PLACEHOLDER = () => "Email";
+export const USER_RESET_PASSWORD = () => "Reset Password";
+
 export const CREATE_PASSWORD_RESET_SUCCESS = () => `Your password has been set`;
 export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = () => `Login`;
 
@@ -195,6 +208,7 @@ export const EDIT_APP = () => `Edit App`;
 export const FORK_APP = () => `Fork App`;
 export const SIGN_IN = () => `Sign in`;
 export const SHARE_APP = () => `Share app`;
+export const ALL_APPS = () => `All apps`;
 
 export const EDITOR_HEADER = {
   saving: () => "Saving",
@@ -1564,17 +1578,21 @@ export const IN_APP_EMBED_SETTING = {
 export const APP_NAVIGATION_SETTING = {
   sectionHeader: () => "Navigation",
   sectionHeaderDesc: () => "Customize the navigation bar",
-  showNavbarLabel: () => "Show Navbar",
+  showNavbarLabel: () => "Show navbar",
   orientationLabel: () => "Orientation",
   navStyleLabel: () => "Variant",
   positionLabel: () => "Position",
   itemStyleLabel: () => "Item Style",
   colorStyleLabel: () => "Background color",
   logoLabel: () => "Logo",
-  logoConfigurationLabel: () => "Logo Configuration",
-  showSignInLabel: () => "Show Sign In",
+  logoConfigurationLabel: () => "Logo configuration",
+  showSignInLabel: () => "Show sign in",
   showSignInTooltip: () =>
     "Toggle to show the sign-in button for users who are not logged in.",
+  logoUploadFormatError: () => `Uploaded file must be in .PNG or .JPG formats.`,
+  logoUploadSizeError: () => `Uploaded file must be less than 1MB.`,
+  showLogoLabel: () => "Show logo",
+  showApplicationTitleLabel: () => "Show application title",
 };
 
 export const LOCK_SIDEBAR_MESSAGE = () => `Lock sidebar open`;
@@ -1637,9 +1655,9 @@ export const USE_SNAPSHOT_TEXT = () =>
 export const SNAPSHOT_WARNING_MESSAGE = () =>
   "Any changes you made after conversion will not be present.";
 export const CONVERT_TO_FIXED_TITLE = () => "Convert to Fixed Layout";
-export const CONVERT_TO_FIXED_BUTTON = () => "CONVERT TO Fixed-LAYOUT";
+export const CONVERT_TO_FIXED_BUTTON = () => "CONVERT TO Fixed-LAYOUT (BETA)";
 export const CONVERT_TO_AUTO_TITLE = () => "Convert to Auto Layout";
-export const CONVERT_TO_AUTO_BUTTON = () => "CONVERT TO AUTO-LAYOUT";
+export const CONVERT_TO_AUTO_BUTTON = () => "CONVERT TO AUTO-LAYOUT (BETA)";
 export const SNAPSHOT_BANNER_MESSAGE = () =>
   "Confirm this layout is per expectations before you discard the snapshot. Use the snapshot to go back.";
 export const USE_SNAPSHOT_CTA = () => "USE SNAPSHOT";
