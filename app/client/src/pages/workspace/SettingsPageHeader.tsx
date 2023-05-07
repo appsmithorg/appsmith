@@ -32,6 +32,7 @@ const Container = styled.div<{ isMobile?: boolean }>`
   align-items: center;
   gap: 24px;
   flex-wrap: ${(props) => (props.isMobile ? "wrap" : "nowrap")};
+  min-height: 36px;
 `;
 
 const SearchWrapper = styled.div`
