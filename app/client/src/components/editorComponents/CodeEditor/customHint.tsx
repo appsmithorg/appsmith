@@ -4,7 +4,6 @@ import ReactDOM from "react-dom";
 const hintContainerStyles: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
-  fontSize: "10px",
   width: "100%",
 };
 const getHintIconStyles = (bgColor: string): React.CSSProperties => {
@@ -23,7 +22,7 @@ const getHintIconStyles = (bgColor: string): React.CSSProperties => {
 };
 
 const hintStyles: React.CSSProperties = {
-  paddingLeft: "4px",
+  paddingLeft: "5px",
   height: "24px",
   display: "flex",
   justifyContent: "flex-start",
@@ -31,6 +30,7 @@ const hintStyles: React.CSSProperties = {
   flex: 1,
   lineHeight: "15px",
   letterSpacing: "-0.24px",
+  fontSize: "12px",
 };
 
 const hintLabelStyles: React.CSSProperties = {
@@ -38,6 +38,8 @@ const hintLabelStyles: React.CSSProperties = {
   letterSpacing: "-0.24px",
   fontWeight: "normal",
   padding: "0 10px",
+  lineHeight: "13px",
+  fontSize: "10px",
 };
 
 enum SQLHintType {
@@ -64,6 +66,7 @@ function getHintDetailsFromClassName(className?: string): {
   }
 }
 
+// Avoiding styled components since ReactDOM.render cannot directly work with it
 export default function CustomHint({
   className,
   text,
@@ -76,7 +79,9 @@ export default function CustomHint({
     <div style={hintContainerStyles}>
       <span style={getHintIconStyles(iconBg)}>{iconText}</span>
       <div style={hintStyles}>{text}</div>
-      <span style={hintLabelStyles}>{hintType}</span>
+      <span className="sql-hint-label" style={hintLabelStyles}>
+        {hintType}
+      </span>
     </div>
   );
 }
