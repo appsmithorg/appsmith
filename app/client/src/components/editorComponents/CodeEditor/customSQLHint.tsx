@@ -1,5 +1,7 @@
+import { theme } from "constants/DefaultTheme";
 import React from "react";
 import ReactDOM from "react-dom";
+import { sqlHint } from "./hintHelpers";
 
 const hintContainerStyles: React.CSSProperties = {
   display: "flex",
@@ -45,16 +47,46 @@ const hintLabelStyles: React.CSSProperties = {
 enum SQLHintType {
   unknown = "unknown",
   keyword = "keyword",
+  text = "text",
+  int4 = "int4",
   table = "table",
 }
-function getHintDetailsFromClassName(className?: string): {
-  hintType: SQLHintType;
+
+const SQLDataTypeToBgColor: Record<
+  string,
+  NonNullable<React.CSSProperties["color"]>
+> = {
+  unknown: theme.colors.dataTypeBg.unknown,
+  keyword: theme.colors.dataTypeBg.object,
+  text: theme.colors.dataTypeBg.number,
+  int4: theme.colors.dataTypeBg.array,
+  table: theme.colors.dataTypeBg.function,
+};
+function getHintDetailsFromClassName(
+  text: string,
+  className?: string,
+): {
+  hintType: string;
   iconText: string;
   iconBg: string;
 } {
   switch (className) {
     case "CodeMirror-hint-table":
-      return { hintType: SQLHintType.table, iconText: "T", iconBg: "#BDB2FF" };
+      const hintDataType = sqlHint.datasourceTableKeys[text];
+      return hintDataType
+        ? {
+            hintType: hintDataType,
+            iconText: hintDataType.charAt(0).toLocaleUpperCase(),
+            iconBg:
+              SQLDataTypeToBgColor[hintDataType] ||
+              SQLDataTypeToBgColor.unknown,
+          }
+        : {
+            hintType: SQLHintType.unknown,
+            iconText: "U",
+            iconBg: SQLDataTypeToBgColor.unknown,
+          };
+
     case "CodeMirror-hint-keyword":
       return {
         hintType: SQLHintType.keyword,
@@ -74,7 +106,10 @@ export default function CustomHint({
   text: string;
   className?: string;
 }) {
-  const { hintType, iconBg, iconText } = getHintDetailsFromClassName(className);
+  const { hintType, iconBg, iconText } = getHintDetailsFromClassName(
+    text,
+    className,
+  );
   return (
     <div style={hintContainerStyles}>
       <span style={getHintIconStyles(iconBg)}>{iconText}</span>

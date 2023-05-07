@@ -1022,14 +1022,14 @@ export const getAllDatasourceTableKeys = createSelector(
     const datasource = action.config.datasource;
     const datasourceId = "id" in datasource ? datasource.id : undefined;
     if (!datasourceId || !(datasourceId in datasourceStructures)) return;
-    const tables: Record<string, string[]> = {};
+    const tables: Record<string, string> = {};
     const { tables: datasourceTable } = datasourceStructures[datasourceId];
     if (!datasourceTable) return;
     datasourceTable.forEach((table) => {
       if (table?.name) {
-        tables[table.name] = [];
+        tables[table.name] = "table";
         table.columns.forEach((column) => {
-          tables[`${table.name}.${column.name}`] = [];
+          tables[`${table.name}.${column.name}`] = column.type;
         });
       }
     });
