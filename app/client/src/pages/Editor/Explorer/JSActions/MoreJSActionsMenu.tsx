@@ -167,7 +167,7 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
             label: confirmDelete
               ? createMessage(CONFIRM_CONTEXT_DELETE)
               : createMessage(CONTEXT_DELETE),
-            className: "t--apiFormDeleteBtn",
+            className: "t--apiFormDeleteBtn error-menuitem",
           },
         ]
       : []),
@@ -206,12 +206,21 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
           }
           return (
             <MenuItem
+              className={option?.className}
               key={option.value}
               onSelect={option.onSelect as any}
               startIcon={option.icon}
             >
               <div>
-                <Text>{option.label}</Text>
+                <Text
+                  color={
+                    option?.value === "delete"
+                      ? "var(--ads-v2-color-fg-error)"
+                      : "var(--ads-v2-color-fg)"
+                  }
+                >
+                  {option.label}
+                </Text>
                 {option.subText && (
                   <Text
                     color={"var(--ads-v2-color-fg-muted)"}

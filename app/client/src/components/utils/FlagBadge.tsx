@@ -8,7 +8,6 @@ const Flag = styled.span`
   text-transform: uppercase;
   font-size: 10px;
   font-weight: 600;
-  margin-right: 10px;
 `;
 
 function FlagBadge(props: { name: string }) {

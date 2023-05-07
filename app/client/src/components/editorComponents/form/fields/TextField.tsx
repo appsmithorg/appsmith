@@ -19,7 +19,7 @@ class TextField extends React.Component<
         {...this.props}
         isDisabled={this.props.isDisabled}
         noValidate
-        size="md"
+        size={36}
       />
     );
   }

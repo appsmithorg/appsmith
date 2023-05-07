@@ -13,6 +13,13 @@ const ContextWrapper = styled.div`
   align-items: center;
 `;
 
+const QuestionIconButton = styled(Button)`
+  &&& svg {
+    width: 18px;
+    height: 18px;
+  }
+`;
+
 export default function LogHelper(props: {
   logType?: LOG_TYPE;
   name?: string;
@@ -39,7 +46,7 @@ export default function LogHelper(props: {
         entity={props.source}
         error={{ message: { name: "", message: "" } }}
       >
-        <Button isIconButton kind="tertiary" size="sm" startIcon="question" />
+        <QuestionIconButton isIconButton kind="tertiary" startIcon="question" />
       </ContextualMenu>
     </ContextWrapper>
   );

@@ -3,7 +3,7 @@ import styled from "styled-components";
 import FlagBadge from "components/utils/FlagBadge";
 import type { JSCollection } from "entities/JSCollection";
 import type { SelectProps } from "design-system";
-import { Button, Option, Select, Tooltip } from "design-system";
+import { Button, Option, Select, Tooltip, Text } from "design-system";
 import {
   createMessage,
   NO_JS_FUNCTION_TO_RUN,
@@ -37,6 +37,17 @@ const OptionWrapper = styled.div`
   width: 100%;
 `;
 
+const OptionLabelWrapper = styled.div<{ fullSize?: boolean }>`
+  width: ${(props) => (props?.fullSize ? "100%" : "80%")};
+  overflow: hidden;
+`;
+
+const OptionLabel = styled(Text)`
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+`;
+
 export function JSFunctionRun({
   disabled,
   isLoading,
@@ -52,13 +63,25 @@ export function JSFunctionRun({
       <Select
         className="function-select-dropdown"
         onSelect={onSelect}
+        open
         size="md"
-        value={selected.label}
+        value={
+          selected.label && {
+            key: selected.label,
+            label: (
+              <OptionLabelWrapper fullSize>
+                <OptionLabel renderAs="p">{selected.label}</OptionLabel>
+              </OptionLabelWrapper>
+            ),
+          }
+        }
       >
         {options.map((option) => (
           <Option key={option.value}>
             <OptionWrapper>
-              <div>{option.label}</div>
+              <OptionLabelWrapper>
+                <OptionLabel renderAs="p">{option.label}</OptionLabel>
+              </OptionLabelWrapper>
               {option.hasCustomBadge && <FlagBadge name="Async" />}
             </OptionWrapper>
           </Option>
