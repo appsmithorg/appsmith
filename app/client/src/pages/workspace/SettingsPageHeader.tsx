@@ -1,16 +1,17 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Position } from "@blueprintjs/core";
 import type { DebouncedFunc } from "lodash";
-import type { MenuItemProps } from "design-system-old";
-import { Menu, MenuItem } from "design-system-old";
-import { Button, SearchInput, Tooltip } from "design-system";
-import { HeaderWrapper } from "pages/Settings/components";
 import {
-  HelpPopoverStyle,
-  // StyledSearchInput,
-  SettingsHeader,
-} from "components/utils/helperComponents";
+  Button,
+  Menu,
+  MenuItem,
+  MenuContent,
+  MenuTrigger,
+  SearchInput,
+  Tooltip,
+} from "design-system";
+import { HeaderWrapper } from "pages/Settings/components";
+import { SettingsHeader } from "components/utils/helperComponents";
 import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";
 import { useMediaQuery } from "react-responsive";
 
@@ -19,7 +20,7 @@ type PageHeaderProps = {
   searchPlaceholder: string;
   onButtonClick?: () => void;
   onSearch?: DebouncedFunc<(search: string) => void>;
-  pageMenuItems: MenuItemProps[];
+  pageMenuItems: any[];
   title?: string;
   showMoreOptions?: boolean;
   showSearchNButton?: boolean;
@@ -31,17 +32,6 @@ const Container = styled.div<{ isMobile?: boolean }>`
   align-items: center;
   gap: 24px;
   flex-wrap: ${(props) => (props.isMobile ? "wrap" : "nowrap")};
-  h2 {
-    text-transform: unset;
-  }
-
-  .actions-icon {
-    color: var(--appsmith-color-black-400);
-
-    &:hover {
-      color: var(--appsmith-color-black-700);
-    }
-  }
 `;
 
 const SearchWrapper = styled.div`
@@ -53,7 +43,7 @@ const ActionsWrapper = styled.div`
   align-items: center;
   width: 100%;
 
-  .menu-actions-icon {
+  .actions-icon {
     margin-left: 12px;
   }
 `;
@@ -78,7 +68,7 @@ export function SettingsPageHeader(props: PageHeaderProps) {
 
   const onOptionSelect = (
     e: React.MouseEvent<Element, MouseEvent>,
-    menuItem: MenuItemProps,
+    menuItem: any,
   ) => {
     if (menuItem.label === "delete") {
       setShowOptions(true);
@@ -102,7 +92,13 @@ export function SettingsPageHeader(props: PageHeaderProps) {
           content={title}
           isDisabled={title && title.length < 32 ? true : false}
         >
-          <SettingsHeader data-testid="t--page-title">{title}</SettingsHeader>
+          <SettingsHeader
+            data-testid="t--page-title"
+            kind="heading-m"
+            renderAs="h2"
+          >
+            {title}
+          </SettingsHeader>
         </Tooltip>
       </HeaderWrapper>
       <Container isMobile={isMobile}>
@@ -118,7 +114,6 @@ export function SettingsPageHeader(props: PageHeaderProps) {
             />
           )}
         </SearchWrapper>
-        {/* <VerticalDelimeter /> */}
         <ActionsWrapper>
           {buttonText && showSearchNButton && (
             <Button
@@ -131,50 +126,45 @@ export function SettingsPageHeader(props: PageHeaderProps) {
           )}
           {showMoreOptions && (
             <Menu
-              canEscapeKeyClose
-              canOutsideClickClose
-              className="menu-actions-icon"
-              isOpen={showOptions}
-              menuItemWrapperWidth={"auto"}
-              onClose={() => setShowOptions(false)}
-              onClosing={() => {
-                setShowConfirmationText(false);
-                setShowOptions(false);
+              onOpenChange={(open: boolean) => {
+                if (showOptions) {
+                  setShowOptions(open);
+                  showConfirmationText && setShowConfirmationText(false);
+                }
               }}
-              onOpening={() => setShowOptions(true)}
-              position={Position.BOTTOM_RIGHT}
-              target={
+              open={showOptions}
+            >
+              <MenuTrigger>
                 <Button
                   className="actions-icon"
                   data-testid="t--page-header-actions"
                   isIconButton
                   kind="tertiary"
                   onClick={() => setShowOptions(!showOptions)}
-                  size="sm"
+                  size="md"
                   startIcon="more-2-fill"
                 />
-              }
-            >
-              <HelpPopoverStyle />
-              {pageMenuItems &&
-                pageMenuItems.map((menuItem) => (
-                  <MenuItem
-                    className={menuItem.className}
-                    icon={menuItem.icon}
-                    key={menuItem.text}
-                    onSelect={(e: React.MouseEvent<HTMLInputElement>) => {
-                      onOptionSelect(e, menuItem);
-                    }}
-                    text={
-                      showConfirmationText && menuItem.label === "delete"
+              </MenuTrigger>
+              <MenuContent align="end">
+                {pageMenuItems &&
+                  pageMenuItems.map((menuItem) => (
+                    <MenuItem
+                      className={`${menuItem.className} ${
+                        menuItem.label === "delete" ? "error-menuitem" : ""
+                      }`}
+                      data-testid={`t--${menuItem.className}`}
+                      key={menuItem.text}
+                      onClick={(e: React.MouseEvent) => {
+                        onOptionSelect(e, menuItem);
+                      }}
+                      startIcon={menuItem.icon}
+                    >
+                      {showConfirmationText && menuItem.label === "delete"
                         ? createMessage(ARE_YOU_SURE)
-                        : menuItem.text
-                    }
-                    {...(showConfirmationText && menuItem.label === "delete"
-                      ? { type: "warning" }
-                      : {})}
-                  />
-                ))}
+                        : menuItem.text}
+                    </MenuItem>
+                  ))}
+              </MenuContent>
             </Menu>
           )}
         </ActionsWrapper>

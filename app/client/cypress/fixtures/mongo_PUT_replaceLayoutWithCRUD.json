@@ -1456,7 +1456,7 @@
 			],
 			"lastUpdatedTime": 1634565699
 		},
-		"successMessage": "We have generated the <b>TABLE</b> from the <b>MongoDB Datasource</b>. You can use the <b>FORM</b> to modify it. Since all your data is already connected you can add more queries and modify the bindings",
+		"successMessage": "We have generated the <b>Table</b> from the <b>MongoDB datasource</b>. You can use the <b>Form</b> to modify it. Since all your data is already connected you can add more queries and modify the bindings",
 		"successImageUrl": "https://assets.appsmith.com/crud/working-flow-chart.png"
 	}
 }

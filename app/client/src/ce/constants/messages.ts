@@ -208,6 +208,7 @@ export const EDIT_APP = () => `Edit App`;
 export const FORK_APP = () => `Fork App`;
 export const SIGN_IN = () => `Sign in`;
 export const SHARE_APP = () => `Share app`;
+export const ALL_APPS = () => `All apps`;
 
 export const EDITOR_HEADER = {
   saving: () => "Saving",
@@ -1555,7 +1556,7 @@ export const IN_APP_EMBED_SETTING = {
   change: () => "Change",
   copiedEmbedCode: () => "Embed code copied to clipboard",
   embedSize: () => "Embed size",
-  previewEmbeddedApp: () => "PREVIEW EMBEDDED APP",
+  previewEmbeddedApp: () => "Preview embedded app",
   sectionHeader: () => "Share & Embed",
   sectionContentHeader: () => "Share",
   sectionHeaderDesc: () => "Make public, embed properties",
@@ -1565,7 +1566,7 @@ export const IN_APP_EMBED_SETTING = {
   upgradeHeadingForInviteModal: () =>
     "Make your app public in share settings to embed",
   upgradeContent: () => "Private embedding is now available in",
-  appsmithBusinessEdition: () => "Appsmith Business Edition",
+  appsmithBusinessEdition: () => "Appsmith Business Edition.",
   secondaryHeadingForAppSettings: () => "Make your app public to embed",
   secondaryHeading: () =>
     "Please contact your workspace admin to make the app public before embedding",
@@ -1574,17 +1575,21 @@ export const IN_APP_EMBED_SETTING = {
 export const APP_NAVIGATION_SETTING = {
   sectionHeader: () => "Navigation",
   sectionHeaderDesc: () => "Customize the navigation bar",
-  showNavbarLabel: () => "Show Navbar",
+  showNavbarLabel: () => "Show navbar",
   orientationLabel: () => "Orientation",
   navStyleLabel: () => "Variant",
   positionLabel: () => "Position",
   itemStyleLabel: () => "Item Style",
   colorStyleLabel: () => "Background color",
   logoLabel: () => "Logo",
-  logoConfigurationLabel: () => "Logo Configuration",
-  showSignInLabel: () => "Show Sign In",
+  logoConfigurationLabel: () => "Logo configuration",
+  showSignInLabel: () => "Show sign in",
   showSignInTooltip: () =>
     "Toggle to show the sign-in button for users who are not logged in.",
+  logoUploadFormatError: () => `Uploaded file must be in .PNG or .JPG formats.`,
+  logoUploadSizeError: () => `Uploaded file must be less than 1MB.`,
+  showLogoLabel: () => "Show logo",
+  showApplicationTitleLabel: () => "Show application title",
 };
 
 export const LOCK_SIDEBAR_MESSAGE = () => `Lock sidebar open`;
