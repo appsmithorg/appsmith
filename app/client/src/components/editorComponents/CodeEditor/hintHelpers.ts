@@ -12,7 +12,7 @@ import {
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { isEmpty, isString } from "lodash";
 import type { getAllDatasourceTableKeys } from "selectors/entitiesSelector";
-import { renderHint } from "./customHint";
+import { renderHint } from "./customSQLHint";
 
 export const bindingHint: HintHelper = (editor) => {
   editor.setOption("extraKeys", {
@@ -68,13 +68,16 @@ type HandleCompletions = (
   | { showHints: true; completions: Hints };
 
 class SqlHintHelper {
-  datasourceTableKeys: Record<string, string[]> = {};
+  datasourceTableKeys: NonNullable<
+    ReturnType<typeof getAllDatasourceTableKeys>
+  > = {};
 
   constructor() {
     this.hinter = this.hinter.bind(this);
     this.setDatasourceTableKeys = this.setDatasourceTableKeys.bind(this);
     this.addCustomRendererToCompletions =
       this.addCustomRendererToCompletions.bind(this);
+    this.generateTables = this.generateTables.bind(this);
   }
 
   setDatasourceTableKeys(
@@ -104,6 +107,14 @@ class SqlHintHelper {
     };
   }
 
+  generateTables() {
+    const tables: Record<string, string[]> = {};
+    for (const tableKey of Object.keys(this.datasourceTableKeys)) {
+      tables[`${tableKey}`] = [];
+    }
+    return tables;
+  }
+
   isSqlMode(editor: CodeMirror.Editor) {
     const editorMode = editor.getModeAt(editor.getCursor());
     return editorMode?.name === EditorModes.SQL;
@@ -125,7 +136,7 @@ class SqlHintHelper {
     if (isCursorOnEmptyToken(editor) || !this.isSqlMode(editor)) return noHints;
     // @ts-expect-error: No types available
     const completions: Hints = CodeMirror.hint.sql(editor, {
-      tables: this.datasourceTableKeys,
+      tables: this.generateTables(),
     });
     if (isEmpty(completions.list)) return noHints;
     return {
