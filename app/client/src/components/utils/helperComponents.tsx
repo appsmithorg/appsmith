@@ -2,7 +2,7 @@ import React from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import { useHistory } from "react-router-dom";
 import { truncateTextUsingEllipsis } from "constants/DefaultTheme";
-import { Link, Text } from "design-system";
+import { Link } from "design-system";
 
 export const HelpPopoverStyle = createGlobalStyle`
   .bp3-portal {
@@ -21,11 +21,14 @@ export const HelpPopoverStyle = createGlobalStyle`
 
 export const StyledBackLink = styled(Link)`
   display: inline-flex;
-  margin: 0 0 var(--ads-v2-spaces-7) 0;
+  margin: var(--ads-v2-spaces-7) 0;
 `;
 
-export const SettingsHeader = styled(Text)`
+export const SettingsHeader = styled.h2`
   padding: 0px 8px 0 0;
+  font-size: 24px;
+  font-weight: 500;
+  text-transform: capitalize;
   margin-bottom: 0px;
   width: 365px;
   ${truncateTextUsingEllipsis}
@@ -42,8 +45,7 @@ export const StickyHeader = styled.div`
 export function BackButton({ goTo }: { goTo?: string }) {
   const history = useHistory();
 
-  const onBack = (e: any) => {
-    e.preventDefault();
+  const onBack = () => {
     if (goTo) {
       history.push(goTo);
       return;
@@ -55,8 +57,9 @@ export function BackButton({ goTo }: { goTo?: string }) {
     <StyledBackLink
       className="t--admin-settings-back-button"
       kind="secondary"
-      onClick={(e) => onBack(e)}
+      onClick={onBack}
       startIcon="back-control"
+      to="#"
     >
       Back
     </StyledBackLink>

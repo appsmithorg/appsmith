@@ -9,7 +9,7 @@ import {
 import type { RouteComponentProps } from "react-router";
 import { useHistory } from "react-router";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { HighlightText, Table } from "design-system-old";
+import { Table } from "design-system-old";
 import {
   fetchUsersForWorkspace,
   fetchRolesForWorkspace,
@@ -17,13 +17,21 @@ import {
   changeWorkspaceUserRole,
   deleteWorkspaceUser,
 } from "@appsmith/actions/workspaceActions";
-import type { SelectOptionProps } from "design-system";
-import { Avatar, Button, Option, Select, Text } from "design-system";
+import {
+  Classes as AppClass,
+  Dropdown,
+  HighlightText,
+  Text,
+  TextType,
+} from "design-system-old";
+import { Button } from "design-system";
 import styled from "styled-components";
 import DeleteConfirmationModal from "pages/workspace/DeleteConfirmationModal";
 import { useMediaQuery } from "react-responsive";
 import { Card } from "@blueprintjs/core";
+import ProfileImage from "pages/common/ProfileImage";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
+import { Colors } from "constants/Colors";
 import type { WorkspaceUser } from "@appsmith/constants/workspaceConstants";
 import {
   createMessage,
@@ -36,7 +44,6 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
-import { getInitials } from "utils/AppsmithUtils";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -51,6 +58,7 @@ export const MembersWrapper = styled.div<{
 }>`
   ${(props) => (props.isMobile ? "width: 100%; margin: auto" : null)}
   table {
+    margin-top: 12px;
     table-layout: fixed;
 
     thead {
@@ -82,7 +90,7 @@ export const MembersWrapper = styled.div<{
           word-break: break-word;
           padding: 0 var(--ads-spaces-9);
           border-bottom: none;
-          height: 40px;
+          line-height: 2.9;
 
           &:first-child {
             text-align: left;
@@ -102,10 +110,38 @@ export const MembersWrapper = styled.div<{
             text-align: left;
           }
 
-          .ads-v2-select {
-            width: fit-content;
-            > .rc-select-selector {
+          .bp3-popover-target {
+            display: flex;
+
+            > * {
+              flex-grow: 0;
+            }
+
+            .t--user-status {
               border: none;
+              padding: 0;
+              background: none;
+            }
+
+            .cs-text {
+              width: 100%;
+              margin-right: 10px;
+              color: var(--ads-v2-color-fg);
+            }
+          }
+
+          .bp3-overlay {
+            position: relative;
+
+            .bp3-transition-container {
+              transform: none !important;
+              top: 8px !important;
+
+              .bp3-popover-content {
+                > div {
+                  width: 340px;
+                }
+              }
             }
           }
         }
@@ -127,12 +163,12 @@ export const UserCard = styled(Card)`
   display: flex;
   flex-direction: column;
   box-shadow: none;
-  background-color: var(--ads-v2-color-bg-subtle);
-  border: 1px solid var(--ads-v2-color-border);
-  border-radius: var(--ads-v2-border-radius);
+  background-color: ${Colors.GREY_1};
+  border: 1px solid ${Colors.GREY_3};
+  border-radius: 0px;
   padding: ${(props) =>
     `${props.theme.spaces[15]}px ${props.theme.spaces[7] * 4}px;`}
-  width: 100%;
+  width: 343px;
   height: 201px;
   margin: auto;
   margin-bottom: ${(props) => props.theme.spaces[7] - 1}px;
@@ -147,6 +183,18 @@ export const UserCard = styled(Card)`
   .delete-btn {
     position: absolute;
   }
+
+  .t--user-status {
+    background: transparent;
+    border: 0px;
+    width: fit-content;
+    margin: auto;
+    .${AppClass.TEXT} {
+      width: fit-content;
+      margin-top: 0px;
+      color: ${Colors.GREY_10};
+    }
+  }
 `;
 
 export const EachUser = styled.div`
@@ -155,42 +203,32 @@ export const EachUser = styled.div`
 
   .user-icons {
     margin-right: 8px;
-    flex-shrink: 0;
-  }
-
-  .user-group-icons {
-    width: 24px;
-    margin-right: 8px;
-    flex-shrink: 0;
   }
 `;
 
 export const DeleteIcon = styled(Button)`
-  position: absolute !important;
+  position: absolute;
   top: ${(props) => props.theme.spaces[9]}px;
   right: ${(props) => props.theme.spaces[7]}px;
 `;
 
-export const NoResultsText = styled(Text)`
-  color: var(--ads-v2-color-fg);
+export const NoResultsText = styled.div`
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--appsmith-color-black-700);
 `;
 
 export const RowWrapper = styled.div<{ isSubRow?: boolean }>`
   display: flex;
-  height: 100%;
-  align-items: center;
 
   ${({ isSubRow }) => (isSubRow ? `padding-left: 12px;` : ``)}
 
-  .ads-v2-icon {
+  .cs-icon {
     margin: 0 4px 0 0;
     position: relative;
     left: -4px;
   }
-`;
-
-export const StyledText = styled(Text)`
-  padding: var(--ads-v2-spaces-2) var(--ads-v2-spaces-3);
 `;
 
 export default function MemberSettings(props: PageProps) {
@@ -331,16 +369,15 @@ export default function MemberSettings(props: PageProps) {
         return (
           <EachUser>
             <>
-              <Avatar
+              <ProfileImage
                 className="user-icons"
-                firstLetter={getInitials(member.username)}
-                image={
+                size="md"
+                source={
                   member.photoId
                     ? `/api/${USER_PHOTO_ASSET_URL}/${member.photoId}`
                     : undefined
                 }
-                label={member.username}
-                size="sm"
+                userName={member.username}
               />
               <HighlightText highlight={searchValue} text={member.username} />
             </>
@@ -371,53 +408,39 @@ export default function MemberSettings(props: PageProps) {
         const roles = allRoles
           ? allRoles.map((role: any) => {
               return {
-                key: role.id,
+                id: role.id,
                 value: role.name?.split(" - ")[0],
-                description: role.description,
+                label: role.description,
               };
             })
           : [];
         const selectedRole = roles.find(
-          (role: { key: string; value: string; description: string }) =>
+          (role: { id: string; value: string; label: string }) =>
             role.value?.split(" - ")[0] ===
             cellProps.cell.value?.split(" - ")[0],
         );
         if (data.username === currentUser?.username) {
-          return (
-            <StyledText renderAs="p">
-              {cellProps.cell.value?.split(" - ")[0]}
-            </StyledText>
-          );
+          return cellProps.cell.value?.split(" - ")[0];
         }
         return (
-          <Select
+          <Dropdown
+            boundary="viewport"
             className="t--user-status"
+            defaultIcon="downArrow"
+            dontUsePortal
+            height="31px"
             isLoading={
               roleChangingUserInfo &&
               roleChangingUserInfo.username === data.username
             }
             onSelect={(_value: string, option: any) => {
               dispatch(
-                changeWorkspaceUserRole(workspaceId, option.key, data.username),
+                changeWorkspaceUserRole(workspaceId, option.id, data.username),
               );
             }}
-            size="md"
-            value={selectedRole}
-          >
-            {roles.map((role: Partial<SelectOptionProps>) => (
-              <Option key={role.key} label={role.value} value={role.key}>
-                <div className="flex flex-col gap-1">
-                  <Text
-                    color="var(--ads-v2-color-fg-emphasis)"
-                    kind={role.description && "heading-xs"}
-                  >
-                    {role.value}
-                  </Text>
-                  <Text kind="body-s">{role.description}</Text>
-                </div>
-              </Option>
-            ))}
-          </Select>
+            options={roles}
+            selected={selectedRole}
+          />
         );
       },
     },
@@ -428,7 +451,7 @@ export default function MemberSettings(props: PageProps) {
         return (
           <Button
             className="t--deleteUser"
-            data-testid="t--deleteUser"
+            data-cy="t--deleteUser"
             isIconButton
             isLoading={
               deletingUserInfo &&
@@ -453,9 +476,9 @@ export default function MemberSettings(props: PageProps) {
   const roles = allRoles
     ? allRoles.map((role: any) => {
         return {
-          key: role.id,
+          id: role.id,
           value: role.name?.split(" - ")[0],
-          description: role.description,
+          label: role.description,
         };
       })
     : [];
@@ -474,7 +497,7 @@ export default function MemberSettings(props: PageProps) {
             data-testid="listing-table"
             isLoading={isFetchingAllUsers && isFetchingAllRoles}
             noDataComponent={
-              <NoResultsText kind="heading-s">
+              <NoResultsText>
                 {createMessage(NO_SEARCH_DATA_TEXT)}
               </NoResultsText>
             }
@@ -492,76 +515,49 @@ export default function MemberSettings(props: PageProps) {
               return (
                 <UserCard key={index}>
                   <>
-                    <Avatar
+                    <ProfileImage
                       className="avatar"
-                      firstLetter={getInitials(member.username)}
-                      image={
+                      size="md"
+                      source={
                         member.photoId
                           ? `/api/${USER_PHOTO_ASSET_URL}/${member.photoId}`
                           : undefined
                       }
-                      label={member.username}
-                      size="sm"
+                      userName={member.username}
                     />
                     <HighlightText
                       highlight={searchValue}
                       text={member.username}
                     />
-                    <Text
-                      className="user-email"
-                      color="var(--ads-v2-color-fg-muted)"
-                      renderAs="p"
-                    >
+                    <Text className="user-email" type={TextType.P1}>
                       {member.username}
                     </Text>
                   </>
                   {isOwner && (
-                    <Text className="user-role" renderAs="p">
+                    <Text className="user-role" type={TextType.P1}>
                       {member.permissionGroupName?.split(" - ")[0]}
                     </Text>
                   )}
-                  {!isOwner && !role && (
-                    <Text className="user-role" renderAs="p">
-                      No Access
-                    </Text>
-                  )}
                   {!isOwner && (
-                    <Select
+                    <Dropdown
+                      boundary="viewport"
                       className="t--user-status"
-                      isLoading={
-                        roleChangingUserInfo &&
-                        roleChangingUserInfo.username === member.username
-                      }
-                      onSelect={(_value: string, option: any) => {
-                        selectRole(option.key, member.username);
+                      defaultIcon="downArrow"
+                      height="31px"
+                      onSelect={(value: any, option: any) => {
+                        selectRole(option.id, member.username);
                       }}
-                      size="md"
-                      value={role}
-                    >
-                      {roles.map((role: Partial<SelectOptionProps>) => (
-                        <Option
-                          key={role.key}
-                          label={role.value}
-                          value={role.key}
-                        >
-                          <div className="flex flex-col gap-1">
-                            <Text
-                              color="var(--ads-v2-color-fg-emphasis)"
-                              kind={role.description && "heading-xs"}
-                            >
-                              {role.value}
-                            </Text>
-                            <Text kind="body-s">{role.description}</Text>
-                          </div>
-                        </Option>
-                      ))}
-                    </Select>
+                      options={roles}
+                      selected={role}
+                    />
                   )}
                   <DeleteIcon
                     className="t--deleteUser"
-                    data-testid="t--deleteUser"
+                    color={Colors.DANGER_SOLID}
+                    data-cy="t--deleteUser"
                     isIconButton
-                    kind="error"
+                    kind="tertiary"
+                    name="trash-outline"
                     onClick={() => {
                       onConfirmMemberDeletion(
                         member.username,
@@ -570,7 +566,6 @@ export default function MemberSettings(props: PageProps) {
                       );
                     }}
                     size="sm"
-                    startIcon="delete-bin-line"
                   />
                 </UserCard>
               );

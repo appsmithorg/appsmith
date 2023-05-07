@@ -8,9 +8,11 @@ import {
 } from "react-router-dom";
 import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useSelector, useDispatch } from "react-redux";
+import type { MenuItemProps, TabProp } from "design-system-old";
+// import { TabComponent } from "design-system-old";
+import { Tabs, Tab, TabsList, TabPanel } from "design-system";
 import styled from "styled-components";
 
-import { Tabs, Tab, TabsList, TabPanel } from "design-system";
 import MemberSettings from "@appsmith/pages/workspace/Members";
 import { GeneralSettings } from "./General";
 import * as Sentry from "@sentry/react";
@@ -21,6 +23,7 @@ import {
 import { useMediaQuery } from "react-responsive";
 import { BackButton } from "components/utils/helperComponents";
 import { debounce } from "lodash";
+import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { SettingsPageHeader } from "./SettingsPageHeader";
 import { navigateToTab } from "@appsmith/pages/workspace/helpers";
@@ -35,18 +38,10 @@ import {
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { APPLICATIONS_URL } from "constants/routes";
-import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 
 const { cloudHosting } = getAppsmithConfigs();
 
 const SentryRoute = Sentry.withSentryRouting(Route);
-
-type TabProp = {
-  key: string;
-  title: string;
-  count?: number;
-  panelComponent?: JSX.Element;
-};
 
 const SettingsWrapper = styled.div<{
   isMobile?: boolean;
@@ -78,16 +73,6 @@ const StyledStickyHeader = styled.div<{ isMobile?: boolean }>`
 
 export const TabsWrapper = styled.div`
   padding-top: var(--ads-v2-spaces-4);
-
-  .ads-v2-tabs {
-    height: 100%;
-    overflow: hidden;
-
-    .tab-panel {
-      overflow: auto;
-      height: calc(100% - 76px);
-    }
-  }
 `;
 
 enum TABS {
@@ -200,7 +185,7 @@ export default function Settings() {
     },
   ].filter(Boolean) as TabProp[];
 
-  const pageMenuItems: any[] = [
+  const pageMenuItems: MenuItemProps[] = [
     {
       icon: "book-line",
       className: "documentation-page-menu-item",
@@ -253,7 +238,7 @@ export default function Settings() {
             </TabsList>
             {tabArr.map((tab) => {
               return (
-                <TabPanel className="tab-panel" key={tab.key} value={tab.key}>
+                <TabPanel key={tab.key} value={tab.key}>
                   {tab.panelComponent}
                 </TabPanel>
               );
@@ -261,17 +246,17 @@ export default function Settings() {
           </Tabs>
         </TabsWrapper>
       </SettingsWrapper>
-      {currentWorkspace && (
-        <FormDialogComponent
-          Form={WorkspaceInviteUsersForm}
-          hideDefaultTrigger
-          isOpen={showModal}
-          onClose={() => setShowModal(false)}
-          onOpenOrClose={handleFormOpenOrClose}
-          placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
-          workspace={currentWorkspace}
-        />
-      )}
+      <FormDialogComponent
+        Form={WorkspaceInviteUsersForm}
+        canOutsideClickClose
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onOpenOrClose={handleFormOpenOrClose}
+        placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
+        title={`Invite Users to ${currentWorkspace?.name}`}
+        trigger
+        workspaceId={workspaceId}
+      />
     </>
   );
 }

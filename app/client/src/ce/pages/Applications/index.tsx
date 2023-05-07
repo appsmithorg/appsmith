@@ -34,6 +34,7 @@ import PageWrapper from "@appsmith/pages/common/PageWrapper";
 import SubHeader from "pages/common/SubHeader";
 import ApplicationCard from "pages/Applications/ApplicationCard";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
+import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import type { User } from "constants/userConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { CREATE_WORKSPACE_FORM_NAME } from "@appsmith/constants/forms";
@@ -112,7 +113,6 @@ import {
 } from "@appsmith/utils/permissionHelpers";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -744,12 +744,23 @@ export function ApplicationsSection(props: any) {
                   {canInviteToWorkspace && !isMobile && (
                     <FormDialogComponent
                       Form={WorkspaceInviteUsersForm}
+                      canOutsideClickClose
                       onOpenOrClose={handleFormOpenOrClose}
                       placeholder={createMessage(
                         INVITE_USERS_PLACEHOLDER,
                         cloudHosting,
                       )}
-                      workspace={workspace}
+                      title={`Invite Users to ${workspace.name}`}
+                      trigger={
+                        <Button
+                          kind="secondary"
+                          size="md"
+                          startIcon={"share-line"}
+                        >
+                          Share
+                        </Button>
+                      }
+                      workspaceId={workspace.id}
                     />
                   )}
                   {hasCreateNewApplicationPermission &&
