@@ -22,12 +22,14 @@ import {
   THEME_SETTINGS_SECTION_CONTENT_HEADER,
   THEME_SETTINGS_SECTION_HEADER,
   THEME_SETTINGS_SECTION_HEADER_DESC,
+  UPDATE_VIA_IMPORT_SETTING,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
 import EmbedSettings from "./EmbedSettings";
 import NavigationSettings from "./NavigationSettings";
 import { updateAppSettingsPaneSelectedTabAction } from "actions/appSettingsPaneActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { ImportAppSettings } from "./ImportAppSettings";
 
 export enum AppSettingsTabs {
   General,
@@ -35,6 +37,7 @@ export enum AppSettingsTabs {
   Theme,
   Navigation,
   Page,
+  Import,
 }
 
 export interface SelectedTab {
@@ -147,6 +150,19 @@ function AppSettings() {
       },
       subText: createMessage(APP_NAVIGATION_SETTING.sectionHeaderDesc),
     },
+    {
+      id: "t--update-via-import",
+      icon: "download-line",
+      isSelected: selectedTab.type === AppSettingsTabs.Import,
+      name: createMessage(UPDATE_VIA_IMPORT_SETTING.settingLabel),
+      onClick: () => {
+        setSelectedTab({ type: AppSettingsTabs.Import });
+        AnalyticsUtil.logEvent("APP_SETTINGS_SECTION_CLICK", {
+          section: "Import",
+        });
+      },
+      subText: createMessage(UPDATE_VIA_IMPORT_SETTING.settingDesc),
+    },
   ];
 
   return (
@@ -214,6 +230,8 @@ function AppSettings() {
               return <EmbedSettings />;
             case AppSettingsTabs.Navigation:
               return <NavigationSettings />;
+            case AppSettingsTabs.Import:
+              return <ImportAppSettings />;
           }
         })()}
       </SectionContent>

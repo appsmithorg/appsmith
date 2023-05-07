@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 set -e
-set -o xtrace
 
 if [[ -n ${APPSMITH_SEGMENT_CE_KEY-} ]]; then
   ip="$(curl -sS https://api64.ipify.org || echo unknown)"
