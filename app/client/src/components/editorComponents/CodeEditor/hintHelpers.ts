@@ -12,7 +12,7 @@ import {
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { isEmpty, isString } from "lodash";
 import type { getAllDatasourceTableKeys } from "selectors/entitiesSelector";
-import { renderHint } from "./customHints";
+import { renderHint } from "./customHint";
 
 export const bindingHint: HintHelper = (editor) => {
   editor.setOption("extraKeys", {

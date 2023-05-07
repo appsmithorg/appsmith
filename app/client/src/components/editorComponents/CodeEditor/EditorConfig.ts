@@ -72,7 +72,7 @@ export const sqlModesConfig: SqlModeConfig = {
   },
   [editorSQLModes.POSTGRESQL_WITH_BINDING]: {
     mime: "text/x-pgsql",
-    mode: editorSQLModes.REDIS_WITH_BINDING,
+    mode: editorSQLModes.POSTGRESQL_WITH_BINDING,
     isMultiplex: true,
   },
   // Custom mimes
