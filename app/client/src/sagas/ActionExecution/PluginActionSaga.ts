@@ -137,6 +137,7 @@ import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers"
 import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
 import { getActionsForCurrentPage } from "selectors/entitiesSelector";
 import type { ActionData } from "reducers/entityReducers/actionsReducer";
+import { handleStoreOperations } from "./StoreActionSaga";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -1348,6 +1349,13 @@ function* softRefreshActionsSaga() {
   yield call(executePageLoadActionsSaga);
   // Clear all the action responses on the page
   yield call(clearTriggerActionResponse);
+  // Clear appsmith store
+  yield call(handleStoreOperations, [
+    {
+      payload: null,
+      type: "CLEAR_STORE",
+    },
+  ]);
 }
 
 export function* watchPluginActionExecutionSagas() {
