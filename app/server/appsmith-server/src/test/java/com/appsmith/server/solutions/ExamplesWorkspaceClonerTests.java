@@ -1001,8 +1001,14 @@ public class ExamplesWorkspaceClonerTests {
                     o2.setClientId("c1");
                     assertThat(o1).isEqualTo(o2);
 
+                    /**
+                     * Since, datasource 1 is AuthenticationResponse based auth (similar to Gsheets) and the token needs
+                     * to be regenerated for every workspace by the user
+                     */
                     assertThat(map(data.datasources, Datasource::getName)).containsExactlyInAnyOrder(
                             "datasource 1",
+                            "datasource 1 (1)",
+                            "datasource 1 (2)",
                             "datasource 2"
                     );
 
