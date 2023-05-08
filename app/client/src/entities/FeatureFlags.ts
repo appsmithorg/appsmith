@@ -1,5 +1,5 @@
 type FeatureFlags = {
-  TEST_FLAG?: boolean;
+  TEST_FLAG: boolean;
   DATASOURCE_ENVIRONMENTS?: boolean;
   MULTIPLE_PANES?: boolean;
   AUTO_LAYOUT?: boolean;
