@@ -106,15 +106,21 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     return (
       <div className="w-full h-full" ref={this.containerRef}>
         <Select
+          filterOption
           isMultiSelect={this.props.isMultiSelect}
           onDeselect={this.onDeselect}
           onSelect={this.onSelect}
+          optionFilterProp="searchText"
           placeholder={this.props.placeholderText}
           showSearch={this.props.enableSearch}
           value={defaultSelected}
         >
           {options.map((option, index) => (
-            <Option key={index} value={option.value}>
+            <Option
+              key={index}
+              searchText={option.searchText}
+              value={option.value}
+            >
               {option.leftElement && (
                 <FlagWrapper>{option.leftElement}</FlagWrapper>
               )}

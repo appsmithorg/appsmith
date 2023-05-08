@@ -80,9 +80,9 @@ function ExplorerContent() {
     >
       <div className={`flex-shrink-0 px-3 mt-1 py-2 border-t`}>
         <SegmentedControl
-          defaultValue={activeOption}
           onChange={onChange}
           options={options}
+          value={activeOption}
         />
       </div>
       <WidgetSidebar isActive={activeOption === "widgets"} />

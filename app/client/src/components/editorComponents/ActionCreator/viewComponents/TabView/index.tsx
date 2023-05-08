@@ -31,12 +31,12 @@ export function TabView(props: TabViewProps) {
           </label>
         )}
         <SegmentedControl
-          defaultValue={props.activeObj.id}
           onChange={onClick}
           options={props.switches.map((option: Option) => ({
             label: option.text,
             value: option.id,
           }))}
+          value={props.activeObj.id}
         />
       </ControlWrapper>
     </FieldWrapper>

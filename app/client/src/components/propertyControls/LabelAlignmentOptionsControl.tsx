@@ -60,11 +60,11 @@ class LabelAlignmentOptionsControl extends BaseControl<LabelAlignmentOptionsCont
     const { options, propertyValue } = this.props;
     return (
       <SegmentedControl
-        defaultValue={propertyValue || Alignment.LEFT}
         isFullWidth={this.props.fullWidth}
         onChange={this.handleAlign}
         options={options}
         ref={this.componentRef}
+        value={propertyValue || Alignment.LEFT}
       />
     );
   }

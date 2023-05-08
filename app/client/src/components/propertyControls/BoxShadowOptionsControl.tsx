@@ -71,7 +71,6 @@ class BoxShadowOptionsControl extends BaseControl<BoxShadowOptionsControlProps> 
   public render() {
     return (
       <SegmentedControl
-        defaultValue={this.props.evaluatedValue || ""}
         isFullWidth={false}
         onChange={(value, isUpdatedViaKeyboard = false) => {
           this.updateProperty(
@@ -82,6 +81,7 @@ class BoxShadowOptionsControl extends BaseControl<BoxShadowOptionsControlProps> 
         }}
         options={options}
         ref={this.componentRef}
+        value={this.props.evaluatedValue || ""}
       />
     );
   }

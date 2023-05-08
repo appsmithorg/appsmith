@@ -56,10 +56,10 @@ function ThemeBorderRadiusControl(props: ThemeBorderRadiusControlProps) {
 
   return (
     <SegmentedControl
-      defaultValue={selectedOptionKey}
       isFullWidth={false}
       onChange={onChangeBorder}
       options={buttonGroupOptions}
+      value={selectedOptionKey}
     />
   );
 }
