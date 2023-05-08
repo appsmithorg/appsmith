@@ -47,6 +47,7 @@ import SnapShotBannerCTA from "../CanvasLayoutConversion/SnapShotBannerCTA";
 import { APP_MODE } from "entities/App";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+import classNames from "classnames";
 import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
 import { getReadableSnapShotDetails } from "utils/autoLayout/AutoLayoutUtils";
 
@@ -175,8 +176,15 @@ function WidgetsEditor() {
           {guidedTourEnabled && <Guide />}
 
           <div className="relative flex flex-row w-full overflow-hidden">
-            <div className="relative flex flex-col w-full overflow-hidden">
-              <CanvasTopSection />
+            <div
+              className={classNames({
+                "relative flex flex-col w-full overflow-hidden": true,
+                "m-8 border border-gray-200":
+                  isAppSettingsPaneWithNavigationTabOpen,
+              })}
+            >
+              {!isAppSettingsPaneWithNavigationTabOpen && <CanvasTopSection />}
+
               <div
                 className="relative flex flex-row w-full overflow-hidden"
                 data-testid="widgets-editor"
@@ -191,7 +199,12 @@ function WidgetsEditor() {
                 {showNavigation()}
 
                 <PageViewContainer
-                  className="relative flex flex-row w-full justify-center overflow-hidden"
+                  className={classNames({
+                    "relative flex flex-row w-full justify-center overflow-hidden":
+                      true,
+                    "select-none pointer-events-none":
+                      isAppSettingsPaneWithNavigationTabOpen,
+                  })}
                   hasPinnedSidebar={
                     isPreviewingNavigation && !isMobile
                       ? currentApplicationDetails?.applicationDetail
