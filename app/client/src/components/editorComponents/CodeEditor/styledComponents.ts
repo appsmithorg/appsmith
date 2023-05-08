@@ -174,8 +174,8 @@ export const EditorWrapper = styled.div<{
       }
 
       /* Text selection */
-      .cm-s-duotone-light div.CodeMirror-selected {
-        background: #d8e8fd;
+      div.CodeMirror-selected {
+        background: #dbeafe !important;
       }
       .cm-string,
       .token.string {
@@ -247,7 +247,7 @@ export const EditorWrapper = styled.div<{
       }
 
       .navigable-entity-highlight:hover {
-        background-color: #ededed;
+        background-color: #ededed !important;
         font-weight: 600;
       }
 
@@ -297,7 +297,7 @@ export const EditorWrapper = styled.div<{
     }
 
     .${PEEKABLE_CLASSNAME}:hover, .${PEEK_STYLE_PERSIST_CLASS} {
-      background-color: #f4ffde;
+      background-color: #ededed;
     }
 
     .${NAVIGATION_CLASSNAME} {
@@ -306,7 +306,7 @@ export const EditorWrapper = styled.div<{
         props.ctrlPressed &&
         `&:hover {
         text-decoration: underline;
-        background-color:	#FFEFCF;
+        background-color:	#ededed;
       }`}
     }
 
