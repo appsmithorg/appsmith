@@ -311,8 +311,13 @@ const TabContainerView = styled.div`
   }
   position: relative;
 
-  .ads-v2-tabs__list {
-    z-index: 5;
+  & > .ads-v2-tabs {
+    height: 100%;
+
+    & > .ads-v2-tabs__panel {
+      height: calc(100% - 70px);
+      overflow-y: scroll;
+    }
   }
 `;
 

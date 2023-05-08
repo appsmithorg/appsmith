@@ -41,8 +41,19 @@ const DatasourceContainer = styled.div`
   // to account for the divider
   min-width: calc(${(props) => props.theme.actionSidePane.width}px - 2px);
   color: var(--ads-v2-color-fg);
+
   .tab-container-right-sidebar {
     padding: 0 var(--ads-v2-spaces-7);
+    height: 100%;
+
+    .ads-v2-tabs {
+      height: 100%;
+
+      .ads-v2-tabs__panel {
+        height: calc(100% - 70px);
+        overflow-y: scroll;
+      }
+    }
   }
 `;
 
