@@ -25,7 +25,7 @@ import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { getEntityCollapsibleState } from "selectors/editorContextSelectors";
 import type { AppState } from "@appsmith/reducers";
 import { setEntityCollapsibleState } from "actions/editorContextActions";
-import { Tooltip, Icon, Tag } from "design-system";
+import { Tooltip, Tag, Spinner } from "design-system";
 import {
   createMessage,
   EXPLORER_BETA_ENTITY,
@@ -98,7 +98,7 @@ export const EntityItem = styled.div<{
     props.active
       ? `var(--ads-v2-color-bg-muted)`
       : props.isSticky
-      ? Colors.WHITE
+      ? "var(--ads-v2-color-bg)"
       : "none"};
   height: 36px;
   width: 100%;
@@ -212,6 +212,10 @@ const IconWrapper = styled.span`
 export const AddButtonWrapper = styled.div`
   height: 100%;
   width: 100%;
+`;
+
+const SubItemWrapper = styled.div`
+  margin-right: 4px;
 `;
 
 export type EntityProps = {
@@ -394,14 +398,16 @@ export const Entity = forwardRef(
               updateEntityName={updateNameCallback}
             />
             {isUpdating && (
-              <IconWrapper>
-                <Icon name="loader-line" />
-              </IconWrapper>
+              <SubItemWrapper>
+                <Spinner />
+              </SubItemWrapper>
             )}
             {props.isBeta && (
-              <Tag isClosable={false}>
-                {createMessage(EXPLORER_BETA_ENTITY)}
-              </Tag>
+              <SubItemWrapper>
+                <Tag isClosable={false}>
+                  {createMessage(EXPLORER_BETA_ENTITY)}
+                </Tag>
+              </SubItemWrapper>
             )}
             {props.preRightIcon && (
               <IconWrapper
