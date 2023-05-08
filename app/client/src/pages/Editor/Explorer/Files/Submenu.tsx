@@ -160,6 +160,7 @@ export default function ExplorerSubMenu({
                 autoComplete="off"
                 autoFocus
                 className="flex-grow text-sm py-2 text-gray-800 bg-transparent placeholder-trueGray-500"
+                data-testId="t--search-file-operation"
                 onChange={onChange}
                 placeholder="Search datasources"
                 type="text"
