@@ -16,17 +16,9 @@ import { PluginType } from "entities/Action";
 import type { AppState } from "@appsmith/reducers";
 import type { JSONtoFormProps } from "./JSONtoForm";
 import { JSONtoForm } from "./JSONtoForm";
-import DatasourceAuth from "pages/common/datasourceAuth";
-import { getDatasourceFormButtonConfig } from "selectors/entitiesSelector";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import DatasourceInformation from "./DatasourceSection";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
-import { selectFeatureFlags } from "selectors/usersSelectors";
-import {
-  getTrimmedData,
-  normalizeValues,
-  validate,
-} from "components/formControls/utils";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -36,18 +28,15 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   applicationId: string;
   pageId: string;
   isNewDatasource: boolean;
-  pluginImage: string;
   viewMode: boolean;
   pluginType: string;
   messages?: Array<string>;
   datasource: Datasource;
-  datasourceButtonConfiguration: string[] | undefined;
   hiddenHeader?: boolean;
   canManageDatasource?: boolean;
   datasourceName?: string;
   isDatasourceBeingSavedFromPopup: boolean;
   isFormDirty: boolean;
-  datasourceDeleteTrigger: () => void;
 }
 
 type Props = DatasourceDBEditorProps &
@@ -85,19 +74,6 @@ const ViewModeWrapper = styled.div`
 `;
 
 class DatasourceDBEditor extends JSONtoForm<Props> {
-  componentDidUpdate(prevProps: Props) {
-    if (prevProps.datasourceId !== this.props.datasourceId) {
-      super.componentDidUpdate(prevProps);
-    }
-  }
-  // returns normalized and trimmed datasource form data
-  getSanitizedData = () => {
-    return getTrimmedData({
-      ...normalizeValues(this.props.formData, this.configDetails),
-      name: this.props.datasourceName,
-    });
-  };
-
   openDocumentation = () => {
     openDoc(DocsLink.WHITELIST_IP);
   };
@@ -118,11 +94,8 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
   renderDataSourceConfigForm = (sections: any) => {
     const {
       datasource,
-      datasourceButtonConfiguration,
-      datasourceDeleteTrigger,
       datasourceId,
       formConfig,
-      formData,
       messages,
       pluginType,
       viewMode,
@@ -175,20 +148,6 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
             ) : undefined}
           </ViewModeWrapper>
         )}
-        {/* Render datasource form call-to-actions */}
-        {datasource && (
-          <DatasourceAuth
-            datasource={datasource}
-            datasourceButtonConfiguration={datasourceButtonConfiguration}
-            datasourceDeleteTrigger={datasourceDeleteTrigger}
-            formData={formData}
-            getSanitizedFormData={_.memoize(this.getSanitizedData)}
-            isFormDirty={this.props.isFormDirty}
-            isInvalid={validate(this.props.requiredFields, formData)}
-            shouldRender={!viewMode}
-            triggerSave={this.props.isDatasourceBeingSavedFromPopup}
-          />
-        )}
       </Form>
     );
   };
@@ -201,18 +160,11 @@ const mapStateToProps = (state: AppState, props: any) => {
 
   const hintMessages = datasource && datasource.messages;
 
-  const datasourceButtonConfiguration = getDatasourceFormButtonConfig(
-    state,
-    props?.formData?.pluginId,
-  );
-
   return {
     messages: hintMessages,
     datasource,
-    datasourceButtonConfiguration,
     isReconnectingModalOpen: state.entities.datasources.isReconnectingModalOpen,
     datasourceName: datasource?.name ?? "",
-    featureFlags: selectFeatureFlags(state),
     isDatasourceBeingSavedFromPopup:
       state.entities.datasources.isDatasourceBeingSavedFromPopup,
   };

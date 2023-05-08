@@ -456,7 +456,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       <>
         <DataSourceEditorForm
           applicationId={this.props.applicationId}
-          datasourceDeleteTrigger={this.datasourceDeleteTrigger}
           datasourceId={datasourceId}
           formConfig={formConfig}
           formData={formData}
