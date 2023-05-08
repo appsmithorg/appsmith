@@ -21,7 +21,7 @@ export const HelpPopoverStyle = createGlobalStyle`
 
 export const StyledBackLink = styled(Link)`
   display: inline-flex;
-  margin: var(--ads-v2-spaces-7) 0;
+  margin: 0 0 var(--ads-v2-spaces-7) 0;
 `;
 
 export const SettingsHeader = styled.h2`
@@ -37,7 +37,7 @@ export const SettingsHeader = styled.h2`
 export const StickyHeader = styled.div`
   position: sticky;
   top: 0;
-  background: var(--appsmith-color-black-0);
+  background: var(--ads-v2-color-bg);
   padding-bottom: 8px;
   z-index: 4;
 `;

@@ -21,7 +21,7 @@ import {
   setShowAppInviteUsersDialog,
 } from "@appsmith/actions/applicationActions";
 import { useMediaQuery } from "react-responsive";
-import { BackButton } from "components/utils/helperComponents";
+import { BackButton, StickyHeader } from "components/utils/helperComponents";
 import { debounce } from "lodash";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
@@ -50,6 +50,7 @@ const SettingsWrapper = styled.div<{
   margin: var(--ads-v2-spaces-7) auto;
   height: 100%;
   padding-left: var(--ads-v2-spaces-7);
+  overflow: hidden;
   padding-left: ${(props) =>
     props.isMobile ? "0" : "var(--ads-v2-spaces-7);"};
   &::-webkit-scrollbar {
@@ -57,20 +58,28 @@ const SettingsWrapper = styled.div<{
   }
   .tabs-wrapper {
     height: 100%;
+    ${({ isMobile }) =>
+      !isMobile &&
+      `
+      padding: 110px 0 0;
+  `}
   }
 `;
 
-const StyledStickyHeader = styled.div<{ isMobile?: boolean }>`
+const StyledStickyHeader = styled(StickyHeader)<{ isMobile?: boolean }>`
   /* padding-top: 24px; */
-  /* ${({ isMobile }) =>
+  ${({ isMobile }) =>
     !isMobile &&
     `
   top: 72px;
   position: fixed;
   width: 954px;
-  `} */
+  `}
 `;
-
+const StyledTabPanel = styled(TabPanel)`
+  overflow: auto;
+  height: calc(100vh - 275px);
+`;
 export const TabsWrapper = styled.div`
   padding-top: var(--ads-v2-spaces-4);
 `;
@@ -238,9 +247,9 @@ export default function Settings() {
             </TabsList>
             {tabArr.map((tab) => {
               return (
-                <TabPanel key={tab.key} value={tab.key}>
+                <StyledTabPanel key={tab.key} value={tab.key}>
                   {tab.panelComponent}
-                </TabPanel>
+                </StyledTabPanel>
               );
             })}
           </Tabs>

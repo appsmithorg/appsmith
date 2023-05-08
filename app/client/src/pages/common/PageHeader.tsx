@@ -39,7 +39,7 @@ const StyledPageHeader = styled(StyledHeader)<{
 }>`
   justify-content: normal;
   background: var(--ads-v2-color-bg);
-  height: 40px;
+  height: 48px;
   color: var(--ads-v2-color-bg);
   position: fixed;
   top: 0;
