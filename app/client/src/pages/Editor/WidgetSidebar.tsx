@@ -58,13 +58,13 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
     <div
       className={`flex flex-col  overflow-hidden ${isActive ? "" : "hidden"}`}
     >
-      <div className="sticky top-0 bg-gray-50 px-3">
+      <div className="sticky top-0 px-3">
         <SearchInput
           autoComplete="off"
           autoFocus
           id={ENTITY_EXPLORER_SEARCH_ID}
           onChange={search}
-          placeholder="Search Widgets"
+          placeholder="Search widgets"
           ref={searchInputRef}
           type="text"
         />
