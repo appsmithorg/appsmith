@@ -2835,4 +2835,38 @@ public class DatabaseChangelog2 {
         oraclePlugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/oracle.svg");
         mongoTemplate.save(oraclePlugin);
     }
+
+    @ChangeSet(order = "044", id = "add-smtp-email-body-type-to-unpublished-actions", author = "")
+    public void addSmtpEmailBodyTypeToUnpublishedActions(MongoTemplate mongoTemplate) {
+        Plugin smtpPlugin = mongoTemplate.findOne(query(where("packageName").is("smtp-plugin")),
+                Plugin.class);
+
+        /* Query to get all smtp plugin unpublished actions which are not deleted and doesn't have bodyType field */
+        Query unpublishedActionsQuery = getQueryToFetchAllDomainObjectsWhichAreNotDeletedUsingPluginId(smtpPlugin)
+                .addCriteria(where("unpublishedAction.actionConfiguration.formData.send").exists(true))
+                .addCriteria(where("unpublishedAction.actionConfiguration.formData.send.bodyType").exists(false));
+
+        /* Update the bodyType field to have "text/html" value by default */
+        Update update = new Update();
+        update.set("unpublishedAction. actionConfiguration.formData.send.bodyType", "text/html");
+
+        mongoTemplate.updateMulti(unpublishedActionsQuery, update, NewAction.class);
+    }
+
+    @ChangeSet(order = "045", id = "add-smtp-email-body-type-to-published-actions", author = "")
+    public void addSmtpEmailBodyTypeToPublishedActions(MongoTemplate mongoTemplate) {
+        Plugin smtpPlugin = mongoTemplate.findOne(query(where("packageName").is("smtp-plugin")),
+                Plugin.class);
+
+        /* Query to get all smtp plugin published actions which are not deleted and doesn't have bodyType field */
+        Query unpublishedActionsQuery = getQueryToFetchAllDomainObjectsWhichAreNotDeletedUsingPluginId(smtpPlugin)
+                .addCriteria(where("publishedAction.actionConfiguration.formData.send").exists(true))
+                .addCriteria(where("publishedAction.actionConfiguration.formData.send.bodyType").exists(false));
+
+        /* Update the bodyType field to have "text/html" value by default */
+        Update update = new Update();
+        update.set("publishedAction. actionConfiguration.formData.send.bodyType", "text/html");
+
+        mongoTemplate.updateMulti(unpublishedActionsQuery, update, NewAction.class);
+    }
 }
