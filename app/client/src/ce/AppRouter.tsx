@@ -71,7 +71,10 @@ import RouteChangeListener from "RouteChangeListener";
     We use this polyfill to show emoji flags
     on windows devices, this polyfill loads a font family
   */
-polyfillCountryFlagEmojis();
+polyfillCountryFlagEmojis(
+  "Twemoji Country Flags",
+  "/node_modules/country-flag-emoji-polyfill/dist/TwemojiCountryFlags.woff2",
+);
 
 export const SentryRoute = Sentry.withSentryRouting(Route);
 
