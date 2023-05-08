@@ -17,6 +17,7 @@ import { getLogToSentryFromResponse } from "utils/helpers";
 import { validateResponse } from "./ErrorSagas";
 import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 //Saga to create application snapshot
 export function* createSnapshotSaga() {
@@ -72,7 +73,13 @@ export function* fetchSnapshotSaga() {
 //Saga to restore application snapshot
 function* restoreApplicationFromSnapshotSaga() {
   let response: ApiResponse<any> | undefined;
+  let appId = "";
   try {
+    appId = yield select(getCurrentApplicationId);
+    AnalyticsUtil.logEvent("RESTORE_SNAPSHOT", {
+      appId,
+    });
+
     const applicationId: string = yield select(getCurrentApplicationId);
     response = yield ApplicationApi.restoreApplicationFromSnapshot({
       applicationId,
@@ -110,13 +117,24 @@ function* restoreApplicationFromSnapshotSaga() {
         setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_SUCCESS),
       );
     }
-  } catch (error) {
+  } catch (e: any) {
+    let error: Error = e;
+    if (error) {
+      error.message = `Layout Conversion Error - while Restoring Snapshot: ${error.message}`;
+    } else {
+      error = new Error("Layout Conversion Error - while Restoring Snapshot");
+    }
+
     log.error(error);
     //update conversion form state to error
     yield put(
-      setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_ERROR),
+      setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_ERROR, error),
     );
-    throw error;
+
+    AnalyticsUtil.logEvent("CONVERSION_FAILURE", {
+      flow: "RESTORE_SNAPSHOT",
+      appId,
+    });
   }
 }
 
