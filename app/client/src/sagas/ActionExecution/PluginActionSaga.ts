@@ -1345,10 +1345,6 @@ function* clearTriggerActionResponse() {
 
 // Function to soft refresh the all the actions on the page.
 function* softRefreshActionsSaga() {
-  //Rerun all the page load actions on the page
-  yield call(executePageLoadActionsSaga);
-  // Clear all the action responses on the page
-  yield call(clearTriggerActionResponse);
   // Clear appsmith store
   yield call(handleStoreOperations, [
     {
@@ -1356,6 +1352,10 @@ function* softRefreshActionsSaga() {
       type: "CLEAR_STORE",
     },
   ]);
+  // Clear all the action responses on the page
+  yield call(clearTriggerActionResponse);
+  //Rerun all the page load actions on the page
+  yield call(executePageLoadActionsSaga);
 }
 
 export function* watchPluginActionExecutionSagas() {
