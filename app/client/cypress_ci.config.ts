@@ -23,11 +23,8 @@ export default defineConfig({
     openMode: 0,
   },
   e2e: {
-    env: {
-      USERNAME: "xxxx",
-      PASSWORD: "xxxx",
-    },
     baseUrl: "http://localhost/",
     specPattern: 'cypress/e2e/**/*.{js,ts}',
+    testIsolation: false
   },
 })
