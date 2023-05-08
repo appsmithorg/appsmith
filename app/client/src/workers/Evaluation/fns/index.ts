@@ -133,15 +133,12 @@ export const entityFns = [
   {
     name: "clear",
     qualifier: (entity: DataTreeEntity) => isAction(entity),
-    fn: (entity: DataTreeEntity, entityName: string) => {
-      // @ts-expect-error: name is not defined on ActionEntity
-      entity.name = entityName;
-      return getFnWithGuards(
+    fn: (entity: DataTreeEntity, entityName: string) =>
+      getFnWithGuards(
         clear.bind(entity as ActionEntity),
         `${entityName}.clear`,
         [isAsyncGuard],
-      );
-    },
+      ),
   },
   {
     name: "getGeoLocation",
