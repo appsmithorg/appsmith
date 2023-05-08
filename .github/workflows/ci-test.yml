@@ -156,6 +156,7 @@ jobs:
           docker run -d --name appsmith -p 80:80 -p 9001:9001 \
             -v "$PWD/stacks:/appsmith-stacks" \
             -e APPSMITH_DISABLE_TELEMETRY=true \
+            -e APPSMITH_MONGODB_URI=mongodb://e9fc9ecb-0ee0-4-231-b9ee:0wxAQ6IBGGWZsxxMIwX3eotEe2UudcPnoEgXD5PuZ7G0hphDQyAsgnPEN8Ziz7Ljd2dEw2g7gEtNACDb8YRQWA%3D%3D@e9fc9ecb-0ee0-4-231-b9ee.mongo.cosmos.azure.com:10255/test-${{ github.run_id }}-${{ matrix.job }}?ssl=true \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
             cicontainer
