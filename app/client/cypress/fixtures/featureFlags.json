@@ -4,6 +4,9 @@
         "success": true
     },
     "data": {
-
+      "MULTIPLE_PANES": false,
+      "AUTO_LAYOUT": false,
+      "LAZY_CANVAS_RENDERING": false,
+      "ONE_CLICK_BINDING": false
     }
 }
