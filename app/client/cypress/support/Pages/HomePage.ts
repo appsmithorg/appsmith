@@ -38,6 +38,7 @@ export class HomePage {
     role +
     "']";
   private _profileMenu = ".t--profile-menu";
+  private _editProfileMenu = ".t--edit-profile";
   private _signout = ".t--logout-icon";
   _searchUsersInput = ".search-input";
 
@@ -270,6 +271,20 @@ export class HomePage {
     this.agHelper.GetNClick(this._signout);
     this.agHelper.ValidateNetworkStatus("@postLogout");
     this.agHelper.Sleep(); //for logout to complete!
+  }
+
+  public GotoProfileMenu() {
+    this.agHelper.GetNClick(this._profileMenu);
+  }
+
+  public GotoEditProfile() {
+    cy.location().then((loc) => {
+      if (loc.pathname !== "/profile") {
+        this.NavigateToHome();
+        this.GotoProfileMenu();
+        this.agHelper.GetNClick(this._editProfileMenu);
+      }
+    });
   }
 
   public LogintoApp(

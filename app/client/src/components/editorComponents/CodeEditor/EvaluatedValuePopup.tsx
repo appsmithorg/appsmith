@@ -12,10 +12,8 @@ import { TooltipComponent as Tooltip } from "design-system-old";
 import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { IPopoverSharedProps } from "@blueprintjs/core";
-import { Button, Classes, Collapse, Icon } from "@blueprintjs/core";
-import { IconNames } from "@blueprintjs/icons";
+import { Classes, Collapse } from "@blueprintjs/core";
 import { UNDEFINED_VALIDATION } from "utils/validation/common";
-import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import copy from "copy-to-clipboard";
 
 import type { EvaluationError } from "utils/DynamicBindingUtils";
@@ -34,7 +32,7 @@ import { showDebugger } from "actions/debuggerActions";
 import { modText } from "utils/helpers";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getJSFunctionNavigationUrl } from "selectors/navigationSelectors";
-import { toast } from "design-system";
+import { Button, Icon, toast } from "design-system";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -92,8 +90,7 @@ const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
   pointer-events: all;
 `;
 
-const CopyIconWrapper = styled(Button)<{ colorTheme: EditorTheme }>`
-  color: ${(props) => THEMES[props.colorTheme].textColor};
+const CopyIconWrapper = styled.div`
   position: absolute;
   right: 0;
   top: 0;
@@ -110,14 +107,42 @@ const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
   -ms-overflow-style: none;
   padding: ${(props) => props.theme.spaces[3]}px;
   padding-right: 30px;
-  background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
+  background-color: var(--ads-v2-color-bg);
   position: relative;
   &:hover {
     ${CopyIconWrapper} {
       display: flex;
     }
   }
-  border: 1px solid #b3b3b3;
+
+  /* for audit logs */
+  .pushed-content .object-key-val,
+  .variable-row {
+    border-left: 1px solid var(--ads-v2-color-border) !important;
+
+    .object-key,
+    .object-key span,
+    span {
+      color: var(--ads-v2-color-fg) !important;
+      opacity: 1 !important;
+    }
+
+    .variable-value > div span {
+      color: var(--ads-v2-color-fg-brand) !important;
+    }
+  }
+
+  .object-key-val {
+    .collapsed-icon svg,
+    .expanded-icon svg {
+      color: var(--ads-v2-color-fg) !important;
+    }
+
+    .node-ellipsis {
+      color: var(--ads-v2-color-fg-brand) !important;
+      letter-spacing: -2px;
+    }
+  }
 `;
 
 const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
@@ -155,7 +180,7 @@ const ErrorText = styled.p`
   letter-spacing: -0.24px;
   background-color: rgba(226, 44, 44, 0.08);
   border: 1.2px solid ${(props) => props.theme.colors.errorMessage};
-  color: ${(props) => props.theme.colors.errorMessage};
+  color: var(--ads-v2-color-fg-error);
   margin-top: 15px;
 `;
 
@@ -205,7 +230,7 @@ function CollapseToggle(props: { isOpen: boolean }) {
   return (
     <StyledIcon
       className={isOpen ? "open-collapse" : ""}
-      icon={IconNames.CHEVRON_RIGHT}
+      name="chevron-right"
     />
   );
 }
@@ -431,14 +456,16 @@ const ControlledCurrentValueViewer = memo(
           >
             {content}
             {props.hasOwnProperty("evaluatedValue") && (
-              <CopyIconWrapper
-                colorTheme={props.theme}
-                minimal
-                onClick={() =>
-                  copyContent(props.evaluatedValue, onCopyContentText)
-                }
-              >
-                <CopyIcon height={34} />
+              <CopyIconWrapper>
+                <Button
+                  isIconButton
+                  kind="tertiary"
+                  onClick={() =>
+                    copyContent(props.evaluatedValue, onCopyContentText)
+                  }
+                  size="md"
+                  startIcon="duplicate"
+                />
               </CopyIconWrapper>
             )}
           </CurrentValueWrapper>

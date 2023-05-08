@@ -43,7 +43,7 @@ import {
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-configured.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import type { DropdownOption, TextProps } from "design-system-old";
+import type { TextProps } from "design-system-old";
 import { Classes, Callout, Text, TextType, Variant } from "design-system-old";
 import { Button, Icon } from "design-system";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
@@ -60,6 +60,7 @@ import { Tooltip } from "@blueprintjs/core";
 import { isEllipsisActive } from "utils/helpers";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
+import type { SelectOptionProps } from "design-system";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -105,7 +106,7 @@ export const StyledInviteFieldGroup = styled.div`
 
   .wrapper {
     display: flex;
-    width: 85%;
+    width: 90%;
     flex-direction: row;
     align-items: baseline;
     justify-content: space-between;
@@ -246,7 +247,7 @@ export function TooltipWrappedText(
 const validateFormValues = (values: {
   users: string;
   role?: string;
-  roles?: Partial<DropdownOption>[];
+  roles?: Partial<SelectOptionProps>[];
 }) => {
   if (values.users && values.users.length > 0) {
     const _users = values.users.split(",").filter(Boolean);
@@ -409,12 +410,12 @@ function WorkspaceInviteUsersForm(props: any) {
     setSelectedOption(updatedItems);
   };
 
-  const getLabel = (selectedOption: Partial<DropdownOption>[]) => {
+  const getLabel = (selectedOption: any[]) => {
     return (
       <span data-testid="t--dropdown-label" style={{ width: "100%" }}>
         <Text type={TextType.P1}>{`${
           selected
-            ? selectedOption[0].label
+            ? selectedOption[0].key
             : `${selectedOption?.length} Selected`
         }`}</Text>
       </span>
@@ -441,7 +442,7 @@ function WorkspaceInviteUsersForm(props: any) {
             ...(cloudHosting ? { users: usersAsStringsArray } : {}),
             role: isMultiSelectDropdown
               ? selectedOption.map((group: any) => group.id).join(",")
-              : [selectedOption[0].id],
+              : [selectedOption[0].value],
             numberOfUsersInvited: usersAsStringsArray.length,
           });
           return inviteUsersToWorkspace(
@@ -450,7 +451,7 @@ function WorkspaceInviteUsersForm(props: any) {
               users,
               permissionGroupId: isMultiSelectDropdown
                 ? selectedOption.map((group: any) => group.id).join(",")
-                : selectedOption[0].id,
+                : selectedOption[0].value,
             },
             dispatch,
           );
@@ -474,7 +475,7 @@ function WorkspaceInviteUsersForm(props: any) {
               disabled={props.disableDropdown}
               dropdownMaxHeight={props.dropdownMaxHeight}
               isMultiSelect={isMultiSelectDropdown}
-              labelRenderer={(selected: Partial<DropdownOption>[]) =>
+              labelRenderer={(selected: Partial<SelectOptionProps>[]) =>
                 getLabel(selected)
               }
               name={"role"}

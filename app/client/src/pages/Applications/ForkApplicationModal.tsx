@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getUserApplicationsWorkspaces,
@@ -54,6 +54,12 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
 
+  useEffect(() => {
+    if (queryParams.get("fork") === "true" || isModalOpen) {
+      handleOpen();
+    }
+  }, []);
+
   const forkApplication = () => {
     dispatch({
       type: ReduxActionTypes.FORK_APPLICATION_INIT,
@@ -104,14 +110,13 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
   };
 
   const handleOpen = () => {
-    if (!props.setModalClose) {
-      const url = new URL(window.location.href);
-      if (!url.searchParams.has("fork")) {
-        url.searchParams.append("fork", "true");
-        history.push(url.toString().slice(url.origin.length));
-      }
-      dispatch(getAllApplications());
+    // TODO: removed if condition here. Ensure it will affect something or not.
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has("fork")) {
+      url.searchParams.append("fork", "true");
+      history.push(url.toString().slice(url.origin.length));
     }
+    dispatch(getAllApplications());
   };
 
   const handleOnOpenChange = (isOpen: boolean) => {

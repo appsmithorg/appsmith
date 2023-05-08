@@ -2,7 +2,7 @@ import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
 import type { AxiosPromise } from "axios";
 import type { AppColorCode } from "constants/DefaultTheme";
-import type { AppIconName } from "design-system-old";
+import type { IconNames } from "design-system";
 import type {
   AppLayoutConfig,
   AppPositioningTypeConfig,
@@ -86,7 +86,7 @@ export interface CreateApplicationRequest {
   name: string;
   workspaceId: string;
   color?: AppColorCode;
-  icon?: AppIconName;
+  icon?: IconNames;
 }
 
 export interface SetDefaultPageRequest {
@@ -199,7 +199,7 @@ export interface UpdateApplicationResponse {
   appIsExample: boolean;
   unreadCommentThreads: number;
   color: string;
-  icon: AppIconName;
+  icon: IconNames;
   slug: string;
   lastDeployedAt: Date;
   evaluationVersion: number;
@@ -219,6 +219,16 @@ export interface PageDefaultMeta {
   isDefault: boolean;
   defaultPageId: string;
   default: boolean;
+}
+
+export interface UploadNavigationLogoRequest {
+  applicationId: string;
+  logo: File;
+  onSuccessCallback?: () => void;
+}
+
+export interface DeleteNavigationLogoRequest {
+  applicationId: string;
 }
 
 export interface snapShotApplicationRequest {
@@ -353,6 +363,35 @@ export class ApplicationApi extends Api {
         },
         onUploadProgress: request.progress,
       },
+    );
+  }
+
+  static uploadNavigationLogo(
+    request: UploadNavigationLogoRequest,
+  ): AxiosPromise<ApiResponse> {
+    const formData = new FormData();
+
+    if (request.logo) {
+      formData.append("file", request.logo);
+    }
+
+    return Api.post(
+      ApplicationApi.baseURL + "/" + request.applicationId + "/logo",
+      formData,
+      null,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+  }
+
+  static deleteNavigationLogo(
+    request: DeleteNavigationLogoRequest,
+  ): AxiosPromise<ApiResponse> {
+    return Api.delete(
+      ApplicationApi.baseURL + "/" + request.applicationId + "/logo",
     );
   }
 
