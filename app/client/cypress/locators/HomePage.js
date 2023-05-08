@@ -60,7 +60,7 @@ export default {
   applicationName: ".t--application-name",
   applicationEditMenu: ".t--application-edit-menu",
   editingAppName: "bp3-editable-text-editing",
-  portalMenuItem: ".bp3-portal .bp3-menu-item",
+  portalMenuItem: ".ads-v2-menu__menu-item-children",
   profileMenu: ".bp3-popover-wrapper.profile-menu",
   signOutIcon: ".t--logout-icon",
   headerAppSmithLogo: ".t--Appsmith-logo-image",
