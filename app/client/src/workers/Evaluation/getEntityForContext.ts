@@ -4,6 +4,7 @@ import JSObjectCollection from "./JSObject/Collection";
 import JSFactory from "./JSObject/JSVariableFactory";
 import { jsObjectFunctionFactory } from "./fns/utils/jsObjectFnFactory";
 import type { JSActionEntity } from "entities/DataTree/types";
+import { klona } from "klona/full";
 
 function getJSFunctionsForEntity({
   jsObject,
@@ -54,6 +55,9 @@ export function getEntityForEvalContext(
 
         jsObjectForEval = JSFactory.create(entityName, jsObjectForEval);
         return Object.assign(jsObjectForEval, fns);
+      }
+      case ENTITY_TYPE.ACTION: {
+        return klona(entity);
       }
     }
   }
