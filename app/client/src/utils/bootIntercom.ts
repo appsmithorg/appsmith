@@ -35,7 +35,7 @@ export const updateIntercomProperties = (instanceId: string, user?: User) => {
         !cloudHosting ? appVersion.edition : ""
       } ${appVersion.id}`,
       instanceId,
-      "License ID": "3rd license",
+      "License ID": "",
     });
   }
 };
