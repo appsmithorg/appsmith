@@ -86,7 +86,6 @@ interface StateProps extends JSONtoFormProps {
   actions: ActionDataState;
   datasource?: Datasource;
   datasourceButtonConfiguration: string[] | undefined;
-  hiddenHeader?: boolean; // for reconnect modal
   pageId?: string; // for reconnect modal
   pluginPackageName: string; // for reconnect modal
   datasourceName: string;
@@ -112,11 +111,8 @@ interface DatasourceFormFunctions {
 
 type DatasourceSaaSEditorProps = StateProps &
   DatasourceFormFunctions &
-  RouteComponentProps<{
-    datasourceId: string;
-    pageId: string;
-    pluginPackageName: string;
-  }>;
+  SaasEditorWrappperProps &
+  RouteComponentProps<RouteProps>;
 
 type Props = DatasourceSaaSEditorProps &
   InjectedFormProps<Datasource, DatasourceSaaSEditorProps>;
@@ -142,15 +138,24 @@ const ViewModeWrapper = styled.div`
   padding: 24px 20px;
 `;
 
+type SaasEditorWrappperProps = RouteProps & {
+  hiddenHeader?: boolean; // for reconnect modal
+};
+type RouteProps = {
+  datasourceId: string;
+  pageId: string;
+  pluginPackageName: string;
+};
+
 type SaasEditorWrappperState = {
   requiredFields: Record<string, ControlProps>;
   configDetails: Record<string, string>;
 };
 class SaasEditorWrapper extends React.Component<
-  DatasourceSaaSEditorProps,
+  SaasEditorWrappperProps,
   SaasEditorWrappperState
 > {
-  constructor(props: DatasourceSaaSEditorProps) {
+  constructor(props: SaasEditorWrappperProps) {
     super(props);
     this.state = {
       requiredFields: {},
@@ -158,7 +163,7 @@ class SaasEditorWrapper extends React.Component<
     };
   }
 
-  componentDidUpdate(prevProps: Readonly<DatasourceSaaSEditorProps>): void {
+  componentDidUpdate(prevProps: Readonly<SaasEditorWrappperProps>): void {
     // if the datasource id changes, we need to reset the required fields and configDetails
     if (this.props.datasourceId !== prevProps.datasourceId) {
       this.setState({
