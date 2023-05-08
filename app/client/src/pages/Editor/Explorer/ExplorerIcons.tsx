@@ -174,13 +174,6 @@ function EntityTextIcon(props: EntityTextIconProps): JSX.Element {
   );
 }
 
-// border: ${({ borderColor, height, noBorder }) =>
-// noBorder
-//   ? "none"
-//   : `${parseInt(height ? height : "18px") * 0.0845}px solid ${
-//       borderColor ?? "var(--ads-v2-color-border)"
-//     }`};
-
 //border size is 8.5% of the height.
 // (8.5% because for 18px of default height, the border is 1.5px).
 //img and svg are set to 80% of the height to allow for the border to be visible and not cut off.
