@@ -2,11 +2,12 @@ import React from "react";
 import { connect } from "react-redux";
 import { getFormInitialValues, getFormValues, isDirty } from "redux-form";
 import type { AppState } from "@appsmith/reducers";
-import { get, isEqual } from "lodash";
+import { get, isEqual, memoize } from "lodash";
 import {
   getPluginImages,
   getDatasource,
   getPlugin,
+  getDatasourceFormButtonConfig,
 } from "selectors/entitiesSelector";
 import {
   switchDatasource,
@@ -71,10 +72,18 @@ import Debugger, {
   ResizerMainContainer,
 } from "./Debugger";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
+import DatasourceAuth from "pages/common/datasourceAuth";
+import {
+  getTrimmedData,
+  normalizeValues,
+  validate,
+} from "components/formControls/utils";
+import type { ControlProps } from "components/formControls/BaseControl";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
   canManageDatasource: boolean;
+  datasourceButtonConfiguration: string[] | undefined;
   datasourceId: string;
   formData: Datasource;
   isSaving: boolean;
@@ -130,6 +139,8 @@ type State = {
   showDialog: boolean;
   routesBlocked: boolean;
   readUrlParams: boolean;
+  requiredFields: Record<string, ControlProps>;
+  configDetails: Record<string, string>;
 
   unblock(): void;
   navigation(): void;
@@ -154,6 +165,8 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       showDialog: false,
       routesBlocked: false,
       readUrlParams: false,
+      requiredFields: {},
+      configDetails: {},
       unblock: () => {
         return undefined;
       },
@@ -195,6 +208,15 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       )
     ) {
       this.props.initializeFormWithDefaults(this.props.pluginType);
+    }
+
+    // if the datasource id changes, we need to reset the required fields and configDetails
+    if (this.props.datasourceId !== prevProps.datasourceId) {
+      this.setState({
+        ...this.state,
+        requiredFields: {},
+        configDetails: {},
+      });
     }
   }
 
@@ -282,6 +304,20 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       }
     }
   }
+
+  // updates the configDetails and requiredFields objects in the state
+  setupConfig = (config: ControlProps) => {
+    const { configProperty, controlType, isRequired } = config;
+    const configDetails = this.state.configDetails;
+    const requiredFields = this.state.requiredFields;
+    configDetails[configProperty] = controlType;
+    if (isRequired) requiredFields[configProperty] = config;
+    this.setState({
+      ...this.state,
+      configDetails,
+      requiredFields,
+    });
+  };
 
   componentWillUnmount() {
     this.props.discardTempDatasource();
@@ -470,6 +506,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           pluginImage={pluginImage}
           pluginType={pluginType}
           setDatasourceViewMode={setDatasourceViewMode}
+          setupConfig={this.setupConfig}
           viewMode={viewMode && !fromImporting}
         />
         {this.renderSaveDisacardModal()}
@@ -526,8 +563,26 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     );
   }
 
+  // returns normalized and trimmed datasource form data
+  getSanitizedData = () => {
+    return getTrimmedData({
+      ...normalizeValues({ ...this.props.formData }, this.state.configDetails),
+      name: this.props.datasource?.name || "",
+    });
+  };
+
   render() {
-    const { datasourceId, fromImporting, pluginId, showDebugger } = this.props;
+    const {
+      datasource,
+      datasourceButtonConfiguration,
+      datasourceId,
+      formData,
+      fromImporting,
+      pluginId,
+      showDebugger,
+      triggerSave,
+      viewMode,
+    } = this.props;
 
     if (!pluginId && datasourceId) {
       return <EntityNotFoundPane />;
@@ -545,6 +600,20 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         <ResizerMainContainer>
           <ResizerContentContainer className="db-form-resizer-content">
             {this.renderForm()}
+            {/* Render datasource form call-to-actions */}
+            {datasource && (
+              <DatasourceAuth
+                datasource={datasource}
+                datasourceButtonConfiguration={datasourceButtonConfiguration}
+                datasourceDeleteTrigger={this.datasourceDeleteTrigger}
+                formData={formData}
+                getSanitizedFormData={memoize(this.getSanitizedData)}
+                isFormDirty={this.props.isFormDirty}
+                isInvalid={validate(this.state.requiredFields, formData)}
+                shouldRender={!viewMode}
+                triggerSave={triggerSave}
+              />
+            )}
           </ResizerContentContainer>
           {showDebugger && <Debugger />}
         </ResizerMainContainer>
@@ -589,9 +658,15 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const isPluginAuthorized =
     plugin && isDatasourceAuthorizedForQueryCreation(formData, plugin);
 
+  const datasourceButtonConfiguration = getDatasourceFormButtonConfig(
+    state,
+    props?.formData?.pluginId,
+  );
+
   return {
     canCreateDatasourceActions,
     canManageDatasource,
+    datasourceButtonConfiguration,
     datasourceId,
     pluginImage: getPluginImages(state)[pluginId],
     formData,
