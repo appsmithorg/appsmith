@@ -1,4 +1,4 @@
-import { AppsmithUIConfigs } from "./types";
+import type { AppsmithUIConfigs } from "./types";
 import { Integrations } from "@sentry/tracing";
 import * as Sentry from "@sentry/react";
 import { createBrowserHistory } from "history";
@@ -13,8 +13,6 @@ export interface INJECTED_CONFIGS {
   smartLook: {
     id: string;
   };
-  enableGoogleOAuth: boolean;
-  enableGithubOAuth: boolean;
   disableLoginForm: boolean;
   disableSignup: boolean;
   enableRapidAPI: boolean;
@@ -26,7 +24,6 @@ export interface INJECTED_CONFIGS {
     licenseKey: string;
   };
   enableMixpanel: boolean;
-  google: string;
   enableTNCPP: boolean;
   cloudHosting: boolean;
   algolia: {
@@ -48,6 +45,8 @@ export interface INJECTED_CONFIGS {
   supportEmail: string;
   hideWatermark: boolean;
   disableIframeWidgetSandbox: boolean;
+  pricingUrl: string;
+  customerPortalUrl: string;
 }
 
 const capitalizeText = (text: string) => {
@@ -68,12 +67,6 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     smartLook: {
       id: process.env.REACT_APP_SMART_LOOK_ID || "",
     },
-    enableGoogleOAuth: process.env.REACT_APP_OAUTH2_GOOGLE_CLIENT_ID
-      ? process.env.REACT_APP_OAUTH2_GOOGLE_CLIENT_ID.length > 0
-      : false,
-    enableGithubOAuth: process.env.REACT_APP_OAUTH2_GITHUB_CLIENT_ID
-      ? process.env.REACT_APP_OAUTH2_GITHUB_CLIENT_ID.length > 0
-      : false,
     disableLoginForm: process.env.APPSMITH_FORM_LOGIN_DISABLED
       ? process.env.APPSMITH_FORM_LOGIN_DISABLED.length > 0
       : false,
@@ -101,7 +94,6 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
         | "debug"
         | "error"
         | undefined) || "error",
-    google: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || "",
     enableTNCPP: process.env.REACT_APP_TNC_PP
       ? process.env.REACT_APP_TNC_PP.length > 0
       : false,
@@ -131,6 +123,8 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       .APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX
       ? process.env.APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX.length > 0
       : false,
+    pricingUrl: process.env.REACT_APP_PRICING_URL || "",
+    customerPortalUrl: process.env.REACT_APP_CUSTOMER_PORTAL_URL || "",
   };
 };
 
@@ -244,16 +238,10 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     },
     enableRapidAPI:
       ENV_CONFIG.enableRapidAPI || APPSMITH_FEATURE_CONFIGS.enableRapidAPI,
-    enableGithubOAuth:
-      ENV_CONFIG.enableGithubOAuth ||
-      APPSMITH_FEATURE_CONFIGS.enableGithubOAuth,
     disableLoginForm:
       ENV_CONFIG.disableLoginForm || APPSMITH_FEATURE_CONFIGS.disableLoginForm,
     disableSignup:
       ENV_CONFIG.disableSignup || APPSMITH_FEATURE_CONFIGS.disableSignup,
-    enableGoogleOAuth:
-      ENV_CONFIG.enableGoogleOAuth ||
-      APPSMITH_FEATURE_CONFIGS.enableGoogleOAuth,
     enableMixpanel:
       ENV_CONFIG.enableMixpanel || APPSMITH_FEATURE_CONFIGS.enableMixpanel,
     cloudHosting:
@@ -273,5 +261,9 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     disableIframeWidgetSandbox:
       ENV_CONFIG.disableIframeWidgetSandbox ||
       APPSMITH_FEATURE_CONFIGS.disableIframeWidgetSandbox,
+    pricingUrl: ENV_CONFIG.pricingUrl || APPSMITH_FEATURE_CONFIGS.pricingUrl,
+    customerPortalUrl:
+      ENV_CONFIG.customerPortalUrl ||
+      APPSMITH_FEATURE_CONFIGS.customerPortalUrl,
   };
 };

@@ -13,6 +13,7 @@ import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.dtos.TestEmailConfigRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FileUtils;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
@@ -462,7 +463,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 .flatMap(entry -> {
                     final String key = entry.getKey();
                     final List<Part> parts = entry.getValue();
-                    final boolean isFile = parts.size() > 0 && parts.get(0) instanceof FilePart;
+                    final boolean isFile = !CollectionUtils.isNullOrEmpty(parts) && parts.get(0) instanceof FilePart;
 
                     if (isFile) {
                         return handleFileUpload(key, parts);

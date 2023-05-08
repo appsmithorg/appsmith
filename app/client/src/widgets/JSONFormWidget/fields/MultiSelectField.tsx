@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useMemo, useRef } from "react";
 import styled from "styled-components";
-import { LabelInValueType, DraftValueType } from "rc-select/lib/Select";
+import type { LabelInValueType, DraftValueType } from "rc-select/lib/Select";
 import { useController } from "react-hook-form";
 import { isNil } from "lodash";
 
@@ -11,13 +11,13 @@ import useEvents from "./useBlurAndFocusEvents";
 import useRegisterFieldValidity from "./useRegisterFieldValidity";
 import useUpdateInternalMetaState from "./useUpdateInternalMetaState";
 import { Layers } from "constants/Layers";
-import {
-  ActionUpdateDependency,
+import type {
   BaseFieldComponentProps,
   FieldComponentBaseProps,
   FieldEventProps,
 } from "../constants";
-import { DropdownOption } from "widgets/MultiSelectTreeWidget/widget";
+import { ActionUpdateDependency } from "../constants";
+import type { DropdownOption } from "widgets/MultiSelectTreeWidget/widget";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { isPrimitive, validateOptions } from "../helper";
 import { Colors } from "constants/Colors";
@@ -39,9 +39,8 @@ type MultiSelectComponentProps = FieldComponentBaseProps &
     serverSideFiltering: boolean;
   };
 
-export type MultiSelectFieldProps = BaseFieldComponentProps<
-  MultiSelectComponentProps
->;
+export type MultiSelectFieldProps =
+  BaseFieldComponentProps<MultiSelectComponentProps>;
 
 const DEFAULT_ACCENT_COLOR = Colors.GREEN;
 const DEFAULT_BORDER_RADIUS = "0";
@@ -101,6 +100,9 @@ function MultiSelectField({
     onBlur: onBlurDynamicString,
     onFocus: onFocusDynamicString,
   } = schemaItem;
+  // When the options value is invalid after validation, the string value entered
+  // in the property pane is passed down as options here.
+  const options = Array.isArray(schemaItem.options) ? schemaItem.options : [];
   const wrapperRef = useRef<HTMLDivElement>(null);
   const { executeAction } = useContext(FormContext);
 
@@ -155,10 +157,7 @@ function MultiSelectField({
     }
   }, [schemaItem.defaultValue, passedDefaultValue]);
 
-  const componentValues = fieldValuesToComponentValues(
-    inputValue,
-    schemaItem.options,
-  );
+  const componentValues = fieldValuesToComponentValues(inputValue, options);
 
   const onFilterChange = useCallback(
     (value: string) => {
@@ -216,7 +215,7 @@ function MultiSelectField({
           onChange={onOptionChange}
           onFilterChange={onFilterChange}
           onFocus={onFocusHandler}
-          options={schemaItem.options || []}
+          options={options}
           placeholder={schemaItem.placeholderText || ""}
           serverSideFiltering={schemaItem.serverSideFiltering}
           value={componentValues}

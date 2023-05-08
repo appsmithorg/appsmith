@@ -145,7 +145,7 @@ import ProgressWidget, {
   CONFIG as PROGRESS_WIDGET_CONFIG,
 } from "widgets/ProgressWidget";
 import { registerWidget } from "./WidgetRegisterHelpers";
-import { WidgetConfiguration } from "widgets/constants";
+import type { WidgetConfiguration } from "widgets/constants";
 import TableWidgetV2, {
   CONFIG as TABLE_WIDGET_CONFIG_V2,
 } from "widgets/TableWidgetV2";

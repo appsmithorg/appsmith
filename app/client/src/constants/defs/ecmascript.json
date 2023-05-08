@@ -402,17 +402,13 @@
       "!stdProto": "Function",
       "apply": {
         "!type": "fn(this: ?, args: [?])",
-        "!effects": [
-          "call and return !this this=!0 !1.<i> !1.<i> !1.<i>"
-        ],
+        "!effects": ["call and return !this this=!0 !1.<i> !1.<i> !1.<i>"],
         "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Function/apply",
         "!doc": "Calls a function with a given this value and arguments provided as an array (or an array like object)."
       },
       "call": {
         "!type": "fn(this: ?, args?: ?) -> !this.!ret",
-        "!effects": [
-          "call and return !this this=!0 !1 !2 !3 !4"
-        ],
+        "!effects": ["call and return !this this=!0 !1 !2 !3 !4"],
         "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Function/call",
         "!doc": "Calls a function with a given this value and arguments provided individually."
       },
@@ -435,9 +431,7 @@
     },
     "from": {
       "!type": "fn(arrayLike: ?, mapFn?: fn(elt: ?, i: number) -> ?, thisArg?: ?) -> [!0.<i>]",
-      "!effects": [
-        "call !1 this=!2 !0.<i> number"
-      ],
+      "!effects": ["call !1 this=!2 !0.<i> number"],
       "!doc": "The Array.from() method creates a new Array instance from an array-like or iterable object.",
       "!url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from"
     },
@@ -475,9 +469,7 @@
       },
       "push": {
         "!type": "fn(newelt: ?) -> number",
-        "!effects": [
-          "propagate !0 !this.<i>"
-        ],
+        "!effects": ["propagate !0 !this.<i>"],
         "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/push",
         "!doc": "Mutates an array by appending the given elements and returning the new length of the array."
       },
@@ -488,9 +480,7 @@
       },
       "unshift": {
         "!type": "fn(newelt: ?) -> number",
-        "!effects": [
-          "propagate !0 !this.<i>"
-        ],
+        "!effects": ["propagate !0 !this.<i>"],
         "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/unshift",
         "!doc": "Adds one or more elements to the beginning of an array and returns the new length of the array."
       },
@@ -506,9 +496,7 @@
       },
       "sort": {
         "!type": "fn(compare?: fn(a: ?, b: ?) -> number)",
-        "!effects": [
-          "call !0 !this.<i> !this.<i>"
-        ],
+        "!effects": ["call !0 !this.<i> !this.<i>"],
         "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/sort",
         "!doc": "Sorts the elements of an array in place and returns the array."
       },
@@ -524,57 +512,43 @@
       },
       "every": {
         "!type": "fn(test: fn(elt: ?, i: number, array: +Array) -> bool, context?: ?) -> bool",
-        "!effects": [
-          "call !0 this=!1 !this.<i> number !this"
-        ],
+        "!effects": ["call !0 this=!1 !this.<i> number !this"],
         "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/every",
         "!doc": "Tests whether all elements in the array pass the test implemented by the provided function."
       },
       "some": {
         "!type": "fn(test: fn(elt: ?, i: number, array: +Array) -> bool, context?: ?) -> bool",
-        "!effects": [
-          "call !0 this=!1 !this.<i> number !this"
-        ],
+        "!effects": ["call !0 this=!1 !this.<i> number !this"],
         "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/some",
         "!doc": "Tests whether some element in the array passes the test implemented by the provided function."
       },
       "filter": {
         "!type": "fn(test: fn(elt: ?, i: number, array: +Array) -> bool, context?: ?) -> !this",
-        "!effects": [
-          "call !0 this=!1 !this.<i> number !this"
-        ],
+        "!effects": ["call !0 this=!1 !this.<i> number !this"],
         "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/filter",
         "!doc": "Creates a new array with all elements that pass the test implemented by the provided function."
       },
       "forEach": {
         "!type": "fn(f: fn(elt: ?, i: number, array: +Array), context?: ?)",
-        "!effects": [
-          "call !0 this=!1 !this.<i> number !this"
-        ],
+        "!effects": ["call !0 this=!1 !this.<i> number !this"],
         "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/forEach",
         "!doc": "Executes a provided function once per array element."
       },
       "map": {
         "!type": "fn(f: fn(elt: ?, i: number, array: +Array) -> ?, context?: ?) -> [!0.!ret]",
-        "!effects": [
-          "call !0 this=!1 !this.<i> number !this"
-        ],
+        "!effects": ["call !0 this=!1 !this.<i> number !this"],
         "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/map",
         "!doc": "Creates a new array with the results of calling a provided function on every element in this array."
       },
       "reduce": {
         "!type": "fn(combine: fn(sum: ?, elt: ?, i: number, array: +Array) -> ?, init?: ?) -> !0.!ret",
-        "!effects": [
-          "call !0 !1 !this.<i> number !this"
-        ],
+        "!effects": ["call !0 !1 !this.<i> number !this"],
         "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/Reduce",
         "!doc": "Apply a function against an accumulator and each value of the array (from left-to-right) as to reduce it to a single value."
       },
       "reduceRight": {
         "!type": "fn(combine: fn(sum: ?, elt: ?, i: number, array: +Array) -> ?, init?: ?) -> !0.!ret",
-        "!effects": [
-          "call !0 !1 !this.<i> number !this"
-        ],
+        "!effects": ["call !0 !1 !this.<i> number !this"],
         "!url": "https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Array/ReduceRight",
         "!doc": "Apply a function simultaneously against two values of the array (from right-to-left) as to reduce it to a single value."
       },
@@ -1721,7 +1695,7 @@
     "apply": {
       "!type": "fn(target: fn(), thisArg?: ?, argumentList?: [?]) -> !0.!ret",
       "!doc": "Calls a target function with arguments as specified.",
-      "!url":  "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect/apply"
+      "!url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect/apply"
     },
     "construct": {
       "!type": "fn(target: fn(), argumentList?: [?]) -> ?",

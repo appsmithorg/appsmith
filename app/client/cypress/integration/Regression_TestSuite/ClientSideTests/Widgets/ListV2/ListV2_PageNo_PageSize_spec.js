@@ -179,9 +179,7 @@ describe("List widget V2 page number and page size", () => {
     cy.get(queryLocators.queryNameField).type("Query1");
 
     // switching off Use Prepared Statement toggle
-    cy.get(queryLocators.switch)
-      .last()
-      .click({ force: true });
+    cy.get(queryLocators.switch).last().click({ force: true });
 
     //.1: Click on Write query area
     cy.get(queryLocators.templateMenu).click();

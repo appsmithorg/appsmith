@@ -1,10 +1,9 @@
 import { Alignment } from "@blueprintjs/core";
-import { CellAlignmentTypes, ColumnProperties } from "../component/Constants";
-import {
-  ColumnTypes,
-  InlineEditingSaveOptions,
-  TableWidgetProps,
-} from "../constants";
+import type { ColumnProperties } from "../component/Constants";
+import { StickyType } from "../component/Constants";
+import { CellAlignmentTypes } from "../component/Constants";
+import type { TableWidgetProps } from "../constants";
+import { ColumnTypes, InlineEditingSaveOptions } from "../constants";
 import _, { findIndex, get, isBoolean } from "lodash";
 import { Colors } from "constants/Colors";
 import {
@@ -15,7 +14,7 @@ import {
   createEditActionColumn,
   generateNewColumnOrderFromStickyValue,
 } from "./utilities";
-import { PropertyHookUpdates } from "constants/PropertyControlConstants";
+import type { PropertyHookUpdates } from "constants/PropertyControlConstants";
 import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
 
 export function totalRecordsCountValidation(
@@ -33,7 +32,7 @@ export function totalRecordsCountValidation(
     return {
       isValid: true,
       parsed: defaultValue,
-      message: [""],
+      messages: [],
     };
   } else if (
     (!_.isFinite(value) && !_.isString(value)) ||
@@ -45,7 +44,7 @@ export function totalRecordsCountValidation(
     return {
       isValid: false,
       parsed: defaultValue,
-      message: [ERROR_MESSAGE],
+      messages: [{ name: "ValidationError", message: ERROR_MESSAGE }],
     };
   } else {
     /*
@@ -54,7 +53,7 @@ export function totalRecordsCountValidation(
     return {
       isValid: true,
       parsed: Number(value),
-      message: [""],
+      messages: [],
     };
   }
 }
@@ -195,7 +194,8 @@ export const updateColumnOrderHook = (
 
     const rightColumnIndex = findIndex(
       newColumnOrder,
-      (colName: string) => props.primaryColumns[colName].sticky === "right",
+      (colName: string) =>
+        props.primaryColumns[colName]?.sticky === StickyType.RIGHT,
     );
 
     if (rightColumnIndex !== -1) {
@@ -946,7 +946,4 @@ export function selectColumnOptionsValidation(
 }
 
 export const getColumnPath = (propPath: string) =>
-  propPath
-    .split(".")
-    .slice(0, 2)
-    .join(".");
+  propPath.split(".").slice(0, 2).join(".");

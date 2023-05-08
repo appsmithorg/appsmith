@@ -2,7 +2,7 @@ import React from "react";
 import { Checkbox, Classes } from "@blueprintjs/core";
 import styled, { keyframes, createGlobalStyle } from "styled-components";
 import { Colors } from "constants/Colors";
-import { LabelPosition } from "components/constants";
+import type { LabelPosition } from "components/constants";
 import { labelLayoutStyles } from "design-system-old";
 
 const rcSelectDropdownSlideUpIn = keyframes`

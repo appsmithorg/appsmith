@@ -5,7 +5,7 @@ export class DeployMode {
   private agHelper = ObjectsRegistry.AggregateHelper;
 
   _jsonFieldName = (fieldName: string) => `//p[text()='${fieldName}']`;
-  _jsonFormFieldByName = (fieldName: string, input: boolean = true) =>
+  _jsonFormFieldByName = (fieldName: string, input = true) =>
     this._jsonFieldName(fieldName) +
     `/ancestor::div[@direction='column']//div[@data-testid='input-container']//${
       input ? "input" : "textarea"
@@ -20,7 +20,8 @@ export class DeployMode {
   _clearDropdown = "button.select-button span.cancel-icon";
   private _jsonFormMultiSelectOptions = (option: string) =>
     `//div[@title='${option}']//input[@type='checkbox']/ancestor::div[@title='${option}']`;
-  private _backtoHome = ".t--back-to-home";
+  private _backtoHome =
+    ".t--app-viewer-navigation-header .t--app-viewer-back-to-apps-button";
   private _homeAppsmithImage = "a.t--appsmith-logo";
 
   //refering PublishtheApp from command.js
@@ -103,10 +104,7 @@ export class DeployMode {
   }
 
   public SelectJsonFormDropDown(dropdownOption: string, index = 0) {
-    cy.get(this._jsonSelectDropdown)
-      .eq(index)
-      .scrollIntoView()
-      .click();
+    cy.get(this._jsonSelectDropdown).eq(index).scrollIntoView().click();
     cy.get(this.locator._selectOptionValue(dropdownOption)).click({
       force: true,
     });

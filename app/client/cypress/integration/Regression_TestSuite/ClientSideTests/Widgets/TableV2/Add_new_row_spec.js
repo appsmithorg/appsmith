@@ -154,13 +154,8 @@ describe("Table widget Add new row feature's", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
       ["Button", "Menu Button", "Icon Button"].forEach((columnType) => {
-        cy.get(commonlocators.changeColType)
-          .last()
-          .click();
-        cy.get(".t--dropdown-option")
-          .children()
-          .contains(columnType)
-          .click();
+        cy.get(commonlocators.changeColType).last().click();
+        cy.get(".t--dropdown-option").children().contains(columnType).click();
         cy.wait("@updateLayout");
         cy.get(`[data-colindex=0][data-rowindex=0] button`).should("not.exist");
       });
@@ -198,6 +193,7 @@ describe("Table widget Add new row feature's", () => {
 
   describe("Validation flow", () => {
     before(() => {
+      cy.startServerAndRoutes();
       agHelper.RestoreLocalStorageCache();
       cy.addDsl(dsl);
     });
@@ -242,13 +238,8 @@ describe("Table widget Add new row feature's", () => {
       cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("exist");
 
-      cy.get(commonlocators.changeColType)
-        .last()
-        .click();
-      cy.get(".t--dropdown-option")
-        .children()
-        .contains("Number")
-        .click();
+      cy.get(commonlocators.changeColType).last().click();
+      cy.get(".t--dropdown-option").children().contains("Number").click();
       cy.wait("@updateLayout");
 
       propPane.UpdatePropertyFieldValue("Min", "5");
@@ -360,6 +351,7 @@ describe("Table widget Add new row feature's", () => {
 
   describe("Actions flow (save, discard)", () => {
     before(() => {
+      cy.startServerAndRoutes();
       agHelper.RestoreLocalStorageCache();
       cy.addDsl(dsl);
     });
@@ -374,11 +366,7 @@ describe("Table widget Add new row feature's", () => {
     });
 
     it("3.2. should test that discard events is triggered when user clicks on the discard button", () => {
-      cy.get(
-        ".t--property-control-ondiscard .t--open-dropdown-Select-Action",
-      ).click({ force: true });
-      cy.selectShowMsg();
-      agHelper.EnterActionValue("Message", "discarded!!");
+      cy.getAlert("onDiscard", "discarded!!");
       cy.get(".t--add-new-row").click();
       cy.get(".tableWrap .new-row").should("exist");
       cy.get(".t--discard-new-row").click({ force: true });
@@ -388,11 +376,7 @@ describe("Table widget Add new row feature's", () => {
     });
 
     it("3.3. should test that save event is triggered when user clicks on the save button", () => {
-      cy.get(
-        ".t--property-control-onsave .t--open-dropdown-Select-Action",
-      ).click({ force: true });
-      cy.selectShowMsg();
-      agHelper.EnterActionValue("Message", "saved!!");
+      cy.getAlert("onSave", "saved!!");
       cy.get(".t--add-new-row").click();
       cy.get(".tableWrap .new-row").should("exist");
       cy.get(".t--save-new-row").click({ force: true });

@@ -12,4 +12,5 @@ import lombok.ToString;
 public class OAuthResponseDTO {
     Datasource datasource;
     String token;
+    String projectID;
 }

@@ -1,8 +1,8 @@
 import Api from "api/Api";
-import { AxiosPromise } from "axios";
-import { ApiResponse } from "api/ApiResponses";
-import { PluginPackageName, PluginType } from "entities/Action";
-import { DependencyMap } from "utils/DynamicBindingUtils";
+import type { AxiosPromise } from "axios";
+import type { ApiResponse } from "api/ApiResponses";
+import type { PluginPackageName, PluginType } from "entities/Action";
+import type { DependencyMap } from "utils/DynamicBindingUtils";
 
 export type PluginId = string;
 export type GenerateCRUDEnabledPluginMap = Record<PluginId, PluginPackageName>;

@@ -1,4 +1,4 @@
-describe("Name uniqueness test", function() {
+describe("Name uniqueness test", function () {
   it("Test api name unique error", () => {
     cy.log("Login Successful");
     cy.NavigateToAPI_Panel();

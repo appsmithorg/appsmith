@@ -16,18 +16,19 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { APP_MODE } from "entities/App";
+import type { APP_MODE } from "entities/App";
 import { call, put } from "redux-saga/effects";
 import { failFastApiCalls } from "sagas/InitSagas";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import AppEngine, { ActionsNotFoundError, AppEnginePayload } from ".";
+import type { AppEnginePayload } from ".";
+import AppEngine, { ActionsNotFoundError } from ".";
 import { fetchJSLibraries } from "actions/JSLibraryActions";
 import {
   waitForSegmentInit,
   waitForFetchUserSuccess,
-} from "ce/sagas/userSagas";
+} from "@appsmith/sagas/userSagas";
 
 export default class AppViewerEngine extends AppEngine {
   constructor(mode: APP_MODE) {

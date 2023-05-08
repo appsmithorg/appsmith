@@ -2,7 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
-describe("Git with Theming:", function() {
+describe("Git with Theming:", function () {
   const backgroudColorMaster = "rgb(85, 61, 233)";
   const backgroudColorChildBranch = "rgb(100, 116, 139)";
   const tempBranch = "tempBranch";
@@ -34,15 +34,13 @@ describe("Git with Theming:", function() {
     // cy.connectToGitRepo(repoName);
     //});
   });
-  it("Bug #13860 Theming is not getting applied on view mode when the app is connected to Git", function() {
+  it("Bug #13860 Theming is not getting applied on view mode when the app is connected to Git", function () {
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToThemeSettings();
     // apply theme on master branch and deploy
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
 
-    cy.get(commonlocators.themeCard)
-      .eq(1)
-      .click({ force: true });
+    cy.get(commonlocators.themeCard).eq(1).click({ force: true });
 
     // check for alert
     cy.get(`${commonlocators.themeCard}`)
@@ -74,9 +72,7 @@ describe("Git with Theming:", function() {
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
 
     // select a theme
-    cy.get(commonlocators.themeCard)
-      .last()
-      .click({ force: true });
+    cy.get(commonlocators.themeCard).last().click({ force: true });
 
     // check for alert
     cy.get(`${commonlocators.themeCard}`)

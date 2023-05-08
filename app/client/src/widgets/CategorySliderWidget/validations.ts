@@ -1,5 +1,5 @@
-import { ValidationResponse } from "constants/WidgetValidation";
-import { CategorySliderWidgetProps, SliderOption } from "./widget";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import type { CategorySliderWidgetProps, SliderOption } from "./widget";
 
 export function optionsCustomValidation(
   options: unknown,

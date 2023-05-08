@@ -1,9 +1,8 @@
 import { find, get, isEmpty, union } from "lodash";
 import toPath from "lodash/toPath";
+import type { EvalError, DependencyMap } from "utils/DynamicBindingUtils";
 import {
   EvalErrorTypes,
-  EvalError,
-  DependencyMap,
   getDynamicBindings,
   getEntityDynamicBindingPathList,
 } from "utils/DynamicBindingUtils";
@@ -14,13 +13,17 @@ import {
   getEntityNameAndPropertyPath,
   isAction,
   isJSAction,
+  isJSActionConfig,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import {
-  DataTreeAction,
+
+import type {
+  DataTree,
+  ConfigTree,
   DataTreeEntity,
-  DataTreeJSAction,
-  DataTreeWidget,
+  DataTreeEntityConfig,
+  WidgetEntity,
+  WidgetEntityConfig,
 } from "entities/DataTree/dataTreeFactory";
 import {
   DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
@@ -28,6 +31,12 @@ import {
 } from "constants/WidgetValidation";
 import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
 import { libraryReservedIdentifiers } from "workers/common/JSLibrary";
+import type {
+  ActionEntityConfig,
+  JSActionEntityConfig,
+  ActionEntity,
+  JSActionEntity,
+} from "entities/DataTree/types";
 
 /** This function extracts validReferences and invalidReferences from a binding {{}}
  * @param script
@@ -142,12 +151,13 @@ export const extractInfoFromBindings = (
 };
 
 export function listTriggerFieldDependencies(
-  entity: DataTreeWidget,
+  entity: WidgetEntity,
   entityName: string,
+  entityConfig: WidgetEntityConfig,
 ): DependencyMap {
   const triggerFieldDependency: DependencyMap = {};
   if (isWidget(entity)) {
-    const dynamicTriggerPathlist = entity.dynamicTriggerPathList;
+    const dynamicTriggerPathlist = entityConfig.dynamicTriggerPathList;
     if (dynamicTriggerPathlist && dynamicTriggerPathlist.length) {
       dynamicTriggerPathlist.forEach((dynamicPath) => {
         const propertyPath = dynamicPath.key;
@@ -155,9 +165,8 @@ export function listTriggerFieldDependencies(
         const { jsSnippets } = getDynamicBindings(unevalPropValue);
         const existingDeps =
           triggerFieldDependency[`${entityName}.${propertyPath}`] || [];
-        triggerFieldDependency[
-          `${entityName}.${propertyPath}`
-        ] = existingDeps.concat(jsSnippets.filter((jsSnippet) => !!jsSnippet));
+        triggerFieldDependency[`${entityName}.${propertyPath}`] =
+          existingDeps.concat(jsSnippets.filter((jsSnippet) => !!jsSnippet));
       });
     }
   }
@@ -165,12 +174,13 @@ export function listTriggerFieldDependencies(
 }
 
 export function listValidationDependencies(
-  entity: DataTreeWidget,
+  entity: WidgetEntity,
   entityName: string,
+  entityConfig: WidgetEntityConfig,
 ): DependencyMap {
   const validationDependency: DependencyMap = {};
   if (isWidget(entity)) {
-    const { validationPaths } = entity;
+    const { validationPaths } = entityConfig;
 
     Object.entries(validationPaths).forEach(
       ([propertyPath, validationConfig]) => {
@@ -178,9 +188,8 @@ export function listValidationDependencies(
           const dependencyArray = validationConfig.dependentPaths.map(
             (path) => `${entityName}.${path}`,
           );
-          validationDependency[
-            `${entityName}.${propertyPath}`
-          ] = dependencyArray;
+          validationDependency[`${entityName}.${propertyPath}`] =
+            dependencyArray;
         }
       },
     );
@@ -212,22 +221,25 @@ const invalidEntityIdentifiers: Record<string, unknown> = {
 };
 
 export function listEntityDependencies(
-  entity: DataTreeWidget | DataTreeAction | DataTreeJSAction,
+  entity: WidgetEntity | ActionEntity | JSActionEntity,
   entityName: string,
   allPaths: Record<string, true>,
+  unEvalDataTree: DataTree,
+  configTree: ConfigTree,
 ): DependencyMap {
   let dependencies: DependencyMap = {};
 
   if (isWidget(entity)) {
     // Adding the dynamic triggers in the dependency list as they need linting whenever updated
     // we don't make it dependent on anything else
-    if (entity.dynamicTriggerPathList) {
-      Object.values(entity.dynamicTriggerPathList).forEach(({ key }) => {
+    const widgetConfig = configTree[entityName] as WidgetEntityConfig;
+    if (widgetConfig.dynamicTriggerPathList) {
+      Object.values(widgetConfig.dynamicTriggerPathList).forEach(({ key }) => {
         dependencies[`${entityName}.${key}`] = [];
       });
     }
     const widgetDependencies = addWidgetPropertyDependencies({
-      entity,
+      entity: widgetConfig,
       entityName,
     });
 
@@ -238,7 +250,10 @@ export function listEntityDependencies(
   }
 
   if (isAction(entity) || isJSAction(entity)) {
-    Object.entries(entity.dependencyMap).forEach(
+    const actionConfig = configTree[entityName] as
+      | JSActionEntityConfig
+      | ActionEntityConfig;
+    Object.entries(actionConfig.dependencyMap).forEach(
       ([path, entityDependencies]) => {
         const actionDependentPaths: Array<string> = [];
         const mainPath = `${entityName}.${path}`;
@@ -259,11 +274,13 @@ export function listEntityDependencies(
   }
   if (isJSAction(entity)) {
     // making functions dependent on their function body entities
-    if (entity.reactivePaths) {
-      Object.keys(entity.reactivePaths).forEach((propertyPath) => {
+    const jsActionConfig = configTree[entityName];
+    if (jsActionConfig.reactivePaths) {
+      Object.keys(jsActionConfig.reactivePaths).forEach((propertyPath) => {
         const existingDeps =
           dependencies[`${entityName}.${propertyPath}`] || [];
-        const unevalPropValue = get(entity, propertyPath);
+        // const unevalPropValue = get(entity, propertyPath);
+        const unevalPropValue = get(unEvalDataTree?.[entityName], propertyPath);
         const unevalPropValueString =
           !!unevalPropValue && unevalPropValue.toString();
         const { jsSnippets } = getDynamicBindings(
@@ -279,11 +296,14 @@ export function listEntityDependencies(
 
   if (isAction(entity) || isWidget(entity)) {
     // add the dynamic binding paths to the dependency map
-    const dynamicBindingPathList = getEntityDynamicBindingPathList(entity);
+    const entityConfig = configTree[entityName];
+    const dynamicBindingPathList =
+      getEntityDynamicBindingPathList(entityConfig);
     if (dynamicBindingPathList.length) {
       dynamicBindingPathList.forEach((dynamicPath) => {
         const propertyPath = dynamicPath.key;
-        const unevalPropValue = get(entity, propertyPath);
+        // const unevalPropValue = get(entity, propertyPath);
+        const unevalPropValue = get(unEvalDataTree?.[entityName], propertyPath);
         const { jsSnippets } = getDynamicBindings(unevalPropValue);
         const existingDeps =
           dependencies[`${entityName}.${propertyPath}`] || [];
@@ -297,8 +317,9 @@ export function listEntityDependencies(
 }
 
 export function listEntityPathDependencies(
-  entity: DataTreeWidget | DataTreeAction | DataTreeJSAction,
+  entity: WidgetEntity | ActionEntity | JSActionEntity,
   fullPropertyPath: string,
+  entityConfig: DataTreeEntityConfig,
 ): {
   isTrigger: boolean;
   dependencies: string[];
@@ -307,19 +328,22 @@ export function listEntityPathDependencies(
   const isTrigger = false;
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
   if (isWidget(entity)) {
-    if (isATriggerPath(entity, propertyPath)) {
+    if (
+      isATriggerPath(entity, propertyPath, entityConfig as WidgetEntityConfig)
+    ) {
       return {
         isTrigger: true,
         dependencies: listEntityPathTriggerFieldDependencies(
           entity,
           fullPropertyPath,
+          entityConfig as WidgetEntityConfig,
         ),
       };
     }
   }
 
   if (isJSAction(entity)) {
-    if (entity.bindingPaths.hasOwnProperty(propertyPath)) {
+    if (entityConfig.bindingPaths.hasOwnProperty(propertyPath)) {
       const unevalPropValue = get(entity, propertyPath);
       const unevalPropValueString =
         !!unevalPropValue && unevalPropValue.toString();
@@ -332,8 +356,8 @@ export function listEntityPathDependencies(
 
   if (isAction(entity) || isWidget(entity)) {
     if (
-      entity.bindingPaths.hasOwnProperty(propertyPath) ||
-      find(entity.dynamicBindingPathList, { key: propertyPath })
+      entityConfig.bindingPaths.hasOwnProperty(propertyPath) ||
+      find(entityConfig.dynamicBindingPathList, { key: propertyPath })
     ) {
       const unevalPropValue = get(entity, propertyPath);
       const { jsSnippets } = getDynamicBindings(unevalPropValue);
@@ -346,13 +370,14 @@ export function listEntityPathDependencies(
 }
 
 export function listEntityPathTriggerFieldDependencies(
-  entity: DataTreeWidget,
+  entity: WidgetEntity,
   fullPath: string,
+  entityConfig: WidgetEntityConfig,
 ) {
   let triggerFieldDependencies: string[] = [];
   const { propertyPath } = getEntityNameAndPropertyPath(fullPath);
 
-  if (isADynamicTriggerPath(entity, propertyPath)) {
+  if (isADynamicTriggerPath(entity, propertyPath, entityConfig)) {
     const unevalPropValue = get(entity, propertyPath);
     const { jsSnippets } = getDynamicBindings(unevalPropValue);
     triggerFieldDependencies = jsSnippets.filter((jsSnippet) => !!jsSnippet);
@@ -364,9 +389,10 @@ export function listEntityPathTriggerFieldDependencies(
 export function isADynamicTriggerPath(
   entity: DataTreeEntity,
   propertyPath: string,
+  entityConfig: WidgetEntityConfig,
 ) {
   if (isWidget(entity)) {
-    const dynamicTriggerPathlist = entity.dynamicTriggerPathList;
+    const dynamicTriggerPathlist = entityConfig?.dynamicTriggerPathList;
     const isTriggerPath = find(dynamicTriggerPathlist, { key: propertyPath });
     if (isTriggerPath) {
       return true;
@@ -375,9 +401,13 @@ export function isADynamicTriggerPath(
   }
 }
 
-function isATriggerPath(entity: DataTreeEntity, propertyPath: string) {
+function isATriggerPath(
+  entity: DataTreeEntity,
+  propertyPath: string,
+  entityConfig: WidgetEntityConfig,
+) {
   if (isWidget(entity)) {
-    const triggerPaths = entity.triggerPaths;
+    const triggerPaths = entityConfig.triggerPaths;
     return triggerPaths.hasOwnProperty(propertyPath);
   }
   return false;
@@ -397,4 +427,25 @@ export function updateMap(
   } else {
     map[path] = updatedEntries;
   }
+}
+
+export function isAsyncJSFunction(configTree: ConfigTree, fullPath: string) {
+  const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
+  const configEntity = configTree[entityName];
+  return (
+    isJSActionConfig(configEntity) &&
+    propertyPath &&
+    propertyPath in configEntity.meta &&
+    configEntity.meta[propertyPath].isAsync
+  );
+}
+
+export function isJSFunction(configTree: ConfigTree, fullPath: string) {
+  const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
+  const entityConfig = configTree[entityName];
+  return (
+    isJSActionConfig(entityConfig) &&
+    propertyPath &&
+    propertyPath in entityConfig.meta
+  );
 }

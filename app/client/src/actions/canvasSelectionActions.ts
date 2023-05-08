@@ -1,9 +1,7 @@
-import {
-  ReduxAction,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import { SelectedArenaDimensions } from "pages/common/CanvasArenas/CanvasSelectionArena";
-import { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { SelectedArenaDimensions } from "pages/common/CanvasArenas/CanvasSelectionArena";
+import type { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 
 export const setCanvasSelectionFromEditor = (
   start: boolean,

@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 import tinycolor from "tinycolor2";
+import type { Intent } from "constants/DefaultTheme";
 import {
-  Intent,
   BlueprintButtonIntentsCSS,
   IntentIcons,
   IntentColors,

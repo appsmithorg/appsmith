@@ -12,11 +12,11 @@ const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 const widgetSelectorByType = (name) => `.t--widget-${name}`;
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
-describe("Select Widgets", function() {
+describe("Select Widgets", function () {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("a. Select Widgets default value", function() {
+  it("a. Select Widgets default value", function () {
     cy.dragAndDropToWidget("multiselectwidgetv2", "listwidgetv2", {
       x: 150,
       y: 50,
@@ -91,7 +91,7 @@ describe("Select Widgets", function() {
       force: true,
     });
   });
-  it("b. Select Widgets isValid", function() {
+  it("b. Select Widgets isValid", function () {
     // Test for isValid === True
     cy.dragAndDropToWidget("textwidget", "listwidgetv2", {
       x: 550,
@@ -143,7 +143,7 @@ describe("Select Widgets", function() {
       .first()
       .should("have.text", `__true_false`);
   });
-  it("c. Select Widgets onOptionChange", function() {
+  it("c. Select Widgets onOptionChange", function () {
     cy.get(formWidgetsPage.selectWidget)
       .find(widgetLocators.dropdownSingleSelect)
       .click({ force: true });

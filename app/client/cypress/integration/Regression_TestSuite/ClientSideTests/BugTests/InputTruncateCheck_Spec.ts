@@ -80,7 +80,7 @@ const widgetsToTest = {
 
 function configureApi() {
   cy.fixture("datasources").then((datasourceFormData) => {
-  apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"], "FirstAPI");
+    apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"], "FirstAPI");
   });
   apiPage.EnterHeader("value", "{{this.params.value}}");
 }

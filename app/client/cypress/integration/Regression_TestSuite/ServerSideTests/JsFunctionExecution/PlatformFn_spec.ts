@@ -7,10 +7,10 @@ import {
 
 describe("Tests functionality of platform function", () => {
   it("1. Tests access to outer variable", () => {
-    cy.fixture("datasources").then((datasourceFormData : any) => {
-    apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"], "getAllUsers");
-    jsEditor.CreateJSObject(
-      `export default {
+    cy.fixture("datasources").then((datasourceFormData: any) => {
+      apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"], "getAllUsers");
+      jsEditor.CreateJSObject(
+        `export default {
         myFun1: () => {
 
         },
@@ -67,81 +67,83 @@ describe("Tests functionality of platform function", () => {
           showAlert("Hello").then(() => getAllUsers.run(() => showAlert("World")));
         }
     }`,
-      {
-        paste: true,
-        completeReplace: true,
-        toRun: false,
-        shouldCreateNewJSObj: true,
-        prettify: false,
-      },
-    );
-    agHelper.Sleep(4000);
-    cy.url().then((url) => {
-      cy.visit(url, {
-        onBeforeLoad: (win) => {
-          const latitude = 48.71597183246423;
-          const longitude = 21.255670821215418;
-          cy.stub(win.navigator.geolocation, "getCurrentPosition").callsArgWith(
-            0,
-            {
-              coords: { latitude, longitude },
-            },
-          );
+        {
+          paste: true,
+          completeReplace: true,
+          toRun: false,
+          shouldCreateNewJSObj: true,
+          prettify: false,
         },
-      });
-
-      jsEditor.SelectFunctionDropdown("accessOuterVariableInsideGeoCb");
-      jsEditor.RunJSObj();
-      agHelper.AssertContains("Hello World from current position", "exist");
-
-      jsEditor.SelectFunctionDropdown("accessOuterVariableInsideSuccessCb");
-      jsEditor.RunJSObj();
-      agHelper.AssertContains("Hello World from success callback", "exist");
-      jsEditor.SelectFunctionDropdown("accessOuterVariableInsideSetIntervalCb");
-      jsEditor.RunJSObj();
-      agHelper.AssertContains("Hello World from setInterval", "exist");
-      jsEditor.SelectFunctionDropdown("accessSetIntervalFromSetTimeout");
-      jsEditor.RunJSObj();
-      agHelper.AssertContains(
-        "Hello World from setInterval inside setTimeout",
-        "exist",
       );
-      jsEditor.SelectFunctionDropdown("executeTriggersOutsideReqResCycle");
-      jsEditor.RunJSObj();
-      agHelper.AssertContains("Hello", "exist");
-      agHelper.AssertContains("World", "exist");
-
-      // Test for meta data
-      jsEditor.SelectFunctionDropdown("metaDataForSetTimeout");
-      jsEditor.RunJSObj();
-      debuggerHelper.ClickDebuggerIcon();
-      agHelper.GetNClick(jsEditor._logsTab);
-      jsEditor.SelectFunctionDropdown("switchMetaData");
-      jsEditor.RunJSObj();
       agHelper.Sleep(4000);
-      debuggerHelper.filter("JSObject1.metaDataForSetTimeout");
-      debuggerHelper.DoesConsoleLogExist("Hello from setTimeout");
+      cy.url().then((url) => {
+        cy.visit(url, {
+          onBeforeLoad: (win) => {
+            const latitude = 48.71597183246423;
+            const longitude = 21.255670821215418;
+            cy.stub(
+              win.navigator.geolocation,
+              "getCurrentPosition",
+            ).callsArgWith(0, {
+              coords: { latitude, longitude },
+            });
+          },
+        });
 
-      jsEditor.SelectFunctionDropdown("metaDataForSetInterval");
-      jsEditor.RunJSObj();
-      debuggerHelper.ClickDebuggerIcon();
-      agHelper.GetNClick(jsEditor._logsTab);
-      jsEditor.SelectFunctionDropdown("switchMetaData");
-      jsEditor.RunJSObj();
-      agHelper.Sleep(3000);
-      debuggerHelper.filter("JSObject1.metaDataForSetInterval");
-      debuggerHelper.DoesConsoleLogExist("Hello from setInterval");
+        jsEditor.SelectFunctionDropdown("accessOuterVariableInsideGeoCb");
+        jsEditor.RunJSObj();
+        agHelper.AssertContains("Hello World from current position", "exist");
 
-      jsEditor.SelectFunctionDropdown("metaDataApiTest");
-      jsEditor.RunJSObj();
-      debuggerHelper.ClickDebuggerIcon();
-      agHelper.GetNClick(jsEditor._logsTab);
-      jsEditor.SelectFunctionDropdown("switchMetaData");
-      jsEditor.RunJSObj();
-      agHelper.Sleep(2000);
-      debuggerHelper.filter("JSObject1.metaDataApiTest");
-      debuggerHelper.DoesConsoleLogExist("Hello from setTimeout inside API");
-    });
+        jsEditor.SelectFunctionDropdown("accessOuterVariableInsideSuccessCb");
+        jsEditor.RunJSObj();
+        agHelper.AssertContains("Hello World from success callback", "exist");
+        jsEditor.SelectFunctionDropdown(
+          "accessOuterVariableInsideSetIntervalCb",
+        );
+        jsEditor.RunJSObj();
+        agHelper.AssertContains("Hello World from setInterval", "exist");
+        jsEditor.SelectFunctionDropdown("accessSetIntervalFromSetTimeout");
+        jsEditor.RunJSObj();
+        agHelper.AssertContains(
+          "Hello World from setInterval inside setTimeout",
+          "exist",
+        );
+        jsEditor.SelectFunctionDropdown("executeTriggersOutsideReqResCycle");
+        jsEditor.RunJSObj();
+        agHelper.AssertContains("Hello", "exist");
+        agHelper.AssertContains("World", "exist");
+
+        // Test for meta data
+        jsEditor.SelectFunctionDropdown("metaDataForSetTimeout");
+        jsEditor.RunJSObj();
+        agHelper.GetNClick(jsEditor._logsTab);
+        jsEditor.SelectFunctionDropdown("switchMetaData");
+        jsEditor.RunJSObj();
+        agHelper.Sleep(4000);
+        agHelper.GetNClick(jsEditor._logsTab);
+        debuggerHelper.filter("JSObject1.metaDataForSetTimeout");
+        debuggerHelper.DoesConsoleLogExist("Hello from setTimeout");
+
+        jsEditor.SelectFunctionDropdown("metaDataForSetInterval");
+        jsEditor.RunJSObj();
+        agHelper.GetNClick(jsEditor._logsTab);
+        jsEditor.SelectFunctionDropdown("switchMetaData");
+        jsEditor.RunJSObj();
+        agHelper.Sleep(3000);
+        agHelper.GetNClick(jsEditor._logsTab);
+        debuggerHelper.filter("JSObject1.metaDataForSetInterval");
+        debuggerHelper.DoesConsoleLogExist("Hello from setInterval");
+
+        jsEditor.SelectFunctionDropdown("metaDataApiTest");
+        jsEditor.RunJSObj();
+        agHelper.GetNClick(jsEditor._logsTab);
+        jsEditor.SelectFunctionDropdown("switchMetaData");
+        jsEditor.RunJSObj();
+        agHelper.Sleep(2000);
+        agHelper.GetNClick(jsEditor._logsTab);
+        debuggerHelper.filter("JSObject1.metaDataApiTest");
+        debuggerHelper.DoesConsoleLogExist("Hello from setTimeout inside API");
+      });
     });
   });
 });

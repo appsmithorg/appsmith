@@ -105,17 +105,13 @@ describe("List widget v2 - Basic server side data tests", () => {
     cy.get(commonlocators.toastmsg).should("not.exist");
 
     // Reset List widget
-    cy.get(".t--draggable-buttonwidget")
-      .find("button")
-      .click({ force: true });
+    cy.get(".t--draggable-buttonwidget").find("button").click({ force: true });
 
     // Verify if page 1
     cy.get(".rc-pagination-item").contains(1);
 
     // Verify if Query fired once
-    cy.get(commonlocators.toastmsg)
-      .should("exist")
-      .should("have.length", 1);
+    cy.get(commonlocators.toastmsg).should("exist").should("have.length", 1);
   });
 
   it("4. retains input values when pages are switched", () => {
@@ -166,9 +162,7 @@ describe("List widget v2 - Basic server side data tests", () => {
       .find("button")
       .click({ force: true });
 
-    cy.get(".rc-pagination-item")
-      .contains(1)
-      .wait(5000);
+    cy.get(".rc-pagination-item").contains(1).wait(5000);
 
     // Verify if previously the typed values are retained
     cy.get(".t--draggable-inputwidgetv2").each(($inputWidget, index) => {
@@ -236,11 +230,9 @@ describe("List widget v2 - Basic server side data tests", () => {
     cy.get(queryLocators.queryNameField).type("Query2");
 
     // switching off Use Prepared Statement toggle
-    cy.get(queryLocators.switch)
-      .last()
-      .click({
-        force: true,
-      });
+    cy.get(queryLocators.switch).last().click({
+      force: true,
+    });
 
     //.1: Click on Write query area
     cy.get(queryLocators.templateMenu).click();

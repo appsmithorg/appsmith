@@ -1,7 +1,7 @@
 import { createGlobalStyle } from "styled-components";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { getTypographyByKey } from "design-system-old";
-import { Theme } from "constants/DefaultTheme";
+import type { Theme } from "constants/DefaultTheme";
 import { LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS } from "components/editorComponents/CodeEditor/constants";
 
 export const CodemirrorHintStyles = createGlobalStyle<{
@@ -66,6 +66,11 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     &.CodeMirror-hint-active {
       .shortcut {
         color: #ffffff;
+      }
+      .magic {
+        path {
+          fill: black;
+        }
       }
       .add-datasource-icon {
         background: white;

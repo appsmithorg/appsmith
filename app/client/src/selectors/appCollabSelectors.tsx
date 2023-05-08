@@ -1,8 +1,8 @@
 import { createSelector } from "reselect";
-import { AppState } from "@appsmith/reducers";
-import { AppCollabReducerState } from "reducers/uiReducers/appCollabReducer";
+import type { AppState } from "@appsmith/reducers";
+import type { AppCollabReducerState } from "reducers/uiReducers/appCollabReducer";
 import { getCurrentUser, selectFeatureFlags } from "./usersSelectors";
-import { User } from "entities/AppCollab/CollabInterfaces";
+import type { User } from "entities/AppCollab/CollabInterfaces";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 
 export const getAppCollabState = (state: AppState) => state.ui.appCollab;

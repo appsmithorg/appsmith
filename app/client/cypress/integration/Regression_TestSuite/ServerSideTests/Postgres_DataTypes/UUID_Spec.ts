@@ -10,7 +10,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   apiPage = ObjectsRegistry.ApiPage,
   appSettings = ObjectsRegistry.AppSettings;
 
-describe("UUID Datatype tests", function() {
+describe("UUID Datatype tests", function () {
   before(() => {
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
@@ -221,9 +221,9 @@ describe("UUID Datatype tests", function() {
 
   it("9. Updating record - uuidtype - updating v4, guid", () => {
     //table.SelectTableRow(2); //As Table Selected row has issues due to fast selction
-    table.ReadTableRowColumnData(2, 1,"v1", 200).then(($oldV1) => {
+    table.ReadTableRowColumnData(2, 1, "v1", 200).then(($oldV1) => {
       table.ReadTableRowColumnData(2, 2, "v1", 200).then(($oldV4) => {
-        table.ReadTableRowColumnData(2, 3,"v1", 200).then(($oldguid) => {
+        table.ReadTableRowColumnData(2, 3, "v1", 200).then(($oldguid) => {
           agHelper.ClickButton("Run UpdateQuery");
           agHelper.AssertElementVisible(locator._modal);
 

@@ -1,12 +1,12 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/tableV2NewDslWithPagination.json");
 
-describe("Table Widget property pane feature validation", function() {
+describe("Table Widget property pane feature validation", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("1. Verify table column type changes effect on menuButton and iconButton", function() {
+  it("1. Verify table column type changes effect on menuButton and iconButton", function () {
     cy.openPropertyPane("tablewidgetv2");
     cy.addColumnV2("CustomColumn");
     cy.editColumn("customColumn1");

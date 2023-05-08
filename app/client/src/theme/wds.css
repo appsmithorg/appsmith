@@ -1,35 +1,34 @@
 :root {
-  --wds-color-border: #E0DEDE;
+  --wds-color-border: #e0dede;
   --wds-color-border-onaccent: rgba(161, 161, 161, 0.3);
-  --wds-color-border-light: #FDDDDD;
-  --wds-color-border-hover: #B3B3B3;
-  --wds-color-border-disabled: #E0DEDE;
-  --wds-color-border-danger: #D91921;
-  --wds-color-border-danger-hover: #B90707;
-  --wds-color-border-danger-focus: #B90707;
+  --wds-color-border-light: #fddddd;
+  --wds-color-border-hover: #b3b3b3;
+  --wds-color-border-disabled: #e0dede;
+  --wds-color-border-danger: #d91921;
+  --wds-color-border-danger-hover: #b90707;
+  --wds-color-border-danger-focus: #b90707;
   --wds-color-border-danger-focus-light: #fedddd;
 
-  --wds-color-bg: #FFFFFF;
-  --wds-color-bg-hover: #EBEBEB;
-  --wds-color-bg-selected: #EBEBEB;
+  --wds-color-bg: #ffffff;
+  --wds-color-bg-hover: #ebebeb;
+  --wds-color-bg-selected: #ebebeb;
   --wds-color-bg-focus: #e3e3e3;
-  --wds-color-bg-light: #EBEBEB;
-  --wds-color-bg-strong: #E0DEDE;
-  --wds-color-bg-strong-hover: #B3B3B3;
-  --wds-color-bg-disabled: #F3F3F3;
-  --wds-color-bg-disabled-light: #E0DEDE;
-  --wds-color-bg-disabled-strong: #A9A7A7;
-  --wds-color-bg-danger: #D91921;
-  --wds-color-bg-danger-hover: #B90707;
+  --wds-color-bg-light: #ebebeb;
+  --wds-color-bg-strong: #e0dede;
+  --wds-color-bg-strong-hover: #b3b3b3;
+  --wds-color-bg-disabled: #f3f3f3;
+  --wds-color-bg-disabled-light: #e0dede;
+  --wds-color-bg-disabled-strong: #a9a7a7;
+  --wds-color-bg-danger: #d91921;
+  --wds-color-bg-danger-hover: #b90707;
 
   --wds-color-icon: #858282;
-  --wds-color-icon-disabled: #A9A7A7;
-  --wds-color-icon-hover: #4B4848;
+  --wds-color-icon-disabled: #a9a7a7;
+  --wds-color-icon-hover: #4b4848;
 
   --wds-color-text: #090707;
-  --wds-color-text-danger: #D91921;
-  --wds-color-text-light: #716E6E;
-  --wds-color-text-disabled: #A9A7A7;
-  --wds-color-text-disabled-light: #CAC7C7;
+  --wds-color-text-danger: #d91921;
+  --wds-color-text-light: #716e6e;
+  --wds-color-text-disabled: #a9a7a7;
+  --wds-color-text-disabled-light: #cac7c7;
 }
-

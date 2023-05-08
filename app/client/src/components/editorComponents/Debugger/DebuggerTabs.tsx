@@ -1,12 +1,19 @@
-import React, { RefObject, useRef } from "react";
+import type { RefObject } from "react";
+import React, { useRef, useCallback } from "react";
 import styled from "styled-components";
 import { Icon, IconSize } from "design-system-old";
 import DebuggerLogs from "./DebuggerLogs";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  setCanvasDebuggerSelectedTab,
+  setDebuggerSelectedTab,
+  setResponsePaneHeight,
   showDebugger,
 } from "actions/debuggerActions";
+import {
+  getDebuggerSelectedTab,
+  getErrorCount,
+  getResponsePaneHeight,
+} from "selectors/debuggerSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import Errors from "./Errors";
 import Resizer, { ResizerCSS } from "./Resizer";
@@ -21,7 +28,6 @@ import { stopEventPropagation } from "utils/AppsmithUtils";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
 import { Colors } from "constants/Colors";
 import EntityBottomTabs from "../EntityBottomTabs";
-import { getSelectedCanvasDebuggerTab } from "selectors/editorContextSelectors";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
 const TABS_HEADER_HEIGHT = 36;
@@ -50,37 +56,46 @@ const Container = styled.div`
   }
 `;
 
-const DEBUGGER_TABS = [
-  {
-    key: DEBUGGER_TAB_KEYS.ERROR_TAB,
-    title: createMessage(DEBUGGER_ERRORS),
-    panelComponent: <Errors hasShortCut />,
-  },
-  {
-    key: DEBUGGER_TAB_KEYS.LOGS_TAB,
-    title: createMessage(DEBUGGER_LOGS),
-    panelComponent: <DebuggerLogs hasShortCut />,
-  },
-  {
-    key: DEBUGGER_TAB_KEYS.INSPECT_TAB,
-    title: createMessage(INSPECT_ENTITY),
-    panelComponent: <EntityDeps />,
-  },
-];
-
 function DebuggerTabs() {
   const dispatch = useDispatch();
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
-  const selectedTab = useSelector(getSelectedCanvasDebuggerTab);
+  const selectedTab = useSelector(getDebuggerSelectedTab);
+  // fetch the error count from the store.
+  const errorCount = useSelector(getErrorCount);
+  // get the height of the response pane.
+  const responsePaneHeight = useSelector(getResponsePaneHeight);
+  // set the height of the response pane.
+  const updateResponsePaneHeight = useCallback((height: number) => {
+    dispatch(setResponsePaneHeight(height));
+  }, []);
   const setSelectedTab = (tabKey: string) => {
     if (tabKey === DEBUGGER_TAB_KEYS.ERROR_TAB) {
       AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
         source: "WIDGET_EDITOR",
       });
     }
-    dispatch(setCanvasDebuggerSelectedTab(tabKey));
+    dispatch(setDebuggerSelectedTab(tabKey));
   };
   const onClose = () => dispatch(showDebugger(false));
+
+  const DEBUGGER_TABS = [
+    {
+      key: DEBUGGER_TAB_KEYS.ERROR_TAB,
+      title: createMessage(DEBUGGER_ERRORS),
+      count: errorCount,
+      panelComponent: <Errors hasShortCut />,
+    },
+    {
+      key: DEBUGGER_TAB_KEYS.LOGS_TAB,
+      title: createMessage(DEBUGGER_LOGS),
+      panelComponent: <DebuggerLogs hasShortCut />,
+    },
+    {
+      key: DEBUGGER_TAB_KEYS.INSPECT_TAB,
+      title: createMessage(INSPECT_ENTITY),
+      panelComponent: <EntityDeps />,
+    },
+  ];
 
   return (
     <Container
@@ -88,7 +103,14 @@ function DebuggerTabs() {
       onClick={stopEventPropagation}
       ref={panelRef}
     >
-      <Resizer panelRef={panelRef} />
+      <Resizer
+        initialHeight={responsePaneHeight}
+        onResizeComplete={(height: number) => {
+          updateResponsePaneHeight(height);
+        }}
+        panelRef={panelRef}
+        snapToHeight={ActionExecutionResizerHeight}
+      />
       <EntityBottomTabs
         expandedHeight={`${ActionExecutionResizerHeight}px`}
         onSelect={setSelectedTab}
@@ -97,9 +119,9 @@ function DebuggerTabs() {
       />
       <Icon
         className="close-debugger t--close-debugger"
-        name="expand-more"
+        name="close-modal"
         onClick={onClose}
-        size={IconSize.MEDIUM}
+        size={IconSize.XL}
       />
     </Container>
   );

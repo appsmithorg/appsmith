@@ -1,9 +1,11 @@
 import { get } from "lodash";
 
 import { ValidationTypes } from "constants/WidgetValidation";
-import { FieldType, SchemaItem } from "widgets/JSONFormWidget/constants";
-import { JSONFormWidgetProps } from "../..";
-import { HiddenFnParams, getSchemaItem, getStylesheetValue } from "../helper";
+import type { SchemaItem } from "widgets/JSONFormWidget/constants";
+import { FieldType } from "widgets/JSONFormWidget/constants";
+import type { JSONFormWidgetProps } from "../..";
+import type { HiddenFnParams } from "../helper";
+import { getSchemaItem, getStylesheetValue } from "../helper";
 
 const PROPERTIES = {
   style: {

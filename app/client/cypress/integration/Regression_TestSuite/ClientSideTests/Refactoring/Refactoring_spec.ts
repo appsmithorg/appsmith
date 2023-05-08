@@ -34,24 +34,27 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-  });
 
-  it("1. Selecting paintings table from MySQL DS", () => {
-    cy.fixture("datasources").then((datasourceFormData : any) => {
-    //Initialize new JSObject with custom code
-    _.jsEditor.CreateJSObject(jsCode);
-    //Initialize new Query entity with custom query
-    _.entityExplorer.CreateNewDsQuery(dsName);
-    _.agHelper.RenameWithInPane(refactorInput.query.oldName);
-    _.agHelper.GetNClick(_.dataSources._templateMenu);
-    _.dataSources.EnterQuery(query);
-    //Initialize new API entity with custom header
-    _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"], refactorInput.api.oldName);
-    _.apiPage.EnterHeader("key1", `{{\tJSObject1.myVar1}}`);
+    //Selecting paintings table from MySQL DS
+    cy.fixture("datasources").then((datasourceFormData: any) => {
+      //Initialize new JSObject with custom code
+      _.jsEditor.CreateJSObject(jsCode);
+      //Initialize new Query entity with custom query
+      _.dataSources.CreateQueryFromOverlay(
+        dsName,
+        query,
+        refactorInput.query.oldName,
+      ); //Creating query from EE overlay
+      //Initialize new API entity with custom header
+      _.apiPage.CreateAndFillApi(
+        datasourceFormData["mockApiUrl"],
+        refactorInput.api.oldName,
+      );
+      _.apiPage.EnterHeader("key1", `{{\tJSObject1.myVar1}}`);
     });
   });
 
-  it("2. Refactor Widget, API, Query and JSObject", () => {
+  it("1. Refactor Widget, API, Query and JSObject", () => {
     //Rename all widgets and entities
     _.entityExplorer.SelectEntityByName(refactorInput.textWidget.oldName);
     _.agHelper.RenameWidget(
@@ -78,8 +81,7 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
     );
   });
 
-  //Commenting due to failure in RTS start in fat container runs
-  it("3. Verify refactoring updates in JS object", () => {
+  it("2. Verify refactoring updates in JS object", () => {
     //Verify JSObject refactoring in API pane
     _.entityExplorer.SelectEntityByName(refactorInput.api.newName);
     _.agHelper.Sleep(1000);
@@ -170,7 +172,8 @@ describe("Validate JS Object Refactoring does not affect the comments & variable
     _.entityExplorer.ActionContextMenuByEntityName(
       "JSObject1Renamed",
       "Delete",
-      "Are you sure?", true
+      "Are you sure?",
+      true,
     );
     _.entityExplorer.ActionContextMenuByEntityName(
       "RefactorAPIRenamed",

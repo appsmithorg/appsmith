@@ -1,17 +1,18 @@
 import React from "react";
 import Table from "./Table";
-import {
+import type {
   AddNewRowActions,
   CompactMode,
   ReactTableColumnProps,
   ReactTableFilter,
   StickyType,
 } from "./Constants";
-import { Row } from "react-table";
+import type { Row } from "react-table";
 
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import equal from "fast-deep-equal/es6";
-import { ColumnTypes, EditableCell, TableVariant } from "../constants";
+import type { EditableCell, TableVariant } from "../constants";
+import { ColumnTypes } from "../constants";
 import { useCallback } from "react";
 
 export interface ColumnMenuOptionProps {
@@ -161,51 +162,56 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     width,
   } = props;
 
-  const sortTableColumn = (columnIndex: number, asc: boolean) => {
-    if (allowSorting) {
-      if (columnIndex === -1) {
-        _sortTableColumn("", asc);
-      } else {
-        const column = columns[columnIndex];
-        const columnType = column.metaProperties?.type || ColumnTypes.TEXT;
-        if (
-          columnType !== ColumnTypes.IMAGE &&
-          columnType !== ColumnTypes.VIDEO
-        ) {
-          _sortTableColumn(column.alias, asc);
+  const sortTableColumn = useCallback(
+    (columnIndex: number, asc: boolean) => {
+      if (allowSorting) {
+        if (columnIndex === -1) {
+          _sortTableColumn("", asc);
+        } else {
+          const column = columns[columnIndex];
+          const columnType = column.metaProperties?.type || ColumnTypes.TEXT;
+          if (
+            columnType !== ColumnTypes.IMAGE &&
+            columnType !== ColumnTypes.VIDEO
+          ) {
+            _sortTableColumn(column.alias, asc);
+          }
         }
       }
-    }
-  };
+    },
+    [_sortTableColumn, allowSorting, columns],
+  );
 
-  const selectTableRow = (row: {
-    original: Record<string, unknown>;
-    index: number;
-  }) => {
-    if (allowRowSelection) {
-      onRowClick(row.original, row.index);
-    }
-  };
-
-  const toggleAllRowSelect = (
-    isSelect: boolean,
-    pageData: Row<Record<string, unknown>>[],
-  ) => {
-    if (allowRowSelection) {
-      if (isSelect) {
-        selectAllRow(pageData);
-      } else {
-        unSelectAllRow(pageData);
+  const selectTableRow = useCallback(
+    (row: { original: Record<string, unknown>; index: number }) => {
+      if (allowRowSelection) {
+        onRowClick(row.original, row.index);
       }
-    }
-  };
+    },
+    [allowRowSelection, onRowClick],
+  );
 
-  const memoziedDisableDrag = useCallback(() => disableDrag(true), [
-    disableDrag,
-  ]);
-  const memoziedEnableDrag = useCallback(() => disableDrag(false), [
-    disableDrag,
-  ]);
+  const toggleAllRowSelect = useCallback(
+    (isSelect: boolean, pageData: Row<Record<string, unknown>>[]) => {
+      if (allowRowSelection) {
+        if (isSelect) {
+          selectAllRow(pageData);
+        } else {
+          unSelectAllRow(pageData);
+        }
+      }
+    },
+    [allowRowSelection, selectAllRow, unSelectAllRow],
+  );
+
+  const memoziedDisableDrag = useCallback(
+    () => disableDrag(true),
+    [disableDrag],
+  );
+  const memoziedEnableDrag = useCallback(
+    () => disableDrag(false),
+    [disableDrag],
+  );
 
   return (
     <Table
@@ -307,11 +313,13 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.borderWidth === next.borderWidth &&
     prev.borderColor === next.borderColor &&
     prev.accentColor === next.accentColor &&
+    //shallow equal possible
     equal(prev.columnWidthMap, next.columnWidthMap) &&
-    equal(prev.tableData, next.tableData) &&
+    //static reference
+    prev.tableData === next.tableData &&
     // Using JSON stringify becuase isEqual doesnt work with functions,
     // and we are not changing the columns manually.
-    JSON.stringify(prev.columns) === JSON.stringify(next.columns) &&
+    prev.columns === next.columns &&
     equal(prev.editableCell, next.editableCell) &&
     prev.variant === next.variant &&
     prev.primaryColumnId === next.primaryColumnId &&

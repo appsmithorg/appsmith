@@ -19,19 +19,13 @@ describe("Listv2 - Event bindings spec", () => {
       "{{showAlert(`${level_1.currentView.Text1.text} _ ${level_1.currentItem.id} _ ${level_1.currentIndex} _ ${level_1.currentView.Input1.text} _ ${currentView.Input2.text}`)}}",
     );
     // Enter text in the parent list widget's text input
-    cy.get(widgetSelector("Input1"))
-      .find("input")
-      .type("outer input");
+    cy.get(widgetSelector("Input1")).find("input").type("outer input");
 
     // Enter text in the child list widget's text input in first row
-    cy.get(widgetSelector("Input2"))
-      .find("input")
-      .type("inner input");
+    cy.get(widgetSelector("Input2")).find("input").type("inner input");
 
     // click the button on inner list 1st row.
-    cy.get(widgetSelector("Button3"))
-      .find("button")
-      .click({ force: true });
+    cy.get(widgetSelector("Button3")).find("button").click({ force: true });
 
     cy.get(commonlocators.toastmsg).contains(
       "Blue _ 001 _ 0 _ outer input _ inner input",
@@ -52,9 +46,7 @@ describe("Listv2 - Event bindings spec", () => {
       .type("inner input updated");
 
     // click the button on inner list 1st row.
-    cy.get(widgetSelector("Button3"))
-      .find("button")
-      .click({ force: true });
+    cy.get(widgetSelector("Button3")).find("button").click({ force: true });
 
     cy.wait(1000);
 

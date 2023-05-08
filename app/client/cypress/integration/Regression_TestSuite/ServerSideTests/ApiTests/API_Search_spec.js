@@ -1,5 +1,7 @@
 const testdata = require("../../../../fixtures/testdata.json");
 import ApiEditor from "../../../../locators/ApiEditor";
+import * as _ from "../../../../support/Objects/ObjectsCore";
+
 let APIName;
 const testUrl1 =
   "http://host.docker.internal:5001/v1/dynamicrecords/generaterecords?records=10";
@@ -7,26 +9,36 @@ const testUrl2 =
   "http://host.docker.internal:5001/v1/dynamicrecords/getstudents";
 const testUrl3 =
   "http://host.docker.internal:5001//v1/dynamicrecords/getrecordsArray";
-describe("API Panel Test Functionality ", function() {
-  it("Test Search API fetaure", function() {
+describe("API Panel Test Functionality ", function () {
+  it("Test Search API fetaure", function () {
     cy.log("Login Successful");
     cy.NavigateToAPI_Panel();
     cy.log("Navigation to API Panel screen successful");
-    cy.CreateAPI("FirstAPI");
-    cy.RunAPI();
-    cy.log("Creation of FirstAPI Action successful");
-    cy.NavigateToAPI_Panel();
-    cy.CreateAPI("SecondAPI");
-    cy.RunAPI();
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
-    cy.log("Creation of SecondAPI Action successful");
-    cy.get(".t--entity-name").contains("FirstAPI");
-    cy.get(".t--entity-name").contains("SecondAPI");
-    cy.DeleteAPIFromSideBar();
-    cy.DeleteAPIFromSideBar();
+    cy.generateUUID().then((uid) => {
+      cy.CreateAPI(`FirstAPI_${uid}`);
+      cy.RunAPI();
+      cy.log("Creation of FirstAPI Action successful");
+      cy.NavigateToAPI_Panel();
+      cy.CreateAPI(`SecondAPI_${uid}`);
+      cy.RunAPI();
+      cy.CheckAndUnfoldEntityItem("Queries/JS");
+      cy.log("Creation of SecondAPI Action successful");
+      cy.get(".t--entity-name").contains("FirstAPI");
+      cy.get(".t--entity-name").contains("SecondAPI");
+      _.entityExplorer.ActionContextMenuByEntityName(
+        `FirstAPI_${uid}`,
+        "Delete",
+        "Are you sure?",
+      );
+      _.entityExplorer.ActionContextMenuByEntityName(
+        `SecondAPI_${uid}`,
+        "Delete",
+        "Are you sure?",
+      );
+    });
   });
 
-  it("if suggested widgets section alwas appears for all 3 modes", function() {
+  it("if suggested widgets section alwas appears for all 3 modes", function () {
     cy.log("Login Successful");
     cy.createAndFillApi(testUrl1, "");
     cy.RunAPI();
@@ -39,7 +51,7 @@ describe("API Panel Test Functionality ", function() {
     cy.get(ApiEditor.tableResponseTab).click();
     cy.checkIfApiPaneIsVisible();
   });
-  it("Bug 14242: Appsmith crash when create an API pointing to Github hosted json", function() {
+  it("Bug 14242: Appsmith crash when create an API pointing to Github hosted json", function () {
     cy.NavigateToAPI_Panel();
     cy.generateUUID().then((uid) => {
       APIName = uid;

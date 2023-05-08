@@ -1,17 +1,20 @@
-import { DEFAULT_CENTER, WidgetType } from "constants/WidgetConstants";
+import type { WidgetType } from "constants/WidgetConstants";
+import { DEFAULT_CENTER } from "constants/WidgetConstants";
 import React from "react";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
 import MapComponent from "../component";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { Stylesheet } from "entities/AppTheming";
+import type { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import styled from "styled-components";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { MarkerProps } from "../constants";
+import type { DerivedPropertiesMap } from "utils/WidgetFactory";
+import type { MarkerProps } from "../constants";
 import { getBorderCSSShorthand } from "constants/DefaultTheme";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 const DisabledContainer = styled.div<{
   borderRadius: string;
@@ -45,6 +48,24 @@ type Center = {
 
 class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
   static defaultProps = {};
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      center: {
+        lat: "number",
+        long: "number",
+        title: "string",
+      },
+      markers: "[$__mapMarker__$]",
+      selectedMarker: {
+        lat: "number",
+        long: "number",
+        title: "string",
+        description: "string",
+      },
+    };
+  }
 
   static getPropertyPaneContentConfig() {
     return [
@@ -242,14 +263,13 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
           {
             propertyName: "onMarkerClick",
             label: "onMarkerClick",
-            helpText: "Triggers an action when the user clicks on the marker",
+            helpText: "when the user clicks on the marker",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,

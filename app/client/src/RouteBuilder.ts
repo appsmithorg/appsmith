@@ -8,10 +8,11 @@ import {
 } from "constants/routes";
 import { APP_MODE } from "entities/App";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
-import {
+import type {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
+import { isNil } from "lodash";
 
 export type URLBuilderParams = {
   suffix?: string;
@@ -44,9 +45,11 @@ export function getQueryStringfromObject(
   const queryParams: string[] = [];
   if (paramKeys) {
     paramKeys.forEach((paramKey: string) => {
-      const value = params[paramKey];
-      if (paramKey && value) {
-        queryParams.push(`${paramKey}=${value}`);
+      if (!isNil(params[paramKey])) {
+        const value = encodeURIComponent(params[paramKey]);
+        if (paramKey && value) {
+          queryParams.push(`${paramKey}=${value}`);
+        }
       }
     });
   }

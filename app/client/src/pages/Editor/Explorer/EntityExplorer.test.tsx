@@ -63,9 +63,7 @@ describe("Entity Explorer tests", () => {
 
   it("checks datasources section in explorer", () => {
     const mockExplorerState = jest.spyOn(helpers, "getExplorerStatus");
-    mockExplorerState.mockImplementationOnce(
-      (appId: string, entityName: keyof helpers.ExplorerStateType) => true,
-    );
+    mockExplorerState.mockImplementationOnce(() => true);
     store.dispatch({
       type: ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
       payload: mockDatasources,
@@ -88,9 +86,7 @@ describe("Entity Explorer tests", () => {
       .spyOn(permissionUtils, "hasCreateDatasourcePermission")
       .mockReturnValue(false);
     const mockExplorerState = jest.spyOn(helpers, "getExplorerStatus");
-    mockExplorerState.mockImplementationOnce(
-      (appId: string, entityName: keyof helpers.ExplorerStateType) => true,
-    );
+    mockExplorerState.mockImplementationOnce(() => true);
     store.dispatch(updateCurrentPage("pageId"));
     const component = render(<Datasources />);
     expect(component.container.getElementsByClassName("t--entity").length).toBe(
@@ -116,9 +112,7 @@ describe("Entity Explorer tests", () => {
       .spyOn(permissionUtils, "hasDeleteDatasourcePermission")
       .mockReturnValue(false);
     const mockExplorerState = jest.spyOn(helpers, "getExplorerStatus");
-    mockExplorerState.mockImplementationOnce(
-      (appId: string, entityName: keyof helpers.ExplorerStateType) => true,
-    );
+    mockExplorerState.mockImplementationOnce(() => true);
     store.dispatch(updateCurrentPage("pageId"));
     const { container } = render(<Datasources />);
     const target = container.getElementsByClassName("t--context-menu");

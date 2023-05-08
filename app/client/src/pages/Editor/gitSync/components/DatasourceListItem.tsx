@@ -1,9 +1,16 @@
-import { Icon, IconSize, Text, TextType } from "design-system-old";
 import { Colors } from "constants/Colors";
-import { Datasource } from "entities/Datasource";
+import {
+  Icon,
+  IconSize,
+  Text,
+  TextType,
+  TooltipComponent,
+} from "design-system-old";
+import type { Datasource } from "entities/Datasource";
 import { PluginImage } from "pages/Editor/DataSourceEditor/JSONtoForm";
 import React from "react";
 import styled from "styled-components";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const ListItem = styled.div<{ disabled?: boolean }>`
   display: flex;
@@ -43,7 +50,6 @@ const DsTitle = styled.div`
     margin-left: ${(props) => props.theme.spaces[2]}px;
   }
 `;
-
 function ListItemWrapper(props: {
   ds: Datasource;
   selected?: boolean;
@@ -59,7 +65,7 @@ function ListItemWrapper(props: {
       className={`t--ds-list ${selected ? "active" : ""}`}
       onClick={() => onClick(ds)}
     >
-      <PluginImage alt="Datasource" src={plugin.image} />
+      <PluginImage alt="Datasource" src={getAssetUrl(plugin.image)} />
       <ListLabels>
         <DsTitle>
           <Text
@@ -69,11 +75,14 @@ function ListItemWrapper(props: {
           >
             {ds.name}
           </Text>
-          <Icon
-            fillColor={ds.isConfigured ? Colors.GREEN : Colors.ERROR_RED}
-            name={ds.isConfigured ? "oval-check" : "info"}
-            size={IconSize.MEDIUM}
-          />
+          <TooltipComponent content={ds.name} position="left">
+            <Icon
+              className="t--ds-list-icon"
+              fillColor={ds.isConfigured ? Colors.GREEN : Colors.ERROR_RED}
+              name={ds.isConfigured ? "oval-check" : "info"}
+              size={IconSize.MEDIUM}
+            />
+          </TooltipComponent>
         </DsTitle>
         <Text color={Colors.GRAY_700} type={TextType.H5}>
           {plugin.name}

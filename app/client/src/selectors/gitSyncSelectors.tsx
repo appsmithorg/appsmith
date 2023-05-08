@@ -1,11 +1,11 @@
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
-import { GitSyncReducerState } from "reducers/uiReducers/gitSyncReducer";
+import type { GitSyncReducerState } from "reducers/uiReducers/gitSyncReducer";
 import {
   getCurrentAppGitMetaData,
   getCurrentApplication,
-} from "./applicationSelectors";
-import { Branch } from "entities/GitSync";
+} from "@appsmith/selectors/applicationSelectors";
+import type { Branch } from "entities/GitSync";
 
 export const getGitSyncState = (state: AppState): GitSyncReducerState =>
   state.ui.gitSync;
@@ -73,6 +73,9 @@ export const getGitMergeError = (state: AppState) =>
 
 export const getGitCommitAndPushError = (state: AppState) =>
   state.ui.gitSync.commitAndPushError?.error;
+
+export const getGitDiscardError = (state: AppState) =>
+  state.ui.gitSync.discardError?.error;
 
 export const getIsFetchingGitStatus = (state: AppState) =>
   state.ui.gitSync.isFetchingGitStatus;

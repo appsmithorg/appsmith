@@ -4,24 +4,22 @@ const explorer = require("../../../../locators/explorerlocators.json");
 const dsl = require("../../../../fixtures/tabdsl.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 
-describe("Tab widget test", function() {
+describe("Tab widget test", function () {
   const tabname = "UpdatedTab";
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Tab Widget Functionality To rename Tabs from entity explorer", function() {
+  it("Tab Widget Functionality To rename Tabs from entity explorer", function () {
     cy.GlobalSearchEntity("Tab1");
     cy.hoverAndClickParticularIndex(2);
     cy.selectAction("Edit Name");
     //cy.RenameEntity(tabname);
-    cy.get(explorer.editEntity)
-      .last()
-      .type(tabname, { force: true });
+    cy.get(explorer.editEntity).last().type(tabname, { force: true });
     //cy.RenameEntity(tabname);
   });
 
-  it("Tab name validation in properties and widget ", function() {
+  it("Tab name validation in properties and widget ", function () {
     cy.openPropertyPane("tabswidget");
     cy.closePropertyPane();
     cy.get(Layoutpage.tabWidget)
@@ -30,14 +28,12 @@ describe("Tab widget test", function() {
       .should("be.visible");
   });
 
-  it("Tab Widget Functionality To delete Tabs from entity explorer", function() {
+  it("Tab Widget Functionality To delete Tabs from entity explorer", function () {
     cy.GlobalSearchEntity("Tab2");
     cy.hoverAndClickParticularIndex(3);
     cy.selectAction("Edit Name");
     //cy.RenameEntity(tabname);
-    cy.get(explorer.editEntity)
-      .last()
-      .type(tabname, { force: true });
+    cy.get(explorer.editEntity).last().type(tabname, { force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(3000);
     cy.validateMessage(tabname);

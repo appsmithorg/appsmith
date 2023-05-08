@@ -2,7 +2,7 @@ import { put } from "redux-saga/effects";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ActionValidationError } from "sagas/ActionExecution/errorUtils";
 import { getType, Types } from "utils/TypeHelpers";
-import {
+import type {
   TCloseModalDescription,
   TShowModalDescription,
 } from "workers/Evaluation/fns/modalFns";

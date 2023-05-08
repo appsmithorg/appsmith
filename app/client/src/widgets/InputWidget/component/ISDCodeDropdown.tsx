@@ -1,8 +1,10 @@
 import React from "react";
 import styled, { createGlobalStyle } from "styled-components";
-import { Dropdown, DropdownOption, Icon, IconSize } from "design-system-old";
+import type { DropdownOption } from "design-system-old";
+import { Dropdown, Icon, IconSize } from "design-system-old";
 import { countryToFlag } from "./utilities";
-import { ISDCodeOptions, ISDCodeProps } from "constants/ISDCodes";
+import type { ISDCodeProps } from "constants/ISDCodes";
+import { ISDCodeOptions } from "constants/ISDCodes";
 import { Colors } from "constants/Colors";
 import { Classes } from "@blueprintjs/core";
 import { lightenColor } from "widgets/WidgetUtils";

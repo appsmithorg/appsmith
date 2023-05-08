@@ -1,17 +1,17 @@
 import React from "react";
-import {
+import type {
   Control,
-  Controller,
   FormState,
   UseFormReset,
   UseFormHandleSubmit,
   UseFormSetValue,
   UseFormResetField,
 } from "react-hook-form";
+import { Controller } from "react-hook-form";
 import QuestionIcon from "remixicon-react/QuestionFillIcon";
 import { Button, Size, TooltipComponent } from "design-system-old";
 
-import { Inputs } from "./BrandingPage";
+import type { Inputs } from "./BrandingPage";
 import {
   ADMIN_BRANDING_LOGO_REQUIREMENT,
   ADMIN_BRANDING_FAVICON_REQUIREMENT,

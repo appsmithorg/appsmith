@@ -1,5 +1,5 @@
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
-import { addPlatformFunctionsToEvalContext } from "ce/workers/Evaluation/Actions";
+import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import ExecutionMetaData from "../utils/ExecutionMetaData";
 import { evalContext } from "../mock";
@@ -8,7 +8,6 @@ jest.mock("workers/Evaluation/handlers/evalTree", () => ({
   get dataTreeEvaluator() {
     return {
       evalTree: evalContext,
-      resolvedFunctions: {},
     };
   },
 }));
@@ -26,7 +25,10 @@ jest.mock("../utils/Messenger.ts", () => ({
 describe("Tests for run function in callback styled", () => {
   beforeAll(() => {
     self["$isDataField"] = false;
-    ExecutionMetaData.setExecutionMetaData({}, EventType.ON_PAGE_LOAD);
+    ExecutionMetaData.setExecutionMetaData({
+      triggerMeta: {},
+      eventType: EventType.ON_PAGE_LOAD,
+    });
     addPlatformFunctionsToEvalContext(evalContext);
   });
 
@@ -46,6 +48,8 @@ describe("Tests for run function in callback styled", () => {
     expect(requestMock).toBeCalledWith({
       method: MAIN_THREAD_ACTION.PROCESS_TRIGGER,
       data: {
+        enableJSFnPostProcessors: true,
+        enableJSVarUpdateTracking: true,
         trigger: {
           type: "RUN_PLUGIN_ACTION",
           payload: {
@@ -78,6 +82,8 @@ describe("Tests for run function in callback styled", () => {
     expect(requestMock).toBeCalledWith({
       method: MAIN_THREAD_ACTION.PROCESS_TRIGGER,
       data: {
+        enableJSFnPostProcessors: true,
+        enableJSVarUpdateTracking: true,
         trigger: {
           type: "RUN_PLUGIN_ACTION",
           payload: {
@@ -105,7 +111,7 @@ describe("Tests for run function in callback styled", () => {
       }),
     );
     const successCallback = jest.fn();
-    await (async function() {
+    await (async function () {
       const innerScopeVar = "innerScopeVar";
       successCallback.mockImplementation(() => innerScopeVar);
       await evalContext.action1.run(successCallback);
@@ -128,18 +134,21 @@ describe("Tests for run function in callback styled", () => {
     );
     const successCallback = jest.fn(() =>
       //@ts-expect-error no types
-      self.showAlert(evalContext.action1.name),
+      self.showAlert(evalContext.action1.actionId),
     );
     await evalContext.action1.run(successCallback);
     expect(successCallback).toBeCalledWith("resolved");
-    expect(showAlertMock).toBeCalledWith("action1");
+    expect(showAlertMock).toBeCalledWith("123");
   });
 });
 
 describe("Tests for run function in promise styled", () => {
   beforeAll(() => {
     self["$isDataField"] = false;
-    ExecutionMetaData.setExecutionMetaData({}, EventType.ON_PAGE_LOAD);
+    ExecutionMetaData.setExecutionMetaData({
+      triggerMeta: {},
+      eventType: EventType.ON_PAGE_LOAD,
+    });
     addPlatformFunctionsToEvalContext(evalContext);
   });
 
@@ -155,6 +164,8 @@ describe("Tests for run function in promise styled", () => {
     expect(requestMock).toBeCalledWith({
       method: MAIN_THREAD_ACTION.PROCESS_TRIGGER,
       data: {
+        enableJSFnPostProcessors: true,
+        enableJSVarUpdateTracking: true,
         trigger: {
           type: "RUN_PLUGIN_ACTION",
           payload: {
@@ -181,13 +192,12 @@ describe("Tests for run function in promise styled", () => {
     );
     const successHandler = jest.fn();
     const errorHandler = jest.fn();
-    await evalContext.action1
-      .run()
-      .then(successHandler)
-      .catch(errorHandler);
+    await evalContext.action1.run().then(successHandler).catch(errorHandler);
     expect(requestMock).toBeCalledWith({
       method: MAIN_THREAD_ACTION.PROCESS_TRIGGER,
       data: {
+        enableJSFnPostProcessors: true,
+        enableJSVarUpdateTracking: true,
         trigger: {
           type: "RUN_PLUGIN_ACTION",
           payload: {

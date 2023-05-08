@@ -1,8 +1,8 @@
-import React, { ReactNode, useCallback, useState } from "react";
+import type { ReactNode } from "react";
+import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import TreeDropdown, {
-  TreeDropdownOption,
-} from "pages/Editor/Explorer/TreeDropdown";
+import type { TreeDropdownOption } from "pages/Editor/Explorer/TreeDropdown";
+import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
 import { noop } from "lodash";
 import ContextMenuTrigger from "../ContextMenuTrigger";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -33,8 +33,8 @@ import {
   hasManagePagePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { getPageById } from "selectors/editorSelectors";
-import { getCurrentApplication } from "selectors/applicationSelectors";
-import { AppState } from "@appsmith/reducers";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import type { AppState } from "@appsmith/reducers";
 
 const CustomLabel = styled.div`
   display: flex;
@@ -89,10 +89,10 @@ export function PageContextMenu(props: {
    *
    * @return void
    */
-  const clonePage = useCallback(() => dispatch(clonePageInit(props.pageId)), [
-    dispatch,
-    props.pageId,
-  ]);
+  const clonePage = useCallback(
+    () => dispatch(clonePageInit(props.pageId)),
+    [dispatch, props.pageId],
+  );
 
   /**
    * sets the page hidden
@@ -148,12 +148,12 @@ export function PageContextMenu(props: {
       value: "visibility",
       onSelect: setHiddenField,
       // Possibly support ReactNode in TreeOption
-      label: ((
+      label: (
         <CustomLabel>
           {props.isHidden ? "Show" : "Hide"}
           <Icon icon={props.isHidden ? "eye-open" : "eye-off"} iconSize={14} />
         </CustomLabel>
-      ) as ReactNode) as string,
+      ) as ReactNode as string,
     },
     !props.isDefaultPage &&
       canManagePages && {

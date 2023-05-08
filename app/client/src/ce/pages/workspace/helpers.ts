@@ -1,6 +1,6 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SubmissionError } from "redux-form";
-import { RouteChildrenProps, RouteComponentProps } from "react-router-dom";
+import type { RouteChildrenProps, RouteComponentProps } from "react-router-dom";
 export type InviteUsersToWorkspaceByRoleValues = {
   id: string;
   users?: string;

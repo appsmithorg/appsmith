@@ -1,7 +1,7 @@
-import CodeMirror from "codemirror";
+import type CodeMirror from "codemirror";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import KeyboardShortcuts from "constants/KeyboardShortcuts";
-import { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEditor/codeEditorUtils";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";

@@ -28,7 +28,7 @@ const JSInput2TestCode =
 
 let repoName;
 
-describe("1. CommandClickNavigation", function() {
+describe("1. CommandClickNavigation", function () {
   it("1. Import the test application", () => {
     homePage.NavigateToHome();
     cy.reload();
@@ -86,7 +86,7 @@ describe("1. CommandClickNavigation", function() {
 
     cy.get(`[${NAVIGATION_ATTRIBUTE}="SQL_Query"]`)
       .should("have.length", 1)
-      .click({ cmdKey: true });
+      .click({ cmdKey: true }, { force: true });
 
     cy.url().should("contain", "/queries/");
   });
@@ -133,9 +133,12 @@ describe("1. CommandClickNavigation", function() {
 
     agHelper.Sleep();
 
-    cy.get(`[${NAVIGATION_ATTRIBUTE}="JSObject1.myFun1"]`).click({
-      ctrlKey: true,
-    });
+    cy.get(`[${NAVIGATION_ATTRIBUTE}="JSObject1.myFun1"]`).click(
+      {
+        ctrlKey: true,
+      },
+      { force: true },
+    );
 
     cy.assertCursorOnCodeInput(".js-editor", { ch: 1, line: 3 });
     agHelper.Sleep();
@@ -185,9 +188,7 @@ describe("1. CommandClickNavigation", function() {
   });
 
   it.skip("Will work with string arguments in framework functions", () => {
-    cy.get(PROPERTY_SELECTOR.onClick)
-      .find(".t--js-toggle")
-      .click();
+    cy.get(PROPERTY_SELECTOR.onClick).find(".t--js-toggle").click();
     cy.updateCodeInput(
       PROPERTY_SELECTOR.onClick,
       "{{ resetWidget('Input1') }}",

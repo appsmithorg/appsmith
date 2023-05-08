@@ -5,6 +5,7 @@ import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.DatasourceDTO;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.dtos.ExecutePluginDTO;
+import com.appsmith.external.dtos.ParamProperty;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
@@ -66,12 +67,14 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.bson.types.ObjectId;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -110,10 +113,23 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.CommonFieldName.REDACTED_DATA;
-import static com.appsmith.external.constants.spans.ActionSpans.*;
+import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_CACHED_ACTION;
+import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_CACHED_DATASOURCE;
+import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_CACHED_PLUGIN;
+import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_DATASOURCE_CONTEXT;
+import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_DATASOURCE_CONTEXT_REMOTE;
+import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_EDITOR_CONFIG;
+import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_REQUEST_PARSING;
+import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_SERVER_EXECUTION;
+import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_VALIDATE_AUTHENTICATION;
+import static com.appsmith.external.constants.spans.ActionSpans.GET_ACTION_REPOSITORY_CALL;
+import static com.appsmith.external.constants.spans.ActionSpans.GET_UNPUBLISHED_ACTION;
+import static com.appsmith.external.constants.spans.ActionSpans.GET_VIEW_MODE_ACTION;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.external.helpers.DataTypeStringUtils.getDisplayDataTypes;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
@@ -134,6 +150,13 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public static final String NATIVE_QUERY_PATH_STATUS = NATIVE_QUERY_PATH + "." + STATUS;
     public static final PluginType JS_PLUGIN_TYPE = PluginType.JS;
     public static final String JS_PLUGIN_PACKAGE_NAME = "js-plugin";
+
+    static final String PARAM_KEY_REGEX = "^k\\d+$";
+    static final String BLOB_KEY_REGEX = "^blob:[0-9a-fA-F]{8}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{12}$";
+    static final String EXECUTE_ACTION_DTO = "executeActionDTO";
+    static final String PARAMETER_MAP = "parameterMap";
+
+    List<Pattern> patternList = new ArrayList<>();
 
     private final NewActionRepository repository;
     private final DatasourceService datasourceService;
@@ -158,6 +181,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final ActionPermission actionPermission;
 
     private final ObservationRegistry observationRegistry;
+    private final Map<String, Plugin> defaultPluginMap = new HashMap<>();
+    private final AtomicReference<Plugin> jsTypePluginReference = new AtomicReference<>();
 
     public NewActionServiceCEImpl(Scheduler scheduler,
                                   Validator validator,
@@ -207,6 +232,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.applicationPermission = applicationPermission;
         this.pagePermission = pagePermission;
         this.actionPermission = actionPermission;
+
+        this.patternList.add(Pattern.compile(PARAM_KEY_REGEX));
+        this.patternList.add(Pattern.compile(BLOB_KEY_REGEX));
+        this.patternList.add(Pattern.compile(EXECUTE_ACTION_DTO));
+        this.patternList.add(Pattern.compile(PARAMETER_MAP));
     }
 
     @Override
@@ -1072,131 +1102,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     protected Mono<ExecuteActionDTO> createExecuteActionDTO(Flux<Part> partFlux) {
         final AtomicLong totalReadableByteCount = new AtomicLong(0);
         final ExecuteActionDTO dto = new ExecuteActionDTO();
-        return partFlux
-                .flatMap(part -> {
-                    final String key = part.name();
-                    if ("executeActionDTO".equals(key)) {
-                        return DataBufferUtils
-                                .join(part.content())
-                                .flatMap(executeActionDTOBuffer -> {
-                                    byte[] byteData = new byte[executeActionDTOBuffer.readableByteCount()];
-                                    executeActionDTOBuffer.read(byteData);
-                                    DataBufferUtils.release(executeActionDTOBuffer);
-                                    try {
-                                        return Mono.just(objectMapper.readValue(byteData, ExecuteActionDTO.class));
-                                    } catch (IOException e) {
-                                        log.error("Error in deserializing ExecuteActionDTO", e);
-                                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "executeActionDTO"));
-                                    }
-                                })
-                                .flatMap(executeActionDTO -> {
-                                    dto.setActionId(executeActionDTO.getActionId());
-                                    dto.setViewMode(executeActionDTO.getViewMode());
-                                    dto.setParamProperties(executeActionDTO.getParamProperties());
-                                    dto.setPaginationField(executeActionDTO.getPaginationField());
-                                    return Mono.empty();
-                                });
-                    } else if ("parameterMap".equals(key)) {
-                        return DataBufferUtils
-                                .join(part.content())
-                                .flatMap(executeActionDTOBuffer -> {
-                                    byte[] byteData = new byte[executeActionDTOBuffer.readableByteCount()];
-                                    executeActionDTOBuffer.read(byteData);
-                                    DataBufferUtils.release(executeActionDTOBuffer);
-                                    try {
-                                        return Mono.just(objectMapper.readValue(byteData, HashMap.class));
-                                    } catch (IOException e) {
-                                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "parameterMap"));
-                                    }
-                                })
-                                .flatMap(paramMap -> {
-                                    dto.setParameterMap(paramMap);
-                                    return Mono.empty();
-                                });
-                    }
-                    return Mono.just(part);
-                })
-                .flatMap(part -> {
-                    final Param param = new Param();
-                    param.setPseudoBindingName(part.name());
-                    return DataBufferUtils
-                            .join(part.content())
-                            .map(dataBuffer -> {
-                                byte[] bytes = new byte[dataBuffer.readableByteCount()];
-                                totalReadableByteCount.addAndGet(dataBuffer.readableByteCount());
-                                dataBuffer.read(bytes);
-                                DataBufferUtils.release(dataBuffer);
-                                param.setValue(new String(bytes, StandardCharsets.UTF_8));
-                                return param;
-                            });
-                })
+        return this.parsePartsAndGetParamsFlux(partFlux, totalReadableByteCount, dto)
                 .collectList()
-                .flatMap(params -> {
-                    if (dto.getActionId() == null) {
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ACTION_ID));
-                    }
-
-                    dto.setTotalReadableByteCount(totalReadableByteCount.longValue());
-
-                    final Set<String> visitedBindings = new HashSet<>();
-                    /*
-                        Parts in multipart request can appear in any order. In order to avoid NPE original name of the parameters
-                        along with the client-side data type are set here as it's guaranteed at this point that the part having the parameterMap is already collected.
-                        Ref: https://github.com/appsmithorg/appsmith/issues/16722
-                     */
-                    params.forEach(
-                            param -> {
-                                String pseudoBindingName = param.getPseudoBindingName();
-                                String bindingValue = dto.getInvertParameterMap().get(pseudoBindingName);
-                                param.setKey(bindingValue);
-                                visitedBindings.add(bindingValue);
-                                //if the type is not an array e.g. "k1": "string" or "k1": "boolean"
-                                if (dto.getParamProperties()
-                                        .get(pseudoBindingName) instanceof String) {
-                                    param.setClientDataType(ClientDataType.valueOf(String.valueOf(dto.getParamProperties()
-                                                    .get(pseudoBindingName))
-                                            .toUpperCase()));
-                                } else if (dto.getParamProperties()
-                                        .get(pseudoBindingName) instanceof LinkedHashMap) {
-                                    //if the type is an array e.g. "k1": { "array": [ "string", "number", "string", "boolean"]
-                                    LinkedHashMap<String, ArrayList> stringArrayListLinkedHashMap =
-                                            (LinkedHashMap<String, ArrayList>) dto.getParamProperties()
-                                                    .get(pseudoBindingName);
-                                    Optional<String> firstKeyOpt = stringArrayListLinkedHashMap.keySet()
-                                            .stream()
-                                            .findFirst();
-                                    if (firstKeyOpt.isPresent()) {
-                                        String firstKey = firstKeyOpt.get();
-                                        param.setClientDataType(ClientDataType.valueOf(firstKey.toUpperCase()));
-                                        List<String> individualTypes = stringArrayListLinkedHashMap.get(firstKey);
-                                        List<ClientDataType> dataTypesOfArrayElements =
-                                                individualTypes.stream()
-                                                        .map(it -> ClientDataType.valueOf(String.valueOf(it)
-                                                                .toUpperCase()))
-                                                        .collect(Collectors.toList());
-                                        param.setDataTypesOfArrayElements(dataTypesOfArrayElements);
-                                    }
-                                }
-
-                            }
-                    );
-
-                    // In case there are parameters that did not receive a value in the multipart request,
-                    // initialize these bindings with empty strings
-                    if (dto.getParameterMap() != null) {
-                        dto.getParameterMap()
-                                .keySet()
-                                .stream()
-                                .forEach(parameter -> {
-                                    if (!visitedBindings.contains(parameter)) {
-                                        Param newParam = new Param(parameter, "");
-                                        params.add(newParam);
-                                    }
-                                });
-                    }
-                    dto.setParams(params);
-                    return Mono.just(dto);
-                })
+                .flatMap(params -> this.enrichExecutionParam(totalReadableByteCount, dto, params))
                 .name(ACTION_EXECUTION_REQUEST_PARSING)
                 .tap(Micrometer.observation(observationRegistry));
     }
@@ -1610,14 +1518,17 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
                     return Mono.just(action);
                 })
-                .flatMap(this::sanitizeAction);
+                .collectList()
+                .flatMapMany(this::addMissingPluginDetailsIntoAllActions);
     }
 
     @Override
     public Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String branchName) {
         return applicationService.findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getReadPermission())
                 .flatMapMany(this::getActionsForViewMode)
-                .map(responseUtils::updateActionViewDTOWithDefaultResources);
+                .map(responseUtils::updateActionViewDTOWithDefaultResources)
+                .name(GET_VIEW_MODE_ACTION)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     @Override
@@ -1808,7 +1719,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
-    public Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params) {
+    public Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, Boolean includeJsActions) {
         String name = null;
         List<String> pageIds = new ArrayList<>();
 
@@ -1823,22 +1734,50 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             pageIds.add(params.getFirst(FieldName.PAGE_ID));
         }
 
+        Flux<NewAction> actionsFromRepository;
+
         if (params.getFirst(FieldName.APPLICATION_ID) != null) {
             // Fetch unpublished pages because GET actions is only called during edit mode. For view mode, different
             // function call is made which takes care of returning only the essential fields of an action
-            return applicationService
-                    .findById(params.getFirst(FieldName.APPLICATION_ID), applicationPermission.getReadPermission())
-                    .flatMapMany(application -> repository.findByApplicationIdAndViewMode(application.getId(), false, actionPermission.getReadPermission()))
-                    .flatMap(this::sanitizeAction)
-                    .flatMap(this::setTransientFieldsInUnpublishedAction);
+
+            if (FALSE.equals(includeJsActions)) {
+                actionsFromRepository = repository.findNonJsActionsByApplicationIdAndViewMode(params.getFirst(FieldName.APPLICATION_ID),
+                                                                                              false,
+                                                                                              actionPermission.getReadPermission());
+
+            } else {
+                actionsFromRepository = repository.findByApplicationIdAndViewMode(params.getFirst(FieldName.APPLICATION_ID),
+                                                                                  false,
+                                                                                  actionPermission.getReadPermission());
+            }
+
+        } else {
+
+            if (FALSE.equals(includeJsActions)) {
+                actionsFromRepository = repository.findAllNonJsActionsByNameAndPageIdsAndViewMode(name, pageIds, false,
+                                                                                                  actionPermission.getReadPermission(),
+                                                                                                  sort);
+            } else {
+                actionsFromRepository = repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false,
+                                                                                             actionPermission.getReadPermission(),
+                                                                                             sort);
+            }
         }
-        return repository.findAllActionsByNameAndPageIdsAndViewMode(name, pageIds, false, actionPermission.getReadPermission(), sort)
-                .flatMap(this::sanitizeAction)
-                .flatMap(this::setTransientFieldsInUnpublishedAction);
+
+        return actionsFromRepository
+                .collectList()
+                .flatMapMany(this::addMissingPluginDetailsIntoAllActions)
+                .flatMap(this::setTransientFieldsInUnpublishedAction)
+                // this generates four different tags, (ApplicationId, FieldId) *(True, False)
+                .tag("includeJsAction", (params.get(FieldName.APPLICATION_ID) == null ? FieldName.PAGE_ID: FieldName.APPLICATION_ID )+ includeJsActions.toString())
+                .name(GET_ACTION_REPOSITORY_CALL)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     @Override
-    public Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, String branchName) {
+    public Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params,
+                                                 String branchName,
+                                                 Boolean includeJsActions) {
 
         MultiValueMap<String, String> updatedParams = new LinkedMultiValueMap<>(params);
         // Get branched applicationId and pageId
@@ -1859,21 +1798,33 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     if (!CollectionUtils.isEmpty(params.get(FieldName.APPLICATION_ID)) && !StringUtils.isEmpty(applicationId)) {
                         updatedParams.set(FieldName.APPLICATION_ID, applicationId);
                     }
-                    return getUnpublishedActions(updatedParams);
+                    return getUnpublishedActions(updatedParams, includeJsActions);
                 })
                 .map(responseUtils::updateActionDTOWithDefaultResources);
     }
 
     @Override
+    public Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params) {
+        return getUnpublishedActions(params, TRUE);
+    }
+
+    @Override
+    public Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, String branchName) {
+        return getUnpublishedActions(params, branchName, TRUE);
+    }
+
+    @Override
     public Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params) {
-        return this.getUnpublishedActions(params)
+        return this.getUnpublishedActions(params, FALSE)
                 .filter(actionDTO -> !PluginType.JS.equals(actionDTO.getPluginType()));
     }
 
     @Override
     public Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params, String branchName) {
-        return this.getUnpublishedActions(params, branchName)
-                .filter(actionDTO -> !PluginType.JS.equals(actionDTO.getPluginType()));
+        return this.getUnpublishedActions(params, branchName, FALSE)
+                .filter(actionDTO -> !PluginType.JS.equals(actionDTO.getPluginType()))
+                .name(GET_UNPUBLISHED_ACTION)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     /**
@@ -1892,6 +1843,66 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         }
 
         return actionMono;
+    }
+
+    public Flux<NewAction> addMissingPluginDetailsIntoAllActions(List<NewAction> actionList) {
+
+        Mono<Map<String, Plugin>> pluginMapMono = Mono.just(defaultPluginMap);
+
+        /* This conditional would be false once per pod per restart, as soon as first request goes through
+        the default plugin map will have all the plugins and subsequent requests might not require to fetch again.
+         */
+
+        if (CollectionUtils.isEmpty(defaultPluginMap)) {
+            pluginMapMono = pluginService.getDefaultPlugins()
+                    .collectMap(Plugin::getId)
+                    .map(pluginMap -> {
+                        pluginMap.forEach((pluginId, plugin) -> {
+                            defaultPluginMap.put(pluginId, plugin);
+                            if (JS_PLUGIN_PACKAGE_NAME
+                                    .equals(plugin.getPackageName())) {
+                                jsTypePluginReference.set(plugin);
+                            }
+                        });
+                        return pluginMap;
+                    });
+        }
+
+        return pluginMapMono
+                .thenMany(Flux.fromIterable(actionList))
+                .flatMap(action-> {
+                    if (!isPluginTypeOrPluginIdMissing(action)) {
+                        return Mono.just(action);
+                    }
+                    return addMissingPluginDetailsToNewActionObjects(action);
+                });
+    }
+
+    private Mono<NewAction> addMissingPluginDetailsToNewActionObjects(NewAction action) {
+        ActionDTO actionDTO = action.getUnpublishedAction();
+        if (actionDTO == null) {
+            return Mono.just(action);
+        }
+
+        Datasource datasource = actionDTO.getDatasource();
+        if (actionDTO.getCollectionId() != null) {
+            action.setPluginType(JS_PLUGIN_TYPE);
+            action.setPluginId(jsTypePluginReference.get().getId());
+            return Mono.just(action);
+
+        } else if (datasource != null && datasource.getPluginId() != null) {
+            String pluginId = datasource.getPluginId();
+            action.setPluginId(pluginId);
+
+            if (defaultPluginMap.containsKey(pluginId)) {
+                Plugin plugin = defaultPluginMap.get(pluginId);
+                action.setPluginType(plugin.getType());
+            } else {
+                setPluginTypeFromId(action, pluginId);
+            }
+        }
+
+        return Mono.just(action);
     }
 
     @Override
@@ -2327,6 +2338,224 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             analyticsProperties.put("dsIsMock", ObjectUtils.defaultIfNull(unpublishedAction.getDatasource().getIsMock(), ""));
         }
         return analyticsProperties;
+    }
+
+    /**
+     * This method attempts to parse all incoming parts by type, in parallel
+     * The expectation is that each part gets processed by the time this flux ends,
+     * and the DTO is updated accordingly
+     *
+     * @param partFlux               Raw flux of parts as received in the execution request
+     * @param totalReadableByteCount An atomic type to store the total execution request size as and when we parse them
+     * @param dto                    The ExecuteActionDTO object to store all results in
+     * @return
+     */
+    protected Flux<Param> parsePartsAndGetParamsFlux(Flux<Part> partFlux, AtomicLong totalReadableByteCount, ExecuteActionDTO dto) {
+        return partFlux
+                .groupBy(part -> {
+                    // We're grouping parts by the type of processing required
+                    // Expected types: meta, value, blob
+
+                    for (Pattern pattern : patternList) {
+                        Matcher matcher = pattern.matcher(part.name());
+                        if (matcher.find()) {
+                            return pattern.pattern();
+                        }
+                    }
+                    return part.name();
+                })
+                .flatMap(groupedPartsFlux -> {
+                    String key = groupedPartsFlux.key();
+                    return switch (key) {
+                        case PARAM_KEY_REGEX ->
+                                groupedPartsFlux.flatMap(part -> this.parseExecuteParameter(part, totalReadableByteCount));
+                        case BLOB_KEY_REGEX ->
+                                this.parseExecuteBlobs(groupedPartsFlux, dto, totalReadableByteCount).then(Mono.empty());
+                        case EXECUTE_ACTION_DTO ->
+                                groupedPartsFlux.next().flatMap(part -> this.parseExecuteActionPart(part, dto)).then(Mono.empty());
+                        case PARAMETER_MAP ->
+                                groupedPartsFlux.next().flatMap(part -> this.parseExecuteParameterMapPart(part, dto)).then(Mono.empty());
+                        default ->
+                                Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, "Unexpected part found: " + key));
+                    };
+                });
+    }
+
+    protected Mono<ExecuteActionDTO> enrichExecutionParam(AtomicLong totalReadableByteCount, ExecuteActionDTO dto, List<Param> params) {
+        if (dto.getActionId() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ACTION_ID));
+        }
+
+        dto.setTotalReadableByteCount(totalReadableByteCount.longValue());
+
+        final Set<String> visitedBindings = new HashSet<>();
+        /*
+            Parts in multipart request can appear in any order. In order to avoid NPE original name of the parameters
+            along with the client-side data type are set here as it's guaranteed at this point that the part having the parameterMap is already collected.
+            Ref: https://github.com/appsmithorg/appsmith/issues/16722
+         */
+        params.forEach(
+                param -> {
+                    String pseudoBindingName = param.getPseudoBindingName();
+                    String bindingValue = dto.getInvertParameterMap().get(pseudoBindingName);
+                    param.setKey(bindingValue);
+                    visitedBindings.add(bindingValue);
+                    // if the type is not an array e.g. "k1": "string" or "k1": "boolean"
+                    ParamProperty paramProperty = dto.getParamProperties().get(pseudoBindingName);
+                    if (paramProperty != null) {
+                        this.identifyExecutionParamDatatype(param, paramProperty);
+
+                        this.substituteBlobValuesInParam(dto, param, paramProperty);
+                    }
+
+                }
+        );
+
+        // In case there are parameters that did not receive a value in the multipart request,
+        // initialize these bindings with empty strings
+        if (dto.getParameterMap() != null) {
+            dto.getParameterMap()
+                    .keySet()
+                    .stream()
+                    .forEach(parameter -> {
+                        if (!visitedBindings.contains(parameter)) {
+                            Param newParam = new Param(parameter, "");
+                            params.add(newParam);
+                        }
+                    });
+        }
+        dto.setParams(params);
+        return Mono.just(dto);
+    }
+
+    private void substituteBlobValuesInParam(ExecuteActionDTO dto, Param param, ParamProperty paramProperty) {
+        // Check if this param has blobUrlPaths
+        if (paramProperty.getBlobIdentifiers() != null && !paramProperty.getBlobIdentifiers().isEmpty()) {
+            // If it does, trigger the replacement logic for each of these urlPaths
+            String replacedValue = this.replaceBlobValuesInParam(
+                    param.getValue(),
+                    paramProperty.getBlobIdentifiers(),
+                    dto.getBlobValuesMap());
+            // And then update the value for this param
+            param.setValue(replacedValue);
+        }
+    }
+
+    private void identifyExecutionParamDatatype(Param param, ParamProperty paramProperty) {
+        Object datatype = paramProperty.getDatatype();
+        if (datatype instanceof String) {
+            param.setClientDataType(ClientDataType.valueOf(String.valueOf(datatype).toUpperCase()));
+        } else if (datatype instanceof LinkedHashMap) {
+            // if the type is an array e.g. "k1": { "array": [ "string", "number", "string", "boolean"]
+            LinkedHashMap<String, ArrayList> stringArrayListLinkedHashMap =
+                    (LinkedHashMap<String, ArrayList>) datatype;
+            Optional<String> firstKeyOpt = stringArrayListLinkedHashMap.keySet()
+                    .stream()
+                    .findFirst();
+            if (firstKeyOpt.isPresent()) {
+                String firstKey = firstKeyOpt.get();
+                param.setClientDataType(ClientDataType.valueOf(firstKey.toUpperCase()));
+                List<String> individualTypes = stringArrayListLinkedHashMap.get(firstKey);
+                List<ClientDataType> dataTypesOfArrayElements =
+                        individualTypes.stream()
+                                .map(it -> ClientDataType.valueOf(String.valueOf(it)
+                                        .toUpperCase()))
+                                .collect(Collectors.toList());
+                param.setDataTypesOfArrayElements(dataTypesOfArrayElements);
+            }
+        }
+    }
+
+    protected Mono<Void> parseExecuteActionPart(Part part, ExecuteActionDTO dto) {
+        return DataBufferUtils
+                .join(part.content())
+                .flatMap(executeActionDTOBuffer -> {
+                    byte[] byteData = new byte[executeActionDTOBuffer.readableByteCount()];
+                    executeActionDTOBuffer.read(byteData);
+                    DataBufferUtils.release(executeActionDTOBuffer);
+                    try {
+                        return Mono.just(objectMapper.readValue(byteData, ExecuteActionDTO.class));
+                    } catch (IOException e) {
+                        log.error("Error in deserializing ExecuteActionDTO", e);
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, EXECUTE_ACTION_DTO));
+                    }
+                })
+                .flatMap(executeActionDTO -> {
+                    dto.setActionId(executeActionDTO.getActionId());
+                    dto.setViewMode(executeActionDTO.getViewMode());
+                    dto.setParamProperties(executeActionDTO.getParamProperties());
+                    dto.setPaginationField(executeActionDTO.getPaginationField());
+                    return Mono.empty();
+                });
+    }
+
+    protected Mono<Void> parseExecuteParameterMapPart(Part part, ExecuteActionDTO dto) {
+        return DataBufferUtils
+                .join(part.content())
+                .flatMap(parameterMapBuffer -> {
+                    byte[] byteData = new byte[parameterMapBuffer.readableByteCount()];
+                    parameterMapBuffer.read(byteData);
+                    DataBufferUtils.release(parameterMapBuffer);
+                    try {
+                        return Mono.just(objectMapper.readValue(byteData, new TypeReference<Map<String, String>>() {
+                        }));
+                    } catch (IOException e) {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, PARAMETER_MAP));
+                    }
+                })
+                .flatMap(paramMap -> {
+                    dto.setParameterMap(paramMap);
+                    return Mono.empty();
+                });
+    }
+
+    protected Mono<Param> parseExecuteParameter(Part part, AtomicLong totalReadableByteCount) {
+        final Param param = new Param();
+        param.setPseudoBindingName(part.name());
+        return DataBufferUtils
+                .join(part.content())
+                .map(dataBuffer -> {
+                    byte[] bytes = new byte[dataBuffer.readableByteCount()];
+                    totalReadableByteCount.addAndGet(dataBuffer.readableByteCount());
+                    dataBuffer.read(bytes);
+                    DataBufferUtils.release(dataBuffer);
+                    param.setValue(new String(bytes, StandardCharsets.UTF_8));
+                    return param;
+                });
+    }
+
+    protected Mono<Void> parseExecuteBlobs(Flux<Part> partsFlux, ExecuteActionDTO dto, AtomicLong totalReadableByteCount) {
+        Map<String, String> blobMap = new HashMap<>();
+        dto.setBlobValuesMap(blobMap);
+
+        return partsFlux
+                .flatMap(part -> {
+                    return DataBufferUtils
+                            .join(part.content())
+                            .map(dataBuffer -> {
+                                byte[] bytes = new byte[dataBuffer.readableByteCount()];
+                                totalReadableByteCount.addAndGet(dataBuffer.readableByteCount());
+                                dataBuffer.read(bytes);
+                                DataBufferUtils.release(dataBuffer);
+                                blobMap.put(part.name(), new String(bytes, StandardCharsets.ISO_8859_1));
+                                return Mono.empty();
+                            });
+                })
+                .then();
+    }
+
+    protected String replaceBlobValuesInParam(String value, List<String> blobIdentifiers, Map<String, String> blobValuesMap) {
+        // If there is no blobId reference against this param, return as is
+        if (blobIdentifiers == null || blobIdentifiers.isEmpty()) {
+            return value;
+        }
+
+        // Otherwise, for each such blobId reference, replace the reference with the actual value from the blobMap
+        for (String blobId : blobIdentifiers) {
+            value = value.replace(blobId, StringEscapeUtils.escapeJava(blobValuesMap.get(blobId)));
+        }
+
+        return value;
     }
 
 }

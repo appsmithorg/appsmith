@@ -2,7 +2,8 @@ import { APPLICATIONS_URL } from "constants/routes";
 import { showAdminSettings } from "@appsmith/utils/adminSettingsHelpers";
 import React from "react";
 import { useSelector } from "react-redux";
-import { Redirect, RouteComponentProps } from "react-router";
+import type { RouteComponentProps } from "react-router";
+import { Redirect } from "react-router";
 import { getCurrentUser } from "selectors/usersSelectors";
 
 export default function WithSuperUserHOC(

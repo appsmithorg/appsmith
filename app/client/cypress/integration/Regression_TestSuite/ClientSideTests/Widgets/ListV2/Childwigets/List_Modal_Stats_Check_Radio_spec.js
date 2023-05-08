@@ -3,11 +3,11 @@ const commonlocators = require("../../../../../../locators/commonlocators.json")
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
-describe("Modal, Radio, Checkbox widget", function() {
+describe("Modal, Radio, Checkbox widget", function () {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("a. CurrentView Works in modal", function() {
+  it("a. CurrentView Works in modal", function () {
     cy.get(`${widgetSelector("Text4")} ${commonlocators.bodyTextStyle}`)
       .first()
       .should("have.text", "");
@@ -34,7 +34,7 @@ describe("Modal, Radio, Checkbox widget", function() {
     cy.get(`${widgetSelector("IconButton2")} button`).click({ force: true });
     cy.wait(5000);
   });
-  it("b. Radio And Checkbox connected to modal", function() {
+  it("b. Radio And Checkbox connected to modal", function () {
     cy.get(`${widgetSelector("RadioGroup1")} [type="radio"]`).check("N", {
       force: true,
     });

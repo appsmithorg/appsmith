@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { ControlProps } from "components/formControls/BaseControl";
+import type { ControlProps } from "components/formControls/BaseControl";
 
 //Styled help text, intended to be used with Form Fields
 export const StyledFormInfo = styled.span<{ config?: ControlProps }>`

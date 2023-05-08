@@ -2,10 +2,11 @@ import classNames from "classnames";
 import React, { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { updateApplicationLayout } from "actions/applicationActions";
+import { updateApplicationLayout } from "@appsmith/actions/applicationActions";
 import { Colors } from "constants/Colors";
-import { Icon, IconName, IconSize, TooltipComponent } from "design-system-old";
-import {
+import type { IconName } from "design-system-old";
+import { Icon, IconSize, TooltipComponent } from "design-system-old";
+import type {
   AppLayoutConfig,
   SupportedLayouts,
 } from "reducers/entityReducers/pageListReducer";
@@ -128,7 +129,8 @@ export function MainContainerLayoutControl() {
             >
               <button
                 className={classNames({
-                  "border-transparent border flex items-center justify-center p-2 flex-grow  focus:bg-gray-200": true,
+                  "border-transparent border flex items-center justify-center p-2 flex-grow  focus:bg-gray-200":
+                    true,
                   "bg-white border-gray-300": selectedIndex === index,
                   "bg-gray-100 hover:bg-gray-200": selectedIndex !== index,
                 })}

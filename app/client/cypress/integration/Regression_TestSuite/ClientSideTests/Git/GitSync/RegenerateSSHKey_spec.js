@@ -1,10 +1,16 @@
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Git regenerate SSH key flow", function() {
+describe("Git regenerate SSH key flow", function () {
   let repoName;
 
   it("1. Verify SSH key regeneration flow ", () => {
+    _.homePage.NavigateToHome();
+    _.agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      _.homePage.CreateNewWorkspace("ssh_" + uid);
+      _.homePage.CreateAppInWorkspace("ssh_" + uid);
+    });
     _.gitSync.CreateNConnectToGit(repoName);
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
@@ -35,5 +41,9 @@ describe("Git regenerate SSH key flow", function() {
     cy.regenerateSSHKey(repoName, true, "RSA");
     cy.get("body").click(0, 0);
     cy.wait(2000);
+  });
+  after(() => {
+    _.gitSync.DeleteTestGithubRepo(repoName);
+    cy.DeleteAppByApi();
   });
 });

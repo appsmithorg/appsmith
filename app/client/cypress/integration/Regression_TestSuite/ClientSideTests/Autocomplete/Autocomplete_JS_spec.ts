@@ -341,9 +341,9 @@ describe("Autocomplete tests", () => {
 
     // Same check in JSObject1
     _.entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
-    _.agHelper.Sleep();
     _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(5));
     _.agHelper.TypeText(_.locators._codeMirrorTextArea, "JSObject2");
+    _.agHelper.Sleep();
     _.agHelper.TypeText(_.locators._codeMirrorTextArea, ".");
 
     _.agHelper.GetNAssertElementText(

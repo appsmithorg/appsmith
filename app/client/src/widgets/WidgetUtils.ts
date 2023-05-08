@@ -1,20 +1,19 @@
 // import React, { JSXElementConstructor } from "react";
 // import { IconProps, IconWrapper } from "constants/IconConstants";
-
+import type React from "react";
 import { Alignment, Classes } from "@blueprintjs/core";
 import { Classes as DTClasses } from "@blueprintjs/datetime";
-import { IconName } from "@blueprintjs/icons";
+import type { IconName } from "@blueprintjs/icons";
+import type { ButtonPlacement, ButtonVariant } from "components/constants";
 import {
   ButtonBorderRadiusTypes,
-  ButtonPlacement,
   ButtonPlacementTypes,
   ButtonStyleTypes,
-  ButtonVariant,
   ButtonVariantTypes,
 } from "components/constants";
 import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
-import { Theme } from "constants/DefaultTheme";
-import { PropertyHookUpdates } from "constants/PropertyControlConstants";
+import type { Theme } from "constants/DefaultTheme";
+import type { PropertyHookUpdates } from "constants/PropertyControlConstants";
 import {
   CANVAS_SELECTOR,
   CONTAINER_GRID_PADDING,
@@ -27,19 +26,22 @@ import { find, isArray, isEmpty } from "lodash";
 import generate from "nanoid/generate";
 import { createGlobalStyle, css } from "styled-components";
 import tinycolor from "tinycolor2";
-import { DynamicPath } from "utils/DynamicBindingUtils";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { getLocale } from "utils/helpers";
 import { DynamicHeight } from "utils/WidgetFeatures";
-import { WidgetPositionProps, WidgetProps } from "./BaseWidget";
+import type { WidgetPositionProps, WidgetProps } from "./BaseWidget";
 import { rgbaMigrationConstantV56 } from "./constants";
-import { ContainerWidgetProps } from "./ContainerWidget/widget";
-import { SchemaItem } from "./JSONFormWidget/constants";
+import type { ContainerWidgetProps } from "./ContainerWidget/widget";
+import type { SchemaItem } from "./JSONFormWidget/constants";
+import { WIDGET_COMPONENT_BOUNDARY_CLASS } from "constants/componentClassNameConstants";
 
 const punycode = require("punycode/");
 
 type SanitizeOptions = {
   existingKeys?: string[];
 };
+
+const REACT_ELEMENT_PROPS = "__reactProps$";
 
 export function getDisplayName(WrappedComponent: {
   displayName: any;
@@ -66,6 +68,13 @@ export function getSnapSpaces(props: WidgetPositionProps) {
       : 0,
   };
 }
+
+export const DefaultAutocompleteDefinitions = {
+  isVisible: {
+    "!type": "bool",
+    "!doc": "Boolean value indicating if the widget is in visible state",
+  },
+};
 
 export const hexToRgb = (
   hex: string,
@@ -106,9 +115,7 @@ export const generateReactKey = ({
 };
 
 export const getCustomTextColor = (theme: Theme, backgroundColor?: string) => {
-  const brightness = tinycolor(backgroundColor)
-    .greyscale()
-    .getBrightness();
+  const brightness = tinycolor(backgroundColor).greyscale().getBrightness();
   const percentageBrightness = (brightness / 255) * 100;
 
   if (!backgroundColor)
@@ -172,9 +179,7 @@ export const calulateHoverColor = (
 ) => {
   // For transparent backgrounds
   if (hasTransparentBackground) {
-    return tinycolor(backgroundColor)
-      .setAlpha(0.1)
-      .toRgbString();
+    return tinycolor(backgroundColor).setAlpha(0.1).toRgbString();
   }
 
   // For non-transparent backgrounds, using the HSL color modal
@@ -249,6 +254,18 @@ export const getAlignText = (isRightAlign: boolean, iconName?: IconName) =>
  * @returns
  */
 export const getComplementaryGrayscaleColor = (color = "#fff") => {
+  const textColor = isLightColor(color) ? "black" : "white";
+
+  return textColor;
+};
+
+/**
+ *  return true if the color is light
+ *
+ * @param color
+ * @returns
+ */
+export const isLightColor = (color = "#fff") => {
   const tinyColor = tinycolor(color);
   const rgb: any = tinyColor.isValid()
     ? tinyColor.toRgb()
@@ -258,9 +275,8 @@ export const getComplementaryGrayscaleColor = (color = "#fff") => {
     (parseInt(rgb.r) * 299 + parseInt(rgb.g) * 587 + parseInt(rgb.b) * 114) /
       1000,
   );
-  const textColor = brightness > 125 ? "black" : "white";
 
-  return textColor;
+  return brightness > 125;
 };
 
 /**
@@ -288,9 +304,7 @@ export const darkenColor = (color = "#fff", amount = 10) => {
 
   return tinyColor.isValid()
     ? tinyColor.darken(amount).toString()
-    : tinycolor("#fff")
-        .darken(amount)
-        .toString();
+    : tinycolor("#fff").darken(amount).toString();
 };
 
 export const getRgbaColor = (color: string, opacity: number) => {
@@ -306,9 +320,7 @@ export const getRgbaColor = (color: string, opacity: number) => {
  * @returns
  */
 export const isDark = (color: string) => {
-  const brightness = tinycolor(color)
-    .greyscale()
-    .getBrightness();
+  const brightness = tinycolor(color).greyscale().getBrightness();
   const percentageBrightness = (brightness / 255) * 100;
   const isDark = percentageBrightness < 70;
 
@@ -735,18 +747,24 @@ export const flat = (array: DropdownOption[]) => {
 };
 
 /**
+ * A utility function to check whether a widget has dynamic height enabled with limits?
+ * @param props: Widget properties
+ */
+
+export const isAutoHeightEnabledForWidgetWithLimits = (props: WidgetProps) => {
+  if (props?.isFlexChild) return false;
+
+  return props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
+};
+
+/**
  * A utility function to check whether a widget has dynamic height enabled?
  * @param props: Widget properties
- * @param shouldCheckIfEnabledWithLimits: Should we check specifically for auto height with limits.
  */
-export const isAutoHeightEnabledForWidget = (
-  props: WidgetProps,
-  shouldCheckIfEnabledWithLimits = false,
-) => {
-  if (props.isFlexChild) return false;
-  if (shouldCheckIfEnabledWithLimits) {
-    return props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS;
-  }
+
+export const isAutoHeightEnabledForWidget = (props: WidgetProps) => {
+  if (props?.isFlexChild) return false;
+
   return (
     props.dynamicHeight === DynamicHeight.AUTO_HEIGHT ||
     props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
@@ -882,7 +900,41 @@ export const scrollCSS = css`
 `;
 
 export const widgetTypeClassname = (widgetType: string): string =>
-  `t--widget-${widgetType
-    .split("_")
-    .join("")
-    .toLowerCase()}`;
+  `t--widget-${widgetType.split("_").join("").toLowerCase()}`;
+
+const findReactInstanceProps = (domElement: any) => {
+  for (const key in domElement) {
+    if (key.startsWith(REACT_ELEMENT_PROPS)) {
+      return domElement[key];
+    }
+  }
+  return null;
+};
+
+export const checkForOnClick = (e: React.MouseEvent<HTMLElement>) => {
+  let target = e.target as HTMLElement | null;
+  const currentTarget = e.currentTarget as HTMLElement;
+
+  while (
+    !target?.classList.contains(WIDGET_COMPONENT_BOUNDARY_CLASS) &&
+    target &&
+    target !== currentTarget
+  ) {
+    const targetReactProps = findReactInstanceProps(target);
+
+    const hasOnClickableEvent = Boolean(
+      targetReactProps?.onClick ||
+        targetReactProps?.onMouseDownCapture ||
+        targetReactProps?.onMouseDown ||
+        (target.onclick && target.onclick.name !== "noop"),
+    );
+
+    if (hasOnClickableEvent) {
+      return true;
+    }
+
+    target = target.parentElement;
+  }
+
+  return false;
+};

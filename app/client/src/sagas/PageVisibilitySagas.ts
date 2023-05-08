@@ -1,4 +1,5 @@
-import { EventChannel, eventChannel } from "redux-saga";
+import type { EventChannel } from "redux-saga";
+import { eventChannel } from "redux-saga";
 import { call, fork, put, take } from "redux-saga/effects";
 import { pageVisibilityAppEvent } from "actions/pageVisibilityActions";
 

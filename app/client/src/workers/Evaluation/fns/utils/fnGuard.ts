@@ -1,5 +1,7 @@
 import { ActionCalledInSyncFieldError } from "workers/Evaluation/errorModifier";
 
+type FnGuard = (fn: (...args: any[]) => unknown, fnName: string) => unknown;
+
 export function addFn(
   ctx: any,
   fnName: string,
@@ -7,11 +9,9 @@ export function addFn(
   fnGuards = [isAsyncGuard],
 ) {
   Object.defineProperty(ctx, fnName, {
-    value: function(...args: any[]) {
-      for (const guard of fnGuards) {
-        fn = guard(fn, fnName);
-      }
-      return fn(...args);
+    value: function (...args: any[]) {
+      const fnWithGuards = getFnWithGuards(fn, fnName, fnGuards);
+      return fnWithGuards(...args);
     },
     enumerable: false,
     writable: true,
@@ -23,9 +23,21 @@ export function isAsyncGuard<P extends ReadonlyArray<unknown>>(
   fn: (...args: P) => unknown,
   fnName: string,
 ) {
-  return (...args: P) => {
-    if (!self.$isDataField) return fn(...args);
+  if (self.$isDataField) {
     self["$isAsync"] = true;
     throw new ActionCalledInSyncFieldError(fnName);
+  }
+}
+
+export function getFnWithGuards(
+  fn: (...args: any[]) => unknown,
+  fnName: string,
+  fnGuards: FnGuard[],
+) {
+  return (...args: any[]) => {
+    for (const guard of fnGuards) {
+      guard(fn, fnName);
+    }
+    return fn(...args);
   };
 }

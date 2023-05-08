@@ -16,8 +16,9 @@ describe("Validate JSObjects binding to Input widget", () => {
 
   let jsOjbNameReceived: any;
 
-  it("1. Bind Input widget with JSObject", function() {
-    jsEditor.CreateJSObject(`export default {
+  it("1. Bind Input widget with JSObject", function () {
+    jsEditor.CreateJSObject(
+      `export default {
       myVar1: [],
       myVar2: {},
       myFun1: () => {
@@ -26,12 +27,14 @@ describe("Validate JSObjects binding to Input widget", () => {
       myFun2: async () => {
         //use async-await or promises
       }
-    }`, {
-      paste: true,
-      completeReplace: true,
-      toRun: true,
-      shouldCreateNewJSObj: true,
-    });
+    }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: true,
+        shouldCreateNewJSObj: true,
+      },
+    );
     ee.ExpandCollapseEntity("Widgets"); //to expand widgets
     ee.ExpandCollapseEntity("Form1");
     ee.SelectEntityByName("Input2");
@@ -41,7 +44,10 @@ describe("Validate JSObjects binding to Input widget", () => {
       .should("equal", "Hello"); //Before mapping JSObject value of input
     cy.get("@jsObjName").then((jsObjName) => {
       jsOjbNameReceived = jsObjName;
-      propPane.UpdatePropertyFieldValue("Default Value",  "{{" + jsObjName + ".myFun1()}}");
+      propPane.UpdatePropertyFieldValue(
+        "Default Value",
+        "{{" + jsObjName + ".myFun1()}}",
+      );
     });
     cy.get(locator._inputWidget)
       .last()
@@ -65,7 +71,7 @@ describe("Validate JSObjects binding to Input widget", () => {
     //   });
   });
 
-  it("2. Bug 11529 - Verify autosave while editing JSObj & reference changes when JSObj is mapped", function() {
+  it("2. Bug 11529 - Verify autosave while editing JSObj & reference changes when JSObj is mapped", function () {
     const jsBody = `export default {
       myVar1: [],
       myVar2: {},
@@ -81,9 +87,16 @@ describe("Validate JSObjects binding to Input widget", () => {
     ee.ExpandCollapseEntity("Widgets");
     ee.ExpandCollapseEntity("Form1");
     ee.SelectEntityByName("Input2");
-    cy.get(locator._inputWidget).last().invoke("attr", "value").should("equal", 'Success'); //Function is renamed & reference is checked if updated properly!
-    deployMode.DeployApp(locator._widgetInputSelector("inputwidgetv2"))
-    cy.get(locator._widgetInputSelector("inputwidgetv2")).first().should('have.value', 'Hello')
-    cy.get(locator._widgetInputSelector("inputwidgetv2")).last().should('have.value', 'Success')
+    cy.get(locator._inputWidget)
+      .last()
+      .invoke("attr", "value")
+      .should("equal", "Success"); //Function is renamed & reference is checked if updated properly!
+    deployMode.DeployApp(locator._widgetInputSelector("inputwidgetv2"));
+    cy.get(locator._widgetInputSelector("inputwidgetv2"))
+      .first()
+      .should("have.value", "Hello");
+    cy.get(locator._widgetInputSelector("inputwidgetv2"))
+      .last()
+      .should("have.value", "Success");
   });
 });

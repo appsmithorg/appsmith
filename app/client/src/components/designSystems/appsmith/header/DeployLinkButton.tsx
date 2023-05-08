@@ -1,4 +1,5 @@
-import React, { ReactNode, useState } from "react";
+import type { ReactNode } from "react";
+import React, { useState } from "react";
 import styled, { useTheme } from "styled-components";
 import { Icon, Popover, PopoverPosition } from "@blueprintjs/core";
 import { useSelector, useDispatch } from "react-redux";
@@ -13,7 +14,7 @@ import {
   CONNECT_TO_GIT_OPTION,
   CURRENT_DEPLOY_PREVIEW_OPTION,
 } from "@appsmith/constants/messages";
-import { Theme } from "constants/DefaultTheme";
+import type { Theme } from "constants/DefaultTheme";
 
 const DeployLinkDialog = styled.div`
   flex-direction: column;

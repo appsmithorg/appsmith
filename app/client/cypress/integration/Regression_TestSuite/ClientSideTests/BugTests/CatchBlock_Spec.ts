@@ -3,8 +3,8 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const {
   AggregateHelper: agHelper,
   ApiPage: apiPage,
+  EntityExplorer: ee,
   JSEditor: jsEditor,
-  EntityExplorer : ee
 } = ObjectsRegistry;
 
 describe("Bug #15372 Catch block was not triggering in Safari/firefox", () => {

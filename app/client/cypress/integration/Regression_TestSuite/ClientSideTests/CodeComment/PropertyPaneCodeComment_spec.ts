@@ -23,5 +23,4 @@ describe("Property Pane Code Commenting", () => {
 
     PropertyPane.ValidatePropertyFieldValue("Label", "{{appsmith}}");
   });
-
 });

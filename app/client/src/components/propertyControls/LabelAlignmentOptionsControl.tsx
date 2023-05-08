@@ -2,10 +2,12 @@ import React from "react";
 import styled from "styled-components";
 import { Alignment } from "@blueprintjs/core";
 
-import BaseControl, { ControlProps } from "./BaseControl";
-import { ButtonGroup, ButtonGroupOption } from "design-system-old";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
+import type { ButtonGroupOption } from "design-system-old";
+import { ButtonGroup } from "design-system-old";
+import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
-  DSEventDetail,
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
@@ -26,9 +28,7 @@ export interface LabelAlignmentOptionsControlProps extends ControlProps {
   defaultValue: Alignment;
 }
 
-class LabelAlignmentOptionsControl extends BaseControl<
-  LabelAlignmentOptionsControlProps
-> {
+class LabelAlignmentOptionsControl extends BaseControl<LabelAlignmentOptionsControlProps> {
   componentRef = React.createRef<HTMLDivElement>();
 
   constructor(props: LabelAlignmentOptionsControlProps) {

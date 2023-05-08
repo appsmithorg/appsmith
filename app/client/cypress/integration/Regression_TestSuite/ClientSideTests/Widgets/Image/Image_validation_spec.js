@@ -1,12 +1,12 @@
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
 const dsl = require("../../../../../fixtures/displayWidgetDsl.json");
 
-describe("Image Widget Validation Image Urls", function() {
+describe("Image Widget Validation Image Urls", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("1. Check default image src", function() {
+  it("1. Check default image src", function () {
     cy.openPropertyPane("imagewidget");
     cy.get(viewWidgetsPage.imageinner)
       .invoke("attr", "src")
@@ -16,7 +16,7 @@ describe("Image Widget Validation Image Urls", function() {
       );
   });
 
-  it("2. Add new image and check image is showing instead of default image", function() {
+  it("2. Add new image and check image is showing instead of default image", function () {
     cy.testCodeMirror(this.data.NewImage);
     cy.get(viewWidgetsPage.imageinner)
       .invoke("attr", "src")
@@ -24,7 +24,7 @@ describe("Image Widget Validation Image Urls", function() {
     cy.closePropertyPane();
   });
 
-  it("3. Remove both images and check empty screen", function() {
+  it("3. Remove both images and check empty screen", function () {
     cy.openPropertyPane("imagewidget");
 
     cy.get(".t--property-control-image").then(($el) =>
@@ -47,7 +47,7 @@ describe("Image Widget Validation Image Urls", function() {
     cy.closePropertyPane();
   });
 
-  it("4. Add new image and check image src", function() {
+  it("4. Add new image and check image src", function () {
     cy.openPropertyPane("imagewidget");
     cy.clearPropertyValue(0);
 

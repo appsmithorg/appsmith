@@ -3,16 +3,16 @@ const dsl = require("../../../../fixtures/tableV2TextPaginationDsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 
-describe("Test Create Api and Bind to Table widget", function() {
+describe("Test Create Api and Bind to Table widget", function () {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("1. Create an API and Execute the API and bind with TableV2", function() {
+  it("1. Create an API and Execute the API and bind with TableV2", function () {
     cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
     cy.RunAPI();
   });
 
-  it("2. Validate TableV2 with API data and then add a column", function() {
+  it("2. Validate TableV2 with API data and then add a column", function () {
     cy.SearchEntityandOpen("Table1");
     cy.testJsontext("tabledata", "{{Api1.data}}");
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
@@ -26,7 +26,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.readTableV2data("0", "4").then((tabData) => {
       const tableData = tabData;
       expect(tableData).to.equal("1");
-    })
+    });
     cy.addColumnV2("CustomColumn");
     cy.editColumn("customColumn1");
     cy.editColName("UpdatedColName");
@@ -41,7 +41,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.closePropertyPane();
   });
 
-  it("3. Check Image alignment is working as expected", function() {
+  it("3. Check Image alignment is working as expected", function () {
     cy.SearchEntityandOpen("Table1");
     cy.editColumn("avatar");
     cy.changeColumnType("Image");
@@ -49,34 +49,28 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.SearchEntityandOpen("Table1");
     cy.backFromPropertyPanel();
     cy.moveToStyleTab();
-    cy.get(widgetsPage.centerAlign)
-      .first()
-      .click({ force: true });
+    cy.get(widgetsPage.centerAlign).first().click({ force: true });
     cy.closePropertyPane();
     cy.get(`.t--widget-tablewidgetv2 .tbody .image-cell-wrapper`)
       .first()
       .should("have.css", "justify-content", "center");
     cy.SearchEntityandOpen("Table1");
     cy.moveToStyleTab();
-    cy.get(widgetsPage.rightAlign)
-      .first()
-      .click({ force: true });
+    cy.get(widgetsPage.rightAlign).first().click({ force: true });
     cy.closePropertyPane();
     cy.get(`.t--widget-tablewidgetv2 .tbody .image-cell-wrapper`)
       .first()
       .should("have.css", "justify-content", "flex-end");
     cy.SearchEntityandOpen("Table1");
     cy.moveToStyleTab();
-    cy.get(widgetsPage.leftAlign)
-      .first()
-      .click({ force: true });
+    cy.get(widgetsPage.leftAlign).first().click({ force: true });
     cy.closePropertyPane();
     cy.get(`.t--widget-tablewidgetv2 .tbody .image-cell-wrapper`)
       .first()
       .should("have.css", "justify-content", "flex-start");
   });
 
-  it("4. Update table json data and check the derived column values after update", function() {
+  it("4. Update table json data and check the derived column values after update", function () {
     cy.SearchEntityandOpen("Table1");
     cy.moveToContentTab();
     cy.tableV2ColumnDataValidation("id");
@@ -99,7 +93,9 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.hideColumn("userName");
     cy.hideColumn("productName");
     cy.hideColumn("orderAmount");
-    cy.get(".draggable-header:contains('UpdatedColName')").scrollIntoView().should("be.visible");
+    cy.get(".draggable-header:contains('UpdatedColName')")
+      .scrollIntoView()
+      .should("be.visible");
     cy.readTableV2dataPublish("1", "2").then((tabData) => {
       const tabValue = tabData;
       cy.readTableV2dataPublish("1", "2").then((tabData) => {

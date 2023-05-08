@@ -1,8 +1,9 @@
 import React from "react";
 import { formValueSelector } from "redux-form";
 import { connect } from "react-redux";
-import BaseControl, { ControlProps } from "./BaseControl";
-import { ControlType } from "constants/PropertyControlConstants";
+import type { ControlProps } from "./BaseControl";
+import BaseControl from "./BaseControl";
+import type { ControlType } from "constants/PropertyControlConstants";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import {
   EditorSize,
@@ -10,11 +11,11 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
 import { getPluginResponseTypes } from "selectors/entitiesSelector";
 import { actionPathFromName } from "components/formControls/utils";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import type { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { getLineCommentString } from "components/editorComponents/CodeEditor/utils/codeComment";
 
 const Wrapper = styled.div`

@@ -3,12 +3,12 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/tableTextPaginationDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
-describe("Test Create Api and Bind to Table widget", function() {
+describe("Test Create Api and Bind to Table widget", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("1. Create an API and Execute the API and bind with Table", function() {
+  it("1. Create an API and Execute the API and bind with Table", function () {
     // Create and execute an API and bind with table
     cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
     cy.RunAPI();
@@ -34,7 +34,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.readTabledata("0", "4").then((tabData) => {
       const tableData = tabData;
       expect(tableData).to.equal("1");
-    })
+    });
     // add new column
     cy.addColumn("CustomColumn");
     //Test:Table widget toggle test for background color
@@ -43,9 +43,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     // Click on cell background JS button
-    cy.get(widgetsPage.toggleJsBcgColor)
-      .first()
-      .click({ force: true });
+    cy.get(widgetsPage.toggleJsBcgColor).first().click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     // Change the cell background color to green
@@ -57,7 +55,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.readTabledataValidateCSS("1", "4", "background-color", "rgb(0, 128, 0)");
   });
 
-  it("2. Edit column name and validate test for computed value based on column type selected", function() {
+  it("2. Edit column name and validate test for computed value based on column type selected", function () {
     // opoen customColumn1 property pane
     cy.editColumn("customColumn1");
     // Enter Apil 1st user email data into customColumn1

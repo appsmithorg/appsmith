@@ -1,5 +1,5 @@
-import { APIResponseError } from "api/ApiResponses";
-import { ActionConfig, Property } from "entities/Action";
+import type { APIResponseError } from "api/ApiResponses";
+import type { ActionConfig, Property } from "entities/Action";
 import _ from "lodash";
 
 export enum AuthType {
@@ -13,6 +13,18 @@ export enum AuthenticationStatus {
   SUCCESS = "SUCCESS",
   FAILURE = "FAILURE",
 }
+
+export enum FilePickerActionStatus {
+  CANCEL = "cancel",
+  PICKED = "picked",
+  LOADED = "loaded",
+}
+
+export enum ActionType {
+  AUTHORIZE = "authorize",
+  DOCUMENTATION = "picked",
+}
+
 export interface DatasourceAuthentication {
   authType?: string;
   username?: string;
@@ -108,6 +120,7 @@ export interface Datasource extends BaseDatasource {
 export interface TokenResponse {
   datasource: Datasource;
   token: string;
+  projectID: string;
 }
 
 export interface MockDatasource {

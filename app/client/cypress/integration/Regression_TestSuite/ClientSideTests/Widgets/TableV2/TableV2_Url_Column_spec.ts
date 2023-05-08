@@ -3,14 +3,14 @@ import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper,
   table = ObjectsRegistry.Table;
 
-describe("16108 - Verify Table URL column bugs", function() {
+describe("16108 - Verify Table URL column bugs", function () {
   before(() => {
     cy.fixture("tableV2WithUrlColumnDsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
   });
 
-  it("Verify click on URL column with display text takes to the correct link", function() {
+  it("Verify click on URL column with display text takes to the correct link", function () {
     table.ReadTableRowColumnData(0, 0, "v2").then(($cellData) => {
       expect($cellData).to.eq("Profile pic");
     });

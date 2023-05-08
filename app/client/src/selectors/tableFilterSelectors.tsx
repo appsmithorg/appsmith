@@ -1,7 +1,7 @@
-import { AppState } from "@appsmith/reducers";
+import type { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
 
-import { TableFilterPaneReduxState } from "reducers/uiReducers/tableFilterPaneReducer";
+import type { TableFilterPaneReduxState } from "reducers/uiReducers/tableFilterPaneReducer";
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
 
 export const getTableFilterState = (

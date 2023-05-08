@@ -1,18 +1,13 @@
-import { updateApplication } from "actions/applicationActions";
-import { UpdateApplicationPayload } from "api/ApplicationApi";
+import { updateApplication } from "@appsmith/actions/applicationActions";
+import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
 import {
   GENERAL_SETTINGS_APP_ICON_LABEL,
   GENERAL_SETTINGS_APP_NAME_LABEL,
   GENERAL_SETTINGS_NAME_EMPTY_MESSAGE,
 } from "@appsmith/constants/messages";
 import classNames from "classnames";
-import {
-  AppIconName,
-  TextInput,
-  IconSelector,
-  Text,
-  TextType,
-} from "design-system-old";
+import type { AppIconName } from "design-system-old";
+import { TextInput, IconSelector, Text, TextType } from "design-system-old";
 import { debounce } from "lodash";
 import React, { useCallback, useState } from "react";
 import { useEffect } from "react";
@@ -20,7 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplication,
   getIsSavingAppName,
-} from "selectors/applicationSelectors";
+} from "@appsmith/selectors/applicationSelectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import styled from "styled-components";
 import TextLoaderIcon from "../Components/TextLoaderIcon";

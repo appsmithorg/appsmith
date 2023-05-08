@@ -1,8 +1,9 @@
-import CodeMirror from "codemirror";
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { EntityNavigationData } from "selectors/navigationSelectors";
+import type CodeMirror from "codemirror";
+import type { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import type { EntityNavigationData } from "selectors/navigationSelectors";
+import type { ExpectedValueExample } from "utils/validation/common";
 
 export enum EditorModes {
   TEXT = "text/plain",
@@ -53,6 +54,8 @@ export type FieldEntityInformation = {
   entityId?: string;
   propertyPath?: string;
   blockCompletions?: Array<{ parentPath: string; subPath: string }>;
+  example?: ExpectedValueExample;
+  mode?: EditorModes;
 };
 
 export type HintHelper = (
@@ -73,6 +76,8 @@ export type Hinter = {
 export type MarkHelper = (
   editor: CodeMirror.Editor,
   entityNavigationData: EntityNavigationData,
+  from?: CodeMirror.Position,
+  to?: CodeMirror.Position,
 ) => void;
 
 export enum CodeEditorBorder {
@@ -83,7 +88,6 @@ export enum CodeEditorBorder {
 
 export enum AUTOCOMPLETE_CLOSE_KEY {
   Enter,
-  Tab,
   Escape,
   Comma,
   Semicolon,

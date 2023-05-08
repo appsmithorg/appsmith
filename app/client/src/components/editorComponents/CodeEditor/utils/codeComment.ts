@@ -1,9 +1,11 @@
 import CodeMirror from "codemirror";
-import { isMacOrIOS } from "utils/helpers";
+import { getPlatformOS } from "utils/helpers";
 import { EditorModes } from "../EditorConfig";
+import { KEYBOARD_SHORTCUTS_BY_PLATFORM } from "./keyboardShortcutConstants";
 
 export const getCodeCommentKeyMap = () => {
-  return isMacOrIOS() ? "Cmd-/" : "Ctrl-/";
+  const platformOS = getPlatformOS() || "default";
+  return KEYBOARD_SHORTCUTS_BY_PLATFORM[platformOS].codeComment;
 };
 
 export function getLineCommentString(mode: EditorModes) {
@@ -109,7 +111,7 @@ function performLineCommenting(
   const padding = options.padding || " ";
   const blankLines = options.commentBlankLines || from.line === to.line;
 
-  self.operation(function() {
+  self.operation(function () {
     if (options.indent) {
       for (let i = from.line; i < end; ++i) {
         const line = self.getLine(i);
@@ -204,7 +206,7 @@ function performLineUncommenting(
         break lineComment;
       lines.push(line);
     }
-    self.operation(function() {
+    self.operation(function () {
       for (let i = start; i <= end; ++i) {
         const line = lines[i - start];
         const pos = line.indexOf(lineString);
@@ -270,7 +272,7 @@ function performLineUncommenting(
     firstEnd === -1 || almostLastStart === -1 ? -1 : to.ch + almostLastStart;
   if (firstEnd !== -1 && lastStart != -1 && lastStart !== to.ch) return false;
 
-  self.operation(function() {
+  self.operation(function () {
     self.replaceRange(
       "",
       CodeMirror.Pos(
@@ -316,19 +318,18 @@ function performLineUncommenting(
 }
 
 /** This function handles commenting which includes functions copied from comment add on with modifications */
-export const handleCodeComment = (lineCommentingString: string) => (
-  cm: CodeMirror.Editor,
-) => {
-  cm.lineComment = performLineCommenting;
+export const handleCodeComment =
+  (lineCommentingString: string) => (cm: CodeMirror.Editor) => {
+    cm.lineComment = performLineCommenting;
 
-  cm.uncomment = performLineUncommenting;
+    cm.uncomment = performLineUncommenting;
 
-  // This is the actual command that does the comment toggling
-  cm.toggleComment({
-    commentBlankLines: true,
-    // Always provide the line comment, otherwise it'll not work for JS fields when
-    // the mode is set to text/plain (when whole text wrapped in {{}} is selected)
-    lineComment: lineCommentingString,
-    indent: true,
-  });
-};
+    // This is the actual command that does the comment toggling
+    cm.toggleComment({
+      commentBlankLines: true,
+      // Always provide the line comment, otherwise it'll not work for JS fields when
+      // the mode is set to text/plain (when whole text wrapped in {{}} is selected)
+      lineComment: lineCommentingString,
+      indent: true,
+    });
+  };

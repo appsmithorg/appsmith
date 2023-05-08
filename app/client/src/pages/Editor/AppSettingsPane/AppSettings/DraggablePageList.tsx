@@ -1,5 +1,5 @@
 import { setPageOrder } from "actions/pageActions";
-import { Page } from "@appsmith/constants/ReduxActionConstants";
+import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import classNames from "classnames";
 import { Colors } from "constants/Colors";
 import { ControlIcons, DraggableList } from "design-system-old";
@@ -22,7 +22,8 @@ function PageListHeader(props: {
   return (
     <div
       className={classNames({
-        "flex items-center cursor-pointer hover:bg-[color:var(--appsmith-color-black-200)]": true,
+        "flex items-center cursor-pointer hover:bg-[color:var(--appsmith-color-black-200)]":
+          true,
         "bg-[color:var(--appsmith-color-black-200)]":
           props.selectedPage === props.page.pageId,
       })}

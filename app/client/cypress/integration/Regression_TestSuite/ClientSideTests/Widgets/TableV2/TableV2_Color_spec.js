@@ -1,12 +1,12 @@
-const ObjectsRegistry = require("../../../../../support/Objects/Registry")
-  .ObjectsRegistry;
+const ObjectsRegistry =
+  require("../../../../../support/Objects/Registry").ObjectsRegistry;
 let propPane = ObjectsRegistry.PropertyPane;
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/tableV2NewDsl.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 let agHelper = ObjectsRegistry.AggregateHelper;
 
-describe("Table Widget V2 property pane feature validation", function() {
+describe("Table Widget V2 property pane feature validation", function () {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });
@@ -19,7 +19,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     cy.addDsl(dsl);
   });
 
-  it("1. Test to validate text color and text background", function() {
+  it("1. Test to validate text color and text background", function () {
     // Open property pane
     cy.openPropertyPane("tablewidgetv2");
     cy.moveToStyleTab();
@@ -78,7 +78,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     cy.get(publish.backToEditor).click();
   });
 
-  it("2. check background of the edit action column", function() {
+  it("2. check background of the edit action column", function () {
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("id");
     cy.readTableV2dataValidateCSS(0, 5, "background-color", "rgba(0, 0, 0, 0)");

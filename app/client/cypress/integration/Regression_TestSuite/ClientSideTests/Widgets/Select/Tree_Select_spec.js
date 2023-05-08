@@ -2,7 +2,7 @@ const dsl = require("../../../../../fixtures/emptyDSL.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 
-describe("Tree Select Widget", function() {
+describe("Tree Select Widget", function () {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -32,9 +32,7 @@ describe("Tree Select Widget", function() {
       .invoke("val")
       .should("be.empty");
     // click on the widget
-    cy.get(formWidgetsPage.treeSelectInput)
-      .last()
-      .click({ force: true });
+    cy.get(formWidgetsPage.treeSelectInput).last().click({ force: true });
     // select Green option
     cy.treeSelectDropdown("Green");
     // again click on cancel icon in the widget
@@ -58,9 +56,7 @@ describe("Tree Select Widget", function() {
       .find(".rc-tree-select-clear")
       .should("not.exist");
     // click on the widget again
-    cy.get(formWidgetsPage.treeSelectInput)
-      .last()
-      .click({ force: true });
+    cy.get(formWidgetsPage.treeSelectInput).last().click({ force: true });
     // select Green option
     cy.treeSelectDropdown("Green");
     // assert if the widget input value is Green

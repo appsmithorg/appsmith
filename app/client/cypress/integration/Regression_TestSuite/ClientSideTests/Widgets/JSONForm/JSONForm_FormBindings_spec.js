@@ -207,11 +207,9 @@ describe("JSON Form Widget Form Bindings", () => {
     };
 
     cy.openPropertyPane("textwidget");
-    cy.get(".t--property-control-text .CodeMirror textarea")
-      .first()
-      .clear({
-        force: true,
-      });
+    cy.get(".t--property-control-text .CodeMirror textarea").first().clear({
+      force: true,
+    });
     cy.testJsontext("text", "{{JSON.stringify(JSONForm1.fieldState)}}");
     cy.closePropertyPane();
 
@@ -227,34 +225,24 @@ describe("JSON Form Widget Form Bindings", () => {
     // name.required -> true
     cy.openFieldConfiguration("name");
     cy.togglebar(`${propertyControlPrefix}-required input`);
-    cy.get(backBtn)
-      .click({ force: true })
-      .wait(500);
+    cy.get(backBtn).click({ force: true }).wait(500);
 
     // age.disabled -> true
     cy.openFieldConfiguration("age");
     cy.togglebar(`${propertyControlPrefix}-disabled input`);
-    cy.get(backBtn)
-      .click({ force: true })
-      .wait(500);
+    cy.get(backBtn).click({ force: true }).wait(500);
 
     // migrant.visible -> false
     cy.openFieldConfiguration("migrant", false);
     cy.togglebarDisable(`${propertyControlPrefix}-visible input`);
-    cy.get(backBtn)
-      .click({ force: true })
-      .wait(500);
+    cy.get(backBtn).click({ force: true }).wait(500);
 
     // address.street.required -> true
     cy.openFieldConfiguration("address", false);
     cy.openFieldConfiguration("street", false);
     cy.togglebar(`${propertyControlPrefix}-required input`);
-    cy.get(backBtn)
-      .click({ force: true })
-      .wait(500);
-    cy.get(backBtn)
-      .click({ force: true })
-      .wait(500);
+    cy.get(backBtn).click({ force: true }).wait(500);
+    cy.get(backBtn).click({ force: true }).wait(500);
 
     // education.college.required -> true
     // education.year.visible -> false
@@ -262,14 +250,10 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.openFieldConfiguration("__array_item__", false);
     cy.openFieldConfiguration("college", false);
     cy.togglebar(`${propertyControlPrefix}-required input`);
-    cy.get(backBtn)
-      .click({ force: true })
-      .wait(500);
+    cy.get(backBtn).click({ force: true }).wait(500);
     cy.openFieldConfiguration("year", false);
     cy.togglebarDisable(`${propertyControlPrefix}-visible input`);
-    cy.get(backBtn)
-      .click({ force: true })
-      .wait(500);
+    cy.get(backBtn).click({ force: true }).wait(500);
 
     cy.closePropertyPane();
 
@@ -354,11 +338,9 @@ describe("JSON Form Widget Form Bindings", () => {
     };
 
     cy.openPropertyPane("textwidget");
-    cy.get(".t--property-control-text .CodeMirror textarea")
-      .first()
-      .clear({
-        force: true,
-      });
+    cy.get(".t--property-control-text .CodeMirror textarea").first().clear({
+      force: true,
+    });
     cy.testJsontext("text", "{{JSON.stringify(JSONForm1.fieldState)}}");
 
     cy.openPropertyPane("jsonformwidget");
@@ -368,9 +350,7 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.testJsontext("propertyname", "firstName");
     cy.wait(1000);
 
-    cy.get(backBtn)
-      .click({ force: true })
-      .wait(500);
+    cy.get(backBtn).click({ force: true }).wait(500);
 
     // Change accessor education -> college to education -> graduatingCollege
     cy.openFieldConfiguration("education", false);
@@ -405,9 +385,7 @@ describe("JSON Form Widget Form Bindings", () => {
     cy.testJsontext("propertyname", "firstName");
     cy.wait(1000);
 
-    cy.get(backBtn)
-      .click({ force: true })
-      .wait(500);
+    cy.get(backBtn).click({ force: true }).wait(500);
 
     // Change accessor education -> college to education -> graduatingCollege
     cy.openFieldConfiguration("education");

@@ -3,28 +3,29 @@
  * Controls are higher order components that update a widgets property
  */
 import { Component } from "react";
-import _ from "lodash";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
-import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
-import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
+import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 class BaseControl<P extends ControlProps, S = {}> extends Component<P, S> {
+  shoudUpdateProperty(propertyValue: unknown) {
+    return !(
+      (this.props.propertyValue === undefined &&
+        propertyValue === this.props.defaultValue) ||
+      !(this.props.propertyValue !== propertyValue)
+    );
+  }
+
   updateProperty(
     propertyName: string,
     propertyValue: any,
     isUpdatedViaKeyboard?: boolean,
   ) {
     if (
-      this.props.propertyValue === undefined &&
-      propertyValue === this.props.defaultValue
-    ) {
-      return;
-    }
-    if (
-      !_.isNil(this.props.onPropertyChange) &&
-      this.props.propertyValue !== propertyValue
+      this.shoudUpdateProperty(propertyValue) &&
+      this.props.onPropertyChange
     ) {
       this.props.onPropertyChange(
         propertyName,
@@ -33,11 +34,25 @@ class BaseControl<P extends ControlProps, S = {}> extends Component<P, S> {
       );
     }
   }
+
   deleteProperties(propertyPaths: string[]) {
     if (this.props.deleteProperties) {
       this.props.deleteProperties(propertyPaths);
     }
   }
+
+  batchUpdatePropertiesWithAssociatedUpdates = (
+    updates: { propertyName: string; propertyValue: any }[],
+  ) => {
+    if (this.props.onBatchUpdateWithAssociatedUpdates) {
+      this.props.onBatchUpdateWithAssociatedUpdates(
+        updates.filter(({ propertyValue }) =>
+          this.shoudUpdateProperty(propertyValue),
+        ),
+      );
+    }
+  };
+
   batchUpdateProperties = (updates: Record<string, unknown>) => {
     if (this.props.onBatchUpdateProperties) {
       this.props.onBatchUpdateProperties(updates);
@@ -87,6 +102,15 @@ export interface ControlFunctions {
   onPropertyChange?: (
     propertyName: string,
     propertyValue: string,
+    isUpdatedViaKeyboard?: boolean,
+    isDynamicPropertyPath?: boolean,
+  ) => void;
+
+  onBatchUpdateWithAssociatedUpdates?: (
+    updates: {
+      propertyName: string;
+      propertyValue: string;
+    }[],
     isUpdatedViaKeyboard?: boolean,
   ) => void;
   onBatchUpdateProperties?: (updates: Record<string, unknown>) => void;

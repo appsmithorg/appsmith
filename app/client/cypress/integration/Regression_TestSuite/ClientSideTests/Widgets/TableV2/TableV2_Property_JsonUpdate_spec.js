@@ -1,17 +1,17 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/tableV2TextPaginationDsl.json");
 
-describe("Test Create Api and Bind to Table widget V2", function() {
+describe("Test Create Api and Bind to Table widget V2", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("1. Create an API and Execute the API and bind with Table V2", function() {
+  it("1. Create an API and Execute the API and bind with Table V2", function () {
     cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
     cy.RunAPI();
   });
 
-  it("2. Validate Table with API data and then add a column", function() {
+  it("2. Validate Table with API data and then add a column", function () {
     // Open property pane
     cy.SearchEntityandOpen("Table1");
     // Change the table data to Apil data users
@@ -33,12 +33,12 @@ describe("Test Create Api and Bind to Table widget V2", function() {
     cy.readTableV2data("0", "4").then((tabData) => {
       const tableData = tabData;
       expect(tableData).to.equal("1");
-    })
+    });
     // Add new column
     cy.addColumnV2("CustomColumn");
   });
 
-  it("3. Update table json data and check the column names updated and validate empty value", function() {
+  it("3. Update table json data and check the column names updated and validate empty value", function () {
     // Open property pane
     cy.SearchEntityandOpen("Table1");
     // Change the table data
@@ -57,7 +57,9 @@ describe("Test Create Api and Bind to Table widget V2", function() {
     cy.hideColumn("userName");
     cy.hideColumn("productName");
     // Verify CustomColumn is visible
-    cy.get(".draggable-header:contains('CustomColumn')").scrollIntoView().should("be.visible");
+    cy.get(".draggable-header:contains('CustomColumn')")
+      .scrollIntoView()
+      .should("be.visible");
     // close property pane
     cy.closePropertyPane();
     // Validate the empty values
@@ -67,7 +69,7 @@ describe("Test Create Api and Bind to Table widget V2", function() {
     });
   });
 
-  it("4. Check Selected Row(s) Resets When Table Data Changes", function() {
+  it("4. Check Selected Row(s) Resets When Table Data Changes", function () {
     // Select 1st row
     cy.isSelectRow(1);
     cy.openPropertyPane("tablewidgetv2");
