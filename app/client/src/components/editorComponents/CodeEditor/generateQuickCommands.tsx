@@ -16,6 +16,8 @@ import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import MagicIcon from "remixicon-react/MagicLineIcon";
 import { addAISlashCommand } from "@appsmith/components/editorComponents/GPT/trigger";
 import type FeatureFlags from "entities/FeatureFlags";
+import type { FieldEntityInformation } from "./EditorConfig";
+import { EditorModes } from "./EditorConfig";
 
 enum Shortcuts {
   PLUS = "PLUS",
@@ -141,10 +143,15 @@ export const generateQuickCommands = (
     recentEntities: string[];
     featureFlags: FeatureFlags;
   },
-  expectedType: string,
-  entityId: any,
-  propertyPath: any,
+  entityInfo: FieldEntityInformation,
 ) => {
+  const {
+    entityId,
+    example,
+    expectedType = "string",
+    mode,
+    propertyPath,
+  } = entityInfo || {};
   const suggestionsHeader: CommandsCompletion = commandsHeader("Bind Data");
   const createNewHeader: CommandsCompletion = commandsHeader("Create a Query");
   recentEntities.reverse();
@@ -252,7 +259,9 @@ export const generateQuickCommands = (
   if (
     addAISlashCommand &&
     featureFlags.ask_ai &&
-    currentEntityType !== ENTITY_TYPE.ACTION
+    (currentEntityType !== ENTITY_TYPE.ACTION ||
+      mode === EditorModes.SQL ||
+      mode === EditorModes.SQL_WITH_BINDING)
   ) {
     const askGPT: CommandsCompletion = generateCreateNewCommand({
       text: "",
@@ -266,6 +275,8 @@ export const generateQuickCommands = (
             expectedType: expectedType,
             entityId: entityId,
             propertyPath: propertyPath,
+            example,
+            mode,
           },
         }),
     });
