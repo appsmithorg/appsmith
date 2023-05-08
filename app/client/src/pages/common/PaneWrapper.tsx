@@ -1,4 +1,4 @@
-import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfiguration";
 import styled from "styled-components";
 
 export default styled.div<{ themeMode?: EditorTheme }>`

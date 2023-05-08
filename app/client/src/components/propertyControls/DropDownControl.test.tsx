@@ -1,4 +1,4 @@
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfiguration";
 import { noop } from "lodash";
 import type { DropDownControlProps } from "./DropDownControl";
 import DropDownControl from "./DropDownControl";

@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { EditorTheme } from "./CodeEditor/EditorConfig";
+import { EditorTheme } from "./CodeEditor/EditorConfiguration";
 
 export default styled.div<{ theme?: EditorTheme }>`
   position: absolute;

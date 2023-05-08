@@ -10,7 +10,7 @@ import {
   EditorSize,
   EditorTheme,
   TabBehaviour,
-} from "components/editorComponents/CodeEditor/EditorConfig";
+} from "components/editorComponents/CodeEditor/EditorConfiguration";
 import { CollapseContext } from "pages/Editor/PropertyPane/PropertySection";
 import CodeEditor from "../editorComponents/LazyCodeEditorWrapper";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";

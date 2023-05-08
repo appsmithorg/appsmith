@@ -17,7 +17,7 @@ import ContextualMenu from "./ContextualMenu";
 import { Position } from "@blueprintjs/core";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
 import { Colors } from "constants/Colors";
-import type { FieldEntityInformation } from "../CodeEditor/EditorConfig";
+import type { FieldEntityInformation } from "../CodeEditor/EditorConfiguration";
 
 const EVDebugButton = styled.button`
   ${getTypographyByKey("btnSmall")};

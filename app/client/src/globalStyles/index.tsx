@@ -5,7 +5,7 @@ import { UppyStyles } from "./uppy";
 import { PortalStyles } from "./portals";
 import { DialogStyles } from "./dialogs";
 import { CodemirrorHintStyles } from "./CodemirrorHintStyles";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfiguration";
 
 export default function GlobalStyles() {
   return (

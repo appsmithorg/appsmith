@@ -17,7 +17,7 @@ import {
   NO_JS_FUNCTION_RETURN_VALUE,
   UPDATING_JS_COLLECTION,
 } from "@appsmith/constants/messages";
-import type { EditorTheme } from "./CodeEditor/EditorConfig";
+import type { EditorTheme } from "./CodeEditor/EditorConfiguration";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";

@@ -11,7 +11,7 @@ import { actionPathFromName } from "components/formControls/utils";
 import {
   EditorModes,
   EditorSize,
-} from "components/editorComponents/CodeEditor/EditorConfig";
+} from "components/editorComponents/CodeEditor/EditorConfiguration";
 import styled from "styled-components";
 import _ from "lodash";
 import { Colors } from "constants/Colors";

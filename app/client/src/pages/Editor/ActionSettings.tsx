@@ -2,7 +2,7 @@ import React from "react";
 import type { ControlProps } from "components/formControls/BaseControl";
 import FormControl from "./FormControl";
 import log from "loglevel";
-import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfiguration";
 import styled from "styled-components";
 
 interface ActionSettingsProps {

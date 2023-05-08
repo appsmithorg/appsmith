@@ -12,7 +12,7 @@ import {
   EditorSize,
   EditorTheme,
   TabBehaviour,
-} from "components/editorComponents/CodeEditor/EditorConfig";
+} from "components/editorComponents/CodeEditor/EditorConfiguration";
 import JSObjectNameEditor from "./JSObjectNameEditor";
 import {
   setActiveJSAction,

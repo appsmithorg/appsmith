@@ -7,7 +7,7 @@ import PropertyControlsGenerator from "./PropertyControlsGenerator";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { get, isNumber, isPlainObject, isString } from "lodash";
 import type { IPanelProps } from "@blueprintjs/core";
-import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfiguration";
 import PropertyPaneTitle from "./PropertyPaneTitle";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import styled from "styled-components";

@@ -10,7 +10,7 @@ import {
   EditorModes,
   TabBehaviour,
   getSqlEditorModeFromPluginName,
-} from "components/editorComponents/CodeEditor/EditorConfig";
+} from "components/editorComponents/CodeEditor/EditorConfiguration";
 import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import type { AppState } from "@appsmith/reducers";
 import styled from "styled-components";

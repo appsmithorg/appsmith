@@ -3,7 +3,7 @@
  * Controls are higher order components that update a widgets property
  */
 import { Component } from "react";
-import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfiguration";
 import type { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";

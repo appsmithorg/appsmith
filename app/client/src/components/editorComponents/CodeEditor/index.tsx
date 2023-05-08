@@ -46,7 +46,7 @@ import type {
   Hinter,
   HintHelper,
   MarkHelper,
-} from "components/editorComponents/CodeEditor/EditorConfig";
+} from "components/editorComponents/CodeEditor/EditorConfiguration";
 import {
   EditorModes,
   EditorSize,
@@ -55,7 +55,7 @@ import {
   isCloseKey,
   isModifierKey,
   TabBehaviour,
-} from "components/editorComponents/CodeEditor/EditorConfig";
+} from "components/editorComponents/CodeEditor/EditorConfiguration";
 import {
   DynamicAutocompleteInputWrapper,
   EditorWrapper,

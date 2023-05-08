@@ -6,7 +6,7 @@ import HighlightedCode, {
 } from "components/editorComponents/HighlightedCode";
 import { Classes, Collapse } from "@blueprintjs/core";
 import { CurrentValueViewer } from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfiguration";
 import useClipboard from "utils/hooks/useClipboard";
 import { Colors } from "constants/Colors";
 import { Skin } from "constants/DefaultTheme";

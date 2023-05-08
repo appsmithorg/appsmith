@@ -8,12 +8,12 @@ import "codemirror-graphql/mode";
 
 import QueryWrapper from "./QueryWrapperWithCSS";
 import CodeEditor from "components/editorComponents/CodeEditor";
-import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfiguration";
 import {
   EditorModes,
   EditorSize,
   TabBehaviour,
-} from "components/editorComponents/CodeEditor/EditorConfig";
+} from "components/editorComponents/CodeEditor/EditorConfiguration";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { Text, TextType } from "design-system-old";

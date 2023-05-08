@@ -12,7 +12,7 @@ import {
   Dropdown,
   Checkbox,
 } from "design-system-old";
-import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfiguration";
 import type { AnyAction, Dispatch } from "redux";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";

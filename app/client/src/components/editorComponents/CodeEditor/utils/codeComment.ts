@@ -1,7 +1,7 @@
 import CodeMirror from "codemirror";
 import { getPlatformOS } from "utils/helpers";
-import type { TEditorModes } from "../EditorConfig";
-import { EditorModes, isSqlMode } from "../EditorConfig";
+import type { TEditorModes } from "../EditorConfiguration";
+import { EditorModes, isSqlMode } from "../EditorConfiguration";
 import { KEYBOARD_SHORTCUTS_BY_PLATFORM } from "./keyboardShortcutConstants";
 
 export const getCodeCommentKeyMap = () => {

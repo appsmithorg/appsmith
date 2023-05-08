@@ -1,9 +1,9 @@
 import styled from "styled-components";
-import type { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfiguration";
 import {
   EditorSize,
   EditorTheme,
-} from "components/editorComponents/CodeEditor/EditorConfig";
+} from "components/editorComponents/CodeEditor/EditorConfiguration";
 import type { Theme } from "constants/DefaultTheme";
 import { Skin } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";

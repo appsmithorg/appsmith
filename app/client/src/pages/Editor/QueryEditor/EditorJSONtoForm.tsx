@@ -111,7 +111,7 @@ import {
   ResponseTabErrorDefaultMessage,
 } from "components/editorComponents/ApiResponseView";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfiguration";
 import {
   hasCreateDatasourcePermission,
   hasDeleteActionPermission,

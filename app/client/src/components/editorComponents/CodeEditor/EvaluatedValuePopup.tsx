@@ -4,8 +4,8 @@ import { isObject, isString } from "lodash";
 import equal from "fast-deep-equal/es6";
 import Popper from "pages/Editor/Popper";
 import ReactJson from "react-json-view";
-import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfiguration";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfiguration";
 import { theme } from "constants/DefaultTheme";
 import type { Placement } from "popper.js";
 import {

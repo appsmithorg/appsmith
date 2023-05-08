@@ -9,7 +9,7 @@ import {
 import IconSelectControl from "./IconSelectControl";
 import userEvent from "@testing-library/user-event";
 import { noop } from "lodash";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfiguration";
 
 const requiredParams = {
   evaluatedValue: undefined,

@@ -7,7 +7,7 @@ import {
   EditorSize,
   EditorTheme,
   TabBehaviour,
-} from "components/editorComponents/CodeEditor/EditorConfig";
+} from "components/editorComponents/CodeEditor/EditorConfiguration";
 
 interface Props {
   input: {

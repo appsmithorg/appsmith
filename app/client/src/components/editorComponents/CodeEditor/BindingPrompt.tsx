@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import styled from "styled-components";
-import type { EditorTheme } from "./EditorConfig";
+import type { EditorTheme } from "./EditorConfiguration";
 
 const Wrapper = styled.span<{
   visible: boolean;

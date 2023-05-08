@@ -9,7 +9,7 @@ import type { Action } from "entities/Action";
 import { EMPTY_RESPONSE } from "components/editorComponents/ApiResponseView";
 import type { AppState } from "@appsmith/reducers";
 import { getApiName } from "selectors/formSelectors";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfiguration";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import get from "lodash/get";
 import type { Datasource } from "entities/Datasource";

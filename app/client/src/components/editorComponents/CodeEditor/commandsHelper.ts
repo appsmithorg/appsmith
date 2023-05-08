@@ -1,5 +1,5 @@
 import CodeMirror from "codemirror";
-import type { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { HintHelper } from "components/editorComponents/CodeEditor/EditorConfiguration";
 import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { generateQuickCommands } from "./generateQuickCommands";

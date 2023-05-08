@@ -6,12 +6,12 @@ import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
-import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfiguration";
 import {
   EditorModes,
   EditorSize,
   TabBehaviour,
-} from "components/editorComponents/CodeEditor/EditorConfig";
+} from "components/editorComponents/CodeEditor/EditorConfiguration";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import CodeEditor from "components/editorComponents/LazyCodeEditorWrapper";
 import type { ListWidgetProps } from "widgets/ListWidgetV2/widget";

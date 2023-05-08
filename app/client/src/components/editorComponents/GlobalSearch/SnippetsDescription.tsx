@@ -10,7 +10,7 @@ import {
   EditorSize,
   EditorTheme,
   TabBehaviour,
-} from "../CodeEditor/EditorConfig";
+} from "../CodeEditor/EditorConfiguration";
 import CodeEditor from "../CodeEditor";
 import { Button, Size, TabComponent } from "design-system-old";
 import {
