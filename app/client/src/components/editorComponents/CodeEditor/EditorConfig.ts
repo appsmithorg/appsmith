@@ -44,65 +44,14 @@ type SqlModeConfig = Record<
   }
 >;
 
-// Mime available in sql mode https://github.com/codemirror/codemirror5/blob/9974ded36bf01746eb2a00926916fef834d3d0d0/mode/sql/sql.js#L290
-export const sqlModesConfig: SqlModeConfig = {
-  [editorSQLModes.SQL]: {
-    mime: "sql",
-    mode: editorSQLModes.SQL,
-    isMultiplex: false,
-  },
-  [editorSQLModes.SQL_WITH_BINDING]: {
-    mime: "text/x-sql",
-    mode: editorSQLModes.SQL_WITH_BINDING,
-    isMultiplex: true,
-  },
-  [editorSQLModes.MYSQL_WITH_BINDING]: {
-    mime: "text/x-mysql",
-    mode: editorSQLModes.MYSQL_WITH_BINDING,
-    isMultiplex: true,
-  },
-  [editorSQLModes.MSSQL_WITH_BINDING]: {
-    mime: "text/x-mssql",
-    mode: editorSQLModes.MSSQL_WITH_BINDING,
-    isMultiplex: true,
-  },
-  [editorSQLModes.PLSQL_WITH_BINDING]: {
-    mime: "text/x-plsql",
-    mode: editorSQLModes.PLSQL_WITH_BINDING,
-    isMultiplex: true,
-  },
-  [editorSQLModes.POSTGRESQL_WITH_BINDING]: {
-    mime: "text/x-pgsql",
-    mode: editorSQLModes.POSTGRESQL_WITH_BINDING,
-    isMultiplex: true,
-  },
-  // Custom mimes
-  [editorSQLModes.SNOWFLAKE_WITH_BINDING]: {
-    mime: "text/x-snowflakesql",
-    mode: editorSQLModes.SNOWFLAKE_WITH_BINDING,
-    isMultiplex: true,
-  },
-  [editorSQLModes.ARANGO_WITH_BINDING]: {
-    mime: "text/x-arangosql",
-    mode: editorSQLModes.ARANGO_WITH_BINDING,
-    isMultiplex: true,
-  },
-  [editorSQLModes.REDIS_WITH_BINDING]: {
-    mime: "text/x-redis",
-    mode: editorSQLModes.REDIS_WITH_BINDING,
-    isMultiplex: true,
-  },
-};
-
-export const pluginNameToMIME: Record<string, TEditorModes> = {
-  PostgreSQL: EditorModes.POSTGRESQL_WITH_BINDING,
-  MySQL: EditorModes.MYSQL_WITH_BINDING,
-  "Microsoft SQL Server": EditorModes.MSSQL_WITH_BINDING,
-  Oracle: EditorModes.PLSQL_WITH_BINDING,
-  Redshift: EditorModes.PLSQL_WITH_BINDING,
-  Snowflake: EditorModes.SNOWFLAKE_WITH_BINDING,
-  ArangoDB: EditorModes.ARANGO_WITH_BINDING,
-  Redis: EditorModes.REDIS_WITH_BINDING,
+export type EditorConfig = {
+  theme: EditorTheme;
+  mode: TEditorModes;
+  tabBehaviour: TabBehaviour;
+  size: EditorSize;
+  hinting: Array<HintHelper>;
+  marking: Array<MarkHelper>;
+  folding?: boolean;
 };
 
 export enum EditorTheme {
@@ -119,16 +68,6 @@ export enum EditorSize {
   EXTENDED = "EXTENDED",
   COMPACT_RETAIN_FORMATTING = "COMPACT_RETAIN_FORMATTING",
 }
-
-export type EditorConfig = {
-  theme: EditorTheme;
-  mode: TEditorModes;
-  tabBehaviour: TabBehaviour;
-  size: EditorSize;
-  hinting: Array<HintHelper>;
-  marking: Array<MarkHelper>;
-  folding?: boolean;
-};
 
 export const EditorThemes: Record<EditorTheme, string> = {
   [EditorTheme.LIGHT]: "duotone-light",
@@ -215,6 +154,67 @@ export const INDENTATION_CHARACTERS = {
 
 export const isNavKey = (key: any): key is AUTOCOMPLETE_NAVIGATION => {
   return AUTOCOMPLETE_NAVIGATION.hasOwnProperty(key);
+};
+
+// Mime available in sql mode https://github.com/codemirror/codemirror5/blob/9974ded36bf01746eb2a00926916fef834d3d0d0/mode/sql/sql.js#L290
+export const sqlModesConfig: SqlModeConfig = {
+  [editorSQLModes.SQL]: {
+    mime: "sql",
+    mode: editorSQLModes.SQL,
+    isMultiplex: false,
+  },
+  [editorSQLModes.SQL_WITH_BINDING]: {
+    mime: "text/x-sql",
+    mode: editorSQLModes.SQL_WITH_BINDING,
+    isMultiplex: true,
+  },
+  [editorSQLModes.MYSQL_WITH_BINDING]: {
+    mime: "text/x-mysql",
+    mode: editorSQLModes.MYSQL_WITH_BINDING,
+    isMultiplex: true,
+  },
+  [editorSQLModes.MSSQL_WITH_BINDING]: {
+    mime: "text/x-mssql",
+    mode: editorSQLModes.MSSQL_WITH_BINDING,
+    isMultiplex: true,
+  },
+  [editorSQLModes.PLSQL_WITH_BINDING]: {
+    mime: "text/x-plsql",
+    mode: editorSQLModes.PLSQL_WITH_BINDING,
+    isMultiplex: true,
+  },
+  [editorSQLModes.POSTGRESQL_WITH_BINDING]: {
+    mime: "text/x-pgsql",
+    mode: editorSQLModes.POSTGRESQL_WITH_BINDING,
+    isMultiplex: true,
+  },
+  // Custom mimes
+  [editorSQLModes.SNOWFLAKE_WITH_BINDING]: {
+    mime: "text/x-snowflakesql",
+    mode: editorSQLModes.SNOWFLAKE_WITH_BINDING,
+    isMultiplex: true,
+  },
+  [editorSQLModes.ARANGO_WITH_BINDING]: {
+    mime: "text/x-arangosql",
+    mode: editorSQLModes.ARANGO_WITH_BINDING,
+    isMultiplex: true,
+  },
+  [editorSQLModes.REDIS_WITH_BINDING]: {
+    mime: "text/x-redis",
+    mode: editorSQLModes.REDIS_WITH_BINDING,
+    isMultiplex: true,
+  },
+};
+
+export const pluginNameToMIME: Record<string, TEditorModes> = {
+  PostgreSQL: EditorModes.POSTGRESQL_WITH_BINDING,
+  MySQL: EditorModes.MYSQL_WITH_BINDING,
+  "Microsoft SQL Server": EditorModes.MSSQL_WITH_BINDING,
+  Oracle: EditorModes.PLSQL_WITH_BINDING,
+  Redshift: EditorModes.PLSQL_WITH_BINDING,
+  Snowflake: EditorModes.SNOWFLAKE_WITH_BINDING,
+  ArangoDB: EditorModes.ARANGO_WITH_BINDING,
+  Redis: EditorModes.REDIS_WITH_BINDING,
 };
 
 export function getSqlEditorModeFromPluginName(name: string) {
