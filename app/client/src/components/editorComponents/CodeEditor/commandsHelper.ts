@@ -1,11 +1,15 @@
 import CodeMirror from "codemirror";
-import type { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
+import type {
+  FieldEntityInformation,
+  HintHelper,
+} from "components/editorComponents/CodeEditor/EditorConfig";
 import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
 import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { generateQuickCommands } from "./generateQuickCommands";
 import type { Datasource } from "entities/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import log from "loglevel";
+
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEditor/codeEditorUtils";
@@ -13,14 +17,22 @@ import type { SlashCommandPayload } from "entities/Action";
 import type FeatureFlags from "entities/FeatureFlags";
 
 export const commandsHelper: HintHelper = (editor, data: DataTree) => {
-  let entitiesForSuggestions = Object.values(data).filter(
-    (entity: any) =>
-      entity.ENTITY_TYPE && entity.ENTITY_TYPE !== ENTITY_TYPE.APPSMITH,
-  );
+  let entitiesForSuggestions: any[] = [];
+
+  Object.keys(data).forEach((entityName) => {
+    const entity: any = data[entityName];
+
+    if (entity.ENTITY_TYPE && entity.ENTITY_TYPE !== ENTITY_TYPE.APPSMITH) {
+      entitiesForSuggestions.push({
+        entityName,
+        ...entity,
+      });
+    }
+  });
   return {
     showHint: (
       editor: CodeMirror.Editor,
-      { entityId, entityType, expectedType, propertyPath },
+      entityInfo: FieldEntityInformation,
       {
         datasources,
         executeCommand,
@@ -38,6 +50,7 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
         featureFlags: FeatureFlags;
       },
     ): boolean => {
+      const { entityType } = entityInfo;
       const currentEntityType =
         entityType || ENTITY_TYPE.ACTION || ENTITY_TYPE.JSACTION;
       entitiesForSuggestions = entitiesForSuggestions.filter((entity: any) => {
@@ -62,9 +75,7 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
             recentEntities,
             featureFlags,
           },
-          expectedType || "string",
-          entityId,
-          propertyPath,
+          entityInfo,
         );
         let currentSelection: CommandsCompletion = {
           origin: "",

@@ -16,6 +16,8 @@ import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import MagicIcon from "remixicon-react/MagicLineIcon";
 import { addAISlashCommand } from "@appsmith/components/editorComponents/GPT/trigger";
 import type FeatureFlags from "entities/FeatureFlags";
+import type { FieldEntityInformation } from "./EditorConfig";
+import { EditorModes } from "./EditorConfig";
 
 enum Shortcuts {
   PLUS = "PLUS",
@@ -126,7 +128,7 @@ function Command(props: { icon: any; name: string }) {
 
 export const generateQuickCommands = (
   entitiesForSuggestions: any[],
-  currentEntityType: string,
+  currentEntityType: ENTITY_TYPE,
   searchText: string,
   {
     datasources,
@@ -141,10 +143,15 @@ export const generateQuickCommands = (
     recentEntities: string[];
     featureFlags: FeatureFlags;
   },
-  expectedType: string,
-  entityId: any,
-  propertyPath: any,
+  entityInfo: FieldEntityInformation,
 ) => {
+  const {
+    entityId,
+    example,
+    expectedType = "string",
+    mode,
+    propertyPath,
+  } = entityInfo || {};
   const suggestionsHeader: CommandsCompletion = commandsHeader("Bind Data");
   const createNewHeader: CommandsCompletion = commandsHeader("Create a Query");
   recentEntities.reverse();
@@ -180,7 +187,7 @@ export const generateQuickCommands = (
     shortcut: Shortcuts.PLUS,
   });
   const suggestions = entitiesForSuggestions.map((suggestion: any) => {
-    const name = suggestion.name || suggestion.widgetName;
+    const name = suggestion.entityName;
     return {
       text:
         suggestion.ENTITY_TYPE === ENTITY_TYPE.ACTION
@@ -249,7 +256,13 @@ export const generateQuickCommands = (
 
   // Adding this hack in the interest of time.
   // TODO: Refactor slash commands generation for easier code splitting
-  if (addAISlashCommand && featureFlags.CHAT_AI) {
+  if (
+    addAISlashCommand &&
+    featureFlags.ask_ai &&
+    (currentEntityType !== ENTITY_TYPE.ACTION ||
+      mode === EditorModes.SQL ||
+      mode === EditorModes.SQL_WITH_BINDING)
+  ) {
     const askGPT: CommandsCompletion = generateCreateNewCommand({
       text: "",
       displayText: "Ask AI",
@@ -262,6 +275,8 @@ export const generateQuickCommands = (
             expectedType: expectedType,
             entityId: entityId,
             propertyPath: propertyPath,
+            example,
+            mode,
           },
         }),
     });

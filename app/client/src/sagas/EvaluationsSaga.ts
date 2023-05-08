@@ -104,7 +104,7 @@ import type {
 } from "workers/Evaluation/types";
 import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
-import { getAppsmithConfigs } from "ce/configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { executeJSUpdates } from "actions/pluginActionActions";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
@@ -388,6 +388,7 @@ export function* executeTriggerRequestSaga(
 }
 
 export function* clearEvalCache() {
+  yield put({ type: ReduxActionTypes.RESET_DATA_TREE });
   yield call(evalWorker.request, EVAL_WORKER_ACTIONS.CLEAR_CACHE);
   return true;
 }
@@ -402,6 +403,7 @@ function* executeAsyncJSFunction(
   collectionName: string,
   action: JSAction,
   collectionId: string,
+  isExecuteJSFunc: boolean,
 ) {
   let response: JSFunctionExecutionResponse;
   const functionCall = `${collectionName}.${action.name}()`;
@@ -423,7 +425,7 @@ function* executeAsyncJSFunction(
     );
   } catch (e) {
     if (e instanceof UncaughtPromiseError) {
-      logActionExecutionError(e.message);
+      logActionExecutionError(e.message, isExecuteJSFunc);
     }
     response = { errors: [e], result: undefined };
   }
@@ -434,6 +436,7 @@ export function* executeJSFunction(
   collectionName: string,
   action: JSAction,
   collectionId: string,
+  isExecuteJSFunc: boolean,
 ) {
   let response: {
     errors: unknown[];
@@ -447,6 +450,7 @@ export function* executeJSFunction(
       collectionName,
       action,
       collectionId,
+      isExecuteJSFunc,
     );
   } catch (e) {
     if (e instanceof UncaughtPromiseError) {

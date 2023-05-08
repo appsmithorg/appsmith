@@ -3,8 +3,11 @@ redis:
   enabled: true
   auth:
     enabled: false
+  master:
+    nodeSelector: {}
   replica:
     replicaCount: 1
+    nodeSelector: {}
 
 mongodb:
   enabled: true
@@ -16,6 +19,11 @@ mongodb:
   replicaCount: 2
   architecture: "replicaset"
   replicaSetName: rs0
+  nodeSelector: {}
+  arbiter:
+    nodeSelector: {}
+  hidden:
+    nodeSelector: {}
 
 ## @section Global parameters
 ## Global Docker image parameters
