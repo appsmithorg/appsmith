@@ -18,7 +18,6 @@ import type {
   DeleteNavigationLogoRequest,
   DuplicateApplicationRequest,
   FetchApplicationPayload,
-  FetchApplicationResponse,
   FetchUnconfiguredDatasourceListResponse,
   FetchUsersApplicationsWorkspacesResponse,
   ForkApplicationRequest,
@@ -103,7 +102,6 @@ import type { Datasource } from "entities/Datasource";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { builderURL, viewerURL } from "RouteBuilder";
 import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
-import PageApi from "api/PageApi";
 import { identity, merge, pickBy } from "lodash";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 import { getPageList, getPluginForm } from "selectors/entitiesSelector";
@@ -244,10 +242,91 @@ export function* fetchAppAndPagesSaga(
     if (params.pageId && params.applicationId) {
       delete params.applicationId;
     }
-    const response: FetchApplicationResponse = yield call(
-      PageApi.fetchAppAndPages,
-      params,
-    );
+    const response = {
+      responseMeta: {
+        status: 200,
+        success: true,
+      },
+      data: {
+        workspaceId: "639fd83f8987c3638d367ae7",
+        application: {
+          id: "6458cdddf506870bb7a9d6dd",
+          modifiedBy: "anand1@appsmith.com",
+          userPermissions: [
+            "canComment:applications",
+            "manage:applications",
+            "export:applications",
+            "read:applications",
+            "create:pages",
+            "publish:applications",
+            "delete:applications",
+            "makePublic:applications",
+            "inviteUsers:applications",
+          ],
+          name: "Untitled application 1",
+          workspaceId: "639fd83f8987c3638d367ae7",
+          isPublic: false,
+          appIsExample: false,
+          unreadCommentThreads: 0,
+          color: "#ECECEC",
+          icon: "pizza",
+          slug: "untitled-application-1",
+          unpublishedCustomJSLibs: [],
+          publishedCustomJSLibs: [],
+          evaluationVersion: 2,
+          applicationVersion: 2,
+          collapseInvisibleWidgets: true,
+          isManualUpdate: true,
+          isAutoUpdate: false,
+          appLayout: {
+            type: "DESKTOP",
+          },
+          new: false,
+          modifiedAt: "2023-05-08T10:24:47.366Z",
+        },
+        pages: [
+          {
+            id: "6458cdec376ce57038fd567c",
+            name: "Search",
+            slug: "search",
+            isDefault: false,
+            isHidden: false,
+            userPermissions: [
+              "read:pages",
+              "manage:pages",
+              "create:pageActions",
+              "delete:pages",
+            ],
+          },
+          {
+            id: "6458cdec376ce57038fd567e",
+            name: "Dashboard",
+            slug: "dashboard",
+            isDefault: false,
+            isHidden: false,
+            userPermissions: [
+              "read:pages",
+              "manage:pages",
+              "create:pageActions",
+              "delete:pages",
+            ],
+          },
+          {
+            id: "6458cdddf506870bb7a9d6e0",
+            name: "Page1",
+            slug: "page1",
+            isDefault: true,
+            userPermissions: [
+              "read:pages",
+              "manage:pages",
+              "create:pageActions",
+              "delete:pages",
+            ],
+          },
+        ],
+      },
+      errorDisplay: "",
+    };
     const isValidResponse: boolean = yield call(validateResponse, response);
     if (isValidResponse) {
       const prevPagesState: Page[] = yield select(getPageList);
@@ -255,6 +334,7 @@ export function* fetchAppAndPagesSaga(
         acc[page.pageId] = page.userPermissions ?? [];
         return acc;
       }, {} as Record<string, string[]>);
+
       yield put({
         type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
         payload: { ...response.data.application, pages: response.data.pages },
@@ -269,7 +349,7 @@ export function* fetchAppAndPagesSaga(
             isDefault: page.isDefault,
             isHidden: !!page.isHidden,
             slug: page.slug,
-            customSlug: page.customSlug,
+            customSlug: (page as any).customSlug,
             userPermissions: page.userPermissions
               ? page.userPermissions
               : pagePermissionsMap[page.id],
@@ -297,7 +377,10 @@ export function* fetchAppAndPagesSaga(
         payload: response.data.application?.evaluationVersion,
       });
     } else {
-      yield call(handleFetchApplicationError, response.responseMeta?.error);
+      yield call(
+        handleFetchApplicationError,
+        (response.responseMeta as any)?.error,
+      );
     }
   } catch (error) {
     yield call(handleFetchApplicationError, error);
