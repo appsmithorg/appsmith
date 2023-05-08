@@ -1,4 +1,4 @@
-name: Cypress Upgrade Run
+name: Cypress Cy 12 Upgrade Run
 
 on:
   workflow_dispatch:
