@@ -37,7 +37,7 @@ export const config: AdminConfigType = {
       },
       category: SettingCategories.VERSION,
       controlType: SettingTypes.LINK,
-      label: "Release Notes",
+      label: "Release notes",
     },
   ].filter((setting) =>
     isAirgappedInstance ? setting.id !== "APPSMITH_VERSION_READ_MORE" : true,

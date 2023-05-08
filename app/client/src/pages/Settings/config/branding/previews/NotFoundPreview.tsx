@@ -1,35 +1,39 @@
 import React from "react";
+import { Text } from "design-system";
 import PreviewBox from "./PreviewBox";
-
 import type { PreviewsProps } from ".";
+import { ContentBox } from "pages/Settings/components";
 
 const NotFoundPreview = (props: PreviewsProps) => {
   const { shades } = props;
 
   return (
-    <PreviewBox className="items-center p-4 bg-gray-100 " title="404 page">
-      <div
-        className="flex flex-col items-center justify-center w-full h-full gap-3 px-5"
-        style={{
-          backgroundColor: shades.background,
-        }}
-      >
-        <div className="flex items-center justify-center h-10 font-semibold bg-white border aspect-square">
-          <p
+    <PreviewBox
+      className="items-end"
+      style={{
+        backgroundColor: shades?.background,
+      }}
+      title="404 page"
+    >
+      <ContentBox className="flex flex-col items-center justify-center bg-white border-t border-l border-r w-7/12 h-4/5">
+        <div className="flex items-center justify-center h-8 font-semibold">
+          <Text
+            kind="heading-s"
+            renderAs="p"
             style={{
               color: shades.primary,
             }}
           >
             404
-          </p>
+          </Text>
         </div>
-        <div
-          className="h-3 mt-2 rounded-sm w-7 t--branding-bg"
+        <ContentBox
+          className="h-3 mt-1 w-10 t--branding-bg"
           style={{
             backgroundColor: shades.primary,
           }}
         />
-      </div>
+      </ContentBox>
     </PreviewBox>
   );
 };

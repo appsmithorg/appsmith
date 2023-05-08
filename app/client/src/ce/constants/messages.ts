@@ -313,9 +313,9 @@ export const EDIT_DATASOURCE_MESSAGE = () =>
   "Edit Datasource to access authentication settings";
 export const OAUTH_ERROR = () => "OAuth Error";
 export const OAUTH_2_0 = () => "OAuth 2.0";
-export const ENABLE = () => "ENABLE";
-export const UPGRADE = () => "UPGRADE";
-export const EDIT = () => "EDIT";
+export const ENABLE = () => "Enable";
+export const UPGRADE = () => "Upgrade";
+export const EDIT = () => "Edit";
 export const UNEXPECTED_ERROR = () => "An unexpected error occurred";
 export const EXPECTED_ERROR = () => "An error occurred";
 export const NO_DATASOURCE_FOR_QUERY = () =>
@@ -843,7 +843,7 @@ export const IMPORTING_APP_FROM_GIT = () => "Importing application from Git";
 export const CONFIRM_SSH_KEY = () =>
   "Please make sure your SSH key has write access.";
 export const READ_DOCUMENTATION = () => "Read documentation";
-export const LEARN_MORE = () => "Learn More";
+export const LEARN_MORE = () => "Learn more";
 export const GIT_NO_UPDATED_TOOLTIP = () => "No new updates to push";
 
 export const FIND_OR_CREATE_A_BRANCH = () => "Find or create a branch";
@@ -1137,6 +1137,7 @@ export const HIDDEN_TOOLTIP = () => "Hidden";
 export const CLONE_TOOLTIP = () => "Clone";
 export const DELETE_TOOLTIP = () => "Delete";
 export const SETTINGS_TOOLTIP = () => "Settings";
+
 //settings
 export const ADMIN_SETTINGS = () => "Admin Settings";
 export const RESTART_BANNER_BODY = () =>
@@ -1157,7 +1158,7 @@ export const DISCONNECT_AUTH_ERROR = () =>
 export const MANDATORY_FIELDS_ERROR = () => "Mandatory fields cannot be empty";
 
 // Audit logs begin
-export const AUDIT_LOGS = () => "Audit Logs";
+export const AUDIT_LOGS = () => "Audit logs";
 export const TRY_AGAIN_WITH_YOUR_FILTER = () => "Try again with your filter";
 
 // Audit logs Upgrade page begin
@@ -1165,7 +1166,7 @@ export const INTRODUCING = (featureName: string) =>
   `Introducing ${featureName}`;
 export const AUDIT_LOGS_UPGRADE_PAGE_SUB_HEADING = () =>
   "See a timestamped trail of events in your workspace. Filter by type of event, user, resource ID, and time. Drill down into each event to investigate further.";
-export const SECURITY_AND_COMPLIANCE = () => "Security & Compliance";
+export const SECURITY_AND_COMPLIANCE = () => "Security & compliance";
 export const SECURITY_AND_COMPLIANCE_DETAIL1 = () =>
   "Proactively derisk misconfigured permissions, roll back changes from a critical security event, and keep checks against your compliance policies.";
 export const SECURITY_AND_COMPLIANCE_DETAIL2 = () =>
@@ -1173,7 +1174,7 @@ export const SECURITY_AND_COMPLIANCE_DETAIL2 = () =>
 export const DEBUGGING = () => "Debugging";
 export const DEBUGGING_DETAIL1 = () =>
   "Debug with a timeline of events filtered by user and resource ID, correlate them with end-user and app developer actions, and investigate back to the last known good state of your app.";
-export const INCIDENT_MANAGEMENT = () => "Incident Management";
+export const INCIDENT_MANAGEMENT = () => "Incident management";
 export const INCIDENT_MANAGEMENT_DETAIL1 = () =>
   "Go back in time from an incident to see who did what, correlate events with breaking changes, and run RCAs to remediate incidents for now and the future.";
 export const AVAILABLE_ON_BUSINESS = () => "Available on a business plan only";
@@ -1184,7 +1185,7 @@ export const EXCLUSIVE_TO_BUSINESS = (featureName: string) =>
 
 // Access control upgrade page begin
 export const GRANULAR_ACCESS_CONTROL_FOR_TEAMS = () =>
-  "Granular Access Controls for teams";
+  "granular access controls for teams";
 export const ACCESS_CONTROL_UPGRADE_PAGE_SUB_HEADING = () =>
   "Control all permissions for all resources in your apps in a workspace. Manage permissions granularly by attributes. Use permissions and user groups to easily define access levels.";
 export const SECURITY_APPS_LEAST_PRIVILEGE = () =>
@@ -1262,10 +1263,10 @@ export const UPGRADE_TO_EE = (authLabel: string) =>
 export const UPGRADE_TO_EE_FEATURE = (feature: string) =>
   `Hello, I would like to upgrade and start using the ${feature} feature.`;
 export const UPGRADE_TO_EE_GENERIC = () => `Hello, I would like to upgrade`;
-export const ADMIN_AUTH_SETTINGS_TITLE = () => "Select Authentication Method";
+export const ADMIN_AUTH_SETTINGS_TITLE = () => "Select authentication method";
 export const ADMIN_AUTH_SETTINGS_SUBTITLE = () =>
   "Select a protocol you want to authenticate users with";
-export const DANGER_ZONE = () => "Danger Zone";
+export const DANGER_ZONE = () => "Danger zone";
 export const DISCONNECT_AUTH_METHOD = () => "Disconnect";
 export const DISCONNECT_CONFIRMATION = () => "Are you sure?";
 
@@ -1721,4 +1722,4 @@ export const customJSLibraryMessages = {
 
 // Business Edition upgrade page
 export const MOVE_TO_BUSINESS_EDITION = (trailingChar: string) =>
-  `Move to Business Edition${trailingChar ? trailingChar : ""}`;
+  `Move to Business edition${trailingChar ? trailingChar : ""}`;
