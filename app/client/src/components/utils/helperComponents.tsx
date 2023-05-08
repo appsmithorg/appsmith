@@ -45,7 +45,8 @@ export const StickyHeader = styled.div`
 export function BackButton({ goTo }: { goTo?: string }) {
   const history = useHistory();
 
-  const onBack = () => {
+  const onBack = (e: any) => {
+    e.preventDefault();
     if (goTo) {
       history.push(goTo);
       return;
@@ -57,9 +58,8 @@ export function BackButton({ goTo }: { goTo?: string }) {
     <StyledBackLink
       className="t--admin-settings-back-button"
       kind="secondary"
-      onClick={onBack}
+      onClick={(e) => onBack(e)}
       startIcon="back-control"
-      to="#"
     >
       Back
     </StyledBackLink>

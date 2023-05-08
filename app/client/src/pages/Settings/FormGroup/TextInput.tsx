@@ -9,7 +9,7 @@ export default function TextInput({ setting }: SettingComponentProps) {
     <FormGroup
       className={`t--admin-settings-text-input t--admin-settings-${
         setting.name || setting.id
-      }`}
+      } mb-4`}
       setting={setting}
     >
       <FormTextField
