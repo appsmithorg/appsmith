@@ -388,6 +388,7 @@ export function* executeTriggerRequestSaga(
 }
 
 export function* clearEvalCache() {
+  yield put({ type: ReduxActionTypes.RESET_DATA_TREE });
   yield call(evalWorker.request, EVAL_WORKER_ACTIONS.CLEAR_CACHE);
   return true;
 }
