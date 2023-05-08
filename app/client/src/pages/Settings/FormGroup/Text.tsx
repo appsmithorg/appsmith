@@ -1,4 +1,4 @@
-import { Text, TextType } from "design-system-old";
+import { Text } from "design-system";
 import React from "react";
 import { getSettings } from "selectors/settingsSelectors";
 import { useSelector } from "react-redux";
@@ -10,10 +10,6 @@ const TextWrapper = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[12]}px;
 `;
 
-const StyledText = styled(Text)`
-  color: ${(props) => props.theme.colors.settings.link};
-`;
-
 export default function TextComponent({ setting }: SettingComponentProps) {
   const settingsConfig = useSelector(getSettings);
   const value = setting.name && settingsConfig && settingsConfig[setting.name];
@@ -21,9 +17,13 @@ export default function TextComponent({ setting }: SettingComponentProps) {
     <FormGroup setting={setting}>
       {value && (
         <TextWrapper>
-          <StyledText data-testid="admin-settings-text" type={TextType.P1}>
+          <Text
+            color="var(--ads-v2-color-fg-muted)"
+            data-testid="admin-settings-text"
+            renderAs="p"
+          >
             {value}
-          </StyledText>
+          </Text>
         </TextWrapper>
       )}
     </FormGroup>

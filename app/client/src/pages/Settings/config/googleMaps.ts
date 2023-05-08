@@ -10,7 +10,7 @@ export const config: AdminConfigType = {
   icon: "map-pin-2-line",
   type: SettingCategories.GOOGLE_MAPS,
   controlType: SettingTypes.GROUP,
-  title: "Google Maps",
+  title: "Google maps",
   canSave: true,
   settings: [
     {
@@ -25,7 +25,7 @@ export const config: AdminConfigType = {
       category: SettingCategories.GOOGLE_MAPS,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
-      label: "Google Maps API Key",
+      label: "Google maps API key",
     },
   ],
 };

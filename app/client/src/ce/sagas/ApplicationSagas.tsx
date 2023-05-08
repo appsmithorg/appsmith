@@ -116,7 +116,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { safeCrashAppRequest } from "actions/errorActions";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import type { AppIconName } from "design-system-old";
+import type { IconNames } from "design-system";
 import {
   defaultNavigationSetting,
   keysOfNavigationSetting,
@@ -535,7 +535,7 @@ export function* changeAppViewAccessSaga(
 export function* createApplicationSaga(
   action: ReduxAction<{
     applicationName: string;
-    icon: AppIconName;
+    icon: IconNames;
     color: AppColorCode;
     workspaceId: string;
     resolve: any;
