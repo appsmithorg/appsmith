@@ -64,7 +64,7 @@ jobs:
           fi
 
           try-merge() {
-            if ! git merge "$1" --no-edit; then
+            if ! git merge "$1" --no-edit -m 'Sync community release'; then
               CONFLICT_FILES="$(git status --short | awk '$1 == "UU" {print $2}')"
               if [[ "$CONFLICT_FILES" == ".github/config.json" ]]; then
                 # The `:3:` gets the file from CE here. See <https://git-scm.com/docs/gitrevisions#Documentation/gitrevisions.txt-emltngtltpathgtemegem0READMEememREADMEem>.
