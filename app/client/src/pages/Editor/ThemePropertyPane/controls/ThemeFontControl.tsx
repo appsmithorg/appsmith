@@ -36,8 +36,12 @@ function ThemeFontControl(props: ThemeFontControlProps) {
   };
 
   return (
-    <section className="space-y-2" onClick={(e) => e.preventDefault()}>
-      <Select onSelect={onSelect} value={selectedOption}>
+    <section className="space-y-2">
+      <Select
+        dropdownClassName="t--theme-font-dropdown"
+        onSelect={onSelect}
+        value={selectedOption}
+      >
         {options.map((option, index) => (
           <Option key={index} value={option}>
             <div className="flex space-x-2  w-full cursor-pointer items-center">
