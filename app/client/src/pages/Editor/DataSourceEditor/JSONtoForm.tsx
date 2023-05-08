@@ -110,6 +110,7 @@ export interface JSONtoFormProps {
   datasourceId: string;
   isReconnectingModalOpen?: boolean;
   featureFlags?: FeatureFlags;
+  setupConfig: (config: ControlProps) => void;
 }
 
 export class JSONtoForm<
@@ -117,21 +118,6 @@ export class JSONtoForm<
   S = unknown,
   SS = any,
 > extends React.Component<JSONtoFormProps & P, S, SS> {
-  requiredFields: Record<string, any> = {};
-  configDetails: Record<string, any> = {};
-
-  componentDidMount() {
-    this.requiredFields = {};
-    this.configDetails = {};
-  }
-
-  componentDidUpdate(prevProps: JSONtoFormProps) {
-    if (prevProps.datasourceId !== this.props.datasourceId) {
-      this.requiredFields = {};
-      this.configDetails = {};
-    }
-  }
-
   // componentDidUpdate(prevProps: JSONtoFormProps) {
   //   if (prevProps.datasourceId !== this.props.datasourceId) {
   //     this.props.requiredFields = {};
@@ -183,7 +169,7 @@ export class JSONtoForm<
     multipleConfig = multipleConfig || [];
 
     try {
-      this.setupConfig(config);
+      this.props.setupConfig(config);
       return (
         <div key={config.configProperty} style={{ marginTop: "16px" }}>
           <FormControl
@@ -198,19 +184,10 @@ export class JSONtoForm<
     }
   };
 
-  setupConfig = (config: ControlProps) => {
-    const { configProperty, controlType, isRequired } = config;
-    this.configDetails[configProperty] = controlType;
-
-    if (isRequired) {
-      this.requiredFields[configProperty] = config;
-    }
-  };
-
   renderKVArray = (children: Array<ControlProps>) => {
     try {
       // setup config for each child
-      children.forEach((c) => this.setupConfig(c));
+      children.forEach((c) => this.props.setupConfig(c));
       // We pass last child for legacy reasons, to keep the logic here exactly same as before.
       return this.renderSingleConfig(children[children.length - 1], children);
     } catch (e) {
