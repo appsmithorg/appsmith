@@ -50,7 +50,6 @@ public class RedisPlugin extends BasePlugin {
     private static final int CONNECTION_TIMEOUT = 60;
     private static final String CMD_KEY = "cmd";
     private static final String ARGS_KEY = "args";
-
     public RedisPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
@@ -321,9 +320,10 @@ public class RedisPlugin extends BasePlugin {
             return false;
         }
 
-        private Mono<Void> verifyPing(Jedis jedis) {
+        private Mono<DatasourceTestResult> verifyPing(JedisPool connection) {
             String pingResponse;
             try {
+                Jedis jedis = connection.getResource();
                 pingResponse = jedis.ping();
             } catch (Exception exc) {
                 return Mono.error(exc);
@@ -339,11 +339,12 @@ public class RedisPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(JedisPool connection) {
-            return Mono.fromCallable(() -> {
-                        Jedis jedis = connection.getResource();
-                        return verifyPing(jedis);
-                    })
-                    .thenReturn(new DatasourceTestResult());
+
+            return Mono.just(connection)
+                    .flatMap(c -> verifyPing(connection))
+                    .then(Mono.just(new DatasourceTestResult()))
+                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getCause().getMessage())));
+
         }
 
     }
