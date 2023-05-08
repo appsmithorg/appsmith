@@ -30,6 +30,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -127,7 +128,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     }
 
     /**
-     * This method is used when an admin of an workspace changes the role or removes a member.
+     * This method is used when an admin of a workspace changes the role or removes a member.
      * Admin user can also remove itself from the workspace, if there is another admin there in the workspace.
      *
      * @param workspaceId        ID of the workspace
@@ -153,6 +154,10 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, changeUserGroupDTO.getUsername())))
                 .cache();
 
+        /*
+         * In case of removing user from Workspace, the first set of DB operations are called from oldDefaultPermissionGroupMono.
+         * Hence, workspaceMono & userMono have been put as sequential calls, to avoid intermittent NoSuchTransaction mongo exception.
+         */
         Mono<PermissionGroup> oldDefaultPermissionGroupMono = workspaceMono.zipWhen(workspace -> userMono)
                 .flatMapMany(tuple -> {
                     Workspace workspace = tuple.getT1();
@@ -192,8 +197,12 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                             .flatMap(user -> permissionGroupService.assignToUser(newPermissionGroup, user));
                 });
 
+        /*
+         * In case of updating the default workspace role from one to another, the DB operations from the below return statement would be called first.
+         * Hence, changePermissionGroupsMono & userMono have been put as sequential calls, to avoid intermittent NoSuchTransaction mongo exception.
+         */
         return changePermissionGroupsMono
-                .zipWith(userMono)
+                .zipWhen(changedPermissionGroups -> userMono)
                 .map(pair -> {
                     User user = pair.getT2();
                     PermissionGroup role = pair.getT1();

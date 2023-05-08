@@ -10,8 +10,8 @@ import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.RepeatedTest;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,6 +21,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 public class TransactionalTest {
@@ -40,12 +41,12 @@ public class TransactionalTest {
     @Autowired
     UserAndAccessManagementService userAndAccessManagementService;
 
-    @Test
+//    @Test
     @WithUserDetails(value = "usertest@usertest.com")
-    @RepeatedTest(1000)
-    void testUpdatePermissionGroupsForMembers() {
+    @RepeatedTest(value = 1000, name = "testUpdatePermissionGroupsForUsers_{currentRepetition}")
+    void testUpdatePermissionGroupsForUsers() {
         User testUser = userService.findByEmail("usertest@usertest.com").block();
-        String testName = "testUpdatePermissionGroupsForMembers";
+        String testName = "testUpdatePermissionGroupsForUsers";
 
         String randomUUID = UUID.randomUUID().toString();
         Workspace workspace = new Workspace();
@@ -71,6 +72,8 @@ public class TransactionalTest {
         inviteUsersDTO.setUsernames(List.of(createdUser.getUsername()));
 
         userAndAccessManagementService.inviteUsers(inviteUsersDTO, "test").block();
+
+        log.debug("User Invited.");
 
         UpdatePermissionGroupDTO updatePermissionGroupDTO = new UpdatePermissionGroupDTO();
         updatePermissionGroupDTO.setUsername(createdUser.getUsername());
