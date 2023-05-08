@@ -17,6 +17,7 @@ const initialState: PageWidgetsReduxState = {};
 const pageWidgetsReducer = createImmerReducer(initialState, {
   // Reducer to clear all pageWidgets before finishing creating
   // a new application
+  // hello
   [ReduxActionTypes.RESET_APPLICATION_WIDGET_STATE_REQUEST]: () => ({}),
   [ReduxActionTypes.FETCH_PAGE_DSLS_SUCCESS]: (
     state: PageWidgetsReduxState,
