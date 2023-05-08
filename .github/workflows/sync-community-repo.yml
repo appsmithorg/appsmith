@@ -57,6 +57,11 @@ jobs:
 
           merge_head="$(git rev-parse community/release)"
           echo "CE release is at '$merge_head' (this should match with the first item in the above list)"
+          
+          if [[ "$last_common_ancestor" == "$merge_head" ]]; then
+            echo "Already up to date. Not merging anything."
+            exit
+          fi
 
           try-merge() {
             if ! git merge "$1" --no-edit; then
