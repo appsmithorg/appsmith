@@ -17,9 +17,7 @@ import { INTERACTION_ANALYTICS_EVENT } from "utils/AppsmithUtils";
 import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
-import { Colors } from "constants/Colors";
-import { Button } from "design-system";
-import { BannerMessage, IconSize } from "design-system-old";
+import { Button, Callout } from "design-system";
 import WidgetFactory from "utils/WidgetFactory";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import { useSearchText } from "./helpers";
@@ -207,17 +205,7 @@ function PropertyPaneView(
             widgetType={widgetProperties?.type}
           />
         )}
-        {isDeprecated && (
-          <BannerMessage
-            backgroundColor={Colors.WARNING_ORANGE}
-            className="t--deprecation-warning"
-            icon="warning-line"
-            iconColor={Colors.WARNING_SOLID}
-            iconSize={IconSize.XXXXL}
-            message={deprecationMessage}
-            textColor={Colors.BROWN}
-          />
-        )}
+        {isDeprecated && <Callout kind="warning">{deprecationMessage}</Callout>}
       </div>
 
       <div

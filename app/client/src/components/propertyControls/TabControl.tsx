@@ -15,7 +15,7 @@ import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
-import { Button } from "design-system";
+import { Button, Tag } from "design-system";
 
 function AddTabButtonComponent({ widgetId }: any) {
   const dispatch = useDispatch();
@@ -177,7 +177,9 @@ class TabControl extends BaseControl<ControlProps, State> {
     const tabs = this.getTabItems();
     return (
       <div className="flex flex-col">
-        <div className="t--number-of-tabs my-1">{tabs.length} tabs</div>
+        <div className="t--number-of-tabs mb-1 ml-auto">
+          <Tag isClosable={false}>{tabs.length}</Tag>
+        </div>
         <DraggableListControl
           deleteOption={this.deleteOption}
           fixedHeight={370}
