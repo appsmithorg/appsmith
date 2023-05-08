@@ -5,7 +5,7 @@ import type { BaseFieldProps, WrappedFieldInputProps } from "redux-form";
 import { change, Field, formValueSelector } from "redux-form";
 import type { EditorProps } from "components/editorComponents/CodeEditor";
 import CodeEditor from "components/editorComponents/CodeEditor";
-import { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfiguration";
+import { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { AppState } from "@appsmith/reducers";
 import { connect } from "react-redux";
 import get from "lodash/get";
@@ -16,12 +16,12 @@ import CodeMirror from "codemirror";
 import type {
   EditorTheme,
   HintHelper,
-} from "components/editorComponents/CodeEditor/EditorConfiguration";
+} from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   EditorModes,
   TabBehaviour,
   EditorSize,
-} from "components/editorComponents/CodeEditor/EditorConfiguration";
+} from "components/editorComponents/CodeEditor/EditorConfig";
 import { bindingMarker } from "components/editorComponents/CodeEditor/MarkHelpers/bindingMarker";
 
 import { entityMarker } from "components/editorComponents/CodeEditor/MarkHelpers/entityMarker";

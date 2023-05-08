@@ -4,7 +4,7 @@ import type { WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import type { ActionEntity } from "entities/DataTree/types";
 import { trim } from "lodash";
 import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
-import { EditorSize } from "./EditorConfiguration";
+import { EditorSize } from "./EditorConfig";
 
 export const removeNewLineChars = (inputValue: any) => {
   return inputValue && inputValue.replace(/(\r\n|\n|\r)/gm, "");

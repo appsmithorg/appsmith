@@ -13,7 +13,7 @@ import {
   EditorTheme,
   TabBehaviour,
   EditorModes,
-} from "./EditorConfiguration";
+} from "./EditorConfig";
 
 describe("<CodeEditor /> - Keyboard navigation", () => {
   // To avoid warning "Error: Not implemented: window.focus"

@@ -16,7 +16,7 @@ import {
 import {
   CodeEditorBorder,
   EditorTheme,
-} from "components/editorComponents/CodeEditor/EditorConfiguration";
+} from "components/editorComponents/CodeEditor/EditorConfig";
 import { GifPlayer } from "design-system-old";
 import lightmodeGif from "assets/icons/gifs/config_pagination_lightmode.gif";
 import darkmodeGif from "assets/icons/gifs/config_pagination_darkmode.gif";

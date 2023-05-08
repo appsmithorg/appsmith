@@ -12,7 +12,7 @@ import {
   EditorTheme,
   TabBehaviour,
   EditorModes,
-} from "./EditorConfiguration";
+} from "./EditorConfig";
 
 describe("CodeEditor", () => {
   it("should check EvaluatedValuePopup's hideEvaluatedValue  is false when hideEvaluatedValue is passed as false to codeditor", () => {

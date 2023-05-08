@@ -6,7 +6,7 @@ import { render, screen } from "@testing-library/react";
 
 import EvaluatedValuePopup from "./EvaluatedValuePopup";
 import { theme } from "constants/DefaultTheme";
-import { EditorTheme } from "./EditorConfiguration";
+import { EditorTheme } from "./EditorConfig";
 
 describe("EvaluatedValuePopup", () => {
   it("should render evaluated popup when hideEvaluatedValue is false", () => {

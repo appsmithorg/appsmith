@@ -2,8 +2,8 @@ import type { Hints } from "codemirror";
 import CodeMirror from "codemirror";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import KeyboardShortcuts from "constants/KeyboardShortcuts";
-import type { HintHelper } from "components/editorComponents/CodeEditor/EditorConfiguration";
-import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfiguration";
+import type { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
+import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   checkIfCursorInsideBinding,

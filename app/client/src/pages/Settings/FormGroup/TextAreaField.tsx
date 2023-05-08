@@ -8,7 +8,7 @@ import {
   EditorSize,
   EditorTheme,
   TabBehaviour,
-} from "components/editorComponents/CodeEditor/EditorConfiguration";
+} from "components/editorComponents/CodeEditor/EditorConfig";
 import type { EditorProps } from "components/editorComponents/CodeEditor";
 import CodeEditor from "components/editorComponents/CodeEditor";
 

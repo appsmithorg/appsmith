@@ -7,7 +7,7 @@ import {
   EditorModes,
   EditorSize,
   TabBehaviour,
-} from "components/editorComponents/CodeEditor/EditorConfiguration";
+} from "components/editorComponents/CodeEditor/EditorConfig";
 import CodeEditor from "components/editorComponents/LazyCodeEditorWrapper";
 
 class CodeEditorControl extends BaseControl<ControlProps> {

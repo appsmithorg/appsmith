@@ -11,13 +11,13 @@ import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValue
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import type { AppState } from "@appsmith/reducers";
 import FIELD_VALUES from "constants/FieldExpectedValue";
-import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfiguration";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   CodeEditorBorder,
   EditorModes,
   EditorSize,
   TabBehaviour,
-} from "components/editorComponents/CodeEditor/EditorConfiguration";
+} from "components/editorComponents/CodeEditor/EditorConfig";
 import { Classes, MultiSwitch } from "design-system-old";
 import { updateBodyContentType } from "actions/apiPaneActions";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";

@@ -12,7 +12,7 @@ import type { Indices } from "constants/Layers";
 import { Size, Category } from "design-system-old";
 import EmptyDataState from "components/utils/EmptyDataState";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfiguration";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import {

@@ -6,13 +6,13 @@ import CodeEditor from "components/editorComponents/CodeEditor";
 import type {
   CodeEditorBorder,
   TEditorModes,
-} from "components/editorComponents/CodeEditor/EditorConfiguration";
+} from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   EditorModes,
   EditorSize,
   EditorTheme,
   TabBehaviour,
-} from "components/editorComponents/CodeEditor/EditorConfiguration";
+} from "components/editorComponents/CodeEditor/EditorConfig";
 
 class DynamicTextField extends React.Component<
   BaseFieldProps &

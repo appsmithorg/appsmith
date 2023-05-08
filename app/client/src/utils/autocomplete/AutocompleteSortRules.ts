@@ -1,4 +1,4 @@
-import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfiguration";
+import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 import { DataTreeFunctionSortOrder, PriorityOrder } from "./dataTypeSortRules";
 import type {
   Completion,

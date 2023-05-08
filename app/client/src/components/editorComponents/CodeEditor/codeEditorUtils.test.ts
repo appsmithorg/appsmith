@@ -3,7 +3,7 @@ import {
   getInputValue,
   removeNewLineCharsIfRequired,
 } from "./codeEditorUtils";
-import { EditorSize } from "./EditorConfiguration";
+import { EditorSize } from "./EditorConfig";
 
 describe("remove new line code", () => {
   it("removed new lines", () => {

@@ -2,7 +2,7 @@ import CodeMirror from "codemirror";
 import {
   EditorModes,
   sqlModesConfig,
-} from "components/editorComponents/CodeEditor/EditorConfiguration";
+} from "components/editorComponents/CodeEditor/EditorConfig";
 import "codemirror/addon/mode/multiplex";
 import "codemirror/mode/javascript/javascript";
 import "codemirror/mode/sql/sql";

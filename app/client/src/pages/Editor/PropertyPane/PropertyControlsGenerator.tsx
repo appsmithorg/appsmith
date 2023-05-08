@@ -8,7 +8,7 @@ import type { WidgetType } from "constants/WidgetConstants";
 import React from "react";
 import PropertyControl from "./PropertyControl";
 import PropertySection from "./PropertySection";
-import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfiguration";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import Boxed from "../GuidedTour/Boxed";
 import { GUIDED_TOUR_STEPS } from "../GuidedTour/constants";
 import { EmptySearchResult } from "./EmptySearchResult";

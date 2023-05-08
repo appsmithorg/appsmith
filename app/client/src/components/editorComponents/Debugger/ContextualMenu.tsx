@@ -26,7 +26,7 @@ import type { IconName } from "design-system-old";
 import { Classes, Icon, IconSize } from "design-system-old";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { SlashCommand } from "entities/Action";
-import type { FieldEntityInformation } from "../CodeEditor/EditorConfiguration";
+import type { FieldEntityInformation } from "../CodeEditor/EditorConfig";
 const { intercomAppID } = getAppsmithConfigs();
 
 enum CONTEXT_MENU_ACTIONS {

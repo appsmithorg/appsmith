@@ -18,7 +18,7 @@ import {
   GLOBAL_DEFS,
   GLOBAL_FUNCTIONS,
 } from "@appsmith/utils/autocomplete/EntityDefinitions";
-import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfiguration";
+import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteSorter } from "./AutocompleteSortRules";
 import { getCompletionsForKeyword } from "./keywordCompletion";

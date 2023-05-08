@@ -1,6 +1,6 @@
 import type CodeMirror from "codemirror";
 import { AUTOCOMPLETE_MATCH_REGEX } from "constants/BindingsConstants";
-import type { MarkHelper } from "components/editorComponents/CodeEditor/EditorConfiguration";
+import type { MarkHelper } from "components/editorComponents/CodeEditor/EditorConfig";
 
 export const bindingMarker: MarkHelper = (editor: CodeMirror.Editor) => {
   editor.eachLine((line: CodeMirror.LineHandle) => {

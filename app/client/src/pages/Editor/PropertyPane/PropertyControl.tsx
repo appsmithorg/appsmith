@@ -37,7 +37,7 @@ import {
   getWidgetPropsForPropertyName,
 } from "selectors/propertyPaneSelectors";
 import type { EnhancementFns } from "selectors/widgetEnhancementSelectors";
-import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfiguration";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";

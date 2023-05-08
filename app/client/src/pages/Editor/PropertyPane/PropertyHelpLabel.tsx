@@ -1,5 +1,5 @@
 import { TooltipComponent as Tooltip } from "design-system-old";
-import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfiguration";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import React from "react";
 
 type Props = {
