@@ -4,7 +4,7 @@ import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTyp
 import type { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
 import type { ExpectedValueExample } from "utils/validation/common";
-import type { getDatasourceStructuresFromDatasourceId } from "selectors/entitiesSelector";
+
 import { find } from "lodash";
 
 export const editorSQLModes = {
