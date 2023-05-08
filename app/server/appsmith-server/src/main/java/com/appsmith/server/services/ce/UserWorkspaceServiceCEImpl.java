@@ -153,7 +153,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, changeUserGroupDTO.getUsername())))
                 .cache();
 
-        Mono<PermissionGroup> oldDefaultPermissionGroupMono = Mono.zip(workspaceMono, userMono)
+        Mono<PermissionGroup> oldDefaultPermissionGroupMono = workspaceMono.zipWhen(workspace -> userMono)
                 .flatMapMany(tuple -> {
                     Workspace workspace = tuple.getT1();
                     User user = tuple.getT2();
