@@ -435,7 +435,14 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     defaultApplication.setGitApplicationMetadata(defaultGitMetadata);
                                     return applicationService.save(defaultApplication)
                                             // Check if the private repo count is less than the allowed repo count
-                                            .map(application -> isRepoLimitReached(workspaceId, false))
+                                            .map(application -> {
+                                                if(Boolean.TRUE.equals(application.getGitApplicationMetadata().getIsRepoPrivate())) {
+                                                    // Check the repo limit only if the git repo is private
+                                                    return isRepoLimitReached(workspaceId, false);
+                                                } else {
+                                                    return Mono.just(application);
+                                                }
+                                            })
                                             .flatMap(isRepoLimitReached -> {
                                                 if (Boolean.FALSE.equals(isRepoLimitReached)) {
                                                     return Mono.just(defaultApplication);
@@ -2541,12 +2548,16 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .map(privateRepoCount -> {
                                 // isClearCache is false for the commit flow
                                 // isClearCache is true for the connect & import flow
-                                if (privateRepoCount <= limit) {
-                                    return Boolean.FALSE;
+                                if (!isClearCache) {
+                                    if (privateRepoCount <= limit) {
+                                        return Boolean.FALSE;
+                                    }
+                                } else {
+                                    if (privateRepoCount < limit) {
+                                        return Boolean.FALSE;
+                                    }
                                 }
-                                else {
-                                    return Boolean.TRUE;
-                                }
+                                return Boolean.TRUE;
                             });
                 });
     }
