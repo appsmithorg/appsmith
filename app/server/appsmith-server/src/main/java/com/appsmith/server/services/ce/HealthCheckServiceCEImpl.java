@@ -46,7 +46,7 @@ public class HealthCheckServiceCEImpl implements HealthCheckServiceCE {
     @Override
     public Mono<Health> getMongoHealth() {
         Function<TimeoutException, Throwable> healthTimeout = error -> {
-            log.warn("MongoDB health check timed out", error);
+            log.warn("MongoDB health check timed out: ", error.getMessage());
             return new AppsmithException(AppsmithError.HEALTHCHECK_TIMEOUT, "Mongo");
         };
         MongoReactiveHealthIndicator mongoReactiveHealthIndicator = new MongoReactiveHealthIndicator(reactiveMongoTemplate);
