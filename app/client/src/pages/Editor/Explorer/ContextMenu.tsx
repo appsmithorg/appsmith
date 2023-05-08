@@ -104,7 +104,10 @@ export default function TreeDropdown(props: TreeDropdownProps) {
 
   return (
     <Menu open={isOpen}>
-      <MenuTrigger onClick={() => handleOpenChange(!isOpen)}>
+      <MenuTrigger
+        className="t--context-menu"
+        onClick={() => handleOpenChange(!isOpen)}
+      >
         <Button
           className={props.className}
           isIconButton
