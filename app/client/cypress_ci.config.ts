@@ -16,8 +16,8 @@ export default defineConfig({
     json: false,
   },
   chromeWebSecurity: false,
-  viewportHeight: 1100,
-  viewportWidth: 1400,
+  viewportHeight: 1500,
+  viewportWidth: 1700,
   retries: {
     runMode: 1,
     openMode: 0,
