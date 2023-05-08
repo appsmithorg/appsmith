@@ -49,7 +49,7 @@ export const CollapseIconContainer = styled.div<{
   ${({ isOpen, isPinned }) => {
     if (!isPinned && !isOpen) {
       return `
-        transform: translateX(40px);
+        transform: translateX(54px);
         background: ${Colors.WHITE};
         box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1), 0px 1px 2px rgba(0, 0, 0, 0.06);
         transition: background 0.3s ease-in-out, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);

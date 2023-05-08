@@ -88,7 +88,6 @@ export enum CodeEditorBorder {
 
 export enum AUTOCOMPLETE_CLOSE_KEY {
   Enter,
-  Tab,
   Escape,
   Comma,
   Semicolon,

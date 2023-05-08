@@ -258,7 +258,7 @@ export const generateQuickCommands = (
   // TODO: Refactor slash commands generation for easier code splitting
   if (
     addAISlashCommand &&
-    featureFlags.CHAT_AI &&
+    featureFlags.ask_ai &&
     (currentEntityType !== ENTITY_TYPE.ACTION ||
       mode === EditorModes.SQL ||
       mode === EditorModes.SQL_WITH_BINDING)

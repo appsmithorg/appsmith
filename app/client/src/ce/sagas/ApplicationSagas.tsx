@@ -15,6 +15,7 @@ import type {
   CreateApplicationRequest,
   CreateApplicationResponse,
   DeleteApplicationRequest,
+  DeleteNavigationLogoRequest,
   DuplicateApplicationRequest,
   FetchApplicationPayload,
   FetchApplicationResponse,
@@ -27,6 +28,7 @@ import type {
   SetDefaultPageRequest,
   UpdateApplicationRequest,
   UpdateApplicationResponse,
+  UploadNavigationLogoRequest,
   WorkspaceApplicationObject,
 } from "@appsmith/api/ApplicationApi";
 import ApplicationApi from "@appsmith/api/ApplicationApi";
@@ -39,6 +41,7 @@ import history from "utils/history";
 import type { AppState } from "@appsmith/reducers";
 import {
   ApplicationVersion,
+  deleteApplicationNavigationLogoSuccessAction,
   fetchApplication,
   getAllApplications,
   importApplicationSuccess,
@@ -49,6 +52,7 @@ import {
   setPageIdForImport,
   setWorkspaceIdForImport,
   showReconnectDatasourceModal,
+  updateApplicationNavigationLogoSuccessAction,
   updateApplicationNavigationSettingAction,
   updateCurrentApplicationEmbedSetting,
   updateCurrentApplicationIcon,
@@ -59,6 +63,7 @@ import {
   DELETING_APPLICATION,
   DISCARD_SUCCESS,
   DUPLICATING_APPLICATION,
+  ERROR_IMPORTING_APPLICATION_TO_WORKSPACE,
 } from "@appsmith/constants/messages";
 import type { AppIconName } from "design-system-old";
 import { Toaster, Variant } from "design-system-old";
@@ -75,20 +80,19 @@ import {
 
 import {
   deleteRecentAppEntities,
+  getEnableStartSignposting,
   setPostWelcomeTourState,
 } from "utils/storage";
 import {
   reconnectAppLevelWebsocket,
   reconnectPageLevelWebsocket,
 } from "actions/websocketActions";
-import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
-
 import {
-  getCurrentStep,
-  getEnableFirstTimeUserOnboarding,
-  getFirstTimeUserOnboardingApplicationId,
-  inGuidedTour,
-} from "selectors/onboardingSelectors";
+  getCurrentWorkspace,
+  getCurrentWorkspaceId,
+} from "@appsmith/selectors/workspaceSelectors";
+
+import { getCurrentStep, inGuidedTour } from "selectors/onboardingSelectors";
 import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
 import {
   fetchDatasources,
@@ -113,6 +117,11 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { safeCrashAppRequest } from "actions/errorActions";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import {
+  defaultNavigationSetting,
+  keysOfNavigationSetting,
+} from "constants/AppConstants";
+import { setAllEntityCollapsibleStates } from "../../actions/editorContextActions";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -596,16 +605,20 @@ export function* createApplicationSaga(
             application,
           },
         });
-        const isFirstTimeUserOnboardingEnabled: boolean = yield select(
-          getEnableFirstTimeUserOnboarding,
+
+        // All new apps will have the Entity Explorer unfurled so that users
+        // can find the entities they have created
+        yield put(
+          setAllEntityCollapsibleStates({
+            Widgets: true,
+            ["Queries/JS"]: true,
+            Datasources: true,
+          }),
         );
-        const FirstTimeUserOnboardingApplicationId: string = yield select(
-          getFirstTimeUserOnboardingApplicationId,
-        );
-        if (
-          isFirstTimeUserOnboardingEnabled &&
-          FirstTimeUserOnboardingApplicationId === ""
-        ) {
+
+        const enableSignposting: boolean | null =
+          yield getEnableStartSignposting();
+        if (enableSignposting) {
           yield put({
             type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
             payload: application.id,
@@ -716,20 +729,22 @@ export function* importApplicationSaga(
       ApplicationApi.importApplicationToWorkspace,
       action.payload,
     );
+    const urlObject = new URL(window.location.href);
+    const isApplicationUrl = urlObject.pathname.includes("/app/");
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      const currentWorkspaceId: string = yield select(getCurrentWorkspaceId);
       const allWorkspaces: Workspace[] = yield select(getCurrentWorkspace);
       const currentWorkspace = allWorkspaces.filter(
         (el: Workspace) => el.id === action.payload.workspaceId,
       );
-      if (currentWorkspace.length > 0) {
+      if (currentWorkspaceId || currentWorkspace.length > 0) {
         const {
           // @ts-expect-error: response is of type unknown
           application: { pages },
           // @ts-expect-error: response is of type unknown
           isPartialImport,
         } = response.data;
-
         // @ts-expect-error: response is of type unknown
         yield put(importApplicationSuccess(response.data?.application));
 
@@ -747,10 +762,24 @@ export function* importApplicationSaga(
         } else {
           // @ts-expect-error: pages is of type any
           // TODO: Update route params here
-          const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
+          const { application } = response.data;
+          const defaultPage = pages.filter(
+            (eachPage: any) => !!eachPage.isDefault,
+          );
           const pageURL = builderURL({
             pageId: defaultPage[0].id,
           });
+          if (isApplicationUrl) {
+            const appId = application.id;
+            const pageId = application.defaultPageId;
+            yield put({
+              type: ReduxActionTypes.FETCH_APPLICATION_INIT,
+              payload: {
+                applicationId: appId,
+                pageId,
+              },
+            });
+          }
           history.push(pageURL);
           const guidedTour: boolean = yield select(inGuidedTour);
 
@@ -761,6 +790,13 @@ export function* importApplicationSaga(
             variant: Variant.success,
           });
         }
+      } else {
+        yield put({
+          type: ReduxActionErrorTypes.IMPORT_APPLICATION_ERROR,
+          payload: {
+            error: createMessage(ERROR_IMPORTING_APPLICATION_TO_WORKSPACE),
+          },
+        });
       }
     }
   } catch (error) {
@@ -884,4 +920,112 @@ export function* initDatasourceConnectionDuringImport(
   );
 
   yield put(initDatasourceConnectionDuringImportSuccess());
+}
+
+export function* uploadNavigationLogoSaga(
+  action: ReduxAction<UploadNavigationLogoRequest>,
+) {
+  try {
+    const request: UploadNavigationLogoRequest = action.payload;
+    const response: ApiResponse<UpdateApplicationResponse> = yield call(
+      ApplicationApi.uploadNavigationLogo,
+      request,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      if (request.logo) {
+        if (
+          request.logo &&
+          response.data.applicationDetail?.navigationSetting?.logoAssetId
+        ) {
+          yield put(
+            updateApplicationNavigationLogoSuccessAction(
+              response.data.applicationDetail.navigationSetting.logoAssetId,
+            ),
+          );
+
+          /**
+           * When the user creates a new application and they upload logo without
+           * interacting with any other navigation settings first, we get only
+           * navigationSetting = { logoAssetId: <id_string_here> } in the API response.
+           *
+           * Therefore, we need to handle this case by hitting the update application
+           * API and store the default navigation settings as well alongside
+           * the logoAssetId.
+           */
+          const navigationSettingKeys = Object.keys(
+            response.data.applicationDetail?.navigationSetting,
+          );
+          if (
+            navigationSettingKeys?.length === 1 &&
+            navigationSettingKeys?.[0] === keysOfNavigationSetting.logoAssetId
+          ) {
+            const newUpdateApplicationRequestWithDefaultNavigationSettings = {
+              ...response.data,
+              applicationDetail: {
+                ...response.data.applicationDetail,
+                navigationSetting: {
+                  ...defaultNavigationSetting,
+                  ...response.data.applicationDetail.navigationSetting,
+                },
+              },
+            };
+
+            const updateApplicationResponse: ApiResponse<UpdateApplicationResponse> =
+              yield call(
+                ApplicationApi.updateApplication,
+                newUpdateApplicationRequestWithDefaultNavigationSettings,
+              );
+
+            if (updateApplicationResponse?.data) {
+              yield put({
+                type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
+                payload: updateApplicationResponse.data,
+              });
+
+              if (
+                newUpdateApplicationRequestWithDefaultNavigationSettings
+                  .applicationDetail?.navigationSetting &&
+                updateApplicationResponse.data.applicationDetail
+                  ?.navigationSetting
+              ) {
+                yield put(
+                  updateApplicationNavigationSettingAction(
+                    updateApplicationResponse.data.applicationDetail
+                      .navigationSetting,
+                  ),
+                );
+              }
+            }
+          }
+        }
+      }
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.UPLOAD_NAVIGATION_LOGO_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* deleteNavigationLogoSaga(
+  action: ReduxAction<DeleteNavigationLogoRequest>,
+) {
+  try {
+    const request: DeleteNavigationLogoRequest = action.payload;
+
+    yield call(ApplicationApi.deleteNavigationLogo, request);
+    yield put(deleteApplicationNavigationLogoSuccessAction());
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.DELETE_NAVIGATION_LOGO_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
 }
