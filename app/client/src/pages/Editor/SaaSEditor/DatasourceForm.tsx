@@ -70,6 +70,7 @@ import { DocumentationLink } from "../QueryEditor/EditorJSONtoForm";
 import GoogleSheetFilePicker from "./GoogleSheetFilePicker";
 import DatasourceInformation from "./../DataSourceEditor/DatasourceSection";
 import styled from "styled-components";
+import type { ControlProps } from "components/formControls/BaseControl";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -96,6 +97,8 @@ interface StateProps extends JSONtoFormProps {
   gsheetToken?: string;
   gsheetProjectID?: string;
   documentationLink: string | undefined;
+  requiredFields: Record<string, ControlProps>;
+  configDetails: Record<string, string>;
 }
 interface DatasourceFormFunctions {
   discardTempDatasource: () => void;
@@ -138,6 +141,59 @@ const ViewModeWrapper = styled.div`
   border-bottom: 1px solid #d0d7dd;
   padding: 24px 20px;
 `;
+
+type SaasEditorWrappperState = {
+  requiredFields: Record<string, ControlProps>;
+  configDetails: Record<string, string>;
+};
+class SaasEditorWrapper extends React.Component<
+  DatasourceSaaSEditorProps,
+  SaasEditorWrappperState
+> {
+  constructor(props: DatasourceSaaSEditorProps) {
+    super(props);
+    this.state = {
+      requiredFields: {},
+      configDetails: {},
+    };
+  }
+
+  componentDidUpdate(prevProps: Readonly<DatasourceSaaSEditorProps>): void {
+    // if the datasource id changes, we need to reset the required fields and configDetails
+    if (this.props.datasourceId !== prevProps.datasourceId) {
+      this.setState({
+        ...this.state,
+        requiredFields: {},
+        configDetails: {},
+      });
+    }
+  }
+
+  // updates the configDetails and requiredFields objects in the state
+  setupConfig = (config: ControlProps) => {
+    const { configProperty, controlType, isRequired } = config;
+    const configDetails = this.state.configDetails;
+    const requiredFields = this.state.requiredFields;
+    configDetails[configProperty] = controlType;
+    if (isRequired) requiredFields[configProperty] = config;
+    this.setState({
+      ...this.state,
+      configDetails,
+      requiredFields,
+    });
+  };
+
+  render() {
+    return (
+      <SaaSEditor
+        {...this.props}
+        configDetails={this.state.configDetails}
+        requiredFields={this.state.requiredFields}
+        setupConfig={this.setupConfig}
+      />
+    );
+  }
+}
 
 class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
   constructor(props: Props) {
@@ -264,7 +320,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
 
   getSanitizedData = () => {
     return {
-      ...normalizeValues(this.props.formData, this.configDetails),
+      ...normalizeValues(this.props.formData, this.props.configDetails),
       name: this.props.datasourceName,
     };
   };
@@ -567,7 +623,7 @@ const mapDispatchToProps = (dispatch: any): DatasourceFormFunctions => ({
   loadFilePickerAction: () => dispatch(loadFilePickerAction()),
 });
 
-export default connect(
+const SaaSEditor = connect(
   mapStateToProps,
   mapDispatchToProps,
 )(
@@ -576,3 +632,5 @@ export default connect(
     enableReinitialize: true,
   })(DatasourceSaaSEditor),
 );
+
+export default SaasEditorWrapper;
