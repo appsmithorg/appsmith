@@ -427,33 +427,24 @@ public class GitServiceCEImpl implements GitServiceCE {
                     }
                     // Check if the repo is public for current application and if the user have changed the access after
                     // the connection
-                    final Boolean isRepoPrivate = defaultGitMetadata.getIsRepoPrivate();
-                    Mono<Application> applicationMono;
-                    if (Boolean.FALSE.equals(isRepoPrivate)) {
-                        applicationMono = GitUtils.isRepoPrivate(defaultGitMetadata.getBrowserSupportedRemoteUrl())
-                                .flatMap(isPrivate -> {
-                                    defaultGitMetadata.setIsRepoPrivate(isPrivate);
-                                    if (!isPrivate.equals(defaultGitMetadata.getIsRepoPrivate())) {
-                                        return applicationService.save(defaultApplication);
-                                    } else {
-                                        return Mono.just(defaultApplication);
-                                    }
-                                });
-                    } else {
-                        return Mono.just(defaultApplication);
-                    }
-
-                    // Check if the private repo count is less than the allowed repo count
                     final String workspaceId = defaultApplication.getWorkspaceId();
-                    return applicationMono
-                            .map(application -> {
-                                return isRepoLimitReached(workspaceId, false);
-                            })
-                            .flatMap(isRepoLimitReached -> {
-                                if (Boolean.FALSE.equals(isRepoLimitReached)) {
+                    return GitUtils.isRepoPrivate(defaultGitMetadata.getBrowserSupportedRemoteUrl())
+                            .flatMap(isPrivate -> {
+                                if (!isPrivate.equals(defaultGitMetadata.getIsRepoPrivate())) {
+                                    defaultGitMetadata.setIsRepoPrivate(isPrivate);
+                                    defaultApplication.setGitApplicationMetadata(defaultGitMetadata);
+                                    return applicationService.save(defaultApplication)
+                                            // Check if the private repo count is less than the allowed repo count
+                                            .map(application -> isRepoLimitReached(workspaceId, false))
+                                            .flatMap(isRepoLimitReached -> {
+                                                if (Boolean.FALSE.equals(isRepoLimitReached)) {
+                                                    return Mono.just(defaultApplication);
+                                                }
+                                                throw new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR);
+                                            });
+                                } else {
                                     return Mono.just(defaultApplication);
                                 }
-                                throw new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR);
                             });
                 })
                 .then(applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, applicationPermission.getEditPermission()))
@@ -2550,11 +2541,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .map(privateRepoCount -> {
                                 // isClearCache is false for the commit flow
                                 // isClearCache is true for the connect & import flow
-                                if (!isClearCache && limit >= privateRepoCount) {
+                                if (privateRepoCount <= limit) {
                                     return Boolean.FALSE;
-                                } else if (limit > privateRepoCount) {
-                                    return Boolean.FALSE;
-                                } else {
+                                }
+                                else {
                                     return Boolean.TRUE;
                                 }
                             });
