@@ -74,26 +74,9 @@ plugins.push(
 
 module.exports = merge(common, {
   webpack: {
-    configure: (webpackConfig, { env, paths }) => {
-      if (env.REACT_APP_AIRGAP_ENABLED === "true" || isAirgap === "true") {
-        paths.appBuild = webpackConfig.output.path =
-          path.resolve("build_airgap");
-      }
-      webpackConfig.resolve.fallback = {
-        assert: false,
-        stream: false,
-        util: false,
-        fs: false,
-        os: false,
-        path: false,
-      };
-      webpackConfig.module.rules.push({
-        test: /\.m?js/,
-        resolve: { fullySpecified: false },
-      });
-      return webpackConfig;
+    configure: {
+      plugins,
     },
-    plugins: plugins,
   },
   jest: {
     configure: {
@@ -104,6 +87,18 @@ module.exports = merge(common, {
     },
   },
   plugins: [
+    // Enable Airgap builds
+    {
+      plugin: {
+        overrideWebpackConfig: ({ context: { env, paths }, webpackConfig }) => {
+          if (env.REACT_APP_AIRGAP_ENABLED === "true" || isAirgap === "true") {
+            paths.appBuild = webpackConfig.output.path =
+              path.resolve("build_airgap");
+          }
+          return webpackConfig;
+        },
+      },
+    },
     // Emit dedicated HTML files for edit and view modes. This is done as an optimization (to preload
     // route-specific chunks on the most critical routes) and doesn’t affect the actual app behavior.
     {
