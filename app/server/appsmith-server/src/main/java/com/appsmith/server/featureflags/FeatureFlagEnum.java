@@ -24,17 +24,11 @@ public enum FeatureFlagEnum {
     // ------------------- End of features for testing -------------------------------------------------------------- //
 
     // ------------------- These are actual feature flags meant to be used across the product ----------------------- //
-    JS_EDITOR,
-    LINTING,
-    MULTIPLAYER,
-    APP_TEMPLATE,
-    TEMPLATES_PHASE_2,
-    CONTEXT_SWITCHING,
     DATASOURCE_ENVIRONMENTS,
+    MULTIPLE_PANES,
     AUTO_LAYOUT,
     LAZY_CANVAS_RENDERING,
     ONE_CLICK_BINDING,
 
     // Add EE flags below this line, to avoid conflicts.
-    RBAC,
 }
