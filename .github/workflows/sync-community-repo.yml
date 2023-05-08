@@ -85,7 +85,7 @@ jobs:
             if try-merge "$commit"; then
               echo "Merged successfully upto '$commit'"
               merge_success_at="$commit"
-              ouptup-var merged_upto_sha "$commit"
+              output-var merged_upto_sha "$commit"
               break
             else
               if [[ -z "$full_conflicts_summary" ]]; then
