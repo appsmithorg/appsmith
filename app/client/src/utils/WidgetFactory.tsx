@@ -69,6 +69,7 @@ class WidgetFactory {
   static stylesheetConfigMap: Map<WidgetType, Stylesheet> = new Map();
   static autocompleteDefinitions: Map<WidgetType, AutocompletionDefinitions> =
     new Map();
+  static setterConfig: Map<WidgetType, Record<string, any>> = new Map();
 
   static widgetConfigMap: Map<
     WidgetType,
@@ -96,6 +97,7 @@ class WidgetFactory {
     stylesheetConfig?: Stylesheet,
     autocompleteDefinitions?: AutocompletionDefinitions,
     autoLayoutConfig?: AutoLayoutConfig,
+    setterConfig?: Record<string, any>,
   ) {
     if (!this.widgetTypes[widgetType]) {
       this.widgetTypes[widgetType] = widgetType;
@@ -112,6 +114,7 @@ class WidgetFactory {
         this.stylesheetConfigMap.set(widgetType, stylesheetConfig);
       autocompleteDefinitions &&
         this.autocompleteDefinitions.set(widgetType, autocompleteDefinitions);
+      setterConfig && this.setterConfig.set(widgetType, setterConfig);
 
       if (Array.isArray(propertyPaneConfig) && propertyPaneConfig.length > 0) {
         const enhancedPropertyPaneConfig = enhancePropertyPaneConfig(
@@ -376,6 +379,14 @@ class WidgetFactory {
       log.error("Widget autocomplete properties not defined: ", type);
     }
     return autocompleteDefinition;
+  }
+
+  static getWidgetSetterConfig(type: WidgetType): Record<string, any> {
+    const map = this.setterConfig.get(type);
+    if (!map) {
+      return {};
+    }
+    return map;
   }
 
   static getLoadingProperties(type: WidgetType): Array<RegExp> | undefined {

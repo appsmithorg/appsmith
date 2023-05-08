@@ -67,6 +67,7 @@ export interface WidgetConfiguration {
     loadingProperties?: Array<RegExp>;
     stylesheetConfig?: Stylesheet;
     autocompleteDefinitions?: AutocompletionDefinitions;
+    setterConfig?: Record<string, any>;
   };
 }
 

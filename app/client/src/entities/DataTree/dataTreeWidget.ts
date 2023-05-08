@@ -1,5 +1,5 @@
 import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
-import _, { isEmpty } from "lodash";
+import _, { get, isEmpty } from "lodash";
 import memoize from "micro-memoize";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
@@ -14,6 +14,31 @@ import type {
 import { OverridingPropertyType } from "./types";
 
 import { setOverridingProperty } from "./utils";
+
+function getSetterConfig(
+  setterConfig: Record<string, any>,
+  widgetName: string,
+) {
+  const modifiedSetterConfig: Record<string, any> = {};
+  if (setterConfig.__setters) {
+    modifiedSetterConfig.__setters = {};
+    for (const setterMethodName of Object.keys(setterConfig.__setters)) {
+      modifiedSetterConfig.__setters[setterMethodName] = {
+        path: `${widgetName}.${setterConfig.__setters[setterMethodName].path}`,
+      };
+    }
+  }
+
+  if (setterConfig.pathToSetters && setterConfig.pathToSetters.length) {
+    const pathToSetters = setterConfig.pathToSetter;
+    for (const path of pathToSetters) {
+      const subConfig = get(setterConfig, path);
+      const subModifiedConfig = getSetterConfig(subConfig, widgetName);
+      _.set(modifiedSetterConfig, path, subModifiedConfig);
+    }
+  }
+  return modifiedSetterConfig;
+}
 
 // We are splitting generateDataTreeWidget into two parts to memoize better as the widget doesn't change very often.
 // Widget changes only when dynamicBindingPathList changes.
@@ -139,6 +164,11 @@ const generateDataTreeWidgetWithoutMeta = (
     "type",
   ];
 
+  const setterConfig = getSetterConfig(
+    WidgetFactory.getWidgetSetterConfig(widget.type),
+    widget.widgetName,
+  );
+
   const dataTreeWidgetWithoutMetaProps = _.merge(
     {
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
@@ -181,6 +211,7 @@ const generateDataTreeWidgetWithoutMeta = (
       overridingPropertyPaths,
       type: widget.type,
       ...dynamicPathsList,
+      ...setterConfig,
     },
   };
 };
