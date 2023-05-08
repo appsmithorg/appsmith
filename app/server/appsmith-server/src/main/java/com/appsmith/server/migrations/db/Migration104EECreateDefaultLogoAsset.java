@@ -1,7 +1,5 @@
 package com.appsmith.server.migrations.db;
 
-import com.appsmith.external.models.QBaseDomain;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.QAsset;
 import com.appsmith.server.domains.QTenant;
@@ -11,17 +9,16 @@ import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.MediaType;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
+import java.io.InputStream;
 import java.time.Instant;
+import java.util.Objects;
 
 import static com.appsmith.server.domains.TenantConfiguration.APPSMITH_DEFAULT_LOGO;
 import static com.appsmith.server.domains.TenantConfiguration.ASSET_PREFIX;
@@ -34,7 +31,7 @@ public class Migration104EECreateDefaultLogoAsset {
 
     private final MongoTemplate mongoTemplate;
 
-    private final String logoPath = "appsmith-server/src/main/resources/images/appsmith-logo-full.png";
+    private final String logoPath = "images/appsmith-logo-full.png";
 
     @RollbackExecution
     public void rollBackExecution() {
@@ -77,7 +74,13 @@ public class Migration104EECreateDefaultLogoAsset {
     private Asset createAsset(String logoPath) {
         byte[] imageData;
         try {
-            imageData = FileUtils.readFileToByteArray(new File(logoPath));
+            // In the absence of ClassLoader we were getting file not found at given path.
+            // By default, Spring Boot will use the thread context class loader to load resources. However, as the
+            // application is running the Mongock migration which is running in a different context,
+            // we have to use a different class loader to access the resource.
+            ClassLoader classLoader = getClass().getClassLoader();
+            InputStream inputStream = classLoader.getResourceAsStream(logoPath);
+            imageData = Objects.requireNonNull(inputStream).readAllBytes();
         } catch(IOException e) {
             log.debug("Unable to read file with error: {}", e.getMessage());
             return null;
