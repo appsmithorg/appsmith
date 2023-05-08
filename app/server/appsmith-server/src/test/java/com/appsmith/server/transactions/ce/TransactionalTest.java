@@ -41,7 +41,6 @@ public class TransactionalTest {
     @Autowired
     UserAndAccessManagementService userAndAccessManagementService;
 
-//    @Test
     @WithUserDetails(value = "usertest@usertest.com")
     @RepeatedTest(value = 1000, name = "testUpdatePermissionGroupsForUsers_{currentRepetition}")
     void testUpdatePermissionGroupsForUsers() {
@@ -53,14 +52,7 @@ public class TransactionalTest {
         workspace.setName(testName + randomUUID);
         Workspace createdWorkspace = workspaceService.createDefault(workspace, testUser).block();
 
-        List<PermissionGroup> workspaceRoles = permissionGroupRepository
-                .findByDefaultDomainIdAndDefaultDomainType(createdWorkspace.getId(), Workspace.class.getSimpleName())
-                .collectList()
-                .block();
-
         List<String> workspaceRoleId = createdWorkspace.getDefaultPermissionGroups().stream().toList();
-
-
 
         User user = new User();
         user.setEmail(testName + randomUUID + "@test.com");
@@ -72,13 +64,19 @@ public class TransactionalTest {
         inviteUsersDTO.setUsernames(List.of(createdUser.getUsername()));
 
         userAndAccessManagementService.inviteUsers(inviteUsersDTO, "test").block();
-
-        log.debug("User Invited.");
+        log.debug("User invited.");
 
         UpdatePermissionGroupDTO updatePermissionGroupDTO = new UpdatePermissionGroupDTO();
         updatePermissionGroupDTO.setUsername(createdUser.getUsername());
         updatePermissionGroupDTO.setNewPermissionGroupId(workspaceRoleId.get(1));
 
         userWorkspaceService.updatePermissionGroupForMember(createdWorkspace.getId(), updatePermissionGroupDTO, "test").block();
+        log.debug("User role updated from {} to {}.", workspaceRoleId.get(0), workspaceRoleId.get(1));
+
+        UpdatePermissionGroupDTO updatePermissionGroupDTO1 = new UpdatePermissionGroupDTO();
+        updatePermissionGroupDTO1.setUsername(createdUser.getUsername());
+
+        userWorkspaceService.updatePermissionGroupForMember(createdWorkspace.getId(), updatePermissionGroupDTO1, "test").block();
+        log.debug("User removed.");
     }
 }
