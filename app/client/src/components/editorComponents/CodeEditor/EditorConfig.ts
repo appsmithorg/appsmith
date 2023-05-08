@@ -33,7 +33,7 @@ export const EditorModes = {
 
 type ValueOf<T> = T[keyof T];
 export type TEditorModes = ValueOf<typeof EditorModes>;
-export type TEditorSqlModes = ValueOf<typeof editorSQLModes>;
+type TEditorSqlModes = ValueOf<typeof editorSQLModes>;
 type SqlModeConfig = Record<
   TEditorSqlModes,
   {
@@ -221,7 +221,7 @@ export function getSqlEditorModeFromPluginName(name: string) {
   return pluginNameToMIME[name] ?? EditorModes.SQL_WITH_BINDING;
 }
 
-export function getSqlMimeFromMode(mode: ValueOf<typeof editorSQLModes>) {
+export function getSqlMimeFromMode(mode: TEditorSqlModes) {
   const modeConfig = find(sqlModesConfig, { mode });
   return modeConfig?.mime ?? "text/x-sql";
 }
