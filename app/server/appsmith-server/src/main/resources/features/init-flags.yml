@@ -107,12 +107,3 @@ ff4j:
         param:
           - name: emails
             value: balaji@appsmith.com,vamsi@appsmith.com
-
-    - uid: ask_ai
-      enable: true
-      description: Enable code generation using OpenAI
-      flipstrategy:
-        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
-        param:
-          - name: emailDomains
-            value: appsmith.com
