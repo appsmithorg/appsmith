@@ -66,11 +66,17 @@ function testLinkRelPreloads() {
   // as we need to collect only chunks from the main thread
   cy.intercept("/static/js/*Worker.*.js", { body: "" }).as("workerRequests");
 
-  cy.reload();
+  cy.reload(
+    // Disable caching to ensure we fetch and intercept all JS files
+    true,
+  );
 
   cy.waitForNetworkIdle("/static/js/*.js", 5000, { timeout: 60 * 1000 });
 
   cy.document().then((document) => {
+    // If this line fails, then we failed to intercept any JS requests for some reason
+    expect(jsRequests).to.not.be.empty;
+
     const links = [
       ...document.querySelectorAll("link[rel=preload][as=script]"),
     ].map((link) => link.href);
