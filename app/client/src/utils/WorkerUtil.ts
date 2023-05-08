@@ -121,6 +121,7 @@ export class GracefulWorkerService {
     yield this.ready(true);
     if (!this._Worker) return;
     const messageType = MessageType.RESPONSE;
+
     sendMessage.call(this._Worker, {
       body: {
         data,

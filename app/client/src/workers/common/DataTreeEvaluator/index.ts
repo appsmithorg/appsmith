@@ -118,6 +118,9 @@ import { errorModifier } from "workers/Evaluation/errorModifier";
 import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
 import userLogs from "workers/Evaluation/fns/overrides/console";
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
+import { evalTreeWithChanges } from "workers/Evaluation/evalTreeWithChanges";
+import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
+import { MAIN_THREAD_ACTION } from "ce/workers/Evaluation/evalWorkerActions";
 
 type SortedDependencies = Array<string>;
 export type EvalProps = {
@@ -237,6 +240,7 @@ export default class DataTreeEvaluator {
     const allKeysGenerationEndTime = performance.now();
 
     const createDependencyMapStartTime = performance.now();
+
     // Create dependency map
     const {
       dependencyMap,
@@ -397,6 +401,7 @@ export default class DataTreeEvaluator {
     const totalUpdateTreeSetupStartTime = performance.now();
 
     let localUnEvalTree = Object.assign({}, unEvalTree);
+
     let jsUpdates: Record<string, JSUpdate> = {};
     const diffCheckTimeStartTime = performance.now();
     //update uneval tree from previously saved current state of collection
@@ -414,6 +419,7 @@ export default class DataTreeEvaluator {
         translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
       ),
     );
+
     //save parsed functions in resolveJSFunctions, update current state of js collection
     const parsedCollections = parseJSActions(
       this,
@@ -450,7 +456,20 @@ export default class DataTreeEvaluator {
       localUnEvalTree,
       stringifiedLocalUnEvalTreeJSCollection,
     );
+    const temp = ["setValue", "setDisabled", "setRequired", "setVisibility"];
 
+    temp.forEach((t) => {
+      set(
+        oldUnEvalTreeWithStrigifiedJSFunctions,
+        `Input1.${t}`,
+        oldUnEvalTreeWithStrigifiedJSFunctions["Input1"][t].toString(),
+      );
+      set(
+        localUnEvalTreeWithStrigifiedJSFunctions,
+        `Input1.${t}`,
+        oldUnEvalTreeWithStrigifiedJSFunctions["Input1"][t].toString(),
+      );
+    });
     const differences: Diff<DataTree, DataTree>[] =
       diff(
         oldUnEvalTreeWithStrigifiedJSFunctions,
@@ -1657,6 +1676,58 @@ export default class DataTreeEvaluator {
           },
         },
       );
+    });
+  }
+
+  applySetterMethod(path: string, value: any) {
+    const { entityName, propertyPath } = getEntityNameAndPropertyPath(path);
+    const entity = get(this.evalTree, entityName);
+    const updatedProperties: string[][] = [];
+    const overriddenProperties: string[] = [];
+
+    if (!isWidget(entity)) return;
+
+    const evalMetaUpdates: EvalMetaUpdates = [];
+
+    overrideWidgetProperties({
+      entity,
+      propertyPath,
+      value,
+      currentTree: this.evalTree,
+      configTree: this.oldConfigTree,
+      evalMetaUpdates,
+      fullPropertyPath: path,
+      isNewWidget: false,
+      shouldUpdateGlobalContext: true,
+      overriddenProperties,
+    });
+
+    set(this.evalTree, path, value);
+    set(self, path, value);
+
+    overriddenProperties.forEach((propPath) => {
+      updatedProperties.push([entityName, propPath]);
+    });
+
+    if (propertyPath.split(".")[0] === "meta") {
+      const metaPropertyPath = propertyPath.split(".").slice(1);
+
+      evalMetaUpdates.push({
+        widgetId: entity.widgetId,
+        metaPropertyPath,
+        value,
+      });
+
+      WorkerMessenger.request({
+        method: MAIN_THREAD_ACTION.SET_META_PROP_FROM_SETTER,
+        data: { evalMetaUpdates },
+      });
+    }
+
+    return new Promise((resolve) => {
+      updatedProperties.push([entityName, propertyPath]);
+
+      evalTreeWithChanges(updatedProperties, resolve);
     });
   }
 

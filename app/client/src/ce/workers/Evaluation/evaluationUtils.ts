@@ -783,6 +783,8 @@ export const overrideWidgetProperties = (params: {
   evalMetaUpdates: EvalMetaUpdates;
   fullPropertyPath: string;
   isNewWidget: boolean;
+  shouldUpdateGlobalContext?: boolean;
+  overriddenProperties?: string[];
 }) => {
   const {
     configTree,
@@ -791,7 +793,9 @@ export const overrideWidgetProperties = (params: {
     evalMetaUpdates,
     fullPropertyPath,
     isNewWidget,
+    overriddenProperties,
     propertyPath,
+    shouldUpdateGlobalContext,
     value,
   } = params;
   const clonedValue = klona(value);
@@ -816,6 +820,15 @@ export const overrideWidgetProperties = (params: {
         [entity.widgetName, ...overriddenPropertyPathArray],
         clonedValue,
       );
+
+      if (shouldUpdateGlobalContext) {
+        _.set(
+          self,
+          [entity.widgetName, ...overriddenPropertyPathArray],
+          clonedValue,
+        );
+      }
+      overriddenProperties?.push(overriddenPropertyPath);
       // evalMetaUpdates has all updates from property which overrides meta values.
       if (
         propertyPath.split(".")[0] !== "meta" &&
@@ -847,6 +860,14 @@ export const overrideWidgetProperties = (params: {
           [entity.widgetName, ...propertyPathArray],
           clonedDefaultValue,
         );
+
+        if (shouldUpdateGlobalContext) {
+          _.set(
+            self,
+            [entity.widgetName, ...propertyPathArray],
+            clonedDefaultValue,
+          );
+        }
 
         return {
           overwriteParsedValue: true,
