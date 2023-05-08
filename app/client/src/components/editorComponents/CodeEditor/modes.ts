@@ -1,12 +1,10 @@
 import CodeMirror from "codemirror";
-import {
-  EditorModes,
-  sqlModesConfig,
-} from "components/editorComponents/CodeEditor/EditorConfig";
+import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import "codemirror/addon/mode/multiplex";
 import "codemirror/mode/javascript/javascript";
 import "codemirror/mode/sql/sql";
 import "codemirror/addon/hint/sql-hint";
+import { sqlModesConfig } from "./sql/config";
 
 CodeMirror.defineMode(EditorModes.TEXT_WITH_BINDING, function (config) {
   // @ts-expect-error: Types are not available

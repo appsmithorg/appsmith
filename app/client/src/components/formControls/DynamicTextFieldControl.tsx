@@ -9,7 +9,6 @@ import {
   EditorSize,
   EditorModes,
   TabBehaviour,
-  getSqlEditorModeFromPluginName,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import type { AppState } from "@appsmith/reducers";
@@ -20,6 +19,8 @@ import {
 } from "selectors/entitiesSelector";
 import { actionPathFromName } from "components/formControls/utils";
 import type { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { getLineCommentString } from "components/editorComponents/CodeEditor/utils/codeComment";
+import { getSqlEditorModeFromPluginName } from "components/editorComponents/CodeEditor/sql/config";
 
 const Wrapper = styled.div`
   min-width: 380px;
