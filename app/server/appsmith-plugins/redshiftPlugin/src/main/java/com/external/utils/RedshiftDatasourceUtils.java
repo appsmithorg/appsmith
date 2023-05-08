@@ -58,6 +58,7 @@ public class RedshiftDatasourceUtils {
             urlBuilder.append(authentication.getDatabaseName());
         }
 
+        urlBuilder.append(";ApplicationName=Appsmith%20JDBC%20Driver");
         String url = urlBuilder.toString();
         config.setJdbcUrl(url);
 
