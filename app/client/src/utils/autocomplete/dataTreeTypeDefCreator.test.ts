@@ -64,7 +64,6 @@ describe("dataTreeTypeDefCreator", () => {
       {
         Input1: dataTreeEntity,
       },
-      false,
       {},
       dataTreeEntityConfig,
     );

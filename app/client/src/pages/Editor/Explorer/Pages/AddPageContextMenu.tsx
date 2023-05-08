@@ -31,7 +31,6 @@ import {
   GENERATE_PAGE_ACTION_TITLE,
 } from "@appsmith/constants/messages";
 import HotKeys from "../Files/SubmenuHotkeys";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getIsAutoLayout } from "selectors/editorSelectors";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
@@ -76,7 +75,6 @@ function AddPageContextMenu({
   const dispatch = useDispatch();
   const { pageId } = useParams<ExplorerURLParams>();
   const [activeItemIdx, setActiveItemIdx] = useState(0);
-  const featureFlags = useSelector(selectFeatureFlags);
   const isAutoLayout = useSelector(getIsAutoLayout);
   const isAirgappedInstance = isAirgapped();
 
@@ -107,11 +105,7 @@ function AddPageContextMenu({
       },
     ];
 
-    if (
-      featureFlags.TEMPLATES_PHASE_2 &&
-      !isAutoLayout &&
-      !isAirgappedInstance
-    ) {
+    if (!isAutoLayout && !isAirgappedInstance) {
       items.push({
         title: createMessage(ADD_PAGE_FROM_TEMPLATE),
         icon: Layout2LineIcon,
@@ -122,7 +116,7 @@ function AddPageContextMenu({
     }
 
     return items;
-  }, [featureFlags, pageId]);
+  }, [pageId]);
 
   const handleUpKey = useCallback(() => {
     setActiveItemIdx((currentActiveIndex) => {
