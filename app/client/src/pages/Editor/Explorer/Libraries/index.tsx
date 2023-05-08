@@ -188,7 +188,7 @@ const PrimaryCTA = function ({ lib }: { lib: TJSLibrary }) {
         kind="error"
         onClick={uninstallLibrary}
         size="sm"
-        startIcon="trash-outline"
+        startIcon="delete-bin-line"
       />
     );
   }

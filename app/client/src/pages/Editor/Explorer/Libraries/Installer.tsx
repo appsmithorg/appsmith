@@ -420,7 +420,7 @@ export function Installer(props: { left: number }) {
           kind="tertiary"
           onClick={closeInstaller}
           size="md"
-          startIcon="close-modal"
+          startIcon="close-line"
         />
       </div>
       <div className="search-body overflow-auto">
