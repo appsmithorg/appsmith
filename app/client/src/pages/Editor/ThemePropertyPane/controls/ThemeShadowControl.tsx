@@ -60,10 +60,10 @@ function ThemeBoxShadowControl(props: ThemeBoxShadowControlProps) {
 
   return (
     <SegmentedControl
-      defaultValue={selectedOptionKey}
       isFullWidth={false}
       onChange={onChangeShadow}
       options={buttonGroupOptions}
+      value={selectedOptionKey}
     />
   );
 }

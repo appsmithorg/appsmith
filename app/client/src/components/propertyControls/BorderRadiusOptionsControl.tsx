@@ -68,7 +68,6 @@ class BorderRadiusOptionsControl extends BaseControl<BorderRadiusOptionsControlP
   public render() {
     return (
       <SegmentedControl
-        defaultValue={this.props.evaluatedValue || ""}
         isFullWidth={false}
         onChange={(value, isUpdatedViaKeyboard = false) => {
           this.updateProperty(
@@ -79,6 +78,7 @@ class BorderRadiusOptionsControl extends BaseControl<BorderRadiusOptionsControlP
         }}
         options={options}
         ref={this.componentRef}
+        value={this.props.evaluatedValue || ""}
       />
     );
   }
