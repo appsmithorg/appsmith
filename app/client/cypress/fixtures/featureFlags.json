@@ -4,6 +4,7 @@
         "success": true
     },
     "data": {
+      "DATASOURCE_ENVIRONMENTS": false,
       "MULTIPLE_PANES": false,
       "AUTO_LAYOUT": false,
       "LAZY_CANVAS_RENDERING": false,

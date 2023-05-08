@@ -1,4 +1,5 @@
 type FeatureFlags = {
+  DATASOURCE_ENVIRONMENTS?: boolean;
   MULTIPLE_PANES?: boolean;
   AUTO_LAYOUT?: boolean;
   LAZY_CANVAS_RENDERING?: boolean;
