@@ -66,6 +66,7 @@ import {
   debounce,
   delay,
   put,
+  race,
   select,
   takeEvery,
   takeLatest,
@@ -141,6 +142,7 @@ import { setPreviewModeAction } from "actions/editorActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
+import type { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -1136,6 +1138,18 @@ export function* fetchPageDSLSaga(pageId: string) {
       dsl: DEFAULT_TEMPLATE,
     };
   }
+}
+
+export function* waitForPagesList() {
+  const pageListState: PageListReduxState = yield select(
+    (state: AppState) => state.entities.pageList,
+  );
+  if (pageListState.pages.length > 0) return;
+
+  yield race([
+    ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
+    ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
+  ]);
 }
 
 export function* populatePageDSLsSaga() {

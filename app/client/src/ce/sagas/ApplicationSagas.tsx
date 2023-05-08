@@ -242,6 +242,10 @@ export function* fetchAppAndPagesSaga(
     if (params.pageId && params.applicationId) {
       delete params.applicationId;
     }
+    // const response: FetchApplicationResponse = yield call(
+    //   PageApi.fetchAppAndPages,
+    //   params,
+    // );
     const response = {
       responseMeta: {
         status: 200,
