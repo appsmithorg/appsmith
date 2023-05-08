@@ -58,6 +58,7 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
       </Tooltip>
       <MenuContent
         align="start"
+        className="t--structure-template-menu-popover"
         onInteractOutside={() => setActive(false)}
         side="right"
       >
