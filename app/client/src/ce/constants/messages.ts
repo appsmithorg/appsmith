@@ -1225,6 +1225,7 @@ export const PROPERTY_PANE_EMPTY_SEARCH_RESULT_MESSAGE =
   "No properties found based on your search";
 export const PROPERTY_SEARCH_INPUT_PLACEHOLDER =
   "Search for controls, labels etc";
+export const EXPLORER_BETA_ENTITY = () => "BETA";
 
 // API Pane
 export const API_PANE_NO_BODY = () => "This request does not have a body";

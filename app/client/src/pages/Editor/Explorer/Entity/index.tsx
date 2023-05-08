@@ -25,7 +25,11 @@ import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { getEntityCollapsibleState } from "selectors/editorContextSelectors";
 import type { AppState } from "@appsmith/reducers";
 import { setEntityCollapsibleState } from "actions/editorContextActions";
-import { Tooltip, Icon } from "design-system";
+import { Tooltip, Icon, Tag } from "design-system";
+import {
+  createMessage,
+  EXPLORER_BETA_ENTITY,
+} from "@appsmith/constants/messages";
 
 export enum EntityClassNames {
   CONTEXT_MENU = "entity-context-menu",
@@ -99,7 +103,7 @@ export const EntityItem = styled.div<{
   height: 36px;
   width: 100%;
   display: inline-grid;
-  grid-template-columns: 20px auto 1fr auto auto auto auto;
+  grid-template-columns: 20px auto 1fr auto auto auto auto auto;
   grid-auto-flow: column dense;
   border-radius: var(--ads-v2-border-radius);
   color: var(--ads-v2-color-fg);
@@ -393,6 +397,11 @@ export const Entity = forwardRef(
               <IconWrapper>
                 <Icon name="loader-line" />
               </IconWrapper>
+            )}
+            {props.isBeta && (
+              <Tag isClosable={false}>
+                {createMessage(EXPLORER_BETA_ENTITY)}
+              </Tag>
             )}
             {props.preRightIcon && (
               <IconWrapper
