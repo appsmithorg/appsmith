@@ -101,6 +101,7 @@ public class SmtpPlugin extends BasePlugin {
                 message.setSubject(subject, ENCODING);
 
                 String msg = StringUtils.hasText(actionConfiguration.getBody()) ? actionConfiguration.getBody() : "";
+                bodyType = StringUtils.hasText(bodyType) ? bodyType : "text/html";
                 String msgType = String.format("%s; charset=%s", bodyType, ENCODING);
 
                 MimeBodyPart mimeBodyPart = getMimeBodyPart();
