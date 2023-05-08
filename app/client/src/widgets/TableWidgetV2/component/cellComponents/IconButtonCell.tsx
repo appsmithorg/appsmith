@@ -58,6 +58,7 @@ function IconButton(props: {
         buttonVariant={props.buttonVariant}
         compactMode={props.compactMode}
         disabled={props.disabled}
+        hasOnClickAction
         icon={props.iconName}
         loading={loading}
         onClick={handleClick}
