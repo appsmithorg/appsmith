@@ -27,7 +27,7 @@ import {
   JSONtoForm,
   PluginImage,
 } from "../DataSourceEditor/JSONtoForm";
-import { normalizeValues } from "components/formControls/utils";
+import { normalizeValues, validate } from "components/formControls/utils";
 import {
   getCurrentApplicationId,
   getGsheetProjectID,
@@ -444,7 +444,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
               datasourceDeleteTrigger={this.datasourceDeleteTrigger}
               formData={formData}
               getSanitizedFormData={_.memoize(this.getSanitizedData)}
-              isInvalid={this.validate()}
+              isInvalid={validate(this.props.requiredFields, formData)}
               pageId={pageId}
               shouldDisplayAuthMessage={!isGoogleSheetPlugin}
               shouldRender={!viewMode}

@@ -22,7 +22,11 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import DatasourceInformation from "./DatasourceSection";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import { selectFeatureFlags } from "selectors/usersSelectors";
-import { getTrimmedData, normalizeValues } from "components/formControls/utils";
+import {
+  getTrimmedData,
+  normalizeValues,
+  validate,
+} from "components/formControls/utils";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -180,7 +184,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
             formData={formData}
             getSanitizedFormData={_.memoize(this.getSanitizedData)}
             isFormDirty={this.props.isFormDirty}
-            isInvalid={this.validate()}
+            isInvalid={validate(this.props.requiredFields, formData)}
             shouldRender={!viewMode}
             triggerSave={this.props.isDatasourceBeingSavedFromPopup}
           />

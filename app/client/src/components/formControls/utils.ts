@@ -73,6 +73,56 @@ export const normalizeValues = (
   return formData;
 };
 
+export const validate = (
+  requiredFields: Record<string, FormConfigType>,
+  values: any,
+) => {
+  const errors = {} as any;
+
+  Object.keys(requiredFields).forEach((fieldConfigProperty) => {
+    const fieldConfig = requiredFields[fieldConfigProperty];
+    if (fieldConfig.controlType === "KEYVALUE_ARRAY") {
+      const configProperty = (fieldConfig.configProperty as string).split(
+        "[*].",
+      );
+      const arrayValues = _.get(values, configProperty[0], []);
+      const keyValueArrayErrors: Record<string, string>[] = [];
+
+      arrayValues.forEach((value: any, index: number) => {
+        const objectKeys = Object.keys(value);
+        const keyValueErrors: Record<string, string> = {};
+
+        if (
+          !value[objectKeys[0]] ||
+          (isString(value[objectKeys[0]]) && !value[objectKeys[0]].trim())
+        ) {
+          keyValueErrors[objectKeys[0]] = "This field is required";
+          keyValueArrayErrors[index] = keyValueErrors;
+        }
+        if (
+          !value[objectKeys[1]] ||
+          (isString(value[objectKeys[1]]) && !value[objectKeys[1]].trim())
+        ) {
+          keyValueErrors[objectKeys[1]] = "This field is required";
+          keyValueArrayErrors[index] = keyValueErrors;
+        }
+      });
+
+      if (keyValueArrayErrors.length) {
+        _.set(errors, configProperty[0], keyValueArrayErrors);
+      }
+    } else {
+      const value = _.get(values, fieldConfigProperty);
+
+      if (_.isNil(value) || (isString(value) && _.isEmpty(value.trim()))) {
+        _.set(errors, fieldConfigProperty, "This field is required");
+      }
+    }
+  });
+
+  return !_.isEmpty(errors);
+};
+
 export const evaluateCondtionWithType = (
   conditions: Array<boolean> | undefined,
   type: string | undefined,

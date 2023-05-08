@@ -132,46 +132,12 @@ export class JSONtoForm<
     }
   }
 
-  validate = () => {
-    const errors = {} as any;
-    const requiredFields = Object.keys(this.requiredFields);
-    const values = this.props.formData;
-
-    requiredFields.forEach((fieldConfigProperty) => {
-      const fieldConfig = this.requiredFields[fieldConfigProperty];
-      if (fieldConfig.controlType === "KEYVALUE_ARRAY") {
-        const configProperty = fieldConfig.configProperty.split("[*].");
-        const arrayValues = _.get(values, configProperty[0], []);
-        const keyValueArrayErrors: Record<string, string>[] = [];
-
-        arrayValues.forEach((value: any, index: number) => {
-          const objectKeys = Object.keys(value);
-          const keyValueErrors: Record<string, string> = {};
-
-          if (!value[objectKeys[0]]) {
-            keyValueErrors[objectKeys[0]] = "This field is required";
-            keyValueArrayErrors[index] = keyValueErrors;
-          }
-          if (!value[objectKeys[1]]) {
-            keyValueErrors[objectKeys[1]] = "This field is required";
-            keyValueArrayErrors[index] = keyValueErrors;
-          }
-        });
-
-        if (keyValueArrayErrors.length) {
-          _.set(errors, configProperty[0], keyValueArrayErrors);
-        }
-      } else {
-        const value = _.get(values, fieldConfigProperty);
-
-        if (_.isNil(value)) {
-          _.set(errors, fieldConfigProperty, "This field is required");
-        }
-      }
-    });
-
-    return !_.isEmpty(errors);
-  };
+  // componentDidUpdate(prevProps: JSONtoFormProps) {
+  //   if (prevProps.datasourceId !== this.props.datasourceId) {
+  //     this.props.requiredFields = {};
+  //     this.props.configDetails = {};
+  //   }
+  // }
 
   renderForm = (formContent: any) => {
     return (
