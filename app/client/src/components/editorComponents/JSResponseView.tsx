@@ -369,33 +369,37 @@ function JSResponseView(props: Props) {
 
   // close the debugger
   const onClose = () => dispatch(showDebugger(false));
-  return (
-    <ResponseContainer
-      className="t--js-editor-bottom-pane-container"
-      ref={panelRef}
-    >
-      <Resizer
-        initialHeight={responseTabHeight}
-        onResizeComplete={setResponseHeight}
-        panelRef={panelRef}
-      />
-      <TabbedViewWrapper>
-        <EntityBottomTabs
-          expandedHeight={`${ActionExecutionResizerHeight}px`}
-          onSelect={setSelectedResponseTab}
-          selectedTabKey={selectedResponseTab}
-          tabs={tabs}
+  if (!(selectedResponseTab === DEBUGGER_TAB_KEYS.HEADER_TAB)) {
+    return (
+      <ResponseContainer
+        className="t--js-editor-bottom-pane-container"
+        ref={panelRef}
+      >
+        <Resizer
+          initialHeight={responseTabHeight}
+          onResizeComplete={setResponseHeight}
+          panelRef={panelRef}
         />
+        <TabbedViewWrapper>
+          <EntityBottomTabs
+            expandedHeight={`${ActionExecutionResizerHeight}px`}
+            onSelect={setSelectedResponseTab}
+            selectedTabKey={selectedResponseTab}
+            tabs={tabs}
+          />
 
-        <Icon
-          className="close-debugger t--close-debugger"
-          name="close-modal"
-          onClick={onClose}
-          size={IconSize.XL}
-        />
-      </TabbedViewWrapper>
-    </ResponseContainer>
-  );
+          <Icon
+            className="close-debugger t--close-debugger"
+            name="close-modal"
+            onClick={onClose}
+            size={IconSize.XL}
+          />
+        </TabbedViewWrapper>
+      </ResponseContainer>
+    );
+  } else {
+    return null;
+  }
 }
 
 const mapStateToProps = (

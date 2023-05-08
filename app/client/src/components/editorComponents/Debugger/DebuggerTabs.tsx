@@ -97,34 +97,43 @@ function DebuggerTabs() {
     },
   ];
 
-  return (
-    <Container
-      className="t--debugger-tabs-container"
-      onClick={stopEventPropagation}
-      ref={panelRef}
-    >
-      <Resizer
-        initialHeight={responsePaneHeight}
-        onResizeComplete={(height: number) => {
-          updateResponsePaneHeight(height);
-        }}
-        panelRef={panelRef}
-        snapToHeight={ActionExecutionResizerHeight}
-      />
-      <EntityBottomTabs
-        expandedHeight={`${ActionExecutionResizerHeight}px`}
-        onSelect={setSelectedTab}
-        selectedTabKey={selectedTab}
-        tabs={DEBUGGER_TABS}
-      />
-      <Icon
-        className="close-debugger t--close-debugger"
-        name="close-modal"
-        onClick={onClose}
-        size={IconSize.XL}
-      />
-    </Container>
-  );
+  if (
+    !(
+      selectedTab === DEBUGGER_TAB_KEYS.RESPONSE_TAB ||
+      selectedTab === DEBUGGER_TAB_KEYS.HEADER_TAB
+    )
+  ) {
+    return (
+      <Container
+        className="t--debugger-tabs-container"
+        onClick={stopEventPropagation}
+        ref={panelRef}
+      >
+        <Resizer
+          initialHeight={responsePaneHeight}
+          onResizeComplete={(height: number) => {
+            updateResponsePaneHeight(height);
+          }}
+          panelRef={panelRef}
+          snapToHeight={ActionExecutionResizerHeight}
+        />
+        <EntityBottomTabs
+          expandedHeight={`${ActionExecutionResizerHeight}px`}
+          onSelect={setSelectedTab}
+          selectedTabKey={selectedTab}
+          tabs={DEBUGGER_TABS}
+        />
+        <Icon
+          className="close-debugger t--close-debugger"
+          name="close-modal"
+          onClick={onClose}
+          size={IconSize.XL}
+        />
+      </Container>
+    );
+  } else {
+    return null;
+  }
 }
 
 export default DebuggerTabs;

@@ -127,32 +127,41 @@ export default function Debugger() {
   //TODO: move this to a common place
   const onClose = () => dispatch(showDebugger(false));
 
-  return (
-    <TabbedViewContainer
-      className="t--datasource-bottom-pane-container"
-      ref={panelRef}
-    >
-      <Resizable
-        initialHeight={responsePaneHeight}
-        onResizeComplete={(height: number) => setResponsePaneHeightFn(height)}
-        openResizer={false}
-        panelRef={panelRef}
-        snapToHeight={ActionExecutionResizerHeight}
-      />
+  if (
+    !(
+      selectedResponseTab === DEBUGGER_TAB_KEYS.RESPONSE_TAB ||
+      selectedResponseTab === DEBUGGER_TAB_KEYS.HEADER_TAB
+    )
+  ) {
+    return (
+      <TabbedViewContainer
+        className="t--datasource-bottom-pane-container"
+        ref={panelRef}
+      >
+        <Resizable
+          initialHeight={responsePaneHeight}
+          onResizeComplete={(height: number) => setResponsePaneHeightFn(height)}
+          openResizer={false}
+          panelRef={panelRef}
+          snapToHeight={ActionExecutionResizerHeight}
+        />
 
-      <EntityBottomTabs
-        expandedHeight={`${ActionExecutionResizerHeight}px`}
-        onSelect={setSelectedResponseTab}
-        selectedTabKey={selectedResponseTab}
-        tabs={DEBUGGER_TABS}
-      />
+        <EntityBottomTabs
+          expandedHeight={`${ActionExecutionResizerHeight}px`}
+          onSelect={setSelectedResponseTab}
+          selectedTabKey={selectedResponseTab}
+          tabs={DEBUGGER_TABS}
+        />
 
-      <Icon
-        className="close-debugger t--close-debugger"
-        name="close-modal"
-        onClick={onClose}
-        size={IconSize.XL}
-      />
-    </TabbedViewContainer>
-  );
+        <Icon
+          className="close-debugger t--close-debugger"
+          name="close-modal"
+          onClick={onClose}
+          size={IconSize.XL}
+        />
+      </TabbedViewContainer>
+    );
+  } else {
+    return null;
+  }
 }
