@@ -35,7 +35,7 @@ export const EntityAddButton = (props: {
           isIconButton
           kind="tertiary"
           onClick={handleClick}
-          startIcon="increase-control-v2"
+          startIcon="plus"
         />
       </Wrapper>
     );
