@@ -15,6 +15,7 @@ import PrimaryCTA from "../PrimaryCTA";
 import { useHref } from "pages/Editor/utils";
 import { builderURL } from "RouteBuilder";
 import {
+  getCurrentPageDescription,
   getCurrentPageId,
   previewModeSelector,
 } from "selectors/editorSelectors";
@@ -37,6 +38,7 @@ import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettings
 import NavigationLogo from "@appsmith/pages/AppViewer/NavigationLogo";
 import MenuItemContainer from "./components/MenuItemContainer";
 import BackToAppsButton from "./components/BackToAppsButton";
+import HtmlTitle from "../AppViewerHtmlTitle";
 
 type SidebarProps = {
   currentApplicationDetails?: ApplicationPayload;
@@ -86,6 +88,7 @@ export function Sidebar(props: SidebarProps) {
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
+  const pageDescription = useSelector(getCurrentPageDescription);
 
   useEffect(() => {
     setQuery(window.location.search);
@@ -151,6 +154,10 @@ export function Sidebar(props: SidebarProps) {
       primaryColor={primaryColor}
       sidebarHeight={calculateSidebarHeight()}
     >
+      <HtmlTitle
+        description={pageDescription}
+        name={currentApplicationDetails?.name}
+      />
       <StyledHeader>
         <div className="flex flex-col gap-5">
           <NavigationLogo logoConfiguration={logoConfiguration} />
