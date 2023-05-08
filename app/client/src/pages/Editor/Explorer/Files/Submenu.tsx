@@ -30,6 +30,7 @@ import {
   MenuTrigger,
   Tooltip,
   SearchInput,
+  Text,
 } from "design-system";
 
 const SubMenuContainer = styled.div`
@@ -137,10 +138,10 @@ export default function ExplorerSubMenu({
         style={{ maxHeight: "unset" }}
       >
         <SubMenuContainer
-          className={`bg-white overflow-y-auto overflow-x-hidden flex flex-col justify-start delay-150 transition-all ${EntityClassNames.CONTEXT_MENU_CONTENT}`}
+          className={`overflow-y-auto overflow-x-hidden flex flex-col justify-start delay-150 transition-all ${EntityClassNames.CONTEXT_MENU_CONTENT}`}
         >
-          <div className="px-2 py-2 text-sm font-medium text-gray">
-            Create New
+          <div className="px-2 py-2">
+            <Text kind="heading-xs">Create new</Text>
           </div>
           <SearchInput
             onChange={onChange}
