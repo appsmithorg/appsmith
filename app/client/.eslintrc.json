@@ -2,7 +2,14 @@
 {
   "root": true,
   "parser": "@typescript-eslint/parser",
-  "plugins": ["react", "@typescript-eslint", "prettier", "react-hooks","sort-destructure-keys", "cypress"],
+  "plugins": [
+    "react",
+    "@typescript-eslint",
+    "prettier",
+    "react-hooks",
+    "sort-destructure-keys",
+    "cypress"
+  ],
   "extends": [
     "plugin:react/recommended", // Uses the recommended rules from @eslint-plugin-react
     "plugin:@typescript-eslint/recommended",
@@ -38,9 +45,14 @@
     "react/jsx-sort-props": "error",
     "react/jsx-fragments": "error",
     "react/jsx-no-useless-fragment": "error",
-    "sort-destructure-keys/sort-destructure-keys": ["error", {"caseSensitive": false}],
+    "sort-destructure-keys/sort-destructure-keys": [
+      "error",
+      { "caseSensitive": false }
+    ],
     "no-console": "warn",
-    "no-debugger": "warn"
+    "no-debugger": "warn",
+    "cypress/unsafe-to-chain-command": "off",
+    "@typescript-eslint/adjacent-overload-signatures": "off"
   },
   "settings": {
     "import/resolver": {
