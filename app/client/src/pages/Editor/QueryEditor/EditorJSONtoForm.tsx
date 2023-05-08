@@ -783,9 +783,6 @@ export function EditorJSONtoForm(props: Props) {
             selectedTabIndex !== -1 && (
               <SegmentedControlContainer>
                 <SegmentedControl
-                  //   selectedTabKey={responseDisplayFormat.value}
-                  //  TODO (albin): Even for when the default value is set, onResponseBodyTab needs to be called.
-                  //   To fix this issue in one go, this component needs to be controlled.
                   defaultValue={segmentedControlOptions[0]?.value}
                   isFullWidth={false}
                   onChange={(value) => {
@@ -793,9 +790,10 @@ export function EditorJSONtoForm(props: Props) {
                     onResponseTabSelect(value);
                   }}
                   options={segmentedControlOptions}
+                  value={selectedControl}
                 />
                 {responseTabComponent(
-                  selectedControl,
+                  selectedControl || segmentedControlOptions[0]?.value,
                   output,
                   responsePaneHeight,
                 )}
