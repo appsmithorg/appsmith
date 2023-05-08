@@ -23,20 +23,28 @@ import { saveAllPagesSaga } from "./PageSagas";
 import { updateApplicationLayout } from "@appsmith/actions/applicationActions";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 /**
  * This method is used to convert from Auto layout to Fixed layout
  * @param action
  */
 function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
+  let appId = "";
   let snapshotSaveSuccess = false;
   try {
+    appId = yield select(getCurrentApplicationId);
     const pageWidgetsList: PageWidgetsReduxState = yield select(getPageWidgets);
 
-    if (getShouldSaveSnapShot(pageWidgetsList)) {
+    const notEmptyApp = isNotEmptyApp(pageWidgetsList);
+
+    if (notEmptyApp) {
       yield call(createSnapshotSaga);
     }
 
+    AnalyticsUtil.logEvent("CONVERT_AUTO_TO_FIXED", {
+      isNewApp: !notEmptyApp,
+    });
     snapshotSaveSuccess = true;
 
     //Set conversion form to indicated conversion loading state
@@ -77,19 +85,30 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_SUCCESS),
     );
-  } catch (e) {
-    log.error(e);
+  } catch (e: any) {
+    let error: Error = e;
+    if (error) {
+      error.message = `Layout Conversion Error - while Converting from Auto to Fixed Layout: ${error.message}`;
+    } else {
+      error = new Error(
+        "Layout Conversion Error - while Converting from Auto to Fixed Layout",
+      );
+    }
+
+    log.error(error);
 
     if (snapshotSaveSuccess) {
       yield call(deleteApplicationSnapshotSaga);
     }
     //update conversion form state to error
     yield put(
-      setLayoutConversionStateAction(
-        CONVERSION_STATES.COMPLETED_ERROR,
-        e as Error,
-      ),
+      setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_ERROR, error),
     );
+
+    AnalyticsUtil.logEvent("CONVERSION_FAILURE", {
+      flow: "CONVERT_AUTO_TO_FIXED",
+      appId,
+    });
   }
 }
 
@@ -98,14 +117,22 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
  * @param action
  */
 function* convertFromFixedToAutoSaga() {
+  let appId = "";
   let snapshotSaveSuccess = false;
   try {
+    appId = yield select(getCurrentApplicationId);
     const pageWidgetsList: PageWidgetsReduxState = yield select(getPageWidgets);
 
-    if (getShouldSaveSnapShot(pageWidgetsList)) {
+    const notEmptyApp = isNotEmptyApp(pageWidgetsList);
+
+    if (notEmptyApp) {
       yield call(createSnapshotSaga);
     }
 
+    AnalyticsUtil.logEvent("CONVERT_FIXED_TO_AUTO", {
+      isNewApp: !notEmptyApp,
+      appId,
+    });
     snapshotSaveSuccess = true;
 
     yield put(
@@ -139,18 +166,29 @@ function* convertFromFixedToAutoSaga() {
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_SUCCESS),
     );
-  } catch (e) {
-    log.error(e);
+  } catch (e: any) {
+    let error: Error = e;
+    if (error) {
+      error.message = `Layout Conversion Error - while Converting from Fixed to Auto Layout: ${error.message}`;
+    } else {
+      error = new Error(
+        "Layout Conversion Error - while Converting from Fixed to Auto Layout",
+      );
+    }
+
+    log.error(error);
     //update conversion form state to error
     if (snapshotSaveSuccess) {
       yield call(deleteApplicationSnapshotSaga);
     }
     yield put(
-      setLayoutConversionStateAction(
-        CONVERSION_STATES.COMPLETED_ERROR,
-        e as Error,
-      ),
+      setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_ERROR, error),
     );
+
+    AnalyticsUtil.logEvent("CONVERSION_FAILURE", {
+      flow: "CONVERT_FIXED_TO_AUTO",
+      appId,
+    });
   }
 }
 
@@ -206,7 +244,7 @@ export default function* layoutConversionSagas() {
 }
 
 //Function returns boolean, SnapShot should not be saved for a single empty canvas
-function getShouldSaveSnapShot(pageWidgetsList: PageWidgetsReduxState) {
+function isNotEmptyApp(pageWidgetsList: PageWidgetsReduxState) {
   const pageList = Object.values(pageWidgetsList);
 
   if (pageList.length !== 1) return true;
