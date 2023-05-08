@@ -27,10 +27,7 @@ import {
   JSONtoForm,
   PluginImage,
 } from "../DataSourceEditor/JSONtoForm";
-import {
-  getConfigInitialValues,
-  normalizeValues,
-} from "components/formControls/utils";
+import { normalizeValues } from "components/formControls/utils";
 import {
   getCurrentApplicationId,
   getGsheetProjectID,
@@ -67,7 +64,6 @@ import {
   GSHEET_AUTHORIZATION_ERROR,
   SAVE_AND_AUTHORIZE_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 import { getDatasourceErrorMessage } from "./errorUtils";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { DocumentationLink } from "../QueryEditor/EditorJSONtoForm";
@@ -281,7 +277,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       datasourceButtonConfiguration,
       datasourceId,
       documentationLink,
-      featureFlags,
       formConfig,
       formData,
       gsheetProjectID,
@@ -384,9 +379,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
             <>
               {/* This adds information banner when creating google sheets datasource,
               this info banner explains why appsmith requires permissions from users google account */}
-              {!!featureFlags &&
-              !!featureFlags?.LIMITING_GOOGLE_SHEET_ACCESS &&
-              datasource &&
+              {datasource &&
               isGoogleSheetPlugin &&
               datasource?.id === TEMP_DATASOURCE_ID ? (
                 <AuthMessage
@@ -494,10 +487,14 @@ const mapStateToProps = (state: AppState, props: any) => {
   const plugin = getPlugin(state, pluginId);
   const formConfig = formConfigs[pluginId];
   const initialValues = {};
-  if (formConfig) {
-    merge(initialValues, getConfigInitialValues(formConfig));
+  if (!!datasource) {
+    merge(initialValues, datasource);
   }
-  merge(initialValues, datasource);
+  // We have to also merge the current formValue state here since we don't directly mutate the datasource when a form field changes
+  // Hence, the updated values are in the redux-form state and hence have to be merged to the initial values in the case of a re-render
+  if (formData) {
+    merge(initialValues, formData);
+  }
 
   const datasourceButtonConfiguration = getDatasourceFormButtonConfig(
     state,
@@ -552,7 +549,6 @@ const mapStateToProps = (state: AppState, props: any) => {
       state.entities.datasources.isDatasourceBeingSavedFromPopup,
     isFormDirty,
     canCreateDatasourceActions,
-    featureFlags: selectFeatureFlags(state),
     gsheetToken,
     gsheetProjectID,
   };

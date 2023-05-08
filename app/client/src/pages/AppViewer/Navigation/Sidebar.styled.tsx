@@ -43,12 +43,12 @@ export const StyledMenuContainer = styled.div<{
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
 }>`
-  margin: 16px 0 0 0;
+  margin: 20px 0 0 0;
   display: flex;
   flex-direction: column;
   gap: 4px;
   overflow-y: auto;
-  padding: 0 8px;
+  padding: 0 16px 12px;
   flex-grow: 1;
   padding-bottom: 12px;
 
@@ -107,7 +107,7 @@ export const StyledCtaContainer = styled.div`
 `;
 
 export const StyledHeader = styled.div`
-  padding: 16px 8px 0px;
+  padding: 20px 20px 0px;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
