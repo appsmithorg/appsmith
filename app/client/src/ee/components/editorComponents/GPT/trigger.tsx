@@ -26,7 +26,7 @@ export function GPTTrigger() {
   const featureFlags = useSelector(selectFeatureFlags);
   let hide =
     !["jsEditor", "canvas", "queryEditor"].includes(pageType || "") ||
-    !featureFlags.CHAT_AI;
+    !featureFlags.ask_ai;
   const windowOpen = useSelector(selectIsAIWindowOpen);
   if (pageType === "queryEditor") {
     const action = actions.find((action) => action.config.id === id);

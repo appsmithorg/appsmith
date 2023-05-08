@@ -36,5 +36,5 @@ public enum FeatureFlagEnum {
 
     // Add EE flags below this line, to avoid conflicts.
     RBAC,
-    CHAT_AI,
+    ask_ai,
 }

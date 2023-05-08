@@ -108,7 +108,7 @@ ff4j:
           - name: emails
             value: balaji@appsmith.com,vamsi@appsmith.com
 
-    - uid: CHAT_AI
+    - uid: ask_ai
       enable: true
       description: Enable code generation using OpenAI
       flipstrategy:
