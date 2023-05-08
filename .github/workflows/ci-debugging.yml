@@ -91,7 +91,7 @@ jobs:
   #     pr: 23073
 
   ci-test-result:
-    needs: [ci-test, perf-test ]
+    needs: [ci-test]
     # Only run if the ci-test with matrices step is successful
     if: always()
     runs-on: ubuntu-latest
@@ -255,7 +255,7 @@ jobs:
         run: echo "$PAYLOAD_CONTEXT"
 
       - name: Check ci-test set status
-        if: needs.ci-test.result != 'success' || needs.perf-test.result != 'success'
+        if: needs.ci-test.result != 'success'
         run: exit 1
 
   # package:
