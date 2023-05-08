@@ -19,7 +19,6 @@ import {
   previewModeSelector,
 } from "selectors/editorSelectors";
 import type { User } from "constants/userConstants";
-import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import SidebarProfileComponent from "./components/SidebarProfileComponent";
 import CollapseButton from "./components/CollapseButton";
 import classNames from "classnames";
@@ -35,8 +34,9 @@ import {
 } from "./Sidebar.styled";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
-import BackToHomeButton from "@appsmith/pages/AppViewer/BackToHomeButton";
+import NavigationLogo from "@appsmith/pages/AppViewer/NavigationLogo";
 import MenuItemContainer from "./components/MenuItemContainer";
+import BackToAppsButton from "./components/BackToAppsButton";
 
 type SidebarProps = {
   currentApplicationDetails?: ApplicationPayload;
@@ -58,6 +58,10 @@ export function Sidebar(props: SidebarProps) {
   const isMinimal =
     currentApplicationDetails?.applicationDetail?.navigationSetting
       ?.navStyle === NAVIGATION_SETTINGS.NAV_STYLE.MINIMAL;
+  const logoConfiguration =
+    currentApplicationDetails?.applicationDetail?.navigationSetting
+      ?.logoConfiguration ||
+    NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE;
   const primaryColor = get(
     selectedTheme,
     "properties.colors.primaryColor",
@@ -82,7 +86,6 @@ export function Sidebar(props: SidebarProps) {
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
-  const [isLogoVisible, setIsLogoVisible] = useState(false);
 
   useEffect(() => {
     setQuery(window.location.search);
@@ -127,7 +130,8 @@ export function Sidebar(props: SidebarProps) {
     if (isPreviewMode) {
       prefix += theme.smallHeaderHeight;
     } else if (isAppSettingsPaneWithNavigationTabOpen) {
-      prefix += `${theme.smallHeaderHeight} - ${theme.bottomBarHeight}`;
+      // We deduct 64px as well since it is the margin coming from "m-8" class from tailwind
+      prefix += `${theme.smallHeaderHeight} - ${theme.bottomBarHeight} - 64px`;
     } else {
       prefix += "0px";
     }
@@ -148,31 +152,24 @@ export function Sidebar(props: SidebarProps) {
       sidebarHeight={calculateSidebarHeight()}
     >
       <StyledHeader>
-        <div
-          className={classNames({
-            flex: true,
-            "flex-col": isLogoVisible,
-          })}
-        >
-          {currentUser?.username !== ANONYMOUS_USERNAME && (
-            <BackToHomeButton
-              forSidebar
-              isLogoVisible={isLogoVisible}
-              navColorStyle={navColorStyle}
-              primaryColor={primaryColor}
-              setIsLogoVisible={setIsLogoVisible}
-            />
-          )}
+        <div className="flex flex-col gap-5">
+          <NavigationLogo logoConfiguration={logoConfiguration} />
 
-          {!isMinimal && (
-            <ApplicationName
-              appName={currentApplicationDetails?.name}
-              forSidebar
-              navColorStyle={navColorStyle}
-              navStyle={navStyle}
-              primaryColor={primaryColor}
-            />
-          )}
+          {!isMinimal &&
+            (logoConfiguration ===
+              NAVIGATION_SETTINGS.LOGO_CONFIGURATION
+                .LOGO_AND_APPLICATION_TITLE ||
+              logoConfiguration ===
+                NAVIGATION_SETTINGS.LOGO_CONFIGURATION
+                  .APPLICATION_TITLE_ONLY) && (
+              <ApplicationName
+                appName={currentApplicationDetails?.name}
+                forSidebar
+                navColorStyle={navColorStyle}
+                navStyle={navStyle}
+                primaryColor={primaryColor}
+              />
+            )}
         </div>
 
         {!isMinimal && (
@@ -230,6 +227,12 @@ export function Sidebar(props: SidebarProps) {
               navColorStyle={navColorStyle}
               primaryColor={primaryColor}
               url={editorURL}
+            />
+
+            <BackToAppsButton
+              currentApplicationDetails={currentApplicationDetails}
+              insideSidebar
+              isMinimal={isMinimal}
             />
           </StyledCtaContainer>
         )}
