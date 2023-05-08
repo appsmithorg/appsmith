@@ -25,7 +25,11 @@ import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { getEntityCollapsibleState } from "selectors/editorContextSelectors";
 import type { AppState } from "@appsmith/reducers";
 import { setEntityCollapsibleState } from "actions/editorContextActions";
-import { Tooltip, Icon } from "design-system";
+import { Tooltip, Tag, Spinner } from "design-system";
+import {
+  createMessage,
+  EXPLORER_BETA_ENTITY,
+} from "@appsmith/constants/messages";
 
 export enum EntityClassNames {
   CONTEXT_MENU = "entity-context-menu",
@@ -94,12 +98,12 @@ export const EntityItem = styled.div<{
     props.active
       ? `var(--ads-v2-color-bg-muted)`
       : props.isSticky
-      ? Colors.WHITE
+      ? "var(--ads-v2-color-bg)"
       : "none"};
   height: 36px;
   width: 100%;
   display: inline-grid;
-  grid-template-columns: 20px auto 1fr auto auto auto auto;
+  grid-template-columns: 20px auto 1fr auto auto auto auto auto;
   grid-auto-flow: column dense;
   border-radius: var(--ads-v2-border-radius);
   color: var(--ads-v2-color-fg);
@@ -208,6 +212,10 @@ const IconWrapper = styled.span`
 export const AddButtonWrapper = styled.div`
   height: 100%;
   width: 100%;
+`;
+
+const SubItemWrapper = styled.div`
+  margin-right: 4px;
 `;
 
 export type EntityProps = {
@@ -390,9 +398,16 @@ export const Entity = forwardRef(
               updateEntityName={updateNameCallback}
             />
             {isUpdating && (
-              <IconWrapper>
-                <Icon name="loader-line" />
-              </IconWrapper>
+              <SubItemWrapper>
+                <Spinner />
+              </SubItemWrapper>
+            )}
+            {props.isBeta && (
+              <SubItemWrapper>
+                <Tag isClosable={false}>
+                  {createMessage(EXPLORER_BETA_ENTITY)}
+                </Tag>
+              </SubItemWrapper>
             )}
             {props.preRightIcon && (
               <IconWrapper

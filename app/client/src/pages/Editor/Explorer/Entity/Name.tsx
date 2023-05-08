@@ -8,7 +8,6 @@ import styled from "styled-components";
 import { isEllipsisActive, removeSpecialChars } from "utils/helpers";
 
 import { TOOLTIP_HOVER_ON_DELAY_IN_S } from "constants/AppConstants";
-import { ReactComponent as BetaIcon } from "assets/icons/menu/beta.svg";
 import NameEditorComponent from "components/utils/NameEditorComponent";
 import { ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR } from "@appsmith/constants/messages";
 import { Tooltip } from "design-system";
@@ -143,7 +142,6 @@ export const EntityName = React.memo(
               ref={nameWrapperRef}
             >
               {searchHighlightedName}
-              {props.isBeta ? <BetaIcon className="beta-icon" /> : ""}
             </Wrapper>
           </Tooltip>
         </Container>

@@ -8,13 +8,11 @@ import { Collapse } from "@blueprintjs/core";
 import { CurrentValueViewer } from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import useClipboard from "utils/hooks/useClipboard";
-// import { Colors } from "constants/Colors";
 import { Skin } from "constants/DefaultTheme";
 import { EntityClassNames } from ".";
 import { Tooltip, Icon } from "design-system";
 import { COPY_ELEMENT, createMessage } from "@appsmith/constants/messages";
 import CollapseToggle from "./CollapseToggle";
-// import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Wrapper = styled.div<{ step: number }>`
