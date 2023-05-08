@@ -3,6 +3,13 @@ name: Sync Community workflow
 
 on:
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Dry Run
+        type: boolean
+        required: false
+        default: false
+
   schedule:
     - cron: "0 * * * *"
 
@@ -11,60 +18,141 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
-          persist-credentials: false
           ref: release
           fetch-depth: 0
           token: ${{ secrets.PAT_GITHUB }}
 
-      # This step pulls the merges the latest release branch from the Appsmith CE into EE repository
-      - name: Sync release branch from community repo
-        id: merge_step
+      - name: Pull from CE release
+        id: merge
         run: |
-          git remote add community https://github.com/appsmithorg/appsmith.git
+          set -o errexit
+          set -o nounset
+          set -o xtrace
+
+          output-var() {
+            local eof="$(dd if=/dev/urandom bs=15 count=1 status=none | base64)"
+            echo "$1<<$eof"
+            echo "$2"
+            echo "$eof"
+          } >> "$GITHUB_OUTPUT"
+
           git config user.email "automated@github.com"
           git config user.name "Automated Github Action"
-          git config pull.rebase false
-          if ! git pull community release --no-edit; then
-            conflict_files="$(git status --short | awk '$1 == "UU" {print $2}')"
-            if [[ "$conflict_files" == ".github/config.json" ]]; then
-              // The `:3:` gets the file from CE here. See <https://git-scm.com/docs/gitrevisions#Documentation/gitrevisions.txt-emltngtltpathgtemegem0READMEememREADMEem>.
-              git show :3:.github/config.json > .github/config.json
-              git add .github/config.json
-              git commit -m 'Merge CE, conflict in config.json'
-            else
-              {
-                EOF="$(dd if=/dev/urandom bs=15 count=1 status=none | base64)"
-                echo "conflicts<<$EOF"
-                echo "$conflict_files" | sort | cat -n
-                echo "$EOF"
-              } >> "$GITHUB_OUTPUT"
-              exit 1
+
+          git remote add community https://github.com/appsmithorg/appsmith.git
+          git fetch community release
+
+          last_common_ancestor="$(git merge-base origin/release community/release)"  # Commit SHA of the last common ancestor.
+          echo "Last common ancestor commit at '$last_common_ancestor':"
+          echo "    https://github.com/appsmithorg/appsmith/commit/$last_common_ancestor"
+          echo "    https://github.com/appsmithorg/appsmith-ee/commit/$last_common_ancestor"
+          output-var common_parent_sha "$last_common_ancestor"
+
+          commits_to_pull_from_ce="$(git log --format=%H "$last_common_ancestor"...community/release)"
+          echo "List of commits to pull from CE:"
+          echo "$commits_to_pull_from_ce" | sed 's/^/    /'
+          output-var commits_list "$commits_to_pull_from_ce"
+
+          merge_head="$(git rev-parse community/release)"
+          echo "CE release is at '$merge_head' (this should match with the first item in the above list)"
+
+          try-merge() {
+            if ! git merge "$1" --no-edit; then
+              CONFLICT_FILES="$(git status --short | awk '$1 == "UU" {print $2}')"
+              if [[ "$CONFLICT_FILES" == ".github/config.json" ]]; then
+                # The `:3:` gets the file from CE here. See <https://git-scm.com/docs/gitrevisions#Documentation/gitrevisions.txt-emltngtltpathgtemegem0READMEememREADMEem>.
+                git show :3:.github/config.json > .github/config.json
+                git add .github/config.json
+                git commit -m 'Merge CE, conflict in config.json'
+              else
+                return 1
+              fi
             fi
+          }
+
+          merge_success_at=''
+          full_conflicts_summary=''
+
+          for commit in $commits_to_pull_from_ce; do
+            echo "Trying to merge upto '$commit'"
+            if try-merge "$commit"; then
+              echo "Merged successfully upto '$commit'"
+              merge_success_at="$commit"
+              ouptup-var merged_upto_sha "$commit"
+              break
+            else
+              if [[ -z "$full_conflicts_summary" ]]; then
+                full_conflicts_summary="$(echo "$CONFLICT_FILES" | sort | cat -n)"
+                output-var conflicts "$full_conflicts_summary"
+              fi
+              echo "Merge failed at '$commit', aborting."
+              git merge --abort
+            fi
+          done
+
+          echo "Pushing synced changes, if any"
+          git remote set-url origin 'https://${{ github.actor }}:${{ secrets.PAT_GITHUB }}@github.com/${{ github.repository }}.git'
+          git config --local --add safe.directory "${{ github.workspace }}"
+
+          declare -a push_args
+          if [[ '${{ inputs.dry_run }}' == true ]]; then
+            push_args+=(--dry-run)
+          fi
+          git push "${push_args[@]}" origin release
+
+          if [[ "$merge_head" != "$merge_success_at" ]]; then
+            if [[ -n "$merge_success_at" ]]; then
+              echo "Merged commits upto '$merge_success_at'."
+            fi
+            exit 1
           fi
 
-      - name: Push changes to the release branch
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.PAT_GITHUB }}
-          branch: release
-
-      - name: Notify Slack if sync workflow fails
+      - name: Notify failure on workflow run and on Slack
         if: failure()
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_WEBHOOK: ${{ secrets.APPSMITH_SLACK_WEBHOOK }}
-          SLACK_CHANNEL: team-tech
-          SLACK_COLOR: ${{ job.status }} # or a specific color like 'good' or '#ff00ff'
-          SLACK_ICON: https://github.com/appsmithorg/appsmith-ce/app/client/public/favicon-orange.ico
-          SLACK_TITLE: Sync Workflow failed on EE repo
-          SLACK_MESSAGE: |
-            :alert: The sync workflow has failed to merge code from the release branch of CE repository
-            to the release branch of EE repository. Please check
-            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-            for details. Conflicts found in:
-            ```
-            ${{ steps.merge_step.outputs.conflicts }}
-            ```
-          SLACK_USERNAME: appsmith-bot
+        run: |
+          set -o nounset
+          set -o xtrace
+
+          run_url='${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+          common_parent_sha='${{ steps.merge.outputs.common_parent_sha }}'
+          common_parent_sha_short="$(echo "$common_parent_sha" | grep -o '^.\{8\}' || true)"
+          merged_upto_sha='${{ steps.merge.outputs.merged_upto_sha }}'
+          merged_upto_sha_short="$(echo "$merged_upto_sha" | grep -o '^.\{8\}' || true)"
+
+          details="🚨 EE code sync failed in <$run_url|${{ github.run_id }}>. Conflicts in:
+          \`\`\`
+          ${{ steps.merge.outputs.conflicts }}
+          \`\`\`
+
+          Common parent at $common_parent_sha_short, [view on CE](https://github.com/appsmithorg/appsmith/commit/$common_parent_sha), [view on EE](https://github.com/appsmithorg/appsmith-ee/commit/$common_parent_sha).
+          $(
+            if [[ -z "$merged_upto_sha" ]]; then
+              echo "Couldn't sync anything."
+            else
+              echo "Merged upto $merged_upto_sha_short, [view on CE](https://github.com/appsmithorg/appsmith/commit/$merged_upto_sha), [view on EE](https://github.com/appsmithorg/appsmith-ee/commit/$merged_upto_sha)."
+            fi
+          )
+          List of commits tried to pull:
+          $(
+            echo "${{ steps.merge.outputs.commits_list }}" | sed 's,.\+,    [\0](https://github.com/appsmithorg/appsmith/commit/\0),'
+          )
+          "
+
+          echo "$details" >> "$GITHUB_STEP_SUMMARY"
+
+          # This unweildy horror of a sed command, converts standard Markdown links to Slack's unweildy link syntax.
+          slack_message="$(echo "$details" | sed -E 's/\[([^]]+)\]\(([^)]+)\)/<\2|\1>/g')"
+
+          # This is the ChannelId of the tech channel.
+          body="$(jq -nc \
+            --arg channel CGBPVEJ5C \
+            --arg text "$slack_message" \
+            '$ARGS.named'
+          )"
+
+          curl https://slack.com/api/chat.postMessage \
+            --header 'Authorization: Bearer {{ secrets.SLACK_APPSMITH_ALERTS_TOKEN }}' \
+            --header 'Content-Type: application/json; charset=utf-8' \
+            --data-raw "$body"
