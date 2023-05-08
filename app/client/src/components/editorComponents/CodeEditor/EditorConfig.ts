@@ -94,7 +94,7 @@ export const sqlModesConfig: SqlModeConfig = {
   },
 };
 
-export const pluginNameToMIME: Record<string, ValueOf<typeof EditorModes>> = {
+export const pluginNameToMIME: Record<string, TEditorModes> = {
   PostgreSQL: EditorModes.POSTGRESQL_WITH_BINDING,
   MySQL: EditorModes.MYSQL_WITH_BINDING,
   "Microsoft SQL Server": EditorModes.MSSQL_WITH_BINDING,
@@ -122,7 +122,7 @@ export enum EditorSize {
 
 export type EditorConfig = {
   theme: EditorTheme;
-  mode: ValueOf<typeof EditorModes>;
+  mode: TEditorModes;
   tabBehaviour: TabBehaviour;
   size: EditorSize;
   hinting: Array<HintHelper>;
