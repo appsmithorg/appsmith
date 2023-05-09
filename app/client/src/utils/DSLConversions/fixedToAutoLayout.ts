@@ -3,7 +3,7 @@ import {
   layoutConfigurations,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { partition } from "lodash";
+import { get, partition } from "lodash";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
 import { alterLayoutForDesktop } from "utils/autoLayout/AutoLayoutUtils";
@@ -825,10 +825,8 @@ function verifyDynamicPathBindingList(
   const dynamicBindingPathList: DynamicPath[] = [];
   for (const dynamicBindingPath of widget.dynamicBindingPathList) {
     //if the values are not dynamic, remove from the dynamic binding path list
-    if (
-      !widget[dynamicBindingPath.key] ||
-      !isDynamicValue(widget[dynamicBindingPath.key])
-    ) {
+    const dynamicValue = get(widget, dynamicBindingPath.key);
+    if (!dynamicValue || !isDynamicValue(dynamicValue)) {
       continue;
     }
 
