@@ -20,6 +20,7 @@ import EditableAppName from "./EditableAppName";
 import { GetNavigationMenuData } from "./NavigationMenuData";
 import { NavigationMenu } from "./NavigationMenu";
 import type { Theme } from "constants/DefaultTheme";
+import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
 
 type EditorAppNameProps = CommonComponentProps & {
   applicationId: string | undefined;
@@ -145,6 +146,8 @@ export function EditorAppName(props: EditorAppNameProps) {
   const [savingState, setSavingState] = useState<SavingState>(
     SavingState.NOT_STARTED,
   );
+  const [isForkApplicationModalopen, setForkApplicationModalOpen] =
+    useState(false);
 
   const onBlur = (value: string) => {
     if (props.onBlur) props.onBlur(value);
@@ -189,6 +192,7 @@ export function EditorAppName(props: EditorAppNameProps) {
   const NavigationMenuData = GetNavigationMenuData({
     editMode,
     theme,
+    setForkApplicationModalOpen,
   });
 
   const NavigationMenuItems = (
@@ -201,44 +205,51 @@ export function EditorAppName(props: EditorAppNameProps) {
   );
 
   return defaultValue !== "" ? (
-    <Popover2
-      autoFocus={false}
-      content={NavigationMenuItems}
-      isOpen={isPopoverOpen}
-      minimal
-      onInteraction={handleOnInteraction}
-      portalClassName="t--editor-appname-menu-portal"
-      position={Position.BOTTOM_RIGHT}
-    >
-      <Container isPopoverOpen={isPopoverOpen} onClick={handleAppNameClick}>
-        <EditableAppName
-          className={props.className}
-          defaultSavingState={defaultSavingState}
-          defaultValue={defaultValue}
-          editInteractionKind={props.editInteractionKind}
-          fill={props.fill}
-          hideEditIcon
-          inputValidation={inputValidation}
-          isEditing={isEditing}
-          isEditingDefault={isEditingDefault}
-          isError={props.isError}
-          isInvalid={isInvalid}
-          onBlur={onBlur}
-          placeholder={props.placeholder}
-          savingState={savingState}
-          setIsEditing={setIsEditing}
-          setIsInvalid={setIsInvalid}
-          setSavingState={setSavingState}
-        />
-        {!isEditing && (
-          <StyledIcon
-            fillColor={theme.colors.navigationMenu.contentActive}
-            name={isPopoverOpen ? "expand-less" : "down-arrow"}
-            size={IconSize.LARGE}
+    <>
+      <Popover2
+        autoFocus={false}
+        content={NavigationMenuItems}
+        isOpen={isPopoverOpen}
+        minimal
+        onInteraction={handleOnInteraction}
+        portalClassName="t--editor-appname-menu-portal"
+        position={Position.BOTTOM_RIGHT}
+      >
+        <Container isPopoverOpen={isPopoverOpen} onClick={handleAppNameClick}>
+          <EditableAppName
+            className={props.className}
+            defaultSavingState={defaultSavingState}
+            defaultValue={defaultValue}
+            editInteractionKind={props.editInteractionKind}
+            fill={props.fill}
+            hideEditIcon
+            inputValidation={inputValidation}
+            isEditing={isEditing}
+            isEditingDefault={isEditingDefault}
+            isError={props.isError}
+            isInvalid={isInvalid}
+            onBlur={onBlur}
+            placeholder={props.placeholder}
+            savingState={savingState}
+            setIsEditing={setIsEditing}
+            setIsInvalid={setIsInvalid}
+            setSavingState={setSavingState}
           />
-        )}
-      </Container>
-    </Popover2>
+          {!isEditing && (
+            <StyledIcon
+              fillColor={theme.colors.navigationMenu.contentActive}
+              name={isPopoverOpen ? "expand-less" : "down-arrow"}
+              size={IconSize.LARGE}
+            />
+          )}
+        </Container>
+      </Popover2>
+      <ForkApplicationModal
+        applicationId={props.applicationId || ""}
+        isModalOpen={isForkApplicationModalopen}
+        setModalClose={setForkApplicationModalOpen}
+      />
+    </>
   ) : null;
 }
 
