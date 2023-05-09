@@ -5,7 +5,14 @@ import {
   isTrueObject,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { useEffect, useMemo, useRef } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router";
 import { createSelector } from "reselect";
@@ -26,6 +33,7 @@ export type TAssistantPrompt = {
   messageId: string;
   liked?: boolean;
   task: GPTTask;
+  query: string;
 };
 
 export type TErrorPrompt = {
@@ -40,7 +48,6 @@ export type TChatGPTContext = Record<string, unknown>;
 
 export enum GPTTask {
   JS_EXPRESSION = "JS_EXPR",
-  JS_FUNCTION = "JS_FUNC",
   SQL_QUERY = "SQL",
   REFACTOR_CODE = "REFACTOR_CODE",
 }
@@ -48,12 +55,12 @@ export enum GPTTask {
 export const GPT_JS_EXPRESSION = {
   id: GPTTask.JS_EXPRESSION,
   desc: "Generate a JS expression that transforms your query/API data",
-  title: "JS expression",
+  title: "Generate JS Code",
 };
 
 export const GPT_SQL_QUERY = {
   id: GPTTask.SQL_QUERY,
-  title: "SQL query",
+  title: "Generate SQL query",
   desc: "Generate a SQL query",
 };
 
@@ -183,8 +190,12 @@ export const selectEvaluatedResult = (messageId: string) => (state: AppState) =>
 
 export const selectGPTMessages = (state: AppState) => state.ai.messages;
 
+export const selectIsAILoading = (state: AppState) => state.ai.isLoading;
+
 export const selectShowExamplePrompt = (state: AppState) =>
   state.ai.showExamplePrompt;
+
+export const selectGPTTask = (state: AppState) => state.ai.task;
 
 export const isUserPrompt = (prompt: TChatGPTPrompt): prompt is TUserPrompt =>
   prompt.role === "user";
@@ -206,5 +217,126 @@ export function useChatScroll<T>(
       ref.current.scrollTop = ref.current.scrollHeight;
     }
   }, [dep]);
+  return ref;
+}
+
+export function selectGPTTriggerContext(state: AppState) {
+  return state.ai.context;
+}
+
+export const selectEntityNamesForGPT = createSelector(
+  getDataTree,
+  function (dataTree) {
+    return Object.keys(dataTree).map((k) => k?.toLowerCase());
+  },
+);
+
+export function useTextAutocomplete(
+  query: string,
+  acceptSuggestion: (suggestion: string) => void,
+) {
+  const ref = useRef<HTMLTextAreaElement | null>(null);
+  const overLayRef = useRef<HTMLDivElement | null>(null);
+  const searchSpace = useSelector(selectEntityNamesForGPT);
+  const [matches, setMatches] = useState<string[]>([]);
+  const [currentMatchIndex, setCurrentMatchIndex] = useState<number>(-1);
+
+  const cycleThroughMatches = useCallback(
+    (next: boolean) => {
+      const totalMatchesCount = matches.length;
+      if (totalMatchesCount === 0) return;
+      if (next) {
+        setCurrentMatchIndex(
+          (currentMatchIndex) =>
+            (currentMatchIndex + 1 + totalMatchesCount) % totalMatchesCount,
+        );
+      } else {
+        setCurrentMatchIndex(
+          (currentMatchIndex) =>
+            (currentMatchIndex - 1 + totalMatchesCount) % totalMatchesCount,
+        );
+      }
+    },
+    [matches, currentMatchIndex],
+  );
+
+  useEffect(() => {
+    if (!ref.current) return;
+    const keysListener = (e: KeyboardEvent) => {
+      if (!overLayRef.current?.innerText) return;
+      if (e.key === "ArrowUp") {
+        cycleThroughMatches(false);
+      } else if (e.key === "ArrowDown") {
+        cycleThroughMatches(true);
+      } else if (e.key === "Tab") {
+        if (!overLayRef.current?.innerText) return;
+        acceptSuggestion(overLayRef.current?.innerText);
+        setCurrentMatchIndex(-1);
+        setMatches([]);
+      } else {
+        return;
+      }
+      e.stopPropagation();
+      e.preventDefault();
+    };
+    ref.current.addEventListener("keydown", keysListener);
+
+    return () => ref.current?.removeEventListener("keydown", keysListener);
+  }, [cycleThroughMatches, acceptSuggestion]);
+
+  useLayoutEffect(() => {
+    if (!ref.current) return;
+    if (overLayRef.current) {
+      overLayRef.current.innerText = "";
+    }
+    const text = ref.current.textContent;
+    if (!text) return;
+    const lines = text.split("\n");
+    const lastLine = lines[lines.length - 1];
+    const words = lastLine.split(" ");
+    if (!words.length) return;
+    const lastWord = words[words.length - 1];
+    const lastWordLength = lastWord.length;
+    const currentMatch = matches[currentMatchIndex];
+    if (!currentMatch) return;
+    const difference = `${currentMatch.slice(lastWordLength)}`;
+    if (overLayRef.current)
+      overLayRef.current.innerText = ref.current.textContent + difference;
+  }, [currentMatchIndex, matches]);
+
+  useLayoutEffect(() => {
+    if (ref.current) {
+      const overlay = document.createElement("div");
+      overlay.id = "autocomplete-overlay";
+      overlay.classList.add("autocomplete-overlay");
+      overLayRef.current = overlay;
+      const parent = ref.current.parentElement;
+      if (parent) {
+        parent.appendChild(overlay);
+      }
+    }
+  }, []);
+  useEffect(() => {
+    if (overLayRef.current) {
+      overLayRef.current.innerText = "";
+    }
+    if (ref.current) {
+      const text = ref.current.textContent;
+      if (!text) return;
+      const lines = text.split("\n");
+      const lastLine = lines[lines.length - 1];
+      const words = lastLine.split(" ");
+      if (!words.length) return;
+      const lastWord = words[words.length - 1];
+      if (!lastWord) return;
+      if (lastWord.length < 2) return;
+      const matches = searchSpace.filter((s) =>
+        s.startsWith(lastWord.toLowerCase()),
+      );
+      if (!matches) return;
+      setMatches(matches);
+      setCurrentMatchIndex(0);
+    }
+  }, [query]);
   return ref;
 }

@@ -5,7 +5,11 @@ import styled from "styled-components";
 import Send from "remixicon-react/SendPlaneFillIcon";
 import classNames from "classnames";
 import BetaCard from "../../../../components/editorComponents/BetaCard";
-import type { GPTTask, TChatGPTContext, TChatGPTPrompt } from "./utils";
+import type { GPTTask, TChatGPTPrompt } from "./utils";
+import { selectIsAIWindowOpen } from "./utils";
+import { useTextAutocomplete } from "./utils";
+import { selectGPTTask } from "./utils";
+import { selectIsAILoading } from "./utils";
 import { selectShowExamplePrompt } from "./utils";
 import { useChatScroll } from "./utils";
 import { selectGPTMessages } from "./utils";
@@ -16,7 +20,6 @@ import { GPTPrompt } from "./GPTPrompt";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const QueryForm = styled.form`
   > div:focus-within {
@@ -27,6 +30,16 @@ const QueryForm = styled.form`
   }
   textarea {
     color: ${Colors.GREY_10};
+    background: transparent;
+    z-index: 2;
+  }
+  .autocomplete-overlay {
+    color: #afafaf;
+    position: absolute;
+    z-index: 1;
+    top: 4px;
+    left: 8px;
+    padding-right: 20px;
   }
 `;
 
@@ -44,10 +57,18 @@ export function AskAI() {
   const messages = useSelector(selectGPTMessages);
   const messageContainerRef = useChatScroll(messages);
   const contextGenerator = useGPTContextGenerator();
-  const [isLoading, setLoading] = useState(false);
+  const isLoading = useSelector(selectIsAILoading);
   const showExamplePrompt = useSelector(selectShowExamplePrompt);
   const allTasks = useGPTTasks();
-  const [task, setTask] = useState<GPTTask>(allTasks[0].id);
+  const task = useSelector(selectGPTTask);
+  const isAIWindowOpen = useSelector(selectIsAIWindowOpen);
+
+  const setTask = useCallback((task: GPTTask) => {
+    dispatch({
+      type: ReduxActionTypes.SET_AI_TASK,
+      payload: task,
+    });
+  }, []);
 
   const toggleExamplePrompt = (show: boolean) => {
     dispatch({
@@ -74,7 +95,7 @@ export function AskAI() {
     return () => {
       dispatch({
         type: ReduxActionTypes.TOGGLE_AI_WINDOW,
-        payload: false,
+        payload: { show: false },
       });
     };
   }, []);
@@ -83,11 +104,14 @@ export function AskAI() {
     resizeTextArea(queryContainerRef);
   }, [query]);
 
+  useEffect(() => {
+    queryContainerRef.current?.focus();
+  }, [isLoading, isAIWindowOpen]);
+
   const sendQuery = useCallback(() => {
     if (isLoading) return;
     if (!query) return;
     toggleExamplePrompt(false);
-    setLoading(true);
     const message: TChatGPTPrompt = {
       role: "user",
       content: query.slice(0, CHARACTER_LIMIT),
@@ -96,67 +120,17 @@ export function AskAI() {
     addMessage(message);
     const context = contextGenerator(message);
     setQuery("");
-    fireQuery(message.content, context);
+    dispatch({
+      type: ReduxActionTypes.ASK_AI,
+      payload: {
+        query: message.content,
+        context,
+        task,
+      },
+    });
   }, [isLoading, query, contextGenerator, task]);
 
-  const fireQuery = async (query: string, context: TChatGPTContext) => {
-    AnalyticsUtil.logEvent("AI_QUERY_SENT", {
-      requestedOutputType: task,
-      characterCount: query.length,
-      userQuery: query,
-      context,
-    });
-    const start = performance.now();
-    try {
-      const res: any = await fetch(
-        `/api/v1/chat/chat-generation?type=${task}`,
-        {
-          method: "POST",
-          credentials: "same-origin",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            user_query: query,
-            ...context,
-          }),
-        },
-      );
-      const result = await res.json();
-      if (!res?.ok) {
-        throw new Error(
-          result?.responseMeta?.error?.message || "Something went wrong",
-        );
-      }
-      const message: TChatGPTPrompt = {
-        role: "assistant",
-        content: result.data.response,
-        messageId: result.data.messageId,
-        task: task,
-      };
-      addMessage(message);
-      setLoading(false);
-      AnalyticsUtil.logEvent("AI_RESPONSE_GENERATED", {
-        success: true,
-        requestedOutputType: task,
-        responseId: message.messageId,
-        generatedCode: message.content,
-        userQuery: query,
-        context,
-        timeTaken: performance.now() - start,
-      });
-    } catch (e) {
-      setLoading(false);
-      AnalyticsUtil.logEvent("AI_RESPONSE_GENERATED", {
-        success: false,
-        requestedOutputType: task,
-        timeTaken: performance.now() - start,
-      });
-      addMessage({ role: "error", content: (e as any).message, task });
-    }
-  };
-
-  const queryContainerRef = useRef<HTMLTextAreaElement>(null);
+  const queryContainerRef = useTextAutocomplete(query, setQuery);
 
   const handleEnter = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.shiftKey || e.ctrlKey || e.metaKey) return;
@@ -169,7 +143,10 @@ export function AskAI() {
   const dispatch = useDispatch();
 
   const closeWindow = () => {
-    dispatch({ type: ReduxActionTypes.TOGGLE_AI_WINDOW, payload: false });
+    dispatch({
+      type: ReduxActionTypes.TOGGLE_AI_WINDOW,
+      payload: { show: false },
+    });
   };
 
   const handleTaskSelection = useCallback((task: any) => {
@@ -209,27 +186,17 @@ export function AskAI() {
             ))}
           </div>
         </div>
-        {showExamplePrompt && (
-          <GettingStarted
-            onClick={(query: string) => {
-              if (queryContainerRef?.current) {
-                queryContainerRef.current.innerText = query;
-              }
-              setQuery(query);
-            }}
-            task={task}
-          />
-        )}
+        {showExamplePrompt && <GettingStarted task={task} />}
       </div>
       <div
         className={classNames({
           "flex justify-end flex-shrink-0": true,
           hidden: !messages.length,
-          "px-4 font-normal hover:underline cursor-pointer": true,
+          "px-4 font-normal": true,
         })}
       >
         <div
-          className="h-6 text-xs flex items-center"
+          className="h-6 text-xs flex items-center hover:underline cursor-pointer"
           onClick={() => toggleExamplePrompt(!showExamplePrompt)}
         >
           {showExamplePrompt ? "Hide" : "Show"} example prompts
@@ -271,24 +238,26 @@ export function AskAI() {
             className={classNames({
               "bg-white relative flex items-center w-full overflow-hidden":
                 true,
-              "box-border border border-gray-300 py-[4px]  rounded-md": true,
+              "border border-gray-300 py-[4px]  rounded-md": true,
               disabled: isLoading, //|| parseInt(queryCount) < 1,
             })}
           >
-            <textarea
-              className="m-[1px] min-h-[29px] w-full px-2 py-1 !pr-5 max-h-40 overflow-auto"
-              disabled={isLoading} // || parseInt(queryCount) < 1}
-              name="text"
-              onChange={(e) => {
-                setQuery(e.target.value);
-              }}
-              onKeyDown={handleEnter}
-              placeholder="Type your query here"
-              ref={queryContainerRef}
-              rows={1}
-              style={{ resize: "none" }}
-              value={query}
-            />
+            <div className="relative pl-1 flex h-auto items-center w-full">
+              <textarea
+                className="min-h-[30px] w-full max-h-40 z-2 p-1 overflow-auto !pr-5"
+                disabled={isLoading} // || parseInt(queryCount) < 1}
+                name="text"
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                }}
+                onKeyDown={handleEnter}
+                placeholder="Type your query here"
+                ref={queryContainerRef}
+                rows={1}
+                style={{ resize: "none" }}
+                value={query}
+              />
+            </div>
           </div>
           {isLoading ? (
             <div className="!h-9 absolute right-2 flex items-center">

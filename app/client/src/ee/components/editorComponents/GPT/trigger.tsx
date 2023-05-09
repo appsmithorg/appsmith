@@ -37,7 +37,10 @@ export function GPTTrigger() {
   }
 
   const toggleWindow = () => {
-    dispatch({ type: ReduxActionTypes.TOGGLE_AI_WINDOW, payload: !windowOpen });
+    dispatch({
+      type: ReduxActionTypes.TOGGLE_AI_WINDOW,
+      payload: { show: !windowOpen },
+    });
   };
   return (
     <div

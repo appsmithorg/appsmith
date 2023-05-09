@@ -43,6 +43,7 @@ const ResponseContainer = styled.div`
     background: transparent !important;
     code {
       font-size: 13px !important;
+      word-break: break-word !important;
       white-space: pre-wrap !important;
       background: transparent !important;
       .token {
@@ -113,7 +114,7 @@ function ErrorPrompt(props: { prompt: TErrorPrompt }) {
 }
 
 function AssistantPrompt(props: { prompt: TAssistantPrompt }) {
-  const { content, liked, messageId, task } = props.prompt;
+  const { content, liked, messageId, query, task } = props.prompt;
   const [copyIconClicked, clickCopyIcon] = React.useState(false);
   const location = useLocation();
   const pageType = useMemo(() => {
@@ -146,6 +147,7 @@ function AssistantPrompt(props: { prompt: TAssistantPrompt }) {
         messageId,
       },
     });
+    setTimeout(() => setRunningSnippet(false), 5000);
   }, [content]);
 
   const handleCopy = useCallback(() => {
@@ -162,6 +164,7 @@ function AssistantPrompt(props: { prompt: TAssistantPrompt }) {
       responseId: messageId,
       requestedOutputType: task,
       generatedCode: content,
+      userQuery: query,
     });
   }, [content, clickCopyIcon, pageType]);
 
@@ -172,6 +175,7 @@ function AssistantPrompt(props: { prompt: TAssistantPrompt }) {
         requestedOutputType: task,
         liked,
         generatedCode: content,
+        userQuery: query,
       });
       dispatch({
         type: ReduxActionTypes.UPDATE_GPT_MESSAGE,
@@ -229,15 +233,23 @@ function AssistantPrompt(props: { prompt: TAssistantPrompt }) {
           </SyntaxHighlighter>
         </div>
         <div className="flex flex-row justify-end items-center px-1 pb-1">
-          <div className="flex gap-[2px]">
+          <div className="flex gap-[2px] transition-all">
             <div
-              className="p-1 hover:bg-gray-200 cursor-pointer"
+              className={classNames({
+                "p-1 hover:bg-gray-200 cursor-pointer": true,
+                hidden: liked === false,
+                "pointer-events-none": liked === true,
+              })}
               onClick={() => logFeedback(true)}
             >
               <LikeIcon color={liked === true ? "green" : "black"} size={13} />
             </div>
             <div
-              className="p-1 hover:bg-gray-200 cursor-pointer"
+              className={classNames({
+                "p-1 hover:bg-gray-200 cursor-pointer": true,
+                hidden: liked === true,
+                "pointer-events-none": liked === false,
+              })}
               onClick={() => logFeedback(false)}
             >
               <DislikeIcon

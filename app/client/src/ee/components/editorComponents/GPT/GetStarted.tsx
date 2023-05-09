@@ -8,12 +8,6 @@ const examplePrompts = {
     "Pick first name and last name from response of get_users api?",
     "Run get_users api and display a toast message 'Success' on success and 'Error' on error?",
   ],
-  [GPTTask.JS_FUNCTION]: [
-    "Executes get_users api and filters the results by age > 30",
-    "Setup a timer to execute get_users api after 5 seconds",
-    "Calls getUserName function from get_users_utils js object and capitalizes the result",
-    "Setup a timer to run get_users every 5 seconds",
-  ],
   [GPTTask.SQL_QUERY]: [
     "Fetch all users from users table where age > 30",
     "Update first_name of users table to 'John' where id = 1",
@@ -22,13 +16,7 @@ const examplePrompts = {
   [GPTTask.REFACTOR_CODE]: [],
 };
 
-export function GettingStarted({
-  onClick,
-  task,
-}: {
-  onClick: (text: string) => void;
-  task: GPTTask;
-}) {
+export function GettingStarted({ task }: { task: GPTTask }) {
   const allTasks = useGPTTasks();
   const taskDescription = allTasks.find((t) => t.id === task)?.desc;
   return (
@@ -38,7 +26,7 @@ export function GettingStarted({
         <div className="text-xs font-medium">Example Prompts</div>
         <div className="flex flex-col gap-2">
           {examplePrompts[task].map((prompt) => (
-            <ExamplePrompt key={prompt} onClick={onClick} prompt={prompt} />
+            <ExamplePrompt key={prompt} prompt={prompt} />
           ))}
         </div>
       </div>
@@ -46,12 +34,7 @@ export function GettingStarted({
   );
 }
 
-function ExamplePrompt({
-  prompt,
-}: {
-  prompt: string;
-  onClick: (text: string) => void;
-}) {
+function ExamplePrompt({ prompt }: { prompt: string }) {
   return (
     <div className="flex justify-start bg-gray-100 w-full font-normal">
       <UserPromptWrapper>{prompt}</UserPromptWrapper>
