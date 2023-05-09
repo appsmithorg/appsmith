@@ -797,7 +797,6 @@ const PropertyControl = memo((props: Props) => {
                   "add-action flex items-center justify-center text-center h-7 w-7 ml-auto",
                   `t--add-action-${config.label}`,
                 )}
-                disabled={false}
                 isIconButton
                 kind="tertiary"
                 onClick={() => setShowEmptyBlock(true)}

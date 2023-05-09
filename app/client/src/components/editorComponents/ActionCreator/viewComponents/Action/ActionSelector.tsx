@@ -144,7 +144,7 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
           kind="tertiary"
           onClick={() => selectBlock("-1")}
           size="sm"
-          startIcon="close"
+          startIcon="close-line"
         />
       </div>
 
@@ -167,7 +167,7 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
             selectBlock("-1");
           }}
           size="sm"
-          startIcon="delete"
+          startIcon="delete-bin-line"
         />
       </div>
 

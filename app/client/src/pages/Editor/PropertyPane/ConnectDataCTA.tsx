@@ -18,7 +18,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: var(--ads-v2-spaces-3);
-  background-color: var(--ads-v2-color-bg-muted);
+  background-color: var(--ads-v2-color-bg-subtle);
   border-radius: var(--ads-v2-border-radius);
 `;
 

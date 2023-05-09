@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { Tooltip } from "design-system";
 
 const Label = styled.label`
-  color: var(--ads-v2-color-gray-600);
+  color: var(--ads-v2-color-fg);
   font-size: var(--ads-v2-font-size-4);
   font-weight: var(--ads-v2-font-weight-normal);
 `;
@@ -21,15 +21,14 @@ type Props = {
 
 function PropertyHelpLabel(props: Props) {
   const toolTipDefined = props.tooltip !== undefined;
-  if (!props.label) {
-    return null;
-  }
+
+  if (!props.label) return null;
+
   return (
     <Tooltip
+      className={props.className}
       content={props.tooltip || ""}
-      mouseEnterDelay={0.2}
-      // disabled={!toolTipDefined}
-      // popoverClassName={props.className}
+      isDisabled={!toolTipDefined}
     >
       <div onClick={props.onClick}>
         <Label

@@ -75,7 +75,7 @@ const ColorPickerIconContainer = styled.div`
 const StyledInputGroup = styled(InputGroup)`
   .${Classes.INPUT} {
     box-shadow: none;
-    border: 1px solid var(--ads-v2-color-gray-300);
+    border: 1px solid var(--ads-v2-color-border);
     border-radius: var(--ads-v2-border-radius);
     &:focus {
       box-shadow: none;
@@ -84,10 +84,14 @@ const StyledInputGroup = styled(InputGroup)`
   &&& input {
     padding-left: 36px;
     height: 36px;
-    border: 1px solid var(--ads-v2-color-gray-300);
+    border: 1px solid var(--ads-v2-color-border);
     background: ${(props) =>
       props.theme.colors.propertyPane.multiDropdownBoxHoverBg};
     color: ${(props) => props.theme.colors.propertyPane.label};
+
+    &:hover {
+      border-color: var(--ads-v2-color-border-emphasis);
+    }
 
     &:focus {
       border: 1px solid var(--ads-v2-color-border-emphasis);

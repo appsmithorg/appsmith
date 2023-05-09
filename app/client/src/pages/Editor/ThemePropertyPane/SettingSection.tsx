@@ -2,7 +2,7 @@ import * as Sentry from "@sentry/react";
 import React, { useState } from "react";
 import { Collapse } from "@blueprintjs/core";
 import styled from "styled-components";
-import { Icon } from "design-system-old";
+import { Icon } from "design-system";
 
 const SettingsWrapper = styled.div`
   color: var(--ads-v2-color-fg);

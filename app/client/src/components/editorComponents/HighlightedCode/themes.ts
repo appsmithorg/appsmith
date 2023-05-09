@@ -76,7 +76,7 @@ export const LIGHT = css`
   }
 
   .token.punctuation {
-    color: var(--ads-v2-color-gray-600);
+    color: var(--ads-v2-color-fg);
   }
 
   .token.namespace {

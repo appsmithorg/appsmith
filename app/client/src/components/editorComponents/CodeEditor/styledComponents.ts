@@ -100,7 +100,7 @@ export const EditorWrapper = styled.div<{
       }
       .cm-s-duotone-light.CodeMirror {
         cursor: pointer;
-        border-color: var(--ads-v2-color-border-emphasis-plus);
+        border-color: var(--ads-v2-color-border-emphasis);
         border-radius: var(--ads-v2-border-radius);
       }
     }
@@ -134,7 +134,7 @@ export const EditorWrapper = styled.div<{
           case props.isFocused:
             return "var(--ads-v2-color-border-emphasis)";
           default:
-            return "var(--ads-v2-color-gray-300)";
+            return "var(--ads-v2-color-border)";
         }
       }};
       ${(props) => props.border === "none" && "border: none"};

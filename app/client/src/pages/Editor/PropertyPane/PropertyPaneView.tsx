@@ -139,7 +139,7 @@ function PropertyPaneView(
             isIconButton
             kind="tertiary"
             onClick={onCopy}
-            startIcon="copy-control"
+            startIcon="duplicate"
           />
         ),
       },

@@ -8,17 +8,13 @@ import type { FieldEntityInformation } from "components/editorComponents/CodeEdi
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { theme } from "constants/DefaultTheme";
 import type { Placement } from "popper.js";
-import {
-  ScrollIndicator,
-  // TooltipComponent as Tooltip,
-} from "design-system-old";
+import { ScrollIndicator } from "design-system-old";
 import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { IPopoverSharedProps } from "@blueprintjs/core";
 import { Classes, Collapse } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { UNDEFINED_VALIDATION } from "utils/validation/common";
-// import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import copy from "copy-to-clipboard";
 
 import type { EvaluationError } from "utils/DynamicBindingUtils";
@@ -98,21 +94,8 @@ const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
   pointer-events: all;
 `;
 
-// const CopyIconWrapper = styled(Button)<{ colorTheme: EditorTheme }>`
-//   /* color: ${(props) => THEMES[props.colorTheme].textColor}; */
-//   position: absolute;
-//   right: 0;
-//   top: 0;
-//   cursor: pointer;
-//   padding: 0;
-//   border-radius: 0;
-//   display: none;
-// `;
-
 const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
-  // max-height: 300px;
   min-height: 28px;
-  // overflow-y: auto;
   -ms-overflow-style: none;
   padding: ${(props) => props.theme.spaces[3]}px;
   padding-right: 30px;
@@ -454,12 +437,10 @@ const ControlledCurrentValueViewer = memo(
                 className="btn-copy"
                 isIconButton
                 kind="tertiary"
-                // colorTheme={props.theme}
-                // minimal
                 onClick={() =>
                   copyContent(props.evaluatedValue, onCopyContentText)
                 }
-                startIcon="copy-control"
+                startIcon="duplicate"
               />
             )}
           </CurrentValueWrapper>

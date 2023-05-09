@@ -19,7 +19,7 @@ const CallbackBlockContainer = styled.div<{
   border: 1px solid var(--ads-v2-color-border);
   border-bottom-color: ${(props) =>
     props.isSelected
-      ? "var(--ads-v2-color-border-emphasis-plus)"
+      ? "var(--ads-v2-color-border-emphasis)"
       : "var(--ads-v2-color-border)"};
   border-radius: ${(props) =>
     props.isExpanded

@@ -39,8 +39,6 @@ const SubTitle = styled.div`
 
 class SectionHeader extends React.Component<SectionHeaderProps> {
   render(): React.ReactNode {
-    // const hoverBgColor = `hover:bg-[color:var(--appsmith-color-black-200)]`;
-    // const bgColor = `bg-[color:var(--appsmith-color-black-200)]`;
     return (
       <StyledWrapper
         className="flex flex-row items-center cursor-pointer"
