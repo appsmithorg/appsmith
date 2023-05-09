@@ -68,6 +68,7 @@ import {
   isEqual,
   isFunction,
   isObject,
+  isUndefined,
   set,
   union,
   unset,
@@ -170,6 +171,8 @@ export default class DataTreeEvaluator {
    * Sanitized eval values and errors
    */
   evalProps: EvalProps = {};
+  undefinedEvalValuesMap: Record<string, boolean> = {};
+
   public hasCyclicalDependency = false;
   constructor(
     widgetConfigMap: WidgetTypeConfigMap,
@@ -318,6 +321,7 @@ export default class DataTreeEvaluator {
     staleMetaIds: string[];
   } {
     const evaluationStartTime = performance.now();
+
     // Evaluate
     const { evalMetaUpdates, evaluatedTree, staleMetaIds } = this.evaluateTree(
       this.oldUnEvalTree,
@@ -973,6 +977,15 @@ export default class DataTreeEvaluator {
           } else {
             evalPropertyValue = unEvalPropertyValue;
           }
+
+          if (isUndefined(evalPropertyValue)) {
+            this.undefinedEvalValuesMap[fullPropertyPath] = true;
+          } else if (
+            fullPropertyPath in this.undefinedEvalValuesMap &&
+            !isUndefined(this.undefinedEvalValuesMap[fullPropertyPath])
+          ) {
+            delete this.undefinedEvalValuesMap[fullPropertyPath];
+          }
           if (isWidget(entity) && !isATriggerPath) {
             const isNewWidget =
               isFirstTree || isNewEntity(unevalUpdates, entityName);
@@ -1092,6 +1105,15 @@ export default class DataTreeEvaluator {
                 fullPath: fullPropertyPath,
                 unEvalValue: unEvalPropertyValue,
               });
+
+              if (isUndefined(evalPropertyValue)) {
+                this.undefinedEvalValuesMap[fullPropertyPath] = true;
+              } else if (
+                fullPropertyPath in this.undefinedEvalValuesMap &&
+                !isUndefined(this.undefinedEvalValuesMap[fullPropertyPath])
+              ) {
+                delete this.undefinedEvalValuesMap[fullPropertyPath];
+              }
             }
             return currentTree;
           } else {
