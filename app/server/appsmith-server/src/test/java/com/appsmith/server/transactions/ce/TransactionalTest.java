@@ -59,12 +59,9 @@ public class TransactionalTest {
         user.setPassword(testName);
         User createdUser = userService.create(user).block();
 
-        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
-        inviteUsersDTO.setPermissionGroupId(workspaceRoleId.get(0));
-        inviteUsersDTO.setUsernames(List.of(createdUser.getUsername()));
-
-        userAndAccessManagementService.inviteUsers(inviteUsersDTO, "test").block();
-        log.debug("User invited.");
+        PermissionGroup workspaceRole0 = permissionGroupRepository.findById(workspaceRoleId.get(0)).block();
+        workspaceRole0.getAssignedToUserIds().add(createdUser.getId());
+        PermissionGroup savedWorkspaceRole0 = permissionGroupRepository.save(workspaceRole0).block();
 
         UpdatePermissionGroupDTO updatePermissionGroupDTO = new UpdatePermissionGroupDTO();
         updatePermissionGroupDTO.setUsername(createdUser.getUsername());
