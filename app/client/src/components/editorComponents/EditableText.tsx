@@ -248,11 +248,7 @@ export function EditableText(props: EditableTextProps) {
             value={value}
           />
           {showEditIcon && (
-            <Icon
-              className="t--action-name-edit-icon"
-              name="edit-line"
-              size="md"
-            />
+            <Icon className="t--action-name-edit-icon" name="edit" size="md" />
           )}
         </TextContainer>
       </ErrorTooltip>
