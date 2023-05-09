@@ -50,7 +50,7 @@ export const StyledCheckbox = styled(HeadlessCheckbox)<CheckboxProps>`
     justify-content: center;
     user-select: none;
     flex-shrink: 0;
-    padding: 1px; // to make icon take 14px space
+    padding: 1px; // to make icon take 14px size
   }
 
   &[data-hovered]:not([data-disabled]) [data-icon] {
