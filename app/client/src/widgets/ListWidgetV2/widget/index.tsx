@@ -44,6 +44,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 import type { AutocompletionDefinitions } from "widgets/constants";
+import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",
@@ -605,6 +606,11 @@ class ListWidget extends BaseWidget<
   };
 
   getTemplateBottomRow = () => {
+    if (this.props.appPositioningType === AppPositioningTypes.AUTO) {
+      return (
+        this.getMainContainer()?.mobileBottomRow || DEFAULT_TEMPLATE_BOTTOM_ROW
+      );
+    }
     return this.getMainContainer()?.bottomRow || DEFAULT_TEMPLATE_BOTTOM_ROW;
   };
 
