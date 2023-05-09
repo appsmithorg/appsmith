@@ -40,8 +40,6 @@ public interface UserServiceCE extends CrudService<User, String> {
 
     Mono<User> updateCurrentUser(UserUpdateDTO updates, ServerWebExchange exchange);
 
-    Map<String, String> getEmailParams(Workspace workspace, User inviterUser, String inviteUrl, boolean isNewUser);
-
     Mono<Boolean> isUsersEmpty();
 
     Mono<UserProfileDTO> buildUserProfileDTO(User user);
