@@ -17,13 +17,13 @@ function GenericError(props: { errorCode?: string }) {
       cta={
         <Button
           className="button-position"
+          endIcon="right-arrow"
           kind="primary"
           onClick={() => {
             dispatch(flushErrors());
             window.open("https://discord.gg/rBTTVJp", "_blank");
           }}
           size="md"
-          startIcon="right-arrow"
         >
           Contact us on discord
         </Button>
