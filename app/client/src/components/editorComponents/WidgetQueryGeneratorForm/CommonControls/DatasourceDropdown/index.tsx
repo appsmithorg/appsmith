@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useState } from "react";
-import { Bold, SelectWrapper } from "../../styles";
+import { Bold, ErrorMessage, SelectWrapper } from "../../styles";
 import { useDatasource } from "./useDatasource";
 import { Select, Option, Icon } from "design-system";
 import { DropdownOption } from "./DropdownOption";
@@ -18,6 +18,7 @@ const SectionHeader = styled.div`
 function DatasourceDropdown() {
   const {
     datasourceOptions,
+    error,
     isSourceOpen,
     onSourceClose,
     otherOptions,
@@ -32,7 +33,7 @@ function DatasourceDropdown() {
   }, [isSourceOpen]);
 
   return (
-    <SelectWrapper>
+    <SelectWrapper className="space-y-2">
       <Select
         className="t--one-click-binding-datasource-selector"
         dropdownClassName="one-click-binding-datasource-dropdown"
@@ -54,6 +55,7 @@ function DatasourceDropdown() {
             );
           }
         }}
+        isValid={!error}
         onDropdownVisibleChange={(open: boolean) => {
           !open && onSourceClose();
           setOpen(open);
@@ -148,6 +150,7 @@ function DatasourceDropdown() {
           );
         })}
       </Select>
+      <ErrorMessage>{error}</ErrorMessage>
     </SelectWrapper>
   );
 }

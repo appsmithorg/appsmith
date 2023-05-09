@@ -29,10 +29,24 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
     }
   };
 
+  private getErrorMessage = () => {
+    const errorObj =
+      this.props.widgetProperties.__evaluation__.errors[
+        this.props.propertyName
+      ];
+
+    if (errorObj.length && errorObj[0].errorMessage) {
+      return errorObj[0].errorMessage.message;
+    } else {
+      return "";
+    }
+  };
+
   public render() {
     return (
       <WidgetQueryGeneratorForm
         entityId={this.props.widgetProperties.widgetId}
+        errorMsg={this.getErrorMessage()}
         expectedType={this.props.expected?.autocompleteDataType}
         isSourceOpen={this.props.widgetProperties.isConnectDataEnabled}
         onSourceClose={this.onSourceClose}
