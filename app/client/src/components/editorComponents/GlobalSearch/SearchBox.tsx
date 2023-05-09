@@ -13,8 +13,11 @@ import {
   OMNIBAR_PLACEHOLDER_NAV,
   OMNIBAR_PLACEHOLDER_SNIPPETS,
 } from "@appsmith/constants/messages";
-import type { SearchCategory } from "./utils";
-import { isMenu, SEARCH_CATEGORY_ID } from "./utils";
+import type {
+  SearchCategory,
+  SEARCH_CATEGORY_ID,
+} from "@appsmith/components/editorComponents/GlobalSearch/utils";
+import { isMenu } from "@appsmith/components/editorComponents/GlobalSearch/utils";
 import { ReactComponent as CloseIcon } from "assets/icons/help/close_blue.svg";
 import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
 
@@ -74,13 +77,13 @@ const CategoryDisplay = styled.div`
 
 const getPlaceHolder = (categoryId: SEARCH_CATEGORY_ID) => {
   switch (categoryId) {
-    case SEARCH_CATEGORY_ID.SNIPPETS:
+    case "SNIPPETS":
       return OMNIBAR_PLACEHOLDER_SNIPPETS;
-    case SEARCH_CATEGORY_ID.DOCUMENTATION:
+    case "DOCUMENTATION":
       return OMNIBAR_PLACEHOLDER_DOC;
-    case SEARCH_CATEGORY_ID.NAVIGATION:
+    case "NAVIGATE":
       return OMNIBAR_PLACEHOLDER_NAV;
-    case SEARCH_CATEGORY_ID.ACTION_OPERATION:
+    case "ACTION_OPERATION":
       return CREATE_NEW_OMNIBAR_PLACEHOLDER;
   }
   return OMNIBAR_PLACEHOLDER;
@@ -96,7 +99,7 @@ type SearchBoxProps = SearchBoxProvided & {
   query: string;
   setQuery: (query: string) => void;
   category: SearchCategory;
-  setCategory: (category: any) => void;
+  setCategory: (category: { id: SEARCH_CATEGORY_ID }) => void;
 };
 
 const useListenToChange = (modalOpen: boolean) => {
@@ -135,9 +138,7 @@ function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
         {category.title && (
           <CategoryDisplay className="t--global-search-category">
             {category.id}
-            <CloseIcon
-              onClick={() => setCategory({ id: SEARCH_CATEGORY_ID.INIT })}
-            />
+            <CloseIcon onClick={() => setCategory({ id: "INIT" })} />
           </CategoryDisplay>
         )}
         <input
@@ -148,8 +149,7 @@ function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
           onChange={(e) => updateSearchQuery(e.currentTarget.value)}
           onKeyDown={(e) => {
             handleKeyDown(e);
-            if (e.key === "Backspace" && !query)
-              setCategory({ id: SEARCH_CATEGORY_ID.INIT });
+            if (e.key === "Backspace" && !query) setCategory({ id: "INIT" });
           }}
           placeholder={createMessage(getPlaceHolder(category.id))}
           value={query}

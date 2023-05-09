@@ -32,12 +32,11 @@ import type {
   SearchCategory,
   SearchItem,
   SelectEvent,
-} from "./utils";
+} from "@appsmith/components/editorComponents/GlobalSearch/utils";
 import {
   algoliaHighlightTag,
   filterCategories,
   getEntityId,
-  getFilterCategoryList,
   getItemPage,
   getItemTitle,
   getItemType,
@@ -48,9 +47,8 @@ import {
   isMenu,
   isNavigation,
   isSnippet,
-  SEARCH_CATEGORY_ID,
   SEARCH_ITEM_TYPES,
-} from "./utils";
+} from "@appsmith/components/editorComponents/GlobalSearch/utils";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { HelpBaseURL } from "constants/HelpConstants";
 import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
@@ -175,7 +173,7 @@ const getSortedResults = (
   );
 };
 
-const filterCategoryList = getFilterCategoryList();
+const filterCategoryList = Object.values(filterCategories);
 
 function GlobalSearch() {
   const currentPageId = useSelector(getCurrentPageId) as string;
@@ -215,7 +213,7 @@ function GlobalSearch() {
   const toggleShow = () => {
     if (modalOpen) {
       setQuery("");
-      setCategory(filterCategories[SEARCH_CATEGORY_ID.DOCUMENTATION]);
+      setCategory(filterCategories["DOCUMENTATION"]);
     }
     dispatch(toggleShowGlobalSearchModal());
     dispatch(cancelSnippet());

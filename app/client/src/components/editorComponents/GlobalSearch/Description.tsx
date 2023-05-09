@@ -2,9 +2,13 @@ import React, { useEffect, lazy, Suspense } from "react";
 import styled from "styled-components";
 import ActionLink from "./ActionLink";
 import Highlight from "./Highlight";
-import { algoliaHighlightTag, getItemTitle, SEARCH_ITEM_TYPES } from "./utils";
+import {
+  algoliaHighlightTag,
+  getItemTitle,
+  SEARCH_ITEM_TYPES,
+} from "@appsmith/components/editorComponents/GlobalSearch/utils";
 import { getTypographyByKey } from "design-system-old";
-import type { SearchItem } from "./utils";
+import type { SearchItem } from "@appsmith/components/editorComponents/GlobalSearch/utils";
 import parseDocumentationContent from "./parseDocumentationContent";
 import { retryPromise } from "utils/AppsmithUtils";
 import Skeleton from "components/utils/Skeleton";

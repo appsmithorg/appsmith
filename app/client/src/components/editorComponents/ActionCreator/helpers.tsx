@@ -35,7 +35,7 @@ import {
   getModalDropdownList,
   getNextModalName,
 } from "selectors/widgetSelectors";
-import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
+import { filterCategories } from "@appsmith/components/editorComponents/GlobalSearch/utils";
 import {
   APPSMITH_GLOBAL_FUNCTIONS,
   AppsmithFunction,
@@ -417,11 +417,7 @@ function getApiAndQueryOptions(
     className: "t--create-datasources-query-btn",
     onSelect: () => {
       handleClose();
-      dispatch(
-        setGlobalSearchCategory(
-          filterCategories[SEARCH_CATEGORY_ID.ACTION_OPERATION],
-        ),
-      );
+      dispatch(setGlobalSearchCategory(filterCategories["ACTION_OPERATION"]));
     },
   };
 

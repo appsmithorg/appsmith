@@ -97,10 +97,7 @@ import {
   setGlobalSearchCategory,
   setGlobalSearchFilterContext,
 } from "actions/globalSearchActions";
-import {
-  filterCategories,
-  SEARCH_CATEGORY_ID,
-} from "components/editorComponents/GlobalSearch/utils";
+import { filterCategories } from "@appsmith/components/editorComponents/GlobalSearch/utils";
 import { getSelectedWidget, getWidgetByID } from "./selectors";
 import {
   onApiEditor,
@@ -913,9 +910,7 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
         }),
       );
 
-      yield put(
-        setGlobalSearchCategory(filterCategories[SEARCH_CATEGORY_ID.SNIPPETS]),
-      );
+      yield put(setGlobalSearchCategory(filterCategories["SNIPPETS"]));
       yield put(
         setGlobalSearchFilterContext({
           onEnter:

@@ -15,13 +15,13 @@ import {
 import { useSelector } from "react-redux";
 import type { EventLocation } from "utils/AnalyticsUtil";
 import history from "utils/history";
-import type { ActionOperation } from "./utils";
+import type { ActionOperation } from "@appsmith/components/editorComponents/GlobalSearch/utils";
 import {
   actionOperations,
   attachKind,
   isMatching,
   SEARCH_ITEM_TYPES,
-} from "./utils";
+} from "@appsmith/components/editorComponents/GlobalSearch/utils";
 import { PluginType } from "entities/Action";
 import { integrationEditorURL } from "RouteBuilder";
 import AddLineIcon from "remixicon-react/AddLineIcon";

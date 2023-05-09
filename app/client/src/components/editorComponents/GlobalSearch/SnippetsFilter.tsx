@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { ReactComponent as FilterIcon } from "assets/icons/menu/filter.svg";
 import { ReactComponent as CloseFilterIcon } from "assets/icons/menu/close-filter.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getSnippetFilterLabel } from "./utils";
+import { getSnippetFilterLabel } from "@appsmith/components/editorComponents/GlobalSearch/utils";
 import { useStore } from "react-redux";
 
 const SnippetsFilterContainer = styled.div<{

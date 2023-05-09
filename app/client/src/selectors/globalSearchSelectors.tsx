@@ -1,7 +1,7 @@
 import { createSelector } from "reselect";
 
 import type { AppState } from "@appsmith/reducers";
-import type { RecentEntity } from "components/editorComponents/GlobalSearch/utils";
+import type { RecentEntity } from "@appsmith/components/editorComponents/GlobalSearch/utils";
 
 export const getRecentEntities = (state: AppState) =>
   state.ui.globalSearch.recentEntities;

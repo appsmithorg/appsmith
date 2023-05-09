@@ -6,7 +6,7 @@ import {
   getAllWidgetsMap,
   getJSCollections,
 } from "selectors/entitiesSelector";
-import { SEARCH_ITEM_TYPES } from "./utils";
+import { SEARCH_ITEM_TYPES } from "@appsmith/components/editorComponents/GlobalSearch/utils";
 import { get } from "lodash";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { FocusEntity } from "navigation/FocusEntity";

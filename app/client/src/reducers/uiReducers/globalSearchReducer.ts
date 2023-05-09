@@ -4,11 +4,8 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type {
   RecentEntity,
   SearchCategory,
-} from "components/editorComponents/GlobalSearch/utils";
-import {
-  filterCategories,
-  SEARCH_CATEGORY_ID,
-} from "components/editorComponents/GlobalSearch/utils";
+} from "@appsmith/components/editorComponents/GlobalSearch/utils";
+import { filterCategories } from "@appsmith/components/editorComponents/GlobalSearch/utils";
 
 export enum SnippetAction {
   INSERT,
@@ -21,7 +18,7 @@ const initialState: GlobalSearchReduxState = {
   recentEntities: [],
   recentEntitiesRestored: false,
   filterContext: {
-    category: filterCategories[SEARCH_CATEGORY_ID.DOCUMENTATION],
+    category: filterCategories["DOCUMENTATION"],
     fieldMeta: {},
     refinements: {},
     evaluatedSnippet: "",

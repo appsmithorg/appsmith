@@ -4,9 +4,8 @@ import { Popover2 } from "@blueprintjs/popover2";
 import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
 import {
   comboHelpText,
-  SEARCH_CATEGORY_ID,
   SEARCH_ITEM_TYPES,
-} from "components/editorComponents/GlobalSearch/utils";
+} from "@appsmith/components/editorComponents/GlobalSearch/utils";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentPageId,
@@ -228,7 +227,7 @@ export default function ExplorerSubMenu({
           content={
             <>
               {createMessage(ADD_QUERY_JS_TOOLTIP)} (
-              {comboHelpText[SEARCH_CATEGORY_ID.ACTION_OPERATION]})
+              {comboHelpText["ACTION_OPERATION"]})
             </>
           }
           disabled={show}

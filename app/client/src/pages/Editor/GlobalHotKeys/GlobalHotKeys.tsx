@@ -23,11 +23,11 @@ import { resetSnipingMode as resetSnipingModeAction } from "actions/propertyPane
 import { showDebugger } from "actions/debuggerActions";
 
 import { runActionViaShortcut } from "actions/pluginActionActions";
-import type { SearchCategory } from "components/editorComponents/GlobalSearch/utils";
-import {
-  filterCategories,
+import type {
   SEARCH_CATEGORY_ID,
-} from "components/editorComponents/GlobalSearch/utils";
+  SearchCategory,
+} from "@appsmith/components/editorComponents/GlobalSearch/utils";
+import { filterCategories } from "@appsmith/components/editorComponents/GlobalSearch/utils";
 import { redoAction, undoAction } from "actions/pageActions";
 import { Toaster, Variant } from "design-system-old";
 
@@ -100,7 +100,7 @@ class GlobalHotKeys extends React.Component<Props> {
 
   public onOnmnibarHotKeyDown(
     e: KeyboardEvent,
-    categoryId: SEARCH_CATEGORY_ID = SEARCH_CATEGORY_ID.NAVIGATION,
+    categoryId: SEARCH_CATEGORY_ID = "NAVIGATE",
   ) {
     e.preventDefault();
 
@@ -145,9 +145,7 @@ class GlobalHotKeys extends React.Component<Props> {
           combo="mod + plus"
           global
           label="Create New"
-          onKeyDown={(e) =>
-            this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.ACTION_OPERATION)
-          }
+          onKeyDown={(e) => this.onOnmnibarHotKeyDown(e, "ACTION_OPERATION")}
         />
         <Hotkey
           allowInInput
@@ -155,7 +153,7 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Lookup code snippets"
           onKeyDown={(e) => {
-            this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.SNIPPETS);
+            this.onOnmnibarHotKeyDown(e, "SNIPPETS");
             AnalyticsUtil.logEvent("SNIPPET_LOOKUP", {
               source: "HOTKEY_COMBO",
             });
@@ -166,18 +164,14 @@ class GlobalHotKeys extends React.Component<Props> {
           combo="mod + l"
           global
           label="Search documentation"
-          onKeyDown={(e) =>
-            this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.DOCUMENTATION)
-          }
+          onKeyDown={(e) => this.onOnmnibarHotKeyDown(e, "DOCUMENTATION")}
         />
         <Hotkey
           allowInInput
           combo="mod + k"
           global
           label="Show omnibar"
-          onKeyDown={(e) =>
-            this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.INIT)
-          }
+          onKeyDown={(e) => this.onOnmnibarHotKeyDown(e, "INIT")}
         />
         <Hotkey
           allowInInput

@@ -2,8 +2,11 @@ import { useEffect, useCallback } from "react";
 import { connectHits } from "react-instantsearch-dom";
 import type { Hit as IHit } from "react-instantsearch-core";
 import { debounce } from "lodash";
-import type { DocSearchItem, SearchCategory } from "./utils";
-import { SEARCH_ITEM_TYPES } from "./utils";
+import type {
+  DocSearchItem,
+  SearchCategory,
+} from "@appsmith/components/editorComponents/GlobalSearch/utils";
+import { SEARCH_ITEM_TYPES } from "@appsmith/components/editorComponents/GlobalSearch/utils";
 
 type Props = {
   setSearchResults: (

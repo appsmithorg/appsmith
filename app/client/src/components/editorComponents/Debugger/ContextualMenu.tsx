@@ -13,7 +13,7 @@ import {
   setGlobalSearchQuery,
   setGlobalSearchCategory,
 } from "actions/globalSearchActions";
-import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
+import { filterCategories } from "@appsmith/components/editorComponents/GlobalSearch/utils";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import {
   createMessage,
@@ -138,9 +138,7 @@ const searchAction: Record<
         errorType: error.type,
       });
       dispatch(setGlobalSearchQuery(error.message.message || ""));
-      dispatch(
-        setGlobalSearchCategory(filterCategories[SEARCH_CATEGORY_ID.INIT]),
-      );
+      dispatch(setGlobalSearchCategory(filterCategories["INIT"]));
     },
   },
   [CONTEXT_MENU_ACTIONS.INTERCOM]: {

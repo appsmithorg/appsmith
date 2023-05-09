@@ -2,7 +2,7 @@ import React from "react";
 import { connectCurrentRefinements } from "react-instantsearch-dom";
 import styled from "styled-components";
 import { ReactComponent as CloseIcon } from "assets/icons/help/close_blue.svg";
-import { getSnippetFilterLabel } from "./utils";
+import { getSnippetFilterLabel } from "@appsmith/components/editorComponents/GlobalSearch/utils";
 import { useStore } from "react-redux";
 
 const RefinementListContainer = styled.div`

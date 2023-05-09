@@ -1,6 +1,6 @@
 import { marked } from "marked";
 import { HelpBaseURL } from "constants/HelpConstants";
-import { algoliaHighlightTag } from "./utils";
+import { algoliaHighlightTag } from "@appsmith/components/editorComponents/GlobalSearch/utils";
 import log from "loglevel";
 
 const aisOpenHTMLTag = `<${algoliaHighlightTag}>`;

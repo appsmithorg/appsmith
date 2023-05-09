@@ -6,7 +6,7 @@ import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { HELPBAR_PLACEHOLDER } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { modText } from "utils/helpers";
-import { filterCategories, SEARCH_CATEGORY_ID } from "./utils";
+import { filterCategories } from "@appsmith/components/editorComponents/GlobalSearch/utils";
 import { Colors } from "constants/Colors";
 
 const StyledHelpBar = styled.div`
@@ -55,9 +55,7 @@ function HelpBar({ toggleShowModal }: Props) {
 const mapDispatchToProps = (dispatch: any) => ({
   toggleShowModal: () => {
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "NAVBAR_CLICK" });
-    dispatch(
-      setGlobalSearchCategory(filterCategories[SEARCH_CATEGORY_ID.INIT]),
-    );
+    dispatch(setGlobalSearchCategory(filterCategories["INIT"]));
   },
 });
 

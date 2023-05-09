@@ -19,7 +19,7 @@ import {
   getCurrentApplicationId,
   getIsEditorInitialized,
 } from "selectors/editorSelectors";
-import type { RecentEntity } from "components/editorComponents/GlobalSearch/utils";
+import type { RecentEntity } from "@appsmith/components/editorComponents/GlobalSearch/utils";
 import log from "loglevel";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import type { FocusEntity, FocusEntityInfo } from "navigation/FocusEntity";

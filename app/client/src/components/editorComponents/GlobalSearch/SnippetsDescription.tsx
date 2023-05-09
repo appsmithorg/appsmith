@@ -28,7 +28,10 @@ import copy from "copy-to-clipboard";
 import { useEffect } from "react";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { debounce } from "lodash";
-import type { Snippet, SnippetArgument } from "./utils";
+import type {
+  Snippet,
+  SnippetArgument,
+} from "@appsmith/components/editorComponents/GlobalSearch/utils";
 import {
   createMessage,
   SNIPPET_COPY,

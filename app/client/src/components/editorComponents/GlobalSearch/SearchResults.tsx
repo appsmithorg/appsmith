@@ -8,14 +8,17 @@ import Highlight from "./Highlight";
 import ActionLink, { StyledActionLink } from "./ActionLink";
 import scrollIntoView from "scroll-into-view-if-needed";
 import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
-import type { SearchItem, SearchCategory } from "./utils";
+import type {
+  SearchItem,
+  SearchCategory,
+} from "@appsmith/components/editorComponents/GlobalSearch/utils";
 import {
   getItemType,
   getItemTitle,
   SEARCH_ITEM_TYPES,
   comboHelpText,
   isSnippet,
-} from "./utils";
+} from "@appsmith/components/editorComponents/GlobalSearch/utils";
 import SearchContext from "./GlobalSearchContext";
 import {
   getPluginIcon,

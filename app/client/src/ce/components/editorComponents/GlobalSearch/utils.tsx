@@ -8,7 +8,7 @@ import {
 } from "@appsmith/constants/messages";
 import type { ValidationTypes } from "constants/WidgetValidation";
 import type { Datasource } from "entities/Datasource";
-import { fetchRawGithubContentList } from "./githubHelper";
+import { fetchRawGithubContentList } from "components/editorComponents/GlobalSearch/githubHelper";
 import { PluginPackageName, PluginType } from "entities/Action";
 import type { WidgetType } from "constants/WidgetConstants";
 import type { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
@@ -41,13 +41,12 @@ export type RecentEntity = {
   pageId: string;
 };
 
-export enum SEARCH_CATEGORY_ID {
-  SNIPPETS = "Snippets",
-  DOCUMENTATION = "Documentation",
-  NAVIGATION = "Navigate",
-  INIT = "INIT",
-  ACTION_OPERATION = "Create New",
-}
+export type SEARCH_CATEGORY_ID =
+  | "SNIPPETS"
+  | "DOCUMENTATION"
+  | "NAVIGATE"
+  | "INIT"
+  | "ACTION_OPERATION";
 
 export enum SEARCH_ITEM_TYPES {
   document = "document",
@@ -75,11 +74,11 @@ export type DocSearchItem = {
 };
 
 export const comboHelpText = {
-  [SEARCH_CATEGORY_ID.SNIPPETS]: <>{modText()} J</>,
-  [SEARCH_CATEGORY_ID.DOCUMENTATION]: <>{modText()} L</>,
-  [SEARCH_CATEGORY_ID.NAVIGATION]: <>{modText()} P</>,
-  [SEARCH_CATEGORY_ID.INIT]: <>{modText()} K</>,
-  [SEARCH_CATEGORY_ID.ACTION_OPERATION]: (
+  SNIPPETS: <>{modText()} J</>,
+  DOCUMENTATION: <>{modText()} L</>,
+  NAVIGATION: <>{modText()} P</>,
+  INIT: <>{modText()} K</>,
+  ACTION_OPERATION: (
     <>
       {modText()} {shiftText()} {isMacOrIOS() ? "+" : "Plus"}
     </>
@@ -134,7 +133,6 @@ export type SearchCategory = {
   kind?: SEARCH_ITEM_TYPES;
   title?: string;
   desc?: string;
-  show?: () => boolean;
 };
 
 export function getOptionalFilters(optionalFilterMeta: any) {
@@ -148,50 +146,44 @@ export function getOptionalFilters(optionalFilterMeta: any) {
 }
 
 export const filterCategories: Record<SEARCH_CATEGORY_ID, SearchCategory> = {
-  [SEARCH_CATEGORY_ID.NAVIGATION]: {
+  NAVIGATE: {
     title: "Navigate",
     kind: SEARCH_ITEM_TYPES.category,
-    id: SEARCH_CATEGORY_ID.NAVIGATION,
+    id: "NAVIGATE",
     desc: createMessage(NAV_DESCRIPTION),
   },
-  [SEARCH_CATEGORY_ID.ACTION_OPERATION]: {
+  ACTION_OPERATION: {
     title: "Create New",
     kind: SEARCH_ITEM_TYPES.category,
-    id: SEARCH_CATEGORY_ID.ACTION_OPERATION,
+    id: "ACTION_OPERATION",
     desc: createMessage(ACTION_OPERATION_DESCRIPTION),
   },
-  [SEARCH_CATEGORY_ID.SNIPPETS]: {
+  SNIPPETS: {
     title: "Use Snippets",
     kind: SEARCH_ITEM_TYPES.category,
-    id: SEARCH_CATEGORY_ID.SNIPPETS,
+    id: "SNIPPETS",
     desc: createMessage(SNIPPET_DESCRIPTION),
   },
-  [SEARCH_CATEGORY_ID.DOCUMENTATION]: {
+  DOCUMENTATION: {
     title: "Search Documentation",
     kind: SEARCH_ITEM_TYPES.category,
-    id: SEARCH_CATEGORY_ID.DOCUMENTATION,
+    id: "DOCUMENTATION",
     desc: createMessage(DOC_DESCRIPTION),
   },
-  [SEARCH_CATEGORY_ID.INIT]: {
-    id: SEARCH_CATEGORY_ID.INIT,
+  INIT: {
+    id: "INIT",
   },
 };
 
 export const isNavigation = (category: SearchCategory) =>
-  category.id === SEARCH_CATEGORY_ID.NAVIGATION;
+  category.id === "NAVIGATE";
 export const isDocumentation = (category: SearchCategory) =>
-  category.id === SEARCH_CATEGORY_ID.DOCUMENTATION;
+  category.id === "DOCUMENTATION";
 export const isSnippet = (category: SearchCategory) =>
-  category.id === SEARCH_CATEGORY_ID.SNIPPETS;
-export const isMenu = (category: SearchCategory) =>
-  category.id === SEARCH_CATEGORY_ID.INIT;
+  category.id === "SNIPPETS";
+export const isMenu = (category: SearchCategory) => category.id === "INIT";
 export const isActionOperation = (category: SearchCategory) =>
-  category.id === SEARCH_CATEGORY_ID.ACTION_OPERATION;
-
-export const getFilterCategoryList = () =>
-  Object.values(filterCategories).filter((cat: SearchCategory) => {
-    return cat.show ? cat.show() : true;
-  });
+  category.id === "ACTION_OPERATION";
 
 export type SearchItem = DocSearchItem | Datasource | any;
 

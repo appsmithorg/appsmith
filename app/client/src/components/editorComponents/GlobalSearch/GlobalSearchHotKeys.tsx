@@ -1,7 +1,10 @@
 import React from "react";
 import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
 import { Hotkey, Hotkeys } from "@blueprintjs/core";
-import type { SearchItem, SelectEvent } from "./utils";
+import type {
+  SearchItem,
+  SelectEvent,
+} from "@appsmith/components/editorComponents/GlobalSearch/utils";
 
 type Props = {
   modalOpen: boolean;
