@@ -113,6 +113,7 @@ export type MetaWidgetCache = {
 type ExtendedCanvasWidgetStructure = CanvasWidgetStructure & {
   canExtend?: boolean;
   shouldScrollContents?: boolean;
+  isListWidgetCanvas?: boolean;
 };
 
 type RenderChildrenOption = {
@@ -606,7 +607,10 @@ class ListWidget extends BaseWidget<
   };
 
   getTemplateBottomRow = () => {
-    if (this.props.appPositioningType === AppPositioningTypes.AUTO) {
+    if (
+      this.props.appPositioningType === AppPositioningTypes.AUTO &&
+      this.props.isMobile
+    ) {
       return (
         this.getMainContainer()?.mobileBottomRow || DEFAULT_TEMPLATE_BOTTOM_ROW
       );
@@ -1114,6 +1118,9 @@ class ListWidget extends BaseWidget<
           child.rightColumn = componentWidth;
           child.canExtend = true;
           child.positioning = this.props.positioning;
+          if (this.props.appPositioningType === AppPositioningTypes.AUTO) {
+            child.isListWidgetCanvas = true;
+          }
           child.children = child.children?.map((container, viewIndex) => {
             const rowIndex = viewIndex + startIndex;
             const focused =
