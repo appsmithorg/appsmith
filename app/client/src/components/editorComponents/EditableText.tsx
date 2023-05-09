@@ -54,10 +54,11 @@ const EditableTextWrapper = styled.div<{
     & .${Classes.EDITABLE_TEXT} {
       background: ${(props) =>
         props.isEditing && !props.minimal
-          ? props.theme.colors.editableText.bg
+          ? "var(--ads-v2-color-bg-subtle)"
           : "none"};
       cursor: pointer;
       padding: ${(props) => (!props.minimal ? "5px 5px" : "0px")};
+      border-radius: var(--ads-v2-border-radius);
       text-transform: none;
       flex: 1 0 100%;
       max-width: 100%;
@@ -248,7 +249,11 @@ export function EditableText(props: EditableTextProps) {
             value={value}
           />
           {showEditIcon && (
-            <Icon className="t--action-name-edit-icon" name="edit" size="md" />
+            <Icon
+              className="t--action-name-edit-icon cursor-pointer"
+              name="pencil-line"
+              size="md"
+            />
           )}
         </TextContainer>
       </ErrorTooltip>

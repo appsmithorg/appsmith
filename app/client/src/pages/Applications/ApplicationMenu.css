@@ -1,3 +1,8 @@
 .ads-v2-menu {
-  max-height: fit-content;
+  overflow: unset;
+}
+
+.ads-v2-menu .menu-items-wrapper {
+  height: 132px;
+  overflow: auto;
 }

@@ -584,7 +584,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
         <MenuContent>
           {hasEditPermission && (
             <EditableText
-              className="px-3 pt-3 pb-2 t--application-name"
+              className="px-3 pt-2 pb-2 t--application-name"
               defaultValue={props.application.name}
               editInteractionKind={EditInteractionKind.SINGLE}
               fill
@@ -636,20 +636,22 @@ export function ApplicationCard(props: ApplicationCardProps) {
               <Divider />
             </IconScrollWrapper>
           )}
-          {moreActionItems.map((item: MenuItemProps) => {
-            const { children, key, ...restMenuItem } = item;
-            return (
-              <MenuItem
-                {...restMenuItem}
-                className={
-                  item.startIcon === "delete-bin-line" ? "error-menuitem" : ""
-                }
-                key={key}
-              >
-                {children}
-              </MenuItem>
-            );
-          })}
+          <div className="menu-items-wrapper">
+            {moreActionItems.map((item: MenuItemProps) => {
+              const { children, key, ...restMenuItem } = item;
+              return (
+                <MenuItem
+                  {...restMenuItem}
+                  className={
+                    item.startIcon === "delete-bin-line" ? "error-menuitem" : ""
+                  }
+                  key={key}
+                >
+                  {children}
+                </MenuItem>
+              );
+            })}
+          </div>
         </MenuContent>
       </Menu>
       <ForkApplicationModal
