@@ -231,7 +231,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                             && analyticsProperties.containsKey(EMAIL)) {
 
                         String email = analyticsProperties.get(EMAIL) != null ? analyticsProperties.get(EMAIL).toString() : "";
-                        analyticsProperties.put(EMAIL_DOMAIN_HASH, hash(email));
+                        analyticsProperties.put(EMAIL_DOMAIN_HASH, getEmailDomainHash(email));
                     } else {
                         analyticsProperties.put(EMAIL_DOMAIN_HASH, emailDomainHash);
                     }
