@@ -17,7 +17,7 @@ import {
 } from "@appsmith/constants/messages";
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
-import bootIntercom from "utils/bootIntercom";
+import { bootIntercom } from "@appsmith/utils/bootIntercom";
 import type { Theme } from "constants/DefaultTheme";
 import { thinScrollbar } from "constants/DefaultTheme";
 import type { IconName } from "@blueprintjs/core";

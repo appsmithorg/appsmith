@@ -18,7 +18,7 @@ import { HELP_MODAL_HEIGHT, HELP_MODAL_WIDTH } from "constants/HelpConstants";
 import ModalComponent from "../ModalComponent";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { User } from "constants/userConstants";
-import bootIntercom from "utils/bootIntercom";
+import { bootIntercom } from "@appsmith/utils/bootIntercom";
 import { TooltipComponent } from "design-system-old";
 import {
   createMessage,

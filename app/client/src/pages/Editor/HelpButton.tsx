@@ -9,7 +9,7 @@ import { HELP_MODAL_WIDTH } from "constants/HelpConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "react-redux";
-import bootIntercom from "utils/bootIntercom";
+import { bootIntercom } from "@appsmith/utils/bootIntercom";
 import {
   createMessage,
   HELP_RESOURCE_TOOLTIP,

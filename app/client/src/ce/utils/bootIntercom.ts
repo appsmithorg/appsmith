@@ -4,7 +4,7 @@ import { sha256 } from "js-sha256";
 
 const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
 
-export default function bootIntercom(user?: User) {
+export function bootIntercom(user?: User) {
   if (intercomAppID && window.Intercom) {
     let { email, username } = user || {};
     let name;

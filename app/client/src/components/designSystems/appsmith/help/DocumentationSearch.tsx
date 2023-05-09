@@ -38,7 +38,7 @@ import {
   Category,
   Size,
 } from "design-system-old";
-import { updateIntercomProperties } from "utils/bootIntercom";
+import { updateIntercomProperties } from "@appsmith/utils/bootIntercom";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { updateIntercomConsent, updateUserDetails } from "actions/userActions";
 

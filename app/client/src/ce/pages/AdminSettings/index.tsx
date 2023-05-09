@@ -9,7 +9,7 @@ import LeftPane from "@appsmith/pages/AdminSettings/LeftPane";
 import Main from "@appsmith/pages/AdminSettings/Main";
 import WithSuperUserHOC from "@appsmith/pages/AdminSettings/WithSuperUserHoc";
 import { getCurrentUser } from "selectors/usersSelectors";
-import bootIntercom from "utils/bootIntercom";
+import { bootIntercom } from "@appsmith/utils/bootIntercom";
 import { LoaderContainer } from "pages/Settings/components";
 import { useParams } from "react-router";
 import AdminConfig from "@appsmith/pages/AdminSettings/config";
