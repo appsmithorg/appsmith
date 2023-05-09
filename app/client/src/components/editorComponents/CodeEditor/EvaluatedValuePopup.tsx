@@ -55,7 +55,7 @@ const THEME = {
   backgroundColor: "var(--ads-v2-color-bg)",
   textColor: "var(--ads-v2-color-fg)",
   editorBackground: "var(--ads-v2-color-bg)",
-  editorColor: "#1E242B",
+  editorColor: "var(--ads-v2-color-fg)",
 };
 
 const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
