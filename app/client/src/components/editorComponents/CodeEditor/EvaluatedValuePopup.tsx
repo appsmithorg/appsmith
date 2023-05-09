@@ -558,7 +558,7 @@ function PopoverContent(props: PopoverContentProps) {
                   openDebugger(e);
                 }}
               >
-                {`See Error (${modText()} D)`}
+                {`See error (${modText()} D)`}
               </Link>
               <Link to={errorNavigationUrl}>View Source</Link>
             </AsyncFunctionErrorView>
