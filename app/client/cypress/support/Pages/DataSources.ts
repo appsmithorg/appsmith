@@ -326,10 +326,10 @@ export class DataSources {
   public ExpandSectionByName(locator: string) {
     // Click on collapse section only if it collapsed, if it is expanded
     // we ignore
-    cy.get(`${locator} span`)
-      .invoke("attr", "icon")
-      .then((iconName) => {
-        if (iconName === "chevron-down") {
+    cy.get(`${locator} .bp3-icon`)
+      .invoke("attr", "class")
+      .then((className) => {
+        if (className.includes("bp3-icon-chevron-down")) {
           cy.get(locator).click();
         }
       });
