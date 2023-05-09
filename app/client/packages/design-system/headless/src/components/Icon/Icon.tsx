@@ -1,16 +1,13 @@
 import React from "react";
-import type {
-  AriaLabelingProps,
-  DOMProps,
-  StyleProps,
-} from "@react-types/shared";
+import type { AriaLabelingProps, DOMProps } from "@react-types/shared";
 import type { ReactElement } from "react";
 import { filterDOMProps } from "@react-aria/utils";
 
-export interface IconProps extends DOMProps, AriaLabelingProps, StyleProps {
+export interface IconProps extends DOMProps, AriaLabelingProps {
   "aria-label"?: string;
   children: ReactElement;
   "aria-hidden"?: boolean | "false" | "true";
+  role?: string;
 }
 
 export function Icon(props: IconProps) {
@@ -18,6 +15,7 @@ export function Icon(props: IconProps) {
     "aria-hidden": ariaHiddenProp,
     "aria-label": ariaLabel,
     children,
+    role = "img",
     ...otherProps
   } = props;
 
@@ -28,7 +26,7 @@ export function Icon(props: IconProps) {
     focusable: "false",
     "aria-label": ariaLabel,
     "aria-hidden": ariaLabel ? ariaHidden || undefined : true,
-    role: "img",
+    role,
     "data-icon": "",
   });
 }

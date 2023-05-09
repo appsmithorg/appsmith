@@ -8,8 +8,13 @@ export const StyledContainer = styled.div<ButtonGroupProps>`
   display: flex;
   height: 100%;
   width: 100%;
-  flex-direction: ${({ orientation }) =>
-    orientation === "vertical" ? "column" : "row"};
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+
+  &[data-orientation="vertical"] {
+    flex-direction: column;
+  }
 
   & [data-button] {
     // increasing z index to make sure the focused button is on top of the others
@@ -27,38 +32,63 @@ export const StyledContainer = styled.div<ButtonGroupProps>`
 
     &:first-child {
       border-bottom-right-radius: 0;
-      ${({ orientation }) =>
-        orientation === "vertical"
-          ? "border-bottom-left-radius: 0; border-bottom-width: calc(var(--border-width) / 2);"
-          : "border-top-right-radius: 0; border-right-width: calc(var(--border-width) / 2);"}
     }
 
     &:last-of-type {
       border-top-left-radius: 0;
-      ${({ orientation }) =>
-        orientation === "vertical"
-          ? "border-top-right-radius: 0; border-top-width: calc(var(--border-width) / 2);"
-          : "border-bottom-left-radius: 0; border-left-width: calc(var(--border-width) / 2);"}
     }
 
     &:not(:first-child):not(:last-of-type) {
       border-radius: 0;
+    }
+  }
 
-      ${({ orientation }) =>
-        orientation === "vertical"
-          ? "border-top-width: calc(var(--border-width) / 2); border-bottom-width: calc(var(--border-width) / 2);"
-          : "border-left-width: calc(var(--border-width) / 2); border-right-width: calc(var(--border-width) / 2);"}
+  &:not([data-orientation="vertical"]) [data-button] {
+    &:first-child {
+      border-top-right-radius: 0;
+      border-right-width: calc(var(--border-width) / 2);
+    }
+
+    &:last-of-type {
+      border-bottom-left-radius: 0;
+      border-left-width: calc(var(--border-width) / 2);
+    }
+
+    &:not(:first-child):not(:last-of-type) {
+      border-left-width: calc(var(--border-width) / 2);
+      border-right-width: calc(var(--border-width) / 2);
     }
 
     & + [data-button] {
-      ${({ orientation }) =>
-        orientation === "vertical"
-          ? "margin-top: calc(var(--border-width) * -1);"
-          : "margin-left: calc(var(--border-width) * -1);"}
+      margin-left: calc(var(--border-width) * -1);
 
       @media (min-resolution: 192dpi) {
-        ${({ orientation }) =>
-          orientation === "vertical" ? "margin-top: 0px;" : "margin-left: 0px;"}
+        margin-left: 0px;
+      }
+    }
+  }
+
+  &[data-orientation="vertical"] [data-button] {
+    &:first-child {
+      border-bottom-left-radius: 0;
+      border-bottom-width: calc(var(--border-width) / 2);
+    }
+
+    &:last-of-type {
+      border-top-right-radius: 0;
+      border-top-width: calc(var(--border-width) / 2);
+    }
+
+    &:not(:first-child):not(:last-of-type) {
+      border-top-width: calc(var(--border-width) / 2);
+      border-bottom-width: calc(var(--border-width) / 2);
+    }
+
+    & + [data-button] {
+      margin-top: calc(var(--border-width) * -1);
+
+      @media (min-resolution: 192dpi) {
+        margin-top: 0px;
       }
     }
   }

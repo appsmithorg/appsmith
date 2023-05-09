@@ -56,6 +56,7 @@ export const Button = forwardRef(
 
     return (
       <StyledButton
+        data-button=""
         data-fit-container={isFitContainer ? "" : undefined}
         data-icon-position={iconPosition === "start" ? undefined : "end"}
         data-loading={isLoading ? "" : undefined}
