@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
-import { SearchVariant } from "design-system-old";
 import { SearchInput } from "design-system";
 import { useSelector } from "react-redux";
 import {
@@ -60,8 +59,6 @@ export function PropertyPaneSearchInput(props: PropertyPaneSearchInputProps) {
         onChange={props.onTextChange}
         placeholder={PROPERTY_SEARCH_INPUT_PLACEHOLDER}
         ref={inputRef}
-        tabIndex={-1}
-        variant={SearchVariant.BACKGROUND}
       />
     </SearchInputWrapper>
   );
