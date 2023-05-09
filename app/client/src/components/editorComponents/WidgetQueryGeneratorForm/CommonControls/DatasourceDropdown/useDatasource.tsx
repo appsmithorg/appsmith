@@ -35,6 +35,7 @@ export function useDatasource() {
     addBinding,
     addSnippet,
     config,
+    errorMsg,
     isSourceOpen,
     onSourceClose,
     propertyValue,
@@ -282,5 +283,6 @@ export function useDatasource() {
     queryOptions,
     isSourceOpen,
     onSourceClose,
+    error: config.datasource ? "" : errorMsg,
   };
 }
