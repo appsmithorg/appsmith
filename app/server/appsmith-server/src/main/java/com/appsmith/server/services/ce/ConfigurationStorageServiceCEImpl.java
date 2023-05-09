@@ -33,17 +33,17 @@ public class ConfigurationStorageServiceCEImpl
 
     @Override
     public Flux<ConfigurationStorage> findByDatasourceId(String datasourceId) {
-        return null;
+        return repository.findByDatasourceId(datasourceId);
     }
 
     @Override
     public Flux<ConfigurationStorage> findAllByDatasourceIds(List<String> datasourceIds) {
-        return null;
+        return repository.findAllByDatasourceIds(datasourceIds);
     }
 
     @Override
     public Mono<ConfigurationStorage> findOneByDatasourceId(String datasourceId) {
-        return null;
+        return repository.findOneByDatasourceId(datasourceId);
     }
 
     @Override
