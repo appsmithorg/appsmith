@@ -49,12 +49,15 @@ describe("Canvas context Property Pane", function () {
       "Button1",
     );
 
+    let propertyControlClickSelector;
+    let propertyControlVerifySelector;
+
     // TODO: Since google recaptcha is not possible in airgap mode, skipping this test for now for airgapped version. Will modify the dsl to have maybe phone input widget to have a dropdown property control - Sangeeth
     if (!Cypress.env("AIRGAPPED")) {
       //DropDown Property controls should have focus while switching between widgets, pages and Editor Panes
       agHelper.RefreshPage();
-      let propertyControlClickSelector = `.t--property-control-googlerecaptchaversion div:nth-child(2) .bp3-popover-target div`;
-      let propertyControlVerifySelector =
+      propertyControlClickSelector = `.t--property-control-googlerecaptchaversion div:nth-child(2) .bp3-popover-target div`;
+      propertyControlVerifySelector =
         ".t--property-control-googlerecaptchaversion .ur--has-border";
 
       verifyPropertyPaneContext(
