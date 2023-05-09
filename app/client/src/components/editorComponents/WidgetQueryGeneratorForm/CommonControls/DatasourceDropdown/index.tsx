@@ -34,6 +34,7 @@ function DatasourceDropdown() {
   return (
     <SelectWrapper>
       <Select
+        className="t--one-click-binding-datasource-selector"
         dropdownClassName="one-click-binding-datasource-dropdown"
         dropdownStyle={{
           minWidth: "350px",
@@ -75,21 +76,31 @@ function DatasourceDropdown() {
         virtual={false}
       >
         {queryOptions.length && (
-          <Option disabled key="Bind to query">
+          <Option
+            className="t--one-click-binding-datasource-selector--bind-to-query"
+            disabled
+            key="Bind to query"
+          >
             <SectionHeader>Bind to query</SectionHeader>
           </Option>
         )}
 
         {queryOptions.map((option) => {
           return (
-            <Option key={option.id} value={option.label}>
+            <Option
+              className="t--one-click-binding-datasource-selector--query"
+              key={option.id}
+              value={option.label}
+            >
               <DropdownOption label={option.label} leftIcon={option.icon} />
             </Option>
           );
         })}
 
         <Option
-          className={queryOptions.length && "has-seperator"}
+          className={`${
+            queryOptions.length && "has-seperator"
+          } t--one-click-binding-datasource-selector--generate-a-query`}
           disabled
           key="Generate a query"
         >
@@ -98,12 +109,16 @@ function DatasourceDropdown() {
 
         {datasourceOptions.map((option) => {
           return (
-            <Option key={option.id} value={option.label}>
+            <Option
+              className="t--one-click-binding-datasource-selector--datasource"
+              key={option.id}
+              value={option.label}
+            >
               <DropdownOption
                 label={
                   <>
                     New from {option.data.isSample ? "sample " : ""}
-                    <Bold>{option.label}</Bold>
+                    <Bold>{option.label?.replace("sample ", "")}</Bold>
                   </>
                 }
                 leftIcon={option.icon}
@@ -113,13 +128,21 @@ function DatasourceDropdown() {
           );
         })}
 
-        <Option className="has-seperator" disabled key="Other actions">
+        <Option
+          className="has-seperator t--one-click-binding-datasource-selector--other-actions"
+          disabled
+          key="Other actions"
+        >
           <SectionHeader>Other actions</SectionHeader>
         </Option>
 
         {otherOptions.map((option: DropdownOptionType) => {
           return (
-            <Option key={option.id} value={option.label}>
+            <Option
+              className="t--one-click-binding-datasource-selector--other-action"
+              key={option.id}
+              value={option.label}
+            >
               <DropdownOption label={option.label} leftIcon={option.icon} />
             </Option>
           );

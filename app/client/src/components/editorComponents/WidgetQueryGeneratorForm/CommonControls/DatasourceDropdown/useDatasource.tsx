@@ -122,9 +122,9 @@ export function useDatasource() {
             WidgetQueryGeneratorRegistry.has(packageName),
           )
           .map((datasource) => ({
-            id: datasource.name,
-            label: datasource.name,
-            value: datasource.name,
+            id: "sample " + datasource.name,
+            label: "sample " + datasource.name,
+            value: "sample " + datasource.name,
             data: {
               pluginId: invert(pluginsPackageNamesMap)[
                 datasource.packageName as string
@@ -271,7 +271,10 @@ export function useDatasource() {
         return {
           key: source.id,
           label: (
-            <DropdownOption label={source?.label} leftIcon={source?.icon} />
+            <DropdownOption
+              label={source?.label?.replace("sample ", "")}
+              leftIcon={source?.icon}
+            />
           ),
         };
       }

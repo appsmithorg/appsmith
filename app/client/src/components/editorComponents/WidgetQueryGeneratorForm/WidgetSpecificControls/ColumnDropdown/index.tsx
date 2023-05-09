@@ -21,6 +21,7 @@ function ColumnDropdown(props: Props) {
       <SelectWrapper className="space-y-2">
         <Label>{props.label}</Label>
         <Select
+          className={`t--one-click-binding-column-${props.alias}`}
           dropdownStyle={{
             minWidth: "350px",
             maxHeight: "300px",
@@ -35,10 +36,15 @@ function ColumnDropdown(props: Props) {
             }
           }}
           value={selected}
+          virtual={false}
         >
           {options.map((option) => {
             return (
-              <Option key={option.id} value={option.value}>
+              <Option
+                className={`t--one-click-binding-column-${props.alias}--column`}
+                key={option.id}
+                value={option.value}
+              >
                 <DropdownOption label={option.label} leftIcon={option.icon} />
               </Option>
             );

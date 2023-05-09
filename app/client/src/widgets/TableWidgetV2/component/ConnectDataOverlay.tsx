@@ -46,8 +46,15 @@ export function ConnectDataOverlay(props: { onConnectData: () => void }) {
   return (
     <Wrapper>
       <Container>
-        <Header>Connect your or sample datasources to display data</Header>
-        <ConnecData onClick={props.onConnectData}>Connect Data</ConnecData>
+        <Header className="t--cypress-table-overlay-header">
+          Connect your or sample datasources to display data
+        </Header>
+        <ConnecData
+          className="t--cypress-table-overlay-connectdata"
+          onClick={props.onConnectData}
+        >
+          Connect Data
+        </ConnecData>
       </Container>
     </Wrapper>
   );

@@ -80,6 +80,29 @@ export function useColumns(alias: string) {
     }
   }, [columns, sheetColumns, config, selectedDatasourcePluginPackageName]);
 
+  const columnList = useMemo(() => {
+    if (
+      selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS &&
+      isArray(sheetColumns?.value)
+    ) {
+      return sheetColumns.value.map((column: any) => {
+        return {
+          name: column.value,
+          type: "string",
+        };
+      });
+    } else if (isArray(columns)) {
+      return columns.map((column: any) => {
+        return {
+          name: column.name,
+          type: column.type,
+        };
+      });
+    } else {
+      return [];
+    }
+  }, [columns, sheetColumns, config, selectedDatasourcePluginPackageName]);
+
   const onSelect = useCallback(
     (column, columnObj) => {
       updateConfig(alias, columnObj.value);
@@ -114,5 +137,6 @@ export function useColumns(alias: string) {
         !!config.sheet) &&
       !!config.table,
     primaryColumn,
+    columns: columnList,
   };
 }
