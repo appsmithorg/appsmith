@@ -2,7 +2,10 @@ import React, { useRef, useEffect, useState } from "react";
 import styled from "styled-components";
 import { get } from "lodash";
 import { isEllipsisActive } from "utils/helpers";
-import { getTypographyByKey, TooltipComponent } from "design-system-old";
+import {
+  getTypographyByKey,
+  TooltipComponent,
+} from "@design-system/widgets-old";
 
 import { useSelector } from "react-redux";
 
