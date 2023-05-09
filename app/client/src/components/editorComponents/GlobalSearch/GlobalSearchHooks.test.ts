@@ -1,6 +1,6 @@
 import { getFilteredAndSortedFileOperations } from "./GlobalSearchHooks";
 import type { Datasource } from "entities/Datasource";
-import { SEARCH_ITEM_TYPES } from "./utils";
+import { SEARCH_ITEM_TYPES } from "@appsmith/components/editorComponents/GlobalSearch/utils";
 
 describe("getFilteredAndSortedFileOperations", () => {
   it("works without any datasources", () => {

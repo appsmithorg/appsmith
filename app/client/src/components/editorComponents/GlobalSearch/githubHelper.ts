@@ -1,4 +1,4 @@
-import type { DocSearchItem } from "./utils";
+import type { DocSearchItem } from "@appsmith/components/editorComponents/GlobalSearch/utils";
 
 export const defaultDocsConfig = [
   {

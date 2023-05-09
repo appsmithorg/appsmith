@@ -1,5 +1,8 @@
 import React from "react";
-import type { SearchItem, SelectEvent } from "./utils";
+import type {
+  SearchItem,
+  SelectEvent,
+} from "@appsmith/components/editorComponents/GlobalSearch/utils";
 
 type SearchContextType = {
   handleItemLinkClick: (

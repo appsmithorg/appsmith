@@ -76,7 +76,7 @@ export type DocSearchItem = {
 export const comboHelpText = {
   SNIPPETS: <>{modText()} J</>,
   DOCUMENTATION: <>{modText()} L</>,
-  NAVIGATION: <>{modText()} P</>,
+  NAVIGATE: <>{modText()} P</>,
   INIT: <>{modText()} K</>,
   ACTION_OPERATION: (
     <>

@@ -1,5 +1,5 @@
-import type { DocSearchItem } from "./utils";
-import { fetchDefaultDocs } from "./utils";
+import type { DocSearchItem } from "@appsmith/components/editorComponents/GlobalSearch/utils";
+import { fetchDefaultDocs } from "@appsmith/components/editorComponents/GlobalSearch/utils";
 import * as githubHelper from "./githubHelper";
 
 // we mock the actual API call that uses "fetch"

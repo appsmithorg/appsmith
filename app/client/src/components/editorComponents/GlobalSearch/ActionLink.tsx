@@ -3,7 +3,7 @@ import { Icon, IconSize } from "design-system-old";
 import { useContext } from "react";
 import styled, { useTheme } from "styled-components";
 import SearchContext from "./GlobalSearchContext";
-import type { SearchItem } from "./utils";
+import type { SearchItem } from "@appsmith/components/editorComponents/GlobalSearch/utils";
 import type { Theme } from "constants/DefaultTheme";
 
 export const StyledActionLink = styled.span<{ isActiveItem?: boolean }>`
