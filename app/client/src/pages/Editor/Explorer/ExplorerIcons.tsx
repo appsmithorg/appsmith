@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import React from "react";
 import { MenuIcons } from "icons/MenuIcons";
-import { Colors } from "constants/Colors";
 import type { Plugin } from "api/PluginApi";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import styled from "styled-components";
@@ -182,18 +181,15 @@ const EntityIconWrapper = styled.div<{
   borderColor?: string;
   width?: string;
   height?: string;
-  noBorder?: boolean;
   bgColor?: string;
 }>`
   height: ${({ height }) => (height ? height : "18px")};
   width: ${({ width }) => (width ? width : "18px")};
-  background: ${({ bgColor }) => bgColor ?? Colors.WHITE};
-  border: ${({ borderColor, height, noBorder }) =>
-    noBorder
-      ? "none"
-      : `${parseInt(height ? height : "18px") * 0.0845}px solid ${
-          borderColor ?? "var(--ads-v2-color-border)"
-        }`};
+  background: ${({ bgColor }) => bgColor ?? "none"};
+  border: ${({ borderColor, height }) =>
+    borderColor
+      ? `${parseInt(height ? height : "18px") * 0.0845}px solid ${borderColor}`
+      : "none"};
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -202,8 +198,8 @@ const EntityIconWrapper = styled.div<{
   border-radius: var(--ads-v2-border-radius);
   svg,
   img {
-    height: 80% !important;
-    width: 80% !important;
+    height: 100% !important;
+    width: 100% !important;
   }
 `;
 
@@ -212,7 +208,6 @@ type EntityIconType = {
   borderColor?: string;
   width?: string;
   height?: string;
-  noBorder?: boolean;
   bgColor?: string;
 };
 
@@ -222,7 +217,6 @@ function EntityIcon(props: EntityIconType): JSX.Element {
       bgColor={props.bgColor}
       borderColor={props.borderColor}
       height={props.height}
-      noBorder={props.noBorder}
       width={props.width}
     >
       {props.children}
