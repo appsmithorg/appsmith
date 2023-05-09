@@ -38,6 +38,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
+import com.appsmith.server.helpers.ImportExportUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.migrations.JsonSchemaMigration;
@@ -569,12 +570,30 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      * @return saved application in DB
      */
     public Mono<ApplicationImportDTO> extractFileAndSaveApplication(String workspaceId, Part filePart) {
+        return this.extractFileAndUpdateNonGitConnectedApplication(workspaceId, filePart, null,null);
+    }
 
+    /**
+     * This function will take the Json filepart and updates/creates the application in workspace depending on presence
+     * of applicationId field
+     *
+     * @param workspaceId   Workspace to which the application needs to be hydrated
+     * @param filePart      Json file which contains the entire application object
+     * @param applicationId Optional field for application ref which needs to be overridden by the incoming JSON file
+     * @param branchName    If application is connected to git update the branched app
+     * @return saved application in DB
+     */
+    @Override
+    public Mono<ApplicationImportDTO> extractFileAndUpdateNonGitConnectedApplication(String workspaceId,
+                                                                                     Part filePart,
+                                                                                     String applicationId,
+                                                                                     String branchName) {
         /*
-            1. Check the validity of file part
-            2. Save application to workspace
+            1. Verify if application is connected to git, in case if it's connected throw exception asking user to
+            update app via git ops like pull, merge etc.
+            2. Check the validity of file part
+            3. Depending upon availability of applicationId update/save application to workspace
          */
-
         final MediaType contentType = filePart.headers().getContentType();
 
         if (workspaceId == null || workspaceId.isEmpty()) {
@@ -594,7 +613,20 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     return new String(data);
                 });
 
-        Mono<ApplicationImportDTO> importedApplicationMono = stringifiedFile
+        // Check if the application is connected to git and if it's connected throw exception asking user to update
+        // app via git ops like pull, merge etc.
+        Mono<Boolean> isConnectedToGitMono = Mono.just(false);
+        if (!StringUtils.isEmpty(applicationId)) {
+            isConnectedToGitMono = applicationService.isApplicationConnectedToGit(applicationId);
+        }
+
+        Mono<ApplicationImportDTO> importedApplicationMono = isConnectedToGitMono
+                .flatMap(isConnectedToGit -> {
+                    if (isConnectedToGit) {
+                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_IMPORT_OPERATION_FOR_GIT_CONNECTED_APPLICATION));
+                    }
+                    return stringifiedFile;
+                })
                 .flatMap(data -> {
                     /*
                     // Use JsonObject to migrate when we remove some field from the collection which is being exported
@@ -610,7 +642,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     Type fileType = new TypeToken<ApplicationJson>() {
                     }.getType();
                     ApplicationJson jsonFile = gson.fromJson(data, fileType);
-                    return importApplicationInWorkspace(workspaceId, jsonFile)
+                    return importApplicationInWorkspace(workspaceId, jsonFile, applicationId, branchName)
                             .onErrorResume(error -> {
                                 if (error instanceof AppsmithException) {
                                     return Mono.error(error);
@@ -749,7 +781,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 .flatMap(workspace -> {
                     // Check if the request is to hydrate the application to DB for particular branch
                     // Application id will be present for GIT sync
-                    if (applicationId != null) {
+                    if (!StringUtils.isEmpty(applicationId)) {
                         // No need to hydrate the datasource as we expect user will configure the datasource
                         return existingDatasourceFlux.collectList();
                     }
@@ -1222,8 +1254,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             });
                 })
                 .onErrorResume(throwable -> {
-                    log.error("Error while importing the application, reason: {}", throwable.getMessage());
-                    return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, ""));
+                    String errorMessage = ImportExportUtils.getErrorMessage(throwable);
+                    return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
                 })
                 .as(transactionalOperator::transactional);
 

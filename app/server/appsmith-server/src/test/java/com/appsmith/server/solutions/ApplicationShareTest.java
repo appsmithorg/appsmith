@@ -2483,8 +2483,8 @@ public class ApplicationShareTest {
         User randomUser1 = userRepository.findByEmail(usersToInviteList.get(random.nextInt(0, usersToInvite.size() / 2))).block();
         User randomUser2 = userRepository.findByEmail(usersToInviteList.get(random.nextInt(usersToInvite.size() / 2, usersToInvite.size()))).block();
 
-        UserGroup randomGroup1 = groups.get(random.nextInt(groups.size()));
-        UserGroup randomGroup2 = groups.get(random.nextInt(groups.size()));
+        UserGroup randomGroup1 = groups.get(random.nextInt(0, groups.size() / 2));
+        UserGroup randomGroup2 = groups.get(random.nextInt(groups.size() / 2, groups.size()));
 
         UpdateApplicationRoleDTO changeRoleForRandomUser1 = new UpdateApplicationRoleDTO();
         changeRoleForRandomUser1.setNewRole(APPLICATION_DEVELOPER);

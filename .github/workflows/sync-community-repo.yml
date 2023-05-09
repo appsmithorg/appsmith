@@ -37,7 +37,7 @@ jobs:
               {
                 EOF="$(dd if=/dev/urandom bs=15 count=1 status=none | base64)"
                 echo "conflicts<<$EOF"
-                echo "$conflict_files"
+                echo "$conflict_files" | sort | cat -n
                 echo "$EOF"
               } >> "$GITHUB_OUTPUT"
               exit 1
@@ -65,6 +65,6 @@ jobs:
             ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
             for details. Conflicts found in:
             ```
-            echo '${{ steps.merge_step.outputs.conflicts }}' | sort | cat -n
+            ${{ steps.merge_step.outputs.conflicts }}
             ```
           SLACK_USERNAME: appsmith-bot
