@@ -14,6 +14,7 @@ function TableOrSpreadsheetDropdown() {
       <SelectWrapper className="space-y-2">
         {label}
         <Select
+          className="t--one-click-binding-table-selector"
           dropdownStyle={{
             minWidth: "350px",
             maxHeight: "300px",
@@ -28,16 +29,23 @@ function TableOrSpreadsheetDropdown() {
             }
           }}
           value={selected}
+          virtual={false}
         >
           {options.map((option) => {
             return (
-              <Option key={option.id} value={option.value}>
+              <Option
+                className="t--one-click-binding-table-selector--table"
+                key={option.id}
+                value={option.value}
+              >
                 <DropdownOption label={option.label} leftIcon={option.icon} />
               </Option>
             );
           })}
         </Select>
-        <ErrorMessage>{error}</ErrorMessage>
+        <ErrorMessage className="t--one-click-binding-table-selector--error">
+          {error}
+        </ErrorMessage>
       </SelectWrapper>
     );
   } else {

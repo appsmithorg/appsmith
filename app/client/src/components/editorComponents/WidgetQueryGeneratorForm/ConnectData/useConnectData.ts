@@ -14,7 +14,7 @@ export function useConnectData() {
 
   const { config, widgetId } = useContext(WidgetQueryGeneratorFormContext);
 
-  const { options: columns, primaryColumn } = useColumns("");
+  const { columns, primaryColumn } = useColumns("");
 
   const isLoading = useSelector(
     getisOneClickBindingConnectingForWidget(widgetId),
@@ -26,7 +26,7 @@ export function useConnectData() {
       datasourceId: config.datasource,
       widgetId: widgetId,
       searchableColumn: config.searchableColumn,
-      columns: columns.map((column) => column.value),
+      columns: columns.map((column) => column.name),
       primaryColumn,
     };
 

@@ -696,6 +696,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       this.props.tableData,
       prevProps.tableData,
     );
+
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
     // If the user has changed the tableData OR
     // The binding has returned a new value
