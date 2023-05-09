@@ -24,6 +24,7 @@ module.exports = {
   stories: [
     "../../design-system/widgets/src/**/*.stories.mdx",
     "../../design-system/widgets/src/**/*.stories.@(js|jsx|ts|tsx)",
+    "../../design-system/widgets-old/src/**/*.stories.@(js|jsx|ts|tsx)",
   ],
   addons: [
     "@storybook/addon-links",
