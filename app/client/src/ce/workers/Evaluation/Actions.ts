@@ -125,8 +125,6 @@ export const addDataTreeToContext = (args: {
       funcObj,
     );
   }
-
-  console.log("$$$", { EVAL_CONTEXT });
 };
 
 export const addPlatformFunctionsToEvalContext = (context: any) => {
