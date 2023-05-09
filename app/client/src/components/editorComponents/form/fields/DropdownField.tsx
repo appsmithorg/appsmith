@@ -44,7 +44,7 @@ const renderDropdown = (props: any) => {
                 src={getAssetUrl(option.image)}
               />
             )}
-            {option.label}
+            <span>{option.label}</span>
           </Container>
         </Option>
       ))}
