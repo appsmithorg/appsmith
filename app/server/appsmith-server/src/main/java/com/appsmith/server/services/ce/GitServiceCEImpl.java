@@ -430,19 +430,12 @@ public class GitServiceCEImpl implements GitServiceCE {
                     final String workspaceId = defaultApplication.getWorkspaceId();
                     return GitUtils.isRepoPrivate(defaultGitMetadata.getBrowserSupportedRemoteUrl())
                             .flatMap(isPrivate -> {
-                                if (!isPrivate.equals(defaultGitMetadata.getIsRepoPrivate())) {
+                                if (!isPrivate.equals(defaultGitMetadata.getIsRepoPrivate()) || Boolean.TRUE.equals(defaultGitMetadata.getIsRepoPrivate())) {
                                     defaultGitMetadata.setIsRepoPrivate(isPrivate);
                                     defaultApplication.setGitApplicationMetadata(defaultGitMetadata);
                                     return applicationService.save(defaultApplication)
                                             // Check if the private repo count is less than the allowed repo count
-                                            .map(application -> {
-                                                if(Boolean.TRUE.equals(application.getGitApplicationMetadata().getIsRepoPrivate())) {
-                                                    // Check the repo limit only if the git repo is private
-                                                    return isRepoLimitReached(workspaceId, false);
-                                                } else {
-                                                    return Mono.just(application);
-                                                }
-                                            })
+                                            .map(application -> isRepoLimitReached(workspaceId, false))
                                             .flatMap(isRepoLimitReached -> {
                                                 if (Boolean.FALSE.equals(isRepoLimitReached)) {
                                                     return Mono.just(defaultApplication);
