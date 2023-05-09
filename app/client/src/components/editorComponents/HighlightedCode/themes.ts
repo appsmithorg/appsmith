@@ -90,7 +90,7 @@ export const LIGHT = css`
   .token.constant,
   .token.symbol,
   .token.deleted {
-    color: var(--ads-v2-color-fg-brand);
+    color: #905;
   }
 
   .token.selector,

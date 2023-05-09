@@ -132,7 +132,7 @@ export const EditorWrapper = styled.div<{
           case props.hasError:
             return "red";
           case props.isFocused:
-            return "var(--ads-v2-color-border-emphasis)";
+            return "var(--ads-v2-color-border-emphasis-plus)";
           default:
             return "var(--ads-v2-color-border)";
         }

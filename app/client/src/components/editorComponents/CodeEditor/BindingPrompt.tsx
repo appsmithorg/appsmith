@@ -10,7 +10,7 @@ const Wrapper = styled.span<{
 }>`
   padding: ${(props) => (props.customMessage ? 6 : 8)}px;
   font-size: 12px;
-  color: var(--ads-v2-color-gray-500);
+  color: var(--ads-v2-color-fg-muted);
   box-shadow: var(--ads-v2-shadow-popovers);
   border-radius: var(--ads-v2-border-radius);
   background-color: var(--ads-v2-color-bg-muted);
@@ -24,7 +24,7 @@ const Wrapper = styled.span<{
 `;
 
 const CurlyBraces = styled.span`
-  color: var(--ads-v2-color-gray-500);
+  color: var(--ads-v2-color-fg-muted);
   background-color: ${(props) =>
     props.theme.colors.codeMirror.background.hoverState};
 `;
