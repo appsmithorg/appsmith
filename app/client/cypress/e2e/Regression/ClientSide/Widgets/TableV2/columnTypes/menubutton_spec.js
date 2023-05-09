@@ -5,6 +5,7 @@ const propPane = ObjectsRegistry.PropertyPane;
 describe("Custom column alias functionality", () => {
   before(() => {
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 150, y: 300 });
+    ObjectsRegistry.Table.AddSampleTableData();
   });
 
   it("1. should check that menuitems background color property has access to currentRow", () => {

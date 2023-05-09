@@ -1,6 +1,7 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/tableV2WidgetDsl.json");
 import apiPage from "../../../../locators/ApiEditor";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 import * as _ from "../../../../support/Objects/ObjectsCore";
 

@@ -1,3 +1,4 @@
+import _ from "cypress/types/lodash";
 import {
   PROPERTY_SELECTOR,
   WIDGET,
@@ -6,6 +7,7 @@ import {
   TABLE_DATA_DYNAMIC,
   TABLE_DATA_STATIC,
 } from "../../../../../support/Constants";
+import * as helper from "../../../../../support/Objects/ObjectsCore";
 
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
@@ -15,6 +17,7 @@ describe("1. Check frozen common and/or custom columns retain position on query 
 
     cy.wait(2000);
     cy.openPropertyPane(WIDGET.TABLE);
+    helper.propPane.ToggleJsMode("Table Data");
     cy.updateCodeInput(PROPERTY_SELECTOR.tableData, TABLE_DATA_STATIC);
   });
 

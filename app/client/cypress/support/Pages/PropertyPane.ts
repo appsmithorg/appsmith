@@ -446,4 +446,8 @@ export class PropertyPane {
   public AssertSelectValue(value: string) {
     this.agHelper.AssertElementExist(this.locator._selectByValue(value));
   }
+
+  public DeleteWidget() {
+    ObjectsRegistry.AggregateHelper.GetNClick("button.t--delete-widget");
+  }
 }

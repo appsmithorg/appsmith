@@ -13,6 +13,7 @@ const agHelper = ObjectsRegistry.AggregateHelper;
 describe("1. Check column freeze and unfreeze mechanism in canavs mode", () => {
   before(() => {
     cy.dragAndDropToCanvas(WIDGET.TABLE, { x: 200, y: 200 });
+    ObjectsRegistry.Table.AddSampleTableData();
     cy.dragAndDropToCanvas(WIDGET.TEXT, { x: 200, y: 600 });
     cy.openPropertyPane(WIDGET.TEXT);
     cy.updateCodeInput(
@@ -228,8 +229,9 @@ describe("1. Check column freeze and unfreeze mechanism in canavs mode", () => {
 
 describe("2. Check column freeze and unfreeze mechanism in page mode", () => {
   before(() => {
-    cy.dragAndDropToCanvas(WIDGET.TABLE, { x: 200, y: 200 });
-    cy.openPropertyPane(WIDGET.TABLE);
+    cy.startServerAndRoutes();
+    cy.dragAndDropToCanvas(WIDGET.TABLE, { x: 400, y: 200 });
+    ObjectsRegistry.Table.AddSampleTableData();
     cy.PublishtheApp();
   });
   describe("2.1 Column freeze and unfreeze testing with 0 pre-frozen columns", () => {
@@ -240,6 +242,7 @@ describe("2. Check column freeze and unfreeze mechanism in page mode", () => {
     afterEach(() => {
       agHelper.SaveLocalStorageCache();
     });
+
     it("2.1.1 Freeze Columns left", () => {
       cy.freezeColumnFromDropdown("step", "left");
       cy.checkIfColumnIsFrozenViaCSS("0", "0");
@@ -396,11 +399,18 @@ describe("2. Check column freeze and unfreeze mechanism in page mode", () => {
       cy.checkIfColumnIsFrozenViaCSS("0", "3");
     });
   });
+
+  after(() => {
+    cy.openPropertyPane(WIDGET.TABLE);
+    ObjectsRegistry.PropertyPane.DeleteWidget();
+  });
 });
 
 describe("3. Server-side pagination when turned on test of re-ordering columns", () => {
   before(() => {
+    cy.startServerAndRoutes();
     cy.dragAndDropToCanvas(WIDGET.TABLE, { x: 500, y: 200 });
+    ObjectsRegistry.Table.AddSampleTableData();
     cy.openPropertyPane(WIDGET.TABLE);
     cy.updateCodeInput(PROPERTY_SELECTOR.tableData, TABLE_DATA_DYNAMIC);
     cy.get(commonlocators.serverSidePaginationCheckbox).click({ force: true });

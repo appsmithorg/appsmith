@@ -4,6 +4,7 @@ const publishPage = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import apiPage from "../../../../locators/ApiEditor";
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 describe("Test Create Api and Bind to Table widget", function () {
   before(() => {

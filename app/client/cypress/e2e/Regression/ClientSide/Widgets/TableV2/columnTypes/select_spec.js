@@ -9,6 +9,7 @@ const entityExplorer = ObjectsRegistry.EntityExplorer;
 describe("Table widget - Select column type functionality", () => {
   before(() => {
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 350, y: 500 });
+    ObjectsRegistry.Table.AddSampleTableData();
   });
 
   it("1. should check that select column is available in the column dropdown options", () => {

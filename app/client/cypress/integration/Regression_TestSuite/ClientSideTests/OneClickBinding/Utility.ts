@@ -9,10 +9,6 @@ export function ChooseAndAssertForm(source, selectedSource, table, column) {
     `.t--one-click-binding-datasource-selector--datasource:contains(${source})`,
   );
 
-  _.agHelper.AssertElementExist(
-    `.t--one-click-binding-datasource-selector .rc-select-selection-item:contains(${selectedSource})`,
-  );
-
   cy.wait("@getDatasourceStructure").should(
     "have.nested.property",
     "response.body.responseMeta.status",

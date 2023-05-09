@@ -1,4 +1,6 @@
 import { ObjectsRegistry } from "../Objects/Registry";
+import sampleTableData from "../../fixtures/Table/sampleTableData.json";
+
 const path = require("path");
 
 type filterTypes =
@@ -550,5 +552,15 @@ export class Table {
     if (checkNoNextPage)
       cy.get(this._liNextPage).should("have.attr", "aria-disabled", "true");
     else cy.get(this._liNextPage).should("have.attr", "aria-disabled", "false");
+  }
+
+  public AddSampleTableData() {
+    ObjectsRegistry.PropertyPane.ToggleJsMode("Table Data");
+    ObjectsRegistry.PropertyPane.UpdatePropertyFieldValue(
+      "Table Data",
+      JSON.stringify(sampleTableData),
+      true,
+    );
+    ObjectsRegistry.Table.ChangeColumnType("action", "Button", "v2");
   }
 }
