@@ -338,10 +338,10 @@ public class RedisPlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<DatasourceTestResult> testDatasource(JedisPool connection) {
+        public Mono<DatasourceTestResult> testDatasource(JedisPool connectionPool) {
 
-            return Mono.just(connection)
-                    .flatMap(c -> verifyPing(connection))
+            return Mono.just(connectionPool)
+                    .flatMap(c -> verifyPing(connectionPool))
                     .then(Mono.just(new DatasourceTestResult()))
                     .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getCause().getMessage())));
 
