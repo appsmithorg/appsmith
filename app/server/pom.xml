@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.1</version>
+        <version>3.0.6</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -26,10 +26,7 @@
         <project.version>1.0-SNAPSHOT</project.version>
         <!-- By default skip the dockerization step. Only activate if necessary -->
         <skipDockerBuild>true</skipDockerBuild>
-        <spring-boot.version>3.0.1</spring-boot.version>
-        <!-- Required because Spring Boot v3.0.1 does not come with this version that solves a High priority CVE -->
-        <netty.version>4.1.86.Final</netty.version>
-        <log4j2.version>2.17.1</log4j2.version>
+        <spring-boot.version>3.0.6</spring-boot.version>
         <h2.version>2.1.210</h2.version>
         <testcontainers.version>1.17.3</testcontainers.version>
         <mockito.version>4.4.0</mockito.version>

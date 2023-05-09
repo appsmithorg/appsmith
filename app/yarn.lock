@@ -8887,7 +8887,6 @@ __metadata:
     compression-webpack-plugin: ^10.0.0
     copy-to-clipboard: ^3.3.1
     core-js: ^3.9.1
-    country-flag-emoji-polyfill: ^0.1.4
     cra-bundle-analyzer: ^0.1.0
     craco-alias: ^2.1.1
     craco-babel-loader: ^1.0.4
@@ -11562,15 +11561,6 @@ __metadata:
     path-type: ^4.0.0
     yaml: ^1.10.0
   checksum: c53bf7befc1591b2651a22414a5e786cd5f2eeaa87f3678a3d49d6069835a9d8d1aef223728e98aa8fec9a95bf831120d245096db12abe019fecb51f5696c96f
-  languageName: node
-  linkType: hard
-
-"country-flag-emoji-polyfill@npm:^0.1.4":
-  version: 0.1.4
-  resolution: "country-flag-emoji-polyfill@npm:0.1.4"
-  dependencies:
-    is-emoji-supported: ^0.0.5
-  checksum: 95037d4d48df0b9a102f58ffd282b6c27af2bf3bb5796e5c0c2ae20a9658548c31764b696781069009258b023d5773a35464d9b5a4e4d4d52aafa055a6e0a092
   languageName: node
   linkType: hard
 
@@ -16902,13 +16892,6 @@ __metadata:
     is-object: ^1.0.1
     is-window: ^1.0.2
   checksum: 72aff0a7366b801c9d598d49452ec06544b52c3da92a0c6c3cacace33bb0c3df5ba1b4e422ac39224773316a553699d5920a1eb136919319f57d00e6384eb41b
-  languageName: node
-  linkType: hard
-
-"is-emoji-supported@npm:^0.0.5":
-  version: 0.0.5
-  resolution: "is-emoji-supported@npm:0.0.5"
-  checksum: 98f44f1b96c67a90cc968af780260778ec0b662ec73ce16da15366998f80ce34eea958656506c264dcc98d66df1ef1e66b04d5a8c20e8952dd5332599f6b95b8
   languageName: node
   linkType: hard
 
