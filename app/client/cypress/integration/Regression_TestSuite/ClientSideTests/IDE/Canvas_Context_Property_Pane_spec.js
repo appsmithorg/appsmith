@@ -25,7 +25,7 @@ describe("Canvas context Property Pane", function () {
   });
 
   it("1. Code Editor should have focus while switching between widgets, pages and Editor Panes", function () {
-    const propertyControlSelector = ".t--property-control-label";
+    let propertyControlSelector = ".t--property-control-label";
     verifyPropertyPaneContext(
       () => {
         cy.focusCodeInput(propertyControlSelector);
@@ -35,10 +35,10 @@ describe("Canvas context Property Pane", function () {
       },
       "Button1",
     );
-  });
 
-  it("2. Toggle Property controls should have focus while switching between widgets, pages and Editor Panes", function () {
-    const propertyControlSelector = `.t--property-control-animateloading input[type="checkbox"]`;
+    // Toggle Property controls should have focus while switching between widgets, pages and Editor Panes
+    agHelper.RefreshPage();
+    propertyControlSelector = `.t--property-control-animateloading input[type="checkbox"]`;
     verifyPropertyPaneContext(
       () => {
         cy.get(propertyControlSelector).click({ force: true });
@@ -48,31 +48,27 @@ describe("Canvas context Property Pane", function () {
       },
       "Button1",
     );
-  });
 
-  it(
-    "excludeForAirgap",
-    "3. DropDown Property controls should have focus while switching between widgets, pages and Editor Panes",
-    function () {
-      const propertyControlClickSelector = `.t--property-control-googlerecaptchaversion div:nth-child(2) .bp3-popover-target div`;
-      const propertyControlVerifySelector =
-        ".t--property-control-googlerecaptchaversion .ur--has-border";
+    //DropDown Property controls should have focus while switching between widgets, pages and Editor Panes
+    agHelper.RefreshPage();
+    let propertyControlClickSelector = `.t--property-control-googlerecaptchaversion div:nth-child(2) .bp3-popover-target div`;
+    let propertyControlVerifySelector =
+      ".t--property-control-googlerecaptchaversion .ur--has-border";
 
-      verifyPropertyPaneContext(
-        () => {
-          cy.get(propertyControlClickSelector).eq(0).click({ force: true });
-        },
-        () => {
-          cy.get(propertyControlVerifySelector).should("be.focused");
-        },
-        "Button1",
-      );
-    },
-  );
+    verifyPropertyPaneContext(
+      () => {
+        cy.get(propertyControlClickSelector).eq(0).click({ force: true });
+      },
+      () => {
+        cy.get(propertyControlVerifySelector).should("be.focused");
+      },
+      "Button1",
+    );
 
-  it("4. Icon Button Property controls should have focus while switching between widgets, pages and Editor Panes", function () {
-    const propertyControlClickSelector = `.t--property-control-borderradius div[aria-selected="true"]`;
-    const propertyControlVerifySelector = `.t--property-control-borderradius div[role="tablist"]`;
+    //Icon Button Property controls should have focus while switching between widgets, pages and Editor Panes
+    agHelper.RefreshPage();
+    propertyControlClickSelector = `.t--property-control-borderradius div[aria-selected="true"]`;
+    propertyControlVerifySelector = `.t--property-control-borderradius div[role="tablist"]`;
     verifyPropertyPaneContext(
       () => {
         cy.get(propertyControlClickSelector).click({ force: true });
@@ -85,8 +81,8 @@ describe("Canvas context Property Pane", function () {
     );
   });
 
-  it("5. ColorPicker Property controls should have focus while switching between widgets, pages and Editor Panes", function () {
-    const propertyControlSelector = `.t--property-control-buttoncolor input[type="text"]`;
+  it("2. ColorPicker Property controls should have focus while switching between widgets, pages and Editor Panes", function () {
+    let propertyControlSelector = `.t--property-control-buttoncolor input[type="text"]`;
     verifyPropertyPaneContext(
       () => {
         cy.get(propertyControlSelector).click({ force: true });
@@ -97,10 +93,10 @@ describe("Canvas context Property Pane", function () {
       "Button1",
       true,
     );
-  });
 
-  it("6. Property Sections should retain state while switching between widgets, pages and Editor Panes", function () {
-    const propertySectionState = {
+    //Property Sections should retain state while switching between widgets, pages and Editor Panes
+    agHelper.RefreshPage();
+    let propertySectionState = {
       basic: false,
       general: true,
       validation: false,
@@ -116,10 +112,10 @@ describe("Canvas context Property Pane", function () {
       },
       "Button1",
     );
-  });
 
-  it("7. Property Tabs and Sections should retain state while switching between widgets, pages and Editor Panes", function () {
-    const propertySectionState = {
+    //Property Tabs and Sections should retain state while switching between widgets, pages and Editor Panes
+    agHelper.RefreshPage();
+    propertySectionState = {
       general: true,
       icon: false,
       color: true,
@@ -136,10 +132,10 @@ describe("Canvas context Property Pane", function () {
       },
       "Button1",
     );
-  });
 
-  it("8. Layered PropertyPane - Code Editor should have focus while switching between widgets, pages and Editor Panes", function () {
-    const propertyControlSelector = ".t--property-control-computedvalue";
+    //Layered PropertyPane - Code Editor should have focus while switching between widgets, pages and Editor Panes
+    agHelper.RefreshPage();
+    propertyControlSelector = ".t--property-control-computedvalue";
     verifyPropertyPaneContext(
       () => {
         cy.editColumn("step");
@@ -155,8 +151,8 @@ describe("Canvas context Property Pane", function () {
     cy.get(".t--property-pane-title").should("contain", "Table1");
   });
 
-  it("9. Layered PropertyPane - Toggle Property controls should have focus while switching between widgets, pages and Editor Panes", function () {
-    const propertyControlSelector = `.t--property-control-cellwrapping input[type="checkbox"]`;
+  it("3. Layered PropertyPane - Toggle Property controls should have focus while switching between widgets, pages and Editor Panes", function () {
+    let propertyControlSelector = `.t--property-control-cellwrapping input[type="checkbox"]`;
     verifyPropertyPaneContext(
       () => {
         cy.editColumn("step");
@@ -170,10 +166,11 @@ describe("Canvas context Property Pane", function () {
 
     cy.get(".t--property-pane-back-btn").click();
     cy.get(".t--property-pane-title").should("contain", "Table1");
-  });
 
-  it("11. Layered PropertyPane - Property Sections should retain state while switching between widgets, pages and Editor Panes", function () {
-    const propertySectionState = {
+    //Layered PropertyPane - Property Sections should retain state while switching between widgets, pages and Editor Panes
+    agHelper.RefreshPage();
+
+    let propertySectionState = {
       data: false,
       general: true,
     };
@@ -192,10 +189,10 @@ describe("Canvas context Property Pane", function () {
 
     cy.get(".t--property-pane-back-btn").click();
     cy.get(".t--property-pane-title").should("contain", "Table1");
-  });
 
-  it("10. Layered PropertyPane - Property Tabs and Sections should retain state while switching between widgets, pages and Editor Panes", function () {
-    const propertySectionState = {
+    //Layered PropertyPane - Property Tabs and Sections should retain state while switching between widgets, pages and Editor Panes
+    agHelper.RefreshPage();
+    propertySectionState = {
       textformatting: true,
       color: false,
     };
@@ -216,8 +213,8 @@ describe("Canvas context Property Pane", function () {
     cy.get(".t--property-pane-title").should("contain", "Table1");
   });
 
-  it("11. Multi Layered PropertyPane - Code Editor should have focus while switching between widgets, pages and Editor Panes", function () {
-    const propertyControlSelector = ".t--property-control-text";
+  it("4. Multi Layered PropertyPane - Code Editor should have focus while switching between widgets, pages and Editor Panes", function () {
+    let propertyControlSelector = ".t--property-control-text";
     verifyPropertyPaneContext(
       () => {
         cy.editColumn("status");
@@ -236,10 +233,10 @@ describe("Canvas context Property Pane", function () {
     cy.wait(500);
     cy.get(".t--property-pane-back-btn").click();
     cy.get(".t--property-pane-title").should("contain", "Table1");
-  });
 
-  it("12. Multi Layered PropertyPane - Toggle Property controls should have focus while switching between widgets, pages and Editor Panes", function () {
-    const propertyControlSelector = `.t--property-control-visible input[type="checkbox"]`;
+    //Multi Layered PropertyPane - Toggle Property controls should have focus while switching between widgets, pages and Editor Panes
+    agHelper.RefreshPage();
+    propertyControlSelector = `.t--property-control-visible input[type="checkbox"]`;
     verifyPropertyPaneContext(
       () => {
         cy.editColumn("status");
@@ -258,10 +255,11 @@ describe("Canvas context Property Pane", function () {
     cy.wait(500);
     cy.get(".t--property-pane-back-btn").click();
     cy.get(".t--property-pane-title").should("contain", "Table1");
-  });
 
-  it("13. Multi Layered PropertyPane - Property Sections should retain state while switching between widgets, pages and Editor Panes", function () {
-    const propertySectionState = {
+    //Multi Layered PropertyPane - Property Sections should retain state while switching between widgets, pages and Editor Panes
+    agHelper.RefreshPage();
+
+    let propertySectionState = {
       basic: false,
       general: true,
     };
@@ -285,10 +283,11 @@ describe("Canvas context Property Pane", function () {
     cy.wait(500);
     cy.get(".t--property-pane-back-btn").click();
     cy.get(".t--property-pane-title").should("contain", "Table1");
-  });
 
-  it("14. Multi Layered PropertyPane - Property Tabs and Sections should retain state while switching between widgets, pages and Editor Panes", function () {
-    const propertySectionState = {
+    //Multi Layered PropertyPane - Property Tabs and Sections should retain state while switching between widgets, pages and Editor Panes
+    agHelper.RefreshPage();
+
+    propertySectionState = {
       icon: true,
       color: false,
     };
@@ -315,7 +314,7 @@ describe("Canvas context Property Pane", function () {
   });
 });
 
-const propertySectionClass = (section) =>
+let propertySectionClass = (section) =>
   `.t--property-pane-section-collapse-${section}`;
 
 function setPropertyPaneSectionState(propertySectionState) {

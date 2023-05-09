@@ -5,14 +5,14 @@ import {
   ThemeProvider,
   TokensAccessor,
   defaultTokens,
-  parse,
 } from "@design-system/theming";
 import { createGlobalFontStack } from "@design-system/widgets";
+import Color from "colorjs.io";
 
 const StyledThemeProvider = styled(ThemeProvider)`
-  display: flex;
-  width: 100%;
-  height: 100%;
+  display: inline-flex;
+  min-width: 100%;
+  min-height: 100%;
   padding: 16px;
   align-items: center;
   justify-content: center;
@@ -49,7 +49,7 @@ export const theming = (Story, args) => {
       let color;
 
       try {
-        color = parse(args.globals.accentColor);
+        color = Color.parse(args.globals.accentColor);
       } catch (error) {
         console.error(error);
       }
@@ -79,19 +79,6 @@ export const theming = (Story, args) => {
       });
     }
   }, [args.globals.colorMode]);
-
-  useEffect(() => {
-    if (args.globals.colorScheme) {
-      tokensAccessor.updateColorScheme(args.globals.colorScheme);
-
-      setTheme((prevState) => {
-        return {
-          ...prevState,
-          ...tokensAccessor.getColors(),
-        };
-      });
-    }
-  }, [args.globals.colorScheme]);
 
   useEffect(() => {
     if (args.globals.borderRadius) {

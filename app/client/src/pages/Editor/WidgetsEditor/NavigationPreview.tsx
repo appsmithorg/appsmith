@@ -22,6 +22,8 @@ const NavigationPreview = forwardRef(
             isPreviewMode || isAppSettingsPaneWithNavigationTabOpen,
           "-translate-y-full duration-0":
             !isPreviewMode || !isAppSettingsPaneWithNavigationTabOpen,
+          "select-none pointer-events-none":
+            isAppSettingsPaneWithNavigationTabOpen,
         })}
         ref={ref}
       >

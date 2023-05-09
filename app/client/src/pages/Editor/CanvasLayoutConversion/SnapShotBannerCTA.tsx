@@ -30,7 +30,9 @@ export function SnapShotBannerCTA() {
     if (isOpen) {
       dispatch(setConversionStart(conversionState));
     } else {
-      dispatch(setConversionStop());
+      setTimeout(() => {
+        dispatch(setConversionStop());
+      }, 0);
     }
   };
 
