@@ -227,8 +227,11 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                         ));
                     // For Installation Setup Complete event we are using `instanceId` as tracking id
                     // As this does not satisfy the email validation it's not getting hashed correctly
-                    if (!StringUtils.isEmpty(instanceId) && instanceId.equals(immutableUserId)) {
-                        analyticsProperties.put(EMAIL_DOMAIN_HASH, hash(immutableUserId));
+                    if (AnalyticsEvents.INSTALLATION_SETUP_COMPLETE.getEventName().equals(event)
+                            && analyticsProperties.containsKey(EMAIL)) {
+
+                        String email = analyticsProperties.get(EMAIL) != null ? analyticsProperties.get(EMAIL).toString() : "";
+                        analyticsProperties.put(EMAIL_DOMAIN_HASH, hash(email));
                     } else {
                         analyticsProperties.put(EMAIL_DOMAIN_HASH, emailDomainHash);
                     }
