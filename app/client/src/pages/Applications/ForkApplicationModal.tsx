@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getUserApplicationsWorkspaces,
@@ -53,6 +53,13 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
+
+  useEffect(() => {
+    if (!forkingApplication) {
+      const shouldCloseForcibly = isModalOpen && setModalClose;
+      shouldCloseForcibly && setModalClose(false);
+    }
+  }, [forkingApplication]);
 
   const forkApplication = () => {
     dispatch({
@@ -110,8 +117,12 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
         url.searchParams.append("fork", "true");
         history.push(url.toString().slice(url.origin.length));
       }
-      dispatch(getAllApplications());
     }
+    /**
+     * Whenever we open this modal we are confident that user has some workspaces
+     * `workspaceList` cannot be empty.
+     */
+    !workspaceList.length && dispatch(getAllApplications());
   };
 
   return (
