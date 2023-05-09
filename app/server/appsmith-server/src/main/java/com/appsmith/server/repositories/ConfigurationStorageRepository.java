@@ -1,4 +1,8 @@
 package com.appsmith.server.repositories;
 
-public interface ConfigurationStorageRepository {
+import com.appsmith.server.repositories.ce.ConfigurationStorageRepositoryCE;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface ConfigurationStorageRepository extends ConfigurationStorageRepositoryCE {
 }

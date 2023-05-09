@@ -1,4 +1,7 @@
 package com.appsmith.server.services;
 
-public interface ConfigurationStorageService {
+import com.appsmith.server.services.ce.ConfigurationStorageServiceCE;
+
+public interface ConfigurationStorageService extends ConfigurationStorageServiceCE {
+
 }
