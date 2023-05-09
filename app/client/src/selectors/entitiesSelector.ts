@@ -12,7 +12,7 @@ import type {
 } from "entities/Datasource";
 import { isEmbeddedRestDatasource } from "entities/Datasource";
 import type { Action } from "entities/Action";
-import { PluginPackageName, PluginType } from "entities/Action";
+import { PluginType } from "entities/Action";
 import { find, get, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -46,6 +46,10 @@ export const getEntities = (state: AppState): AppState["entities"] =>
 
 export const getDatasources = (state: AppState): Datasource[] => {
   return state.entities.datasources.list;
+};
+
+export const getRecentDatasourceIds = (state: AppState): string[] => {
+  return state.entities.datasources.recentDatasources;
 };
 
 export const getDatasourcesStructure = (
@@ -258,16 +262,8 @@ export const getPluginDependencyConfig = (state: AppState) =>
 export const getPluginSettingConfigs = (state: AppState, pluginId: string) =>
   state.entities.plugins.settingConfigs[pluginId];
 
-export const getDBPlugins = createSelector(
-  getPlugins,
-  selectFeatureFlags,
-  (plugins, featureFlags) =>
-    plugins.filter((plugin) =>
-      featureFlags.ORACLE_PLUGIN
-        ? plugin.type === PluginType.DB
-        : plugin.type === PluginType.DB &&
-          plugin.packageName !== PluginPackageName.ORACLE,
-    ),
+export const getDBPlugins = createSelector(getPlugins, (plugins) =>
+  plugins.filter((plugin) => plugin.type === PluginType.DB),
 );
 
 export const getDBAndRemotePlugins = createSelector(getPlugins, (plugins) =>
