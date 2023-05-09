@@ -49,7 +49,6 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
     public Mono<DatasourceStructure> getStructure(String datasourceId, boolean ignoreCache, String environmentName) {
         return datasourceService.getById(datasourceId)
                 .flatMap(datasource -> getStructure(datasource, ignoreCache, environmentName))
-                .defaultIfEmpty(new DatasourceStructure())
                 .onErrorMap(
                         IllegalArgumentException.class,
                         error ->
@@ -146,7 +145,8 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                         return Mono.just(configurationStructure.getStructure());
                     } else return Mono.empty();
                 })
-                .switchIfEmpty(fetchAndStoreNewStructureMono);
+                .switchIfEmpty(fetchAndStoreNewStructureMono)
+                .defaultIfEmpty(new DatasourceStructure());
     }
 
     /**

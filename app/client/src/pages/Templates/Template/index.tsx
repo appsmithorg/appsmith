@@ -6,7 +6,6 @@ import { Button, Tooltip, Text } from "design-system";
 import ForkTemplateDialog from "../ForkTemplate";
 import DatasourceChip from "../DatasourceChip";
 import LargeTemplate from "./LargeTemplate";
-// import { Colors } from "constants/Colors";
 import {
   createMessage,
   FORK_THIS_TEMPLATE,
@@ -157,7 +156,6 @@ export function TemplateLayout(props: TemplateLayoutProps) {
             {props.isForkingEnabled && (
               <Tooltip
                 content={createMessage(FORK_THIS_TEMPLATE)}
-                // minimal
                 placement={Position.BOTTOM}
               >
                 <Button

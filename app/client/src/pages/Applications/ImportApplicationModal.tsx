@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import React, { useCallback, useEffect, useState } from "react";
-import styled, { useTheme } from "styled-components";
+import styled, { useTheme, css } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
   importApplication,
@@ -41,8 +41,7 @@ const Row = styled.div`
   gap: 16px;
 `;
 
-const CardStyles = styled.div<{ fillCardWidth: boolean }>`
-  width: ${(props) => (props.fillCardWidth ? "100%" : "320px")};
+const CardStyles = css`
   height: 200px;
   border: 1px solid var(--ads-v2-color-border);
   border-radius: var(--ads-v2-border-radius);
@@ -59,8 +58,10 @@ const CardStyles = styled.div<{ fillCardWidth: boolean }>`
 
 const FileImportCard = styled.div<{ fillCardWidth: boolean }>`
   ${CardStyles}
+  width: ${(props) => (props.fillCardWidth ? "100%" : "320px")};
   & > div {
     background: transparent none;
+    border: none;
 
     .upload-form-container {
       padding-top: 0;
@@ -112,6 +113,7 @@ const FileImportCard = styled.div<{ fillCardWidth: boolean }>`
 
 const CardWrapper = styled.div`
   ${CardStyles}
+  width: 320px;
   .ads-v2-icon {
     border-radius: 50%;
     width: 32px;

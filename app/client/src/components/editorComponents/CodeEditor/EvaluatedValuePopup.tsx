@@ -55,7 +55,7 @@ const THEME = {
   backgroundColor: "var(--ads-v2-color-bg)",
   textColor: "var(--ads-v2-color-fg)",
   editorBackground: "var(--ads-v2-color-bg)",
-  editorColor: "#1E242B",
+  editorColor: "var(--ads-v2-color-fg)",
 };
 
 const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
@@ -101,7 +101,35 @@ const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
       display: flex;
     }
   }
-  border: 1px solid var(--ads-v2-color-border);
+
+  /* for audit logs */
+  .pushed-content .object-key-val,
+  .variable-row {
+    border-left: 1px solid var(--ads-v2-color-border) !important;
+
+    .object-key,
+    .object-key span,
+    span {
+      color: var(--ads-v2-color-fg) !important;
+      opacity: 1 !important;
+    }
+
+    .variable-value > div span {
+      color: var(--ads-v2-color-fg-brand) !important;
+    }
+  }
+
+  .object-key-val {
+    .collapsed-icon svg,
+    .expanded-icon svg {
+      color: var(--ads-v2-color-fg) !important;
+    }
+
+    .node-ellipsis {
+      color: var(--ads-v2-color-fg-brand) !important;
+      letter-spacing: -2px;
+    }
+  }
 `;
 
 const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
