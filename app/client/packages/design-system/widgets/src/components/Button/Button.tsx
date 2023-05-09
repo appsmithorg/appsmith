@@ -1,4 +1,5 @@
 import React, { forwardRef } from "react";
+import { Icon as HeadlessIcon } from "@design-system/headless";
 import type {
   ButtonProps as HeadlessButtonProps,
   ButtonRef as HeadlessButtonRef,
@@ -41,7 +42,11 @@ export const Button = forwardRef(
 
     const renderChildren = () => {
       if (isLoading) {
-        return <Spinner />;
+        return (
+          <HeadlessIcon>
+            <Spinner />
+          </HeadlessIcon>
+        );
       }
 
       return (

@@ -7,6 +7,11 @@ import EmotionHappyLineIcon from "remixicon-react/EmotionHappyLineIcon";
 import { Button } from "./";
 
 describe("@design-system/widgets/Button", () => {
+  it("renders children when passed", () => {
+    render(<Button>Click me</Button>);
+    expect(screen.getByRole("button")).toHaveTextContent("Click me");
+  });
+
   it("passes type to button component", () => {
     render(<Button type="submit" />);
     expect(screen.getByRole("button")).toHaveAttribute("type", "submit");
@@ -26,9 +31,12 @@ describe("@design-system/widgets/Button", () => {
     expect(screen.getByRole("button")).toHaveAttribute("data-disabled");
   });
 
-  it("sets data-loading attribute based on loading prop", () => {
+  it("sets data-loading attribute and icon based on loading prop", () => {
     render(<Button isLoading />);
     expect(screen.getByRole("button")).toHaveAttribute("data-loading");
+
+    const icon = screen.getByRole("button").querySelector("[data-icon]");
+    expect(icon).toBeInTheDocument();
   });
 
   it("renders icon when passed", () => {

@@ -6,7 +6,7 @@ const CONFIG_LOG_LEVEL_INDEX = 1;
 
 module.exports = {
   setupFiles: ["jest-canvas-mock"],
-  roots: ["<rootDir>/src", "<rootDir>/packages"],
+  roots: ["<rootDir>/src"],
   transform: {
     "^.+\\.(png|js|ts|tsx)$": "ts-jest",
   },
