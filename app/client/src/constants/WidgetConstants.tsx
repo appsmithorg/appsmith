@@ -168,6 +168,7 @@ export const WIDGET_DSL_STRUCTURE_PROPS = {
   topRow: true,
   type: true,
   widgetId: true,
+  moduleId: true,
 };
 
 export type TextSize = keyof typeof TextSizes;

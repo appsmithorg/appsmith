@@ -6,6 +6,7 @@ import {
   changeAppViewAccessSaga,
   getAllApplicationSaga,
   fetchAppAndPagesSaga,
+  fetchPackagesSaga,
   forkApplicationSaga,
   createApplicationSaga,
   setDefaultApplicationPageSaga,
@@ -16,6 +17,7 @@ import {
   initDatasourceConnectionDuringImport,
   showReconnectDatasourcesModalSaga,
   fetchUnconfiguredDatasourceList,
+  hydrateModules,
 } from "ce/sagas/ApplicationSagas";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { all, takeLatest } from "redux-saga/effects";
@@ -37,6 +39,8 @@ export default function* applicationSagas() {
       getAllApplicationSaga,
     ),
     takeLatest(ReduxActionTypes.FETCH_APPLICATION_INIT, fetchAppAndPagesSaga),
+    takeLatest(ReduxActionTypes.FETCH_PACKAGES_INIT, fetchPackagesSaga),
+    takeLatest(ReduxActionTypes.HYDRATE_MODULES, hydrateModules),
     takeLatest(ReduxActionTypes.FORK_APPLICATION_INIT, forkApplicationSaga),
     takeLatest(ReduxActionTypes.CREATE_APPLICATION_INIT, createApplicationSaga),
     takeLatest(

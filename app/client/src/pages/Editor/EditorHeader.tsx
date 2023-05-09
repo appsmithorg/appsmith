@@ -461,12 +461,23 @@ export function EditorHeader(props: EditorHeaderProps) {
                 0
               }
               isPopoverOpen={isPopoverOpen}
-              onBlur={(value: string) =>
+              onBlur={(value: string) => {
                 updateApplicationDispatch(applicationId || "", {
                   name: value,
                   currentApp: true,
-                })
-              }
+                });
+
+                if (value.startsWith("PKG_")) {
+                  const packageList = JSON.parse(
+                    localStorage.getItem("__APPSMITH_PKG_LIST__") || "[]",
+                  );
+                  packageList.push(applicationId);
+                  localStorage.setItem(
+                    "__APPSMITH_PKG_LIST__",
+                    JSON.stringify(packageList),
+                  );
+                }
+              }}
               setIsPopoverOpen={setIsPopoverOpen}
             />
           </TooltipComponent>

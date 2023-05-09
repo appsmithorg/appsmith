@@ -45,6 +45,7 @@ import { isStack } from "../utils/autoLayout/AutoLayoutUtils";
 import {
   getCanvasWidth,
   getIsAutoLayoutMobileBreakPoint,
+  getModules,
 } from "selectors/editorSelectors";
 import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
 import { isFunction } from "lodash";
@@ -342,6 +343,100 @@ export function* getUpdateDslAfterCreatingChild(
   return updatedWidgets;
 }
 
+export function* getUpdatedDslAfterCreatingModule(
+  addChildPayload: WidgetAddChild,
+) {
+  // NOTE: widgetId here is the parentId of the dropped widget ( we should rename it to avoid confusion )
+  // eslint-disable-next-line
+  // @ts-ignore
+  const { moduleId, newWidgetId, widgetId: parentId } = addChildPayload;
+  // Get the current parent widget whose child will be the new widget.
+  const parentWidget: FlattenedWidgetProps = yield select(getWidget, parentId);
+  // const parent = Object.assign({}, stateParent);
+  // Get all the widgets from the canvasWidgetsReducer
+  const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const widgets = Object.assign({}, canvasWidgets);
+
+  // eslint-disable-next-line
+  // @ts-ignore
+  const modules = yield select(getModules);
+  const module = modules[moduleId];
+
+  if (module) {
+    const { dsl } = module.layouts[0];
+    const moduleContainer = dsl.children[0];
+    // const moduleCanvas = moduleW.children[0];
+    const entityNames: string[] = yield call(getEntityNames);
+    const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
+
+    // startingWidget.widgetId = newWidgetId;
+    // startingWidget.type = type;
+    const moduleWidgetName = getNextEntityName(module.name, [
+      ...widgetNames,
+      ...entityNames,
+    ]);
+
+    const moduleContainerMetaWidgetId = generateReactKey();
+
+    // eslint-disable-next-line
+    // @ts-ignore
+    const moduleWidget = yield getChildWidgetProps(
+      parentWidget,
+      addChildPayload,
+      widgets,
+    );
+
+    // moduleWidget.children = [moduleContainerMetaWidgetId];
+    moduleWidget.widgetName = moduleWidgetName;
+    moduleWidget.moduleId = moduleId;
+    moduleWidget.hasMetaWidgets = true;
+    moduleWidget.dropDisabled = true;
+    moduleWidget.type = addChildPayload.type;
+
+    // console.log(moduleWidgetProps);
+    // eslint-disable-next-line
+    // @ts-ignore
+    // const moduleWidget: FlattenedWidgetProps = {
+    //   ...rest,
+    //   isLoading: false,
+    //   version: 1,
+    //   widgetId: newWidgetId,
+    //   renderMode: RenderModes.CANVAS,
+    //   widgetName: moduleWidgetName,
+    //   type,
+    //   moduleId,
+    //   hasMetaWidgets: true,
+    //   parentId,
+    //   children: [moduleContainerMetaWidgetId],
+    // };
+
+    // recursivelyAddWidgetsInModule(
+    //   startingWidget,
+    //   parentWidget.widgetId,
+    //   widgets,
+    // );
+
+    const parent = {
+      ...parentWidget,
+      children: [...(parentWidget.children || []), moduleWidget.widgetId],
+    };
+
+    widgets[parent.widgetId] = parent;
+    widgets[moduleWidget.widgetId] = moduleWidget;
+
+    yield put({
+      type: ReduxActionTypes.ADD_MODULE_META_WIDGETS,
+      payload: {
+        moduleWidgetId: newWidgetId,
+        moduleContainerMetaWidgetId,
+        moduleContainer,
+      },
+    });
+  }
+
+  return widgets;
+}
+
 /**
  * this saga is called when we drop a widget on the canvas.
  *
@@ -365,9 +460,21 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
       },
     );
 
-    const updatedWidgets: {
+    let updatedWidgets: {
       [widgetId: string]: FlattenedWidgetProps;
-    } = yield call(getUpdateDslAfterCreatingChild, addChildAction.payload);
+    } = {};
+
+    if (type === "MODULE_WIDGET") {
+      updatedWidgets = yield call(
+        getUpdatedDslAfterCreatingModule,
+        addChildAction.payload,
+      );
+    } else {
+      updatedWidgets = yield call(
+        getUpdateDslAfterCreatingChild,
+        addChildAction.payload,
+      );
+    }
 
     yield put(updateAndSaveLayout(updatedWidgets));
     yield put({

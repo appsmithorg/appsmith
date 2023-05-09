@@ -115,9 +115,13 @@ export const updateCurrentPage = (
   payload: { id, slug, permissions },
 });
 
+type InitCanvasPayload = UpdateCanvasPayload & {
+  modules: any;
+};
+
 export const initCanvasLayout = (
-  payload: UpdateCanvasPayload,
-): ReduxAction<UpdateCanvasPayload> => {
+  payload: InitCanvasPayload,
+): ReduxAction<InitCanvasPayload> => {
   return {
     type: ReduxActionTypes.INIT_CANVAS_LAYOUT,
     payload,
@@ -286,6 +290,7 @@ export type WidgetAddChild = {
   tabId: string;
   props?: Record<string, any>;
   dynamicBindingPathList?: DynamicPath[];
+  isModule?: boolean;
 };
 
 export type WidgetRemoveChild = {

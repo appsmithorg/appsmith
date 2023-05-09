@@ -5,6 +5,7 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
+import { generateReactKey } from "widgets/WidgetUtils";
 
 export type MetaWidgetsReduxState = {
   [widgetId: string]: FlattenedWidgetProps;
@@ -115,6 +116,79 @@ const metaWidgetsReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.INIT_CANVAS_LAYOUT]: (state: MetaWidgetsReduxState) => {
     return state;
   },
+
+  [ReduxActionTypes.ADD_MODULE_META_WIDGETS]: (
+    state: MetaWidgetsReduxState,
+    action: ReduxAction<any>,
+  ) => {
+    const { moduleContainer, moduleContainerMetaWidgetId, moduleWidgetId } =
+      action.payload;
+
+    const startWidget = {
+      ...moduleContainer,
+      topRow: 0,
+      leftColumn: 0,
+      widgetId: moduleContainerMetaWidgetId,
+    };
+
+    const metaWidgets = recursivelyAddWidgetsInModule(
+      startWidget,
+      moduleWidgetId,
+    );
+
+    Object.entries(metaWidgets).forEach(
+      ([metaWidgetId, widgetProps]: [string, any]) => {
+        state[metaWidgetId] = { ...widgetProps };
+        state[metaWidgetId].isMetaWidget = true;
+        state[metaWidgetId].creatorId = moduleWidgetId;
+        state[metaWidgetId].dropDisabled = true;
+      },
+    );
+  },
 });
+
+function recursivelyAddWidgetsInModule(
+  currentWidget: FlattenedWidgetProps,
+  parentId: string,
+) {
+  let widgets: any = {};
+  const { children = [], ...widgetProps } = currentWidget;
+  widgetProps.children = [];
+  widgetProps.parentId = parentId;
+  widgetProps.disabledResizeHandles = [
+    "left",
+    "top",
+    "right",
+    "bottomRight",
+    "topLeft",
+    "topRight",
+    "bottomLeft",
+  ];
+  widgetProps.resizeDisabled = true;
+  widgetProps.disablePropertyPane = true;
+  widgetProps.dragDisabled = true;
+  widgetProps.dropDisabled = true;
+
+  children.forEach((child: any) => {
+    const childWidget = { ...child };
+    childWidget.widgetId = generateReactKey();
+
+    const childWidgets = recursivelyAddWidgetsInModule(
+      childWidget,
+      widgetProps.id,
+    );
+
+    widgets = {
+      ...widgets,
+      ...childWidgets,
+    };
+
+    widgetProps.children.push(childWidget.widgetId);
+  });
+
+  widgets[widgetProps.widgetId] = widgetProps;
+
+  return widgets;
+}
 
 export default metaWidgetsReducer;

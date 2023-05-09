@@ -90,6 +90,7 @@ import {
   getCurrentPageName,
   getIsAutoLayout,
   getMainCanvasProps,
+  getModules,
   getPageById,
   previewModeSelector,
 } from "selectors/editorSelectors";
@@ -290,6 +291,9 @@ export function* handleFetchedPage({
   const lastUpdatedTime = getLastUpdateTime(fetchPageResponse);
   const pageSlug = fetchPageResponse.data.slug;
   const pagePermissions = fetchPageResponse.data.userPermissions;
+  // eslint-disable-next-line
+  // @ts-ignore
+  const modules = yield select(getModules);
 
   if (isValidResponse) {
     // Clear any existing caches
@@ -302,7 +306,12 @@ export function* handleFetchedPage({
       isAutoLayout,
       mainCanvasProps.width,
     );
+    // eslint-disable-next-line
+    // @ts-ignore
+    canvasWidgetsPayload.modules = modules;
     // Update the canvas
+    // eslint-disable-next-line
+    // @ts-ignore
     yield put(initCanvasLayout(canvasWidgetsPayload));
     // set current page
     yield put(updateCurrentPage(pageId, pageSlug, pagePermissions));
@@ -401,6 +410,9 @@ export function* fetchPublishedPageSaga(
       request,
     );
     const isValidResponse: boolean = yield validateResponse(response);
+    // eslint-disable-next-line
+    // @ts-ignore
+    const modules = yield select(getModules);
     if (isValidResponse) {
       // Clear any existing caches
       yield call(clearEvalCache);
@@ -411,6 +423,12 @@ export function* fetchPublishedPageSaga(
       // resize main canvas
       resizePublishedMainCanvasToLowestWidget(canvasWidgetsPayload.widgets);
       // Update the canvas
+      // eslint-disable-next-line
+      // @ts-ignore
+      canvasWidgetsPayload.modules = modules;
+      // Update the canvas
+      // eslint-disable-next-line
+      // @ts-ignore
       yield put(initCanvasLayout(canvasWidgetsPayload));
       // set current page
       yield put(
@@ -1068,6 +1086,10 @@ export function* updateCanvasWithDSL(
   const currentPageName: string = yield select(getCurrentPageName);
 
   const applicationId: string = yield select(getCurrentApplicationId);
+
+  // eslint-disable-next-line
+  // @ts-ignore
+  const modules = yield select(getModules);
   const canvasWidgetsPayload: UpdateCanvasPayload = {
     pageWidgetId: normalizedWidgets.result,
     currentPageName,
@@ -1078,6 +1100,13 @@ export function* updateCanvasWithDSL(
     pageActions: data.layoutOnLoadActions,
     widgets: normalizedWidgets.entities.canvasWidgets,
   };
+
+  // eslint-disable-next-line
+  // @ts-ignore
+  canvasWidgetsPayload.modules = modules;
+  // Update the canvas
+  // eslint-disable-next-line
+  // @ts-ignore
   yield put(initCanvasLayout(canvasWidgetsPayload));
   yield put(fetchActionsForPage(pageId));
   yield put(fetchJSCollectionsForPage(pageId));

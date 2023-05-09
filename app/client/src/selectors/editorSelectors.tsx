@@ -76,6 +76,28 @@ export const getProviderCategories = (state: AppState) =>
 const getWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
 
+export const getModules = (state: AppState) => state.entities.packages.modules;
+
+export const getModuleCards = (state: AppState) => {
+  const modules = Object.values(state.entities.packages.modules || {});
+
+  return modules.map(({ id, layouts, name }: any) => {
+    const dsl = layouts[0].dsl;
+    const container = dsl.children[0];
+    return {
+      displayName: name,
+      type: "MODULE_WIDGET",
+      columns: container.rightColumn - container.leftColumn,
+      rows: container.bottomRow - container.topRow,
+      isDynamicHeight:
+        !container.dynamicHeight || container.dynamicHeight === "AUTO_HEIGHT",
+      key: container.widgetId,
+      moduleId: id,
+      isModule: true,
+    };
+  });
+};
+
 export const getIsEditorInitialized = (state: AppState) =>
   state.ui.editor.initialized;
 
@@ -307,6 +329,18 @@ export const getMetaWidgets = (state: AppState) => state.entities.metaWidgets;
 export const getMetaWidget = (metaWidgetId: string) =>
   createSelector(getMetaWidgets, (metaWidgets) => {
     return metaWidgets[metaWidgetId];
+  });
+
+export const getModuleWidget = (moduleId?: string) =>
+  createSelector(getModules, (modules) => {
+    if (!moduleId) return;
+
+    const module = modules[moduleId];
+
+    if (!module) return;
+
+    const { dsl } = module.layouts[0];
+    return dsl.children[0];
   });
 
 export const getMetaWidgetChildrenStructure = (

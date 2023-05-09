@@ -26,6 +26,7 @@ import {
   getFlattenedChildCanvasWidgets,
   previewModeSelector,
   getIsAutoLayoutMobileBreakPoint,
+  // getModuleWidget,
 } from "selectors/editorSelectors";
 import {
   createCanvasWidget,
@@ -54,6 +55,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     const {
       children,
       hasMetaWidgets,
+      // moduleId,
+      overrideProps,
       referencedWidgetId,
       requiresFlatWidgetChildren,
       skipWidgetPropsHydration,
@@ -65,6 +68,19 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       getWidget(state, widgetId),
     );
     const metaWidget = useSelector(getMetaWidget(widgetId));
+
+    // const moduleWidget = useSelector(getModuleWidget(moduleId));
+    // let moduleWidget;
+
+    // if (moduleWidgetProps) {
+    //   moduleWidget = {
+    //     ...moduleWidgetProps,
+    //     ...canvasWidget,
+    //     type,
+    //     moduleId,
+    //     widgetId,
+    //   };
+    // }
 
     const mainCanvasProps = useSelector((state: AppState) =>
       getMainCanvasProps(state),
@@ -210,7 +226,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetProps.flattenedChildCanvasWidgets = flattenedChildCanvasWidgets;
     }
     //merging with original props
-    widgetProps = { ...props, ...widgetProps, renderMode };
+    widgetProps = { ...props, ...widgetProps, renderMode, ...overrideProps };
 
     // adding google maps api key to widget props (although meant for map widget only)
     widgetProps.googleMapsApiKey = googleMapsApiKey;

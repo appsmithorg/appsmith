@@ -48,6 +48,12 @@ export const fetchApplication = (payload: FetchApplicationPayload) => {
   };
 };
 
+export const fetchPackages = () => {
+  return {
+    type: ReduxActionTypes.FETCH_PACKAGES_INIT,
+  };
+};
+
 export const updateApplicationLayout = (
   id: string,
   data: UpdateApplicationPayload,

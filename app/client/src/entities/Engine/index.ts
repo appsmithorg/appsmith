@@ -1,4 +1,7 @@
-import { fetchApplication } from "@appsmith/actions/applicationActions";
+import {
+  fetchApplication,
+  fetchPackages,
+} from "@appsmith/actions/applicationActions";
 import { setAppMode, updateAppStore } from "actions/pageActions";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import {
@@ -56,6 +59,8 @@ export default abstract class AppEngine {
 
   *loadAppData(payload: AppEnginePayload) {
     const { applicationId, branch, pageId } = payload;
+    yield failFastApiCalls([fetchPackages()], [], []);
+
     const apiCalls: boolean = yield failFastApiCalls(
       [fetchApplication({ applicationId, pageId, mode: this._mode })],
       [

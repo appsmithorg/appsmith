@@ -165,6 +165,9 @@ export const useBlocksToBeDraggedOnCanvas = ({
       return {
         blocksToDraw: [
           {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            moduleId: newWidget.moduleId,
             top: 0,
             left: 0,
             width: newWidget.columns * snapColumnSpace,
@@ -303,6 +306,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
           isNotColliding: true,
           detachFromLayout: widget.detachFromLayout,
           type: widget.type,
+          moduleId: widget.moduleId,
         };
       });
     const reflowedIds = reflowedPositionsUpdatesWidgets.map((each) => each.id);

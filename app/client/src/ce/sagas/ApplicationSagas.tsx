@@ -98,7 +98,10 @@ import { failFastApiCalls } from "sagas/InitSagas";
 import type { Datasource } from "entities/Datasource";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
 import { builderURL, viewerURL } from "RouteBuilder";
-import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
+import {
+  getWidgets,
+  getDefaultPageId as selectDefaultPageId,
+} from "sagas/selectors";
 import PageApi from "api/PageApi";
 import { identity, merge, pickBy } from "lodash";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
@@ -113,6 +116,8 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { safeCrashAppRequest } from "actions/errorActions";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { generateReactKey } from "utils/generators";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -224,6 +229,70 @@ export function* getAllApplicationSaga() {
         error,
       },
     });
+  }
+}
+
+export function* fetchPackagesSaga() {
+  const packageList: string[] = JSON.parse(
+    localStorage.getItem("__APPSMITH_PKG_LIST__") || "[]",
+  );
+
+  // eslint-disable-next-line
+  // @ts-ignore
+  const response = yield call(ApplicationApi.fetchApplication, packageList[0]);
+  const isValidResponse = call(validateResponse, response);
+
+  if (isValidResponse) {
+    const { pages } = response.data;
+    const modules = [];
+
+    for (const page of pages) {
+      // eslint-disable-next-line
+      // @ts-ignore
+      const pageResponse = yield call(PageApi.fetchPage, page);
+      const isValidPageResponse = call(validateResponse, pageResponse);
+
+      if (isValidPageResponse) {
+        modules.push(pageResponse.data);
+      }
+    }
+
+    yield put({
+      type: ReduxActionTypes.FETCH_PACKAGES_SUCCESS,
+      payload: { pkg: response.data, modules },
+    });
+
+    yield put({
+      type: ReduxActionTypes.HYDRATE_MODULES,
+      payload: { modules },
+    });
+  }
+}
+
+export function* hydrateModules(action: any) {
+  const { modules } = action.payload;
+
+  const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+
+  for (const widget of Object.values(canvasWidgets)) {
+    if (widget.moduleId) {
+      const module = modules.find(({ id }: any) => id === widget.moduleId);
+      if (module) {
+        const { dsl } = module.layouts[0];
+        const moduleContainer = dsl.children[0];
+
+        const moduleContainerMetaWidgetId = generateReactKey();
+
+        yield put({
+          type: ReduxActionTypes.ADD_MODULE_META_WIDGETS,
+          payload: {
+            moduleWidgetId: widget.widgetId,
+            moduleContainerMetaWidgetId,
+            moduleContainer,
+          },
+        });
+      }
+    }
   }
 }
 

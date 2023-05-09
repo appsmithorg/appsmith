@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import WidgetCard from "./WidgetCard";
-import { getWidgetCards } from "selectors/editorSelectors";
+import { getWidgetCards, getModuleCards } from "selectors/editorSelectors";
 import ExplorerSearch from "./Explorer/ExplorerSearch";
 import { debounce } from "lodash";
 import {
@@ -13,6 +13,7 @@ import type { WidgetCardProps } from "widgets/BaseWidget";
 
 function WidgetSidebar({ isActive }: { isActive: boolean }) {
   const cards = useSelector(getWidgetCards);
+  const moduleCards = useSelector(getModuleCards) || {};
   const [filteredCards, setFilteredCards] = useState(cards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -87,6 +88,9 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
         <div className="grid items-stretch grid-cols-3 gap-3 justify-items-stretch">
           {filteredCards.map((card) => (
             <WidgetCard details={card} key={card.key} />
+          ))}
+          {moduleCards.map((module: any) => (
+            <WidgetCard details={module} key={module.id} />
           ))}
         </div>
       </div>

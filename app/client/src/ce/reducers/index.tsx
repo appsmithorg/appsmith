@@ -141,6 +141,7 @@ export interface AppState {
   entities: {
     canvasWidgetsStructure: CanvasWidgetStructure;
     canvasWidgets: CanvasWidgetsReduxState;
+    packages: { packages: any; modules: any };
     metaWidgets: MetaWidgetsReduxState;
     actions: ActionDataState;
     widgetConfig: WidgetConfigReducerState;

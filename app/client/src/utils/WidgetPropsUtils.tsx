@@ -273,6 +273,7 @@ export const widgetOperationParams = (
             ),
         parentId: widget.parentId,
         newParentId: parentWidgetId,
+        moduleId: widget.moduleId,
       },
     };
     // If this is not an existing widget, we'll not have the widgetId
@@ -294,6 +295,7 @@ export const widgetOperationParams = (
       parentRowSpace,
       parentColumnSpace,
       newWidgetId: widget.widgetId,
+      moduleId: widget.moduleId,
     },
   };
 };
