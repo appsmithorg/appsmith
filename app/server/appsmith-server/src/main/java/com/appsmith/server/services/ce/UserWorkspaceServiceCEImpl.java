@@ -30,7 +30,6 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
-import reactor.util.function.Tuples;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -154,11 +153,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, changeUserGroupDTO.getUsername())))
                 .cache();
 
-        /*
-         * In case of removing user from Workspace, the first set of DB operations are called from oldDefaultPermissionGroupMono.
-         * Hence, workspaceMono & userMono have been put as sequential calls, to avoid intermittent NoSuchTransaction mongo exception.
-         */
-        Mono<PermissionGroup> oldDefaultPermissionGroupMono = workspaceMono.zipWhen(workspace -> userMono)
+        Mono<PermissionGroup> oldDefaultPermissionGroupMono = Mono.zip(workspaceMono, userMono)
                 .flatMapMany(tuple -> {
                     Workspace workspace = tuple.getT1();
                     User user = tuple.getT2();
@@ -174,9 +169,9 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 });
 
         // Unassigned old permission group from user
-        Mono<PermissionGroup> permissionGroupUnassignedMono = oldDefaultPermissionGroupMono
-                .zipWith(userMono)
-                .flatMap(pair -> permissionGroupService.unassignFromUser(pair.getT1(), pair.getT2()));
+        Mono<PermissionGroup> permissionGroupUnassignedMono = userMono
+                .zipWhen(user -> oldDefaultPermissionGroupMono)
+                .flatMap(pair -> permissionGroupService.unassignFromUser(pair.getT2(), pair.getT1()));
 
         // If new permission group id is not present, just unassign old permission group and return PermissionAndGroupDTO
         if (!StringUtils.hasText(changeUserGroupDTO.getNewPermissionGroupId())) {
@@ -197,15 +192,11 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                             .flatMap(user -> permissionGroupService.assignToUser(newPermissionGroup, user));
                 });
 
-        /*
-         * In case of updating the default workspace role from one to another, the DB operations from the below return statement would be called first.
-         * Hence, changePermissionGroupsMono & userMono have been put as sequential calls, to avoid intermittent NoSuchTransaction mongo exception.
-         */
-        return changePermissionGroupsMono
-                .zipWhen(changedPermissionGroups -> userMono)
+        return userMono
+                .zipWhen(user -> changePermissionGroupsMono)
                 .map(pair -> {
-                    User user = pair.getT2();
-                    PermissionGroup role = pair.getT1();
+                    User user = pair.getT1();
+                    PermissionGroup role = pair.getT2();
                     PermissionGroupInfoDTO roleInfoDTO = new PermissionGroupInfoDTO(role.getId(), role.getName(), role.getDescription());
                     roleInfoDTO.setEntityType(Workspace.class.getSimpleName());
                     return MemberInfoDTO.builder()
