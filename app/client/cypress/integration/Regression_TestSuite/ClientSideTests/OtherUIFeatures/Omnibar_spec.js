@@ -13,7 +13,7 @@ describe("Omnibar functionality test cases", () => {
     cy.addDsl(dsl);
   });
 
-  it("1. Docs tab opens after clicking on learn more link from property pane", function () {
+  it("1. Bug #15104  Docs tab opens after clicking on learn more link from property pane", function () {
     cy.dragAndDropToCanvas("audiowidget", { x: 300, y: 500 });
     ObjectsRegistry.AggregateHelper.AssertNewTabOpened(() => {
       cy.xpath('//span[text()="Learn more"]').click();
