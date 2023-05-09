@@ -24,7 +24,7 @@ import java.util.UUID;
 @Slf4j
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@DirtiesContext
 public class TransactionalTest {
 
     @Autowired
