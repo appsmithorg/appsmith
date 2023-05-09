@@ -20,7 +20,6 @@ import {
   Callout,
   Divider,
   Icon,
-  Option,
   SegmentedControl,
   Spinner,
   Tab,
@@ -249,30 +248,11 @@ const DropdownSelect = styled.div`
   font-size: 14px;
   margin-right: 10px;
   width: 230px;
-
-  /* .t--switch-datasource > div {
-    min-height: 30px;
-    height: 30px;
-
-    & > div {
-      height: 100%;
-    }
-
-    & .appsmith-select__input > input {
-      position: relative;
-      bottom: 4px;
-    }
-
-    & .appsmith-select__input > input[value=""] {
-      caret-color: transparent;
-    }
-  } */
 `;
 
 const CreateDatasource = styled.div`
   display: flex;
   gap: 8px;
-  border-top: 1px solid var(--ads-v2-border-radius);
 `;
 
 const StyledSpinner = styled(Spinner)`
@@ -928,14 +908,15 @@ export function EditorJSONtoForm(props: Props) {
                 options={DATASOURCES_OPTIONS}
                 placeholder="Datasource"
               >
-                <Option className="add-new-datasource">
-                  {canCreateDatasource && (
+                {canCreateDatasource && (
+                  // this additional div is here so that rc-select can render the child with the onClick correctly
+                  <div>
                     <CreateDatasource onClick={() => onCreateDatasourceClick()}>
                       <Icon className="createIcon" name="plus" size="md" />
                       {createMessage(CREATE_NEW_DATASOURCE)}
                     </CreateDatasource>
-                  )}
-                </Option>
+                  </div>
+                )}
               </DropdownField>
             </DropdownSelect>
             <Button
