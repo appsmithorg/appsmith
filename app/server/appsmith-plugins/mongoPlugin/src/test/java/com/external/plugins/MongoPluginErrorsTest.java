@@ -163,7 +163,7 @@ public class MongoPluginErrorsTest {
                 .assertNext(invalids -> {
                     assertTrue(invalids
                             .stream()
-                            .anyMatch(error -> error.contains("'Mongo Connection String URI' field is empty. Please " +
+                            .anyMatch(error -> error.contains("'Mongo Connection string URI' field is empty. Please " +
                                     "edit the 'Mongo Connection URI' field to provide a connection uri to connect with.")));
                 })
                 .verifyComplete();
@@ -182,7 +182,7 @@ public class MongoPluginErrorsTest {
                 .assertNext(invalids -> {
                     assertTrue(invalids
                             .stream()
-                            .anyMatch(error -> error.contains("Mongo Connection String URI does not seem to be in the" +
+                            .anyMatch(error -> error.contains("Mongo Connection string URI does not seem to be in the" +
                                     " correct format. Please check the URI once.")));
                 })
                 .verifyComplete();
@@ -201,7 +201,7 @@ public class MongoPluginErrorsTest {
                 .assertNext(invalids -> {
                     assertTrue(invalids
                             .stream()
-                            .anyMatch(error -> error.contains("Mongo Connection String URI does not seem to be in the" +
+                            .anyMatch(error -> error.contains("Mongo Connection string URI does not seem to be in the" +
                                     " correct format. Please check the URI once.")));
                 })
                 .verifyComplete();
