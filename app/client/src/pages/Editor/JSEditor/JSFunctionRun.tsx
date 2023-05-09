@@ -63,7 +63,6 @@ export function JSFunctionRun({
       <Select
         className="function-select-dropdown"
         onSelect={onSelect}
-        open
         size="md"
         value={
           selected.label && {

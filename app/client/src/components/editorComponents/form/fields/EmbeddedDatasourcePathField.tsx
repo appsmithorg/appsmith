@@ -52,7 +52,7 @@ import {
   hasCreateDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
-import { Tooltip } from "design-system";
+import { Text } from "design-system";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 type ReduxStateProps = {
@@ -133,9 +133,45 @@ const italicInfoStyles = {
   fontStyle: "italic",
 };
 
-const StyledTooltip = styled(Tooltip)`
-  & .hide-me {
-    display: none;
+const StyledTooltip = styled.span<{ width?: number }>`
+  visibility: hidden;
+  text-align: left;
+  background-color: var(--ads-v2-color-bg-emphasis-max);
+  border-radius: var(--ads-v2-border-radius);
+  box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.06),
+    0 4px 8px -2px rgba(0, 0, 0, 0.1);
+  color: var(--ads-v2-color-fg-on-emphasis-max);
+  font-family: var(--ads-v2-font-family);
+  min-height: unset;
+  padding: var(--ads-v2-spaces-3) var(--ads-v2-spaces-4);
+
+  position: absolute;
+  z-index: 100000;
+  max-width: 300px;
+  bottom: 125%;
+  left: calc(-10px + ${(props) => (props.width ? props.width / 2 : 0)}px);
+  margin-left: -60px;
+
+  opacity: 0;
+  transition: opacity 0.01s 1s ease-in;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    height: 10px;
+    width: 10px;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: var(--ads-v2-color-bg-emphasis-max) transparent transparent
+      transparent;
+  }
+
+  &.highlighter {
+    visibility: visible;
+    opacity: 1;
   }
 `;
 //Avoiding styled components since ReactDOM.render cannot directly work with it
@@ -157,11 +193,11 @@ function CustomHint(props: { datasource: Datasource }) {
 
 class EmbeddedDatasourcePathComponent extends React.Component<
   Props,
-  { highlightedElementWidth: number; isTooltipVisible: boolean }
+  { highlightedElementWidth: number }
 > {
   constructor(props: Props) {
     super(props);
-    this.state = { highlightedElementWidth: 0, isTooltipVisible: false };
+    this.state = { highlightedElementWidth: 0 };
   }
 
   handleDatasourceUrlUpdate = (datasourceUrl: string) => {
@@ -385,18 +421,16 @@ class EmbeddedDatasourcePathComponent extends React.Component<
         highlightedElementWidth: (
           event.currentTarget as HTMLElement
         ).getBoundingClientRect()?.width,
-        isTooltipVisible: true,
       });
     }
-    this.setState({ ...this.state, isTooltipVisible: true });
+    // add class to trigger custom tooltip to show when mouse enters the component
+    document.getElementById("custom-tooltip")?.classList.add("highlighter");
   };
 
   // handles when user's mouse leaves the highlighted component
   handleMouseLeave = () => {
-    this.setState({
-      ...this.state,
-      isTooltipVisible: false,
-    });
+    // remove class to trigger custom tooltip to not show when mouse leaves the component.
+    document.getElementById("custom-tooltip")?.classList.remove("highlighter");
   };
 
   // if the next props is not equal to the current props, do not rerender, same for state
@@ -471,13 +505,12 @@ class EmbeddedDatasourcePathComponent extends React.Component<
         />
         {datasource && datasource.name !== "DEFAULT_REST_DATASOURCE" && (
           <StyledTooltip
-            content={`Datasource ${datasource?.name}`}
             id="custom-tooltip"
-            visible={this.state.isTooltipVisible}
+            width={this.state.highlightedElementWidth}
           >
-            <span className="hide-me" style={{ display: "none" }}>
-              I am a trigger. My only purpose is to fool typescript.
-            </span>
+            <Text color="var(--ads-v2-color-fg-on-emphasis-max)" kind="body-s">
+              {`Datasource ${datasource?.name}`}
+            </Text>
           </StyledTooltip>
         )}
         {displayValue && (

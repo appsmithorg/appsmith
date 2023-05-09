@@ -100,7 +100,7 @@ function SettingsHeading({ grow, hasInfo, info, text }: SettingsHeadingProps) {
       <span>{text}</span>
       {hasInfo && info && (
         <Tooltip content={createMessage(() => info)}>
-          <StyledIcon name="question-line" size="sm" />
+          <StyledIcon name="question-line" size="md" />
         </Tooltip>
       )}
     </SettingColumn>

@@ -6,6 +6,7 @@ import MoreJSCollectionsMenu from "../Explorer/JSActions/MoreJSActionsMenu";
 import type { DropdownOnSelect } from "design-system-old";
 import CodeEditor from "components/editorComponents/CodeEditor";
 import {
+  CodeEditorBorder,
   EditorModes,
   EditorSize,
   EditorTheme,
@@ -381,6 +382,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                       <div className="js-editor-tab">
                         <CodeEditor
                           blockCompletions={blockCompletions}
+                          border={CodeEditorBorder.NONE}
                           className={"js-editor"}
                           customGutter={JSGutters}
                           dataTreePath={`${currentJSCollection.name}.body`}

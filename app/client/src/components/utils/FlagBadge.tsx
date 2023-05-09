@@ -1,17 +1,8 @@
 import React from "react";
-import styled from "styled-components";
-
-const Flag = styled.span`
-  padding: 2px 5px;
-  border: 1px solid #716e6e;
-  color: #716e6e;
-  text-transform: uppercase;
-  font-size: 10px;
-  font-weight: 600;
-`;
+import { Tag } from "design-system";
 
 function FlagBadge(props: { name: string }) {
-  return <Flag>{props.name}</Flag>;
+  return <Tag isClosable={false}>{props.name}</Tag>;
 }
 
 export default FlagBadge;
