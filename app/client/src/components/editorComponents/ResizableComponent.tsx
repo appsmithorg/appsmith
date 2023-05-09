@@ -3,7 +3,11 @@ import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import { focusWidget } from "actions/widgetActions";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
-import { DefaultDimensionMap, GridDefaults } from "constants/WidgetConstants";
+import {
+  DefaultDimensionMap,
+  GridDefaults,
+  WidgetHeightLimits,
+} from "constants/WidgetConstants";
 import { get, omit } from "lodash";
 import type { XYCord } from "pages/common/CanvasArenas/hooks/useRenderBlocksOnCanvas";
 import React, { memo, useContext, useMemo } from "react";
@@ -71,7 +75,6 @@ export const ResizableComponent = memo(function ResizableComponent(
   const { updateWidget } = useContext(EditorContext);
   const dispatch = useDispatch();
   const isAutoLayout = useSelector(getIsAutoLayout);
-
   const Resizable = isAutoLayout ? AutoLayoutResizable : FixedLayoutResizable;
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
@@ -355,10 +358,21 @@ export const ResizableComponent = memo(function ResizableComponent(
     return !isAutoHeightEnabledForWidget(props) && isEnabled;
   }, [props, isAutoHeightEnabledForWidget, isEnabled]);
 
-  const fixedHeight =
-    isAutoHeightEnabledForWidgetWithLimits(props) ||
-    !isAutoHeightEnabledForWidget(props) ||
-    !props.isCanvas;
+  // What is the max resizable height for this widget, in pixels?
+  let maxHeightInPx =
+    WidgetHeightLimits.MAX_HEIGHT_IN_ROWS *
+    GridDefaults.DEFAULT_GRID_ROW_HEIGHT; // Maximum possible height
+  // If the widget has auto height with limits, we need to respect the set limits.
+  if (isAutoHeightEnabledForWidgetWithLimits(props)) {
+    maxHeightInPx =
+      (props.maxDynamicHeight || WidgetHeightLimits.MAX_HEIGHT_IN_ROWS) *
+      GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+  }
+
+  // Is auto height enabled for widget (without limits)
+  const autoHeight =
+    isAutoHeightEnabledForWidget(props) &&
+    !isAutoHeightEnabledForWidgetWithLimits(props);
 
   const allowResize: boolean =
     !isMultiSelected || (isAutoLayout && !props.isFlexChild);
@@ -370,22 +384,23 @@ export const ResizableComponent = memo(function ResizableComponent(
     !isAppSettingsPaneWithNavigationTabOpen &&
     !isDragging &&
     (isHovered || isSelected);
+
   return (
     <Resizable
       allowResize={allowResize}
+      autoHeight={autoHeight}
       componentHeight={dimensions.height}
       componentWidth={dimensions.width}
       direction={props.direction}
       enableHorizontalResize={isEnabled}
       enableVerticalResize={isVerticalResizeEnabled}
-      fixedHeight={fixedHeight}
       getResizedPositions={getResizedPositions}
       gridProps={gridProps}
       handles={handles}
       isFlexChild={props.isFlexChild}
       isHovered={isHovered}
       isMobile={props.isMobile || false}
-      maxDynamicHeight={props.maxDynamicHeight}
+      maxHeightInPx={maxHeightInPx}
       onStart={handleResizeStart}
       onStop={updateSize}
       originalPositions={originalPositions}
