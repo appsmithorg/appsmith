@@ -81,7 +81,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
 
         try {
             if (input == null) {
-                throw new AppsmithException(AppsmithError.INVALID_CURL_INPUT_PARAMETER, FieldName.CURL_CODE);
+                throw new AppsmithException(AppsmithError.EMPTY_CURL_INPUT_STATEMENT, FieldName.CURL_CODE);
             }
             action = curlToAction((String) input, name);
         } catch (AppsmithException e) {
