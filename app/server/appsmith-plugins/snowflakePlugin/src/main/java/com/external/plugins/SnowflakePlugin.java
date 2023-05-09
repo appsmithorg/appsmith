@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import com.appsmith.external.factories.DataSourceConnectionFactory;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -22,6 +23,7 @@ import com.zaxxer.hikari.pool.HikariPool;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -31,7 +33,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -66,6 +67,13 @@ public class SnowflakePlugin extends BasePlugin {
     public static class SnowflakePluginExecutor implements PluginExecutor<HikariDataSource> {
 
         private final Scheduler scheduler = Schedulers.boundedElastic();
+
+        @Autowired
+        private final DataSourceConnectionFactory hikariDataSourceConnectionFactor;
+
+        public SnowflakePluginExecutor(DataSourceConnectionFactory hikariDataSourceConnectionFactor) {
+            this.hikariDataSourceConnectionFactor = hikariDataSourceConnectionFactor;
+        }
 
         @Override
         public Mono<ActionExecutionResult> execute(HikariDataSource connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
@@ -138,36 +146,6 @@ public class SnowflakePlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
-        @Override
-        public Mono<HikariDataSource> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            try {
-                Class.forName(JDBC_DRIVER);
-            } catch (ClassNotFoundException ex) {
-                log.debug("Driver not found");
-                return Mono.error(new AppsmithPluginException(SnowflakePluginError.SNOWFLAKE_PLUGIN_ERROR, SnowflakeErrorMessages.DRIVER_NOT_FOUND_ERROR_MSG, ex.getMessage()));
-            }
-
-            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-            Properties properties = new Properties();
-            properties.setProperty("user", authentication.getUsername());
-            properties.setProperty("password", authentication.getPassword());
-            properties.setProperty("warehouse", String.valueOf(datasourceConfiguration.getProperties().get(0).getValue()));
-            properties.setProperty("db", String.valueOf(datasourceConfiguration.getProperties().get(1).getValue()));
-            properties.setProperty("schema", String.valueOf(datasourceConfiguration.getProperties().get(2).getValue()));
-            properties.setProperty("role", String.valueOf(datasourceConfiguration.getProperties().get(3).getValue()));
-            /* Ref: https://github.com/appsmithorg/appsmith/issues/19784 */
-            properties.setProperty("jdbc_query_result_format", "json");
-            properties.setProperty("APPLICATION", "APPSMITH_JDBC_DRIVER");
-            properties.setProperty(SNOWFLAKE_DB_LOGIN_TIMEOUT_PROPERTY_KEY, String.valueOf(SNOWFLAKE_DB_LOGIN_TIMEOUT_VALUE_SEC));
-
-            return Mono
-                    .fromCallable(() -> {
-                        log.debug("Connecting to Snowflake");
-                        return createConnectionPool(datasourceConfiguration,properties);
-                    })
-                    .subscribeOn(scheduler);
-        }
-
         /**
          * This function is blocking in nature which connects to the database and creates a connection pool
          *
@@ -218,6 +196,72 @@ public class SnowflakePlugin extends BasePlugin {
             }
 
             return datasource;
+        }
+
+        @Override
+        public Mono<HikariDataSource> createConnectionClient(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+            return Mono.fromCallable(() -> {
+                HikariConfig config = new HikariConfig();
+
+                config.setDriverClassName(properties.getProperty("driver_name"));
+
+                config.setMinimumIdle(Integer.parseInt(properties.get("minimumIdle").toString()));
+                config.setMaximumPoolSize(Integer.parseInt(properties.get("maximunPoolSize").toString()));
+
+                // Set authentication properties
+                DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+                if (authentication.getUsername() != null) {
+                    config.setUsername(authentication.getUsername());
+                }
+                if (authentication.getPassword() != null) {
+                    config.setPassword(authentication.getPassword());
+                }
+
+                // Set up the connection URL
+                StringBuilder urlBuilder = new StringBuilder("jdbc:snowflake://" + datasourceConfiguration.getUrl() + ".snowflakecomputing.com?");
+                config.setJdbcUrl(urlBuilder.toString());
+
+                config.setDataSourceProperties(properties);
+
+                // Now create the connection pool from the configuration
+                HikariDataSource datasource = null;
+                try {
+                    datasource = (HikariDataSource) this.hikariDataSourceConnectionFactor.getDataSourceConnection(config);
+                } catch (HikariPool.PoolInitializationException e) {
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                            e.getMessage()
+                    );
+                }
+
+                return datasource;
+            }).subscribeOn(scheduler);
+        }
+
+        @Override
+        public Mono<Properties> addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+            return Mono.fromCallable(() -> {
+                properties.setProperty("driver_name", JDBC_DRIVER);
+                properties.setProperty("minimumIdle", String.valueOf(MINIMUM_POOL_SIZE));
+                properties.setProperty("maximunPoolSize", String.valueOf(MAXIMUM_POOL_SIZE));
+                return properties;
+            }).subscribeOn(scheduler);
+        }
+
+        @Override
+        public Mono<Properties> addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+            return Mono.fromCallable(() -> {
+                DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+                properties.setProperty("user", authentication.getUsername());
+                properties.setProperty("password", authentication.getPassword());
+                properties.setProperty("warehouse", String.valueOf(datasourceConfiguration.getProperties().get(0).getValue()));
+                properties.setProperty("db", String.valueOf(datasourceConfiguration.getProperties().get(1).getValue()));
+                properties.setProperty("schema", String.valueOf(datasourceConfiguration.getProperties().get(2).getValue()));
+                properties.setProperty("role", String.valueOf(datasourceConfiguration.getProperties().get(3).getValue()));
+                /* Ref: https://github.com/appsmithorg/appsmith/issues/19784 */
+                properties.setProperty("jdbc_query_result_format", "json");
+                return properties;
+            }).subscribeOn(scheduler);
         }
 
         @Override
