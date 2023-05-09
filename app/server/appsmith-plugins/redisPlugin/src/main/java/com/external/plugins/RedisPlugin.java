@@ -320,10 +320,10 @@ public class RedisPlugin extends BasePlugin {
             return false;
         }
 
-        private Mono<DatasourceTestResult> verifyPing(JedisPool connection) {
+        private Mono<DatasourceTestResult> verifyPing(JedisPool connectionPool) {
             String pingResponse;
             try {
-                Jedis jedis = connection.getResource();
+                Jedis jedis = connectionPool.getResource();
                 pingResponse = jedis.ping();
             } catch (Exception exc) {
                 return Mono.error(exc);
