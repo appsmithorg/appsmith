@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.services.ce.UserServiceCEImpl.INVITE_EXISTING_USER_TO_WORKSPACE_TEMPLATE;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -121,7 +120,6 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
         Mono<List<User>> inviteUsersMono = Flux.fromIterable(usernames)
                 .flatMap(username -> Mono.zip(Mono.just(username), workspaceMono, currentUserMono, permissionGroupMono, defaultPermissionGroupsMono))
                 .flatMap(tuple -> {
-                    log.debug("3");
                     String username = tuple.getT1();
                     Workspace workspace = tuple.getT2();
                     eventData.put(FieldName.WORKSPACE, workspace);
@@ -170,7 +168,6 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
         // assign permission group to the invited users.
         Mono<PermissionGroup> bulkAddUserResultMono = Mono.zip(permissionGroupMono, inviteUsersMono)
                 .flatMap(tuple -> {
-                    log.debug("1");
                     PermissionGroup permissionGroup = tuple.getT1();
                     List<User> users = tuple.getT2();
                     return permissionGroupService.bulkAssignToUserAndSendEvent(permissionGroup, users);
@@ -179,7 +176,6 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
         // Send analytics event
         Mono<Object> sendAnalyticsEventMono = Mono.zip(currentUserMono, inviteUsersMono)
                 .flatMap(tuple -> {
-                    log.debug("2");
                     User currentUser = tuple.getT1();
                     List<User> users = tuple.getT2();
                     Map<String, Object> analyticsProperties = new HashMap<>();

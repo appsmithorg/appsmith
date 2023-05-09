@@ -654,15 +654,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                             updatedParams)
                             )
                             .thenReturn(createdUser);
-
-//                    // We have sent out the emails. Just send back the saved user.
-//                    return updateTenantLogoInParams(params, originHeader)
-//                            .flatMap(updatedParams ->
-//                                    emailSender.sendMail(createdUser.getEmail(),
-//                                            String.format("You've been invited to the Appsmith workspace %s.", updatedParams.get("inviterWorkspaceName")),
-//                                            INVITE_WORKSPACE_TEMPLATE, updatedParams)
-//                            )
-//                            .thenReturn(createdUser);
                 });
     }
 
