@@ -4,6 +4,6 @@
   "submitBtn":"button[type='submit']",
   "roleDropdown": ".setup-dropdown:first",
   "useCaseDropdown": ".setup-dropdown:last",
-  "dropdownOption": ".t--dropdown-option:first",
+  "dropdownOption": ".rc-select-item-option:first",
   "roleUsecaseSubmit": ".t--get-started-button"
 }

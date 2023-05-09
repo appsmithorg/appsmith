@@ -1,14 +1,16 @@
+import { TextInput } from "design-system-old";
 import React from "react";
 import styled from "styled-components";
-import { Input } from "design-system";
 
-const StyledInput = styled(Input)`
-  > .ads-v2-input__input-section > div {
-    min-width: 0px;
+const Wrapper = styled.div`
+  .prefix {
+    top: 0.4px;
+    position: relative;
   }
 
   input {
-    width: 100px;
+    text-align: right;
+    padding-left: 2px;
   }
 `;
 
@@ -16,37 +18,32 @@ type DimensionsInputProp = {
   onChange?: ((value: string) => void) | undefined;
   value: string;
   prefix: string;
-  icon: string;
 };
 
-const regex = /^[1-9][0-9]{0,3}((px)|(em)|(%)|(vw)|(vh))?$/;
+export function cssDimensionValidator(value: string) {
+  let isValid = false;
+  const regex = /^[1-9][0-9]{0,3}((px)|(em)|(%)|(vw)|(vh))?$/;
+  if (value) {
+    isValid = regex.test(value);
+  }
+  return {
+    isValid: isValid,
+    message: "",
+  };
+}
 
 function DimensionsInput(props: DimensionsInputProp) {
-  const [isValid, setIsValid] = React.useState(true);
-
-  const onChange = (value: string) => {
-    if (!regex.test(value)) {
-      setIsValid(false);
-    } else {
-      setIsValid(true);
-    }
-
-    if (props.onChange) {
-      props.onChange(value);
-    }
-  };
-
   return (
-    <div className={`t--${props.prefix}-dimension`}>
-      <StyledInput
-        isValid={isValid}
-        onChange={onChange}
-        renderAs="input"
-        size="md"
-        startIcon={props.icon}
+    <Wrapper className={`t--${props.prefix}-dimension`}>
+      <TextInput
+        height={"28px"}
+        onChange={props.onChange}
+        prefix={props.prefix}
+        validator={cssDimensionValidator}
         value={props.value}
+        width={"90px"}
       />
-    </div>
+    </Wrapper>
   );
 }
 

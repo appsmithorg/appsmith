@@ -150,6 +150,7 @@ export default function DetailsForm(
             kind="secondary"
             onClick={!isAirgappedInstance ? props.onNext : undefined}
             size="md"
+            type={!isAirgappedInstance ? "button" : "submit"}
           >
             Next
           </Button>

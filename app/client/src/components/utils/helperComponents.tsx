@@ -2,7 +2,7 @@ import React from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import { useHistory } from "react-router-dom";
 import { truncateTextUsingEllipsis } from "constants/DefaultTheme";
-import { Link, Text } from "design-system";
+import { Link } from "design-system";
 
 export const HelpPopoverStyle = createGlobalStyle`
   .bp3-portal {
@@ -24,8 +24,11 @@ export const StyledBackLink = styled(Link)`
   margin: 0 0 var(--ads-v2-spaces-7) 0;
 `;
 
-export const SettingsHeader = styled(Text)`
+export const SettingsHeader = styled.h2`
   padding: 0px 8px 0 0;
+  font-size: 24px;
+  font-weight: 500;
+  text-transform: capitalize;
   margin-bottom: 0px;
   width: 365px;
   ${truncateTextUsingEllipsis}

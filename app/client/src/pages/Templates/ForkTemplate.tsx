@@ -1,14 +1,7 @@
 import type { ReactNode } from "react";
 import React, { useState } from "react";
-import {
-  Button,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Select,
-} from "design-system";
+import noop from "lodash/noop";
+
 import { useDispatch, useSelector } from "react-redux";
 import {
   getForkableWorkspaces,
@@ -22,6 +15,15 @@ import {
   FORK_TEMPLATE,
   SELECT_WORKSPACE,
 } from "@appsmith/constants/messages";
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  Select,
+} from "design-system";
 
 interface ForkTemplateProps {
   children?: ReactNode;
@@ -45,16 +47,16 @@ function ForkTemplate({
     dispatch(importTemplateToWorkspace(templateId, selectedWorkspace.value));
   };
 
-  const closeModal = (isOpen: boolean) => {
-    if (!isOpen && isImportingTemplate) {
-      onClose();
+  const handleOnOpenChange = (open: boolean) => {
+    if (!open) {
+      isImportingTemplate ? noop() : onClose();
     }
   };
 
   return (
     <>
       {children}
-      <Modal onOpenChange={closeModal} open={showForkModal}>
+      <Modal onOpenChange={handleOnOpenChange} open={showForkModal}>
         <ModalContent>
           <ModalHeader>{createMessage(CHOOSE_WHERE_TO_FORK)}</ModalHeader>
           <ModalBody>
