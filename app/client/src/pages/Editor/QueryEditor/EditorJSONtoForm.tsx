@@ -18,7 +18,6 @@ import { Text, TextType } from "design-system-old";
 import {
   Button,
   Callout,
-  Divider,
   Icon,
   SegmentedControl,
   Spinner,
@@ -332,6 +331,13 @@ export const SegmentedControlContainer = styled.div`
   flex-direction: column;
   gap: var(--ads-v2-spaces-4);
   overflow: scroll;
+`;
+
+const DebuggerWithPadding = styled.div`
+  .t--query-bottom-pane-container .ads-v2-tabs__list {
+    padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-6);
+    border-top: 1px solid var(--ads-v2-color-border);
+  }
 `;
 
 type QueryFormProps = {
@@ -1010,8 +1016,7 @@ export function EditorJSONtoForm(props: Props) {
                 )}
               </TabContainerView>
               {renderDebugger && (
-                <>
-                  <Divider />
+                <DebuggerWithPadding>
                   <TabbedViewContainer
                     className="t--query-bottom-pane-container"
                     ref={panelRef}
@@ -1072,7 +1077,7 @@ export function EditorJSONtoForm(props: Props) {
                       startIcon="close-modal"
                     />
                   </TabbedViewContainer>
-                </>
+                </DebuggerWithPadding>
               )}
             </SecondaryWrapper>
             <AIWindow className="border-t border-l" windowType="fixed" />
