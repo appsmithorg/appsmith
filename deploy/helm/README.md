@@ -75,12 +75,12 @@ The command uninstalls the release and removes all Kubernetes resources associat
 | `commonAnnotations`	| Annotations to add to all deployed objects 				| `{}` 					|
 
 ### Appsmith Image parameters
-| Name 								| Description 								| Value 											|
-| -------------------	| --------------------------- | --------------------------- |
-| `image.registry`		| Appsmith image registry			| `index.docker.io` 					|
-| `image.repository`	| Appsmith image repository		| `appsmith/appsmith-editor` 	|
-| `image.tag`					| Appsmith image tag					| `latest` 										|
-| `image.pullPolicy`	| Appsmith image pull policy	| `IfNotPresent` 							|
+| Name 								| Description 								| Value 											        |
+| -------------------	| --------------------------- |--------------------------|
+| `image.registry`		| Appsmith image registry			| `index.docker.io` 					  |
+| `image.repository`	| Appsmith image repository		| `appsmith/appsmith-ce` 	 |
+| `image.tag`					| Appsmith image tag					| `latest` 										      |
+| `image.pullPolicy`	| Appsmith image pull policy	| `IfNotPresent` 							   |
 
 ### Appsmith deployment parameters
 | Name 											 	| Description 																				| Value 					|

@@ -210,27 +210,6 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      # Build release Docker image and push to Docker Hub
-      - name: Push client release image to Docker Hub
-        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        uses: depot/build-push-action@v1
-        with:
-          context: app/client
-          push: true
-          tags: |
-            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.vars.outputs.tag}}
-
-      # Build master Docker image and push to Docker Hub
-      - name: Push client master image to Docker Hub with commit tag
-        if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        uses: depot/build-push-action@v1
-        with:
-          context: app/client
-          push: true
-          tags: |
-            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{ github.sha }}
-            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly
-
       - name: Build and push release image to Docker Hub
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         uses: depot/build-push-action@v1
@@ -277,28 +256,3 @@ jobs:
       #       # Temporarily pushing even if test fails.
       #       docker push --all-tags ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-ce
       #     fi
-
-      # Build release Docker image and push to Docker Hub
-      - name: Push server release image to Docker Hub
-        if: success() && github.ref == 'refs/heads/release'
-        uses: depot/build-push-action@v1
-        with:
-          context: app/server
-          push: true
-          build-args: |
-            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
-          tags: |
-            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}}
-
-      # Build master Docker image and push to Docker Hub
-      - name: Push server master image to Docker Hub with commit tag
-        if: success() && github.ref == 'refs/heads/master'
-        uses: depot/build-push-action@v1
-        with:
-          context: app/server
-          push: true
-          build-args: |
-            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
-          tags: |
-            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{ github.sha }}
-            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly

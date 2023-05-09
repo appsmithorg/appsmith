@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 import com.appsmith.caching.annotations.CacheEvict;
@@ -86,7 +87,7 @@ public class CacheTestService {
     public Mono<Void> evictAllLists() {
         return Mono.empty();
     }
-    
+
 
     /**
      * This method is used to test SPEL expression in the caching annotation.
