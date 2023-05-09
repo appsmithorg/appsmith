@@ -1,13 +1,12 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-const { agHelper, apiPage, entityExplorer, propPane } = _;
+const { agHelper, entityExplorer, propPane } = _;
 
 describe("Field value evaluation", () => {
   before(() => {
     cy.fixture("buttondsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    apiPage.CreateApi("Api1", "GET");
     entityExplorer.SelectEntityByName("Button1", "Widgets");
   });
 
