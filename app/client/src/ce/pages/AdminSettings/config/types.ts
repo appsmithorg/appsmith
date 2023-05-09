@@ -3,7 +3,7 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { Dispatch } from "react";
 import type { EventName } from "utils/AnalyticsUtil";
 import type { RadioOptionProps } from "pages/Settings/FormGroup/Radio";
-import type { SelectOptionProps } from "design-system";
+import type { CalloutKind, SelectOptionProps } from "design-system";
 
 type ControlType = {
   [K in keyof ControlPropsType]: {
@@ -77,7 +77,7 @@ export type Setting = ControlType & {
   isVisible?: (values: Record<string, any>) => boolean;
   isHidden?: boolean;
   isDisabled?: (values: Record<string, any>) => boolean;
-  calloutType?: "info" | "success" | "warning" | "error";
+  calloutType?: CalloutKind;
   advanced?: Setting[];
   isRequired?: boolean;
   formName?: string;
