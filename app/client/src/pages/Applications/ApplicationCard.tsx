@@ -306,9 +306,6 @@ const IconScrollWrapper = styled.div`
       }
     }
   }
-  .icon-selector::-webkit-scrollbar {
-    width: 0px;
-  }
 `;
 
 const StyledGitConnectedBadge = styled.div`
