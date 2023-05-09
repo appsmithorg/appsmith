@@ -10,12 +10,9 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.PermissionGroupService;
-import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.UserService;
-import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.services.*;
 import com.appsmith.server.solutions.PermissionGroupPermission;
+import kotlin.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -28,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.services.ce.UserServiceCEImpl.INVITE_USER_EMAIL_TEMPLATE;
+import static com.appsmith.server.services.ce.UserServiceCEImpl.INVITE_EXISTING_USER_TO_WORKSPACE_TEMPLATE;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -42,6 +39,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
     private final UserService userService;
     private final EmailSender emailSender;
     private final PermissionGroupPermission permissionGroupPermission;
+    private final EmailTemplateService emailTemplateService;
 
     public UserAndAccessManagementServiceCEImpl(SessionUserService sessionUserService,
                                                 PermissionGroupService permissionGroupService,
@@ -50,7 +48,8 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                                                 AnalyticsService analyticsService,
                                                 UserService userService,
                                                 EmailSender emailSender,
-                                                PermissionGroupPermission permissionGroupPermission) {
+                                                PermissionGroupPermission permissionGroupPermission,
+                                                EmailTemplateService emailTemplateService) {
 
         this.sessionUserService = sessionUserService;
         this.permissionGroupService = permissionGroupService;
@@ -60,6 +59,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
         this.userService = userService;
         this.emailSender = emailSender;
         this.permissionGroupPermission = permissionGroupPermission;
+        this.emailTemplateService = emailTemplateService;
     }
 
     /**
@@ -121,6 +121,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
         Mono<List<User>> inviteUsersMono = Flux.fromIterable(usernames)
                 .flatMap(username -> Mono.zip(Mono.just(username), workspaceMono, currentUserMono, permissionGroupMono, defaultPermissionGroupsMono))
                 .flatMap(tuple -> {
+                    log.debug("3");
                     String username = tuple.getT1();
                     Workspace workspace = tuple.getT2();
                     eventData.put(FieldName.WORKSPACE, workspace);
@@ -142,21 +143,26 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                                 log.debug("Going to send email to user {} informing that the user has been added to new workspace {}",
                                         existingUser.getEmail(), workspace.getName());
 
+                                Pair<String, String> subjectAndEmailTemplate = emailTemplateService.getSubjectAndWorkspaceEmailTemplateForExistingUser(workspace);
                                 // Email template parameters initialization below.
-                                Map<String, String> params = userService.getEmailParams(workspace, currentUser, originHeader, false);
+                                Map<String, String> params = emailTemplateService.getEmailParams(workspace, currentUser, originHeader, false);
 
                                 return userService.updateTenantLogoInParams(params, originHeader)
                                         .flatMap(updatedParams ->
                                                 emailSender.sendMail(
                                                         existingUser.getEmail(),
-                                                        "Appsmith: You have been added to a new workspace",
-                                                        INVITE_USER_EMAIL_TEMPLATE,
+                                                        subjectAndEmailTemplate.getFirst(),
+                                                        subjectAndEmailTemplate.getSecond(),
                                                         updatedParams
                                                 )
                                         )
                                         .thenReturn(existingUser);
                             })
-                            .switchIfEmpty(userService.createNewUserAndSendInviteEmail(username, originHeader, workspace, currentUser, permissionGroup.getName()));
+                            .switchIfEmpty(
+                                    userService.createNewUserAndSendInviteEmail(username, originHeader, workspace,
+                                            currentUser, permissionGroup.getName(),
+                                            emailTemplateService.getSubjectAndWorkspaceEmailTemplateForNewUser(workspace))
+                            );
                 })
                 .collectList()
                 .cache();
@@ -164,6 +170,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
         // assign permission group to the invited users.
         Mono<PermissionGroup> bulkAddUserResultMono = Mono.zip(permissionGroupMono, inviteUsersMono)
                 .flatMap(tuple -> {
+                    log.debug("1");
                     PermissionGroup permissionGroup = tuple.getT1();
                     List<User> users = tuple.getT2();
                     return permissionGroupService.bulkAssignToUserAndSendEvent(permissionGroup, users);
@@ -172,6 +179,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
         // Send analytics event
         Mono<Object> sendAnalyticsEventMono = Mono.zip(currentUserMono, inviteUsersMono)
                 .flatMap(tuple -> {
+                    log.debug("2");
                     User currentUser = tuple.getT1();
                     List<User> users = tuple.getT2();
                     Map<String, Object> analyticsProperties = new HashMap<>();

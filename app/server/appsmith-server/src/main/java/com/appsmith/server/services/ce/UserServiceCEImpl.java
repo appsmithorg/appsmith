@@ -31,15 +31,10 @@ import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.BaseService;
-import com.appsmith.server.services.PermissionGroupService;
-import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.TenantService;
-import com.appsmith.server.services.UserDataService;
-import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.services.*;
 import com.appsmith.server.solutions.UserChangedHandler;
 import jakarta.validation.Validator;
+import kotlin.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -95,6 +90,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final TenantService tenantService;
     private final PermissionGroupService permissionGroupService;
     private final UserUtils userUtils;
+    private final EmailTemplateService emailTemplateService;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
@@ -102,6 +98,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/signup?email=%s";
     public static final String INVITE_USER_EMAIL_TEMPLATE = "email/inviteUserTemplate.html";
     private static final Pattern ALLOWED_ACCENTED_CHARACTERS_PATTERN = Pattern.compile("^[\\p{L} 0-9 .\'\\-]+$");
+
 
     @Autowired
     public UserServiceCEImpl(Scheduler scheduler,
@@ -124,7 +121,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                              UserDataService userDataService,
                              TenantService tenantService,
                              PermissionGroupService permissionGroupService,
-                             UserUtils userUtils) {
+                             UserUtils userUtils,
+                             EmailTemplateService emailTemplateService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
@@ -141,6 +139,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.tenantService = tenantService;
         this.permissionGroupService = permissionGroupService;
         this.userUtils = userUtils;
+        this.emailTemplateService = emailTemplateService;
     }
 
     @Override
@@ -620,7 +619,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     @Override
     public Mono<? extends User> createNewUserAndSendInviteEmail(String email, String originHeader,
-                                                                Workspace workspace, User inviter, String role) {
+                                                                Workspace workspace, User inviter, String role,
+                                                                Pair<String, String> subjectAndEmailTemplate) {
         User newUser = new User();
         newUser.setEmail(email.toLowerCase());
 
@@ -644,14 +644,25 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     );
 
                     // Email template parameters initialization below.
-                    Map<String, String> params = getEmailParams(workspace, inviter, inviteUrl, true);
-
+                    Map<String, String> params = emailTemplateService.getEmailParams(workspace, inviter, inviteUrl, true);
                     // We have sent out the emails. Just send back the saved user.
                     return updateTenantLogoInParams(params, originHeader)
                             .flatMap(updatedParams ->
-                                    emailSender.sendMail(createdUser.getEmail(), "Invite for Appsmith", INVITE_USER_EMAIL_TEMPLATE, updatedParams)
+                                    emailSender.sendMail(createdUser.getEmail(),
+                                            subjectAndEmailTemplate.getFirst(),
+                                            subjectAndEmailTemplate.getSecond(),
+                                            updatedParams)
                             )
                             .thenReturn(createdUser);
+
+//                    // We have sent out the emails. Just send back the saved user.
+//                    return updateTenantLogoInParams(params, originHeader)
+//                            .flatMap(updatedParams ->
+//                                    emailSender.sendMail(createdUser.getEmail(),
+//                                            String.format("You've been invited to the Appsmith workspace %s.", updatedParams.get("inviterWorkspaceName")),
+//                                            INVITE_WORKSPACE_TEMPLATE, updatedParams)
+//                            )
+//                            .thenReturn(createdUser);
                 });
     }
 
@@ -725,27 +736,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 });
     }
 
-    @Override
-    public Map<String, String> getEmailParams(Workspace workspace, User inviter, String inviteUrl, boolean isNewUser) {
-        Map<String, String> params = new HashMap<>();
 
-        if (inviter != null) {
-            params.put("inviterFirstName", org.apache.commons.lang3.StringUtils.defaultIfEmpty(inviter.getName(), inviter.getEmail()));
-        }
-        if (workspace != null) {
-            params.put("inviterWorkspaceName", workspace.getName());
-        }
-        if (isNewUser) {
-            params.put("primaryLinkUrl", inviteUrl);
-            params.put("primaryLinkText", "Sign up now");
-        } else {
-            if (workspace != null) {
-                params.put("primaryLinkUrl", inviteUrl + "/applications#" + workspace.getId());
-            }
-            params.put("primaryLinkText", "Go to workspace");
-        }
-        return params;
-    }
 
     @Override
     public Mono<Boolean> isUsersEmpty() {

@@ -8,6 +8,7 @@ import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.services.CrudService;
+import kotlin.Pair;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -34,7 +35,8 @@ public interface UserServiceCE extends CrudService<User, String> {
     Mono<User> userCreate(User user, boolean isAdminUser);
 
     Mono<? extends User> createNewUserAndSendInviteEmail(String email, String originHeader,
-                                                         Workspace workspace, User inviter, String role);
+                                                         Workspace workspace, User inviter, String role,
+                                                         Pair<String, String> subjectAndEmailTemplate);
 
     Mono<User> updateCurrentUser(UserUpdateDTO updates, ServerWebExchange exchange);
 
