@@ -1,1 +1,1 @@
-export const getLicenseId = () => "";
+export const getLicenseKey = () => "";
