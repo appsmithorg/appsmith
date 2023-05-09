@@ -151,7 +151,7 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
     return null;
 
   return (
-    <Modal onOpenChange={() => setIsOpen(true)} open={isOpen}>
+    <Modal onOpenChange={(open: boolean) => setIsOpen(open)} open={isOpen}>
       <ModalContent>
         <ModalHeader>{props.title}</ModalHeader>
         <ModalBody>

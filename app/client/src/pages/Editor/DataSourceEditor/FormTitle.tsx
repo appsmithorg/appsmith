@@ -95,8 +95,8 @@ function FormTitle(props: FormTitleProps) {
 
   const handleDatasourceNameChange = useCallback(
     (name: string) => {
-      // Check if the datasource name equals "Untitled Datasource ABC" if no , use the name passed.
-      const datsourceName = name || "Untitled Datasource ABC";
+      // Check if the datasource name equals "Untitled datasource ABC" if no , use the name passed.
+      const datsourceName = name || "Untitled datasource ABC";
       if (
         !isInvalidDatasourceName(name) &&
         currentDatasource &&

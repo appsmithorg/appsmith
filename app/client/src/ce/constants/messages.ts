@@ -171,6 +171,19 @@ export const USERS_HAVE_ACCESS_TO_ONLY_THIS_APP = () =>
   "Users will only have access to this application";
 export const NO_USERS_INVITED = () => "You haven't invited any users yet";
 
+export const USER_PROFILE_PICTURE_UPLOAD_FAILED = () =>
+  "Unable to upload display picture.";
+export const UPDATE_USER_DETAILS_FAILED = () =>
+  "Unable to update user details.";
+export const USER_DISPLAY_PICTURE_FILE_INVALID = () =>
+  "File content doesn't seem to be an image. Please verify.";
+export const USER_DISPLAY_NAME_CHAR_CHECK_FAILED = () =>
+  "No special characters allowed except .'-";
+export const USER_DISPLAY_NAME_PLACEHOLDER = () => "Display name";
+export const USER_DISPLAY_PICTURE_PLACEHOLDER = () => "Display picture";
+export const USER_EMAIL_PLACEHOLDER = () => "Email";
+export const USER_RESET_PASSWORD = () => "Reset Password";
+
 export const CREATE_PASSWORD_RESET_SUCCESS = () => `Your password has been set`;
 export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = () => `Login`;
 
@@ -195,6 +208,7 @@ export const EDIT_APP = () => `Edit App`;
 export const FORK_APP = () => `Fork App`;
 export const SIGN_IN = () => `Sign in`;
 export const SHARE_APP = () => `Share app`;
+export const ALL_APPS = () => `All apps`;
 
 export const EDITOR_HEADER = {
   saving: () => "Saving",
@@ -299,9 +313,9 @@ export const EDIT_DATASOURCE_MESSAGE = () =>
   "Edit Datasource to access authentication settings";
 export const OAUTH_ERROR = () => "OAuth Error";
 export const OAUTH_2_0 = () => "OAuth 2.0";
-export const ENABLE = () => "ENABLE";
-export const UPGRADE = () => "UPGRADE";
-export const EDIT = () => "EDIT";
+export const ENABLE = () => "Enable";
+export const UPGRADE = () => "Upgrade";
+export const EDIT = () => "Edit";
 export const UNEXPECTED_ERROR = () => "An unexpected error occurred";
 export const EXPECTED_ERROR = () => "An error occurred";
 export const NO_DATASOURCE_FOR_QUERY = () =>
@@ -829,7 +843,7 @@ export const IMPORTING_APP_FROM_GIT = () => "Importing application from Git";
 export const CONFIRM_SSH_KEY = () =>
   "Please make sure your SSH key has write access.";
 export const READ_DOCUMENTATION = () => "Read documentation";
-export const LEARN_MORE = () => "Learn More";
+export const LEARN_MORE = () => "Learn more";
 export const GIT_NO_UPDATED_TOOLTIP = () => "No new updates to push";
 
 export const FIND_OR_CREATE_A_BRANCH = () => "Find or create a branch";
@@ -1123,6 +1137,7 @@ export const HIDDEN_TOOLTIP = () => "Hidden";
 export const CLONE_TOOLTIP = () => "Clone";
 export const DELETE_TOOLTIP = () => "Delete";
 export const SETTINGS_TOOLTIP = () => "Settings";
+
 //settings
 export const ADMIN_SETTINGS = () => "Admin Settings";
 export const RESTART_BANNER_BODY = () =>
@@ -1143,7 +1158,7 @@ export const DISCONNECT_AUTH_ERROR = () =>
 export const MANDATORY_FIELDS_ERROR = () => "Mandatory fields cannot be empty";
 
 // Audit logs begin
-export const AUDIT_LOGS = () => "Audit Logs";
+export const AUDIT_LOGS = () => "Audit logs";
 export const TRY_AGAIN_WITH_YOUR_FILTER = () => "Try again with your filter";
 
 // Audit logs Upgrade page begin
@@ -1151,7 +1166,7 @@ export const INTRODUCING = (featureName: string) =>
   `Introducing ${featureName}`;
 export const AUDIT_LOGS_UPGRADE_PAGE_SUB_HEADING = () =>
   "See a timestamped trail of events in your workspace. Filter by type of event, user, resource ID, and time. Drill down into each event to investigate further.";
-export const SECURITY_AND_COMPLIANCE = () => "Security & Compliance";
+export const SECURITY_AND_COMPLIANCE = () => "Security & compliance";
 export const SECURITY_AND_COMPLIANCE_DETAIL1 = () =>
   "Proactively derisk misconfigured permissions, roll back changes from a critical security event, and keep checks against your compliance policies.";
 export const SECURITY_AND_COMPLIANCE_DETAIL2 = () =>
@@ -1159,7 +1174,7 @@ export const SECURITY_AND_COMPLIANCE_DETAIL2 = () =>
 export const DEBUGGING = () => "Debugging";
 export const DEBUGGING_DETAIL1 = () =>
   "Debug with a timeline of events filtered by user and resource ID, correlate them with end-user and app developer actions, and investigate back to the last known good state of your app.";
-export const INCIDENT_MANAGEMENT = () => "Incident Management";
+export const INCIDENT_MANAGEMENT = () => "Incident management";
 export const INCIDENT_MANAGEMENT_DETAIL1 = () =>
   "Go back in time from an incident to see who did what, correlate events with breaking changes, and run RCAs to remediate incidents for now and the future.";
 export const AVAILABLE_ON_BUSINESS = () => "Available on a business plan only";
@@ -1170,7 +1185,7 @@ export const EXCLUSIVE_TO_BUSINESS = (featureName: string) =>
 
 // Access control upgrade page begin
 export const GRANULAR_ACCESS_CONTROL_FOR_TEAMS = () =>
-  "Granular Access Controls for teams";
+  "granular access controls for teams";
 export const ACCESS_CONTROL_UPGRADE_PAGE_SUB_HEADING = () =>
   "Control all permissions for all resources in your apps in a workspace. Manage permissions granularly by attributes. Use permissions and user groups to easily define access levels.";
 export const SECURITY_APPS_LEAST_PRIVILEGE = () =>
@@ -1248,10 +1263,10 @@ export const UPGRADE_TO_EE = (authLabel: string) =>
 export const UPGRADE_TO_EE_FEATURE = (feature: string) =>
   `Hello, I would like to upgrade and start using the ${feature} feature.`;
 export const UPGRADE_TO_EE_GENERIC = () => `Hello, I would like to upgrade`;
-export const ADMIN_AUTH_SETTINGS_TITLE = () => "Select Authentication Method";
+export const ADMIN_AUTH_SETTINGS_TITLE = () => "Select authentication method";
 export const ADMIN_AUTH_SETTINGS_SUBTITLE = () =>
   "Select a protocol you want to authenticate users with";
-export const DANGER_ZONE = () => "Danger Zone";
+export const DANGER_ZONE = () => "Danger zone";
 export const DISCONNECT_AUTH_METHOD = () => "Disconnect";
 export const DISCONNECT_CONFIRMATION = () => "Are you sure?";
 
@@ -1561,17 +1576,21 @@ export const IN_APP_EMBED_SETTING = {
 export const APP_NAVIGATION_SETTING = {
   sectionHeader: () => "Navigation",
   sectionHeaderDesc: () => "Customize the navigation bar",
-  showNavbarLabel: () => "Show Navbar",
+  showNavbarLabel: () => "Show navbar",
   orientationLabel: () => "Orientation",
   navStyleLabel: () => "Variant",
   positionLabel: () => "Position",
   itemStyleLabel: () => "Item Style",
   colorStyleLabel: () => "Background color",
   logoLabel: () => "Logo",
-  logoConfigurationLabel: () => "Logo Configuration",
-  showSignInLabel: () => "Show Sign In",
+  logoConfigurationLabel: () => "Logo configuration",
+  showSignInLabel: () => "Show sign in",
   showSignInTooltip: () =>
     "Toggle to show the sign-in button for users who are not logged in.",
+  logoUploadFormatError: () => `Uploaded file must be in .PNG or .JPG formats.`,
+  logoUploadSizeError: () => `Uploaded file must be less than 1MB.`,
+  showLogoLabel: () => "Show logo",
+  showApplicationTitleLabel: () => "Show application title",
 };
 
 export const LOCK_SIDEBAR_MESSAGE = () => `Lock sidebar open`;
@@ -1703,4 +1722,4 @@ export const customJSLibraryMessages = {
 
 // Business Edition upgrade page
 export const MOVE_TO_BUSINESS_EDITION = (trailingChar: string) =>
-  `Move to Business Edition${trailingChar ? trailingChar : ""}`;
+  `Move to Business edition${trailingChar ? trailingChar : ""}`;

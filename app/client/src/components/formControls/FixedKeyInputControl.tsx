@@ -35,6 +35,7 @@ class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
             };
           }}
           placeholder={placeholderText}
+          size="md"
           type={this.getType(dataType)}
         />
       </Wrapper>

@@ -15,6 +15,7 @@ import type {
   CreateApplicationRequest,
   CreateApplicationResponse,
   DeleteApplicationRequest,
+  DeleteNavigationLogoRequest,
   DuplicateApplicationRequest,
   FetchApplicationPayload,
   FetchApplicationResponse,
@@ -27,6 +28,7 @@ import type {
   SetDefaultPageRequest,
   UpdateApplicationRequest,
   UpdateApplicationResponse,
+  UploadNavigationLogoRequest,
   WorkspaceApplicationObject,
 } from "@appsmith/api/ApplicationApi";
 import ApplicationApi from "@appsmith/api/ApplicationApi";
@@ -39,6 +41,7 @@ import history from "utils/history";
 import type { AppState } from "@appsmith/reducers";
 import {
   ApplicationVersion,
+  deleteApplicationNavigationLogoSuccessAction,
   fetchApplication,
   getAllApplications,
   importApplicationSuccess,
@@ -49,6 +52,7 @@ import {
   setPageIdForImport,
   setWorkspaceIdForImport,
   showReconnectDatasourceModal,
+  updateApplicationNavigationLogoSuccessAction,
   updateApplicationNavigationSettingAction,
   updateCurrentApplicationEmbedSetting,
   updateCurrentApplicationIcon,
@@ -112,7 +116,11 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { safeCrashAppRequest } from "actions/errorActions";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import type { AppIconName } from "design-system-old";
+import type { IconNames } from "design-system";
+import {
+  defaultNavigationSetting,
+  keysOfNavigationSetting,
+} from "constants/AppConstants";
 import { setAllEntityCollapsibleStates } from "../../actions/editorContextActions";
 
 export const getDefaultPageId = (
@@ -527,7 +535,7 @@ export function* changeAppViewAccessSaga(
 export function* createApplicationSaga(
   action: ReduxAction<{
     applicationName: string;
-    icon: AppIconName;
+    icon: IconNames;
     color: AppColorCode;
     workspaceId: string;
     resolve: any;
@@ -906,4 +914,112 @@ export function* initDatasourceConnectionDuringImport(
   );
 
   yield put(initDatasourceConnectionDuringImportSuccess());
+}
+
+export function* uploadNavigationLogoSaga(
+  action: ReduxAction<UploadNavigationLogoRequest>,
+) {
+  try {
+    const request: UploadNavigationLogoRequest = action.payload;
+    const response: ApiResponse<UpdateApplicationResponse> = yield call(
+      ApplicationApi.uploadNavigationLogo,
+      request,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      if (request.logo) {
+        if (
+          request.logo &&
+          response.data.applicationDetail?.navigationSetting?.logoAssetId
+        ) {
+          yield put(
+            updateApplicationNavigationLogoSuccessAction(
+              response.data.applicationDetail.navigationSetting.logoAssetId,
+            ),
+          );
+
+          /**
+           * When the user creates a new application and they upload logo without
+           * interacting with any other navigation settings first, we get only
+           * navigationSetting = { logoAssetId: <id_string_here> } in the API response.
+           *
+           * Therefore, we need to handle this case by hitting the update application
+           * API and store the default navigation settings as well alongside
+           * the logoAssetId.
+           */
+          const navigationSettingKeys = Object.keys(
+            response.data.applicationDetail?.navigationSetting,
+          );
+          if (
+            navigationSettingKeys?.length === 1 &&
+            navigationSettingKeys?.[0] === keysOfNavigationSetting.logoAssetId
+          ) {
+            const newUpdateApplicationRequestWithDefaultNavigationSettings = {
+              ...response.data,
+              applicationDetail: {
+                ...response.data.applicationDetail,
+                navigationSetting: {
+                  ...defaultNavigationSetting,
+                  ...response.data.applicationDetail.navigationSetting,
+                },
+              },
+            };
+
+            const updateApplicationResponse: ApiResponse<UpdateApplicationResponse> =
+              yield call(
+                ApplicationApi.updateApplication,
+                newUpdateApplicationRequestWithDefaultNavigationSettings,
+              );
+
+            if (updateApplicationResponse?.data) {
+              yield put({
+                type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
+                payload: updateApplicationResponse.data,
+              });
+
+              if (
+                newUpdateApplicationRequestWithDefaultNavigationSettings
+                  .applicationDetail?.navigationSetting &&
+                updateApplicationResponse.data.applicationDetail
+                  ?.navigationSetting
+              ) {
+                yield put(
+                  updateApplicationNavigationSettingAction(
+                    updateApplicationResponse.data.applicationDetail
+                      .navigationSetting,
+                  ),
+                );
+              }
+            }
+          }
+        }
+      }
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.UPLOAD_NAVIGATION_LOGO_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* deleteNavigationLogoSaga(
+  action: ReduxAction<DeleteNavigationLogoRequest>,
+) {
+  try {
+    const request: DeleteNavigationLogoRequest = action.payload;
+
+    yield call(ApplicationApi.deleteNavigationLogo, request);
+    yield put(deleteApplicationNavigationLogoSuccessAction());
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.DELETE_NAVIGATION_LOGO_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
 }

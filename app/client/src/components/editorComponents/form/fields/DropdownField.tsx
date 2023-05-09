@@ -31,7 +31,7 @@ const renderDropdown = (props: any) => {
         });
         props.input.onChange(obj);
       }}
-      value={props.input.value}
+      value={props.input.value?.value}
       virtual={false}
     >
       {props.options.map((option: SelectOptionProps) => (

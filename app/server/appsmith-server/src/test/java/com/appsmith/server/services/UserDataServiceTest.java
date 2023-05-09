@@ -176,6 +176,24 @@ public class UserDataServiceTest {
                 .expectErrorMatches(error -> error instanceof AppsmithException)
                 .verify();
     }
+    /*
+        This test uploads an invalid image (json file for which extension has been changed to .png) and validates the upload failure
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUploadProfilePhoto_invalidImageContent() {
+        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
+        Flux<DataBuffer> dataBufferFlux = DataBufferUtils
+                .read(new ClassPathResource("test_assets/WorkspaceServiceTest/json_file_to_png.png"), new DefaultDataBufferFactory(), 4096).cache();
+        Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
+        Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.IMAGE_PNG);
+
+        final Mono<UserData> saveMono = userDataService.saveProfilePhoto(filepart).cache();
+
+        StepVerifier.create(saveMono)
+                .expectErrorMatches(error -> error instanceof AppsmithException)
+                .verify();
+    }
 
     @Test
     @WithUserDetails(value = "api_user")
