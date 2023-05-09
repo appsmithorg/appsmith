@@ -17,12 +17,8 @@ const FlagWrapper = styled.span`
   height: 100%;
   position: relative;
   top: 1px;
+  overflow: initial !important;
 `;
-
-type DropdownOption = {
-  label?: string;
-  value?: string;
-};
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
   containerRef = React.createRef<HTMLDivElement>();
@@ -54,13 +50,10 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
   };
 
   render() {
-    let defaultSelected: DropdownOption | DropdownOption[] = {
-      label: "No selection.",
-      value: undefined,
-    };
+    let defaultSelected: string | string[] | undefined = undefined;
 
     if (this.props.isMultiSelect) {
-      defaultSelected = [defaultSelected];
+      defaultSelected = [];
     }
 
     const options =
@@ -71,21 +64,23 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     if (this.props.defaultValue) {
       if (this.props.isMultiSelect) {
         const defaultValueSet = new Set(this.props.defaultValue);
-        defaultSelected = options.filter((option) =>
-          defaultValueSet.has(option.value),
-        );
+        defaultSelected = options
+          .filter((option) => defaultValueSet.has(option.value))
+          .map((option) => option.value);
       } else {
         defaultSelected = options.find(
           (option) => option.value === this.props.defaultValue,
-        );
+        )?.value;
       }
     }
 
-    let selected: DropdownOption | DropdownOption[];
+    let selected: string | string[];
 
     if (this.props.isMultiSelect) {
       const propertyValueSet = new Set(this.props.propertyValue);
-      selected = options.filter((option) => propertyValueSet.has(option.value));
+      selected = options
+        .filter((option) => propertyValueSet.has(option.value))
+        .map((option) => option.value);
     } else {
       const computedValue =
         !isNil(this.props.propertyValue) &&
@@ -96,7 +91,9 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           ? this.props.evaluatedValue
           : this.props.propertyValue;
 
-      selected = options.find((option) => option.value === computedValue);
+      selected = options.find(
+        (option) => option.value === computedValue,
+      )?.value;
     }
 
     if (selected) {
@@ -124,7 +121,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
               {option.leftElement && (
                 <FlagWrapper>{option.leftElement}</FlagWrapper>
               )}
-              {option.label}
+              <span>{option.label}</span>
             </Option>
           ))}
         </Select>
