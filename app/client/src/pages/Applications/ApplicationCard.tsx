@@ -94,6 +94,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
 
         .overlay {
           position: relative;
+          border-radius: var(--ads-v2-border-radius);
           ${
             props.hasReadPermission &&
             `text-decoration: none;
@@ -123,6 +124,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
                 ? `rgba(255, 255, 255, 0.5)`
                 : null
             };
+            border-radius: var(--ads-v2-border-radius);
             @supports ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
               background-color: transparent;
               backdrop-filter: ${
