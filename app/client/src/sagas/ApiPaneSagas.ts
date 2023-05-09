@@ -593,7 +593,7 @@ function* handleDatasourceCreatedSaga(
   // once the datasource is saved
   if (
     !!actionRouteInfo.apiId &&
-    actionRouteInfo?.datasourceId !== TEMP_DATASOURCE_ID
+    actionPayload.payload?.id !== TEMP_DATASOURCE_ID
   ) {
     yield put(
       setActionProperty({
