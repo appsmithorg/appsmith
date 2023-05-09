@@ -26,9 +26,9 @@
     "sourceMap": true,
     "baseUrl": "./src",
     "noFallthroughCasesInSwitch": true,
-    "importsNotUsedAsValues": "error"
+    "importsNotUsedAsValues": "error",
   },
   "include": [
-    "./src/**/*"
+    "./src/**/*",
   ],
 }
