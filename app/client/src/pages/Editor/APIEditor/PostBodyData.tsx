@@ -156,6 +156,7 @@ function PostBodyData(props: Props) {
       <SegmentedControl
         data-testid="t--api-body-tab-switch"
         defaultValue={selectedTab}
+        isFullWidth={false}
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         onChange={(key: string) => setSelectedTab(key)}
