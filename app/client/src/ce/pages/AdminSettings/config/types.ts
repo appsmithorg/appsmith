@@ -77,7 +77,7 @@ export type Setting = ControlType & {
   isVisible?: (values: Record<string, any>) => boolean;
   isHidden?: boolean;
   isDisabled?: (values: Record<string, any>) => boolean;
-  calloutType?: "Info" | "Warning" | "Notify";
+  calloutType?: "info" | "success" | "warning" | "error";
   advanced?: Setting[];
   isRequired?: boolean;
   formName?: string;
