@@ -680,7 +680,7 @@ export function* forkApplicationSaga(
       yield put({
         type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
         payload: {
-          id: action.payload.workspaceId,
+          workspaceId: action.payload.workspaceId,
         },
       });
       const pageURL = builderURL({
