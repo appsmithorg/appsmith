@@ -1,6 +1,4 @@
-import { resizor } from "./decorators/resizor";
 import { theming } from "./decorators/theming";
-
 import "./styles.css";
 
 export const parameters = {
@@ -17,4 +15,4 @@ export const parameters = {
   layout: "centered",
 };
 
-export const decorators = [resizor, theming];
+export const decorators = [theming];

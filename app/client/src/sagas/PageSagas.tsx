@@ -627,6 +627,8 @@ export function* saveAllPagesSaga(pageLayouts: PageLayoutsRequest[]) {
 
     if (isValidResponse) {
       return true;
+    } else {
+      throw new Error(`Error while Saving all pages, ${response?.data}`);
     }
   } catch (error) {
     throw error;

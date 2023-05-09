@@ -10,6 +10,7 @@ import UpIcon from "assets/icons/ads/up-arrow.svg";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
 import type { WidgetType } from "constants/WidgetConstants";
+import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -28,7 +29,6 @@ import FilePickerComponent from "../component";
 import FileDataTypes from "../constants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const CSV_ARRAY_LABEL = "Array (CSVs only)";
 const CSV_FILE_TYPE_REGEX = /.+(\/csv)$/;
@@ -38,8 +38,6 @@ const ARRAY_CSV_HELPER_TEXT = `All non csv filetypes will have an empty value. \
 const isCSVFileType = (str: string) => CSV_FILE_TYPE_REGEX.test(str);
 
 type Result = string | Buffer | ArrayBuffer | null;
-
-const isAirgappedInstance = isAirgapped();
 
 const FilePickerGlobalStyles = createGlobalStyle<{
   borderRadius?: string;
@@ -610,7 +608,7 @@ class FilePickerWidget extends BaseWidget<
         closeAfterFinish: true,
         closeModalOnClickOutside: true,
         disableStatusBar: false,
-        disableInformer: isAirgappedInstance,
+        disableInformer: false,
         disableThumbnailGenerator: false,
         disablePageScrollWhenModalOpen: true,
         proudlyDisplayPoweredByUppy: false,
@@ -689,7 +687,7 @@ class FilePickerWidget extends BaseWidget<
       const fileCount = this.props.selectedFiles?.length || 0;
       const fileReaderPromises = files.map((file, index) => {
         return new Promise((resolve) => {
-          if (file.size < 5000 * 1000) {
+          if (file.size < FILE_SIZE_LIMIT_FOR_BLOBS) {
             const reader = new FileReader();
             if (this.props.fileDataType === FileDataTypes.Base64) {
               reader.readAsDataURL(file.data);

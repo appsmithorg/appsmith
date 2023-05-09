@@ -39,7 +39,9 @@ function ConversionButton() {
     if (isOpen) {
       dispatch(setConversionStart(CONVERSION_STATES.START));
     } else {
-      dispatch(setConversionStop());
+      setTimeout(() => {
+        dispatch(setConversionStop());
+      }, 0);
     }
   }, []);
 
@@ -65,7 +67,7 @@ function ConversionButton() {
       trigger={
         <Button
           category={Category.secondary}
-          className="mb-6"
+          className="mb-6  text-center !p-2"
           fill
           id="t--layout-conversion-cta"
           size={Size.medium}
