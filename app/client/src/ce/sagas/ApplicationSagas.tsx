@@ -122,6 +122,7 @@ import {
   keysOfNavigationSetting,
 } from "constants/AppConstants";
 import { setAllEntityCollapsibleStates } from "../../actions/editorContextActions";
+import { BUILDER_VIEWER_PATH_PREFIX } from "constants/routes";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -135,6 +136,9 @@ export const getDefaultPageId = (
   }
   return defaultPage ? defaultPage.id : undefined;
 };
+
+const isApplicationUrl = (url: string): boolean =>
+  new URL(url).pathname.includes(BUILDER_VIEWER_PATH_PREFIX);
 
 export let windowReference: Window | null = null;
 
@@ -686,6 +690,18 @@ export function* forkApplicationSaga(
       const pageURL = builderURL({
         pageId: application.defaultPageId as string,
       });
+
+      if (isApplicationUrl(window.location.href)) {
+        const appId = application.id;
+        const pageId = application.defaultPageId;
+        yield put({
+          type: ReduxActionTypes.FETCH_APPLICATION_INIT,
+          payload: {
+            applicationId: appId,
+            pageId,
+          },
+        });
+      }
       history.push(pageURL);
     }
   } catch (error) {
@@ -729,8 +745,6 @@ export function* importApplicationSaga(
       ApplicationApi.importApplicationToWorkspace,
       action.payload,
     );
-    const urlObject = new URL(window.location.href);
-    const isApplicationUrl = urlObject.pathname.includes("/app/");
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const currentWorkspaceId: string = yield select(getCurrentWorkspaceId);
@@ -769,7 +783,7 @@ export function* importApplicationSaga(
           const pageURL = builderURL({
             pageId: defaultPage[0].id,
           });
-          if (isApplicationUrl) {
+          if (isApplicationUrl(window.location.href)) {
             const appId = application.id;
             const pageId = application.defaultPageId;
             yield put({
