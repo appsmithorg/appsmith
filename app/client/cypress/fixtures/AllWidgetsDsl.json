@@ -1109,7 +1109,7 @@
           "status",
           "action"
         ],
-        "dynamicPropertyPathList": [],
+        "dynamicPropertyPathList": [{"key": "tableData"}],
         "displayName": "Table",
         "bottomRow": 151,
         "columnWidthMap": {

@@ -2,6 +2,7 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/tableV2TextPaginationDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+const { ObjectsRegistry } = require("../../../../../support/Objects/Registry");
 
 describe("Test Create Api and Bind to Table widget", function () {
   before(() => {

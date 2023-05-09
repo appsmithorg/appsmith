@@ -4,6 +4,7 @@ import { ChooseAndAssertForm } from "./Utility";
 describe("One click binding control", () => {
   before(() => {
     _.entityExplorer.DragDropWidgetNVerify("tablewidgetv2");
+    _.table.AddSampleTableData();
   });
 
   it("1.should check the datasource selector and the form", () => {

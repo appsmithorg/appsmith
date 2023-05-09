@@ -37,6 +37,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.get(widgetsPage.addWidget).click();
     // Drag and drop table widget
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 300, y: 200 });
+    ObjectsRegistry.Table.AddSampleTableData();
     // close Widget side bar
     cy.get(widgetsPage.explorerSwitchId).click({ force: true });
     cy.get(widgetsPage.tabedataField).should("not.be.empty");

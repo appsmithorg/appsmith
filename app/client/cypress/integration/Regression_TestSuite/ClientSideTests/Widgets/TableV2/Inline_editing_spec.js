@@ -17,6 +17,7 @@ describe("Table widget inline editing functionality", () => {
 
   it("1. should check that edit check box is present in the columns list", () => {
     cy.openPropertyPane("tablewidgetv2");
+    ObjectsRegistry.Table.AddSampleTableData();
 
     ["step", "task", "status", "action"].forEach((column) => {
       cy.get(

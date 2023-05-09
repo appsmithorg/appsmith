@@ -667,6 +667,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
   it("8. Verify 'Connect Widget [snipping]' functionality - S3 ", () => {
     _.entityExplorer.DragDropWidgetNVerify(WIDGET.TABLE, 200, 200);
+    _.propPane.ToggleJsMode("Table Data");
     cy.NavigateToActiveDSQueryPane(datasourceName);
     _.agHelper.GetObjectName().then(($queryName) => {
       _.entityExplorer.SelectEntityByName($queryName, "Queries/JS");

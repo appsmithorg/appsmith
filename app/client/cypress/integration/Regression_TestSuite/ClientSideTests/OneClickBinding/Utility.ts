@@ -1,7 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 export function ChooseAndAssertForm(source, selectedSource, table, column) {
-  _.agHelper.GetNClick(".t--one-click-binding-datasource-selector");
+  _._.agHelper.GetNClick(".t--one-click-binding-datasource-selector");
 
   _.agHelper.AssertElementAbsence(".t--one-click-binding-connect-data");
 

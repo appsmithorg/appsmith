@@ -34,6 +34,7 @@ describe("excludeForAirgap", "Guided Tour", function () {
     // Step 2: Select table widget
     cy.SearchEntityandOpen("CustomersTable");
     // Step 3: Add binding to the tableData property
+    _.propPane.ToggleJsMode("Table Data");
     _.propPane.UpdatePropertyFieldValue("Table Data", "{{getCustomers.data}}");
     cy.get(guidedTourLocators.successButton).click();
     cy.get(guidedTourLocators.infoButton).click();

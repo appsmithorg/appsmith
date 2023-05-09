@@ -12,6 +12,7 @@ const {
 describe("Autocomplete bug fixes", function () {
   it("1. Bug #12790 Verifies if selectedRow is in best match", function () {
     ee.DragDropWidgetNVerify(WIDGET.TABLE, 200, 200);
+    ObjectsRegistry.Table.AddSampleTableData();
     ee.DragDropWidgetNVerify(WIDGET.TEXT, 200, 600);
     ee.SelectEntityByName("Text1");
     propPane.TypeTextIntoField("Text", "{{Table1.");
