@@ -890,6 +890,7 @@ export const scrollCSS = css`
 
   scrollbar-color: #cccccc transparent;
   scroolbar-width: thin;
+
   &::-webkit-scrollbar-thumb {
     background: #cccccc !important;
   }
