@@ -69,7 +69,7 @@ ff4j:
         class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
         param:
           - name: emails
-            value: me-eng1@appsmith.com, me-eng2@appsmith.com, me-qa1@appsmith.com, me-qa2@appsmith.com, me-demo@appsmith.com
+            value: me-eng1@appsmith.com,me-eng2@appsmith.com,me-qa1@appsmith.com,me-qa2@appsmith.com,me-demo@appsmith.com
 
     - uid: MULTIPLE_PANES
       enable: true
