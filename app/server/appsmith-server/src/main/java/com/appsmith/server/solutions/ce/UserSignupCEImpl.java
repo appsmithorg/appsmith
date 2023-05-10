@@ -45,6 +45,7 @@ import java.util.Map;
 import static com.appsmith.external.constants.AnalyticsConstants.DISABLE_TELEMETRY;
 import static com.appsmith.external.constants.AnalyticsConstants.GOAL;
 import static com.appsmith.external.constants.AnalyticsConstants.IP;
+import static com.appsmith.external.constants.AnalyticsConstants.IP_ADDRESS;
 import static com.appsmith.external.constants.AnalyticsConstants.SUBSCRIBE_MARKETING;
 import static com.appsmith.server.constants.Appsmith.DEFAULT_ORIGIN_HEADER;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
@@ -246,7 +247,13 @@ public class UserSignupCEImpl implements UserSignupCE {
                                         analyticsProps.put(EMAIL, newsletterSignedUpUserEmail);
                                         analyticsProps.put(ROLE, ObjectUtils.defaultIfNull(userData.getRole(), ""));
                                         analyticsProps.put(GOAL, ObjectUtils.defaultIfNull(userData.getUseCase(), ""));
+                                        // ip is a reserved keyword for tracking events in Mixpanel though this is allowed in
+                                        // Segment. Instead of showing the ip as is Mixpanel provides derived property.
+                                        // As we want derived props alongwith the ip address we are sharing the ip
+                                        // address in separate keys
+                                        // Ref: https://help.mixpanel.com/hc/en-us/articles/360001355266-Event-Properties
                                         analyticsProps.put(IP, ip);
+                                        analyticsProps.put(IP_ADDRESS, ip);
                                         analyticsProps.put(NAME, ObjectUtils.defaultIfNull(newsletterSignedUpUserName, ""));
 
                                         analyticsService.identifyInstance(
