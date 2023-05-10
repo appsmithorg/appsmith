@@ -428,6 +428,7 @@ export function Installer(props: { left: number }) {
           <div className="flex flex-row gap-2 justify-between items-end">
             <div className="w-full h-[83px]">
               <Input
+                data-testid="library-url"
                 errorMessage={errorMessage}
                 isValid={isValid}
                 label={"Library URL"}

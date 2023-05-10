@@ -19,6 +19,7 @@ export function CollapseToggle(props: {
   return (
     <Icon
       className={props.className}
+      id={icon}
       name={icon}
       onClick={handleClick}
       size={"md"}
