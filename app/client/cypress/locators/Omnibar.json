@@ -7,7 +7,6 @@
     "globalSearchClose":".t--global-clear-input",
     "createNew":".t--file-operation",
     "recentlyopenItem":"//span[@class='text']",
-    "category":".t--global-search-category",
-    "operation":".t--file-operation:contains('value')"
+    "category":".t--global-search-category"
 
 }

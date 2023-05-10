@@ -1,9 +1,11 @@
 const omnibar = require("../../../../locators/Omnibar.json");
 const dsl = require("../../../../fixtures/omnibarDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const ee = ObjectsRegistry.EntityExplorer;
+import {
+  agHelper,
+  entityExplorer,
+} from "../../../../support/Objects/ObjectsCore";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Omnibar functionality test cases", () => {
   const apiName = "Omnibar1";
@@ -15,7 +17,7 @@ describe("Omnibar functionality test cases", () => {
 
   it("1. Bug #15104  Docs tab opens after clicking on learn more link from property pane", function () {
     cy.dragAndDropToCanvas("audiowidget", { x: 300, y: 500 });
-    ObjectsRegistry.AggregateHelper.AssertNewTabOpened(() => {
+    _.agHelper.AssertNewTabOpened(() => {
       cy.xpath('//span[text()="Learn more"]').click();
     });
   });
@@ -84,13 +86,13 @@ describe("Omnibar functionality test cases", () => {
 
     // create new api, js object and cURL import from omnibar
 
-    cy.get(omnibar.operation.replace("value", "New JS Object")).should(
+    cy.get(_.peekOverlay.locators._fileOperation("New JS Object")).should(
       "be.visible",
     );
-    cy.get(omnibar.operation.replace("value", "New Blank API")).should(
+    cy.get(_.peekOverlay.locators._fileOperation("New Blank API")).should(
       "be.visible",
     );
-    cy.get(omnibar.operation.replace("value", "New cURL Import")).should(
+    cy.get(_.peekOverlay.locators._fileOperation("New cURL Import")).should(
       "be.visible",
     );
 
@@ -111,7 +113,7 @@ describe("Omnibar functionality test cases", () => {
     cy.get(omnibar.categoryTitle).eq(1).click();
 
     cy.wait(1000);
-    cy.get(omnibar.operation.replace("value", "New cURL Import")).click();
+    cy.get(_.peekOverlay.locators._fileOperation("New cURL Import")).click();
     cy.url().should("include", "curl-import?");
     cy.get('p:contains("Import from CURL")').should("be.visible");
   });
@@ -139,7 +141,7 @@ describe("Omnibar functionality test cases", () => {
   });
 
   it("6. Verify Navigate section shows recently opened widgets and datasources", function () {
-    ee.SelectEntityByName("Button1", "Widgets");
+    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
     cy.get(omnibar.globalSearch).click({ force: true });
     cy.get(omnibar.categoryTitle).eq(0).click();
     // verify recently opened items with their subtext i.e page name
