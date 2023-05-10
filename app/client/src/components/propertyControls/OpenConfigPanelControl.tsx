@@ -1,21 +1,7 @@
 import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import styled from "styled-components";
 import { Button } from "design-system";
-
-const StyledPropertyPaneButtonWrapper = styled.div`
-  display: flex;
-  width: 100%;
-  justify-content: center;
-  margin-top: 10px;
-`;
-
-const Wrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-`;
 
 class OpenConfigPanelControl extends BaseControl<OpenConfigPanelControlProps> {
   constructor(props: OpenConfigPanelControlProps) {
@@ -36,19 +22,15 @@ class OpenConfigPanelControl extends BaseControl<OpenConfigPanelControlProps> {
     const { widgetName } = widgetProperties;
 
     return (
-      <Wrapper>
-        <StyledPropertyPaneButtonWrapper>
-          <Button
-            className={`t--${widgetName}-open-next-panel-button`}
-            endIcon={icon}
-            kind="secondary"
-            onClick={this.openConfigPanel}
-            size="md"
-          >
-            {label}
-          </Button>
-        </StyledPropertyPaneButtonWrapper>
-      </Wrapper>
+      <Button
+        className={` t--${widgetName}-open-next-panel-button`}
+        kind="secondary"
+        onClick={this.openConfigPanel}
+        size="sm"
+        startIcon={icon}
+      >
+        {label}
+      </Button>
     );
   }
 

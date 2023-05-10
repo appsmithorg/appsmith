@@ -66,7 +66,7 @@ describe("Widget error state", function () {
 
     _.table.AddColumn("customColumn1");
     _.propPane.OpenTableColumnSettings("customColumn1");
-    _.propPane.UpdatePropertyFieldValue("Computed Value", "{{test}}");
+    _.propPane.UpdatePropertyFieldValue("Computed value", "{{test}}");
 
     _.debuggerHelper.AssertDebugError("test is not defined", "", false, false);
 

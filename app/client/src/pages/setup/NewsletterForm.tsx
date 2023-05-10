@@ -42,6 +42,7 @@ export default memo(function NewsletterForm() {
               defaultSelected
               name="signupForNewsletter"
               onChange={() => noop}
+              value={"true"}
             >
               {createMessage(WELCOME_FORM_NEWLETTER_LABEL)}
             </Switch>

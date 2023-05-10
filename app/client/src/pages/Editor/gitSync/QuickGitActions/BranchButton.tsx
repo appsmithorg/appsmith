@@ -8,16 +8,17 @@ import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
 import BranchList from "../components/BranchList";
 import { fetchBranchesInit } from "actions/gitSyncActions";
-import { TooltipComponent as Tooltip } from "design-system-old";
-import { isEllipsisActive } from "utils/helpers";
 import { getGitStatus } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Button } from "design-system";
+import { Button, Tooltip } from "design-system";
+import { isEllipsisActive } from "../../../../utils/helpers";
 
 const ButtonContainer = styled(Button)`
   display: flex;
   align-items: center;
   margin: 0 ${(props) => props.theme.spaces[4]}px;
+  max-width: 122px;
+  min-width: unset !important;
 `;
 
 function BranchButton() {
@@ -26,7 +27,7 @@ function BranchButton() {
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
   const fetchBranches = () => dispatch(fetchBranchesInit());
-  const labelTarget = useRef<HTMLButtonElement>(null);
+  const labelTarget = useRef<HTMLSpanElement>(null);
   const status = useSelector(getGitStatus);
 
   useEffect(() => {
@@ -52,20 +53,27 @@ function BranchButton() {
       placement="top-start"
     >
       <Tooltip
-        boundary="window"
         content={currentBranch || ""}
-        disabled={!isEllipsisActive(labelTarget.current)}
-        hoverOpenDelay={1}
-        position="top-left"
+        isDisabled={!isEllipsisActive(labelTarget.current)}
+        placement="topLeft"
       >
         <ButtonContainer
-          className="t--branch-button "
+          className="t--branch-button"
           data-testid={"t--branch-button-currentBranch"}
           kind="secondary"
-          ref={labelTarget}
           startIcon="git-branch"
         >
-          {currentBranch}
+          <span
+            ref={labelTarget}
+            style={{
+              width: "82px",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {currentBranch}
+          </span>
           {!status?.isClean && "*"}
         </ButtonContainer>
       </Tooltip>

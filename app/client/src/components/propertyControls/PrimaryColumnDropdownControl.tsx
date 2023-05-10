@@ -2,8 +2,8 @@ import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
-import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
-import type { DropdownOption } from "design-system-old";
+import type { SegmentedControlOption } from "design-system";
+import { Select, Option } from "design-system";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
   DSEventTypes,
@@ -54,12 +54,12 @@ class PrimaryColumnDropdownControl extends BaseControl<ControlProps> {
       });
     }
 
-    let defaultSelected: DropdownOption = {
+    let defaultSelected: SegmentedControlOption = {
       label: "No selection.",
-      value: undefined,
+      value: "",
     };
 
-    const selected: DropdownOption = options.find(
+    const selected: SegmentedControlOption = options.find(
       (option) => option.value === this.props.propertyValue,
     );
 
@@ -68,27 +68,22 @@ class PrimaryColumnDropdownControl extends BaseControl<ControlProps> {
     }
 
     return (
-      <StyledDropDownContainer ref={this.containerRef}>
-        <StyledDropDown
-          dropdownMaxHeight="200px"
-          fillOptions
-          onSelect={this.onItemSelect}
-          options={options}
-          selected={defaultSelected}
-          showLabelOnly
-          width="100%"
-        />
-      </StyledDropDownContainer>
+      <div className="w-full h-full" ref={this.containerRef}>
+        <Select onSelect={this.onItemSelect} value={defaultSelected} />
+        {options.map((option) => {
+          return (
+            <Option key={option.value} value={option.value}>
+              {option.label}
+            </Option>
+          );
+        })}
+      </div>
     );
   }
 
-  onItemSelect = (
-    value?: string,
-    _option?: DropdownOption,
-    isUpdatedViaKeyboard?: boolean,
-  ): void => {
+  onItemSelect = (value?: string): void => {
     if (value) {
-      this.updateProperty(this.props.propertyName, value, isUpdatedViaKeyboard);
+      this.updateProperty(this.props.propertyName, value);
     }
   };
 

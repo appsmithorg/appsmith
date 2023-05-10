@@ -8,7 +8,6 @@ import React, {
 } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import classNames from "classnames";
-import { Classes as Popover2Classes } from "@blueprintjs/popover2";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
@@ -50,7 +49,6 @@ import { Profile } from "pages/common/ProfileImage";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import ToggleModeButton from "pages/Editor/ToggleModeButton";
-import { Colors } from "constants/Colors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { showConnectGitModal } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
@@ -118,7 +116,7 @@ const HeaderWrapper = styled.div`
   }
 
   @media only screen and (max-width: 700px) {
-    & .app-realtume-editors {
+    & .app-realtime-editors {
       display: none;
     }
   }
@@ -140,10 +138,6 @@ const HeaderSection = styled.div`
   :nth-child(3) {
     justify-content: flex-end;
   }
-  > .${Popover2Classes.POPOVER2_TARGET} {
-    max-width: calc(100% - 50px);
-    min-width: 100px;
-  }
 `;
 
 const AppsmithLink = styled((props) => {
@@ -160,11 +154,6 @@ const AppsmithLink = styled((props) => {
   }
 `;
 
-const DeploySection = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
 const BindingBanner = styled.div`
   position: fixed;
   width: 199px;
@@ -173,8 +162,9 @@ const BindingBanner = styled.div`
   top: ${(props) => props.theme.smallHeaderHeight};
   transform: translate(-50%, 0);
   text-align: center;
-  background: ${Colors.DANUBE};
-  color: ${Colors.WHITE};
+  background: var(--ads-v2-color-fg-information);
+  color: var(--ads-v2-color-white);
+  border: 1px solid var(--ads-v2-color-border);
   font-weight: 500;
   font-size: 15px;
   line-height: 20px;
@@ -182,7 +172,7 @@ const BindingBanner = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--ads-v2-shadow-popovers);
   z-index: 9999;
 `;
 
@@ -426,32 +416,34 @@ export function EditorHeader(props: EditorHeaderProps) {
 
           <Tooltip
             content={createMessage(RENAME_APPLICATION_TOOLTIP)}
+            isDisabled={isPopoverOpen}
             placement="bottom"
-            visible={isPopoverOpen}
           >
-            <EditorAppName
-              applicationId={applicationId}
-              className="t--application-name editable-application-name max-w-48"
-              defaultSavingState={
-                isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
-              }
-              defaultValue={currentApplication?.name || ""}
-              editInteractionKind={EditInteractionKind.SINGLE}
-              fill
-              isError={isErroredSavingName}
-              isNewApp={
-                applicationList.filter((el) => el.id === applicationId).length >
-                0
-              }
-              isPopoverOpen={isPopoverOpen}
-              onBlur={(value: string) =>
-                updateApplicationDispatch(applicationId || "", {
-                  name: value,
-                  currentApp: true,
-                })
-              }
-              setIsPopoverOpen={setIsPopoverOpen}
-            />
+            <div>
+              <EditorAppName
+                applicationId={applicationId}
+                className="t--application-name editable-application-name max-w-48"
+                defaultSavingState={
+                  isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
+                }
+                defaultValue={currentApplication?.name || ""}
+                editInteractionKind={EditInteractionKind.SINGLE}
+                fill
+                isError={isErroredSavingName}
+                isNewApp={
+                  applicationList.filter((el) => el.id === applicationId)
+                    .length > 0
+                }
+                isPopoverOpen={isPopoverOpen}
+                onBlur={(value: string) =>
+                  updateApplicationDispatch(applicationId || "", {
+                    name: value,
+                    currentApp: true,
+                  })
+                }
+                setIsPopoverOpen={setIsPopoverOpen}
+              />
+            </div>
           </Tooltip>
           <EditorSaveIndicator />
         </HeaderSection>
@@ -488,7 +480,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 workspaceId={workspaceId}
               />
             )}
-            <DeploySection>
+            <div className="flex items-center">
               <Tooltip
                 content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
                 placement="bottomRight"
@@ -507,7 +499,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               </Tooltip>
 
               <DeployLinkButtonDialog link={deployLink} trigger="" />
-            </DeploySection>
+            </div>
           </Boxed>
         </HeaderSection>
         <Suspense fallback={<span />}>

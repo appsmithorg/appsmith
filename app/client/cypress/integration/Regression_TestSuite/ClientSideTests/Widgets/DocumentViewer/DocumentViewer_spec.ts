@@ -49,7 +49,7 @@ describe("DocumentViewer Widget Functionality", () => {
     // previously the document is set as "Some doc content"
     // give a corrupted docx string
     propPane.UpdatePropertyFieldValue(
-      "Document Link",
+      "Document link",
       encodedWordDoc + someGarbageString,
     );
     deployMode.DeployApp();
@@ -66,7 +66,7 @@ describe("DocumentViewer Widget Functionality", () => {
   });
   it("6. Should show a xlsx document correctly", () => {
     ee.SelectEntityByName("DocumentViewer1", "Widgets");
-    propPane.UpdatePropertyFieldValue("Document Link", encodedXlsxDoc);
+    propPane.UpdatePropertyFieldValue("Document link", encodedXlsxDoc);
     deployMode.DeployApp();
     //"456" is pressent in the encoded xlsx doc
     cy.get(locator._widgetInDeployed("documentviewerwidget")).should(
@@ -81,7 +81,7 @@ describe("DocumentViewer Widget Functionality", () => {
     const someGarbageString = "+dsds";
     //give a corrupted xlsx doc string
     propPane.UpdatePropertyFieldValue(
-      "Document Link",
+      "Document link",
       encodedXlsxDoc + someGarbageString,
     );
     deployMode.DeployApp();

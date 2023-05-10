@@ -115,7 +115,7 @@ class ProgressBarWidget extends BaseWidget<
           {
             helpText: "Controls the progress color of progress bar",
             propertyName: "fillColor",
-            label: "Fill Color",
+            label: "Fill color",
             controlType: "COLOR_PICKER",
             defaultColor: Colors.GREEN,
             isBindProperty: true,
@@ -130,7 +130,7 @@ class ProgressBarWidget extends BaseWidget<
           },
           {
             propertyName: "borderRadius",
-            label: "Border Radius",
+            label: "Border radius",
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",

@@ -723,7 +723,20 @@ class CodeEditor extends Component<Props, State> {
         }
         break;
       case "Escape":
-        if (this.state.isFocused && !this.state.hinterOpen) {
+        /*
+         * We only want focus to go out for code editors in JS pane with binding prompts
+         * This is so the esc closes the binding prompt.
+         * but this is not needed in the JS object editor, since there are no prompts there
+         * So we check for the following so the JS editor does not have this behaviour -
+         * isFocused : editor is focused
+         * hinterOpen : autocomplete hinter is closed
+         * this.isBindingPromptOpen : binding prompt (type / for commands) is closed
+         */
+        if (
+          this.state.isFocused &&
+          !this.state.hinterOpen &&
+          this.isBindingPromptOpen()
+        ) {
           this.codeEditorTarget.current?.focus();
           this.codeEditorTarget.current?.dispatchEvent(
             interactionAnalyticsEvent({ key: e.key }),
@@ -1037,6 +1050,8 @@ class CodeEditor extends Component<Props, State> {
     const configTree = ConfigTreeActions.getConfigTree();
     const entityInformation: FieldEntityInformation = {
       expectedType: expected?.autocompleteDataType,
+      example: expected?.example,
+      mode: this.props.mode,
     };
 
     if (dataTreePath) {
@@ -1226,6 +1241,26 @@ class CodeEditor extends Component<Props, State> {
     };
   };
 
+  // show features like evaluatedvaluepopup or binding prompts
+  showFeatures = () => {
+    return (
+      this.state.isFocused &&
+      !this.props.hideEvaluatedValue &&
+      ("evaluatedValue" in this.props ||
+        ("dataTreePath" in this.props && !!this.props.dataTreePath))
+    );
+  };
+
+  isBindingPromptOpen = () => {
+    return (
+      showBindingPrompt(
+        this.showFeatures(),
+        this.props.input.value,
+        this.state.hinterOpen,
+      ) && !_.get(this.editor, "state.completionActive")
+    );
+  };
+
   render() {
     const {
       border,
@@ -1242,7 +1277,6 @@ class CodeEditor extends Component<Props, State> {
       height,
       hideEvaluatedValue,
       hoverInteraction,
-      input,
       showLightningMenu,
       size,
       theme,
@@ -1268,15 +1302,8 @@ class CodeEditor extends Component<Props, State> {
       isInvalid = Boolean(this.props.isInvalid);
     }
 
-    // show features like evaluatedvaluepopup or binding prompts
-    const showFeatures =
-      this.state.isFocused &&
-      !hideEvaluatedValue &&
-      ("evaluatedValue" in this.props ||
-        ("dataTreePath" in this.props && !!dataTreePath));
-
     const showEvaluatedValue =
-      showFeatures && (this.state.isDynamic || isInvalid);
+      this.showFeatures() && (this.state.isDynamic || isInvalid);
 
     return (
       <DynamicAutocompleteInputWrapper
@@ -1289,6 +1316,7 @@ class CodeEditor extends Component<Props, State> {
         {showLightningMenu !== false && !this.state.isFocused && (
           <Button
             className="commands-button"
+            kind="tertiary"
             onClick={() => {
               const newValue =
                 typeof this.props.input.value === "string"
@@ -1296,6 +1324,7 @@ class CodeEditor extends Component<Props, State> {
                   : "/";
               this.updatePropertyValue(newValue, newValue.length);
             }}
+            size="sm"
             tabIndex={-1}
           >
             /
@@ -1367,13 +1396,7 @@ class CodeEditor extends Component<Props, State> {
             >
               <BindingPrompt
                 editorTheme={this.props.theme}
-                isOpen={
-                  showBindingPrompt(
-                    showFeatures,
-                    input.value,
-                    this.state.hinterOpen,
-                  ) && !_.get(this.editor, "state.completionActive")
-                }
+                isOpen={this.isBindingPromptOpen()}
                 promptMessage={this.props.promptMessage}
                 showLightningMenu={this.props.showLightningMenu}
               />

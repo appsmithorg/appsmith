@@ -11,7 +11,7 @@ describe("Table Widget property pane feature validation", function () {
     cy.addColumnV2("CustomColumn");
     cy.editColumn("customColumn1");
 
-    cy.changeColumnType("Menu Button");
+    cy.changeColumnType("Menu button");
     cy.wait(400);
     cy.moveToStyleTab();
     cy.get(commonlocators.selectedIcon).should("have.text", "(none)");
@@ -19,7 +19,7 @@ describe("Table Widget property pane feature validation", function () {
       cy.get(selector + " button span.bp3-icon").should("not.exist");
     });
     cy.moveToContentTab();
-    cy.changeColumnType("Icon Button");
+    cy.changeColumnType("Icon button");
     cy.wait(400);
     cy.get(commonlocators.selectedIcon).should("have.text", "add");
     cy.getTableV2DataSelector("1", "5").then((selector) => {
@@ -28,7 +28,7 @@ describe("Table Widget property pane feature validation", function () {
         .should("have.attr", "icon")
         .and("equal", "add");
     });
-    cy.changeColumnType("Menu Button");
+    cy.changeColumnType("Menu button");
     cy.wait(500);
     cy.moveToStyleTab();
     cy.get(commonlocators.selectedIcon).should("have.text", "(none)");

@@ -237,7 +237,7 @@ export const LIGHTNING_MENU_DATA_WIDGET = () => `Use data from a widget`;
 export const LIGHTNING_MENU_QUERY_CREATE_NEW = () => `Create new query`;
 export const LIGHTNING_MENU_API_CREATE_NEW = () => `Create new API`;
 
-export const LIGHTNING_MENU_OPTION_TEXT = () => `Plain Text`;
+export const LIGHTNING_MENU_OPTION_TEXT = () => `Plain text`;
 export const LIGHTNING_MENU_OPTION_JS = () => `Write JS`;
 export const LIGHTNING_MENU_OPTION_HTML = () => `Write HTML`;
 export const CHECK_REQUEST_BODY = () =>
@@ -508,10 +508,10 @@ export const DEBUGGER_APPSMITH_SUPPORT = () => "Get Appsmith support";
 export const NO_ACTION = () => `No action`;
 export const EXECUTE_A_QUERY = () => `Execute a query`;
 export const NAVIGATE_TO = () => `Navigate to`;
-export const SHOW_ALERT = () => `Show Alert`;
+export const SHOW_ALERT = () => `Show alert`;
 export const SHOW_MODAL = () => `Show modal`;
 export const CLOSE_MODAL = () => `Close modal`;
-export const CLOSE = () => `CLOSE`;
+export const CLOSE = () => `Close`;
 export const STORE_VALUE = () => `Store value`;
 export const REMOVE_VALUE = () => `Remove value`;
 export const CLEAR_STORE = () => `Clear store`;
@@ -521,9 +521,9 @@ export const RESET_WIDGET = () => `Reset widget`;
 export const EXECUTE_JS_FUNCTION = () => `Execute a JS function`;
 export const SET_INTERVAL = () => `Set interval`;
 export const CLEAR_INTERVAL = () => `Clear interval`;
-export const GET_GEO_LOCATION = () => `Get Geolocation`;
-export const WATCH_GEO_LOCATION = () => `Watch Geolocation`;
-export const STOP_WATCH_GEO_LOCATION = () => `Stop watching Geolocation`;
+export const GET_GEO_LOCATION = () => `Get geolocation`;
+export const WATCH_GEO_LOCATION = () => `Watch geolocation`;
+export const STOP_WATCH_GEO_LOCATION = () => `Stop watching geolocation`;
 export const POST_MESSAGE = () => `Post message`;
 
 //js actions
@@ -653,7 +653,7 @@ export const BUILD_FROM_SCRATCH_ACTION_SUBTITLE = () =>
 
 export const BUILD_FROM_SCRATCH_ACTION_TITLE = () => "Build with drag & drop";
 
-export const GENERATE_PAGE_ACTION_TITLE = () => "Generate Page With Data";
+export const GENERATE_PAGE_ACTION_TITLE = () => "Generate page with data";
 
 export const GENERATE_PAGE_FORM_TITLE = () => "Generate from data";
 
@@ -706,10 +706,10 @@ export const GIT_DISCONNECT_POPUP_SUBTITLE = () =>
   `Git features will no more be shown for this application`;
 export const GIT_DISCONNECT_POPUP_MAIN_HEADING = () => `Are you sure?`;
 
-export const GIT_CONNECTION = () => "Git Connection";
-export const GIT_IMPORT = () => "Git Import";
+export const GIT_CONNECTION = () => "Git connection";
+export const GIT_IMPORT = () => "Git import";
 export const MERGE = () => "Merge";
-export const GIT_SETTINGS = () => "Git Settings";
+export const GIT_SETTINGS = () => "Git settings";
 export const CONNECT_TO_GIT = () => "Connect to Git repository";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
   "Checkout branches, make commits, and deploy your application";
@@ -741,7 +741,7 @@ export const DEPLOY_WITHOUT_GIT = () =>
 export const COMMIT_CHANGES = () => "Commit changes";
 export const COMMIT_TO = () => "Commit to";
 export const COMMIT_AND_PUSH = () => "Commit & push";
-export const PULL_CHANGES = () => "PULL CHANGES";
+export const PULL_CHANGES = () => "Pull changes";
 export const REGENERATE_SSH_KEY = (keyType: string, keySize: number) =>
   `Regenerate ${keyType} ${keySize} key`;
 export const GENERATE_SSH_KEY = (keyType: string, keySize: number) =>
@@ -766,8 +766,8 @@ export const MERGE_CHANGES = () => "Merge changes";
 export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
 export const CONNECT_GIT = () => "Connect Git";
 export const CONNECT_GIT_BETA = () => "Connect Git (Beta)";
-export const RETRY = () => "RETRY";
-export const CREATE_NEW_BRANCH = () => "CREATE NEW BRANCH";
+export const RETRY = () => "Retry";
+export const CREATE_NEW_BRANCH = () => "Create new branch";
 export const ERROR_WHILE_PULLING_CHANGES = () => "ERROR WHILE PULLING CHANGES";
 export const SUBMIT = () => "Submit";
 export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
@@ -780,9 +780,9 @@ export const INVALID_USER_DETAILS_MSG = () => "Please enter valid user details";
 export const PASTE_SSH_URL_INFO = () =>
   "Please enter a valid SSH URL of your repository";
 export const GENERATE_KEY = () => "Generate key";
-export const UPDATE_CONFIG = () => "UPDATE CONFIG";
-export const CONNECT_BTN_LABEL = () => "CONNECT";
-export const IMPORT_BTN_LABEL = () => "IMPORT";
+export const UPDATE_CONFIG = () => "Update config";
+export const CONNECT_BTN_LABEL = () => "Connect";
+export const IMPORT_BTN_LABEL = () => "Import";
 export const FETCH_GIT_STATUS = () => "Fetching status...";
 export const FETCH_MERGE_STATUS = () => "Checking mergeability...";
 export const NO_MERGE_CONFLICT = () =>
@@ -827,9 +827,9 @@ export const CONTACT_SUPPORT_TO_UPGRADE = () =>
 export const REVOKE_CAUSE_APPLICATION_BREAK = () =>
   "Revoking your repository might cause the application to break.";
 export const REVOKE_GIT = () => "Revoke access";
-export const DISCONNECT = () => "DISCONNECT";
-export const REVOKE = () => "REVOKE";
-export const REVOKE_ACCESS = () => "REVOKE ACCESS";
+export const DISCONNECT = () => "Disconnect";
+export const REVOKE = () => "Revoke";
+export const REVOKE_ACCESS = () => "Revoke Access";
 export const GIT_DISCONNECTION_SUBMENU = () => "Git Connection > Disconnect";
 export const DISCONNECT_FROM_GIT = (name: string) =>
   `Disconnect ${name} from Git`;
@@ -837,7 +837,7 @@ export const GIT_REVOKE_ACCESS = (name: string) => `Revoke Access To ${name}`;
 export const GIT_TYPE_REPO_NAME_FOR_REVOKING_ACCESS = (name: string) =>
   `Type “${name}” in the input box to revoke access.`;
 export const APPLICATION_NAME = () => "Application name";
-export const OPEN_REPO = () => "OPEN REPOSITORY";
+export const OPEN_REPO = () => "Open repository";
 export const CONNECTING_REPO = () => "Connecting to Git repository";
 export const IMPORTING_APP_FROM_GIT = () => "Importing application from Git";
 export const CONFIRM_SSH_KEY = () =>
@@ -922,6 +922,8 @@ export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
 export const ACTION_OPERATION_DESCRIPTION = () =>
   `Create a new query, API or JS object`;
+export const TABLE_WIDGET_VALIDATION_ASSIST_PROMPT = () =>
+  `Access the current cell using `;
 
 export const TRIGGER_ACTION_VALIDATION_ERROR = (
   functionName: string,
@@ -1112,6 +1114,7 @@ export const ADD_DATASOURCE_TOOLTIP = () =>
 export const ADD_WIDGET_TOOLTIP = () => "Find and add a widget";
 export const HELP_RESOURCE_TOOLTIP = () => "Help and resources";
 export const COPY_ELEMENT = () => "Copy element";
+export const SHOW_TEMPLATES = () => "Add a query";
 export const LAYOUT_DROPDOWN_TOOLTIP = () =>
   "Choose how your application looks on desktop, tablet and mobile devices";
 export const DEPLOY_BUTTON_TOOLTIP = () =>
@@ -1222,9 +1225,10 @@ export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
 export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
 export const JS_TOGGLE_DISABLED_MESSAGE = "Clear the field to toggle back";
 export const PROPERTY_PANE_EMPTY_SEARCH_RESULT_MESSAGE =
-  "No Properties found based on your search";
+  "No properties found based on your search";
 export const PROPERTY_SEARCH_INPUT_PLACEHOLDER =
   "Search for controls, labels etc";
+export const EXPLORER_BETA_ENTITY = () => "BETA";
 
 // API Pane
 export const API_PANE_NO_BODY = () => "This request does not have a body";
@@ -1373,8 +1377,8 @@ export const END_DESCRIPTION = () =>
   "Inspect properties of queries, components, etc.";
 export const END_BUTTON_TEXT = () => "Start building an app";
 
-export const CONTEXT_EDIT_NAME = () => "Edit Name";
-export const CONTEXT_SHOW_BINDING = () => "Show Bindings";
+export const CONTEXT_EDIT_NAME = () => "Edit name";
+export const CONTEXT_SHOW_BINDING = () => "Show bindings";
 export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
 export const CONTEXT_DELETE = () => "Delete";
@@ -1384,20 +1388,20 @@ export const CONTEXT_NO_PAGE = () => "No pages";
 export const CONTEXT_REFRESH = () => "Refresh";
 export const CONTEXT_CLONE = () => "Clone";
 export const CONTEXT_SETTINGS = () => "Settings";
-export const CONTEXT_SET_AS_HOME_PAGE = () => "Set as Home Page";
+export const CONTEXT_SET_AS_HOME_PAGE = () => "Set as home page";
 export const PAGE = () => "Page";
 export const PAGES = () => "Pages";
 
 // Entity explorer
-export const ADD_DATASOURCE_BUTTON = () => "ADD DATASOURCE";
-export const ADD_WIDGET_BUTTON = () => "ADD WIDGET";
-export const ADD_QUERY_JS_BUTTON = () => "ADD QUERY/JS";
+export const ADD_DATASOURCE_BUTTON = () => "Add datasource";
+export const ADD_WIDGET_BUTTON = () => "Add widget";
+export const ADD_QUERY_JS_BUTTON = () => "Add query/JS";
 export const EMPTY_WIDGET_MAIN_TEXT = () => "No widget to display";
-export const EMPTY_WIDGET_BUTTON_TEXT = () => "NEW WIDGET";
+export const EMPTY_WIDGET_BUTTON_TEXT = () => "New widget";
 export const EMPTY_QUERY_JS_MAIN_TEXT = () => "No query/JS to display";
-export const EMPTY_QUERY_JS_BUTTON_TEXT = () => "NEW QUERY/JS";
+export const EMPTY_QUERY_JS_BUTTON_TEXT = () => "New query/JS";
 export const EMPTY_DATASOURCE_MAIN_TEXT = () => "No datasource to display";
-export const EMPTY_DATASOURCE_BUTTON_TEXT = () => "NEW DATASOURCE";
+export const EMPTY_DATASOURCE_BUTTON_TEXT = () => "New datasource";
 
 // Templates
 export const MORE = () => "More";
@@ -1477,12 +1481,12 @@ export const SEARCH_USERS = (
   cloudHosting?: boolean,
 ) => `Search for users`;
 
-export const CREATE_PAGE = () => "New Blank Page";
-export const CANVAS_NEW_PAGE_CARD = () => "Create New Page";
+export const CREATE_PAGE = () => "New blank page";
+export const CANVAS_NEW_PAGE_CARD = () => "Create new page";
 export const GENERATE_PAGE = () => "Generate page from data table";
 export const GENERATE_PAGE_DESCRIPTION = () =>
   "Start app with a simple CRUD UI and customize it";
-export const ADD_PAGE_FROM_TEMPLATE = () => "Add Page From Template";
+export const ADD_PAGE_FROM_TEMPLATE = () => "Add page from template";
 export const INVALID_URL = () =>
   "Please enter a valid URL, for example, https://example.com";
 export const SAVE_OR_DISCARD_DATASOURCE_WARNING = () =>
@@ -1492,28 +1496,29 @@ export const APP_SETTINGS_PANE_HEADER = () => "Settings";
 export const APP_SETTINGS_CLOSE_TOOLTIP = () => "Close settings panel";
 
 export const GENERAL_SETTINGS_SECTION_HEADER = () => "General";
-export const GENERAL_SETTINGS_SECTION_CONTENT_HEADER = () => "General Settings";
-export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () => "App name and icon";
-export const GENERAL_SETTINGS_APP_NAME_LABEL = () => "App Name";
+export const GENERAL_SETTINGS_SECTION_CONTENT_HEADER = () => "General settings";
+export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () =>
+  "App name, icon and share";
+export const GENERAL_SETTINGS_APP_NAME_LABEL = () => "App name";
 export const GENERAL_SETTINGS_NAME_EMPTY_MESSAGE = () =>
   "App name cannot be empty";
 export const GENERAL_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR = () =>
   "Only alphanumeric or '-()' are allowed";
-export const GENERAL_SETTINGS_APP_ICON_LABEL = () => "App Icon";
+export const GENERAL_SETTINGS_APP_ICON_LABEL = () => "App icon";
 
 export const THEME_SETTINGS_SECTION_HEADER = () => "Theme";
-export const THEME_SETTINGS_SECTION_CONTENT_HEADER = () => "Theme Settings";
+export const THEME_SETTINGS_SECTION_CONTENT_HEADER = () => "Theme settings";
 export const THEME_SETTINGS_SECTION_HEADER_DESC = () =>
   "Set theme, color and font";
 
 export const PAGE_SETTINGS_SECTION_HEADER = () => "Page settings";
-export const PAGE_SETTINGS_SECTION_CONTENT_HEADER = () => "Settings";
-export const PAGE_SETTINGS_PAGE_NAME_LABEL = () => "Page Name";
+export const PAGE_SETTINGS_SECTION_CONTENT_HEADER = () => "settings";
+export const PAGE_SETTINGS_PAGE_NAME_LABEL = () => "Page name";
 export const PAGE_SETTINGS_NAME_EMPTY_MESSAGE = () =>
   "Page name cannot be empty";
 export const PAGE_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR = () =>
   "Only alphanumeric or '-' are allowed";
-export const PAGE_SETTINGS_PAGE_URL_LABEL = () => "Change Page URL";
+export const PAGE_SETTINGS_PAGE_URL_LABEL = () => "Change page URL";
 export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_1 = () => "Please";
 export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_2 = () => "update";
 export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_3 = () =>
@@ -1557,8 +1562,8 @@ export const IN_APP_EMBED_SETTING = {
   change: () => "Change",
   copiedEmbedCode: () => "Embed code copied to clipboard",
   embedSize: () => "Embed size",
-  previewEmbeddedApp: () => "PREVIEW EMBEDDED APP",
-  sectionHeader: () => "Share & Embed",
+  previewEmbeddedApp: () => "Preview embedded app",
+  sectionHeader: () => "Share & embed",
   sectionContentHeader: () => "Share",
   sectionHeaderDesc: () => "Make public, embed properties",
   showNavigationBar: () => "Show navigation bar",
@@ -1580,7 +1585,7 @@ export const APP_NAVIGATION_SETTING = {
   orientationLabel: () => "Orientation",
   navStyleLabel: () => "Variant",
   positionLabel: () => "Position",
-  itemStyleLabel: () => "Item Style",
+  itemStyleLabel: () => "Item style",
   colorStyleLabel: () => "Background color",
   logoLabel: () => "Logo",
   logoConfigurationLabel: () => "Logo configuration",
@@ -1653,9 +1658,9 @@ export const USE_SNAPSHOT_TEXT = () =>
 export const SNAPSHOT_WARNING_MESSAGE = () =>
   "Any changes you made after conversion will not be present.";
 export const CONVERT_TO_FIXED_TITLE = () => "Convert to Fixed-Layout";
-export const CONVERT_TO_FIXED_BUTTON = () => "Convert to fixed-layout";
+export const CONVERT_TO_FIXED_BUTTON = () => "Convert to fixed-layout (BETA)";
 export const CONVERT_TO_AUTO_TITLE = () => "Convert to Auto-Layout";
-export const CONVERT_TO_AUTO_BUTTON = () => "Convert to auto-layout";
+export const CONVERT_TO_AUTO_BUTTON = () => "Convert to auto-layout (BETA)";
 export const SNAPSHOT_BANNER_MESSAGE = () =>
   "Confirm this layout is per expectations before you discard the snapshot. Use the snapshot to go back.";
 export const USE_SNAPSHOT_CTA = () => "Use snapshot";

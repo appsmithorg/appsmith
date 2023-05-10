@@ -10,8 +10,9 @@
   "useCaseDropdown": ".t--welcome-form-role-usecase",
   "useCaseDropdownOption": ".rc-select-item-option-content",
   "nextButton": ".t--welcome-form-next-button",
-  "dataCollection": ".t--welcome-form-datacollection",
-  "newsLetter": ".t--welcome-form-newsletter",
+  "dataCollection": ".ads-v2-switch__label:last",
+  "newsLetter": ".ads-v2-switch__label:first",
   "createButton": ".t--welcome-form-create-button",
-  "createSuperUser" :"#super-user-form"
+  "createSuperUser" :"#super-user-form",
+  "superUserForm": "[data-testid='super-user-form']"
 }

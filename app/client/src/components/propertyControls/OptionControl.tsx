@@ -4,10 +4,7 @@ import BaseControl from "./BaseControl";
 import type { DropdownOption } from "components/constants";
 import { KeyValueComponent } from "./KeyValueComponent";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-
-export type DropDownOptionWithKey = DropdownOption & {
-  key: string;
-};
+import type { SegmentedControlOption } from "design-system";
 
 class OptionControl extends BaseControl<ControlProps> {
   render() {
@@ -19,7 +16,10 @@ class OptionControl extends BaseControl<ControlProps> {
     );
   }
 
-  updateOptions = (options: DropdownOption[], isUpdatedViaKeyboard = false) => {
+  updateOptions = (
+    options: SegmentedControlOption[],
+    isUpdatedViaKeyboard = false,
+  ) => {
     this.updateProperty("options", options, isUpdatedViaKeyboard);
   };
 

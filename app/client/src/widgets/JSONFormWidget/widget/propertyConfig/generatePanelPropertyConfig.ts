@@ -43,8 +43,8 @@ function generatePanelPropertyConfig(
           ...ARRAY_PROPERTIES.content.data,
           {
             propertyName: "children",
-            label: "Field Configuration",
-            helpText: "Field Configuration",
+            label: "Field configuration",
+            helpText: "Field configuration",
             controlType: "FIELD_CONFIGURATION",
             isBindProperty: false,
             isTriggerProperty: false,
@@ -121,7 +121,7 @@ function generatePanelPropertyConfig(
     ],
     styleChildren: [
       {
-        sectionName: "Label Styles",
+        sectionName: "Label styles",
         children: [...COMMON_PROPERTIES.style.label],
       },
       {
@@ -143,7 +143,7 @@ function generatePanelPropertyConfig(
         hidden: isFieldTypeArrayOrObject,
       },
       {
-        sectionName: "Border and Shadow",
+        sectionName: "Border and shadow",
         children: [...COMMON_PROPERTIES.style.borderShadow],
         hidden: (props: JSONFormWidgetProps, propertyPath: string) => {
           const schemaItem: SchemaItem = get(props, propertyPath, {});
