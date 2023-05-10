@@ -1,9 +1,9 @@
 import React from "react";
 import _ from "lodash";
-import type { WrappedFieldProps } from "redux-form";
+import type { BaseFieldProps, WrappedFieldProps } from "redux-form";
 import { Field } from "redux-form";
 import { replayHighlightClass } from "globalStyles/portals";
-import type { SelectOptionProps } from "design-system";
+import type { SelectOptionProps, SelectProps } from "design-system";
 import { Select, Option } from "design-system";
 import styled from "styled-components";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
@@ -56,17 +56,18 @@ const renderDropdown = (
   );
 };
 
-function DropdownField(props: any) {
+function DropdownField(
+  props: BaseFieldProps & Partial<SelectProps> & { formName: string },
+) {
   return (
     <Field
       className={`${props.className} ${replayHighlightClass}`}
       component={renderDropdown}
       format={(value: string) => _.find(props.options, { value }) || ""}
-      normalize={(option: { value: string }) => option.value}
-      {...props}
       isDisabled={props.isDisabled}
-      isSearchable={props.isSearchable}
+      normalize={(option: { value: string }) => option.value}
       placeholder={props.placeholder}
+      {...props}
     />
   );
 }
