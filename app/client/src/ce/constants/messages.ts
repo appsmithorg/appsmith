@@ -706,10 +706,10 @@ export const GIT_DISCONNECT_POPUP_SUBTITLE = () =>
   `Git features will no more be shown for this application`;
 export const GIT_DISCONNECT_POPUP_MAIN_HEADING = () => `Are you sure?`;
 
-export const GIT_CONNECTION = () => "Git Connection";
-export const GIT_IMPORT = () => "Git Import";
+export const GIT_CONNECTION = () => "Git connection";
+export const GIT_IMPORT = () => "Git import";
 export const MERGE = () => "Merge";
-export const GIT_SETTINGS = () => "Git Settings";
+export const GIT_SETTINGS = () => "Git settings";
 export const CONNECT_TO_GIT = () => "Connect to Git repository";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
   "Checkout branches, make commits, and deploy your application";
@@ -741,7 +741,7 @@ export const DEPLOY_WITHOUT_GIT = () =>
 export const COMMIT_CHANGES = () => "Commit changes";
 export const COMMIT_TO = () => "Commit to";
 export const COMMIT_AND_PUSH = () => "Commit & push";
-export const PULL_CHANGES = () => "PULL CHANGES";
+export const PULL_CHANGES = () => "Pull changes";
 export const REGENERATE_SSH_KEY = (keyType: string, keySize: number) =>
   `Regenerate ${keyType} ${keySize} key`;
 export const GENERATE_SSH_KEY = (keyType: string, keySize: number) =>
@@ -766,8 +766,8 @@ export const MERGE_CHANGES = () => "Merge changes";
 export const SELECT_BRANCH_TO_MERGE = () => "Select branch to merge";
 export const CONNECT_GIT = () => "Connect Git";
 export const CONNECT_GIT_BETA = () => "Connect Git (Beta)";
-export const RETRY = () => "RETRY";
-export const CREATE_NEW_BRANCH = () => "CREATE NEW BRANCH";
+export const RETRY = () => "Retry";
+export const CREATE_NEW_BRANCH = () => "Create new branch";
 export const ERROR_WHILE_PULLING_CHANGES = () => "ERROR WHILE PULLING CHANGES";
 export const SUBMIT = () => "Submit";
 export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
@@ -780,9 +780,9 @@ export const INVALID_USER_DETAILS_MSG = () => "Please enter valid user details";
 export const PASTE_SSH_URL_INFO = () =>
   "Please enter a valid SSH URL of your repository";
 export const GENERATE_KEY = () => "Generate key";
-export const UPDATE_CONFIG = () => "UPDATE CONFIG";
-export const CONNECT_BTN_LABEL = () => "CONNECT";
-export const IMPORT_BTN_LABEL = () => "IMPORT";
+export const UPDATE_CONFIG = () => "Update config";
+export const CONNECT_BTN_LABEL = () => "Connect";
+export const IMPORT_BTN_LABEL = () => "Import";
 export const FETCH_GIT_STATUS = () => "Fetching status...";
 export const FETCH_MERGE_STATUS = () => "Checking mergeability...";
 export const NO_MERGE_CONFLICT = () =>
@@ -827,9 +827,9 @@ export const CONTACT_SUPPORT_TO_UPGRADE = () =>
 export const REVOKE_CAUSE_APPLICATION_BREAK = () =>
   "Revoking your repository might cause the application to break.";
 export const REVOKE_GIT = () => "Revoke access";
-export const DISCONNECT = () => "DISCONNECT";
-export const REVOKE = () => "REVOKE";
-export const REVOKE_ACCESS = () => "REVOKE ACCESS";
+export const DISCONNECT = () => "Disconnect";
+export const REVOKE = () => "Revoke";
+export const REVOKE_ACCESS = () => "Revoke Access";
 export const GIT_DISCONNECTION_SUBMENU = () => "Git Connection > Disconnect";
 export const DISCONNECT_FROM_GIT = (name: string) =>
   `Disconnect ${name} from Git`;
@@ -837,7 +837,7 @@ export const GIT_REVOKE_ACCESS = (name: string) => `Revoke Access To ${name}`;
 export const GIT_TYPE_REPO_NAME_FOR_REVOKING_ACCESS = (name: string) =>
   `Type “${name}” in the input box to revoke access.`;
 export const APPLICATION_NAME = () => "Application name";
-export const OPEN_REPO = () => "OPEN REPOSITORY";
+export const OPEN_REPO = () => "Open repository";
 export const CONNECTING_REPO = () => "Connecting to Git repository";
 export const IMPORTING_APP_FROM_GIT = () => "Importing application from Git";
 export const CONFIRM_SSH_KEY = () =>
