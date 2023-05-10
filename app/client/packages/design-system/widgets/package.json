@@ -6,7 +6,8 @@
   "license": "MIT",
   "scripts": {
     "lint:ci": "eslint --cache .",
-    "prettier:ci": "prettier --check ."
+    "prettier:ci": "prettier --check .",
+    "test:unit": "jest"
   },
   "dependencies": {
     "@capsizecss/core": "^3.1.0",
