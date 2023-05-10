@@ -32,7 +32,7 @@ export class DataSources {
   private table = ObjectsRegistry.Table;
   private ee = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
-  // private homePage = ObjectsRegistry.HomePage;
+  private homePage = ObjectsRegistry.HomePage;
   private apiPage = ObjectsRegistry.ApiPage;
 
   private _dsCreateNewTab = "[data-cy=t--tab-CREATE_NEW]";
@@ -762,6 +762,15 @@ export class DataSources {
     if (dsName == "PostgreSQL") this.FillPostgresDSForm();
     else if (dsName == "MySQL") this.FillMySqlDSForm();
     cy.get(this._saveDs).click();
+  }
+
+  public CloseReconnectDataSourceModal() {
+    cy.get("body").then(($ele) => {
+      if ($ele.find(this._reconnectDataSourceModal).length) {
+        this.agHelper.GetNClick(this._skiptoApplicationBtn);
+        this.homePage.NavigateToHome();
+      }
+    });
   }
 
   RunQuery({
