@@ -33,7 +33,6 @@ function DropdownFieldWrapper(props: SelectOptionProps) {
       defaultValue={selectedOption.value}
       isDisabled={props.disabled}
       onSelect={onSelectHandler}
-      options={props.options}
       value={selectedOption.value}
     >
       {props.options.map((option: SelectOptionProps) => {
