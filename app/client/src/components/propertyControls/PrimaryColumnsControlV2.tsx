@@ -27,21 +27,20 @@ import {
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getEvalValuePath, isDynamicValue } from "utils/DynamicBindingUtils";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
-import { Checkbox, CheckboxType } from "design-system-old";
+import { Checkbox } from "design-system";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
-import { Colors } from "constants/Colors";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { Button } from "design-system";
-
-const TabsWrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-`;
 
 const EdtiableCheckboxWrapper = styled.div<{ rightPadding: boolean | null }>`
   position: relative;
   ${(props) => props.rightPadding && `right: 6px;`}
+  align-items: center;
+  .ads-v2-checkbox {
+    width: 16px;
+    height: 16px;
+    padding: 0;
+  }
 `;
 
 interface ReduxStateProps {
@@ -215,16 +214,13 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
             >
               <span className="mr-2">Editable</span>
               <Checkbox
-                backgroundColor={Colors.GREY_600}
-                isDefaultChecked={this.isAllColumnsEditable()}
-                label=""
-                onCheckChange={this.toggleAllColumnsEditability}
-                type={CheckboxType.SECONDARY}
+                isSelected={this.isAllColumnsEditable()}
+                onChange={this.toggleAllColumnsEditability}
               />
             </EdtiableCheckboxWrapper>
           )}
         </div>
-        <TabsWrapper>
+        <div className="flex flex-col w-full gap-1">
           <EvaluatedValuePopupWrapper {...this.props} isFocused={isFocused}>
             <DraggableListControl
               className={LIST_CLASSNAME}
@@ -251,15 +247,15 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
             />
           </EvaluatedValuePopupWrapper>
           <Button
-            className="t--add-column-btn"
-            kind="secondary"
+            className="self-end t--add-column-btn"
+            kind="tertiary"
             onClick={this.addNewColumn}
-            size="md"
+            size="sm"
             startIcon="plus"
           >
-            Add a new column
+            Add new column
           </Button>
-        </TabsWrapper>
+        </div>
       </>
     );
   }

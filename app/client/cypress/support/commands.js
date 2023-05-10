@@ -1294,6 +1294,7 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.get(welcomePage.useCaseDropdownOption).eq(1).click();
   cy.get(welcomePage.nextButton).should("not.be.disabled");
   cy.get(welcomePage.nextButton).click();
+  cy.get(welcomePage.superUserForm).should("be.visible");
   cy.get(welcomePage.newsLetter).should("be.visible");
   //cy.get(welcomePage.newsLetter).trigger("mouseover").click();
   //cy.get(welcomePage.newsLetter).find("input").uncheck();//not working

@@ -1288,6 +1288,7 @@ class CodeEditor extends Component<Props, State> {
         {showLightningMenu !== false && !this.state.isFocused && (
           <Button
             className="commands-button"
+            kind="tertiary"
             onClick={() => {
               const newValue =
                 typeof this.props.input.value === "string"
@@ -1295,6 +1296,7 @@ class CodeEditor extends Component<Props, State> {
                   : "/";
               this.updatePropertyValue(newValue, newValue.length);
             }}
+            size="sm"
             tabIndex={-1}
           >
             /

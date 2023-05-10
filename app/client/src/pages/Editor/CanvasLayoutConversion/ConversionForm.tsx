@@ -145,9 +145,9 @@ export function ConversionForm(
             </Text>
           </div>
           <SegmentedControl
-            defaultValue={selectDropDown.selected}
             onChange={selectDropDown.onSelect}
             options={selectDropDown.options}
+            value={selectDropDown.selected}
           />
         </div>
       )}

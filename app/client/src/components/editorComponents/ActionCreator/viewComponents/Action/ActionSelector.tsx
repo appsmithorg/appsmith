@@ -1,7 +1,7 @@
 import { Popover2 } from "@blueprintjs/popover2";
 import { isModalOpenSelector } from "components/editorComponents/GlobalSearch";
 import type { TreeDropdownOption } from "design-system-old";
-import { Icon } from "design-system-old";
+import { Text, Button } from "design-system";
 import React, { useCallback, useRef } from "react";
 import { useSelector } from "react-redux";
 import { getWidgetOptionsTree } from "sagas/selectors";
@@ -134,26 +134,26 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
       className="flex flex-col w-full action-selector-popup t--action-selector-popup"
       ref={ref}
     >
-      <div className="flex mb-2 w-full justify-between px-2 py-1 bg-gray-50">
-        <div className="text-sm font-medium text-gray">
+      <div className="flex mb-2 w-full justify-between px-2 mt-2">
+        <Text kind="heading-xs">
           {isChainedAction ? "Configure action" : label}
-        </div>
-        <Icon
+        </Text>
+        <Button
           className="t--close"
-          fillColor="var(--ads-color-black-700)"
-          name="cross"
+          isIconButton
+          kind="tertiary"
           onClick={() => selectBlock("-1")}
-          size="extraSmall"
+          size="sm"
+          startIcon="close-line"
         />
       </div>
 
       <div className="flex w-full justify-between px-3 mb-[4px]">
-        <div className="text-xs text-gray-600">Action</div>
-        <Icon
-          className="t--delete"
-          fillColor="var(--ads-color-black-500)"
-          hoverFillColor="var(--ads-color-black-700)"
-          name="delete"
+        <Text kind="action-m">Action</Text>
+        <Button
+          className="t--delete cursor-pointer"
+          isIconButton
+          kind="tertiary"
           onClick={() => {
             onChange(
               {
@@ -166,7 +166,8 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
             );
             selectBlock("-1");
           }}
-          size="extraLarge"
+          size="sm"
+          startIcon="delete-bin-line"
         />
       </div>
 

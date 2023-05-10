@@ -6,8 +6,9 @@ import {
   EditableText,
   EditInteractionKind,
   SavingState,
-  TooltipComponent,
 } from "design-system-old";
+import type { TooltipPlacement } from "design-system";
+import { Tooltip, Button } from "design-system";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import type { AppState } from "@appsmith/reducers";
 import { getExistingWidgetNames } from "sagas/selectors";
@@ -16,12 +17,9 @@ import { useToggleEditWidgetName } from "utils/hooks/dragResizeHooks";
 import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
 
 import type { WidgetType } from "constants/WidgetConstants";
-
-import { ReactComponent as BackIcon } from "assets/icons/control/back.svg";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover/popoverSharedProps";
 import { getIsCurrentWidgetRecentlyAdded } from "selectors/propertyPaneSelectors";
 
 type PropertyPaneTitleProps = {
@@ -34,7 +32,7 @@ type PropertyPaneTitleProps = {
   actions: Array<{
     tooltipContent: any;
     icon: ReactElement;
-    tooltipPosition?: PopoverPosition;
+    tooltipPosition?: TooltipPlacement;
   }>;
 };
 
@@ -169,12 +167,12 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
     >
       {/* BACK BUTTON */}
       {props.isPanelTitle && (
-        <button
-          className="p-1 hover:bg-warmGray-100 group t--property-pane-back-btn"
+        <Button
+          isIconButton
+          kind="tertiary"
           onClick={props.onBackClick}
-        >
-          <BackIcon className="w-4 h-4 text-gray-500" />
-        </button>
+          startIcon="back-control"
+        />
       )}
       {/* EDITABLE TEXT */}
       <div
@@ -203,14 +201,13 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
       {/* ACTIONS */}
       <div className="flex items-center space-x-1">
         {props.actions.map((value, index) => (
-          <TooltipComponent
+          <Tooltip
             content={value.tooltipContent}
-            hoverOpenDelay={200}
             key={index}
-            position={value.tooltipPosition}
+            placement={value.tooltipPosition}
           >
             {value.icon}
-          </TooltipComponent>
+          </Tooltip>
         ))}
       </div>
     </div>

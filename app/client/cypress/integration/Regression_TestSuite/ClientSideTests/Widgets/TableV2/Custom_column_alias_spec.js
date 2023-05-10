@@ -21,7 +21,7 @@ describe("Custom column alias functionality", () => {
 
   it("1. should test that custom column has alias property", () => {
     cy.openPropertyPane("tablewidgetv2");
-    propPane.UpdatePropertyFieldValue("Table Data", JSON.stringify(data));
+    propPane.UpdatePropertyFieldValue("Table data", JSON.stringify(data));
     cy.wait("@updateLayout");
     cy.wait(1000);
     cy.addColumnV2("customColumn1");

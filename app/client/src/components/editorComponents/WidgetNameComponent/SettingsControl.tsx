@@ -30,6 +30,7 @@ const SettingsWrapper = styled.div<{ widgetWidth: number; inverted: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  outline: none;
   & {
     pre {
       margin: 0 5px 0 0;

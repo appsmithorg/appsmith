@@ -9,7 +9,7 @@ import {
 } from "../../propertyUtils";
 
 export default {
-  sectionName: "Select Properties",
+  sectionName: "Select properties",
   hidden: (props: TableWidgetProps, propertyPath: string) => {
     return hideByColumnType(props, propertyPath, [ColumnTypes.SELECT], true);
   },
@@ -128,7 +128,7 @@ export default {
     {
       propertyName: "serverSideFiltering",
       helpText: "Enables server side filtering of the data",
-      label: "Server Side Filtering",
+      label: "Server side filtering",
       controlType: "SWITCH",
       isJSConvertible: true,
       isBindProperty: true,

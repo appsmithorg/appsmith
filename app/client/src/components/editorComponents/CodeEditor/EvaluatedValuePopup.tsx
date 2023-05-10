@@ -8,7 +8,6 @@ import type { FieldEntityInformation } from "components/editorComponents/CodeEdi
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { theme } from "constants/DefaultTheme";
 import type { Placement } from "popper.js";
-import { TooltipComponent as Tooltip } from "design-system-old";
 import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { IPopoverSharedProps } from "@blueprintjs/core";
@@ -32,7 +31,7 @@ import { showDebugger } from "actions/debuggerActions";
 import { modText } from "utils/helpers";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getJSFunctionNavigationUrl } from "selectors/navigationSelectors";
-import { Button, Icon, toast } from "design-system";
+import { Button, Icon, toast, Tooltip } from "design-system";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -86,7 +85,7 @@ const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
   // box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
   box-shadow: 0px 4px 8px -2px rgba(0, 0, 0, 0.1),
     0px 2px 4px -2px rgba(0, 0, 0, 0.06);
-  border-radius: 0px;
+  border-radius: var(--ads-v2-border-radius);
   pointer-events: all;
 `;
 
@@ -101,16 +100,22 @@ const CopyIconWrapper = styled.div`
 `;
 
 const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
-  // max-height: 300px;
   min-height: 28px;
-  // overflow-y: auto;
   -ms-overflow-style: none;
   padding: ${(props) => props.theme.spaces[3]}px;
   padding-right: 30px;
   background-color: var(--ads-v2-color-bg);
   position: relative;
+  border-radius: var(--ads-v2-border-radius);
+  .btn-copy {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 34px;
+    display: none;
+  }
   &:hover {
-    ${CopyIconWrapper} {
+    .btn-copy {
       display: flex;
     }
   }
@@ -147,8 +152,9 @@ const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
 
 const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
   margin: 0px 0px;
-  background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
-  color: ${(props) => THEMES[props.colorTheme].editorColor};
+  /* background-color: ${(props) =>
+    THEMES[props.colorTheme].editorBackground}; */
+  /* color: ${(props) => THEMES[props.colorTheme].editorColor}; */
   font-size: 12px;
   -ms-overflow-style: none;
   white-space: pre-wrap;
@@ -187,6 +193,7 @@ const ErrorText = styled.p`
 const StyledIcon = styled(Icon)`
   &.open-collapse {
     transform: rotate(90deg);
+    /* background-color: var(--ads-v2-color-bg-subtle); */
   }
   float: right;
 `;
@@ -316,7 +323,7 @@ export function PreparedStatementViewer(props: {
   const $params = [...value.matchAll(/\$\d+/g)].map((matches) => matches[0]);
 
   const paramsWithTooltips = $params.map((param) => (
-    <Tooltip content={<span>{parameters[param]}</span>} key={param}>
+    <Tooltip content={`${parameters[param]}`} key={param} trigger="hover">
       <PreparedStatementParameter key={param}>
         {param}
       </PreparedStatementParameter>

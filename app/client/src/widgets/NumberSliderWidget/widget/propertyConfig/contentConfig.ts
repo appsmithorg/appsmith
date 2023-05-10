@@ -19,7 +19,7 @@ export default [
       {
         propertyName: "min",
         helpText: "Sets the min value of the widget",
-        label: "Min. Value",
+        label: "Min. value",
         controlType: "INPUT_TEXT",
         placeholderText: "0",
         isBindProperty: true,
@@ -39,7 +39,7 @@ export default [
       {
         propertyName: "max",
         helpText: "Sets the max value of the widget",
-        label: "Max. Value",
+        label: "Max. value",
         controlType: "INPUT_TEXT",
         placeholderText: "100",
         isBindProperty: true,
@@ -59,7 +59,7 @@ export default [
       {
         propertyName: "step",
         helpText: "The amount by which the slider value should increase",
-        label: "Step Size",
+        label: "Step size",
         controlType: "INPUT_TEXT",
         placeholderText: "10",
         isBindProperty: true,
@@ -79,7 +79,7 @@ export default [
       {
         propertyName: "defaultValue",
         helpText: "Sets the value of the widget",
-        label: "Default Value",
+        label: "Default value",
         controlType: "INPUT_TEXT",
         placeholderText: "Value:",
         isBindProperty: true,
@@ -132,13 +132,14 @@ export default [
         propertyName: "labelAlignment",
         label: "Alignment",
         controlType: "LABEL_ALIGNMENT_OPTIONS",
+        fullWidth: false,
         options: [
           {
-            icon: "LEFT_ALIGN",
+            startIcon: "align-left",
             value: Alignment.LEFT,
           },
           {
-            icon: "RIGHT_ALIGN",
+            startIcon: "align-right",
             value: Alignment.RIGHT,
           },
         ],
@@ -186,7 +187,7 @@ export default [
       {
         propertyName: "showMarksLabel",
         helpText: "Show the marks label below the slider",
-        label: "Show Marks",
+        label: "Show marks",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
@@ -256,7 +257,7 @@ export default [
       },
       {
         propertyName: "animateLoading",
-        label: "Animate Loading",
+        label: "Animate loading",
         controlType: "SWITCH",
         helpText: "Controls the loading of the widget",
         defaultValue: true,

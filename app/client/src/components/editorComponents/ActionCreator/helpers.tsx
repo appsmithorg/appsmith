@@ -12,15 +12,12 @@ import { createModalAction } from "actions/widgetActions";
 import type { AppState } from "@appsmith/reducers";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { TreeDropdownOption } from "design-system-old";
-import { Icon } from "design-system-old";
+import { Icon } from "design-system";
 import { PluginType } from "entities/Action";
 import type { JSAction, Variable } from "entities/JSCollection";
 import keyBy from "lodash/keyBy";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import {
-  JsFileIconV2,
-  jsFunctionIcon,
-} from "pages/Editor/Explorer/ExplorerIcons";
+import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
@@ -77,7 +74,7 @@ const actionList: {
     label: action[1].label,
     value: action[0],
     children: action[1].children,
-    icon: <Icon name={action[1].icon} />,
+    icon: <Icon name={action[1].icon || "no-action"} size="md" />,
   }));
 
 export function getFieldFromValue(
@@ -410,7 +407,7 @@ function getApiAndQueryOptions(
   handleClose: () => void,
 ) {
   const createQueryObject: TreeDropdownOption = {
-    label: "New Query",
+    label: "New query",
     value: "datasources",
     id: "create",
     icon: "plus",
@@ -478,7 +475,7 @@ export function getJSOptions(
   dispatch: any,
 ) {
   const createJSObject: TreeDropdownOption = {
-    label: "New JS Object",
+    label: "New JS object",
     value: AppsmithFunction.jsFunction,
     id: "create",
     icon: "plus",
@@ -525,7 +522,7 @@ export function getJSOptions(
               id: js.id,
               value: jsAction.config.name + "." + js.name,
               type: jsOption.value,
-              icon: jsFunctionIcon,
+              icon: <Icon name="js-function" size="md" />,
               args: argValue,
             };
             (jsObject.children as TreeDropdownOption[]).push(

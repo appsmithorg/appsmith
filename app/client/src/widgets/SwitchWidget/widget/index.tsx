@@ -57,13 +57,14 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
             controlType: "LABEL_ALIGNMENT_OPTIONS",
             isBindProperty: true,
             isTriggerProperty: false,
+            fullWidth: false,
             options: [
               {
-                icon: "LEFT_ALIGN",
+                startIcon: "align-left",
                 value: AlignWidgetTypes.LEFT,
               },
               {
-                icon: "RIGHT_ALIGN",
+                startIcon: "align-right",
                 value: AlignWidgetTypes.RIGHT,
               },
             ],
@@ -76,7 +77,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "defaultSwitchState",
-            label: "Default State",
+            label: "Default state",
             helpText:
               "On / Off the Switch by default. Changes to the default selection update the widget state",
             controlType: "SWITCH",
@@ -107,7 +108,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -138,11 +139,11 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   static getPropertyPaneStyleConfig() {
     return [
       {
-        sectionName: "Label Styles",
+        sectionName: "Label styles",
         children: [
           {
             propertyName: "labelTextColor",
-            label: "Font Color",
+            label: "Font color",
             helpText: "Control the color of the label associated",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
@@ -157,7 +158,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
           },
           {
             propertyName: "labelTextSize",
-            label: "Font Size",
+            label: "Font size",
             helpText: "Control the font size of the label associated",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
@@ -206,11 +207,11 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
             controlType: "BUTTON_GROUP",
             options: [
               {
-                icon: "BOLD_FONT",
+                icon: "text-bold",
                 value: "BOLD",
               },
               {
-                icon: "ITALICS_FONT",
+                icon: "text-italic",
                 value: "ITALIC",
               },
             ],
@@ -227,7 +228,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
           {
             propertyName: "accentColor",
             helpText: "Sets the background color of the widget",
-            label: "Accent Color",
+            label: "Accent color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
