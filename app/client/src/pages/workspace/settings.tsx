@@ -66,7 +66,7 @@ const SettingsWrapper = styled.div<{
     ${({ isMobile }) =>
       !isMobile &&
       `
-      padding: 110px 0 0;
+      padding: 106px 0 0;
   `}
   }
 `;
