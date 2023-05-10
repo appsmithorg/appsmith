@@ -78,7 +78,7 @@ export const sqlModesConfig: SqlModeConfig = {
   },
 };
 
-export const pluginNameToMIME: Record<string, TEditorSqlModes> = {
+export const pluginNameToSqlMIME: Record<string, TEditorSqlModes> = {
   PostgreSQL: editorSQLModes.POSTGRESQL_WITH_BINDING,
   MySQL: editorSQLModes.MYSQL_WITH_BINDING,
   "Microsoft SQL Server": editorSQLModes.MSSQL_WITH_BINDING,
@@ -90,7 +90,7 @@ export const pluginNameToMIME: Record<string, TEditorSqlModes> = {
 };
 
 export function getSqlEditorModeFromPluginName(name: string) {
-  return pluginNameToMIME[name] ?? editorSQLModes.SQL_WITH_BINDING;
+  return pluginNameToSqlMIME[name] ?? editorSQLModes.SQL_WITH_BINDING;
 }
 
 export function getSqlMimeFromMode(mode: TEditorSqlModes) {
