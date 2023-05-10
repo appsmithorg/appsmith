@@ -1,32 +1,35 @@
 import React from "react";
-import { ConfirmMenuItem, ConfirmRegeneration } from "./StyledComponents";
+import {
+  ConfirmRegeneration,
+  ConfirmRegenerationActions,
+} from "./StyledComponents";
 import {
   createMessage,
   DELETE_CONFIRMATION_MODAL_TITLE,
   REGENERATE_KEY_CONFIRM_MESSAGE,
   YES,
 } from "@appsmith/constants/messages";
-import { Text, TextType } from "design-system-old";
-import { Button } from "design-system";
+import { Button, MenuItem, Text } from "design-system";
 
 /**
  * getConfirmMenuItem
  * @param regenerateKey {() => void}
+ * @param cancel
  */
 export function getConfirmMenuItem(regenerateKey: () => void) {
   return (
-    <ConfirmMenuItem>
-      <Text type={TextType.P3}>
-        {createMessage(REGENERATE_KEY_CONFIRM_MESSAGE)}
-      </Text>
+    <MenuItem className="menuitem-nohover">
+      <Text kind="body-s">{createMessage(REGENERATE_KEY_CONFIRM_MESSAGE)}</Text>
       <ConfirmRegeneration>
-        <Text type={TextType.P1}>
+        <Text kind="body-m">
           {createMessage(DELETE_CONFIRMATION_MODAL_TITLE)}
         </Text>
-        <Button onClick={regenerateKey} size="sm">
-          {createMessage(YES)}
-        </Button>
+        <ConfirmRegenerationActions>
+          <Button onClick={regenerateKey} size="sm">
+            {createMessage(YES)}
+          </Button>
+        </ConfirmRegenerationActions>
       </ConfirmRegeneration>
-    </ConfirmMenuItem>
+    </MenuItem>
   );
 }

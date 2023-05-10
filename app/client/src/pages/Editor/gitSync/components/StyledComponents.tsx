@@ -42,3 +42,19 @@ export const Space = styled.div<{ size: sizeType; horizontal?: boolean }>`
       ? `0px ${props.theme.spaces[props.size]}px `
       : `${props.theme.spaces[props.size]}px 0px`};
 `;
+export const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar-thumb {
+    background-color: transparent;
+  }
+
+  &::-webkit-scrollbar {
+    width: 0;
+  }
+`;

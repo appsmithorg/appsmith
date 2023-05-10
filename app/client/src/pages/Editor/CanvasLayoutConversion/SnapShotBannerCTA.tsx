@@ -51,7 +51,9 @@ export function SnapShotBannerCTA() {
 
   const closeModal = () => {
     setShowModal(false);
-    dispatch(setConversionStop());
+    setTimeout(() => {
+      dispatch(setConversionStop());
+    }, 0);
   };
 
   const onOpenChange = (isOpen: boolean) => {

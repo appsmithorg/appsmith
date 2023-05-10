@@ -5,6 +5,7 @@ const dsl = require("../../../../fixtures/tabsWidgetReset.json");
 describe("Tabs widget resetting", function () {
   before(() => {
     cy.addDsl(dsl);
+    cy.wait(4000); //for dsl to settle!
   });
 
   it("1.Reset the Tabs widget With the default value.", function () {
