@@ -6,13 +6,14 @@ import { Text } from "design-system";
 const LoaderWrapper = styled.div`
   display: flex;
   flex-direction: row;
+  align-items: center;
   margin-top: ${(props) => `${props.theme.spaces[3]}px`};
 `;
 
 function StatusLoader({ loaderMsg }: { loaderMsg: string }) {
   return (
     <LoaderWrapper>
-      <SpinnerLoader size="lg" />
+      <SpinnerLoader size="md" />
       <Text kind={"body-m"} style={{ marginLeft: 8 }}>
         {loaderMsg}
       </Text>

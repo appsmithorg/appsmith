@@ -79,6 +79,7 @@ const CreateNewBranchContainer = styled.div`
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  margin-right: 4px;
 
   & div {
     margin-left: ${(props) => props.theme.spaces[4]}px;
@@ -97,11 +98,10 @@ const CreateNewBranchContainer = styled.div`
   }
 `;
 
-const SpinnerContainer = styled.div`
+const SpinnerContainer = styled.div<{ isCreatingNewBranch: boolean }>`
   align-self: center;
   width: 12px;
-  position: absolute;
-  right: 16px;
+  visibility: ${(props) => (props.isCreatingNewBranch ? "visible" : "hidden")};
 `;
 
 function CreateNewBranch({
@@ -145,8 +145,9 @@ function CreateNewBranch({
         <div className="large-text">{`Create branch: ${branch} `}</div>
         <div className="small-text">{`from '${currentBranch}'`}</div>
       </CreateNewBranchContainer>
-      <SpinnerContainer>
-        {isCreatingNewBranch && <Spinner size="sm" />}
+
+      <SpinnerContainer isCreatingNewBranch={isCreatingNewBranch}>
+        <Spinner size="sm" />
       </SpinnerContainer>
     </div>
   );
