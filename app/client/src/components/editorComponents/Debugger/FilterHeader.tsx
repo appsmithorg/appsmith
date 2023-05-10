@@ -13,6 +13,7 @@ import {
   SearchInput,
   Select,
   Tooltip,
+  Text,
 } from "design-system";
 
 const Wrapper = styled.div`
@@ -27,12 +28,8 @@ const Wrapper = styled.div`
     width: 220px;
   }
 
-  .debugger-filter.rc-select {
-    height: 28px;
-  }
-
   .debugger-filter .rc-select-selector {
-    height: auto;
+    height: 28px;
   }
 
   .input-container {
@@ -40,6 +37,10 @@ const Wrapper = styled.div`
     min-width: 220px;
     flex-grow: 1;
   }
+`;
+
+const OptionLabel = styled(Text)`
+  margin-top: 2px;
 `;
 
 type FilterHeaderProps = {
@@ -85,7 +86,14 @@ function FilterHeader(props: FilterHeaderProps) {
         className="debugger-filter"
         onSelect={props.onSelect}
         size="sm"
-        value={props.selected.label}
+        value={{
+          key: props.selected.value,
+          label: (
+            <OptionLabel kind="body-s" renderAs="p">
+              {props.selected.label}
+            </OptionLabel>
+          ),
+        }}
       >
         {props.options.map((option) => (
           <Option
