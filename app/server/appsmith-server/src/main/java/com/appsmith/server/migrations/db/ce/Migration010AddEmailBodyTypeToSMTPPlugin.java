@@ -14,11 +14,11 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
 @ChangeUnit(order = "010", id="add-smtp-email-body-type", author = " ")
-public class Migration010AddEmailBodyType {
+public class Migration010AddEmailBodyTypeToSMTPPlugin {
 
     private final MongoTemplate mongoTemplate;
 
-    public Migration010AddEmailBodyType(MongoTemplate mongoTemplate) {
+    public Migration010AddEmailBodyTypeToSMTPPlugin(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 
