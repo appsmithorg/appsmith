@@ -32,7 +32,6 @@ export class DataSources {
   private table = ObjectsRegistry.Table;
   private ee = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
-  private homePage = ObjectsRegistry.HomePage;
   private apiPage = ObjectsRegistry.ApiPage;
 
   private _dsCreateNewTab = "[data-cy=t--tab-CREATE_NEW]";
