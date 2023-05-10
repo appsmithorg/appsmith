@@ -1,6 +1,5 @@
 import React from "react";
 import log from "loglevel";
-import styled from "styled-components";
 import { klona } from "klona";
 import { isEmpty, isString, maxBy, set, sortBy } from "lodash";
 
@@ -28,12 +27,6 @@ type DroppableItem = BaseItemProps & {
 type State = {
   focusedIndex: number | null;
 };
-
-const TabsWrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-`;
 
 const DEFAULT_FIELD_NAME = "customField";
 
@@ -189,13 +182,13 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
 
     const addNewFieldButton = (
       <Button
-        className="t--add-column-btn"
-        kind="secondary"
+        className="self-end t--add-column-btn"
+        kind="tertiary"
         onClick={this.addNewField}
-        size="md"
+        size="sm"
         startIcon="plus"
       >
-        Add a new field
+        Add new field
       </Button>
     );
 
@@ -249,7 +242,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
     }
 
     return (
-      <TabsWrapper>
+      <div className="flex flex-col w-full gap-1">
         <DraggableListControl
           deleteOption={this.onDeleteOption}
           focusedIndex={this.state.focusedIndex}
@@ -274,7 +267,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
           updateOption={this.updateOption}
         />
         {!this.isArrayItem() && addNewFieldButton}
-      </TabsWrapper>
+      </div>
     );
   }
 

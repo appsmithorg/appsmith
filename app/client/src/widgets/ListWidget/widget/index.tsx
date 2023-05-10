@@ -465,7 +465,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
           /**
            * Following conditions are special cases written to support
-           * Dynamic Menu Items (Menu Button Widget) inside the List Widget.
+           * Dynamic Menu Items (Menu button Widget) inside the List Widget.
            *
            * This is an interim fix since List Widget V2 is just around the corner.
            *
@@ -480,7 +480,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
            * However, if the {{currentItem}} binding is not used, then we only need one
            * single value for all menu items.
            *
-           * Dynamic Menu Items (Menu Button Widget) -
+           * Dynamic Menu Items (Menu button Widget) -
            * https://github.com/appsmithorg/appsmith/pull/17652
            */
           if (

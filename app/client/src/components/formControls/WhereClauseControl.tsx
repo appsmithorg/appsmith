@@ -7,9 +7,7 @@ import _ from "lodash";
 import { useSelector } from "react-redux";
 import { getBindingOrConfigPathsForWhereClauseControl } from "entities/Action/actionProperties";
 import { WhereClauseSubComponent } from "./utils";
-// import { TooltipComponent as Tooltip } from "design-system-old";
 import useResponsiveBreakpoints from "utils/hooks/useResponsiveBreakpoints";
-// import { Colors } from "constants/Colors";
 import { Button, Tooltip } from "design-system";
 
 //Dropdwidth and Icon have fixed widths
@@ -59,11 +57,8 @@ const LogicalFieldValue: any = styled.p<{
   size: string;
 }>`
   ${(props) => (props.width ? "width: " + props.width + ";" : "")}
-  /* margin: 4px 0px; */
-  /* border: solid 1.2px transparent; */
   text-align: right;
   color: var(--ads-v2-color-fg-muted);
-  /* font-size: 14px; */
   flex-shrink: 0;
 
   ${(props) =>
@@ -190,16 +185,9 @@ const ConditionBox = styled.div<{ size?: string }>`
 // Box containing the action buttons to add more filters
 const ActionBox = styled.div<{ marginLeft: string; size: string }>`
   display: flex;
-  /* margin-top: 5px; */
   flex-direction: row;
   gap: 5px;
-  /* width: max-content;
-  justify-content: space-between;
-  position: absolute;
-  height: 24px;
-  text-transform: uppercase; */
   background-color: inherit;
-  /* bottom: 0px; */
   margin-left: ${(props) => props.marginLeft};
 
   ${(props) =>
@@ -207,12 +195,6 @@ const ActionBox = styled.div<{ marginLeft: string; size: string }>`
     `
     margin-left: 0;
   `}
-`;
-
-// The final button to add more filters/ filter groups
-const AddMoreAction = styled(Button)`
-  /* display: flex;
-  align-items: center; */
 `;
 
 const GroupConditionBox = styled.div<{ size: string }>`
@@ -300,7 +282,7 @@ function ConditionComponent(props: any, index: number) {
           props.onDeletePressed(index);
         }}
         size="md"
-        startIcon="delete-bin-line"
+        startIcon="cross-line"
       />
     </ConditionBox>
   );
@@ -415,7 +397,7 @@ function ConditionBlock(props: any) {
                       onDeletePressed(index);
                     }}
                     size="md"
-                    startIcon="delete-bin-line"
+                    startIcon="cross-line"
                     top={"24px"}
                   />
                 </GroupConditionBox>
@@ -437,7 +419,7 @@ function ConditionBlock(props: any) {
           );
         })}
       <ActionBox marginLeft={`${DropdownWidth + Margin}px`} size={size}>
-        <AddMoreAction
+        <Button
           className={`t--where-add-condition[${props?.currentNestingLevel}]`}
           kind="tertiary"
           onClick={
@@ -452,8 +434,8 @@ function ConditionBlock(props: any) {
           size="md"
           startIcon="add-more"
         >
-          Add Condition
-        </AddMoreAction>
+          Add condition
+        </Button>
         {/* Check if the config allows more nesting, if it does, allow for adding more blocks */}
         <Tooltip
           content={
@@ -464,7 +446,7 @@ function ConditionBlock(props: any) {
           isDisabled={props.currentNestingLevel < props.nestedLevels}
           placement="bottom"
         >
-          <AddMoreAction
+          <Button
             className={`t--where-add-group-condition[${props?.currentNestingLevel}]`}
             isDisabled={!(props.currentNestingLevel < props.nestedLevels)}
             kind="tertiary"
@@ -483,8 +465,8 @@ function ConditionBlock(props: any) {
             size="md"
             startIcon="add-more"
           >
-            Add Group Condition
-          </AddMoreAction>
+            Add group condition
+          </Button>
         </Tooltip>
       </ActionBox>
     </SecondaryBox>

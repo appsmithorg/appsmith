@@ -101,22 +101,25 @@ export const EditorWrapper = styled.div<{
     .cm-s-duotone-light.CodeMirror {
       padding: 0 6px;
       border-radius: var(--ads-v2-border-radius);
+      ${(props) =>
+        props.isFocused &&
+        `outline: var(--ads-v2-border-width-outline) solid var(--ads-v2-color-outline);
+        outline-offset: var(--ads-v2-offset-outline);`}
       border: 1px solid
         ${(props) => {
-          switch (true) {
-            case props.border === "none":
-              return "transparent";
-            case props.border === "bottom-side":
-              return "var(--ads-v2-color-border)";
-            case props.hasError:
-              return "var(--ads-v2-color-border-error)";
-            case props.isFocused:
-              return "var(--ads-v2-color-border-emphasis)";
-            default:
-              return "var(--ads-v2-color-border)";
-          }
-        }};
-
+        switch (true) {
+          case props.border === "none":
+            return "transparent";
+          case props.border === "bottom-side":
+            return "var(--ads-v2-color-border)";
+          case props.hasError:
+            return "var(--ads-v2-color-border-error)";
+          case props.isFocused:
+            return "var(--ads-v2-color-border-emphasis)";
+          default:
+            return "var(--ads-v2-color-border)";
+        }
+      }};
       background: var(--ads-v2-color-bg);
       color: var(--ads-v2-color-fg);
       & {
@@ -245,7 +248,11 @@ export const EditorWrapper = styled.div<{
     width: 100%;
 
     &:focus {
+      border-radius: var(--ads-v2-border-radius);
       border: 1px solid var(--ads-v2-color-border-emphasis-plus);
+      outline: var(--ads-v2-border-width-outline) solid
+        var(--ads-v2-color-outline);
+      outline-offset: var(--ads-v2-offset-outline);
       .CodeMirror.cm-s-duotone-light {
         border: none;
       }
@@ -368,12 +375,11 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
   }
   .commands-button {
     z-index: 2;
-    width: 20px;
     position: absolute;
     right: 0;
-    transform: translate(-50%, 50%);
     height: 20px;
-    background: transparent;
+    bottom: 18px;
+    transform: translate(-50%, 50%);
     display: none;
     border: none;
     font-weight: bold;

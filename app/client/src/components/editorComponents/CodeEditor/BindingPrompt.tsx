@@ -10,8 +10,8 @@ const Wrapper = styled.span<{
 }>`
   padding: ${(props) => (props.customMessage ? 6 : 8)}px;
   font-size: 12px;
-  color: var(--ads-v2-color-fg);
-  box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.2), 0px 2px 10px rgba(0, 0, 0, 0.1);
+  color: var(--ads-v2-color-fg-muted);
+  box-shadow: var(--ads-v2-shadow-popovers);
   border-radius: var(--ads-v2-border-radius);
   background-color: var(--ads-v2-color-bg-muted);
   position: absolute;

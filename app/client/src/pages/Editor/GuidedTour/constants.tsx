@@ -313,7 +313,7 @@ export const Steps: StepsType = {
                 {"getCustomers.data"}&#125;&#125;
               </code>
             </b>{" "}
-            in the Table Data input field on the right pane.
+            in the Table data input field on the right pane.
           </>
         ),
         image: TableData,

@@ -3,7 +3,7 @@ import { Tag } from "design-system";
 
 function BetaCard() {
   return (
-    <Tag isClosable={false} size="sm">
+    <Tag isClosable={false} size="md">
       Beta
     </Tag>
   );

@@ -156,7 +156,7 @@ describe("Table Widget property pane feature validation", function () {
     });
 
     // change column data type to "icon button"
-    cy.changeColumnType("Icon Button", false);
+    cy.changeColumnType("Icon button", false);
     cy.wait(400);
     cy.get(commonlocators.selectedIcon).should("have.text", "add");
 

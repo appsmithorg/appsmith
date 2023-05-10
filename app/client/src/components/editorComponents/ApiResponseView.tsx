@@ -90,6 +90,14 @@ const ResponseMetaInfo = styled.div`
     color: var(--ads-v2-color-fg);
     margin-left: ${(props) => props.theme.spaces[9]}px;
   }
+
+  & [type="p3"] {
+    color: var(--ads-v2-color-fg-muted);
+  }
+
+  & [type="h5"] {
+    color: var(--ads-v2-color-fg);
+  }
 `;
 
 const ResponseMetaWrapper = styled.div`
@@ -122,6 +130,12 @@ const TabbedViewWrapper = styled.div`
     ul.ads-v2-tabs__list {
       margin: 0 ${(props) => props.theme.spaces[11]}px;
       height: ${TAB_MIN_HEIGHT};
+    }
+  }
+
+  & {
+    .ads-v2-tabs__list {
+      padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-6);
     }
   }
 

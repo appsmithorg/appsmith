@@ -9,11 +9,11 @@ export enum HTTP_METHOD {
 }
 
 export const HTTP_METHODS_COLOR: Record<HTTP_METHOD, string> = {
-  GET: "#457AE6",
-  POST: "#FEB811",
-  PUT: "#5BB749",
-  DELETE: "#E22C2C",
-  PATCH: "#6D6D6D",
+  GET: "var(--ads-v2-color-fg-information)",
+  POST: "var(--ads-v2-color-fg-warning)",
+  PUT: "var(--ads-v2-color-fg-success)",
+  DELETE: "var(--ads-v2-color-fg-error)",
+  PATCH: "var(--ads-v2-color-fg-muted)",
 };
 export enum API_EDITOR_TABS {
   HEADERS = "HEADERS",

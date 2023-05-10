@@ -230,7 +230,7 @@ function renderDropdown(
 
   return (
     <Select
-      data-cy={`t--dropdown-${props?.configProperty}`}
+      data-testid={`t--dropdown-${props?.configProperty}`}
       defaultValue={props.initialValue}
       isDisabled={props.disabled}
       isLoading={props.isLoading}
@@ -286,7 +286,7 @@ const mapStateToProps = (
   ownProps: DropDownControlProps,
 ): {
   isLoading: boolean;
-  options: any;
+  options: SelectOptionProps[];
   formValues: Partial<Action>;
 } => {
   // Added default options to prevent error when options is undefined

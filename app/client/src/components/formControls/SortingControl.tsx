@@ -196,7 +196,7 @@ function SortingComponent(props: any) {
                   onDeletePressed(index);
                 }}
                 size="md"
-                startIcon="delete-bin-line"
+                startIcon="close-line"
               />
             </SortingDropdownContainer>
           );

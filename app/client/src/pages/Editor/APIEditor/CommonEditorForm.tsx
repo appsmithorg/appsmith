@@ -420,22 +420,20 @@ function renderHelpSection(
   setApiBindHelpSectionVisible: any,
 ) {
   return (
-    <HelpSection>
-      <Callout
-        isClosable
-        kind="info"
-        links={[
-          {
-            children: "Learn how",
-            endIcon: "right-arrow",
-            onClick: handleClickLearnHow,
-          },
-        ]}
-        onClose={() => setApiBindHelpSectionVisible(false)}
-      >
-        {createMessage(WIDGET_BIND_HELP)}
-      </Callout>
-    </HelpSection>
+    <Callout
+      isClosable
+      kind="info"
+      links={[
+        {
+          children: "Learn how",
+          endIcon: "right-arrow",
+          onClick: handleClickLearnHow,
+        },
+      ]}
+      onClose={() => setApiBindHelpSectionVisible(false)}
+    >
+      {createMessage(WIDGET_BIND_HELP)}
+    </Callout>
   );
 }
 

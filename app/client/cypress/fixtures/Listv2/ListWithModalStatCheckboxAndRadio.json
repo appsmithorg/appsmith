@@ -297,7 +297,7 @@
                                                                 "widgetName": "IconButton1",
                                                                 "onClick": "{{showModal('Modal1')}}",
                                                                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
-                                                                "displayName": "Icon Button",
+                                                                "displayName": "Icon button",
                                                                 "iconSVG": "/static/media/icon.1a0c634ac75f9fa6b6ae7a8df882a3ba.svg",
                                                                 "searchTags": [
                                                                     "click",
@@ -727,7 +727,7 @@
                                 "widgetName": "IconButton2",
                                 "onClick": "{{closeModal('Modal1')}}",
                                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
-                                "displayName": "Icon Button",
+                                "displayName": "Icon button",
                                 "iconSVG": "/static/media/icon.1a0c634ac75f9fa6b6ae7a8df882a3ba.svg",
                                 "searchTags": [
                                     "click",
@@ -1042,7 +1042,7 @@
                                 "widgetName": "IconButton4",
                                 "onClick": "{{closeModal('Modal2')}}",
                                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
-                                "displayName": "Icon Button",
+                                "displayName": "Icon button",
                                 "iconSVG": "/static/media/icon.1a0c634ac75f9fa6b6ae7a8df882a3ba.svg",
                                 "searchTags": [
                                     "click",

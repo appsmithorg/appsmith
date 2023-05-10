@@ -87,7 +87,7 @@ describe("Table Widget V2 property pane feature validation", function () {
       .find(".t--js-toggle")
       .click();
     propPane.UpdatePropertyFieldValue(
-      "Cell Background Color",
+      "Cell background color",
       "rgb(255, 0, 0)",
     );
     cy.readTableV2dataValidateCSS(0, 5, "background-color", "rgb(255, 0, 0)");

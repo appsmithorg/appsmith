@@ -236,7 +236,7 @@ public class AmazonS3PluginTest {
                     assertNotEquals(0, datasourceTestResult.getInvalids().size());
 
                     List<String> errorList = new ArrayList<>(datasourceTestResult.getInvalids());
-                    assertTrue(errorList.get(0).contains("The AWS access key Id you provided does not exist in our records"));
+                    assertTrue(errorList.get(0).contains("The AWS Access Key Id you provided does not exist in our records"));
                 })
                 .verifyComplete();
     }
@@ -357,7 +357,7 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
                     String message = result.getPluginErrorDetails().getDownstreamErrorMessage();
-                    assertTrue(message.contains("The AWS access key Id you provided does not exist in " +
+                    assertTrue(message.contains("The AWS Access Key Id you provided does not exist in " +
                             "our records"));
                     assertEquals(S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED.getTitle(), result.getTitle());
                 })
@@ -398,7 +398,7 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
                     String message = result.getPluginErrorDetails().getDownstreamErrorMessage();
-                    assertTrue(message.contains("The AWS access key Id you provided does not exist in " +
+                    assertTrue(message.contains("The AWS Access Key Id you provided does not exist in " +
                             "our records"));
                     assertEquals(S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED.getTitle(), result.getTitle());
                 })
@@ -444,7 +444,7 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
                     String message = result.getPluginErrorDetails().getDownstreamErrorMessage();
-                    assertTrue(message.contains("The AWS access key Id you provided does not exist in " +
+                    assertTrue(message.contains("The AWS Access Key Id you provided does not exist in " +
                             "our records"));
                     assertEquals(S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED.getTitle(), result.getTitle());
                 })
@@ -588,7 +588,7 @@ public class AmazonS3PluginTest {
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
                     String message = result.getPluginErrorDetails().getDownstreamErrorMessage();
-                    assertTrue(message.contains("The AWS access key Id you provided does not exist in " +
+                    assertTrue(message.contains("The AWS Access Key Id you provided does not exist in " +
                             "our records"));
                     assertEquals(S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED.getTitle(), result.getTitle());
                 })

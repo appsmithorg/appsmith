@@ -67,7 +67,7 @@ describe("AForce - Community Issues page validations", function () {
     agHelper.AssertExistingToggleState("serversidepagination", "checked");
 
     propPane
-      .ValidatePropertyFieldValue("Default Selected Row", "0")
+      .ValidatePropertyFieldValue("Default selected row", "0")
       .then(($selectedRow: any) => {
         selectedRow = Number($selectedRow);
         table.AssertSelectedRow(selectedRow);
@@ -120,7 +120,7 @@ describe("AForce - Community Issues page validations", function () {
   });
 
   it("4. Change Default selected row in table and verify", () => {
-    propPane.UpdatePropertyFieldValue("Default Selected Row", "1");
+    propPane.UpdatePropertyFieldValue("Default selected row", "1");
     deployMode.DeployApp();
     table.WaitUntilTableLoad(0, 0, "v2");
     table.AssertPageNumber(1, "On", "v2");

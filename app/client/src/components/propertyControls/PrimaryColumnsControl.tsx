@@ -6,7 +6,6 @@ import * as Sentry from "@sentry/react";
 import _ from "lodash";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import styled from "styled-components";
 import type { Indices } from "constants/Layers";
 import EmptyDataState from "components/utils/EmptyDataState";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
@@ -26,12 +25,6 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import { Button } from "design-system";
-
-const TabsWrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-`;
 
 interface ReduxStateProps {
   dynamicData: DataTree;
@@ -149,7 +142,7 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
       !_.isNull(this.state.focusedIndex) &&
       _.includes(this.state.duplicateColumnIds, column?.id);
     return (
-      <TabsWrapper>
+      <div className="flex flex-col w-full gap-1">
         <EvaluatedValuePopupWrapper {...this.props} isFocused={isFocused}>
           <DraggableListControl
             deleteOption={this.deleteOption}
@@ -174,15 +167,15 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
         </EvaluatedValuePopupWrapper>
 
         <Button
-          className="t--add-column-btn"
-          kind="secondary"
+          className="self-end t--add-column-btn"
+          kind="tertiary"
           onClick={this.addNewColumn}
           size="md"
           startIcon="plus"
         >
-          Add a new column
+          Add new column
         </Button>
-      </TabsWrapper>
+      </div>
     );
   }
 
