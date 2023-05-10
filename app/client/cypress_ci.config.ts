@@ -8,7 +8,8 @@ export default defineConfig({
   pageLoadTimeout: 30000,
   videoUploadOnPasses: false,
   videoCompression: false,
-  numTestsKeptInMemory: 10,
+  numTestsKeptInMemory: 5,
+  experimentalMemoryManagement: true,
   reporterOptions: {
     reportDir: 'results',
     overwrite: false,
