@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 @AllArgsConstructor
 @NoArgsConstructor
-public class ConfigurationStorage extends BaseDomain{
+public class DatasourceConfigurationStorage extends BaseDomain{
 
     // TODO: add index
     @JsonView(Views.Public.class)

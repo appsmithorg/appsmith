@@ -57,7 +57,7 @@ public class Datasource extends BranchAwareDomain {
     // TODO: Think of a better name for the storage
     @Transient
     @JsonView(Views.Internal.class)
-    private ConfigurationStorage configurationStorage;
+    private DatasourceConfigurationStorage datasourceConfigurationStorage;
 
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -144,22 +144,22 @@ public class Datasource extends BranchAwareDomain {
             return;
         }
 
-        if (this.getConfigurationStorage() == null) {
-            this.setConfigurationStorage(new ConfigurationStorage(this.getId(), null, datasourceConfiguration));
+        if (this.getDatasourceConfigurationStorage() == null) {
+            this.setDatasourceConfigurationStorage(new DatasourceConfigurationStorage(this.getId(), null, datasourceConfiguration));
             return;
         }
 
         this.datasourceConfiguration  = datasourceConfiguration;
-        this.getConfigurationStorage().setDatasourceConfiguration(datasourceConfiguration);
+        this.getDatasourceConfigurationStorage().setDatasourceConfiguration(datasourceConfiguration);
     }
 
-    public void setConfigurationStorage(ConfigurationStorage configurationStorage) {
-        if (configurationStorage == null) {
+    public void setDatasourceConfigurationStorage(DatasourceConfigurationStorage datasourceConfigurationStorage) {
+        if (datasourceConfigurationStorage == null) {
             return;
         }
 
-        this.configurationStorage = configurationStorage;
-        this.datasourceConfiguration = configurationStorage.getDatasourceConfiguration();
+        this.datasourceConfigurationStorage = datasourceConfigurationStorage;
+        this.datasourceConfiguration = datasourceConfigurationStorage.getDatasourceConfiguration();
     }
 
     public void sanitiseToExportResource(Map<String, String> pluginMap) {
