@@ -59,4 +59,6 @@ public interface DatasourceServiceCE extends CrudService<Datasource, String> {
     Mono<Tuple3<Datasource, DatasourceContextIdentifier, Map<String, BaseDomain>>>
     getEvaluatedDSAndDsContextKeyWithEnvMap(Datasource datasource, String environmentName);
 
+    Mono<Datasource> attachDatasourceConfigurationStorageToDatasource(Datasource datasource);
+
 }

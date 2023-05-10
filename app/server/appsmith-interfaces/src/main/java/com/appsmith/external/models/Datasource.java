@@ -10,7 +10,6 @@ import lombok.ToString;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.util.CollectionUtils;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -55,9 +54,10 @@ public class Datasource extends BranchAwareDomain {
 
     // TODO: make export import false for this one
     // TODO: Think of a better name for the storage
+    // This has been initialised because it is required by getter and setter for invalids. as that is coming from datasource
     @Transient
-    @JsonView(Views.Internal.class)
-    private DatasourceConfigurationStorage datasourceConfigurationStorage;
+    @JsonView(Views.Public.class)
+    private DatasourceConfigurationStorage datasourceConfigurationStorage = new DatasourceConfigurationStorage();
 
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -116,7 +116,7 @@ public class Datasource extends BranchAwareDomain {
      */
     @JsonView(Views.Public.class)
     public boolean getIsValid() {
-        return CollectionUtils.isEmpty(invalids);
+        return getDatasourceConfigurationStorage().getIsValid();
     }
 
     /**
@@ -139,27 +139,27 @@ public class Datasource extends BranchAwareDomain {
                 .isEquals();
     }
 
-    public void setDatasourceConfiguration(DatasourceConfiguration datasourceConfiguration) {
-        if (datasourceConfiguration == null) {
-            return;
-        }
+    public void setInvalids(Set<String> invalids) { getDatasourceConfigurationStorage().setInvalids(invalids); }
 
-        if (this.getDatasourceConfigurationStorage() == null) {
-            this.setDatasourceConfigurationStorage(new DatasourceConfigurationStorage(this.getId(), null, datasourceConfiguration));
-            return;
-        }
-
-        this.datasourceConfiguration  = datasourceConfiguration;
-        this.getDatasourceConfigurationStorage().setDatasourceConfiguration(datasourceConfiguration);
+    public Set<String> getInvalids() {
+        return getDatasourceConfigurationStorage().getInvalids();
     }
 
-    public void setDatasourceConfigurationStorage(DatasourceConfigurationStorage datasourceConfigurationStorage) {
-        if (datasourceConfigurationStorage == null) {
-            return;
-        }
+    public Set<String> getMessages() {
+        return getDatasourceConfigurationStorage().getMessages();
+    }
 
-        this.datasourceConfigurationStorage = datasourceConfigurationStorage;
-        this.datasourceConfiguration = datasourceConfigurationStorage.getDatasourceConfiguration();
+    public void setMessages(Set<String> messages) {
+        getDatasourceConfigurationStorage().setMessages(messages);
+    }
+
+    public DatasourceConfiguration getDatasourceConfiguration() {
+        return getDatasourceConfigurationStorage().getDatasourceConfiguration();
+    }
+
+    public void setDatasourceConfiguration(DatasourceConfiguration datasourceConfiguration) {
+        getDatasourceConfigurationStorage().setDatasourceConfiguration(datasourceConfiguration);
+        this.datasourceConfiguration = datasourceConfiguration;
     }
 
     public void sanitiseToExportResource(Map<String, String> pluginMap) {
@@ -173,6 +173,28 @@ public class Datasource extends BranchAwareDomain {
         this.setWorkspaceId(null);
         this.setOrganizationId(null);
         this.setPluginId(pluginMap.get(this.getPluginId()));
+    }
+
+    public Set<String> getTransientInvalids() {
+        return this.invalids;
+    }
+
+    public DatasourceConfiguration getTransientDatasourceConfiguration() {
+        return this.datasourceConfiguration;
+    }
+
+    public void transferDatasourceConfigurationAndInvalidsToStorage(String environmentId) {
+        if (this.datasourceConfigurationStorage == null) {
+            this.datasourceConfigurationStorage =
+                    new DatasourceConfigurationStorage(this.getId(), environmentId,
+                            this.getTransientDatasourceConfiguration(),
+                            this.getTransientInvalids(),
+                            new HashSet<>()
+                    );
+        }
+
+        this.datasourceConfiguration = null;
+        this.invalids = null;
     }
 
 }
