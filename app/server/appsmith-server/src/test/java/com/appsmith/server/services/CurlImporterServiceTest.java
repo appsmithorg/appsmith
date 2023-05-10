@@ -182,6 +182,28 @@ public class CurlImporterServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void testImportAction_NullLex() {
+        setup();
+        // Set up the application & page for which this import curl action would be added
+        Application app = new Application();
+        app.setName("curlTest Incorrect Command");
+
+        Application application = applicationPageService.createApplication(app, workspaceId).block();
+        assert application != null;
+        PageDTO page = newPageService.findPageById(application.getPages().get(0).getId(), AclPermission.MANAGE_PAGES, false).block();
+
+        assert page != null;
+        Mono<ActionDTO> action = curlImporterService.importAction(null, page.getId(), "actionName", workspaceId, null);
+
+        StepVerifier
+                .create(action)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.EMPTY_CURL_INPUT_STATEMENT.getMessage()))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void importValidCurlCommand() {
         setup();
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
