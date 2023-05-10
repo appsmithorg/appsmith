@@ -6,7 +6,7 @@ function storeFnDescriptor(key: string, value: string, persist = true) {
     type: "STORE_VALUE" as const,
     payload: {
       key,
-      value,
+      value: JSON.stringify(value),
       persist,
     },
   };

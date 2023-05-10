@@ -32,11 +32,13 @@ export function* handleStoreOperations(triggers: StoreOperation[]) {
     const { type } = t;
     if (type === "STORE_VALUE") {
       const { key, persist, value } = t.payload;
+      const parsedValue = JSON.parse(value);
+
       if (persist) {
-        parsedLocalStore[key] = value;
+        parsedLocalStore[key] = parsedValue;
       }
-      currentStore[key] = value;
-      logs.push(`storeValue('${key}', '${value}', ${persist})`);
+      currentStore[key] = parsedValue;
+      logs.push(`storeValue('${key}', '${parsedValue}', ${persist})`);
     } else if (type === "REMOVE_VALUE") {
       const { key } = t.payload;
       delete parsedLocalStore[key];
