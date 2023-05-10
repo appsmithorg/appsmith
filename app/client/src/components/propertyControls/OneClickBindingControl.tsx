@@ -11,6 +11,14 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
     return "ONE_CLICK_BINDING_CONTROL";
   }
 
+  /*
+   * Commenting out as we're not able to switch between the js modes without value being overwritten
+   * with default value by platform
+   */
+  // static canDisplayValueInUI(config: ControlData, value: string): boolean {
+  //   return /^{{[^.]*\.data}}$/gi.test(value);
+  // }
+
   public onUpdatePropertyValue = (
     value = "",
     makeDynamicPropertyPath?: boolean,
@@ -35,7 +43,7 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
         this.props.propertyName
       ];
 
-    if (errorObj.length && errorObj[0].errorMessage) {
+    if (errorObj && errorObj.length && errorObj[0].errorMessage) {
       return errorObj[0].errorMessage.message;
     } else {
       return "";

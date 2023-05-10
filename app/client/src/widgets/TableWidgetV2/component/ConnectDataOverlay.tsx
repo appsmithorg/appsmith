@@ -42,6 +42,12 @@ const ConnecData = styled(Button)`
   width: 100%;
 `;
 
+const Footer = styled.div`
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+`;
+
 export function ConnectDataOverlay(props: { onConnectData: () => void }) {
   return (
     <Wrapper>
@@ -55,6 +61,7 @@ export function ConnectDataOverlay(props: { onConnectData: () => void }) {
         >
           Connect Data
         </ConnecData>
+        <Footer>or write a new binding</Footer>
       </Container>
     </Wrapper>
   );
