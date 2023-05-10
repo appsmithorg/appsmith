@@ -1,13 +1,10 @@
 import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
-import ContextMenuTrigger from "../ContextMenuTrigger";
 import {
   moveJSCollectionRequest,
   copyJSCollectionRequest,
   deleteJSCollection,
 } from "actions/jsActionActions";
-import { ContextMenuPopoverModifiers } from "@appsmith/pages/Editor/Explorer/helpers";
 import noop from "lodash/noop";
 import { getJSEntityName } from "./helpers";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
@@ -24,7 +21,9 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { getPageListAsOptions } from "selectors/entitiesSelector";
-import type { TreeDropdownOption } from "design-system-old";
+
+import ContextMenu from "pages/Editor/Explorer/ContextMenu";
+import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
 
 type EntityContextMenuProps = {
   id: string;
@@ -153,15 +152,10 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
   ].filter(Boolean);
 
   return optionsTree.length > 0 ? (
-    <TreeDropdown
+    <ContextMenu
       className={props.className}
-      defaultText=""
-      modifiers={ContextMenuPopoverModifiers}
-      onSelect={noop}
       optionTree={optionsTree as TreeDropdownOption[]}
-      selectedValue=""
       setConfirmDelete={setConfirmDelete}
-      toggle={<ContextMenuTrigger className="t--context-menu" />}
     />
   ) : null;
 }

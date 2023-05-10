@@ -6,6 +6,7 @@ const StyledInput = styled(Input)`
   > .ads-v2-input__input-section > div {
     min-width: 0px;
   }
+
   input {
     width: 100px;
   }

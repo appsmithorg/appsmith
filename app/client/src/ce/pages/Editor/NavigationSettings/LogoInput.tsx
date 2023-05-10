@@ -1,6 +1,6 @@
 import React from "react";
 import { ImageInput } from "../../../../pages/Editor/AppSettingsPane/AppSettings/NavigationSettings/ImageInput";
-import { TextType, Text, Icon } from "design-system-old";
+import { Button, Text } from "design-system";
 import {
   createMessage,
   APP_NAVIGATION_SETTING,
@@ -49,21 +49,27 @@ const LogoInput = ({ navigationSetting }: ButtonGroupSettingProps) => {
   return (
     <div className={`pt-4 t--navigation-settings-logo`}>
       <div className="flex items-center">
-        <Text type={TextType.P1}>
+        <Text kind="action-m">
           {createMessage(APP_NAVIGATION_SETTING.logoLabel)}
         </Text>
 
         {navigationSetting?.logoAssetId?.length ? (
-          <button
+          <Button
             className="flex items-center justify-center text-center h-7 w-7 ml-auto"
-            disabled={isUploadingNavigationLogo || isDeletingNavigationLogo}
+            isDisabled={isUploadingNavigationLogo || isDeletingNavigationLogo}
+            isIconButton
+            kind="tertiary"
             onClick={() => handleDelete()}
-          >
-            <Icon fillColor="#575757" name="trash" size="extraLarge" />
-          </button>
-        ) : (
-          ""
-        )}
+            startIcon="trash"
+          />
+        ) : // <button
+        //   className="flex items-center justify-center text-center h-7 w-7 ml-auto"
+        //   disabled={isUploadingNavigationLogo || isDeletingNavigationLogo}
+        //   onClick={() => handleDelete()}
+        // >
+        //   <Icon fillColor="#575757" name="trash" size="extraLarge" />
+        // </button>
+        null}
       </div>
       <div className="pt-1">
         <ImageInput

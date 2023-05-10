@@ -24,7 +24,7 @@
       "boxShadow": "none",
       "widgetName": "MenuButton1",
       "configureMenuItems": {
-        "label": "Configure Menu Items",
+        "label": "Configure menu items",
         "id": "config",
         "config": {
           "id": "config",
@@ -33,7 +33,7 @@
           "isDisabled": false
         }
       },
-      "displayName": "Menu Button",
+      "displayName": "Menu button",
       "iconSVG": "/static/media/icon.0341d17d67020c8bfc560cc5928af2a7.svg",
       "topRow": 13.0,
       "bottomRow": 17.0,

@@ -1,22 +1,16 @@
 import * as React from "react";
 
-// import { ButtonGroup, TooltipComponent } from "design-system-old";
-import { SegmentedControl, Tooltip } from "design-system";
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { borderRadiusOptions } from "constants/ThemeConstants";
 import type { DSEventDetail } from "utils/AppsmithUtils";
+import { SegmentedControl, Tooltip } from "design-system";
 import {
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
 
-/**
- * ----------------------------------------------------------------------------
- * TYPES
- *-----------------------------------------------------------------------------
- */
 export interface BorderRadiusOptionsControlProps extends ControlProps {
   propertyValue: string | undefined;
 }
@@ -25,8 +19,11 @@ const options = Object.keys(borderRadiusOptions).map((optionKey) => ({
   label: (
     <Tooltip content={optionKey} key={optionKey}>
       <div
-        className="w-5 h-5 border-t-2 border-l-2 border-gray-500"
-        style={{ borderTopLeftRadius: borderRadiusOptions[optionKey] }}
+        className="w-5 h-5 border-t-2 border-l-2"
+        style={{
+          borderColor: "var(--ads-v2-color-border)",
+          borderTopLeftRadius: borderRadiusOptions[optionKey],
+        }}
       />
     </Tooltip>
   ),
@@ -35,11 +32,6 @@ const options = Object.keys(borderRadiusOptions).map((optionKey) => ({
 
 const optionsValues = new Set(Object.values(borderRadiusOptions));
 
-/**
- * ----------------------------------------------------------------------------
- * COMPONENT
- *-----------------------------------------------------------------------------
- */
 class BorderRadiusOptionsControl extends BaseControl<BorderRadiusOptionsControlProps> {
   componentRef = React.createRef<HTMLDivElement>();
 
@@ -76,10 +68,8 @@ class BorderRadiusOptionsControl extends BaseControl<BorderRadiusOptionsControlP
   public render() {
     return (
       <SegmentedControl
-        defaultValue={
-          this.props.evaluatedValue ? this.props.evaluatedValue : ""
-        }
-        onClick={(value, isUpdatedViaKeyboard = false) => {
+        isFullWidth={false}
+        onChange={(value, isUpdatedViaKeyboard = false) => {
           this.updateProperty(
             this.props.propertyName,
             value,
@@ -88,6 +78,7 @@ class BorderRadiusOptionsControl extends BaseControl<BorderRadiusOptionsControlP
         }}
         options={options}
         ref={this.componentRef}
+        value={this.props.evaluatedValue || ""}
       />
     );
   }

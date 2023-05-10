@@ -61,7 +61,7 @@ describe("Switch Group Widget Functionality", function () {
     const valueToAdd = `[
       "BLUE", "GREEN"
     ]`;
-    propPane.UpdatePropertyFieldValue("Default Selected Values", valueToAdd);
+    propPane.UpdatePropertyFieldValue("Default selected values", valueToAdd);
     // Assert
     cy.get(`${formWidgetsPage.labelSwitchGroup} input:checked`)
       .should("have.length", 2)

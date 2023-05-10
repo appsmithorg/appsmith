@@ -18,6 +18,8 @@ import {
   IN_APP_EMBED_SETTING,
 } from "@appsmith/constants/messages";
 
+const regex = /^[1-9][0-9]{0,3}((px)|(em)|(%)|(vw)|(vh))?$/;
+
 const embedSettingContentConfig = {
   [AppsmithFrameAncestorsSetting.ALLOW_EMBEDDING_EVERYWHERE]: {
     icon: "global-line",
@@ -35,18 +37,6 @@ const embedSettingContentConfig = {
     tooltip: createMessage(IN_APP_EMBED_SETTING.disableEmbeddingTooltip),
   },
 };
-
-function cssDimensionValidator(value: string) {
-  let isValid = false;
-  const regex = /^[1-9][0-9]{0,3}((px)|(em)|(%)|(vw)|(vh))?$/;
-  if (value) {
-    isValid = regex.test(value);
-  }
-  return {
-    isValid: isValid,
-    message: "",
-  };
-}
 
 type EmbedSetting = keyof typeof embedSettingContentConfig;
 
@@ -69,8 +59,8 @@ function useUpdateEmbedSnippet() {
   });
 
   const areDimensionValuesValid = useCallback((embedSetting: any) => {
-    const isHeightValid = cssDimensionValidator(embedSetting.height).isValid;
-    const isWidthValid = cssDimensionValidator(embedSetting.width).isValid;
+    const isHeightValid = regex.test(embedSetting.height);
+    const isWidthValid = regex.test(embedSetting.width);
 
     return isHeightValid && isWidthValid;
   }, []);
