@@ -1,0 +1,41 @@
+import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
+
+import { Tooltip, TooltipTrigger, TooltipContent } from "./";
+
+<Meta
+  title="Design-system/headless/Tooltip"
+  component={Tooltip}
+  args={{
+    placement: "bottom",
+    open: undefined,
+    onOpenChange: undefined
+  }}
+/>
+
+export const Template = (args) => {
+  return (
+    <Tooltip {...args}>
+      <TooltipTrigger>My trigger</TooltipTrigger>
+      <TooltipContent>My tooltip</TooltipContent>
+    </Tooltip>
+  )
+};
+
+# Tooltip
+
+A tooltip is a small pop-up that appears when a user places their cursor over an element such as a link or button. Tooltips can be used to provide users with additional information about an element without having to clutter up the UI with additional text.
+
+<Canvas>
+  <Story name="Tooltip">{Template.bind({})}</Story>
+</Canvas>
+
+# Disabled
+
+<Canvas>
+  <Story name="Tooltip disabled">
+    <Tooltip disabled>
+      <TooltipTrigger disabled>My trigger</TooltipTrigger>
+      <TooltipContent disabled>My tooltip</TooltipContent>
+    </Tooltip>
+  </Story>
+</Canvas>
