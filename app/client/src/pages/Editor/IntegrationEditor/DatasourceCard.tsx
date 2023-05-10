@@ -249,7 +249,6 @@ function DatasourceCard(props: DatasourceCardProps) {
           datasourceId: datasource.id,
           params: {
             from: "datasources",
-            viewMode: "false",
             ...getQueryParams(),
           },
         }),
