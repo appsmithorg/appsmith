@@ -1903,5 +1903,38 @@ public class RestApiPluginTest {
                 })
                 .verifyComplete();
     }
+                                   
+    @Test
+    public void testExtractResponseCharsetAndReadResponse() {
+        MockWebServer mockWebServer = new MockWebServer();
+        MockResponse mockResponse = new MockResponse()
+                .setResponseCode(200)
+                .addHeader("Content-Type", "application/json; charset=UTF-16")
+                .setBody("{\"name\":\"John\"}");
+        mockWebServer.enqueue(mockResponse);
+        mockWebServer.start();
+
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl(mockWebServer.url("/").toString());
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHttpMethod(HttpMethod.GET);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals("{\"name\":\"John\"}", result.getBody().toString());
+                })
+                .verifyComplete();
+
+        try {
+            mockWebServer.shutdown();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
 
