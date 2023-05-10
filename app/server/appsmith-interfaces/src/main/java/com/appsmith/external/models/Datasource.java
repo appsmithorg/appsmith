@@ -134,15 +134,12 @@ public class Datasource extends BranchAwareDomain implements Forkable{
 
     /**
      * This method defines the behaviour of a datasource when the application is forked from one workspace to another.
-     * It performs the following operations:
-     * Creates a new object from the source datasource object
+     * It creates a new object from the source datasource object
      * Removes the id and updated at from the object
-     * Based on forkWithConfiguration field present in the source application, it sets the authentication for the datasource
+     * Based on forkWithConfiguration field present in the source app, it sets the authentication for the datasource
      * Returns the new datasource object
-     * @param forkWithConfiguration     : This parameter defines if the datasource authentication needs to be copied to the new workspace or not
-     * @param toWorkspaceId             : Target workspaceId
-     * @return
      */
+    @Override
     public Datasource fork(Boolean forkWithConfiguration, String toWorkspaceId){
         Datasource newDs = new Datasource();
         copyNestedNonNullProperties(this, newDs);
@@ -170,7 +167,8 @@ public class Datasource extends BranchAwareDomain implements Forkable{
         if (isConfigured && newDs.getDatasourceConfiguration().getAuthentication().getAuthenticationResponse() != null){
             /*
              This is the case for Google Sheet datasource, we don't want to copy the token to the new workspace
-             as it is user's personal token. Hence, in case of forking to a new workspace the Google sheet needs to be re-authorised.
+             as it is user's personal token. Hence, in case of forking to a new workspace the Google sheet needs to be
+             re-authorised.
              */
             newDs.setIsConfigured(false);
             newDs.getDatasourceConfiguration().getAuthentication().setAuthenticationResponse(null);
