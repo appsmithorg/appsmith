@@ -286,7 +286,7 @@ const mapStateToProps = (
   ownProps: DropDownControlProps,
 ): {
   isLoading: boolean;
-  options: any;
+  options: SelectOptionProps[];
   formValues: Partial<Action>;
 } => {
   // Added default options to prevent error when options is undefined
