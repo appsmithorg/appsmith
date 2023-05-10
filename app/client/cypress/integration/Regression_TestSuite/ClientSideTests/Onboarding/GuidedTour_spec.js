@@ -30,7 +30,6 @@ describe("Guided Tour", function () {
     _.dataSources.SetQueryTimeout();
     // Step 1: Run query
     _.dataSources.RunQuery();
-    _.debuggerHelper.ClickDebuggerIcon();
     cy.get(guidedTourLocators.successButton).click();
     // Step 2: Select table widget
     cy.SearchEntityandOpen("CustomersTable");
