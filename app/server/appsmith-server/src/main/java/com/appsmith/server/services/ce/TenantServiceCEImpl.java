@@ -122,7 +122,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
         }
         // Remove fields which should not be updated from client
         tenant.setSlug(null);
-        return repository.updateById(tenantId, tenant, MANAGE_TENANT);
+        return repository.updateById(id, tenant, MANAGE_TENANT);
     }
 
 }
