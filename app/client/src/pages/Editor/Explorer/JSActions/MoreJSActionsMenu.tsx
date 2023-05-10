@@ -182,7 +182,7 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
         <Button
           isIconButton
           kind="tertiary"
-          size="lg"
+          size="md"
           startIcon="context-menu"
         />
       </MenuTrigger>

@@ -29,6 +29,10 @@ export type DropdownWithCTAWrapperProps = {
 const DropdownWithCTAWrapper = styled.div<DropdownWithCTAWrapperProps>`
   display: flex;
   gap: 10px;
+
+  &&&&& .function-select-dropdown {
+    width: 230px;
+  }
 `;
 
 const OptionWrapper = styled.div`

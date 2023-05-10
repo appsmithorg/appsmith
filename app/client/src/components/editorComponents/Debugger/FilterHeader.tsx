@@ -27,8 +27,12 @@ const Wrapper = styled.div`
     width: 220px;
   }
 
-  .debugger-filter .rc-select-selector {
+  .debugger-filter.rc-select {
     height: 28px;
+  }
+
+  .debugger-filter .rc-select-selector {
+    height: auto;
   }
 
   .input-container {
@@ -81,7 +85,7 @@ function FilterHeader(props: FilterHeaderProps) {
         className="debugger-filter"
         onSelect={props.onSelect}
         size="sm"
-        value={{ key: props.selected.value, label: props.selected.label }}
+        value={props.selected.label}
       >
         {props.options.map((option) => (
           <Option
@@ -89,7 +93,9 @@ function FilterHeader(props: FilterHeaderProps) {
             key={option.value}
             value={option.value}
           >
-            {option.icon && <Icon name={option.icon} />}
+            {option.icon && (
+              <Icon color={option?.iconColor} name={option.icon} />
+            )}
             {option.label}
           </Option>
         ))}
