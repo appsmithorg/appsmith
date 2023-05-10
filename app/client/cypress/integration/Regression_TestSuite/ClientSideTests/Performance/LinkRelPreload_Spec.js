@@ -43,10 +43,21 @@ describe("html should include <link rel='preload'>s for all code-split javascrip
 });
 
 function testLinkRelPreloads() {
+  // Disable network caching in Chromium, per https://docs.cypress.io/api/commands/intercept#cyintercept-and-request-caching
+  // and https://github.com/cypress-io/cypress/issues/14459#issuecomment-768616195
+  Cypress.automation("remote:debugger:protocol", {
+    command: "Network.enable",
+    params: {},
+  });
+  Cypress.automation("remote:debugger:protocol", {
+    command: "Network.setCacheDisabled",
+    params: { cacheDisabled: true },
+  });
+
   const jsRequests = [];
 
   // Intercept all JS network requests and collect them
-  cy.intercept("/static/js/*.js", (req) => {
+  cy.intercept(/\/static\/js\/.+\.js/, (req) => {
     // Ignore
     // - requests to worker files
     // - requests to icons
@@ -64,12 +75,11 @@ function testLinkRelPreloads() {
 
   // Make all web workers empty. This prevents web workers from loading additional chunks,
   // as we need to collect only chunks from the main thread
-  cy.intercept("/static/js/*Worker.*.js", { body: "" }).as("workerRequests");
-
-  cy.reload(
-    // Disable caching to ensure we fetch and intercept all JS files
-    true,
+  cy.intercept(/\/static\/js\/.+Worker\..+\.js/, { body: "" }).as(
+    "workerRequests",
   );
+
+  cy.reload();
 
   cy.waitForNetworkIdle("/static/js/*.js", 5000, { timeout: 60 * 1000 });
 
