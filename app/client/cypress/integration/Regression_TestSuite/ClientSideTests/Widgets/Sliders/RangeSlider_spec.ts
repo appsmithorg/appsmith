@@ -156,6 +156,12 @@ describe("Range Slider spec", () => {
     propPane.UpdatePropertyFieldValue("Step Size", "10");
 
     agHelper
+      .GetText(getWidgetSelector(WIDGET.TEXT), "text", 0)
+      .then(($label) => {
+        expect($label).to.eq("10");
+      });
+
+    agHelper
       .GetElement(locator._sliderThumb)
       .eq(0)
       .focus()
