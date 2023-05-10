@@ -22,14 +22,28 @@ import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import getQueryParamsObject from "utils/getQueryParamsObject";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getAppsmithConfigs } from "ce/configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
 import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiConstants";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
 export const axiosConnectionAbortedCode = "ECONNABORTED";
 const appsmithConfig = getAppsmithConfigs();
+
+export const BLOCKED_ROUTES = [
+  "v1/app-templates",
+  "v1/marketplace",
+  "v1/datasources/mocks",
+  "v1/usage-pulse",
+  "v1/applications/releaseItems",
+  "v1/saas",
+];
+
+export const BLOCKED_ROUTES_REGEX = new RegExp(
+  `^(${BLOCKED_ROUTES.join("|")})($|/)`,
+);
 
 const makeExecuteActionResponse = (response: any): ActionExecutionResponse => ({
   ...response.data,
@@ -42,6 +56,18 @@ const makeExecuteActionResponse = (response: any): ActionExecutionResponse => ({
 const is404orAuthPath = () => {
   const pathName = window.location.pathname;
   return /^\/404/.test(pathName) || /^\/user\/\w+/.test(pathName);
+};
+
+export const blockedApiRoutesForAirgapInterceptor = (
+  config: AxiosRequestConfig,
+) => {
+  const { url } = config;
+
+  const isAirgappedInstance = isAirgapped();
+  if (isAirgappedInstance && url && BLOCKED_ROUTES_REGEX.test(url)) {
+    return Promise.resolve({ data: null, status: 200 });
+  }
+  return config;
 };
 
 // Request interceptor will add a timer property to the request.

@@ -1,6 +1,4 @@
-import { resizor } from "./decorators/resizor";
 import { theming } from "./decorators/theming";
-
 import "./styles.css";
 
 export const parameters = {
@@ -11,7 +9,10 @@ export const parameters = {
       date: /Date$/,
     },
   },
+  backgrounds: {
+    disable: true,
+  },
   layout: "centered",
 };
 
-export const decorators = [resizor, theming];
+export const decorators = [theming];

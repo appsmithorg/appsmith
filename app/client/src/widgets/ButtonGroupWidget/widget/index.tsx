@@ -7,17 +7,27 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
 import { get } from "lodash";
 import React from "react";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { MinimumPopupRows } from "widgets/constants";
 import ButtonGroupComponent from "../component";
 import { getStylesheetValue } from "./helpers";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 class ButtonGroupWidget extends BaseWidget<
   ButtonGroupWidgetProps,
   WidgetState
 > {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "The Button group widget represents a set of buttons in a group. Group can have simple buttons or menu buttons with drop-down items.",
+      "!url": "https://docs.appsmith.com/widget-reference/button-group",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -162,8 +172,7 @@ class ButtonGroupWidget extends BaseWidget<
                             sectionName: "Events",
                             children: [
                               {
-                                helpText:
-                                  "Triggers an action when the menu item is clicked",
+                                helpText: "when the menu item is clicked",
                                 propertyName: "onClick",
                                 label: "onClick",
                                 controlType: "ACTION_SELECTOR",
@@ -289,7 +298,6 @@ class ButtonGroupWidget extends BaseWidget<
                     },
                   ],
                 },
-                ...getResponsiveLayoutConfig(this.getWidgetType()),
                 {
                   sectionName: "Events",
                   hidden: (
@@ -305,7 +313,7 @@ class ButtonGroupWidget extends BaseWidget<
                   },
                   children: [
                     {
-                      helpText: "Triggers an action when the button is clicked",
+                      helpText: "when the button is clicked",
                       propertyName: "onClick",
                       label: "onClick",
                       controlType: "ACTION_SELECTOR",

@@ -286,11 +286,18 @@ export function* evalErrorHandler(
         break;
       }
       case EvalErrorTypes.CLONE_ERROR: {
-        Sentry.captureException(new Error(error.message), {
-          extra: {
-            request: error.context,
-          },
-        });
+        /*
+         * https://github.com/appsmithorg/appsmith/issues/2654
+         * This code is being commented out to prevent these errors from going to Sentry
+         * till we come up with a more definitive solution to prevent this error
+         * Proposed solution - adding lint errors to editor to prevent these from happening
+         * */
+
+        // Sentry.captureException(new Error(error.message), {
+        //   extra: {
+        //     request: error.context,
+        //   },
+        // });
         break;
       }
       case EvalErrorTypes.PARSE_JS_ERROR: {
@@ -375,14 +382,6 @@ export function* logSuccessfulBindings(
       const hasErrors = errors.length > 0;
       if (!hasErrors) {
         if (!isCreateFirstTree) {
-          // we only aim to log binding success which were added by user
-          // for first evaluation, bindings are not added by user hence skipping it.
-          AnalyticsUtil.logEvent("BINDING_SUCCESS", {
-            unevalValue,
-            entityType,
-            propertyPath,
-          });
-
           /**Log the binding only if it doesn't already exist */
           if (
             !successfulBindingPaths[evaluatedPath] ||

@@ -25,7 +25,12 @@ export default {
     commonjs(),
     typescript({ useTsconfigDeclarationDir: true }),
     generatePackageJson({
-      baseContents: (pkg) => pkg,
+      baseContents: (pkg) => ({
+        ...pkg,
+        main: "index.js",
+        module: "index.es.js",
+        types: "index.d.ts",
+      }),
     }),
   ],
 };

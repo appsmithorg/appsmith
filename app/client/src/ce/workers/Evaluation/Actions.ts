@@ -1,13 +1,15 @@
 /* eslint-disable @typescript-eslint/ban-types */
+
+import set from "lodash/set";
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import type { EvalContext } from "workers/Evaluation/evaluate";
 import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
 import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
-import { set } from "lodash";
 import {
   entityFns,
   getPlatformFunctions,
 } from "@appsmith/workers/Evaluation/fns";
+import { getEntityForEvalContext } from "workers/Evaluation/getEntityForContext";
 import { klona } from "klona/full";
 declare global {
   /** All identifiers added to the worker global scope should also
@@ -47,7 +49,7 @@ export const addDataTreeToContext = (args: {
   const entityFunctionCollection: Record<string, Record<string, Function>> = {};
 
   for (const [entityName, entity] of dataTreeEntries) {
-    EVAL_CONTEXT[entityName] = entity;
+    EVAL_CONTEXT[entityName] = getEntityForEvalContext(entity, entityName);
     if (!removeEntityFunctions && !isTriggerBased) continue;
     for (const entityFn of entityFns) {
       if (!entityFn.qualifier(entity)) continue;

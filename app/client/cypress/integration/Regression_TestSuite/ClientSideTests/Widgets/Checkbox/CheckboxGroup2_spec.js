@@ -50,11 +50,15 @@ describe("Checkbox Group Widget Functionality", function () {
     /**
      * @param{Show Alert} Css for InputChange
      */
-    cy.getAlert(commonlocators.optionchangeRadioselect);
-    cy.get(formWidgetsPage.radioOnSelectionChangeDropdown)
-      .get(commonlocators.dropdownSelectButton)
+    cy.getAlert("onSelectionChange");
+    cy.get(".t--add-action-onSelectionChange")
+      .scrollIntoView()
       .click({ force: true })
       .type("2");
+    // cy.get(formWidgetsPage.radioOnSelectionChangeDropdown)
+    //   .get(commonlocators.dropdownSelectButton)
+    //   .click({ force: true })
+    //   .type("2");
     cy.PublishtheApp();
   });
 

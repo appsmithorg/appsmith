@@ -22,7 +22,7 @@ import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   getFirstTimeUserOnboardingComplete,
-  getEnableFirstTimeUserOnboarding,
+  getIsFirstTimeUserOnboardingEnabled,
 } from "selectors/onboardingSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
@@ -50,6 +50,8 @@ import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { triggerWelcomeTour } from "./Utils";
 import { builderURL, integrationEditorURL } from "RouteBuilder";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const Wrapper = styled.div`
   padding: ${(props) => props.theme.spaces[7]}px 55px;
@@ -215,6 +217,7 @@ function getSuggestedNextActionAndCompletedTasks(
 }
 
 export default function OnboardingChecklist() {
+  const isAirgappedInstance = isAirgapped();
   const dispatch = useDispatch();
   const datasources = useSelector(getDatasources);
   const pageId = useSelector(getCurrentPageId);
@@ -231,7 +234,7 @@ export default function OnboardingChecklist() {
   const isDeployed = !!useSelector(getApplicationLastDeployedAt);
   const isCompleted = useSelector(getFirstTimeUserOnboardingComplete);
   const isFirstTimeUserOnboardingEnabled = useSelector(
-    getEnableFirstTimeUserOnboarding,
+    getIsFirstTimeUserOnboardingEnabled,
   );
   if (!isFirstTimeUserOnboardingEnabled && !isCompleted) {
     return <Redirect to={builderURL({ pageId })} />;
@@ -555,20 +558,25 @@ export default function OnboardingChecklist() {
           )}
         </StyledListItem>
       </StyledList>
-      <StyledFooter
-        className="flex"
-        onClick={() => triggerWelcomeTour(dispatch)}
-      >
-        <StyledImg src="https://assets.appsmith.com/Rocket.png" />
-        <Text style={{ lineHeight: "14px" }} type={TextType.P1}>
-          {createMessage(ONBOARDING_CHECKLIST_FOOTER)}
-        </Text>
-        <Icon
-          color={theme.colors.applications.iconColor}
-          icon="chevron-right"
-          iconSize={16}
-        />
-      </StyledFooter>
+      {!isAirgappedInstance && (
+        <StyledFooter
+          className="flex"
+          onClick={() => triggerWelcomeTour(dispatch, applicationId)}
+        >
+          <StyledImg
+            alt="rocket"
+            src={getAssetUrl(`${ASSETS_CDN_URL}/Rocket.png`)}
+          />
+          <Text style={{ lineHeight: "14px" }} type={TextType.P1}>
+            {createMessage(ONBOARDING_CHECKLIST_FOOTER)}
+          </Text>
+          <Icon
+            color={theme.colors.applications.iconColor}
+            icon="chevron-right"
+            iconSize={16}
+          />
+        </StyledFooter>
+      )}
     </Wrapper>
   );
 }

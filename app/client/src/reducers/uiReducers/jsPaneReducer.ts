@@ -14,7 +14,6 @@ export interface JsPaneReduxState {
   isDeleting: Record<string, boolean>;
   isDirty: Record<string, boolean>;
   selectedConfigTabIndex: number;
-  selectedResponseTab: string;
   responseTabHeight: number;
 }
 
@@ -26,7 +25,6 @@ const initialState: JsPaneReduxState = {
   isDirty: {},
   responseTabHeight: ActionExecutionResizerHeight,
   selectedConfigTabIndex: 0,
-  selectedResponseTab: "",
 };
 
 const jsPaneReducer = createReducer(initialState, {
@@ -179,26 +177,6 @@ const jsPaneReducer = createReducer(initialState, {
     return {
       ...state,
       selectedConfigTabIndex: selectedTabIndex,
-    };
-  },
-  [ReduxActionTypes.SET_JS_PANE_RESPONSE_SELECTED_TAB]: (
-    state: JsPaneReduxState,
-    action: ReduxAction<{ selectedTab: string }>,
-  ) => {
-    const { selectedTab } = action.payload;
-    return {
-      ...state,
-      selectedResponseTab: selectedTab,
-    };
-  },
-  [ReduxActionTypes.SET_JS_PANE_RESPONSE_PANE_HEIGHT]: (
-    state: JsPaneReduxState,
-    action: ReduxAction<{ height: number }>,
-  ) => {
-    const { height } = action.payload;
-    return {
-      ...state,
-      responseTabHeight: height,
     };
   },
 });

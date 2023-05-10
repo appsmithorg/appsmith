@@ -12,7 +12,7 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.models.QBaseDomain;
+import com.appsmith.external.models.QBranchAwareDomain;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.services.EncryptionService;
@@ -32,7 +32,6 @@ import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PasswordResetToken;
@@ -41,7 +40,6 @@ import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
-import com.appsmith.server.domains.QNotification;
 import com.appsmith.server.domains.QOrganization;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.QUserData;
@@ -119,7 +117,6 @@ import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
-import static com.appsmith.server.constants.FieldName.DEFAULT_RESOURCES;
 import static com.appsmith.server.constants.FieldName.DYNAMIC_TRIGGER_PATH_LIST;
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
@@ -2282,10 +2279,10 @@ public class DatabaseChangelog1 {
 
         Query query = query(new Criteria().andOperator(
                 where(fieldName(QDatasource.datasource.pluginId)).is(mongoPlugin.getId()),
-                where(fieldName(QDatasource.datasource.structure)).exists(true)
+                where("structure").exists(true)
         ));
 
-        Update update = new Update().set(fieldName(QDatasource.datasource.structure), null);
+        Update update = new Update().set("structure", null);
 
         // Delete all the existing mongo datasource structures by setting the key to null.
         mongoOperations.updateMulti(query, update, Datasource.class);
@@ -4839,7 +4836,7 @@ public class DatabaseChangelog1 {
                         .named("unpublishedCollection_pageId")
         );
 
-        String defaultResources = fieldName(QBaseDomain.baseDomain.defaultResources);
+        String defaultResources = fieldName(QBranchAwareDomain.branchAwareDomain.defaultResources);
         ensureIndexes(mongoTemplate, ActionCollection.class,
                 makeIndex(defaultResources + "." + FieldName.APPLICATION_ID, FieldName.GIT_SYNC_ID)
                         .named("defaultApplicationId_gitSyncId_compound_index")
@@ -4992,7 +4989,7 @@ public class DatabaseChangelog1 {
         /* set key formData.smartSubstitution */
         setSmartSubstitutionFieldForEachAction(firestoreActions, mongoTemplate);
     }
-    
+
     private void setSmartSubstitutionFieldForEachAction(List<NewAction> firestoreActions,
                                                         MongoTemplate mongoTemplate) {
         firestoreActions.stream()

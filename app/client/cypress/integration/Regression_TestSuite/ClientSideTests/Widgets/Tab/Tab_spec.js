@@ -28,7 +28,7 @@ describe("Tab widget test", function () {
       .contains("test")
       .click({ force: true })
       .should("be.visible");
-    cy.get(Layoutpage.tabButton).click({ force: true });
+    cy.get(Layoutpage.tabButton).last().click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.tabVerify(1, "Day");
     cy.xpath(Layoutpage.deleteTab.replace("tabName", "Day")).click({
@@ -50,6 +50,7 @@ describe("Tab widget test", function () {
   it("2. Tab Widget Functionality To Select Tabs", function () {
     cy.get(publish.tabWidget)
       .contains(this.data.tabName)
+      .last()
       .click({ force: true })
       .should("have.class", "is-selected");
     cy.get(publish.backToEditor).click();
@@ -123,8 +124,8 @@ describe("Tab widget test", function () {
 
     cy.openPropertyPane("tabswidget");
     // Add a new tab
-    cy.get(Layoutpage.tabButton).click({ force: true });
-    cy.get(Layoutpage.tabButton).click({ force: true });
+    cy.get(Layoutpage.tabButton).last().click({ force: true });
+    cy.get(Layoutpage.tabButton).last().click({ force: true });
     cy.tabVerify(3, "Tab3-for-testing-scroll-navigation-controls");
     // Should show off right navigation arrow
     cy.get(leftNavButtonSelector).should("exist");
@@ -139,7 +140,12 @@ describe("Tab widget test", function () {
     cy.get(Layoutpage.tabWidget)
       .contains("Tab3-for-testing-scroll-navigation-controls")
       .should("have.class", "is-selected");
-    cy.get(Layoutpage.tabDelete).eq(3).click({ force: true });
+    cy.xpath(
+      Layoutpage.deleteTab.replace(
+        "tabName",
+        "Tab3-for-testing-scroll-navigation-controls",
+      ),
+    ).click({ force: true });
     cy.get(Layoutpage.tabWidget)
       .contains("Tab 2")
       .should("have.class", "is-selected");
@@ -154,7 +160,7 @@ describe("Tab widget test", function () {
     cy.get(Layoutpage.tabNumber).should("have.text", "2 tabs");
   });
   it("12. Validates Total Number Of Tabs Displayed In The Property Pane After Adding A Tab", () => {
-    cy.get(Layoutpage.tabButton).click({ force: true });
+    cy.get(Layoutpage.tabButton).last().click({ force: true });
     cy.get(Layoutpage.tabNumber).should("have.text", "3 tabs");
   });
   it("13. Validates Total Number Of Tabs Displayed In The Property Pane After Deleting A Tab", () => {

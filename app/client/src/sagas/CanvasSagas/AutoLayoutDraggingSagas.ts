@@ -1,10 +1,10 @@
 import type { WidgetAddChild } from "actions/pageActions";
 import { updateAndSaveLayout } from "actions/pageActions";
-import type { ReduxAction } from "ce/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "ce/constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import type { FlexLayerAlignment } from "utils/autoLayout/constants";
 import { LayoutDirection } from "utils/autoLayout/constants";
 import {
@@ -16,7 +16,6 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
-import { getIsMobile } from "selectors/mainCanvasSelectors";
 import {
   addNewLayer,
   createFlexLayer,
@@ -24,11 +23,17 @@ import {
   updateExistingLayer,
   updateRelationships,
 } from "utils/autoLayout/autoLayoutDraggingUtils";
-import { updateWidgetPositions } from "utils/autoLayout/positionUtils";
 import type {
   HighlightInfo,
   FlexLayer,
 } from "utils/autoLayout/autoLayoutTypes";
+import { updatePositionsOfParentAndSiblings } from "utils/autoLayout/positionUtils";
+import {
+  getCanvasWidth,
+  getIsAutoLayoutMobileBreakPoint,
+} from "selectors/editorSelectors";
+import { executeWidgetBlueprintBeforeOperations } from "sagas/WidgetBlueprintSagas";
+import { BlueprintOperationTypes } from "widgets/constants";
 
 function* addWidgetAndReorderSaga(
   actionPayload: ReduxAction<{
@@ -36,32 +41,62 @@ function* addWidgetAndReorderSaga(
     parentId: string;
     direction: LayoutDirection;
     dropPayload: HighlightInfo;
+    addToBottom: boolean;
   }>,
 ) {
   const start = performance.now();
-  const { direction, dropPayload, newWidget, parentId } = actionPayload.payload;
+  const { addToBottom, direction, dropPayload, newWidget, parentId } =
+    actionPayload.payload;
   const { alignment, index, isNewLayer, layerIndex, rowIndex } = dropPayload;
-  const isMobile: boolean = yield select(getIsMobile);
+  const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
+  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   try {
+    const newParams: { [key: string]: any } = yield call(
+      executeWidgetBlueprintBeforeOperations,
+      BlueprintOperationTypes.UPDATE_CREATE_PARAMS_BEFORE_ADD,
+      {
+        parentId,
+        widgetId: newWidget.newWidgetId,
+        widgets: allWidgets,
+        widgetType: newWidget.type,
+      },
+    );
+    const updatedParams: WidgetAddChild = { ...newWidget, ...newParams };
     const updatedWidgetsOnAddition: CanvasWidgetsReduxState = yield call(
       getUpdateDslAfterCreatingChild,
       {
-        ...newWidget,
+        ...updatedParams,
         widgetId: parentId,
       },
     );
+
+    if (!parentId || !updatedWidgetsOnAddition[parentId]) {
+      return updatedWidgetsOnAddition;
+    }
+
+    let widgetIndex = index;
+    let currLayerIndex = layerIndex;
+    let newLayer = isNewLayer;
+
+    const canvasWidget = updatedWidgetsOnAddition[parentId];
+
+    if (addToBottom && canvasWidget.children && canvasWidget.flexLayers) {
+      widgetIndex = canvasWidget.children.length;
+      currLayerIndex = canvasWidget.flexLayers.length;
+      newLayer = true;
+    }
 
     const updatedWidgetsOnMove: CanvasWidgetsReduxState = yield call(
       reorderAutolayoutChildren,
       {
         movedWidgets: [newWidget.newWidgetId],
-        index,
-        isNewLayer,
+        index: widgetIndex,
+        isNewLayer: newLayer,
         parentId,
         allWidgets: updatedWidgetsOnAddition,
         alignment,
         direction,
-        layerIndex,
+        layerIndex: currLayerIndex,
         rowIndex,
         isMobile,
       },
@@ -101,7 +136,7 @@ function* autoLayoutReorderSaga(
 
   try {
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-    const isMobile: boolean = yield select(getIsMobile);
+    const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
     if (!parentId || !movedWidgets || !movedWidgets.length) return;
     const updatedWidgets: CanvasWidgetsReduxState = yield call(
       reorderAutolayoutChildren,
@@ -144,9 +179,9 @@ function* reorderAutolayoutChildren(params: {
   allWidgets: CanvasWidgetsReduxState;
   alignment: FlexLayerAlignment;
   direction: LayoutDirection;
-  layerIndex?: number;
+  layerIndex: number;
   rowIndex: number;
-  isMobile?: boolean;
+  isMobile: boolean;
 }) {
   const {
     alignment,
@@ -162,6 +197,7 @@ function* reorderAutolayoutChildren(params: {
   } = params;
   const widgets = Object.assign({}, allWidgets);
   if (!movedWidgets) return widgets;
+  const mainCanvasWidth: number = yield select(getCanvasWidth);
   const selectedWidgets = [...movedWidgets];
 
   let updatedWidgets: CanvasWidgetsReduxState = updateRelationships(
@@ -170,6 +206,7 @@ function* reorderAutolayoutChildren(params: {
     parentId,
     false,
     isMobile,
+    mainCanvasWidth,
   );
 
   // Update flexLayers for a vertical stack.
@@ -208,6 +245,14 @@ function* reorderAutolayoutChildren(params: {
           layerIndex,
           rowIndex,
         );
+    updatedWidgets = movedWidgets.reduce((widgets, eachWidget) => {
+      const widget = widgets[eachWidget];
+      widgets[eachWidget] = {
+        ...widget,
+        alignment,
+      };
+      return widgets;
+    }, updatedWidgets);
   }
 
   // update children of the parent canvas.
@@ -236,10 +281,12 @@ function* reorderAutolayoutChildren(params: {
       bottomRow: parentWidget.topRow + height,
     };
   }
-  const widgetsAfterPositionUpdate = updateWidgetPositions(
+  const widgetsAfterPositionUpdate = updatePositionsOfParentAndSiblings(
     updatedWidgets,
     parentId,
+    layerIndex,
     isMobile,
+    mainCanvasWidth,
   );
 
   return widgetsAfterPositionUpdate;

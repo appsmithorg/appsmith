@@ -71,6 +71,8 @@ COPY ./deploy/docker/templates/nginx/* \
   ./deploy/docker/templates/docker.env.sh \
   ./deploy/docker/templates/mockdb_postgres.sql \
   ./deploy/docker/templates/users_postgres.sql \
+  ./deploy/docker/templates/appsmith_starting.html \
+  ./deploy/docker/templates/appsmith_initializing.html \
   templates/
 
 # Add bootstrapfile

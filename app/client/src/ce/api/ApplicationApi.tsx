@@ -3,11 +3,15 @@ import type { ApiResponse } from "api/ApiResponses";
 import type { AxiosPromise } from "axios";
 import type { AppColorCode } from "constants/DefaultTheme";
 import type { AppIconName } from "design-system-old";
-import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
+import type {
+  AppLayoutConfig,
+  AppPositioningTypeConfig,
+} from "reducers/entityReducers/pageListReducer";
 import type { APP_MODE } from "entities/App";
 import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
 import type { Datasource } from "entities/Datasource";
 import type { NavigationSetting } from "constants/AppConstants";
+import { getSnapShotAPIRoute } from "@appsmith/constants/ApiConstants";
 
 export type EvaluationVersion = number;
 
@@ -56,6 +60,7 @@ export interface ApplicationResponsePayload {
   gitApplicationMetadata: GitApplicationMetadata;
   slug: string;
   applicationVersion: ApplicationVersion;
+  isPublic?: boolean;
 }
 
 export interface FetchApplicationPayload {
@@ -114,6 +119,7 @@ export type UpdateApplicationPayload = {
   embedSetting?: AppEmbedSetting;
   applicationDetail?: {
     navigationSetting?: NavigationSetting;
+    appPositioning?: AppPositioningTypeConfig;
   };
 };
 
@@ -174,6 +180,7 @@ export interface ImportApplicationRequest {
   applicationFile?: File;
   progress?: (progressEvent: ProgressEvent) => void;
   onSuccessCallback?: () => void;
+  appId?: string;
 }
 
 export interface AppEmbedSetting {
@@ -215,6 +222,19 @@ export interface PageDefaultMeta {
   default: boolean;
 }
 
+export interface UploadNavigationLogoRequest {
+  applicationId: string;
+  logo: File;
+  onSuccessCallback?: () => void;
+}
+
+export interface DeleteNavigationLogoRequest {
+  applicationId: string;
+}
+
+export interface snapShotApplicationRequest {
+  applicationId: string;
+}
 export class ApplicationApi extends Api {
   static baseURL = "v1/applications";
   static publishURLPath = (applicationId: string) =>
@@ -333,7 +353,9 @@ export class ApplicationApi extends Api {
       formData.append("file", request.applicationFile);
     }
     return Api.post(
-      ApplicationApi.baseURL + "/import/" + request.workspaceId,
+      `${ApplicationApi.baseURL}/import/${request.workspaceId}${
+        request.appId ? `?applicationId=${request.appId}` : ""
+      }`,
       formData,
       null,
       {
@@ -343,6 +365,51 @@ export class ApplicationApi extends Api {
         onUploadProgress: request.progress,
       },
     );
+  }
+
+  static uploadNavigationLogo(
+    request: UploadNavigationLogoRequest,
+  ): AxiosPromise<ApiResponse> {
+    const formData = new FormData();
+
+    if (request.logo) {
+      formData.append("file", request.logo);
+    }
+
+    return Api.post(
+      ApplicationApi.baseURL + "/" + request.applicationId + "/logo",
+      formData,
+      null,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+  }
+
+  static deleteNavigationLogo(
+    request: DeleteNavigationLogoRequest,
+  ): AxiosPromise<ApiResponse> {
+    return Api.delete(
+      ApplicationApi.baseURL + "/" + request.applicationId + "/logo",
+    );
+  }
+
+  static createApplicationSnapShot(request: snapShotApplicationRequest) {
+    return Api.post(getSnapShotAPIRoute(request.applicationId));
+  }
+
+  static getSnapShotDetails(request: snapShotApplicationRequest) {
+    return Api.get(getSnapShotAPIRoute(request.applicationId));
+  }
+
+  static restoreApplicationFromSnapshot(request: snapShotApplicationRequest) {
+    return Api.post(getSnapShotAPIRoute(request.applicationId) + "/restore");
+  }
+
+  static deleteApplicationSnapShot(request: snapShotApplicationRequest) {
+    return Api.delete(getSnapShotAPIRoute(request.applicationId));
   }
 }
 

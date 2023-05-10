@@ -3,6 +3,7 @@ import { WIDGET } from "../../../../locators/WidgetLocators";
 
 const {
   AggregateHelper: agHelper,
+  CommonLocators: locator,
   DeployMode: deployMode,
   EntityExplorer: ee,
   PropertyPane: propPane,
@@ -14,7 +15,7 @@ describe("Post window message", () => {
     ee.DragDropWidgetNVerify(WIDGET.IFRAME, 200, 300);
 
     ee.SelectEntityByName("Button1", "Widgets");
-    propPane.SelectPropertiesDropDown("onClick", "Post message");
+    propPane.SelectPlatformFunction("onClick", "Post message");
     agHelper.EnterActionValue("Message", "After postMessage");
     agHelper.EnterActionValue("Target iframe", "Iframe1");
 
@@ -40,7 +41,7 @@ describe("Post window message", () => {
       </body>
       </html>`,
     );
-    propPane.SelectPropertiesDropDown("onMessageReceived", "Show message");
+    propPane.SelectPlatformFunction("onMessageReceived", "Show Alert");
     agHelper.EnterActionValue("Message", "I got a message from iframe");
     deployMode.DeployApp();
 
