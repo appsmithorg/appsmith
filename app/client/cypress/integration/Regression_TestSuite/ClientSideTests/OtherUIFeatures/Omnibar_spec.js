@@ -1,10 +1,6 @@
 const omnibar = require("../../../../locators/Omnibar.json");
 const dsl = require("../../../../fixtures/omnibarDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import {
-  agHelper,
-  entityExplorer,
-} from "../../../../support/Objects/ObjectsCore";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Omnibar functionality test cases", () => {
