@@ -13,15 +13,11 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Button, Tooltip } from "design-system";
 import { isEllipsisActive } from "../../../../utils/helpers";
 
-const MAX_WIDTH = 122;
-// Button gap - 4px
-// Button padding - 16px;
-const BRANCH_NAME_MAX_WIDTH = MAX_WIDTH - (4 + 16);
 const ButtonContainer = styled(Button)`
   display: flex;
   align-items: center;
   margin: 0 ${(props) => props.theme.spaces[4]}px;
-  max-width: ${MAX_WIDTH}px;
+  max-width: 122px;
   min-width: unset !important;
 `;
 
@@ -70,8 +66,7 @@ function BranchButton() {
           <span
             ref={labelTarget}
             style={{
-              width: "100%",
-              maxWidth: `${BRANCH_NAME_MAX_WIDTH}px`,
+              width: "82px",
               whiteSpace: "nowrap",
               overflow: "hidden",
               textOverflow: "ellipsis",
