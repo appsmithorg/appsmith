@@ -83,32 +83,24 @@ describe("Omnibar functionality test cases", () => {
     cy.get(omnibar.categoryTitle).eq(1).click();
 
     // create new api, js object and cURL import from omnibar
-
-    // 0 is the index value of the JS Object in omnibar ui
-    cy.get(omnibar.createNew).eq(0).should("have.text", "New JS Object");
-    // 1 is the index value of the JS Object in omnibar ui
-    cy.get(omnibar.createNew).eq(1).should("have.text", "New Blank API");
-    // 3 is the index value of the Curl import in omnibar ui
-    cy.get(omnibar.createNew).eq(3).should("have.text", "New cURL Import");
-
-    cy.get(omnibar.createNew).eq(0).click();
+    cy.get(omnibar.createNew).contains("New JS Object").click();
     cy.wait(1000);
     cy.wait("@createNewJSCollection");
     cy.wait(1000);
     cy.get(".t--js-action-name-edit-field").type(jsObjectName).wait(1000);
+
     cy.get(omnibar.globalSearch).click({ force: true });
     cy.get(omnibar.categoryTitle).eq(1).click();
     cy.wait(1000);
-
-    cy.get(omnibar.createNew).eq(1).click();
+    cy.get(omnibar.createNew).contains("New Blank API").click();
     cy.wait(1000);
     cy.wait("@createNewApi");
     cy.renameWithInPane(apiName);
+
     cy.get(omnibar.globalSearch).click({ force: true });
     cy.get(omnibar.categoryTitle).eq(1).click();
-
+    cy.get(omnibar.createNew).contains("New cURL Import").click();
     cy.wait(1000);
-    cy.get(omnibar.createNew).eq(3).click();
     cy.url().should("include", "curl-import?");
     cy.get('p:contains("Import from CURL")').should("be.visible");
   });
