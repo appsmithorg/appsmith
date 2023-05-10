@@ -26,11 +26,6 @@ import {
 } from "sagas/ActionExecution/ModalSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
 import {
-  logActionExecutionError,
-  TriggerFailureError,
-  UncaughtPromiseError,
-} from "sagas/ActionExecution/errorUtils";
-import {
   getCurrentLocationSaga,
   stopWatchCurrentLocation,
   watchCurrentLocation,
@@ -153,16 +148,9 @@ function* initiateActionTriggerExecution(
       event.callback({ success: true });
     }
   } catch (e) {
-    if (e instanceof UncaughtPromiseError || e instanceof TriggerFailureError) {
-      logActionExecutionError(
-        e.toasterMessage,
-        true,
-        source,
-        triggerPropertyName,
-      );
-    }
-
+    // TODO - check if message comes here
     // handle errors here
+    // TODO - DELETE?
     if (event.callback) {
       event.callback({ success: false });
     }

@@ -391,9 +391,6 @@ export interface DataTreeError {
 }
 
 export interface EvaluationError extends DataTreeError {
-  name: string;
-  toasterMessage: string;
-  debuggerMessage: string;
   errorType:
     | PropertyEvaluationErrorType.PARSE
     | PropertyEvaluationErrorType.VALIDATION;

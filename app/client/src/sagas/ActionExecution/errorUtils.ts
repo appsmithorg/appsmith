@@ -20,12 +20,10 @@ const APPSMITH_CONFIGS = getAppsmithConfigs();
  */
 export class TriggerFailureError extends Error {
   error?: Error;
-  toasterMessage: string;
 
   constructor(reason: string, error?: Error) {
     super(reason);
     this.error = error;
-    this.toasterMessage = reason;
   }
 }
 
@@ -127,14 +125,6 @@ export class UserCancelledActionExecutionError extends PluginActionExecutionErro
   constructor() {
     super("User cancelled action execution", true);
     this.name = "UserCancelledActionExecutionError";
-  }
-}
-
-export class UncaughtPromiseError extends Error {
-  toasterMessage: string;
-  constructor(message: { debuggerMessage: string; toasterMessage: string }) {
-    super(message.debuggerMessage);
-    this.toasterMessage = message.toasterMessage;
   }
 }
 

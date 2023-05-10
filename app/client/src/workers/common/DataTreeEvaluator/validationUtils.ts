@@ -70,9 +70,6 @@ export function validateAndParseWidgetProperty({
       messages?.map((message) => {
         return {
           raw: unEvalPropertyValue,
-          name: message.name || "",
-          toasterMessage: message.message || "",
-          debuggerMessage: "",
           errorMessage: message || "",
           errorType: PropertyEvaluationErrorType.VALIDATION,
           severity: Severity.ERROR,
@@ -164,9 +161,6 @@ export function getValidatedTree(
         if (!isValid) {
           const evalErrors: EvaluationError[] =
             messages?.map((message) => ({
-              name: message.name || "",
-              toasterMessage: message.message || "",
-              debuggerMessage: "",
               errorType: PropertyEvaluationErrorType.VALIDATION,
               errorMessage: message,
               severity: Severity.ERROR,

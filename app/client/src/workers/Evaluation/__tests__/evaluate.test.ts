@@ -1,4 +1,7 @@
-import evaluate, { evaluateAsync } from "workers/Evaluation/evaluate";
+import evaluate, {
+  evaluateAsync,
+  convertAllDataTypesToString,
+} from "workers/Evaluation/evaluate";
 import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { RenderModes } from "constants/WidgetConstants";
@@ -71,14 +74,12 @@ describe("evaluateSync", () => {
       result: undefined,
       errors: [
         {
-          debuggerMessage: "",
           errorMessage: {
             name: "ReferenceError",
             message: "wrongJS is not defined",
           },
           errorType: "PARSE",
           kind: undefined,
-          name: "",
           raw: `
   function $$closedFn () {
     const $$result = wrongJS
@@ -87,7 +88,6 @@ describe("evaluateSync", () => {
   $$closedFn.call(THIS_CONTEXT)
   `,
           severity: "error",
-          toasterMessage: "",
           originalBinding: "wrongJS",
         },
       ],
@@ -97,14 +97,12 @@ describe("evaluateSync", () => {
       result: undefined,
       errors: [
         {
-          debuggerMessage: "",
           errorMessage: {
             name: "TypeError",
             message: "{}.map is not a function",
           },
           errorType: "PARSE",
           kind: undefined,
-          name: "",
           raw: `
   function $$closedFn () {
     const $$result = {}.map()
@@ -113,7 +111,6 @@ describe("evaluateSync", () => {
   $$closedFn.call(THIS_CONTEXT)
   `,
           severity: "error",
-          toasterMessage: "",
           originalBinding: "{}.map()",
         },
       ],
@@ -131,14 +128,12 @@ describe("evaluateSync", () => {
       result: undefined,
       errors: [
         {
-          debuggerMessage: "",
           errorMessage: {
             name: "ReferenceError",
             message: "setImmediate is not defined",
           },
           errorType: "PARSE",
           kind: undefined,
-          name: "",
           raw: `
   function $$closedFn () {
     const $$result = setImmediate(() => {}, 100)
@@ -147,7 +142,6 @@ describe("evaluateSync", () => {
   $$closedFn.call(THIS_CONTEXT)
   `,
           severity: "error",
-          toasterMessage: "",
           originalBinding: "setImmediate(() => {}, 100)",
         },
       ],
@@ -227,17 +221,14 @@ describe("evaluateAsync", () => {
     expect(result).toStrictEqual({
       errors: [
         {
-          debuggerMessage: "",
           errorMessage: {
             name: "ReferenceError",
             message: "randomKeyword is not defined",
           },
           errorType: "PARSE",
-          name: "ReferenceError",
           originalBinding: expect.stringContaining("Promise"),
           raw: expect.stringContaining("Promise"),
           severity: "error",
-          toasterMessage: "randomKeyword is not defined",
         },
       ],
       result: undefined,
@@ -279,4 +270,43 @@ describe("isFunctionAsync", () => {
       expect(actual).toBe(testCase.expected);
     }
   });
+});
+
+describe.only("convertAllDataTypesToString", () => {
+  const cases = [
+    { index: 0, input: 0, expected: "0" },
+    { index: 1, input: -1, expected: "-1" },
+    { index: 2, input: 1, expected: "1" },
+    { index: 3, input: 784630, expected: "784630" },
+    { index: 4, input: true, expected: "true" },
+    { index: 5, input: false, expected: "false" },
+    { index: 6, input: null, expected: "null" },
+    { index: 7, input: undefined, expected: undefined },
+    { index: 8, input: "hello world!", expected: '"hello world!"' },
+    { index: 9, input: `that's all folks!`, expected: '"that\'s all folks!"' },
+    { index: 10, input: [], expected: "[]" },
+    { index: 11, input: {}, expected: "{}" },
+    { index: 12, input: [1, 2, 3, 4], expected: "[1,2,3,4]" },
+    {
+      index: 13,
+      input: [1, [2, 3], [4, [5, [6], 7]], 8],
+      expected: "[1,[2,3],[4,[5,[6],7]],8]",
+    },
+    {
+      index: 15,
+      input: { a: 1, b: 0, c: false, d: { e: { f: 8 } } },
+      expected: '{"a":1,"b":0,"c":false,"d":{"e":{"f":8}}}',
+    },
+    // Reason - need to test empty arrow function
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    { index: 16, input: () => {}, expected: "() => { }" },
+  ];
+
+  test.each(cases.map((x) => [x.index, x.input, x.expected]))(
+    "test case %d",
+    (_, input, expected) => {
+      const result = convertAllDataTypesToString(input);
+      expect(result).toStrictEqual(expected);
+    },
+  );
 });

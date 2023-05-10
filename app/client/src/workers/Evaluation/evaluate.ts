@@ -275,9 +275,6 @@ export default function evaluateSync(
     } catch (error) {
       const { errorCategory, errorMessage } = errorModifier.run(error as Error);
       errors.push({
-        name: "",
-        toasterMessage: "",
-        debuggerMessage: "",
         errorMessage,
         severity: Severity.ERROR,
         raw: script,
@@ -318,18 +315,21 @@ export async function evaluateAsync(
 
     try {
       result = await indirectEval(script);
-    } catch (e) {
-      const error = e as Error;
-      const errorMessage = error.name
-        ? { name: error.name, message: error.message }
-        : {
-            name: "UncaughtPromiseRejection",
-            message: `${error.message}`,
-          };
+    } catch (e: any) {
+      let errorMessage;
+      if (e instanceof Error) {
+        errorMessage = { name: e.name, message: e.message };
+      } else {
+        // this covers cases where any primitive value is thrown
+        // for eg., throw "error";
+        // These types of errors might have a name/message but are not an instance of Error class
+        const message = convertAllDataTypesToString(e);
+        errorMessage = {
+          name: e?.name || "Error",
+          message: e?.message || message,
+        };
+      }
       errors.push({
-        name: error.name || "UncaughtPromiseRejection",
-        toasterMessage: error.message,
-        debuggerMessage: "",
         errorMessage: errorMessage,
         severity: Severity.ERROR,
         raw: script,
@@ -343,4 +343,12 @@ export async function evaluateAsync(
       };
     }
   })();
+}
+
+export function convertAllDataTypesToString(e: any): string {
+  if (typeof e === "function") {
+    return String(e);
+  } else {
+    return JSON.stringify(e);
+  }
 }

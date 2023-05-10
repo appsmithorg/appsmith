@@ -32,9 +32,9 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   createMessage,
   ERROR_EVAL_ERROR_GENERIC,
+  JS_EXECUTION_FAILURE,
   JS_OBJECT_BODY_INVALID,
   VALUE_IS_INVALID,
-  JS_EXECUTION_FAILURE,
 } from "@appsmith/constants/messages";
 import log from "loglevel";
 import type { AppState } from "@appsmith/reducers";
@@ -47,8 +47,9 @@ import type FeatureFlags from "entities/FeatureFlags";
 import type { JSAction } from "entities/JSCollection";
 import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
 import type { ActionEntityConfig } from "entities/DataTree/types";
-import SuccessfulBindingMap from "utils/SuccessfulBindingsMap";
 import type { SuccessfulBindings } from "utils/SuccessfulBindingsMap";
+import SuccessfulBindingMap from "utils/SuccessfulBindingsMap";
+import { logActionExecutionError } from "./ActionExecution/errorUtils";
 
 let successfulBindingsMap: SuccessfulBindingMap | undefined;
 
@@ -321,6 +322,14 @@ export function* evalErrorHandler(
       }
     }
   });
+}
+
+export function* dynamicTriggerErrorHandler(errors: EvaluationError[]) {
+  if (errors.length > 0) {
+    for (const error of errors) {
+      logActionExecutionError(error.errorMessage.message);
+    }
+  }
 }
 
 export function* logSuccessfulBindings(
