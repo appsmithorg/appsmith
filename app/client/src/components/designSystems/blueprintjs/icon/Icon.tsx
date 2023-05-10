@@ -60,7 +60,14 @@ function Icon(props: IconProps) {
     const viewBox = `0 0 ${pixelGridSize} ${pixelGridSize}`;
 
     return (
-      <TagName {...htmlprops} className={classes} title={htmlTitle}>
+      <TagName
+        {...htmlprops}
+        className={classes}
+        // @ts-expect-error Adding a custom DOM attribute called `icon`, for compatibility with the actual Blueprint icon component.
+        // Tests rely on this attribute.
+        icon={icon}
+        title={htmlTitle}
+      >
         <SvgIcon
           data-icon={icon}
           fill={color}
