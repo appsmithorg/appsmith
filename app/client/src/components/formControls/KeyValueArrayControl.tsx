@@ -188,7 +188,7 @@ function KeyValueRow(
         );
       })}
       <AddMoreButton
-        className="t--add-field btn-add-more"
+        className="t--add-field t--addApiHeader btn-add-more"
         kind="tertiary"
         onClick={addRow}
         size="md"
