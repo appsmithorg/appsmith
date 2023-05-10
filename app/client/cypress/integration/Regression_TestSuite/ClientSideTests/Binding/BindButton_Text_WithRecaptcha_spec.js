@@ -18,12 +18,12 @@ describe("Binding the Button widget with Text widget using Recpatcha v3", functi
       .GetText(locator._widgetInCanvas("textwidget") + " span")
       .should("be.empty");
     ee.SelectEntityByName("Button1");
-    agHelper.SelectDropdownList("Google reCAPTCHA Version", "reCAPTCHA v2");
+    agHelper.SelectDropdownList("Google reCAPTCHA version", "reCAPTCHA v2");
     agHelper.ClickButton("Submit");
     agHelper
       .GetText(locator._widgetInCanvas("textwidget") + " span")
       .should("be.empty");
-    agHelper.SelectDropdownList("Google reCAPTCHA Version", "reCAPTCHA v3");
+    agHelper.SelectDropdownList("Google reCAPTCHA version", "reCAPTCHA v3");
   });
 
   //This test to be enabled once the product bug is fixed
@@ -67,28 +67,28 @@ describe("Binding the Button widget with Text widget using Recpatcha v3", functi
 
   it.only("2. Validate the Button binding with Text Widget with Recaptcha Token with v2Key & upward compatibilty doesnt work", function () {
     ee.SelectEntityByName("Button1");
-    propPane.UpdatePropertyFieldValue("Google reCAPTCHA Key", testdata.v2Key);
+    propPane.UpdatePropertyFieldValue("Google reCAPTCHA key", testdata.v2Key);
     agHelper.ClickButton("Submit");
     agHelper.Sleep();
     agHelper
       .GetText(locator._widgetInCanvas("textwidget") + " span")
       .should("be.empty");
     ee.SelectEntityByName("Button1");
-    agHelper.SelectDropdownList("Google reCAPTCHA Version", "reCAPTCHA v2");
+    agHelper.SelectDropdownList("Google reCAPTCHA version", "reCAPTCHA v2");
     agHelper.ClickButton("Submit");
     agHelper.Sleep();
     agHelper
       .GetText(locator._widgetInCanvas("textwidget") + " span")
       .should("not.be.empty");
-    agHelper.SelectDropdownList("Google reCAPTCHA Version", "reCAPTCHA v3");
+    agHelper.SelectDropdownList("Google reCAPTCHA version", "reCAPTCHA v3");
     agHelper.ClickButton("Submit");
     agHelper.Sleep();
   });
 
   it.only("3. Validate the Button binding with Text Widget with Recaptcha Token with v3Key & v2key for backward compatible", function () {
     ee.SelectEntityByName("Button1");
-    propPane.UpdatePropertyFieldValue("Google reCAPTCHA Key", testdata.v3Key);
-    agHelper.SelectDropdownList("Google reCAPTCHA Version", "reCAPTCHA v3");
+    propPane.UpdatePropertyFieldValue("Google reCAPTCHA key", testdata.v3Key);
+    agHelper.SelectDropdownList("Google reCAPTCHA version", "reCAPTCHA v3");
     agHelper.ClickButton("Submit");
     agHelper.Sleep();
     agHelper.AssertElementAbsence(
@@ -99,7 +99,7 @@ describe("Binding the Button widget with Text widget using Recpatcha v3", functi
       .GetText(locator._widgetInCanvas("textwidget") + " span")
       .should("not.be.empty");
     ee.SelectEntityByName("Button1");
-    agHelper.SelectDropdownList("Google reCAPTCHA Version", "reCAPTCHA v2");
+    agHelper.SelectDropdownList("Google reCAPTCHA version", "reCAPTCHA v2");
     agHelper.ClickButton("Submit");
     agHelper.AssertContains("Google Re-Captcha token generation failed!"); //toast doesnt come when run in CI!
   });

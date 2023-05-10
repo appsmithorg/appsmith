@@ -7,6 +7,7 @@ import { ThemeProvider } from "styled-components";
 import { lightTheme } from "selectors/themeSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Installer } from "pages/Editor/Explorer/Libraries/Installer";
+import { BrowserRouter } from "react-router-dom";
 
 export const fetchApplicationMockResponse = {
   responseMeta: {
@@ -51,11 +52,13 @@ describe("Contains all UI tests for JS libraries", () => {
 
   it("Headers should exist", () => {
     render(
-      <Provider store={store}>
-        <ThemeProvider theme={lightTheme}>
-          <Installer left={250} />
-        </ThemeProvider>
-      </Provider>,
+      <BrowserRouter>
+        <Provider store={store}>
+          <ThemeProvider theme={lightTheme}>
+            <Installer left={250} />
+          </ThemeProvider>
+        </Provider>
+      </BrowserRouter>,
     );
     expect(screen.getByText("Add JS Libraries")).toBeDefined();
     expect(screen.getByText("Recommended Libraries")).toBeDefined();
@@ -65,11 +68,13 @@ describe("Contains all UI tests for JS libraries", () => {
 
   it("Validates URL", () => {
     render(
-      <Provider store={store}>
-        <ThemeProvider theme={lightTheme}>
-          <Installer left={250} />
-        </ThemeProvider>
-      </Provider>,
+      <BrowserRouter>
+        <Provider store={store}>
+          <ThemeProvider theme={lightTheme}>
+            <Installer left={250} />
+          </ThemeProvider>
+        </Provider>
+      </BrowserRouter>,
     );
     const input = screen.getByTestId("library-url");
     fireEvent.change(input, { target: { value: "https://valid.com/file.js" } });
@@ -82,11 +87,13 @@ describe("Contains all UI tests for JS libraries", () => {
 
   it("Renders progress bar", () => {
     render(
-      <Provider store={store}>
-        <ThemeProvider theme={lightTheme}>
-          <Installer left={250} />
-        </ThemeProvider>
-      </Provider>,
+      <BrowserRouter>
+        <Provider store={store}>
+          <ThemeProvider theme={lightTheme}>
+            <Installer left={250} />
+          </ThemeProvider>
+        </Provider>
+      </BrowserRouter>,
     );
     store.dispatch({
       type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
@@ -115,11 +122,13 @@ describe("Contains all UI tests for JS libraries", () => {
 
   it("Progress bar should disappear once the installation succeeds or fails", () => {
     render(
-      <Provider store={store}>
-        <ThemeProvider theme={lightTheme}>
-          <Installer left={250} />
-        </ThemeProvider>
-      </Provider>,
+      <BrowserRouter>
+        <Provider store={store}>
+          <ThemeProvider theme={lightTheme}>
+            <Installer left={250} />
+          </ThemeProvider>
+        </Provider>
+      </BrowserRouter>,
     );
     store.dispatch({
       type: ReduxActionTypes.INSTALL_LIBRARY_INIT,

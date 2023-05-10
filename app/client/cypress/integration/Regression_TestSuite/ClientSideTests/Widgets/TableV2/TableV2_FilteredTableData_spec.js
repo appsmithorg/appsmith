@@ -3,7 +3,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/tableV2AndTextDsl.json");
 
-describe("Table Widget V2 Filtered Table Data in autocomplete", function () {
+describe("Table Widget V2 Filtered Table data in autocomplete", function () {
   before(() => {
     cy.addDsl(dsl);
   });

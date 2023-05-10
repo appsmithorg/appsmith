@@ -1,33 +1,25 @@
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
-import { TooltipComponent } from "design-system-old";
 import { Colors } from "constants/Colors";
 
 import React, { forwardRef, useEffect, useMemo, useRef, useState } from "react";
-import { Classes } from "@blueprintjs/core";
 import styled from "styled-components";
 import { isEllipsisActive, removeSpecialChars } from "utils/helpers";
 
-import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import { ReactComponent as BetaIcon } from "assets/icons/menu/beta.svg";
+import { TOOLTIP_HOVER_ON_DELAY_IN_S } from "constants/AppConstants";
 import NameEditorComponent from "components/utils/NameEditorComponent";
 import { ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR } from "@appsmith/constants/messages";
+import { Tooltip } from "design-system";
 
 export const searchHighlightSpanClassName = "token";
 export const searchTokenizationDelimiter = "!!";
 
 const Container = styled.div`
-  .${Classes.POPOVER_TARGET} {
-    display: initial;
-  }
   overflow: hidden;
 `;
 
 const Wrapper = styled.div`
-  .${Classes.POPOVER_TARGET} {
-    display: initial;
-  }
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -134,13 +126,13 @@ export const EntityName = React.memo(
     if (!props.isEditing)
       return (
         <Container ref={ref}>
-          <TooltipComponent
-            boundary={"viewport"}
+          <Tooltip
             content={updatedName}
-            disabled={!showTooltip}
-            hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-            modifiers={{ arrow: { enabled: false } }}
-            position="top-left"
+            isDisabled={!showTooltip}
+            mouseEnterDelay={TOOLTIP_HOVER_ON_DELAY_IN_S}
+            placement="topLeft"
+            showArrow={false}
+            {...(!showTooltip ? { visible: false } : {})}
           >
             <Wrapper
               className={`${
@@ -150,9 +142,8 @@ export const EntityName = React.memo(
               ref={nameWrapperRef}
             >
               {searchHighlightedName}
-              {props.isBeta ? <BetaIcon className="beta-icon" /> : ""}
             </Wrapper>
-          </TooltipComponent>
+          </Tooltip>
         </Container>
       );
 

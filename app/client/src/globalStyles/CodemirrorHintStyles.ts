@@ -20,6 +20,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     overflow-y: auto;
     background: var(--ads-v2-color-bg);
     box-shadow: var(--ads-v2-shadow-popovers);
+    border: 1px solid var(--ads-v2-color-border);
     border-radius: var(--ads-v2-border-radius);
   }
 

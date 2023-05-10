@@ -46,7 +46,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
           {
             helpText: "Sets the default image to be displayed when load fails",
             propertyName: "defaultImage",
-            label: "Default Image",
+            label: "Default image",
             controlType: "INPUT_TEXT",
             placeholderText: "URL / Base64",
             isBindProperty: true,
@@ -62,7 +62,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             helpText:
               "Sets how the Image should be resized to fit its container.",
             propertyName: "objectFit",
-            label: "Object Fit",
+            label: "Object fit",
             controlType: "DROP_DOWN",
             defaultValue: "contain",
             options: [
@@ -92,7 +92,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
           {
             helpText: "Controls the max zoom of the widget",
             propertyName: "maxZoomLevel",
-            label: "Max Zoom Level",
+            label: "Max zoom level",
             controlType: "DROP_DOWN",
             options: [
               {
@@ -136,7 +136,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -148,7 +148,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
           {
             helpText: "Controls if the image is allowed to rotate",
             propertyName: "enableRotation",
-            label: "Enable Rotation",
+            label: "Enable rotation",
             controlType: "SWITCH",
             isJSConvertible: false,
             isBindProperty: true,
@@ -158,7 +158,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
           {
             helpText: "Controls if the image is allowed to download",
             propertyName: "enableDownload",
-            label: "Enable Download",
+            label: "Enable download",
             controlType: "SWITCH",
             isJSConvertible: false,
             isBindProperty: true,
@@ -187,11 +187,11 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
   static getPropertyPaneStyleConfig() {
     return [
       {
-        sectionName: "Border and Shadow",
+        sectionName: "Border and shadow",
         children: [
           {
             propertyName: "borderRadius",
-            label: "Border Radius",
+            label: "Border radius",
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
@@ -202,7 +202,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
           },
           {
             propertyName: "boxShadow",
-            label: "Box Shadow",
+            label: "Box shadow",
             helpText:
               "Enables you to cast a drop shadow from the frame of the widget",
             controlType: "BOX_SHADOW_OPTIONS",

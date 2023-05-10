@@ -9,9 +9,15 @@ import {
   setIsDisconnectGitModalOpen,
   setShowRepoLimitErrorModal,
 } from "actions/gitSyncActions";
-import styled, { useTheme } from "styled-components";
-import { DialogComponent as Dialog, Text, TextType } from "design-system-old";
-import { Button, Icon } from "design-system";
+import styled from "styled-components";
+import {
+  Callout,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+  Text,
+} from "design-system";
 import { Colors } from "constants/Colors";
 import {
   CONTACT_SALES_MESSAGE_ON_INTERCOM,
@@ -35,33 +41,7 @@ import {
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import InfoWrapper from "./components/InfoWrapper";
-import type { Theme } from "constants/DefaultTheme";
-
-const Container = styled.div`
-  height: 600px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow-y: hidden;
-`;
-
-const BodyContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-`;
-
-const CloseButton = styled(Button)`
-  position: absolute;
-  right: 0;
-  top: 0;
-`;
-
-const ButtonContainer = styled.div`
-  margin-top: 0;
-`;
+import { Space } from "./components/StyledComponents";
 
 const ApplicationWrapper = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[7]}px;
@@ -150,7 +130,6 @@ function RepoLimitExceededErrorModal() {
     },
     [],
   );
-  const theme = useTheme() as Theme;
 
   useEffect(() => {
     if (isOpen) {
@@ -170,96 +149,59 @@ function RepoLimitExceededErrorModal() {
   };
 
   return (
-    <Dialog
-      canEscapeKeyClose
-      canOutsideClickClose
-      className="t--git-repo-limited-modal"
-      isOpen={isOpen}
-      maxWidth={"900px"}
-      noModalBodyMarginTop
-      onClose={onClose}
-      width={"550px"}
+    <Modal
+      onOpenChange={(open) => {
+        if (!open) {
+          onClose();
+        }
+      }}
+      open={isOpen}
     >
-      <Container>
-        <BodyContainer>
-          <Text color={Colors.BLACK} type={TextType.H1} weight="bold">
-            {createMessage(REPOSITORY_LIMIT_REACHED)}
-          </Text>
-          <Text
-            color={Colors.BLACK}
-            style={{ marginTop: theme.spaces[3], width: "410px" }}
-            type={TextType.P1}
-          >
+      <ModalContent className="t--git-repo-limited-modal">
+        <ModalHeader isCloseButtonVisible>
+          {createMessage(REPOSITORY_LIMIT_REACHED)}
+        </ModalHeader>
+        <ModalBody>
+          <Text kind="body-m">
             {createMessage(REPOSITORY_LIMIT_REACHED_INFO)}
           </Text>
-          <InfoWrapper
-            style={{
-              margin: `${theme.spaces[7]}px 0px`,
-              paddingTop: theme.spaces[6],
-              paddingBottom: theme.spaces[6],
-            }}
+          <Space size={2} />
+          <Callout
+            kind="warning"
+            links={[
+              {
+                onClick: (e) => {
+                  e.preventDefault();
+                  AnalyticsUtil.logEvent("GS_CONTACT_SALES_CLICK", {
+                    source: "REPO_LIMIT_EXCEEDED_ERROR_MODAL",
+                  });
+                  openIntercom();
+                },
+                children: createMessage(CONTACT_SUPPORT),
+              },
+            ]}
           >
-            <Icon
-              color="var(--ads-v2-color-fg-warning)"
-              name="warning-line"
-              size="lg"
-            />
-            <div style={{ display: "block" }}>
-              <Text
-                color={Colors.BROWN}
-                style={{ marginRight: theme.spaces[2] }}
-                type={TextType.P3}
-              >
-                {createMessage(CONTACT_SUPPORT_TO_UPGRADE)}
-              </Text>
-            </div>
-          </InfoWrapper>
-          <ButtonContainer>
-            <Button
-              className="t--contact-sales-button"
-              kind="secondary"
-              onClick={() => {
-                AnalyticsUtil.logEvent("GS_CONTACT_SALES_CLICK", {
-                  source: "REPO_LIMIT_EXCEEDED_ERROR_MODAL",
-                });
-                openIntercom();
-              }}
-            >
-              {createMessage(CONTACT_SUPPORT)}
-            </Button>
-          </ButtonContainer>
-          <div style={{ marginTop: theme.spaces[15] }}>
-            <Text color={Colors.BLACK} type={TextType.H1}>
-              {createMessage(REVOKE_EXISTING_REPOSITORIES)}
-            </Text>
-          </div>
-          <div style={{ marginTop: theme.spaces[3], width: 410 }}>
-            <Text color={Colors.BLACK} type={TextType.P1}>
-              {createMessage(REVOKE_EXISTING_REPOSITORIES_INFO)}
-            </Text>
-          </div>
-          <InfoWrapper isError style={{ margin: `${theme.spaces[7]}px 0px 0` }}>
-            <Icon
-              color="var(--ads-v2-color-fg-error)"
-              name="warning-line"
-              size="lg"
-            />
-            <div style={{ display: "block" }}>
-              <Text
-                color={Colors.CRIMSON}
-                style={{ marginRight: theme.spaces[2] }}
-                type={TextType.P3}
-              >
-                {createMessage(REVOKE_CAUSE_APPLICATION_BREAK)}
-              </Text>
-              <Link
-                className="t--learn-more-repo-limit-modal"
-                color={Colors.CRIMSON}
-                link={docURL}
-                text={createMessage(LEARN_MORE)}
-              />
-            </div>
-          </InfoWrapper>
+            {createMessage(CONTACT_SUPPORT_TO_UPGRADE)}
+          </Callout>
+          <Space size={15} />
+          <Text kind="heading-s">
+            {createMessage(REVOKE_EXISTING_REPOSITORIES)}
+          </Text>
+          <Space size={3} />
+          <Text kind="body-m">
+            {createMessage(REVOKE_EXISTING_REPOSITORIES_INFO)}
+          </Text>
+          <Callout
+            kind="error"
+            links={[
+              {
+                to: docURL,
+                children: createMessage(LEARN_MORE),
+              },
+            ]}
+          >
+            {createMessage(REVOKE_CAUSE_APPLICATION_BREAK)}
+          </Callout>
           <AppListContainer>
             {applications.map((application: ApplicationPayload) => {
               const { gitApplicationMetadata } = application;
@@ -270,12 +212,12 @@ function RepoLimitExceededErrorModal() {
                 >
                   <div>
                     <TextWrapper>
-                      <Text color={Colors.OXFORD_BLUE} type={TextType.H4}>
+                      <Text color={Colors.OXFORD_BLUE} kind="heading-m">
                         {application.name}
                       </Text>
                     </TextWrapper>
                     <TextWrapper>
-                      <Text color={Colors.OXFORD_BLUE} type={TextType.P3}>
+                      <Text color={Colors.OXFORD_BLUE} kind="body-m">
                         {gitApplicationMetadata?.remoteUrl}
                       </Text>
                     </TextWrapper>
@@ -294,16 +236,9 @@ function RepoLimitExceededErrorModal() {
               );
             })}
           </AppListContainer>
-        </BodyContainer>
-        <CloseButton
-          isIconButton
-          kind="tertiary"
-          onClick={onClose}
-          size="sm"
-          startIcon="close-modal"
-        />
-      </Container>
-    </Dialog>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
   );
 }
 

@@ -5,6 +5,7 @@ const { CommonLocators: locators, EntityExplorer: ee } = ObjectsRegistry;
 
 describe("Empty canvas ctas", () => {
   it("Ctas validations", () => {
+    cy.wait(3000); // for page to load, failing in CI
     //Ctas should not be shown in the second page
     cy.get(locators._emptyCanvasCta).should("be.visible");
     ee.AddNewPage();

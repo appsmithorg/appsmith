@@ -156,15 +156,15 @@ describe("Table widget inline editing functionality", () => {
         expected: "be.disabled",
       },
       {
-        columnType: "Menu Button",
+        columnType: "Menu button",
         expected: "be.disabled",
       },
       {
-        columnType: "Icon Button",
+        columnType: "Icon button",
         expected: "be.disabled",
       },
       {
-        columnType: "Plain Text",
+        columnType: "Plain text",
         expected: "not.be.disabled",
       },
     ].forEach((data) => {
@@ -211,15 +211,15 @@ describe("Table widget inline editing functionality", () => {
         expected: "not.exist",
       },
       {
-        columnType: "Menu Button",
+        columnType: "Menu button",
         expected: "not.exist",
       },
       {
-        columnType: "Icon Button",
+        columnType: "Icon button",
         expected: "not.exist",
       },
       {
-        columnType: "Plain Text",
+        columnType: "Plain text",
         expected: "exist",
       },
     ].forEach((data) => {
@@ -449,15 +449,15 @@ describe("Table widget inline editing functionality", () => {
         expected: "not.exist",
       },
       {
-        columnType: "Menu Button",
+        columnType: "Menu button",
         expected: "not.exist",
       },
       {
-        columnType: "Icon Button",
+        columnType: "Icon button",
         expected: "not.exist",
       },
       {
-        columnType: "Plain Text",
+        columnType: "Plain text",
         expected: "not.exist",
       },
     ].forEach((data) => {
@@ -501,15 +501,15 @@ describe("Table widget inline editing functionality", () => {
         expected: "not.exist",
       },
       {
-        columnType: "Menu Button",
+        columnType: "Menu button",
         expected: "not.exist",
       },
       {
-        columnType: "Icon Button",
+        columnType: "Icon button",
         expected: "not.exist",
       },
       {
-        columnType: "Plain Text",
+        columnType: "Plain text",
         expected: "exist",
       },
     ].forEach((data) => {

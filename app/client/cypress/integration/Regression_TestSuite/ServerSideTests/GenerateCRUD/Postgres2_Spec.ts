@@ -751,7 +751,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     propPane.OpenJsonFormFieldSettings("Timezone");
     propPane.UpdatePropertyFieldValue("Min", "-10");
     propPane.UpdatePropertyFieldValue("Max", "10");
-    propPane.UpdatePropertyFieldValue("Error Message", "Not a valid timezone!");
+    propPane.UpdatePropertyFieldValue("Error message", "Not a valid timezone!");
     propPane.NavigateBackToPropertyPane();
 
     propPane.ChangeJsonFormFieldType("Eta Updated", "Datepicker");

@@ -733,7 +733,7 @@
                 "widgetName": "IconButton2",
                 "onClick": "{{closeModal('SimpleModal')}}",
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
-                "displayName": "Icon Button",
+                "displayName": "Icon button",
                 "iconSVG": "/static/media/icon.1a0c634ac75f9fa6b6ae7a8df882a3ba.svg",
                 "searchTags": [
                   "click",

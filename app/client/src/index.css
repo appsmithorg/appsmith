@@ -27,6 +27,16 @@ body.dragging * {
   cursor: grabbing !important;
 }
 
+/**
+  over-riding the outline that comes from
+  blueprint. Please don't add important, we 
+  are using outline in adsv2 components.
+*/
+:focus {
+  outline: none;
+  outline-offset: 0;
+}
+
 body.overlay {
   opacity: 0;
   pointer-events: none;
@@ -35,10 +45,6 @@ body.overlay {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
-}
-
-* {
-  outline: none !important;
 }
 
 div.bp3-select-popover .bp3-popover-content {
@@ -54,14 +60,64 @@ span.bp3-popover-target > * {
   flex-grow: 1;
 }
 
+.bp3-popover,
+.bp3-popover2 {
+  box-shadow: var(--ads-v2-shadow-popovers) !important;
+}
+
+.bp3-popover2-content {
+  border-radius: var(--ads-v2-border-radius) !important;
+}
+
+.action-selector-popup {
+  background-color: var(--ads-v2-color-bg);
+  border-radius: var(--ads-v2-border-radius) !important;
+  border: 1px solid var(--ads-v2-color-border-muted) !important;
+}
+
 .action-selector-popup span.bp3-popover-target > * {
   max-width: 100%;
+}
+
+add-action.disabled span {
+  cursor: not-allowed;
 }
 
 .action-selector-popup .bp3-button-text {
   text-overflow: ellipsis;
   overflow: hidden;
   min-width: 0;
+}
+
+/** 
+  action selector block styles
+**/
+.bp3-submenu.bp3-popover > .bp3-popover-content {
+  box-shadow: none;
+}
+
+.action-card-border {
+  border-color: var(--ads-v2-color-border);
+}
+
+.action-card-next-selected {
+  border-bottom: 1px solid var(--ads-v2-color-border-emphasis-plus);
+}
+
+.action-card-border-selected {
+  border-color: var(--ads-v2-color-border-emphasis-plus) !important;
+}
+
+.action-card-last-block {
+  border-radius: 0px 0px var(--ads-v2-border-radius) var(--ads-v2-border-radius);
+}
+
+.main-block-radius {
+  border-radius: var(--ads-v2-border-radius);
+}
+
+.main-block-radius-selected {
+  border-radius: var(--ads-v2-border-radius) var(--ads-v2-border-radius) 0px 0px;
 }
 
 div.bp3-popover-arrow {
@@ -83,14 +139,13 @@ div.bp3-popover-arrow {
 .bp3-popover .bp3-input {
   outline: 0;
   box-shadow: none;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 0 !important;
+  border: 1px solid var(--ads-v2-color-border);
+  border-radius: var(--ads-v2-border-radius) !important;
 }
 
 .bp3-popover .bp3-input:focus {
-  border-color: #80bdff;
+  border-color: var(--ads-v2-color-border-emphasis);
   outline: 0;
-  box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
 }
 
 .bp3-popover.bp3-minimal {
@@ -124,12 +179,10 @@ div.bp3-popover-arrow {
 .bp3-modal-widget .bp3-portal {
   z-index: 21 !important;
 }
-.widget-name-popper {
-  box-shadow: none !important;
-}
 
-.widget-name-popper > .bp3-popover2-content {
-  border-radius: 4px !important;
+.bp3-popover2-content {
+  background-color: var(--ads-v2-color-bg) !important;
+  border-radius: var(--ads-v2-border-radius) !important;
 }
 .bp3-overlay-backdrop {
   background-color: rgba(16, 22, 26, 0.7) !important;
@@ -138,6 +191,26 @@ div.bp3-popover-arrow {
 .bp3-overlay-zindex {
   z-index: 20 !important;
 }
+
+/** color picker input control */
+.color-picker-input,
+.color-picker-input > .bp3-popover-content {
+  border-radius: var(--ads-v2-border-radius) !important;
+}
+
+.color-picker-input {
+  box-shadow: var(--ads-v2-shadow-popovers) !important;
+}
+
+.icon-select-popover,
+.icon-select-popover > .bp3-popover-content {
+  border-radius: var(--ads-v2-border-radius) !important;
+}
+
+.icon-select-popover {
+  box-shadow: var(--ads-v2-shadow-popovers) !important;
+}
+
 .error-menuitem {
   color: var(--ads-v2-color-fg-error) !important;
 }

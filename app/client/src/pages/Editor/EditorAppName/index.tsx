@@ -35,7 +35,7 @@ const Container = styled.div`
   display: flex;
   cursor: pointer;
   &:hover {
-    background-color: var(--ads-v2-color-bg);
+    background-color: var(--ads-v2-color-bg-subtle);
   }
   & .${Classes.EDITABLE_TEXT} {
     height: ${(props) => props.theme.smallHeaderHeight} !important;

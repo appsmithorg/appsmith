@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
-import { ControlWrapper, StyledInputGroup } from "./StyledControls";
-import type { DropDownOptionWithKey } from "./OptionControl";
-import type { DropdownOption } from "components/constants";
-import { generateReactKey } from "utils/generators";
+import { ControlWrapper, InputGroup } from "./StyledControls";
+import type { SegmentedControlOption } from "design-system";
 import { Button } from "design-system";
+import { generateReactKey } from "utils/generators";
 import { debounce } from "lodash";
 import { getNextEntityName } from "utils/AppsmithUtils";
 
@@ -45,35 +44,50 @@ const StyledBox = styled.div`
 `;
 
 type UpdatePairFunction = (
-  pair: DropdownOption[],
+  pair: SegmentedControlOption[],
   isUpdatedViaKeyboard?: boolean,
 ) => any;
 
 type KeyValueComponentProps = {
-  pairs: DropdownOption[];
+  pairs: SegmentedControlOption[];
   updatePairs: UpdatePairFunction;
   addLabel?: string;
 };
+
+type SegmentedControlOptionWithKey = SegmentedControlOption & {
+  key: string;
+};
+
+const StyledInputGroup = styled(InputGroup)`
+  > .ads-v2-input__input-section > div {
+    min-width: 0px;
+  }
+`;
+
 export function KeyValueComponent(props: KeyValueComponentProps) {
-  const [renderPairs, setRenderPairs] = useState<DropDownOptionWithKey[]>([]);
+  const [renderPairs, setRenderPairs] = useState<
+    SegmentedControlOptionWithKey[]
+  >([]);
   const [typing, setTyping] = useState<boolean>(false);
   const { pairs } = props;
   useEffect(() => {
     let { pairs } = props;
     pairs = Array.isArray(pairs) ? pairs.slice() : [];
 
-    const newRenderPairs: DropDownOptionWithKey[] = pairs.map((pair) => {
-      return {
-        ...pair,
-        key: generateReactKey(),
-      };
-    });
+    const newRenderPairs: SegmentedControlOptionWithKey[] = pairs.map(
+      (pair) => {
+        return {
+          ...pair,
+          key: generateReactKey(),
+        };
+      },
+    );
 
     pairs.length !== 0 && !typing && setRenderPairs(newRenderPairs);
   }, [props, pairs.length, renderPairs.length]);
 
   const debouncedUpdatePairs = useCallback(
-    debounce((updatedPairs: DropdownOption[]) => {
+    debounce((updatedPairs: SegmentedControlOption[]) => {
       props.updatePairs(updatedPairs, true);
     }, 200),
     [props.updatePairs],
@@ -161,7 +175,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
 
   return (
     <>
-      {renderPairs.map((pair: DropDownOptionWithKey, index) => {
+      {renderPairs.map((pair: SegmentedControlOptionWithKey, index) => {
         return (
           <ControlWrapper key={pair.key} orientation={"HORIZONTAL"}>
             <StyledInputGroup
@@ -188,25 +202,29 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
             <StyledBox />
             <Button
               isIconButton
+              kind="tertiary"
               onClick={(e: React.MouseEvent) => {
                 deletePair(index, e.detail === 0);
               }}
               size="sm"
               startIcon="delete-bin-line"
+              style={{ width: "50px" }}
             />
           </ControlWrapper>
         );
       })}
 
-      <Button
-        className="t--property-control-options-add"
-        kind="secondary"
-        onClick={addPair}
-        size="md"
-        startIcon="plus"
-      >
-        {props.addLabel || "Option"}
-      </Button>
+      <div className="flex flex-row-reverse mt-1">
+        <Button
+          className="t--property-control-options-add"
+          kind="tertiary"
+          onClick={addPair}
+          size="sm"
+          startIcon="plus"
+        >
+          {props.addLabel || "Add option"}
+        </Button>
+      </div>
     </>
   );
 }

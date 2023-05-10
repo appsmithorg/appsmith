@@ -18,8 +18,7 @@ import {
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import { hasManagePagePermission } from "@appsmith/utils/permissionHelpers";
 import classNames from "classnames";
-import { Text, TextInput, TextType } from "design-system-old";
-import AdsSwitch from "design-system-old/build/Switch";
+import { Input, Switch } from "design-system";
 import ManualUpgrades from "pages/Editor/BottomBar/ManualUpgrades";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import React, { useCallback, useEffect, useState } from "react";
@@ -36,10 +35,13 @@ import { getUrlPreview } from "../Utils";
 import type { AppState } from "@appsmith/reducers";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import { isNameValid, resolveAsSpaceChar } from "utils/helpers";
-import SwitchWrapper from "../Components/SwitchWrapper";
 
 const UrlPreviewWrapper = styled.div`
-  height: 54px;
+  height: 56px;
+  color: var(--ads-v2-color-fg);
+  border-radius: var(--ads-v2-border-radius);
+  background-color: var(--ads-v2-color-bg-subtle);
+  line-height: 1.17;
 `;
 
 const UrlPreviewScroll = styled.div`
@@ -86,7 +88,9 @@ function PageSettings(props: { page: Page }) {
 
   const [pageName, setPageName] = useState(page.pageName);
   const [isPageNameSaving, setIsPageNameSaving] = useState(false);
-  const [isPageNameValid, setIsPageNameValid] = useState(true);
+  const [isPageNameValid, setIsPageNameValid] = useState<string | undefined>(
+    undefined,
+  );
 
   const [customSlug, setCustomSlug] = useState(page.customSlug);
   const [isCustomSlugSaving, setIsCustomSlugSaving] = useState(false);
@@ -171,9 +175,20 @@ function PageSettings(props: { page: Page }) {
     [page.pageId, isShown],
   );
 
+  const onPageNameChange = (value: string) => {
+    let isValid = undefined;
+    if (!value || value.trim().length === 0) {
+      isValid = PAGE_SETTINGS_NAME_EMPTY_MESSAGE();
+    } else if (value !== page.pageName && hasActionNameConflict(value)) {
+      isValid = PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR(value);
+    }
+
+    setIsPageNameValid(isValid);
+    setPageName(resolveAsSpaceChar(value, 30));
+  };
+
   return (
     <>
-      <Text type={TextType.P1}>{PAGE_SETTINGS_PAGE_NAME_LABEL()}</Text>
       <div
         className={classNames({
           "pt-1 pb-2 relative": true,
@@ -181,14 +196,16 @@ function PageSettings(props: { page: Page }) {
         })}
       >
         {isPageNameSaving && <TextLoaderIcon />}
-        <TextInput
+        <Input
           defaultValue={pageName}
-          disabled={!canManagePages}
-          fill
+          errorMessage={isPageNameValid}
           id="t--page-settings-name"
+          isDisabled={!canManagePages}
+          label={PAGE_SETTINGS_PAGE_NAME_LABEL()}
           onBlur={savePageName}
-          onChange={(value: string) =>
-            setPageName(resolveAsSpaceChar(value, 30))
+          onChange={
+            (value: string) => onPageNameChange(value)
+            // setPageName(resolveAsSpaceChar(value, 30))
           }
           onKeyPress={(ev: React.KeyboardEvent) => {
             if (ev.key === "Enter") {
@@ -196,33 +213,12 @@ function PageSettings(props: { page: Page }) {
             }
           }}
           placeholder="Page name"
-          type="input"
-          validator={(value: string) => {
-            let result: { isValid: boolean; message?: string } = {
-              isValid: true,
-            };
-            if (!value || value.trim().length === 0) {
-              result = {
-                isValid: false,
-                message: PAGE_SETTINGS_NAME_EMPTY_MESSAGE(),
-              };
-            } else if (
-              value !== page.pageName &&
-              hasActionNameConflict(value)
-            ) {
-              result = {
-                isValid: false,
-                message: PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR(value),
-              };
-            }
-            setIsPageNameValid(result.isValid);
-            return result;
-          }}
+          size="md"
+          type="text"
           value={pageName}
         />
       </div>
 
-      <Text type={TextType.P1}>{PAGE_SETTINGS_PAGE_URL_LABEL()}</Text>
       {appNeedsUpdate && (
         <div
           className={`pt-1 text-[color:var(--appsmith-color-black-700)] text-[13px]`}
@@ -246,11 +242,12 @@ function PageSettings(props: { page: Page }) {
         })}
       >
         {isCustomSlugSaving && <TextLoaderIcon />}
-        <TextInput
+        <Input
           defaultValue={customSlug}
-          disabled={!canManagePages}
-          fill
           id="t--page-settings-custom-slug"
+          isDisabled={!canManagePages}
+          isReadOnly={appNeedsUpdate}
+          label={PAGE_SETTINGS_PAGE_URL_LABEL()}
           onBlur={saveCustomSlug}
           onChange={(value: string) =>
             value.length > 0
@@ -263,18 +260,16 @@ function PageSettings(props: { page: Page }) {
             }
           }}
           placeholder="Page URL"
-          readOnly={appNeedsUpdate}
-          type="input"
+          size="md"
+          type="text"
           value={customSlug}
         />
       </div>
 
       {!appNeedsUpdate && (
-        <UrlPreviewWrapper
-          className={`mb-2 bg-[color:var(--appsmith-color-black-100)]`}
-        >
+        <UrlPreviewWrapper className="mb-2">
           <UrlPreviewScroll
-            className={`py-1 pl-2 mr-0.5 text-[color:var(--appsmith-color-black-700)] text-xs break-all`}
+            className="py-1 pl-2 mr-0.5  text-xs break-all"
             onCopy={() => {
               navigator.clipboard.writeText(
                 location.protocol +
@@ -283,7 +278,6 @@ function PageSettings(props: { page: Page }) {
                   pathPreview.relativePath,
               );
             }}
-            style={{ lineHeight: "1.17" }}
           >
             {location.protocol}
             {"//"}
@@ -307,31 +301,38 @@ function PageSettings(props: { page: Page }) {
       )}
 
       <div className="flex justify-between content-center pb-2">
-        <div className="pt-0.5 text-[color:var(--appsmith-color-black-700)]">
+        <Switch
+          className="mb-0"
+          id="t--page-settings-show-nav-control"
+          isDisabled={isShownSaving || !canManagePages}
+          isSelected={isShown}
+          onChange={() => {
+            setIsShown(!isShown);
+            saveIsShown(!isShown);
+          }}
+        >
           <PropertyHelpLabel
             label={PAGE_SETTINGS_SHOW_PAGE_NAV()}
             lineHeight="1.17"
             maxWidth="217px"
             tooltip={PAGE_SETTINGS_SHOW_PAGE_NAV_TOOLTIP()}
           />
-        </div>
-        <SwitchWrapper>
-          <AdsSwitch
-            checked={isShown}
-            className="mb-0"
-            disabled={isShownSaving || !canManagePages}
-            id="t--page-settings-show-nav-control"
-            large
-            onChange={() => {
-              setIsShown(!isShown);
-              saveIsShown(!isShown);
-            }}
-          />
-        </SwitchWrapper>
+        </Switch>
       </div>
 
       <div className="flex justify-between content-center">
-        <div className="pt-0.5 text-[color:var(--appsmith-color-black-700)]">
+        <Switch
+          className="mb-0"
+          id="t--page-settings-home-page-control"
+          isDisabled={isDefaultSaving || page.isDefault || !canManagePages}
+          isSelected={isDefault}
+          onChange={() => {
+            if (!canManagePages) return;
+            setIsDefault(!isDefault);
+            setIsDefaultSaving(true);
+            dispatch(setPageAsDefault(page.pageId, applicationId));
+          }}
+        >
           <PropertyHelpLabel
             label={PAGE_SETTINGS_SET_AS_HOMEPAGE()}
             lineHeight="1.17"
@@ -342,22 +343,7 @@ function PageSettings(props: { page: Page }) {
                 : PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE()
             }
           />
-        </div>
-        <SwitchWrapper>
-          <AdsSwitch
-            checked={isDefault}
-            className="mb-0"
-            disabled={isDefaultSaving || page.isDefault || !canManagePages}
-            id="t--page-settings-home-page-control"
-            large
-            onChange={() => {
-              if (!canManagePages) return;
-              setIsDefault(!isDefault);
-              setIsDefaultSaving(true);
-              dispatch(setPageAsDefault(page.pageId, applicationId));
-            }}
-          />
-        </SwitchWrapper>
+        </Switch>
       </div>
     </>
   );

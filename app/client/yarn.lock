@@ -8410,6 +8410,17 @@ babel-plugin-react-docgen@^4.1.0, babel-plugin-react-docgen@^4.2.1:
     lodash "^4.17.11"
     picomatch "^2.3.0"
 
+babel-plugin-styled-components@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/babel-plugin-styled-components/-/babel-plugin-styled-components-2.1.1.tgz#cd977cc0ff8410d5cbfdd142e42576e9c8794b87"
+  integrity sha512-c8lJlszObVQPguHkI+akXv8+Jgb9Ccujx0EetL7oIvwU100LxO6XAGe45qry37wUL40a5U9f23SYrivro2XKhA==
+  dependencies:
+    "@babel/helper-annotate-as-pure" "^7.16.0"
+    "@babel/helper-module-imports" "^7.16.0"
+    babel-plugin-syntax-jsx "^6.18.0"
+    lodash "^4.17.21"
+    picomatch "^2.3.0"
+
 babel-plugin-syntax-jsx@^6.18.0:
   version "6.18.0"
   resolved "https://registry.npmjs.org/babel-plugin-syntax-jsx/-/babel-plugin-syntax-jsx-6.18.0.tgz"
@@ -9691,13 +9702,6 @@ cosmiconfig@^7.0.0:
     path-type "^4.0.0"
     yaml "^1.10.0"
 
-country-flag-emoji-polyfill@^0.1.4:
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/country-flag-emoji-polyfill/-/country-flag-emoji-polyfill-0.1.4.tgz#54b7ca61220c124b11d3091c46d16bd7f3ba0016"
-  integrity sha512-e20azlb9yHb3mpL3lAlhkidmJgB5TELpA8oe0DPlyIfnqXhAGBmgLDpC+mm+Envh57n1xPrOfkJtXq2CrpvoGQ==
-  dependencies:
-    is-emoji-supported "^0.0.5"
-
 cp-file@^7.0.0:
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/cp-file/-/cp-file-7.0.0.tgz#b9454cfd07fe3b974ab9ea0e5f29655791a9b8cd"
@@ -10430,10 +10434,10 @@ depd@~1.1.2:
   dependencies:
     emoji-mart "3.0.1"
 
-"design-system@npm:@appsmithorg/design-system@2.1.9-alpha.12":
-  version "2.1.9-alpha.12"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-2.1.9-alpha.12.tgz#99a93a82fe3ccc3c3c50a38fd57f279f0b67c513"
-  integrity sha512-r/bPNt++Fl2fdXoSXMAaMCqfdbQvoaij3AZpnvPtmRLkFDmJKizDN0XMTIfF5ET60bQz+G2NHNjocVUZy7q+EA==
+"design-system@npm:@appsmithorg/design-system@2.1.9-alpha.14":
+  version "2.1.9-alpha.14"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-2.1.9-alpha.14.tgz#b97182b39720aa22c07aa812b958aac99fe6b569"
+  integrity sha512-3KgncEwVB3Hi+eYv0aeHKsAG0O0YK7O1jwRTEnrb8p4yZR2Zv+91pvROE7+hhKwYtIxD4p+gRAXao31uMWhVng==
   dependencies:
     "@radix-ui/react-dialog" "^1.0.2"
     "@radix-ui/react-dropdown-menu" "^2.0.4"
@@ -13725,11 +13729,6 @@ is-dom@^1.0.0:
   dependencies:
     is-object "^1.0.1"
     is-window "^1.0.2"
-
-is-emoji-supported@^0.0.5:
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/is-emoji-supported/-/is-emoji-supported-0.0.5.tgz#f22301b22c63d6322935e829f39dfa59d03a7fe2"
-  integrity sha512-WOlXUhDDHxYqcSmFZis+xWhhqXiK2SU0iYiqmth5Ip0FHLZQAt9rKL5ahnilE8/86WH8tZ3bmNNNC+bTzamqlw==
 
 is-extendable@^0.1.0, is-extendable@^0.1.1:
   version "0.1.1"

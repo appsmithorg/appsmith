@@ -23,7 +23,7 @@ describe("Dropdown Widget Functionality", function () {
           .invoke("outerWidth")
           .should("eq", val);
       });
-    // Menu Button
+    // Menu button
     cy.get(formWidgetsPage.menuButtonWidget)
       .find(widgetLocators.menuButton)
       .invoke("outerWidth")

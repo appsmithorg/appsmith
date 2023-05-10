@@ -218,7 +218,7 @@
       {
         "isCompact": false,
         "widgetName": "MenuButton1",
-        "displayName": "Menu Button",
+        "displayName": "Menu button",
         "iconSVG": "/static/media/icon.0341d17d.svg",
         "topRow": 80,
         "bottomRow": 85,

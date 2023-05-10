@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { find, noop } from "lodash";
 import type { DropdownOption } from "components/constants";
-import { StyledDropDownContainer } from "components/propertyControls/StyledControls";
 import { StyledMenu } from "design-system-old";
 import type { IPopoverSharedProps, Position } from "@blueprintjs/core";
 import {
@@ -156,6 +155,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
     const isSelected =
       selectedOption.value === option.value ||
       selectedOption.type === option.value;
+
     return (
       <MenuItem
         active={isSelected}
@@ -187,6 +187,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   }
 
   const list = optionTree.map(renderTreeOption);
+
   const menuItems = (
     <StyledMenu
       className={`t--entity-context-menu ${EntityClassNames.CONTEXT_MENU_CONTENT}`}
@@ -195,8 +196,9 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       {list}
     </StyledMenu>
   );
+
   const defaultToggle = (
-    <StyledDropDownContainer>
+    <div className="w-full h-full">
       <BlueprintButton
         className={`t--open-dropdown-${defaultText.split(" ").join("-")} ${
           selectedLabelModifier ? "code-highlight" : ""
@@ -208,8 +210,9 @@ export default function TreeDropdown(props: TreeDropdownProps) {
             : selectedOption.label
         }
       />
-    </StyledDropDownContainer>
+    </div>
   );
+
   return (
     <StyledPopover
       boundary="viewport"

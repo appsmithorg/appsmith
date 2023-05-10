@@ -19,7 +19,7 @@ export default {
   children: [
     {
       propertyName: "columnType",
-      label: "Column Type",
+      label: "Column type",
       helpText:
         "Type of column to be shown corresponding to the data of the column",
       controlType: "DROP_DOWN",
@@ -37,7 +37,7 @@ export default {
           value: ColumnTypes.DATE,
         },
         {
-          label: "Icon Button",
+          label: "Icon button",
           value: ColumnTypes.ICON_BUTTON,
         },
         {
@@ -45,7 +45,7 @@ export default {
           value: ColumnTypes.IMAGE,
         },
         {
-          label: "Menu Button",
+          label: "Menu button",
           value: ColumnTypes.MENU_BUTTON,
         },
         {
@@ -53,7 +53,7 @@ export default {
           value: ColumnTypes.NUMBER,
         },
         {
-          label: "Plain Text",
+          label: "Plain text",
           value: ColumnTypes.TEXT,
         },
         {
@@ -131,7 +131,7 @@ export default {
     },
     {
       propertyName: "displayText",
-      label: "Display Text",
+      label: "Display text",
       helpText: "The text to be displayed in the column",
       controlType: "TABLE_COMPUTE_VALUE",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
@@ -147,7 +147,7 @@ export default {
       helpText:
         "The value computed & shown in each cell. Use {{currentRow}} to reference each row in the table. This property is not accessible outside the column settings.",
       propertyName: "computedValue",
-      label: "Computed Value",
+      label: "Computed value",
       controlType: "TABLE_COMPUTE_VALUE",
       additionalControlData: {
         isArrayValue: true,
@@ -171,7 +171,7 @@ export default {
     },
     {
       propertyName: "inputFormat",
-      label: "Date Format",
+      label: "Date format",
       helpText: "Date format of incoming data to the column",
       controlType: "DROP_DOWN",
       options: [
@@ -301,7 +301,7 @@ export default {
     },
     {
       propertyName: "outputFormat",
-      label: "Display Format",
+      label: "Display format",
       helpText: "Date format to be shown to users",
       controlType: "DROP_DOWN",
       customJSControl: "TABLE_COMPUTE_VALUE",
