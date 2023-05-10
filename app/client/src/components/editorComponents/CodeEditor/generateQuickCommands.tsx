@@ -14,7 +14,7 @@ import AddDatasourceIcon from "remixicon-react/AddBoxLineIcon";
 import { Colors } from "constants/Colors";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import MagicIcon from "remixicon-react/MagicLineIcon";
-import { addAISlashCommand } from "@appsmith/components/editorComponents/GPT/trigger";
+import { askAIEnabled } from "@appsmith/components/editorComponents/GPT/trigger";
 import type FeatureFlags from "entities/FeatureFlags";
 import type { FieldEntityInformation } from "./EditorConfig";
 import { EditorModes } from "./EditorConfig";
@@ -147,7 +147,6 @@ export const generateQuickCommands = (
 ) => {
   const {
     entityId,
-    example,
     expectedType = "string",
     mode,
     propertyPath,
@@ -257,7 +256,7 @@ export const generateQuickCommands = (
   // Adding this hack in the interest of time.
   // TODO: Refactor slash commands generation for easier code splitting
   if (
-    addAISlashCommand &&
+    askAIEnabled &&
     featureFlags.ask_ai &&
     (currentEntityType !== ENTITY_TYPE.ACTION ||
       mode === EditorModes.SQL ||
@@ -267,18 +266,7 @@ export const generateQuickCommands = (
       text: "",
       displayText: "Ask AI",
       shortcut: Shortcuts.ASK_AI,
-      action: () =>
-        executeCommand({
-          actionType: SlashCommand.ASK_AI,
-          args: {
-            entityType: currentEntityType,
-            expectedType: expectedType,
-            entityId: entityId,
-            propertyPath: propertyPath,
-            example,
-            mode,
-          },
-        }),
+      triggerCompletionsPostPick: true,
     });
     actionCommands.push(askGPT);
   }

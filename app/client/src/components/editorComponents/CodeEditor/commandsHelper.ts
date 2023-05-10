@@ -110,7 +110,7 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
                   selected.action();
                 } else {
                   selected.triggerCompletionsPostPick &&
-                    CodeMirror.signal(editor, "postPick");
+                    CodeMirror.signal(editor, "postPick", selected.displayText);
                 }
               });
               try {
