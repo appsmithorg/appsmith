@@ -178,7 +178,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
                     {
                       children: "Learn more",
                       onClick: this.openDocumentation,
-                      endIcon: "document-open",
+                      endIcon: "share-box-line",
                     },
                   ]}
                 >
