@@ -40,8 +40,6 @@ export function* executePostMessage(
       }
     }
   } catch (error) {
-    // TODO - check if these catch blocks make sense anymore else remove
-    // for all platform function sagas
     logActionExecutionError(
       (error as Error).message,
       true,

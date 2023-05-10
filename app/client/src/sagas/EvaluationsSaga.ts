@@ -329,9 +329,6 @@ export function* evaluateAndExecuteDynamicTrigger(
     },
   );
   const { errors = [] } = response as any;
-  // TODO - add more cypress test cases
-  // TODO - remove errorMessage and spread name and error in error object
-  // TODO - add context for 2 flows
   if (errors.length > 0) {
     yield call(dynamicTriggerErrorHandler, errors);
   }
