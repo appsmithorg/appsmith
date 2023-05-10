@@ -144,6 +144,7 @@ export default function ExplorerSubMenu({
             <Text kind="heading-xs">Create new</Text>
           </div>
           <SearchInput
+            data-testId="t--search-file-operation"
             onChange={onChange}
             placeholder="Search datasources"
             value={query}

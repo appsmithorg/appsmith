@@ -35,6 +35,7 @@ export default function ConflictInfo({
   return (
     <ConflictInfoContainer data-testid="t--conflict-info-container">
       <Callout
+        data-testid="t--conflict-info-error-warning"
         kind="error"
         links={[
           {
