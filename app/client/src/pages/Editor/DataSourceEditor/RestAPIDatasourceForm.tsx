@@ -114,6 +114,16 @@ const FormInputContainer = styled.div`
   }
 `;
 
+const FormContainerBodyWrapper = styled(FormContainerBody)`
+  .api-datasource-content-container {
+    flex-direction: column;
+    padding: 0;
+    .t--save-and-authorize-datasource {
+      margin-left: 0;
+    }
+  }
+`;
+
 class DatasourceRestAPIEditor extends React.Component<
   Props,
   { confirmDelete: boolean }
@@ -333,7 +343,7 @@ class DatasourceRestAPIEditor extends React.Component<
       <FormContainer>
         {/* this is true during import flow */}
         {!hiddenHeader && <CloseEditor />}
-        <FormContainerBody>
+        <FormContainerBodyWrapper>
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -361,7 +371,7 @@ class DatasourceRestAPIEditor extends React.Component<
               {showDebugger && <Debugger />}
             </ResizerMainContainer>
           </form>
-        </FormContainerBody>
+        </FormContainerBodyWrapper>
       </FormContainer>
     );
   };
@@ -448,7 +458,6 @@ class DatasourceRestAPIEditor extends React.Component<
         className="t--section-general"
         data-cy="section-General"
         data-replay-id="section-General"
-        style={{ margin: "0 var(--ads-v2-spaces-7)" }}
       >
         <FormInputContainer data-replay-id={btoa("url")}>
           {this.renderInputTextControlViaFormControl({

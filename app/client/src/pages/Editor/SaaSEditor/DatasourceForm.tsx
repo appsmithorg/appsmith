@@ -134,7 +134,7 @@ const ViewModeWrapper = styled.div`
   display: flex;
   flex-direction: column;
   border-bottom: 1px solid var(--ads-v2-color-border);
-  margin: 24px 20px;
+  margin: var(--ads-v2-spaces-7);
   padding-bottom: 24px;
 `;
 

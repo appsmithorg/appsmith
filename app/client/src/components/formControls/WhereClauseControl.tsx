@@ -452,7 +452,7 @@ function ConditionBlock(props: any) {
           size="md"
           startIcon="add-more"
         >
-          Add Condition
+          Add condition
         </AddMoreAction>
         {/* Check if the config allows more nesting, if it does, allow for adding more blocks */}
         <Tooltip
@@ -483,7 +483,7 @@ function ConditionBlock(props: any) {
             size="md"
             startIcon="add-more"
           >
-            Add Group Condition
+            Add group condition
           </AddMoreAction>
         </Tooltip>
       </ActionBox>

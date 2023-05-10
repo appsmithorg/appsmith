@@ -5,7 +5,7 @@ import { replayHighlightClass } from "globalStyles/portals";
 import type { SelectOptionProps } from "design-system";
 import { Select, Option } from "design-system";
 import styled from "styled-components";
-import { getAssetUrl } from "../../../../ce/utils/airgapHelpers";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const Container = styled.div`
   display: flex;

@@ -1035,7 +1035,7 @@ export function EditorJSONtoForm(props: Props) {
                         <LoadingOverlayScreen theme={EditorTheme.LIGHT} />
                         <LoadingOverlayContainer>
                           <Text textAlign={"center"} type={TextType.P1}>
-                            {createMessage(ACTION_EXECUTION_MESSAGE, "Query")}
+                            {createMessage(ACTION_EXECUTION_MESSAGE, "query")}
                           </Text>
                           <Button
                             className={`t--cancel-action-button`}
