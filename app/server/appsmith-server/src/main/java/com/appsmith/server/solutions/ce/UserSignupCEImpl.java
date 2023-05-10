@@ -8,6 +8,7 @@ import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserState;
+import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.dtos.UserSignupRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -45,6 +46,7 @@ import java.util.Map;
 import static com.appsmith.external.constants.AnalyticsConstants.DISABLE_TELEMETRY;
 import static com.appsmith.external.constants.AnalyticsConstants.GOAL;
 import static com.appsmith.external.constants.AnalyticsConstants.IP;
+import static com.appsmith.external.constants.AnalyticsConstants.IP_ADDRESS;
 import static com.appsmith.external.constants.AnalyticsConstants.SUBSCRIBE_MARKETING;
 import static com.appsmith.server.constants.Appsmith.DEFAULT_ORIGIN_HEADER;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
@@ -119,9 +121,16 @@ public class UserSignupCEImpl implements UserSignupCE {
             );
         }
 
+        Mono<UserSignupDTO> createUserAndSendEmailMono = userService.createUserAndSendEmail(user, exchange.getRequest().getHeaders().getOrigin())
+                .elapsed()
+                .map(pair -> {
+                    log.debug("UserSignupCEImpl::Time taken for create user and send email: {} ms", pair.getT1());
+                    return pair.getT2();
+                });
+
         return Mono
                 .zip(
-                        userService.createUserAndSendEmail(user, exchange.getRequest().getHeaders().getOrigin()),
+                        createUserAndSendEmailMono,
                         exchange.getSession(),
                         ReactiveSecurityContextHolder.getContext()
                 )
@@ -151,8 +160,15 @@ public class UserSignupCEImpl implements UserSignupCE {
                      */
                     boolean createApplication = StringUtils.isEmpty(redirectQueryParamValue) && !StringUtils.isEmpty(workspaceId);
                     // need to create default application
-                    return authenticationSuccessHandler
+                    Mono<Integer> authenticationSuccessMono = authenticationSuccessHandler
                             .onAuthenticationSuccess(webFilterExchange, authentication, createApplication, true, workspaceId)
+                            .thenReturn(1)
+                            .elapsed()
+                            .flatMap(pair -> {
+                                log.debug("UserSignupCEImpl::Time taken for authentication success: {} ms", pair.getT1());
+                                return Mono.just(pair.getT2());
+                            });
+                    return authenticationSuccessMono
                             .thenReturn(savedUser);
                 });
     }
@@ -209,7 +225,7 @@ public class UserSignupCEImpl implements UserSignupCE {
     }
 
     public Mono<User> signupAndLoginSuper(UserSignupRequestDTO userFromRequest, ServerWebExchange exchange) {
-        return userService.isUsersEmpty()
+        Mono<User> userMono = userService.isUsersEmpty()
                 .flatMap(isEmpty -> {
                     if (!Boolean.TRUE.equals(isEmpty)) {
                         return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
@@ -223,15 +239,29 @@ public class UserSignupCEImpl implements UserSignupCE {
                     user.setIsEnabled(userFromRequest.isEnabled());
                     user.setPassword(userFromRequest.getPassword());
 
-                    return signupAndLogin(user, exchange);
+                    Mono<User> userMono1 = signupAndLogin(user, exchange);
+                    return userMono1
+                            .elapsed()
+                            .map(pair -> {
+                                log.debug("UserSignupCEImpl::Time taken to complete signupAndLogin: {} ms", pair.getT1());
+                                return pair.getT2();
+                            });
                 })
-                .flatMap(user -> userUtils.makeSuperUser(List.of(user)).thenReturn(user))
+                .flatMap(user -> {
+                    Mono<Boolean> makeSuperUserMono = userUtils.makeSuperUser(List.of(user))
+                            .elapsed()
+                            .map(pair -> {
+                                log.debug("UserSignupCEImpl::Time taken to complete makeSuperUser: {} ms", pair.getT1());
+                                return pair.getT2();
+                            });
+                    return makeSuperUserMono.thenReturn(user);
+                })
                 .flatMap(user -> {
                     final UserData userData = new UserData();
                     userData.setRole(userFromRequest.getRole());
                     userData.setUseCase(userFromRequest.getUseCase());
 
-                    return Mono.when(
+                    Mono<Long> allSecondaryFunctions = Mono.when(
                             userDataService.updateForUser(user, userData),
                             Mono.zip(configService.getInstanceId(), NetworkUtils.getExternalAddress().defaultIfEmpty("unknown"))
                                     .flatMap(tuple -> {
@@ -246,7 +276,13 @@ public class UserSignupCEImpl implements UserSignupCE {
                                         analyticsProps.put(EMAIL, newsletterSignedUpUserEmail);
                                         analyticsProps.put(ROLE, ObjectUtils.defaultIfNull(userData.getRole(), ""));
                                         analyticsProps.put(GOAL, ObjectUtils.defaultIfNull(userData.getUseCase(), ""));
+                                        // ip is a reserved keyword for tracking events in Mixpanel though this is allowed in
+                                        // Segment. Instead of showing the ip as is Mixpanel provides derived property.
+                                        // As we want derived props alongwith the ip address we are sharing the ip
+                                        // address in separate keys
+                                        // Ref: https://help.mixpanel.com/hc/en-us/articles/360001355266-Event-Properties
                                         analyticsProps.put(IP, ip);
+                                        analyticsProps.put(IP_ADDRESS, ip);
                                         analyticsProps.put(NAME, ObjectUtils.defaultIfNull(newsletterSignedUpUserName, ""));
 
                                         analyticsService.identifyInstance(
@@ -273,7 +309,20 @@ public class UserSignupCEImpl implements UserSignupCE {
                                     user.getEmail()
                             )),
                             analyticsService.sendObjectEvent(AnalyticsEvents.CREATE_SUPERUSER, user, null)
-                    ).thenReturn(user);
+                    )
+                            .thenReturn(1L)
+                            .elapsed()
+                            .map(pair -> {
+                                log.debug("UserSignupCEImpl::Time taken to complete all secondary functions: {} ms", pair.getT1());
+                                return pair.getT2();
+                            });
+                    return allSecondaryFunctions.thenReturn(user);
+                });
+        return userMono
+                .elapsed()
+                .map(pair -> {
+                    log.debug("UserSignupCEImpl::Time taken for the user mono to complete: {} ms", pair.getT1());
+                    return pair.getT2();
                 });
     }
 
