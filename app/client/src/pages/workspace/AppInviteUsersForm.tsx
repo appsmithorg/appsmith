@@ -148,14 +148,14 @@ function AppInviteUsersForm(props: any) {
                   );
                 }}
               >
-                <div className="flex">
-                  {createMessage(MAKE_APPLICATION_PUBLIC)}
+                {createMessage(MAKE_APPLICATION_PUBLIC)}
+                <div onClick={(e: any) => e.preventDefault()}>
                   <Tooltip
                     content={createMessage(MAKE_APPLICATION_PUBLIC_TOOLTIP)}
                     placement="top"
                   >
                     <Icon
-                      className="ml-1 cursor-pointer"
+                      className="-ml-2 cursor-pointer"
                       name="question-line"
                       size="md"
                     />

@@ -88,24 +88,14 @@ export const MembersWrapper = styled.div<{
             text-align: left;
           }
 
-          .t--deleteUser {
-            justify-content: center;
-          }
-
-          .selected-item {
-            .cs-text {
-              width: auto;
-            }
-          }
-
-          .cs-text {
-            text-align: left;
-          }
-
           .ads-v2-select {
             width: fit-content;
             > .rc-select-selector {
               border: none;
+
+              > .rc-select-selection-item {
+                padding-left: 0;
+              }
             }
           }
         }
@@ -190,7 +180,8 @@ export const RowWrapper = styled.div<{ isSubRow?: boolean }>`
 `;
 
 export const StyledText = styled(Text)`
-  padding: var(--ads-v2-spaces-2) var(--ads-v2-spaces-3);
+  padding: var(--ads-v2-spaces-2) var(--ads-v2-spaces-3) var(--ads-v2-spaces-2)
+    0;
 `;
 
 export default function MemberSettings(props: PageProps) {

@@ -447,7 +447,7 @@ function WorkspaceInviteUsersForm(props: any) {
         </StyledInviteFieldGroup>
 
         {isLoading ? (
-          <div className="p-4">
+          <div className="pt-4 overflow-hidden">
             <Spinner size="lg" />
           </div>
         ) : (
