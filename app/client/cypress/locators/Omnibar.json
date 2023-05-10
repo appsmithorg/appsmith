@@ -7,5 +7,9 @@
     "globalSearchClose":".t--global-clear-input",
     "createNew":".t--file-operation",
     "recentlyopenItem":"//span[@class='text']",
-    "category":".t--global-search-category"
+    "category":".t--global-search-category",
+    "jsObject":".t--file-operation:contains('New JS Object')",
+    "blankAPI":".t--file-operation:contains('New Blank API')",
+    "curlImport":".t--file-operation:contains('New cURL Import')"
+
 }
