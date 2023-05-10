@@ -74,7 +74,7 @@ export const Checkbox = forwardRef((props: CheckboxProps, ref: CheckboxRef) => {
       {...hoverProps}
       className={className}
       data-disabled={isDisabled ? "" : undefined}
-      data-focussed={isFocusVisible ? "" : undefined}
+      data-focused={isFocusVisible ? "" : undefined}
       data-hovered={isHovered ? "" : undefined}
       data-invalid={validationState === "invalid" ? "" : undefined}
       data-label=""
