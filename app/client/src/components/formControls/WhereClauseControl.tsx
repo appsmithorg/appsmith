@@ -282,7 +282,7 @@ function ConditionComponent(props: any, index: number) {
           props.onDeletePressed(index);
         }}
         size="md"
-        startIcon="delete-bin-line"
+        startIcon="cross-line"
       />
     </ConditionBox>
   );
@@ -397,7 +397,7 @@ function ConditionBlock(props: any) {
                       onDeletePressed(index);
                     }}
                     size="md"
-                    startIcon="delete-bin-line"
+                    startIcon="cross-line"
                     top={"24px"}
                   />
                 </GroupConditionBox>
