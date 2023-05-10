@@ -21,12 +21,12 @@ describe("Validate generate CRUD operation by creating a datasource from generat
     () => {
       _.dataSources.CreateDataSource("Postgres");
       cy.get("@dsName").then(($dsName) => {
-        DataSources.GeneratePageWitPostgress($dsName, "users");
+        DataSources.GeneratePageWithDB($dsName, "public.users");
 
         //when there are entities in the current page
         EntityExplorer.AddNewPage("add-page");
         ApiPage.CreateApi();
-        DataSources.GeneratePageWitPostgress($dsName, "users");
+        DataSources.GeneratePageWithDB($dsName, "public.users");
       });
     },
   );

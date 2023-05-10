@@ -194,7 +194,7 @@ export class DataSources {
     else if (mode == "View") this.agHelper.AssertElementExist(this._editButton);
   }
 
-  public GeneratePageWitPostgress(datasourceName: any, tableName: string) {
+  public GeneratePageWithDB(datasourceName: any, tableName: string) {
     this.ee.AddNewPage("generate-page");
     this.agHelper.GetNClick(this._selectDatasourceDropdown);
     this.agHelper.GetNClickByContains(
@@ -202,9 +202,7 @@ export class DataSources {
       datasourceName,
     );
     this.agHelper.GetNClick(this._selectTableDropdown);
-    this.agHelper.GetNClick(
-      `[data-cy='t--dropdown-option-public.${tableName}']`,
-    );
+    this.agHelper.GetNClick(`[data-cy='t--dropdown-option-${tableName}']`);
     this.agHelper.GetNClick(this._generatePageBtn);
     this.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     this.agHelper.GetNClick(this.locator._visibleTextSpan("GOT IT"));
