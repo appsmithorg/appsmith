@@ -230,7 +230,7 @@ function renderDropdown(
 
   return (
     <Select
-      data-cy={`t--dropdown-${props?.configProperty}`}
+      data-testid={`t--dropdown-${props?.configProperty}`}
       defaultValue={props.initialValue}
       isDisabled={props.disabled}
       isLoading={props.isLoading}
