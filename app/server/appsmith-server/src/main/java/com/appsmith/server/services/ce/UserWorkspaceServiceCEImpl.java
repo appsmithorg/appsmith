@@ -168,6 +168,13 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                     return Mono.just(permissionGroup);
                 });
 
+        /*
+         * The below operations have been changed from parallel execution (zipWith) to a sequential execution (zipWhen).
+         * MongoTransactions have a limitation that there should be only 1 DB operation which should initiate the transaction.
+         * But here, since 2 DB operations were happening in parallel, we were observing an intermittent exception: "Command failed with error 251 (NoSuchTransaction)".
+         *
+         * The below operation is responsible for the first DB operation, if a user is removed from the workspace.
+         */
         // Unassigned old permission group from user
         Mono<PermissionGroup> permissionGroupUnassignedMono = userMono
                 .zipWhen(user -> oldDefaultPermissionGroupMono)
@@ -192,6 +199,10 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                             .flatMap(user -> permissionGroupService.assignToUser(newPermissionGroup, user));
                 });
 
+        /*
+         * The below operation is responsible for the first DB operation, if workspace role is changed ƒor the user,
+         * hence we need to make this operation sequential as well.
+         */
         return userMono
                 .zipWhen(user -> changePermissionGroupsMono)
                 .map(pair -> {
