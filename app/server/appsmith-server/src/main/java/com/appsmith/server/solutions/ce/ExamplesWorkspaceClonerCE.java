@@ -29,7 +29,4 @@ public interface ExamplesWorkspaceClonerCE {
             Flux<Application> applicationFlux,
             Flux<Datasource> datasourceFlux
     );
-
-    void makePristine(BaseDomain domain);
-
 }

@@ -284,7 +284,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                     Instant applicationLastCommittedAt = gitApplicationMetadata != null ? gitApplicationMetadata.getLastCommittedAt() : null;
                     boolean isClientSchemaMigrated = !JsonSchemaVersions.clientVersion.equals(application.getClientSchemaVersion());
                     boolean isServerSchemaMigrated = !JsonSchemaVersions.serverVersion.equals(application.getServerSchemaVersion());
-                    examplesWorkspaceCloner.makePristine(application);
+                    application.makePristine();
                     application.sanitiseToExportDBObject();
                     applicationJson.setExportedApplication(application);
                     Set<String> dbNamesUsedInActions = new HashSet<>();
@@ -1477,7 +1477,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                         sanitizeDatasourceInActionDTO(publishedAction, datasourceMap, pluginMap, workspaceId, false);
                     }
 
-                    examplesWorkspaceCloner.makePristine(newAction);
+                    newAction.makePristine();
                     newAction.setWorkspaceId(workspaceId);
                     newAction.setApplicationId(importedApplication.getId());
                     newAction.setPluginId(pluginMap.get(newAction.getPluginId()));
@@ -1628,7 +1628,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                         parentPage = parentPage == null ? publishedCollectionPage : parentPage;
                     }
 
-                    examplesWorkspaceCloner.makePristine(actionCollection);
+                    actionCollection.makePristine();
                     actionCollection.setWorkspaceId(workspaceId);
                     actionCollection.setApplicationId(importedApplication.getId());
                     actionCollectionService.generateAndSetPolicies(parentPage, actionCollection);

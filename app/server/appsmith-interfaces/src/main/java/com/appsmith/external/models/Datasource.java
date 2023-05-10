@@ -15,13 +15,14 @@ import org.springframework.util.CollectionUtils;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 @Document
-public class Datasource extends BranchAwareDomain {
+public class Datasource extends BranchAwareDomain implements Forkable{
 
     @Transient
     public static final String DEFAULT_NAME_PREFIX = "Untitled Datasource";
@@ -131,6 +132,56 @@ public class Datasource extends BranchAwareDomain {
                 .isEquals();
     }
 
+    /**
+     * This method defines the behaviour of a datasource when the application is forked from one workspace to another.
+     * It performs the following operations:
+     * Creates a new object from the source datasource object
+     * Removes the id and updated at from the object
+     * Based on forkWithConfiguration field present in the source application, it sets the authentication for the datasource
+     * Returns the new datasource object
+     * @param forkWithConfiguration     : This parameter defines if the datasource authentication needs to be copied to the new workspace or not
+     * @param toWorkspaceId             : Target workspaceId
+     * @return
+     */
+    public Datasource fork(Boolean forkWithConfiguration, String toWorkspaceId){
+        Datasource newDs = new Datasource();
+        copyNestedNonNullProperties(this, newDs);
+        newDs.makePristine();
+        newDs.setWorkspaceId(toWorkspaceId);
+
+        if (!Boolean.TRUE.equals(forkWithConfiguration)){
+            DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+            dsConfig.setAuthentication(null);
+            if (newDs.getDatasourceConfiguration() != null){
+                dsConfig.setConnection(newDs.getDatasourceConfiguration().getConnection());
+            }
+            newDs.setDatasourceConfiguration(dsConfig);
+        }
+
+        /*
+         updating the datasource "isConfigured" field, which will be used to return if the forking is a partialImport or not
+         post forking any application, datasource reconnection modal will appear based on isConfigured property
+         Ref: getApplicationImportDTO()
+         */
+
+        boolean isConfigured = (newDs.getDatasourceConfiguration() != null
+                && newDs.getDatasourceConfiguration().getAuthentication() != null);
+
+        if (isConfigured && newDs.getDatasourceConfiguration().getAuthentication().getAuthenticationResponse() != null){
+            /*
+             This is the case for Google Sheet datasource, we don't want to copy the token to the new workspace
+             as it is user's personal token. Hence, in case of forking to a new workspace the Google sheet needs to be re-authorised.
+             */
+            newDs.setIsConfigured(false);
+            newDs.getDatasourceConfiguration().getAuthentication().setAuthenticationResponse(null);
+        }
+        else {
+            newDs.setIsConfigured(isConfigured);
+        }
+
+        return newDs;
+    }
+
     public void sanitiseToExportResource(Map<String, String> pluginMap) {
         this.setPolicies(null);
         this.setUpdatedAt(null);
@@ -143,5 +194,6 @@ public class Datasource extends BranchAwareDomain {
         this.setOrganizationId(null);
         this.setPluginId(pluginMap.get(this.getPluginId()));
     }
+
 
 }

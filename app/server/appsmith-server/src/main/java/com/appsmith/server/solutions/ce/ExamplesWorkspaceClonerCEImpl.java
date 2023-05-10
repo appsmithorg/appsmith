@@ -142,7 +142,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                     }
                 })
                 .flatMap(workspace -> {
-                    makePristine(workspace);
+                    workspace.makePristine();
                     if (!CollectionUtils.isEmpty(workspace.getUserRoles())) {
                         workspace.getUserRoles().clear();
                     }
@@ -236,7 +236,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                     DefaultResources defaults = new DefaultResources();
                     defaults.setApplicationId(newPage.getApplicationId());
                     newPage.setDefaultResources(defaults);
-                    makePristine(newPage);
+                    newPage.makePristine();
                     PageDTO page = newPage.getUnpublishedPage();
 
                     if (page.getLayouts() != null) {
@@ -268,7 +268,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                                         .flatMap(newAction -> {
                                             final String originalActionId = newAction.getId();
                                             log.info("Creating clone of action {}", originalActionId);
-                                            makePristine(newAction);
+                                            newAction.makePristine();
                                             newAction.setWorkspaceId(toWorkspaceId);
                                             ActionDTO action = newAction.getUnpublishedAction();
                                             action.setCollectionId(null);
@@ -311,7 +311,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                                                         final String originalCollectionId = actionCollection.getId();
                                                         log.info("Creating clone of action collection {}", originalCollectionId);
                                                         // Sanitize them
-                                                        makePristine(actionCollection);
+                                                        actionCollection.makePristine();
                                                         actionCollection.setPublishedCollection(null);
                                                         final ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
                                                         unpublishedCollection.setPageId(savedPage.getId());
@@ -540,38 +540,8 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                             .next()  // Get the first matching datasource, we don't need more than one here.
                             .switchIfEmpty(Mono.defer(() -> {
                                 // No matching existing datasource found, so create a new one.
-                                makePristine(templateDatasource);
-                                templateDatasource.setWorkspaceId(toWorkspaceId);
-                                if (!Boolean.TRUE.equals(forkWithConfiguration)){
-                                    DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-                                    dsConfig.setAuthentication(null);
-                                    if (templateDatasource.getDatasourceConfiguration() != null){
-                                        dsConfig.setConnection(templateDatasource.getDatasourceConfiguration().getConnection());
-                                    }
-                                    templateDatasource.setDatasourceConfiguration(dsConfig);
-                                }
-                                /**
-                                 * updating the datasource isConfigured field, which will be used to return if the forking is a partialImport or not
-                                 * post forking any application, datasource reconnection modal will appear based on isConfigured property
-                                 * Ref: getApplicationImportDTO()
-                                 */
-
-                                Boolean isConfigured = (templateDatasource.getDatasourceConfiguration() != null
-                                        && templateDatasource.getDatasourceConfiguration().getAuthentication() != null);
-
-                                if (isConfigured && templateDatasource.getDatasourceConfiguration().getAuthentication().getAuthenticationResponse() != null){
-                                    /**
-                                     * This is the case for GSheet datasource, since for Gsheet, we don't want to copy the token to the new workspace
-                                     * as it is user's personal token. Hence, in case of forking to a new workspace the gsheet needs to be re-authorised.
-                                     */
-                                    templateDatasource.setIsConfigured(false);
-                                    templateDatasource.getDatasourceConfiguration().getAuthentication().setAuthenticationResponse(null);
-                                }
-                                else {
-                                    templateDatasource.setIsConfigured(isConfigured);
-                                }
-
-                                return createSuffixedDatasource(templateDatasource);
+                                Datasource newDs = templateDatasource.fork(forkWithConfiguration, toWorkspaceId);
+                                return createSuffixedDatasource(newDs);
                             }));
                 });
     }
@@ -601,15 +571,4 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                     throw error;
                 });
     }
-
-    public void makePristine(BaseDomain domain) {
-        // Set the ID to null for this domain object so that it is saved a new document in the database (as opposed to
-        // updating an existing document). If it contains any policies, they are also reset.
-        domain.setId(null);
-        domain.setUpdatedAt(null);
-        if (domain.getPolicies() != null) {
-            domain.getPolicies().clear();
-        }
-    }
-
 }
