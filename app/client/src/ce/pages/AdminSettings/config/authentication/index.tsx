@@ -28,13 +28,23 @@ import { getThirdPartyAuths } from "@appsmith/selectors/tenantSelectors";
 
 const { disableLoginForm } = getAppsmithConfigs();
 
-const FormAuth: AdminConfigType = {
+export const FormAuth: AdminConfigType = {
   type: SettingCategories.FORM_AUTH,
   controlType: SettingTypes.GROUP,
   title: "Form Login",
   subText: "Enable your workspace to sign in with Appsmith Form.",
   canSave: true,
   settings: [
+    {
+      id: "APPSMITH_FORM_CALLOUT_BANNER",
+      category: SettingCategories.FORM_AUTH,
+      subCategory: SettingSubCategories.FORMLOGIN,
+      controlType: SettingTypes.LINK,
+      label:
+        "The form login method does not verify the emails of users that create accounts.",
+      url: SIGNUP_RESTRICTION_DOC,
+      calloutType: "Warning",
+    },
     {
       id: "APPSMITH_FORM_LOGIN_DISABLED",
       category: SettingCategories.FORM_AUTH,
@@ -53,16 +63,6 @@ const FormAuth: AdminConfigType = {
         value
           ? "Allow only invited users to signup"
           : "Allow all users to signup",
-    },
-    {
-      id: "APPSMITH_FORM_CALLOUT_BANNER",
-      category: SettingCategories.FORM_AUTH,
-      subCategory: SettingSubCategories.FORMLOGIN,
-      controlType: SettingTypes.LINK,
-      label:
-        "The form login method does not verify the emails of users that create accounts.",
-      url: SIGNUP_RESTRICTION_DOC,
-      calloutType: "Warning",
     },
   ],
 };
