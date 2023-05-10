@@ -22,10 +22,12 @@ export interface CheckboxProps
 
 export type CheckboxRef = FocusableRef<HTMLLabelElement>;
 
+const ICON_SIZE = 14;
+
 export const Checkbox = forwardRef((props: CheckboxProps, ref: CheckboxRef) => {
   const {
     className,
-    icon = <CheckIcon size={14} />,
+    icon = <CheckIcon size={ICON_SIZE} />,
     isDisabled = false,
     isIndeterminate = false,
     children,
@@ -86,7 +88,7 @@ export const Checkbox = forwardRef((props: CheckboxProps, ref: CheckboxRef) => {
         ref={inputRef}
       />
       <span aria-hidden="true" data-icon="" role="presentation">
-        {isIndeterminate ? <SubtractIcon size={14} /> : icon}
+        {isIndeterminate ? <SubtractIcon size={ICON_SIZE} /> : icon}
       </span>
       {children}
     </label>
