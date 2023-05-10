@@ -59,7 +59,7 @@ export type FieldEntityInformation = {
   propertyPath?: string;
   blockCompletions?: Array<{ parentPath: string; subPath: string }>;
   example?: ExpectedValueExample;
-  mode?: EditorModes;
+  mode?: TEditorModes;
 };
 
 export type HintHelper = (
