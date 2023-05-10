@@ -15,6 +15,7 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.external.plugins.exceptions.RedisErrorMessages;
 import com.external.plugins.exceptions.RedisPluginError;
 import com.external.utils.RedisURIUtils;
+import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -249,6 +250,15 @@ public class RedisPlugin extends BasePlugin {
                         return jedisPool;
                     })
                     .subscribeOn(scheduler);
+        }
+
+        @Override
+        public Properties addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+            return properties;
+        }
+        @Override
+        public Properties addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+            return properties;
         }
 
         @Override

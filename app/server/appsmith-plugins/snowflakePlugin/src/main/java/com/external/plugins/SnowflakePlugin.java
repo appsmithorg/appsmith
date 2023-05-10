@@ -68,13 +68,6 @@ public class SnowflakePlugin extends BasePlugin {
 
         private final Scheduler scheduler = Schedulers.boundedElastic();
 
-        @Autowired
-        private final DataSourceConnectionFactory hikariDataSourceConnectionFactor;
-
-        public SnowflakePluginExecutor(DataSourceConnectionFactory hikariDataSourceConnectionFactor) {
-            this.hikariDataSourceConnectionFactor = hikariDataSourceConnectionFactor;
-        }
-
         @Override
         public Mono<ActionExecutionResult> execute(HikariDataSource connection, DatasourceConfiguration datasourceConfiguration, ActionConfiguration actionConfiguration) {
 
@@ -226,7 +219,7 @@ public class SnowflakePlugin extends BasePlugin {
                 // Now create the connection pool from the configuration
                 HikariDataSource datasource = null;
                 try {
-                    datasource = (HikariDataSource) this.hikariDataSourceConnectionFactor.getDataSourceConnection(config);
+                    datasource = new HikariDataSource(config);
                 } catch (HikariPool.PoolInitializationException e) {
                     throw new AppsmithPluginException(
                             AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
@@ -239,29 +232,26 @@ public class SnowflakePlugin extends BasePlugin {
         }
 
         @Override
-        public Mono<Properties> addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, Properties properties) {
-            return Mono.fromCallable(() -> {
-                properties.setProperty("driver_name", JDBC_DRIVER);
-                properties.setProperty("minimumIdle", String.valueOf(MINIMUM_POOL_SIZE));
-                properties.setProperty("maximunPoolSize", String.valueOf(MAXIMUM_POOL_SIZE));
-                return properties;
-            }).subscribeOn(scheduler);
+        public Properties addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+            properties.setProperty("driver_name", JDBC_DRIVER);
+            properties.setProperty("minimumIdle", String.valueOf(MINIMUM_POOL_SIZE));
+            properties.setProperty("maximunPoolSize", String.valueOf(MAXIMUM_POOL_SIZE));
+            properties.setProperty(SNOWFLAKE_DB_LOGIN_TIMEOUT_PROPERTY_KEY, String.valueOf(SNOWFLAKE_DB_LOGIN_TIMEOUT_VALUE_SEC));
+            return properties;
         }
 
         @Override
-        public Mono<Properties> addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, Properties properties) {
-            return Mono.fromCallable(() -> {
-                DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-                properties.setProperty("user", authentication.getUsername());
-                properties.setProperty("password", authentication.getPassword());
-                properties.setProperty("warehouse", String.valueOf(datasourceConfiguration.getProperties().get(0).getValue()));
-                properties.setProperty("db", String.valueOf(datasourceConfiguration.getProperties().get(1).getValue()));
-                properties.setProperty("schema", String.valueOf(datasourceConfiguration.getProperties().get(2).getValue()));
-                properties.setProperty("role", String.valueOf(datasourceConfiguration.getProperties().get(3).getValue()));
-                /* Ref: https://github.com/appsmithorg/appsmith/issues/19784 */
-                properties.setProperty("jdbc_query_result_format", "json");
-                return properties;
-            }).subscribeOn(scheduler);
+        public Properties addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+            properties.setProperty("user", authentication.getUsername());
+            properties.setProperty("password", authentication.getPassword());
+            properties.setProperty("warehouse", String.valueOf(datasourceConfiguration.getProperties().get(0).getValue()));
+            properties.setProperty("db", String.valueOf(datasourceConfiguration.getProperties().get(1).getValue()));
+            properties.setProperty("schema", String.valueOf(datasourceConfiguration.getProperties().get(2).getValue()));
+            properties.setProperty("role", String.valueOf(datasourceConfiguration.getProperties().get(3).getValue()));
+            /* Ref: https://github.com/appsmithorg/appsmith/issues/19784 */
+            properties.setProperty("jdbc_query_result_format", "json");
+            return properties;
         }
 
         @Override

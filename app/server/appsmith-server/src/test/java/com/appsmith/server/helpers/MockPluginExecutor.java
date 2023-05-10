@@ -10,6 +10,7 @@ import com.appsmith.external.plugins.PluginExecutor;
 import reactor.core.publisher.Mono;
 
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
 
 public class MockPluginExecutor implements PluginExecutor {
@@ -33,6 +34,15 @@ public class MockPluginExecutor implements PluginExecutor {
     @Override
     public Mono<Object> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
         return Mono.empty();
+    }
+
+    @Override
+    public Properties addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+        return properties;
+    }
+    @Override
+    public Properties addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+        return properties;
     }
 
     @Override

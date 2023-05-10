@@ -29,6 +29,7 @@ import com.external.constants.FieldName;
 import com.external.plugins.exceptions.GSheetsPluginError;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -280,6 +281,15 @@ public class GoogleSheetsPlugin extends BasePlugin {
         @Override
         public Mono<Void> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             return Mono.empty().then();
+        }
+
+        @Override
+        public Properties addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+            return properties;
+        }
+        @Override
+        public Properties addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+            return properties;
         }
 
         @Override

@@ -24,6 +24,7 @@ import com.external.plugins.exceptions.OraclePluginError;
 import com.external.plugins.utils.OracleDatasourceUtils;
 import com.external.plugins.utils.OracleSpecificDataTypes;
 import com.zaxxer.hikari.HikariDataSource;
+import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.pf4j.Extension;
@@ -102,6 +103,15 @@ public class OraclePlugin extends BasePlugin {
                         return createConnectionPool(datasourceConfiguration);
                     })
                     .subscribeOn(scheduler);
+        }
+
+        @Override
+        public Properties addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+            return properties;
+        }
+        @Override
+        public Properties addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+            return properties;
         }
 
         @Override

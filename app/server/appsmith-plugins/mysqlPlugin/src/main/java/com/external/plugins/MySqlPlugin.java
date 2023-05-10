@@ -29,6 +29,7 @@ import com.external.utils.MySqlErrorUtils;
 import com.external.utils.QueryUtils;
 import io.r2dbc.pool.ConnectionPool;
 import io.r2dbc.spi.*;
+import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.mariadb.r2dbc.message.server.ColumnDefinitionPacket;
@@ -552,6 +553,16 @@ public class MySqlPlugin extends BasePlugin {
             }
             return Mono.just(pool);
         }
+
+        @Override
+        public Properties addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+            return properties;
+        }
+        @Override
+        public Properties addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+            return properties;
+        }
+
         @Override
         public void datasourceDestroy(ConnectionPool connectionPool) {
             if (connectionPool != null) {
