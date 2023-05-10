@@ -234,7 +234,7 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
         className="hover-icons"
         data-cy="statusbar-skip"
         isIconButton
-        kind="tertiary"
+        kind={isChecklistPage ? "primary" : "tertiary"}
         onClick={endFirstTimeUserOnboarding}
         size="sm"
         startIcon="close-control"
