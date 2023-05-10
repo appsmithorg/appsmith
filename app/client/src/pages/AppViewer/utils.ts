@@ -42,7 +42,7 @@ export const getMenuItemBackgroundColorOnHover = (
     .COLOR_STYLE.LIGHT,
 ) => {
   if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT) {
-    return Colors.GREY_3;
+    return "var(--ads-v2-color-bg-subtle)";
   } else if (navColorStyle === NAVIGATION_SETTINGS.COLOR_STYLE.THEME) {
     return tinycolor(calulateHoverColor(color)).toHexString();
   }
