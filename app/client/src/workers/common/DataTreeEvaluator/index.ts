@@ -978,14 +978,12 @@ export default class DataTreeEvaluator {
             evalPropertyValue = unEvalPropertyValue;
           }
 
-          if (isUndefined(evalPropertyValue)) {
-            this.undefinedEvalValuesMap[fullPropertyPath] = true;
-          } else if (
-            fullPropertyPath in this.undefinedEvalValuesMap &&
-            !isUndefined(this.undefinedEvalValuesMap[fullPropertyPath])
-          ) {
-            delete this.undefinedEvalValuesMap[fullPropertyPath];
-          }
+          this.updateUndefinedEvalValuesMap(
+            this.undefinedEvalValuesMap,
+            evalPropertyValue,
+            fullPropertyPath,
+          );
+
           if (isWidget(entity) && !isATriggerPath) {
             const isNewWidget =
               isFirstTree || isNewEntity(unevalUpdates, entityName);
@@ -1106,14 +1104,11 @@ export default class DataTreeEvaluator {
                 unEvalValue: unEvalPropertyValue,
               });
 
-              if (isUndefined(evalPropertyValue)) {
-                this.undefinedEvalValuesMap[fullPropertyPath] = true;
-              } else if (
-                fullPropertyPath in this.undefinedEvalValuesMap &&
-                !isUndefined(this.undefinedEvalValuesMap[fullPropertyPath])
-              ) {
-                delete this.undefinedEvalValuesMap[fullPropertyPath];
-              }
+              this.updateUndefinedEvalValuesMap(
+                this.undefinedEvalValuesMap,
+                evalPropertyValue,
+                fullPropertyPath,
+              );
             }
             return currentTree;
           } else {
@@ -1134,6 +1129,21 @@ export default class DataTreeEvaluator {
         message: (error as Error).message,
       });
       return { evaluatedTree: tree, evalMetaUpdates, staleMetaIds: [] };
+    }
+  }
+
+  updateUndefinedEvalValuesMap(
+    undefinedEvalValuesMap: Record<string, boolean>,
+    evalPropertyValue: unknown,
+    fullPropertyPath: string,
+  ) {
+    if (isUndefined(evalPropertyValue)) {
+      undefinedEvalValuesMap[fullPropertyPath] = true;
+    } else if (
+      fullPropertyPath in undefinedEvalValuesMap &&
+      !isUndefined(undefinedEvalValuesMap[fullPropertyPath])
+    ) {
+      delete undefinedEvalValuesMap[fullPropertyPath];
     }
   }
 

@@ -67,7 +67,7 @@ export function evalTreeWithChanges(updatedValuePaths: string[][]) {
     staleMetaIds,
     pathsToClearErrorsFor,
     isNewWidgetAdded: false,
-    undefinedEvalValuesMap: dataTreeEvaluator?.undefinedEvalValuesMap,
+    undefinedEvalValuesMap: dataTreeEvaluator?.undefinedEvalValuesMap || {},
   };
 
   const data: UpdateDataTreeMessageData = {

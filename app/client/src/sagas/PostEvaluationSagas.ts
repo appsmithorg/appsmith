@@ -330,7 +330,7 @@ export function* logSuccessfulBindings(
   isCreateFirstTree: boolean,
   isNewWidgetAdded: boolean,
   configTree: ConfigTree,
-  undefinedEvalValuesMap?: Record<string, boolean>,
+  undefinedEvalValuesMap: Record<string, boolean>,
 ) {
   const appMode: APP_MODE | undefined = yield select(getAppMode);
   if (appMode === APP_MODE.PUBLISHED) return;
@@ -351,9 +351,7 @@ export function* logSuccessfulBindings(
       const unevalValue = get(unEvalTree, evaluatedPath);
       let isUndefined = false;
 
-      if (undefinedEvalValuesMap) {
-        isUndefined = get(undefinedEvalValuesMap, evaluatedPath) || false;
-      }
+      isUndefined = get(undefinedEvalValuesMap, evaluatedPath) || false;
 
       const entityType = isAction(entity)
         ? entityConfig.pluginType
