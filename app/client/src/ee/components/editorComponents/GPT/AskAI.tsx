@@ -20,7 +20,6 @@ import { GPTPrompt } from "./GPTPrompt";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const QueryForm = styled.form`
   > div:focus-within {
