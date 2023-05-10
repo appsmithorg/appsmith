@@ -719,10 +719,9 @@ export const truncateString = (
  *
  * @returns
  */
-export const modText = () => (isMacOrIOS() ? <span>&#8984;</span> : "Ctrl +");
-export const altText = () => (isMacOrIOS() ? <span>&#8997;</span> : "Alt +");
-export const shiftText = () =>
-  isMacOrIOS() ? <span>&#8682;</span> : "Shift +";
+export const modText = () => (isMacOrIOS() ? "\u2318" : "Ctrl +");
+export const altText = () => (isMacOrIOS() ? "\u2325" : "Alt +");
+export const shiftText = () => (isMacOrIOS() ? "\u21EA" : "Shift +");
 
 export const undoShortCut = () => <span>{modText()} Z</span>;
 
