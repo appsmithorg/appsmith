@@ -17,7 +17,7 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { klona } from "klona";
 import _, { findIndex } from "lodash";
 import log from "loglevel";
-import Papa from "papaparse";
+
 import React from "react";
 import shallowequal from "shallowequal";
 import { createGlobalStyle } from "styled-components";
@@ -29,15 +29,11 @@ import FilePickerComponent from "../component";
 import FileDataTypes from "../constants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
+import parseFileData from "./FileParsing";
 
-const CSV_ARRAY_LABEL = "Array (CSVs only)";
-const CSV_FILE_TYPE_REGEX = /.+(\/csv)$/;
+const CSV_ARRAY_LABEL = "Array of Objects (CSV, XLSX(X), JSON, TSV)";
 
-const ARRAY_CSV_HELPER_TEXT = `All non csv filetypes will have an empty value. \n Large files used in widgets directly might slow down the app.`;
-
-const isCSVFileType = (str: string) => CSV_FILE_TYPE_REGEX.test(str);
-
-type Result = string | Buffer | ArrayBuffer | null;
+const ARRAY_CSV_HELPER_TEXT = `All non CSV, XLS(X), JSON or TSV filetypes will have an empty value. \n Large files used in widgets directly might slow down the app. Read more`;
 
 const FilePickerGlobalStyles = createGlobalStyle<{
   borderRadius?: string;
@@ -330,7 +326,7 @@ class FilePickerWidget extends BaseWidget<
             propertyName: "dynamicTyping",
             label: "Infer data-types from CSV",
             helpText:
-              "Controls if the arrays should try to infer the best possible data type based on the values in csv files",
+              "Controls if the arrays should try to infer the best possible data type based on the values in CSV file",
             controlType: "SWITCH",
             isJSConvertible: false,
             isBindProperty: true,
@@ -641,7 +637,7 @@ class FilePickerWidget extends BaseWidget<
       });
     }
 
-    this.state.uppy.on("file-removed", (file: any, reason: any) => {
+    this.state.uppy.on("file-removed", (file: UppyFile, reason: any) => {
       /**
        * The below line will not update the selectedFiles meta prop when cancel-all event is triggered.
        * cancel-all event occurs when close or reset function of uppy is executed.
@@ -678,53 +674,39 @@ class FilePickerWidget extends BaseWidget<
       }
     });
 
-    this.state.uppy.on("files-added", (files: any[]) => {
+    this.state.uppy.on("files-added", (files: UppyFile[]) => {
       // Deep cloning the selectedFiles
       const selectedFiles = this.props.selectedFiles
         ? klona(this.props.selectedFiles)
         : [];
 
       const fileCount = this.props.selectedFiles?.length || 0;
-      const fileReaderPromises = files.map((file, index) => {
+      const fileReaderPromises = files.map(async (file, index) => {
+        let data: any;
+
+        if (file.size < FILE_SIZE_LIMIT_FOR_BLOBS) {
+          data = await parseFileData(
+            file.data,
+            this.props.fileDataType,
+            file.type || "",
+            file.extension,
+            this.props.dynamicTyping,
+          );
+        } else {
+          data = createBlobUrl(file.data, this.props.fileDataType);
+        }
+
         return new Promise((resolve) => {
-          if (file.size < FILE_SIZE_LIMIT_FOR_BLOBS) {
-            const reader = new FileReader();
-            if (this.props.fileDataType === FileDataTypes.Base64) {
-              reader.readAsDataURL(file.data);
-            } else if (this.props.fileDataType === FileDataTypes.Binary) {
-              reader.readAsBinaryString(file.data);
-            } else {
-              reader.readAsText(file.data);
-            }
-            reader.onloadend = () => {
-              const newFile = {
-                type: file.type,
-                id: file.id,
-                data: this.parseUploadResult(
-                  reader.result,
-                  file.type,
-                  this.props.fileDataType,
-                ),
-                meta: file.meta,
-                name: file.meta ? file.meta.name : `File-${index + fileCount}`,
-                size: file.size,
-                dataFormat: this.props.fileDataType,
-              };
-              resolve(newFile);
-            };
-          } else {
-            const data = createBlobUrl(file.data, this.props.fileDataType);
-            const newFile = {
-              type: file.type,
-              id: file.id,
-              data: data,
-              meta: file.meta,
-              name: file.meta ? file.meta.name : `File-${index + fileCount}`,
-              size: file.size,
-              dataFormat: this.props.fileDataType,
-            };
-            resolve(newFile);
-          }
+          const newFile = {
+            type: file.type,
+            id: file.id,
+            data: data,
+            meta: file.meta,
+            name: file.meta ? file.meta.name : `File-${index + fileCount}`,
+            size: file.size,
+            dataFormat: this.props.fileDataType,
+          };
+          resolve(newFile);
         });
       });
 
@@ -859,57 +841,6 @@ class FilePickerWidget extends BaseWidget<
         )}
       </>
     );
-  }
-
-  parseUploadResult(
-    result: Result,
-    fileType: string,
-    dataFormat: FileDataTypes,
-  ) {
-    if (
-      dataFormat !== FileDataTypes.Array ||
-      !isCSVFileType(fileType) ||
-      !result
-    ) {
-      return result;
-    }
-
-    const data: Record<string, string>[] = [];
-    const errors: Papa.ParseError[] = [];
-
-    function chunk(results: Papa.ParseStepResult<any>) {
-      if (results?.errors?.length) {
-        errors.push(...results.errors);
-      }
-      data.push(...results.data);
-    }
-
-    if (typeof result === "string") {
-      const config = {
-        header: true,
-        dynamicTyping: this.props.dynamicTyping,
-        chunk,
-      };
-      try {
-        const startParsing = performance.now();
-
-        Papa.parse(result, config);
-
-        const endParsing = performance.now();
-
-        log.debug(
-          `### FILE_PICKER_WIDGET_V2 - ${this.props.widgetName} - CSV PARSING  `,
-          `${endParsing - startParsing} ms`,
-        );
-
-        return data;
-      } catch (error) {
-        log.error(errors);
-        return [];
-      }
-    } else {
-      return [];
-    }
   }
 
   static getWidgetType(): WidgetType {
