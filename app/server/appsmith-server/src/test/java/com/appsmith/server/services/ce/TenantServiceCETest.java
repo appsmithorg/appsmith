@@ -1,4 +1,4 @@
-package com.appsmith.server.services;
+package com.appsmith.server.services.ce;
 
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Tenant;
@@ -7,6 +7,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.SessionUserService;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,10 +26,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RequiredArgsConstructor
 @SpringBootTest
 @DirtiesContext
-class TenantServiceTest {
+class TenantServiceCETest {
 
     @Autowired
-    TenantService tenantService;
+    TenantServiceCE tenantService;
 
     @Autowired
     SessionUserService sessionUserService;
