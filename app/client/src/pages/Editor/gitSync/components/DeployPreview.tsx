@@ -25,7 +25,7 @@ const Container = styled.div`
   gap: ${(props) => props.theme.spaces[6]}px;
 
   .cloud-icon {
-    fill: var(--ads-v2-color-fg);
+    stroke: var(--ads-v2-color-fg);
   }
 `;
 

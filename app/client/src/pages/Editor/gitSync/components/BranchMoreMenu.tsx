@@ -57,7 +57,10 @@ function DeleteButton(
       data-cy="t--branch-more-menu-delete"
       data-testid="t--branch-more-menu-delete"
       key={"delete-branch-button"}
-      onSelect={() => saneDelete()}
+      onClick={(e) => {
+        e.stopPropagation();
+        saneDelete();
+      }}
       startIcon="delete"
     >
       {createMessage(DELETE)}
