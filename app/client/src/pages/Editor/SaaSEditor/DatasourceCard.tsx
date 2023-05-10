@@ -140,7 +140,7 @@ function DatasourceCard(props: DatasourceCardProps) {
           <EditDatasourceButton
             className="t--edit-datasource"
             onClick={editDatasource}
-            startIcon={"pencil-fill-icon"}
+            startIcon={"pencil-line"}
           >
             Edit Datasource
           </EditDatasourceButton>

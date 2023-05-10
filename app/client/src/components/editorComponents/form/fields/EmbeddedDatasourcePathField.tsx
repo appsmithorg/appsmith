@@ -174,6 +174,7 @@ const StyledTooltip = styled.span<{ width?: number }>`
     opacity: 1;
   }
 `;
+
 //Avoiding styled components since ReactDOM.render cannot directly work with it
 function CustomHint(props: { datasource: Datasource }) {
   return (

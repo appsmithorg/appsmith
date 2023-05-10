@@ -259,7 +259,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
         </>
       )}
       <Button
-        className="btn-add-more"
+        className="btn-add-more t--addApiHeader"
         kind="tertiary"
         onClick={() => props.fields.push({ key: "", value: "" })}
         size="md"

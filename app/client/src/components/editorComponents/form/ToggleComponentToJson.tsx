@@ -68,11 +68,10 @@ function ToggleComponentToJsonHandler(props: HandlerProps) {
     margin-left: 4px;
   `;
   return (
-    <Tooltip // todo tooltip not working
+    <Tooltip
       content={!!configPropertyPathJsonValue && JS_TOGGLE_DISABLED_MESSAGE}
-      isDisabled={!!configPropertyPathJsonValue}
     >
-      <StyledToggleButton // todo button not working
+      <StyledToggleButton
         data-testid={`t--${props.configProperty}-JS`}
         icon="js-toggle-v2"
         isDisabled={!!configPropertyPathJsonValue}

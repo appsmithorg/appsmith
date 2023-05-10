@@ -27,6 +27,8 @@ function EntityBottomTabs(
   const onTabSelect = (key: string) => {
     const tab = props.tabs.find((tab: any) => tab.key === key);
 
+    props.onSelect && props.onSelect(tab.key);
+
     if (Object.values<string>(DEBUGGER_TAB_KEYS).includes(tab.key)) {
       AnalyticsUtil.logEvent("DEBUGGER_TAB_SWITCH", {
         tabName: tab.key,

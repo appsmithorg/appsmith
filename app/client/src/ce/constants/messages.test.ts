@@ -108,7 +108,7 @@ describe("messages without input", () => {
     { key: "COMMIT_AND_PUSH", value: "Commit & push" },
     {
       key: "PULL_CHANGES",
-      value: "PULL CHANGES",
+      value: "Pull changes",
     },
     { key: "SSH_KEY", value: "SSH key" },
     {
@@ -142,9 +142,9 @@ describe("messages without input", () => {
     { key: "CONNECT_GIT_BETA", value: "Connect Git (Beta)" },
     {
       key: "RETRY",
-      value: "RETRY",
+      value: "Retry",
     },
-    { key: "CREATE_NEW_BRANCH", value: "CREATE NEW BRANCH" },
+    { key: "CREATE_NEW_BRANCH", value: "Create new branch" },
     {
       key: "ERROR_WHILE_PULLING_CHANGES",
       value: "ERROR WHILE PULLING CHANGES",
@@ -170,9 +170,9 @@ describe("messages without input", () => {
     { key: "GENERATE_KEY", value: "Generate key" },
     {
       key: "UPDATE_CONFIG",
-      value: "UPDATE CONFIG",
+      value: "Update config",
     },
-    { key: "CONNECT_BTN_LABEL", value: "CONNECT" },
+    { key: "CONNECT_BTN_LABEL", value: "Connect" },
     {
       key: "FETCH_GIT_STATUS",
       value: "Fetching status...",
@@ -241,7 +241,7 @@ describe("messages without input", () => {
     { key: "REVOKE_GIT", value: "Revoke access" },
     {
       key: "DISCONNECT",
-      value: "DISCONNECT",
+      value: "Disconnect",
     },
     { key: "GIT_DISCONNECTION_SUBMENU", value: "Git Connection > Disconnect" },
     {
@@ -252,13 +252,13 @@ describe("messages without input", () => {
       key: "GIT_COMMIT_MESSAGE_PLACEHOLDER",
       value: "Your commit message here",
     },
-    { key: "GIT_CONNECTION", value: "Git Connection" },
+    { key: "GIT_CONNECTION", value: "Git connection" },
     { key: "DEPLOY", value: "Deploy" },
     {
       key: "MERGE",
       value: "Merge",
     },
-    { key: "GIT_SETTINGS", value: "Git Settings" },
+    { key: "GIT_SETTINGS", value: "Git settings" },
     { key: "CONNECT_TO_GIT", value: "Connect to Git repository" },
     {
       key: "CONNECT_TO_GIT_SUBTITLE",

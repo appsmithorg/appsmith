@@ -49,6 +49,11 @@ const PaginationTypeView = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+
+  // TODO: remove this in the favor of changing the kind of text during ads typography update phase
+  .help-text {
+    color: #6a7585;
+  }
 `;
 
 const PaginationContainer = styled.div`
@@ -467,10 +472,11 @@ function Pagination(props: PaginationProps) {
               </PaginationSection>
             </PaginationTypeView>,
             <PaginationTypeView key={`${PaginationType.CURSOR}-element`}>
-              <Text kind="body-m" renderAs={"p"}>
-                Specfiy the previous and next cursor variables along with a
+              <Text className="help-text" kind="body-m" renderAs={"p"}>
+                Specify the previous and next cursor variables along with a
                 limit value.{" "}
                 <Link
+                  kind="primary"
                   style={{ display: "inline" }}
                   target={"_blank"}
                   to="https://graphql.org/learn/pagination/"

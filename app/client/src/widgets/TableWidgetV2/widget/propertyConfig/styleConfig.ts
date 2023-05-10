@@ -8,7 +8,7 @@ export default [
       {
         propertyName: "compactMode",
         helpText: "Selects row height",
-        label: "Default Row Height",
+        label: "Default row height",
         controlType: "ICON_TABS",
         fullWidth: true,
         defaultValue: "DEFAULT",
@@ -32,11 +32,11 @@ export default [
     ],
   },
   {
-    sectionName: "Text Formatting",
+    sectionName: "Text formatting",
     children: [
       {
         propertyName: "textSize",
-        label: "Text Size",
+        label: "Text size",
         helpText: "Controls the size of text in the column",
         controlType: "DROP_DOWN",
         updateHook: updateColumnStyles,
@@ -77,11 +77,11 @@ export default [
         dependencies: ["primaryColumns"],
         options: [
           {
-            icon: "BOLD_FONT",
+            icon: "text-bold",
             value: "BOLD",
           },
           {
-            icon: "ITALICS_FONT",
+            icon: "text-italic",
             value: "ITALIC",
           },
         ],
@@ -92,7 +92,7 @@ export default [
       },
       {
         propertyName: "horizontalAlignment",
-        label: "Text Align",
+        label: "Text align",
         helpText: "Sets the horizontal alignment of the content in the column",
         controlType: "ICON_TABS",
         fullWidth: true,
@@ -100,15 +100,15 @@ export default [
         dependencies: ["primaryColumns"],
         options: [
           {
-            icon: "LEFT_ALIGN",
+            startIcon: "align-left",
             value: "LEFT",
           },
           {
-            icon: "CENTER_ALIGN",
+            startIcon: "align-center",
             value: "CENTER",
           },
           {
-            icon: "RIGHT_ALIGN",
+            startIcon: "align-right",
             value: "RIGHT",
           },
         ],
@@ -125,7 +125,7 @@ export default [
       },
       {
         propertyName: "verticalAlignment",
-        label: "Vertical Alignment",
+        label: "Vertical alignment",
         helpText: "Sets the vertical alignment of the content in the column",
         controlType: "ICON_TABS",
         fullWidth: true,
@@ -133,15 +133,15 @@ export default [
         dependencies: ["primaryColumns"],
         options: [
           {
-            icon: "VERTICAL_TOP",
+            startIcon: "vertical-align-top",
             value: "TOP",
           },
           {
-            icon: "VERTICAL_CENTER",
+            startIcon: "vertical-align-middle",
             value: "CENTER",
           },
           {
-            icon: "VERTICAL_BOTTOM",
+            startIcon: "vertical-align-bottom",
             value: "BOTTOM",
           },
         ],
@@ -163,7 +163,7 @@ export default [
     children: [
       {
         propertyName: "cellBackground",
-        label: "Cell Background Color",
+        label: "Cell background color",
         helpText: "Changes the background color of the cell",
         controlType: "COLOR_PICKER",
         updateHook: updateColumnStyles,
@@ -175,7 +175,7 @@ export default [
       },
       {
         propertyName: "accentColor",
-        label: "Accent Color",
+        label: "Accent color",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
         isBindProperty: true,
@@ -185,7 +185,7 @@ export default [
       },
       {
         propertyName: "textColor",
-        label: "Text Color",
+        label: "Text color",
         helpText: "Controls the color of text in the column",
         controlType: "COLOR_PICKER",
         updateHook: updateColumnStyles,
@@ -198,7 +198,7 @@ export default [
     ],
   },
   {
-    sectionName: "Border and Shadow",
+    sectionName: "Border and shadow",
     children: [
       {
         propertyName: "variant",
@@ -225,7 +225,7 @@ export default [
       },
       {
         propertyName: "borderRadius",
-        label: "Border Radius",
+        label: "Border radius",
         helpText: "Rounds the corners of the icon button's outer border edge",
         controlType: "BORDER_RADIUS_OPTIONS",
         isJSConvertible: true,
@@ -235,7 +235,7 @@ export default [
       },
       {
         propertyName: "boxShadow",
-        label: "Box Shadow",
+        label: "Box shadow",
         helpText:
           "Enables you to cast a drop shadow from the frame of the widget",
         controlType: "BOX_SHADOW_OPTIONS",
@@ -248,7 +248,7 @@ export default [
         helpText: "Use a html color name, HEX, RGB or RGBA value",
         placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
         propertyName: "borderColor",
-        label: "Border Color",
+        label: "Border color",
         controlType: "COLOR_PICKER",
         isBindProperty: true,
         isTriggerProperty: false,
@@ -257,7 +257,7 @@ export default [
       {
         helpText: "Enter value for border width",
         propertyName: "borderWidth",
-        label: "Border Width",
+        label: "Border width",
         placeholderText: "Enter value in px",
         controlType: "INPUT_TEXT",
         isBindProperty: true,

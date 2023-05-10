@@ -1,16 +1,13 @@
 import React from "react";
 import styled from "styled-components";
-import InfoWrapper from "./InfoWrapper";
-import Link from "./Link";
 import {
   createMessage,
   GIT_CONFLICTING_INFO,
   LEARN_MORE,
   OPEN_REPO,
 } from "@appsmith/constants/messages";
-import { Text, TextType } from "design-system-old";
-import { Button, Icon } from "design-system";
-import { Colors } from "constants/Colors";
+import { Button, Callout } from "design-system";
+import { Space } from "./StyledComponents";
 
 const Row = styled.div`
   display: flex;
@@ -37,19 +34,19 @@ export default function ConflictInfo({
 }: Props) {
   return (
     <ConflictInfoContainer data-testid="t--conflict-info-container">
-      <InfoWrapper data-testid="t--conflict-info-error-warning" isError>
-        <Icon color={Colors.CRIMSON} name="info" size="lg" />
-        <div style={{ display: "block" }}>
-          <Text color={Colors.CRIMSON} type={TextType.P3}>
-            {createMessage(GIT_CONFLICTING_INFO)}
-          </Text>
-          <Link
-            color={Colors.CRIMSON}
-            link={learnMoreLink}
-            text={createMessage(LEARN_MORE)}
-          />
-        </div>
-      </InfoWrapper>
+      <Callout
+        data-testid="t--conflict-info-error-warning"
+        kind="error"
+        links={[
+          {
+            children: createMessage(LEARN_MORE),
+            to: learnMoreLink,
+          },
+        ]}
+      >
+        {createMessage(GIT_CONFLICTING_INFO)}
+      </Callout>
+      <Space size={3} />
       <Row>
         <StyledButton
           className="t--commit-button"

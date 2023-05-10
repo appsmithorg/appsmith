@@ -1,11 +1,12 @@
 import React from "react";
 import _ from "lodash";
+import type { BaseFieldProps, WrappedFieldProps } from "redux-form";
 import { Field } from "redux-form";
 import { replayHighlightClass } from "globalStyles/portals";
-import type { SelectOptionProps } from "design-system";
+import type { SelectOptionProps, SelectProps } from "design-system";
 import { Select, Option } from "design-system";
 import styled from "styled-components";
-import { getAssetUrl } from "../../../../ce/utils/airgapHelpers";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const Container = styled.div`
   display: flex;
@@ -19,7 +20,9 @@ const Container = styled.div`
     width: var(--ads-v2-spaces-5);
   }
 `;
-const renderDropdown = (props: any) => {
+const renderDropdown = (
+  props: WrappedFieldProps & Partial<SelectOptionProps>,
+) => {
   return (
     <Select
       dropdownClassName="select-with-fixed-option"
@@ -44,7 +47,7 @@ const renderDropdown = (props: any) => {
                 src={getAssetUrl(option.image)}
               />
             )}
-            {option.label}
+            <span>{option.label}</span>
           </Container>
         </Option>
       ))}
@@ -53,17 +56,18 @@ const renderDropdown = (props: any) => {
   );
 };
 
-function DropdownField(props: any) {
+function DropdownField(
+  props: BaseFieldProps & Partial<SelectProps> & { formName: string },
+) {
   return (
     <Field
       className={`${props.className} ${replayHighlightClass}`}
       component={renderDropdown}
       format={(value: string) => _.find(props.options, { value }) || ""}
-      normalize={(option: { value: string }) => option.value}
-      {...props}
       isDisabled={props.isDisabled}
-      isSearchable={props.isSearchable}
+      normalize={(option: { value: string }) => option.value}
       placeholder={props.placeholder}
+      {...props}
     />
   );
 }

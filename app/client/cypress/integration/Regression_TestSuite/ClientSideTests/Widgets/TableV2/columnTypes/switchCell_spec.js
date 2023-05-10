@@ -39,7 +39,7 @@ describe("Switch column type funtionality test", () => {
     });
     cy.openPropertyPane("tablewidgetv2");
     propPane.RemoveText("tabledata");
-    propPane.UpdatePropertyFieldValue("Table Data", tableData);
+    propPane.UpdatePropertyFieldValue("Table data", tableData);
     cy.editColumn("completed");
     cy.changeColumnType("Switch");
   });
@@ -169,7 +169,7 @@ describe("Switch column type funtionality test", () => {
     cy.editColumn("customColumn1");
     cy.changeColumnType("Switch");
     propPane.UpdatePropertyFieldValue(
-      "Computed Value",
+      "Computed value",
       '{{currentRow["completed"]}}',
     );
     cy.get(".t--property-control-onchange").should("not.exist");

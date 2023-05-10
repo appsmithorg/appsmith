@@ -126,7 +126,7 @@ describe("Table Widget V2 Functionality", function () {
   it("5. Verify that table filter dropdown only includes filterable columns", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.wait(500);
-    PropPane.UpdatePropertyFieldValue("Table Data", `{{[{step: 1, task: 1}]}}`);
+    PropPane.UpdatePropertyFieldValue("Table data", `{{[{step: 1, task: 1}]}}`);
     cy.get(
       ".t--property-control-allowfiltering .bp3-control-indicator",
     ).click();
@@ -159,15 +159,15 @@ describe("Table Widget V2 Functionality", function () {
         expected: "not.contain",
       },
       {
-        columnType: "Menu Button",
+        columnType: "Menu button",
         expected: "not.contain",
       },
       {
-        columnType: "Icon Button",
+        columnType: "Icon button",
         expected: "not.contain",
       },
       {
-        columnType: "Plain Text",
+        columnType: "Plain text",
         expected: "contain",
       },
       {
@@ -199,7 +199,7 @@ describe("Table Widget V2 Functionality", function () {
   it("6. Verify that table filter is retained when the tableData scehma doesn't change", () => {
     cy.openPropertyPane("tablewidgetv2");
     PropPane.UpdatePropertyFieldValue(
-      "Table Data",
+      "Table data",
       `{{[{number: "1", work: "test"}, {number: "2", work: "celebrate!"}]}}`,
     );
     table.OpenNFilterTable("number", "contains", "2");
@@ -208,7 +208,7 @@ describe("Table Widget V2 Functionality", function () {
       expect(val).to.equal("2");
     });
     PropPane.UpdatePropertyFieldValue(
-      "Table Data",
+      "Table data",
       `{{[{number: "1.1", work: "test"}, {number: "2", work: "celebrate!"}]}}`,
     );
     cy.get(".t--table-filter-toggle-btn").should("have.text", "Filters (1)");
@@ -217,7 +217,7 @@ describe("Table Widget V2 Functionality", function () {
     });
     cy.get(".t--close-filter-btn").click({ force: true });
     PropPane.UpdatePropertyFieldValue(
-      "Table Data",
+      "Table data",
       `{{[{number: "1.1", task: "test"}, {number: "2", task: "celebrate!"}]}}`,
     );
     cy.get(".t--table-filter-toggle-btn").should("have.text", "Filters");
@@ -231,7 +231,7 @@ describe("Table Widget V2 Functionality", function () {
     });
     cy.get(".t--close-filter-btn").click({ force: true });
     PropPane.UpdatePropertyFieldValue(
-      "Table Data",
+      "Table data",
       `{{[{number: "1", task: "test"}, {number: "2", task: "celebrate!"}]}}`,
     );
     cy.get(".t--table-filter-toggle-btn").should("have.text", "Filters (1)");

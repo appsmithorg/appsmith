@@ -1,8 +1,7 @@
 import React from "react";
-
-import type { DropdownOption, RenderOption } from "design-system-old";
-import { Dropdown } from "design-system-old";
+import { Select, Option } from "design-system";
 import type { AppTheme } from "entities/AppTheming";
+import styled from "styled-components";
 
 interface ThemeFontControlProps {
   theme: AppTheme;
@@ -12,65 +11,48 @@ interface ThemeFontControlProps {
   updateTheme: (theme: AppTheme) => void;
 }
 
+const FontText = styled.div`
+  border-radius: var(--ads-v2-border-radius);
+  border: 1px solid var(--ads-v2-color-border);
+  font-size: 11px;
+  height: 18px;
+  width: 18px;
+`;
+
 function ThemeFontControl(props: ThemeFontControlProps) {
   const { options, sectionName, selectedOption, theme, updateTheme } = props;
 
-  /**
-   * renders dropdown option
-   *
-   * @param param0
-   * @returns
-   */
-  const renderOption: RenderOption = ({
-    isHighlighted,
-    isSelectedNode,
-    option,
-  }) => (
-    <div
-      className={`flex space-x-2  w-full cursor-pointer ${
-        isSelectedNode ? "px-2 py-2" : "px-2 py-2 hover:bg-gray-200"
-      } ${isHighlighted ? "bg-gray-200" : ""}`}
-      onClick={() => {
-        if (!isSelectedNode) {
-          updateTheme({
-            ...theme,
-            properties: {
-              ...theme.properties,
-              fontFamily: {
-                ...theme.properties.fontFamily,
-                [sectionName]:
-                  (option as DropdownOption).value || selectedOption,
-              },
-            },
-          });
-        }
-      }}
-    >
-      <div className="flex items-center justify-center w-6 h-6 bg-white border">
-        Aa
-      </div>
-      <div className="leading-normal">{(option as DropdownOption).label}</div>
-    </div>
-  );
+  const onSelect = (value: string) => {
+    updateTheme({
+      ...theme,
+      properties: {
+        ...theme.properties,
+        fontFamily: {
+          ...theme.properties.fontFamily,
+          [sectionName]: value || selectedOption,
+        },
+      },
+    });
+  };
 
   return (
     <section className="space-y-2">
-      <Dropdown
-        options={options.map((option) => ({
-          value: option,
-          label: option,
-        }))}
-        portalContainer={
-          document.getElementById("app-settings-portal") || undefined
-        }
-        renderOption={renderOption}
-        selected={{
-          label: selectedOption,
-          value: selectedOption,
-        }}
-        showLabelOnly
-        width="100%"
-      />
+      <Select
+        dropdownClassName="t--theme-font-dropdown"
+        onSelect={onSelect}
+        value={selectedOption}
+      >
+        {options.map((option, index) => (
+          <Option key={index} value={option}>
+            <div className="flex space-x-2  w-full cursor-pointer items-center">
+              <FontText className="flex items-center justify-center">
+                Aa
+              </FontText>
+              <div className="leading-normal">{option}</div>
+            </div>
+          </Option>
+        ))}
+      </Select>
     </section>
   );
 }

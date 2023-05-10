@@ -1,5 +1,5 @@
 import { changeAppViewAccessInit } from "@appsmith/actions/applicationActions";
-import { Switch } from "design-system";
+import { Switch, Divider } from "design-system";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -8,7 +8,6 @@ import {
   getIsFetchingApplications,
 } from "@appsmith/selectors/applicationSelectors";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
-import SwitchWrapper from "../Components/SwitchWrapper";
 import styled from "styled-components";
 import {
   createMessage,
@@ -31,6 +30,13 @@ const StyledPropertyHelpLabel = styled(PropertyHelpLabel)`
   }
 `;
 
+const Title = styled.p`
+  font-size: var(--ads-v2-font-size-4);
+  line-height: 1.2rem;
+  font-weight: var(--ads-v2-font-weight-bold);
+  color: var(--ads-v2-color-fg-emphasis);
+`;
+
 function EmbedSettings() {
   const application = useSelector(getCurrentApplication);
   const dispatch = useDispatch();
@@ -46,41 +52,37 @@ function EmbedSettings() {
     <div>
       {canShareWithPublic && (
         <>
-          <div className="px-4">
-            <div className="pt-3 pb-2 font-medium text-[color:var(--appsmith-color-black-800)]">
+          <div className="px-4 mt-4 mb-2">
+            <Title>
               {createMessage(IN_APP_EMBED_SETTING.sectionContentHeader)}
-            </div>
+            </Title>
           </div>
           <div className="px-4">
             <div className="flex justify-between content-center pb-4">
-              <StyledPropertyHelpLabel
-                label={createMessage(MAKE_APPLICATION_PUBLIC)}
-                lineHeight="1.17"
-                maxWidth="270px"
-                tooltip={createMessage(MAKE_APPLICATION_PUBLIC_TOOLTIP)}
-              />
-              <SwitchWrapper>
-                <Switch
-                  className="mb-0"
-                  id="t--embed-settings-application-public"
-                  isDisabled={isFetchingApplication || isChangingViewAccess}
-                  isSelected={application?.isPublic}
-                  onChange={() =>
-                    application &&
-                    dispatch(
-                      changeAppViewAccessInit(
-                        application?.id,
-                        !application?.isPublic,
-                      ),
-                    )
-                  }
+              <Switch
+                id="t--embed-settings-application-public"
+                isDisabled={isFetchingApplication || isChangingViewAccess}
+                isSelected={application?.isPublic}
+                onChange={() =>
+                  application &&
+                  dispatch(
+                    changeAppViewAccessInit(
+                      application?.id,
+                      !application?.isPublic,
+                    ),
+                  )
+                }
+              >
+                <StyledPropertyHelpLabel
+                  label={createMessage(MAKE_APPLICATION_PUBLIC)}
+                  lineHeight="1.17"
+                  maxWidth="270px"
+                  tooltip={createMessage(MAKE_APPLICATION_PUBLIC_TOOLTIP)}
                 />
-              </SwitchWrapper>
+              </Switch>
             </div>
           </div>
-          <div
-            className={`border-t-[1px] border-[color:var(--appsmith-color-black-300)]`}
-          />
+          <Divider />
         </>
       )}
 
