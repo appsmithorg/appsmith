@@ -1,5 +1,5 @@
 export * from "ce/pages/Editor/NavigationSettings/LogoInput";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ImageInput } from "../../../../pages/Editor/AppSettingsPane/AppSettings/NavigationSettings/ImageInput";
 import { TextType, Text, TooltipComponent } from "design-system-old";
 import {
@@ -33,6 +33,24 @@ const LogoInput = ({ navigationSetting }: ButtonGroupSettingProps) => {
   const isUploadingNavigationLogo = useSelector(getIsUploadingNavigationLogo);
   const isDeletingNavigationLogo = useSelector(getIsDeletingNavigationLogo);
   const tenantConfig = useSelector(getTenantConfig);
+  const { logoAssetId } = navigationSetting;
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (logoAssetId?.length) {
+      setLogoUrl(`/api/v1/assets/${logoAssetId}`);
+      return;
+    } else if (cloudHosting) {
+      setLogoUrl(null);
+      return;
+    } else if (!cloudHosting && tenantConfig?.brandLogoUrl) {
+      setLogoUrl(tenantConfig.brandLogoUrl);
+      return;
+    }
+
+    setLogoUrl(null);
+    return;
+  }, [logoAssetId, tenantConfig, cloudHosting]);
 
   const handleChange = (file: File) => {
     dispatch({
@@ -95,13 +113,7 @@ const LogoInput = ({ navigationSetting }: ButtonGroupSettingProps) => {
             handleChange && handleChange(file);
           }}
           validate={logoImageValidation}
-          value={
-            navigationSetting?.logoAssetId
-              ? `/api/v1/assets/${navigationSetting?.logoAssetId}`
-              : !cloudHosting
-              ? tenantConfig.brandLogoUrl
-              : ""
-          }
+          value={logoUrl}
         />
       </div>
     </div>

@@ -1,5 +1,5 @@
 export * from "ce/pages/AppViewer/NavigationLogo";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import type { NavigationSetting } from "constants/AppConstants";
@@ -51,9 +51,26 @@ function NavigationLogo(props: NavigationLogoProps) {
     "",
   );
   const tenantConfig = useSelector(getTenantConfig);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (logoAssetId?.length) {
+      setLogoUrl(`/api/v1/assets/${logoAssetId}`);
+      return;
+    } else if (cloudHosting) {
+      setLogoUrl(null);
+      return;
+    } else if (!cloudHosting && tenantConfig?.brandLogoUrl) {
+      setLogoUrl(tenantConfig.brandLogoUrl);
+      return;
+    }
+
+    setLogoUrl(null);
+    return;
+  }, [logoAssetId, tenantConfig, cloudHosting]);
 
   if (
-    (!logoAssetId?.length && !tenantConfig.brandLogoUrl) ||
+    !logoUrl ||
     logoConfiguration ===
       NAVIGATION_SETTINGS.LOGO_CONFIGURATION.APPLICATION_TITLE_ONLY ||
     logoConfiguration ===
@@ -70,16 +87,7 @@ function NavigationLogo(props: NavigationLogoProps) {
       })}
       to={pageUrl}
     >
-      <StyledImage
-        alt="Application's logo"
-        src={getAssetUrl(
-          logoAssetId.length
-            ? `/api/v1/assets/${logoAssetId}`
-            : !cloudHosting
-            ? tenantConfig.brandLogoUrl
-            : "",
-        )}
-      />
+      <StyledImage alt="Application's logo" src={getAssetUrl(logoUrl)} />
     </Link>
   );
 }
