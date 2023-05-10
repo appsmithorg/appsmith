@@ -346,6 +346,10 @@ export async function evaluateAsync(
 }
 
 export function convertAllDataTypesToString(e: any): string {
+  // Functions do not get converted properly with JSON.stringify
+  // So using String fot functions
+  // Types like [], {} get converted to "" using String
+  // hence using JSON.stringify for the rest
   if (typeof e === "function") {
     return String(e);
   } else {

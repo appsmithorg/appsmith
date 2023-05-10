@@ -148,9 +148,6 @@ function* initiateActionTriggerExecution(
       event.callback({ success: true });
     }
   } catch (e) {
-    // TODO - check if message comes here
-    // handle errors here
-    // TODO - DELETE?
     if (event.callback) {
       event.callback({ success: false });
     }
