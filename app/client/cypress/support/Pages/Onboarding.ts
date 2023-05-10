@@ -1,7 +1,7 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 
 const OnboardingLocator = require("../../locators/FirstTimeUserOnboarding.json");
-const datasource = require("../../locators/DatasourcesEditor.json");
+import * as _ from "../../support/Objects/ObjectsCore";
 
 let datasourceName;
 export class Onboarding {
@@ -20,14 +20,10 @@ export class Onboarding {
     cy.get(OnboardingLocator.checklistDatasourceBtn).click();
     cy.get(OnboardingLocator.datasourcePage).should("be.visible");
     if (Cypress.env("AIRGAPPED")) {
-      const cyObj = cy as any;
-      cyObj.get(datasource.MongoDB).click();
-      cyObj.fillMongoDatasourceForm();
-      cyObj.generateUUID().then((uid: any) => {
-        datasourceName = `Mongo CRUD ds ${uid}`;
-        cyObj.renameDatasource(datasourceName);
+      _.dataSources.CreateDataSource("Mongo");
+      cy.get("@dsName").then(($dsName) => {
+        datasourceName = $dsName;
       });
-      cyObj.testSaveDatasource();
     } else {
       cy.get(OnboardingLocator.datasourceMock).first().click();
     }
