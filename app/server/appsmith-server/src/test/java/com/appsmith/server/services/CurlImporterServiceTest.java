@@ -160,7 +160,7 @@ public class CurlImporterServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void testImportAction_EmptyLex() {
+    public void testImportActionOnInvalidInput() {
         setup();
         // Set up the application & page for which this import curl action would be added
         Application app = new Application();
@@ -176,7 +176,7 @@ public class CurlImporterServiceTest {
         StepVerifier
                 .create(action)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.EMPTY_CURL_INPUT_STATEMENT.getMessage()))
+                        throwable.getMessage().equals(AppsmithError.INVALID_CURL_COMMAND.getMessage()))
                 .verify();
     }
 
@@ -194,6 +194,28 @@ public class CurlImporterServiceTest {
 
         assert page != null;
         Mono<ActionDTO> action = curlImporterService.importAction(null, page.getId(), "actionName", workspaceId, null);
+
+        StepVerifier
+                .create(action)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals(AppsmithError.EMPTY_CURL_INPUT_STATEMENT.getMessage()))
+                .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testImportActionOnEmptyInput() {
+        setup();
+        // Set up the application & page for which this import curl action would be added
+        Application app = new Application();
+        app.setName("curlTest Incorrect Command");
+
+        Application application = applicationPageService.createApplication(app, workspaceId).block();
+        assert application != null;
+        PageDTO page = newPageService.findPageById(application.getPages().get(0).getId(), AclPermission.MANAGE_PAGES, false).block();
+
+        assert page != null;
+        Mono<ActionDTO> action = curlImporterService.importAction("", page.getId(), "actionName", workspaceId, null);
 
         StepVerifier
                 .create(action)

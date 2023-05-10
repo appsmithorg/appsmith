@@ -37,6 +37,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
 public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlImporterServiceCE {
@@ -80,7 +81,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
         ActionDTO action;
 
         try {
-            if (StringUtils.isBlank((String) input)) {
+            if (isBlank((String) input)) {
                 throw new AppsmithException(AppsmithError.EMPTY_CURL_INPUT_STATEMENT, FieldName.CURL_CODE);
             }
             action = curlToAction((String) input, name);
