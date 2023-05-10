@@ -45,9 +45,6 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
                                 AnalyticsService analyticsService,
                                 PluginRepository pluginRepository,
                                 SessionUserService sessionUserService,
-                                UserWorkspaceService userWorkspaceService,
-                                UserRepository userRepository,
-                                RoleGraph roleGraph,
                                 AssetRepository assetRepository,
                                 AssetService assetService,
                                 ApplicationRepository applicationRepository,
@@ -60,9 +57,8 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
                                 UserUtils userUtils) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
-                pluginRepository, sessionUserService, userWorkspaceService, userRepository, roleGraph,
-                assetRepository, assetService, applicationRepository, permissionGroupService,
-                policyUtils, modelMapper, workspacePermission, permissionGroupPermission);
+                pluginRepository, sessionUserService, assetRepository, assetService, applicationRepository,
+                permissionGroupService, policyUtils, modelMapper, workspacePermission, permissionGroupPermission);
 
         this.tenantService = tenantService;
         this.userUtils = userUtils;
