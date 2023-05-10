@@ -18,9 +18,9 @@ describe("Entity bottom bar", () => {
 
   it("2. Jseditor bottom bar should be collapsable", () => {
     _.jsEditor.CreateJSObject(` return "hello world";`);
-    //Verify if bottom bar open status is retained on changing from api to JSEditor.
+    //Verify if bottom bar opens JSEditor.
     _.debuggerHelper.AssertOpen(PageType.JsEditor);
-    // Verify if selected tab context is reatined on changing from api to JSEditor.
+    // Verify if selected tab is response.
     _.debuggerHelper.AssertSelectedTab("Response");
     //Verify if bottom bar is closed on clicking close icon in JSEditor.
     _.debuggerHelper.CloseBottomBar();
@@ -31,7 +31,7 @@ describe("Entity bottom bar", () => {
     //verify if response tab is selected on execution JSFunction.
     _.debuggerHelper.AssertSelectedTab("Response");
     //verify if bottom bar is closed on switching to canvas page.
-    cy.get(OnboardingLocator.widgetPaneTrigger).click();
+    _.agHelper.GetNClick(OnboardingLocator.widgetPaneTrigger).click();
     _.debuggerHelper.AssertClosed();
   });
 
