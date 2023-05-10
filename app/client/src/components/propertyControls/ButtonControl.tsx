@@ -52,7 +52,7 @@ class ButtonControl extends BaseControl<
         isLoading={this.state.isLoading}
         kind="secondary"
         onClick={this.onCTAClick}
-        size="md"
+        size="sm"
       >
         {buttonLabel}
       </Button>

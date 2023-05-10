@@ -4,6 +4,7 @@ import {
   createMessage,
   MULTI_SELECT_PROPERTY_PANE_MESSAGE,
 } from "@appsmith/constants/messages";
+import { Text, Button } from "design-system";
 import { useSelector } from "react-redux";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { getSelectedWidgets } from "selectors/ui";
@@ -18,28 +19,33 @@ function MultiSelectPropertyPane() {
   return (
     <div className="relative space-y-3">
       <div className="px-3 py-3">
-        <h3 className="text-sm font-medium uppercase">Multi</h3>
+        <Text kind="heading-s" renderAs="h3">
+          Multi
+        </Text>
       </div>
 
       <div className="px-3 space-y-3 t--layout-control-wrapper">
-        <p className="text-sm text-gray-700">
+        <Text kind="action-m" renderAs="p">
           {createMessage(MULTI_SELECT_PROPERTY_PANE_MESSAGE)}
-        </p>
+        </Text>
+
         <div className="flex flex-col space-y-3 t-multi-widget-property-pane">
           {selectedWidgets.map((selectedWidgetId) => {
             if (!canvasWidgets[selectedWidgetId]) return;
-            const className = `py-1 border border-gray-300 hover:border-gray-500 t-multi-widget-button-${selectedWidgetId}`;
+
             return (
-              <button
-                className={className}
+              <Button
+                className={`py-1 t-multi-widget-button-${selectedWidgetId}`}
                 key={selectedWidgetId}
+                kind="secondary"
                 onClick={() => {
                   selectWidget(SelectionRequestType.One, [selectedWidgetId]);
                   focusWidget(selectedWidgetId);
                 }}
+                size="md"
               >
                 {canvasWidgets[selectedWidgetId].widgetName}
-              </button>
+              </Button>
             );
           })}
         </div>

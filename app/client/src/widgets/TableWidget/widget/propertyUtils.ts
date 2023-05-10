@@ -212,7 +212,7 @@ export const updateColumnStyles = (
   return;
 };
 
-// Select default Icon Name if column type is Icon Button
+// Select default Icon Name if column type is Icon button
 export function updateIconNameHook(
   props: TableWidgetProps,
   propertyPath: string,

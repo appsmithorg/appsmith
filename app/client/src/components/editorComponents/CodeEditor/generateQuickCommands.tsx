@@ -88,7 +88,7 @@ const generateCreateNewCommand = ({
 
 const iconsByType = {
   [Shortcuts.BINDING]: (
-    <EntityIcon noBorder>
+    <EntityIcon>
       <Binding className="shortcut" />
     </EntityIcon>
   ),
@@ -100,12 +100,12 @@ const iconsByType = {
     />
   ),
   [Shortcuts.FUNCTION]: (
-    <EntityIcon noBorder>
+    <EntityIcon>
       <Snippet className="snippet-icon shortcut" />
     </EntityIcon>
   ),
   [Shortcuts.ASK_AI]: (
-    <EntityIcon noBorder>
+    <EntityIcon>
       <MagicIcon className="magic" />
     </EntityIcon>
   ),

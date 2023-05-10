@@ -55,7 +55,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.editColumn("id");
     // Change Column type to icon Button
     cy.moveToContentTab();
-    cy.changeColumnType("Icon Button");
+    cy.changeColumnType("Icon button");
     // Select Icon from Icon Control
     cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
       force: true,

@@ -79,7 +79,7 @@ const PROPERTIES = {
       {
         propertyName: "defaultValue",
         helpText: "Selects the option with value by default",
-        label: "Default Selected Value",
+        label: "Default selected value",
         controlType: "JSON_FORM_COMPUTE_VALUE",
         placeholderText: '{ "label": "Option1", "value": "Option2" }',
         isBindProperty: true,
@@ -134,7 +134,7 @@ const PROPERTIES = {
     searchAndFilters: [
       {
         propertyName: "isFilterable",
-        label: "Allow Searching",
+        label: "Allow searching",
         helpText: "Makes the dropdown list filterable",
         controlType: "SWITCH",
         isJSConvertible: true,
@@ -149,7 +149,7 @@ const PROPERTIES = {
       {
         propertyName: "serverSideFiltering",
         helpText: "Enables server side filtering of the data",
-        label: "Server Side Filtering",
+        label: "Server side filtering",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,

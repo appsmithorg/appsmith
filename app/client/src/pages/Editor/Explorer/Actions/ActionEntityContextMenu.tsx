@@ -5,13 +5,10 @@ import {
 } from "actions/pluginActionActions";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { noop } from "lodash";
-import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
 import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getPageListAsOptions } from "selectors/entitiesSelector";
 import history from "utils/history";
-import ContextMenuTrigger from "../ContextMenuTrigger";
-import { ContextMenuPopoverModifiers } from "@appsmith/pages/Editor/Explorer/helpers";
 import { useNewActionName } from "./helpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
@@ -29,7 +26,9 @@ import {
 } from "@appsmith/constants/messages";
 import { builderURL } from "RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import type { TreeDropdownOption } from "design-system-old";
+
+import ContextMenu from "pages/Editor/Explorer/ContextMenu";
+import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
 
 type EntityContextMenuProps = {
   id: string;
@@ -170,15 +169,10 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   ].filter(Boolean);
 
   return optionsTree.length > 0 ? (
-    <TreeDropdown
+    <ContextMenu
       className={props.className}
-      defaultText=""
-      modifiers={ContextMenuPopoverModifiers}
-      onSelect={noop}
       optionTree={optionsTree as TreeDropdownOption[]}
-      selectedValue=""
       setConfirmDelete={setConfirmDelete}
-      toggle={<ContextMenuTrigger className="t--context-menu" />}
     />
   ) : null;
 }

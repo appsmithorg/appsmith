@@ -36,7 +36,7 @@ describe("Bug #14299 - The data from the query does not show up on the widget", 
 
     _.entityExplorer.SelectEntityByName("Table1");
     _.propPane.UpdatePropertyFieldValue(
-      "Table Data",
+      "Table data",
       `{{JSObject1.runAstros.data}}`,
     );
 

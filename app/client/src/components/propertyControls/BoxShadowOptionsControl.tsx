@@ -2,9 +2,8 @@ import * as React from "react";
 
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { ButtonGroup, TooltipComponent } from "design-system-old";
+import { Icon, SegmentedControl, Tooltip } from "design-system";
 import { boxShadowOptions } from "constants/ThemeConstants";
-import CloseLineIcon from "remixicon-react/CloseLineIcon";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
   DSEventTypes,
@@ -16,22 +15,21 @@ export interface BoxShadowOptionsControlProps extends ControlProps {
 }
 
 const options = Object.keys(boxShadowOptions).map((optionKey) => ({
-  icon: (
-    <TooltipComponent
-      content={optionKey}
-      key={optionKey}
-      openOnTargetFocus={false}
-    >
-      <div
-        className="flex items-center justify-center w-5 h-5 bg-white"
-        style={{ boxShadow: boxShadowOptions[optionKey] }}
-      >
-        {boxShadowOptions[optionKey] === "none" && (
-          <CloseLineIcon className="text-gray-700" />
-        )}
-      </div>
-    </TooltipComponent>
+  label: (
+    <Tooltip content={optionKey} key={optionKey}>
+      {optionKey === "none" ? (
+        <div className="flex items-center justify-center w-5 h-5">
+          <Icon name="close-line" size="md" />
+        </div>
+      ) : (
+        <div
+          className="flex items-center justify-center w-5 h-5 bg-white"
+          style={{ boxShadow: boxShadowOptions[optionKey] }}
+        />
+      )}
+    </Tooltip>
   ),
+
   value: boxShadowOptions[optionKey],
 }));
 
@@ -72,17 +70,18 @@ class BoxShadowOptionsControl extends BaseControl<BoxShadowOptionsControlProps> 
 
   public render() {
     return (
-      <ButtonGroup
-        options={options}
-        ref={this.componentRef}
-        selectButton={(value, isUpdatedViaKeyboard = false) => {
+      <SegmentedControl
+        isFullWidth={false}
+        onChange={(value, isUpdatedViaKeyboard = false) => {
           this.updateProperty(
             this.props.propertyName,
             value,
             isUpdatedViaKeyboard,
           );
         }}
-        values={this.props.evaluatedValue ? [this.props.evaluatedValue] : []}
+        options={options}
+        ref={this.componentRef}
+        value={this.props.evaluatedValue || ""}
       />
     );
   }

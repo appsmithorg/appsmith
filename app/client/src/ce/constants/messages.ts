@@ -237,7 +237,7 @@ export const LIGHTNING_MENU_DATA_WIDGET = () => `Use data from a widget`;
 export const LIGHTNING_MENU_QUERY_CREATE_NEW = () => `Create new query`;
 export const LIGHTNING_MENU_API_CREATE_NEW = () => `Create new API`;
 
-export const LIGHTNING_MENU_OPTION_TEXT = () => `Plain Text`;
+export const LIGHTNING_MENU_OPTION_TEXT = () => `Plain text`;
 export const LIGHTNING_MENU_OPTION_JS = () => `Write JS`;
 export const LIGHTNING_MENU_OPTION_HTML = () => `Write HTML`;
 export const CHECK_REQUEST_BODY = () =>
@@ -508,10 +508,10 @@ export const DEBUGGER_APPSMITH_SUPPORT = () => "Get Appsmith support";
 export const NO_ACTION = () => `No action`;
 export const EXECUTE_A_QUERY = () => `Execute a query`;
 export const NAVIGATE_TO = () => `Navigate to`;
-export const SHOW_ALERT = () => `Show Alert`;
+export const SHOW_ALERT = () => `Show alert`;
 export const SHOW_MODAL = () => `Show modal`;
 export const CLOSE_MODAL = () => `Close modal`;
-export const CLOSE = () => `CLOSE`;
+export const CLOSE = () => `Close`;
 export const STORE_VALUE = () => `Store value`;
 export const REMOVE_VALUE = () => `Remove value`;
 export const CLEAR_STORE = () => `Clear store`;
@@ -521,9 +521,9 @@ export const RESET_WIDGET = () => `Reset widget`;
 export const EXECUTE_JS_FUNCTION = () => `Execute a JS function`;
 export const SET_INTERVAL = () => `Set interval`;
 export const CLEAR_INTERVAL = () => `Clear interval`;
-export const GET_GEO_LOCATION = () => `Get Geolocation`;
-export const WATCH_GEO_LOCATION = () => `Watch Geolocation`;
-export const STOP_WATCH_GEO_LOCATION = () => `Stop watching Geolocation`;
+export const GET_GEO_LOCATION = () => `Get geolocation`;
+export const WATCH_GEO_LOCATION = () => `Watch geolocation`;
+export const STOP_WATCH_GEO_LOCATION = () => `Stop watching geolocation`;
 export const POST_MESSAGE = () => `Post message`;
 
 //js actions
@@ -653,7 +653,7 @@ export const BUILD_FROM_SCRATCH_ACTION_SUBTITLE = () =>
 
 export const BUILD_FROM_SCRATCH_ACTION_TITLE = () => "Build with drag & drop";
 
-export const GENERATE_PAGE_ACTION_TITLE = () => "Generate Page With Data";
+export const GENERATE_PAGE_ACTION_TITLE = () => "Generate page with data";
 
 export const GENERATE_PAGE_FORM_TITLE = () => "Generate from data";
 
@@ -1112,6 +1112,7 @@ export const ADD_DATASOURCE_TOOLTIP = () =>
 export const ADD_WIDGET_TOOLTIP = () => "Find and add a widget";
 export const HELP_RESOURCE_TOOLTIP = () => "Help and resources";
 export const COPY_ELEMENT = () => "Copy element";
+export const SHOW_TEMPLATES = () => "Add a query";
 export const LAYOUT_DROPDOWN_TOOLTIP = () =>
   "Choose how your application looks on desktop, tablet and mobile devices";
 export const DEPLOY_BUTTON_TOOLTIP = () =>
@@ -1222,9 +1223,10 @@ export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
 export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
 export const JS_TOGGLE_DISABLED_MESSAGE = "Clear the field to toggle back";
 export const PROPERTY_PANE_EMPTY_SEARCH_RESULT_MESSAGE =
-  "No Properties found based on your search";
+  "No properties found based on your search";
 export const PROPERTY_SEARCH_INPUT_PLACEHOLDER =
   "Search for controls, labels etc";
+export const EXPLORER_BETA_ENTITY = () => "BETA";
 
 // API Pane
 export const API_PANE_NO_BODY = () => "This request does not have a body";
@@ -1373,8 +1375,8 @@ export const END_DESCRIPTION = () =>
   "Inspect properties of queries, components, etc.";
 export const END_BUTTON_TEXT = () => "Start building an app";
 
-export const CONTEXT_EDIT_NAME = () => "Edit Name";
-export const CONTEXT_SHOW_BINDING = () => "Show Bindings";
+export const CONTEXT_EDIT_NAME = () => "Edit name";
+export const CONTEXT_SHOW_BINDING = () => "Show bindings";
 export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
 export const CONTEXT_DELETE = () => "Delete";
@@ -1384,20 +1386,20 @@ export const CONTEXT_NO_PAGE = () => "No pages";
 export const CONTEXT_REFRESH = () => "Refresh";
 export const CONTEXT_CLONE = () => "Clone";
 export const CONTEXT_SETTINGS = () => "Settings";
-export const CONTEXT_SET_AS_HOME_PAGE = () => "Set as Home Page";
+export const CONTEXT_SET_AS_HOME_PAGE = () => "Set as home page";
 export const PAGE = () => "Page";
 export const PAGES = () => "Pages";
 
 // Entity explorer
-export const ADD_DATASOURCE_BUTTON = () => "ADD DATASOURCE";
-export const ADD_WIDGET_BUTTON = () => "ADD WIDGET";
-export const ADD_QUERY_JS_BUTTON = () => "ADD QUERY/JS";
+export const ADD_DATASOURCE_BUTTON = () => "Add datasource";
+export const ADD_WIDGET_BUTTON = () => "Add widget";
+export const ADD_QUERY_JS_BUTTON = () => "Add query/JS";
 export const EMPTY_WIDGET_MAIN_TEXT = () => "No widget to display";
-export const EMPTY_WIDGET_BUTTON_TEXT = () => "NEW WIDGET";
+export const EMPTY_WIDGET_BUTTON_TEXT = () => "New widget";
 export const EMPTY_QUERY_JS_MAIN_TEXT = () => "No query/JS to display";
-export const EMPTY_QUERY_JS_BUTTON_TEXT = () => "NEW QUERY/JS";
+export const EMPTY_QUERY_JS_BUTTON_TEXT = () => "New query/JS";
 export const EMPTY_DATASOURCE_MAIN_TEXT = () => "No datasource to display";
-export const EMPTY_DATASOURCE_BUTTON_TEXT = () => "NEW DATASOURCE";
+export const EMPTY_DATASOURCE_BUTTON_TEXT = () => "New datasource";
 
 // Templates
 export const MORE = () => "More";
@@ -1477,12 +1479,12 @@ export const SEARCH_USERS = (
   cloudHosting?: boolean,
 ) => `Search for users`;
 
-export const CREATE_PAGE = () => "New Blank Page";
-export const CANVAS_NEW_PAGE_CARD = () => "Create New Page";
+export const CREATE_PAGE = () => "New blank page";
+export const CANVAS_NEW_PAGE_CARD = () => "Create new page";
 export const GENERATE_PAGE = () => "Generate page from data table";
 export const GENERATE_PAGE_DESCRIPTION = () =>
   "Start app with a simple CRUD UI and customize it";
-export const ADD_PAGE_FROM_TEMPLATE = () => "Add Page From Template";
+export const ADD_PAGE_FROM_TEMPLATE = () => "Add page from template";
 export const INVALID_URL = () =>
   "Please enter a valid URL, for example, https://example.com";
 export const SAVE_OR_DISCARD_DATASOURCE_WARNING = () =>
@@ -1492,28 +1494,29 @@ export const APP_SETTINGS_PANE_HEADER = () => "Settings";
 export const APP_SETTINGS_CLOSE_TOOLTIP = () => "Close settings panel";
 
 export const GENERAL_SETTINGS_SECTION_HEADER = () => "General";
-export const GENERAL_SETTINGS_SECTION_CONTENT_HEADER = () => "General Settings";
-export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () => "App name and icon";
-export const GENERAL_SETTINGS_APP_NAME_LABEL = () => "App Name";
+export const GENERAL_SETTINGS_SECTION_CONTENT_HEADER = () => "General settings";
+export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () =>
+  "App name, icon and share";
+export const GENERAL_SETTINGS_APP_NAME_LABEL = () => "App name";
 export const GENERAL_SETTINGS_NAME_EMPTY_MESSAGE = () =>
   "App name cannot be empty";
 export const GENERAL_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR = () =>
   "Only alphanumeric or '-()' are allowed";
-export const GENERAL_SETTINGS_APP_ICON_LABEL = () => "App Icon";
+export const GENERAL_SETTINGS_APP_ICON_LABEL = () => "App icon";
 
 export const THEME_SETTINGS_SECTION_HEADER = () => "Theme";
-export const THEME_SETTINGS_SECTION_CONTENT_HEADER = () => "Theme Settings";
+export const THEME_SETTINGS_SECTION_CONTENT_HEADER = () => "Theme settings";
 export const THEME_SETTINGS_SECTION_HEADER_DESC = () =>
   "Set theme, color and font";
 
 export const PAGE_SETTINGS_SECTION_HEADER = () => "Page settings";
-export const PAGE_SETTINGS_SECTION_CONTENT_HEADER = () => "Settings";
-export const PAGE_SETTINGS_PAGE_NAME_LABEL = () => "Page Name";
+export const PAGE_SETTINGS_SECTION_CONTENT_HEADER = () => "settings";
+export const PAGE_SETTINGS_PAGE_NAME_LABEL = () => "Page name";
 export const PAGE_SETTINGS_NAME_EMPTY_MESSAGE = () =>
   "Page name cannot be empty";
 export const PAGE_SETTINGS_NAME_SPECIAL_CHARACTER_ERROR = () =>
   "Only alphanumeric or '-' are allowed";
-export const PAGE_SETTINGS_PAGE_URL_LABEL = () => "Change Page URL";
+export const PAGE_SETTINGS_PAGE_URL_LABEL = () => "Change page URL";
 export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_1 = () => "Please";
 export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_2 = () => "update";
 export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_3 = () =>
@@ -1557,8 +1560,8 @@ export const IN_APP_EMBED_SETTING = {
   change: () => "Change",
   copiedEmbedCode: () => "Embed code copied to clipboard",
   embedSize: () => "Embed size",
-  previewEmbeddedApp: () => "PREVIEW EMBEDDED APP",
-  sectionHeader: () => "Share & Embed",
+  previewEmbeddedApp: () => "Preview embedded app",
+  sectionHeader: () => "Share & embed",
   sectionContentHeader: () => "Share",
   sectionHeaderDesc: () => "Make public, embed properties",
   showNavigationBar: () => "Show navigation bar",
@@ -1580,7 +1583,7 @@ export const APP_NAVIGATION_SETTING = {
   orientationLabel: () => "Orientation",
   navStyleLabel: () => "Variant",
   positionLabel: () => "Position",
-  itemStyleLabel: () => "Item Style",
+  itemStyleLabel: () => "Item style",
   colorStyleLabel: () => "Background color",
   logoLabel: () => "Logo",
   logoConfigurationLabel: () => "Logo configuration",

@@ -7,6 +7,7 @@ const Wrapper = styled.div`
     top: 0.4px;
     position: relative;
   }
+
   input {
     text-align: right;
     padding-left: 2px;
