@@ -353,6 +353,12 @@ export function ReflowResizable(props: ResizableProps) {
     setResizing(false);
   };
 
+  const onResizeStart = () => {
+    togglePointerEvents(false);
+    props.onStart();
+    setResizing(true);
+  };
+
   const renderHandles = handles.map((handle, index) => {
     const disableDot = !isHandleResizeAllowed(
       props.enableHorizontalResize,
@@ -369,11 +375,7 @@ export function ReflowResizable(props: ResizableProps) {
         disableDot={disableDot}
         isHovered={props.isHovered}
         key={index}
-        onStart={() => {
-          togglePointerEvents(false);
-          props.onStart();
-          setResizing(true);
-        }}
+        onStart={onResizeStart}
         onStop={onResizeStop}
         scrollParent={resizableRef.current}
         snapGrid={props.snapGrid}
