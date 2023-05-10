@@ -8,11 +8,9 @@ import {
 } from "react-router-dom";
 import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useSelector, useDispatch } from "react-redux";
-import type { MenuItemProps, TabProp } from "design-system-old";
-// import { TabComponent } from "design-system-old";
-import { Tabs, Tab, TabsList, TabPanel } from "design-system";
 import styled from "styled-components";
 
+import { Tabs, Tab, TabsList, TabPanel } from "design-system";
 import MemberSettings from "@appsmith/pages/workspace/Members";
 import { GeneralSettings } from "./General";
 import * as Sentry from "@sentry/react";
@@ -23,7 +21,6 @@ import {
 import { useMediaQuery } from "react-responsive";
 import { BackButton, StickyHeader } from "components/utils/helperComponents";
 import { debounce } from "lodash";
-import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { SettingsPageHeader } from "./SettingsPageHeader";
 import { navigateToTab } from "@appsmith/pages/workspace/helpers";
@@ -38,10 +35,18 @@ import {
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { APPLICATIONS_URL } from "constants/routes";
+import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 
 const { cloudHosting } = getAppsmithConfigs();
 
 const SentryRoute = Sentry.withSentryRouting(Route);
+
+type TabProp = {
+  key: string;
+  title: string;
+  count?: number;
+  panelComponent?: JSX.Element;
+};
 
 const SettingsWrapper = styled.div<{
   isMobile?: boolean;
@@ -61,13 +66,13 @@ const SettingsWrapper = styled.div<{
     ${({ isMobile }) =>
       !isMobile &&
       `
-      padding: 110px 0 0;
+      padding: 130px 0 0;
   `}
   }
 `;
 
 const StyledStickyHeader = styled(StickyHeader)<{ isMobile?: boolean }>`
-  /* padding-top: 24px; */
+  padding-top: 24px;
   ${({ isMobile }) =>
     !isMobile &&
     `
@@ -76,12 +81,19 @@ const StyledStickyHeader = styled(StickyHeader)<{ isMobile?: boolean }>`
   width: 954px;
   `}
 `;
-const StyledTabPanel = styled(TabPanel)`
-  overflow: auto;
-  height: calc(100vh - 275px);
-`;
+
 export const TabsWrapper = styled.div`
   padding-top: var(--ads-v2-spaces-4);
+
+  .ads-v2-tabs {
+    height: 100%;
+    overflow: hidden;
+
+    .tab-panel {
+      overflow: auto;
+      height: calc(100% - 76px);
+    }
+  }
 `;
 
 enum TABS {
@@ -194,7 +206,7 @@ export default function Settings() {
     },
   ].filter(Boolean) as TabProp[];
 
-  const pageMenuItems: MenuItemProps[] = [
+  const pageMenuItems: any[] = [
     {
       icon: "book-line",
       className: "documentation-page-menu-item",
@@ -247,25 +259,25 @@ export default function Settings() {
             </TabsList>
             {tabArr.map((tab) => {
               return (
-                <StyledTabPanel key={tab.key} value={tab.key}>
+                <TabPanel className="tab-panel" key={tab.key} value={tab.key}>
                   {tab.panelComponent}
-                </StyledTabPanel>
+                </TabPanel>
               );
             })}
           </Tabs>
         </TabsWrapper>
       </SettingsWrapper>
-      <FormDialogComponent
-        Form={WorkspaceInviteUsersForm}
-        canOutsideClickClose
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        onOpenOrClose={handleFormOpenOrClose}
-        placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
-        title={`Invite Users to ${currentWorkspace?.name}`}
-        trigger
-        workspaceId={workspaceId}
-      />
+      {currentWorkspace && (
+        <FormDialogComponent
+          Form={WorkspaceInviteUsersForm}
+          hideDefaultTrigger
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          onOpenOrClose={handleFormOpenOrClose}
+          placeholder={createMessage(INVITE_USERS_PLACEHOLDER, cloudHosting)}
+          workspace={currentWorkspace}
+        />
+      )}
     </>
   );
 }
