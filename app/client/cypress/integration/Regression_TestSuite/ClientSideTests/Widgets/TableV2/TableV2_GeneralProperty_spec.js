@@ -9,6 +9,7 @@ const publish = require("../../../../../locators/publishWidgetspage.json");
 describe("Table Widget property pane feature validation", function () {
   before(() => {
     cy.addDsl(dsl);
+    cy.wait(4000); //wait for dsl to load!
   });
 
   it("1. Test to validate table pagination is disabled", function () {
