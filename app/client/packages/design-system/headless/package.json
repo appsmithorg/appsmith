@@ -9,6 +9,7 @@
     "prettier:ci": "prettier --check ."
   },
   "dependencies": {
+    "@floating-ui/react": "^0.24.0",
     "@react-aria/button": "^3.7.0",
     "@react-aria/checkbox": "^3.9.0",
     "@react-aria/focus": "^3.11.0",
@@ -21,8 +22,8 @@
     "@react-types/button": "^3.7.1",
     "@react-types/checkbox": "^3.4.3",
     "@react-types/label": "^3.7.3",
-    "classnames": "*",
-    "@react-types/shared": "^3.17.0"
+    "@react-types/shared": "^3.17.0",
+    "classnames": "*"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0-rc.1 || ^18.0.0"
