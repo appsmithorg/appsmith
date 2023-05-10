@@ -577,6 +577,7 @@ abstract class BaseWidget<
         }
         focused={this.props.focused}
         isMobile={this.props.isMobile || false}
+        isResizeDisabled={this.props.resizeDisabled}
         parentColumnSpace={this.props.parentColumnSpace}
         parentId={this.props.parentId}
         renderMode={this.props.renderMode}
