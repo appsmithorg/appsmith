@@ -348,6 +348,7 @@ export const CONFIG = {
               [containerId]: {
                 positioning: Positioning.Vertical,
                 isFlexChild: true,
+                bottomRow: 13,
               },
               [canvasWidget.widgetId]: {
                 flexLayers,
