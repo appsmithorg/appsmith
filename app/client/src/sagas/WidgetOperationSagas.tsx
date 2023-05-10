@@ -515,12 +515,14 @@ export function* setWidgetDynamicPropertySaga(
         dynamicBindingPathList,
       );
     }
+
     const { parsed } = yield call(
       validateProperty,
       propertyPath,
       propertyValue,
       widget,
     );
+
     widget = set(widget, propertyPath, parsed);
   }
 
