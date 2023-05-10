@@ -84,9 +84,15 @@ describe("Omnibar functionality test cases", () => {
 
     // create new api, js object and cURL import from omnibar
 
-    cy.get(omnibar.jsObject).should("be.visible");
-    cy.get(omnibar.blankAPI).should("be.visible");
-    cy.get(omnibar.curlImport).should("be.visible");
+    cy.get(omnibar.operation.replace("value", "New JS Object")).should(
+      "be.visible",
+    );
+    cy.get(omnibar.operation.replace("value", "New Blank API")).should(
+      "be.visible",
+    );
+    cy.get(omnibar.operation.replace("value", "New cURL Import")).should(
+      "be.visible",
+    );
 
     cy.get(omnibar.createNew).eq(0).click();
     cy.wait(1000);
@@ -105,7 +111,7 @@ describe("Omnibar functionality test cases", () => {
     cy.get(omnibar.categoryTitle).eq(1).click();
 
     cy.wait(1000);
-    cy.get(omnibar.curlImport).click();
+    cy.get(omnibar.operation.replace("value", "New cURL Import")).click();
     cy.url().should("include", "curl-import?");
     cy.get('p:contains("Import from CURL")').should("be.visible");
   });
