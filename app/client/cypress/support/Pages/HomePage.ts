@@ -97,6 +97,8 @@ export class HomePage {
     "']";
   _welcomeTour = ".t--welcome-tour";
   _welcomeTourBuildingButton = ".t--start-building";
+  _reconnectDataSourceModal = "[data-cy=t--tab-RECONNECT_DATASOURCES]";
+  _skiptoApplicationBtn = "//span[text()='Skip to Application']/parent::a";
 
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
@@ -515,5 +517,14 @@ export class HomePage {
     this.agHelper.ValidateToastMessage(
       "You have successfully left the workspace",
     );
+  }
+
+  public CloseReconnectDataSourceModal() {
+    cy.get("body").then(($ele) => {
+      if ($ele.find(this._reconnectDataSourceModal).length) {
+        this.agHelper.GetNClick(this._skiptoApplicationBtn);
+        this.NavigateToHome();
+      }
+    });
   }
 }

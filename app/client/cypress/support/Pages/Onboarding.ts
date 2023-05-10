@@ -1,11 +1,11 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 
 const OnboardingLocator = require("../../locators/FirstTimeUserOnboarding.json");
-import * as _ from "../../support/Objects/ObjectsCore";
 
 let datasourceName;
 export class Onboarding {
   private _aggregateHelper = ObjectsRegistry.AggregateHelper;
+  private _datasources = ObjectsRegistry.DataSources;
 
   completeSignposting() {
     cy.get(OnboardingLocator.introModalBuild).click();
@@ -20,7 +20,7 @@ export class Onboarding {
     cy.get(OnboardingLocator.checklistDatasourceBtn).click();
     cy.get(OnboardingLocator.datasourcePage).should("be.visible");
     if (Cypress.env("AIRGAPPED")) {
-      _.dataSources.CreateDataSource("Mongo");
+      this._datasources.CreateDataSource("Mongo");
       cy.get("@dsName").then(($dsName) => {
         datasourceName = $dsName;
       });

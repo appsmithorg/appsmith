@@ -55,9 +55,7 @@ export class DataSources {
   _saveDs = ".t--save-datasource";
   _datasourceCard = ".t--datasource";
   _editButton = ".t--edit-datasource";
-  _reconnectDataSourceModal = "[data-cy=t--tab-RECONNECT_DATASOURCES]";
   _closeDataSourceModal = ".t--reconnect-close-btn";
-  _skiptoApplicationBtn = "//span[text()='Skip to Application']/parent::a";
   _dsEntityItem = "[data-guided-tour-id='explorer-entity-Datasources']";
   _activeDS = "[data-testid='active-datasource-name']";
   _mockDatasourceName = "[data-testid=mockdatasource-name]";
@@ -764,15 +762,6 @@ export class DataSources {
     if (dsName == "PostgreSQL") this.FillPostgresDSForm();
     else if (dsName == "MySQL") this.FillMySqlDSForm();
     cy.get(this._saveDs).click();
-  }
-
-  public CloseReconnectDataSourceModal() {
-    cy.get("body").then(($ele) => {
-      if ($ele.find(this._reconnectDataSourceModal).length) {
-        this.agHelper.GetNClick(this._skiptoApplicationBtn);
-        this.homePage.NavigateToHome();
-      }
-    });
   }
 
   RunQuery({
