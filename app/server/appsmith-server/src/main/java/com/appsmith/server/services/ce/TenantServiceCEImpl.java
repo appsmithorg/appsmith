@@ -5,19 +5,20 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.SessionUserService;
+import jakarta.validation.Validator;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
-
-import jakarta.validation.Validator;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 
@@ -27,15 +28,18 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     private final ConfigService configService;
 
+    private final SessionUserService sessionUserService;
+
     public TenantServiceCEImpl(Scheduler scheduler,
                                Validator validator,
                                MongoConverter mongoConverter,
                                ReactiveMongoTemplate reactiveMongoTemplate,
                                TenantRepository repository,
                                AnalyticsService analyticsService,
-                               ConfigService configService) {
+                               ConfigService configService, SessionUserService sessionUserService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.configService = configService;
+        this.sessionUserService = sessionUserService;
     }
 
     @Override
@@ -76,14 +80,22 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
     }
 
     /*
-     * For now, returning just the instance-id, with an empty tenantConfiguration object in this class. Will enhance
-     * this function once we start saving other pertinent environment variables in the tenant collection.
+     * For now, returning just the instanceId and tenantId, with an empty tenantConfiguration object in this class.
+     * Will enhance this function once we start saving other pertinent environment variables in the tenant collection.
      */
     @Override
     public Mono<Tenant> getTenantConfiguration() {
+
+        Mono<String> tenantIdMono = sessionUserService.getCurrentUser()
+                .map(User::getTenantId);
+
         return configService.getInstanceId()
-                .map(instanceId -> {
+                .zipWith(tenantIdMono)
+                .map(tuple -> {
+                    final String instanceId = tuple.getT1();
+                    final String tenantId = tuple.getT2();
                     final Tenant tenant = new Tenant();
+                    tenant.setId(tenantId);
                     tenant.setInstanceId(instanceId);
 
                     final TenantConfiguration config = new TenantConfiguration();
@@ -102,4 +114,15 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                     return tenant;
                 });
     }
+
+    @Override
+    public Mono<Tenant> update(String id, Tenant tenant) {
+        if (!StringUtils.hasLength(id)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+        // Remove fields which should not be updated from client
+        tenant.setSlug(null);
+        return repository.updateById(tenantId, tenant, MANAGE_TENANT);
+    }
+
 }

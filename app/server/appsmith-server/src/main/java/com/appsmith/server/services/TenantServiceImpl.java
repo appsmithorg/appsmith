@@ -18,7 +18,8 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                              ReactiveMongoTemplate reactiveMongoTemplate,
                              TenantRepository repository,
                              AnalyticsService analyticsService,
-                             ConfigService configService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, configService);
+                             ConfigService configService,
+                             SessionUserService sessionUserService) {
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, configService, sessionUserService);
     }
 }
