@@ -6,7 +6,7 @@ import styled from "styled-components";
 interface ThemeFontControlProps {
   theme: AppTheme;
   sectionName: string;
-  options: any[];
+  options: string[];
   selectedOption: string;
   updateTheme: (theme: AppTheme) => void;
 }

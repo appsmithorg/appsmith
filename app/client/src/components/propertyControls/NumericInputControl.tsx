@@ -48,7 +48,6 @@ class NumericInputControl extends BaseControl<NumericInputControlProps> {
       <NumberInput
         max={max}
         min={min}
-        // @ts-expect-error: onBlur does not exists
         onBlur={onBlur}
         onChange={this.handleValueChange}
         onFocus={onFocus}

@@ -7,6 +7,7 @@ import {
   EditInteractionKind,
   SavingState,
 } from "design-system-old";
+import type { TooltipPlacement } from "design-system";
 import { Tooltip, Button } from "design-system";
 import { updateWidgetName } from "actions/propertyPaneActions";
 import type { AppState } from "@appsmith/reducers";
@@ -19,7 +20,6 @@ import type { WidgetType } from "constants/WidgetConstants";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover/popoverSharedProps";
 import { getIsCurrentWidgetRecentlyAdded } from "selectors/propertyPaneSelectors";
 
 type PropertyPaneTitleProps = {
@@ -32,7 +32,7 @@ type PropertyPaneTitleProps = {
   actions: Array<{
     tooltipContent: any;
     icon: ReactElement;
-    tooltipPosition?: PopoverPosition;
+    tooltipPosition?: TooltipPlacement;
   }>;
 };
 
@@ -204,7 +204,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
           <Tooltip
             content={value.tooltipContent}
             key={index}
-            placement="bottomRight"
+            placement={value.tooltipPosition}
           >
             {value.icon}
           </Tooltip>

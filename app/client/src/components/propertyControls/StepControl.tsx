@@ -64,7 +64,6 @@ class StepControl extends BaseControl<StepControlProps> {
       <NumberInput
         max={max}
         min={min}
-        // @ts-expect-error: isUpdateViaKeyboard not available
         onChange={(value: number, isUpdatedViaKeyboard: boolean) => {
           this.updateProperty(
             this.props.propertyName,

@@ -203,7 +203,7 @@ function OptionNode(props: any) {
             </Text>
           </span>
         </OptionContentWrapper>
-        {entityInfo?.hasError && (
+        {!!entityInfo?.hasError && (
           <DebugButton className="debug" onClick={onClick} />
         )}
       </OptionWrapper>
