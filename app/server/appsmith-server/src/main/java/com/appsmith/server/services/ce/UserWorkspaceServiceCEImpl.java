@@ -171,7 +171,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         // Unassigned old permission group from user
         Mono<PermissionGroup> permissionGroupUnassignedMono = oldDefaultPermissionGroupMono
                 .zipWith(userMono)
-                .flatMap(pair -> permissionGroupService.unassignFromUser(pair.getT1(), pair.getT2()));
+                .flatMap(pair -> permissionGroupService.unAssignFromUserAndSendEvent(pair.getT1(), pair.getT2()));
 
         // If new permission group id is not present, just unassign old permission group and return PermissionAndGroupDTO
         if (!StringUtils.hasText(changeUserGroupDTO.getNewPermissionGroupId())) {
@@ -189,7 +189,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .flatMap(newPermissionGroup -> {
                     return permissionGroupUnassignedMono
                             .then(userMono)
-                            .flatMap(user -> permissionGroupService.assignToUser(newPermissionGroup, user));
+                            .flatMap(user -> permissionGroupService.assignToUserAndSendEvent(newPermissionGroup, user));
                 });
 
         return changePermissionGroupsMono
