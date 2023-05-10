@@ -1,5 +1,6 @@
 import React from "react";
 import _ from "lodash";
+import type { WrappedFieldProps } from "redux-form";
 import { Field } from "redux-form";
 import { replayHighlightClass } from "globalStyles/portals";
 import type { SelectOptionProps } from "design-system";
@@ -19,7 +20,9 @@ const Container = styled.div`
     width: var(--ads-v2-spaces-5);
   }
 `;
-const renderDropdown = (props: any) => {
+const renderDropdown = (
+  props: WrappedFieldProps & Partial<SelectOptionProps>,
+) => {
   return (
     <Select
       dropdownClassName="select-with-fixed-option"
