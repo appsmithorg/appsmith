@@ -195,5 +195,4 @@ public class Datasource extends BranchAwareDomain implements Forkable{
         this.setPluginId(pluginMap.get(this.getPluginId()));
     }
 
-
 }

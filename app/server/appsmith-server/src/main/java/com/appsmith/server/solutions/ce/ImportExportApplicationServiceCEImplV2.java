@@ -64,7 +64,6 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
-import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.google.gson.Gson;
@@ -127,7 +126,6 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
     private final NewPageRepository newPageRepository;
     private final NewActionService newActionService;
     private final SequenceService sequenceService;
-    private final ExamplesWorkspaceCloner examplesWorkspaceCloner;
     private final ActionCollectionRepository actionCollectionRepository;
     private final ActionCollectionService actionCollectionService;
     private final ThemeService themeService;
