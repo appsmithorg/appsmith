@@ -154,7 +154,7 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
                     );
                   })
               ) : (
-                <MenuItem key="no-pages">No Pages</MenuItem>
+                <MenuItem key="no-pages">No pages</MenuItem>
               )}
             </MenuSubContent>
           </MenuSub>
