@@ -240,7 +240,7 @@ describe("JS Function Execution", function () {
     cy.get("@jsObjName").then((jsObjName) => {
       ee.SelectEntityByName("Table1", "Widgets");
       propPane.UpdatePropertyFieldValue(
-        "Table Data",
+        "Table data",
         `{{${jsObjName}.largeData}}`,
       );
     });

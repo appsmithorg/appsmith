@@ -1,36 +1,35 @@
 import React from "react";
-import { connect } from "react-redux";
 import styled from "styled-components";
+import { connect } from "react-redux";
 import { getTypographyByKey, Text, TextType } from "design-system-old";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { HELPBAR_PLACEHOLDER } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { modText } from "utils/helpers";
 import { filterCategories, SEARCH_CATEGORY_ID } from "./utils";
-import { Colors } from "constants/Colors";
 
 const StyledHelpBar = styled.div`
-  padding: 0 ${(props) => props.theme.spaces[4]}px;
-  margin: ${(props) => props.theme.spaces[2]}px;
+  padding: 0 var(--ads-v2-spaces-3);
+  margin: var(--ads-v2-spaces-2);
   .placeholder-text {
     ${getTypographyByKey("p2")}
   }
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: var(--ads-v2-color-fg);
   height: 28px;
   flex: 1;
-  max-width: 205px;
+  max-width: 210px;
   border: 1px solid var(--ads-v2-color-border);
   border-radius: var(--ads-v2-border-radius);
-  cursor: pointer;
+  background-color: var(--ads-v2-color-bg);
+  font-family: var(--ads-v2-font-family);
+  font-size: var(--ads-v2-font-size-4);
+  color: var(--ads-v2-color-fg);
   &:hover {
-    border: 1px solid var(--ads-v2-color-border-emphasis);
+    border: 1px solid var(--ads-v2-color-border-emphasis-plus);
   }
 `;
-
-const comboText = <>{modText()} K</>;
 
 type Props = {
   toggleShowModal: () => void;
@@ -43,11 +42,9 @@ function HelpBar({ toggleShowModal }: Props) {
       data-cy="global-search-modal-trigger"
       onClick={toggleShowModal}
     >
-      <Text color={Colors.GRAY_400} type={TextType.P2}>
-        {HELPBAR_PLACEHOLDER()}
-      </Text>
-      <Text color={Colors.GRAY_400} italic type={TextType.P3}>
-        {comboText}
+      <Text type={TextType.P2}>{HELPBAR_PLACEHOLDER()}</Text>
+      <Text italic type={TextType.P3}>
+        {modText()} K
       </Text>
     </StyledHelpBar>
   );

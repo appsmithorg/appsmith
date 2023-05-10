@@ -48,7 +48,7 @@ describe("Table Widget property pane feature validation", function () {
     cy.get(commonlocators.editPropBackButton).click({ force: true });
     cy.editColumn("id");
     // Change Column type to icon Button
-    cy.changeColumnType("Icon Button", false);
+    cy.changeColumnType("Icon button", false);
     // Select Icon from Icon Control
     cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
       force: true,

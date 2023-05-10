@@ -23,7 +23,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     ee.ExpandCollapseEntity("Container3");
     ee.SelectEntityByName("Table1");
     propPane.UpdatePropertyFieldValue(
-      "Table Data",
+      "Table data",
       `{{PageLoadApi.data.data}}`,
     );
     agHelper.ValidateToastMessage(
@@ -43,7 +43,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     ee.ExpandCollapseEntity("Container3");
     ee.SelectEntityByName("Table1");
     propPane.UpdatePropertyFieldValue(
-      "Table Data",
+      "Table data",
       `{{PageLoadApi2.data.data}}`,
     );
     agHelper.RefreshPage();

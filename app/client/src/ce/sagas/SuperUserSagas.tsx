@@ -81,7 +81,7 @@ export function* SaveAdminSettingsSaga(
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      toast.show("Successfully Saved", {
+      toast.show("Successfully saved", {
         kind: "success",
       });
       yield put({

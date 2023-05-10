@@ -7,6 +7,7 @@ import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceConfigurationStructure;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceStructure.Column;
 import com.appsmith.external.models.DatasourceStructure.PrimaryKey;
@@ -39,6 +40,7 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.DatasourceStructureSolution;
 import com.appsmith.server.solutions.PagePermission;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -86,6 +88,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
     private final DatasourcePermission datasourcePermission;
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
+    private final DatasourceStructureSolution datasourceStructureSolution;
 
     private static final String FILE_PATH = "CRUD-DB-Table-Template-Application.json";
 
@@ -203,13 +206,16 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
         return datasourceMono
                 .zipWhen(datasource -> Mono.zip(
                                 pageMono,
-                                pluginService.findById(datasource.getPluginId())
+                                pluginService.findById(datasource.getPluginId()),
+                        datasourceStructureSolution.getStructure(datasource, false, null)
                         )
                 )
                 .flatMap(tuple -> {
                     Datasource datasource = tuple.getT1();
                     NewPage page = tuple.getT2().getT1();
                     Plugin plugin = tuple.getT2().getT2();
+                    DatasourceStructure datasourceStructure = tuple.getT2().getT3();
+
                     final String layoutId = page.getUnpublishedPage().getLayouts().get(0).getId();
                     final String savedPageId = page.getId();
 
@@ -273,7 +279,15 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                         );
                     }
 
-                    DatasourceStructure templateStructure = templateDatasource.getStructure();
+                    DatasourceConfigurationStructure templateDatasourceConfigurationStructure = applicationJson
+                            .getDatasourceConfigurationStructureList()
+                            .stream()
+                            .filter(configurationStructure -> StringUtils.equals(configurationStructure.getDatasourceId(), templateDatasource.getName()))
+                            .findAny()
+                            .orElse(null);
+
+
+                    DatasourceStructure templateStructure = templateDatasourceConfigurationStructure.getStructure();
                     // We are supporting datasources for both with and without datasource structure. So if datasource
                     // structure is present then we can assign the mapping dynamically as per the template datasource tables.
                     // Those datasources for which we don't have structure like Google sheet etc we are following a
@@ -287,7 +301,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                                 .findAny()
                                 .orElse(null);
 
-                        Table table = getTable(datasource, tableName);
+                        Table table = getTable(datasourceStructure, tableName);
                         if (table == null) {
                             return Mono.error(
                                     new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE_STRUCTURE, datasource.getName())
@@ -464,16 +478,15 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
     }
 
     /**
-     * @param datasource resource from which table has to be filtered
-     * @param tableName  to filter the available tables in the datasource
+     * @param datasourceStructure              resource from which table has to be filtered
+     * @param tableName                        to filter the available tables in the datasource
      * @return Table from the provided datasource if structure is present
      */
-    private Table getTable(Datasource datasource, String tableName) {
+    private Table getTable(DatasourceStructure datasourceStructure, String tableName) {
         /*
             1. Get structure from datasource
             2. Filter by tableName
         */
-        DatasourceStructure datasourceStructure = datasource.getStructure();
         if (datasourceStructure != null) {
             return datasourceStructure.getTables()
                     .stream()
@@ -1040,8 +1053,8 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
 
     private void createSuccessMessageAndSetAsset(Plugin plugin, CRUDPageResponseDTO crudPage) {
 
-        String displayWidget = Entity.S3_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName()) ? "LIST" : "TABLE";
-        String updateWidget = Entity.S3_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName()) ? "FILEPICKER" : "FORM";
+        String displayWidget = Entity.S3_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName()) ? "List" : "Table";
+        String updateWidget = Entity.S3_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName()) ? "Filepicker" : "Form";
 
         String successUrl = Entity.S3_PLUGIN_PACKAGE_NAME.equals(plugin.getPackageName()) ?
                 Assets.GENERATE_CRUD_PAGE_SUCCESS_URL_S3 : Assets.GENERATE_CRUD_PAGE_SUCCESS_URL_TABULAR;
@@ -1050,7 +1063,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
 
         // Field used to send success message after the successful page creation
         String successMessage = "We have generated the <b>" + displayWidget + "</b> from the <b>" + plugin.getName()
-                + " Datasource</b>. You can use the <b>" + updateWidget + "</b> to modify it. Since all your " +
+                + " datasource</b>. You can use the <b>" + updateWidget + "</b> to modify it. Since all your " +
                 "data is already connected you can add more queries and modify the bindings";
 
         crudPage.setSuccessMessage(successMessage);

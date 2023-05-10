@@ -10,9 +10,7 @@ type FeatureFlags = {
   DATASOURCE_ENVIRONMENTS?: boolean;
   MULTIPLE_PANES?: boolean;
   AUTO_LAYOUT?: boolean;
-  LIMITING_GOOGLE_SHEET_ACCESS?: boolean;
   LAZY_CANVAS_RENDERING?: boolean;
-  ORACLE_PLUGIN?: boolean;
   ONE_CLICK_BINDING?: boolean;
   CHAT_AI?: boolean;
 };

@@ -153,7 +153,7 @@ describe("Table widget Add new row feature's", () => {
     it("1.10. should test that non data (iconBitton, button, menubutton) column cells are not showing up", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
-      ["Button", "Menu Button", "Icon Button"].forEach((columnType) => {
+      ["Button", "Menu button", "Icon button"].forEach((columnType) => {
         cy.get(commonlocators.changeColType).last().click();
         cy.get(".t--dropdown-option").children().contains(columnType).click();
         cy.wait("@updateLayout");
@@ -165,10 +165,10 @@ describe("Table widget Add new row feature's", () => {
       cy.get(".t--discard-new-row").click({ force: true });
       //disable all header widgets for the table
       [
-        "Show Pagination",
-        "Allow Searching",
-        "Allow Download",
-        "Allow Filtering",
+        "Show pagination",
+        "Allow searching",
+        "Allow download",
+        "Allow filtering",
         "Allow adding a row",
       ].forEach((val) => {
         propPane.ToggleOnOrOff(val, "Off");
@@ -176,13 +176,13 @@ describe("Table widget Add new row feature's", () => {
       cy.wait(1000);
 
       //intially enable 2 sections to show pagination and "add new row" button to the header section
-      propPane.ToggleOnOrOff("Show Pagination", "On");
+      propPane.ToggleOnOrOff("Show pagination", "On");
       propPane.ToggleOnOrOff("Allow adding a row", "On");
 
       //"add new row" button should be present
       cy.get(".t--add-new-row").should("exist");
       //turn off pagination and now the "add new row" button should be the only component left in the header section
-      propPane.ToggleOnOrOff("Show Pagination", "Off");
+      propPane.ToggleOnOrOff("Show pagination", "Off");
       //"add new row" should continue to be present
       cy.get(".t--add-new-row").should("exist");
       //finally turn off allow adding a row then the "add new row" button should be removed from the header section
@@ -193,6 +193,7 @@ describe("Table widget Add new row feature's", () => {
 
   describe("Validation flow", () => {
     before(() => {
+      cy.startServerAndRoutes();
       agHelper.RestoreLocalStorageCache();
       cy.addDsl(dsl);
     });
@@ -350,6 +351,7 @@ describe("Table widget Add new row feature's", () => {
 
   describe("Actions flow (save, discard)", () => {
     before(() => {
+      cy.startServerAndRoutes();
       agHelper.RestoreLocalStorageCache();
       cy.addDsl(dsl);
     });

@@ -3,7 +3,7 @@ const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const { modifierKey } = require("../../../../../support/Constants");
 
-describe("Menu Button Widget Functionality", () => {
+describe("Menu button Widget Functionality", () => {
   before(() => {
     cy.addDsl(dsl);
   });

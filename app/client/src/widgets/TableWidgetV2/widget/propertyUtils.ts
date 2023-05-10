@@ -32,7 +32,7 @@ export function totalRecordsCountValidation(
     return {
       isValid: true,
       parsed: defaultValue,
-      message: [""],
+      messages: [],
     };
   } else if (
     (!_.isFinite(value) && !_.isString(value)) ||
@@ -44,7 +44,7 @@ export function totalRecordsCountValidation(
     return {
       isValid: false,
       parsed: defaultValue,
-      message: [ERROR_MESSAGE],
+      messages: [{ name: "ValidationError", message: ERROR_MESSAGE }],
     };
   } else {
     /*
@@ -53,7 +53,7 @@ export function totalRecordsCountValidation(
     return {
       isValid: true,
       parsed: Number(value),
-      message: [""],
+      messages: [],
     };
   }
 }
@@ -755,7 +755,7 @@ export const updateMenuItemsSource = (
         propertiesToUpdate.push({
           propertyPath: `${baseProperty}.configureMenuItems`,
           propertyValue: {
-            label: "Configure Menu Items",
+            label: "Configure menu items",
             id: "config",
             config: {
               id: "config",

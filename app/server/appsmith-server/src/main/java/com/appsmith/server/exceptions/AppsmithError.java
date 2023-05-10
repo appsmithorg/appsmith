@@ -71,6 +71,8 @@ public enum AppsmithError {
     UNAUTHORIZED_ACCESS(403, AppsmithErrorCode.UNAUTHORIZED_ACCESS.getCode(), "Unauthorized access", AppsmithErrorAction.DEFAULT, "Unauthorized access", ErrorType.AUTHENTICATION_ERROR, null),
     DUPLICATE_KEY(409, AppsmithErrorCode.DUPLICATE_KEY.getCode(), "Duplicate key error: An object with the name {0} already exists. Please use a different name or reach out to Appsmith customer support to resolve this.",
             AppsmithErrorAction.DEFAULT, "Duplicate key", ErrorType.BAD_REQUEST, null),
+    DUPLICATE_KEY_PAGE_RELOAD(409, AppsmithErrorCode.DUPLICATE_KEY_OBJECT_CREATION.getCode(), "Duplicate key error: An object with the name {0} already exists. Please reload the page and try again.",
+            AppsmithErrorAction.DEFAULT, "Duplicate key", ErrorType.BAD_REQUEST, null),
     USER_ALREADY_EXISTS_SIGNUP(409, AppsmithErrorCode.USER_ALREADY_EXISTS_SIGNUP.getCode(), "There is already an account registered with this email {0}. Please sign in instead.",
             AppsmithErrorAction.DEFAULT, "Account already exists with this email", ErrorType.BAD_REQUEST, null),
     ACTION_IS_NOT_AUTHORIZED(403, AppsmithErrorCode.ACTION_IS_NOT_AUTHORIZED.getCode(), "Uh oh! You do not have permissions to do : {0}", AppsmithErrorAction.DEFAULT, "Permission denied", ErrorType.AUTHENTICATION_ERROR, null),
@@ -78,7 +80,7 @@ public enum AppsmithError {
     USER_NOT_FOUND(404, AppsmithErrorCode.USER_NOT_FOUND.getCode(), "Unable to find user with email {0}", AppsmithErrorAction.DEFAULT, "No user found", ErrorType.INTERNAL_ERROR, null),
     ACL_NO_RESOURCE_FOUND(404, AppsmithErrorCode.ACL_NO_RESOURCE_FOUND.getCode(), "Unable to find {0} {1}. Either the asset doesn''t exist or you don''t have required permissions",
             AppsmithErrorAction.DEFAULT, "No resource found or permission denied", ErrorType.INTERNAL_ERROR, null),
-    GENERIC_BAD_REQUEST(400, AppsmithErrorCode.GENERIC_BAD_REQUEST.getCode(), "Bad Request: {0}", AppsmithErrorAction.DEFAULT, "Invalid request", ErrorType.BAD_REQUEST, null),
+    GENERIC_BAD_REQUEST(400, AppsmithErrorCode.GENERIC_BAD_REQUEST.getCode(), "Bad request: {0}", AppsmithErrorAction.DEFAULT, "Invalid request", ErrorType.BAD_REQUEST, null),
     VALIDATION_FAILURE(400, AppsmithErrorCode.VALIDATION_FAILURE.getCode(), "Validation Failure(s): {0}", AppsmithErrorAction.DEFAULT, "Validation failed", ErrorType.INTERNAL_ERROR, null),
     INVALID_CURL_COMMAND(400, AppsmithErrorCode.INVALID_CURL_COMMAND.getCode(), "Invalid cURL command, couldn''t import.", AppsmithErrorAction.DEFAULT, "Invalid cURL command", ErrorType.ARGUMENT_ERROR, null),
     INVALID_LOGIN_METHOD(401, AppsmithErrorCode.INVALID_LOGIN_METHOD.getCode(), "Please use {0} authentication to login to Appsmith", AppsmithErrorAction.DEFAULT, "Invalid login method", ErrorType.INTERNAL_ERROR, null),
@@ -141,7 +143,7 @@ public enum AppsmithError {
     SSH_KEY_GENERATION_ERROR(500, AppsmithErrorCode.SSH_KEY_GENERATION_ERROR.getCode(), "Failed to generate SSH keys, please contact Appsmith support for more details", AppsmithErrorAction.DEFAULT, "Failed to generate SSH keys", ErrorType.GIT_CONFIGURATION_ERROR, null),
     GIT_GENERIC_ERROR(504, AppsmithErrorCode.GIT_GENERIC_ERROR.getCode(), "Git command execution error: {0}", AppsmithErrorAction.DEFAULT, "Git command execution error", ErrorType.GIT_ACTION_EXECUTION_ERROR, null),
     GIT_UPSTREAM_CHANGES(400, AppsmithErrorCode.GIT_UPSTREAM_CHANGES.getCode(), "Looks like there are pending upstream changes. To prevent you from losing history, we will pull the changes and push them to your repo.", AppsmithErrorAction.DEFAULT, "Git push failed for pending upstream changes", ErrorType.GIT_UPSTREAM_CHANGES_PUSH_EXECUTION_ERROR, ErrorReferenceDocUrl.GIT_UPSTREAM_CHANGES.getDocUrl()),
-    GENERIC_JSON_IMPORT_ERROR(400, AppsmithErrorCode.GENERIC_JSON_IMPORT_ERROR.getCode(), "Unable to import application in workspace {0}, with error: {1}", AppsmithErrorAction.DEFAULT, "Unable to import application in workspace", ErrorType.BAD_REQUEST, null),
+    GENERIC_JSON_IMPORT_ERROR(400, AppsmithErrorCode.GENERIC_JSON_IMPORT_ERROR.getCode(), "Unable to import application in workspace {0}. {1}", AppsmithErrorAction.DEFAULT, "Unable to import application in workspace", ErrorType.BAD_REQUEST, null),
     FILE_PART_DATA_BUFFER_ERROR(500, AppsmithErrorCode.FILE_PART_DATA_BUFFER_ERROR.getCode(), "Failed to upload file with error: {0}", AppsmithErrorAction.DEFAULT, "Failed to upload file", ErrorType.BAD_REQUEST, null),
     MIGRATION_ERROR(500, AppsmithErrorCode.MIGRATION_ERROR.getCode(), "This action is already migrated", AppsmithErrorAction.DEFAULT, "Action already migrated", ErrorType.INTERNAL_ERROR, null),
     INVALID_GIT_SSH_URL(400, AppsmithErrorCode.INVALID_GIT_SSH_URL.getCode(), "Please enter valid SSH URL of your repository", AppsmithErrorAction.DEFAULT, "Invalid SSH URL", ErrorType.GIT_CONFIGURATION_ERROR, null),
@@ -158,6 +160,7 @@ public enum AppsmithError {
     INVALID_LICENSE_KEY_ENTERED(400, AppsmithErrorCode.INVALID_LICENSE_KEY_ENTERED.getCode(), "The license key entered is invalid. Please try again.", AppsmithErrorAction.DEFAULT, "Invalid license key", ErrorType.ARGUMENT_ERROR, null),
     GIT_FILE_IN_USE(500, AppsmithErrorCode.GIT_FILE_IN_USE.getCode(), "Your Git repo is in use by another member of your team. Usually, this takes a few seconds. Please try again a little later.", AppsmithErrorAction.DEFAULT, "Git repo is locked", ErrorType.GIT_ACTION_EXECUTION_ERROR, null),
     CSRF_TOKEN_INVALID(403, AppsmithErrorCode.CSRF_TOKEN_INVALID.getCode(), "CSRF token missing/invalid. Please try again.", AppsmithErrorAction.DEFAULT, "CSRF token missing/invalid", ErrorType.BAD_REQUEST, null),
+    UNSUPPORTED_IMPORT_OPERATION_FOR_GIT_CONNECTED_APPLICATION(400, AppsmithErrorCode.UNSUPPORTED_IMPORT_OPERATION.getCode(), "Import application via file is not supported for git connected application. Please use Git Pull to update and sync your application.", AppsmithErrorAction.DEFAULT, "Unsupported operation", ErrorType.BAD_REQUEST, null),
     ;
 
     private final Integer httpErrorCode;

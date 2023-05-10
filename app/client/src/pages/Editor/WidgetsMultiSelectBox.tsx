@@ -23,7 +23,7 @@ import type { AppState } from "@appsmith/reducers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { getBoundariesFromSelectedWidgets } from "sagas/WidgetOperationUtils";
 import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
-import { Button } from "design-system";
+import { Icon } from "design-system";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 const StyledSelectionBox = styled.div`
@@ -44,6 +44,33 @@ const StyledActions = styled.div`
   z-index: ${Layers.contextMenu};
   position: absolute;
   background-color: ${(props) => props.theme.colors.appBackground};
+`;
+
+const StyledAction = styled.button`
+  cursor: pointer;
+  height: 28px;
+  width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 5px;
+  outline: none;
+  border: none;
+  background: transparent;
+  z-index: ${Layers.contextMenu};
+  position: relative;
+
+  &:hover,
+  &:active,
+  &.active {
+    background: ${(props) =>
+      props.disabled
+        ? "initial"
+        : props.theme.colors.widgetGroupingContextMenu.actionActiveBg};
+  }
+  &:focus {
+    outline: none;
+  }
 `;
 
 const StyledSelectBoxHandleTop = styled.div`
@@ -313,14 +340,12 @@ function WidgetsMultiSelectBox(props: {
             modifiers={PopoverModifiers}
             position="right"
           >
-            <Button
-              isIconButton
-              kind="tertiary"
+            <StyledAction
               onClick={stopEventPropagation}
-              onClickCapture={() => onCopySelectedWidgets}
-              size="sm"
-              startIcon="copy"
-            />
+              onClickCapture={onCopySelectedWidgets}
+            >
+              <Icon name="duplicate" size="md" />
+            </StyledAction>
           </Tooltip>
           {/* cut widgets */}
           <Tooltip
@@ -330,14 +355,12 @@ function WidgetsMultiSelectBox(props: {
             modifiers={PopoverModifiers}
             position="right"
           >
-            <Button
-              isIconButton
-              kind="tertiary"
+            <StyledAction
               onClick={stopEventPropagation}
-              onClickCapture={() => onCutSelectedWidgets}
-              size="sm"
-              startIcon="cut"
-            />
+              onClickCapture={onCutSelectedWidgets}
+            >
+              <Icon name="cut-control" size="md" />
+            </StyledAction>
           </Tooltip>
           {/* delete widgets */}
           <Tooltip
@@ -347,14 +370,12 @@ function WidgetsMultiSelectBox(props: {
             modifiers={PopoverModifiers}
             position="right"
           >
-            <Button
-              isIconButton
-              kind="tertiary"
+            <StyledAction
               onClick={stopEventPropagation}
-              onClickCapture={() => onDeleteSelectedWidgets}
-              size="sm"
-              startIcon="delete"
-            />
+              onClickCapture={onDeleteSelectedWidgets}
+            >
+              <Icon name="delete-bin-line" size="md" />
+            </StyledAction>
           </Tooltip>
           {/* group widgets */}
           <Tooltip
@@ -364,14 +385,12 @@ function WidgetsMultiSelectBox(props: {
             modifiers={PopoverModifiers}
             position="right"
           >
-            <Button
-              isIconButton
-              kind="tertiary"
+            <StyledAction
               onClick={stopEventPropagation}
-              onClickCapture={() => onGroupWidgets}
-              size="sm"
-              startIcon="group"
-            />
+              onClickCapture={onGroupWidgets}
+            >
+              <Icon name="group-control" size="sm" />
+            </StyledAction>
           </Tooltip>
         </StyledActions>
       </StyledActionsContainer>

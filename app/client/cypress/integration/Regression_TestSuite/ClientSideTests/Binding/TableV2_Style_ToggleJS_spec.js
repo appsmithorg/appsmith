@@ -19,7 +19,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.editColumn("id");
     cy.moveToStyleTab();
     agHelper.Sleep();
-    propPane.EnterJSContext("Text Align", testdata.bindingAlign);
+    propPane.EnterJSContext("Text align", testdata.bindingAlign);
     cy.wait("@updateLayout");
     cy.readTableV2dataValidateCSS("0", "0", "justify-content", "flex-start");
     cy.readTableV2dataValidateCSS("1", "0", "justify-content", "flex-end");
@@ -37,7 +37,7 @@ describe("Table Widget V2 property pane feature validation", function () {
   it("3. Table widget toggle test for vertical Alignment", function () {
     //cy.movetoStyleTab();
     agHelper.Sleep();
-    propPane.EnterJSContext("Vertical Alignment", testdata.bindingVerticalAlig);
+    propPane.EnterJSContext("Vertical alignment", testdata.bindingVerticalAlig);
     cy.wait("@updateLayout");
     cy.readTableV2dataValidateCSS("0", "0", "align-items", "flex-start");
     cy.readTableV2dataValidateCSS("1", "0", "align-items", "flex-end");
@@ -46,7 +46,7 @@ describe("Table Widget V2 property pane feature validation", function () {
   it("4. Table widget toggle test for text size", function () {
     //cy.movetoStyleTab();
     agHelper.Sleep();
-    propPane.EnterJSContext("Text Size", testdata.bindingNewSize);
+    propPane.EnterJSContext("Text size", testdata.bindingNewSize);
     cy.wait("@updateLayout");
     cy.readTableV2dataValidateCSS("0", "0", "font-size", "14px");
     cy.readTableV2dataValidateCSS("1", "0", "font-size", "24px");
@@ -63,7 +63,7 @@ describe("Table Widget V2 property pane feature validation", function () {
   it("6. Table widget toggle test for text color", function () {
     //cy.movetoStyleTab();
     agHelper.Sleep();
-    propPane.EnterJSContext("Text Color", testdata.bindingTextColor);
+    propPane.EnterJSContext("Text color", testdata.bindingTextColor);
     cy.wait("@updateLayout");
     cy.readTableV2dataValidateCSS("0", "0", "color", "rgb(0, 128, 0)");
     cy.readTableV2dataValidateCSS("1", "0", "color", "rgb(255, 0, 0)");
@@ -72,7 +72,7 @@ describe("Table Widget V2 property pane feature validation", function () {
   it("7. Table widget toggle test for background color", function () {
     //cy.movetoStyleTab();
     agHelper.Sleep();
-    propPane.EnterJSContext("Cell Background", testdata.bindingTextColor);
+    propPane.EnterJSContext("Cell background", testdata.bindingTextColor);
     cy.wait("@updateLayout");
     cy.readTableV2dataValidateCSS(
       "0",

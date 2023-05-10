@@ -66,7 +66,7 @@ describe("Canvas context Property Pane", function () {
     );
   });
 
-  it("4. Icon Button Property controls should have focus while switching between widgets, pages and Editor Panes", function () {
+  it("4. Icon button Property controls should have focus while switching between widgets, pages and Editor Panes", function () {
     const propertyControlClickSelector = `.t--property-control-borderradius div[aria-selected="true"]`;
     const propertyControlVerifySelector = `.t--property-control-borderradius div[role="tablist"]`;
     verifyPropertyPaneContext(

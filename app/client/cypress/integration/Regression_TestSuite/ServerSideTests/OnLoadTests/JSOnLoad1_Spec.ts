@@ -47,7 +47,7 @@ describe("JSObjects OnLoad Actions tests", function () {
           ".getEmployee.data}}",
       );
       _.entityExplorer.SelectEntityByName("Table1", "Widgets");
-      _.propPane.UpdatePropertyFieldValue("Table Data", "{{GetEmployee.data}}");
+      _.propPane.UpdatePropertyFieldValue("Table data", "{{GetEmployee.data}}");
       _.agHelper.ValidateToastMessage(
         "[GetEmployee, " +
           (jsName as string) +

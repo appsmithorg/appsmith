@@ -16,15 +16,15 @@ type filterTypes =
   | "less than"
   | "less than or equal to";
 type columnTypeValues =
-  | "Plain Text"
+  | "Plain text"
   | "URL"
   | "Number"
   | "Image"
   | "Video"
   | "Date"
   | "Button"
-  | "Menu Button"
-  | "Icon Button";
+  | "Menu button"
+  | "Icon button";
 
 export class Table {
   public agHelper = ObjectsRegistry.AggregateHelper;
@@ -32,14 +32,15 @@ export class Table {
   public locator = ObjectsRegistry.CommonLocators;
   public propPane = ObjectsRegistry.PropertyPane;
 
-  private _tableWrap = "//div[@class='tableWrap']";
+  private _tableWrap = "//div[contains(@class,'tableWrap')]";
   private _tableHeader =
-    this._tableWrap + "//div[@class='thead']//div[@class='tr'][1]";
+    this._tableWrap +
+    "//div[contains(@class,'thead')]//div[contains(@class,'tr')][1]";
   private _columnHeader = (columnName: string) =>
     this._tableWrap +
-    "//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//span[text()='" +
+    "//div[contains(@class,'thead')]//div[contains(@class,'tr')][1]//div[@role='columnheader']//div[contains(text(),'" +
     columnName +
-    "']/parent::div/parent::div/parent::div";
+    "')]/parent::div/parent::div";
   private _tableWidgetVersion = (version: "v1" | "v2") =>
     `.t--widget-tablewidget${version == "v1" ? "" : version}`;
   private _nextPage = (version: "v1" | "v2") =>
@@ -455,7 +456,7 @@ export class Table {
         : this._columnSettingsV2(columnName);
 
     this.agHelper.GetNClick(colSettings);
-    this.agHelper.SelectDropdownList("Column Type", newDataType);
+    this.agHelper.SelectDropdownList("Column type", newDataType);
     this.agHelper.ValidateNetworkStatus("@updateLayout");
     if (tableVersion == "v2") this.propPane.NavigateBackToPropertyPane();
   }
