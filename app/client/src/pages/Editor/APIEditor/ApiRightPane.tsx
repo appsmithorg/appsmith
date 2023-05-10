@@ -32,6 +32,7 @@ const EmptyDatasourceContainer = styled.div`
 const DatasourceContainer = styled.div`
   // to account for the divider
   min-width: calc(${(props) => props.theme.actionSidePane.width}px - 2px);
+  max-width: calc(${(props) => props.theme.actionSidePane.width}px - 2px);
   color: var(--ads-v2-color-fg);
 
   .tab-container-right-sidebar {

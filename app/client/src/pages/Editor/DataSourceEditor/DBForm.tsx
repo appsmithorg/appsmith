@@ -67,7 +67,7 @@ export const Form = styled.form`
   overflow: hidden;
   flex: 1;
   .db-form-resizer-content {
-    padding: 0;
+    padding: 0 0 0 2px;
   }
 `;
 

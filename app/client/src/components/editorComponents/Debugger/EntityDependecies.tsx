@@ -32,6 +32,15 @@ const ConnectionType = styled.span`
 const ConnectionWrapper = styled(Button)`
   margin: ${(props) => props.theme.spaces[1]}px
     ${(props) => props.theme.spaces[0] + 2}px;
+  && {
+    min-width: auto;
+    .ads-v2-button__content-children {
+      display: block;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+  }
 `;
 
 const ConnectionsContainer = styled.span`
