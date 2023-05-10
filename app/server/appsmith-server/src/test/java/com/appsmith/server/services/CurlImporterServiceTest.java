@@ -176,7 +176,7 @@ public class CurlImporterServiceTest {
         StepVerifier
                 .create(action)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
-                        throwable.getMessage().equals(AppsmithError.INVALID_CURL_COMMAND.getMessage()))
+                        throwable.getMessage().equals(AppsmithError.EMPTY_CURL_INPUT_STATEMENT.getMessage()))
                 .verify();
     }
 

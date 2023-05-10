@@ -80,7 +80,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
         ActionDTO action;
 
         try {
-            if (input == null) {
+            if (StringUtils.isBlank((String) input)) {
                 throw new AppsmithException(AppsmithError.EMPTY_CURL_INPUT_STATEMENT, FieldName.CURL_CODE);
             }
             action = curlToAction((String) input, name);
