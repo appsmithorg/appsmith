@@ -182,7 +182,7 @@ public class CurlImporterServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void testImportAction_NullLex() {
+    public void testImportActionOnNullInput() {
         setup();
         // Set up the application & page for which this import curl action would be added
         Application app = new Application();
