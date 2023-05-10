@@ -4,6 +4,8 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 import homePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
+/* TODO: Skipping this test because there is an issue with Datasource.ts referencing the CloseReconectDatasourceModal method
+QA will fix it */
 describe(
   "excludeForAirgap",
   "Creating new app after discontinuing guided tour should not start the same",
