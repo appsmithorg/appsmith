@@ -331,7 +331,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     /**
      * This method will make a commit to local repo
-     * This is used directly from client and we need to acquire file lock before starting to keep the application in a sane state
+     * This is used directly from client, and we need to acquire file lock before starting to keep the application in a sane state
      *
      * @param commitDTO            information required for making a commit
      * @param defaultApplicationId application branch on which the commit needs to be done
@@ -430,12 +430,13 @@ public class GitServiceCEImpl implements GitServiceCE {
                     final String workspaceId = defaultApplication.getWorkspaceId();
                     return GitUtils.isRepoPrivate(defaultGitMetadata.getBrowserSupportedRemoteUrl())
                             .flatMap(isPrivate -> {
-                                if (!isPrivate.equals(defaultGitMetadata.getIsRepoPrivate()) || Boolean.TRUE.equals(defaultGitMetadata.getIsRepoPrivate())) {
+                                // Check the repo limit if the visibility status is updated, or it is private
+                                if (!isPrivate.equals(defaultGitMetadata.getIsRepoPrivate()) || isPrivate.equals(Boolean.TRUE)) {
                                     defaultGitMetadata.setIsRepoPrivate(isPrivate);
                                     defaultApplication.setGitApplicationMetadata(defaultGitMetadata);
                                     return applicationService.save(defaultApplication)
                                             // Check if the private repo count is less than the allowed repo count
-                                            .map(application -> isRepoLimitReached(workspaceId, false))
+                                            .flatMap(application -> isRepoLimitReached(workspaceId, false))
                                             .flatMap(isRepoLimitReached -> {
                                                 if (Boolean.FALSE.equals(isRepoLimitReached)) {
                                                     return Mono.just(defaultApplication);
@@ -1326,7 +1327,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             )
                             // We need to handle the case specifically for default branch of Appsmith
                             // if user switches default branch and tries to delete the default branch we do not delete resource from db
-                            // This is an exception only for the above case and in such case if the user tries to checkout the branch again
+                            // This is an exception only for the above case and in such case if the user tries to check out the branch again
                             // It results in an error as the resources are already present in db
                             // So we just rehydrate from the file system to the existing resource on the db
                             .onErrorResume(throwable -> {
@@ -1624,9 +1625,9 @@ public class GitServiceCEImpl implements GitServiceCE {
     @Override
     public Mono<MergeStatusDTO> mergeBranch(String defaultApplicationId, GitMergeDTO gitMergeDTO) {
         /*
-         * 1.Dehydrate the application from Mongodb so that the file system has latest application data for both the source and destination branch application
+         * 1.Dehydrate the application from Mongodb so that the file system has the latest application data for both the source and destination branch application
          * 2.Do git checkout destinationBranch ---> git merge sourceBranch after the rehydration
-         *   On Merge conflict - create new branch and push the changes to remote and ask the user to resolve it on github/gitlab UI
+         *   On Merge conflict - create new branch and push the changes to remote and ask the user to resolve it on Github/Gitlab UI
          * 3.Then rehydrate from the file system to mongodb so that the latest changes from remote are rendered to the application
          * 4.Get the latest application mono from the mongodb and send it back to client
          * */
