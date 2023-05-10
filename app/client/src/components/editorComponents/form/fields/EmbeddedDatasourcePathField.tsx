@@ -133,11 +133,6 @@ const italicInfoStyles = {
   fontStyle: "italic",
 };
 
-const StyledTooltip = styled(Tooltip)`
-  & .hide-me {
-    display: none;
-  }
-`;
 //Avoiding styled components since ReactDOM.render cannot directly work with it
 function CustomHint(props: { datasource: Datasource }) {
   return (
@@ -470,15 +465,15 @@ class EmbeddedDatasourcePathComponent extends React.Component<
           focusElementName={`${this.props.actionName}.url`}
         />
         {datasource && datasource.name !== "DEFAULT_REST_DATASOURCE" && (
-          <StyledTooltip
+          <Tooltip
             content={`Datasource ${datasource?.name}`}
             id="custom-tooltip"
             visible={this.state.isTooltipVisible}
           >
-            <span className="hide-me" style={{ display: "none" }}>
+            <span style={{ display: "none" }}>
               I am a trigger. My only purpose is to fool typescript.
             </span>
-          </StyledTooltip>
+          </Tooltip>
         )}
         {displayValue && (
           <StoreAsDatasource
