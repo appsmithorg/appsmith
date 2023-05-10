@@ -39,7 +39,10 @@ import EntityNotFoundPane from "../EntityNotFoundPane";
 import { saasEditorDatasourceIdURL } from "RouteBuilder";
 import NewActionButton from "../DataSourceEditor/NewActionButton";
 import type { Plugin } from "api/PluginApi";
-import { isDatasourceAuthorizedForQueryCreation } from "utils/editorContextUtils";
+import {
+  getDatasourceScopeValue,
+  isDatasourceAuthorizedForQueryCreation,
+} from "utils/editorContextUtils";
 import { PluginPackageName } from "entities/Action";
 import AuthMessage from "pages/common/datasourceAuth/AuthMessage";
 import { isDatasourceInViewMode } from "selectors/ui";
@@ -97,6 +100,7 @@ interface StateProps extends JSONtoFormProps {
   gsheetToken?: string;
   gsheetProjectID?: string;
   documentationLink: string | undefined;
+  scopeValue?: string;
 }
 interface DatasourceFormFunctions {
   discardTempDatasource: () => void;
@@ -286,6 +290,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       pageId,
       plugin,
       pluginPackageName,
+      scopeValue,
     } = this.props;
     const params: string = location.search;
     const viewMode =
@@ -449,6 +454,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
               getSanitizedFormData={_.memoize(this.getSanitizedData)}
               isInvalid={this.validate()}
               pageId={pageId}
+              scopeValue={scopeValue}
               shouldDisplayAuthMessage={!isGoogleSheetPlugin}
               shouldRender={!viewMode}
               triggerSave={this.props.isDatasourceBeingSavedFromPopup}
@@ -495,6 +501,12 @@ const mapStateToProps = (state: AppState, props: any) => {
   }
 
   merge(initialValues, datasource);
+
+  // get scopeValue to be shown in analytical events
+  let scopeValue = null;
+  if (!!formConfig && formConfig.length > 0) {
+    scopeValue = getDatasourceScopeValue(formData, formConfig[0]);
+  }
 
   const datasourceButtonConfiguration = getDatasourceFormButtonConfig(
     state,
@@ -551,6 +563,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     canCreateDatasourceActions,
     gsheetToken,
     gsheetProjectID,
+    scopeValue,
   };
 };
 
