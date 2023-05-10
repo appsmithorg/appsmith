@@ -633,6 +633,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     }
 
     protected Mono<Workspace> archiveWorkspaceDependents(Workspace workspace) {
+        // Nothing to archive
         return Mono.just(workspace);
     }
 
