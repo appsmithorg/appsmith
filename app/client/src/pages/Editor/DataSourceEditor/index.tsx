@@ -79,13 +79,15 @@ import {
   validate,
 } from "components/formControls/utils";
 import type { ControlProps } from "components/formControls/BaseControl";
+import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
   canManageDatasource: boolean;
   datasourceButtonConfiguration: string[] | undefined;
   datasourceId: string;
-  formData: Datasource;
+  formData: Datasource | ApiDatasourceForm;
+  formName: string;
   isSaving: boolean;
   isTesting: boolean;
   formConfig: any[];
@@ -97,6 +99,7 @@ interface ReduxStateProps {
   pluginId: string;
   viewMode: boolean;
   pluginType: string;
+  pluginName: string;
   pluginDatasourceForm: string;
   pluginPackageName: string;
   applicationId: string;
@@ -106,9 +109,9 @@ interface ReduxStateProps {
   isDatasourceBeingSaved: boolean;
   triggerSave: boolean;
   isFormDirty: boolean;
-  datasource: Datasource | undefined;
+  datasource: Datasource | ApiDatasourceForm | undefined;
   defaultKeyValueArrayConfig: Array<string>;
-  initialValue: Datasource | undefined;
+  initialValue: Datasource | ApiDatasourceForm | undefined;
   showDebugger: boolean;
 }
 
@@ -418,9 +421,11 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
 
   renderForm() {
     const {
+      datasource,
       datasourceId,
       formConfig,
       formData,
+      formName,
       fromImporting,
       history,
       isDeleting,
@@ -432,6 +437,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       pageId,
       pluginDatasourceForm,
       pluginImage,
+      pluginName,
       pluginPackageName,
       pluginType,
       setDatasourceViewMode,
@@ -448,8 +454,10 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         <>
           <RestAPIDatasourceForm
             applicationId={this.props.applicationId}
+            datasource={datasource}
             datasourceDeleteTrigger={this.datasourceDeleteTrigger}
             datasourceId={datasourceId}
+            formName={formName}
             hiddenHeader={fromImporting}
             isDeleting={isDeleting}
             isFormDirty={isFormDirty}
@@ -458,6 +466,8 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
             location={location}
             pageId={pageId}
             pluginImage={pluginImage}
+            pluginName={pluginName}
+            pluginPackageName={pluginPackageName}
             triggerSave={this.props.triggerSave}
           />
           {this.renderSaveDisacardModal()}
@@ -549,7 +559,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
               text="EDIT"
             />
             <NewActionButton
-              datasource={datasource}
+              datasource={datasource as Datasource}
               disabled={!canCreateDatasourceActions || !isPluginAuthorized}
               eventFrom="datasource-pane"
               pluginType={pluginType}
@@ -603,13 +613,13 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
             {/* Render datasource form call-to-actions */}
             {datasource && (
               <DatasourceAuth
-                datasource={datasource}
+                datasource={datasource as Datasource}
                 datasourceButtonConfiguration={datasourceButtonConfiguration}
                 datasourceDeleteTrigger={this.datasourceDeleteTrigger}
                 formData={formData}
                 getSanitizedFormData={memoize(this.getSanitizedData)}
                 isFormDirty={this.props.isFormDirty}
-                isInvalid={validate(this.state.requiredFields, formData)}
+                isInvalid={this.validateForm()}
                 shouldRender={!viewMode}
                 triggerSave={triggerSave}
               />
@@ -620,6 +630,25 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       </Form>
     );
   }
+  validateForm(): boolean {
+    const {
+      canManageDatasource,
+      datasourceId,
+      formData,
+      pluginDatasourceForm,
+    } = this.props;
+    if (
+      pluginDatasourceForm === DatasourceComponentTypes.RestAPIDatasourceForm
+    ) {
+      const createMode = datasourceId === TEMP_DATASOURCE_ID;
+      if (!formData) return true;
+      return (
+        !(formData as ApiDatasourceForm).url ||
+        (!createMode && !canManageDatasource)
+      );
+    }
+    return validate(this.state.requiredFields, formData);
+  }
 }
 
 const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
@@ -627,9 +656,13 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const { datasourcePane } = state.ui;
   const { datasources, plugins } = state.entities;
   const viewMode = isDatasourceInViewMode(state);
-  const datasource = getDatasource(state, datasourceId) as Datasource;
+  const datasource = getDatasource(state, datasourceId) as
+    | Datasource
+    | ApiDatasourceForm;
   const { formConfigs } = plugins;
-  const formData = getFormValues(DATASOURCE_DB_FORM)(state) as Datasource;
+  const formData = getFormValues(DATASOURCE_DB_FORM)(state) as
+    | Datasource
+    | ApiDatasourceForm;
   const pluginId = get(datasource, "pluginId", "");
   const plugin = getPlugin(state, pluginId);
   const { applicationSlug, pageSlug } = selectURLSlugs(state);
@@ -637,7 +670,9 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     plugin?.type === "API" ? DATASOURCE_REST_API_FORM : DATASOURCE_DB_FORM;
   const isFormDirty =
     datasourceId === TEMP_DATASOURCE_ID ? true : isDirty(formName)(state);
-  const initialValue = getFormInitialValues(formName)(state) as Datasource;
+  const initialValue = getFormInitialValues(formName)(state) as
+    | Datasource
+    | ApiDatasourceForm;
   const defaultKeyValueArrayConfig =
     datasourcePane?.defaultKeyValueArrayConfig as any;
 
@@ -656,7 +691,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const showDebugger = showDebuggerFlag(state);
 
   const isPluginAuthorized =
-    plugin && isDatasourceAuthorizedForQueryCreation(formData, plugin);
+    plugin &&
+    isDatasourceAuthorizedForQueryCreation(formData as Datasource, plugin);
 
   const datasourceButtonConfiguration = getDatasourceFormButtonConfig(
     state,
@@ -670,10 +706,11 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     datasourceId,
     pluginImage: getPluginImages(state)[pluginId],
     formData,
+    formName,
     fromImporting: props.fromImporting ?? false,
     pluginId,
     isSaving: datasources.loading,
-    isDeleting: !!datasource?.isDeleting,
+    isDeleting: !!(datasource as Datasource)?.isDeleting,
     isPluginAuthorized: !!isPluginAuthorized,
     isTesting: datasources.isTesting,
     formConfig: formConfigs[pluginId] || [],
@@ -681,6 +718,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pageId: props.pageId ?? props.match?.params?.pageId,
     viewMode: viewMode ?? !props.fromImporting,
     pluginType: plugin?.type ?? "",
+    pluginName: plugin?.name ?? "",
     pluginDatasourceForm:
       plugin?.datasourceComponent ?? DatasourceComponentTypes.AutoForm,
     pluginPackageName: plugin?.packageName ?? "",
