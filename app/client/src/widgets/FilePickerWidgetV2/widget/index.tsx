@@ -29,7 +29,6 @@ import FilePickerComponent from "../component";
 import FileDataTypes from "../constants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const CSV_ARRAY_LABEL = "Array (CSVs only)";
 const CSV_FILE_TYPE_REGEX = /.+(\/csv)$/;
@@ -39,8 +38,6 @@ const ARRAY_CSV_HELPER_TEXT = `All non csv filetypes will have an empty value. \
 const isCSVFileType = (str: string) => CSV_FILE_TYPE_REGEX.test(str);
 
 type Result = string | Buffer | ArrayBuffer | null;
-
-const isAirgappedInstance = isAirgapped();
 
 const FilePickerGlobalStyles = createGlobalStyle<{
   borderRadius?: string;
@@ -611,7 +608,7 @@ class FilePickerWidget extends BaseWidget<
         closeAfterFinish: true,
         closeModalOnClickOutside: true,
         disableStatusBar: false,
-        disableInformer: isAirgappedInstance,
+        disableInformer: false,
         disableThumbnailGenerator: false,
         disablePageScrollWhenModalOpen: true,
         proudlyDisplayPoweredByUppy: false,
