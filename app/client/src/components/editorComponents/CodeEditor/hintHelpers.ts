@@ -71,6 +71,7 @@ class SqlHintHelper {
   datasourceTableKeys: NonNullable<
     ReturnType<typeof getAllDatasourceTableKeys>
   > = {};
+  tables: Record<string, string[]> = {};
 
   constructor() {
     this.hinter = this.hinter.bind(this);
@@ -84,6 +85,7 @@ class SqlHintHelper {
     datasourceTableKeys: ReturnType<typeof getAllDatasourceTableKeys>,
   ) {
     this.datasourceTableKeys = datasourceTableKeys || {};
+    this.tables = this.generateTables(this.datasourceTableKeys);
   }
   hinter() {
     return {
@@ -107,9 +109,9 @@ class SqlHintHelper {
     };
   }
 
-  generateTables() {
+  generateTables(tableKeys: typeof this.datasourceTableKeys) {
     const tables: Record<string, string[]> = {};
-    for (const tableKey of Object.keys(this.datasourceTableKeys)) {
+    for (const tableKey of Object.keys(tableKeys)) {
       tables[`${tableKey}`] = [];
     }
     return tables;
@@ -136,7 +138,7 @@ class SqlHintHelper {
     if (isCursorOnEmptyToken(editor) || !this.isSqlMode(editor)) return noHints;
     // @ts-expect-error: No types available
     const completions: Hints = CodeMirror.hint.sql(editor, {
-      tables: this.generateTables(),
+      tables: this.tables,
     });
     if (isEmpty(completions.list)) return noHints;
     return {
