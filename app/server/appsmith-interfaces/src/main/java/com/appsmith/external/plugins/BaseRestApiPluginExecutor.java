@@ -24,6 +24,7 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
+import java.util.Properties;
 import java.util.Set;
 
 @Setter
@@ -99,5 +100,14 @@ public class BaseRestApiPluginExecutor implements PluginExecutor<APIConnection>,
                                                                   DatasourceConfiguration datasourceConfiguration) {
         /* Use the default hint message flow for REST API based plugins */
         return hintMessageUtils.getHintMessages(actionConfiguration, datasourceConfiguration);
+    }
+
+    @Override
+    public Properties addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+        return properties;
+    }
+    @Override
+    public Properties addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+        return properties;
     }
 }

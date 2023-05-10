@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
@@ -207,6 +208,15 @@ public class SaasPlugin extends BasePlugin {
         @Override
         public Mono<ExecutePluginDTO> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             return Mono.empty();
+        }
+
+        @Override
+        public Properties addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+            return properties;
+        }
+        @Override
+        public Properties addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+            return properties;
         }
 
         @Override

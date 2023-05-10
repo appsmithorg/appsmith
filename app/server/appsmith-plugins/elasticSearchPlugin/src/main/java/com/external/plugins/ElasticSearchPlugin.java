@@ -14,6 +14,7 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.external.plugins.exceptions.ElasticSearchErrorMessages;
 import com.external.plugins.exceptions.ElasticSearchPluginError;
+import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
@@ -229,6 +230,15 @@ public class ElasticSearchPlugin extends BasePlugin {
 
             return Mono.fromCallable(clientBuilder::build)
                     .subscribeOn(scheduler);
+        }
+
+        @Override
+        public Properties addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+            return properties;
+        }
+        @Override
+        public Properties addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+            return properties;
         }
 
         @Override

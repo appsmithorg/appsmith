@@ -17,6 +17,7 @@ import com.external.plugins.exceptions.RedshiftErrorMessages;
 import com.external.plugins.exceptions.RedshiftPluginError;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
+import java.util.Properties;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
@@ -368,6 +369,15 @@ public class RedshiftPlugin extends BasePlugin {
                         return createConnectionPool(datasourceConfiguration);
                     })
                     .subscribeOn(scheduler);
+        }
+
+        @Override
+        public Properties addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+            return properties;
+        }
+        @Override
+        public Properties addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+            return properties;
         }
 
         @Override

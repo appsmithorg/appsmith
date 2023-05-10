@@ -2,6 +2,7 @@ package com.external.plugins;
 
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.factories.DataSourceConnectionFactory;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
@@ -19,6 +20,9 @@ import com.zaxxer.hikari.HikariPoolMXBean;
 import lombok.extern.slf4j.Slf4j;
 import net.snowflake.client.jdbc.SnowflakeReauthenticationRequest;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.stubbing.Answer;
 import org.springframework.core.io.ClassPathResource;
@@ -49,9 +53,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @Slf4j
 public class SnowflakePluginTest {
@@ -59,6 +61,9 @@ public class SnowflakePluginTest {
     SnowflakePlugin.SnowflakePluginExecutor pluginExecutor = new SnowflakePlugin.SnowflakePluginExecutor();
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Captor
+    ArgumentCaptor<List<Property>> hikariConfigArgumentCaptor;
 
     @Test
     public void testValidateDatasource_withInvalidCredentials_returnsInvalids() {
@@ -254,4 +259,28 @@ public class SnowflakePluginTest {
             assertEquals(mustacheMatchCount, enclosedMustacheMatchCount);
         }
     }
+
+//    @Test
+//    public void verifyCreateDataSourceSuccess() throws Exception {
+//        SnowflakePlugin.SnowflakePluginExecutor pluginExecutorSpy = spy(new SnowflakePlugin.SnowflakePluginExecutor(hikariDataSourceConnectionFactor));
+//        DBAuth dbAuth = new DBAuth();
+//        dbAuth.setUsername("test user");
+//        dbAuth.setPassword("testpass");
+//        List<Property> properties = new ArrayList<>();
+//        properties.add(new Property("warehouse", "testwarehouse"));
+//        properties.add(new Property("db", "testdb"));
+//        properties.add(new Property("schema", "testschema"));
+//        properties.add(new Property("role", "testrole"));
+//        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+//        datasourceConfiguration.setProperties(properties);
+//        datasourceConfiguration.setAuthentication(dbAuth);
+//        datasourceConfiguration.setUrl("errorneous");
+//
+//        Mono<HikariDataSource> hikariDataSourceMono = pluginExecutorSpy.datasourceCreate(datasourceConfiguration);
+//        HikariDataSource hikariDataSource = mock(HikariDataSource.class);
+//        PowerMockito.verifyPrivate(pluginExecutorSpy).invoke("createConnectionPool", hikariConfigArgumentCaptor.capture());
+//        StepVerifier.create(hikariDataSourceMono)
+//                .expectComplete()
+//                .verify();
+//    }
 }

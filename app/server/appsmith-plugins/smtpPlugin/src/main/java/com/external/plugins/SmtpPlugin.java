@@ -201,6 +201,15 @@ public class SmtpPlugin extends BasePlugin {
         }
 
         @Override
+        public Properties addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+            return properties;
+        }
+        @Override
+        public Properties addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+            return properties;
+        }
+
+        @Override
         public void datasourceDestroy(Session session) {
             log.debug("Going to destroy email datasource");
             try {
