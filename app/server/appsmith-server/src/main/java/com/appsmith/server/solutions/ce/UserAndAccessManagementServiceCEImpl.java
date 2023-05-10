@@ -62,6 +62,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
         this.permissionGroupPermission = permissionGroupPermission;
     }
 
+
     /**
      * 1. User doesn't exist :
      * a. Create a new user.
