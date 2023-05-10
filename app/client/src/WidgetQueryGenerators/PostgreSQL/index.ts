@@ -115,6 +115,11 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
           formConfig.primaryColumn
         }}};`,
       },
+      dynamicBindingPathList: [
+        {
+          key: "body",
+        },
+      ],
     };
   }
 
@@ -138,6 +143,11 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
           .map((d) => `'{{${create.value}.${d}}}'`)
           .toString()})`,
       },
+      dynamicBindingPathList: [
+        {
+          key: "body",
+        },
+      ],
     };
   }
 
@@ -161,6 +171,11 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
             : ""
         };`,
       },
+      dynamicBindingPathList: [
+        {
+          key: "body",
+        },
+      ],
     };
   }
 
