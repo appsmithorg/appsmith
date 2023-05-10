@@ -30,7 +30,19 @@ import "./queryCommands";
 import "./widgetCommands";
 import "./themeCommands";
 import "./AdminSettingsCommands";
+import "cypress-plugin-tab";
 /// <reference types="cypress-xpath" />
+
+let rapidMode = {
+  enabled: false, // Set to true to disable app creation
+  appName: "cf023e29", // Replace it with your app name
+  pageName: "page1", // Replace it with the page name
+  pageID: "644d0ec870cec01248edfc9a", // Replace it with pageID
+
+  url: function () {
+    return `app/${this.appName}/${this.pageName}-${this.pageID}/edit`;
+  },
+};
 
 Cypress.on("uncaught:exception", () => {
   // returning false here prevents Cypress from
@@ -45,6 +57,24 @@ Cypress.on("fail", (error) => {
 Cypress.env("MESSAGES", MESSAGES);
 
 before(function () {
+  if (rapidMode.enabled) {
+    cy.startServerAndRoutes();
+    cy.getCookie("SESSION").then((cookie) => {
+      if (!cookie) {
+        cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+      }
+    });
+
+    Cypress.Cookies.preserveOnce("SESSION", "remember_token");
+    cy.visit(rapidMode.url());
+    cy.wait("@getWorkspace");
+  }
+});
+
+before(function () {
+  if (rapidMode.enabled) {
+    return;
+  }
   //console.warn = () => {}; //to remove all warnings in cypress console
   initLocalstorage();
   initLocalstorageRegistry();
@@ -85,12 +115,14 @@ before(function () {
 });
 
 before(function () {
+  if (rapidMode.enabled) {
+    return;
+  }
   //console.warn = () => {};
   Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   const username = Cypress.env("USERNAME");
   const password = Cypress.env("PASSWORD");
   cy.LoginFromAPI(username, password);
-  cy.wait("@getMe");
   cy.wait(3000);
   cy.get(".t--applications-container .createnew")
     .should("be.visible")
@@ -121,6 +153,9 @@ beforeEach(function () {
 });
 
 after(function () {
+  if (rapidMode.enabled) {
+    return;
+  }
   //-- Deleting the application by Api---//
   cy.DeleteAppByApi();
   //-- LogOut Application---//

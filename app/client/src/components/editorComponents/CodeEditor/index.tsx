@@ -24,6 +24,7 @@ import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import type { WrappedFieldInputProps } from "redux-form";
 import _, { debounce, isEqual } from "lodash";
+import scrollIntoView from "scroll-into-view-if-needed";
 
 import type {
   DataTree,
@@ -389,6 +390,7 @@ class CodeEditor extends Component<Props, State> {
         editor.on("blur", this.handleEditorBlur);
         editor.on("postPick", () => this.handleAutocompleteVisibility(editor));
         editor.on("mousedown", this.handleClick);
+        editor.on("scrollCursorIntoView", this.handleScrollCursorIntoView);
         CodeMirror.on(
           editor.getWrapperElement(),
           "mousemove",
@@ -587,6 +589,28 @@ class CodeEditor extends Component<Props, State> {
     PEEK_OVERLAY_DELAY,
   );
 
+  handleScrollCursorIntoView = (cm: CodeMirror.Editor, event: Event) => {
+    event.preventDefault();
+
+    const delayedWork = () => {
+      if (!this.state.isFocused) return;
+
+      const cursorElement = cm
+        .getScrollerElement()
+        .getElementsByClassName("CodeMirror-cursor")[0];
+      if (cursorElement) {
+        scrollIntoView(cursorElement, {
+          block: "nearest",
+        });
+      }
+    };
+
+    // We need to delay this because CodeMirror can fire scrollCursorIntoView as a view is being blurred
+    // and another is being focused. The blurred editor still has the focused state when this event fires.
+    // We don't want to scroll the blurred editor into view, only the focused editor.
+    setTimeout(delayedWork, 0);
+  };
+
   handleMouseOver = (event: MouseEvent) => {
     if (
       event.target instanceof Element &&
@@ -698,7 +722,20 @@ class CodeEditor extends Component<Props, State> {
         }
         break;
       case "Escape":
-        if (this.state.isFocused && !this.state.hinterOpen) {
+        /*
+         * We only want focus to go out for code editors in JS pane with binding prompts
+         * This is so the esc closes the binding prompt.
+         * but this is not needed in the JS object editor, since there are no prompts there
+         * So we check for the following so the JS editor does not have this behaviour -
+         * isFocused : editor is focused
+         * hinterOpen : autocomplete hinter is closed
+         * this.isBindingPromptOpen : binding prompt (type / for commands) is closed
+         */
+        if (
+          this.state.isFocused &&
+          !this.state.hinterOpen &&
+          this.isBindingPromptOpen()
+        ) {
           this.codeEditorTarget.current?.focus();
           this.codeEditorTarget.current?.dispatchEvent(
             interactionAnalyticsEvent({ key: e.key }),
@@ -1012,6 +1049,8 @@ class CodeEditor extends Component<Props, State> {
     const configTree = ConfigTreeActions.getConfigTree();
     const entityInformation: FieldEntityInformation = {
       expectedType: expected?.autocompleteDataType,
+      example: expected?.example,
+      mode: this.props.mode,
     };
 
     if (dataTreePath) {
@@ -1201,6 +1240,26 @@ class CodeEditor extends Component<Props, State> {
     };
   };
 
+  // show features like evaluatedvaluepopup or binding prompts
+  showFeatures = () => {
+    return (
+      this.state.isFocused &&
+      !this.props.hideEvaluatedValue &&
+      ("evaluatedValue" in this.props ||
+        ("dataTreePath" in this.props && !!this.props.dataTreePath))
+    );
+  };
+
+  isBindingPromptOpen = () => {
+    return (
+      showBindingPrompt(
+        this.showFeatures(),
+        this.props.input.value,
+        this.state.hinterOpen,
+      ) && !_.get(this.editor, "state.completionActive")
+    );
+  };
+
   render() {
     const {
       border,
@@ -1217,7 +1276,6 @@ class CodeEditor extends Component<Props, State> {
       height,
       hideEvaluatedValue,
       hoverInteraction,
-      input,
       showLightningMenu,
       size,
       theme,
@@ -1243,15 +1301,8 @@ class CodeEditor extends Component<Props, State> {
       isInvalid = Boolean(this.props.isInvalid);
     }
 
-    // show features like evaluatedvaluepopup or binding prompts
-    const showFeatures =
-      this.state.isFocused &&
-      !hideEvaluatedValue &&
-      ("evaluatedValue" in this.props ||
-        ("dataTreePath" in this.props && !!dataTreePath));
-
     const showEvaluatedValue =
-      showFeatures && (this.state.isDynamic || isInvalid);
+      this.showFeatures() && (this.state.isDynamic || isInvalid);
 
     return (
       <DynamicAutocompleteInputWrapper
@@ -1342,13 +1393,7 @@ class CodeEditor extends Component<Props, State> {
             >
               <BindingPrompt
                 editorTheme={this.props.theme}
-                isOpen={
-                  showBindingPrompt(
-                    showFeatures,
-                    input.value,
-                    this.state.hinterOpen,
-                  ) && !_.get(this.editor, "state.completionActive")
-                }
+                isOpen={this.isBindingPromptOpen()}
                 promptMessage={this.props.promptMessage}
                 showLightningMenu={this.props.showLightningMenu}
               />

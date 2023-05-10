@@ -282,6 +282,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
           ? MAIN_CONTAINER_WIDGET_ID
           : widgetId,
         direction,
+        addToBottom: newWidget.detachFromLayout,
       },
     });
     setTimeout(() => {
