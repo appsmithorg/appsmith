@@ -84,7 +84,7 @@ public class FeatureFlagServiceImpl extends FeatureFlagServiceCEImpl implements 
                 })
                 .map(newValue -> {
                     this.featureFlagCache.putAll(newValue);
-                    return newValue.get(user.getEmail());
+                    return newValue.getOrDefault(user.getEmail(), Map.of());
                 });
     }
 
