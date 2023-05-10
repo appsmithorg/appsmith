@@ -52,7 +52,6 @@ import { Profile } from "pages/common/ProfileImage";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
 import ToggleModeButton from "pages/Editor/ToggleModeButton";
-import { Colors } from "constants/Colors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { showConnectGitModal } from "actions/gitSyncActions";
 import RealtimeAppEditors from "./RealtimeAppEditors";
@@ -120,7 +119,7 @@ const HeaderWrapper = styled.div`
   }
 
   @media only screen and (max-width: 700px) {
-    & .app-realtume-editors {
+    & .app-realtime-editors {
       display: none;
     }
   }
@@ -158,11 +157,6 @@ const AppsmithLink = styled((props) => {
   }
 `;
 
-const DeploySection = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
 const BindingBanner = styled.div`
   position: fixed;
   width: 199px;
@@ -171,8 +165,9 @@ const BindingBanner = styled.div`
   top: ${(props) => props.theme.smallHeaderHeight};
   transform: translate(-50%, 0);
   text-align: center;
-  background: ${Colors.DANUBE};
-  color: ${Colors.WHITE};
+  background: var(--ads-v2-color-fg-information);
+  color: var(--ads-v2-color-white);
+  border: 1px solid var(--ads-v2-color-border);
   font-weight: 500;
   font-size: 15px;
   line-height: 20px;
@@ -180,7 +175,7 @@ const BindingBanner = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--ads-v2-shadow-popovers);
   z-index: 9999;
 `;
 
@@ -489,7 +484,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                 </ModalBody>
               </ModalContent>
             </Modal>
-            <DeploySection>
+            <div className="flex items-center">
               <Tooltip
                 content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
                 placement="bottomRight"
@@ -508,7 +503,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               </Tooltip>
 
               <DeployLinkButtonDialog link={deployLink} trigger="" />
-            </DeploySection>
+            </div>
           </Boxed>
         </HeaderSection>
         <Suspense fallback={<span />}>
