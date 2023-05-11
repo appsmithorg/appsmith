@@ -28,6 +28,7 @@ export class ThemeSettings {
     type: "Primary" | "Background" = "Primary",
   ) {
     const typeIndex = type == "Primary" ? 0 : 1;
+    this.agHelper.Sleep(200); //for themes to complete opening
     this.agHelper.GetNClick(this.locators._colorRing, typeIndex);
     if (typeof colorIndex == "number") {
       this.agHelper.GetNClick(this.locators._colorPickerV2Popover);
