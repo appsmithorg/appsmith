@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -23,9 +22,10 @@ import reactor.test.StepVerifier;
 import java.util.Comparator;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-@DirtiesContext
 @Slf4j
 public class DatasourceConfigurationStorageServiceTest {
 
@@ -65,9 +65,9 @@ public class DatasourceConfigurationStorageServiceTest {
 
         StepVerifier.create(datasourceConfigurationStorageMono)
                 .assertNext(datasourceConfigurationStorage1 -> {
-                    assert(datasourceConfigurationStorage1 != null);
-                    assert(datasourceId.equals(datasourceConfigurationStorage1.getDatasourceId()));
-                    assert(datasourceConfigurationStorage1.getDatasourceConfiguration().getEndpoints().size() == 1);
+                    assertThat(datasourceConfigurationStorage1).isNotNull();
+                    assertThat(datasourceId).isEqualTo(datasourceConfigurationStorage1.getDatasourceId());
+                    assertThat(datasourceConfigurationStorage1.getDatasourceConfiguration().getEndpoints().size()).isEqualTo(1);
                 })
                 .verifyComplete();
     }
@@ -97,14 +97,14 @@ public class DatasourceConfigurationStorageServiceTest {
 
         StepVerifier.create(datasourceConfigurationStorageFlux)
                 .assertNext(datasourceConfigurationStorage -> {
-                    assert(datasourceConfigurationStorage != null);
-                    assert(datasourceId.equals(datasourceConfigurationStorage.getDatasourceId()));
-                    assert(environmentIdOne.equals(datasourceConfigurationStorage.getEnvironmentId()));
+                    assertThat(datasourceConfigurationStorage).isNotNull() ;
+                    assertThat(datasourceId).isEqualTo(datasourceConfigurationStorage.getDatasourceId());
+                    assertThat(environmentIdOne).isEqualTo(datasourceConfigurationStorage.getEnvironmentId());
                 })
                 .assertNext(datasourceConfigurationStorage -> {
-                    assert(datasourceConfigurationStorage != null);
-                    assert(datasourceId.equals(datasourceConfigurationStorage.getDatasourceId()));
-                    assert(environmentIdTwo.equals(datasourceConfigurationStorage.getEnvironmentId()));
+                    assertThat(datasourceConfigurationStorage).isNotNull();
+                    assertThat(datasourceId).isEqualTo(datasourceConfigurationStorage.getDatasourceId());
+                    assertThat(environmentIdTwo).isEqualTo(datasourceConfigurationStorage.getEnvironmentId());
                 })
                 .verifyComplete();
     }

@@ -45,16 +45,16 @@ public class CustomDatasourceConfigurationStorageRepositoryCEImpl
 
     @Override
     public Flux<DatasourceConfigurationStorage> findByDatasourceId(String datasourceId) {
-        return queryMany(List.of(notDeleted(), datasourceIdCriterion(datasourceId)), DatasourceConfigurationStorage.class);
+        return queryMany(List.of(notDeleted(), datasourceIdCriterion(datasourceId)));
     }
 
     @Override
     public Flux<DatasourceConfigurationStorage> findAllByDatasourceIds(List<String> datasourceIds) {
-        return queryMany(List.of(notDeleted(), datasourceIdsCriterion(datasourceIds)), DatasourceConfigurationStorage.class);
+        return queryMany(List.of(notDeleted(), datasourceIdsCriterion(datasourceIds)));
     }
 
     @Override
     public Mono<DatasourceConfigurationStorage> findOneByDatasourceId(String datasourceId) {
-        return queryOne(List.of(notDeleted(), datasourceIdCriterion(datasourceId)), DatasourceConfigurationStorage.class);
+        return queryOne(List.of(notDeleted(), datasourceIdCriterion(datasourceId)));
     }
 }

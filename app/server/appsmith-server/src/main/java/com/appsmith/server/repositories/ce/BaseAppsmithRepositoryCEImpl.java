@@ -605,11 +605,11 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     Db query methods
      */
 
-    public Mono<T> queryOne(List<Criteria> criteria, Class<T> genericDomain) {
+    public Mono<T> queryOne(List<Criteria> criteria) {
         return mongoOperations.findOne(getQuery(criteria), genericDomain);
     }
 
-    public Flux<T> queryMany(List<Criteria> criteria, Class<T> genericDomain) {
+    public Flux<T> queryMany(List<Criteria> criteria) {
         return mongoOperations.find(getQuery(criteria), genericDomain);
     }
 }
