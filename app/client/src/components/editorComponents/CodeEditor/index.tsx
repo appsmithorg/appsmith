@@ -936,7 +936,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleEditorBlur = (_: CodeMirror.Editor, event: FocusEvent) => {
-    if (event.relatedTarget instanceof Element) {
+    if (event && event.relatedTarget instanceof Element) {
       if (event.relatedTarget.classList.contains("ai-trigger")) {
         return;
       }
