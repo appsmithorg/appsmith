@@ -15,14 +15,6 @@ const Container = styled.div`
   position: relative;
   width: 100%;
   height: 410px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  &&::-webkit-scrollbar-thumb {
-    background-color: ${(props) => props.theme.colors.modal.scrollbar};
-  }
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
 `;
 
 type ProductUpdatesModalProps = {

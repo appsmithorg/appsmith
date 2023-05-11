@@ -880,7 +880,7 @@ export function ApplicationsSection(props: any) {
                               startIcon="logout"
                             >
                               {!warnLeavingWorkspace
-                                ? "Leave Workspace"
+                                ? "Leave workspace"
                                 : "Are you sure?"}
                             </MenuItem>
                           )}
@@ -892,10 +892,10 @@ export function ApplicationsSection(props: any) {
                                   ? handleDeleteWorkspace(workspace.id)
                                   : setWarnDeleteWorkspace(true);
                               }}
-                              startIcon="trash"
+                              startIcon="delete-bin-line"
                             >
                               {!warnDeleteWorkspace
-                                ? "Delete Workspace"
+                                ? "Delete workspace"
                                 : "Are you sure?"}
                             </MenuItem>
                           )}

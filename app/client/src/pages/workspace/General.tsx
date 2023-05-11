@@ -194,7 +194,7 @@ export function GeneralSettings() {
       <SettingWrapper>
         <Row className="t--workspace-settings-filepicker">
           <InputLabelWrapper>
-            <Text type={TextType.P1}>Upload Logo</Text>
+            <Text type={TextType.P1}>Upload logo</Text>
           </InputLabelWrapper>
           {isFetchingWorkspace && (
             <FilePickerLoader className={Classes.SKELETON} />

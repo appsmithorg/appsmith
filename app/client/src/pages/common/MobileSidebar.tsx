@@ -135,7 +135,7 @@ export default function MobileSideBar(props: MobileSideBarProps) {
           onSelect={() => {
             window.open("https://discord.gg/rBTTVJp", "_blank");
           }}
-          text={"Join our Discord"}
+          text={"Join our discord"}
         />
         <StyledMenuItem
           icon="book"

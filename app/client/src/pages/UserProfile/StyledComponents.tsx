@@ -4,14 +4,14 @@ export const Wrapper = styled.div`
   width: 320px;
   /* margin: 0 auto; */
   & > div {
-    margin-top: 27px;
+    margin-bottom: 16px;
   }
 `;
 export const FieldWrapper = styled.div`
   /* width: 460px; */
   /* display: flex; */
   .user-profile-image-picker {
-    width: 156px;
+    width: 166px;
     margin-top: 4px;
   }
 `;

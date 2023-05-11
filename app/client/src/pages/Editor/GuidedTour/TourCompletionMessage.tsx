@@ -32,6 +32,9 @@ const Wrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  .title {
+    color: var(--ads-v2-color-fg-emphasis);
+  }
 `;
 
 const Confetti = styled.span`
@@ -104,7 +107,7 @@ function CongratulationsView() {
           <Left>
             <Confetti>🎉</Confetti>
             <div>
-              <Text kind="heading-s" renderAs="h2">
+              <Text className="title" kind="heading-s" renderAs="h2">
                 {createMessage(RATING_TITLE)}
               </Text>
               <Description>{createMessage(RATING_DESCRIPTION)}</Description>
@@ -140,7 +143,7 @@ function CongratulationsView() {
       <Container>
         <Wrapper>
           <div>
-            <Text kind="heading-s" renderAs="h2">
+            <Text className="title" kind="heading-s" renderAs="h2">
               {createMessage(END_TITLE)}
             </Text>
             <Description>{createMessage(END_DESCRIPTION)}</Description>

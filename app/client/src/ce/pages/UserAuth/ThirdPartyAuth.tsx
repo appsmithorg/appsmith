@@ -56,7 +56,7 @@ function SocialLoginButton(props: {
       startIcon={props.name.toLowerCase() + `-fill`}
     >
       <div className="login-method" data-testid={`login-with-${props.name}`}>
-        {props.label ?? `continue with ${props.name}`}
+        {props.label ?? `Continue with ${props.name}`}
       </div>
     </Button>
   );

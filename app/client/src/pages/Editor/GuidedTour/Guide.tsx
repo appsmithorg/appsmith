@@ -82,6 +82,9 @@ const ContentWrapper = styled.div`
   display: flex;
   gap: 50px;
   align-items: center;
+  .guided-title {
+    color: var(--ads-v2-color-fg-emphasis);
+  }
 `;
 
 const GuideButton = styled(Button)<{ isVisible?: boolean }>`
@@ -188,6 +191,9 @@ const SuccessMessageWrapper = styled.div`
     align-items: center;
     justify-content: space-between;
   }
+  .success-message {
+    color: var(--ads-v2-color-fg-emphasis);
+  }
 `;
 
 function InitialContent() {
@@ -204,7 +210,7 @@ function InitialContent() {
     <div>
       <ContentWrapper>
         <SubContentWrapper>
-          <Text kind="heading-s" renderAs="h2">
+          <Text className="guided-title" kind="heading-s" renderAs="h2">
             {createMessage(TITLE)}
           </Text>
           <Description>{createMessage(DESCRIPTION)}</Description>
@@ -265,7 +271,7 @@ function GuideStepsContent(props: {
           <div className="header">
             <TitleWrapper>
               <StepCount>{props.currentStep}</StepCount>
-              <Text kind="heading-s" renderAs="h2">
+              <Text className="guided-title" kind="heading-s" renderAs="h2">
                 {content.title}
               </Text>
             </TitleWrapper>

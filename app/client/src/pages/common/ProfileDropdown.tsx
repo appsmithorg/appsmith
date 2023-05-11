@@ -71,7 +71,7 @@ export default function ProfileDropdown(props: TagProps) {
   function Profile(label?: string) {
     return (
       <Avatar
-        className="t--profile-menu-icon"
+        className="t--profile-menu-icon cursor-pointer"
         firstLetter={getInitials(props.name || props.userName)}
         image={!!props.photoId ? `/api/v1/assets/${props.photoId}` : ""}
         label={label || ""}
@@ -111,7 +111,7 @@ export default function ProfileDropdown(props: TagProps) {
             }}
             startIcon="pencil-line"
           >
-            Edit Profile
+            Edit profile
           </MenuItem>
         )}
         <MenuItem
@@ -122,7 +122,7 @@ export default function ProfileDropdown(props: TagProps) {
           }
           startIcon="logout"
         >
-          Sign Out
+          Sign out
         </MenuItem>
       </MenuContent>
     </Menu>

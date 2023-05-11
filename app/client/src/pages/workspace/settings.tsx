@@ -51,9 +51,13 @@ type TabProp = {
 const SettingsWrapper = styled.div<{
   isMobile?: boolean;
 }>`
-  width: ${(props) => (props.isMobile ? "345px" : "960px")};
-  margin: 0 auto;
+  width: ${(props) => (props.isMobile ? "345px" : "978px")};
+  margin: var(--ads-v2-spaces-7) auto;
   height: 100%;
+  padding-left: var(--ads-v2-spaces-7);
+  overflow: hidden;
+  padding-left: ${(props) =>
+    props.isMobile ? "0" : "var(--ads-v2-spaces-7);"};
   &::-webkit-scrollbar {
     width: 0px;
   }
@@ -62,22 +66,21 @@ const SettingsWrapper = styled.div<{
     ${({ isMobile }) =>
       !isMobile &&
       `
-      padding: 130px 0 0;
+      padding: 106px 0 0;
   `}
   }
 `;
 
 const StyledStickyHeader = styled(StickyHeader)<{ isMobile?: boolean }>`
-  padding-top: 24px;
+  /* padding-top: 24px; */
   ${({ isMobile }) =>
     !isMobile &&
     `
-  top: 48px;
+  top: 72px;
   position: fixed;
-  width: 960px;
+  width: 954px;
   `}
 `;
-
 export const TabsWrapper = styled.div`
   padding-top: var(--ads-v2-spaces-4);
 
