@@ -14,6 +14,10 @@ import { klona } from "klona/full";
 import type FeatureFlags from "entities/FeatureFlags";
 import _ from "lodash";
 import { getType, Types } from "utils/TypeHelpers";
+import {
+  FIELD_REQUIRED_ERROR,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 export const getTrimmedData = (formData: any) => {
   const dataType = getType(formData);
@@ -96,14 +100,14 @@ export const validate = (
           !value[objectKeys[0]] ||
           (isString(value[objectKeys[0]]) && !value[objectKeys[0]].trim())
         ) {
-          keyValueErrors[objectKeys[0]] = "This field is required";
+          keyValueErrors[objectKeys[0]] = createMessage(FIELD_REQUIRED_ERROR);
           keyValueArrayErrors[index] = keyValueErrors;
         }
         if (
           !value[objectKeys[1]] ||
           (isString(value[objectKeys[1]]) && !value[objectKeys[1]].trim())
         ) {
-          keyValueErrors[objectKeys[1]] = "This field is required";
+          keyValueErrors[objectKeys[1]] = createMessage(FIELD_REQUIRED_ERROR);
           keyValueArrayErrors[index] = keyValueErrors;
         }
       });
