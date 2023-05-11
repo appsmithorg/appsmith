@@ -46,8 +46,11 @@ export class DataSources {
     "input[name='datasourceConfiguration.authentication.databaseName']";
   private _username =
     "input[name='datasourceConfiguration.authentication.username']";
-  private _sectionAuthentication =
-    "[data-testid=section-Authentication] .t--collapse-section-container";
+  private _section = (name: string) =>
+    "//div[text()='" + name + "']/parent::div";
+  private _sectionState = (name: string) =>
+    this._section(name) +
+    "/following-sibling::div/div[@class ='bp3-collapse-body']";
   private _password =
     "input[name = 'datasourceConfiguration.authentication.password']";
   private _testDs = ".t--test-datasource";
@@ -324,14 +327,14 @@ export class DataSources {
       .should("be.visible");
   }
 
-  public ExpandSectionByName(locator: string) {
-    // Click on collapse section only if it collapsed, if it is expanded
-    // we ignore
-    cy.get(`${locator} .bp3-icon`)
-      .invoke("attr", "class")
-      .then((className) => {
-        if (className.includes("bp3-icon-chevron-down")) {
-          cy.get(locator).click();
+  public ExpandSectionByName(sectionName: string) {
+    // Click on collapse section only if it collapsed, if it is expanded we ignore
+    this.agHelper
+      .GetElement(this._sectionState(sectionName))
+      .invoke("attr", "aria-hidden")
+      .then((hidden: any) => {
+        if (hidden == "true") {
+          this.agHelper.GetNClick(this._section(sectionName));
         }
       });
   }
@@ -381,7 +384,7 @@ export class DataSources {
     cy.get(this._host).type(hostAddress);
     cy.get(this._port).type(datasourceFormData["postgres-port"].toString());
     cy.get(this._databaseName).clear().type(databaseName);
-    this.ExpandSectionByName(this._sectionAuthentication);
+    this.ExpandSectionByName("Authentication");
     cy.get(this._username).type(
       username == "" ? datasourceFormData["postgres-username"] : username,
     );
@@ -396,7 +399,7 @@ export class DataSources {
       : datasourceFormData["mongo-host"];
     cy.get(this._host).type(hostAddress);
     cy.get(this._port).type(datasourceFormData["mongo-port"].toString());
-    this.ExpandSectionByName(this._sectionAuthentication);
+    this.ExpandSectionByName("Authentication");
     cy.get(this._databaseName)
       .clear()
       .type(datasourceFormData["mongo-databaseName"]);
@@ -412,7 +415,7 @@ export class DataSources {
     cy.get(this._host).type(hostAddress);
     cy.get(this._port).type(datasourceFormData["mysql-port"].toString());
     cy.get(this._databaseName).clear().type(databaseName);
-    this.ExpandSectionByName(this._sectionAuthentication);
+    this.ExpandSectionByName("Authentication");
     cy.get(this._username).type(datasourceFormData["mysql-username"]);
     cy.get(this._password).type(datasourceFormData["mysql-password"]);
   }
@@ -431,7 +434,7 @@ export class DataSources {
     //   this._databaseName,
     //   datasourceFormData["mssql-databaseName"],
     // ); //Commenting until MsSQL is init loaded into container
-    this.ExpandSectionByName(this._sectionAuthentication);
+    this.ExpandSectionByName("Authentication");
     this.agHelper.UpdateInputValue(
       this._username,
       datasourceFormData["mssql-username"],
@@ -468,7 +471,7 @@ export class DataSources {
     this.agHelper
       .GetText(this._databaseName, "val")
       .then(($dbName) => expect($dbName).to.eq("_system"));
-    this.ExpandSectionByName(this._sectionAuthentication);
+    this.ExpandSectionByName("Authentication");
     this.agHelper.UpdateInputValue(
       this._username,
       datasourceFormData["arango-username"],
@@ -527,7 +530,7 @@ export class DataSources {
       this._port,
       datasourceFormData["elastic-port"].toString(),
     );
-    this.ExpandSectionByName(this._sectionAuthentication);
+    this.ExpandSectionByName("Authentication");
     this.agHelper.UpdateInputValue(
       this._username,
       datasourceFormData["elastic-username"],
@@ -990,7 +993,7 @@ export class DataSources {
 
   //Update with new password in the datasource conf page
   public UpdatePassword(newPassword: string) {
-    this.ExpandSectionByName(this._sectionAuthentication);
+    this.ExpandSectionByName("Authentication");
     cy.get(this._password).type(newPassword);
   }
 
