@@ -61,7 +61,6 @@ import {
   TextType,
 } from "design-system-old";
 import {
-  duplicateApplication,
   setShowAppInviteUsersDialog,
   updateApplication,
 } from "@appsmith/actions/applicationActions";
@@ -570,10 +569,6 @@ export function ApplicationsSection(props: any) {
     urlBuilder.resetURLParams();
   }, []);
 
-  const duplicateApplicationDispatch = (applicationId: string) => {
-    dispatch(duplicateApplication(applicationId));
-  };
-
   const [
     selectedWorkspaceIdForImportApplication,
     setSelectedWorkspaceIdForImportApplication,
@@ -926,7 +921,6 @@ export function ApplicationsSection(props: any) {
                     <ApplicationCard
                       application={application}
                       delete={deleteApplication}
-                      duplicate={duplicateApplicationDispatch}
                       enableImportExport={enableImportExport}
                       isMobile={isMobile}
                       key={application.id}

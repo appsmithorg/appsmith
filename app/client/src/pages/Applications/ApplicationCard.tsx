@@ -304,7 +304,6 @@ const AppNameWrapper = styled.div<{ isFetching: boolean }>`
 
 type ApplicationCardProps = {
   application: ApplicationPayload;
-  duplicate?: (applicationId: string) => void;
   share?: (applicationId: string) => void;
   delete?: (applicationId: string) => void;
   update?: (id: string, data: UpdateApplicationPayload) => void;
@@ -474,18 +473,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
         cypressSelector: "t--share",
       });
     }
-    if (
-      props.duplicate &&
-      props.permissions?.hasCreateNewApplicationPermission &&
-      hasEditPermission
-    ) {
-      moreActionItems.push({
-        onSelect: duplicateApp,
-        text: "Duplicate",
-        icon: "duplicate",
-        cypressSelector: "t--duplicate",
-      });
-    }
     // add fork app option to menu
     if (hasEditPermission) {
       moreActionItems.push({
@@ -548,9 +535,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
       props.update(applicationId, {
         icon: icon,
       });
-  };
-  const duplicateApp = () => {
-    props.duplicate && props.duplicate(applicationId);
   };
   const shareApp = () => {
     props.share && props.share(applicationId);
