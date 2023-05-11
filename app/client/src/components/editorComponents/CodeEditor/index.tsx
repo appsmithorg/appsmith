@@ -261,6 +261,7 @@ class CodeEditor extends Component<Props, State> {
   annotations: Annotation[] = [];
   updateLintingCallback: UpdateLintingCallback | undefined;
   private editorWrapperRef = React.createRef<HTMLDivElement>();
+  lineRef: React.MutableRefObject<number | null> = React.createRef();
 
   constructor(props: Props) {
     super(props);
@@ -850,7 +851,8 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleCursorMovement = (cm: CodeMirror.Editor) => {
-    this.handleCustomGutter(cm.getCursor().line, true);
+    const line = cm.getCursor().line;
+    this.handleCustomGutter(line, true);
     // ignore if disabled
     if (!this.props.input.onChange || this.props.disabled) {
       return;
@@ -869,6 +871,16 @@ class CodeEditor extends Component<Props, State> {
     } else {
       cm.setOption("matchBrackets", false);
     }
+    if (!this.props.borderLess) return;
+    if (this.lineRef.current !== null) {
+      cm.removeLineClass(
+        this.lineRef.current,
+        "background",
+        "CodeMirror-activeline-background",
+      );
+    }
+    cm.addLineClass(line, "background", "CodeMirror-activeline-background");
+    this.lineRef.current = line;
   };
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
@@ -922,7 +934,7 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  handleEditorBlur = () => {
+  handleEditorBlur = (cm: CodeMirror.Editor) => {
     this.handleChange();
     this.setState({ isFocused: false });
     this.editor.setOption("matchBrackets", false);
@@ -935,6 +947,14 @@ class CodeEditor extends Component<Props, State> {
         line: cursor.line,
       },
     });
+    if (this.lineRef.current !== null) {
+      cm.removeLineClass(
+        this.lineRef.current,
+        "background",
+        "CodeMirror-activeline-background",
+      );
+      this.lineRef.current = null;
+    }
     if (this.props.onEditorBlur) {
       this.props.onEditorBlur();
     }
