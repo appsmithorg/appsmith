@@ -333,14 +333,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         if (datasource.getGitSyncId() == null) {
             datasource.setGitSyncId(datasource.getWorkspaceId() + "_" + Instant.now().toString());
         }
-
-        datasource.transferDatasourceConfigurationAndInvalidsToStorage(null);
-        return repository.save(datasource)
-                .zipWith(datasourceConfigurationStorageService.save(datasource.getDatasourceConfigurationStorage()),
-                        (datasource1, datasourceConfigurationStorage) -> {
-                    datasource1.setDatasourceConfigurationStorage(datasourceConfigurationStorage);
-                    return datasource1;
-        });
+        return repository.save(datasource);
     }
 
     private Datasource sanitizeDatasource(Datasource datasource) {
@@ -362,7 +355,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                 .map(this::sanitizeDatasource)
                 .flatMap(this::validateDatasource)
                 .flatMap(unsavedDatasource -> {
-                    return save(unsavedDatasource)
+                    return repository.save(unsavedDatasource)
                             .map(savedDatasource -> {
                                 // datasource.pluginName is a transient field. It was set by validateDatasource method
                                 // object from db will have pluginName=null so set it manually from the unsaved datasource obj
@@ -426,26 +419,22 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
     @Override
     public Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission permission) {
-        return repository.findByNameAndWorkspaceId(name, workspaceId, permission)
-                .flatMap(this:: attachDatasourceConfigurationStorageToDatasource);
+        return repository.findByNameAndWorkspaceId(name, workspaceId, permission);
     }
 
     @Override
     public Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, Optional<AclPermission> permission) {
-        return repository.findByNameAndWorkspaceId(name, workspaceId, permission)
-                .flatMap(this:: attachDatasourceConfigurationStorageToDatasource);
+        return repository.findByNameAndWorkspaceId(name, workspaceId, permission);
     }
 
     @Override
     public Mono<Datasource> findById(String id, AclPermission aclPermission) {
-        return repository.findById(id, aclPermission)
-                .flatMap(this:: attachDatasourceConfigurationStorageToDatasource);
+        return repository.findById(id, aclPermission);
     }
 
     @Override
     public Mono<Datasource> findById(String id) {
-        return repository.findById(id)
-                .flatMap(this:: attachDatasourceConfigurationStorageToDatasource);
+        return repository.findById(id);
     }
 
     @Override
@@ -480,14 +469,12 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     @Override
     public Flux<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission) {
         return repository.findAllByWorkspaceId(workspaceId, permission)
-                .flatMap(this:: attachDatasourceConfigurationStorageToDatasource)
                 .flatMap(this::populateHintMessages);
     }
 
     @Override
     public Flux<Datasource> findAllByWorkspaceId(String workspaceId, Optional<AclPermission> permission) {
         return repository.findAllByWorkspaceId(workspaceId, permission)
-                .flatMap(this:: attachDatasourceConfigurationStorageToDatasource)
                 .flatMap(this::populateHintMessages);
     }
 
@@ -607,23 +594,4 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         return Mono.zip(Mono.just(datasource), datasourceContextIdentifierMono, environmentMapMono);
     }
 
-    @Override
-    public Mono<Datasource> getById(String id) {
-        if (id == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
-        }
-
-        return repository.findById(id)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "resource", id)))
-                .flatMap(this::attachDatasourceConfigurationStorageToDatasource);
-    }
-
-    @Override
-    public Mono<Datasource> attachDatasourceConfigurationStorageToDatasource(Datasource datasource) {
-        return datasourceConfigurationStorageService.findByDatasourceIdOrSave(datasource)
-                .map(datasourceConfigurationStorage -> {
-                    datasource.setDatasourceConfigurationStorage(datasourceConfigurationStorage);
-                    return datasource;
-                });
-    }
 }

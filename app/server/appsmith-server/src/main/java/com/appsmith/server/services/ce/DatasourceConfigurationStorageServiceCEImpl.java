@@ -61,23 +61,24 @@ public class DatasourceConfigurationStorageServiceCEImpl
     }
 
     @Override
-    public Mono<DatasourceConfigurationStorage> findByDatasourceIdOrSave(Datasource datasource) {
+    public Mono<DatasourceConfigurationStorage> findByDatasourceIdOrSave(Datasource datasource, String environmentId) {
         return findOneByDatasourceId(datasource.getId())
-                .switchIfEmpty(saveDatasourceConfigurationFromDatasource(datasource));
+                .switchIfEmpty(saveDatasourceConfigurationFromDatasource(datasource, environmentId));
     }
 
-    private Mono<DatasourceConfigurationStorage> saveDatasourceConfigurationFromDatasource(Datasource datasource) {
-        if (datasource.getTransientDatasourceConfiguration() == null) {
-            // here, we don't have dsconfig in datasource collection or datasourceConfigurationStorage collection
+    private Mono<DatasourceConfigurationStorage> saveDatasourceConfigurationFromDatasource(Datasource datasource,
+                                                                                           String environmentId) {
+        if (datasource.getDatasourceConfiguration() == null) {
+            // here, we don't have datasource configuration in datasource collection or datasourceConfigurationStorage collection
             return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND));
         }
 
         DatasourceConfigurationStorage datasourceConfigurationStorage =
                 new DatasourceConfigurationStorage(
                         datasource.getId(),
-                        null,
-                        datasource.getTransientDatasourceConfiguration(),
-                        datasource.getTransientInvalids(),
+                        environmentId,
+                        datasource.getDatasourceConfiguration(),
+                        datasource.getInvalids(),
                         new HashSet<>()
                 );
 

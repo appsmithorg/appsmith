@@ -48,16 +48,14 @@ public class Datasource extends BranchAwareDomain {
     @JsonView(Views.Public.class)
     String templateName;
 
-    @Transient
     @JsonView(Views.Public.class)
     DatasourceConfiguration datasourceConfiguration;
 
     // TODO: make export import false for this one
     // TODO: Think of a better name for the storage
-    // This has been initialised because it is required by getter and setter for invalids. as that is coming from datasource
     @Transient
     @JsonView(Views.Public.class)
-    private DatasourceConfigurationStorage datasourceConfigurationStorage = new DatasourceConfigurationStorage();
+    DatasourceConfigurationStorage datasourceConfigurationStorage;
 
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -139,28 +137,29 @@ public class Datasource extends BranchAwareDomain {
                 .isEquals();
     }
 
-    public void setInvalids(Set<String> invalids) { getDatasourceConfigurationStorage().setInvalids(invalids); }
 
     public Set<String> getInvalids() {
+        if (getDatasourceConfigurationStorage() == null) {
+            return this.invalids;
+        }
         return getDatasourceConfigurationStorage().getInvalids();
     }
 
     public Set<String> getMessages() {
+        if (getDatasourceConfigurationStorage() == null) {
+            return this.messages;
+        }
         return getDatasourceConfigurationStorage().getMessages();
     }
 
-    public void setMessages(Set<String> messages) {
-        getDatasourceConfigurationStorage().setMessages(messages);
-    }
-
     public DatasourceConfiguration getDatasourceConfiguration() {
+        if (getDatasourceConfigurationStorage() == null) {
+            return this.datasourceConfiguration;
+        }
+
         return getDatasourceConfigurationStorage().getDatasourceConfiguration();
     }
 
-    public void setDatasourceConfiguration(DatasourceConfiguration datasourceConfiguration) {
-        getDatasourceConfigurationStorage().setDatasourceConfiguration(datasourceConfiguration);
-        this.datasourceConfiguration = datasourceConfiguration;
-    }
 
     public void sanitiseToExportResource(Map<String, String> pluginMap) {
         this.setPolicies(null);
@@ -173,28 +172,6 @@ public class Datasource extends BranchAwareDomain {
         this.setWorkspaceId(null);
         this.setOrganizationId(null);
         this.setPluginId(pluginMap.get(this.getPluginId()));
-    }
-
-    public Set<String> getTransientInvalids() {
-        return this.invalids;
-    }
-
-    public DatasourceConfiguration getTransientDatasourceConfiguration() {
-        return this.datasourceConfiguration;
-    }
-
-    public void transferDatasourceConfigurationAndInvalidsToStorage(String environmentId) {
-        if (this.datasourceConfigurationStorage == null) {
-            this.datasourceConfigurationStorage =
-                    new DatasourceConfigurationStorage(this.getId(), environmentId,
-                            this.getTransientDatasourceConfiguration(),
-                            this.getTransientInvalids(),
-                            new HashSet<>()
-                    );
-        }
-
-        this.datasourceConfiguration = null;
-        this.invalids = null;
     }
 
 }
