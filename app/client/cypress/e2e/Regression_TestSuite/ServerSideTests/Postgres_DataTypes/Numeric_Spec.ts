@@ -298,21 +298,17 @@ describe("Numeric Datatype tests", function () {
   it("16. Verify Deletion of the datasource after all created queries are Deleted", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.ExpandCollapseEntity("Queries/JS");
-    ee.ActionContextMenuByEntityName("createTable", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName(
-      "deleteAllRecords",
-      "Delete",
-      "Are you sure?",
+    ee.GetEntityNamesInSection("Queries/JS", ".t--action-entity").then(
+      (entityNames) => {
+        for (const entityName of entityNames) {
+          ee.ActionContextMenuByEntityName(
+            entityName,
+            "Delete",
+            "Are you sure?",
+          );
+        }
+      },
     );
-    ee.ActionContextMenuByEntityName("deleteRecord", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("dropTable", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("insertRecord", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName(
-      "selectRecords",
-      "Delete",
-      "Are you sure?",
-    );
-    ee.ActionContextMenuByEntityName("updateRecord", "Delete", "Are you sure?");
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
     ee.ExpandCollapseEntity("Queries/JS");

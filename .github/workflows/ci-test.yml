@@ -209,9 +209,7 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         run: |
           cd app/client
-          yarn install \
-          --cwd cypress \
-          --modules-folder ../node_modules
+          yarn install
 
       - name: Setting up the cypress tests
         if: steps.run_result.outputs.run_result != 'success'

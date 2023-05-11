@@ -845,7 +845,6 @@ describe("#getSchemaItemByFieldType", () => {
       "schema.__root_schema__.children.address.children.city";
     const schemaItem = get({ schema }, schemaItemPath);
     schemaItem.isCustomField = true;
-    schemaItem.name = "newCityName";
     schemaItem.accessor = "newCityName";
 
     const expectedOutput = {

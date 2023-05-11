@@ -1,4 +1,4 @@
-import { FLEXBOX_PADDING } from "constants/WidgetConstants";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
 import React, { useState } from "react";
 import { useEffect, useRef } from "react";
 import type { PropsWithChildren } from "react";
@@ -12,16 +12,22 @@ const SimpleContainer = styled.div`
 `;
 
 interface AutoLayoutDimensionObserverProps {
-  onDimensionUpdate: (width: number, height: number) => void;
-  width: number;
   height: number;
   isFillWidget: boolean;
+  minHeight: number;
+  minWidth: number;
+  onDimensionUpdate: (width: number, height: number) => void;
+  shouldObserveHeight: boolean;
+  shouldObserveWidth: boolean;
+  type: string;
+  width: number;
 }
 
 export default function AutoLayoutDimensionObserver(
   props: PropsWithChildren<AutoLayoutDimensionObserverProps>,
 ) {
   const { onDimensionUpdate } = props;
+
   const [currentDimension, setCurrentDimension] = useState({
     width: 0,
     height: 0,
@@ -39,22 +45,28 @@ export default function AutoLayoutDimensionObserver(
   );
 
   useEffect(() => {
-    if (currentDimension.width === 0 || currentDimension.height === 0) return;
-    const widthDiff = Math.abs(
-      props.width - 2 * FLEXBOX_PADDING - currentDimension.width,
-    );
-    const heightDiff = Math.abs(
-      props.height - 2 * FLEXBOX_PADDING - currentDimension.height,
-    );
-    if (widthDiff >= 1 || heightDiff >= 1) {
+    if (currentDimension.width === 0) return;
+    const padding = WIDGET_PADDING * 2;
+    const widthDiff = Math.abs(props.width - currentDimension.width - padding);
+    if (
+      (widthDiff >= 1 && props.shouldObserveWidth) ||
+      props.width < props.minWidth
+    )
       onDimensionUpdate(currentDimension.width, currentDimension.height);
-    }
-  }, [
-    props.width,
-    props.height,
-    currentDimension.width,
-    currentDimension.height,
-  ]);
+  }, [props.width, currentDimension.width]);
+
+  useEffect(() => {
+    if (currentDimension.height === 0) return;
+    const padding = WIDGET_PADDING * 2;
+    const heightDiff = Math.abs(
+      props.height - currentDimension.height - padding,
+    );
+    if (
+      (heightDiff >= 1 && props.shouldObserveHeight) ||
+      props.height < props.minHeight
+    )
+      onDimensionUpdate(currentDimension.width, currentDimension.height);
+  }, [props.height, currentDimension.height]);
 
   useEffect(() => {
     if (ref.current) {
