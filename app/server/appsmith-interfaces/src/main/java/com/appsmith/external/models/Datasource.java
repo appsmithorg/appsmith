@@ -145,6 +145,7 @@ public class Datasource extends BranchAwareDomain implements Forkable{
         copyNestedNonNullProperties(this, newDs);
         newDs.makePristine();
         newDs.setWorkspaceId(toWorkspaceId);
+        AuthenticationDTO initialAuth = newDs.getDatasourceConfiguration().getAuthentication();
 
         if (!Boolean.TRUE.equals(forkWithConfiguration)){
             DatasourceConfiguration dsConfig = new DatasourceConfiguration();
@@ -164,14 +165,16 @@ public class Datasource extends BranchAwareDomain implements Forkable{
         boolean isConfigured = (newDs.getDatasourceConfiguration() != null
                 && newDs.getDatasourceConfiguration().getAuthentication() != null);
 
-        if (isConfigured && newDs.getDatasourceConfiguration().getAuthentication().getAuthenticationResponse() != null){
+        if (initialAuth instanceof OAuth2) {
             /*
-             This is the case for Google Sheet datasource, we don't want to copy the token to the new workspace
-             as it is user's personal token. Hence, in case of forking to a new workspace the Google sheet needs to be
-             re-authorised.
+             This is the case for OAuth2 datasources, for example Google sheets, we don't want to copy the token to the
+             new workspace as it is user's personal token. Hence, in case of forking to a new workspace the datasource
+             needs to be re-authorised.
              */
-            newDs.setIsConfigured(false);
-            newDs.getDatasourceConfiguration().getAuthentication().setAuthenticationResponse(null);
+                newDs.setIsConfigured(false);
+                if (isConfigured){
+                    newDs.getDatasourceConfiguration().getAuthentication().setAuthenticationResponse(null);
+                }
         }
         else {
             newDs.setIsConfigured(isConfigured);
