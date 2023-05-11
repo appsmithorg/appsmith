@@ -15,7 +15,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 // This class is not under consumption right now
-@Getter @Setter
+@Getter
+@Setter
 @Slf4j
 public class DatasourceDTO {
 

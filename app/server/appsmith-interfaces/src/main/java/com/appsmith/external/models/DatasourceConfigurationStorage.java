@@ -14,8 +14,10 @@ import org.springframework.util.CollectionUtils;
 import java.util.HashSet;
 import java.util.Set;
 
-@Getter @Setter
-@AllArgsConstructor @NoArgsConstructor
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Document
 public class DatasourceConfigurationStorage extends BaseDomain{
 
