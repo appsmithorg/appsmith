@@ -27,7 +27,7 @@
     "addWidget": ".widgets .t--entity-add-btn",
     "closeWidgets": ".t--close-widgets-sidebar",
     "dropHere": "#div-dragarena-0",
-    "addDBQueryEntity": ".datasources .t--entity-add-btn",
+    "addDBQueryEntity": ".datasources .t--entity-add-btn button",
     "editEntity": ".t--entity-name input",
     "explorerSwitchId": "#switcher--explorer",
     "widgetSwitchId": "#switcher--widgets",
