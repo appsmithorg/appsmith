@@ -3,7 +3,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 describe("Linting async JSFunctions bound to data fields", () => {
   before(() => {
     _.entityExplorer.DragDropWidgetNVerify("buttonwidget", 300, 300);
-    _.entityExplorer.NavigateToSwitcher("explorer");
+    _.entityExplorer.NavigateToSwitcher("Explorer");
   });
 
   it("1. Doesn't show lint warnings in debugger but shows on Hover only", () => {

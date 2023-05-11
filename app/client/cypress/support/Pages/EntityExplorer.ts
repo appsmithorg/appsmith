@@ -69,7 +69,7 @@ export class EntityExplorer {
     section: "Widgets" | "Queries/JS" | "Datasources" | "Pages" | "" = "",
     ctrlKey = false,
   ) {
-    this.NavigateToSwitcher("explorer");
+    this.NavigateToSwitcher("Explorer");
     if (section) this.ExpandCollapseEntity(section); //to expand respective section
     cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar))
       .last()
@@ -82,7 +82,7 @@ export class EntityExplorer {
     section: "Widgets" | "Queries/JS" | "Datasources" | "" = "",
     ctrlKey = false,
   ) {
-    this.NavigateToSwitcher("explorer");
+    this.NavigateToSwitcher("Explorer");
     if (section) this.ExpandCollapseEntity(section); //to expand respective section
     this.ExpandCollapseEntity(modalNameinEE);
     cy.xpath(this._modalTextWidget(modalNameinEE))
@@ -104,8 +104,8 @@ export class EntityExplorer {
     }
   }
 
-  public NavigateToSwitcher(navigationTab: "explorer" | "widgets") {
-    cy.get(this.locator._openNavigationTab(navigationTab)).click();
+  public NavigateToSwitcher(navigationTab: "Explorer" | "Widgets") {
+    cy.contains(this.locator._segmentedControlContainer, navigationTab).click();
   }
 
   public AssertEntityPresenceInExplorer(entityNameinLeftSidebar: string) {
@@ -127,6 +127,7 @@ export class EntityExplorer {
       index,
       30000,
     );
+
     cy.xpath(this._expandCollapseArrow(entityName))
       .eq(index)
       .wait(500)
@@ -220,7 +221,7 @@ export class EntityExplorer {
   }
 
   public DragDropWidgetNVerify(widgetType: string, x = 200, y = 200) {
-    this.NavigateToSwitcher("widgets");
+    this.NavigateToSwitcher("Widgets");
     this.agHelper.Sleep();
     cy.get(this.locator._widgetPageIcon(widgetType))
       .first()
@@ -257,7 +258,7 @@ export class EntityExplorer {
   }
 
   public CopyPasteWidget(widgetName: string) {
-    this.NavigateToSwitcher("widgets");
+    this.NavigateToSwitcher("Widgets");
     this.SelectEntityByName(widgetName);
     cy.get("body").type(`{${this.modifierKey}}{c}`);
     cy.get("body").type(`{${this.modifierKey}}{v}`);

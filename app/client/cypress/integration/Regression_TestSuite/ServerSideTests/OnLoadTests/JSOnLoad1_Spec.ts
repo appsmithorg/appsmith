@@ -14,7 +14,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     cy.fixture("tablev1NewDsl").then((val: any) => {
       _.agHelper.AddDsl(val);
     });
-    _.entityExplorer.NavigateToSwitcher("explorer");
+    _.entityExplorer.NavigateToSwitcher("Explorer");
     _.dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;

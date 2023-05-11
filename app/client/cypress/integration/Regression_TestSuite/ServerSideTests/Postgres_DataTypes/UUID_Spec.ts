@@ -22,7 +22,7 @@ describe("UUID Datatype tests", function () {
     cy.fixture("Datatypes/UUIDDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    ee.NavigateToSwitcher("widgets");
+    ee.NavigateToSwitcher("Widgets");
     appSettings.OpenPaneAndChangeTheme("Earth");
   });
 

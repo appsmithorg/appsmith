@@ -71,7 +71,6 @@ function ExplorerContent() {
       }
     }
   };
-
   const { value: activeOption } = options[activeSwitchIndex];
 
   return (

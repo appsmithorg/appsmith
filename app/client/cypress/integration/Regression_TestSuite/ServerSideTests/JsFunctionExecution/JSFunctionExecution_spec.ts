@@ -53,7 +53,7 @@ describe("JS Function Execution", function () {
     cy.fixture("tablev1NewDsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    ee.NavigateToSwitcher("explorer");
+    ee.NavigateToSwitcher("Explorer");
   });
 
   function assertAsyncFunctionsOrder(data: IFunctionSettingData[]) {

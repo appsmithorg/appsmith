@@ -17,7 +17,7 @@ describe("JSObjects OnLoad Actions tests", function () {
   });
 
   it("1. Api mapping on page load", function () {
-    ee.NavigateToSwitcher("explorer");
+    ee.NavigateToSwitcher("Explorer");
     apiPage.CreateAndFillApi(dataSet.baseUrl + dataSet.methods, "PageLoadApi");
     agHelper.PressEscape();
     ee.ExpandCollapseEntity("Container3");

@@ -9,7 +9,7 @@ describe("Evaluations causing error when page is cloned", function () {
         },
     }`;
     _.entityExplorer.DragDropWidgetNVerify(WIDGET.INPUT_V2, 200, 600);
-    _.entityExplorer.NavigateToSwitcher("explorer");
+    _.entityExplorer.NavigateToSwitcher("Explorer");
     _.jsEditor.CreateJSObject(JS_OBJECT_BODY, {
       paste: true,
       completeReplace: true,

@@ -14,7 +14,7 @@ describe("DocumentViewer Widget Functionality", () => {
   });
 
   it("2. Modify visibility & Publish app & verify", () => {
-    ee.NavigateToSwitcher("explorer");
+    ee.NavigateToSwitcher("Explorer");
     ee.SelectEntityByName("DocumentViewer1", "Widgets");
     propPane.ToggleOnOrOff("Visible", "Off");
     deployMode.DeployApp();

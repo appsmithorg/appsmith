@@ -857,7 +857,7 @@ describe("App Theming funtionality", function () {
     cy.get(publish.backToEditor).click({ force: true }).wait(1000);
 
     //Resetting back to theme
-    ee.NavigateToSwitcher("explorer");
+    ee.NavigateToSwitcher("Explorer");
     //agHelper.Sleep(2500);
     ee.ExpandCollapseEntity("Widgets"); //to expand widgets
     ee.SelectEntityByName("Button2");
@@ -956,7 +956,7 @@ describe("App Theming funtionality", function () {
       .wait(2000);
 
     //Change individual widget properties for Button1
-    ee.NavigateToSwitcher("explorer");
+    ee.NavigateToSwitcher("Explorer");
     ee.ExpandCollapseEntity("Widgets"); //to expand widgets
     ee.SelectEntityByName("Button1");
     cy.moveToStyleTab();
@@ -1086,7 +1086,7 @@ describe("App Theming funtionality", function () {
     cy.get(publish.backToEditor).click({ force: true }).wait(1000);
 
     //Resetting back to theme
-    ee.NavigateToSwitcher("explorer");
+    ee.NavigateToSwitcher("Explorer");
     ee.ExpandCollapseEntity("Widgets"); //to expand widgets
     ee.SelectEntityByName("Button1");
     cy.moveToStyleTab();

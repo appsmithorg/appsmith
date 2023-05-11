@@ -54,7 +54,7 @@ const createMySQLDatasourceQuery = () => {
 describe("Linting", () => {
   before(() => {
     ee.DragDropWidgetNVerify("buttonwidget", 300, 300);
-    ee.NavigateToSwitcher("explorer");
+    ee.NavigateToSwitcher("Explorer");
     dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName as unknown as string;
