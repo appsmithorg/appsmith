@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -114,6 +115,9 @@ public class Datasource extends BranchAwareDomain {
      */
     @JsonView(Views.Public.class)
     public boolean getIsValid() {
+        if (getDatasourceConfigurationStorage() == null) {
+            return CollectionUtils.isEmpty(invalids);
+        }
         return getDatasourceConfigurationStorage().getIsValid();
     }
 

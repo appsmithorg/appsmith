@@ -6,7 +6,6 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceConfigurationStorage;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.MustacheBindingToken;
@@ -327,7 +326,6 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                 });
     }
 
-    // TODO: add saving of the dsconfig
     @Override
     public Mono<Datasource> save(Datasource datasource) {
         if (datasource.getGitSyncId() == null) {
@@ -501,9 +499,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                     return Mono.just(objects.getT1());
                 })
                 .flatMap(toDelete -> {
-                    DatasourceConfigurationStorage datasourceConfigurationStorage =  toDelete.getDatasourceConfigurationStorage();
                     return datasourceContextService.deleteDatasourceContext(datasourceContextService.createDsContextIdentifier(toDelete))
-                            .then(datasourceConfigurationStorageService.archive(datasourceConfigurationStorage))
                             .then(repository.archive(toDelete))
                             .thenReturn(toDelete);
                 })
@@ -593,5 +589,4 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         Mono<Map<String, BaseDomain>> environmentMapMono = Mono.just(new HashMap<>());
         return Mono.zip(Mono.just(datasource), datasourceContextIdentifierMono, environmentMapMono);
     }
-
 }
