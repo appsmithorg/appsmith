@@ -40,6 +40,7 @@ import {
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
 import type { TJSLibrary } from "workers/common/JSLibrary";
+import { getFormValues } from "redux-form";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -1004,3 +1005,28 @@ export const selectJSCollectionByName = (collectionName: string) =>
       (collection) => collection.config.name === collectionName,
     );
   });
+
+export const getDatasourceScopeValue = (
+  state: AppState,
+  datasourceId: string,
+  formName: string,
+) => {
+  const formData = getFormValues(formName)(state) as Datasource;
+  const { plugins } = state.entities;
+  const { formConfigs } = plugins;
+  const datasource = getDatasource(state, datasourceId);
+  const pluginId = get(datasource, "pluginId", "");
+  const formConfig = formConfigs[pluginId];
+  if (!formConfig || (!!formConfig && formConfig.length === 0)) {
+    return null;
+  }
+  const configProperty = "datasourceConfiguration.authentication.scopeString";
+  const scopeValue = get(formData, configProperty);
+  const options = formConfig[0]?.children?.find(
+    (child: any) => child?.configProperty === configProperty,
+  )?.options;
+  const label = options?.find(
+    (option: any) => option.value === scopeValue,
+  )?.label;
+  return label;
+};

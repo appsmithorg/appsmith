@@ -2,7 +2,6 @@ import type { Plugin } from "api/PluginApi";
 import { PluginPackageName } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
 import { AuthenticationStatus, AuthType } from "entities/Datasource";
-import get from "lodash/get";
 export function isCurrentFocusOnInput() {
   return (
     ["input", "textarea"].indexOf(
@@ -121,22 +120,4 @@ export function getDatasourcePropertyValue(
   }
 
   return null;
-}
-
-/**
- * Returns datasource scope value from datasource?.datasourceConfiguration?.authentication?.scopeString
- * @param formData Datasource
- * @param formConfig any
- * @returns string | undefined
- */
-export function getDatasourceScopeValue(formData: Datasource, formConfig: any) {
-  const configProperty = "datasourceConfiguration.authentication.scopeString";
-  const scopeValue = get(formData, configProperty);
-  const options = formConfig?.children?.find(
-    (child: any) => child?.configProperty === configProperty,
-  )?.options;
-  const label = options?.find(
-    (option: any) => option.value === scopeValue,
-  )?.label;
-  return label;
 }

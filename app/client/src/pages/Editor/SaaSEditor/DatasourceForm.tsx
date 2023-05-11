@@ -16,6 +16,7 @@ import {
   getDatasourceFormButtonConfig,
   getPlugin,
   getPluginDocumentationLinks,
+  getDatasourceScopeValue,
 } from "selectors/entitiesSelector";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import type { JSONtoFormProps } from "../DataSourceEditor/JSONtoForm";
@@ -39,10 +40,7 @@ import EntityNotFoundPane from "../EntityNotFoundPane";
 import { saasEditorDatasourceIdURL } from "RouteBuilder";
 import NewActionButton from "../DataSourceEditor/NewActionButton";
 import type { Plugin } from "api/PluginApi";
-import {
-  getDatasourceScopeValue,
-  isDatasourceAuthorizedForQueryCreation,
-} from "utils/editorContextUtils";
+import { isDatasourceAuthorizedForQueryCreation } from "utils/editorContextUtils";
 import { PluginPackageName } from "entities/Action";
 import AuthMessage from "pages/common/datasourceAuth/AuthMessage";
 import { isDatasourceInViewMode } from "selectors/ui";
@@ -431,17 +429,15 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                 }
                 showDatasourceSavedText={!isGoogleSheetPlugin}
               />
-              <div style={{ marginTop: "30px" }}>
-                {!_.isNil(formConfig) &&
-                !_.isNil(datasource) &&
-                !hideDatasourceSection ? (
-                  <DatasourceInformation
-                    config={formConfig[0]}
-                    datasource={datasource}
-                    viewMode={!!viewMode}
-                  />
-                ) : undefined}
-              </div>
+              {!_.isNil(formConfig) &&
+              !_.isNil(datasource) &&
+              !hideDatasourceSection ? (
+                <DatasourceInformation
+                  config={formConfig[0]}
+                  datasource={datasource}
+                  viewMode={!!viewMode}
+                />
+              ) : undefined}
             </ViewModeWrapper>
           )}
           {/* Render datasource form call-to-actions */}
@@ -503,10 +499,11 @@ const mapStateToProps = (state: AppState, props: any) => {
   merge(initialValues, datasource);
 
   // get scopeValue to be shown in analytical events
-  let scopeValue = null;
-  if (!!formConfig && formConfig.length > 0) {
-    scopeValue = getDatasourceScopeValue(formData, formConfig[0]);
-  }
+  const scopeValue = getDatasourceScopeValue(
+    state,
+    datasourceId,
+    DATASOURCE_SAAS_FORM,
+  );
 
   const datasourceButtonConfiguration = getDatasourceFormButtonConfig(
     state,
