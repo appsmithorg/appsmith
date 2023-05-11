@@ -13,7 +13,7 @@ import type { AppState } from "@appsmith/reducers";
 import type { ApiActionConfig } from "entities/Action";
 import { PluginType } from "entities/Action";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { Button, Category, Toaster, Variant } from "design-system-old";
+import { Button, Category, Toaster, Variant, Callout } from "design-system-old";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { createActionRequest } from "actions/pluginActionActions";
 import {
@@ -44,14 +44,11 @@ import Collapsible from "./Collapsible";
 import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
-import { Callout } from "design-system-old";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import DatasourceAuth, {
-  DatasourceButtonType,
-} from "pages/common/datasourceAuth";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
+import { Form } from "./DBForm";
 
 interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
@@ -330,30 +327,14 @@ class DatasourceRestAPIEditor extends React.Component<
   };
 
   render = () => {
-    const { datasource, formData, pageId } = this.props;
-
     return (
-      <form
+      <Form
         onSubmit={(e) => {
           e.preventDefault();
         }}
       >
         {this.renderEditor()}
-        <DatasourceAuth
-          datasource={datasource}
-          datasourceButtonConfiguration={[
-            DatasourceButtonType.DELETE,
-            DatasourceButtonType.SAVE,
-          ]}
-          datasourceDeleteTrigger={this.props.datasourceDeleteTrigger}
-          formData={formData}
-          getSanitizedFormData={this.getSanitizedFormData}
-          isFormDirty={this.props.isFormDirty}
-          isInvalid={this.validate()}
-          pageId={pageId}
-          shouldRender
-        />
-      </form>
+      </Form>
     );
   };
 
@@ -418,6 +399,7 @@ class DatasourceRestAPIEditor extends React.Component<
         className="t--section-general"
         data-cy="section-General"
         data-replay-id="section-General"
+        style={{ padding: "0px 20px" }}
       >
         <FormInputContainer data-replay-id={btoa("url")}>
           {this.renderInputTextControlViaFormControl({
