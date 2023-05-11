@@ -2,7 +2,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const templateLocators = require("../../../../locators/TemplatesLocators.json");
 const reconnectDatasourceLocators = require("../../../../locators/ReconnectLocators.js");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const { AggregateHelper, HomePage, DataSources } = ObjectsRegistry;
+const { AggregateHelper, DataSources, HomePage } = ObjectsRegistry;
 
 describe("Fork a template to an workspace", () => {
   it("1. Fork a template to an workspace", () => {
