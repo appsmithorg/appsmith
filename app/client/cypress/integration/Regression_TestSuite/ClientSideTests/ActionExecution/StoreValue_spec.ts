@@ -203,7 +203,7 @@ describe("storeValue Action test", () => {
     agHelper.ValidateToastMessage(JSON.stringify(TEST_OBJECT), 0);
     deployMode.NavigateBacktoEditor();
   });
-  it.only("4. Bug 14827 : Accepts paths as keys and doesn't update paths in store but creates a new field with path as key - object keys", function () {
+  it.only("4. Bug 23201 :Unable to set unserialized objects using store value", function () {
     const TEST_OBJECT_2 = { a: 1, two: () => console.log("Hello world!") };
 
     const JS_OBJECT_BODY = `export default {
