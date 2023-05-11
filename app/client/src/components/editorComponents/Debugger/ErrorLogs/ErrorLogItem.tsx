@@ -230,8 +230,8 @@ const ErrorLogItem = (props: LogItemProps) => {
           {collapsable && props.logType !== LOG_TYPE.LINT_ERROR && (
             <Button
               className={`${Classes.ICON} debugger-toggle`}
-              data-cy="t--debugger-toggle"
               data-isopen={props.isExpanded}
+              data-testid="t--debugger-toggle"
               isDisabled={!collapsable}
               isIconButton
               kind="tertiary"

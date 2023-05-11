@@ -349,7 +349,7 @@ function GitConnection({ isImport }: Props) {
     <>
       <ModalBody className={Classes.GIT_SYNC_MODAL}>
         <Container
-          data-test="t--git-connection-container"
+          data-testid="t--git-connection-container"
           ref={scrollWrapperRef}
         >
           <Text color={"var(--ads-v2-color-fg-emphasis)"} kind="heading-s">
@@ -357,7 +357,7 @@ function GitConnection({ isImport }: Props) {
           </Text>
           <Space size={2} />
           <UrlContainer
-            data-test="t--remote-url-container"
+            data-testid="t--remote-url-container"
             isConnected={isGitConnected}
           >
             <Input

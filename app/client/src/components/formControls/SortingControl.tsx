@@ -203,7 +203,7 @@ function SortingComponent(props: any) {
         })}
       <ButtonWrapper>
         <Button
-          data-cy={`t--sorting-add-field`}
+          data-testid={`t--sorting-add-field`}
           kind="tertiary"
           onClick={() =>
             props.fields.push({

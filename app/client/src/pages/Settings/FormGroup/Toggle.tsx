@@ -41,7 +41,7 @@ function FieldToggleWithToggleText(
     return (
       <ToggleWrapper>
         <Switch
-          data-cy={id}
+          data-testid={id}
           isSelected={isPropertyDisabled ? !val : val}
           onChange={onToggle}
         >

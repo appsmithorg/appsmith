@@ -390,7 +390,7 @@ function ConditionBlock(props: any) {
                   />
                   <CenteredIconButton
                     alignSelf={"start"}
-                    data-cy={`t--where-clause-delete-[${index}]`}
+                    data-testid={`t--where-clause-delete-[${index}]`}
                     kind="tertiary"
                     onClick={(e: React.MouseEvent) => {
                       e.stopPropagation();

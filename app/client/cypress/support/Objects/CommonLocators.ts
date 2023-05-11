@@ -178,8 +178,8 @@ export class CommonLocators {
   _editorBackButton = ".t--close-editor";
   _evaluateMsg = ".t--evaluatedPopup-error";
   _canvas = "[data-testid=widgets-editor]";
-  _enterPreviewMode = "[data-cy='edit-mode']";
-  _exitPreviewMode = "[data-cy='preview-mode']";
+  _enterPreviewMode = "[data-testid='edit-mode']";
+  _exitPreviewMode = "[data-testid='preview-mode']";
 
   _ds_imageSelector = ".ads-dialog-trigger";
   _ds_imageSelector_label = ".ads-dialog-trigger .label";

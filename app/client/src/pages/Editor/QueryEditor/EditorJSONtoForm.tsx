@@ -708,7 +708,7 @@ export function EditorJSONtoForm(props: Props) {
                 {executedQueryData &&
                   (executedQueryData.pluginErrorDetails ? (
                     <>
-                      <div data-cy="t--query-error">
+                      <div data-testid="t--query-error">
                         {
                           executedQueryData.pluginErrorDetails
                             .downstreamErrorMessage
@@ -726,7 +726,7 @@ export function EditorJSONtoForm(props: Props) {
                     </>
                   ) : (
                     executedQueryData.body && (
-                      <div data-cy="t--query-error">
+                      <div data-testid="t--query-error">
                         {executedQueryData.body}
                       </div>
                     )

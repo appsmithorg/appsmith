@@ -41,7 +41,7 @@ function ToggleModeButton() {
       placement="bottom"
     >
       <Button
-        data-cy={`${isPreviewMode ? "preview" : "edit"}-mode`}
+        data-testid={`${isPreviewMode ? "preview" : "edit"}-mode`}
         // TODO: (Albin) - check with design team for a better UI
         // isDisabled={isPreviewMode}
         kind="tertiary"

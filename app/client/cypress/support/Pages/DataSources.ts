@@ -97,7 +97,7 @@ export class DataSources {
     "']";
   _refreshIcon = "button .bp3-icon-refresh";
   _addIcon = "button .bp3-icon-add";
-  _queryError = "[data-cy='t--query-error']";
+  _queryError = "[data-testid='t--query-error']";
   _queryResponse = (responseType: string) =>
     "li[data-testid='t--tab-" + responseType + "']";
   _queryRecordResult = (recordCount: number) =>

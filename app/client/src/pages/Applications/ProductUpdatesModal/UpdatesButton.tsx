@@ -55,7 +55,7 @@ function UpdatesButton({
   onClick: () => void;
 }) {
   return (
-    <StyledUpdatesButton data-cy="t--product-updates-btn" onClick={onClick}>
+    <StyledUpdatesButton data-testid="t--product-updates-btn" onClick={onClick}>
       <div style={{ display: "flex", alignItems: "center" }}>
         <Icon name="gift-line" size="sm" />
         <UpdatesButtonTextContainer>

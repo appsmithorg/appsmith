@@ -67,7 +67,8 @@ export class HomePage {
   //private _userRoleDropDown = (email: string) => "//td[text()='" + email + "']/following-sibling::td"
   private _leaveWorkspaceConfirmModal = ".t--member-delete-confirmation-modal";
   private _workspaceImportAppModal = ".t--import-application-modal";
-  private _leaveWorkspaceConfirmButton = "[data-cy=t--workspace-leave-button]";
+  private _leaveWorkspaceConfirmButton =
+    "[data-testid=t--workspace-leave-button]";
   private _lastWorkspaceInHomePage =
     "//div[contains(@class, 't--workspace-section')][last()]//span/span";
   private _leaveWorkspace = "//span[text()='Leave Workspace']";

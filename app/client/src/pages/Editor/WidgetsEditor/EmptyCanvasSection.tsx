@@ -112,11 +112,11 @@ function CanvasTopSection() {
   const isAirgappedInstance = isAirgapped();
 
   return (
-    <Wrapper data-cy="canvas-ctas">
+    <Wrapper data-testid="canvas-ctas">
       {!!featureFlags.TEMPLATES_PHASE_2 &&
         !isAutoLayout &&
         !isAirgappedInstance && (
-          <Card data-cy="start-from-template" onClick={showTemplatesModal}>
+          <Card data-testid="start-from-template" onClick={showTemplatesModal}>
             <Icon name="layout-2-line" size="lg" />
             <Content>
               <Text

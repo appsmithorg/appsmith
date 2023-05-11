@@ -164,7 +164,7 @@ function GeneratePageSubmitBtn({
   return showSubmitButton ? (
     <div>
       <Button
-        data-cy="t--generate-page-form-submit"
+        data-testid="t--generate-page-form-submit"
         isDisabled={disabled}
         isLoading={isLoading}
         kind="primary"
@@ -698,7 +698,7 @@ function GeneratePageForm() {
                   value={option.value}
                 >
                   <DataSourceOption
-                    cypressSelector="t--datasource-dropdown-option"
+                    dataTestid="t--datasource-dropdown-option"
                     extraProps={{ routeToCreateNewDatasource }}
                     key={(option as DropdownOption).id}
                     option={option}

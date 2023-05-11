@@ -141,7 +141,7 @@ function UserGitProfileSettings({
       {showDefaultConfig ? (
         <DefaultConfigContainer>
           <Checkbox
-            data-test-id="t--use-global-config-checkbox"
+            data-testid="t--use-global-config-checkbox"
             isSelected={useGlobalConfig}
             onChange={toggleUseDefaultConfig}
           >
