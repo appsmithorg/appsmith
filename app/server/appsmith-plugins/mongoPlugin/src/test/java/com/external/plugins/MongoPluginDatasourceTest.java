@@ -32,6 +32,7 @@ import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoCollection;
 import com.mongodb.reactivestreams.client.MongoDatabase;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.types.BSONTimestamp;
 import org.bson.types.Decimal128;
@@ -97,6 +98,7 @@ import static org.mockito.Mockito.when;
  */
 
 @Testcontainers
+@Slf4j
 public class MongoPluginDatasourceTest {
     MongoPlugin.MongoPluginExecutor pluginExecutor = new MongoPlugin.MongoPluginExecutor();
 
@@ -197,6 +199,7 @@ public class MongoPluginDatasourceTest {
         dsConfig.setAuthentication(dbAuth);
         StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
                 .assertNext(datasourceTestResult -> {
+                    datasourceTestResult.getInvalids().stream().forEach(error -> log.info(error));
                     assertNotNull(datasourceTestResult);
                     assertTrue(datasourceTestResult.getInvalids().stream().anyMatch(error ->
                             error.contains("Authentication database name is invalid, " +
