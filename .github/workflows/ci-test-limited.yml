@@ -24,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        job: [ 0, 1, 2, 3, 4, 5 ]
+        job: [ 0, 1, 2, 3, 4 ]
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -151,11 +151,23 @@ jobs:
         with:
           node-version: "16.14.0"
 
+      # actions/setup-node@v3 doesn’t work properly with Yarn 3
+      # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
+      # Restoring the cache manually instead
+      - name: Restore Yarn cache
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/cache@v3
+        with:
+          path: app/.yarn/cache
+          key: v1-yarn3-${{ hashFiles('app/yarn.lock') }}
+          restore-keys: |
+            v1-yarn3-
+
       # Install all the dependencies
       - name: Install dependencies
         run: |
           cd app/client
-          yarn install
+          yarn install --immutable
 
       - name: Setting up the cypress tests
         shell: bash
@@ -269,7 +281,7 @@ jobs:
           env: "NODE_ENV=development"
 
       # Upload docker logs
-      - name: Upload failed test list artifact
+      - name: Upload docker logs on failure
         if: failure()
         uses: actions/upload-artifact@v3
         with:
@@ -277,7 +289,8 @@ jobs:
           path: ~/dockerlogs.txt
 
       # Upload the screenshots as artifacts if there's a failure
-      - uses: actions/upload-artifact@v3
+      - name: Upload screenshots on failure
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: cypress-screenshots-${{ matrix.job }}
@@ -285,7 +298,8 @@ jobs:
 
 
       # Upload the snapshots as artifacts for layout validation
-      - uses: actions/upload-artifact@v3
+      - name: Upload snapshots
+        uses: actions/upload-artifact@v3
         with:
           name: cypress-snapshots-visualRegression
           path: app/client/cypress/snapshots/
