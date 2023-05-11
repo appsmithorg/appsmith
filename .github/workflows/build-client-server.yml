@@ -20,3 +20,17 @@ jobs:
     with:
       pr: 0
       skip-tests: "true"
+
+  rts-build:
+    name: rts-build
+    uses: ./.github/workflows/rts-build.yml
+    secrets: inherit
+    with:
+      pr: 0
+
+  ci-test-limited:
+    name: ci-test-limited
+    uses: ./.github/workflows/ci-test-limited.yml
+    secrets: inherit
+    with:
+      pr: 0
