@@ -16,7 +16,6 @@ import type {
   CreateApplicationResponse,
   DeleteApplicationRequest,
   DeleteNavigationLogoRequest,
-  DuplicateApplicationRequest,
   FetchApplicationPayload,
   FetchApplicationResponse,
   FetchUnconfiguredDatasourceListResponse,
@@ -62,7 +61,6 @@ import {
   createMessage,
   DELETING_APPLICATION,
   DISCARD_SUCCESS,
-  DUPLICATING_APPLICATION,
   ERROR_IMPORTING_APPLICATION_TO_WORKSPACE,
 } from "@appsmith/constants/messages";
 import type { AppIconName } from "design-system-old";
@@ -459,46 +457,6 @@ export function* deleteApplicationSaga(
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_APPLICATION_ERROR,
-      payload: {
-        error,
-      },
-    });
-  }
-}
-
-export function* duplicateApplicationSaga(
-  action: ReduxAction<DeleteApplicationRequest>,
-) {
-  try {
-    Toaster.show({
-      text: createMessage(DUPLICATING_APPLICATION),
-    });
-    const request: DuplicateApplicationRequest = action.payload;
-    const response: ApiResponse = yield call(
-      ApplicationApi.duplicateApplication,
-      request,
-    );
-    const isValidResponse: boolean = yield validateResponse(response);
-    if (isValidResponse) {
-      const application: ApplicationPayload = {
-        // @ts-expect-error: response is of type unknown
-        ...response.data,
-        // @ts-expect-error: response is of type unknown
-        defaultPageId: getDefaultPageId(response.data.pages),
-      };
-      yield put({
-        type: ReduxActionTypes.DUPLICATE_APPLICATION_SUCCESS,
-        payload: response.data,
-      });
-
-      const pageURL = builderURL({
-        pageId: application.defaultPageId,
-      });
-      history.push(pageURL);
-    }
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.DUPLICATE_APPLICATION_ERROR,
       payload: {
         error,
       },

@@ -375,21 +375,6 @@ export const handlers = {
       searchKeyword: action.payload.keyword,
     };
   },
-  [ReduxActionTypes.DUPLICATE_APPLICATION_INIT]: (
-    state: ApplicationsReduxState,
-  ) => {
-    return { ...state, duplicatingApplication: true };
-  },
-  [ReduxActionTypes.DUPLICATE_APPLICATION_SUCCESS]: (
-    state: ApplicationsReduxState,
-    action: ReduxAction<ApplicationPayload>,
-  ) => {
-    return {
-      ...state,
-      duplicatingApplication: false,
-      applicationList: [...state.applicationList, action.payload],
-    };
-  },
   [ReduxActionErrorTypes.DUPLICATE_APPLICATION_ERROR]: (
     state: ApplicationsReduxState,
   ) => {
