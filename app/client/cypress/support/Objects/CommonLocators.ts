@@ -4,6 +4,7 @@ export class CommonLocators {
   _loading = "#loading";
   _spinner = ".bp3-spinner";
   _runBtnSpinner = ".cs-spinner";
+  _sidebar = ".t--sidebar";
   _queryName = ".t--action-name-edit-field span";
   _queryNameTxt = ".t--action-name-edit-field input";
   _emptyCanvasCta = "[data-testid='canvas-ctas']";
@@ -45,7 +46,7 @@ export class CommonLocators {
     this._toastMsg + ":contains('" + toastText + "')";
   //_specificToast = (toastText: string | RegExp) => this._toastMsg + ":contains("+ (typeof toastText == 'string' ? "'"+ toastText+"'" : toastText)+ ")"//not working!
   _empty = "span[name='no-response']";
-  _contextMenuInPane = "span[name='context-menu']";
+  _contextMenuInPane = "[data-testid='more-action-trigger']";
   _contextMenuSubItemDiv = (item: string) =>
     "//div[text()='" + item + "'][contains(@class, 'bp3-fill')]";
   _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']";
