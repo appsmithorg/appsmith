@@ -31,8 +31,12 @@ export function* handleStoreOperations(triggers: StoreOperation[]) {
   for (const t of triggers) {
     const { type } = t;
     if (type === "STORE_VALUE") {
-      const { key, persist, value } = t.payload;
-      const parsedValue = JSON.parse(value);
+      const { isObject, key, persist, value } = t.payload;
+
+      let parsedValue = value;
+      if (isObject) {
+        parsedValue = JSON.parse(value);
+      }
 
       if (persist) {
         parsedLocalStore[key] = parsedValue;

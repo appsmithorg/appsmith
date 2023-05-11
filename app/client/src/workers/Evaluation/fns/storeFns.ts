@@ -1,4 +1,4 @@
-import set from "lodash/set";
+import { set, isObject } from "lodash";
 import TriggerEmitter, { BatchKey } from "./utils/TriggerEmitter";
 
 function storeFnDescriptor(key: string, value: string, persist = true) {
@@ -8,6 +8,7 @@ function storeFnDescriptor(key: string, value: string, persist = true) {
       key,
       value: JSON.stringify(value),
       persist,
+      isObject: isObject(value),
     },
   };
 }
