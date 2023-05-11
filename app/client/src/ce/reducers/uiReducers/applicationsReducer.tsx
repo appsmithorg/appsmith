@@ -375,11 +375,6 @@ export const handlers = {
       searchKeyword: action.payload.keyword,
     };
   },
-  [ReduxActionErrorTypes.DUPLICATE_APPLICATION_ERROR]: (
-    state: ApplicationsReduxState,
-  ) => {
-    return { ...state, duplicatingApplication: false };
-  },
   [ReduxActionTypes.UPDATE_APPLICATION]: (
     state: ApplicationsReduxState,
     action: ReduxAction<UpdateApplicationRequest>,
