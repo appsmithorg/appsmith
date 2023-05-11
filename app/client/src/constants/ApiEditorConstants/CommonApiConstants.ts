@@ -15,14 +15,13 @@ export const HTTP_METHODS_COLOR: Record<HTTP_METHOD, string> = {
   DELETE: "var(--ads-v2-color-fg-error)",
   PATCH: "var(--ads-v2-color-fg-muted)",
 };
-
 export enum API_EDITOR_TABS {
   HEADERS = "HEADERS",
   PARAMS = "PARAMS",
   BODY = "BODY",
   PAGINATION = "PAGINATION",
-  SETTINGS = "SETTINGS",
   AUTHENTICATION = "AUTHENTICATION",
+  SETTINGS = "SETTINGS",
 }
 
 export const HTTP_METHOD_OPTIONS = Object.values(HTTP_METHOD).map((method) => ({

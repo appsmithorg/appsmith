@@ -92,7 +92,7 @@ const ApiCard = styled.div`
   }
 
   .content-icon {
-    height: 28px;
+    height: 34px;
     width: auto;
     margin: 0 auto;
     max-width: 100%;

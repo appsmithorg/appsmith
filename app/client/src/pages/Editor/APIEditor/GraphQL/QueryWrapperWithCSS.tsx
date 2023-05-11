@@ -1,4 +1,4 @@
-import { Colors } from "constants/Colors";
+// import { Colors } from "constants/Colors";
 import styled from "styled-components";
 
 const QueryWrapper = styled.div`
@@ -242,7 +242,7 @@ const QueryWrapper = styled.div`
   }
 
   &&& .CodeMirror-gutters {
-    background: ${Colors.GRAY_50};
+    background: var(--ads-v2-color-bg-subtle);
   }
 `;
 

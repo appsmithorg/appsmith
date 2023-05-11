@@ -104,12 +104,12 @@ export const TabbedViewContainer = styled.div<{ isExecuting: boolean }>`
     }
   }
   &&& {
-    ul.react-tabs__tab-list {
+    ul.ads-v2-tabs__list {
       padding: 0px ${(props) => props.theme.spaces[11]}px;
       background-color: ${(props) =>
         props.theme.colors.apiPane.responseBody.bg};
     }
-    .react-tabs__tab-panel {
+    .ads-v2-tabs__panel {
       ${CodeEditorWithGutterStyles};
       height: calc(100% - 32px);
       background-color: ${(props) => props.theme.colors.apiPane.bg};

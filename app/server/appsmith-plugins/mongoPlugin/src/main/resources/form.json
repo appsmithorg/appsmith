@@ -4,14 +4,14 @@
       "sectionName": "Connection",
       "children": [
         {
-          "label": "Use Mongo Connection String URI Key",
+          "label": "Use mongo connection string URI key",
           "configProperty": "datasourceConfiguration.properties[0].key",
           "controlType": "INPUT_TEXT",
-          "initialValue": "Use Mongo Connection String URI",
+          "initialValue": "Use mongo connection string URI",
           "hidden": true
         },
         {
-          "label": "Use Mongo Connection String URI",
+          "label": "Use mongo connection string URI",
           "configProperty": "datasourceConfiguration.properties[0].value",
           "controlType": "DROP_DOWN",
           "initialValue": "No",
@@ -27,14 +27,14 @@
           ]
         },
         {
-          "label": "Connection String URI Key",
+          "label": "Connection string URI key",
           "configProperty": "datasourceConfiguration.properties[1].key",
           "controlType": "INPUT_TEXT",
-          "initialValue": "Connection String URI",
+          "initialValue": "Connection string URI",
           "hidden": true
         },
         {
-          "label": "Connection String URI",
+          "label": "Connection string URI",
           "placeholderText": "mongodb+srv://<username>:<password>@test-db.swrsq.mongodb.net/myDatabase",
           "configProperty": "datasourceConfiguration.properties[1].value",
           "controlType": "INPUT_TEXT",
@@ -45,13 +45,13 @@
           }
         },
         {
-          "label": "Connection Mode",
+          "label": "Connection mode",
           "configProperty": "datasourceConfiguration.connection.mode",
           "controlType": "DROP_DOWN",
           "initialValue": "READ_WRITE",
           "options": [
             {
-              "label": "Read Only",
+              "label": "Read only",
               "value": "READ_ONLY"
             },
             {
@@ -66,13 +66,13 @@
           }
         },
         {
-          "label": "Connection Type",
+          "label": "Connection type",
           "configProperty": "datasourceConfiguration.connection.type",
           "initialValue": "DIRECT",
           "controlType": "DROP_DOWN",
           "options": [
             {
-              "label": "Direct Connection",
+              "label": "Direct connection",
               "value": "DIRECT"
             },
             {
@@ -90,7 +90,7 @@
           "sectionName": null,
           "children": [
             {
-              "label": "Host Address",
+              "label": "Host address",
               "configProperty": "datasourceConfiguration.endpoints[*].host",
               "controlType": "KEYVALUE_ARRAY",
               "validationMessage": "Please enter a valid host",
@@ -116,8 +116,8 @@
           ]
         },
         {
-          "label": "Default Database Name",
-          "placeholderText": "(Optional)",
+          "label": "Default database name",
+          "placeholderText": "(optional)",
           "configProperty": "datasourceConfiguration.connection.defaultDatabaseName",
           "controlType": "INPUT_TEXT",
           "hidden": {
@@ -137,14 +137,14 @@
       },
       "children": [
         {
-          "label": "Database Name",
+          "label": "Database name",
           "configProperty": "datasourceConfiguration.authentication.databaseName",
           "controlType": "INPUT_TEXT",
           "placeholderText": "Database name",
           "initialValue": "admin"
         },
         {
-          "label": "Authentication Type",
+          "label": "Authentication type",
           "configProperty": "datasourceConfiguration.authentication.authType",
           "controlType": "DROP_DOWN",
           "initialValue": "SCRAM_SHA_1",
@@ -193,7 +193,7 @@
       },
       "children": [
         {
-          "label": "SSL Mode",
+          "label": "SSL mode",
           "configProperty": "datasourceConfiguration.connection.ssl.authType",
           "controlType": "DROP_DOWN",
           "initialValue": "DEFAULT",

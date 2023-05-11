@@ -1,17 +1,14 @@
 import type { RefObject } from "react";
-import React, { useMemo } from "react";
-import type { CollapsibleTabProps, TabProp } from "design-system-old";
-import {
-  collapsibleTabRequiredPropKeys,
-  TabComponent,
-} from "design-system-old";
+import React from "react";
+import type { CollapsibleTabProps } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
+import { Tab, TabPanel, Tabs, TabsList } from "design-system";
 
 type EntityBottomTabsProps = {
-  tabs: TabProp[];
-  responseViewer?: boolean;
-  onSelect?: (tab: TabProp["key"]) => void;
+  className?: string;
+  tabs: any;
+  onSelect?: (tab: any) => void;
   selectedTabKey: string;
   canCollapse?: boolean;
   // Reference to container for collapsing or expanding content
@@ -23,18 +20,13 @@ type EntityBottomTabsProps = {
 type CollapsibleEntityBottomTabsProps = EntityBottomTabsProps &
   CollapsibleTabProps;
 
-// Tab is considered collapsible only when all required collapsible props are present
-export const isCollapsibleEntityBottomTab = (
-  props: EntityBottomTabsProps | CollapsibleEntityBottomTabsProps,
-): props is CollapsibleEntityBottomTabsProps =>
-  collapsibleTabRequiredPropKeys.every((key) => key in props);
-
 // Using this if there are debugger related tabs
 function EntityBottomTabs(
   props: EntityBottomTabsProps | CollapsibleEntityBottomTabsProps,
 ) {
-  const onTabSelect = (index: number) => {
-    const tab = props.tabs[index];
+  const onTabSelect = (key: string) => {
+    const tab = props.tabs.find((tab: any) => tab.key === key);
+
     props.onSelect && props.onSelect(tab.key);
 
     if (Object.values<string>(DEBUGGER_TAB_KEYS).includes(tab.key)) {
@@ -44,31 +36,27 @@ function EntityBottomTabs(
     }
   };
 
-  const getIndex = useMemo(() => {
-    const index = props.tabs.findIndex(
-      (tab) => tab.key === props.selectedTabKey,
-    );
-
-    if (index >= 0) {
-      return index;
-    }
-
-    return 0;
-  }, [props.selectedTabKey]);
-
   return (
-    <TabComponent
-      onSelect={onTabSelect}
-      responseViewer={props.responseViewer}
-      selectedIndex={getIndex}
-      tabs={props.tabs}
-      {...(isCollapsibleEntityBottomTab(props)
-        ? {
-            containerRef: props.containerRef,
-            expandedHeight: props.expandedHeight,
-          }
-        : {})}
-    />
+    <Tabs
+      className="h-full"
+      defaultValue={props.tabs[0].key}
+      onValueChange={onTabSelect}
+    >
+      <TabsList>
+        {props.tabs.map((tab: any) => {
+          return (
+            <Tab key={tab.key} notificationCount={tab.count} value={tab.key}>
+              {tab.title}
+            </Tab>
+          );
+        })}
+      </TabsList>
+      {props.tabs.map((tab: any) => (
+        <TabPanel className="h-full" key={tab.key} value={tab.key}>
+          {tab.panelComponent}
+        </TabPanel>
+      ))}
+    </Tabs>
   );
 }
 

@@ -29,7 +29,7 @@ describe("Mongo Form to Native conversion works", () => {
 
     _.dataSources.ValidateNSelectDropdown(
       "Commands",
-      "Find Document(s)",
+      "Find document(s)",
       "Raw",
     );
 
@@ -41,7 +41,7 @@ describe("Mongo Form to Native conversion works", () => {
     _.dataSources.ValidateNSelectDropdown(
       "Commands",
       "Raw",
-      "Find Document(s)",
+      "Find document(s)",
     );
 
     _.agHelper.TypeDynamicInputValueNValidate(
@@ -51,7 +51,7 @@ describe("Mongo Form to Native conversion works", () => {
 
     _.dataSources.ValidateNSelectDropdown(
       "Commands",
-      "Find Document(s)",
+      "Find document(s)",
       "Raw",
     );
 

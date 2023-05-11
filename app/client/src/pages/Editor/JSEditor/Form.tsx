@@ -93,7 +93,7 @@ const SecondaryWrapper = styled.div`
   flex: 1;
   overflow: hidden;
   &&& {
-    .react-tabs__tab-panel {
+    .ads-v2-tabs__panel {
       height: calc(100% - 30px);
       padding-top: 1px;
     }

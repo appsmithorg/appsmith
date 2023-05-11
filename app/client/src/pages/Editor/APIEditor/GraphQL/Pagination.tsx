@@ -5,13 +5,6 @@ import FormRow from "components/editorComponents/FormRow";
 import { PaginationType } from "entities/Action";
 import RadioFieldGroup from "components/editorComponents/form/fields/RadioGroupField";
 import type { DropdownOption } from "design-system-old";
-import {
-  Text,
-  TextType,
-  TooltipComponent as Tooltip,
-  Dropdown,
-  Checkbox,
-} from "design-system-old";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { AnyAction, Dispatch } from "redux";
 import { bindActionCreators } from "redux";
@@ -19,7 +12,6 @@ import { connect } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { FormLabel } from "components/editorComponents/form/fields/StyledFormComponents";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import { Colors } from "constants/Colors";
 import type { GRAPHQL_PAGINATION_TYPE } from "constants/ApiEditorConstants/GraphQLEditorConstants";
 import {
   LIMITBASED_PREFIX,
@@ -29,6 +21,7 @@ import {
 } from "utils/editor/EditorBindingPaths";
 import { log } from "loglevel";
 import { PaginationSubComponent } from "components/formControls/utils";
+import { Select, Option, Checkbox, Text, Tooltip, Link } from "design-system";
 
 const PAGINATION_PREFIX =
   "actionConfiguration.pluginSpecifiedTemplates[2].value";
@@ -47,22 +40,26 @@ interface PaginationProps {
 const SubHeading = styled(Text)`
   display: block;
   margin-bottom: ${(props) => props.theme.spaces[4]}px;
-  color: ${(props) => props.theme.colors.apiPane.pagination.stepTitle};
+  // color: ${(props) => props.theme.colors.apiPane.pagination.stepTitle};
 `;
 
 const PaginationTypeView = styled.div`
-  margin: -16px 0 24px 28px;
+  margin-left: 22px;
   width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+
+  // TODO: remove this in the favor of changing the kind of text during ads typography update phase
+  .help-text {
+    color: #6a7585;
+  }
 `;
 
 const PaginationContainer = styled.div`
   display: flex;
   width: 100%;
-  padding: ${(props) => props.theme.spaces[8]}px
-    ${(props) => props.theme.spaces[12]}px;
+  padding: var(--ads-v2-spaces-4) 0;
 `;
 
 const PaginationSection = styled.div`
@@ -96,8 +93,7 @@ const Step = styled.div`
     min-width: unset;
   }
 
-  & label .bp3-popover-target .label-icon-wrapper {
-    border-bottom: 1px dashed ${Colors.LIGHT_GREYISH_BLUE};
+  & label .label-icon-wrapper {
     cursor: help;
   }
 `;
@@ -120,6 +116,15 @@ const DynamicTextFieldWrapper = styled(DynamicTextField)`
   &&&& .CodeMirror {
     background-color: ${(props) => props.disabled && "#eef2f5"};
   }
+`;
+
+const ErrorMsg = styled.span`
+  font-weight: normal;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: -0.221538px;
+  color: var(--ads-v2-color-fg-error);
+  margin-top: var(--ads-spaces-3);
 `;
 
 const graphqlParseVariables = (queryBody: string) => {
@@ -216,7 +221,7 @@ function PaginationTypeBasedWrapper({
         <Step>
           <FormLabel>
             {variableTooltip ? (
-              <Tooltip content={variableTooltip} hoverOpenDelay={500}>
+              <Tooltip content={variableTooltip}>
                 <span className="label-icon-wrapper">{variableLabel}</span>
               </Tooltip>
             ) : (
@@ -224,42 +229,57 @@ function PaginationTypeBasedWrapper({
             )}
           </FormLabel>
         </Step>
-        <Dropdown
-          boundary="viewport"
+        <Select
           className={`${className}Variable`}
-          dropdownMaxHeight={"200px"}
-          errorMsg={
-            !selectedVariable.value ||
-            dropdownOptions.some(
-              (option: DropdownOption) =>
-                option.value === selectedVariable.value,
+          onChange={(value) =>
+            onSelectVariable(
+              value,
+              dropdownOptions?.find((option) => option?.value === value),
             )
-              ? undefined
-              : "No such variable exist in query"
           }
-          fillOptions
-          onSelect={onSelectVariable}
-          options={dropdownOptions}
           placeholder={
             dropdownOptions.length > 0
               ? "Select a variable"
               : "Add variables in query to select here"
           }
-          selected={
+          value={
             (selectedVariable.label && selectedVariable.value
               ? selectedVariable
               : undefined) as any
           }
-          showEmptyOptions
-          showLabelOnly
-          width={"100%"}
-        />
+        >
+          {dropdownOptions.map((option) => {
+            return (
+              <Option
+                isDisabled={option?.disabled}
+                key={option?.label}
+                value={option?.label}
+              >
+                {option?.label}
+              </Option>
+            );
+          })}
+        </Select>
+        {!selectedVariable.value ||
+          (dropdownOptions.some(
+            (option: DropdownOption) => option.value === selectedVariable.value,
+          ) && (
+            <ErrorMsg>
+              {!selectedVariable.value ||
+              dropdownOptions.some(
+                (option: DropdownOption) =>
+                  option.value === selectedVariable.value,
+              )
+                ? undefined
+                : "No such variable exist in query"}
+            </ErrorMsg>
+          ))}
       </PaginationFieldWrapper>
       <PaginationFieldWrapper data-replay-id={dataReplayId}>
         <Step>
           <FormLabel>
             {valueTooltip ? (
-              <Tooltip content={valueTooltip} hoverOpenDelay={500}>
+              <Tooltip content={valueTooltip}>
                 <span className="label-icon-wrapper">{valueLabel}</span>
               </Tooltip>
             ) : (
@@ -283,12 +303,12 @@ function PaginationTypeBasedWrapper({
           onSeparateKeyChange && (
             <CheckboxFieldWrapper>
               <Checkbox
-                fill
-                isDefaultChecked={separateValueFlag}
-                label={separateKeyLabel}
+                defaultChecked={separateValueFlag}
                 name={separateKeyPath}
-                onCheckChange={onSeparateKeyChange}
-              />
+                onChange={onSeparateKeyChange}
+              >
+                <Text> {separateKeyLabel} </Text>
+              </Checkbox>
             </CheckboxFieldWrapper>
           )}
       </PaginationFieldWrapper>
@@ -372,7 +392,7 @@ function Pagination(props: PaginationProps) {
           selectedOptionElements={[
             null,
             <PaginationTypeView key={`${PaginationType.PAGE_NO}-element`}>
-              <Text type={TextType.P1}>
+              <Text kind="body-m" renderAs={"p"}>
                 Specify a specific limit (number of results) and offset (the
                 number of records that needed to be skipped).
               </Text>
@@ -452,21 +472,21 @@ function Pagination(props: PaginationProps) {
               </PaginationSection>
             </PaginationTypeView>,
             <PaginationTypeView key={`${PaginationType.CURSOR}-element`}>
-              <Text type={TextType.P1}>
-                Specfiy the previous and next cursor variables along with a
+              <Text className="help-text" kind="body-m" renderAs={"p"}>
+                Specify the previous and next cursor variables along with a
                 limit value.{" "}
-                <a
-                  href="https://graphql.org/learn/pagination/"
-                  rel="noreferrer"
-                  style={{ textDecoration: "underline" }}
+                <Link
+                  kind="primary"
+                  style={{ display: "inline" }}
                   target={"_blank"}
+                  to="https://graphql.org/learn/pagination/"
                 >
                   Refer documentation
-                </a>{" "}
+                </Link>{" "}
                 for more information
               </Text>
               <PaginationSection>
-                <SubHeading type={TextType.P1}>
+                <SubHeading kind="body-m" renderAs={"p"}>
                   Configure Previous Page
                 </SubHeading>
                 {/* Previous Limit Value */}
@@ -544,7 +564,9 @@ function Pagination(props: PaginationProps) {
                 />
               </PaginationSection>
               <PaginationSection>
-                <SubHeading type={TextType.P1}>Configure Next Page</SubHeading>
+                <SubHeading kind="body-m" renderAs={"p"}>
+                  Configure Next Page
+                </SubHeading>
                 {/* Next Limit Value */}
                 <PaginationTypeBasedWrapper
                   actionName={props.actionName}

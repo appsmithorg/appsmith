@@ -1033,7 +1033,7 @@
                     "computedValue": "",
                     "buttonStyle": "rgb(3, 179, 101)",
                     "buttonLabelColor": "#FFFFFF",
-                    "iconName": "edit",
+                    "iconName": "pencil-fill-icon",
                     "buttonVariant": "SECONDARY",
                     "boxShadow": "NONE",
                     "onClick": "{{showModal('ec_modal')}}"
@@ -1604,7 +1604,7 @@
                     "computedValue": "",
                     "buttonStyle": "rgb(3, 179, 101)",
                     "buttonLabelColor": "#FFFFFF",
-                    "iconName": "edit",
+                    "iconName": "pencil-fill-icon",
                     "buttonVariant": "SECONDARY",
                     "boxShadow": "NONE"
                   }
@@ -2334,7 +2334,7 @@
                         "dynamicTriggerPathList": [],
                         "leftColumn": 0,
                         "dynamicBindingPathList": [],
-                        "text": "Column Name",
+                        "text": "Column name",
                         "key": "nyopqdic6f",
                         "rightColumn": 16,
                         "textAlign": "LEFT",

@@ -164,7 +164,7 @@ describe("List widget V2 page number and page size", () => {
     // Click on sample(mock) user database.
     cy.get(datasource.mockUserDatabase).click();
 
-    // Choose the first data source which consists of users keyword & Click on the "New Query +"" button
+    // Choose the first data source which consists of users keyword & Click on the "New query +"" button
     cy.get(`${datasource.datasourceCard}`)
       .filter(":contains('Users')")
       .first()

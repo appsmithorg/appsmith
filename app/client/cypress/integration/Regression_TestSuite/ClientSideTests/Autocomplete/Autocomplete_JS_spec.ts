@@ -257,8 +257,8 @@ describe("Autocomplete tests", () => {
 
     _.dataSources.ValidateNSelectDropdown(
       "Commands",
-      "Find Document(s)",
-      "Insert Document(s)",
+      "Find document(s)",
+      "Insert document(s)",
     );
 
     cy.xpath(_.locators._inputFieldByName("Documents")).then(($field: any) => {

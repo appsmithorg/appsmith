@@ -7,7 +7,7 @@ import TextField from "components/editorComponents/form/fields/TextField";
 import styled from "styled-components";
 
 const Wrapper = styled.div`
-  width: 35vw;
+  width: 545px;
 `;
 
 class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
@@ -18,15 +18,14 @@ class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
     return (
       <Wrapper>
         <TextField
-          disabled={disabled}
           format={(value) => {
             // Get the value property
             if (value) {
               return value.value;
             }
-
             return "";
           }}
+          isDisabled={disabled}
           name={configProperty}
           parse={(value) => {
             // Store the value in this field as {key: fixedKey, value: <user-input>}
@@ -36,7 +35,7 @@ class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
             };
           }}
           placeholder={placeholderText}
-          showError
+          size="md"
           type={this.getType(dataType)}
         />
       </Wrapper>
