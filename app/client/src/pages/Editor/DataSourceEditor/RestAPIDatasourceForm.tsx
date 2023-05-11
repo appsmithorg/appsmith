@@ -28,7 +28,11 @@ import {
   datasourceToFormValues,
   formValuesToDatasource,
 } from "transformers/RestAPIDatasourceFormTransformer";
-import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
+import type {
+  ApiDatasourceForm,
+  AuthorizationCode,
+  ClientCredentials,
+} from "entities/Datasource/RestAPIForm";
 import {
   ApiKeyAuthType,
   AuthType,
