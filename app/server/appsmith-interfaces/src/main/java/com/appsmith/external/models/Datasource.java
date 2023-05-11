@@ -55,7 +55,7 @@ public class Datasource extends BranchAwareDomain {
     // TODO: make export import false for this one
     // TODO: Think of a better name for the storage
     @Transient
-    @JsonView(Views.Public.class)
+    @JsonView(Views.Internal.class)
     DatasourceConfigurationStorage datasourceConfigurationStorage;
 
 
