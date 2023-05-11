@@ -9,11 +9,12 @@ import java.util.List;
 
 public interface DatasourceConfigurationStorageServiceCE {
 
-    Flux<DatasourceConfigurationStorage> findByDatasourceId(String datasourceId);
+    Flux<DatasourceConfigurationStorage> findByDatasourceId(Datasource datasource);
+
     Flux<DatasourceConfigurationStorage> findAllByDatasourceIds(List<String> datasourceIds);
+
     Mono<DatasourceConfigurationStorage> findOneByDatasourceId(String datasourceId);
-    Mono<DatasourceConfigurationStorage> save(DatasourceConfigurationStorage datasourceConfigurationStorage);
+
     Mono<DatasourceConfigurationStorage> archive(DatasourceConfigurationStorage datasourceConfigurationStorage);
-    Mono<DatasourceConfigurationStorage> findByDatasourceIdOrSave(Datasource datasource, String environmentId);
 
 }

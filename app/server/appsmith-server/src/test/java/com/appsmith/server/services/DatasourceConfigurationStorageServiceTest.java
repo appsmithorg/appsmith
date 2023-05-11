@@ -1,10 +1,12 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceConfigurationStorage;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.repositories.DatasourceConfigurationStorageRepository;
 import com.appsmith.server.repositories.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,6 +38,8 @@ public class DatasourceConfigurationStorageServiceTest {
     @Autowired
     DatasourceConfigurationStorageService datasourceConfigurationStorageService;
 
+    @Autowired
+    DatasourceConfigurationStorageRepository datasourceConfigurationStorageRepository;
 
 
     @BeforeEach
@@ -58,7 +62,7 @@ public class DatasourceConfigurationStorageServiceTest {
                 new DatasourceConfigurationStorage(datasourceId, null, datasourceConfiguration, null, null);
 
         DatasourceConfigurationStorage savedDatasourceConfigurationStorage =
-                datasourceConfigurationStorageService.save(datasourceConfigurationStorage).block();
+                datasourceConfigurationStorageRepository.save(datasourceConfigurationStorage).block();
 
         Mono<DatasourceConfigurationStorage> datasourceConfigurationStorageMono =
                 datasourceConfigurationStorageService.findOneByDatasourceId(datasourceId);
@@ -77,6 +81,8 @@ public class DatasourceConfigurationStorageServiceTest {
     public void verifyFindByDatasourceId() {
 
         String datasourceId = "mockDatasourceId";
+        Datasource datasource = new Datasource();
+        datasource.setId(datasourceId);
         String environmentIdOne = "mockEnvironmentIdOne";
         String environmentIdTwo = "mockEnvironmentIdTwo";
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
@@ -88,16 +94,16 @@ public class DatasourceConfigurationStorageServiceTest {
                 new DatasourceConfigurationStorage(datasourceId, environmentIdTwo, datasourceConfiguration, null, null);
 
 
-        datasourceConfigurationStorageService.save(datasourceConfigurationStorageOne).block();
-        datasourceConfigurationStorageService.save(datasourceConfigurationStorageTwo).block();
+        datasourceConfigurationStorageRepository.save(datasourceConfigurationStorageOne).block();
+        datasourceConfigurationStorageRepository.save(datasourceConfigurationStorageTwo).block();
 
         Flux<DatasourceConfigurationStorage> datasourceConfigurationStorageFlux =
-                datasourceConfigurationStorageService.findByDatasourceId(datasourceId)
+                datasourceConfigurationStorageService.findByDatasourceId(datasource)
                         .sort(Comparator.comparing(DatasourceConfigurationStorage::getEnvironmentId));
 
         StepVerifier.create(datasourceConfigurationStorageFlux)
                 .assertNext(datasourceConfigurationStorage -> {
-                    assertThat(datasourceConfigurationStorage).isNotNull() ;
+                    assertThat(datasourceConfigurationStorage).isNotNull();
                     assertThat(datasourceId).isEqualTo(datasourceConfigurationStorage.getDatasourceId());
                     assertThat(environmentIdOne).isEqualTo(datasourceConfigurationStorage.getEnvironmentId());
                 })
