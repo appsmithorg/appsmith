@@ -149,7 +149,7 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
               dispatch(updateJSCollectionBody(editor.getValue(), props.id));
               AnalyticsUtil.logEvent("PRETTIFY_CODE_MANUAL_TRIGGER");
             },
-            label: "Prettify Code",
+            label: "Prettify code",
           },
         ]
       : []),
@@ -157,7 +157,7 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
       ? [
           {
             confirmDelete: confirmDelete,
-            icon: "trash" as IconName,
+            icon: "delete-bin-line" as IconName,
             value: "delete",
             onSelect: (event: Event): void => {
               confirmDelete

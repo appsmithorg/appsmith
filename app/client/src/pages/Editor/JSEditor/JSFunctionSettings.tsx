@@ -86,7 +86,6 @@ const SettingsContainer = styled.div`
 
   & > h3 {
     margin: 20px 0;
-    text-transform: capitalize;
     font-size: ${(props) => props.theme.fontSizes[5]}px;
     font-weight: ${(props) => props.theme.fontWeights[2]};
     color: var(--ads-v2-color-fg-emphasis);
