@@ -2,7 +2,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const templateLocators = require("../../../../locators/TemplatesLocators.json");
 const reconnectDatasourceLocators = require("../../../../locators/ReconnectLocators.js");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const { AggregateHelper, HomePage } = ObjectsRegistry;
+const { AggregateHelper, HomePage, DataSources } = ObjectsRegistry;
 
 describe("Fork a template to an workspace", () => {
   it("1. Fork a template to an workspace", () => {
@@ -60,6 +60,11 @@ describe("Fork a template to an workspace", () => {
 
   it("4. Check if tooltip is working in 'Reconnect Datasources'", () => {
     cy.NavigateToHome();
+    cy.get("body").then(($ele) => {
+      if ($ele.find(reconnectDatasourceLocators.Modal).length) {
+        cy.get(DataSources._skiptoApplicationBtn).click();
+      }
+    });
     cy.get(templateLocators.templatesTab).click();
     cy.wait(1000);
     cy.xpath(
