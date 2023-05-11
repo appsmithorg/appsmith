@@ -298,7 +298,8 @@ jobs:
 
 
       # Upload the snapshots as artifacts for layout validation
-      - uses: actions/upload-artifact@v3
+      - name: Upload snapshots
+        uses: actions/upload-artifact@v3
         with:
           name: cypress-snapshots-visualRegression
           path: app/client/cypress/snapshots/
