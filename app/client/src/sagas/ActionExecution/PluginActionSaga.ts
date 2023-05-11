@@ -138,6 +138,7 @@ import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
 import { getActionsForCurrentPage } from "selectors/entitiesSelector";
 import type { ActionData } from "reducers/entityReducers/actionsReducer";
 import { handleStoreOperations } from "./StoreActionSaga";
+import { fetchPage } from "actions/pageActions";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -1347,6 +1348,15 @@ function* clearTriggerActionResponse() {
 
 // Function to soft refresh the all the actions on the page.
 function* softRefreshActionsSaga() {
+  //get current pageId
+  const pageId: string = yield select(getCurrentPageId);
+  // Fetch the page data before refreshing the actions.
+  yield put(fetchPage(pageId));
+  //wait for the page to be fetched.
+  yield take([
+    ReduxActionErrorTypes.FETCH_PAGE_ERROR,
+    ReduxActionTypes.FETCH_PAGE_SUCCESS,
+  ]);
   // Clear appsmith store
   yield call(handleStoreOperations, [
     {
