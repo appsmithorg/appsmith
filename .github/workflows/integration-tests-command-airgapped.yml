@@ -135,7 +135,7 @@ jobs:
         with:
           path: |
             ~/combined_failed_spec_ci
-          key: ${{ github.run_id }}-"ci-test-result-airgapped"
+          key: ${{ github.run_id }}-"ci-test-result"
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
 
