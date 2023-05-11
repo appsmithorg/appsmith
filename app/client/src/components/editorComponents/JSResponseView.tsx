@@ -90,9 +90,8 @@ const TabbedViewWrapper = styled.div`
     padding: 9px 11px;
   }
   &&& {
-    ul.ads-v2-tabs__list {
-      padding: 0px ${(props) => props.theme.spaces[11]}px;
-      height: ${TAB_MIN_HEIGHT};
+    .ads-v2-tabs__list {
+      padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-6);
     }
   }
 `;
