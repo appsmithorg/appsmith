@@ -1,6 +1,6 @@
 import React from "react";
 import "./wdyr";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
 import "./index.css";
 import { ThemeProvider } from "styled-components";
@@ -67,7 +67,9 @@ const mapStateToProps = (state: AppState) => ({
 
 const ThemedAppWithProps = connect(mapStateToProps)(ThemedApp);
 
-ReactDOM.render(<App />, document.getElementById("root"));
+const container = document.getElementById("root") as HTMLElement;
+const root = createRoot(container);
+root.render(<App />);
 
 // expose store when run in Cypress
 if ((window as any).Cypress) {

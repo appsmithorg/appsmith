@@ -166,7 +166,8 @@ export class HomePage {
       "//span[text()='Users will have access to all applications in this workspace']",
     );
     cy.xpath(this._email).click({ force: true }).type(email);
-    cy.xpath(this._selectRole).first().click({ force: true });
+    this.agHelper.PressEnter();
+    cy.xpath(this._selectRole).first().click();
     this.agHelper.Sleep(500);
     cy.xpath(this._userRole(role)).click({ force: true });
     this.agHelper.ClickButton("Invite");

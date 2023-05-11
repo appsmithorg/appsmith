@@ -3,10 +3,9 @@ const simpleListWithLargeDataDSL = require("../../../../../fixtures/Listv2/simpl
 const ListV2WithNullPrimaryKeyDSL = require("../../../../../fixtures/Listv2/ListV2WithNullPrimaryKey.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const propertyControl = ".t--property-control";
-const agHelper = ObjectsRegistry.AggregateHelper;
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
@@ -43,11 +42,11 @@ const data = [
 
 describe("List v2 - Data Identifier property", () => {
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   it("1. is present in the property pane", () => {
@@ -176,21 +175,20 @@ describe("List v2 - Data Identifier property", () => {
 
   it("8. pagination should work for non unique data identifier", () => {
     cy.get(".rc-pagination").find("a").contains("2").click({ force: true });
-
     cy.get(widgetsPage.containerWidget).should("have.length", 2);
   });
 
   it("9. Widgets get displayed when PrimaryKey doesn't exist - SSP", () => {
     cy.addDsl(ListV2WithNullPrimaryKeyDSL);
-    cy.createAndFillApi(
+    _.apiPage.CreateAndFillApi(
       "https://api.punkapi.com/v2/beers?page={{List1.pageNo}}&per_page={{List1.pageSize}}",
-      "",
     );
-    cy.RunAPI();
-    cy.SearchEntityandOpen("List1");
-    cy.openPropertyPaneByWidgetName("Text2", "textwidget");
-
-    cy.testJsontext("text", "{{currentIndex}}");
+    _.apiPage.RunAPI();
+    _.entityExplorer.ExpandCollapseEntity("Widgets");
+    _.entityExplorer.ExpandCollapseEntity("List1");
+    _.entityExplorer.ExpandCollapseEntity("Container1");
+    _.entityExplorer.SelectEntityByName("Text2");
+    _.propPane.UpdatePropertyFieldValue("Text", "{{currentIndex}}");
 
     cy.get(`${widgetSelector("Text2")} ${commonlocators.bodyTextStyle}`)
       .first()
@@ -207,9 +205,11 @@ describe("List v2 - Data Identifier property", () => {
   });
 
   it("10. Widgets get displayed when PrimaryKey doesn't exist - Client-Side Pagination", () => {
-    cy.openPropertyPaneByWidgetName("Text4", "textwidget");
-
-    cy.testJsontext("text", "{{currentIndex}}");
+    _.entityExplorer.ExpandCollapseEntity("Widgets");
+    _.entityExplorer.ExpandCollapseEntity("List2");
+    _.entityExplorer.ExpandCollapseEntity("Container2");
+    _.entityExplorer.SelectEntityByName("Text4");
+    _.propPane.UpdatePropertyFieldValue("Text", "{{currentIndex}}");
 
     cy.get(`${widgetSelector("Text4")} ${commonlocators.bodyTextStyle}`)
       .first()
@@ -233,14 +233,10 @@ describe("List v2 - Data Identifier property", () => {
   });
 
   it("11. Non unique data identifier should throw error- (data type issue)", () => {
-    cy.openPropertyPaneByWidgetName("List2", "listwidgetv2");
-
-    testJsontextClear("items");
-
-    cy.testJsontext("items", JSON.stringify(data));
-
+    _.entityExplorer.SelectEntityByName("List2");
+    _.propPane.UpdatePropertyFieldValue("Items", JSON.stringify(data));
+    _.propPane.UpdatePropertyFieldValue("Data Identifier", "");
     // clicking on the data identifier dropdown
-    testJsontextClear("dataidentifier");
     cy.get(`${propertyControl}-dataidentifier`)
       .find(".t--js-toggle")
       .click({ force: true });
