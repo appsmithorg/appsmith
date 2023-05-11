@@ -116,14 +116,15 @@ jobs:
       - name: cat run_result
         run: echo ${{ steps.run_result.outputs.run_result }}
 
-      - name: Download Docker image artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: cicontainer
+      # - name: Download Docker image artifact
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: cicontainer
 
       - name: Load Docker image from tar file
         run: |
-          gunzip cicontainer.tar.gz
+          mkdir -p ${{ runner.temp }}/.docker
+          cp ${{ runner.temp }}/.docker/cicontainer.tar .
           docker load -i cicontainer.tar
 
       - name: Create folder
@@ -132,15 +133,15 @@ jobs:
         run: |
           mkdir -p cicontainerlocal/stacks/configuration/
 
-      #Download the oldstacks from appsmithorg/oldstacks repo
-      - name: Download the oldstack
-        uses: actions/checkout@v3
-        with:
-          ref: main
-          repository: appsmithorg/ci-oldstack
-          token: ${{ secrets.APPSMITH_CI_TEST_PAT }}
-          submodules: 'recursive'
-          path: cicontainerlocal/oldstack
+      # #Download the oldstacks from appsmithorg/oldstacks repo
+      # - name: Download the oldstack
+      #   uses: actions/checkout@v3
+      #   with:
+      #     ref: main
+      #     repository: appsmithorg/ci-oldstack
+      #     token: ${{ secrets.APPSMITH_CI_TEST_PAT }}
+      #     submodules: 'recursive'
+      #     path: cicontainerlocal/oldstack
 
       - name: Run Appsmith & TED docker image
         if: steps.run_result.outputs.run_result != 'success'

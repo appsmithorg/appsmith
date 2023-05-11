@@ -77,14 +77,15 @@ jobs:
       - name: Save Docker image to tar file
         run: |
           docker save cicontainer -o cicontainer.tar
-          gzip cicontainer.tar
+          mkdir -p ${{ runner.temp }}/.docker
+          mv cicontainer.tar ${{ runner.temp }}/.docker/
 
-      # Uploading the artifact to use it in other subsequent runners
-      - name: Upload Docker image to artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: cicontainer
-          path: cicontainer.tar.gz
+      # # Uploading the artifact to use it in other subsequent runners
+      # - name: Upload Docker image to artifacts
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: cicontainer
+      #     path: cicontainer.tar.gz
 
       - name: Save the status of the run
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
