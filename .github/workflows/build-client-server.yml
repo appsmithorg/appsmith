@@ -1,0 +1,22 @@
+name: Build client server without running tests
+
+on:
+  # This workflow can be triggered manually from the GitHub Actions page
+  workflow_dispatch:
+
+jobs:
+  server-build:
+    name: server-build
+    uses: ./.github/workflows/server-build.yml
+    secrets: inherit
+    with:
+      pr: 0
+      skip-tests: "true"
+
+  client-build:
+    name: client-build
+    uses: ./.github/workflows/client-build.yml
+    secrets: inherit
+    with:
+      pr: 0
+      skip-tests: "true"
