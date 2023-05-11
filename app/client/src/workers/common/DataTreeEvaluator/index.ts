@@ -698,7 +698,7 @@ export default class DataTreeEvaluator {
 
   setupUpdateTreeWithDifferences(
     updatedValuePaths: string[][],
-  ): ReturnType<typeof this.setupUpdateTree> {
+  ): ReturnType<typeof DataTreeEvaluator.prototype.setupUpdateTree> {
     const localUnEvalTree = Object.assign({}, this.oldUnEvalTree);
     // skipped update local unEvalTree
     if (updatedValuePaths.length === 0) {
