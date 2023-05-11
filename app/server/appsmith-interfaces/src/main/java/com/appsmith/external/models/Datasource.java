@@ -145,7 +145,10 @@ public class Datasource extends BranchAwareDomain implements Forkable{
         copyNestedNonNullProperties(this, newDs);
         newDs.makePristine();
         newDs.setWorkspaceId(toWorkspaceId);
-        AuthenticationDTO initialAuth = newDs.getDatasourceConfiguration().getAuthentication();
+        AuthenticationDTO initialAuth = null;
+        if (newDs.getDatasourceConfiguration() != null){
+            initialAuth = newDs.getDatasourceConfiguration().getAuthentication();
+        }
 
         if (!Boolean.TRUE.equals(forkWithConfiguration)){
             DatasourceConfiguration dsConfig = new DatasourceConfiguration();
