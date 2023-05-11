@@ -1,17 +1,26 @@
 import React from "react";
-import styled from "styled-components";
-
-const Wrapper = styled.div`
-  position: absolute !important;
-  top: 20px;
-  width: 50%;
-  height: 71px;
-  padding: 8px 8px 16px 16px;
-  border-radius: 4px;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.06), 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  background-color: #fff;
-`;
+import { Callout } from "design-system";
 
 export default function AnonymousDataPopup() {
-  return <Wrapper>Hey</Wrapper>;
+  return (
+    <div className="absolute top-5">
+      <Callout
+        isClosable
+        kind="info"
+        links={[
+          {
+            children: "Admin Settings",
+            to: "/settings/general",
+          },
+          {
+            children: "Learn more",
+            to: "https://docs.appsmith.com/product/telemetry",
+          },
+        ]}
+      >
+        We only collect usage data to make Appsmith better for everyone. Visit
+        admin settings to toggle this off.
+      </Callout>
+    </div>
+  );
 }

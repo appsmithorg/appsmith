@@ -35,9 +35,7 @@ const DetailsFormWrapper = styled.div`
   position: relative;
 `;
 
-const StyledFormBodyWrapper = styled(FormBodyWrapper)`
-  width: 440px;
-`;
+const StyledFormBodyWrapper = styled(FormBodyWrapper)``;
 
 const StyledTabIndicatorWrapper = styled.div`
   display: flex;

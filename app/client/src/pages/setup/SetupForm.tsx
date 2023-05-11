@@ -41,7 +41,8 @@ const SpaceFiller = styled.div`
 `;
 
 export type DetailsFormValues = {
-  name?: string;
+  firstName?: string;
+  lastName?: string;
   email?: string;
   password?: string;
   verifyPassword?: string;
@@ -53,8 +54,12 @@ export type DetailsFormValues = {
 
 const validate = (values: DetailsFormValues) => {
   const errors: DetailsFormValues = {};
-  if (!values.name) {
-    errors.name = "Please enter a valid Full Name";
+  if (!values.firstName) {
+    errors.firstName = "Please enter a valid First Name";
+  }
+
+  if (!values.lastName) {
+    errors.lastName = "Please enter a valid Last Name";
   }
 
   if (!values.email || !isEmail(values.email)) {

@@ -22,19 +22,20 @@ const LandingPageWrapper = styled.div`
 
 const LandingPageContent = styled.div`
   width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
+  justify-content: center;
   position: relative;
   z-index: 100;
-  justify-content: space-between;
 `;
 
 const StyledTextBanner = styled.div`
-  min-width: ${(props) => props.theme.pageContentWidth * 0.55}px;
-  padding-left: 64px;
-  width: 50%;
-  margin-left: 20%;
-  margin-top: 7%;
+  width: 60%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 `;
 
 const StyledBannerHeader = styled.h1`
@@ -51,10 +52,16 @@ const StyledBannerBody = styled.p`
 `;
 
 const StyledImageBanner = styled.div`
-  min-width: ${(props) => props.theme.pageContentWidth * 0.45}px;
+  width: 40%;
+  display: flex;
+  justify-content: center;
+  height: 100%;
+  flex-direction: column;
+  align-items: end;
 `;
 
 const getWelcomeImage = () => `${ASSETS_CDN_URL}/welcome-banner-v2.svg`;
+const getAppsmithLogo = () => `${ASSETS_CDN_URL}/appsmith-logo.svg`;
 
 type LandingPageProps = {
   onGetStarted?: (role?: string, useCase?: string) => void;
@@ -87,7 +94,12 @@ export default memo(function LandingPage(props: LandingPageProps) {
           {props.forSuperUser ? <SuperUserForm /> : <NonSuperUserForm />}
         </StyledTextBanner>
         <StyledImageBanner>
-          <img src={getAssetUrl(getWelcomeImage())} />
+          <div className="flex self-start w-2/6 h-16 ml-56">
+            <img src={getAssetUrl(getAppsmithLogo())} />
+          </div>
+          <div className="flex w-5/6 my-1 h-4/6">
+            <img className="w-full" src={getAssetUrl(getWelcomeImage())} />
+          </div>
         </StyledImageBanner>
       </LandingPageContent>
     </LandingPageWrapper>

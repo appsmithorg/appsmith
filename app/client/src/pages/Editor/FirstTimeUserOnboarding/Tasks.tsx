@@ -21,7 +21,7 @@ import {
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { INTEGRATION_TABS } from "constants/routes";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
@@ -37,8 +37,13 @@ import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 import { integrationEditorURL } from "RouteBuilder";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
 import AnonymousDataPopup from "./AnonymousDataPopup";
+import {
+  getFirstTimeUserOnboardingComplete,
+  getIsFirstTimeUserOnboardingEnabled,
+} from "selectors/onboardingSelectors";
+import { getCurrentUser } from "selectors/usersSelectors";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -98,6 +103,12 @@ const getOnboardingQueryImg = () => `${ASSETS_CDN_URL}/onboarding-query.svg`;
 const getOnboardingWidgetImg = () => `${ASSETS_CDN_URL}/onboarding-widget.svg`;
 
 export default function OnboardingTasks() {
+  const [isAnonymousDataPopupOpen, setisAnonymousDataPopupOpen] =
+    useState(true);
+
+  const isFirstTimeUserOnboardingEnabled = useSelector(
+    getIsFirstTimeUserOnboardingEnabled,
+  );
   const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
   let content;
@@ -105,6 +116,19 @@ export default function OnboardingTasks() {
   const actions = useSelector(getPageActions(pageId));
   const widgets = useSelector(getCanvasWidgets);
   const dispatch = useDispatch();
+  const user = useSelector(getCurrentUser);
+  const isAdmin = user?.isSuperUser || false;
+  const isOnboardingCompleted = useSelector(getFirstTimeUserOnboardingComplete);
+  const showShowAnonymousDataPopup =
+    isAnonymousDataPopupOpen &&
+    !isAirgapped &&
+    isFirstTimeUserOnboardingEnabled &&
+    isAdmin &&
+    !isOnboardingCompleted;
+
+  useEffect(() => {
+    setTimeout(() => setisAnonymousDataPopupOpen(false), 10000);
+  }, []);
 
   if (!datasources.length && !actions.length) {
     content = (
@@ -267,7 +291,7 @@ export default function OnboardingTasks() {
   return (
     <Wrapper data-testid="onboarding-tasks-wrapper">
       {content}
-      <AnonymousDataPopup />
+      {showShowAnonymousDataPopup && <AnonymousDataPopup />}
     </Wrapper>
   );
 }
