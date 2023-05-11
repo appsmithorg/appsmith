@@ -9472,8 +9472,8 @@ __metadata:
     cypress-xpath: ^1.4.0
     dayjs: ^1.10.6
     deep-diff: ^1.0.2
-    design-system: "npm:@appsmithorg/design-system@2.1.9-alpha.16"
-    design-system-old: "npm:@appsmithorg/design-system-old@1.1.7-alpha.8"
+    design-system: "npm:@appsmithorg/design-system@2.1.9-alpha.17"
+    design-system-old: "npm:@appsmithorg/design-system-old@1.1.7-alpha.9"
     diff: ^5.0.0
     dotenv: ^8.1.0
     downloadjs: ^1.4.7
@@ -13135,9 +13135,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"design-system-old@npm:@appsmithorg/design-system-old@1.1.7-alpha.8":
-  version: 1.1.7-alpha.8
-  resolution: "@appsmithorg/design-system-old@npm:1.1.7-alpha.8"
+"design-system-old@npm:@appsmithorg/design-system-old@1.1.7-alpha.9":
+  version: 1.1.7-alpha.9
+  resolution: "@appsmithorg/design-system-old@npm:1.1.7-alpha.9"
   dependencies:
     emoji-mart: 3.0.1
   peerDependencies:
@@ -13157,13 +13157,13 @@ __metadata:
     remixicon-react: ^1.0.0
     styled-components: 5.3.6
     tinycolor2: ^1.4.2
-  checksum: 7ac1a9a8369e7083edb9cfba854c03a1d1125c567266c32085d00ecb37f2db700f42cbff09d2fb6bde460c03c444014c5180dccfa88a2ae40896ae0378306117
+  checksum: 977eae8750027af7dad1a167275c33eb623e9ec0d00c293c9e7b95a238f8388ee034cd1e6ab3c52117d43af9d3c6d21b52501bb9acd40dc4119490446f92026f
   languageName: node
   linkType: hard
 
-"design-system@npm:@appsmithorg/design-system@2.1.9-alpha.16":
-  version: 2.1.9-alpha.16
-  resolution: "@appsmithorg/design-system@npm:2.1.9-alpha.16"
+"design-system@npm:@appsmithorg/design-system@2.1.9-alpha.17":
+  version: 2.1.9-alpha.17
+  resolution: "@appsmithorg/design-system@npm:2.1.9-alpha.17"
   dependencies:
     "@radix-ui/react-dialog": ^1.0.2
     "@radix-ui/react-dropdown-menu": ^2.0.4
@@ -13188,7 +13188,7 @@ __metadata:
     react-dom: ^17.0.2
     react-router-dom: ^5.0.0
     styled-components: ^5.3.6
-  checksum: eeede4ae5853b9a54c64a4bf3ed3593d44acce2d61c7a23727ed9d459c68cafb1bb224b23436dbbd9e3cce995801b506b12020d64a6e7877095cf61ebb8d91f6
+  checksum: 54dbb6a00e0d93d5b14b921dbdebc4adaffbe150776d2bd50d687dd31c7f4cf1b5ca34d73066320fdcb4da180ceda6e07fe6194b871d385138be038ab4c06d39
   languageName: node
   linkType: hard
 
