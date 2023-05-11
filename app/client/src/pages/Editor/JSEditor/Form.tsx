@@ -397,6 +397,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                           isJSObject
                           mode={EditorModes.JAVASCRIPT}
                           placeholder="Let's write some code!"
+                          removeHoverAndFocusStyle
                           showLightningMenu={false}
                           showLineNumbers
                           size={EditorSize.EXTENDED}

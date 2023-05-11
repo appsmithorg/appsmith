@@ -275,7 +275,7 @@ function LogItem(props: LogItemProps) {
           isVisible={!!collapsable}
           kind="tertiary"
           onClick={() => setIsOpen(!isOpen)}
-          size="md"
+          size="sm"
           startIcon={"expand-more"}
         />
         {!(

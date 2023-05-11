@@ -80,7 +80,6 @@ const JSFunctionSettingsWrapper = styled.div`
 const SettingsContainer = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 0px ${(props) => props.theme.spaces[13] - 2}px;
   width: max-content;
   min-width: 700px;
   height: 100%;
@@ -92,6 +91,11 @@ const SettingsContainer = styled.div`
     font-weight: ${(props) => props.theme.fontWeights[2]};
     color: var(--ads-v2-color-fg-emphasis);
   }
+`;
+
+const SettingsRowWrapper = styled.div`
+  border-radius: var(--ads-v2-border-radius);
+  overflow: hidden;
 `;
 
 function SettingsHeading({ grow, hasInfo, info, text }: SettingsHeadingProps) {
@@ -203,26 +207,32 @@ function JSFunctionSettingsView({
     <JSFunctionSettingsWrapper>
       <SettingsContainer>
         <h3>{createMessage(ASYNC_FUNCTION_SETTINGS_HEADING)}</h3>
-        <SettingRow isHeading>
-          {SETTINGS_HEADINGS.map((setting, index) => (
-            <SettingsHeading
-              grow={index === 0}
-              hasInfo={setting.hasInfo}
-              info={setting.info}
-              key={setting.key}
-              text={setting.text}
-            />
-          ))}
-        </SettingRow>
-        {asyncActions && asyncActions.length ? (
-          asyncActions.map((action) => (
-            <SettingsItem action={action} disabled={disabled} key={action.id} />
-          ))
-        ) : (
-          <SettingRow noBorder>
-            <SettingColumn>{createMessage(NO_ASYNC_FUNCTIONS)}</SettingColumn>
+        <SettingsRowWrapper>
+          <SettingRow isHeading>
+            {SETTINGS_HEADINGS.map((setting, index) => (
+              <SettingsHeading
+                grow={index === 0}
+                hasInfo={setting.hasInfo}
+                info={setting.info}
+                key={setting.key}
+                text={setting.text}
+              />
+            ))}
           </SettingRow>
-        )}
+          {asyncActions && asyncActions.length ? (
+            asyncActions.map((action) => (
+              <SettingsItem
+                action={action}
+                disabled={disabled}
+                key={action.id}
+              />
+            ))
+          ) : (
+            <SettingRow noBorder>
+              <SettingColumn>{createMessage(NO_ASYNC_FUNCTIONS)}</SettingColumn>
+            </SettingRow>
+          )}
+        </SettingsRowWrapper>
       </SettingsContainer>
     </JSFunctionSettingsWrapper>
   );

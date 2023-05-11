@@ -87,6 +87,8 @@ export const TabbedViewContainer = styled.div<{ isExecuting: boolean }>`
   overflow: auto;
   position: relative;
   border-bottom: 1px solid var(--ads-v2-color-border);
+  padding: 0px ${(props) => props.theme.spaces[11]}px;
+
   ${thinScrollbar}
   ${FormRow} {
     min-height: auto;

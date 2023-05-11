@@ -1,9 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import FlagBadge from "components/utils/FlagBadge";
 import type { JSCollection } from "entities/JSCollection";
 import type { SelectProps } from "design-system";
-import { Button, Option, Select, Tooltip, Text } from "design-system";
+import { Button, Option, Select, Tooltip, Text, Tag } from "design-system";
 import {
   createMessage,
   NO_JS_FUNCTION_TO_RUN,
@@ -66,6 +65,7 @@ export function JSFunctionRun({
     <DropdownWithCTAWrapper isDisabled={disabled}>
       <Select
         className="function-select-dropdown"
+        isDisabled={disabled}
         onSelect={onSelect}
         size="md"
         value={
@@ -85,7 +85,7 @@ export function JSFunctionRun({
               <OptionLabelWrapper>
                 <OptionLabel renderAs="p">{option.label}</OptionLabel>
               </OptionLabelWrapper>
-              {option.hasCustomBadge && <FlagBadge name="Async" />}
+              {option.hasCustomBadge && <Tag isClosable={false}>{"Async"}</Tag>}
             </OptionWrapper>
           </Option>
         ))}
