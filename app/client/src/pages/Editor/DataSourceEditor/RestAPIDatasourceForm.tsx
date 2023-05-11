@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import { createNewApiName } from "utils/AppsmithUtils";
 import { DATASOURCE_REST_API_FORM } from "@appsmith/constants/forms";
 import type { Datasource } from "entities/Datasource";
 import type { InjectedFormProps } from "redux-form";
@@ -10,15 +9,10 @@ import FormControl from "pages/Editor/FormControl";
 import { StyledInfo } from "components/formControls/InputTextControl";
 import { connect } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
-import type { ApiActionConfig } from "entities/Action";
 import { PluginType } from "entities/Action";
-import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { Button, Category, Toaster, Variant, Callout } from "design-system-old";
-import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
-import { createActionRequest } from "actions/pluginActionActions";
+import { Button, Category, Variant, Callout } from "design-system-old";
 import {
   createDatasourceFromForm,
-  deleteDatasource,
   redirectAuthorizationCode,
   toggleSaveActionFlag,
   updateDatasource,
@@ -56,14 +50,10 @@ interface DatasourceRestApiEditorProps {
     formValues: Datasource,
     onSuccess?: ReduxAction<unknown>,
   ) => void;
-  deleteDatasource: (id: string) => void;
   isSaving: boolean;
-  isDeleting: boolean;
   applicationId: string;
   datasourceId: string;
   pageId: string;
-  isNewDatasource: boolean;
-  pluginImage: string;
   location: {
     search: string;
   };
@@ -72,12 +62,8 @@ interface DatasourceRestApiEditorProps {
   formName: string;
   pluginName: string;
   pluginPackageName: string;
-  actions: ActionDataState;
   formMeta: any;
   messages?: Array<string>;
-  hiddenHeader?: boolean;
-  responseStatus?: string;
-  responseMessage?: string;
   datasourceName: string;
   createDatasource: (
     data: Datasource,
@@ -85,7 +71,6 @@ interface DatasourceRestApiEditorProps {
   ) => void;
   toggleSaveActionFlag: (flag: boolean) => void;
   triggerSave?: boolean;
-  isFormDirty: boolean;
   datasourceDeleteTrigger: () => void;
 }
 
@@ -112,13 +97,9 @@ const AuthorizeButton = styled(StyledButton)`
   }
 `;
 
-class DatasourceRestAPIEditor extends React.Component<
-  Props,
-  { confirmDelete: boolean }
-> {
+class DatasourceRestAPIEditor extends React.Component<Props> {
   constructor(props: Props) {
     super(props);
-    this.state = { confirmDelete: false };
   }
   componentDidMount() {
     // set replay data
@@ -130,14 +111,6 @@ class DatasourceRestAPIEditor extends React.Component<
 
   componentDidUpdate(prevProps: Props) {
     if (!this.props.formData) return;
-
-    if (this.state.confirmDelete) {
-      const delayConfirmDeleteToFalse = _.debounce(() => {
-        if (!this.props.isDeleting) this.setState({ confirmDelete: false });
-      }, 2200);
-
-      delayConfirmDeleteToFalse();
-    }
 
     const { authType } = this.props.formData;
 
@@ -261,52 +234,6 @@ class DatasourceRestAPIEditor extends React.Component<
         name: this.props.datasourceName,
       },
       onSuccess,
-    );
-  };
-
-  createApiAction = (
-    actions: ActionDataState,
-    datasource: Datasource,
-    pageId: string,
-  ) => {
-    if (
-      !datasource ||
-      !datasource.datasourceConfiguration ||
-      !datasource.datasourceConfiguration.url
-    ) {
-      Toaster.show({
-        text: "Unable to create API. Try adding a url to the datasource",
-        variant: Variant.danger,
-      });
-      return;
-    }
-    const newApiName = createNewApiName(actions, pageId || "");
-
-    const headers = datasource?.datasourceConfiguration?.headers ?? [];
-    const queryParameters =
-      datasource?.datasourceConfiguration?.queryParameters ?? [];
-    const defaultApiActionConfig: ApiActionConfig = {
-      ...DEFAULT_API_ACTION_CONFIG,
-      headers: headers.length ? headers : DEFAULT_API_ACTION_CONFIG.headers,
-      queryParameters: queryParameters.length
-        ? queryParameters
-        : DEFAULT_API_ACTION_CONFIG.queryParameters,
-    };
-
-    this.save(
-      createActionRequest({
-        name: newApiName,
-        pageId: pageId,
-        pluginId: datasource.pluginId,
-        datasource: {
-          id: datasource.id,
-        },
-        eventData: {
-          actionType: "API",
-          from: "datasource-pane",
-        },
-        actionConfiguration: defaultApiActionConfig,
-      }),
     );
   };
 
@@ -1133,7 +1060,6 @@ const mapStateToProps = (state: AppState, props: any) => {
 
   return {
     initialValues: datasourceToFormValues(datasource),
-    actions: state.entities.actions,
     formMeta: getFormMeta(formName)(state),
     messages: hintMessages,
     datasourceName: datasource?.name ?? "",
@@ -1146,9 +1072,6 @@ const mapDispatchToProps = (dispatch: any) => {
       dispatch(updateReplayEntity(id, data, ENTITY_TYPE.DATASOURCE)),
     updateDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) =>
       dispatch(updateDatasource(formData, onSuccess)),
-    deleteDatasource: (id: string) => {
-      dispatch(deleteDatasource({ id }));
-    },
     createDatasource: (formData: any, onSuccess?: ReduxAction<unknown>) =>
       dispatch(createDatasourceFromForm(formData, onSuccess)),
     toggleSaveActionFlag: (flag: boolean) =>

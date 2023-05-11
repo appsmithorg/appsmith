@@ -429,19 +429,14 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       formName,
       fromImporting,
       history,
-      isDeleting,
       isFormDirty,
-      isNewDatasource,
       isSaving,
-      isTesting,
       location,
       pageId,
       pluginDatasourceForm,
-      pluginImage,
       pluginName,
       pluginPackageName,
       pluginType,
-      setDatasourceViewMode,
       viewMode,
     } = this.props;
 
@@ -456,21 +451,16 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           <RestAPIDatasourceForm
             applicationId={this.props.applicationId}
             datasource={datasource}
-            datasourceDeleteTrigger={this.datasourceDeleteTrigger}
             datasourceId={datasourceId}
             formData={formData}
             formName={formName}
             hiddenHeader={fromImporting}
-            isDeleting={isDeleting}
             isFormDirty={isFormDirty}
-            isNewDatasource={isNewDatasource}
             isSaving={isSaving}
             location={location}
             pageId={pageId}
-            pluginImage={pluginImage}
             pluginName={pluginName}
             pluginPackageName={pluginPackageName}
-            triggerSave={this.props.triggerSave}
           />
           {this.renderSaveDisacardModal()}
         </>
@@ -509,15 +499,9 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           formData={formData}
           formName={DATASOURCE_DB_FORM}
           hiddenHeader={fromImporting}
-          isDeleting={isDeleting}
-          isFormDirty={isFormDirty}
-          isNewDatasource={isNewDatasource}
           isSaving={isSaving}
-          isTesting={isTesting}
           pageId={pageId}
-          pluginImage={pluginImage}
           pluginType={pluginType}
-          setDatasourceViewMode={setDatasourceViewMode}
           setupConfig={this.setupConfig}
           viewMode={viewMode && !fromImporting}
         />

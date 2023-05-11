@@ -113,7 +113,6 @@ export interface JSONtoFormProps {
   formName: string;
   formConfig: any[];
   datasourceId: string;
-  isReconnectingModalOpen?: boolean;
   featureFlags?: FeatureFlags;
   setupConfig: (config: ControlProps) => void;
 }
@@ -123,13 +122,6 @@ export class JSONtoForm<
   S = unknown,
   SS = any,
 > extends React.Component<JSONtoFormProps & P, S, SS> {
-  // componentDidUpdate(prevProps: JSONtoFormProps) {
-  //   if (prevProps.datasourceId !== this.props.datasourceId) {
-  //     this.props.requiredFields = {};
-  //     this.props.configDetails = {};
-  //   }
-  // }
-
   renderForm = (formContent: any) => {
     return (
       <FormContainer className="t--json-to-form-wrapper">

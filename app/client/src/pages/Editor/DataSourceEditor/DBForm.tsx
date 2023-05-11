@@ -23,20 +23,15 @@ import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 const { cloudHosting } = getAppsmithConfigs();
 
 interface DatasourceDBEditorProps extends JSONtoFormProps {
-  setDatasourceViewMode: (viewMode: boolean) => void;
   datasourceId: string;
   applicationId: string;
   pageId: string;
-  isNewDatasource: boolean;
   viewMode: boolean;
   pluginType: string;
   messages?: Array<string>;
   datasource: Datasource;
   hiddenHeader?: boolean;
-  canManageDatasource?: boolean;
   datasourceName?: string;
-  isDatasourceBeingSavedFromPopup: boolean;
-  isFormDirty: boolean;
 }
 
 type Props = DatasourceDBEditorProps &
@@ -164,10 +159,7 @@ const mapStateToProps = (state: AppState, props: any) => {
   return {
     messages: hintMessages,
     datasource,
-    isReconnectingModalOpen: state.entities.datasources.isReconnectingModalOpen,
     datasourceName: datasource?.name ?? "",
-    isDatasourceBeingSavedFromPopup:
-      state.entities.datasources.isDatasourceBeingSavedFromPopup,
   };
 };
 
