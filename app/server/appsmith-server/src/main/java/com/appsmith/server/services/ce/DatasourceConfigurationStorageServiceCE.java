@@ -14,6 +14,7 @@ public interface DatasourceConfigurationStorageServiceCE {
     Mono<DatasourceConfigurationStorage> findOneByDatasourceId(String datasourceId);
     Mono<DatasourceConfigurationStorage> save(DatasourceConfigurationStorage datasourceConfigurationStorage);
     Mono<DatasourceConfigurationStorage> archive(DatasourceConfigurationStorage datasourceConfigurationStorage);
+    Flux<DatasourceConfigurationStorage> archiveByDatasourceId(String datasourceId);
     Mono<DatasourceConfigurationStorage> findByDatasourceIdOrSave(Datasource datasource, String environmentId);
     Mono<DatasourceConfigurationStorage> getDatasourceConfigurationStorageByDatasourceId(String datasourceId);
 

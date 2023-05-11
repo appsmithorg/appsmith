@@ -106,4 +106,10 @@ public class DatasourceConfigurationStorageServiceCEImpl
                 .switchIfEmpty(datasourceRepository.findById(datasourceId)
                         .flatMap(this::migrateDatasourceConfigurationToDatasourceConfigurationStorage));
     }
+
+    @Override
+    public Flux<DatasourceConfigurationStorage> archiveByDatasourceId(String datasourceId) {
+        return findByDatasourceId(datasourceId)
+                .flatMap(this::archive);
+    }
 }

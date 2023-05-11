@@ -520,8 +520,9 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                     return Mono.just(objects.getT1());
                 })
                 .flatMap(toDelete -> {
-                    return datasourceContextService.deleteDatasourceContext(datasourceContextService.createDsContextIdentifier(toDelete))
-                            .then(repository.archive(toDelete))
+                    return Mono.zip(datasourceContextService.deleteDatasourceContext(datasourceContextService.createDsContextIdentifier(toDelete)),
+                                    repository.archive(toDelete),
+                                    datasourceConfigurationStorageService.archiveByDatasourceId(toDelete.getId()).collectList())
                             .thenReturn(toDelete);
                 })
                 .flatMap(datasource -> {
