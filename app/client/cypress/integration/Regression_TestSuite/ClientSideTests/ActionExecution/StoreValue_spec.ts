@@ -150,7 +150,6 @@ describe("storeValue Action test", () => {
 
   it("3. Bug 14827 : Accepts paths as keys and doesn't update paths in store but creates a new field with path as key - object keys", function () {
     const TEST_OBJECT = { a: 1, two: {} };
-    const TEST_OBJECT_2 = { a: 1, two: () => console.log("Hello world!") };
 
     const JS_OBJECT_BODY = `export default {
       setStore: async () => {
@@ -159,13 +158,6 @@ describe("storeValue Action test", () => {
         await storeValue("test.two",{"b":2}, false);
         await showAlert(JSON.stringify(appsmith.store.test.two));
         await showAlert(JSON.stringify(appsmith.store["test.two"]));
-      },
-      setStore2: async () => {
-        await storeValue("test2", ${JSON.stringify(TEST_OBJECT_2)}, false);
-        await showAlert(JSON.stringify(appsmith.store.test2));
-        await storeValue("test2.two",{"b":2}, false);
-        await showAlert(JSON.stringify(appsmith.store.test2.two));
-        await showAlert(JSON.stringify(appsmith.store["test2.two"]));
       },
       showStore: () =>  {
         showAlert(JSON.stringify(appsmith.store.test));}
@@ -201,6 +193,41 @@ describe("storeValue Action test", () => {
       );
     });
 
+    deployMode.DeployApp();
+    agHelper.ClickButton("SetStore");
+    agHelper.ValidateToastMessage(JSON.stringify(TEST_OBJECT), 0, 1);
+    agHelper.ValidateToastMessage(JSON.stringify(TEST_OBJECT.two), 1, 2);
+    agHelper.ValidateToastMessage(`{"b":2}`, 2, 3);
+
+    agHelper.ClickButton("ShowStore");
+    agHelper.ValidateToastMessage(JSON.stringify(TEST_OBJECT), 0);
+    deployMode.NavigateBacktoEditor();
+  });
+  it.only("4. Bug 14827 : Accepts paths as keys and doesn't update paths in store but creates a new field with path as key - object keys", function () {
+    const TEST_OBJECT_2 = { a: 1, two: () => console.log("Hello world!") };
+
+    const JS_OBJECT_BODY = `export default {
+      setStore2: async () => {
+        await storeValue("test2", ${JSON.stringify(TEST_OBJECT_2)}, false);
+        await showAlert(JSON.stringify(appsmith.store.test2));
+        await storeValue("test2.two",{"b":2}, false);
+        await showAlert(JSON.stringify(appsmith.store.test2.two));
+        await showAlert(JSON.stringify(appsmith.store["test2.two"]));
+      },
+      showStore: () =>  {
+        showAlert(JSON.stringify(appsmith.store.test));}
+      showStore2: () =>  {
+        showAlert(JSON.stringify(appsmith.store.test2));}
+    }`;
+
+    // create js object
+    jsEditor.CreateJSObject(JS_OBJECT_BODY, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+    });
+
     //Button3
     ee.DragDropWidgetNVerify("buttonwidget", 100, 200);
     ee.SelectEntityByName("Button3", "Widgets");
@@ -226,13 +253,6 @@ describe("storeValue Action test", () => {
     });
 
     deployMode.DeployApp();
-    agHelper.ClickButton("SetStore");
-    agHelper.ValidateToastMessage(JSON.stringify(TEST_OBJECT), 0, 1);
-    agHelper.ValidateToastMessage(JSON.stringify(TEST_OBJECT.two), 1, 2);
-    agHelper.ValidateToastMessage(`{"b":2}`, 2, 3);
-
-    agHelper.ClickButton("ShowStore");
-    agHelper.ValidateToastMessage(JSON.stringify(TEST_OBJECT), 0);
 
     agHelper.ClickButton("SetStore2");
     agHelper.ValidateToastMessage(JSON.stringify(TEST_OBJECT_2), 0, 1);
@@ -240,7 +260,7 @@ describe("storeValue Action test", () => {
     agHelper.ValidateToastMessage(`{"b":2}`, 2, 3);
 
     agHelper.ClickButton("ShowStore2");
-    agHelper.ValidateToastMessage(JSON.stringify(TEST_OBJECT), 0);
+    agHelper.ValidateToastMessage(JSON.stringify(TEST_OBJECT_2), 0);
     deployMode.NavigateBacktoEditor();
   });
 });

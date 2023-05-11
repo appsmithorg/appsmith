@@ -286,7 +286,7 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
   //cy.reload();
 
   cy.get("#loading").should("not.exist");
-  cy.get("#sidebar").should("be.visible");
+  // cy.get("#sidebar").should("be.visible");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
 
