@@ -5,7 +5,7 @@ on:
 
 jobs:
   notify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-8-cores
     steps:
       # This step creates a comment on the PR with a link to this workflow run.
       - name: Add a comment on the PR with link to workflow run
@@ -87,7 +87,7 @@ jobs:
     needs: [ci-test]
     # Only run if the ci-test with matrices step is successful
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-8-cores
     defaults:
       run:
         shell: bash
