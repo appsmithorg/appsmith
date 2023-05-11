@@ -14,6 +14,7 @@ import {
   clearEvaluatedActionSelectorField,
   evaluateActionSelectorField,
 } from "actions/actionSelectorActions";
+import { isFunctionPresent } from "@shared/ast";
 
 export function TextView(props: TextViewProps) {
   const id = useMemo(() => generateReactKey(), []);
@@ -26,9 +27,7 @@ export function TextView(props: TextViewProps) {
   useEffect(() => {
     // If the code contains a function or arrow function, don't evaluate it
     // Because, the evaluations are done in the worker and we can't post functions to the worker
-    if (
-      ["function", "=>"].some((keyword) => codeWithoutMoustache.match(keyword))
-    )
+    if (isFunctionPresent(codeWithoutMoustache, window.evaluationVersion))
       return;
 
     dispatch(
