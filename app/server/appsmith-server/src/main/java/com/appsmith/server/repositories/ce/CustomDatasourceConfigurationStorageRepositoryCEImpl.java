@@ -7,7 +7,6 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -30,12 +29,6 @@ public class CustomDatasourceConfigurationStorageRepositoryCEImpl
     static helper methods
      */
 
-    private static Query getQuery(List<Criteria> criteria) {
-        Query query = new Query();
-        criteria.forEach(query::addCriteria);
-        return query;
-    }
-
     private static Criteria datasourceIdCriterion(String datasourceId) {
         return Criteria.where(fieldName(QDatasourceConfigurationStorage.datasourceConfigurationStorage.datasourceId))
                 .is(datasourceId);
@@ -47,33 +40,21 @@ public class CustomDatasourceConfigurationStorageRepositoryCEImpl
     }
 
     /*
-    Db query methods
-     */
-    
-    private Mono<DatasourceConfigurationStorage> queryOne(List<Criteria> criteria) {
-        return mongoOperations.findOne(getQuery(criteria), DatasourceConfigurationStorage.class);
-    }
-
-    private Flux<DatasourceConfigurationStorage> queryMany(List<Criteria> criteria) {
-        return mongoOperations.find(getQuery(criteria), DatasourceConfigurationStorage.class);
-    }
-
-    /*
     Implementations of the interface
      */
 
     @Override
     public Flux<DatasourceConfigurationStorage> findByDatasourceId(String datasourceId) {
-        return queryMany(List.of(notDeleted(), datasourceIdCriterion(datasourceId)));
+        return queryMany(List.of(notDeleted(), datasourceIdCriterion(datasourceId)), DatasourceConfigurationStorage.class);
     }
 
     @Override
     public Flux<DatasourceConfigurationStorage> findAllByDatasourceIds(List<String> datasourceIds) {
-        return queryMany(List.of(notDeleted(), datasourceIdsCriterion(datasourceIds)));
+        return queryMany(List.of(notDeleted(), datasourceIdsCriterion(datasourceIds)), DatasourceConfigurationStorage.class);
     }
 
     @Override
     public Mono<DatasourceConfigurationStorage> findOneByDatasourceId(String datasourceId) {
-        return queryOne(List.of(notDeleted(), datasourceIdCriterion(datasourceId)));
+        return queryOne(List.of(notDeleted(), datasourceIdCriterion(datasourceId)), DatasourceConfigurationStorage.class);
     }
 }
