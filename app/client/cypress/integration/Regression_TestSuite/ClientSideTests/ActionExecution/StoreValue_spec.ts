@@ -161,8 +161,6 @@ describe("storeValue Action test", () => {
       },
       showStore: () =>  {
         showAlert(JSON.stringify(appsmith.store.test));}
-      showStore2: () =>  {
-        showAlert(JSON.stringify(appsmith.store.test2));}
     }`;
 
     // create js object
@@ -214,8 +212,6 @@ describe("storeValue Action test", () => {
         await showAlert(JSON.stringify(appsmith.store.test2.two));
         await showAlert(JSON.stringify(appsmith.store["test2.two"]));
       },
-      showStore: () =>  {
-        showAlert(JSON.stringify(appsmith.store.test));}
       showStore2: () =>  {
         showAlert(JSON.stringify(appsmith.store.test2));}
     }`;
