@@ -8,7 +8,7 @@ describe("Form Login test functionality", function () {
     cy.openAuthentication();
     cy.get(adminSettings.formloginButton)
       .should("be.visible")
-      .should("contain", "EDIT");
+      .should("contain", "Edit");
     cy.get(adminSettings.formloginButton).click();
     cy.wait(2000);
     // disable form signup
@@ -70,7 +70,7 @@ describe("Form Login test functionality", function () {
     cy.openAuthentication();
     cy.get(adminSettings.formloginButton)
       .should("be.visible")
-      .should("contain", "EDIT");
+      .should("contain", "Edit");
 
     // enable github login
     cy.get(adminSettings.githubButton).click();

@@ -84,7 +84,6 @@ const SectionGrid = styled.div<{ isActiveTab?: boolean }>`
 `;
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
-  scrollbar-width: thin;
   overflow: auto;
   flex: 1;
   & > div {

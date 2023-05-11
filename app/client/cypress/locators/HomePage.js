@@ -89,7 +89,7 @@ export default {
   membersTab: "//li//span[text()='Members']",
   cancelBtn: "//span[text()='Cancel']",
   submit: "button:contains('Submit')",
-  workspaceNamePopover: ".t--workspace-name",
+  workspaceNamePopover: ".ads-v2-button__content-icon-start",
   workspaceNamePopoverContent: ".bp3-popover-content",
   workspaceCompleteSection: ".t--workspace-section",
   workspaceNameText: ".t--workspace-name-text",

@@ -51,12 +51,6 @@ const Body = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[7]}px;
   height: 70vh;
   overflow: auto;
-  &&::-webkit-scrollbar-thumb {
-    background-color: ${(props) => props.theme.colors.modal.scrollbar};
-  }
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
 `;
 
 const StyledSimilarTemplatesWrapper = styled(SimilarTemplates)`

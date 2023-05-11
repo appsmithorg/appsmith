@@ -14,7 +14,7 @@ describe("SSO with Github test functionality", function () {
     cy.url().should("contain", "/settings/authentication");
     cy.get(adminSettings.githubButton)
       .should("be.visible")
-      .should("contain", "ENABLE");
+      .should("contain", "Enable");
     cy.get(adminSettings.githubButton).click();
     cy.wait(2000);
     // fill github form
@@ -37,7 +37,7 @@ describe("SSO with Github test functionality", function () {
     cy.url().should("contain", "/settings/authentication");
     cy.get(adminSettings.githubButton)
       .should("be.visible")
-      .should("contain", "ENABLE");
+      .should("contain", "Enable");
     cy.get(adminSettings.githubButton).click();
     cy.wait(2000);
     // fill github form
@@ -69,7 +69,7 @@ describe("SSO with Github test functionality", function () {
     cy.url().should("contain", "/settings/authentication");
     cy.get(adminSettings.githubButton)
       .should("be.visible")
-      .should("contain", "EDIT");
+      .should("contain", "Edit");
     cy.get(adminSettings.githubButton).click();
     cy.wait(2000);
     cy.get(adminSettings.disconnectBtn)

@@ -61,7 +61,7 @@ const FormAuth: AdminConfigType = {
       label:
         "The form login method does not verify the emails of users that create accounts.",
       url: SIGNUP_RESTRICTION_DOC,
-      calloutType: "Warning",
+      calloutType: "warning",
     },
   ],
 };

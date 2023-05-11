@@ -178,7 +178,7 @@ export default function Group({
                     key={setting.name || setting.id}
                   >
                     <Callout
-                      kind="info"
+                      kind={setting?.calloutType || "info"}
                       links={[
                         {
                           children: createMessage(LEARN_MORE),

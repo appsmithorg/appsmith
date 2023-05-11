@@ -95,9 +95,6 @@ export const UserList = styled.div`
   overflow-y: auto;
   justify-content: space-between;
   margin-left: 0.1rem;
-  &&::-webkit-scrollbar-thumb {
-    background-color: ${(props) => props.theme.colors.modal.scrollbar};
-  }
 `;
 
 export const User = styled.div`
