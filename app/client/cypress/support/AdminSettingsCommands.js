@@ -7,7 +7,7 @@ require("cypress-file-upload");
 const googleForm = require("../locators/GoogleForm.json");
 const googleData = require("../fixtures/googleSource.json");
 const githubForm = require("../locators/GithubForm.json");
-const adminSettings = require("../locators/AdminsSettings");
+import adminSettings from "../locators/AdminsSettings";
 
 const BASE_URL = Cypress.config().baseUrl;
 
