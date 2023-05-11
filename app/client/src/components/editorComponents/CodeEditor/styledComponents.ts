@@ -258,7 +258,7 @@ export const EditorWrapper = styled.div<{
 
       /* some sql fixes */
       .cm-m-sql.cm-keyword {
-        font-weight: 600;
+        font-weight: 400;
         text-transform: uppercase;
       }
 
