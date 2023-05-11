@@ -47,6 +47,10 @@ export const getDatasources = (state: AppState): Datasource[] => {
   return state.entities.datasources.list;
 };
 
+export const getRecentDatasourceIds = (state: AppState): string[] => {
+  return state.entities.datasources.recentDatasources;
+};
+
 export const getDatasourcesStructure = (
   state: AppState,
 ): Record<string, DatasourceStructure> => {
