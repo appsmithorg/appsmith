@@ -44,9 +44,8 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { getExpectedValue } from "utils/validation/common";
 import type { ControlData } from "components/propertyControls/BaseControl";
 import type { AppState } from "@appsmith/reducers";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { TooltipComponent } from "design-system-old";
-import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
 import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
 import {
   getPropertyControlFocusElement,
@@ -57,6 +56,9 @@ import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
 import WidgetFactory from "utils/WidgetFactory";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import clsx from "clsx";
+import { importSvg } from "design-system-old";
+
+const ResetIcon = importSvg(() => import("assets/icons/control/undo_2.svg"));
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
