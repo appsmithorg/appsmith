@@ -68,7 +68,7 @@ const triggers = createReducer(initialState, {
             isLoading: action.payload.value,
           },
         };
-        triggersToBeFetched[key] = newValue as FormEvalOutput;
+        triggersToBeFetched[key] = newValue as unknown as FormEvalOutput;
       }
     });
     return {

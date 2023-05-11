@@ -4,7 +4,7 @@ import {
   FieldWrapper,
 } from "components/propertyControls/StyledControls";
 import { InputText } from "components/propertyControls/InputTextControl";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import React, { useEffect, useMemo } from "react";
 import { getCodeFromMoustache } from "../../utils";
 import { useDispatch, useSelector } from "react-redux";
