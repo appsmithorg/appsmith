@@ -89,7 +89,6 @@ import {
   SEARCH_APPS,
   WORKSPACES_HEADING,
 } from "@appsmith/constants/messages";
-import { ReactComponent as NoAppsFoundIcon } from "assets/svg/no-apps-icon.svg";
 
 import { setHeaderMeta } from "actions/themeActions";
 import SharedUserList from "pages/common/SharedUserList";
@@ -113,6 +112,9 @@ import {
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
+import { importSvg } from "design-system-old";
+
+const NoAppsFoundIcon = importSvg(() => import("assets/svg/no-apps-icon.svg"));
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -468,7 +470,7 @@ export const CreateNewLabel = styled(Text)`
 
 export const WorkspaceNameElement = styled(Text)<{ isMobile?: boolean }>`
   max-width: ${({ isMobile }) => (isMobile ? 220 : 500)}px;
-  ${truncateTextUsingEllipsis}
+  ${truncateTextUsingEllipsis};
   color: var(--ads-v2-color-fg-emphasis);
 `;
 

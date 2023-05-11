@@ -1,8 +1,10 @@
 import React from "react";
-
-import { ReactComponent as AppsmithLogo } from "assets/svg/appsmith-logo-no-pad.svg";
+import { importSvg } from "design-system-old";
 import styled from "styled-components";
 import { Text } from "design-system";
+const AppsmithLogo = importSvg(
+  () => import("assets/svg/appsmith-logo-no-pad.svg"),
+);
 
 const Wrapper = styled.span`
   border-radius: var(--ads-v2-border-radius);

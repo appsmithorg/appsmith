@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from "react";
 import { AddButtonWrapper, EntityClassNames } from "../Entity";
-import { TOOLTIP_HOVER_ON_DELAY_IN_S } from "constants/AppConstants";
 import EntityAddButton from "../Entity/AddButton";
 import styled from "styled-components";
 import history from "utils/history";
@@ -29,6 +28,7 @@ import {
 } from "design-system";
 import { getIsAutoLayout } from "selectors/editorSelectors";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { TOOLTIP_HOVER_ON_DELAY_IN_S } from "constants/AppConstants";
 
 const Wrapper = styled.div`
   .title {

@@ -146,6 +146,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("EditSourceDetail", (baseUrl, v1method) => {
+  cy.EnableAllCodeEditors();
   cy.get(apiwidget.editResourceUrl)
     .first()
     .click({ force: true })
@@ -393,6 +394,8 @@ Cypress.Commands.add("createAndFillApi", (url, parameters) => {
         expect(someText).to.equal(response.response.body.data.name);
       });
   });
+
+  cy.EnableAllCodeEditors();
   cy.get(apiwidget.editResourceUrl)
     .first()
     .click({ force: true })

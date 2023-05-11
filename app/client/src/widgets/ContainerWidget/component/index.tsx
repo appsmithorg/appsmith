@@ -188,7 +188,10 @@ function ContainerComponent(props: ContainerComponentProps) {
         resizeDisabled={props.resizeDisabled}
         shouldScrollContents={
           props.shouldScrollContents &&
-          props.appPositioningType !== AppPositioningTypes.AUTO // Disable scrollbar on autolayout canvas as it meddles with canvas drag and highlight position.
+          // Disable scrollbar on autolayout canvas as it meddles with canvas drag and highlight position.
+          (props.appPositioningType !== AppPositioningTypes.AUTO ||
+            // We need to allow scrollbars for list items as they don't have auto-height
+            props.isListItemContainer)
         }
         type={props.type}
         widgetId={props.widgetId}
@@ -220,6 +223,7 @@ export interface ContainerComponentProps extends WidgetStyleContainerProps {
   alignItems?: string;
   dropDisabled?: boolean;
   appPositioningType?: AppPositioningTypes;
+  isListItemContainer?: boolean;
 }
 
 export default ContainerComponent;

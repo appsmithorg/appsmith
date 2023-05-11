@@ -1534,6 +1534,9 @@ export const PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE = () =>
 export const PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR = (name: string) =>
   `${name} is already being used.`;
 
+export const CODE_EDITOR_LOADING_ERROR = (message?: string) =>
+  `Failed to load the code editor${message ? `: ${message}` : ""}`;
+
 export const UPDATE_VIA_IMPORT_SETTING = {
   settingHeader: () => "Update through file import",
   settingDesc: () => "Update app by importing file",

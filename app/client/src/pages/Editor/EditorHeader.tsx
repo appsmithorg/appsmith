@@ -210,7 +210,12 @@ type EditorHeaderProps = {
 };
 
 const GlobalSearch = lazy(() => {
-  return retryPromise(() => import("components/editorComponents/GlobalSearch"));
+  return retryPromise(
+    () =>
+      import(
+        /* webpackChunkName: "global-search" */ "components/editorComponents/GlobalSearch"
+      ),
+  );
 });
 
 const theme = getTheme(ThemeMode.LIGHT);

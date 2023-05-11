@@ -1,14 +1,16 @@
 import React from "react";
 import { Text } from "design-system";
-// TODO: replace the icon with DS icon
-import UserIcon from "remixicon-react/User3FillIcon";
-
 import PreviewBox from "./PreviewBox";
 import type { PreviewsProps } from ".";
 import { ContentBox } from "pages/Settings/components";
+import { importRemixIcon } from "design-system-old";
 
 const DashboardThumbnail = (props: PreviewsProps) => {
   const { shades } = props;
+
+  const UserIcon = importRemixIcon(
+    () => import("remixicon-react/User3FillIcon"),
+  );
 
   return (
     <PreviewBox className="items-center p-4" title="Dashboard Thumbnail">

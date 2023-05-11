@@ -7,7 +7,6 @@ import { createPortal } from "react-dom";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import styled, { ThemeProvider } from "styled-components";
 import { generateReactKey } from "utils/generators";
-// import { PopperDragHandle } from "./PropertyPane/PropertyPaneConnections";
 import { draggableElement } from "./utils";
 
 export type PopperProps = {

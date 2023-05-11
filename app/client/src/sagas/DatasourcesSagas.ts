@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   all,
   call,
@@ -997,8 +998,8 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   ) {
     history.push(
       apiEditorIdURL({
-        pageId: actionRouteInfo.pageId,
-        apiId: actionRouteInfo.apiId,
+        pageId: actionRouteInfo.pageId!,
+        apiId: actionRouteInfo.apiId!,
       }),
     );
   }

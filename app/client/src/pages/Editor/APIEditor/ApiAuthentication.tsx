@@ -79,7 +79,7 @@ type Props = ReduxStateProps;
 
 function ApiAuthentication(props: Props): JSX.Element {
   const { datasource } = props;
-  const authType = get(
+  const authType: string = get(
     datasource,
     "datasourceConfiguration.authentication.authenticationType",
     "",

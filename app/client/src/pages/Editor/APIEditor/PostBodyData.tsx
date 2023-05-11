@@ -21,7 +21,7 @@ import {
 import { Classes } from "design-system-old";
 import { updateBodyContentType } from "actions/apiPaneActions";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { createMessage, API_PANE_NO_BODY } from "@appsmith/constants/messages";
 import { SegmentedControl } from "design-system";
 

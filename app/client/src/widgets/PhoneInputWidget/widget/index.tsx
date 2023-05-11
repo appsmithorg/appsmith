@@ -15,7 +15,7 @@ import {
   getCountryCode,
   ISDCodeDropdownOptions,
 } from "../component/ISDCodeDropdown";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import _ from "lodash";
 import BaseInputWidget from "widgets/BaseInputWidget";
 import derivedProperties from "./parsedDerivedProperties";

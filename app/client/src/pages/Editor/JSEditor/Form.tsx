@@ -4,7 +4,6 @@ import type { JSAction, JSCollection } from "entities/JSCollection";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import MoreJSCollectionsMenu from "../Explorer/JSActions/MoreJSActionsMenu";
 import type { DropdownOnSelect } from "design-system-old";
-import CodeEditor from "components/editorComponents/CodeEditor";
 import {
   CodeEditorBorder,
   EditorModes,
@@ -68,6 +67,7 @@ import {
 } from "actions/editorContextActions";
 import history from "utils/history";
 import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import styled from "styled-components";
 import { AIWindow } from "@appsmith/components/editorComponents/GPT";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
@@ -380,9 +380,10 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                     </TabsList>
                     <TabPanel value={JSEditorTab.CODE}>
                       <div className="js-editor-tab">
-                        <CodeEditor
+                        <LazyCodeEditor
                           blockCompletions={blockCompletions}
                           border={CodeEditorBorder.NONE}
+                          borderLess
                           className={"js-editor"}
                           customGutter={JSGutters}
                           dataTreePath={`${currentJSCollection.name}.body`}
@@ -397,7 +398,6 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                           isJSObject
                           mode={EditorModes.JAVASCRIPT}
                           placeholder="Let's write some code!"
-                          removeHoverAndFocusStyle
                           showLightningMenu={false}
                           showLineNumbers
                           size={EditorSize.EXTENDED}
