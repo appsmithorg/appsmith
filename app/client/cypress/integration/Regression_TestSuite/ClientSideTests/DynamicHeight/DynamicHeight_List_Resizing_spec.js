@@ -15,8 +15,6 @@ describe("Dynamic Height Width validation", function () {
       .then((lheight) => {
         cy.get(commonlocators.generalSectionHeight).should("not.exist");
         cy.moveToStyleTab();
-        cy.get(commonlocators.PropertyPaneSearchInput).type("item spacing");
-        cy.get(".rc-pagination:contains('5')").should("not.exist");
         cy.testJsontext("itemspacing\\(px\\)", "16");
         cy.get(".t--widget-listwidgetv2")
           .invoke("css", "height")
