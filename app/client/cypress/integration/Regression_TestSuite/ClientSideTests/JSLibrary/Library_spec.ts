@@ -55,7 +55,8 @@ describe("Tests JS Libraries", () => {
 
     //Checks installation in duplicated app
     _.homePage.NavigateToHome();
-    _.homePage.DuplicateApplication("Library_export");
+    _.homePage.ForkApplication("Library_export");
+
     _.agHelper.AssertContains("true");
 
     //Deploy app and check installation

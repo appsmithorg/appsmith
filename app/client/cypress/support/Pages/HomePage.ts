@@ -84,7 +84,6 @@ export class HomePage {
     applicationName +
     "']/ancestor::div[contains(@class, 't--application-card')]//span[@name= 'context-menu']";
   private _forkApp = '[data-cy="t--fork-app"]';
-  private _duplicateApp = '[data-cy="t--duplicate"]';
   private _deleteApp = '[data-cy="t--delete-confirm"]';
   private _deleteAppConfirm = '[data-cy="t--delete"]';
   private _wsAction = (action: string) =>
@@ -485,12 +484,6 @@ export class HomePage {
     this.agHelper.GetNClick(this._forkApp);
     this.agHelper.AssertElementVisible(this._forkModal);
     this.agHelper.ClickButton("FORK");
-  }
-
-  public DuplicateApplication(appliName: string) {
-    this.agHelper.GetNClick(this._applicationContextMenu(appliName));
-    this.agHelper.GetNClick(this._duplicateApp);
-    this.agHelper.AssertContains("Duplicating application...");
   }
 
   public DeleteApplication(appliName: string) {

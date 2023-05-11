@@ -10,7 +10,6 @@ export default {
   publishCrossButton: "span[icon='small-cross']",
   homePageID: "//div[@id='root']",
   appMoreIcon: ".bp3-popover-wrapper.more .bp3-popover-target",
-  duplicateApp: "[data-cy=t--duplicate]",
   forkAppFromMenu: "[data-cy=t--fork-app]",
   exportAppFromMenu: "[data-cy=t--export-app]",
   forkAppWorkspaceButton: ".t--fork-app-to-workspace-button",
