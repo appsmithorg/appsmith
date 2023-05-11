@@ -97,43 +97,40 @@ function DebuggerTabs() {
     },
   ];
 
-  if (
-    !(
-      selectedTab === DEBUGGER_TAB_KEYS.RESPONSE_TAB ||
-      selectedTab === DEBUGGER_TAB_KEYS.HEADER_TAB
-    )
-  ) {
-    return (
-      <Container
-        className="t--debugger-tabs-container"
-        onClick={stopEventPropagation}
-        ref={panelRef}
-      >
-        <Resizer
-          initialHeight={responsePaneHeight}
-          onResizeComplete={(height: number) => {
-            updateResponsePaneHeight(height);
-          }}
-          panelRef={panelRef}
-          snapToHeight={ActionExecutionResizerHeight}
-        />
-        <EntityBottomTabs
-          expandedHeight={`${ActionExecutionResizerHeight}px`}
-          onSelect={setSelectedTab}
-          selectedTabKey={selectedTab}
-          tabs={DEBUGGER_TABS}
-        />
-        <Icon
-          className="close-debugger t--close-debugger"
-          name="close-modal"
-          onClick={onClose}
-          size={IconSize.XL}
-        />
-      </Container>
-    );
-  } else {
-    return null;
-  }
+  // Do not render if response tab and header tab is selected in the bottom bar.
+  const shouldRender = !(
+    selectedTab === DEBUGGER_TAB_KEYS.RESPONSE_TAB ||
+    selectedTab === DEBUGGER_TAB_KEYS.HEADER_TAB
+  );
+
+  return shouldRender ? (
+    <Container
+      className="t--debugger-tabs-container"
+      onClick={stopEventPropagation}
+      ref={panelRef}
+    >
+      <Resizer
+        initialHeight={responsePaneHeight}
+        onResizeComplete={(height: number) => {
+          updateResponsePaneHeight(height);
+        }}
+        panelRef={panelRef}
+        snapToHeight={ActionExecutionResizerHeight}
+      />
+      <EntityBottomTabs
+        expandedHeight={`${ActionExecutionResizerHeight}px`}
+        onSelect={setSelectedTab}
+        selectedTabKey={selectedTab}
+        tabs={DEBUGGER_TABS}
+      />
+      <Icon
+        className="close-debugger t--close-debugger"
+        name="close-modal"
+        onClick={onClose}
+        size={IconSize.XL}
+      />
+    </Container>
+  ) : null;
 }
 
 export default DebuggerTabs;
