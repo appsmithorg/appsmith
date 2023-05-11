@@ -52,6 +52,12 @@ public class Datasource extends BranchAwareDomain {
     @JsonView(Views.Public.class)
     DatasourceConfiguration datasourceConfiguration;
 
+    // TODO: make export import false for this one
+    @Transient
+    @JsonView(Views.Internal.class)
+    DatasourceStorage datasourceStorage;
+
+
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)
     Set<String> invalids;
@@ -108,7 +114,10 @@ public class Datasource extends BranchAwareDomain {
      */
     @JsonView(Views.Public.class)
     public boolean getIsValid() {
-        return CollectionUtils.isEmpty(invalids);
+        if (getDatasourceStorage() == null) {
+            return CollectionUtils.isEmpty(invalids);
+        }
+        return getDatasourceStorage().getIsValid();
     }
 
     /**
@@ -130,6 +139,30 @@ public class Datasource extends BranchAwareDomain {
                 .append(datasourceConfiguration, other.datasourceConfiguration)
                 .isEquals();
     }
+
+
+    public Set<String> getInvalids() {
+        if (getDatasourceStorage() == null) {
+            return this.invalids;
+        }
+        return getDatasourceStorage().getInvalids();
+    }
+
+    public Set<String> getMessages() {
+        if (getDatasourceStorage() == null) {
+            return this.messages;
+        }
+        return getDatasourceStorage().getMessages();
+    }
+
+    public DatasourceConfiguration getDatasourceConfiguration() {
+        if (getDatasourceStorage() == null) {
+            return this.datasourceConfiguration;
+        }
+
+        return getDatasourceStorage().getDatasourceConfiguration();
+    }
+
 
     public void sanitiseToExportResource(Map<String, String> pluginMap) {
         this.setPolicies(null);

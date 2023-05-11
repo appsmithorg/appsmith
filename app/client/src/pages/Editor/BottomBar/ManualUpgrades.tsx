@@ -25,10 +25,14 @@ import {
 import styled from "styled-components";
 import { createMessage, CLEAN_URL_UPDATE } from "@appsmith/constants/messages";
 import { useLocation } from "react-router";
-import DisclaimerIcon from "remixicon-react/ErrorWarningLineIcon";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import classNames from "classnames";
 import { BottomBarCTAStyles } from "./styles";
+import { importRemixIcon } from "design-system-old";
+
+const DisclaimerIcon = importRemixIcon(
+  () => import("remixicon-react/ErrorWarningLineIcon"),
+);
 
 const StyledList = styled.ul`
   list-style: disc;

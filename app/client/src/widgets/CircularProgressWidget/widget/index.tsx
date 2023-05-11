@@ -3,7 +3,7 @@ import * as React from "react";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { CircularProgressComponentProps } from "../component";
 import CircularProgressComponent from "../component";
 import type { Stylesheet } from "entities/AppTheming";

@@ -93,7 +93,7 @@ import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evalu
 import { getPluginIdToImageLocation } from "sagas/selectors";
 import type { ExpectedValueExample } from "utils/validation/common";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations, getLintTooltipDirection } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
@@ -261,6 +261,7 @@ class CodeEditor extends Component<Props, State> {
   annotations: Annotation[] = [];
   updateLintingCallback: UpdateLintingCallback | undefined;
   private editorWrapperRef = React.createRef<HTMLDivElement>();
+  lineRef: React.MutableRefObject<number | null> = React.createRef();
 
   constructor(props: Props) {
     super(props);
@@ -405,13 +406,15 @@ class CodeEditor extends Component<Props, State> {
 
         CodeEditor.updateMarkings(
           editor,
-          this.props.marking,
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          this.props.marking!, // ! since defaultProps are set
           this.props.entitiesForNavigation,
         );
 
         this.hinters = CodeEditor.startAutocomplete(
           editor,
-          this.props.hinting,
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          this.props.hinting!, // ! since defaultProps are set
           this.props.dynamicData,
         );
 
@@ -526,7 +529,8 @@ class CodeEditor extends Component<Props, State> {
       ) {
         CodeEditor.updateMarkings(
           this.editor,
-          this.props.marking,
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          this.props.marking!, // ! since defaultProps are set
           this.props.entitiesForNavigation,
         );
       }
@@ -847,7 +851,8 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleCursorMovement = (cm: CodeMirror.Editor) => {
-    this.handleCustomGutter(cm.getCursor().line, true);
+    const line = cm.getCursor().line;
+    this.handleCustomGutter(line, true);
     // ignore if disabled
     if (!this.props.input.onChange || this.props.disabled) {
       return;
@@ -866,6 +871,16 @@ class CodeEditor extends Component<Props, State> {
     } else {
       cm.setOption("matchBrackets", false);
     }
+    if (!this.props.borderLess) return;
+    if (this.lineRef.current !== null) {
+      cm.removeLineClass(
+        this.lineRef.current,
+        "background",
+        "CodeMirror-activeline-background",
+      );
+    }
+    cm.addLineClass(line, "background", "CodeMirror-activeline-background");
+    this.lineRef.current = line;
   };
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
@@ -919,7 +934,7 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  handleEditorBlur = () => {
+  handleEditorBlur = (cm: CodeMirror.Editor) => {
     this.handleChange();
     this.setState({ isFocused: false });
     this.editor.setOption("matchBrackets", false);
@@ -932,6 +947,14 @@ class CodeEditor extends Component<Props, State> {
         line: cursor.line,
       },
     });
+    if (this.lineRef.current !== null) {
+      cm.removeLineClass(
+        this.lineRef.current,
+        "background",
+        "CodeMirror-activeline-background",
+      );
+      this.lineRef.current = null;
+    }
     if (this.props.onEditorBlur) {
       this.props.onEditorBlur();
     }
@@ -1011,7 +1034,8 @@ class CodeEditor extends Component<Props, State> {
     if (this.editor && changeObj) {
       CodeEditor.updateMarkings(
         this.editor,
-        this.props.marking,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.props.marking!, // ! since defaultProps are set
         this.props.entitiesForNavigation,
         changeObj.from,
         changeObj.to,
