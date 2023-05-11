@@ -81,11 +81,17 @@ export const ActionWrapper = styled.div`
   display: flex;
 `;
 
-export const ActionButton = styled(Button)`
+export const ActionButton = styled(Button)<{
+  floatLeft: boolean;
+}>`
   &&& {
     width: auto;
     min-width: 74px;
     min-height: 32px;
+    // Pulling button to the left if floatLeft is set as true
+    margin-right: ${(props) => (props.floatLeft ? "auto" : "9px")};
+    margin-left: ${(props) => (props.floatLeft ? "20px" : "0px")};
+
     & > span {
       max-width: 100%;
     }

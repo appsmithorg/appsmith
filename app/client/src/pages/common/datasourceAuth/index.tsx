@@ -45,6 +45,7 @@ import {
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { SHOW_FILE_PICKER_KEY } from "constants/routes";
+import { Colors } from "constants/Colors";
 
 interface Props {
   datasource: Datasource;
@@ -71,6 +72,7 @@ export enum DatasourceButtonTypeEnum {
   DELETE = "DELETE",
   SAVE = "SAVE",
   TEST = "TEST",
+  CANCEL = "CANCEL",
   SAVE_AND_AUTHORIZE = "SAVE_AND_AUTHORIZE",
 }
 
@@ -81,6 +83,7 @@ export const DatasourceButtonType: Record<
   DELETE: "DELETE",
   SAVE: "SAVE",
   TEST: "TEST",
+  CANCEL: "CANCEL",
   SAVE_AND_AUTHORIZE: "SAVE_AND_AUTHORIZE",
 };
 
@@ -92,11 +95,13 @@ const StyledButton = styled(ActionButton)<{ fluidWidth?: boolean }>`
 `;
 
 const SaveButtonContainer = styled.div`
-  margin-top: 24px;
   display: flex;
   justify-content: flex-end;
   gap: 9px;
   padding-right: 20px;
+  flex: 1 1 10%;
+  border-top: 1px solid ${Colors.ALTO};
+  align-items: center;
 `;
 
 const StyledAuthMessage = styled.div`
@@ -111,7 +116,7 @@ const StyledAuthMessage = styled.div`
 
 function DatasourceAuth({
   datasource,
-  datasourceButtonConfiguration = ["DELETE", "SAVE"],
+  datasourceButtonConfiguration = ["CANCEL", "SAVE"],
   datasourceDeleteTrigger,
   formData,
   getSanitizedFormData,
@@ -329,13 +334,27 @@ function DatasourceAuth({
         <ActionButton
           category={Category.secondary}
           className="t--test-datasource"
+          floatLeft
           isLoading={isTesting}
           key={buttonType}
           onClick={handleDatasourceTest}
           size="medium"
           tag="button"
           text="Test"
-          variant={Variant.success}
+          variant={Variant.info}
+        />
+      ),
+      [DatasourceButtonType.CANCEL]: (
+        <ActionButton
+          category={Category.tertiary}
+          className="t--delete-datasource"
+          key={buttonType}
+          onClick={() => {
+            dispatch(setDatasourceViewMode(true));
+          }}
+          size="medium"
+          tag="button"
+          text={"Cancel"}
         />
       ),
       [DatasourceButtonType.SAVE]: (
@@ -352,7 +371,7 @@ function DatasourceAuth({
           size="medium"
           tag="button"
           text="Save"
-          variant={Variant.success}
+          variant={Variant.info}
         />
       ),
       [DatasourceButtonType.SAVE_AND_AUTHORIZE]: (
