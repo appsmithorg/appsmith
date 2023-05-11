@@ -10,7 +10,6 @@
   "scripts": {
     "analyze": "yarn cra-bundle-analyzer",
     "start": "BROWSER=none EXTEND_ESLINT=true REACT_APP_ENVIRONMENT=DEVELOPMENT REACT_APP_CLIENT_LOG_LEVEL=debug HOST=dev.appsmith.com craco start",
-    "prebuild": "if [ \"$REACT_APP_AIRGAP_ENABLED\" = \"true\" ]; then node download-assets.js; fi",
     "build": "./build.sh",
     "build-airgap": "node download-assets.js && ./build.sh",
     "build-local": "craco --max-old-space-size=4096 build --config craco.build.config.js",
