@@ -208,7 +208,7 @@ public class DatabaseChangelog1 {
     public static boolean dropIndexIfExists(MongoTemplate mongoTemplate, Class<?> entityClass, String name) {
         try {
             mongoTemplate.indexOps(entityClass).dropIndex(name);
-        } catch (UncategorizedMongoDbException error) {
+        } catch (UncategorizedMongoDbException ignored) {
             // The index probably doesn't exist. This happens if the database is created after the @Indexed annotation
             // has been removed.
             return false;
