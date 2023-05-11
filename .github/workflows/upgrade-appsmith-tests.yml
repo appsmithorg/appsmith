@@ -171,22 +171,11 @@ jobs:
         if: needs.ci-test.result == 'success'
         uses: peter-evans/create-or-update-comment@v1
         with:
-<<<<<<< HEAD
           issue-number: 22767
           body: |
             Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
             Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
             All cypress tests have passed 🎉
-=======
-          name: client-build
-          path: app/client
-
-      - name: Unpack the client build artifact
-        if: steps.run_result.outputs.run_result != 'success'
-        run: |
-          mkdir -p app/client/build
-          tar -xvf app/client/build.tar -C app/client/build
->>>>>>> release
 
       # Update check run called "ci-test-result"
       - name: Mark ci-test-result job as complete
