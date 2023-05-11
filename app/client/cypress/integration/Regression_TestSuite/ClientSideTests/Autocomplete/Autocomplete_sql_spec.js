@@ -17,7 +17,8 @@ describe("SQL Autocompletion", function () {
     });
     cy.testSaveDatasource();
     cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click({ force: true }).type("S");
+    cy.get(queryLocators.templateMenu).click({ force: true });
+    cy.get(".CodeMirror textarea").focus().type("S");
     cy.get(locator._hints).should("exist");
     cy.deleteQueryUsingContext();
   });
