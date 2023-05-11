@@ -129,12 +129,12 @@ export class EntityExplorer {
     );
     cy.xpath(this._expandCollapseArrow(entityName))
       .eq(index)
+      .wait(500)
       .invoke("attr", "name")
       .then((arrow) => {
         if (expand && arrow == "arrow-right") {
           cy.xpath(this._expandCollapseArrow(entityName))
             .eq(index)
-            .wait(500)
             .trigger("click", { force: true })
             .wait(500);
           // this.agHelper
@@ -152,7 +152,6 @@ export class EntityExplorer {
         } else if (!expand && arrow == "arrow-down") {
           cy.xpath(this._expandCollapseArrow(entityName))
             .eq(index)
-            .wait(500)
             .trigger("click", { force: true })
             .wait(500);
           // this.agHelper
@@ -168,6 +167,19 @@ export class EntityExplorer {
           //     }
           //   });
         } else this.agHelper.Sleep(500);
+      });
+  }
+
+  public GetEntityNamesInSection(
+    sectionName: string,
+    entityFilterSelector: string,
+  ) {
+    return cy
+      .xpath(this._expandCollapseSection(sectionName))
+      .find(entityFilterSelector)
+      .then((entities) => {
+        const entityNames = entities.map((_, el) => Cypress.$(el).text()).get();
+        return entityNames;
       });
   }
 
@@ -234,9 +246,13 @@ export class EntityExplorer {
 
   public CreateNewDsQuery(dsName: string, isQuery = true) {
     cy.get(this.locator._createNew).last().click({ force: true });
-    let overlayItem = isQuery
-      ? this._visibleTextSpan(dsName + " Query")
-      : this._visibleTextSpan(dsName);
+    const searchText = isQuery ? dsName + " query" : dsName;
+    this.SearchAndClickOmnibar(searchText);
+  }
+
+  public SearchAndClickOmnibar(searchText: string) {
+    cy.get(`[data-testId="t--search-file-operation"]`).type(searchText);
+    let overlayItem = this._visibleTextSpan(searchText);
     this.agHelper.GetNClick(overlayItem);
   }
 

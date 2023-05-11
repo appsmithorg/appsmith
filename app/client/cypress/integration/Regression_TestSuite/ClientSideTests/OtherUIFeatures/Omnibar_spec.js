@@ -1,9 +1,7 @@
 const omnibar = require("../../../../locators/Omnibar.json");
 const dsl = require("../../../../fixtures/omnibarDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const locators = ObjectsRegistry.CommonLocators;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Omnibar functionality test cases", () => {
   const apiName = "Omnibar1";
@@ -13,9 +11,9 @@ describe("Omnibar functionality test cases", () => {
     cy.addDsl(dsl);
   });
 
-  it("1. Docs tab opens after clicking on learn more link from property pane", function () {
+  it("1. Bug #15104  Docs tab opens after clicking on learn more link from property pane", function () {
     cy.dragAndDropToCanvas("audiowidget", { x: 300, y: 500 });
-    ObjectsRegistry.AggregateHelper.AssertNewTabOpened(() => {
+    _.agHelper.AssertNewTabOpened(() => {
       cy.xpath('//span[text()="Learn more"]').click();
     });
   });
@@ -81,30 +79,25 @@ describe("Omnibar functionality test cases", () => {
       "createNewJSCollection",
     );
     cy.get(omnibar.categoryTitle).eq(1).click();
-    // create new api, js object and cURL import from omnibar
-    cy.get(omnibar.createNew).eq(0).should("have.text", "New Blank API");
 
-    // 2 is the index value of the JS Object in omnibar ui
-    cy.get(omnibar.createNew).eq(2).should("have.text", "New JS Object");
-    // 3 is the index value of the Curl import in omnibar ui
-    cy.get(omnibar.createNew).eq(3).should("have.text", "New cURL Import");
-    cy.get(omnibar.createNew).eq(0).click();
-    cy.wait(1000);
-    cy.wait("@createNewApi");
-    cy.renameWithInPane(apiName);
-    cy.get(omnibar.globalSearch).click({ force: true });
-    cy.get(omnibar.categoryTitle).eq(1).click();
-    // 2 is the index value of the JS Object in omnibar ui
-    cy.get(omnibar.createNew).eq(2).click();
+    // create new api, js object and cURL import from omnibar
+    cy.get(omnibar.createNew).contains("New JS Object").click();
     cy.wait(1000);
     cy.wait("@createNewJSCollection");
     cy.wait(1000);
     cy.get(".t--js-action-name-edit-field").type(jsObjectName).wait(1000);
+
     cy.get(omnibar.globalSearch).click({ force: true });
     cy.get(omnibar.categoryTitle).eq(1).click();
     cy.wait(1000);
-    // 3 is the index value of the JS Object in omnibar ui
-    cy.get(omnibar.createNew).eq(3).click();
+    cy.get(omnibar.createNew).contains("New Blank API").click();
+    cy.wait(1000);
+    cy.wait("@createNewApi");
+    cy.renameWithInPane(apiName);
+
+    cy.get(omnibar.globalSearch).click({ force: true });
+    cy.get(omnibar.categoryTitle).eq(1).click();
+    cy.get(omnibar.createNew).contains("New cURL Import").click();
     cy.wait(1000);
     cy.url().should("include", "curl-import?");
     cy.get('p:contains("Import from CURL")').should("be.visible");
@@ -133,8 +126,7 @@ describe("Omnibar functionality test cases", () => {
   });
 
   it("6. Verify Navigate section shows recently opened widgets and datasources", function () {
-    cy.get(".bp3-icon-chevron-left").click({ force: true });
-    cy.openPropertyPane("buttonwidget");
+    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
     cy.get(omnibar.globalSearch).click({ force: true });
     cy.get(omnibar.categoryTitle).eq(0).click();
     // verify recently opened items with their subtext i.e page name
@@ -146,13 +138,13 @@ describe("Omnibar functionality test cases", () => {
 
     cy.xpath(omnibar.recentlyopenItem)
       .eq(1)
-      .should("have.text", "Omnibar2")
+      .should("have.text", "Omnibar1")
       .next()
       .should("have.text", "Page1");
 
     cy.xpath(omnibar.recentlyopenItem)
       .eq(2)
-      .should("have.text", "Omnibar1")
+      .should("have.text", "Omnibar2")
       .next()
       .should("have.text", "Page1");
 
