@@ -329,9 +329,7 @@ export function* evaluateAndExecuteDynamicTrigger(
     },
   );
   const { errors = [] } = response as any;
-  if (errors.length > 0) {
-    yield call(dynamicTriggerErrorHandler, errors);
-  }
+  yield call(dynamicTriggerErrorHandler, errors);
   return response;
 }
 

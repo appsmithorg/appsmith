@@ -11,6 +11,8 @@ import DOM_APIS from "./domApis";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
+import log from "loglevel";
+import * as Sentry from "@sentry/react";
 
 export type EvalResult = {
   result: any;
@@ -345,7 +347,7 @@ export async function evaluateAsync(
   })();
 }
 
-export function convertAllDataTypesToString(e: any): string {
+export function convertAllDataTypesToString(e: any) {
   // Functions do not get converted properly with JSON.stringify
   // So using String fot functions
   // Types like [], {} get converted to "" using String
@@ -353,6 +355,11 @@ export function convertAllDataTypesToString(e: any): string {
   if (typeof e === "function") {
     return String(e);
   } else {
-    return JSON.stringify(e);
+    try {
+      return JSON.stringify(e);
+    } catch (error) {
+      log.debug(error);
+      Sentry.captureException(error);
+    }
   }
 }

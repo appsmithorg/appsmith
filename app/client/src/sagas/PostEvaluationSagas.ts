@@ -325,8 +325,10 @@ export function* evalErrorHandler(
 }
 
 export function* dynamicTriggerErrorHandler(errors: EvaluationError[]) {
-  for (const error of errors) {
-    logActionExecutionError(error.errorMessage.message);
+  if (errors.length > 0) {
+    for (const error of errors) {
+      logActionExecutionError(error.errorMessage.message);
+    }
   }
 }
 
