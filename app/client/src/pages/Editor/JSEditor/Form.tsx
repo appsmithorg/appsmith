@@ -6,6 +6,7 @@ import MoreJSCollectionsMenu from "../Explorer/JSActions/MoreJSActionsMenu";
 import type { DropdownOnSelect } from "design-system-old";
 import CodeEditor from "components/editorComponents/CodeEditor";
 import {
+  CodeEditorBorder,
   EditorModes,
   EditorSize,
   EditorTheme,
@@ -95,7 +96,11 @@ const SecondaryWrapper = styled.div`
   &&& {
     .ads-v2-tabs__panel {
       height: calc(100% - 30px);
-      padding-top: 1px;
+    }
+
+    .ads-v2-tabs,
+    &.js-editor-tab {
+      height: 100%;
     }
   }
 `;
@@ -307,7 +312,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
         }}
       >
         <CloseEditor />
-        <Form>
+        <Form onSubmit={(event) => event.preventDefault()}>
           <StyledFormRow className="form-row-header">
             <NameWrapper className="t--nameOfJSObject">
               <JSObjectNameEditor
@@ -377,6 +382,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                       <div className="js-editor-tab">
                         <CodeEditor
                           blockCompletions={blockCompletions}
+                          border={CodeEditorBorder.NONE}
                           className={"js-editor"}
                           customGutter={JSGutters}
                           dataTreePath={`${currentJSCollection.name}.body`}
@@ -391,6 +397,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                           isJSObject
                           mode={EditorModes.JAVASCRIPT}
                           placeholder="Let's write some code!"
+                          removeHoverAndFocusStyle
                           showLightningMenu={false}
                           showLineNumbers
                           size={EditorSize.EXTENDED}

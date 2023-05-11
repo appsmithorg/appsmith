@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 import { createMessage, SNIPPET_TOOLTIP } from "@appsmith/constants/messages";
 import { Button, Tooltip } from "design-system";
 
@@ -19,11 +18,6 @@ type Props = {
   showIconOnly?: boolean;
 };
 
-const StyledButton = styled(Button)`
-  padding: 0 10px;
-  margin-left: 16px;
-`;
-
 export default function SearchSnippets(props: Props) {
   const className = props.className || "";
   const handleClick = props.onClick;
@@ -38,7 +32,7 @@ export default function SearchSnippets(props: Props) {
     />
   ) : (
     <Tooltip content={createMessage(SNIPPET_TOOLTIP)} placement="bottomRight">
-      <StyledButton
+      <Button
         className={`t--search-snippets ${className}`}
         kind="secondary"
         onClick={handleClick}
@@ -46,7 +40,7 @@ export default function SearchSnippets(props: Props) {
         startIcon="snippet"
       >
         Snippets
-      </StyledButton>
+      </Button>
     </Tooltip>
   );
 }

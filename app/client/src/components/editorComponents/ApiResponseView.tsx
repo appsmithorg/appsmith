@@ -349,7 +349,7 @@ export const NoResponse = (props: NoResponseProps) => (
         isDisabled={props.isButtonDisabled}
         isLoading={props.isQueryRunning}
         onClick={props.onRunClick}
-        size="md"
+        size="sm"
       >
         Run
       </Button>

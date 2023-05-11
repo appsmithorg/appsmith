@@ -61,7 +61,6 @@ const SettingColumn = styled.div<{ grow?: boolean; isHeading?: boolean }>`
   ${(props) =>
     props.isHeading &&
     `
-  text-transform: uppercase;
   font-weight: ${props.theme.fontWeights[2]};
   font-size: ${props.theme.fontSizes[2]}px
   margin-right: 9px;
@@ -81,18 +80,21 @@ const JSFunctionSettingsWrapper = styled.div`
 const SettingsContainer = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 0px ${(props) => props.theme.spaces[13] - 2}px;
   width: max-content;
   min-width: 700px;
   height: 100%;
 
   & > h3 {
     margin: 20px 0;
-    text-transform: capitalize;
     font-size: ${(props) => props.theme.fontSizes[5]}px;
     font-weight: ${(props) => props.theme.fontWeights[2]};
     color: var(--ads-v2-color-fg-emphasis);
   }
+`;
+
+const SettingsRowWrapper = styled.div`
+  border-radius: var(--ads-v2-border-radius);
+  overflow: hidden;
 `;
 
 function SettingsHeading({ grow, hasInfo, info, text }: SettingsHeadingProps) {
@@ -101,7 +103,7 @@ function SettingsHeading({ grow, hasInfo, info, text }: SettingsHeadingProps) {
       <span>{text}</span>
       {hasInfo && info && (
         <Tooltip content={createMessage(() => info)}>
-          <StyledIcon name="question-line" size="sm" />
+          <StyledIcon name="question-line" size="md" />
         </Tooltip>
       )}
     </SettingColumn>
@@ -204,26 +206,32 @@ function JSFunctionSettingsView({
     <JSFunctionSettingsWrapper>
       <SettingsContainer>
         <h3>{createMessage(ASYNC_FUNCTION_SETTINGS_HEADING)}</h3>
-        <SettingRow isHeading>
-          {SETTINGS_HEADINGS.map((setting, index) => (
-            <SettingsHeading
-              grow={index === 0}
-              hasInfo={setting.hasInfo}
-              info={setting.info}
-              key={setting.key}
-              text={setting.text}
-            />
-          ))}
-        </SettingRow>
-        {asyncActions && asyncActions.length ? (
-          asyncActions.map((action) => (
-            <SettingsItem action={action} disabled={disabled} key={action.id} />
-          ))
-        ) : (
-          <SettingRow noBorder>
-            <SettingColumn>{createMessage(NO_ASYNC_FUNCTIONS)}</SettingColumn>
+        <SettingsRowWrapper>
+          <SettingRow isHeading>
+            {SETTINGS_HEADINGS.map((setting, index) => (
+              <SettingsHeading
+                grow={index === 0}
+                hasInfo={setting.hasInfo}
+                info={setting.info}
+                key={setting.key}
+                text={setting.text}
+              />
+            ))}
           </SettingRow>
-        )}
+          {asyncActions && asyncActions.length ? (
+            asyncActions.map((action) => (
+              <SettingsItem
+                action={action}
+                disabled={disabled}
+                key={action.id}
+              />
+            ))
+          ) : (
+            <SettingRow noBorder>
+              <SettingColumn>{createMessage(NO_ASYNC_FUNCTIONS)}</SettingColumn>
+            </SettingRow>
+          )}
+        </SettingsRowWrapper>
       </SettingsContainer>
     </JSFunctionSettingsWrapper>
   );

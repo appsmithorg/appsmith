@@ -101,10 +101,7 @@ const ActionButtons = styled.div`
   justify-self: flex-end;
   display: flex;
   align-items: center;
-
-  button:last-child {
-    margin-left: ${(props) => props.theme.spaces[7]}px;
-  }
+  gap: var(--ads-v2-spaces-3);
 `;
 
 const HelpSection = styled.div`

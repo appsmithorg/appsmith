@@ -72,7 +72,7 @@ export const ActionButtons = styled.div`
   align-items: center;
   flex: 1 1 50%;
   justify-content: flex-end;
-  gap: 10px;
+  gap: var(--ads-v2-spaces-3);
 `;
 
 export const SecondaryWrapper = styled.div`
@@ -86,8 +86,9 @@ export const TabbedViewContainer = styled.div<{ isExecuting: boolean }>`
   flex: 1;
   overflow: auto;
   position: relative;
-  border-top: 1px solid var(--ads-v2-color-border);
   border-bottom: 1px solid var(--ads-v2-color-border);
+  padding: 0px ${(props) => props.theme.spaces[11]}px;
+
   ${thinScrollbar}
   ${FormRow} {
     min-height: auto;
@@ -96,7 +97,7 @@ export const TabbedViewContainer = styled.div<{ isExecuting: boolean }>`
       margin-right: 0px;
     }
   }
-  &&& {
+  &&&& {
     ul.ads-v2-tabs__list {
       padding: 0px ${(props) => props.theme.spaces[11]}px;
       background-color: ${(props) =>
@@ -104,7 +105,8 @@ export const TabbedViewContainer = styled.div<{ isExecuting: boolean }>`
     }
     .ads-v2-tabs__panel {
       ${CodeEditorWithGutterStyles};
-      height: calc(100% - 32px);
+      height: calc(100% - 40px);
+      margin-top: 0px;
       background-color: var(--ads-v2-color-bg);
       .CodeEditorTarget {
         outline: none;
@@ -117,6 +119,11 @@ export const TabbedViewContainer = styled.div<{ isExecuting: boolean }>`
       }
       `}
       ${CodeEditorWithGutterStyles}
+    }
+
+    .ads-v2-tabs,
+    .js-editor-tab {
+      height: 100%;
     }
   }
 `;

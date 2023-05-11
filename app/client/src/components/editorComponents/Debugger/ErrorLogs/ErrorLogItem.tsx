@@ -76,7 +76,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       ${getTypographyByKey("h6")}
       font-weight: 400;
       letter-spacing: -0.195px;
-      color: var(--ads-v2-color-fg-emphasis-plus);
+      color: var(--ads-v2-color-fg);
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: normal;

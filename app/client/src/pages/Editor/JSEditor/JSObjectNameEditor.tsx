@@ -29,19 +29,16 @@ const JSObjectNameWrapper = styled.div<{ page?: string }>`
   justify-content: flex-start;
   align-content: center;
   & > div {
-    display: flex;
     max-width: 100%;
     flex: 0 1 auto;
     font-size: ${(props) => props.theme.fontSizes[5]}px;
     font-weight: ${(props) => props.theme.fontWeights[2]};
-    align-items: center;
   }
 
   ${(props) =>
     props.page === "JS_PANE"
       ? `  &&& .${Classes.EDITABLE_TEXT_CONTENT}, &&& .${Classes.EDITABLE_TEXT_INPUT} {
     font-size: ${props.theme.typography.h3.fontSize}px;
-    line-height: ${props.theme.typography.h3.lineHeight}px !important;
     letter-spacing: ${props.theme.typography.h3.letterSpacing}px;
     font-weight: ${props.theme.typography.h3.fontWeight};
   }`
@@ -59,11 +56,19 @@ type JSObjectNameEditorProps = {
   disabled?: boolean;
 };
 
-const JSIconWrapper = styled.img`
-  width: 24px;
-  height: 24px;
+const IconContainer = styled.div`
+  height: 34px;
+  width: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-right: 8px;
-  align-self: center;
+  flex-shrink: 0;
+`;
+
+const JSIcon = styled.img`
+  width: 34px;
+  height: auto;
 `;
 
 export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
@@ -97,12 +102,18 @@ export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
         saveStatus: { isSaving: boolean; error: boolean };
       }) => (
         <JSObjectNameWrapper page={props.page}>
-          <div>
+          <div
+            style={{
+              display: "flex",
+            }}
+          >
             {currentPlugin && (
-              <JSIconWrapper
-                alt={currentPlugin.name}
-                src={getAssetUrl(currentPlugin.iconLocation)}
-              />
+              <IconContainer>
+                <JSIcon
+                  alt={currentPlugin.name}
+                  src={getAssetUrl(currentPlugin.iconLocation)}
+                />
+              </IconContainer>
             )}
             <EditableText
               className="t--js-action-name-edit-field"
@@ -118,6 +129,7 @@ export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
               onTextChanged={handleNameChange}
               placeholder={createMessage(ACTION_NAME_PLACEHOLDER, "JS object")}
               type="text"
+              underline
               updating={saveStatus.isSaving}
               valueTransform={removeSpecialChars}
             />

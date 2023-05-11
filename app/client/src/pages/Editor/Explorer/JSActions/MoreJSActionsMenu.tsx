@@ -83,6 +83,11 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
     [dispatch],
   );
 
+  const confirmDeletion = (event: Event, value: boolean) => {
+    event.preventDefault();
+    setConfirmDelete(value);
+  };
+
   const menuPages = useSelector(getPageListAsOptions);
 
   const options = [
@@ -144,7 +149,7 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
               dispatch(updateJSCollectionBody(editor.getValue(), props.id));
               AnalyticsUtil.logEvent("PRETTIFY_CODE_MANUAL_TRIGGER");
             },
-            label: "Prettify Code",
+            label: "Prettify code",
           },
         ]
       : []),
@@ -152,17 +157,17 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
       ? [
           {
             confirmDelete: confirmDelete,
-            icon: "trash" as IconName,
+            icon: "delete-bin-line" as IconName,
             value: "delete",
-            onSelect: () => {
+            onSelect: (event: Event): void => {
               confirmDelete
                 ? deleteJSCollectionFromPage(props.id, props.name)
-                : setConfirmDelete(true);
+                : confirmDeletion(event, true);
             },
             label: confirmDelete
               ? createMessage(CONFIRM_CONTEXT_DELETE)
               : createMessage(CONTEXT_DELETE),
-            className: "t--apiFormDeleteBtn",
+            className: "t--apiFormDeleteBtn error-menuitem",
           },
         ]
       : []),
@@ -177,7 +182,7 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
         <Button
           isIconButton
           kind="tertiary"
-          size="lg"
+          size="md"
           startIcon="context-menu"
         />
       </MenuTrigger>
@@ -201,12 +206,21 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
           }
           return (
             <MenuItem
+              className={option?.className}
               key={option.value}
-              onSelect={option.onSelect}
+              onSelect={option.onSelect as any}
               startIcon={option.icon}
             >
               <div>
-                <Text>{option.label}</Text>
+                <Text
+                  color={
+                    option?.value === "delete"
+                      ? "var(--ads-v2-color-fg-error)"
+                      : "var(--ads-v2-color-fg)"
+                  }
+                >
+                  {option.label}
+                </Text>
                 {option.subText && (
                   <Text
                     color={"var(--ads-v2-color-fg-muted)"}

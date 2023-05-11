@@ -223,6 +223,7 @@ export type EditorProps = EditorStyleProps &
     onEditorFocus?: () => void;
     lineCommentString?: string;
     evaluatedPopUpLabel?: string;
+    removeHoverAndFocusStyle?: boolean;
   };
 
 interface Props extends ReduxStateProps, EditorProps, ReduxDispatchProps {}
@@ -1369,6 +1370,7 @@ class CodeEditor extends Component<Props, State> {
             onMouseMove={this.handleLintTooltip}
             onMouseOver={this.handleMouseMove}
             ref={this.editorWrapperRef}
+            removeHoverAndFocusStyle={this.props?.removeHoverAndFocusStyle}
             size={size}
           >
             {this.state.peekOverlayProps && (

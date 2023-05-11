@@ -1,9 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-// import FlagBadge from "components/utils/FlagBadge";
 import type { JSCollection } from "entities/JSCollection";
 import type { SelectProps } from "design-system";
-import { Button, Option, Select, Tooltip } from "design-system";
+import { Button, Option, Select, Tooltip, Text, Tag } from "design-system";
 import {
   createMessage,
   NO_JS_FUNCTION_TO_RUN,
@@ -29,6 +28,27 @@ export type DropdownWithCTAWrapperProps = {
 const DropdownWithCTAWrapper = styled.div<DropdownWithCTAWrapperProps>`
   display: flex;
   gap: 10px;
+
+  &&&&& .function-select-dropdown {
+    width: 230px;
+  }
+`;
+
+const OptionWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+`;
+
+const OptionLabelWrapper = styled.div<{ fullSize?: boolean }>`
+  width: ${(props) => (props?.fullSize ? "100%" : "80%")};
+  overflow: hidden;
+`;
+
+const OptionLabel = styled(Text)`
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 `;
 
 export function JSFunctionRun({
@@ -37,27 +57,47 @@ export function JSFunctionRun({
   jsCollection,
   onButtonClick,
   onSelect,
-  // showTooltip,
   options,
   selected,
+  showTooltip,
 }: Props) {
   return (
     <DropdownWithCTAWrapper isDisabled={disabled}>
       <Select
         className="function-select-dropdown"
+        isDisabled={disabled}
         onSelect={onSelect}
         size="md"
-        value={selected.label}
+        value={
+          selected.label && {
+            key: selected.label,
+            label: (
+              <OptionLabelWrapper fullSize>
+                <OptionLabel renderAs="p">{selected.label}</OptionLabel>
+              </OptionLabelWrapper>
+            ),
+          }
+        }
       >
         {options.map((option) => (
-          <Option key={option.value}>{option.label}</Option>
+          <Option key={option.value}>
+            <OptionWrapper>
+              <OptionLabelWrapper>
+                <OptionLabel renderAs="p">{option.label}</OptionLabel>
+              </OptionLabelWrapper>
+              {option.hasCustomBadge && <Tag isClosable={false}>{"Async"}</Tag>}
+            </OptionWrapper>
+          </Option>
         ))}
       </Select>
       <Tooltip
         content={createMessage(NO_JS_FUNCTION_TO_RUN, jsCollection.name)}
+        placement="topRight"
+        visible={showTooltip}
       >
         <Button
           className={testLocators.runJSAction}
+          isDisabled={disabled}
           isLoading={isLoading}
           onClick={onButtonClick}
           size="md"
