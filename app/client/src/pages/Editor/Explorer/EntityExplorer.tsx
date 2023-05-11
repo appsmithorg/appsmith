@@ -11,7 +11,6 @@ import PerformanceTracker, {
 import { useDispatch, useSelector } from "react-redux";
 import { ScrollIndicator } from "design-system-old";
 
-import { ReactComponent as NoEntityFoundSvg } from "assets/svg/no_entities_found.svg";
 import { Colors } from "constants/Colors";
 
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
@@ -27,6 +26,11 @@ import { SEARCH_ENTITY } from "constants/Explorer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { importSvg } from "design-system-old";
+
+const NoEntityFoundSvg = importSvg(
+  () => import("assets/svg/no_entities_found.svg"),
+);
 
 const Wrapper = styled.div`
   height: 100%;
