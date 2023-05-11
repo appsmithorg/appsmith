@@ -1,5 +1,6 @@
 package com.appsmith.server.solutions.ce;
 
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
@@ -17,10 +18,11 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.services.AuthenticationValidator;
-import com.appsmith.server.services.DatasourceConfigurationStructureService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.PluginService;
+import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.DatasourceConfigurationStructureService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +30,7 @@ import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
@@ -45,6 +48,7 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
     private final AuthenticationValidator authenticationValidator;
     private final DatasourcePermission datasourcePermission;
     private final DatasourceConfigurationStructureService datasourceConfigurationStructureService;
+    private final AnalyticsService analyticsService;
 
     public Mono<DatasourceStructure> getStructure(String datasourceId, boolean ignoreCache, String environmentName) {
         return datasourceService.getById(datasourceId)
@@ -90,6 +94,8 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                             Datasource datasource2 = tuple3.getT1();
                             DatasourceContextIdentifier datasourceContextIdentifier = tuple3.getT2();
                             Map<String, BaseDomain> environmentMap = tuple3.getT3();
+                            analyticsService.sendEvent(AnalyticsEvents.DS_SCHEMA_FETCH_EVENT.getEventName(),null
+                                    ,getAnalyticsProperties(datasource),false);
                             return datasourceContextService
                                     .retryOnce(datasource2, datasourceContextIdentifier, environmentMap,
                                             resourceContext -> ((PluginExecutor<Object>) pluginExecutor)
@@ -208,6 +214,19 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
         }
 
         return Boolean.FALSE;
+    }
+
+    /**
+     * Creates the map of properties for schema fetch event
+     *
+     * @param datasource
+     * @return Map<String,String> of event metadata
+     */
+    private Map<String,String> getAnalyticsProperties(Datasource datasource){
+        Map<String,String> properties = new HashMap<>();
+        properties.put("dsId",datasource.getId());
+        properties.put("pluginId",datasource.getPluginId());
+        return properties;
     }
 
 }

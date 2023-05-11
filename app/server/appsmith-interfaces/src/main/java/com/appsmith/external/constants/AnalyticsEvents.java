@@ -77,6 +77,8 @@ public enum AnalyticsEvents {
     UNASSIGNED_USER_GROUPS_FROM_PERMISSION_GROUP,
     ACTIVATE_NEW_INSTANCE("Activate_New_Instance"),
     UPDATE_EXISTING_LICENSE("Update_Existing_License"),
+
+    DS_SCHEMA_FETCH_EVENT("DatasourceSchemaFetch")
     ;
 
     private final String eventName;
