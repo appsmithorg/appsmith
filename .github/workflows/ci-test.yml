@@ -183,7 +183,7 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         run: |
           cd app/client
-          yarn install
+          yarn install --immutable
 
       - name: Setting up the cypress tests
         if: steps.run_result.outputs.run_result != 'success'

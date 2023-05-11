@@ -155,7 +155,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd app/client
-          yarn install
+          yarn install --immutable
 
       - name: Setting up the cypress tests
         shell: bash
@@ -269,7 +269,7 @@ jobs:
           env: "NODE_ENV=development"
 
       # Upload docker logs
-      - name: Upload failed test list artifact
+      - name: Upload docker logs on failure
         if: failure()
         uses: actions/upload-artifact@v3
         with:
@@ -277,7 +277,8 @@ jobs:
           path: ~/dockerlogs.txt
 
       # Upload the screenshots as artifacts if there's a failure
-      - uses: actions/upload-artifact@v3
+      - name: Upload screenshots on failure
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: cypress-screenshots-${{ matrix.job }}
