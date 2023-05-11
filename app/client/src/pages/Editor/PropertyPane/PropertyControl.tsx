@@ -767,7 +767,7 @@ const PropertyControl = memo((props: Props) => {
               >
                 <div>
                   <ToggleButton
-                    className={classNames("t-js-toggle", {
+                    className={classNames("t--js-toggle", {
                       "is-active": isDynamic,
                     })}
                     icon="js-toggle-v2"
