@@ -72,7 +72,7 @@ export const ActionButtons = styled.div`
   align-items: center;
   flex: 1 1 50%;
   justify-content: flex-end;
-  gap: 10px;
+  gap: var(--ads-v2-spaces-3);
 `;
 
 export const SecondaryWrapper = styled.div`
