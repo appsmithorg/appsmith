@@ -55,7 +55,6 @@ export class PropertyPane {
     " input[type='checkbox']";
   _colorPickerV2Popover = ".t--colorpicker-v2-popover";
   _colorPickerV2Color = ".t--colorpicker-v2-color";
-  _colorRing = ".border-2";
   _colorInput = (option: string) =>
     "//h3[text()='" + option + " Color']//parent::div//input";
   _colorInputField = (option: string) =>
@@ -117,30 +116,6 @@ export class PropertyPane {
     this.agHelper.GetNClick(this._goBackToProperty);
     this.agHelper.AssertElementVisible(this._copyWidget);
     //this.agHelper.AssertElementVisible(this._deleteWidget); //extra valisation, hence commenting!
-  }
-
-  public ChangeTheme(newTheme: string) {
-    this.agHelper.GetNClick(this._changeThemeBtn, 0, true);
-    this.agHelper.GetNClick(this._themeCard(newTheme));
-    this.agHelper.AssertContains("Theme " + newTheme + " Applied");
-  }
-
-  public ChangeThemeColor(
-    colorIndex: number | string,
-    type: "Primary" | "Background" = "Primary",
-  ) {
-    const typeIndex = type == "Primary" ? 0 : 1;
-    this.agHelper.GetNClick(this._colorRing, typeIndex);
-    if (typeof colorIndex == "number") {
-      this.agHelper.GetNClick(this._colorPickerV2Popover);
-      this.agHelper.GetNClick(this._colorPickerV2Color, colorIndex);
-    } else {
-      this.agHelper.GetElement(this._colorInput(type)).clear().wait(200);
-      this.agHelper.TypeText(this._colorInput(type), colorIndex);
-      this.agHelper.GetElement(this._colorInput(type)).clear().wait(200);
-      this.agHelper.TypeText(this._colorInput(type), colorIndex);
-      //this.agHelper.UpdateInput(this._colorInputField(type), colorIndex);//not working!
-    }
   }
 
   public GetJSONFormConfigurationFileds() {

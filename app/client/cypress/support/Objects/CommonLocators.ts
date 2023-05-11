@@ -3,6 +3,7 @@ export class CommonLocators {
   _chevronUp = ".bp3-icon-chevron-up";
   _loading = "#loading";
   _spinner = ".bp3-spinner";
+  _animationSpnner = ".bp3-spinner-animation";
   _runBtnSpinner = ".cs-spinner";
   _sidebar = ".t--sidebar";
   _queryName = ".t--action-name-edit-field span";

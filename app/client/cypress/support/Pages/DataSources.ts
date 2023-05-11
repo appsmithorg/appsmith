@@ -57,6 +57,7 @@ export class DataSources {
   _saveAndAuthorizeDS = ".t--save-and-authorize-datasource";
   _saveDs = ".t--save-datasource";
   _datasourceCard = ".t--datasource";
+  _dsMenuoptions = "div.t--datasource-menu-option";
   _editButton = ".t--edit-datasource";
   _reconnectDataSourceModal = "[data-testid=t--tab-RECONNECT_DATASOURCES]";
   _closeDataSourceModal = ".t--reconnect-close-btn";
@@ -153,10 +154,6 @@ export class DataSources {
 
   private _curlTextArea =
     "//label[text()='Paste CURL Code Here']/parent::form/div";
-  _allQueriesforDB = (dbName: string) =>
-    "//div[text()='" +
-    dbName +
-    "']/following-sibling::div[contains(@class, 't--entity')  and contains(@class, 'action')]//div[contains(@class, 't--entity-name')]";
   _noSchemaAvailable = (dbName: string) =>
     "//div[text()='" +
     dbName +
@@ -643,9 +640,17 @@ export class DataSources {
     this.NavigateToActiveTab();
     cy.get(this._datasourceCard)
       .contains(datasourceName)
+      .parents(this._datasourceCard)
+      .find(this._dsMenuoptions)
       .scrollIntoView()
       .should("be.visible")
       .click();
+    this.agHelper.GetNClick(
+      this.locator._visibleTextSpan("Edit"),
+      0,
+      false,
+      200,
+    );
     this.agHelper.Sleep(); //for the Datasource page to open
     //this.agHelper.ClickButton("Delete");
     this.agHelper.GetNClick(

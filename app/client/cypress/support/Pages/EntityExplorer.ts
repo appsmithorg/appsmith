@@ -26,7 +26,7 @@ export class EntityExplorer {
     entityNameinLeftSidebar +
     "']/ancestor::div[1]/following-sibling::div//button[contains(@class, 'entity-context-menu')]";
   private _contextMenuItem = (item: string) =>
-    "//span[text()='" + item + "']/parent::div";
+    "//span[text()='" + item + "']/parent::div[@role='menuitem']";
   _entityNameInExplorer = (entityNameinLeftSidebar: string) =>
     "//div[contains(@class, 't--entity-name')][text()='" +
     entityNameinLeftSidebar +
@@ -62,6 +62,10 @@ export class EntityExplorer {
   _openNavigationTab = (tabToOpen: string) =>
     "//span[text()='" + tabToOpen + "']/ancestor::div";
   private _overlaySearch = "[data-testId='t--search-file-operation']";
+  _allQueriesforDB = (dbName: string) =>
+    "//span[text()='" +
+    dbName +
+    "']/following-sibling::div[contains(@class, 't--entity') and contains(@class, 'action')]//div[contains(@class, 't--entity-name')]";
 
   public SelectEntityByName(
     entityNameinLeftSidebar: string,
@@ -206,6 +210,16 @@ export class EntityExplorer {
       jsDelete && this.agHelper.ValidateNetworkStatus("@deleteJSCollection");
       jsDelete && this.agHelper.AssertContains("deleted successfully");
     }
+  }
+
+  public DeleteAllQueriesForDB(dsName: string) {
+    this.agHelper.GetElement(this._allQueriesforDB(dsName)).each(($el: any) => {
+      cy.wrap($el)
+        .invoke("text")
+        .then(($query) => {
+          this.ActionContextMenuByEntityName($query, "Delete", "Are you sure?");
+        });
+    });
   }
 
   public ActionTemplateMenuByEntityName(
