@@ -9,6 +9,11 @@ on:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
         type: number
+      airgap-enabled:
+        description: "This flag is used to determine if the workflow is running for airgap"
+        required: false
+        type: string
+        default: "false"
 
 # Change the working directory for all the jobs in this workflow
 defaults:
@@ -112,17 +117,29 @@ jobs:
         run: |
           yarn global add serve
           echo "$(yarn global bin)" >> $GITHUB_PATH
-     
+
+      - name: Get docker image artifact name to download
+        run: |
+         if [[ '${{ inputs.airgap-enabled }}' == 'true' ]]; then
+          echo 'docker_container_name=airgap-cicontainer' >> "$GITHUB_ENV"
+         else
+          echo 'docker_container_name=cicontainer' >> "$GITHUB_ENV"
+          fi
+
+      - name: Log the docker container name
+        run: |
+          echo "docker_container_name: ${{ env.docker_container_name }}"
+
       - name: Download Docker image artifact
         uses: actions/download-artifact@v3
         with:
-          name: cicontainer
+          name: ${{ env.docker_container_name }}
 
       - name: Load Docker image from tar file
         working-directory: "."
         run: |
-          gunzip cicontainer.tar.gz
-          docker load -i cicontainer.tar
+          gunzip ${{ env.docker_container_name }}.tar.gz
+          docker load -i ${{ env.docker_container_name }}.tar
 
       - name: Create folder
         if: steps.run_result.outputs.run_result != 'success'
@@ -149,7 +166,7 @@ jobs:
             -e APPSMITH_DISABLE_TELEMETRY=true \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             --add-host=host.docker.internal:host-gateway \
-            cicontainer
+            ${{ env.docker_container_name }}
 
       # Start rts
       - name: Start RTS Server

@@ -57,6 +57,7 @@ jobs:
     secrets: inherit
     with:
       pr: 0
+      airgap-enabled: "true"
 
   ci-test:
     needs: [ build-docker-image ]
@@ -226,6 +227,8 @@ jobs:
             APPSMITH_CLIENT_BUILD_PATH=./app/client/build_airgap
           tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-airgap:${{steps.vars.outputs.tag}}
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-airgap:${{ github.sha }}
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-airgap:beta
 
       - name: Build and push airgap master image to Docker Hub with commit tag
         if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
