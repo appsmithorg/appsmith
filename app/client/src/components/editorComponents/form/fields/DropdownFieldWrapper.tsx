@@ -36,7 +36,11 @@ function DropdownFieldWrapper(props: SelectOptionProps) {
       value={selectedOption.value}
     >
       {props.options.map((option: SelectOptionProps) => {
-        return <Option key={option.id}>{option.value}</Option>;
+        return (
+          <Option key={option.id} value={option.value}>
+            {option.value}
+          </Option>
+        );
       })}
     </Select>
   );
