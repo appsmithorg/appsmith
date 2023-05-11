@@ -385,7 +385,7 @@ function WorkspaceInviteUsersForm(props: any) {
       >
         <div className="flex gap-2 mb-2">
           <Text
-            color="var(--ads-v2-color-gray-600)"
+            color="var(--ads-v2-color-fg)"
             data-testid="helper-message"
             kind="action-m"
           >
