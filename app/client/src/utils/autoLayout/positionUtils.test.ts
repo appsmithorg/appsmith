@@ -17,6 +17,8 @@ import {
   updateWidgetPositions,
 } from "./positionUtils";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
+import { LabelPosition } from "components/constants";
+import * as utils from "./flexWidgetUtils";
 
 describe("test PositionUtils methods", () => {
   const mainCanvasWidth = 960;
@@ -165,6 +167,228 @@ describe("test PositionUtils methods", () => {
         extractAlignmentInfo(widgets, layer, false, 64, 1, false)
           .fillWidgetLength,
       ).toEqual(24);
+    });
+    it("should assign 64 columns to each fill widget on mobile viewport", () => {
+      const widgets = {
+        "1": {
+          widgetId: "1",
+          leftColumn: 0,
+          rightColumn: 16,
+          alignment: FlexLayerAlignment.Start,
+          topRow: 0,
+          bottomRow: 4,
+          type: "",
+          widgetName: "",
+          renderMode: RenderModes.CANVAS,
+          version: 1,
+          parentColumnSpace: 10,
+          parentRowSpace: 10,
+          isLoading: false,
+          responsiveBehavior: ResponsiveBehavior.Fill,
+        },
+        "2": {
+          widgetId: "2",
+          leftColumn: 16,
+          rightColumn: 64,
+          alignment: FlexLayerAlignment.Start,
+          topRow: 0,
+          bottomRow: 7,
+          type: "",
+          widgetName: "",
+          renderMode: RenderModes.CANVAS,
+          version: 1,
+          parentColumnSpace: 10,
+          parentRowSpace: 10,
+          isLoading: false,
+          responsiveBehavior: ResponsiveBehavior.Fill,
+        },
+        "3": {
+          widgetId: "3",
+          leftColumn: 48,
+          rightColumn: 64,
+          alignment: FlexLayerAlignment.End,
+          topRow: 0,
+          bottomRow: 7,
+          type: "",
+          widgetName: "",
+          renderMode: RenderModes.CANVAS,
+          version: 1,
+          parentColumnSpace: 10,
+          parentRowSpace: 10,
+          isLoading: false,
+          responsiveBehavior: ResponsiveBehavior.Fill,
+        },
+      };
+      const layer: FlexLayer = {
+        children: [
+          { id: "1", align: FlexLayerAlignment.Start },
+          { id: "2", align: FlexLayerAlignment.Start },
+          { id: "3", align: FlexLayerAlignment.End },
+        ],
+      };
+      const { fillWidgetLength, info } = extractAlignmentInfo(
+        widgets,
+        layer,
+        true,
+        64,
+        1,
+        true,
+      );
+      expect(fillWidgetLength).toEqual(64);
+      expect(info[0].columns).toEqual(128);
+    });
+    it("should allocate columns for fill widgets that match min widths if enough space is unavailable", () => {
+      const widgets = {
+        "1": {
+          widgetId: "1",
+          leftColumn: 0,
+          rightColumn: 32,
+          alignment: FlexLayerAlignment.Start,
+          topRow: 0,
+          bottomRow: 4,
+          type: "DOCUMENT_VIEWER_WIDGET",
+          widgetName: "",
+          renderMode: RenderModes.CANVAS,
+          version: 1,
+          parentColumnSpace: 10,
+          parentRowSpace: 10,
+          isLoading: false,
+          responsiveBehavior: ResponsiveBehavior.Hug,
+          autoLayout: {
+            widgetSize: [
+              {
+                viewportMinWidth: 0,
+                configuration: () => {
+                  return {
+                    minWidth: "280px",
+                    minHeight: "280px",
+                  };
+                },
+              },
+            ],
+          },
+        },
+        "2": {
+          widgetId: "2",
+          leftColumn: 32,
+          rightColumn: 64,
+          alignment: FlexLayerAlignment.Start,
+          topRow: 0,
+          bottomRow: 7,
+          type: "CURRENCY_INPUT_WIDGET",
+          widgetName: "Currency1",
+          renderMode: RenderModes.CANVAS,
+          version: 1,
+          parentColumnSpace: 10,
+          parentRowSpace: 10,
+          isLoading: false,
+          responsiveBehavior: ResponsiveBehavior.Fill,
+          autoLayout: {
+            disabledPropsDefaults: {
+              labelPosition: LabelPosition.Top,
+              labelTextSize: "0.875rem",
+            },
+            defaults: {
+              rows: 6.6,
+            },
+            autoDimension: {
+              height: true,
+            },
+            widgetSize: [
+              {
+                viewportMinWidth: 0,
+                configuration: () => {
+                  return {
+                    minWidth: "120px",
+                  };
+                },
+              },
+            ],
+            disableResizeHandles: {
+              vertical: true,
+            },
+          },
+        },
+        "3": {
+          widgetId: "3",
+          leftColumn: 64,
+          rightColumn: 96,
+          alignment: FlexLayerAlignment.End,
+          topRow: 0,
+          bottomRow: 7,
+          type: "CONTAINER_WIDGET",
+          widgetName: "Container1",
+          renderMode: RenderModes.CANVAS,
+          version: 1,
+          parentColumnSpace: 10,
+          parentRowSpace: 10,
+          isLoading: false,
+          responsiveBehavior: ResponsiveBehavior.Fill,
+        },
+      };
+      jest
+        .spyOn(utils, "getWidgetMinMaxDimensionsInPixel")
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        .mockImplementation((widget: any, width: number) => {
+          if (
+            ["DOCUMENT_VIEWER_WIDGET", "CONTAINER_WIDGET"].includes(
+              widget?.type,
+            )
+          )
+            return {
+              minWidth: 280,
+              minHeight: 280,
+              maxWidth: undefined,
+              maxHeight: undefined,
+            };
+          if (widget?.type === "CURRENCY_INPUT_WIDGET")
+            return {
+              minWidth: 120,
+              minHeight: 40,
+              maxWidth: undefined,
+              maxHeight: undefined,
+            };
+          return {
+            minWidth: undefined,
+            minHeight: undefined,
+            maxWidth: undefined,
+            maxHeight: undefined,
+          };
+        });
+      const layer: FlexLayer = {
+        children: [
+          { id: "1", align: FlexLayerAlignment.Start },
+          { id: "2", align: FlexLayerAlignment.Start },
+          { id: "3", align: FlexLayerAlignment.End },
+        ],
+      };
+      const result = extractAlignmentInfo(widgets, layer, false, 600, 1, false);
+
+      /**
+       * Canvas width = 600
+       * # of fill widgets = 3
+       * standard fill widget length (f) = 600 / 3 = 200
+       * min widths in descending order -> 280, 280, 120.
+       *
+       * In descending order of min widths:
+       * available space: 600
+       * 1st fill widget length (DocumentViewer) -> 280 > 200 -> 280
+       * available space: 600 - 280 = 320
+       * standard fill widget length (f) = 320 / 2 = 160
+       *
+       * 2nd fill widget length (ContainerWidget) -> 280 > 160 -> 280
+       * available space: 320 - 280 = 40
+       * standard fill widget length (f) = 40 / 1 = 40
+       *
+       * 3rd fill widget length (CurrencyInput) -> 120 > 40 -> 120
+       *
+       * => widgets will overflow the canvas.
+       */
+
+      // DocumnetViewer + CurrencyInput
+      expect(result.info[0].columns).toEqual(280 + 120);
+      // ContainerWidget
+      expect(result.info[2].columns).toEqual(280);
     });
   });
 
@@ -588,6 +812,317 @@ describe("test PositionUtils methods", () => {
       expect(result.widgets["2"].mobileRightColumn).toEqual(48);
       expect(result.widgets["3"].mobileLeftColumn).toEqual(48);
       expect(result.widgets["3"].mobileRightColumn).toEqual(64);
+    });
+
+    it("should allocate columns for fill widgets in descending order of their min width requirement", () => {
+      const widgets = {
+        "1": {
+          widgetId: "1",
+          leftColumn: 0,
+          rightColumn: 32,
+          alignment: FlexLayerAlignment.Start,
+          topRow: 0,
+          bottomRow: 4,
+          type: "DOCUMENT_VIEWER_WIDGET",
+          widgetName: "",
+          renderMode: RenderModes.CANVAS,
+          version: 1,
+          parentColumnSpace: 10,
+          parentRowSpace: 10,
+          isLoading: false,
+          responsiveBehavior: ResponsiveBehavior.Fill,
+          autoLayout: {
+            widgetSize: [
+              {
+                viewportMinWidth: 0,
+                configuration: () => {
+                  return {
+                    minWidth: "280px",
+                    minHeight: "280px",
+                  };
+                },
+              },
+            ],
+          },
+        },
+        "2": {
+          widgetId: "2",
+          leftColumn: 32,
+          rightColumn: 64,
+          alignment: FlexLayerAlignment.Start,
+          topRow: 0,
+          bottomRow: 7,
+          type: "CURRENCY_INPUT_WIDGET",
+          widgetName: "Currency1",
+          renderMode: RenderModes.CANVAS,
+          version: 1,
+          parentColumnSpace: 10,
+          parentRowSpace: 10,
+          isLoading: false,
+          responsiveBehavior: ResponsiveBehavior.Fill,
+          autoLayout: {
+            disabledPropsDefaults: {
+              labelPosition: LabelPosition.Top,
+              labelTextSize: "0.875rem",
+            },
+            defaults: {
+              rows: 6.6,
+            },
+            autoDimension: {
+              height: true,
+            },
+            widgetSize: [
+              {
+                viewportMinWidth: 0,
+                configuration: () => {
+                  return {
+                    minWidth: "120px",
+                  };
+                },
+              },
+            ],
+            disableResizeHandles: {
+              vertical: true,
+            },
+          },
+        },
+        "3": {
+          widgetId: "3",
+          leftColumn: 64,
+          rightColumn: 96,
+          alignment: FlexLayerAlignment.End,
+          topRow: 0,
+          bottomRow: 7,
+          type: "CONTAINER_WIDGET",
+          widgetName: "Container1",
+          renderMode: RenderModes.CANVAS,
+          version: 1,
+          parentColumnSpace: 10,
+          parentRowSpace: 10,
+          isLoading: false,
+          responsiveBehavior: ResponsiveBehavior.Fill,
+        },
+      };
+      jest
+        .spyOn(utils, "getWidgetMinMaxDimensionsInPixel")
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        .mockImplementation((widget: any, width: number) => {
+          if (
+            ["DOCUMENT_VIEWER_WIDGET", "CONTAINER_WIDGET"].includes(
+              widget?.type,
+            )
+          )
+            return {
+              minWidth: 280,
+              minHeight: 280,
+              maxWidth: undefined,
+              maxHeight: undefined,
+            };
+          if (widget?.type === "CURRENCY_INPUT_WIDGET")
+            return {
+              minWidth: 120,
+              minHeight: 40,
+              maxWidth: undefined,
+              maxHeight: undefined,
+            };
+          return {
+            minWidth: undefined,
+            minHeight: undefined,
+            maxWidth: undefined,
+            maxHeight: undefined,
+          };
+        });
+      const layer: FlexLayer = {
+        children: [
+          { id: "1", align: FlexLayerAlignment.Start },
+          { id: "2", align: FlexLayerAlignment.Start },
+          { id: "3", align: FlexLayerAlignment.End },
+        ],
+      };
+      const alignmentInfo = extractAlignmentInfo(
+        widgets,
+        layer,
+        false,
+        640,
+        10,
+        false,
+      );
+      const res = placeWidgetsWithoutWrap(
+        widgets,
+        alignmentInfo.info,
+        0,
+        false,
+      );
+
+      /**
+       * available columns: 64
+       * column space: 10
+       * # of fill widgets = 3
+       * standard fill widget length (f) = 64 / 3 = 21.3333
+       * min widths in descending order -> 28 (minWidth / columnSpace), 28, 12.
+       *
+       * In descending order of min widths:
+       * available columns: 64
+       * 1st fill widget length (DocumentViewer) -> 28 > 21.3333 -> 28
+       * available columns: 64 - 28 = 36
+       * standard fill widget length (f) = 36 / 2 = 18
+       *
+       * 2nd fill widget length (ContainerWidget) -> 28 > 18 -> 28
+       * available columns: 36 - 28 = 8
+       * standard fill widget length (f) = 8 / 1 = 8
+       *
+       * 3rd fill widget length (CurrencyInput) -> 12 > 8 -> 12
+       *
+       * => widgets will overflow the canvas.
+       * => min widths of each widget is respected.
+       */
+
+      // DocumentViewer
+      expect(res.widgets["1"].leftColumn).toEqual(0);
+      expect(res.widgets["1"].rightColumn).toEqual(28);
+      // CurrencyInput
+      expect(res.widgets["2"].leftColumn).toEqual(28);
+      expect(res.widgets["2"].rightColumn).toEqual(40);
+      // ContainerWidget
+      expect(res.widgets["3"].leftColumn).toEqual(40);
+      expect(res.widgets["3"].rightColumn).toEqual(68);
+    });
+
+    it("should allocate columns for fill widgets in descending order of their min width requirement - Part 2", () => {
+      const widgets = {
+        "1": {
+          widgetId: "1",
+          leftColumn: 0,
+          rightColumn: 21.3333,
+          alignment: FlexLayerAlignment.Start,
+          topRow: 0,
+          bottomRow: 4,
+          type: "DOCUMENT_VIEWER_WIDGET",
+          widgetName: "",
+          renderMode: RenderModes.CANVAS,
+          version: 1,
+          parentColumnSpace: 10,
+          parentRowSpace: 10,
+          isLoading: false,
+          responsiveBehavior: ResponsiveBehavior.Fill,
+        },
+        "2": {
+          widgetId: "2",
+          leftColumn: 21.33333,
+          rightColumn: 42.66666,
+          alignment: FlexLayerAlignment.Start,
+          topRow: 0,
+          bottomRow: 7,
+          type: "CURRENCY_INPUT_WIDGET",
+          widgetName: "Currency1",
+          renderMode: RenderModes.CANVAS,
+          version: 1,
+          parentColumnSpace: 10,
+          parentRowSpace: 10,
+          isLoading: false,
+          responsiveBehavior: ResponsiveBehavior.Fill,
+        },
+        "3": {
+          widgetId: "3",
+          leftColumn: 42.66666,
+          rightColumn: 63.99999,
+          alignment: FlexLayerAlignment.Start,
+          topRow: 0,
+          bottomRow: 7,
+          type: "CURRENCY_INPUT_WIDGET",
+          widgetName: "Currency2",
+          renderMode: RenderModes.CANVAS,
+          version: 1,
+          parentColumnSpace: 10,
+          parentRowSpace: 10,
+          isLoading: false,
+          responsiveBehavior: ResponsiveBehavior.Fill,
+        },
+      };
+      jest
+        .spyOn(utils, "getWidgetMinMaxDimensionsInPixel")
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        .mockImplementation((widget: any, width: number) => {
+          if (
+            ["DOCUMENT_VIEWER_WIDGET", "CONTAINER_WIDGET"].includes(
+              widget?.type,
+            )
+          )
+            return {
+              minWidth: 280,
+              minHeight: 280,
+              maxWidth: undefined,
+              maxHeight: undefined,
+            };
+          if (widget?.type === "CURRENCY_INPUT_WIDGET")
+            return {
+              minWidth: 120,
+              minHeight: 40,
+              maxWidth: undefined,
+              maxHeight: undefined,
+            };
+          return {
+            minWidth: undefined,
+            minHeight: undefined,
+            maxWidth: undefined,
+            maxHeight: undefined,
+          };
+        });
+      const layer: FlexLayer = {
+        children: [
+          { id: "1", align: FlexLayerAlignment.Start },
+          { id: "2", align: FlexLayerAlignment.Start },
+          { id: "3", align: FlexLayerAlignment.End },
+        ],
+      };
+      const alignmentInfo = extractAlignmentInfo(
+        widgets,
+        layer,
+        false,
+        640,
+        10,
+        false,
+      );
+      const res = placeWidgetsWithoutWrap(
+        widgets,
+        alignmentInfo.info,
+        0,
+        false,
+      );
+
+      /**
+       * total available columns = 64
+       * # of fill widgets = 3
+       * columnSpace = 10
+       * standard fill widget length (f) = 64 / 3 = 21.333
+       * min widths in descending order of columns  -> 28 (280 / 10), 12, 12.
+       *
+       * In descending order of min widths:
+       * available columns: 64
+       * 1st fill widget length (DocumentViewer) -> 28 > 21.3333 -> 28
+       * available columns: 64 - 28 = 36
+       * standard fill widget length (f) = 36 / 2 = 18
+       *
+       * 2nd fill widget length (CurrencyInput) -> 12 < 18 -> 18
+       * available columns: 36 - 18 = 18
+       * standard fill widget length (f) = 18 / 1 = 18
+       *
+       * 3rd fill widget length (CurrencyInput) -> 12 < 18 -> 180
+       *
+       * => widgets don't overflow the canvas.
+       * => DocumentViewer gets more columns (28) to address its min width requirement.
+       * => rest of the space gets evenly distributed among the remaining fill widgets, as the it is larger than their min width requirement.
+       */
+
+      // DocumentViewer
+      expect(res.widgets["1"].leftColumn).toEqual(0);
+      expect(res.widgets["1"].rightColumn).toEqual(28);
+      // CurrencyInput1
+      expect(res.widgets["2"].leftColumn).toEqual(28);
+      expect(res.widgets["2"].rightColumn).toEqual(46);
+      // CurrencyInput2
+      expect(res.widgets["3"].leftColumn).toEqual(46);
+      expect(res.widgets["3"].rightColumn).toEqual(64);
     });
   });
 

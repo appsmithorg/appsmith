@@ -40,7 +40,6 @@ import {
 } from "selectors/appSettingsPaneSelectors";
 import { AppSettingsTabs } from "../AppSettingsPane/AppSettings";
 import PropertyPaneContainer from "./PropertyPaneContainer";
-import { getReadableSnapShotDetails } from "selectors/autoLayoutSelectors";
 import { BannerMessage, IconSize } from "design-system-old";
 import { Colors } from "constants/Colors";
 import {
@@ -52,6 +51,9 @@ import SnapShotBannerCTA from "../CanvasLayoutConversion/SnapShotBannerCTA";
 import { APP_MODE } from "entities/App";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+import classNames from "classnames";
+import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
+import { getReadableSnapShotDetails } from "utils/autoLayout/AutoLayoutUtils";
 
 function WidgetsEditor() {
   const { deselectAll, focusWidget } = useWidgetSelection();
@@ -63,7 +65,8 @@ function WidgetsEditor() {
   const guidedTourEnabled = useSelector(inGuidedTour);
   const isMultiPane = useSelector(isMultiPaneActive);
   const isPreviewMode = useSelector(previewModeSelector);
-  const readableSnapShotDetails = useSelector(getReadableSnapShotDetails);
+  const lastUpdatedTime = useSelector(getSnapshotUpdatedTime);
+  const readableSnapShotDetails = getReadableSnapShotDetails(lastUpdatedTime);
 
   const currentApplicationDetails = useSelector(getCurrentApplication);
   const isAppSidebarPinned = useSelector(getAppSidebarPinned);
@@ -155,7 +158,7 @@ function WidgetsEditor() {
   );
 
   const showNavigation = () => {
-    if (isPreviewingNavigation) {
+    if (isPreviewingNavigation && !guidedTourEnabled) {
       return (
         <NavigationPreview
           isAppSettingsPaneWithNavigationTabOpen={
@@ -177,8 +180,15 @@ function WidgetsEditor() {
           {guidedTourEnabled && <Guide />}
 
           <div className="relative flex flex-row w-full overflow-hidden">
-            <div className="relative flex flex-col w-full overflow-hidden">
-              <CanvasTopSection />
+            <div
+              className={classNames({
+                "relative flex flex-col w-full overflow-hidden": true,
+                "m-8 border border-gray-200":
+                  isAppSettingsPaneWithNavigationTabOpen,
+              })}
+            >
+              {!isAppSettingsPaneWithNavigationTabOpen && <CanvasTopSection />}
+
               <div
                 className="relative flex flex-row w-full overflow-hidden"
                 data-testid="widgets-editor"
@@ -193,7 +203,12 @@ function WidgetsEditor() {
                 {showNavigation()}
 
                 <PageViewContainer
-                  className="relative flex flex-row justify-center w-full overflow-hidden"
+                  className={classNames({
+                    "relative flex flex-row w-full justify-center overflow-hidden":
+                      true,
+                    "select-none pointer-events-none":
+                      isAppSettingsPaneWithNavigationTabOpen,
+                  })}
                   hasPinnedSidebar={
                     isPreviewingNavigation && !isMobile
                       ? currentApplicationDetails?.applicationDetail
