@@ -2,7 +2,7 @@ package com.appsmith.server.dtos;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceConfigurationStorage;
+import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -103,7 +103,7 @@ public class DatasourceDTO {
         datasource.setIsRecentlyCreated(this.isRecentlyCreated);
         datasource.setIsMock(this.isMock);
 
-        datasource.setDatasourceConfigurationStorage(new DatasourceConfigurationStorage(id, null, datasourceConfiguration,  null, null));
+        datasource.setDatasourceStorage(new DatasourceStorage(id, null, datasourceConfiguration,  null, null));
         return datasource;
     }
 
@@ -123,9 +123,9 @@ public class DatasourceDTO {
         datasourceDTO.setIsMock(datasource.getIsMock());
         datasourceDTO.setValid(datasource.getIsValid());
 
-        datasourceDTO.setDatasourceConfiguration(datasource.getDatasourceConfigurationStorage().getDatasourceConfiguration());
-        datasourceDTO.setInvalids(datasource.getDatasourceConfigurationStorage().getInvalids());
-        datasourceDTO.setMessages(datasource.getDatasourceConfigurationStorage().getMessages());
+        datasourceDTO.setDatasourceConfiguration(datasource.getDatasourceStorage().getDatasourceConfiguration());
+        datasourceDTO.setInvalids(datasource.getDatasourceStorage().getInvalids());
+        datasourceDTO.setMessages(datasource.getDatasourceStorage().getMessages());
 
         return datasourceDTO;
     }
