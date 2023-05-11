@@ -122,7 +122,6 @@ import {
   keysOfNavigationSetting,
 } from "constants/AppConstants";
 import { setAllEntityCollapsibleStates } from "../../actions/editorContextActions";
-import { BUILDER_VIEWER_PATH_PREFIX } from "constants/routes";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -136,9 +135,6 @@ export const getDefaultPageId = (
   }
   return defaultPage ? defaultPage.id : undefined;
 };
-
-const isApplicationUrl = (url: string): boolean =>
-  new URL(url).pathname.includes(BUILDER_VIEWER_PATH_PREFIX);
 
 export let windowReference: Window | null = null;
 
@@ -661,10 +657,10 @@ export function* forkApplicationSaga(
   action: ReduxAction<ForkApplicationRequest>,
 ) {
   try {
-    const response: ApiResponse = yield call(
-      ApplicationApi.forkApplication,
-      action.payload,
-    );
+    const response: ApiResponse = yield call(ApplicationApi.forkApplication, {
+      applicationId: action.payload.applicationId,
+      workspaceId: action.payload.workspaceId,
+    });
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put(resetCurrentApplication());
@@ -691,7 +687,7 @@ export function* forkApplicationSaga(
         pageId: application.defaultPageId as string,
       });
 
-      if (isApplicationUrl(window.location.href)) {
+      if (action.payload.editMode) {
         const appId = application.id;
         const pageId = application.defaultPageId;
         yield put({
@@ -745,6 +741,8 @@ export function* importApplicationSaga(
       ApplicationApi.importApplicationToWorkspace,
       action.payload,
     );
+    const urlObject = new URL(window.location.href);
+    const isApplicationUrl = urlObject.pathname.includes("/app/");
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const currentWorkspaceId: string = yield select(getCurrentWorkspaceId);
@@ -783,7 +781,7 @@ export function* importApplicationSaga(
           const pageURL = builderURL({
             pageId: defaultPage[0].id,
           });
-          if (isApplicationUrl(window.location.href)) {
+          if (isApplicationUrl) {
             const appId = application.id;
             const pageId = application.defaultPageId;
             yield put({

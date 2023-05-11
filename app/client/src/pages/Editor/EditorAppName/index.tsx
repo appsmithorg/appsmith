@@ -246,6 +246,7 @@ export function EditorAppName(props: EditorAppNameProps) {
       </Popover2>
       <ForkApplicationModal
         applicationId={props.applicationId || ""}
+        isInEditMode
         isModalOpen={isForkApplicationModalopen}
         setModalClose={setForkApplicationModalOpen}
       />

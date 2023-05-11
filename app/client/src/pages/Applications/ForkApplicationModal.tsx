@@ -36,6 +36,7 @@ type ForkApplicationModalProps = {
   trigger?: React.ReactNode;
   isModalOpen?: boolean;
   setModalClose?: (isOpen: boolean) => void;
+  isInEditMode?: boolean;
 };
 
 function ForkApplicationModal(props: ForkApplicationModalProps) {
@@ -67,6 +68,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
       payload: {
         applicationId: props.applicationId,
         workspaceId: workspace?.value,
+        editMode: props.isInEditMode,
       },
     });
   };
