@@ -27,7 +27,7 @@ html {
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(209, 213, 219, var(--tw-bg-opacity)) white;
+  scrollbar-color: var(--ads-v2-color-bg-emphasis) var(--ads-v2-color-bg);
 }
 
 /* For some reason, margin-left: -160px; is being added to the react-toastify stylesheet on the .Toastify__toast-container--top-center
@@ -38,20 +38,22 @@ and .Toastify__toast-container--bottom-center classes, which messes with the pla
 }
 
 ::-webkit-scrollbar {
-  height: 6px;
-  width: 6px;
+  height: 5px;
+  width: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-white;
+  background-color: var(--ads-v2-color-bg);
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-transparent;
+  background-color: transparent;
 }
 
 :hover::-webkit-scrollbar-thumb {
-  @apply bg-gray-300;
+  background-color: var(--ads-v2-color-bg-emphasis);
+  border-radius: 36px;
+  opacity: 0.5;
 }
 
 .diagnol-cross {

@@ -8,7 +8,6 @@ import type { FieldEntityInformation } from "components/editorComponents/CodeEdi
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { theme } from "constants/DefaultTheme";
 import type { Placement } from "popper.js";
-import { ScrollIndicator } from "design-system-old";
 import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import type { IPopoverSharedProps } from "@blueprintjs/core";
@@ -62,9 +61,6 @@ const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
   width: ${(props) => props.theme.evaluatedValuePopup.width}px;
   max-height: ${(props) => props.theme.evaluatedValuePopup.height}px;
   overflow-y: auto;
-  ::-webkit-scrollbar {
-    display: none;
-  }
   -ms-overflow-style: none;
   background-color: ${THEME.backgroundColor};
   color: ${THEME.textColor};
@@ -368,7 +364,6 @@ const ControlledCurrentValueViewer = memo(
     let content = (
       <CodeWrapper colorTheme={props.theme} ref={codeWrapperRef}>
         {"undefined"}
-        <ScrollIndicator containerRef={codeWrapperRef} />
       </CodeWrapper>
     );
     if (props.evaluatedValue !== undefined) {
@@ -382,7 +377,6 @@ const ControlledCurrentValueViewer = memo(
               <PreparedStatementViewer
                 evaluatedValue={props.evaluatedValue as PreparedStatementValue}
               />
-              <ScrollIndicator containerRef={codeWrapperRef} />
             </CodeWrapper>
           );
         } else {
@@ -413,7 +407,6 @@ const ControlledCurrentValueViewer = memo(
             {props.evaluatedValue === null
               ? "null"
               : props.evaluatedValue.toString()}
-            <ScrollIndicator containerRef={codeWrapperRef} />
           </CodeWrapper>
         );
       }

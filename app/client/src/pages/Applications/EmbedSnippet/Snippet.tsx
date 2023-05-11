@@ -1,6 +1,5 @@
 import React from "react";
 import copy from "copy-to-clipboard";
-import { Colors } from "constants/Colors";
 import {
   createMessage,
   IN_APP_EMBED_SETTING,
@@ -8,16 +7,7 @@ import {
 import styled from "styled-components";
 import { Icon, Text, toast } from "design-system";
 
-const StyledText = styled(Text)`
-  /* width */
-  ::-webkit-scrollbar {
-    width: 3px;
-  }
-  /* Track */
-  ::-webkit-scrollbar-track {
-    background: ${Colors.GRAY_100};
-  }
-`;
+const StyledText = styled(Text)``;
 
 const EmbedSnippetContainer = styled.div`
   display: flex;

@@ -7,7 +7,6 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { useDispatch, useSelector } from "react-redux";
-import { ScrollIndicator } from "design-system-old";
 
 import { Colors } from "constants/Colors";
 
@@ -32,12 +31,7 @@ const NoEntityFoundSvg = importSvg(
 const Wrapper = styled.div`
   height: 100%;
   overflow-y: auto;
-  scrollbar-width: none;
   -ms-overflow-style: none;
-  &::-webkit-scrollbar {
-    width: 0px;
-    -webkit-appearance: none;
-  }
 `;
 
 const NoResult = styled(NonIdealState)`
@@ -117,7 +111,6 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
       <Datasources />
       <Divider />
       <JSDependencies />
-      <ScrollIndicator containerRef={explorerRef} />
     </Wrapper>
   );
 }
