@@ -55,6 +55,7 @@ function InputText(props: InputTextProp) {
   return (
     <StyledDynamicInput>
       <CodeEditor
+        AIAssisted
         additionalDynamicData={additionalDynamicData}
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}

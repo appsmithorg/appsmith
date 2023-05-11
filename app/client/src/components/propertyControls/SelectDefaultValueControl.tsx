@@ -69,6 +69,7 @@ function InputText(props: InputTextProp) {
   return (
     <StyledDynamicInput>
       <CodeEditor
+        AIAssisted
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}
         expected={expected}

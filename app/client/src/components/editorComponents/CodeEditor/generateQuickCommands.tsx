@@ -14,10 +14,8 @@ import AddDatasourceIcon from "remixicon-react/AddBoxLineIcon";
 import { Colors } from "constants/Colors";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import MagicIcon from "remixicon-react/MagicLineIcon";
-import { askAIEnabled } from "@appsmith/components/editorComponents/GPT/trigger";
 import type FeatureFlags from "entities/FeatureFlags";
 import type { FieldEntityInformation } from "./EditorConfig";
-import { EditorModes } from "./EditorConfig";
 
 enum Shortcuts {
   PLUS = "PLUS",
@@ -132,8 +130,8 @@ export const generateQuickCommands = (
   searchText: string,
   {
     datasources,
+    enableAIAssistance,
     executeCommand,
-    featureFlags,
     pluginIdToImageLocation,
     recentEntities,
   }: {
@@ -142,15 +140,11 @@ export const generateQuickCommands = (
     pluginIdToImageLocation: Record<string, string>;
     recentEntities: string[];
     featureFlags: FeatureFlags;
+    enableAIAssistance: boolean;
   },
   entityInfo: FieldEntityInformation,
 ) => {
-  const {
-    entityId,
-    expectedType = "string",
-    mode,
-    propertyPath,
-  } = entityInfo || {};
+  const { entityId, expectedType = "string", propertyPath } = entityInfo || {};
   const suggestionsHeader: CommandsCompletion = commandsHeader("Bind Data");
   const createNewHeader: CommandsCompletion = commandsHeader("Create a Query");
   recentEntities.reverse();
@@ -255,13 +249,7 @@ export const generateQuickCommands = (
 
   // Adding this hack in the interest of time.
   // TODO: Refactor slash commands generation for easier code splitting
-  if (
-    askAIEnabled &&
-    featureFlags.ask_ai &&
-    (currentEntityType !== ENTITY_TYPE.ACTION ||
-      mode === EditorModes.SQL ||
-      mode === EditorModes.SQL_WITH_BINDING)
-  ) {
+  if (enableAIAssistance) {
     const askGPT: CommandsCompletion = generateCreateNewCommand({
       text: "",
       displayText: "Ask AI",

@@ -266,6 +266,7 @@ class CodeEditor extends Component<Props, State> {
   annotations: Annotation[] = [];
   updateLintingCallback: UpdateLintingCallback | undefined;
   private editorWrapperRef = React.createRef<HTMLDivElement>();
+  AIEnabled = false;
 
   constructor(props: Props) {
     super(props);
@@ -397,6 +398,7 @@ class CodeEditor extends Component<Props, State> {
         editor.on("postPick", this.handleSlashCommandSelection);
         editor.on("mousedown", this.handleClick);
         editor.on("scrollCursorIntoView", this.handleScrollCursorIntoView);
+        editor.on("trigger-ai", () => this.setState({ showAIWindow: true }));
         CodeMirror.on(
           editor.getWrapperElement(),
           "mousemove",
@@ -882,7 +884,6 @@ class CodeEditor extends Component<Props, State> {
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
     this.setState({ isFocused: true });
-    // Check if it is a user focus
     const { sticky } = cm.getCursor();
     const isUserFocus = sticky !== null;
     if (this.props.editorLastCursorPosition) {
@@ -1113,6 +1114,7 @@ class CodeEditor extends Component<Props, State> {
         pluginIdToImageLocation: this.props.pluginIdToImageLocation,
         recentEntities: this.props.recentEntities,
         featureFlags: this.props.featureFlags,
+        enableAIAssistance: this.AIEnabled,
         update: this.props.input.onChange?.bind(this),
         executeCommand: (payload: any) => {
           this.props.executeCommand({
@@ -1317,8 +1319,13 @@ class CodeEditor extends Component<Props, State> {
     }
     const entityInformation = this.getEntityInformation();
 
-    const enableAIAssistance =
-      askAIEnabled && this.props.featureFlags.ask_ai && this.props.AIAssisted;
+    /**
+     * Decides if AI is enabled by looking at repo, feature flags and props
+     */
+    this.AIEnabled = Boolean(
+      askAIEnabled && this.props.featureFlags.ask_ai && this.props.AIAssisted,
+    );
+
     /**
      * AI button is to be shown when following conditions are satisfied
      * When enabled by feature flag and repo permission
@@ -1326,7 +1333,7 @@ class CodeEditor extends Component<Props, State> {
      * When it is ai window is not open already
      */
     const showAIButton =
-      enableAIAssistance && !this.props.input.value && !this.state.showAIWindow;
+      this.AIEnabled && !this.props.input.value && !this.state.showAIWindow;
     const showSlashCommandButton =
       showLightningMenu !== false &&
       !this.state.isFocused &&
@@ -1409,7 +1416,7 @@ class CodeEditor extends Component<Props, State> {
               this.setState({ showAIWindow: false });
             }}
             currentValue={this.props.input.value}
-            enableAIAssistance
+            enableAIAssistance={this.AIEnabled}
             isOpen={this.state.showAIWindow}
             triggerContext={this.props.expected}
             update={this.updateValueWithAIResponse}
