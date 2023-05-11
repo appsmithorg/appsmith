@@ -1000,25 +1000,16 @@ public class ExamplesWorkspaceClonerTests {
                     final OAuth2 o2 = new OAuth2();
                     o2.setClientId("c1");
                     assertThat(o1).isEqualTo(o2);
-
-                    /**
-                     * Since, datasource 1 is AuthenticationResponse based auth (similar to Gsheets) and the token needs
-                     * to be regenerated for every workspace by the user
-                     */
                     assertThat(map(data.datasources, Datasource::getName)).containsExactlyInAnyOrder(
                             "datasource 1",
-                            "datasource 1 (1)",
-                            "datasource 1 (2)",
                             "datasource 2"
                     );
 
                     final Datasource ds1 = data.datasources.stream().filter(ds -> ds.getName().equals("datasource 1")).findFirst().get();
                     assertThat(ds1.getDatasourceConfiguration().getAuthentication().getIsAuthorized()).isNull();
-                    assertThat(ds1.getDatasourceConfiguration().getAuthentication().getAuthenticationResponse()).isNull();
 
                     final Datasource ds2 = data.datasources.stream().filter(ds -> ds.getName().equals("datasource 2")).findFirst().get();
                     assertThat(ds2.getDatasourceConfiguration().getAuthentication().getIsAuthorized()).isNull();
-                    assertThat(ds2.getDatasourceConfiguration().getAuthentication().getAuthenticationResponse()).isNull();
 
                     assertThat(getUnpublishedActionName(data.actions)).containsExactlyInAnyOrder(
                             "action1",
