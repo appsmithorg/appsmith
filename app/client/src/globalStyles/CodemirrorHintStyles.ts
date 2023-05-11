@@ -136,6 +136,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     }
   }
   .CodeMirror-Tern-completion {
+    font-family: ${(props) => props.theme.fonts.code};
     display: flex;
     padding-left: ${(props) => props.theme.spaces[11]}px !important;
     &:hover{
