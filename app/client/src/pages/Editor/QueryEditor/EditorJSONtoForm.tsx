@@ -233,19 +233,11 @@ const ActionsWrapper = styled.div`
   align-items: center;
   flex: 1 1 50%;
   justify-content: flex-end;
-
-  & > div {
-    margin: 0 0 0 ${(props) => props.theme.spaces[7]}px;
-  }
-
-  button:last-child {
-    margin-left: ${(props) => props.theme.spaces[7]}px;
-  }
+  gap: var(--ads-v2-spaces-5);
 `;
 
 const DropdownSelect = styled.div`
   font-size: 14px;
-  margin-right: 10px;
   width: 230px;
 `;
 
