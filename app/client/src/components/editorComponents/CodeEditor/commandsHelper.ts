@@ -4,7 +4,7 @@ import type {
   HintHelper,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { generateQuickCommands } from "./generateQuickCommands";
 import type { Datasource } from "entities/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";

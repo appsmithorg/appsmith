@@ -93,7 +93,7 @@ import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evalu
 import { getPluginIdToImageLocation } from "sagas/selectors";
 import type { ExpectedValueExample } from "utils/validation/common";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations, getLintTooltipDirection } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
@@ -413,13 +413,15 @@ class CodeEditor extends Component<Props, State> {
 
         CodeEditor.updateMarkings(
           editor,
-          this.props.marking,
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          this.props.marking!, // ! since defaultProps are set
           this.props.entitiesForNavigation,
         );
 
         this.hinters = CodeEditor.startAutocomplete(
           editor,
-          this.props.hinting,
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          this.props.hinting!, // ! since defaultProps are set
           this.props.dynamicData,
         );
 
@@ -542,7 +544,8 @@ class CodeEditor extends Component<Props, State> {
       ) {
         CodeEditor.updateMarkings(
           this.editor,
-          this.props.marking,
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          this.props.marking!, // ! since defaultProps are set
           this.props.entitiesForNavigation,
         );
       }
@@ -1029,7 +1032,8 @@ class CodeEditor extends Component<Props, State> {
     if (this.editor && changeObj) {
       CodeEditor.updateMarkings(
         this.editor,
-        this.props.marking,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.props.marking!, // ! since defaultProps are set
         this.props.entitiesForNavigation,
         changeObj.from,
         changeObj.to,

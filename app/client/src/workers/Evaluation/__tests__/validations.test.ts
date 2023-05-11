@@ -6,7 +6,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import moment from "moment";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 
 const DUMMY_WIDGET: WidgetProps = {
   bottomRow: 0,

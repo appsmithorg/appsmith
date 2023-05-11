@@ -5,7 +5,6 @@ import CloseEditor from "components/editorComponents/CloseEditor";
 import MoreJSCollectionsMenu from "../Explorer/JSActions/MoreJSActionsMenu";
 import type { DropdownOnSelect } from "design-system-old";
 import { SearchSnippet, TabComponent } from "design-system-old";
-import CodeEditor from "components/editorComponents/CodeEditor";
 import {
   CodeEditorBorder,
   EditorModes,
@@ -69,6 +68,7 @@ import {
 } from "actions/editorContextActions";
 import history from "utils/history";
 import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import styled from "styled-components";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
@@ -364,7 +364,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                         key: "code",
                         title: "Code",
                         panelComponent: (
-                          <CodeEditor
+                          <LazyCodeEditor
                             blockCompletions={blockCompletions}
                             border={CodeEditorBorder.NONE}
                             borderLess
