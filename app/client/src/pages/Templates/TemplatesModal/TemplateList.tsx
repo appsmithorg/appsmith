@@ -35,12 +35,6 @@ const ListWrapper = styled.div`
   height: 79vh;
   overflow: auto;
   width: 100%;
-  &&::-webkit-scrollbar-thumb {
-    background-color: ${(props) => props.theme.colors.modal.scrollbar};
-  }
-  &::-webkit-scrollbar {
-    width: 4px;
-  }
 `;
 
 type TemplateListProps = {

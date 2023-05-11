@@ -43,14 +43,6 @@ const IconSelectorWrapper = styled.div`
   .t--icon-not-selected {
     background-color: transparent;
   }
-
-  .icon-selector::-webkit-scrollbar-thumb {
-    background-color: transparent;
-  }
-
-  .icon-selector::-webkit-scrollbar {
-    width: 0px;
-  }
 `;
 
 function GeneralSettings() {

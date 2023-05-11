@@ -64,6 +64,7 @@ import urlBuilder from "entities/URLRedirect/URLAssembly";
 import { toast } from "design-system";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { addItemsInContextMenu } from "@appsmith/utils";
+import "./ApplicationMenu.css";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -306,12 +307,6 @@ const IconScrollWrapper = styled.div`
         fill: var(--ads-app-icon-normal-color);
       }
     }
-  }
-  .icon-selector::-webkit-scrollbar-thumb {
-    background-color: transparent;
-  }
-  .icon-selector::-webkit-scrollbar {
-    width: 0px;
   }
 `;
 
@@ -588,7 +583,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
         <MenuContent>
           {hasEditPermission && (
             <EditableText
-              className="px-3 pt-3 pb-2 t--application-name"
+              className="px-3 pt-2 pb-2 t--application-name"
               defaultValue={props.application.name}
               editInteractionKind={EditInteractionKind.SINGLE}
               fill
@@ -640,20 +635,22 @@ export function ApplicationCard(props: ApplicationCardProps) {
               <Divider />
             </IconScrollWrapper>
           )}
-          {moreActionItems.map((item: MenuItemProps) => {
-            const { children, key, ...restMenuItem } = item;
-            return (
-              <MenuItem
-                {...restMenuItem}
-                className={
-                  item.startIcon === "delete-bin-line" ? "error-menuitem" : ""
-                }
-                key={key}
-              >
-                {children}
-              </MenuItem>
-            );
-          })}
+          <div className="menu-items-wrapper">
+            {moreActionItems.map((item: MenuItemProps) => {
+              const { children, key, ...restMenuItem } = item;
+              return (
+                <MenuItem
+                  {...restMenuItem}
+                  className={
+                    item.startIcon === "delete-bin-line" ? "error-menuitem" : ""
+                  }
+                  key={key}
+                >
+                  {children}
+                </MenuItem>
+              );
+            })}
+          </div>
         </MenuContent>
       </Menu>
       <ForkApplicationModal
