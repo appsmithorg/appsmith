@@ -27,7 +27,6 @@ import {
   JSONtoForm,
   PluginImage,
 } from "../DataSourceEditor/JSONtoForm";
-import { getConfigInitialValues } from "components/formControls/utils";
 import Connected from "../DataSourceEditor/Connected";
 import {
   getCurrentApplicationId,
@@ -65,13 +64,13 @@ import {
   GSHEET_AUTHORIZATION_ERROR,
   SAVE_AND_AUTHORIZE_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 import { getDatasourceErrorMessage } from "./errorUtils";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { DocumentationLink } from "../QueryEditor/EditorJSONtoForm";
 import GoogleSheetFilePicker from "./GoogleSheetFilePicker";
 import DatasourceInformation from "./../DataSourceEditor/DatasourceSection";
 import styled from "styled-components";
+import { getConfigInitialValues } from "components/formControls/utils";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -279,7 +278,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       datasourceButtonConfiguration,
       datasourceId,
       documentationLink,
-      featureFlags,
       formConfig,
       formData,
       gsheetProjectID,
@@ -353,9 +351,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                           pageId: pageId || "",
                           pluginPackageName,
                           datasourceId,
-                          params: {
-                            viewMode: false,
-                          },
                         }),
                       );
                     }}
@@ -382,9 +377,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
             <>
               {/* This adds information banner when creating google sheets datasource,
               this info banner explains why appsmith requires permissions from users google account */}
-              {!!featureFlags &&
-              !!featureFlags?.LIMITING_GOOGLE_SHEET_ACCESS &&
-              datasource &&
+              {datasource &&
               isGoogleSheetPlugin &&
               datasource?.id === TEMP_DATASOURCE_ID ? (
                 <AuthMessage
@@ -500,6 +493,7 @@ const mapStateToProps = (state: AppState, props: any) => {
   if (formConfig) {
     merge(initialValues, getConfigInitialValues(formConfig));
   }
+
   merge(initialValues, datasource);
 
   const datasourceButtonConfiguration = getDatasourceFormButtonConfig(
@@ -555,7 +549,6 @@ const mapStateToProps = (state: AppState, props: any) => {
       state.entities.datasources.isDatasourceBeingSavedFromPopup,
     isFormDirty,
     canCreateDatasourceActions,
-    featureFlags: selectFeatureFlags(state),
     gsheetToken,
     gsheetProjectID,
   };

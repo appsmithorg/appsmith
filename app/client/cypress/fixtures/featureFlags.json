@@ -14,7 +14,6 @@
         "AUDIT_LOGS": true,
         "JS_EDITOR": true,
         "GIT_IMPORT": true,
-        "CONTEXT_SWITCHING": true,
-        "LIMITING_GOOGLE_SHEET_ACCESS": true
+        "CONTEXT_SWITCHING": true
     }
 }
