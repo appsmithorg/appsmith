@@ -29,6 +29,7 @@ jobs:
       pr: 0
 
   ci-test-limited:
+    needs: [ client-build, server-build, rts-build ]
     name: ci-test-limited
     uses: ./.github/workflows/ci-test-limited.yml
     secrets: inherit
