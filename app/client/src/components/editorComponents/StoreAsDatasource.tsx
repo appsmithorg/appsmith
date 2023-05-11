@@ -8,8 +8,6 @@ import { connect, useDispatch, useSelector } from "react-redux";
 import history from "utils/history";
 import { Classes, FontWeight, Text, TextType } from "design-system-old";
 import { datasourcesEditorIdURL } from "RouteBuilder";
-import CloudLine from "remixicon-react/CloudLineIcon";
-import Edit2Line from "remixicon-react/Edit2LineIcon";
 import { getQueryParams } from "utils/URLUtils";
 import { Colors } from "constants/Colors";
 import { getCurrentPageId } from "selectors/editorSelectors";
@@ -18,6 +16,14 @@ import {
   EDIT_DATASOURCE,
   SAVE_DATASOURCE,
 } from "@appsmith/constants/messages";
+import { importRemixIcon } from "design-system-old";
+
+const CloudLine = importRemixIcon(
+  () => import("remixicon-react/CloudLineIcon"),
+);
+const Edit2Line = importRemixIcon(
+  () => import("remixicon-react/Edit2LineIcon"),
+);
 
 export const StoreDatasourceWrapper = styled.div<{ enable?: boolean }>`
   display: flex;
