@@ -18,6 +18,9 @@
     "colorjs.io": "^0.4.3"
   },
   "devDependencies": {
+    "@types/react": "*",
+    "@types/react-dom": "*",
+    "eslint": "^8.38.0",
     "eslint-plugin-storybook": "^0.6.10"
   },
   "peerDependencies": {

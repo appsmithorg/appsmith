@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { IconWrapper } from "constants/IconConstants";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { ReactComponent as FilterIcon } from "assets/icons/control/filter-icon.svg";
 import { TableIconWrapper } from "./TableStyledWrappers";
 import TableFilterPane from "./TableFilterPane";
 
@@ -15,6 +14,11 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { generateClassName } from "utils/generators";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
 import TableAction from "./TableAction";
+import { importSvg } from "design-system-old";
+
+const FilterIcon = importSvg(
+  () => import("assets/icons/control/filter-icon.svg"),
+);
 
 const SelectedFilterWrapper = styled.div`
   position: absolute;
