@@ -35,19 +35,16 @@ public interface ImportExportApplicationServiceCE {
      */
     Mono<ApplicationImportDTO> extractFileAndSaveApplication(String workspaceId, Part filePart);
 
+    Mono<ApplicationJson> extractApplicationJson(Part filePart);
     /**
      * This function will take the Json filepart and saves the application in workspace
      *
      * @param workspaceId   Workspace to which the application needs to be hydrated
      * @param filePart      Json file which contains the entire application object
      * @param applicationId Optional field for application ref which needs to be overridden by the incoming JSON file
-     * @param branchName    If application is connected to git update the branched app
      * @return saved application in DB
      */
-    Mono<ApplicationImportDTO> extractFileAndUpdateNonGitConnectedApplication(String workspaceId,
-                                                                                      Part filePart,
-                                                                                      String applicationId,
-                                                                                      String branchName);
+    Mono<ApplicationImportDTO> extractFileAndUpdateNonGitConnectedApplication(String workspaceId, Part filePart, String applicationId);
 
     Mono<Application> mergeApplicationJsonWithApplication(String workspaceId,
                                                           String applicationId,

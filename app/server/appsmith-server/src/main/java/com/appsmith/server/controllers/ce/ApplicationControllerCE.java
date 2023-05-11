@@ -244,7 +244,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                                                                              @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to import application in workspace with id: {}", workspaceId);
         return fileMono
-                .flatMap(file -> importExportApplicationService.extractFileAndUpdateNonGitConnectedApplication(workspaceId, file, applicationId, branchName))
+                .flatMap(file -> importExportApplicationService.extractFileAndUpdateNonGitConnectedApplication(workspaceId, file, applicationId))
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 
