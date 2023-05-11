@@ -655,10 +655,13 @@ class DatasourceRestAPIEditor extends React.Component<
   };
 
   renderOauth2 = () => {
-    const { authentication } = this.props.formData;
+    const authentication = this.props.formData.authentication as
+      | ClientCredentials
+      | AuthorizationCode
+      | undefined;
     if (!authentication) return;
     let content;
-    switch (_.get(authentication, "grantType")) {
+    switch (authentication.grantType) {
       case GrantType.AuthorizationCode:
         content = this.renderOauth2AuthorizationCode();
         break;

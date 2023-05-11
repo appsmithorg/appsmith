@@ -87,6 +87,16 @@ export const updateMultipleWidgetPropertiesAction = (
   };
 };
 
+export const updateMultipleMetaWidgetPropertiesAction = (
+  widgetsToUpdate: UpdateWidgetsPayload,
+  shouldEval = false,
+) => {
+  return {
+    type: ReduxActionTypes.UPDATE_MULTIPLE_META_WIDGET_PROPERTIES,
+    payload: { widgetsToUpdate, shouldEval },
+  };
+};
+
 export interface UpdateWidgetPropertyRequestPayload {
   widgetId: string;
   propertyPath: string;

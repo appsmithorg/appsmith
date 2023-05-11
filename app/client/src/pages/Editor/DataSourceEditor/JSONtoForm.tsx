@@ -86,7 +86,6 @@ export const ActionButton = styled(Button)`
     width: auto;
     min-width: 74px;
     min-height: 32px;
-
     & > span {
       max-width: 100%;
     }
