@@ -158,12 +158,12 @@ describe("JSObjects OnLoad Actions tests", function () {
     _.deployMode.DeployApp();
     for (let dialog = 1; dialog <= 5; dialog++) {
       _.agHelper.ClickButton("Yes");
-      _.agHelper.Sleep(2000);
+      _.agHelper.Sleep(500);
     }
     _.deployMode.NavigateBacktoEditor();
     for (let dialog = 1; dialog <= 5; dialog++) {
       _.agHelper.ClickButton("Yes");
-      _.agHelper.Sleep(2000);
+      _.agHelper.Sleep(500);
     }
   });
 
