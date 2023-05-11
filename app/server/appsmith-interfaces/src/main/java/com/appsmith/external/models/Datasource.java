@@ -15,6 +15,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 
 @Getter
@@ -22,7 +23,7 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullP
 @ToString
 @NoArgsConstructor
 @Document
-public class Datasource extends BranchAwareDomain implements Forkable{
+public class Datasource extends BranchAwareDomain implements Forkable {
 
     @Transient
     public static final String DEFAULT_NAME_PREFIX = "Untitled Datasource";
@@ -140,20 +141,20 @@ public class Datasource extends BranchAwareDomain implements Forkable{
      * Returns the new datasource object
      */
     @Override
-    public Datasource fork(Boolean forkWithConfiguration, String toWorkspaceId){
+    public Datasource fork(Boolean forkWithConfiguration, String toWorkspaceId) {
         Datasource newDs = new Datasource();
         copyNestedNonNullProperties(this, newDs);
         newDs.makePristine();
         newDs.setWorkspaceId(toWorkspaceId);
         AuthenticationDTO initialAuth = null;
-        if (newDs.getDatasourceConfiguration() != null){
+        if (newDs.getDatasourceConfiguration() != null) {
             initialAuth = newDs.getDatasourceConfiguration().getAuthentication();
         }
 
-        if (!Boolean.TRUE.equals(forkWithConfiguration)){
+        if (!Boolean.TRUE.equals(forkWithConfiguration)) {
             DatasourceConfiguration dsConfig = new DatasourceConfiguration();
             dsConfig.setAuthentication(null);
-            if (newDs.getDatasourceConfiguration() != null){
+            if (newDs.getDatasourceConfiguration() != null) {
                 dsConfig.setConnection(newDs.getDatasourceConfiguration().getConnection());
             }
             newDs.setDatasourceConfiguration(dsConfig);
@@ -174,12 +175,11 @@ public class Datasource extends BranchAwareDomain implements Forkable{
              new workspace as it is user's personal token. Hence, in case of forking to a new workspace the datasource
              needs to be re-authorised.
              */
-                newDs.setIsConfigured(false);
-                if (isConfigured){
-                    newDs.getDatasourceConfiguration().getAuthentication().setAuthenticationResponse(null);
-                }
-        }
-        else {
+            newDs.setIsConfigured(false);
+            if (isConfigured) {
+                newDs.getDatasourceConfiguration().getAuthentication().setAuthenticationResponse(null);
+            }
+        } else {
             newDs.setIsConfigured(isConfigured);
         }
 
