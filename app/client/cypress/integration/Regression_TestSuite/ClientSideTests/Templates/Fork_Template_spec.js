@@ -75,6 +75,7 @@ describe("Fork a template to an workspace", () => {
     });
     cy.get(templateLocators.dialogForkButton).click();
     cy.get(reconnectDatasourceLocators.Modal).should("be.visible");
+    cy.get(reconnectDatasourceLocators.ListItemIcon).should("be.visible");
     cy.get(reconnectDatasourceLocators.ListItemIcon, {
       withinSubject: null,
     })
