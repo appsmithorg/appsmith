@@ -1742,9 +1742,9 @@ Cypress.Commands.add("CheckAndUnfoldEntityItem", (item) => {
     .parents(commonlocators.entityItem)
     .first()
     .children(commonlocators.entityCollapseToggle)
-    .invoke("attr", "name")
+    .invoke("attr", "id")
     .then((name) => {
-      if (name === "arrow-right") {
+      if (name === "arrow-right-s-line") {
         cy.xpath(
           "//div[contains(@class, 't--entity-name')][text()='" + item + "']",
         )
