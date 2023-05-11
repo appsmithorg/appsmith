@@ -62,8 +62,9 @@ export const Form = styled.form`
   display: flex;
   flex-direction: column;
   height: ${({ theme }) => `calc(100% - ${theme.backBanner})`};
-  overflow: hidden;
-  flex: 1;
+  overflow-y: scroll;
+  flex: 8 8 80%;
+  padding-bottom: 20px;
 `;
 
 const ViewModeWrapper = styled.div`
