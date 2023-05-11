@@ -80,6 +80,7 @@ import {
 } from "components/formControls/utils";
 import type { ControlProps } from "components/formControls/BaseControl";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
+import { formValuesToDatasource } from "transformers/RestAPIDatasourceFormTransformer";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -457,6 +458,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
             datasource={datasource}
             datasourceDeleteTrigger={this.datasourceDeleteTrigger}
             datasourceId={datasourceId}
+            formData={formData}
             formName={formName}
             hiddenHeader={fromImporting}
             isDeleting={isDeleting}
@@ -540,7 +542,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
 
     const createFlow = datasourceId === TEMP_DATASOURCE_ID;
     return (
-      <Header style={{ paddingTop: "20px" }}>
+      <Header style={{ paddingTop: "20px", flex: "1 1 10%" }}>
         <FormTitleContainer>
           <PluginImage alt="Datasource" src={getAssetUrl(pluginImage)} />
           <FormTitle
@@ -575,10 +577,22 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
 
   // returns normalized and trimmed datasource form data
   getSanitizedData = () => {
-    return getTrimmedData({
-      ...normalizeValues({ ...this.props.formData }, this.state.configDetails),
-      name: this.props.datasource?.name || "",
-    });
+    if (
+      this.props.pluginDatasourceForm ===
+      DatasourceComponentTypes.RestAPIDatasourceForm
+    )
+      return formValuesToDatasource(
+        this.props.datasource as Datasource,
+        this.props.formData as ApiDatasourceForm,
+      );
+    else
+      return getTrimmedData({
+        ...normalizeValues(
+          { ...this.props.formData },
+          this.state.configDetails,
+        ),
+        name: this.props.datasource?.name || "",
+      });
   };
 
   render() {
@@ -660,14 +674,14 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     | Datasource
     | ApiDatasourceForm;
   const { formConfigs } = plugins;
-  const formData = getFormValues(DATASOURCE_DB_FORM)(state) as
-    | Datasource
-    | ApiDatasourceForm;
   const pluginId = get(datasource, "pluginId", "");
   const plugin = getPlugin(state, pluginId);
   const { applicationSlug, pageSlug } = selectURLSlugs(state);
   const formName =
     plugin?.type === "API" ? DATASOURCE_REST_API_FORM : DATASOURCE_DB_FORM;
+  const formData = getFormValues(formName)(state) as
+    | Datasource
+    | ApiDatasourceForm;
   const isFormDirty =
     datasourceId === TEMP_DATASOURCE_ID ? true : isDirty(formName)(state);
   const initialValue = getFormInitialValues(formName)(state) as
@@ -696,7 +710,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
 
   const datasourceButtonConfiguration = getDatasourceFormButtonConfig(
     state,
-    props?.formData?.pluginId,
+    pluginId,
   );
 
   return {
