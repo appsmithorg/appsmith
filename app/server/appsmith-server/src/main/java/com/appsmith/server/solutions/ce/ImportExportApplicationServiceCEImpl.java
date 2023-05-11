@@ -1988,7 +1988,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     // No matching existing datasource found, so create a new one.
                     datasource.setIsConfigured(datasourceConfig != null && datasourceConfig.getAuthentication() != null);
                     return datasourceService
-                            .findByNameAndWorkspaceId(datasource.getName(), workspaceId, datasourcePermission.getEditPermission())
+                            .findByNameAndWorkspaceId(datasource.getName(), workspaceId, datasourcePermission.getEditPermission(), null)
                             .flatMap(duplicateNameDatasource ->
                                     getUniqueSuffixForDuplicateNameEntity(duplicateNameDatasource, workspaceId)
                             )

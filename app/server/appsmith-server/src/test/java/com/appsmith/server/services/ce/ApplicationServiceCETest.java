@@ -1281,7 +1281,7 @@ public class ApplicationServiceCETest {
         User anonymousUser = userRepository.findByEmail(ANONYMOUS_USER).block();
 
         Mono<Datasource> datasourceMono = publicAppMono
-                .then(datasourceService.findById(savedDatasource.getId()));
+                .then(datasourceService.findById(savedDatasource.getId(), null));
 
         Mono<NewAction> actionMono = publicAppMono
                 .then(newActionService.findById(savedAction.getId()));
@@ -3021,7 +3021,7 @@ public class ApplicationServiceCETest {
                 .collectList();
 
         Mono<Datasource> datasourceMono = applicationFromDbPostViewChange
-                .flatMap(application -> datasourceService.findById(savedDatasource.getId(), READ_DATASOURCES));
+                .flatMap(application -> datasourceService.findById(savedDatasource.getId(), READ_DATASOURCES, null));
 
         List<PermissionGroup> permissionGroups = workspaceService.findById(workspaceId, READ_WORKSPACES)
                 .flatMapMany(savedWorkspace -> {

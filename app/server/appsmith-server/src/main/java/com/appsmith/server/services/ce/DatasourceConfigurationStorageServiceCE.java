@@ -15,5 +15,6 @@ public interface DatasourceConfigurationStorageServiceCE {
     Mono<DatasourceConfigurationStorage> save(DatasourceConfigurationStorage datasourceConfigurationStorage);
     Mono<DatasourceConfigurationStorage> archive(DatasourceConfigurationStorage datasourceConfigurationStorage);
     Mono<DatasourceConfigurationStorage> findByDatasourceIdOrSave(Datasource datasource, String environmentId);
+    Mono<DatasourceConfigurationStorage> getDatasourceConfigurationStorageByDatasourceId(String datasourceId);
 
 }

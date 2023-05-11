@@ -409,7 +409,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             } else {
                 // TODO: check if datasource should be fetched with edit during action create or update.
                 //Data source already exists. Find the same.
-                datasourceMono = datasourceService.findById(action.getDatasource().getId())
+                datasourceMono = datasourceService.findById(action.getDatasource().getId(), null, null)
                         .switchIfEmpty(Mono.defer(() -> {
                             action.setIsValid(false);
                             invalids.add(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.DATASOURCE, action.getDatasource().getId()));
@@ -619,7 +619,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .zipWith(Mono.defer(() -> {
                     if (action.getDatasource() != null &&
                             action.getDatasource().getId() != null) {
-                        return datasourceService.findById(action.getDatasource().getId());
+                        return datasourceService.findById(action.getDatasource().getId(), null, null);
                     } else {
                         return Mono.justOrEmpty(action.getDatasource());
                     }
@@ -728,11 +728,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      * @param actionDTOMono
      * @return datasourceMono
      */
-    protected Mono<Datasource> getCachedDatasourceForActionExecution(Mono<ActionDTO> actionDTOMono, String environmentName) {
+    protected Mono<Datasource> getCachedDatasourceForActionExecution(Mono<ActionDTO> actionDTOMono, String environmentId) {
 
         return actionDTOMono
                 .flatMap(actionDTO -> datasourceService.getValidDatasourceFromActionMono(actionDTO,
-                        datasourcePermission.getExecutePermission()))
+                        datasourcePermission.getExecutePermission(), environmentId))
                 .flatMap(datasource -> {
                     // For embedded datasource, validate the datasource for each execution
                     if (datasource.getId() == null) {
@@ -1592,7 +1592,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                     final ActionDTO action = toDelete.getUnpublishedAction();
                                     if (action.getDatasource() != null &&
                                             action.getDatasource().getId() != null) {
-                                        return datasourceService.findById(action.getDatasource().getId());
+                                        return datasourceService.findById(action.getDatasource().getId(), null, null);
                                     } else {
                                         return Mono.justOrEmpty(action.getDatasource());
                                     }
@@ -1621,7 +1621,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                     final ActionDTO action = toDelete.getUnpublishedAction();
                                     if (action.getDatasource() != null &&
                                             action.getDatasource().getId() != null) {
-                                        return datasourceService.findById(action.getDatasource().getId());
+                                        return datasourceService.findById(action.getDatasource().getId(), null, null);
                                     } else {
                                         return Mono.justOrEmpty(action.getDatasource());
                                     }
@@ -1675,7 +1675,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         if (action.getDatasource().getDatasourceConfiguration() != null) {
             dsConfigMono = Mono.just(action.getDatasource().getDatasourceConfiguration());
         } else if (action.getDatasource().getId() != null) {
-            dsConfigMono = datasourceService.findById(action.getDatasource().getId())
+            dsConfigMono = datasourceService.findById(action.getDatasource().getId(), null, null)
                     .flatMap(datasource -> {
                         if (datasource.getDatasourceConfiguration() == null) {
                             return Mono.just(new DatasourceConfiguration());
@@ -2169,7 +2169,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             final ActionDTO action = toDelete.getUnpublishedAction();
                             if (action.getDatasource() != null &&
                                     action.getDatasource().getId() != null) {
-                                return datasourceService.findById(action.getDatasource().getId());
+                                return datasourceService.findById(action.getDatasource().getId(), null, null);
                             } else {
                                 return Mono.justOrEmpty(action.getDatasource());
                             }

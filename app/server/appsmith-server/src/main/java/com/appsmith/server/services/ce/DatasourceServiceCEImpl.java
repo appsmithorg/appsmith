@@ -221,10 +221,10 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     }
 
     @Override
-    public Mono<Datasource> getValidDatasourceFromActionMono(ActionDTO actionDTO, AclPermission aclPermission) {
+    public Mono<Datasource> getValidDatasourceFromActionMono(ActionDTO actionDTO, AclPermission aclPermission, String environmentId) {
         // Global datasource requires us to fetch the datasource from DB.
         if (actionDTO.getDatasource() != null && actionDTO.getDatasource().getId() != null) {
-            return this.findById(actionDTO.getDatasource().getId(), aclPermission)
+            return this.findById(actionDTO.getDatasource().getId(), aclPermission, null)
                     .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
                             FieldName.DATASOURCE,
                             actionDTO.getDatasource().getId())));
@@ -369,14 +369,14 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
      * the password from the db if its a saved datasource before testing.
      */
     @Override
-    public Mono<DatasourceTestResult> testDatasource(Datasource datasource, String environmentName) {
+    public Mono<DatasourceTestResult> testDatasource(Datasource datasource, String environmentId) {
         Mono<Datasource> datasourceMono = Mono.just(datasource);
         // Fetch any fields that maybe encrypted from the db if the datasource being tested does not have those fields set.
         // This scenario would happen whenever an existing datasource is being tested and no changes are present in the
         // encrypted field (because encrypted fields are not sent over the network after encryption back to the client
         if (datasource.getId() != null && datasource.getDatasourceConfiguration() != null &&
                 datasource.getDatasourceConfiguration().getAuthentication() != null) {
-            datasourceMono = getById(datasource.getId())
+            datasourceMono = getById(datasource.getId(), environmentId)
                     .map(datasource1 -> {
                         AppsmithBeanUtils.copyNestedNonNullProperties(datasource, datasource1);
                         return datasource1;
@@ -416,23 +416,44 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     }
 
     @Override
-    public Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission permission) {
-        return repository.findByNameAndWorkspaceId(name, workspaceId, permission);
+    public Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission permission, String environmentId) {
+        return repository.findByNameAndWorkspaceId(name, workspaceId, permission)
+                .zipWhen(datasource -> datasourceConfigurationStorageService.findByDatasourceIdOrSave(datasource, environmentId),
+                        (datasource, datasourceConfigurationStorage) -> {
+                    datasource.setDatasourceConfigurationStorage(datasourceConfigurationStorage);
+                    return datasource;
+                });
     }
 
     @Override
-    public Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, Optional<AclPermission> permission) {
-        return repository.findByNameAndWorkspaceId(name, workspaceId, permission);
+    public Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, Optional<AclPermission> permission, String environmentId) {
+        return repository.findByNameAndWorkspaceId(name, workspaceId, permission)
+                .zipWhen(datasource -> datasourceConfigurationStorageService.findByDatasourceIdOrSave(datasource, environmentId),
+                        (datasource, datasourceConfigurationStorage) -> {
+                            datasource.setDatasourceConfigurationStorage(datasourceConfigurationStorage);
+                            return datasource;
+                        });
     }
 
     @Override
-    public Mono<Datasource> findById(String id, AclPermission aclPermission) {
-        return repository.findById(id, aclPermission);
+    public Mono<Datasource> findById(String id, AclPermission aclPermission, String environmentId) {
+        return repository.findById(id, aclPermission)
+                .zipWith(datasourceConfigurationStorageService.getDatasourceConfigurationStorageByDatasourceId(id)
+                , (datasource, datasourceConfigurationStorage) -> {
+                    datasource.setDatasourceConfigurationStorage(datasourceConfigurationStorage);
+                    return datasource;
+                });
+
     }
 
     @Override
-    public Mono<Datasource> findById(String id) {
-        return repository.findById(id);
+    public Mono<Datasource> findById(String id, String environmentId) {
+        return repository.findById(id)
+                .zipWith(datasourceConfigurationStorageService.getDatasourceConfigurationStorageByDatasourceId(id)
+                        , (datasource, datasourceConfigurationStorage) -> {
+                            datasource.setDatasourceConfigurationStorage(datasourceConfigurationStorage);
+                            return datasource;
+                        });
     }
 
     @Override
@@ -588,5 +609,19 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         // Here just returning an empty map, this map is not used here
         Mono<Map<String, BaseDomain>> environmentMapMono = Mono.just(new HashMap<>());
         return Mono.zip(Mono.just(datasource), datasourceContextIdentifierMono, environmentMapMono);
+    }
+
+    public Mono<Datasource> getById(String id, String environmentId) {
+        if (id == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+
+        return repository.findById(id)
+                .zipWith(datasourceConfigurationStorageService.getDatasourceConfigurationStorageByDatasourceId(id),
+                        (datasource, datasourceConfigurationStorage) -> {
+                    datasource.setDatasourceConfigurationStorage(datasourceConfigurationStorage);
+                    return datasource;
+                })
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "resource", id)));
     }
 }

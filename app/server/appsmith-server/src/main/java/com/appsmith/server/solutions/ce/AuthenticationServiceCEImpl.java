@@ -23,7 +23,6 @@ import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
 import com.appsmith.server.dtos.IntegrationDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.services.ConfigService;
@@ -107,7 +106,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
     public Mono<String> getAuthorizationCodeURLForGenericOauth2(String datasourceId, String pageId, ServerHttpRequest httpRequest) {
         // This is the only database access that is controlled by ACL
         // The rest of the queries in this flow will not have context information
-        return datasourceService.findById(datasourceId, datasourcePermission.getEditPermission())
+        return datasourceService.findById(datasourceId, datasourcePermission.getEditPermission(), null)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
                 .flatMap((datasource -> {
@@ -318,7 +317,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         // Set datasource state to intermediate stage
         // Return the appsmithToken to client
         Mono<Datasource> datasourceMono = datasourceService
-                .findById(datasourceId, datasourcePermission.getEditPermission())
+                .findById(datasourceId, datasourcePermission.getEditPermission(), null)
                 .cache();
 
         final String redirectUri = redirectHelper.getRedirectDomain(request.getHeaders());
@@ -401,7 +400,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         // Update datasource as being authorized
         // Return control to client
         Mono<Datasource> datasourceMono = datasourceService
-                .findById(datasourceId, datasourcePermission.getEditPermission())
+                .findById(datasourceId, datasourcePermission.getEditPermission(), null)
                 .cache();
 
         return datasourceMono

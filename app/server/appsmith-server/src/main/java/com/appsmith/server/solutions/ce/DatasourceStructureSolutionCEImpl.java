@@ -164,7 +164,7 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
             2. Check plugin is present
             3. Execute DB query from the information provided present in pluginSpecifiedTemplates
          */
-        Mono<Datasource> datasourceMono = datasourceService.findById(datasourceId, datasourcePermission.getEditPermission())
+        Mono<Datasource> datasourceMono = datasourceService.findById(datasourceId, datasourcePermission.getEditPermission(), null)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId
                 )))

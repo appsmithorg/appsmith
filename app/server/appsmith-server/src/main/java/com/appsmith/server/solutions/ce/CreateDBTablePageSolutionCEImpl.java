@@ -194,7 +194,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
         Mono<NewPage> pageMono = getOrCreatePage(defaultApplicationId, defaultPageId, tableName, branchName);
 
         Mono<Datasource> datasourceMono = datasourceService
-                .findById(datasourceId, datasourcePermission.getEditPermission())
+                .findById(datasourceId, datasourcePermission.getEditPermission(), null)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId))
                 )

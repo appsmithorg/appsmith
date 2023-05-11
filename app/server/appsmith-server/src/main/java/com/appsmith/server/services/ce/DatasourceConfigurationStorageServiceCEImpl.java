@@ -5,15 +5,19 @@ import com.appsmith.external.models.DatasourceConfigurationStorage;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.DatasourceConfigurationStorageRepository;
+import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
+import reactor.util.function.Tuple2;
 
 import java.util.HashSet;
 import java.util.List;
@@ -24,6 +28,8 @@ public class DatasourceConfigurationStorageServiceCEImpl
         implements DatasourceConfigurationStorageServiceCE {
 
     private final DatasourceConfigurationStorageRepository repository;
+    @Autowired
+    private DatasourceRepository datasourceRepository;
     public DatasourceConfigurationStorageServiceCEImpl(Scheduler scheduler,
                                                        Validator validator,
                                                        MongoConverter mongoConverter,
@@ -63,11 +69,10 @@ public class DatasourceConfigurationStorageServiceCEImpl
     @Override
     public Mono<DatasourceConfigurationStorage> findByDatasourceIdOrSave(Datasource datasource, String environmentId) {
         return findOneByDatasourceId(datasource.getId())
-                .switchIfEmpty(saveDatasourceConfigurationFromDatasource(datasource, environmentId));
+                .switchIfEmpty(migrateDatasourceConfigurationToDatasourceConfigurationStorage(datasource));
     }
 
-    private Mono<DatasourceConfigurationStorage> saveDatasourceConfigurationFromDatasource(Datasource datasource,
-                                                                                           String environmentId) {
+    private Mono<DatasourceConfigurationStorage> migrateDatasourceConfigurationToDatasourceConfigurationStorage(Datasource datasource) {
         if (datasource.getDatasourceConfiguration() == null) {
             // here, we don't have datasource configuration in datasource collection or datasourceConfigurationStorage collection
             return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND));
@@ -76,13 +81,29 @@ public class DatasourceConfigurationStorageServiceCEImpl
         DatasourceConfigurationStorage datasourceConfigurationStorage =
                 new DatasourceConfigurationStorage(
                         datasource.getId(),
-                        environmentId,
+                        null,
                         datasource.getDatasourceConfiguration(),
                         datasource.getInvalids(),
                         new HashSet<>()
                 );
 
-        return  repository.save(datasourceConfigurationStorage);
+        datasource.setDatasourceConfiguration(null);
+        datasource.setMessages(null);
+        datasource.setInvalids(null);
+
+        return Mono.just(datasourceConfigurationStorage)
+                .flatMap(datasourceConfigurationStorage1 -> {
+                    return repository.save(datasourceConfigurationStorage)
+                            .zipWith(datasourceRepository.save(datasource))
+                            .map(Tuple2::getT1)
+                            .subscribeOn(Schedulers.parallel());
+                });
     }
 
+    @Override
+    public Mono<DatasourceConfigurationStorage> getDatasourceConfigurationStorageByDatasourceId(String datasourceId) {
+        return findOneByDatasourceId(datasourceId)
+                .switchIfEmpty(datasourceRepository.findById(datasourceId)
+                        .flatMap(this::migrateDatasourceConfigurationToDatasourceConfigurationStorage));
+    }
 }

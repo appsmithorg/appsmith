@@ -1296,7 +1296,7 @@ public class ActionServiceCE_Test {
         ActionDTO savedAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         Mono<Datasource> datasourceMono = publicAppMono
-                .then(datasourceService.findById(savedDatasource.getId()));
+                .then(datasourceService.findById(savedDatasource.getId(), null));
 
         Mono<NewAction> actionMono = publicAppMono
                 .then(newActionService.findById(savedAction.getId()));

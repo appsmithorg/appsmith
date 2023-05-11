@@ -165,7 +165,7 @@ public class DatasourceContextServiceTest {
                 .block();
 
         assert createdDatasource != null;
-        Mono<Datasource> datasourceMono = datasourceService.findById(createdDatasource.getId());
+        Mono<Datasource> datasourceMono = datasourceService.findById(createdDatasource.getId(), null);
 
         StepVerifier
                 .create(datasourceMono)
@@ -210,7 +210,7 @@ public class DatasourceContextServiceTest {
                 .block();
 
         assert createdDatasource != null;
-        Mono<Datasource> datasourceMono = datasourceService.findById(createdDatasource.getId());
+        Mono<Datasource> datasourceMono = datasourceService.findById(createdDatasource.getId(), null);
 
         StepVerifier
                 .create(datasourceMono)

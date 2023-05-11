@@ -158,7 +158,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                                                          DatasourceContextIdentifier datasourceContextIdentifier) {
         if (datasourceContextIdentifier.isKeyValid()) {
             return datasourceService.findById(datasourceContextIdentifier.getDatasourceId(),
-                                              datasourcePermission.getExecutePermission());
+                                              datasourcePermission.getExecutePermission(), null);
         } else {
             return Mono.just(datasource);
         }
@@ -282,7 +282,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         }
 
         return datasourceService
-                .findById(datasourceId, datasourcePermission.getExecutePermission())
+                .findById(datasourceId, datasourcePermission.getExecutePermission(), null)
                 .zipWhen(datasource1 ->
                                  pluginExecutorHelper.getPluginExecutor(pluginService.findById(datasource1.getPluginId())))
                 .map(tuple -> {

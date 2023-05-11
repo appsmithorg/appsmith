@@ -48,7 +48,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
 
     public Mono<TriggerResultDTO> trigger(String datasourceId, TriggerRequestDTO triggerRequestDTO, String environmentName) {
 
-        Mono<Datasource> datasourceMono = datasourceService.findById(datasourceId, datasourcePermission.getReadPermission())
+        Mono<Datasource> datasourceMono = datasourceService.findById(datasourceId, datasourcePermission.getReadPermission(), null)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "datasourceId")))
                 .cache();
 

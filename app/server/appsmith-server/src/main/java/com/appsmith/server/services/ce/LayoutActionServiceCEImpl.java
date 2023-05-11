@@ -974,7 +974,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 .zipWith(Mono.defer(() -> {
                     if (action.getDatasource() != null &&
                             action.getDatasource().getId() != null) {
-                        return datasourceService.findById(action.getDatasource().getId());
+                        return datasourceService.findById(action.getDatasource().getId(), null, null);
                     } else {
                         return Mono.justOrEmpty(action.getDatasource());
                     }

@@ -137,7 +137,7 @@ public class DatasourceTriggerSolutionTest {
                                 Mockito.anyBoolean(), Mockito.any()))
                 .thenReturn(Mono.just(testStructure));
 
-        Datasource datasource = datasourceService.findById(datasourceId, datasourcePermission.getReadPermission()).block();
+        Datasource datasource = datasourceService.findById(datasourceId, datasourcePermission.getReadPermission(), null).block();
         Mockito.doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(Mockito.any());
         Mockito
                 .doReturn(Mono.zip(Mono.justOrEmpty(datasource),

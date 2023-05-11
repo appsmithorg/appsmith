@@ -22,19 +22,19 @@ public interface DatasourceServiceCE extends CrudService<Datasource, String> {
     /**
      *
      * @param datasource - The datasource which is about to be tested
-     * @param environmentName - environmentName, name of the environment on which the datasource is getting tested,
+     * @param environmentId - environmentName, name of the environment on which the datasource is getting tested,
      *                         this variable is unused in the CE version of the code.
      * @return Mono<DatasourceTestResult> - result whether the datasource secures a valid connection with the remote DB
      */
-    Mono<DatasourceTestResult> testDatasource(Datasource datasource, String environmentName);
+    Mono<DatasourceTestResult> testDatasource(Datasource datasource, String environmentId);
 
-    Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission permission);
+    Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission permission, String environmentId);
 
-    Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, Optional<AclPermission> permission);
+    Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, Optional<AclPermission> permission, String environmentId);
 
-    Mono<Datasource> findById(String id, AclPermission aclPermission);
+    Mono<Datasource> findById(String id, AclPermission aclPermission, String environmentId);
 
-    Mono<Datasource> findById(String id);
+    Mono<Datasource> findById(String id, String environmentId);
 
     Set<MustacheBindingToken> extractKeysFromDatasource(Datasource datasource);
 
@@ -52,11 +52,11 @@ public interface DatasourceServiceCE extends CrudService<Datasource, String> {
 
     Mono<Datasource> update(String datasourceId, Datasource datasource, Boolean isUserRefreshedUpdate);
 
-    Mono<Datasource> getValidDatasourceFromActionMono(ActionDTO actionDTO, AclPermission aclPermission);
+    Mono<Datasource> getValidDatasourceFromActionMono(ActionDTO actionDTO, AclPermission aclPermission, String environmentId);
 
     Mono<Datasource> createWithoutPermissions(Datasource datasource);
 
     Mono<Tuple3<Datasource, DatasourceContextIdentifier, Map<String, BaseDomain>>>
-    getEvaluatedDSAndDsContextKeyWithEnvMap(Datasource datasource, String environmentName);
+    getEvaluatedDSAndDsContextKeyWithEnvMap(Datasource datasource, String environmentId);
 
 }
