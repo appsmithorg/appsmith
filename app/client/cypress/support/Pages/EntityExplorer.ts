@@ -58,7 +58,8 @@ export class EntityExplorer {
     "//div[contains(@class, 't--entity-name')][text()='" +
     modalName +
     "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//div[contains(@class, 't--entity-name')][contains(text(), 'Text')]";
-  private _newPageOptions = (option: string) => `[data-testid='${option}']`;
+  private _newPageOptions = (option: string) =>
+    `//span[text()='${option}']/parent::div`;
   _openNavigationTab = (tabToOpen: string) =>
     "//span[text()='" + tabToOpen + "']/ancestor::div";
   private _overlaySearch = "[data-testId='t--search-file-operation']";
@@ -96,13 +97,13 @@ export class EntityExplorer {
 
   public AddNewPage(
     option:
-      | "add-page"
-      | "generate-page"
-      | "add-page-from-template" = "add-page",
+      | "New blank page"
+      | "Generate page with data"
+      | "Add page from template" = "New blank page",
   ) {
     this.agHelper.GetNClick(this.locator._newPage);
     this.agHelper.GetNClick(this._newPageOptions(option));
-    if (option === "add-page") {
+    if (option === "New blank page") {
       this.agHelper.ValidateNetworkStatus("@createPage", 201);
     }
   }

@@ -44,7 +44,7 @@ describe("Api Naming conflict on different pages test", function () {
     cy.CreateAPI(firstApiName);
     ee.ExpandCollapseEntity("Queries/JS", true);
     // create a new page and an API on that page
-    cy.Createpage("Page2");
+    ee.AddNewPage();
     cy.CreateAPI(firstApiName);
     ee.ExpandCollapseEntity("Queries/JS", true);
     cy.get(".t--entity-name").contains(firstApiName).should("exist");

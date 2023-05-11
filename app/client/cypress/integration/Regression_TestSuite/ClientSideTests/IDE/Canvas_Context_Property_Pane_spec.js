@@ -8,14 +8,15 @@ const api1 = "API1";
 
 const agHelper = ObjectsRegistry.AggregateHelper;
 const ee = ObjectsRegistry.EntityExplorer;
+const apiPage = ObjectsRegistry.ApiPage;
 
 describe("Canvas context Property Pane", function () {
   before(() => {
     cy.addDsl(dsl);
-    cy.Createpage(page2);
+    ee.AddNewPage("New blank page");
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 200 });
     ee.SelectEntityByName(page1, "Pages");
-    cy.CreateAPI(api1);
+    apiPage.CreateApi(api1);
     cy.get(".t--close-editor").click();
     cy.get(".t--back-button").click();
   });

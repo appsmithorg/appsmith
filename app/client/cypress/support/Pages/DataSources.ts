@@ -199,7 +199,7 @@ export class DataSources {
   }
 
   public GeneratePageWithMockDB() {
-    this.ee.AddNewPage("generate-page");
+    this.ee.AddNewPage("Generate page with data");
     this.agHelper.GetNClick(this._selectDatasourceDropdown);
     this.agHelper.GetNClick(this.locator._dropdownText, 1);
     this.agHelper.GetNClickByContains(this._mockDatasourceName, "Users");

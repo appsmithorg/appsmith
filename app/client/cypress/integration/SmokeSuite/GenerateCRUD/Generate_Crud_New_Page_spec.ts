@@ -6,7 +6,7 @@ describe("Validate generate CRUD operation by creating a datasource from generat
     DataSources.GeneratePageWithMockDB();
 
     //when there are entities in the current page
-    EntityExplorer.AddNewPage("add-page");
+    EntityExplorer.AddNewPage();
     ApiPage.CreateApi();
     DataSources.GeneratePageWithMockDB();
   });

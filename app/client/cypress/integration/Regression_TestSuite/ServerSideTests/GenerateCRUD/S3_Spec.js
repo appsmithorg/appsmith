@@ -175,7 +175,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function () {
     );
 
     cy.get("@dSName").then((dbName) => {
-      ee.AddNewPage("generate-page");
+      ee.AddNewPage("Generate page with data");
       cy.get(generatePage.selectDatasourceDropdown).click();
       cy.get(generatePage.datasourceDropdownOption).contains(dbName).click();
     });

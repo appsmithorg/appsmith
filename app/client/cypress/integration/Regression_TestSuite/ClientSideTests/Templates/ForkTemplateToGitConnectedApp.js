@@ -66,7 +66,7 @@ describe("Fork a template to the current app", () => {
     cy.get("@gitbranchName").then((branName) => {
       branchName = branName;
       _.entityExplorer.AddNewPage();
-      _.entityExplorer.AddNewPage("add-page-from-template");
+      _.entityExplorer.AddNewPage("Add page from template");
       cy.get(template.templateDialogBox).should("be.visible");
       cy.xpath("//div[text()='Marketing Dashboard']").click();
       cy.wait(10000); // for templates page to load fully
