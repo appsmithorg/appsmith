@@ -1,8 +1,12 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.constants.CommonFieldName;
 import com.appsmith.external.dtos.EnvironmentDTO;
 import com.appsmith.external.models.Environment;
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
@@ -18,12 +22,16 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
+import java.util.Set;
+
 @Service
 @Slf4j
 public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements EnvironmentService {
 
     private final EnvironmentRepository repository;
     private final FeatureFlagService featureFlagService;
+
+    private final PolicyGenerator policyGenerator;
 
     @Autowired
     public EnvironmentServiceImpl(Scheduler scheduler,
@@ -32,10 +40,12 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
                                   ReactiveMongoTemplate reactiveMongoTemplate,
                                   EnvironmentRepository repository,
                                   AnalyticsService analyticsService,
-                                  FeatureFlagService featureFlagService){
+                                  FeatureFlagService featureFlagService,
+                                  PolicyGenerator policyGenerator) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
         this.featureFlagService = featureFlagService;
+        this.policyGenerator = policyGenerator;
     }
 
     @Override
@@ -44,13 +54,13 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
     }
 
     @Override
-    public Mono<Environment> findById(String id, AclPermission aclPermission) {
-        return repository.findById(id, aclPermission);
+    public Flux<Environment> findByWorkspaceId(String workspaceId) {
+        return repository.findByWorkspaceId(workspaceId);
     }
 
     @Override
-    public Flux<Environment> findByWorkspaceIdWithoutPermission(String workspaceId) {
-        return repository.findByWorkspaceId(workspaceId);
+    public Mono<Environment> findById(String id, AclPermission aclPermission) {
+        return repository.findById(id, aclPermission);
     }
 
     @Override
@@ -64,7 +74,7 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
 
                     // This method will be used only for executing environments
                     return findById(envId, AclPermission.EXECUTE_ENVIRONMENTS)
-                            .flatMap(this::transformToEnvironmentDTO);
+                            .map(EnvironmentDTO::createEnvironmentDTO);
                 });
     }
 
@@ -79,27 +89,28 @@ public class EnvironmentServiceImpl extends EnvironmentServiceCEImpl implements 
 
                     // This method will be used only for executing environments
                     return findByWorkspaceId(workspaceId, AclPermission.EXECUTE_ENVIRONMENTS)
-                            .flatMap(this::transformToEnvironmentDTO);
+                            .map(EnvironmentDTO::createEnvironmentDTO);
                 });
     }
 
-    private Mono<EnvironmentDTO> transformToEnvironmentDTO(Environment environment) {
-        return Mono.just(environment).map(this::createEnvironmentDTO);
+    @Override
+    public Flux<Environment> createDefaultEnvironments(Workspace createdWorkspace) {
+        return Flux.just(new Environment(createdWorkspace.getId(), CommonFieldName.PRODUCTION_ENVIRONMENT),
+                        new Environment(createdWorkspace.getId(), CommonFieldName.STAGING_ENVIRONMENT))
+                .map(environment -> this.generateAndSetEnvironmentPolicies(createdWorkspace, environment))
+                .flatMap(repository::save);
+    }
+
+    private Environment generateAndSetEnvironmentPolicies(Workspace workspace, Environment environment) {
+        Set<Policy> policies = policyGenerator.getAllChildPolicies(workspace.getPolicies(), Workspace.class, Environment.class);
+        environment.setPolicies(policies);
+        return environment;
     }
 
     @Override
-    public EnvironmentDTO createEnvironmentDTO(Environment environment) {
-        EnvironmentDTO environmentDTO = new EnvironmentDTO();
-        environmentDTO.setId(environment.getId());
-        environmentDTO.setName(environment.getName());
-        environmentDTO.setWorkspaceId(environment.getWorkspaceId());
-        environmentDTO.setUserPermissions(environment.getUserPermissions());
-        return environmentDTO;
+    public Flux<Environment> archiveByWorkspaceId(String workspaceId) {
+        return repository
+                .findByWorkspaceId(workspaceId)
+                .flatMap(repository::archive);
     }
-
-    @Override
-    public Mono<Environment> save(Environment environment) {
-        return repository.save(environment);
-    }
-
 }

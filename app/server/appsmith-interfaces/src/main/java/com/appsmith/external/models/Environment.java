@@ -1,5 +1,6 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.constants.CommonFieldName;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,8 +18,13 @@ public class Environment extends BaseDomain {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     String name;
 
+    Boolean isDefault;
 
-    public void sanitiseToExportDBObject() {
-        super.sanitiseToExportDBObject();
+    String colorCode;
+
+    public Environment(String workspaceId, String name) {
+        this.setWorkspaceId(workspaceId);
+        this.setName(name);
+        this.setIsDefault(CommonFieldName.PRODUCTION_ENVIRONMENT.equals(name));
     }
 }
