@@ -109,17 +109,17 @@ Appsmith makes it easy to create powerful utility applications organized across 
 - ArangoDB
 - SMTP
 
-🛠️ **API client and query builder** lets you run RESTful API, GraphQL, or database queries within connected datasources.
+🛠️ **API client and query builder** lets you run RESTful API, GraphQL, or database queries within connected data sources.
 
-🚀 **JavaScript code support**. You can use JavaScript inside `{{ }}` anywhere in Appsmith. You can reference every entity in Appsmith as a JavaScript variable and perform all JavaScript functions and operations on them. Our in-built JS editor gives the full IDE experience with multiline editing, autocomplete, linting and debugging.
+🚀 **JavaScript code support**. You can use JavaScript inside `{{ }}` anywhere in Appsmith. You can reference every entity in Appsmith as a JavaScript variable and perform all JavaScript functions and operations on them. Our in-built JS editor gives the full IDE experience with multiline editing, autocomplete, linting. and debugging.
 
-🔄 **Version control with Git** allows multiple developers to add their work in a git branch, raise a pull request for code reviews, integrate with CI/CD pipelines, and provide a commit history to go back to a previous version if something were to go wrong. You can connect to any popular version control tool of our liking: GitHub, Gitlab, Bitbucket, AWS Code Commit and more.
+🔄 **Version control with Git** allows multiple developers to add their work in a git branch, raise a pull request for code reviews, integrate with CI/CD pipelines, and provide a commit history to go back to a previous version if something were to go wrong. You can connect to any popular version control tool of our liking: GitHub, Gitlab, Bitbucket, AWS Code Commit, and more.
 
 🎨 **App theming** to style your app pages and widgets and to customize the visual layout of your app in one click.
 
 ⚙️ **Access control** available to assign different roles to different team members while sharing the app. Appsmith implements RBAC by assigning a set of permissions to different user roles. These permissions determine the actions users can take on the platform. You can allow external users to access applications built using Appsmith by inviting them to the workspace.
 
-🔑 [**Solid 256-bit encryption**](https://docs.appsmith.com/security?utm_source=github&utm_medium=organic&utm_campaign=readme). Appsmith apps are secure by default. All connections are TLS-encrypted, and credentials are encrypted with AES-256 so we can't see any of your data. For added security, try our [self-hosted options](https://docs.appsmith.com/setup?utm_source=github&utm_medium=organic&utm_campaign=readme&utm_content=features).
+🔑 [**Solid 256-bit encryption**](https://docs.appsmith.com/security?utm_source=github&utm_medium=organic&utm_campaign=readme). Appsmith apps are secure by default. All connections are TLS-encrypted, and credentials are encrypted with AES-256, so we can't see any of your data. For added security, try our [self-hosted options](https://docs.appsmith.com/setup?utm_source=github&utm_medium=organic&utm_campaign=readme&utm_content=features).
 
 [![Watch the video](https://img.youtube.com/vi/Dxe_NzdGzL4/maxresdefault.jpg)](https://youtu.be/Dxe_NzdGzL4)
 
