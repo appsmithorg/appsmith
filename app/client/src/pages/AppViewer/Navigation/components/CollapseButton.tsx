@@ -6,14 +6,20 @@ import {
 import classNames from "classnames";
 import { TooltipComponent } from "design-system-old";
 import React from "react";
-import { ReactComponent as UnpinIcon } from "assets/icons/ads/double-arrow-right.svg";
-import { ReactComponent as PinIcon } from "assets/icons/ads/double-arrow-left.svg";
 import type { NavigationSetting } from "constants/AppConstants";
 import {
   CollapseIconContainer,
   StyledIconContainer,
   TooltipStyles,
 } from "./CollapseButton.styled";
+import { importSvg } from "design-system-old";
+
+const UnpinIcon = importSvg(
+  () => import("assets/icons/ads/double-arrow-right.svg"),
+);
+const PinIcon = importSvg(
+  () => import("assets/icons/ads/double-arrow-left.svg"),
+);
 
 type CollapseButtonProps = {
   borderRadius: string;

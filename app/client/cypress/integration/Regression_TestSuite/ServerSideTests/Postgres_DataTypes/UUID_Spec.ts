@@ -414,27 +414,17 @@ describe("UUID Datatype tests", function () {
   it("15. Verify Deletion of all created queries", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.ExpandCollapseEntity("Queries/JS");
-    ee.ActionContextMenuByEntityName("createTable", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName(
-      "deleteAllRecords",
-      "Delete",
-      "Are you sure?",
+    ee.GetEntityNamesInSection("Queries/JS", ".t--action-entity").then(
+      (entityNames) => {
+        for (const entityName of entityNames) {
+          ee.ActionContextMenuByEntityName(
+            entityName,
+            "Delete",
+            "Are you sure?",
+          );
+        }
+      },
     );
-    ee.ActionContextMenuByEntityName("deleteRecord", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("dropTable", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("insertRecord", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName(
-      "selectRecords",
-      "Delete",
-      "Are you sure?",
-    );
-    ee.ActionContextMenuByEntityName("updateRecord", "Delete", "Are you sure?");
-
-    //Deleting APi's also
-    ee.ActionContextMenuByEntityName("guid", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("nill", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("version4", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("version1", "Delete", "Are you sure?");
   });
 
   it("16. Verify Deletion of datasource", () => {

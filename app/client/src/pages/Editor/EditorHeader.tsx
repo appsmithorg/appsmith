@@ -83,14 +83,11 @@ import {
   SHARE_BUTTON_TOOLTIP_WITH_USER,
 } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import { ReactComponent as MenuIcon } from "assets/icons/header/hamburger.svg";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import {
   setExplorerActiveAction,
   setExplorerPinnedAction,
 } from "actions/explorerActions";
-import { ReactComponent as UnpinIcon } from "assets/icons/ads/double-arrow-right.svg";
-import { ReactComponent as PinIcon } from "assets/icons/ads/double-arrow-left.svg";
 import { modText } from "utils/helpers";
 import Boxed from "./GuidedTour/Boxed";
 import EndTour from "./GuidedTour/EndTour";
@@ -101,6 +98,15 @@ import EmbedSnippetForm from "@appsmith/pages/Applications/EmbedSnippetTab";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { importSvg } from "design-system-old";
+
+const MenuIcon = importSvg(() => import("assets/icons/header/hamburger.svg"));
+const UnpinIcon = importSvg(
+  () => import("assets/icons/ads/double-arrow-right.svg"),
+);
+const PinIcon = importSvg(
+  () => import("assets/icons/ads/double-arrow-left.svg"),
+);
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -244,7 +250,12 @@ type EditorHeaderProps = {
 };
 
 const GlobalSearch = lazy(() => {
-  return retryPromise(() => import("components/editorComponents/GlobalSearch"));
+  return retryPromise(
+    () =>
+      import(
+        /* webpackChunkName: "global-search" */ "components/editorComponents/GlobalSearch"
+      ),
+  );
 });
 
 export function ShareButtonComponent() {
