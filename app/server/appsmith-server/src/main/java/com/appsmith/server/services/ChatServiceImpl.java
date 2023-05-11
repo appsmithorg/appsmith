@@ -41,7 +41,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public Mono<ChatGenerationResponseDTO> generateCode(ChatGenerationDTO chatGenerationDTO, ChatGenerationType type) {
-        Mono<Boolean> featureFlagMono = this.featureFlagService.check(FeatureFlagEnum.CHAT_AI)
+        Mono<Boolean> featureFlagMono = this.featureFlagService.check(FeatureFlagEnum.ask_ai)
                 .filter(isAllowed -> isAllowed)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)));
 

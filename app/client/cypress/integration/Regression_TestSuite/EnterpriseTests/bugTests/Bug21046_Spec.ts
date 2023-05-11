@@ -25,20 +25,22 @@ describe("Validates role assigned to user on providing access to workspace", fun
         "Instance Administrator Role",
         "contain.text",
       );
-      _.agHelper.GetElement(".user-email-column").each(function ($user) {
-        username = $user.text().slice(1);
-        if (username != Cypress.env("USERNAME")) {
-          _.agHelper.GetNAssertElementText(
-            _.adminSettings._roles(username),
-            "Administrator",
-            "contain.text",
-          );
-          _.agHelper.GetNAssertElementText(
-            _.adminSettings._roles(username),
-            "Default Role For All Users",
-            "contain.text",
-          );
-        }
+      [
+        Cypress.env("TESTUSERNAME1").toLowerCase(),
+        Cypress.env("TESTUSERNAME2").toLowerCase(),
+        Cypress.env("TESTUSERNAME3").toLowerCase(),
+        Cypress.env("TESTUSERNAME4").toLowerCase(),
+      ].forEach(function (user) {
+        _.agHelper.GetNAssertElementText(
+          _.adminSettings._roles(user),
+          "Administrator",
+          "contain.text",
+        );
+        _.agHelper.GetNAssertElementText(
+          _.adminSettings._roles(user),
+          "Default Role For All Users",
+          "contain.text",
+        );
       });
     });
   });

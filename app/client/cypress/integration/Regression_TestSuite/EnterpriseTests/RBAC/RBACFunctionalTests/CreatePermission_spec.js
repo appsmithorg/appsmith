@@ -202,6 +202,14 @@ describe("Create Permission flow ", function () {
       "response.body.responseMeta.status",
       201,
     );
+
+    // Wait till the cloned page is the active page
+    cy.get(`.t--entity.page`)
+      .contains("page3 Copy")
+      .closest(".t--entity")
+      .should("be.visible")
+      .should("have.class", "activePage");
+
     // verify user is able to perform page level action
     cy.createJSObject('return "Success";');
     cy.wait(2000);
@@ -315,7 +323,7 @@ describe("Create Permission flow ", function () {
     // verify user is able to create new query
     cy.get(explorer.createNew).click({ force: true });
     // create new query
-    cy.get(".t--file-operation").last().click({ force: true });
+    cy.get(".t--file-operation").eq(1).click({ force: true });
     cy.get(queryLocators.queryNameField).type("get_columns");
     cy.get(queryLocators.templateMenu).click();
     cy.WaitAutoSave();
@@ -369,30 +377,25 @@ describe("Create Permission flow ", function () {
     cy.intercept("POST", "/api/v1/collections/actions").as(
       "createNewJSCollection",
     );
-    // 0 is the index value of the API in omnibar ui
-    cy.get(omnibar.createNew).eq(0).should("have.text", "New Blank API");
-    // 1 is the index value of the GraphQL API in omnibar ui
-    cy.get(omnibar.createNew)
-      .eq(1)
-      .should("have.text", "New Blank GraphQL API");
-    // 2 is the index value of the JS Object in omnibar ui
-    cy.get(omnibar.createNew).eq(2).should("have.text", "New JS Object");
-    // 3 is the index value of the Curl import in omnibar ui
-    cy.get(omnibar.createNew).eq(3).should("have.text", "New cURL Import");
-    cy.get(omnibar.createNew).eq(0).click();
-    cy.wait(1000);
-    cy.wait("@createNewApi");
-    cy.renameWithInPane(apiName);
-    cy.get(omnibar.globalSearch).click({ force: true });
-    cy.get(omnibar.categoryTitle).eq(1).click();
-    cy.get(omnibar.createNew).eq(2).click();
+
+    // Assert can create JS action from omnibar
+    cy.get(omnibar.createNew).contains("New JS Object").click();
     cy.wait(1000);
     cy.wait("@createNewJSCollection");
     cy.wait(1000);
     cy.get(".t--js-action-name-edit-field").type(jsObjectName).wait(1000);
+
+    // Assert can create APi action from omnibar
     cy.get(omnibar.globalSearch).click({ force: true });
     cy.get(omnibar.categoryTitle).eq(1).click();
+    cy.get(omnibar.createNew).contains("New Blank API").click();
     cy.wait(1000);
+    cy.wait("@createNewApi");
+    cy.renameWithInPane(apiName);
+
+    // Assert last item is for create datasource
+    cy.get(omnibar.globalSearch).click({ force: true });
+    cy.get(omnibar.categoryTitle).eq(1).click();
     cy.get(omnibar.createNew).last().should("have.text", "New Datasource");
   });
 

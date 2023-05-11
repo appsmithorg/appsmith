@@ -16,7 +16,7 @@ public interface FeatureFlagServiceCE {
      * @param user
      * @return Boolean
      */
-    Boolean check(FeatureFlagEnum featureEnum, User user);
+    Mono<Boolean> check(FeatureFlagEnum featureEnum, User user);
 
     /**
      * Check if a particular feature is enabled for the current logged in user. Useful in chaining reactive functions
@@ -26,6 +26,8 @@ public interface FeatureFlagServiceCE {
      * @return Mono<Boolean>
      */
     Mono<Boolean> check(FeatureFlagEnum featureEnum);
+
+    Boolean check(String featureName, User user);
 
     /**
      * Fetch all the flags and their values for the current logged in user

@@ -26,7 +26,7 @@ export function GPTTrigger() {
   const featureFlags = useSelector(selectFeatureFlags);
   let hide =
     !["jsEditor", "canvas", "queryEditor"].includes(pageType || "") ||
-    !featureFlags.CHAT_AI;
+    !featureFlags.ask_ai;
   const windowOpen = useSelector(selectIsAIWindowOpen);
   if (pageType === "queryEditor") {
     const action = actions.find((action) => action.config.id === id);
@@ -37,7 +37,10 @@ export function GPTTrigger() {
   }
 
   const toggleWindow = () => {
-    dispatch({ type: ReduxActionTypes.TOGGLE_AI_WINDOW, payload: !windowOpen });
+    dispatch({
+      type: ReduxActionTypes.TOGGLE_AI_WINDOW,
+      payload: { show: !windowOpen },
+    });
   };
   return (
     <div
