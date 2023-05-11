@@ -8,7 +8,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { ListWidgetProps } from ".";
 import { getBindingTemplate } from "../constants";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import {
   LIST_WIDGET_V2_TOTAL_RECORD_TOOLTIP,
   createMessage,

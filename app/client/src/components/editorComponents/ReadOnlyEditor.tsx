@@ -1,7 +1,6 @@
 import type { ChangeEvent } from "react";
 import React from "react";
 import type { EditorProps } from "components/editorComponents/CodeEditor";
-import CodeEditor from "components/editorComponents/CodeEditor";
 import {
   CodeEditorBorder,
   EditorModes,
@@ -9,6 +8,7 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
+import LazyCodeEditor from "./LazyCodeEditor";
 
 interface Props {
   input: {
@@ -44,7 +44,7 @@ function ReadOnlyEditor(props: Props) {
     containerHeight: props.containerHeight,
     border: CodeEditorBorder.NONE,
   };
-  return <CodeEditor {...editorProps} />;
+  return <LazyCodeEditor {...editorProps} />;
 }
 
 export default ReadOnlyEditor;
