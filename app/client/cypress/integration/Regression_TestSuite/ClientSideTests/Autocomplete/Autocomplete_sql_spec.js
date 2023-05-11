@@ -2,7 +2,7 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-locator = ObjectsRegistry.CommonLocators;
+const locator = ObjectsRegistry.CommonLocators;
 let datasourceName;
 
 describe("SQL Autocompletion", function () {
