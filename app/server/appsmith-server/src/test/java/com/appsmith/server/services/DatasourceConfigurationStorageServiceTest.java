@@ -54,8 +54,10 @@ public class DatasourceConfigurationStorageServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void verifyFindOneByDatasourceId() {
+    public void verifyFindOneDatasourceConfigurationByDatasourceId() {
         String datasourceId = "mockDatasourceId";
+        Datasource datasource = new Datasource();
+        datasource.setId(datasourceId);
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setEndpoints(List.of(new Endpoint("mockEndpoints", 000L)));
         DatasourceConfigurationStorage datasourceConfigurationStorage =
@@ -64,53 +66,13 @@ public class DatasourceConfigurationStorageServiceTest {
         DatasourceConfigurationStorage savedDatasourceConfigurationStorage =
                 datasourceConfigurationStorageRepository.save(datasourceConfigurationStorage).block();
 
-        Mono<DatasourceConfigurationStorage> datasourceConfigurationStorageMono =
-                datasourceConfigurationStorageService.findOneByDatasourceId(datasourceId);
+        Mono<DatasourceConfiguration> datasourceConfigurationMono =
+                datasourceConfigurationStorageService.findOneDatasourceConfigurationByDatasourceId(datasource);
 
-        StepVerifier.create(datasourceConfigurationStorageMono)
-                .assertNext(datasourceConfigurationStorage1 -> {
-                    assertThat(datasourceConfigurationStorage1).isNotNull();
-                    assertThat(datasourceId).isEqualTo(datasourceConfigurationStorage1.getDatasourceId());
-                    assertThat(datasourceConfigurationStorage1.getDatasourceConfiguration().getEndpoints().size()).isEqualTo(1);
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void verifyFindByDatasourceId() {
-
-        String datasourceId = "mockDatasourceId";
-        Datasource datasource = new Datasource();
-        datasource.setId(datasourceId);
-        String environmentIdOne = "mockEnvironmentIdOne";
-        String environmentIdTwo = "mockEnvironmentIdTwo";
-        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        datasourceConfiguration.setEndpoints(List.of(new Endpoint("mockEndpoints", 000L)));
-        DatasourceConfigurationStorage datasourceConfigurationStorageOne =
-                new DatasourceConfigurationStorage(datasourceId, environmentIdOne, datasourceConfiguration, null, null);
-
-        DatasourceConfigurationStorage datasourceConfigurationStorageTwo =
-                new DatasourceConfigurationStorage(datasourceId, environmentIdTwo, datasourceConfiguration, null, null);
-
-
-        datasourceConfigurationStorageRepository.save(datasourceConfigurationStorageOne).block();
-        datasourceConfigurationStorageRepository.save(datasourceConfigurationStorageTwo).block();
-
-        Flux<DatasourceConfigurationStorage> datasourceConfigurationStorageFlux =
-                datasourceConfigurationStorageService.findByDatasourceId(datasource)
-                        .sort(Comparator.comparing(DatasourceConfigurationStorage::getEnvironmentId));
-
-        StepVerifier.create(datasourceConfigurationStorageFlux)
-                .assertNext(datasourceConfigurationStorage -> {
-                    assertThat(datasourceConfigurationStorage).isNotNull();
-                    assertThat(datasourceId).isEqualTo(datasourceConfigurationStorage.getDatasourceId());
-                    assertThat(environmentIdOne).isEqualTo(datasourceConfigurationStorage.getEnvironmentId());
-                })
-                .assertNext(datasourceConfigurationStorage -> {
-                    assertThat(datasourceConfigurationStorage).isNotNull();
-                    assertThat(datasourceId).isEqualTo(datasourceConfigurationStorage.getDatasourceId());
-                    assertThat(environmentIdTwo).isEqualTo(datasourceConfigurationStorage.getEnvironmentId());
+        StepVerifier.create(datasourceConfigurationMono)
+                .assertNext(datasourceConfiguration1 -> {
+                    assertThat(datasourceConfiguration1).isNotNull();
+                    assertThat(datasourceConfiguration1.getEndpoints().size()).isEqualTo(1);
                 })
                 .verifyComplete();
     }

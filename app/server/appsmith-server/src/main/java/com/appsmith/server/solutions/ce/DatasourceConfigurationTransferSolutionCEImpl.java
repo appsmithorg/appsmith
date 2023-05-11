@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceConfigurationStorage;
 import com.appsmith.server.repositories.DatasourceConfigurationStorageRepository;
 import com.appsmith.server.services.DatasourceConfigurationStorageService;
@@ -9,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.HashSet;
 
@@ -28,7 +30,7 @@ public class DatasourceConfigurationTransferSolutionCEImpl implements Datasource
 
     @Transactional
     @Override
-    public Mono<DatasourceConfigurationStorage> createDatasourceStorageAndDeleteDatasourceConfiguration(
+    public Mono<DatasourceConfiguration> createDatasourceStorageAndGetDatasourceConfiguration(
             Datasource datasource, String environmentId) {
         if (datasource.getDatasourceConfiguration() == null) {
             // here, we don't have datasource configuration in datasource collection or datasourceConfigurationStorage collection
@@ -47,10 +49,11 @@ public class DatasourceConfigurationTransferSolutionCEImpl implements Datasource
         datasource.setDatasourceConfiguration(null);
         datasource.setHasDatasourceConfigurationStorage(true);
 
-        return datasourceConfigurationStorageRepository.save(datasourceConfigurationStorage)
-                .flatMap(datasourceConfigurationStorage1 -> {
-                    return datasourceService.save(datasource)
-                            .thenReturn(datasourceConfigurationStorage1);
-                });
+        Mono.zip(datasourceConfigurationStorageRepository.save(datasourceConfigurationStorage),
+                        datasourceService.save(datasource))
+                .subscribeOn(Schedulers.boundedElastic())
+                .subscribe();
+
+        return Mono.just(datasourceConfigurationStorage.getDatasourceConfiguration());
     }
 }

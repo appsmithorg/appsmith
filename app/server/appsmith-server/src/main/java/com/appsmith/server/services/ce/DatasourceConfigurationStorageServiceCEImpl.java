@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceConfigurationStorage;
 import com.appsmith.server.repositories.DatasourceConfigurationStorageRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -32,20 +33,16 @@ public class DatasourceConfigurationStorageServiceCEImpl implements DatasourceCo
     }
 
     @Override
-    public Flux<DatasourceConfigurationStorage> findByDatasourceId(Datasource datasource) {
-        return repository.findByDatasourceId(datasource.getId())
-                .switchIfEmpty(datasourceConfigurationTransferSolution
-                        .createDatasourceStorageAndDeleteDatasourceConfiguration(datasource, null));
-    }
-
-    @Override
     public Flux<DatasourceConfigurationStorage> findAllByDatasourceIds(List<String> datasourceIds) {
         return repository.findAllByDatasourceIds(datasourceIds);
     }
 
     @Override
-    public Mono<DatasourceConfigurationStorage> findOneByDatasourceId(String datasourceId) {
-        return repository.findOneByDatasourceId(datasourceId);
+    public Mono<DatasourceConfiguration> findOneDatasourceConfigurationByDatasourceId(Datasource datasource) {
+        return repository.findOneByDatasourceId(datasource.getId())
+                .map(DatasourceConfigurationStorage::getDatasourceConfiguration)
+                .switchIfEmpty(datasourceConfigurationTransferSolution
+                        .createDatasourceStorageAndGetDatasourceConfiguration(datasource, null));
     }
 
     @Override
