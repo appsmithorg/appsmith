@@ -233,7 +233,7 @@ const ActionsWrapper = styled.div`
   align-items: center;
   flex: 1 1 50%;
   justify-content: flex-end;
-  gap: var(--ads-v2-spaces-5);
+  gap: var(--ads-v2-spaces-3);
 `;
 
 const DropdownSelect = styled.div`
