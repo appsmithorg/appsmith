@@ -10,6 +10,7 @@ import {
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
 import {
+  actionToCode,
   codeToAction,
   getCodeFromMoustache,
 } from "components/editorComponents/ActionCreator/utils";
@@ -24,6 +25,7 @@ import keyBy from "lodash/keyBy";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getApiQueriesAndJSActionOptionsWithChildren } from "components/editorComponents/ActionCreator/helpers";
 import { selectEvaluationVersion } from "@appsmith/selectors/applicationSelectors";
+import { compareCodeBlockASTs } from "@shared/ast";
 
 class ActionSelectorControl extends BaseControl<ControlProps> {
   componentRef = React.createRef<HTMLDivElement>();
@@ -129,8 +131,22 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
 
     try {
       const blocks = getActionBlocks(codeFromProperty, evaluationVersion);
-      for (const block of blocks) {
-        codeToAction(block, fieldOptions, true, true);
+      for (const codeBlock of blocks) {
+        // Action Tree is the intermediate representation of the code block
+        // If converting the code block to action tree and then back to code block
+        // results in the same code block, then the code block can be displayed in UI
+        const actionTree = codeToAction(codeBlock, fieldOptions, true, true);
+        const codeFromActionTree = actionToCode(actionTree);
+
+        const isSame = compareCodeBlockASTs(
+          codeBlock,
+          codeFromActionTree,
+          evaluationVersion,
+        );
+
+        if (!isSame) {
+          return false;
+        }
       }
     } catch (e) {
       return false;

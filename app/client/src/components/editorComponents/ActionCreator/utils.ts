@@ -22,10 +22,11 @@ import {
 } from "@shared/ast";
 import type { TreeDropdownOption } from "design-system-old";
 import type { TActionBlock } from "./types";
-import { AppsmithFunction, DEFAULT_LABELS } from "./constants";
+import { AppsmithFunction, DEFAULT_LABELS, FieldType } from "./constants";
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
 import store from "store";
 import { selectEvaluationVersion } from "@appsmith/selectors/applicationSelectors";
+import { FIELD_CONFIG } from "./Field/FieldConfig";
 
 export const stringToJS = (string: string): string => {
   const { jsSnippets, stringSegments } = getDynamicBindings(string);
@@ -290,6 +291,15 @@ export function codeToAction(
 
   if (strict) {
     if (mainActionType === AppsmithFunction.none) {
+      throw new Error("Invalid action detected");
+    }
+
+    // In the action selector field, if we can't find the selected option,
+    // it means, we can't render that action correctly in the UI
+    const fieldConfig = FIELD_CONFIG[FieldType.ACTION_SELECTOR_FIELD];
+    const selectedOptionValue = fieldConfig.getter(jsCode);
+
+    if (!selectedOptionValue) {
       throw new Error("Invalid action detected");
     }
   }

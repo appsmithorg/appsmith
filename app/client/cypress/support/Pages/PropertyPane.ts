@@ -429,4 +429,10 @@ export class PropertyPane {
     this.UpdatePropertyFieldValue(property, "");
     cy.get(this.locator._jsToggle(property.toLowerCase())).click();
   }
+
+  public AssertJSToggleDisabled(property: string) {
+    cy.get(this.locator._jsToggle(property.toLowerCase())).should(
+      "be.disabled",
+    );
+  }
 }

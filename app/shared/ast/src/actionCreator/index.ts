@@ -1261,3 +1261,21 @@ export function checkIfArgumentExistAtPosition(code: string, position: number, e
         return false;
     }
 }
+
+export function compareCodeBlockASTs(firstBlock: string, secondBlock: string, evaluationVersion: number) {
+    try {
+        const sanitizedFirstBlock = sanitizeScript(firstBlock, evaluationVersion);
+        const sanitizedSecondBlock = sanitizeScript(secondBlock, evaluationVersion);
+        const firstAST = getAST(sanitizedFirstBlock, {
+            locations: true,
+            ranges: true,
+        });
+        const secondAST = getAST(sanitizedSecondBlock, {
+            locations: true,
+            ranges: true,
+        });
+        return generate(firstAST) === generate(secondAST);
+    } catch(e) {
+        return false;
+    }
+}
