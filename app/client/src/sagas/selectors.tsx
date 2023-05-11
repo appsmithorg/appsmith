@@ -6,7 +6,7 @@ import type {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetProps } from "widgets/BaseWidget";
-import _, { omit } from "lodash";
+import _, { defaults, omit } from "lodash";
 import type { WidgetType } from "constants/WidgetConstants";
 import { WIDGET_PROPS_TO_SKIP_FROM_EVAL } from "constants/WidgetConstants";
 import type { ActionData } from "reducers/entityReducers/actionsReducer";
@@ -40,12 +40,19 @@ export const getMetaWidgets = (state: AppState): MetaWidgetsReduxState => {
   return state.entities.metaWidgets;
 };
 
+export const getCanvasAndMetaWidgets = createSelector(
+  getWidgets,
+  getMetaWidgets,
+  (canvasWidget, metaWidget) => defaults({}, canvasWidget, metaWidget),
+);
+
 export const getWidgetsMeta = (state: AppState) => state.entities.meta;
 
 export const getWidgetMetaProps = createSelector(
   [getWidgetsMeta, (_state: AppState, widget: WidgetProps) => widget],
-  (metaState, widget: WidgetProps) =>
-    metaState[widget.metaWidgetId || widget.widgetId],
+  (metaState, widget: WidgetProps) => {
+    return metaState[widget.metaWidgetId || widget.widgetId];
+  },
 );
 
 export const getWidgetByID = (widgetId: string) => {
@@ -83,14 +90,10 @@ export const getDataTreeForActionCreator = memoize((state: AppState) => {
   const dataTree: DataTreeForActionCreator = {};
   Object.keys(state.evaluations.tree).forEach((key) => {
     const value: any = state.evaluations.tree[key];
-    if (value.meta)
-      dataTree[key] = {
-        meta: value.meta,
-      };
-    if (value.ENTITY_TYPE)
-      dataTree[key] = {
-        ENTITY_TYPE: value.ENTITY_TYPE,
-      };
+    dataTree[key] = {
+      meta: value?.meta || null,
+      ENTITY_TYPE: value?.ENTITY_TYPE || null,
+    };
   });
   return dataTree;
 });

@@ -30,11 +30,12 @@ describe("Guided Tour", function () {
     _.dataSources.SetQueryTimeout();
     // Step 1: Run query
     _.dataSources.RunQuery();
+    _.debuggerHelper.ClickDebuggerIcon();
     cy.get(guidedTourLocators.successButton).click();
     // Step 2: Select table widget
     cy.SearchEntityandOpen("CustomersTable");
     // Step 3: Add binding to the tableData property
-    _.propPane.UpdatePropertyFieldValue("Table Data", "{{getCustomers.data}}");
+    _.propPane.UpdatePropertyFieldValue("Table data", "{{getCustomers.data}}");
     cy.get(guidedTourLocators.successButton).click();
     cy.get(guidedTourLocators.infoButton).click();
     // Renaming widgets // Commending below wait due to flakiness
@@ -91,23 +92,24 @@ describe("Guided Tour", function () {
     cy.get(guidedTourLocators.successButton).click();
     cy.get(guidedTourLocators.infoButton).click();
     // Step 7: Execute a query onClick
-    cy.executeDbQuery("updateCustomerInfo");
+    cy.executeDbQuery("updateCustomerInfo", "onClick");
     // Step 8: Execute getCustomers onSuccess
-    cy.get(
-      `.t--property-control-onclick [data-guided-tour-iid='onSuccess'] ${commonlocators.dropdownSelectButton}`,
-    )
-      .eq(0)
-      .click({ force: true })
-      .wait(500)
-      .get("ul.bp3-menu")
-      .children()
-      .contains("Execute a query")
+    _.propPane.SelectActionByTitleAndValue(
+      "Execute a query",
+      "updateCustomerInfo.run",
+    ),
+      cy.get(_.propPane._actionCallbacks).click();
+    cy.get(_.propPane._actionAddCallback("success")).click().wait(500);
+    cy.get(_.locators._dropDownValue("Execute a query"))
       .click()
       .wait(500)
       .get("ul.bp3-menu")
       .children()
       .contains("getCustomers")
-      .click({ force: true });
+      .click({ force: true })
+      .wait(500);
+    _.agHelper.GetNClick(_.propPane._actionSelectorPopupClose);
+
     cy.get(guidedTourLocators.successButton).click();
     // Step 9: Deploy
     cy.PublishtheApp();

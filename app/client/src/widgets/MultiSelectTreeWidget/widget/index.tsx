@@ -12,14 +12,18 @@ import type { DefaultValueType } from "rc-tree-select/lib/interface";
 import type { CheckedStrategy } from "rc-tree-select/lib/utils/strategyUtil";
 import type { ReactNode } from "react";
 import React from "react";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
 import MultiTreeSelectComponent from "../component";
 import derivedProperties from "./parseDerivedProperties";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   let values: string[] = [];
@@ -49,6 +53,28 @@ class MultiSelectTreeWidget extends BaseWidget<
   MultiSelectTreeWidgetProps,
   WidgetState
 > {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Multi TreeSelect is used to capture user inputs from a specified list of permitted inputs/Nested Inputs. A TreeSelect can capture a single choice as well as multiple choices",
+      "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      selectedOptionValues: {
+        "!type": "[string]",
+        "!doc": "The array of values selected in a treeselect dropdown",
+        "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+      },
+      selectedOptionLabels: {
+        "!type": "[string]",
+        "!doc": "The array of selected option labels in a treeselect dropdown",
+        "!url": "https://docs.appsmith.com/widget-reference/treeselect",
+      },
+      isDisabled: "bool",
+      isValid: "bool",
+      options: "[$__dropdownOption__$]",
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -128,7 +154,7 @@ class MultiSelectTreeWidget extends BaseWidget<
           {
             helpText: "Selects the option with value by default",
             propertyName: "defaultOptionValue",
-            label: "Default Selected Values",
+            label: "Default selected values",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter option value",
             isBindProperty: true,
@@ -166,6 +192,7 @@ class MultiSelectTreeWidget extends BaseWidget<
             label: "Position",
             controlType: "ICON_TABS",
             fullWidth: true,
+            hidden: isAutoLayout,
             options: [
               { label: "Auto", value: LabelPosition.Auto },
               { label: "Left", value: LabelPosition.Left },
@@ -181,13 +208,14 @@ class MultiSelectTreeWidget extends BaseWidget<
             propertyName: "labelAlignment",
             label: "Alignment",
             controlType: "LABEL_ALIGNMENT_OPTIONS",
+            fullWidth: false,
             options: [
               {
-                icon: "LEFT_ALIGN",
+                startIcon: "align-left",
                 value: Alignment.LEFT,
               },
               {
-                icon: "RIGHT_ALIGN",
+                startIcon: "align-right",
                 value: Alignment.RIGHT,
               },
             ],
@@ -302,7 +330,7 @@ class MultiSelectTreeWidget extends BaseWidget<
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -313,7 +341,7 @@ class MultiSelectTreeWidget extends BaseWidget<
           },
           {
             propertyName: "allowClear",
-            label: "Allow Clearing Value",
+            label: "Allow clearing value",
             helpText: "Enables Icon to clear all Selections",
             controlType: "SWITCH",
             isJSConvertible: true,
@@ -323,7 +351,7 @@ class MultiSelectTreeWidget extends BaseWidget<
           },
           {
             propertyName: "expandAll",
-            label: "Expand all by Default",
+            label: "Expand all by default",
             helpText: "Expand All nested options",
             controlType: "SWITCH",
             isJSConvertible: true,
@@ -333,12 +361,11 @@ class MultiSelectTreeWidget extends BaseWidget<
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when a user selects an option",
+            helpText: "when a user selects an option",
             propertyName: "onOptionChange",
             label: "onOptionChange",
             controlType: "ACTION_SELECTOR",
@@ -347,7 +374,7 @@ class MultiSelectTreeWidget extends BaseWidget<
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the dropdown opens",
+            helpText: "when the dropdown opens",
             propertyName: "onDropdownOpen",
             label: "onDropdownOpen",
             controlType: "ACTION_SELECTOR",
@@ -356,7 +383,7 @@ class MultiSelectTreeWidget extends BaseWidget<
             isTriggerProperty: true,
           },
           {
-            helpText: "Triggers an action when the dropdown closes",
+            helpText: "when the dropdown closes",
             propertyName: "onDropdownClose",
             label: "onDropdownClose",
             controlType: "ACTION_SELECTOR",
@@ -372,11 +399,11 @@ class MultiSelectTreeWidget extends BaseWidget<
   static getPropertyPaneStyleConfig() {
     return [
       {
-        sectionName: "Label Styles",
+        sectionName: "Label styles",
         children: [
           {
             propertyName: "labelTextColor",
-            label: "Font Color",
+            label: "Font color",
             helpText: "Control the color of the label associated",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
@@ -386,10 +413,11 @@ class MultiSelectTreeWidget extends BaseWidget<
           },
           {
             propertyName: "labelTextSize",
-            label: "Font Size",
+            label: "Font size",
             helpText: "Control the font size of the label associated",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
+            hidden: isAutoLayout,
             options: [
               {
                 label: "S",
@@ -434,11 +462,11 @@ class MultiSelectTreeWidget extends BaseWidget<
             controlType: "BUTTON_GROUP",
             options: [
               {
-                icon: "BOLD_FONT",
+                icon: "text-bold",
                 value: "BOLD",
               },
               {
-                icon: "ITALICS_FONT",
+                icon: "text-italic",
                 value: "ITALIC",
               },
             ],
@@ -450,11 +478,11 @@ class MultiSelectTreeWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Border and Shadow",
+        sectionName: "Border and shadow",
         children: [
           {
             propertyName: "accentColor",
-            label: "Accent Color",
+            label: "Accent color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -464,7 +492,7 @@ class MultiSelectTreeWidget extends BaseWidget<
           },
           {
             propertyName: "borderRadius",
-            label: "Border Radius",
+            label: "Border radius",
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
@@ -476,7 +504,7 @@ class MultiSelectTreeWidget extends BaseWidget<
           },
           {
             propertyName: "boxShadow",
-            label: "Box Shadow",
+            label: "Box shadow",
             helpText:
               "Enables you to cast a drop shadow from the frame of the widget",
             controlType: "BOX_SHADOW_OPTIONS",

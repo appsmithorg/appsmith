@@ -1,9 +1,8 @@
 import React from "react";
-import { SearchInput } from "design-system-old";
 import styled, { createGlobalStyle } from "styled-components";
 import { useHistory } from "react-router-dom";
 import { truncateTextUsingEllipsis } from "constants/DefaultTheme";
-import { Button } from "design-system";
+import { Link, Text } from "design-system";
 
 export const HelpPopoverStyle = createGlobalStyle`
   .bp3-portal {
@@ -20,34 +19,13 @@ export const HelpPopoverStyle = createGlobalStyle`
   }
 `;
 
-export const StyledBackButton = styled(Button)`
+export const StyledBackLink = styled(Link)`
   display: inline-flex;
-  margin: 0 0 20px 8px;
+  margin: 0 0 var(--ads-v2-spaces-7) 0;
 `;
 
-export const StyledSearchInput = styled(SearchInput)`
-  > div {
-    border-radius: 1px;
-    border: 1px solid var(--appsmith-color-black-250);
-    color: var(--appsmith-color-black-700);
-    box-shadow: none;
-    margin: 0 16px 0 0;
-
-    &:active,
-    &:hover,
-    &:focus {
-      border: 1px solid var(--appsmith-color-black-250);
-      box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.06),
-        0px 1px 3px rgba(0, 0, 0, 0.1);
-    }
-  }
-`;
-
-export const SettingsHeader = styled.h2`
-  padding: 0px 8px;
-  font-size: 24px;
-  font-weight: 500;
-  text-transform: capitalize;
+export const SettingsHeader = styled(Text)`
+  padding: 0px 8px 0 0;
   margin-bottom: 0px;
   width: 365px;
   ${truncateTextUsingEllipsis}
@@ -56,7 +34,7 @@ export const SettingsHeader = styled.h2`
 export const StickyHeader = styled.div`
   position: sticky;
   top: 0;
-  background: var(--appsmith-color-black-0);
+  background: var(--ads-v2-color-bg);
   padding-bottom: 8px;
   z-index: 4;
 `;
@@ -64,7 +42,8 @@ export const StickyHeader = styled.div`
 export function BackButton({ goTo }: { goTo?: string }) {
   const history = useHistory();
 
-  const onBack = () => {
+  const onBack = (e: any) => {
+    e.preventDefault();
     if (goTo) {
       history.push(goTo);
       return;
@@ -73,14 +52,13 @@ export function BackButton({ goTo }: { goTo?: string }) {
   };
 
   return (
-    // TODO (tanvi): probably have to replace this with a link
-    <StyledBackButton
+    <StyledBackLink
       className="t--admin-settings-back-button"
-      kind="tertiary"
-      onClick={onBack}
-      startIcon="chevron-left"
+      kind="secondary"
+      onClick={(e) => onBack(e)}
+      startIcon="back-control"
     >
       Back
-    </StyledBackButton>
+    </StyledBackLink>
   );
 }

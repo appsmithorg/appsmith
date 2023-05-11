@@ -39,7 +39,7 @@ describe("Switch column type funtionality test", () => {
     });
     cy.openPropertyPane("tablewidgetv2");
     propPane.RemoveText("tabledata");
-    propPane.UpdatePropertyFieldValue("Table Data", tableData);
+    propPane.UpdatePropertyFieldValue("Table data", tableData);
     cy.editColumn("completed");
     cy.changeColumnType("Switch");
   });
@@ -117,13 +117,13 @@ describe("Switch column type funtionality test", () => {
       cy.get(selector).should("be.checked");
 
       // Check if onCheckChange is availabe when Editable is true and hidden on false
-      cy.get(".t--property-control-onchange").should("be.visible");
+      cy.get(".t--add-action-onChange").should("be.visible");
       propPane.ToggleOnOrOff("Editable", "off");
-      cy.get(".t--property-control-onchange").should("not.exist");
+      cy.get(".t--add-action-onChange").should("not.exist");
 
       // Verify on check change handler
       propPane.ToggleOnOrOff("Editable");
-      propPane.SelectPropertiesDropDown("onchange", "Show message");
+      propPane.SelectPlatformFunction("onChange", "Show Alert");
       agHelper.EnterActionValue("Message", "This is a test message");
       cy.get(selector).click({ force: true }); // unChecked
       cy.wait(100);
@@ -169,7 +169,7 @@ describe("Switch column type funtionality test", () => {
     cy.editColumn("customColumn1");
     cy.changeColumnType("Switch");
     propPane.UpdatePropertyFieldValue(
-      "Computed Value",
+      "Computed value",
       '{{currentRow["completed"]}}',
     );
     cy.get(".t--property-control-onchange").should("not.exist");

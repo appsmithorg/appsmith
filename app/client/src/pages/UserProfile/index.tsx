@@ -1,27 +1,23 @@
 import React, { useState } from "react";
 import PageWrapper from "@appsmith/pages/common/PageWrapper";
 import styled from "styled-components";
-import { Button, Tabs, Tab, TabsList, Icon, TabPanel } from "design-system";
+import { Tabs, Tab, TabsList, TabPanel } from "design-system";
 import General from "./General";
 import GitConfig from "./GitConfig";
 import { useLocation } from "react-router";
 import { GIT_PROFILE_ROUTE } from "constants/routes";
-import { createMessage, GO_BACK } from "@appsmith/constants/messages";
+import { BackButton } from "components/utils/helperComponents";
 
 const ProfileWrapper = styled.div`
-  width: ${(props) => props.theme.pageContentWidth}px;
-  margin: 0 auto;
+  width: 978px;
+  margin: var(--ads-v2-spaces-7) auto;
+  padding-left: var(--ads-v2-spaces-7);
 
   .tab-item {
     display: flex;
     gap: 5px;
     align-items: center;
   }
-`;
-
-const LinkToApplications = styled.div`
-  margin-top: 20px;
-  margin-bottom: 20px;
 `;
 
 function UserProfile() {
@@ -52,25 +48,13 @@ function UserProfile() {
   return (
     <PageWrapper displayName={"Profile"}>
       <ProfileWrapper>
-        <LinkToApplications className="t--back" onClick={() => history.back()}>
-          <Button
-            kind="tertiary"
-            renderAs="button"
-            size="sm"
-            startIcon="arrow-left-line"
-          >
-            {createMessage(GO_BACK)}
-          </Button>
-        </LinkToApplications>
+        <BackButton />
         <Tabs defaultValue={selectedTab} onValueChange={setSelectedTab}>
           <TabsList>
             {tabs.map((tab) => {
               return (
                 <Tab key={tab.key} value={tab.key}>
-                  <div className="tab-item">
-                    <Icon name={tab.icon} />
-                    {tab.title}
-                  </div>
+                  <div className="tab-item">{tab.title}</div>
                 </Tab>
               );
             })}

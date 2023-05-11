@@ -12,7 +12,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
       `[\n  {\n    \"label\": \"7\",\n    \"value\": \"7\"\n  },\n  {\n    \"label\": \"8\",\n    \"value\": \"8\"\n  },\n  {\n    \"label\": \"9\",\n    \"value\": \"9\"\n  }\n]`,
     );
     _.propPane.UpdatePropertyFieldValue(
-      "Default Selected Value",
+      "Default selected value",
       `{\n    \"label\": \"8\",\n    \"value\": \"8\"\n  }`,
     );
     _.entityExplorer.SelectEntityByName("Select1");
@@ -51,7 +51,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
       );
     });
     _.entityExplorer.SelectEntityByName("Table1");
-    _.propPane.UpdatePropertyFieldValue("Table Data", "{{ParamsTest.data}}");
+    _.propPane.UpdatePropertyFieldValue("Table data", "{{ParamsTest.data}}");
 
     _.entityExplorer.SelectEntityByName("ParamsTest", "Queries/JS");
     _.apiPage.ToggleOnPageLoadRun(false); //Bug 12476
@@ -230,6 +230,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
 
   it("12. Delete all entities - Query, JSObjects, Datasource + Bug 12532", () => {
     _.deployMode.NavigateBacktoEditor();
+    //_.agHelper.Sleep(2500);
     _.entityExplorer.ExpandCollapseEntity("Queries/JS");
     _.entityExplorer.ActionContextMenuByEntityName(
       "ParamsTest",

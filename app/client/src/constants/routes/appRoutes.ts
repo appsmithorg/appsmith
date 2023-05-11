@@ -4,7 +4,7 @@
 const { match } = require("path-to-regexp");
 
 export const BUILDER_VIEWER_PATH_PREFIX = "/app/";
-export const BUILDER_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:applicationSlug/:pageSlug(.*\-):pageId/edit`;
+export const BUILDER_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:applicationSlug/:pageSlug(.*?\-):pageId/edit`;
 export const BUILDER_CUSTOM_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:customSlug(.*\-):pageId/edit`;
 export const VIEWER_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:applicationSlug/:pageSlug(.*\-):pageId`;
 export const VIEWER_CUSTOM_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:customSlug(.*\-):pageId`;
@@ -130,3 +130,6 @@ export const INTEGRATION_EDITOR_MODES = {
 export const PLACEHOLDER_APP_SLUG = "application";
 export const PLACEHOLDER_PAGE_ID = "pageId";
 export const PLACEHOLDER_PAGE_SLUG = "page";
+
+export const SHOW_FILE_PICKER_KEY = "showPicker";
+export const RESPONSE_STATUS = "response_status";

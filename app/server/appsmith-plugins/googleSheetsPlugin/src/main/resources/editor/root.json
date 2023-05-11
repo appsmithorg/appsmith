@@ -60,7 +60,7 @@
               "value": "ROWS"
             },
             {
-              "disabled": "{{ ['FETCH_MANY', 'FETCH_DETAILS', 'INSERT_ONE', 'DELETE_ONE'].includes(actionConfiguration.formData.command.data) === false }}",
+              "disabled": "{{ ['FETCH_MANY', 'FETCH_DETAILS', 'INSERT_ONE', 'DELETE_ONE'].includes(actionConfiguration.formData.command.data) === false || (['INSERT_ONE', 'DELETE_ONE'].includes(actionConfiguration.formData.command.data) === true &&  ['https://www.googleapis.com/auth/drive.file'].includes(datasourceConfiguration.authentication.scopeString) === true)}}",
               "label": "Spreadsheet",
               "value": "SPREADSHEET"
             },
@@ -109,7 +109,7 @@
               }
             },
             {
-              "label": "Sheet Name",
+              "label": "Sheet name",
               "propertyName": "rows_get_sheetName",
               "tooltipText": "The name of the sheet inside the spreadsheet",
               "configProperty": "actionConfiguration.formData.sheetName.data",
@@ -135,7 +135,7 @@
               }
             },
             {
-              "label": "Table Heading Row Index",
+              "label": "Table heading row index",
               "tooltipText": "The index of the column names in the sheet (starts from 1)",
               "propertyName": "rows_get_tableHeadingRowIndex",
               "configProperty": "actionConfiguration.formData.tableHeaderIndex.data",

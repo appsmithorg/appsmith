@@ -9,7 +9,6 @@ import { isHidden, isKVArray } from "components/formControls/utils";
 import log from "loglevel";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { getType, Types } from "utils/TypeHelpers";
-import { Colors } from "constants/Colors";
 import type FeatureFlags from "entities/FeatureFlags";
 
 export const PluginImageWrapper = styled.div`
@@ -21,11 +20,17 @@ export const PluginImageWrapper = styled.div`
   margin-right: 8px;
   flex-shrink: 0;
   img {
-    height: 100%;
+    height: 34px;
     width: auto;
   }
 `;
-
+// const MainContainer = styled.div`
+//   display: flex;
+//   position: relative;
+//   height: 100%;
+//   flex-direction: column;
+//   padding: var(--ads-v2-spaces-7);
+// `;
 export const PluginImage = (props: any) => {
   return (
     <PluginImageWrapper>
@@ -36,8 +41,9 @@ export const PluginImage = (props: any) => {
 
 export const FormContainer = styled.div`
   display: flex;
-  flex-direction: column;
+  position: relative;
   height: 100%;
+  flex-direction: column;
 `;
 
 export const FormContainerBody = styled.div`
@@ -46,8 +52,11 @@ export const FormContainerBody = styled.div`
   width: 100%;
   height: 100%;
   flex-grow: 1;
-  overflow-y: auto;
-  padding: 20px;
+  overflow: hidden;
+  padding: var(--ads-v2-spaces-7);
+  form {
+    height: 100%;
+  }
 `;
 
 export const FormTitleContainer = styled.div`
@@ -61,13 +70,13 @@ export const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid ${Colors.ALTO};
-  padding-bottom: 24px;
-  //margin-top: 16px;
+  border-bottom: 1px solid var(--ads-v2-color-border);
+  padding: 0 0 var(--ads-v2-spaces-7);
 `;
 
 export const ActionWrapper = styled.div`
   display: flex;
+  gap: 8px;
 `;
 
 export interface JSONtoFormProps {
@@ -155,7 +164,8 @@ export class JSONtoForm<
         if (checked[properties[0]]) continue;
 
         checked[properties[0]] = 1;
-        const values = _.get(formData, properties[0], []);
+        // `as []` because the controlType guarantees the type
+        const values = _.get(formData, properties[0], []) as [];
         const newValues: ({ [s: string]: unknown } | ArrayLike<unknown>)[] = [];
 
         values.forEach(
@@ -199,12 +209,14 @@ export class JSONtoForm<
 
   renderForm = (formContent: any) => {
     return (
+      // <MainContainer>
       <FormContainer className="t--json-to-form-wrapper">
         <CloseEditor />
         <FormContainerBody className="t--json-to-form-body">
           {formContent}
         </FormContainerBody>
       </FormContainer>
+      // </MainContainer>
     );
   };
 
@@ -212,7 +224,14 @@ export class JSONtoForm<
     // hides features/configs that are hidden behind feature flag
     // TODO: remove hidden config property as well as this param,
     // when feature flag is removed
-    if (isHidden(this.props.formData, section.hidden, this.props?.featureFlags))
+    if (
+      isHidden(
+        this.props.formData,
+        section.hidden,
+        this.props?.featureFlags,
+        false, // viewMode is false here.
+      )
+    )
       return null;
     return (
       <Collapsible
@@ -280,8 +299,9 @@ export class JSONtoForm<
           if (
             isHidden(
               this.props.formData,
-              section.hidden,
+              propertyControlOrSection.hidden,
               this.props?.featureFlags,
+              false,
             )
           )
             return null;

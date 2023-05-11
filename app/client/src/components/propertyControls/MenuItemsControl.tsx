@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { generateReactKey } from "utils/generators";
@@ -10,19 +9,6 @@ import isUndefined from "lodash/isUndefined";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import { Button } from "design-system";
-
-const StyledPropertyPaneButtonWrapper = styled.div`
-  display: flex;
-  width: 100%;
-  justify-content: center;
-  margin-top: 10px;
-`;
-
-const MenuItemsWrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-`;
 
 type State = {
   focusedIndex: number | null;
@@ -87,7 +73,7 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
 
   render() {
     return (
-      <MenuItemsWrapper>
+      <div className="flex flex-col gap-1">
         <DraggableListControl
           deleteOption={this.deleteOption}
           fixedHeight={370}
@@ -108,18 +94,16 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
           updateItems={this.updateItems}
           updateOption={this.updateOption}
         />
-        <StyledPropertyPaneButtonWrapper>
-          <Button
-            className="t--add-menu-item-btn"
-            kind="secondary"
-            onClick={this.addOption}
-            size="md"
-            startIcon="plus"
-          >
-            Add a new Menu Item
-          </Button>
-        </StyledPropertyPaneButtonWrapper>
-      </MenuItemsWrapper>
+
+        <Button
+          className="self-end t--add-menu-item-btn"
+          kind="tertiary"
+          onClick={this.addOption}
+          startIcon="plus"
+        >
+          Add new menu item
+        </Button>
+      </div>
     );
   }
 

@@ -375,7 +375,7 @@ export function* updateActionSaga(
     );
     yield put({
       type: ReduxActionErrorTypes.UPDATE_ACTION_ERROR,
-      payload: { error, id: actionPayload.payload.id },
+      payload: { error, id: actionPayload.payload.id, show: false },
     });
   }
 }
@@ -698,12 +698,17 @@ export function* setActionPropertySaga(
     "actionConfiguration",
     "config",
   );
+
+  if (!actionObj) {
+    return;
+  }
+
   AppsmithConsole.info({
     logType: LOG_TYPE.ACTION_UPDATE,
     text: "Configuration updated",
     source: {
       type: ENTITY_TYPE.ACTION,
-      name: actionObj.name,
+      name: actionObj?.name,
       id: actionId,
       propertyPath: fieldToBeUpdated,
     },
@@ -958,6 +963,17 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
       const API = yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
       if (callback) callback(`{{${API.payload.name}.data}}`);
       break;
+    case SlashCommand.ASK_AI: {
+      const context = get(actionPayload, "payload.args", {});
+      yield put({
+        type: ReduxActionTypes.TOGGLE_AI_WINDOW,
+        payload: {
+          show: true,
+          context,
+        },
+      });
+      break;
+    }
   }
 }
 

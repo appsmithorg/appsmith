@@ -18,7 +18,7 @@ import { Spinner } from "@blueprintjs/core";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 const Wrapper = styled.div`
-  margin-left: 10px;
+  /* margin-left: 5px; */
   font-size: 18px;
   font-weight: 500;
   line-height: 24px;
@@ -95,8 +95,8 @@ function FormTitle(props: FormTitleProps) {
 
   const handleDatasourceNameChange = useCallback(
     (name: string) => {
-      // Check if the datasource name equals "Untitled Datasource ABC" if no , use the name passed.
-      const datsourceName = name || "Untitled Datasource ABC";
+      // Check if the datasource name equals "Untitled datasource ABC" if no , use the name passed.
+      const datsourceName = name || "Untitled datasource ABC";
       if (
         !isInvalidDatasourceName(name) &&
         currentDatasource &&
@@ -136,7 +136,7 @@ function FormTitle(props: FormTitleProps) {
   return (
     <Wrapper>
       <EditableText
-        className="t--edit-datasource-name"
+        className="t--edit-datasource-name title-editable-text"
         defaultValue={currentDatasource ? currentDatasource.name : ""}
         disabled={props.disabled}
         editInteractionKind={EditInteractionKind.SINGLE}
@@ -145,7 +145,7 @@ function FormTitle(props: FormTitleProps) {
         isInvalid={isInvalidDatasourceName}
         maxLength={30}
         onTextChanged={handleDatasourceNameChange}
-        placeholder="Datasource Name"
+        placeholder="Datasource name"
         type="text"
         underline
         updating={saveStatus.isSaving}

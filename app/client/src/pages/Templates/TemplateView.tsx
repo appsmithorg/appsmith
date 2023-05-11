@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-// import { Text, TextType } from "design-system-old";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import type { Template as TemplateInterface } from "api/TemplatesApi";
 import {
@@ -25,7 +24,7 @@ import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceMo
 import TemplateDescription from "./Template/TemplateDescription";
 import SimilarTemplates from "./Template/SimilarTemplates";
 import { templateIdUrl } from "RouteBuilder";
-import { Button, Text } from "design-system";
+import { Text, Link } from "design-system";
 
 const breakpointColumnsObject = {
   default: 4,
@@ -43,9 +42,9 @@ const Wrapper = styled.div`
 const TemplateViewWrapper = styled.div`
   padding-right: 132px;
   padding-left: 132px;
-  padding-top: ${(props) => props.theme.spaces[12]}px;
+  padding-top: var(--ads-v2-spaces-7);
   padding-bottom: 80px;
-  background-color: ${Colors.WHITE};
+  background-color: var(--ads-v2-color-bg);
 `;
 
 const HeaderWrapper = styled.div`
@@ -89,7 +88,7 @@ export const IframeTopBar = styled.div`
   .round {
     height: 12px;
     width: 12px;
-    border-radius: var(--ads-border-radius-circle);
+    border-radius: var(--ads-v2-border-radius-circle);
   }
 
   .red {
@@ -199,15 +198,9 @@ function TemplateView() {
           <TemplateViewWrapper>
             <HeaderWrapper>
               <div className="left">
-                <Button
-                  kind="tertiary"
-                  onClick={goBack}
-                  renderAs="button"
-                  size="sm"
-                  startIcon="arrow-left-line"
-                >
+                <Link onClick={goBack} startIcon="arrow-left-line">
                   {createMessage(GO_BACK)}
-                </Button>
+                </Link>
               </div>
               <Title kind="heading-l" renderAs="h1">
                 {currentTemplate.title}

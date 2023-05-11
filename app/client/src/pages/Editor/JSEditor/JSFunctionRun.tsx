@@ -1,15 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import FlagBadge from "components/utils/FlagBadge";
 import type { JSCollection } from "entities/JSCollection";
-import type { DropdownOnSelect } from "design-system-old";
-import {
-  Dropdown,
-  DropdownContainer,
-  StyledButton,
-  TooltipComponent as Tooltip,
-} from "design-system-old";
-import { Button } from "design-system";
+import type { SelectProps } from "design-system";
+import { Button, Option, Select, Tooltip, Text, Tag } from "design-system";
 import {
   createMessage,
   NO_JS_FUNCTION_TO_RUN,
@@ -22,7 +15,7 @@ type Props = {
   isLoading: boolean;
   jsCollection: JSCollection;
   onButtonClick: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
-  onSelect: DropdownOnSelect;
+  onSelect: SelectProps["onSelect"];
   options: JSActionDropdownOption[];
   selected: JSActionDropdownOption;
   showTooltip: boolean;
@@ -31,28 +24,31 @@ type Props = {
 export type DropdownWithCTAWrapperProps = {
   isDisabled: boolean;
 };
-const disabledStyles = `
-opacity: 0.5;
-pointer-events:none;
-`;
 
 const DropdownWithCTAWrapper = styled.div<DropdownWithCTAWrapperProps>`
   display: flex;
+  gap: 10px;
 
-  ${StyledButton} {
-    ${(props) =>
-      props.isDisabled &&
-      `
-    ${disabledStyles}
-    `}
+  &&&&& .function-select-dropdown {
+    width: 230px;
   }
-  ${DropdownContainer} {
-    ${(props) =>
-      props.isDisabled &&
-      `
-      ${disabledStyles}
-    `}
-  }
+`;
+
+const OptionWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+`;
+
+const OptionLabelWrapper = styled.div<{ fullSize?: boolean }>`
+  width: ${(props) => (props?.fullSize ? "100%" : "80%")};
+  overflow: hidden;
+`;
+
+const OptionLabel = styled(Text)`
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
 `;
 
 export function JSFunctionRun({
@@ -67,28 +63,43 @@ export function JSFunctionRun({
 }: Props) {
   return (
     <DropdownWithCTAWrapper isDisabled={disabled}>
-      <Dropdown
-        customBadge={<FlagBadge name="Async" />}
-        data-testid="function-select-dropdown"
-        height={RUN_BUTTON_DEFAULTS.HEIGHT}
+      <Select
+        className="function-select-dropdown"
+        isDisabled={disabled}
         onSelect={onSelect}
-        options={options}
-        selected={selected}
-        selectedHighlightBg={RUN_BUTTON_DEFAULTS.DROPDOWN_HIGHLIGHT_BG}
-        showLabelOnly
-        truncateOption
-        width="232px"
-      />
-
+        size="md"
+        value={
+          selected.label && {
+            key: selected.label,
+            label: (
+              <OptionLabelWrapper fullSize>
+                <OptionLabel renderAs="p">{selected.label}</OptionLabel>
+              </OptionLabelWrapper>
+            ),
+          }
+        }
+      >
+        {options.map((option) => (
+          <Option key={option.value}>
+            <OptionWrapper>
+              <OptionLabelWrapper>
+                <OptionLabel renderAs="p">{option.label}</OptionLabel>
+              </OptionLabelWrapper>
+              {option.hasCustomBadge && <Tag isClosable={false}>{"Async"}</Tag>}
+            </OptionWrapper>
+          </Option>
+        ))}
+      </Select>
       <Tooltip
         content={createMessage(NO_JS_FUNCTION_TO_RUN, jsCollection.name)}
-        disabled={!showTooltip}
-        hoverOpenDelay={50}
+        placement="topRight"
+        visible={showTooltip}
       >
         <Button
           className={testLocators.runJSAction}
+          isDisabled={disabled}
           isLoading={isLoading}
-          onClick={() => onButtonClick}
+          onClick={onButtonClick}
           size="md"
         >
           {RUN_BUTTON_DEFAULTS.CTA_TEXT}

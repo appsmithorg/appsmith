@@ -4,7 +4,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
 
-describe("Icon Button Widget Functionality", function () {
+describe("Icon button Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -21,6 +21,7 @@ describe("Icon Button Widget Functionality", function () {
   });
 
   it("2. add space into buttonVariant and validate", function () {
+    cy.EnableAllCodeEditors();
     cy.get(".t--property-control-buttonvariant .CodeMirror  textarea")
       .first()
       .focus()
@@ -53,15 +54,15 @@ describe("Icon Button Widget Functionality", function () {
 
     cy.testJsontext(
       "onclick",
-      "{{showAlert('Icon Button Clicked','success')}}",
+      "{{showAlert('Icon button Clicked','success')}}",
     );
 
     cy.get(widgetsPage.iconWidgetBtn).click({ force: true });
-    cy.get(commonlocators.toastmsg).contains("Icon Button Clicked");
+    cy.get(commonlocators.toastmsg).contains("Icon button Clicked");
     cy.PublishtheApp();
     cy.wait(2000);
     cy.get(publishPage.iconWidgetBtn).click();
-    cy.get(commonlocators.toastmsg).contains("Icon Button Clicked");
+    cy.get(commonlocators.toastmsg).contains("Icon button Clicked");
     cy.goToEditFromPublish();
   });
 

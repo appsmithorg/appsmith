@@ -12,8 +12,8 @@ describe("Table Widget row multi select validation", function () {
       .first()
       .click({ force: true });
     cy.closePropertyPane("tablewidget");
-    cy.get(".t--table-multiselect-header").first().should("be.visible");
-    cy.get(".t--table-multiselect").first().should("be.visible");
+    cy.get(".t--table-multiselect-header").should("be.visible");
+    cy.get(".t--table-multiselect").should("be.visible");
     //Test click on header cell selects all row
     // click on header check cell
     cy.get(".t--table-multiselect-header").first().click({ force: true });
@@ -25,13 +25,11 @@ describe("Table Widget row multi select validation", function () {
     // click on first row select box
     cy.get(".t--table-multiselect").first().click({ force: true });
     // check if header cell is in half check state
-    cy.get(".t--table-multiselect-header-half-check-svg")
-      .first()
-      .should("be.visible");
+    cy.get(".t--table-multiselect-header-half-check-svg").should("be.visible");
   });
   it("Test action configured on onRowSelected get triggered whenever a table row is selected", function () {
     cy.openPropertyPane("tablewidget");
-    cy.onTableAction(0, "onrowselected", "Row Selected");
+    cy.getAlert("onRowSelected", "Row Selected");
     // un select first row
     cy.get(".t--table-multiselect").first().click({ force: true });
     cy.get(commonlocators.toastmsg).should("not.exist");

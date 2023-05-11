@@ -47,9 +47,15 @@ const UpdatesButtonTextContainer = styled.div`
   color: ${(props) => props.theme.colors.text.normal};
 `;
 
-function UpdatesButton({ newReleasesCount }: { newReleasesCount: string }) {
+function UpdatesButton({
+  newReleasesCount,
+  onClick,
+}: {
+  newReleasesCount: string;
+  onClick: () => void;
+}) {
   return (
-    <StyledUpdatesButton data-testid="t--product-updates-btn">
+    <StyledUpdatesButton data-cy="t--product-updates-btn" onClick={onClick}>
       <div style={{ display: "flex", alignItems: "center" }}>
         <Icon name="gift-line" size="sm" />
         <UpdatesButtonTextContainer>

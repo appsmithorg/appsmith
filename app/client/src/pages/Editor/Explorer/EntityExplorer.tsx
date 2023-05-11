@@ -1,8 +1,6 @@
-import type { MutableRefObject } from "react";
-import React, { useRef, useCallback, useEffect, useState } from "react";
+import React, { useRef, useCallback, useEffect } from "react";
 import styled from "styled-components";
-import Divider from "components/editorComponents/Divider";
-import Search from "./ExplorerSearch";
+import { Divider } from "design-system";
 import { NonIdealState, Classes } from "@blueprintjs/core";
 import JSDependencies from "./Libraries";
 import PerformanceTracker, {
@@ -11,7 +9,6 @@ import PerformanceTracker, {
 import { useDispatch, useSelector } from "react-redux";
 import { ScrollIndicator } from "design-system-old";
 
-import { ReactComponent as NoEntityFoundSvg } from "assets/svg/no_entities_found.svg";
 import { Colors } from "constants/Colors";
 
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
@@ -23,10 +20,14 @@ import Files from "./Files";
 import ExplorerWidgetGroup from "./Widgets/WidgetGroup";
 import { builderURL } from "RouteBuilder";
 import history from "utils/history";
-import { SEARCH_ENTITY } from "constants/Explorer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { importSvg } from "design-system-old";
+
+const NoEntityFoundSvg = importSvg(
+  () => import("assets/svg/no_entities_found.svg"),
+);
 
 const Wrapper = styled.div`
   height: 100%;
@@ -65,15 +66,8 @@ const NoResult = styled(NonIdealState)`
   }
 `;
 
-const StyledDivider = styled(Divider)`
-  border-bottom-color: #f0f0f0;
-`;
-
 function EntityExplorer({ isActive }: { isActive: boolean }) {
   const dispatch = useDispatch();
-  const [searchKeyword, setSearchKeyword] = useState("");
-  const searchInputRef: MutableRefObject<HTMLInputElement | null> =
-    useRef(null);
   PerformanceTracker.startTracking(PerformanceTransactionName.ENTITY_EXPLORER);
   useEffect(() => {
     PerformanceTracker.stopTracking();
@@ -98,39 +92,16 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
     dispatch(fetchWorkspace(currentWorkspaceId));
   }, [currentWorkspaceId]);
 
-  /**
-   * filter entitites
-   */
-  const search = (e: any) => {
-    setSearchKeyword(e.target.value);
-  };
-
-  const clearSearchInput = () => {
-    if (searchInputRef.current) {
-      searchInputRef.current.value = "";
-    }
-
-    setSearchKeyword("");
-  };
-
   return (
     <Wrapper
-      className={`t--entity-explorer-wrapper relative overflow-y-auto ${
+      className={`t--entity-explorer-wrapper relative overflow-y-auto px-3 ${
         isActive ? "" : "hidden"
       }`}
       ref={explorerRef}
     >
-      {/* SEARCH */}
-      <Search
-        clear={clearSearchInput}
-        id={SEARCH_ENTITY}
-        isHidden
-        onChange={search}
-        ref={searchInputRef}
-      />
       <ExplorerWidgetGroup
         addWidgetsFn={showWidgetsSidebar}
-        searchKeyword={searchKeyword}
+        searchKeyword=""
         step={0}
       />
       <Files />
@@ -142,8 +113,9 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
           title="No entities found"
         />
       )}
-      <StyledDivider />
+      <Divider />
       <Datasources />
+      <Divider />
       <JSDependencies />
       <ScrollIndicator containerRef={explorerRef} />
     </Wrapper>

@@ -40,7 +40,9 @@ describe("EditorContextProvider", () => {
       "updateWidget",
       "updateWidgetProperty",
       "updateWidgetAutoHeight",
+      "updateWidgetDimension",
       "checkContainersForAutoHeight",
+      "updatePositionsOnTabChange",
     ].sort();
 
     const testRenderer = TestRenderer.create(
@@ -73,7 +75,9 @@ describe("EditorContextProvider", () => {
       "syncBatchUpdateWidgetMetaProperties",
       "triggerEvalOnMetaUpdate",
       "updateWidgetAutoHeight",
+      "updateWidgetDimension",
       "checkContainersForAutoHeight",
+      "updatePositionsOnTabChange",
     ].sort();
 
     const testRenderer = TestRenderer.create(

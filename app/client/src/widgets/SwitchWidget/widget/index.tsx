@@ -8,12 +8,16 @@ import { ValidationTypes } from "constants/WidgetValidation";
 
 import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { AlignWidgetTypes } from "widgets/constants";
 
 import type { Stylesheet } from "entities/AppTheming";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 
 class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   static getPropertyPaneContentConfig() {
@@ -53,13 +57,14 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
             controlType: "LABEL_ALIGNMENT_OPTIONS",
             isBindProperty: true,
             isTriggerProperty: false,
+            fullWidth: false,
             options: [
               {
-                icon: "LEFT_ALIGN",
+                startIcon: "align-left",
                 value: AlignWidgetTypes.LEFT,
               },
               {
-                icon: "RIGHT_ALIGN",
+                startIcon: "align-right",
                 value: AlignWidgetTypes.RIGHT,
               },
             ],
@@ -72,7 +77,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "defaultSwitchState",
-            label: "Default State",
+            label: "Default state",
             helpText:
               "On / Off the Switch by default. Changes to the default selection update the widget state",
             controlType: "SWITCH",
@@ -103,7 +108,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -114,12 +119,11 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when the switch state is changed",
+            helpText: "when the switch state is changed",
             propertyName: "onChange",
             label: "onChange",
             controlType: "ACTION_SELECTOR",
@@ -135,11 +139,11 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   static getPropertyPaneStyleConfig() {
     return [
       {
-        sectionName: "Label Styles",
+        sectionName: "Label styles",
         children: [
           {
             propertyName: "labelTextColor",
-            label: "Font Color",
+            label: "Font color",
             helpText: "Control the color of the label associated",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
@@ -154,10 +158,11 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
           },
           {
             propertyName: "labelTextSize",
-            label: "Font Size",
+            label: "Font size",
             helpText: "Control the font size of the label associated",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
+            hidden: isAutoLayout,
             options: [
               {
                 label: "S",
@@ -202,11 +207,11 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
             controlType: "BUTTON_GROUP",
             options: [
               {
-                icon: "BOLD_FONT",
+                icon: "text-bold",
                 value: "BOLD",
               },
               {
-                icon: "ITALICS_FONT",
+                icon: "text-italic",
                 value: "ITALIC",
               },
             ],
@@ -223,7 +228,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
           {
             propertyName: "accentColor",
             helpText: "Sets the background color of the widget",
-            label: "Accent Color",
+            label: "Accent color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -239,6 +244,17 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
     return {
       accentColor: "{{appsmith.theme.colors.primaryColor}}",
       boxShadow: "none",
+    };
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Switch is a simple UI widget you can use when you want users to make a binary choice",
+      "!url": "https://docs.appsmith.com/widget-reference/switch",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      isSwitchedOn: "bool",
+      isDisabled: "bool",
     };
   }
 

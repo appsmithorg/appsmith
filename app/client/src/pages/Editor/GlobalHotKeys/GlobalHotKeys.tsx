@@ -1,8 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
-import { Hotkey, Hotkeys } from "@blueprintjs/core";
-import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
+import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core";
 import {
   closePropertyPane,
   closeTableFilterPane,
@@ -47,6 +46,7 @@ import { matchBuilderPath } from "constants/routes";
 import { toggleInstaller } from "actions/JSLibraryActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { toast } from "design-system";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -143,7 +143,7 @@ class GlobalHotKeys extends React.Component<Props> {
           allowInInput
           combo="mod + plus"
           global
-          label="Create New"
+          label="Create new"
           onKeyDown={(e) =>
             this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.ACTION_OPERATION)
           }
@@ -198,7 +198,7 @@ class GlobalHotKeys extends React.Component<Props> {
           combo="mod + c"
           global
           group="Canvas"
-          label="Copy Widget"
+          label="Copy widget"
           onKeyDown={(e: any) => {
             if (this.stopPropagationIfWidgetSelected(e)) {
               this.props.copySelectedWidget();
@@ -222,7 +222,7 @@ class GlobalHotKeys extends React.Component<Props> {
           combo="backspace"
           global
           group="Canvas"
-          label="Delete Widget"
+          label="Delete widget"
           onKeyDown={(e: any) => {
             if (this.stopPropagationIfWidgetSelected(e) && isMacOrIOS()) {
               this.props.deleteSelectedWidget();
@@ -233,7 +233,7 @@ class GlobalHotKeys extends React.Component<Props> {
           combo="del"
           global
           group="Canvas"
-          label="Delete Widget"
+          label="Delete widget"
           onKeyDown={(e: any) => {
             if (this.stopPropagationIfWidgetSelected(e)) {
               this.props.deleteSelectedWidget();
@@ -380,7 +380,7 @@ class GlobalHotKeys extends React.Component<Props> {
 const mapStateToProps = (state: AppState) => ({
   selectedWidget: getLastSelectedWidget(state),
   selectedWidgets: getSelectedWidgets(state),
-  isDebuggerOpen: state.ui.debugger.isOpen,
+  isDebuggerOpen: showDebuggerFlag(state),
   appMode: getAppMode(state),
   isPreviewMode: previewModeSelector(state),
   isExplorerPinned: getExplorerPinned(state),

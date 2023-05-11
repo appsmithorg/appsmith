@@ -52,7 +52,7 @@ describe("Test Ideas for Mongo DB Form Input", function () {
 
   it("Delet One or More Document", function () {
     //Ensure by choosing command as 'Delete one or more Document' the following fields will be displayed 'Collection Name' ,  'Query' and 'limit'
-    //Ensure limit has two option 'Single Document' and 'All Matching document'
+    //Ensure limit has two option 'Single document' and 'All Matching document'
     //Click on collection name and enter valid collection name (In which document is inserted ealrier)
     //Clicking on Collection Name field ensure Evaluvated value popup appears and Evaluvated value should match
     //Choose limit as single document and in the query pass the document id which needs to be deleted {"_id":ObjectId("id")}
@@ -71,7 +71,7 @@ describe("Test Ideas for Mongo DB Form Input", function () {
   });
 
   it("Perform Aggregate Operation on a Document", function () {
-    //Ensure by choosing command as 'Count' the following fields will be displayed 'Collection Name' and 'Array of Pipelines'
+    //Ensure by choosing command as 'Count' the following fields will be displayed 'Collection Name' and 'Array of pipelines'
     //Click on collection name and enter valid collection name (In which document is inserted ealrier)
     //Clicking on Collection Name field ensure Evaluvated value popup appears and Evaluvated value should match
   });

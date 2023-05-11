@@ -1,6 +1,8 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.QActionConfiguration;
+import com.appsmith.external.models.QBranchAwareDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewAction;
@@ -304,5 +306,99 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         Criteria defaultActionIdCriteria = where(defaultResources + "." + FieldName.ACTION_ID).is(defaultActionId);
         Criteria branchCriteria = where(defaultResources + "." + FieldName.BRANCH_NAME).is(branchName);
         return queryOne(List.of(defaultActionIdCriteria, branchCriteria), permission);
+    }
+
+    @Override
+    public Mono<NewAction> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission) {
+        return findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, Optional.ofNullable(permission));
+    }
+
+    @Override
+    public Mono<NewAction> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
+        final String defaultResources = fieldName(QBranchAwareDomain.branchAwareDomain.defaultResources);
+        Criteria defaultAppIdCriteria = where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
+        Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
+        return queryFirst(List.of(defaultAppIdCriteria, gitSyncIdCriteria), permission);
+    }
+
+    @Override
+    public Flux<NewAction> findByListOfPageIds(List<String> pageIds, AclPermission permission) {
+
+        Criteria pageIdCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." +
+                fieldName(QNewAction.newAction.unpublishedAction.pageId)).in(pageIds);
+
+        return queryAll(List.of(pageIdCriteria), permission);
+    }
+
+    @Override
+    public Flux<NewAction> findByListOfPageIds(List<String> pageIds, Optional<AclPermission> permission) {
+        Criteria pageIdCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." +
+                fieldName(QNewAction.newAction.unpublishedAction.pageId)).in(pageIds);
+
+        return queryAll(List.of(pageIdCriteria), permission);
+    }
+
+    @Override
+    public Flux<NewAction> findNonJsActionsByApplicationIdAndViewMode(String applicationId, Boolean viewMode,
+                                                                      AclPermission aclPermission) {
+        List<Criteria> criteria = new ArrayList<>();
+
+        Criteria applicationCriterion = where(fieldName(QNewAction.newAction.applicationId)).is(applicationId);
+        criteria.add(applicationCriterion);
+
+        Criteria nonJsTypeCriteria = where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
+        criteria.add(nonJsTypeCriteria);
+
+        if (Boolean.FALSE.equals(viewMode)) {
+            // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object would exist. To handle this, only fetch non-deleted actions
+            Criteria deletedCriterion = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.deletedAt)).is(null);
+            criteria.add(deletedCriterion);
+        }
+
+        return queryAll(criteria, aclPermission);
+    }
+
+    @Override
+    public Flux<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(String name, List<String> pageIds,
+                                                                          Boolean viewMode, AclPermission aclPermission,
+                                                                          Sort sort) {
+        List<Criteria> criteriaList = new ArrayList<>();
+
+        Criteria nonJsTypeCriteria = where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
+        criteriaList.add(nonJsTypeCriteria);
+
+        // Fetch published actions
+        if (Boolean.TRUE.equals(viewMode)) {
+
+            if (name != null) {
+                Criteria nameCriteria = where(fieldName(QNewAction.newAction.publishedAction) + "." + fieldName(QNewAction.newAction.publishedAction.name)).is(name);
+                criteriaList.add(nameCriteria);
+            }
+
+            if (pageIds != null && !pageIds.isEmpty()) {
+                Criteria pageCriteria = where(fieldName(QNewAction.newAction.publishedAction) + "." + fieldName(QNewAction.newAction.publishedAction.pageId)).in(pageIds);
+                criteriaList.add(pageCriteria);
+            }
+
+        }
+        // Fetch unpublished actions
+        else {
+
+            if (name != null) {
+                Criteria nameCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.name)).is(name);
+                criteriaList.add(nameCriteria);
+            }
+
+            if (pageIds != null && !pageIds.isEmpty()) {
+                Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.pageId)).in(pageIds);
+                criteriaList.add(pageCriteria);
+            }
+
+            // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object would exist. To handle this, only fetch non-deleted actions
+            Criteria deletedCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.deletedAt)).is(null);
+            criteriaList.add(deletedCriteria);
+        }
+
+        return queryAll(criteriaList, aclPermission, sort);
     }
 }

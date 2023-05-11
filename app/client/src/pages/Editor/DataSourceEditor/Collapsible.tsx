@@ -26,14 +26,14 @@ const SectionContainer = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  width: 240px;
+  width: 270px;
   cursor: pointer;
-  margin-bottom: 5;
+  margin-bottom: 5px;
 `;
 
 const TopBorder = styled(Divider)`
   margin-top: 24px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 `;
 
 interface ComponentProps {
@@ -92,7 +92,6 @@ function Collapsible(props: Props) {
             {headerIcon && <Icon name={headerIcon.name} size="md" />}
           </SectionLabel>
           <Icon
-            color="var(--ads-v2-color-fg-information)"
             name={isOpen ? "arrow-up-s-line" : "arrow-down-s-line"}
             size="md"
           />

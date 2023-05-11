@@ -8,7 +8,9 @@ import { TooltipComponent as Tooltip } from "design-system-old";
 import { isEllipsisActive } from "utils/helpers";
 import { Colors } from "constants/Colors";
 import { IconWrapper } from "constants/IconConstants";
-import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
+import { importSvg } from "design-system-old";
+
+const HelpIcon = importSvg(() => import("assets/icons/control/help.svg"));
 
 export interface LabelWithTooltipProps {
   alignment?: Alignment;

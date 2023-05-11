@@ -37,6 +37,8 @@ import {
   STEP_THREE_TITLE,
   STEP_TWO_TITLE,
 } from "@appsmith/constants/messages";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 export const Classes = {
   GUIDED_TOUR_BORDER: "guided-tour-border",
@@ -110,7 +112,9 @@ export const onboardingContainerBlueprint = {
               },
               props: {
                 imageShape: "RECTANGLE",
-                defaultImage: "https://assets.appsmith.com/widgets/default.png",
+                defaultImage: getAssetUrl(
+                  `${ASSETS_CDN_URL}/widgets/default.png`,
+                ),
                 objectFit: "contain",
                 image: "{{CustomersTable.selectedRow.image}}",
                 dynamicBindingPathList: [{ key: "image" }],
@@ -262,7 +266,7 @@ export const Steps: StepsType = {
         text: (
           <>
             This command will fetch the first 20 items in the user_data
-            database. Hit <b>RUN</b> to see the response.
+            database. Hit <b>Run</b> to see the response.
           </>
         ),
       },
@@ -309,7 +313,7 @@ export const Steps: StepsType = {
                 {"getCustomers.data"}&#125;&#125;
               </code>
             </b>{" "}
-            in the Table Data input field on the right pane.
+            in the Table data input field on the right pane.
           </>
         ),
         image: TableData,
@@ -331,8 +335,8 @@ export const Steps: StepsType = {
       icon: "lightbulb-flash-line",
       text: (
         <>
-          The pane on the right is called the <b>Property Pane</b>. Here you can
-          modify properties, data, or styling for every widget.
+          The pane on the right is called the&nbsp;<b>Property Pane</b>. Here
+          you can modify properties, data, or styling for every widget.
         </>
       ),
       onClick: (dispatch) => {
@@ -351,7 +355,7 @@ export const Steps: StepsType = {
           }),
         );
       },
-      buttonText: "GOT IT",
+      buttonText: "Got it",
     },
   },
   [GUIDED_TOUR_STEPS.NAME_INPUT_BINDING]: {
@@ -479,8 +483,9 @@ export const Steps: StepsType = {
       icon: "lightbulb-flash-line",
       text: (
         <>
-          To <b>update the customers</b> through the button, we created an{" "}
-          <b>updateCustomerInfo query</b> for you which is ready to use
+          To&nbsp;<b>update the customers</b>&nbsp;through the button, we
+          created an&nbsp;<b>updateCustomerInfo query</b>&nbsp;for you which is
+          ready to use
         </>
       ),
       onClick: (dispatch) => {
@@ -502,8 +507,9 @@ export const Steps: StepsType = {
         text: (
           <>
             Select the button widget to see the properties in the property pane.
-            From the onClick dropdown, select <b>Execute a query</b> {"&"} then
-            select <b>updateCustomerInfo</b> query
+            Click the <b>+</b> button beside the onClick property to add an
+            action, select <b>Execute a query</b> {"&"} then select{" "}
+            <b>updateCustomerInfo</b> query
           </>
         ),
       },
@@ -515,8 +521,8 @@ export const Steps: StepsType = {
       {
         text: (
           <>
-            Click the onSuccess dropdown, select <b>Execute a query</b> {"&"}{" "}
-            then choose <b>getCustomers</b> Query
+            Click the <b>+</b> button beside On success, select{" "}
+            <b>Execute a query</b> {"&"} then choose <b>getCustomers</b> Query
           </>
         ),
       },

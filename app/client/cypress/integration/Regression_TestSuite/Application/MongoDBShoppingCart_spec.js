@@ -45,7 +45,7 @@ describe("Shopping cart App", function () {
     cy.get("body").click(0, 0);
     cy.TargetDropdownAndSelectOption(
       formControls.commandDropdown,
-      "Update Document(s)",
+      "Update document(s)",
     );
     cy.get(".CodeEditorTarget").first().type("Productnames");
     cy.get(".CodeEditorTarget")
@@ -74,7 +74,7 @@ describe("Shopping cart App", function () {
     cy.get("body").click(0, 0);
     cy.TargetDropdownAndSelectOption(
       formControls.commandDropdown,
-      "Insert Document(s)",
+      "Insert document(s)",
     );
     // cy.get("[data-testid='actionConfiguration.formData.command.data']").click();
     // cy.get(".t--dropdown-option")
@@ -104,7 +104,7 @@ describe("Shopping cart App", function () {
     cy.get("body").click(0, 0);
     cy.TargetDropdownAndSelectOption(
       formControls.commandDropdown,
-      "Delete Document(s)",
+      "Delete document(s)",
     );
     // cy.get("[data-testid='actionConfiguration.formData.command.data']").click();
     // cy.get(".t--dropdown-option")

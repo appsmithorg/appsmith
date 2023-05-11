@@ -25,7 +25,8 @@ import ProfileDropdown from "pages/common/ProfileDropdown";
 import TopStacked from "../TopStacked";
 import { HeaderRow, StyledNav } from "./TopHeader.styled";
 import TopInline from "../TopInline";
-import BackToHomeButton from "@appsmith/pages/AppViewer/BackToHomeButton";
+import NavigationLogo from "@appsmith/pages/AppViewer/NavigationLogo";
+import BackToAppsButton from "./BackToAppsButton";
 
 type TopHeaderProps = {
   currentApplicationDetails?: ApplicationPayload;
@@ -52,6 +53,10 @@ const TopHeader = (props: TopHeaderProps) => {
   const navStyle =
     currentApplicationDetails?.applicationDetail?.navigationSetting?.navStyle ||
     NAVIGATION_SETTINGS.NAV_STYLE.STACKED;
+  const logoConfiguration =
+    currentApplicationDetails?.applicationDetail?.navigationSetting
+      ?.logoConfiguration ||
+    NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE;
   const primaryColor = get(
     selectedTheme,
     "properties.colors.primaryColor",
@@ -86,19 +91,20 @@ const TopHeader = (props: TopHeaderProps) => {
             setMenuOpen={setMenuOpen}
           />
 
-          {currentUser?.username !== ANONYMOUS_USERNAME && (
-            <BackToHomeButton
+          <NavigationLogo logoConfiguration={logoConfiguration} />
+
+          {(logoConfiguration ===
+            NAVIGATION_SETTINGS.LOGO_CONFIGURATION.LOGO_AND_APPLICATION_TITLE ||
+            logoConfiguration ===
+              NAVIGATION_SETTINGS.LOGO_CONFIGURATION
+                .APPLICATION_TITLE_ONLY) && (
+            <ApplicationName
+              appName={currentApplicationDetails?.name}
               navColorStyle={navColorStyle}
+              navStyle={navStyle}
               primaryColor={primaryColor}
             />
           )}
-
-          <ApplicationName
-            appName={currentApplicationDetails?.name}
-            navColorStyle={navColorStyle}
-            navStyle={navStyle}
-            primaryColor={primaryColor}
-          />
         </section>
 
         {currentApplicationDetails?.applicationDetail?.navigationSetting
@@ -112,7 +118,7 @@ const TopHeader = (props: TopHeaderProps) => {
           )}
 
         <section className="relative flex items-center space-x-3 z-1 ml-auto py-3">
-          {currentApplicationDetails && (
+          {currentApplicationDetails && currentApplicationDetails?.id && (
             <div className="hidden space-x-1 md:flex">
               <ShareButton
                 currentApplicationDetails={currentApplicationDetails}
@@ -125,6 +131,10 @@ const TopHeader = (props: TopHeaderProps) => {
                   navColorStyle={navColorStyle}
                   primaryColor={primaryColor}
                   url={editorURL}
+                />
+
+                <BackToAppsButton
+                  currentApplicationDetails={currentApplicationDetails}
                 />
               </HeaderRightItemContainer>
             </div>

@@ -1,7 +1,7 @@
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { FieldType } from "widgets/JSONFormWidget/constants";
 import { optionsCustomValidation } from "widgets/RadioGroupWidget/widget";
 import type { HiddenFnParams } from "../helper";
@@ -84,7 +84,7 @@ const PROPERTIES = {
       {
         propertyName: "defaultValue",
         helpText: "Sets a default selected option",
-        label: "Default Selected Value",
+        label: "Default selected value",
         placeholderText: "Y",
         controlType: "JSON_FORM_COMPUTE_VALUE",
         isBindProperty: true,
@@ -108,7 +108,7 @@ const PROPERTIES = {
     events: [
       {
         propertyName: "onSelectionChange",
-        helpText: "Triggers an action when a user changes the selected option",
+        helpText: "when a user changes the selected option",
         label: "onSelectionChange",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,

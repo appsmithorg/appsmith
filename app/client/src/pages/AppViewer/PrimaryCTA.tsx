@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import { useSelector } from "react-redux";
+import React, { useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import Button from "./AppViewerButton";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import {
@@ -9,6 +9,7 @@ import {
 import {
   getCurrentApplication,
   getCurrentPageId,
+  previewModeSelector,
 } from "selectors/editorSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import {
@@ -24,9 +25,10 @@ import { viewerURL } from "RouteBuilder";
 import { useHistory } from "react-router";
 import { useHref } from "pages/Editor/utils";
 import type { NavigationSetting } from "constants/AppConstants";
-import { Icon } from "design-system-old";
+import { Icon, Tooltip } from "design-system";
 import { getApplicationNameTextColor } from "./utils";
 import { ButtonVariantTypes } from "components/constants";
+import { setPreviewModeInitAction } from "actions/editorActions";
 
 /**
  * ---------------------------------------------------------------------------------------------------
@@ -65,6 +67,9 @@ function PrimaryCTA(props: Props) {
   const permissionRequired = PERMISSION_TYPE.MANAGE_APPLICATION;
   const userPermissions = currentApplication?.userPermissions ?? [];
   const canEdit = isPermitted(userPermissions, permissionRequired);
+  const [isForkModalOpen, setIsForkModalOpen] = useState(false);
+  const isPreviewMode = useSelector(previewModeSelector);
+  const dispatch = useDispatch();
 
   const appViewerURL = useHref(viewerURL, {
     pageId: currentPageID,
@@ -95,28 +100,35 @@ function PrimaryCTA(props: Props) {
   const PrimaryCTA = useMemo(() => {
     if (url && canEdit) {
       return (
-        <Button
-          borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
-          className={className}
-          icon={
-            <Icon
-              fillColor={getApplicationNameTextColor(
-                primaryColor,
-                navColorStyle,
-              )}
-              name="edit-line"
-              size="extraLarge"
-            />
-          }
-          insideSidebar={insideSidebar}
-          isMinimal={isMinimal}
-          navColorStyle={navColorStyle}
-          onClick={() => {
-            history.push(url);
-          }}
-          primaryColor={primaryColor}
-          text={insideSidebar && !isMinimal && createMessage(EDIT_APP)}
-        />
+        <Tooltip
+          content={createMessage(EDIT_APP)}
+          isDisabled={insideSidebar}
+          placement="bottom"
+        >
+          <Button
+            borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
+            className={className}
+            icon={
+              <Icon
+                color={getApplicationNameTextColor(primaryColor, navColorStyle)}
+                name="pencil-line"
+                size="md"
+              />
+            }
+            insideSidebar={insideSidebar}
+            isMinimal={isMinimal}
+            navColorStyle={navColorStyle}
+            onClick={() => {
+              if (isPreviewMode) {
+                dispatch(setPreviewModeInitAction(!isPreviewMode));
+              } else {
+                history.push(url);
+              }
+            }}
+            primaryColor={primaryColor}
+            text={insideSidebar && !isMinimal && createMessage(EDIT_APP)}
+          />
+        </Tooltip>
       );
     }
 
@@ -140,6 +152,7 @@ function PrimaryCTA(props: Props) {
           }}
           primaryColor={primaryColor}
           text={createMessage(FORK_APP)}
+          varient={ButtonVariantTypes.SECONDARY}
         />
       );
     }
@@ -147,24 +160,25 @@ function PrimaryCTA(props: Props) {
     if (currentApplication?.forkingEnabled && currentApplication?.isPublic) {
       return (
         <div className="header__application-fork-btn-wrapper t--fork-btn-wrapper">
+          <Button
+            borderRadius={selectedTheme.properties.borderRadius.appBorderRadius}
+            buttonColor={selectedTheme.properties.colors.primaryColor}
+            buttonVariant="PRIMARY"
+            className={`t--fork-app w-full md:w-auto ${className}`}
+            data-testid="fork-modal-trigger"
+            icon="fork"
+            insideSidebar={insideSidebar}
+            navColorStyle={navColorStyle}
+            onClick={() => {
+              setIsForkModalOpen(true);
+            }}
+            primaryColor={primaryColor}
+            text={createMessage(FORK_APP)}
+          />
           <ForkApplicationModal
             applicationId={currentApplication?.id || ""}
-            trigger={
-              <Button
-                borderRadius={
-                  selectedTheme.properties.borderRadius.appBorderRadius
-                }
-                buttonColor={selectedTheme.properties.colors.primaryColor}
-                buttonVariant="PRIMARY"
-                className={`t--fork-app w-full md:w-auto ${className}`}
-                data-testid="fork-modal-trigger"
-                icon="fork"
-                insideSidebar={insideSidebar}
-                navColorStyle={navColorStyle}
-                primaryColor={primaryColor}
-                text={createMessage(FORK_APP)}
-              />
-            }
+            isModalOpen={isForkModalOpen}
+            setModalClose={setIsForkModalOpen}
           />
         </div>
       );
@@ -206,6 +220,7 @@ function PrimaryCTA(props: Props) {
     selectedTheme.properties.borderRadius.appBorderRadius,
     navColorStyle,
     primaryColor,
+    isForkModalOpen,
   ]);
 
   return <div>{PrimaryCTA}</div>;

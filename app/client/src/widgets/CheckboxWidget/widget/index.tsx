@@ -4,15 +4,30 @@ import type { WidgetType } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
 import React from "react";
-import { getResponsiveLayoutConfig } from "utils/layoutPropertiesUtils";
+import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { AlignWidgetTypes } from "widgets/constants";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import CheckboxComponent from "../component";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Checkbox is a simple UI widget you can use when you want users to make a binary choice",
+      "!url": "https://docs.appsmith.com/widget-reference/checkbox",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      isChecked: "bool",
+      isDisabled: "bool",
+    };
+  }
+
   static getPropertyPaneContentConfig() {
     return [
       {
@@ -50,13 +65,14 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             controlType: "LABEL_ALIGNMENT_OPTIONS",
             isBindProperty: true,
             isTriggerProperty: false,
+            fullWidth: false,
             options: [
               {
-                icon: "LEFT_ALIGN",
+                startIcon: "align-left",
                 value: AlignWidgetTypes.LEFT,
               },
               {
-                icon: "RIGHT_ALIGN",
+                startIcon: "align-right",
                 value: AlignWidgetTypes.RIGHT,
               },
             ],
@@ -84,7 +100,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "defaultCheckedState",
-            label: "Default State",
+            label: "Default state",
             helpText: "Sets the default checked state of the widget",
             controlType: "SWITCH",
             isJSConvertible: true,
@@ -114,7 +130,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -125,12 +141,11 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
           },
         ],
       },
-      ...getResponsiveLayoutConfig(this.getWidgetType()),
       {
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when the check state is changed",
+            helpText: "when the check state is changed",
             propertyName: "onCheckChange",
             label: "onCheckChange",
             controlType: "ACTION_SELECTOR",
@@ -146,11 +161,11 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   static getPropertyPaneStyleConfig() {
     return [
       {
-        sectionName: "Label Styles",
+        sectionName: "Label styles",
         children: [
           {
             propertyName: "labelTextColor",
-            label: "Font Color",
+            label: "Font color",
             helpText: "Control the color of the label associated",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
@@ -165,10 +180,11 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
           },
           {
             propertyName: "labelTextSize",
-            label: "Font Size",
+            label: "Font size",
             helpText: "Control the font size of the label associated",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
+            hidden: isAutoLayout,
             options: [
               {
                 label: "S",
@@ -213,11 +229,11 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
             controlType: "BUTTON_GROUP",
             options: [
               {
-                icon: "BOLD_FONT",
+                icon: "text-bold",
                 value: "BOLD",
               },
               {
-                icon: "ITALICS_FONT",
+                icon: "text-italic",
                 value: "ITALIC",
               },
             ],
@@ -234,7 +250,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
           {
             propertyName: "accentColor",
             helpText: "Sets the checked state color of the checkbox",
-            label: "Accent Color",
+            label: "Accent color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -244,11 +260,11 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "Border and Shadow",
+        sectionName: "Border and shadow",
         children: [
           {
             propertyName: "borderRadius",
-            label: "Border Radius",
+            label: "Border radius",
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",

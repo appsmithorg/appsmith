@@ -36,7 +36,7 @@ describe("Table widget inline editing validation functionality", () => {
     cy.wait("@updateLayout");
     cy.get(".t--property-pane-section-collapse-validation").should("exist");
     cy.get(commonlocators.changeColType).last().click();
-    cy.get(".t--dropdown-option").children().contains("Plain Text").click();
+    cy.get(".t--dropdown-option").children().contains("Plain text").click();
     cy.wait("@updateLayout");
     cy.get(".t--property-pane-section-collapse-validation").should("exist");
     cy.get(commonlocators.changeColType).last().click();
@@ -44,7 +44,7 @@ describe("Table widget inline editing validation functionality", () => {
     cy.wait("@updateLayout");
     cy.get(".t--property-pane-section-collapse-validation").should("exist");
     cy.get(commonlocators.changeColType).last().click();
-    cy.get(".t--dropdown-option").children().contains("Plain Text").click();
+    cy.get(".t--dropdown-option").children().contains("Plain text").click();
     cy.wait("@updateLayout");
     cy.get(".t--property-pane-section-collapse-validation").should("exist");
   });
@@ -196,7 +196,7 @@ describe("Table widget inline editing validation functionality", () => {
     cy.editColumn("step");
     propPane.ToggleOnOrOff("Editable", "On");
     propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === '#1'}}");
-    propPane.UpdatePropertyFieldValue("Error Message", "You got error mate!!");
+    propPane.UpdatePropertyFieldValue("Error message", "You got error mate!!");
     cy.editTableCell(0, 0);
     cy.wait(1000);
     cy.enterTableCellValue(0, 0, "123");
@@ -212,11 +212,7 @@ describe("Table widget inline editing validation functionality", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
       propPane.ToggleOnOrOff("Editable", "On");
-      cy.get(
-        ".t--property-control-onsubmit .t--open-dropdown-Select-Action",
-      ).click();
-      cy.selectShowMsg();
-      cy.addSuccessMessage("Saved!!", ".t--property-control-onsubmit");
+      cy.getAlert("onSubmit", "Saved!!");
       propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === '#1'}}");
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "123");

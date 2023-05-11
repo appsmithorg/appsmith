@@ -37,12 +37,14 @@ describe("Lint error reporting", () => {
     });
     MouseHoverNVerify("name", "'name' is defined but never used.", false);
     agHelper.PressEscape();
+    agHelper.GetNClick(debuggerHelper.locators._debuggerIcon);
     agHelper.GetNClick(locator._errorTab);
     debuggerHelper.DebuggerListDoesnotContain(
       "'name' is defined but never used.",
     );
 
     agHelper.RefreshPage();
+    agHelper.GetNClick(debuggerHelper.locators._debuggerIcon);
     agHelper.GetNClick(locator._errorTab);
     debuggerHelper.DebuggerListDoesnotContain(
       "'name' is defined but never used.",
@@ -234,7 +236,7 @@ describe("Lint error reporting", () => {
     agHelper.GetNClick(table._columnSettings("step"));
     agHelper.AssertElementAbsence(locator._lintErrorElement);
 
-    propPane.UpdatePropertyFieldValue("Computed Value", "{{currentRow}}");
+    propPane.UpdatePropertyFieldValue("Computed value", "{{currentRow}}");
     agHelper.AssertElementAbsence(locator._lintErrorElement);
 
     // Test in JSObject for lint error

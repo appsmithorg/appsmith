@@ -7,13 +7,11 @@ import type {
   getlintErrorsFromTreeProps,
   getlintErrorsFromTreeResponse,
 } from "./types";
-import {
-  lintBindingPath,
-  lintJSObjectBody,
-  lintJSObjectProperty,
-  lintTriggerPath,
-  sortLintingPathsByType,
-} from "./utils";
+import lintBindingPath from "./utils/lintBindingPath";
+import lintTriggerPath from "./utils/lintTriggerPath";
+import lintJSObjectBody from "./utils/lintJSObjectBody";
+import sortLintingPathsByType from "./utils/sortLintingPathsByType";
+import lintJSObjectProperty from "./utils/lintJSObjectProperty";
 
 export function getlintErrorsFromTree({
   asyncJSFunctionsInDataFields,
@@ -70,7 +68,7 @@ export function getlintErrorsFromTree({
   // Lint jsobject paths
   if (jsObjectPaths.size) {
     jsObjectPaths.forEach((jsObjectPath) => {
-      const { entityName: jsObjectName } =
+      const { entityName: jsObjectName, propertyPath: jsPropertyName } =
         getEntityNameAndPropertyPath(jsObjectPath);
       const jsObjectState = get(jsPropertiesState, jsObjectName);
       const jsObjectBodyPath = `["${jsObjectName}.body"]`;
@@ -83,7 +81,7 @@ export function getlintErrorsFromTree({
           globalData.getGlobalData(true),
         );
         set(lintTreeErrors, jsObjectBodyPath, jsObjectBodyLintErrors);
-      } else if (jsObjectPath !== "body") {
+      } else if (jsPropertyName !== "body") {
         const propertyLintErrors = lintJSObjectProperty(
           jsObjectPath,
           jsObjectState,

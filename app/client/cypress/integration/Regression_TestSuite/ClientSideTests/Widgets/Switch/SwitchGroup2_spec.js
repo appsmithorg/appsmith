@@ -61,7 +61,7 @@ describe("Switch Group Widget Functionality", function () {
     const valueToAdd = `[
       "BLUE", "GREEN"
     ]`;
-    propPane.UpdatePropertyFieldValue("Default Selected Values", valueToAdd);
+    propPane.UpdatePropertyFieldValue("Default selected values", valueToAdd);
     // Assert
     cy.get(`${formWidgetsPage.labelSwitchGroup} input:checked`)
       .should("have.length", 2)
@@ -90,7 +90,7 @@ describe("Switch Group Widget Functionality", function () {
 
   it("6. Property: onSelectionChange", function () {
     // create an alert modal and verify its name
-    cy.createModal(this.data.ModalName);
+    cy.createModal(this.data.ModalName, "onSelectionChange");
     /*
     cy.PublishtheApp();
     cy.get(publish.switchGroupWidget + " " + "label.bp3-switch")

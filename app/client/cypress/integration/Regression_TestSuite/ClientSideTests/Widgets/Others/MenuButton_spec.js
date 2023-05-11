@@ -3,7 +3,7 @@ const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const { modifierKey } = require("../../../../../support/Constants");
 
-describe("Menu Button Widget Functionality", () => {
+describe("Menu button Widget Functionality", () => {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -109,7 +109,7 @@ describe("Menu Button Widget Functionality", () => {
     );
 
     // Open configure array item panel
-    cy.get(commonlocators.menuButtonConfigureArrayItems).click({
+    cy.get(commonlocators.menuButtonConfigureArrayItems).last().click({
       force: true,
     });
 
@@ -136,7 +136,7 @@ describe("Menu Button Widget Functionality", () => {
     cy.moveToContentTab();
 
     // Open configure array item panel
-    cy.get(commonlocators.menuButtonConfigureArrayItems).click({
+    cy.get(commonlocators.menuButtonConfigureArrayItems).last().click({
       force: true,
     });
 
@@ -163,7 +163,7 @@ describe("Menu Button Widget Functionality", () => {
     cy.moveToContentTab();
 
     // Open configure array item panel
-    cy.get(commonlocators.menuButtonConfigureArrayItems).click({
+    cy.get(commonlocators.menuButtonConfigureArrayItems).last().click({
       force: true,
     });
     cy.moveToStyleTab();

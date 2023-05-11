@@ -7,7 +7,7 @@
   "children": [
     {
       "controlType": "SECTION",
-      "label": "Select Collection to Query",
+      "label": "Select collection to query",
       "children": [
         {
           "label": "Collection",
@@ -23,7 +23,7 @@
       "description": "Optional",
       "children": [
         {
-          "label": "Array of Pipelines",
+          "label": "Array of pipelines",
           "configProperty": "actionConfiguration.formData.aggregate.arrayPipelines.data",
           "controlType": "QUERY_DYNAMIC_TEXT",
           "inputType": "JSON",

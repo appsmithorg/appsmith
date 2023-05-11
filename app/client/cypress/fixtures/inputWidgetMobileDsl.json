@@ -1,0 +1,158 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 4896,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 380,
+    "containerStyle": "none",
+    "snapRows": 124,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 78,
+    "minHeight": 1292,
+    "useAutoLayout": true,
+    "dynamicTriggerPathList": [],
+    "parentColumnSpace": 1,
+    "responsiveBehavior": "fill",
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "isVisible": true,
+        "label": "Label",
+        "labelPosition": "Top",
+        "labelAlignment": "left",
+        "labelTextSize": "0.875rem",
+        "labelWidth": 5,
+        "widgetName": "Input2",
+        "version": 2,
+        "defaultText": "",
+        "iconAlign": "left",
+        "autoFocus": false,
+        "labelStyle": "",
+        "resetOnSubmit": true,
+        "isRequired": false,
+        "isDisabled": false,
+        "animateLoading": true,
+        "responsiveBehavior": "fill",
+        "minWidth": 450,
+        "inputType": "TEXT",
+        "showStepArrows": false,
+        "minDynamicHeight": 4,
+        "maxDynamicHeight": 9000,
+        "dynamicHeight": "FIXED",
+        "searchTags": ["form", "text input", "number", "textarea"],
+        "type": "INPUT_WIDGET_V2",
+        "hideCard": false,
+        "isDeprecated": false,
+        "displayName": "Input",
+        "key": "mpyrgp9ex9",
+        "iconSVG": "/static/media/icon.9f505595da61a34f563dba82adeb06ec.svg",
+        "alignment": "start",
+        "widgetId": "wbb3t117lh",
+        "renderMode": "CANVAS",
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none",
+        "isLoading": false,
+        "parentColumnSpace": 10.59375,
+        "parentRowSpace": 10,
+        "leftColumn": 0,
+        "rightColumn": 32,
+        "topRow": 0,
+        "bottomRow": 7,
+        "mobileLeftColumn": 0,
+        "mobileRightColumn": 64,
+        "mobileTopRow": 1,
+        "mobileBottomRow": 8,
+        "parentId": "0",
+        "dynamicBindingPathList": [
+          {
+            "key": "accentColor"
+          },
+          {
+            "key": "borderRadius"
+          }
+        ]
+      },
+      {
+        "isVisible": true,
+        "label": "Label",
+        "labelPosition": "Top",
+        "labelAlignment": "left",
+        "labelTextSize": "0.875rem",
+        "labelWidth": 5,
+        "widgetName": "Input1",
+        "version": 2,
+        "defaultText": "",
+        "iconAlign": "left",
+        "autoFocus": false,
+        "labelStyle": "",
+        "resetOnSubmit": true,
+        "isRequired": false,
+        "isDisabled": false,
+        "animateLoading": true,
+        "responsiveBehavior": "fill",
+        "minWidth": 450,
+        "inputType": "TEXT",
+        "showStepArrows": false,
+        "minDynamicHeight": 4,
+        "maxDynamicHeight": 9000,
+        "dynamicHeight": "FIXED",
+        "searchTags": ["form", "text input", "number", "textarea"],
+        "type": "INPUT_WIDGET_V2",
+        "hideCard": false,
+        "isDeprecated": false,
+        "displayName": "Input",
+        "key": "mpyrgp9ex9",
+        "iconSVG": "/static/media/icon.9f505595da61a34f563dba82adeb06ec.svg",
+        "alignment": "start",
+        "widgetId": "7vfc039dm6",
+        "renderMode": "CANVAS",
+        "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+        "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+        "boxShadow": "none",
+        "isLoading": false,
+        "parentColumnSpace": 10.59375,
+        "parentRowSpace": 10,
+        "leftColumn": 32,
+        "rightColumn": 64,
+        "topRow": 0,
+        "bottomRow": 7,
+        "mobileLeftColumn": 0,
+        "mobileRightColumn": 64,
+        "mobileTopRow": 0,
+        "mobileBottomRow": 7,
+        "parentId": "0",
+        "dynamicBindingPathList": [
+          {
+            "key": "accentColor"
+          },
+          {
+            "key": "borderRadius"
+          }
+        ]
+      }
+    ],
+    "positioning": "vertical",
+    "flexLayers": [
+      {
+        "children": [
+          {
+            "id": "wbb3t117lh",
+            "align": "start"
+          },
+          {
+            "id": "7vfc039dm6",
+            "align": "start"
+          }
+        ]
+      }
+    ]
+  }
+}

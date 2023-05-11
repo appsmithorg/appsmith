@@ -17,6 +17,12 @@ export enum AuthenticationStatus {
 export enum FilePickerActionStatus {
   CANCEL = "cancel",
   PICKED = "picked",
+  LOADED = "loaded",
+}
+
+export enum ActionType {
+  AUTHORIZE = "authorize",
+  DOCUMENTATION = "picked",
 }
 
 export interface DatasourceAuthentication {
@@ -67,6 +73,7 @@ export interface DatasourceTable {
 interface BaseDatasource {
   pluginId: string;
   name: string;
+  type?: string;
   workspaceId: string;
   isValid: boolean;
   isConfigured?: boolean;

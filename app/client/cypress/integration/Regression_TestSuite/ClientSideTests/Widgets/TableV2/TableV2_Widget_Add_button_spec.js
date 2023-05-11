@@ -18,12 +18,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     // Changing the computed value (data) to "orderAmount"
     cy.updateComputedValue(testdata.currentRowOrderAmt);
     // Selecting button action to show message
-    cy.get(widgetsPage.actionSelect).click();
-    cy.get(commonlocators.chooseAction)
-      .children()
-      .contains("Show message")
-      .click();
-    cy.addSuccessMessage("Successful ".concat(testdata.currentRowEmail));
+    cy.getAlert("onClick", "Successful ".concat(testdata.currentRowEmail));
     // Close Property pane
     cy.get(commonlocators.editPropBackButton).click({
       force: true,
@@ -119,7 +114,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     //Open New Custom Column
     cy.editColumn("customColumn1");
     // Change Column type to icon Button
-    cy.changeColumnType("Icon Button");
+    cy.changeColumnType("Icon button");
     // Select Icon from Icon Control
     cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
       force: true,
@@ -150,8 +145,8 @@ describe("Table Widget V2 property pane feature validation", function () {
     //Open New Custom Column
     cy.editColumn("customColumn1");
     // Change Column type to icon Button
-    cy.changeColumnType("Menu Button");
-    //Changing the text on the Menu Button
+    cy.changeColumnType("Menu button");
+    //Changing the text on the Menu button
     cy.testJsontext("text", "Menu button");
     cy.moveToStyleTab();
     // Select Icon from Icon Control
@@ -202,12 +197,7 @@ describe("Table Widget V2 property pane feature validation", function () {
       .wait(500);
     cy.moveToContentTab();
     //  Add action to the menu Item
-    cy.get(widgetsPage.actionSelect).click();
-    cy.get(commonlocators.chooseAction)
-      .children()
-      .contains("Show message")
-      .click();
-    cy.addSuccessMessage("Successful ".concat(testdata.currentRowEmail));
+    cy.getAlert("onClick", "Successful ".concat(testdata.currentRowEmail));
     // Go back to table property pane
     cy.get(".t--property-pane-back-btn").click({ force: true });
     // Add a Menu item 2
@@ -252,7 +242,7 @@ describe("Table Widget V2 property pane feature validation", function () {
 
     // Close Property pane
     cy.openPropertyPane("tablewidgetv2");
-    // Click on the Menu Button
+    // Click on the Menu button
     cy.contains("Menu button").click({
       force: true,
     });
@@ -272,7 +262,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     });
     //cy.closePropertyPane();
 
-    // Click on the Menu Button
+    // Click on the Menu button
     cy.get(".t--widget-tablewidgetv2 .bp3-button")
       .first()
       .scrollIntoView()

@@ -8,6 +8,7 @@ import { FooterComponent } from "../Footer";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
 import { Colors } from "constants/Colors";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 export const UpgradeToBEPageWrapper = styled.div`
   width: 100%;
@@ -15,6 +16,15 @@ export const UpgradeToBEPageWrapper = styled.div`
   background: linear-gradient(90deg, #fff 20px, transparent 1%) center,
     linear-gradient(#fff 20px, transparent 1%) center, #d2ddec;
   background-size: 22px 22px;
+  position: relative;
+
+  .upgrade-page-footer-container {
+    height: 90px;
+    z-index: 2;
+    .left {
+      min-width: 100px;
+    }
+  }
 `;
 
 export const ImageContainer = styled.div`
@@ -22,19 +32,6 @@ export const ImageContainer = styled.div`
   img {
     height: calc(100vh - 400px);
     object-fit: contain;
-  }
-`;
-
-export const FooterContainer = styled.div`
-  display: flex;
-  .upgrade-page-footer-container {
-    width: calc(100% - 256px);
-    margin-left: 256px;
-    height: 90px;
-    z-index: 2;
-    .left {
-      min-width: 100px;
-    }
   }
 `;
 
@@ -74,6 +71,12 @@ export const ContentWrapper = styled.div`
   overflow: hidden;
 `;
 
+const BUSINESS_FEATURES_IMAGE = getAssetUrl(
+  `${ASSETS_CDN_URL}/business-features.svg`,
+);
+
+const UPGRADE_BOX_IMAGE = getAssetUrl(`${ASSETS_CDN_URL}/upgrade-box.svg`);
+
 export const UpgradeToBEPage = () => {
   const { onUpgrade } = useOnUpgrade({
     logEventName: "BILLING_UPGRADE_ADMIN_SETTINGS",
@@ -87,26 +90,26 @@ export const UpgradeToBEPage = () => {
           <ContentWrapper className="content-wrapper">
             <LeftWrapper>
               <img
-                alt="text-content"
-                src={`${ASSETS_CDN_URL}/business-features.svg`}
+                alt="Upgrade to Business edition"
+                loading="lazy"
+                src={BUSINESS_FEATURES_IMAGE}
               />
             </LeftWrapper>
             <ImageContainer>
               <img
-                alt="Upgrade to Business Edition"
-                src={`${ASSETS_CDN_URL}/upgrade-box.svg`}
+                alt="Upgrade to Business edition"
+                loading="lazy"
+                src={UPGRADE_BOX_IMAGE}
               />
             </ImageContainer>
           </ContentWrapper>
         </FlexContainer>
       </Overlay>
-      <FooterContainer>
-        <FooterComponent
-          message={createMessage(MOVE_TO_BUSINESS_EDITION, "?")}
-          onClick={() => onUpgrade()}
-          showHeading={false}
-        />
-      </FooterContainer>
+      <FooterComponent
+        message={createMessage(MOVE_TO_BUSINESS_EDITION, "?")}
+        onClick={() => onUpgrade()}
+        showHeading={false}
+      />
     </UpgradeToBEPageWrapper>
   );
 };

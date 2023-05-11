@@ -23,6 +23,7 @@ import { get } from "lodash";
 import { PageMenuContainer, StyledNavLink } from "./PageMenu.styled";
 import { StyledCtaContainer } from "./Navigation/Sidebar.styled";
 import ShareButton from "./Navigation/components/ShareButton";
+import BackToAppsButton from "./Navigation/components/BackToAppsButton";
 
 type NavigationProps = {
   isOpen?: boolean;
@@ -78,6 +79,11 @@ export function PageMenu(props: NavigationProps) {
       }
     });
   }
+
+  // TODO: Rahul - Check how to use this function in the new layout.
+  // const handleFormOpenOrClose = useCallback((isOpen: boolean) => {
+  //   dispatch(setShowAppInviteUsersDialog(isOpen));
+  // }, []);
 
   return (
     <>
@@ -138,6 +144,11 @@ export function PageMenu(props: NavigationProps) {
                   url={props.url}
                 />
               )}
+
+              <BackToAppsButton
+                currentApplicationDetails={application}
+                insideSidebar
+              />
 
               {!hideWatermark && (
                 <a

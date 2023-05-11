@@ -29,12 +29,8 @@ export const IntentColors: Record<string, Color> = {
 export type Intent = (typeof IntentColors)[keyof typeof IntentColors];
 
 export const IntentIcons: Record<Intent, React.ReactNode> = {
-  primary: (
-    <Icon color="var(--ads-v2-color-fg-success)" name="checkbox-circle-fill" />
-  ),
-  success: (
-    <Icon color="var(--ads-v2-color-fg-success)" name="checkbox-circle-fill" />
-  ),
+  primary: <Icon color="var(--ads-v2-color-fg-success)" name="close-circle" />,
+  success: <Icon color="var(--ads-v2-color-fg-success)" name="close-circle" />,
   secondary: (
     <Icon color="var(--ads-v2-color-fg-information)" name="information-fill" />
   ),
@@ -2910,11 +2906,11 @@ export const theme: Theme = {
       color: Colors.MYSTIC,
     },
   ],
-  sidebarWidth: "250px",
+  sidebarWidth: "256px",
   homePage: {
     header: 48,
     leftPane: {
-      width: 240,
+      width: 256,
       leftPadding: 16,
       rightMargin: 12,
     },
@@ -2929,7 +2925,7 @@ export const theme: Theme = {
   },
   headerHeight: "48px",
   smallHeaderHeight: "40px",
-  bottomBarHeight: "34px",
+  bottomBarHeight: "37px",
   pageTabsHeight: "32px",
   integrationsPageUnusableHeight: "182px",
   backBanner: "30px",

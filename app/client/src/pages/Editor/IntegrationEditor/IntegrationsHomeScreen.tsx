@@ -27,18 +27,25 @@ import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 import { hasCreateDatasourcePermission } from "@appsmith/utils/permissionHelpers";
 import { Tab, TabPanel, Tabs, TabsList } from "design-system";
+import Debugger, {
+  ResizerContentContainer,
+  ResizerMainContainer,
+} from "../DataSourceEditor/Debugger";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
 const HeaderFlex = styled.div`
+  font-size: 20px;
   display: flex;
   align-items: center;
+  color: var(--ads-v2-color-fg-emphasis-plus);
+  padding: 0 var(--ads-v2-spaces-7);
 `;
 
 const ApiHomePage = styled.div`
   display: flex;
   flex-direction: column;
 
-  font-size: 20px;
-  padding: 20px 20px 0 20px;
+  padding-top: 20px;
   /* margin-left: 10px; */
   flex: 1;
   overflow: hidden !important;
@@ -46,35 +53,34 @@ const ApiHomePage = styled.div`
     position: absolute;
     left: 70%;
   }
-  .bp3-collapse-body {
-    position: absolute;
-    z-index: 99999;
-    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
-    border-radius: 4px;
-    width: 100%;
-    padding: 20px;
-  }
   .fontSize16 {
     font-size: 16px;
+  }
+  .integrations-content-container {
+    padding: 0 var(--ads-v2-spaces-7);
+  }
+  .t--vertical-menu {
+    overflow: auto;
   }
 `;
 
 const MainTabsContainer = styled.div`
   width: 100%;
   height: 100%;
-  .react-tabs__tab-list {
+  padding: 0 var(--ads-v2-spaces-7);
+  /* .react-tabs__tab-list {
     margin: 2px;
-  }
+  } */
 `;
 
 const SectionGrid = styled.div<{ isActiveTab?: boolean }>`
   margin-top: 16px;
   display: grid;
-  grid-template-columns: 1fr ${({ isActiveTab }) => isActiveTab && "180px"};
+  grid-template-columns: 1fr;
   grid-template-rows: auto minmax(0, 1fr);
   gap: 10px 16px;
   flex: 1;
-  min-height: 0;
+  min-height: 100%;
 `;
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
@@ -137,6 +143,7 @@ type IntegrationsHomeScreenProps = {
   mockDatasources: MockDatasource[];
   applicationId: string;
   canCreateDatasource?: boolean;
+  showDebugger: boolean;
 };
 
 type IntegrationsHomeScreenState = {
@@ -154,23 +161,34 @@ const PRIMARY_MENU_IDS = {
   CREATE_NEW: "CREATE_NEW",
 };
 
-const SECONDARY_MENU = [
+const SECONDARY_MENU_IDS = {
+  API: "API",
+  DATABASE: "DATABASE",
+  MOCK_DATABASE: "MOCK_DATABASE",
+};
+
+const SECONDARY_MENU: TabProp[] = [
   {
-    key: 0,
+    key: "API",
     title: "API",
-    href: "#",
+    panelComponent: <div />,
   },
   {
-    key: 1,
+    key: "DATABASE",
     title: "Database",
-    href: "#",
-  },
-  {
-    key: 2,
-    title: "Sample Databases",
-    href: "#",
+    panelComponent: <div />,
   },
 ];
+const getSecondaryMenu = (hasActiveSources: boolean) => {
+  const mockDbMenu = {
+    key: "MOCK_DATABASE",
+    title: "Sample databases",
+    panelComponent: <div />,
+  };
+  return hasActiveSources
+    ? [...SECONDARY_MENU, mockDbMenu]
+    : [mockDbMenu, ...SECONDARY_MENU];
+};
 
 const getSecondaryMenuIds = (hasActiveSources = false) => {
   return {
@@ -208,7 +226,7 @@ function UseMockDatasources({ active, mockDatasources }: MockDataSourcesProps) {
   }, [active]);
   return (
     <div id="mock-database" ref={useMockRef}>
-      <Text type={TextType.H2}>Sample Databases</Text>
+      <Text type={TextType.H2}>Sample databases</Text>
       <MockDataSources mockDatasources={mockDatasources} />
     </div>
   );
@@ -422,6 +440,7 @@ class IntegrationsHomeScreen extends React.Component<
       isCreating,
       location,
       pageId,
+      showDebugger,
     } = this.props;
     const { unsupportedPluginDialogVisible } = this.state;
     let currentScreen;
@@ -437,7 +456,7 @@ class IntegrationsHomeScreen extends React.Component<
         ? [
             {
               key: "CREATE_NEW",
-              title: "Create New",
+              title: "Create new",
               panelComponent: <div />,
               icon: "plus",
               iconSize: IconSize.XS,
@@ -522,7 +541,7 @@ class IntegrationsHomeScreen extends React.Component<
           style={{ overflow: "auto" }}
         >
           <HeaderFlex>
-            <p className="sectionHeadings">Datasources</p>
+            <p className="sectionHeadings">Datasources in your workspace</p>
           </HeaderFlex>
           <SectionGrid
             isActiveTab={
@@ -551,27 +570,42 @@ class IntegrationsHomeScreen extends React.Component<
                 </Tabs>
               )}
             </MainTabsContainer>
-            {this.state.activePrimaryMenuId !== PRIMARY_MENU_IDS.ACTIVE && (
-              <div />
-            )}
-
-            {currentScreen}
-            {activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW && (
-              <VerticalMenu>
-                {SECONDARY_MENU.map((item) => (
-                  <VerticalMenuItem
-                    aria-selected={
-                      this.state.activeSecondaryMenuId === item.key
-                    }
-                    href={item.href}
-                    key={item.key}
-                    onClick={() => this.onSelectSecondaryMenu(item.key)}
-                  >
-                    {item.title}
-                  </VerticalMenuItem>
-                ))}
-              </VerticalMenu>
-            )}
+            <ResizerMainContainer>
+              <ResizerContentContainer className="integrations-content-container">
+                {currentScreen}
+                {activePrimaryMenuId === PRIMARY_MENU_IDS.CREATE_NEW && (
+                  <VerticalMenu>
+                    {getSecondaryMenu(dataSources.length > 0).map((item) => {
+                      return (
+                        <VerticalMenuItem
+                          aria-selected={
+                            this.state.activeSecondaryMenuId ===
+                            getSecondaryMenuIds(dataSources.length > 0)[
+                              item.key as keyof typeof SECONDARY_MENU_IDS
+                            ]
+                          }
+                          key={
+                            getSecondaryMenuIds(dataSources.length > 0)[
+                              item.key as keyof typeof SECONDARY_MENU_IDS
+                            ]
+                          }
+                          onClick={() =>
+                            this.onSelectSecondaryMenu(
+                              getSecondaryMenuIds(dataSources.length > 0)[
+                                item.key as keyof typeof SECONDARY_MENU_IDS
+                              ],
+                            )
+                          }
+                        >
+                          {item.title}
+                        </VerticalMenuItem>
+                      );
+                    })}
+                  </VerticalMenu>
+                )}
+              </ResizerContentContainer>
+              {showDebugger && <Debugger />}
+            </ResizerMainContainer>
           </SectionGrid>
         </ApiHomePage>
       </>
@@ -580,6 +614,9 @@ class IntegrationsHomeScreen extends React.Component<
 }
 
 const mapStateToProps = (state: AppState) => {
+  // Debugger render flag
+  const showDebugger = showDebuggerFlag(state);
+
   const userWorkspacePermissions =
     getCurrentAppWorkspace(state).userPermissions ?? [];
 
@@ -592,6 +629,7 @@ const mapStateToProps = (state: AppState) => {
     isCreating: state.ui.apiPane.isCreating,
     applicationId: getCurrentApplicationId(state),
     canCreateDatasource,
+    showDebugger,
   };
 };
 

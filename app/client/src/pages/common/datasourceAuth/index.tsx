@@ -16,7 +16,6 @@ import {
   setDatasourceViewMode,
   createDatasourceFromForm,
   toggleSaveActionFlag,
-  filePickerCallbackAction,
 } from "actions/datasourceActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
@@ -24,7 +23,6 @@ import { useParams, useLocation } from "react-router";
 import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import type { AppState } from "@appsmith/reducers";
 import type { Datasource } from "entities/Datasource";
-import { FilePickerActionStatus } from "entities/Datasource";
 import { AuthType, AuthenticationStatus } from "entities/Datasource";
 import {
   CONFIRM_CONTEXT_DELETING,
@@ -45,6 +43,7 @@ import {
   hasDeleteDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
+import { SHOW_FILE_PICKER_KEY } from "constants/routes";
 
 interface Props {
   datasource: Datasource;
@@ -58,13 +57,11 @@ interface Props {
   triggerSave?: boolean;
   isFormDirty?: boolean;
   datasourceDeleteTrigger: () => void;
-  gsheetToken?: string;
-  gsheetProjectID?: string;
 }
 
 export type DatasourceFormButtonTypes = Record<string, string[]>;
 
-enum AuthorizationStatus {
+export enum AuthorizationStatus {
   SUCCESS = "success",
   APPSMITH_ERROR = "appsmith_error",
 }
@@ -90,10 +87,12 @@ const SaveButtonContainer = styled.div`
   margin-top: 24px;
   display: flex;
   justify-content: flex-end;
+  gap: 9px;
+  padding-right: 20px;
 `;
 
 const StyledAuthMessage = styled.div`
-  color: ${(props) => props.theme.colors.error};
+  color: var(--ads-v2-color-fg-error);
   margin-top: 15px;
   &:after {
     content: " *";
@@ -113,8 +112,6 @@ function DatasourceAuth({
   shouldDisplayAuthMessage = true,
   triggerSave,
   isFormDirty,
-  gsheetToken,
-  gsheetProjectID,
 }: Props) {
   const authType =
     formData && "authType" in formData
@@ -148,16 +145,8 @@ function DatasourceAuth({
   const pageId = (pageIdQuery || pageIdProp) as string;
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const [scriptLoadedFlag] = useState<boolean>(
-    (window as any).googleAPIsLoaded,
-  );
-  const [pickerInitiated, setPickerInitiated] = useState<boolean>(false);
   const dsName = datasource?.name;
   const orgId = datasource?.workspaceId;
-
-  // objects gapi and google are set, when google apis script is loaded
-  const gapi: any = (window as any).gapi;
-  const google: any = (window as any).google;
 
   useEffect(() => {
     if (confirmDelete) {
@@ -174,8 +163,12 @@ function DatasourceAuth({
       const status = search.get("response_status");
       const queryIsImport = search.get("importForGit");
       const queryDatasourceId = search.get("datasourceId");
+      const showFilePicker = search.get(SHOW_FILE_PICKER_KEY);
       const shouldNotify =
-        !queryIsImport || (queryIsImport && queryDatasourceId === datasourceId);
+        !queryIsImport ||
+        (queryIsImport &&
+          queryDatasourceId === datasourceId &&
+          !showFilePicker);
       if (status && shouldNotify) {
         const display_message = search.get("display_message");
 
@@ -294,59 +287,6 @@ function DatasourceAuth({
     }
   };
 
-  useEffect(() => {
-    // This loads the picker object in gapi script
-    if (!!gsheetToken && !!gapi && !!gsheetProjectID) {
-      gapi.load("client:picker", async () => {
-        await gapi.client.load(
-          "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",
-        );
-        setPickerInitiated(true);
-      });
-    }
-  }, [scriptLoadedFlag, gsheetToken, gsheetProjectID]);
-
-  useEffect(() => {
-    if (
-      !!gsheetToken &&
-      scriptLoadedFlag &&
-      pickerInitiated &&
-      !!google &&
-      !!gsheetProjectID
-    ) {
-      createPicker(gsheetToken, gsheetProjectID);
-    }
-  }, [gsheetToken, scriptLoadedFlag, pickerInitiated, gsheetProjectID]);
-
-  const createPicker = async (accessToken: string, projectID: string) => {
-    const view = new google.picker.View(google.picker.ViewId.SPREADSHEETS);
-    view.setMimeTypes("application/vnd.google-apps.spreadsheet");
-    const picker = new google.picker.PickerBuilder()
-      .enableFeature(google.picker.Feature.NAV_HIDDEN)
-      .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
-      .setAppId(projectID)
-      .setOAuthToken(accessToken)
-      .addView(view)
-      .setCallback(pickerCallback)
-      .build();
-    picker.setVisible(true);
-  };
-
-  const pickerCallback = async (data: any) => {
-    if (
-      data.action === FilePickerActionStatus.CANCEL ||
-      data.action === FilePickerActionStatus.PICKED
-    ) {
-      const fileIds = data?.docs?.map((element: any) => element.id) || [];
-      dispatch(
-        filePickerCallbackAction({
-          action: data.action,
-          datasourceId: datasourceId,
-          fileIds: fileIds,
-        }),
-      );
-    }
-  };
   const createMode = datasourceId === TEMP_DATASOURCE_ID;
 
   const datasourceButtonsComponentMap = (buttonType: string): JSX.Element => {
@@ -363,6 +303,7 @@ function DatasourceAuth({
               confirmDelete ? handleDatasourceDelete() : setConfirmDelete(true);
             }
           }}
+          size="md"
         >
           {isDeleting
             ? createMessage(CONFIRM_CONTEXT_DELETING)
@@ -378,6 +319,7 @@ function DatasourceAuth({
           key={buttonType}
           kind="secondary"
           onClick={handleDatasourceTest}
+          size="md"
         >
           Test
         </Button>
@@ -391,6 +333,7 @@ function DatasourceAuth({
           isLoading={isSaving}
           key={buttonType}
           onClick={handleDefaultAuthDatasourceSave}
+          size="md"
         >
           Save
         </Button>
@@ -402,6 +345,7 @@ function DatasourceAuth({
           isLoading={isSaving}
           key={buttonType}
           onClick={handleOauthDatasourceSave}
+          size="md"
         >
           Save and Authorize
         </Button>

@@ -1,17 +1,14 @@
 import { noop } from "lodash";
 import React from "react";
 import styled from "styled-components";
-import { Toggle } from "design-system-old";
-import { Button } from "design-system";
+import { Button, Switch } from "design-system";
 import {
   AllowToggle,
-  AllowToggleLabel,
   AllowToggleWrapper,
   ButtonWrapper,
   FormBodyWrapper,
   FormHeaderIndex,
   FormHeaderLabel,
-  FormHeaderWrapper,
 } from "./common";
 import { memo } from "react";
 import {
@@ -31,25 +28,25 @@ const NewsletterContainer = styled.div`
 export default memo(function NewsletterForm() {
   return (
     <NewsletterContainer>
-      <FormHeaderWrapper className="relative flex-col items-start">
+      <div className="relative flex-col items-start">
         <FormHeaderIndex className="absolute -left-6">3.</FormHeaderIndex>
         <FormHeaderLabel>
           {createMessage(WELCOME_FORM_NEWLETTER_HEADER)}
         </FormHeaderLabel>
-      </FormHeaderWrapper>
+      </div>
       <FormBodyWrapper>
         <AllowToggleWrapper>
           <AllowToggle>
-            <Toggle
+            <Switch
               className="t--welcome-form-newsletter"
+              defaultSelected
               name="signupForNewsletter"
-              onToggle={() => noop}
-              value
-            />
+              onChange={() => noop}
+              value={"true"}
+            >
+              {createMessage(WELCOME_FORM_NEWLETTER_LABEL)}
+            </Switch>
           </AllowToggle>
-          <AllowToggleLabel>
-            {createMessage(WELCOME_FORM_NEWLETTER_LABEL)}
-          </AllowToggleLabel>
         </AllowToggleWrapper>
         <ButtonWrapper>
           <Button

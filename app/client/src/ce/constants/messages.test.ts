@@ -108,7 +108,7 @@ describe("messages without input", () => {
     { key: "COMMIT_AND_PUSH", value: "Commit & push" },
     {
       key: "PULL_CHANGES",
-      value: "PULL CHANGES",
+      value: "Pull changes",
     },
     { key: "SSH_KEY", value: "SSH key" },
     {
@@ -142,14 +142,14 @@ describe("messages without input", () => {
     { key: "CONNECT_GIT_BETA", value: "Connect Git (Beta)" },
     {
       key: "RETRY",
-      value: "RETRY",
+      value: "Retry",
     },
-    { key: "CREATE_NEW_BRANCH", value: "CREATE NEW BRANCH" },
+    { key: "CREATE_NEW_BRANCH", value: "Create new branch" },
     {
       key: "ERROR_WHILE_PULLING_CHANGES",
       value: "ERROR WHILE PULLING CHANGES",
     },
-    { key: "SUBMIT", value: "SUBMIT" },
+    { key: "SUBMIT", value: "Submit" },
     {
       key: "GIT_USER_UPDATED_SUCCESSFULLY",
       value: "Git user updated successfully",
@@ -170,9 +170,9 @@ describe("messages without input", () => {
     { key: "GENERATE_KEY", value: "Generate key" },
     {
       key: "UPDATE_CONFIG",
-      value: "UPDATE CONFIG",
+      value: "Update config",
     },
-    { key: "CONNECT_BTN_LABEL", value: "CONNECT" },
+    { key: "CONNECT_BTN_LABEL", value: "Connect" },
     {
       key: "FETCH_GIT_STATUS",
       value: "Fetching status...",
@@ -241,7 +241,7 @@ describe("messages without input", () => {
     { key: "REVOKE_GIT", value: "Revoke access" },
     {
       key: "DISCONNECT",
-      value: "DISCONNECT",
+      value: "Disconnect",
     },
     { key: "GIT_DISCONNECTION_SUBMENU", value: "Git Connection > Disconnect" },
     {
@@ -252,13 +252,13 @@ describe("messages without input", () => {
       key: "GIT_COMMIT_MESSAGE_PLACEHOLDER",
       value: "Your commit message here",
     },
-    { key: "GIT_CONNECTION", value: "Git Connection" },
+    { key: "GIT_CONNECTION", value: "Git connection" },
     { key: "DEPLOY", value: "Deploy" },
     {
       key: "MERGE",
       value: "Merge",
     },
-    { key: "GIT_SETTINGS", value: "Git Settings" },
+    { key: "GIT_SETTINGS", value: "Git settings" },
     { key: "CONNECT_TO_GIT", value: "Connect to Git repository" },
     {
       key: "CONNECT_TO_GIT_SUBTITLE",
@@ -446,14 +446,14 @@ describe("Audit logs messages", () => {
       AVAILABLE_ON_BUSINESS,
     ];
     const expected = [
-      "Audit Logs",
+      "Audit logs",
       "See a timestamped trail of events in your workspace. Filter by type of event, user, resource ID, and time. Drill down into each event to investigate further.",
-      "Security & Compliance",
+      "Security & compliance",
       "Proactively derisk misconfigured permissions, roll back changes from a critical security event, and keep checks against your compliance policies.",
       "Exports to popular compliance tools coming soon",
       "Debugging",
       "Debug with a timeline of events filtered by user and resource ID, correlate them with end-user and app developer actions, and investigate back to the last known good state of your app.",
-      "Incident Management",
+      "Incident management",
       "Go back in time from an incident to see who did what, correlate events with breaking changes, and run RCAs to remediate incidents for now and the future.",
       "Available on a business plan only",
     ];

@@ -57,8 +57,18 @@ import DatasourceAuth, {
 } from "pages/common/datasourceAuth";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
+import type {
+  ClientCredentials,
+  AuthorizationCode,
+} from "entities/Datasource/RestAPIForm";
 import { getPlugin } from "../../../selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
+import Debugger, {
+  ResizerContentContainer,
+  ResizerMainContainer,
+} from "./Debugger";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
 
 interface DatasourceRestApiEditorProps {
   initializeReplayEntity: (id: string, data: any) => void;
@@ -84,6 +94,7 @@ interface DatasourceRestApiEditorProps {
   formMeta: any;
   messages?: Array<string>;
   hiddenHeader?: boolean;
+  showDebugger: boolean;
   responseStatus?: string;
   responseMessage?: string;
   datasourceName: string;
@@ -102,6 +113,19 @@ type Props = DatasourceRestApiEditorProps &
 
 const FormInputContainer = styled.div`
   margin-top: 16px;
+  .t--save-and-authorize-datasource {
+    margin-left: 20px;
+  }
+`;
+
+const FormContainerBodyWrapper = styled(FormContainerBody)`
+  .api-datasource-content-container {
+    flex-direction: column;
+    padding: 0 0 0 2px;
+    .t--save-and-authorize-datasource {
+      margin-left: 0;
+    }
+  }
 `;
 
 class DatasourceRestAPIEditor extends React.Component<
@@ -316,36 +340,42 @@ class DatasourceRestAPIEditor extends React.Component<
   };
 
   render = () => {
-    const { datasource, formData, hiddenHeader, pageId } = this.props;
+    const { datasource, formData, hiddenHeader, pageId, showDebugger } =
+      this.props;
 
     return (
       <FormContainer>
         {/* this is true during import flow */}
         {!hiddenHeader && <CloseEditor />}
-        <FormContainerBody>
+        <FormContainerBodyWrapper>
           <form
             onSubmit={(e) => {
               e.preventDefault();
             }}
           >
             {this.renderHeader()}
-            {this.renderEditor()}
-            <DatasourceAuth
-              datasource={datasource}
-              datasourceButtonConfiguration={[
-                DatasourceButtonType.DELETE,
-                DatasourceButtonType.SAVE,
-              ]}
-              datasourceDeleteTrigger={this.props.datasourceDeleteTrigger}
-              formData={formData}
-              getSanitizedFormData={this.getSanitizedFormData}
-              isFormDirty={this.props.isFormDirty}
-              isInvalid={this.validate()}
-              pageId={pageId}
-              shouldRender
-            />
+            <ResizerMainContainer>
+              <ResizerContentContainer className="api-datasource-content-container">
+                {this.renderEditor()}
+                <DatasourceAuth
+                  datasource={datasource}
+                  datasourceButtonConfiguration={[
+                    DatasourceButtonType.DELETE,
+                    DatasourceButtonType.SAVE,
+                  ]}
+                  datasourceDeleteTrigger={this.props.datasourceDeleteTrigger}
+                  formData={formData}
+                  getSanitizedFormData={this.getSanitizedFormData}
+                  isFormDirty={this.props.isFormDirty}
+                  isInvalid={this.validate()}
+                  pageId={pageId}
+                  shouldRender
+                />
+              </ResizerContentContainer>
+              {showDebugger && <Debugger />}
+            </ResizerMainContainer>
           </form>
-        </FormContainerBody>
+        </FormContainerBodyWrapper>
       </FormContainer>
     );
   };
@@ -365,7 +395,7 @@ class DatasourceRestAPIEditor extends React.Component<
     return !hiddenHeader ? (
       <Header>
         <FormTitleContainer>
-          <PluginImage alt="Datasource" src={pluginImage} />
+          <PluginImage alt="Datasource" src={getAssetUrl(pluginImage)} />
           <FormTitle
             disabled={!createMode && !canManageDatasource}
             focusOnMount={isNewDatasource}
@@ -428,7 +458,11 @@ class DatasourceRestAPIEditor extends React.Component<
     const { formData } = this.props;
 
     return (
-      <section data-replay-id="section-General" data-testid="section-General">
+      <section
+        className="t--section-general"
+        data-cy="section-General"
+        data-replay-id="section-General"
+      >
         <FormInputContainer data-replay-id={btoa("url")}>
           {this.renderInputTextControlViaFormControl({
             configProperty: "url",
@@ -454,7 +488,7 @@ class DatasourceRestAPIEditor extends React.Component<
         <FormInputContainer data-replay-id={btoa("queryParameters")}>
           {this.renderKeyValueControlViaFormControl(
             "queryParameters",
-            "Query Parameters",
+            "Query parameters",
             "",
             false,
           )}
@@ -482,7 +516,7 @@ class DatasourceRestAPIEditor extends React.Component<
           <FormInputContainer data-replay-id={btoa("sessionSignatureKey")}>
             {this.renderInputTextControlViaFormControl({
               configProperty: "sessionSignatureKey",
-              label: "Session Details Signature Key",
+              label: "Session details signature key",
               placeholderText: "",
               dataType: "TEXT",
               encrypted: false,
@@ -507,15 +541,15 @@ class DatasourceRestAPIEditor extends React.Component<
                 value: AuthType.OAuth2,
               },
               {
-                label: "API Key",
+                label: "API key",
                 value: AuthType.apiKey,
               },
               {
-                label: "Bearer Token",
+                label: "Bearer token",
                 value: AuthType.bearerToken,
               },
             ],
-            "Authentication Type",
+            "Authentication type",
             "",
             false,
             "",
@@ -530,13 +564,15 @@ class DatasourceRestAPIEditor extends React.Component<
     if (connection?.ssl.authType === SSLType.SELF_SIGNED_CERTIFICATE) {
       return (
         <Collapsible defaultIsOpen title="Certificate Details">
-          {this.renderFilePickerControlViaFormControl(
-            "connection.ssl.certificateFile",
-            "Upload Certificate",
-            "",
-            false,
-            true,
-          )}
+          <div style={{ marginTop: "16px" }}>
+            {this.renderFilePickerControlViaFormControl(
+              "connection.ssl.certificateFile",
+              "Upload Certificate",
+              "",
+              false,
+              true,
+            )}
+          </div>
         </Collapsible>
       );
     }
@@ -613,7 +649,7 @@ class DatasourceRestAPIEditor extends React.Component<
           >
             {this.renderInputTextControlViaFormControl({
               configProperty: "authentication.headerPrefix",
-              label: "Header Prefix",
+              label: "Header prefix",
               placeholderText: "eg: Bearer ",
               dataType: "TEXT",
               encrypted: false,
@@ -630,8 +666,8 @@ class DatasourceRestAPIEditor extends React.Component<
       <FormInputContainer data-replay-id={btoa("authentication.bearerToken")}>
         {this.renderInputTextControlViaFormControl({
           configProperty: "authentication.bearerToken",
-          label: "Bearer Token",
-          placeholderText: "Bearer Token",
+          label: "Bearer token",
+          placeholderText: "Bearer token",
           dataType: "TEXT",
           encrypted: true,
           isRequired: false,
@@ -669,10 +705,13 @@ class DatasourceRestAPIEditor extends React.Component<
   };
 
   renderOauth2 = () => {
-    const { authentication } = this.props.formData;
+    const authentication = this.props.formData.authentication as
+      | ClientCredentials
+      | AuthorizationCode
+      | undefined;
     if (!authentication) return;
     let content;
-    switch (_.get(authentication, "grantType")) {
+    switch (authentication.grantType) {
       case GrantType.AuthorizationCode:
         content = this.renderOauth2AuthorizationCode();
         break;
@@ -696,7 +735,7 @@ class DatasourceRestAPIEditor extends React.Component<
                 value: GrantType.AuthorizationCode,
               },
             ],
-            "Grant Type",
+            "Grant type",
             "",
             false,
             "",
@@ -738,7 +777,7 @@ class DatasourceRestAPIEditor extends React.Component<
           >
             {this.renderInputTextControlViaFormControl({
               configProperty: "authentication.headerPrefix",
-              label: "Header Prefix",
+              label: "Header prefix",
               placeholderText: "eg: Bearer ",
               dataType: "TEXT",
               encrypted: false,
@@ -751,7 +790,7 @@ class DatasourceRestAPIEditor extends React.Component<
         >
           {this.renderInputTextControlViaFormControl({
             configProperty: "authentication.accessTokenUrl",
-            label: "Access Token URL",
+            label: "Access token URL",
             placeholderText: "https://example.com/login/oauth/access_token",
             dataType: "TEXT",
             encrypted: false,
@@ -774,8 +813,8 @@ class DatasourceRestAPIEditor extends React.Component<
         >
           {this.renderInputTextControlViaFormControl({
             configProperty: "authentication.clientSecret",
-            label: "Client Secret",
-            placeholderText: "Client Secret",
+            label: "Client secret",
+            placeholderText: "Client secret",
             dataType: "PASSWORD",
             encrypted: true,
             isRequired: false,
@@ -1157,6 +1196,9 @@ const mapStateToProps = (state: AppState, props: any) => {
     (e) => e.id === props.datasourceId,
   ) as Datasource;
 
+  // Debugger render flag
+  const showDebugger = showDebuggerFlag(state);
+
   const plugin = getPlugin(state, datasource?.pluginId || "") || undefined;
 
   const hintMessages = datasource && datasource.messages;
@@ -1172,6 +1214,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     formMeta: getFormMeta(DATASOURCE_REST_API_FORM)(state),
     messages: hintMessages,
     datasourceName: datasource?.name ?? "",
+    showDebugger,
   };
 };
 

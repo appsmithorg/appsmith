@@ -199,7 +199,7 @@ public class MongoPluginDatasourceTest {
                 .assertNext(datasourceTestResult -> {
                     assertNotNull(datasourceTestResult);
                     assertTrue(datasourceTestResult.getInvalids().stream().anyMatch(error ->
-                            error.contains("Authentication Database Name is invalid, " +
+                            error.contains("Authentication database name is invalid, " +
                                     "no database found with this name.")));
                     assertFalse(datasourceTestResult.isSuccess());
                 })

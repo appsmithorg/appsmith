@@ -1,14 +1,13 @@
 import React from "react";
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
-import { Collapse, Icon } from "@blueprintjs/core";
+import { Collapse } from "@blueprintjs/core";
+import { Icon } from "design-system";
 
 const CollapseWrapper = styled.div`
   position: relative;
   .collapse-title {
-    color: ${Colors.GRAY_700};
+    color: var(--ads-v2-color-fg);
     letter-spacing: 0.04em;
-    text-transform: uppercase;
     font-weight: 500;
     font-size: 12px;
     line-height: 16px;
@@ -16,12 +15,11 @@ const CollapseWrapper = styled.div`
     align-items: center;
     gap: 8px;
     cursor: pointer;
-    /* justify-content: space-between; */
     .icon {
       transition: transform 0.3s;
       cursor: pointer;
       &.collapse {
-        transform: rotate(-90deg);
+        transform: rotate(-180deg);
       }
     }
   }
@@ -35,6 +33,7 @@ const CollapseWrapper = styled.div`
 
 function CollapseComponent(props: {
   children?: React.ReactNode;
+  openTitle?: string;
   title?: string;
   isOpen?: boolean;
   titleStyle?: React.CSSProperties;
@@ -54,13 +53,12 @@ function CollapseComponent(props: {
         onClick={handleIsOpen}
         style={props.titleStyle}
       >
-        {props.title}
+        {open && props.openTitle ? props.openTitle : props.title}
         <Icon
           className={`icon ${open ? "collapse" : ""}`}
-          color="#4B4848"
           data-testid="datasource-collapse-icon"
-          icon="arrow-right"
-          iconSize={12}
+          name="down-arrow"
+          size="sm"
         />
       </div>
       <Collapse isOpen={open} keepChildrenMounted>

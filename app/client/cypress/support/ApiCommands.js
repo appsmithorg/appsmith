@@ -146,6 +146,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("EditSourceDetail", (baseUrl, v1method) => {
+  cy.EnableAllCodeEditors();
   cy.get(apiwidget.editResourceUrl)
     .first()
     .click({ force: true })
@@ -393,6 +394,8 @@ Cypress.Commands.add("createAndFillApi", (url, parameters) => {
         expect(someText).to.equal(response.response.body.data.name);
       });
   });
+
+  cy.EnableAllCodeEditors();
   cy.get(apiwidget.editResourceUrl)
     .first()
     .click({ force: true })
@@ -406,15 +409,15 @@ Cypress.Commands.add("createAndFillApi", (url, parameters) => {
   cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
 });
 
-Cypress.Commands.add("callApi", (apiname) => {
-  cy.get(commonlocators.callApi).first().click({ force: true });
-  cy.get(commonlocators.singleSelectMenuItem)
-    .contains("Execute a query")
-    .click({ force: true });
-  cy.get(commonlocators.selectMenuItem)
-    .contains(apiname)
-    .click({ force: true });
-});
+// Cypress.Commands.add("callApi", (apiname) => {
+//   cy.get(commonlocators.callApi).first().click({ force: true });
+//   cy.get(commonlocators.singleSelectMenuItem)
+//     .contains("Execute a query")
+//     .click({ force: true });
+//   cy.get(commonlocators.selectMenuItem)
+//     .contains(apiname)
+//     .click({ force: true });
+// });
 
 Cypress.Commands.add("checkIfApiPaneIsVisible", () => {
   cy.get(ApiEditor.datasourcesRightPane).should("exist");

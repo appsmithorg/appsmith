@@ -1,20 +1,20 @@
-// import { Colors } from "constants/Colors";
-// import { getTypographyByKey } from "design-system-old";
 import React from "react";
 import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { getDefaultPlugin } from "selectors/entitiesSelector";
 import styled from "styled-components";
-import { Button } from "design-system";
+import { Tag } from "design-system";
 
-const StyledDatasourceChip = styled(Button)`
+const StyledDatasourceChip = styled(Tag)`
   .image {
-    height: 15px;
-    width: 15px;
+    height: 13px;
+    margin-right: 4px;
     display: inline-block;
   }
-  .text {
-    margin-left: ${(props) => props.theme.spaces[2]}px;
+
+  .ads-v2-text {
+    display: flex;
+    align-items: center;
   }
 `;
 
@@ -31,13 +31,9 @@ function DatasourceChip(props: DatasourceChipProps) {
   if (!plugin) return null;
 
   return (
-    // <StyledDatasourceChip className={props.className}>
-    //   <img className="image" src={plugin.iconLocation} />
-    //   <span>{plugin.name}</span>
-    // </StyledDatasourceChip>
-    <StyledDatasourceChip kind="secondary" size="sm">
+    <StyledDatasourceChip isClosable={false} size="md">
       <img className="image" src={plugin.iconLocation} />
-      <span className="text">{plugin.name}</span>
+      {plugin.name}
     </StyledDatasourceChip>
   );
 }

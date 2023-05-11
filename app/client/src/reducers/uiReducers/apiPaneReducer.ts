@@ -6,7 +6,6 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
 import type { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
-import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
 const initialState: ApiPaneReduxState = {
   isCreating: false,
@@ -19,7 +18,6 @@ const initialState: ApiPaneReduxState = {
   extraformData: {},
   selectedConfigTabIndex: 0,
   selectedResponseTab: "",
-  responseTabHeight: ActionExecutionResizerHeight,
 };
 
 export interface ApiPaneReduxState {
@@ -33,8 +31,7 @@ export interface ApiPaneReduxState {
   extraformData: Record<string, any>;
   selectedConfigTabIndex: number;
   selectedResponseTab: string;
-  responseTabHeight: number;
-  selectedRightPaneTab?: number;
+  selectedRightPaneTab?: string;
 }
 
 const apiPaneReducer = createReducer(initialState, {
@@ -224,26 +221,6 @@ const apiPaneReducer = createReducer(initialState, {
     return {
       ...state,
       selectedConfigTabIndex: selectedTabIndex,
-    };
-  },
-  [ReduxActionTypes.SET_API_PANE_RESPONSE_SELECTED_TAB]: (
-    state: ApiPaneReduxState,
-    action: ReduxAction<{ selectedTab: string }>,
-  ) => {
-    const { selectedTab } = action.payload;
-    return {
-      ...state,
-      selectedResponseTab: selectedTab,
-    };
-  },
-  [ReduxActionTypes.SET_API_PANE_RESPONSE_PANE_HEIGHT]: (
-    state: ApiPaneReduxState,
-    action: ReduxAction<{ height: number }>,
-  ) => {
-    const { height } = action.payload;
-    return {
-      ...state,
-      responseTabHeight: height,
     };
   },
   [ReduxActionTypes.SET_API_RIGHT_PANE_SELECTED_TAB]: (

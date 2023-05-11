@@ -29,6 +29,11 @@
   "arango-username": "root",
   "arango-password": "Arango",
 
+  "elastic-host": "http://host.docker.internal",
+  "elastic-port": 9200,
+  "elastic-username": "elastic",
+  "elastic-password": "docker",
+
   "redshift-host": "localhost",
   "redshift-port": 5439,
   "redshift-databaseName": "fakeapi",
@@ -39,6 +44,9 @@
   "smtp-port": "25",
   "smtp-username": "root",
   "smtp-password": "root",
+
+  "redis-host": "host.docker.internal",
+  "redis-port": "6379",
 
   "OAuth_Username": "testuser@appsmith.com",
   "OAuth_Host": "http://localhost:6001",

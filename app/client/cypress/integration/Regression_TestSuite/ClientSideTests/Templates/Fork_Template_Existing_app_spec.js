@@ -17,15 +17,13 @@ beforeEach(() => {
 });
 
 describe("Fork a template to the current app from new page popover", () => {
-  it("Fork template button to be visible always", () => {
+  it("1. Fork template from page section", () => {
+    //Fork template button to be visible always
     _.agHelper.RefreshPage();
+    cy.wait(5000);
     cy.AddPageFromTemplate();
+    cy.wait(5000);
     _.agHelper.AssertElementExist(_.templates.locators._forkApp);
-  });
-  it("Fork template from page section", () => {
-    cy.wait(5000);
-    cy.AddPageFromTemplate();
-    cy.wait(5000);
     cy.get(template.templateDialogBox).should("be.visible");
     cy.wait(4000);
     cy.xpath(
@@ -51,7 +49,7 @@ describe("Fork a template to the current app from new page popover", () => {
     );
   });
 
-  it("Add selected page of template from page section", () => {
+  it("2. Add selected page of template from page section", () => {
     cy.AddPageFromTemplate();
     cy.wait(5000);
     cy.get(template.templateDialogBox).should("be.visible");
@@ -74,5 +72,23 @@ describe("Fork a template to the current app from new page popover", () => {
       "contain",
       "template added successfully",
     );
+  });
+
+  it("Fork template button should take user to 'select pages from template' page", () => {
+    _.agHelper.RefreshPage();
+    cy.AddPageFromTemplate();
+    cy.get(_.templates.locators._forkApp).first().click();
+    cy.get(template.templateViewForkButton).should("be.visible");
+  });
+
+  it("Similar templates add icon should take user to 'select pages from template' page", () => {
+    _.agHelper.RefreshPage();
+    cy.AddPageFromTemplate();
+    // We are currentlyon on templates list page
+    cy.get(_.templates.locators._forkApp).first().click();
+    // Here we are on template detail page, with similar templates at the bottom
+    cy.get(_.templates.locators._forkApp).first().click();
+
+    cy.get(template.templateViewForkButton).should("be.visible");
   });
 });

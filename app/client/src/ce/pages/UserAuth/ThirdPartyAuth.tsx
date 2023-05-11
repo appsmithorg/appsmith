@@ -16,11 +16,6 @@ const ThirdPartyAuthWrapper = styled.div`
   gap: var(--ads-v2-spaces-3);
 `;
 
-export const SocialLoginTypes = {
-  GOOGLE: "google",
-  GITHUB: "github",
-};
-
 type SignInType = "SIGNIN" | "SIGNUP";
 
 function SocialLoginButton(props: {
@@ -61,13 +56,13 @@ function SocialLoginButton(props: {
       startIcon={props.name.toLowerCase() + `-fill`}
     >
       <div className="login-method" data-testid={`login-with-${props.name}`}>
-        {props.label ?? `continue with ${props.name}`}
+        {props.label ?? `Continue with ${props.name}`}
       </div>
     </Button>
   );
 }
 
-export function ThirdPartyAuth(props: {
+function ThirdPartyAuth(props: {
   logins: SocialLoginType[];
   type: SignInType;
 }) {

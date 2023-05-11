@@ -166,7 +166,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                 .flatMap(tuple -> {
                     PermissionGroup permissionGroup = tuple.getT1();
                     List<User> users = tuple.getT2();
-                    return permissionGroupService.bulkAssignToUsers(permissionGroup, users);
+                    return permissionGroupService.bulkAssignToUserAndSendEvent(permissionGroup, users);
                 }).cache();
 
         // Send analytics event

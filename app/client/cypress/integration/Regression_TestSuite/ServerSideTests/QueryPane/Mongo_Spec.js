@@ -40,7 +40,7 @@ describe("Validate Mongo query commands", function () {
 
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
-      "Find Document(s)",
+      "Find document(s)",
       "Raw",
     );
     cy.get(queryLocators.templateMenu).click();
@@ -71,7 +71,7 @@ describe("Validate Mongo query commands", function () {
 
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
-      "Find Document(s)",
+      "Find document(s)",
     );
 
     _.agHelper.EnterValue("listingAndReviews", {
@@ -140,7 +140,7 @@ describe("Validate Mongo query commands", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
-      "Find Document(s)",
+      "Find document(s)",
       "Count",
     );
     _.agHelper.EnterValue("listingAndReviews", {
@@ -168,7 +168,7 @@ describe("Validate Mongo query commands", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
-      "Find Document(s)",
+      "Find document(s)",
       "Distinct",
     );
     _.agHelper.EnterValue("listingAndReviews", {
@@ -200,7 +200,7 @@ describe("Validate Mongo query commands", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
-      "Find Document(s)",
+      "Find document(s)",
       "Aggregate",
     );
     _.agHelper.EnterValue("listingAndReviews", {
@@ -211,7 +211,7 @@ describe("Validate Mongo query commands", function () {
     _.agHelper.EnterValue(`[{ $project: { count: { $size:"$amenities" }}}]`, {
       propFieldName: "",
       directInput: false,
-      inputFieldName: "Array of Pipelines",
+      inputFieldName: "Array of pipelines",
     });
 
     _.dataSources.RunQuery({ toValidateResponse: false });
@@ -333,7 +333,7 @@ describe("Validate Mongo query commands", function () {
 
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
-      "Find Document(s)",
+      "Find document(s)",
       "Raw",
     );
 
@@ -412,8 +412,8 @@ describe("Validate Mongo query commands", function () {
     _.dataSources.SetQueryTimeout(30000);
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
-      "Find Document(s)",
-      "Insert Document(s)",
+      "Find document(s)",
+      "Insert document(s)",
     );
 
     let nonAsciiDoc = `[{"_id":1, "Från" :"Alen" , "Frõ" :"Active",   "Leverantör":"De Bolster", "Frö":"Basilika - Thai 'Siam Qu_.entityExplorern'"},
@@ -440,8 +440,8 @@ describe("Validate Mongo query commands", function () {
     //Find the Inserted Document
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
-      "Insert Document(s)",
-      "Find Document(s)",
+      "Insert document(s)",
+      "Find document(s)",
     );
 
     _.dataSources.RunQuery();
@@ -475,11 +475,11 @@ describe("Validate Mongo query commands", function () {
     cy.VerifyErrorMsgAbsence("Cyclic dependency found while evaluating");
     cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
 
-    //Update Document - Single Document
+    //Update document - Single document
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
-      "Find Document(s)",
-      "Update Document(s)",
+      "Find document(s)",
+      "Update document(s)",
     );
 
     _.agHelper.EnterValue("{_id: {$eq:1}}", {
@@ -504,28 +504,28 @@ describe("Validate Mongo query commands", function () {
       expect(response.body.data.body.nModified).to.eq(1);
     });
 
-    // //Update Document - All Matching Documents
-    // cy.validateNSelectDropdown("Commands", "Find Document(s)", "Update Document(s)");
+    // //Update document - All matching documents
+    // cy.validateNSelectDropdown("Commands", "Find document(s)", "Update document(s)");
     // cy.typeValueNValidate("{_id: {$gte:2}}", "Query");
     // cy.typeValueNValidate("{$set:{ 'Frõ': 'InActive'}}", "Update");
-    // cy.validateNSelectDropdown("Limit", "Single Document", "All Matching Documents");
+    // cy.validateNSelectDropdown("Limit", "Single document", "All matching documents");
     // cy.runQuery()
     // cy.wait("@postExecute").then(({ response }) => {
     //   expect(response.body.data.body.nModified).to.eq(2);
     // });
 
     // //Verify Updation Successful:
-    // cy.validateNSelectDropdown("Commands", "Update Document(s)", "Find Document(s)");
+    // cy.validateNSelectDropdown("Commands", "Update document(s)", "Find document(s)");
     // cy.runQuery()
     // cy.wait("@postExecute").then(({ response }) => {
     //   expect(response.body.data.body[0].Frõ).to.eq('InActive');
     // });
 
-    //Delete Documents using both Single & Multiple Documents
+    //Delete documents using both Single & Multiple Documents
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
-      "Update Document(s)",
-      "Delete Document(s)",
+      "Update document(s)",
+      "Delete document(s)",
     );
 
     _.agHelper.EnterValue("{_id : {$eq: 1 }}", {
@@ -535,7 +535,7 @@ describe("Validate Mongo query commands", function () {
     });
     cy.ValidateAndSelectDropdownOption(
       formControls.mongoDeleteLimitDropdown,
-      "Single Document",
+      "Single document",
     );
     _.dataSources.RunQuery({ toValidateResponse: false });
 
@@ -554,8 +554,8 @@ describe("Validate Mongo query commands", function () {
     });
     cy.ValidateAndSelectDropdownOption(
       formControls.mongoDeleteLimitDropdown,
-      "Single Document",
-      "All Matching Documents",
+      "Single document",
+      "All matching documents",
     );
     _.dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
@@ -565,8 +565,8 @@ describe("Validate Mongo query commands", function () {
     //Verify Deletion is Successful:
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
-      "Delete Document(s)",
-      "Find Document(s)",
+      "Delete document(s)",
+      "Find document(s)",
     );
     _.dataSources.RunQuery({ toValidateResponse: false });
     cy.wait("@postExecute").then(({ response }) => {
@@ -576,7 +576,7 @@ describe("Validate Mongo query commands", function () {
     //Delete Collection:
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
-      "Find Document(s)",
+      "Find document(s)",
       "Raw",
     );
     cy.typeValueNValidate('{"drop": "NonAsciiTest"}', formControls.rawBody);

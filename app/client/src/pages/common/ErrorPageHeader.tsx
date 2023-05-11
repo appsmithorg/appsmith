@@ -9,7 +9,6 @@ import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { AUTH_LOGIN_URL, APPLICATIONS_URL } from "constants/routes";
 import Button from "components/editorComponents/Button";
-import { Colors } from "constants/Colors";
 import ProfileDropdown from "./ProfileDropdown";
 import { flushErrorsAndRedirect, flushErrors } from "actions/errorActions";
 import { getSafeCrash } from "selectors/errorSelectors";
@@ -19,6 +18,7 @@ import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const StyledPageHeader = styled(StyledHeader)`
   box-shadow: none;
@@ -29,7 +29,7 @@ const StyledPageHeader = styled(StyledHeader)`
   position: fixed;
   top: 0;
   z-index: ${Indices.Layer9};
-  box-shadow: 0px 1px 0px ${Colors.GALLERY_2};
+  border-bottom: 1px solid var(--ads-v2-color-border);
 `;
 
 const HeaderSection = styled.div`
@@ -79,7 +79,11 @@ export function ErrorPageHeader(props: ErrorPageHeaderProps) {
             }}
             to={APPLICATIONS_URL}
           >
-            <img alt="Logo" className="h-6" src={tenantConfig.brandLogoUrl} />
+            <img
+              alt="Logo"
+              className="h-6"
+              src={getAssetUrl(tenantConfig.brandLogoUrl)}
+            />
           </Link>
         )}
       </HeaderSection>

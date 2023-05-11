@@ -37,9 +37,6 @@ import { Select } from "@blueprintjs/select";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { noop } from "utils/AppsmithUtils";
 
-import { ReactComponent as CheckBoxLineIcon } from "assets/icons/widget/table/checkbox-line.svg";
-import { ReactComponent as CheckBoxCheckIcon } from "assets/icons/widget/table/checkbox-check.svg";
-
 import type { ButtonVariant } from "components/constants";
 
 //TODO(abstraction leak)
@@ -48,6 +45,14 @@ import MenuButtonTableComponent from "./components/menuButtonTableComponent";
 import { stopClickEventPropagation } from "utils/helpers";
 import tinycolor from "tinycolor2";
 import { generateTableColumnId } from "./TableHelpers";
+import { importSvg } from "design-system-old";
+
+const CheckBoxLineIcon = importSvg(
+  () => import("assets/icons/widget/table/checkbox-line.svg"),
+);
+const CheckBoxCheckIcon = importSvg(
+  () => import("assets/icons/widget/table/checkbox-check.svg"),
+);
 
 export const renderCell = (
   value: any,

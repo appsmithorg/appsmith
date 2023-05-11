@@ -6,7 +6,6 @@ import {
   FormBodyWrapper,
   FormHeaderIndex,
   FormHeaderLabel,
-  FormHeaderWrapper,
   withDropdown,
 } from "./common";
 import {
@@ -26,9 +25,10 @@ import {
 import FormTextField from "components/utils/ReduxFormTextField";
 import type { SetupFormProps } from "./SetupForm";
 import { ButtonWrapper } from "pages/Applications/ForkModalStyles";
-import { FormGroup as StyledFormGroup } from "design-system-old";
+import { FormGroup } from "design-system-old";
 import { Button } from "design-system";
 import { roleOptions, useCaseOptions } from "./constants";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const DetailsFormWrapper = styled.div`
   width: 100%;
@@ -41,17 +41,25 @@ const StyledFormBodyWrapper = styled(FormBodyWrapper)`
   width: 260px;
 `;
 
+const StyledFormGroup = styled(FormGroup)`
+  && > .bp3-label {
+    color: var(--ads-v2-color-fg);
+  }
+`;
+
 export default function DetailsForm(
   props: SetupFormProps & { onNext?: () => void },
 ) {
   const ref = React.createRef<HTMLDivElement>();
 
+  const isAirgappedInstance = isAirgapped();
+
   return (
     <DetailsFormWrapper ref={ref}>
-      <FormHeaderWrapper className="relative flex-col items-start">
+      <div className="relative flex-col items-start">
         <FormHeaderIndex className="absolute -left-6">1.</FormHeaderIndex>
         <FormHeaderLabel>{createMessage(WELCOME_FORM_HEADER)}</FormHeaderLabel>
-      </FormHeaderWrapper>
+      </div>
       <StyledFormBodyWrapper>
         <StyledFormGroup
           className="t--welcome-form-full-name"
@@ -101,7 +109,7 @@ export default function DetailsForm(
         >
           <Field
             asyncControl
-            component={withDropdown(roleOptions, "260px")}
+            component={withDropdown(roleOptions)}
             name="role"
             placeholder={createMessage(WELCOME_FORM_ROLE_DROPDOWN_PLACEHOLDER)}
             type="text"
@@ -121,7 +129,7 @@ export default function DetailsForm(
         >
           <Field
             asyncControl
-            component={withDropdown(useCaseOptions, "260px")}
+            component={withDropdown(useCaseOptions)}
             name="useCase"
             placeholder={createMessage(WELCOME_FORM_USE_CASE_PLACEHOLDER)}
             type="text"
@@ -140,8 +148,9 @@ export default function DetailsForm(
             className="t--welcome-form-next-button"
             isDisabled={props.invalid}
             kind="secondary"
-            onClick={props.onNext}
+            onClick={!isAirgappedInstance ? props.onNext : undefined}
             size="md"
+            type={!isAirgappedInstance ? "button" : "submit"}
           >
             Next
           </Button>

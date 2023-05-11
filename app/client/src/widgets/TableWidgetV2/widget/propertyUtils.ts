@@ -1,5 +1,6 @@
 import { Alignment } from "@blueprintjs/core";
 import type { ColumnProperties } from "../component/Constants";
+import { StickyType } from "../component/Constants";
 import { CellAlignmentTypes } from "../component/Constants";
 import type { TableWidgetProps } from "../constants";
 import { ColumnTypes, InlineEditingSaveOptions } from "../constants";
@@ -31,7 +32,7 @@ export function totalRecordsCountValidation(
     return {
       isValid: true,
       parsed: defaultValue,
-      message: [""],
+      messages: [],
     };
   } else if (
     (!_.isFinite(value) && !_.isString(value)) ||
@@ -43,7 +44,7 @@ export function totalRecordsCountValidation(
     return {
       isValid: false,
       parsed: defaultValue,
-      message: [ERROR_MESSAGE],
+      messages: [{ name: "ValidationError", message: ERROR_MESSAGE }],
     };
   } else {
     /*
@@ -52,7 +53,7 @@ export function totalRecordsCountValidation(
     return {
       isValid: true,
       parsed: Number(value),
-      message: [""],
+      messages: [],
     };
   }
 }
@@ -193,7 +194,8 @@ export const updateColumnOrderHook = (
 
     const rightColumnIndex = findIndex(
       newColumnOrder,
-      (colName: string) => props.primaryColumns[colName].sticky === "right",
+      (colName: string) =>
+        props.primaryColumns[colName]?.sticky === StickyType.RIGHT,
     );
 
     if (rightColumnIndex !== -1) {
@@ -753,7 +755,7 @@ export const updateMenuItemsSource = (
         propertiesToUpdate.push({
           propertyPath: `${baseProperty}.configureMenuItems`,
           propertyValue: {
-            label: "Configure Menu Items",
+            label: "Configure menu items",
             id: "config",
             config: {
               id: "config",

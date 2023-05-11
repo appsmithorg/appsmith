@@ -3,13 +3,13 @@ import styled from "styled-components";
 import QuickGitActions from "pages/Editor/gitSync/QuickGitActions";
 import { Layers } from "constants/Layers";
 import { DebuggerTrigger } from "components/editorComponents/Debugger";
-import { Colors } from "constants/Colors";
 import HelpButton from "pages/Editor/HelpButton";
 import ManualUpgrades from "./ManualUpgrades";
 import PaneCountSwitcher from "pages/common/PaneCountSwitcher";
 import { useSelector } from "react-redux";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
-import { Icon } from "design-system";
+import { Button } from "design-system";
+import { GPTTrigger } from "@appsmith/components/editorComponents/GPT/trigger";
 
 const Container = styled.div`
   width: 100%;
@@ -19,8 +19,14 @@ const Container = styled.div`
   justify-content: space-between;
   background-color: ${(props) => props.theme.colors.editorBottomBar.background};
   z-index: ${Layers.bottomBar};
-  border-top: solid 1px ${Colors.MERCURY};
-  padding: 0 ${(props) => props.theme.spaces[11]}px;
+  border-top: solid 1px var(--ads-v2-color-border);
+  padding-left: ${(props) => props.theme.spaces[11]}px;
+`;
+
+const Wrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `;
 
 export default function BottomBar(props: { className?: string }) {
@@ -28,14 +34,21 @@ export default function BottomBar(props: { className?: string }) {
   return (
     <Container className={props.className ?? ""}>
       <QuickGitActions />
-      <div className="flex justify-between items-center gap-1">
+      <Wrapper>
+        <GPTTrigger />
         <ManualUpgrades showTooltip>
-          <Icon className="t--upgrade" name="upgrade" size="lg" />
+          <Button
+            className="t--upgrade"
+            isIconButton
+            kind="tertiary"
+            size="md"
+            startIcon="upgrade"
+          />
         </ManualUpgrades>
-        <HelpButton />
         <DebuggerTrigger />
+        <HelpButton />
         {isMultiPane && <PaneCountSwitcher />}
-      </div>
+      </Wrapper>
     </Container>
   );
 }

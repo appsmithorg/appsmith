@@ -23,15 +23,16 @@ import {
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import React from "react";
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { triggerWelcomeTour } from "./Utils";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const ModalSubHeader = styled.h5`
   font-size: 14px;
-  margin-top: 20px;
 `;
 
 const ModalContentWrapper = styled.div``;
@@ -61,9 +62,16 @@ const StyledImg = styled.img`
 `;
 
 const StyledCount = styled.h5`
-  font-size: 30px;
-  font-weight: 600;
-  color: var(--ads-v2-color-fg-emphasi);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ads-v2-color-fg-emphasis);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--ads-v2-color-bg-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const ModalContentItem = styled.div`
@@ -93,22 +101,29 @@ const getPublishAppsImg = () => `${ASSETS_CDN_URL}/PublishApps-v2.svg`;
 export default function IntroductionModal({ close }: IntroductionModalProps) {
   const modalAlwaysOpen = true;
   const dispatch = useDispatch();
+  const applicationId = useSelector(getCurrentApplicationId);
+  const isAirgappedInstance = isAirgapped();
   const onBuildApp = () => {
     AnalyticsUtil.logEvent("SIGNPOSTING_BUILD_APP_CLICK");
     close();
   };
+
   useEffect(() => {
     dispatch({
       type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
     });
   }, []);
+
+  const closeModal = (isOpen: boolean) => {
+    if (!isOpen) {
+      onBuildApp();
+    }
+  };
+
   return (
-    <Modal open={modalAlwaysOpen}>
+    <Modal onOpenChange={closeModal} open={modalAlwaysOpen}>
       <ModalContent>
-        <ModalHeader
-          className="t--how-appsmith-works-modal-header"
-          onClose={onBuildApp}
-        >
+        <ModalHeader className="t--how-appsmith-works-modal-header">
           {createMessage(WELCOME_TO_APPSMITH)}
         </ModalHeader>
         <ModalBody>
@@ -116,7 +131,9 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
           <ModalContentWrapper>
             <ModalContentRow border>
               <ModalContentTextWrapper>
-                <StyledCount>1</StyledCount>
+                <div>
+                  <StyledCount>1</StyledCount>
+                </div>
                 <ModalContentItem>
                   <ModalContentHeader>
                     {createMessage(ONBOARDING_INTRO_CONNECT_YOUR_DATABASE)}
@@ -127,12 +144,17 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
                 </ModalContentItem>
               </ModalContentTextWrapper>
               <StyledImgWrapper>
-                <StyledImg src={getConnectDataImg()} />
+                <StyledImg
+                  alt="connect-data-image"
+                  src={getAssetUrl(getConnectDataImg())}
+                />
               </StyledImgWrapper>
             </ModalContentRow>
             <ModalContentRow border>
               <ModalContentTextWrapper>
-                <StyledCount>2</StyledCount>
+                <div>
+                  <StyledCount>2</StyledCount>
+                </div>
                 <ModalContentItem>
                   <ModalContentHeader>
                     {createMessage(DRAG_AND_DROP)}
@@ -143,12 +165,17 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
                 </ModalContentItem>
               </ModalContentTextWrapper>
               <StyledImgWrapper>
-                <StyledImg src={getDragAndDropImg()} />
+                <StyledImg
+                  alt="drag-and-drop-img"
+                  src={getAssetUrl(getDragAndDropImg())}
+                />
               </StyledImgWrapper>
             </ModalContentRow>
             <ModalContentRow className="border-b-0">
               <ModalContentTextWrapper>
-                <StyledCount>3</StyledCount>
+                <div>
+                  <StyledCount>1</StyledCount>
+                </div>
                 <ModalContentItem>
                   <ModalContentHeader>
                     {createMessage(ONBOARDING_INTRO_PUBLISH)}
@@ -159,7 +186,10 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
                 </ModalContentItem>
               </ModalContentTextWrapper>
               <StyledImgWrapper>
-                <StyledImg src={getPublishAppsImg()} />
+                <StyledImg
+                  alt="publish-image"
+                  src={getAssetUrl(getPublishAppsImg())}
+                />
               </StyledImgWrapper>
             </ModalContentRow>
           </ModalContentWrapper>
@@ -168,14 +198,16 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
           </ModalFooterText>
         </ModalBody>
         <ModalFooter>
-          <Button
-            className="t--introduction-modal-welcome-tour-button"
-            kind="secondary"
-            onClick={() => triggerWelcomeTour(dispatch)}
-            size="md"
-          >
-            {createMessage(START_TUTORIAL)}
-          </Button>
+          {!isAirgappedInstance && (
+            <Button
+              className="t--introduction-modal-welcome-tour-button"
+              kind="secondary"
+              onClick={() => triggerWelcomeTour(dispatch, applicationId)}
+              size="md"
+            >
+              {createMessage(START_TUTORIAL)}
+            </Button>
+          )}
           <Button
             className="t--introduction-modal-build-button"
             onClick={onBuildApp}

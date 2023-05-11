@@ -1,7 +1,7 @@
 import type { Datasource } from "entities/Datasource";
 import { isStoredDatasource, PluginType } from "entities/Action";
 import React, { memo, useCallback, useEffect, useState } from "react";
-import { isNil } from "lodash";
+import { debounce, isNil } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import CollapseComponent from "components/utils/CollapseComponent";
 import {
@@ -48,6 +48,7 @@ import {
   hasDeleteDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const Wrapper = styled.div`
   padding: 15px;
@@ -80,7 +81,7 @@ const MenuWrapper = styled.div`
 `;
 
 const DatasourceImage = styled.img`
-  height: 18px;
+  height: 34px;
   width: auto;
   margin: 0 auto;
   max-width: 100%;
@@ -116,7 +117,7 @@ const DatasourceNameWrapper = styled.div`
 `;
 
 const DatasourceInfo = styled.div`
-  padding: 0 10px;
+  padding: 0 10px 0 0;
 `;
 
 const Queries = styled.div`
@@ -186,6 +187,8 @@ function DatasourceCard(props: DatasourceCardProps) {
 
   const isDeletingDatasource = !!datasource.isDeleting;
 
+  const onCloseMenu = debounce(() => setConfirmDelete(false), 20);
+
   useEffect(() => {
     if (confirmDelete && !isDeletingDatasource) {
       setConfirmDelete(false);
@@ -206,7 +209,6 @@ function DatasourceCard(props: DatasourceCardProps) {
           datasourceId: datasource.id,
           params: {
             from: "datasources",
-            viewMode: "false",
             ...getQueryParams(),
           },
         }),
@@ -226,8 +228,7 @@ function DatasourceCard(props: DatasourceCardProps) {
     }
   }, [datasource.id, plugin]);
 
-  const routeToGeneratePage = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const routeToGeneratePage = () => {
     if (!supportTemplateGeneration) {
       // disable button when it doesn't support page generation
       return;
@@ -244,7 +245,8 @@ function DatasourceCard(props: DatasourceCardProps) {
     );
   };
 
-  const deleteAction = () => {
+  const deleteAction = (e: Event) => {
+    e.stopPropagation();
     if (isDeletingDatasource) return;
     AnalyticsUtil.logEvent("DATASOURCE_CARD_DELETE_ACTION");
     dispatch(deleteDatasource({ id: datasource.id }));
@@ -254,7 +256,10 @@ function DatasourceCard(props: DatasourceCardProps) {
     <Wrapper
       className="t--datasource"
       key={datasource.id}
-      onClick={editDatasource}
+      // TODO: We cannot support clicking on the card to edit it because this click function overrides any other within the body, and
+      // doesn't allow the "Are you sure" of the delete item in the menu to play out. Since this is also bad UX - clicking on the card
+      // should activate the primary button action, not the action of the first menu item - we're disabling it for now.
+      // onClick={editDatasource}
     >
       <DatasourceCardMainBody>
         <DatasourceCardHeader className="t--datasource-name">
@@ -264,7 +269,7 @@ function DatasourceCard(props: DatasourceCardProps) {
                 <DatasourceImage
                   alt="Datasource"
                   data-testid="active-datasource-image"
-                  src={pluginImages[datasource.pluginId]}
+                  src={getAssetUrl(pluginImages[datasource.pluginId])}
                 />
               </DatasourceIconWrapper>
               <DatasourceName data-testid="active-datasource-name">
@@ -290,11 +295,13 @@ function DatasourceCard(props: DatasourceCardProps) {
                       : "t--reconnect-btn"
                   }
                   kind="secondary"
-                  onClick={
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
                     datasource.isConfigured
-                      ? () => routeToGeneratePage
-                      : editDatasource
-                  }
+                      ? routeToGeneratePage()
+                      : editDatasource();
+                  }}
                   size="md"
                 >
                   {datasource.isConfigured
@@ -314,37 +321,47 @@ function DatasourceCard(props: DatasourceCardProps) {
               />
             )}
             {(canDeleteDatasource || canEditDatasource) && (
-              <MenuWrapper className="t--datasource-menu-option">
-                <StyledMenu>
+              <MenuWrapper
+                className="t--datasource-menu-option"
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+              >
+                <StyledMenu onOpenChange={onCloseMenu}>
                   <MenuTrigger>
                     <Button
                       isIconButton
                       kind="tertiary"
-                      size="sm"
-                      startIcon="comment-context-menu"
+                      size="md"
+                      startIcon="context-menu"
                     />
                   </MenuTrigger>
-                  <MenuContent>
+                  <MenuContent align="end" style={{ minWidth: "142px" }}>
                     {canEditDatasource && (
                       <MenuItem
                         className="t--datasource-option-edit"
                         onSelect={editDatasource}
-                        startIcon="edit"
+                        startIcon="pencil-line"
                       >
                         Edit
                       </MenuItem>
                     )}
                     {canDeleteDatasource && (
                       <MenuItem
-                        className="t--datasource-option-delete"
-                        onSelect={() => {
+                        className="t--datasource-option-delete error-menuitem"
+                        disabled={isDeletingDatasource}
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore
+                        onSelect={(e: Event) => {
+                          e.preventDefault();
+                          e.stopPropagation();
                           if (!isDeletingDatasource) {
                             confirmDelete
-                              ? deleteAction()
+                              ? deleteAction(e)
                               : setConfirmDelete(true);
                           }
                         }}
-                        startIcon="delete"
+                        startIcon="delete-bin-line"
                       >
                         {isDeletingDatasource
                           ? createMessage(CONFIRM_CONTEXT_DELETING)
@@ -366,7 +383,11 @@ function DatasourceCard(props: DatasourceCardProps) {
             e.stopPropagation();
           }}
         >
-          <CollapseComponent title="Show More" titleStyle={{ maxWidth: 120 }}>
+          <CollapseComponent
+            openTitle="Show less"
+            title="Show more"
+            titleStyle={{ maxWidth: 120 }}
+          >
             <DatasourceInfo>
               <RenderDatasourceInformation
                 config={currentFormConfig[0]}

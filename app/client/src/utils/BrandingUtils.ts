@@ -9,6 +9,8 @@ import {
   ADMIN_BRANDING_FAVICON_DIMENSION_ERROR,
 } from "@appsmith/constants/messages";
 import { toast } from "design-system";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const FAVICON_MAX_WIDTH = 32;
 const FAVICON_MAX_HEIGHT = 32;
@@ -17,10 +19,12 @@ export const APPSMITH_BRAND_PRIMARY_COLOR = getComputedStyle(
   document.documentElement,
 ).getPropertyValue("--ads-v2-color-bg-brand");
 export const APPSMITH_BRAND_BG_COLOR = "#F1F5F9";
-export const APPSMITH_BRAND_FAVICON_URL =
-  "https://assets.appsmith.com/appsmith-favicon-orange.ico";
-export const APPSMITH_BRAND_LOGO_URL =
-  "https://assets.appsmith.com/appsmith-logo-no-margin.png";
+export const APPSMITH_BRAND_FAVICON_URL = getAssetUrl(
+  `${ASSETS_CDN_URL}/appsmith-favicon-orange.ico`,
+);
+export const APPSMITH_BRAND_LOGO_URL = getAssetUrl(
+  `${ASSETS_CDN_URL}/appsmith-logo-no-margin.png`,
+);
 
 /**
  * create brand colors from primary color

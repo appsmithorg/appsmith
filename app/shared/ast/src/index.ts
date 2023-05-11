@@ -1,9 +1,10 @@
-import { parse, Node, SourceLocation, Options } from "acorn";
+import {parse, Node, SourceLocation, Options, Comment} from "acorn";
 import { ancestor, simple } from "acorn-walk";
-import { ECMA_VERSION, NodeTypes } from "./constants/ast";
+import { ECMA_VERSION, NodeTypes } from './constants/ast';
 import { has, isFinite, isString, memoize, toPath } from "lodash";
 import { isTrueObject, sanitizeScript } from "./utils";
 import { jsObjectDeclaration } from "./jsObject/index";
+import {attachComments} from "astravel";
 /*
  * Valuable links:
  *
@@ -25,14 +26,21 @@ import { jsObjectDeclaration } from "./jsObject/index";
 
 type Pattern = IdentifierNode | AssignmentPatternNode;
 type Expression = Node;
+export type ArgumentTypes = LiteralNode | ArrowFunctionExpressionNode | ObjectExpression | MemberExpressionNode | CallExpressionNode | BinaryExpressionNode | BlockStatementNode | IdentifierNode;
 // doc: https://github.com/estree/estree/blob/master/es5.md#memberexpression
-interface MemberExpressionNode extends Node {
+export interface MemberExpressionNode extends Node {
   type: NodeTypes.MemberExpression;
-  object: MemberExpressionNode | IdentifierNode;
+  object: MemberExpressionNode | IdentifierNode | CallExpressionNode;
   property: IdentifierNode | LiteralNode;
   computed: boolean;
   // doc: https://github.com/estree/estree/blob/master/es2020.md#chainexpression
   optional?: boolean;
+}
+
+export interface BinaryExpressionNode extends Node {
+  type: NodeTypes.BinaryExpression;
+  left: BinaryExpressionNode | IdentifierNode;
+  right: BinaryExpressionNode | IdentifierNode;
 }
 
 // doc: https://github.com/estree/estree/blob/master/es5.md#identifier
@@ -72,7 +80,7 @@ interface FunctionExpressionNode extends Expression, Function {
   async: boolean;
 }
 
-interface ArrowFunctionExpressionNode extends Expression, Function {
+export interface ArrowFunctionExpressionNode extends Expression, Function {
   type: NodeTypes.ArrowFunctionExpression;
   async: boolean;
 }
@@ -92,6 +100,18 @@ interface AssignmentPatternNode extends Node {
 export interface LiteralNode extends Node {
   type: NodeTypes.Literal;
   value: string | boolean | null | number | RegExp;
+  raw: string;
+}
+
+export interface CallExpressionNode extends Node {
+  type: NodeTypes.CallExpression;
+  callee: CallExpressionNode | IdentifierNode | MemberExpressionNode;
+  arguments: ArgumentTypes[];
+}
+
+export interface BlockStatementNode extends Node {
+  type: "BlockStatement";
+  body: [ Node ];
 }
 
 type NodeList = {
@@ -107,6 +127,23 @@ export interface PropertyNode extends Node {
   key: LiteralNode | IdentifierNode;
   value: Node;
   kind: "init" | "get" | "set";
+}
+
+export interface ExpressionStatement extends Node {
+  type: "ExpressionStatement";
+  expression: Expression;
+}
+
+export interface Program extends Node {
+  type: "Program";
+  body: [ Directive | Statement ];
+}
+
+export interface Statement extends Node {}
+
+export interface Directive extends ExpressionStatement {
+  expression: LiteralNode;
+  directive: string;
 }
 
 export interface ExportDefaultDeclarationNode extends Node {
@@ -130,9 +167,13 @@ export const isIdentifierNode = (node: Node): node is IdentifierNode => {
   return node.type === NodeTypes.Identifier;
 };
 
-const isMemberExpressionNode = (node: Node): node is MemberExpressionNode => {
+export const isMemberExpressionNode = (node: Node): node is MemberExpressionNode => {
   return node.type === NodeTypes.MemberExpression;
 };
+
+export const isBinaryExpressionNode = (node: Node): node is BinaryExpressionNode => {
+  return node.type === NodeTypes.BinaryExpression;
+}
 
 export const isVariableDeclarator = (
   node: Node,
@@ -147,8 +188,8 @@ const isFunctionDeclaration = (node: Node): node is FunctionDeclarationNode => {
 const isFunctionExpression = (node: Node): node is FunctionExpressionNode => {
   return node.type === NodeTypes.FunctionExpression;
 };
-const isArrowFunctionExpression = (
-  node: Node,
+export const isArrowFunctionExpression = (
+  node: Node
 ): node is ArrowFunctionExpressionNode => {
   return node.type === NodeTypes.ArrowFunctionExpression;
 };
@@ -167,6 +208,18 @@ export const isLiteralNode = (node: Node): node is LiteralNode => {
 
 export const isPropertyNode = (node: Node): node is PropertyNode => {
   return node.type === NodeTypes.Property;
+};
+
+export const isCallExpressionNode = (node: Node): node is CallExpressionNode => {
+  return node.type === NodeTypes.CallExpression;
+};
+
+export const isBlockStatementNode = (node: Node): node is BlockStatementNode => {
+  return node.type === NodeTypes.BlockStatement;
+}
+
+export const isExpressionStatementNode = (node: Node): node is ExpressionStatement => {
+  return node.type === NodeTypes.ExpressionStatement;
 };
 
 export const isExportDefaultDeclarationNode = (
@@ -193,7 +246,7 @@ const isArrayAccessorNode = (node: Node): node is MemberExpressionNode => {
   );
 };
 
-const wrapCode = (code: string) => {
+export const wrapCode = (code: string) => {
   return `
     (function() {
       return ${code}
@@ -222,14 +275,12 @@ const getFunctionalParamNamesFromNode = (
 // Memoize the ast generation code to improve performance.
 // Since this will be used by both the server and the client, we want to prevent regeneration of ast
 // for the the same code snippet
-export const getAST = memoize((code: string, options?: AstOptions) =>
-  parse(code, {
-    ...options,
-    ecmaVersion: ECMA_VERSION,
-    locations: true, // Adds location data to each node
-  }),
-);
+export const getAST = (code: string, options?: AstOptions) =>
+  parse(code, { ...options, ecmaVersion: ECMA_VERSION });
 
+export const attachCommentsToAst = (ast: Node, commentArray: Array<Comment>) => {
+  return attachComments(ast, commentArray);
+}
 /**
  * An AST based extractor that fetches all possible references in a given
  * piece of code. We use this to get any references to the global entities in Appsmith
@@ -438,7 +489,7 @@ const constructFinalMemberExpIdentifier = (
   } else {
     const propertyAccessor = getPropertyAccessor(node.property);
     const nestedChild = `${propertyAccessor}${child}`;
-    return constructFinalMemberExpIdentifier(node.object, nestedChild);
+    return constructFinalMemberExpIdentifier(node.object as MemberExpressionNode, nestedChild);
   }
 };
 

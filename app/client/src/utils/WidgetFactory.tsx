@@ -10,7 +10,11 @@ import type { RenderMode } from "constants/WidgetConstants";
 import type { Stylesheet } from "entities/AppTheming";
 import * as log from "loglevel";
 import type { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
-import type { CanvasWidgetStructure } from "widgets/constants";
+import type {
+  AutocompletionDefinitions,
+  AutoLayoutConfig,
+  CanvasWidgetStructure,
+} from "widgets/constants";
 import {
   addPropertyConfigIds,
   addSearchConfigToPanelConfig,
@@ -20,6 +24,7 @@ import {
   PropertyPaneConfigTypes,
 } from "./WidgetFactoryHelpers";
 import type { WidgetFeatures } from "./WidgetFeatures";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -62,6 +67,8 @@ class WidgetFactory {
   > = new Map();
   static loadingProperties: Map<WidgetType, Array<RegExp>> = new Map();
   static stylesheetConfigMap: Map<WidgetType, Stylesheet> = new Map();
+  static autocompleteDefinitions: Map<WidgetType, AutocompletionDefinitions> =
+    new Map();
 
   static widgetConfigMap: Map<
     WidgetType,
@@ -72,6 +79,8 @@ class WidgetFactory {
     WidgetType,
     Record<NonSerialisableWidgetConfigs, unknown>
   > = new Map();
+
+  static autoLayoutConfigMap: Map<WidgetType, AutoLayoutConfig> = new Map();
 
   static registerWidgetBuilder(
     widgetType: string,
@@ -85,6 +94,8 @@ class WidgetFactory {
     features?: WidgetFeatures,
     loadingProperties?: Array<RegExp>,
     stylesheetConfig?: Stylesheet,
+    autocompleteDefinitions?: AutocompletionDefinitions,
+    autoLayoutConfig?: AutoLayoutConfig,
   ) {
     if (!this.widgetTypes[widgetType]) {
       this.widgetTypes[widgetType] = widgetType;
@@ -99,6 +110,8 @@ class WidgetFactory {
         this.loadingProperties.set(widgetType, loadingProperties);
       stylesheetConfig &&
         this.stylesheetConfigMap.set(widgetType, stylesheetConfig);
+      autocompleteDefinitions &&
+        this.autocompleteDefinitions.set(widgetType, autocompleteDefinitions);
 
       if (Array.isArray(propertyPaneConfig) && propertyPaneConfig.length > 0) {
         const enhancedPropertyPaneConfig = enhancePropertyPaneConfig(
@@ -178,6 +191,28 @@ class WidgetFactory {
           WidgetFactory.getWidgetPropertyPaneStyleConfig(widgetType),
         ),
       );
+
+      autoLayoutConfig &&
+        this.autoLayoutConfigMap.set(widgetType, {
+          ...autoLayoutConfig,
+          widgetSize:
+            autoLayoutConfig.widgetSize?.map((sizeConfig) => ({
+              ...sizeConfig,
+              configuration: (props: WidgetProps) => {
+                if (!props)
+                  return {
+                    minWidth:
+                      this.widgetConfigMap.get(widgetType)?.minWidth ||
+                      FILL_WIDGET_MIN_WIDTH,
+                    minHeight:
+                      this.widgetConfigMap.get(widgetType)?.minHeight || 80,
+                  };
+                return sizeConfig.configuration(props);
+              },
+            })) || [],
+          autoDimension: autoLayoutConfig.autoDimension ?? {},
+          disabledPropsDefaults: autoLayoutConfig.disabledPropsDefaults ?? {},
+        });
     }
   }
 
@@ -308,6 +343,19 @@ class WidgetFactory {
     return map;
   }
 
+  static getWidgetAutoLayoutConfig(type: WidgetType): AutoLayoutConfig {
+    const map = this.autoLayoutConfigMap.get(type);
+    if (!map) {
+      return {
+        autoDimension: {},
+        widgetSize: [],
+        disableResizeHandles: {},
+        disabledPropsDefaults: {},
+      };
+    }
+    return map;
+  }
+
   static getWidgetTypeConfigMap(): WidgetTypeConfigMap {
     const typeConfigMap: WidgetTypeConfigMap = {};
     WidgetFactory.getWidgetTypes().forEach((type) => {
@@ -318,6 +366,16 @@ class WidgetFactory {
       };
     });
     return typeConfigMap;
+  }
+
+  static getAutocompleteDefinitions(
+    type: WidgetType,
+  ): AutocompletionDefinitions | undefined {
+    const autocompleteDefinition = this.autocompleteDefinitions.get(type);
+    if (!autocompleteDefinition) {
+      log.error("Widget autocomplete properties not defined: ", type);
+    }
+    return autocompleteDefinition;
   }
 
   static getLoadingProperties(type: WidgetType): Array<RegExp> | undefined {

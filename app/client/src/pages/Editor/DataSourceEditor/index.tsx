@@ -28,8 +28,6 @@ import RestAPIDatasourceForm from "./RestAPIDatasourceForm";
 import type { Datasource } from "entities/Datasource";
 import type { RouteComponentProps } from "react-router";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import { setGlobalSearchQuery } from "actions/globalSearchActions";
-import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { DatasourceComponentTypes } from "api/PluginApi";
 import DatasourceSaasForm from "../SaaSEditor/DatasourceForm";
 
@@ -165,7 +163,6 @@ class DataSourceEditor extends React.Component<Props> {
       isNewDatasource,
       isSaving,
       isTesting,
-      openOmnibarReadMore,
       pageId,
       pluginId,
       pluginImages,
@@ -188,7 +185,6 @@ class DataSourceEditor extends React.Component<Props> {
         isNewDatasource={isNewDatasource}
         isSaving={isSaving}
         isTesting={isTesting}
-        openOmnibarReadMore={openOmnibarReadMore}
         pageId={pageId}
         pluginImage={pluginImages[pluginId]}
         pluginType={pluginType}
@@ -202,7 +198,6 @@ class DataSourceEditor extends React.Component<Props> {
 export interface DatasourcePaneFunctions {
   switchDatasource: (id: string) => void;
   setDatasourceViewMode: (viewMode: boolean) => void;
-  openOmnibarReadMore: (text: string) => void;
   discardTempDatasource: () => void;
   deleteTempDSFromDraft: () => void;
   toggleSaveActionFlag: (flag: boolean) => void;
@@ -233,8 +228,14 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
+    const urlObject = new URL(window.location.href);
+    const pluginId = urlObject?.searchParams.get("pluginId");
     // update block state when form becomes dirty/view mode is switched on
-    if (prevProps.viewMode !== this.props.viewMode && !this.props.viewMode) {
+    if (
+      prevProps.viewMode !== this.props.viewMode &&
+      !this.props.viewMode &&
+      !!pluginId
+    ) {
       this.blockRoutes();
     }
 
@@ -255,19 +256,19 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
   }
 
   componentDidMount() {
+    const urlObject = new URL(window.location.href);
+    const pluginId = urlObject?.searchParams.get("pluginId");
     // Create Temp Datasource on component mount,
     // if user hasnt saved datasource for the first time and refreshed the page
     if (
       !this.props.datasource &&
       this.props.match.params.datasourceId === TEMP_DATASOURCE_ID
     ) {
-      const urlObject = new URL(window.location.href);
-      const pluginId = urlObject?.searchParams.get("pluginId");
       this.props.createTempDatasource({
         pluginId,
       });
     }
-    if (!this.props.viewMode) {
+    if (!this.props.viewMode && !!pluginId) {
       this.blockRoutes();
     }
 
@@ -541,10 +542,6 @@ const mapDispatchToProps = (
   },
   setDatasourceViewMode: (viewMode: boolean) =>
     dispatch(setDatasourceViewMode(viewMode)),
-  openOmnibarReadMore: (text: string) => {
-    dispatch(setGlobalSearchQuery(text));
-    dispatch(toggleShowGlobalSearchModal());
-  },
   discardTempDatasource: () => dispatch(removeTempDatasource()),
   deleteTempDSFromDraft: () => dispatch(deleteTempDSFromDraft()),
   toggleSaveActionFlag: (flag) => dispatch(toggleSaveActionFlag(flag)),

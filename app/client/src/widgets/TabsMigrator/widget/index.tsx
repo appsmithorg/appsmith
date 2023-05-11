@@ -11,7 +11,7 @@ import { cloneDeep, get } from "lodash";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { generateReactKey } from "utils/generators";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 
 class TabsMigratorWidget extends BaseWidget<
   TabsWidgetProps<TabContainerWidgetProps>,
@@ -64,7 +64,7 @@ class TabsMigratorWidget extends BaseWidget<
             propertyName: "shouldShowTabs",
             helpText:
               "Hides the tabs so that different widgets can be displayed based on the default tab",
-            label: "Show Tabs",
+            label: "Show tabs",
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
@@ -73,7 +73,7 @@ class TabsMigratorWidget extends BaseWidget<
             propertyName: "defaultTab",
             helpText: "Selects a tab name specified by default",
             placeholderText: "Enter tab name",
-            label: "Default Tab",
+            label: "Default tab",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -93,7 +93,7 @@ class TabsMigratorWidget extends BaseWidget<
           {
             helpText: "Enables scrolling for content inside the widget",
             propertyName: "shouldScrollContents",
-            label: "Scroll Contents",
+            label: "Scroll contents",
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
@@ -110,7 +110,7 @@ class TabsMigratorWidget extends BaseWidget<
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -125,7 +125,7 @@ class TabsMigratorWidget extends BaseWidget<
         sectionName: "Events",
         children: [
           {
-            helpText: "Triggers an action when the button is clicked",
+            helpText: "when the button is clicked",
             propertyName: "onTabSelected",
             label: "onTabSelected",
             controlType: "ACTION_SELECTOR",
@@ -137,6 +137,7 @@ class TabsMigratorWidget extends BaseWidget<
       },
     ];
   }
+
   componentDidMount() {
     if (get(this.props, EVAL_VALUE_PATH, false)) {
       const tabsDsl = cloneDeep(this.props);

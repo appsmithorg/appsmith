@@ -50,7 +50,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.wait("@postExecute").should(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
       expect(response.body.data.body).to.contains(
-        "Mandatory parameter 'Bucket Name' is missing.",
+        "Mandatory parameter 'Bucket name' is missing.",
       );
     });
 
@@ -85,7 +85,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.wait("@postExecute").should(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
       expect(response.body.data.body).to.contains(
-        "Mandatory parameter 'Bucket Name' is missing.",
+        "Mandatory parameter 'Bucket name' is missing.",
       );
     });
     cy.typeValueNValidate("AutoTest", formControls.s3BucketName);
@@ -94,7 +94,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
       expect(response.body.data.body).to.contains(
-        "Required parameter 'File Path' is missing.",
+        "Required parameter 'File path' is missing.",
       );
     });
     cy.typeValueNValidate("AutoFile", formControls.s3FilePath);
@@ -166,10 +166,10 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     // cy.wait("@postExecute").should(({ response }) => {
     //   expect(response.body.data.isExecutionSuccess).to.eq(false);
     //   expect(response.body.data.body).to.contains(
-    //     "Mandatory parameter 'Bucket Name' is missing.",
+    //     "Mandatory parameter 'Bucket name' is missing.",
     //   );
     // });
-    // cy.typeValueNValidate("assets-test.appsmith.com", "Bucket Name");
+    // cy.typeValueNValidate("assets-test.appsmith.com", "Bucket name");
 
     cy.typeValueNValidate("Auto", formControls.s3ListPrefix);
     cy.onlyQueryRun();
@@ -229,16 +229,16 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     // cy.wait("@postExecute").should(({ response }) => {
     //   expect(response.body.data.isExecutionSuccess).to.eq(false);
     //   expect(response.body.data.body).to.contains(
-    //     "Mandatory parameter 'Bucket Name' is missing.",
+    //     "Mandatory parameter 'Bucket name' is missing.",
     //   );
     // });
-    // cy.typeValueNValidate("AutoTest", "Bucket Name");
+    // cy.typeValueNValidate("AutoTest", "Bucket name");
 
     // cy.onlyQueryRun();
     // cy.wait("@postExecute").then(({ response }) => {
     //   expect(response.body.data.isExecutionSuccess).to.eq(false);
     //   expect(response.body.data.body).to.contains(
-    //     "Required parameter 'File Path' is missing.",
+    //     "Required parameter 'File path' is missing.",
     //   );
     // });
     cy.typeValueNValidate("Auto", formControls.s3FilePath);
@@ -252,7 +252,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     //   ]);
     // });
 
-    // cy.typeValueNValidate("assets-test.appsmith.com", "Bucket Name");
+    // cy.typeValueNValidate("assets-test.appsmith.com", "Bucket name");
 
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
@@ -279,7 +279,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.typeValueNValidate("AutoFile", formControls.s3FilePath);
 
     //Commenting below since below dropdown is removed from Read
-    //cy.validateNSelectDropdown("File Data Type", "Base64", "Text");
+    //cy.validateNSelectDropdown("File data type", "Base64", "Text");
 
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
@@ -318,7 +318,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.wait("@postExecute").should(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
       expect(response.body.data.body).to.contains(
-        "Mandatory parameter 'Bucket Name' is missing.",
+        "Mandatory parameter 'Bucket name' is missing.",
       );
     });
     cy.typeValueNValidate("AutoTest", formControls.s3BucketName);
@@ -327,7 +327,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(false);
       expect(response.body.data.body).to.contains(
-        "Required parameter 'File Path' is missing.",
+        "Required parameter 'File path' is missing.",
       );
     });
     cy.typeValueNValidate("Auto", formControls.s3FilePath);
@@ -359,7 +359,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       "Delete file",
       "List files in bucket",
     );
-    //cy.typeValueNValidate("assets-test.appsmith.com", "Bucket Name");
+    //cy.typeValueNValidate("assets-test.appsmith.com", "Bucket name");
     cy.typeValueNValidate("Auto", formControls.s3ListPrefix);
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
@@ -620,15 +620,16 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     );
     //verify Deletion of file is success from UI also
 
-    //Deleting the page:
-    cy.actionContextMenuByEntityName(
-      "Assets-test.appsmith.com",
-      "Delete",
-      "Are you sure?",
-    );
+    // //Deleting the page://Commenting below since during re-runs the page name can be com2, com3 etc
+    // cy.actionContextMenuByEntityName(
+    //   "Assets-test.appsmith.com",
+    //   "Delete",
+    //   "Are you sure?",
+    // );
   });
 
   it("7. Verify 'Add to widget [Widget Suggestion]' functionality - S3", () => {
+    _.entityExplorer.SelectEntityByName("Page1");
     cy.NavigateToActiveDSQueryPane(datasourceName);
 
     _.agHelper.GetObjectName().then(($queryName) => {

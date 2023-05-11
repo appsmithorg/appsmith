@@ -5,7 +5,7 @@ import { getSchemaItem, getAutocompleteProperties } from "../helper";
 import type { MultiSelectFieldProps } from "widgets/JSONFormWidget/fields/MultiSelectField";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { JSONFormWidgetProps } from "../..";
 
 export function defaultOptionValueValidation(
@@ -125,7 +125,7 @@ const PROPERTIES = {
     {
       propertyName: "defaultValue",
       helpText: "Selects the option with value by default",
-      label: "Default Value",
+      label: "Default value",
       controlType: "JSON_FORM_COMPUTE_VALUE",
       placeholderText: "[GREEN]",
       isBindProperty: true,
@@ -175,7 +175,7 @@ const PROPERTIES = {
     {
       propertyName: "serverSideFiltering",
       helpText: "Enables server side filtering of the data",
-      label: "Server Side Filtering",
+      label: "Server side filtering",
       controlType: "SWITCH",
       isJSConvertible: true,
       isBindProperty: true,
@@ -189,7 +189,7 @@ const PROPERTIES = {
     {
       propertyName: "allowSelectAll",
       helpText: "Controls the visibility of select all option in dropdown.",
-      label: "Allow Select All",
+      label: "Allow select all",
       controlType: "SWITCH",
       isJSConvertible: true,
       isBindProperty: true,
@@ -203,7 +203,7 @@ const PROPERTIES = {
   actions: [
     {
       propertyName: "onOptionChange",
-      helpText: "Triggers an action when a user selects an option",
+      helpText: "when a user selects an option",
       label: "onOptionChange",
       controlType: "ACTION_SELECTOR",
       isJSConvertible: true,
@@ -238,7 +238,7 @@ const PROPERTIES = {
       {
         propertyName: "defaultValue",
         helpText: "Selects the option with value by default",
-        label: "Default Selected Values",
+        label: "Default selected values",
         controlType: "JSON_FORM_COMPUTE_VALUE",
         placeholderText: "[GREEN]",
         isBindProperty: true,
@@ -279,7 +279,7 @@ const PROPERTIES = {
       {
         propertyName: "allowSelectAll",
         helpText: "Controls the visibility of select all option in dropdown.",
-        label: "Allow Select All",
+        label: "Allow select all",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
@@ -293,7 +293,7 @@ const PROPERTIES = {
     events: [
       {
         propertyName: "onOptionChange",
-        helpText: "Triggers an action when a user selects an option",
+        helpText: "when a user selects an option",
         label: "onOptionChange",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
@@ -308,7 +308,7 @@ const PROPERTIES = {
     searchAndFilters: [
       {
         propertyName: "isFilterable",
-        label: "Allow Searching",
+        label: "Allow searching",
         helpText: "Makes the dropdown list filterable",
         controlType: "SWITCH",
         isJSConvertible: true,
@@ -322,7 +322,7 @@ const PROPERTIES = {
       {
         propertyName: "serverSideFiltering",
         helpText: "Enables server side filtering of the data",
-        label: "Server Side Filtering",
+        label: "Server side filtering",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,

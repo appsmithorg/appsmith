@@ -1,17 +1,13 @@
 import React, { useCallback, useState, useRef, useEffect } from "react";
 import styled from "styled-components";
-
 import _ from "lodash";
 import {
-  StyledDragIcon,
-  StyledOptionControlInputGroup,
-  StyledCheckbox,
+  StyledIcon,
   StyledActionContainer,
-  StyledPinIcon,
+  InputGroup,
 } from "components/propertyControls/StyledControls";
 import { Colors } from "constants/Colors";
-import { CheckboxType } from "design-system-old";
-import { Button } from "design-system";
+import { Button, Checkbox } from "design-system";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -50,6 +46,19 @@ type RenderComponentProps = {
 const PADDING_WITHOUT_CHECKBOX = 60;
 const PADDING_WITH_CHECKBOX = 90;
 
+const StyledInputGroup = styled(InputGroup)`
+  input {
+    padding-left: 20px;
+  }
+`;
+
+const StyledCheckbox = styled(Checkbox)`
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  margin-top: 4px;
+  margin-left: 4px;
+`;
 export function DraggableListCard(props: RenderComponentProps) {
   const [value, setValue] = useState(props.item.label);
   const [isEditing, setEditing] = useState(false);
@@ -128,7 +137,7 @@ export function DraggableListCard(props: RenderComponentProps) {
           toggleVisibility && toggleVisibility(index);
         }}
         size="sm"
-        startIcon="show-column"
+        startIcon="eye-on"
       />
     ) : (
       <Button
@@ -140,7 +149,7 @@ export function DraggableListCard(props: RenderComponentProps) {
           toggleVisibility && toggleVisibility(index);
         }}
         size="sm"
-        startIcon="hide-column"
+        startIcon="eye-off"
       />
     );
   };
@@ -149,12 +158,12 @@ export function DraggableListCard(props: RenderComponentProps) {
   return (
     <ItemWrapper className={item.isDuplicateLabel ? "has-duplicate-label" : ""}>
       {item?.isDragDisabled ? (
-        <StyledPinIcon name="pin" size="lg" />
+        <StyledIcon name="pin-3" size="md" />
       ) : (
-        <StyledDragIcon name="drag-control" size="md" />
+        <StyledIcon name="drag-control" size="md" />
       )}
 
-      <StyledOptionControlInputGroup
+      <StyledInputGroup
         autoFocus={index === focusedIndex}
         className={
           props.item.isDuplicateLabel ? `t--has-duplicate-label-${index}` : ""
@@ -182,7 +191,7 @@ export function DraggableListCard(props: RenderComponentProps) {
             onEdit && onEdit(index);
           }}
           size="sm"
-          startIcon="settings-control"
+          startIcon="settings-2-line"
         />
         {showDelete && (
           <Button
@@ -204,17 +213,14 @@ export function DraggableListCard(props: RenderComponentProps) {
          */}
         {showCheckbox && (
           <StyledCheckbox
-            backgroundColor={Colors.GREY_600}
             className={`t--card-checkbox ${
               item.isChecked ? "t--checked" : "t--unchecked"
             }`}
-            disabled={item.isCheckboxDisabled}
-            isDefaultChecked={item.isChecked}
-            label=""
-            onCheckChange={(checked: boolean) =>
-              toggleCheckbox && toggleCheckbox(index, checked)
+            isDisabled={item.isCheckboxDisabled}
+            isSelected={item.isChecked}
+            onChange={(isSelected: boolean) =>
+              toggleCheckbox && toggleCheckbox(index, isSelected)
             }
-            type={CheckboxType.SECONDARY}
           />
         )}
       </StyledActionContainer>

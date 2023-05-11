@@ -72,7 +72,7 @@ function RealtimeAppEditors(props: RealtimeAppEditorsProps) {
   useEditAppCollabEvents(applicationId);
 
   return realtimeAppEditors.length > 0 ? (
-    <UserImageContainer className="app-realtume-editors">
+    <UserImageContainer className="app-realtime-editors">
       {realtimeAppEditors.slice(0, 3).map((el) => (
         <TooltipComponent
           content={

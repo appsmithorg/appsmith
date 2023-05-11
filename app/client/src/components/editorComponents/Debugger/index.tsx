@@ -1,65 +1,28 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import styled from "styled-components";
 import DebuggerTabs from "./DebuggerTabs";
 import type { AppState } from "@appsmith/reducers";
 import {
-  setCanvasDebuggerSelectedTab,
+  setDebuggerSelectedTab,
+  setErrorCount,
   showDebugger as showDebuggerAction,
 } from "actions/debuggerActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Colors } from "constants/Colors";
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import {
   getMessageCount,
   hideDebuggerIconSelector,
+  showDebuggerFlag,
 } from "selectors/debuggerSelectors";
-import { matchBuilderPath } from "constants/routes";
-import { getTypographyByKey, TooltipComponent } from "design-system-old";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
-import { BottomBarCTAStyles } from "pages/Editor/BottomBar/styles";
-import { Button } from "design-system";
+import { Button, Tooltip } from "design-system";
 
 function Debugger() {
-  const showDebugger = useSelector(
-    (state: AppState) => state.ui.debugger.isOpen,
-  );
+  // Debugger render flag
+  const showDebugger = useSelector(showDebuggerFlag);
 
   return showDebugger ? <DebuggerTabs /> : null;
 }
-
-const TriggerContainer = styled.div<{
-  errorCount: number;
-  warningCount: number;
-}>`
-  position: relative;
-  overflow: visible;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  ${BottomBarCTAStyles}
-
-  .debugger-count {
-    color: ${Colors.WHITE};
-    ${getTypographyByKey("btnSmall")}
-    height: 16px;
-    width: 16px;
-    background-color: ${(props) =>
-      props.errorCount + props.warningCount > 0
-        ? props.errorCount === 0
-          ? props.theme.colors.debugger.floatingButton.warningCount
-          : props.theme.colors.debugger.floatingButton.errorCount
-        : props.theme.colors.debugger.floatingButton.noErrorCount};
-    position: absolute;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    top: 0px;
-    left: 80%;
-    font-size: 10px;
-    border-radius: 50%;
-  }
-`;
 
 export function DebuggerTrigger() {
   const dispatch = useDispatch();
@@ -69,62 +32,43 @@ export function DebuggerTrigger() {
   const messageCounters = useSelector(getMessageCount);
   const totalMessageCount = messageCounters.errors + messageCounters.warnings;
   const hideDebuggerIcon = useSelector(hideDebuggerIconSelector);
+  dispatch(setErrorCount(totalMessageCount));
 
   const onClick = (e: any) => {
-    const isOnCanvas = matchBuilderPath(window.location.pathname);
-    if (isOnCanvas) {
-      dispatch(showDebuggerAction(!showDebugger));
-      if (!showDebugger)
-        AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
-          source: "CANVAS",
-        });
+    //Removed canvas condition
+    //Because we want to show debugger in all pages.
+    //Updated in PR #21753 and commit id ee87fa2
+    dispatch(showDebuggerAction(!showDebugger));
+    if (!showDebugger)
+      AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+        source: "CANVAS",
+      });
+    //Removed as this logic was confusing
+    // Now on click of debugger we will always show error tab.
+    dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
 
-      return;
-    } else {
-      if (totalMessageCount > 0) {
-        dispatch(setCanvasDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
-      } else {
-        dispatch(setCanvasDebuggerSelectedTab(DEBUGGER_TAB_KEYS.LOGS_TAB));
-      }
-    }
     stopEventPropagation(e);
   };
 
-  const tooltipContent =
-    totalMessageCount > 0
-      ? `View details for ${totalMessageCount} ${
-          totalMessageCount > 1 ? "errors" : "error"
-        }`
-      : "View logs";
+  //tooltip will always show error count as we are opening error tab on click of debugger.
+  const tooltipContent = `View details for ${totalMessageCount} ${
+    totalMessageCount > 1 ? "errors" : "error"
+  }`;
 
   if (hideDebuggerIcon) return null;
 
   return (
-    <TriggerContainer
-      className="t--debugger"
-      errorCount={messageCounters.errors}
-      warningCount={messageCounters.warnings}
-    >
-      <TooltipComponent
-        content={tooltipContent}
-        modifiers={{
-          preventOverflow: { enabled: true },
-        }}
+    <Tooltip content={tooltipContent}>
+      <Button
+        className="t--debugger-count"
+        kind={totalMessageCount > 0 ? "error" : "tertiary"}
+        onClick={onClick}
+        size="md"
+        startIcon={totalMessageCount ? "close-circle" : "close-circle-line"}
       >
-        <Button
-          isIconButton
-          kind="tertiary"
-          name="bug-line"
-          onClick={onClick}
-          size="sm"
-        />
-      </TooltipComponent>
-      {!!messageCounters.errors && (
-        <div className="debugger-count t--debugger-count">
-          {totalMessageCount > 9 ? "9+" : totalMessageCount}
-        </div>
-      )}
-    </TriggerContainer>
+        {totalMessageCount > 99 ? "99+" : totalMessageCount}
+      </Button>
+    </Tooltip>
   );
 }
 

@@ -9,11 +9,13 @@ import type { DropdownOption } from "../constants";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import type { Stylesheet } from "entities/AppTheming";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
@@ -32,6 +34,31 @@ function defaultOptionValueValidation(value: unknown): ValidationResponse {
 }
 
 class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return {
+      "!doc":
+        "Select is used to capture user input/s from a specified list of permitted inputs. A Select can capture a single choice",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+      isVisible: DefaultAutocompleteDefinitions.isVisible,
+      filterText: {
+        "!type": "string",
+        "!doc": "The filter text for Server side filtering",
+      },
+      selectedOptionValue: {
+        "!type": "string",
+        "!doc": "The value selected in a single select dropdown",
+        "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+      },
+      selectedOptionLabel: {
+        "!type": "string",
+        "!doc": "The selected option label in a single select dropdown",
+        "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+      },
+      isDisabled: "bool",
+      options: "[$__dropdownOption__$]",
+    };
+  }
+
   static getPropertyPaneConfig() {
     return [
       {
@@ -141,7 +168,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
           },
           {
             propertyName: "animateLoading",
-            label: "Animate Loading",
+            label: "Animate loading",
             controlType: "SWITCH",
             helpText: "Controls the loading of the widget",
             defaultValue: true,
@@ -163,7 +190,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
           {
             helpText: "Enables server side filtering of the data",
             propertyName: "serverSideFiltering",
-            label: "Server Side Filtering",
+            label: "Server side filtering",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -205,13 +232,14 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             propertyName: "labelAlignment",
             label: "Alignment",
             controlType: "LABEL_ALIGNMENT_OPTIONS",
+            fullWidth: false,
             options: [
               {
-                icon: "LEFT_ALIGN",
+                startIcon: "align-left",
                 value: Alignment.LEFT,
               },
               {
-                icon: "RIGHT_ALIGN",
+                startIcon: "align-right",
                 value: Alignment.RIGHT,
               },
             ],
@@ -249,7 +277,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "labelTextColor",
-            label: "Label Text Color",
+            label: "Label text color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -258,7 +286,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
           },
           {
             propertyName: "labelTextSize",
-            label: "Label Text Size",
+            label: "Label text size",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
             options: [
@@ -304,11 +332,11 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             controlType: "BUTTON_GROUP",
             options: [
               {
-                icon: "BOLD_FONT",
+                startIcon: "text-bold",
                 value: "BOLD",
               },
               {
-                icon: "ITALICS_FONT",
+                startIcon: "text-italic",
                 value: "ITALIC",
               },
             ],
@@ -323,7 +351,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
         sectionName: "Actions",
         children: [
           {
-            helpText: "Triggers an action when a user selects an option",
+            helpText: "when a user selects an option",
             propertyName: "onOptionChange",
             label: "onOptionChange",
             controlType: "ACTION_SELECTOR",

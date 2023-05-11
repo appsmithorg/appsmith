@@ -1,7 +1,6 @@
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { TooltipComponent } from "design-system-old";
-import { Button } from "design-system";
+import { Button, Tooltip } from "design-system";
 
 import type { AppState } from "@appsmith/reducers";
 import { APP_MODE } from "entities/App";
@@ -11,7 +10,7 @@ import { setPreviewModeInitAction } from "actions/editorActions";
 import { previewModeSelector } from "selectors/editorSelectors";
 
 import { isExploringSelector } from "selectors/onboardingSelectors";
-import { createMessage, EDITOR_HEADER } from "ce/constants/messages";
+import { createMessage, EDITOR_HEADER } from "@appsmith/constants/messages";
 
 function ToggleModeButton() {
   const dispatch = useDispatch();
@@ -29,30 +28,30 @@ function ToggleModeButton() {
   if (isExploring || isViewMode) return null;
 
   return (
-    <TooltipComponent
+    <Tooltip
       content={
         <>
           {createMessage(EDITOR_HEADER.previewTooltip.text)}
-          <span style={{ color: "#fff", marginLeft: 20 }}>
+          <span style={{ marginLeft: 20 }}>
             {createMessage(EDITOR_HEADER.previewTooltip.shortcut)}
           </span>
         </>
       }
-      disabled={appMode !== APP_MODE.EDIT}
-      hoverOpenDelay={1000}
-      position="bottom"
+      isDisabled={appMode !== APP_MODE.EDIT}
+      placement="bottom"
     >
       <Button
-        data-testid={`${isPreviewMode ? "preview" : "edit"}-mode`}
-        isDisabled={!isPreviewMode}
+        data-cy={`${isPreviewMode ? "preview" : "edit"}-mode`}
+        // TODO: (Albin) - check with design team for a better UI
+        // isDisabled={isPreviewMode}
         kind="tertiary"
         onClick={onClickPreviewModeButton}
         size="md"
         startIcon="play-circle-line"
       >
-        {createMessage(EDITOR_HEADER.previewTooltip.text).toUpperCase()}
+        {createMessage(EDITOR_HEADER.previewTooltip.text)}
       </Button>
-    </TooltipComponent>
+    </Tooltip>
   );
 }
 

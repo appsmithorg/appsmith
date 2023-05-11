@@ -5,8 +5,7 @@ import styled from "styled-components";
 import type { SettingComponentProps } from "./Common";
 import { FormGroup } from "./Common";
 import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
-import { Checkbox } from "design-system-old";
-import { Button } from "design-system";
+import { Button, Checkbox } from "design-system";
 import { useSelector } from "react-redux";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
@@ -59,11 +58,13 @@ function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
       <CheckboxWrapper>
         <Checkbox
           data-testid={props.id}
-          disabled={props.isDisabled}
-          isDefaultChecked={isPropertyDisabled ? !val : val}
-          label={props.text}
-          onCheckChange={onCheckbox}
-        />
+          defaultSelected={isPropertyDisabled ? !val : val}
+          isDisabled={props.isDisabled}
+          onChange={onCheckbox}
+          value={props.id}
+        >
+          {props.text}
+        </Checkbox>
         <div>{labelSuffix}</div>
         {props.needsUpgrade && (
           <Button kind="secondary" onClick={onUpgrade}>

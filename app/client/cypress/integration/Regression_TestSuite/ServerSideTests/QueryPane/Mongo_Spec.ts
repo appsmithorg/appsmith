@@ -278,8 +278,8 @@ describe("Validate Mongo Query Pane Validations", () => {
 
     dataSources.ValidateNSelectDropdown(
       "Commands",
-      "Find Document(s)",
-      "Insert Document(s)",
+      "Find document(s)",
+      "Insert document(s)",
     );
 
     agHelper.EnterValue("AuthorNAwards", {
@@ -314,14 +314,14 @@ describe("Validate Mongo Query Pane Validations", () => {
 
   it("3. Validate 'Find' record from new collection & verify query response", () => {
     ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Find");
-    dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)");
+    dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
     dataSources.RunQueryNVerifyResponseViews(1, false);
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("4. Validate 'Find by ID' record from new collection & verify query response", () => {
     ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Find by ID");
-    dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)");
+    dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
     agHelper.EnterValue(`{"_id": ObjectId("51df07b094c6acd67e492f41")}`, {
       propFieldName: "",
       directInput: false,
@@ -386,7 +386,7 @@ describe("Validate Mongo Query Pane Validations", () => {
 }]`;
 
     ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Insert");
-    dataSources.ValidateNSelectDropdown("Commands", "Insert Document(s)");
+    dataSources.ValidateNSelectDropdown("Commands", "Insert document(s)");
     agHelper.EnterValue(insertauthorNAwards, {
       propFieldName: "",
       directInput: false,
@@ -405,7 +405,7 @@ describe("Validate Mongo Query Pane Validations", () => {
 
   it("6. Validate 'Update' record from new collection & verify query response - Record not present - All Matching Document", () => {
     ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Update");
-    dataSources.ValidateNSelectDropdown("Commands", "Update Document(s)");
+    dataSources.ValidateNSelectDropdown("Commands", "Update document(s)");
     agHelper.EnterValue(`{"_id": 3}`, {
       propFieldName: "",
       directInput: false,
@@ -417,7 +417,7 @@ describe("Validate Mongo Query Pane Validations", () => {
       directInput: false,
       inputFieldName: "Update",
     });
-    dataSources.ValidateNSelectDropdown("Limit", "All Matching Documents");
+    dataSources.ValidateNSelectDropdown("Limit", "All matching documents");
     dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
       expect(
@@ -431,7 +431,7 @@ describe("Validate Mongo Query Pane Validations", () => {
 
   it("7. Validate 'Update' record from new collection & verify query response - Record present - All Matching Document", () => {
     ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Update");
-    dataSources.ValidateNSelectDropdown("Commands", "Update Document(s)");
+    dataSources.ValidateNSelectDropdown("Commands", "Update document(s)");
     agHelper.EnterValue(
       `{
       "name.first": "John",
@@ -453,7 +453,7 @@ describe("Validate Mongo Query Pane Validations", () => {
       directInput: false,
       inputFieldName: "Update",
     });
-    dataSources.ValidateNSelectDropdown("Limit", "All Matching Documents");
+    dataSources.ValidateNSelectDropdown("Limit", "All matching documents");
     dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
       expect(
@@ -465,9 +465,9 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
-  it("8. Validate 'Update' record from new collection & verify query response - Record present - Single Document", () => {
+  it("8. Validate 'Update' record from new collection & verify query response - Record present - Single document", () => {
     ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Update");
-    dataSources.ValidateNSelectDropdown("Commands", "Update Document(s)");
+    dataSources.ValidateNSelectDropdown("Commands", "Update document(s)");
     agHelper.EnterValue(`{"_id": 4}`, {
       propFieldName: "",
       directInput: false,
@@ -481,8 +481,8 @@ describe("Validate Mongo Query Pane Validations", () => {
     });
     dataSources.ValidateNSelectDropdown(
       "Limit",
-      "All Matching Documents",
-      "Single Document",
+      "All matching documents",
+      "Single document",
     );
 
     dataSources.RunQuery();
@@ -496,15 +496,15 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
-  it("9. Validate 'Delete' record from new collection & verify query response - Record not present - Single Document", () => {
+  it("9. Validate 'Delete' record from new collection & verify query response - Record not present - Single document", () => {
     ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Delete");
-    dataSources.ValidateNSelectDropdown("Commands", "Delete Document(s)");
+    dataSources.ValidateNSelectDropdown("Commands", "Delete document(s)");
     agHelper.EnterValue(`{ "_id": ObjectId("51df07b094c6acd67e492f43") }`, {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Query",
     });
-    dataSources.ValidateNSelectDropdown("Limit", "Single Document");
+    dataSources.ValidateNSelectDropdown("Limit", "Single document");
     dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
       expect(parseInt(JSON.stringify(resObj.response.body.data.body.n))).to.eq(
@@ -516,16 +516,16 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
-  it("10. Validate 'Delete' record from new collection & verify query response - Record present - Single Document", () => {
+  it("10. Validate 'Delete' record from new collection & verify query response - Record present - Single document", () => {
     ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Delete");
-    dataSources.ValidateNSelectDropdown("Commands", "Delete Document(s)");
+    dataSources.ValidateNSelectDropdown("Commands", "Delete document(s)");
     agHelper.EnterValue(`{ "_id": ObjectId("51df07b094c6acd67e492f41") }`, {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Query",
     });
 
-    dataSources.ValidateNSelectDropdown("Limit", "Single Document");
+    dataSources.ValidateNSelectDropdown("Limit", "Single document");
 
     dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
@@ -540,7 +540,7 @@ describe("Validate Mongo Query Pane Validations", () => {
 
   it("11. Validate 'Delete' record from new collection & verify query response - Record present - All Matching Document", () => {
     ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Delete");
-    dataSources.ValidateNSelectDropdown("Commands", "Delete Document(s)");
+    dataSources.ValidateNSelectDropdown("Commands", "Delete document(s)");
     agHelper.EnterValue(`{ "awards.award": "Rosing Prize" }`, {
       propFieldName: "",
       directInput: false,
@@ -549,8 +549,8 @@ describe("Validate Mongo Query Pane Validations", () => {
 
     dataSources.ValidateNSelectDropdown(
       "Limit",
-      "Single Document",
-      "All Matching Documents",
+      "Single document",
+      "All matching documents",
     );
 
     dataSources.RunQuery();
@@ -636,7 +636,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     const dropCollection = `{ "drop": "AuthorNAwards" }`;
     dataSources.NavigateFromActiveDS(dsName, true);
 
-    dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)", "Raw");
+    dataSources.ValidateNSelectDropdown("Commands", "Find document(s)", "Raw");
     agHelper.RenameWithInPane("DropAuthorNAwards"); //Due to template appearing after renaming
     agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(dropCollection);
@@ -654,17 +654,14 @@ describe("Validate Mongo Query Pane Validations", () => {
   it("18. Verify application does not break when user runs the query with wrong collection name", function () {
     const dropCollection = `{ "drop": "AuthorNAwards" }`;
     dataSources.NavigateFromActiveDS(dsName, true);
-    dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)", "Raw");
+    dataSources.ValidateNSelectDropdown("Commands", "Find document(s)", "Raw");
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropAuthorNAwards");
     dataSources.EnterQuery(dropCollection);
     agHelper.FocusElement(locator._codeMirrorTextArea);
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
-
     dataSources.RunQuery({ expectedStatus: false });
-    agHelper
-      .GetText(dataSources._queryError)
-      .then(($errorText) => expect($errorText).to.eq("ns not found."));
+    agHelper.AssertContains("ns not found.", "exist", dataSources._queryError);
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
@@ -712,8 +709,8 @@ describe("Validate Mongo Query Pane Validations", () => {
 
     dataSources.ValidateNSelectDropdown(
       "Commands",
-      "Find Document(s)",
-      "Insert Document(s)",
+      "Find document(s)",
+      "Insert document(s)",
     );
 
     agHelper.RenameWithInPane("InsertBirthNDeath");
@@ -747,7 +744,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.AssertElementVisible(ee._entityNameInExplorer("BirthNDeath"));
 
     ee.ActionTemplateMenuByEntityName("BirthNDeath", "Find");
-    dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)");
+    dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
     dataSources.RunQueryNVerifyResponseViews(4, false);
     agHelper.ActionContextMenuWithInPane("Delete");
 
@@ -755,7 +752,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     const dropCollection = `{ "drop": "BirthNDeath" }`;
 
     dataSources.NavigateFromActiveDS(dsName, true);
-    dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)", "Raw");
+    dataSources.ValidateNSelectDropdown("Commands", "Find document(s)", "Raw");
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropBirthNDeath");
     dataSources.EnterQuery(dropCollection);

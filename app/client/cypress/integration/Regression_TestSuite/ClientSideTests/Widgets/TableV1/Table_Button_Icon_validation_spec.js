@@ -17,7 +17,7 @@ describe("Table Widget property pane feature validation", function () {
       widgetsPage.tableWidget,
       widgetsPage.widgetNameSpan,
     );
-    cy.createModal("Modal", this.data.ModalName);
+    cy.createModal("Modal", "onRowSelected");
     cy.isSelectRow(1);
     cy.get(".bp3-overlay-backdrop").click({ force: true });
     cy.isSelectRow(2);
@@ -48,7 +48,7 @@ describe("Table Widget property pane feature validation", function () {
     cy.get(commonlocators.editPropBackButton).click({ force: true });
     cy.editColumn("id");
     // Change Column type to icon Button
-    cy.changeColumnType("Icon Button", false);
+    cy.changeColumnType("Icon button", false);
     // Select Icon from Icon Control
     cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
       force: true,

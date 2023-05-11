@@ -1,12 +1,12 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.dtos.ExecuteActionDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
 import com.appsmith.server.services.CrudService;
@@ -72,6 +72,10 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String branchName);
 
     Mono<ActionDTO> deleteUnpublishedAction(String id);
+
+    Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, Boolean includeJsActions);
+
+    Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, String branchName, Boolean includeJsActions);
 
     Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params);
 

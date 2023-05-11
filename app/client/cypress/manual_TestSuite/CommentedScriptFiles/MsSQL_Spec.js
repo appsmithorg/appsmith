@@ -48,7 +48,7 @@
 //       datasourceName = httpResponse.response.body.data.name;
 //     });
 
-//     //Create New page
+//     //Create new page
 //     cy.get(pages.AddPage)
 //       .first()
 //       .click();
