@@ -21,11 +21,9 @@ import java.util.Set;
 @Document
 public class DatasourceStorage extends BaseDomain{
 
-    // TODO: add index
     @JsonView(Views.Public.class)
     String datasourceId;
 
-    // TODO: add index
     @JsonView(Views.Public.class)
     String environmentId;
 
