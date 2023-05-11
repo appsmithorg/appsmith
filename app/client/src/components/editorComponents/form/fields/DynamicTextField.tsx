@@ -2,7 +2,6 @@ import React from "react";
 import type { BaseFieldProps } from "redux-form";
 import { Field } from "redux-form";
 import type { EditorStyleProps } from "components/editorComponents/CodeEditor";
-import CodeEditor from "components/editorComponents/CodeEditor";
 import type {
   CodeEditorBorder,
   TEditorModes,

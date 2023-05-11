@@ -19,7 +19,6 @@ import {
 } from "selectors/entitiesSelector";
 import { actionPathFromName } from "components/formControls/utils";
 import type { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { getLineCommentString } from "components/editorComponents/CodeEditor/utils/codeComment";
 import { getSqlEditorModeFromPluginName } from "components/editorComponents/CodeEditor/sql/config";
 
 const Wrapper = styled.div`
