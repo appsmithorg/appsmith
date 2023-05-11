@@ -99,7 +99,7 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
     >
       <MenuTrigger>
         <Button
-          data-testid="datasource-more-actions-trigger"
+          data-testid="more-action-trigger"
           isIconButton
           kind="tertiary"
           size="md"
