@@ -8,10 +8,12 @@ import type { HTTP_METHOD } from "constants/ApiEditorConstants/CommonApiConstant
 import { HTTP_METHODS_COLOR } from "constants/ApiEditorConstants/CommonApiConstants";
 import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
 import { Icon } from "design-system";
-import { ReactComponent as ApiIcon } from "assets/icons/menu/api-colored.svg";
-import { ReactComponent as CurlIcon } from "assets/images/Curl-logo.svg";
-import { ReactComponent as GraphqlIcon } from "assets/images/Graphql-logo.svg";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { importSvg } from "design-system-old";
+
+const ApiIcon = importSvg(() => import("assets/icons/menu/api-colored.svg"));
+const CurlIcon = importSvg(() => import("assets/images/Curl-logo.svg"));
+const GraphqlIcon = importSvg(() => import("assets/images/Graphql-logo.svg"));
 
 export const ENTITY_ICON_SIZE = 16;
 
@@ -181,15 +183,20 @@ const EntityIconWrapper = styled.div<{
   borderColor?: string;
   width?: string;
   height?: string;
+  noBorder?: boolean;
+  noBackground?: boolean;
   bgColor?: string;
 }>`
   height: ${({ height }) => (height ? height : "18px")};
   width: ${({ width }) => (width ? width : "18px")};
-  background: ${({ bgColor }) => bgColor ?? "none"};
-  border: ${({ borderColor, height }) =>
-    borderColor
-      ? `${parseInt(height ? height : "18px") * 0.0845}px solid ${borderColor}`
-      : "none"};
+  background: ${({ bgColor, noBackground }) =>
+    noBackground ? "transparent" : bgColor ?? "var(--ads-v2-color-bg)"};
+  border: ${({ borderColor, height, noBorder }) =>
+    noBorder
+      ? "none"
+      : `${parseInt(height ? height : "18px") * 0.0845}px solid ${
+          borderColor ?? "var(--ads-v2-color-border)"
+        }`};
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -208,6 +215,8 @@ type EntityIconType = {
   borderColor?: string;
   width?: string;
   height?: string;
+  noBorder?: boolean;
+  noBackground?: boolean;
   bgColor?: string;
 };
 
@@ -217,6 +226,8 @@ function EntityIcon(props: EntityIconType): JSX.Element {
       bgColor={props.bgColor}
       borderColor={props.borderColor}
       height={props.height}
+      noBackground={props.noBackground}
+      noBorder={props.noBorder}
       width={props.width}
     >
       {props.children}
@@ -271,9 +282,19 @@ export function CurlIconV2() {
 
 // height and width are set to 18px by default. This is to maintain the current icon sizes.
 // fontSize is set to 56% by default.
-export function JsFileIconV2(height = 18, width = 18) {
+export function JsFileIconV2(
+  height = 18,
+  width = 18,
+  noBackground = false,
+  noBorder = false,
+) {
   return (
-    <EntityIcon height={height + "px"} width={width + "px"}>
+    <EntityIcon
+      height={height + "px"}
+      noBackground={noBackground}
+      noBorder={noBorder}
+      width={width + "px"}
+    >
       <EntityIcon.textIcon fontSize={height * 3.05}>JS</EntityIcon.textIcon>
     </EntityIcon>
   );

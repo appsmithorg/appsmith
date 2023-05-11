@@ -34,7 +34,7 @@ export const SettingsHeader = styled(Text)`
 export const StickyHeader = styled.div`
   position: sticky;
   top: 0;
-  background: var(--appsmith-color-black-0);
+  background: var(--ads-v2-color-bg);
   padding-bottom: 8px;
   z-index: 4;
 `;

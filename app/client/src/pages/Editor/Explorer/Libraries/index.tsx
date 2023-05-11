@@ -16,7 +16,6 @@ import {
 } from "selectors/entitiesSelector";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import { Collapse } from "@blueprintjs/core";
-// import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import useClipboard from "utils/hooks/useClipboard";
 import {
   toggleInstaller,

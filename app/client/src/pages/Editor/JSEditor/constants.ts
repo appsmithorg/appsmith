@@ -4,7 +4,7 @@ import type { JSActionDropdownOption } from "./utils";
 
 export const RUN_BUTTON_DEFAULTS = {
   HEIGHT: "30px",
-  CTA_TEXT: "RUN",
+  CTA_TEXT: "Run",
   // space between button and dropdown
   GAP_SIZE: "10px",
   DROPDOWN_HIGHLIGHT_BG: "#E7E7E7",
@@ -21,7 +21,7 @@ export const NO_FUNCTION_DROPDOWN_OPTION: JSActionDropdownOption = {
 };
 export const SETTINGS_HEADINGS = [
   {
-    text: "Function Name",
+    text: "Function name",
     hasInfo: false,
     key: "func_name",
   },
@@ -65,7 +65,7 @@ export const CodeEditorWithGutterStyles = css`
   }
   .${RUN_GUTTER_CLASSNAME} {
     cursor: pointer;
-    color: #f86a2b;
+    color: var(--ads-v2-color-fg-brand);
   }
   .CodeMirror-linenumbers {
     width: max-content;

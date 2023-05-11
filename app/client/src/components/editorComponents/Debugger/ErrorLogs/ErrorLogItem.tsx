@@ -4,7 +4,6 @@ import type { Log, Message, SourceEntity } from "entities/AppsmithConsole";
 import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import styled from "styled-components";
 import { Classes, getTypographyByKey } from "design-system-old";
-import { Colors } from "constants/Colors";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { PluginErrorDetails } from "api/ActionAPI";
 import LogCollapseData from "./components/LogCollapseData";
@@ -20,7 +19,7 @@ import { Button, Icon } from "design-system";
 
 const InnerWrapper = styled.div`
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 4px;
 `;
 
@@ -29,22 +28,14 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   flex-direction: column;
   padding: 8px 16px 8px 16px;
   cursor: default;
-
-  &.${Severity.INFO} {
-    border-bottom: 1px solid
-      ${(props) => props.theme.colors.debugger.info.borderBottom};
-  }
+  border-bottom: 1px solid var(--ads-v2-color-border);
 
   &.${Severity.ERROR} {
-    background-color: #fff8f8;
-    border-bottom: 1px solid #ffebeb;
+    background-color: var(--ads-v2-color-bg-error);
   }
 
   &.${Severity.WARNING} {
-    background-color: ${(props) =>
-      props.theme.colors.debugger.warning.backgroundColor};
-    border-bottom: 1px solid
-      ${(props) => props.theme.colors.debugger.warning.borderBottom};
+    background-color: var(--ads-v2-color-bg-warning);
   }
 
   .${Classes.ICON} {
@@ -62,26 +53,16 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     ${getTypographyByKey("h6")}
     letter-spacing: -0.24px;
     font-weight: 500;
-    color: ${Colors.GRAY_500};
+    color: var(--ads-v2-color-fg-muted);
     cursor: default;
     flex-shrink: 0;
-    &.${Severity.INFO} {
-      color: ${(props) => props.theme.colors.debugger.info.time};
-    }
-
-    &.${Severity.ERROR} {
-      color: ${(props) => props.theme.colors.debugger.error.time};
-    }
-
-    &.${Severity.WARNING} {
-      color: ${(props) => props.theme.colors.debugger.warning.time};
-    }
+    width: max-content;
   }
 
   .debugger-error-type {
     ${getTypographyByKey("h6")}
     letter-spacing: -0.24px;
-    color: ${(props) => props.theme.colors.debugger.error.type};
+    color: var(--ads-v2-color-fg);
     flex-shrink: 0;
   }
 
@@ -95,7 +76,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       ${getTypographyByKey("h6")}
       font-weight: 400;
       letter-spacing: -0.195px;
-      color: ${Colors.GRAY_800};
+      color: var(--ads-v2-color-fg);
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: normal;
@@ -105,28 +86,29 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       user-select: all; /* Likely future */
     }
     .debugger-entity {
-      color: ${(props) => props.theme.colors.debugger.entity};
+      color: var(--ads-v2-color-fg);
       ${getTypographyByKey("h6")}
       margin-left: 6px;
 
       & > span {
         &:hover {
           text-decoration: underline;
-          text-decoration-color: ${(props) =>
-            props.theme.colors.debugger.entity};
+          text-decoration-color: var(--ads-v2-color-fg);
         }
       }
     }
   }
 
   .debugger-entity-link {
+    // TODO: unclear why this file and LogItem.tsx have different styles when they look so similar
     ${getTypographyByKey("h6")}
     font-weight: 400;
     letter-spacing: -0.195px;
-    color: ${(props) => props.theme.colors.debugger.error.type};
+    color: var(--ads-v2-color-fg-emphasis);
     cursor: pointer;
     text-decoration-line: underline;
     flex-shrink: 0;
+    width: max-content;
   }
 `;
 
@@ -198,7 +180,7 @@ export type LogItemProps = {
 };
 
 // Log item component
-function ErrorLogItem(props: LogItemProps) {
+const ErrorLogItem = (props: LogItemProps) => {
   const dispatch = useDispatch();
   const expandToggle = () => {
     if (props.id) {
@@ -249,8 +231,9 @@ function ErrorLogItem(props: LogItemProps) {
             <Button
               className={`${Classes.ICON} debugger-toggle`}
               data-cy="t--debugger-toggle"
-              data-isOpen={props.isExpanded}
+              data-isopen={props.isExpanded}
               isDisabled={!collapsable}
+              isIconButton
               kind="tertiary"
               onClick={() => expandToggle()}
               startIcon={"expand-more"}
@@ -304,6 +287,6 @@ function ErrorLogItem(props: LogItemProps) {
       )}
     </Wrapper>
   );
-}
+};
 
 export default ErrorLogItem;

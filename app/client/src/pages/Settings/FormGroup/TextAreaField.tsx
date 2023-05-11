@@ -14,6 +14,7 @@ const renderComponent = (
   },
 ) => {
   const showError = componentProps.meta.touched && !componentProps.meta.active;
+  // TODO: Does there need to be a LazyCodeEditor here? Why?
   return (
     <>
       <Input

@@ -26,18 +26,14 @@ const SectionContainer = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  width: 240px;
+  width: 270px;
   cursor: pointer;
-  margin-bottom: 5;
+  margin-bottom: 5px;
 `;
 
 const TopBorder = styled(Divider)`
   margin-top: 24px;
-  margin-bottom: 24px;
-`;
-
-const SectionContentWrapper = styled.div`
-  padding: 0 20px;
+  margin-bottom: 16px;
 `;
 
 interface ComponentProps {
@@ -83,28 +79,25 @@ function Collapsible(props: Props) {
   return (
     <section data-cy={`section-${title}`} data-replay-id={`section-${title}`}>
       {showTopBorder && <TopBorder className="t--collapse-top-border" />}
-      <SectionContentWrapper>
-        {showSection && (
-          <SectionContainer
-            className="t--collapse-section-container"
-            onClick={() => setIsOpen(!isOpen)}
-          >
-            <SectionLabel>
-              {title}
-              {headerIcon && <Icon name={headerIcon.name} size="md" />}
-            </SectionLabel>
-            <Icon
-              color="var(--ads-v2-color-fg-information)"
-              name={isOpen ? "arrow-up-s-line" : "arrow-down-s-line"}
-              size="md"
-            />
-          </SectionContainer>
-        )}
+      {showSection && (
+        <SectionContainer
+          className="t--collapse-section-container"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <SectionLabel>
+            {title}
+            {headerIcon && <Icon name={headerIcon.name} size="md" />}
+          </SectionLabel>
+          <Icon
+            name={isOpen ? "arrow-up-s-line" : "arrow-down-s-line"}
+            size="md"
+          />
+        </SectionContainer>
+      )}
 
-        <Collapse isOpen={isOpen} keepChildrenMounted>
-          {children}
-        </Collapse>
-      </SectionContentWrapper>
+      <Collapse isOpen={isOpen} keepChildrenMounted>
+        {children}
+      </Collapse>
     </section>
   );
 }

@@ -18,14 +18,14 @@ describe("Property Pane Suggestions", () => {
   it("1. Should show Property Pane Suggestions on / command & when typing {{}}", () => {
     EntityExplorer.SelectEntityByName("Button1", "Widgets");
     PropertyPane.TypeTextIntoField("Label", "/");
-    AggregateHelper.GetNAssertElementText(CommonLocators._hints, "Bind Data");
+    AggregateHelper.GetNAssertElementText(CommonLocators._hints, "Bind data");
     AggregateHelper.GetNAssertElementText(
       CommonLocators._hints,
-      "New Binding",
+      "New binding",
       "have.text",
       1,
     );
-    AggregateHelper.GetNClickByContains(CommonLocators._hints, "New Binding");
+    AggregateHelper.GetNClickByContains(CommonLocators._hints, "New binding");
     PropertyPane.ValidatePropertyFieldValue("Label", "{{}}");
 
     //typing {{}}

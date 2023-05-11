@@ -22,25 +22,12 @@ const getBorderStyle = (
     disabled?: boolean;
   },
 ) => {
-  if (props.hasError) return props.theme.colors.error;
+  if (props.hasError) return "var(--ads-v2-color-border-error)";
   if (props.editorTheme !== EditorTheme.DARK) {
-    if (props.isFocused) return props.theme.colors.inputActiveBorder;
-    return props.theme.colors.border;
+    if (props.isFocused) return "var(--ads-v2-color-border-emphasis)";
+    return "var(--ads-v2-color-border)";
   }
   return "transparent";
-};
-
-const editorBackground = (theme?: EditorTheme) => {
-  let bg = "#FAFAFA";
-  switch (theme) {
-    case EditorTheme.DARK:
-      bg = "#1A191C";
-      break;
-    case EditorTheme.LIGHT:
-      bg = "#FAFAFA";
-      break;
-  }
-  return bg;
 };
 
 export const EditorWrapper = styled.div<{
@@ -60,6 +47,7 @@ export const EditorWrapper = styled.div<{
   className?: string;
   codeEditorVisibleOverflow?: boolean;
   ctrlPressed: boolean;
+  removeHoverAndFocusStyle?: boolean;
 }>`
   width: 100%;
   ${(props) =>
@@ -75,37 +63,44 @@ export const EditorWrapper = styled.div<{
       : `position: relative;`}
   min-height: 36px;
   height: ${(props) => props.height || "auto"};
-  background-color: ${(props) => editorBackground(props.editorTheme)};
-  background-color: ${(props) => props.disabled && "#eef2f5"};
+  background-color: ${(props) =>
+    props.disabled ? "var(--ads-v2-color-bg-muted)" : "var(--ads-v2-color-bg)"};
   border-color: ${getBorderStyle};
   display: flex;
   flex: 1;
   flex-direction: row;
   text-transform: none;
-  ${(props) =>
-    props.hoverInteraction
-      ? `
   &:hover {
     && {
-      .cm-s-duotone-dark.CodeMirror {
-        cursor: pointer;
-        border-radius: var(--ads-v2-border-radius);
-        background: ${
-          !props.isNotHover
-            ? Colors.SHARK2
-            : props.isFocused
-            ? Colors.NERO
-            : Colors.BALTIC_SEA
-        };
-      }
       .cm-s-duotone-light.CodeMirror {
         cursor: pointer;
-        border-color: var(--ads-v2-color-border-emphasis);
         border-radius: var(--ads-v2-border-radius);
+        border-color: var(--ads-v2-color-border-emphasis);
+        ${(props) =>
+          props?.removeHoverAndFocusStyle &&
+          `
+          border-color: transparent;
+        `}
       }
     }
-  }`
-      : null};
+  }
+  &:focus,
+  &:focus-visible {
+    && {
+      .cm-s-duotone-light.CodeMirror {
+        cursor: pointer;
+        border-radius: var(--ads-v2-border-radius);
+        border-color: var(--ads-v2-color-border-emphasis-plus);
+
+        ${(props) =>
+          props?.removeHoverAndFocusStyle &&
+          `
+          border-color: transparent;
+        `}
+      }
+    }
+  }
+
   && {
     .CodeMirror-cursor {
       border-right: none;
@@ -120,7 +115,11 @@ export const EditorWrapper = styled.div<{
       border-radius: var(--ads-v2-border-radius);
       ${(props) =>
         props.isFocused &&
-        `outline: var(--ads-v2-border-width-outline) solid var(--ads-v2-color-outline);
+        `outline: ${
+          props?.removeHoverAndFocusStyle
+            ? "none"
+            : "var(--ads-v2-border-width-outline) solid var(--ads-v2-color-outline)"
+        };
         outline-offset: var(--ads-v2-offset-outline);`}
       border: 1px solid
         ${(props) => {
@@ -128,16 +127,15 @@ export const EditorWrapper = styled.div<{
           case props.border === "none":
             return "transparent";
           case props.border === "bottom-side":
-            return Colors.MERCURY;
+            return "var(--ads-v2-color-border)";
           case props.hasError:
-            return "red";
+            return "var(--ads-v2-color-border-error)";
           case props.isFocused:
-            return "var(--ads-v2-color-border-emphasis-plus)";
+            return "var(--ads-v2-color-border-emphasis)";
           default:
             return "var(--ads-v2-color-border)";
         }
       }};
-      ${(props) => props.border === "none" && "border: none"};
       background: var(--ads-v2-color-bg);
       color: var(--ads-v2-color-fg);
       & {
@@ -146,28 +144,13 @@ export const EditorWrapper = styled.div<{
         }
       }
     }
-    .cm-s-duotone-light .CodeMirror-gutters {
-      background: ${Colors.Gallery};
+    .CodeMirror-guttermarker-subtle {
+      color: var(--ads-v2-color-fg-subtle);
     }
-    .cm-s-duotone-dark.CodeMirror {
-      border-radius: 0px;
-      ${(props) =>
-        props.border === "none"
-          ? `border: 0px`
-          : props.border === "bottom-side"
-          ? `border-bottom: 1px solid ${Colors.NERO}`
-          : `border: 1px solid ${Colors.NERO}`};
-      background: ${(props) =>
-        props.isFocused || props.fillUp ? Colors.NERO : "#262626"};
-      color: ${Colors.LIGHT_GREY};
+    .cm-s-duotone-light .CodeMirror-gutters {
+      background: var(--ads-v2-color-bg-subtle);
     }
     .cm-s-duotone-light .CodeMirror-linenumber,
-    .cm-s-duotone-dark .CodeMirror-linenumber {
-      color: ${Colors.DOVE_GRAY};
-    }
-    .cm-s-duotone-dark .CodeMirror-gutters {
-      background: ${Colors.SHARK2};
-    }
     .binding-brackets {
       color: ${(props) =>
         props.editorTheme === EditorTheme.DARK
@@ -177,7 +160,7 @@ export const EditorWrapper = styled.div<{
     }
 
     .${PEEKABLE_CLASSNAME}:hover, .${PEEK_STYLE_PERSIST_CLASS} {
-      background-color: #f4ffde;
+      border-color: var(--ads-v2-color-border-emphasis);
     }
 
     .${NAVIGATION_CLASSNAME} {
@@ -206,12 +189,12 @@ export const EditorWrapper = styled.div<{
       margin-right: 2px;
     }
     .datasource-highlight-error {
-      background: #fff0f0;
-      border: 1px solid #f22b2b;
+      background: var(--ads-v2-color-bg-error);
+      border: 1px solid var(--ads-v2-color-border-error);
     }
     .datasource-highlight-success {
-      background: #e3fff3;
-      border: 1px solid #03b365;
+      background: var(--ads-v2-color-bg-success);
+      border: 1px solid var(--ads-v2-color-border-success);
     }
     .CodeMirror {
       flex: 1;
@@ -245,7 +228,7 @@ export const EditorWrapper = styled.div<{
   && {
     .CodeMirror-lines {
       padding: ${(props) => props.theme.spaces[2]}px 0px;
-      background-color: ${(props) => props.disabled && "#eef2f5"};
+      opacity: ${(props) => props.disabled && "var(--ads-v2-opacity-disabled)"};
       cursor: ${(props) => (props.disabled ? "not-allowed" : "text")};
     }
   }
@@ -325,7 +308,7 @@ export const EditorWrapper = styled.div<{
     }
 
     & .CodeEditorTarget {
-      height: ${props.isFocused ? "auto" : "35px"};
+      height: ${props.isFocused ? "auto" : "36px"};
     }
   `}
 
@@ -378,7 +361,7 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
   > span:first-of-type {
     width: 30px;
     position: absolute;
-    right: 0px;
+    right: 0;
   }
   &:hover {
     .lightning-menu {
@@ -399,6 +382,10 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
       display: flex;
     }
   }
+  border-radius: var(--ads-v2-border-radius);
+  .ur--has-border {
+    border-radius: var(--ads-v2-border-radius);
+  }
   .lightning-menu {
     z-index: 1 !important;
   }
@@ -410,6 +397,10 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
     bottom: 18px;
     transform: translate(-50%, 50%);
     display: none;
+    border: none;
+    font-weight: bold;
+    font-size: 14px;
+    font-style: italic;
     margin: 0 !important;
     top: -2px;
   }

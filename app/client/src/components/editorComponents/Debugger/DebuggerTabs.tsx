@@ -33,7 +33,7 @@ import { Button } from "design-system";
 const TABS_HEADER_HEIGHT = 36;
 
 const Container = styled.div`
-  ${ResizerCSS}
+  ${ResizerCSS};
   position: absolute;
   bottom: 0;
   height: ${ActionExecutionResizerHeight}px;
@@ -41,10 +41,10 @@ const Container = styled.div`
   background-color: ${(props) => props.theme.colors.debugger.background};
   border-top: 1px solid ${Colors.ALTO};
 
-  ul.react-tabs__tab-list {
+  ul.ads-v2-tabs__list {
     padding: 0px ${(props) => props.theme.spaces[12]}px;
   }
-  .react-tabs__tab-panel {
+  .ads-v2-tabs__panel {
     height: calc(100% - ${TABS_HEADER_HEIGHT}px);
   }
 

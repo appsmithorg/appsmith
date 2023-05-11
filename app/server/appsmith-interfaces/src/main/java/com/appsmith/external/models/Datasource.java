@@ -24,7 +24,7 @@ import java.util.Set;
 public class Datasource extends BranchAwareDomain {
 
     @Transient
-    public static final String DEFAULT_NAME_PREFIX = "Untitled Datasource";
+    public static final String DEFAULT_NAME_PREFIX = "Untitled datasource";
 
     @JsonView(Views.Public.class)
     String name;

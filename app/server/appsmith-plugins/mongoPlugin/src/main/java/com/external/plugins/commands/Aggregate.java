@@ -62,7 +62,7 @@ public class Aggregate extends MongoCommand {
             if (!StringUtils.isNullOrEmpty(pipeline)) {
                 return Boolean.TRUE;
             } else {
-                fieldNamesWithNoConfiguration.add("Array of Pipelines");
+                fieldNamesWithNoConfiguration.add("Array of pipelines");
             }
         }
 
@@ -96,7 +96,7 @@ public class Aggregate extends MongoCommand {
                 throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, MongoPluginErrorMessages.PIPELINE_STAGE_NOT_VALID_ERROR_MSG);
             }
 
-            Document document = parseSafely("Array of Pipelines", this.pipeline);
+            Document document = parseSafely("Array of pipelines", this.pipeline);
             ArrayList<Document> documentArrayList = new ArrayList<>();
             documentArrayList.add(document);
 

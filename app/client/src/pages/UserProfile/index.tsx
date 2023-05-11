@@ -9,8 +9,9 @@ import { GIT_PROFILE_ROUTE } from "constants/routes";
 import { BackButton } from "components/utils/helperComponents";
 
 const ProfileWrapper = styled.div`
-  width: 960px;
-  margin: 0 auto;
+  width: 978px;
+  margin: var(--ads-v2-spaces-7) auto;
+  padding-left: var(--ads-v2-spaces-7);
 
   .tab-item {
     display: flex;

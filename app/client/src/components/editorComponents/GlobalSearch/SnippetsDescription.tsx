@@ -11,7 +11,6 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "../CodeEditor/EditorConfig";
-import CodeEditor from "../CodeEditor";
 import {
   evaluateArgument,
   evaluateSnippet,
@@ -48,6 +47,7 @@ import {
   TabPanel,
   Tab,
 } from "design-system";
+import LazyCodeEditor from "../LazyCodeEditor";
 
 SyntaxHighlighter.registerLanguage("sql", sql);
 
@@ -318,7 +318,7 @@ export default function SnippetDescription({ item }: { item: Snippet }) {
                 onKeyDown={(e) => e.stopPropagation()}
               >
                 <span>{arg.name}</span>
-                <CodeEditor
+                <LazyCodeEditor
                   errors={evaluatedArguments[arg.name]?.errors}
                   evaluatedValue={evaluatedArguments[arg.name]?.value}
                   expected={getExpectedValue({ type: arg.type })}

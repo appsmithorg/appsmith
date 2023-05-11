@@ -9,7 +9,7 @@ import { getBindingOrConfigPathsForSortingControl } from "entities/Action/action
 import { SortingSubComponent } from "./utils";
 import { get, isArray } from "lodash";
 import useResponsiveBreakpoints from "utils/hooks/useResponsiveBreakpoints";
-import { Button, Icon } from "design-system";
+import { Button } from "design-system";
 
 // sorting's order dropdown values
 enum OrderDropDownValues {
@@ -25,7 +25,7 @@ const columnFieldConfig: any = {
   inputType: "TEXT",
   placeholderText: "Column name",
   customStyles: {
-    width: "280px",
+    // width: "280px",
   },
 };
 
@@ -61,15 +61,11 @@ const SortingDropdownContainer = styled.div<{ size: string }>`
   flex-direction: row;
   width: min-content;
   justify-content: space-between;
-  margin-bottom: 10px;
-
-  // Hide the icon by default
-  .t--form-control-DROP_DOWN .remixicon-icon {
-    display: none;
-  }
-  // We still want the dropdown to show the 'expand-more' icon
-  .t--form-control-DROP_DOWN span[name="expand-more"] .remixicon-icon {
-    display: initial;
+  margin-bottom: 5px;
+  gap: 5px;
+  align-items: center;
+  > div {
+    width: 270px;
   }
   ${(props) =>
     props.size === "small" &&
@@ -85,39 +81,15 @@ const SortingDropdownContainer = styled.div<{ size: string }>`
   }
   `}
 `;
-
-// container for the column dropdown section
-const ColumnDropdownContainer = styled.div`
-  margin-right: 1rem;
-`;
-
-// Component for the icons
-const CenteredButton = styled(Button)`
-  margin-left: 8px;
-  align-self: end;
-  margin-bottom: 10px;
-`;
-
-// container for the bottom label section
-const StyledBottomLabelContainer = styled.div<{ isDisabled?: boolean }>`
+const ButtonWrapper = styled.div`
   display: flex;
   flex-direction: row;
-  align-items: center;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 14px;
-  letter-spacing: 0.6px;
-  margin-right: 20px;
-  color: ${(props) =>
-    props.isDisabled ? "var(--appsmith-color-black-300)" : "#858282;"};
-  cursor: pointer;
-  width: max-content;
-  text-transform: uppercase;
 `;
+// container for the column dropdown section
+const ColumnDropdownContainer = styled.div``;
 
-export const StyledBottomLabel = styled.span`
-  margin-left: 8px;
-`;
+// Component for the icons
+const CenteredButton = styled(Button)``;
 
 function SortingComponent(props: any) {
   const formValues: any = useSelector((state) =>
@@ -208,9 +180,9 @@ function SortingComponent(props: any) {
                   configProperty: `${OrderPath}`,
                   nestedFormControl: true,
                   customStyles: {
-                    width: isBreakpointSmall ? "65px" : "144px",
+                    width: isBreakpointSmall ? "65px" : "270px",
                   },
-                  optionWidth: isBreakpointSmall ? "144px" : undefined,
+                  optionWidth: isBreakpointSmall ? "270px" : undefined,
                 }}
                 formName={props.formName}
               />
@@ -223,24 +195,28 @@ function SortingComponent(props: any) {
                   e.stopPropagation();
                   onDeletePressed(index);
                 }}
-                size="sm"
-                startIcon="cross"
+                size="md"
+                startIcon="close-line"
               />
             </SortingDropdownContainer>
           );
         })}
-      <StyledBottomLabelContainer
-        data-cy={`t--sorting-add-field`}
-        onClick={() =>
-          props.fields.push({
-            column: "",
-            order: OrderDropDownValues.ASCENDING,
-          })
-        }
-      >
-        <Icon name="add-more-fill" size="md" />
-        <StyledBottomLabel>Add Parameter</StyledBottomLabel>
-      </StyledBottomLabelContainer>
+      <ButtonWrapper>
+        <Button
+          data-cy={`t--sorting-add-field`}
+          kind="tertiary"
+          onClick={() =>
+            props.fields.push({
+              column: "",
+              order: OrderDropDownValues.ASCENDING,
+            })
+          }
+          size="md"
+          startIcon="add-more"
+        >
+          Add Parameter
+        </Button>
+      </ButtonWrapper>
     </SortingContainer>
   );
 }

@@ -65,7 +65,6 @@ import {
 import { Button } from "design-system";
 import { getDatasourceErrorMessage } from "./errorUtils";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { DocumentationLink } from "../QueryEditor/EditorJSONtoForm";
 import GoogleSheetFilePicker from "./GoogleSheetFilePicker";
 import DatasourceInformation from "./../DataSourceEditor/DatasourceSection";
 import styled from "styled-components";
@@ -113,7 +112,7 @@ type DatasourceSaaSEditorProps = StateProps &
     datasourceId: string;
     pageId: string;
     pluginPackageName: string;
-  }>;
+  }> & { dispatch: any };
 
 type Props = DatasourceSaaSEditorProps &
   InjectedFormProps<Datasource, DatasourceSaaSEditorProps>;
@@ -135,8 +134,9 @@ type State = {
 const ViewModeWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  border-bottom: 1px solid #d0d7dd;
-  padding: 24px 20px;
+  border-bottom: 1px solid var(--ads-v2-color-border);
+  margin: var(--ads-v2-spaces-7);
+  padding-bottom: 24px;
 `;
 
 class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
@@ -159,8 +159,15 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
+    const urlObject = new URL(window?.location?.href);
+    const pluginId = urlObject?.searchParams?.get("pluginId");
     // update block state when form becomes dirty/view mode is switched on
-    if (prevProps.viewMode !== this.props.viewMode && !this.props.viewMode) {
+
+    if (
+      prevProps.viewMode !== this.props.viewMode &&
+      !this.props.viewMode &&
+      !!pluginId
+    ) {
       this.blockRoutes();
     }
 
@@ -183,19 +190,20 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
   }
 
   componentDidMount() {
+    const urlObject = new URL(window?.location?.href);
+    const pluginId = urlObject?.searchParams?.get("pluginId");
     // Create Temp Datasource on component mount,
     // if user hasnt saved datasource for the first time and refreshed the page
     if (
       !this.props.datasource &&
       this.props.match.params.datasourceId === TEMP_DATASOURCE_ID
     ) {
-      const urlObject = new URL(window.location.href);
-      const pluginId = urlObject?.searchParams.get("pluginId");
       this.props.createTempDatasource({
         pluginId,
       });
     }
-    if (!this.props.viewMode) {
+
+    if (!this.props.viewMode && !!pluginId) {
       this.blockRoutes();
     }
     this.props.loadFilePickerAction();
@@ -276,7 +284,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       datasource,
       datasourceButtonConfiguration,
       datasourceId,
-      documentationLink,
       formConfig,
       formData,
       gsheetProjectID,
@@ -353,6 +360,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                         }),
                       );
                     }}
+                    size="md"
                   >
                     Edit
                   </Button>
@@ -379,7 +387,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
               datasource?.id === TEMP_DATASOURCE_ID ? (
                 <AuthMessage
                   actionType={ActionType.DOCUMENTATION}
-                  calloutType="Notify"
+                  calloutType="info"
                   datasource={datasource}
                   description={googleSheetsInfoMessage}
                   pageId={pageId}
@@ -398,7 +406,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                   description={authErrorMessage}
                   pageId={pageId}
                   style={{
-                    paddingTop: "24px",
+                    paddingTop: "12px",
                   }}
                 />
               ) : null}
@@ -452,8 +460,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
             />
           )}
         </form>
-        {/* Documentation link opens up documentation in omnibar, for google sheets */}
-        {documentationLink && <DocumentationLink />}
         <SaveOrDiscardDatasourceModal
           datasourceId={datasourceId}
           datasourcePermissions={datasource?.userPermissions || []}

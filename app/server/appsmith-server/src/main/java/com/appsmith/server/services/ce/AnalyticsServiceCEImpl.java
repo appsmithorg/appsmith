@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.constants.AnalyticsConstants.EMAIL_DOMAIN_HASH;
 import static com.appsmith.external.constants.AnalyticsConstants.GOAL;
 import static com.appsmith.external.constants.AnalyticsConstants.IP;
+import static com.appsmith.external.constants.AnalyticsConstants.IP_ADDRESS;
 import static com.appsmith.server.constants.ce.FieldNameCE.EMAIL;
 import static com.appsmith.server.constants.ce.FieldNameCE.NAME;
 import static com.appsmith.server.constants.ce.FieldNameCE.ROLE;
@@ -154,7 +155,8 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                         GOAL, ObjectUtils.defaultIfNull(useCase, ""),
                         EMAIL, ObjectUtils.defaultIfNull(adminEmail, ""),
                         NAME, ObjectUtils.defaultIfNull(adminFullName, ""),
-                        IP, ObjectUtils.defaultIfNull(ip, "unknown")
+                        IP, ObjectUtils.defaultIfNull(ip, "unknown"),
+                        IP_ADDRESS, ObjectUtils.defaultIfNull(ip, "unknown")
                 ))
         );
         analytics.flush();
@@ -225,8 +227,11 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                         ));
                     // For Installation Setup Complete event we are using `instanceId` as tracking id
                     // As this does not satisfy the email validation it's not getting hashed correctly
-                    if (!StringUtils.isEmpty(instanceId) && instanceId.equals(immutableUserId)) {
-                        analyticsProperties.put(EMAIL_DOMAIN_HASH, hash(immutableUserId));
+                    if (AnalyticsEvents.INSTALLATION_SETUP_COMPLETE.getEventName().equals(event)
+                            && analyticsProperties.containsKey(EMAIL)) {
+
+                        String email = analyticsProperties.get(EMAIL) != null ? analyticsProperties.get(EMAIL).toString() : "";
+                        analyticsProperties.put(EMAIL_DOMAIN_HASH, getEmailDomainHash(email));
                     } else {
                         analyticsProperties.put(EMAIL_DOMAIN_HASH, emailDomainHash);
                     }

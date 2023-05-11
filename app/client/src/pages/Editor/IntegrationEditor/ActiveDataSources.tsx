@@ -77,7 +77,7 @@ function ActiveDataSources(props: ActiveDataSourcesProps) {
           onClick={props.onCreateNew}
           size="md"
         >
-          Create New
+          Create new
         </Button>
       </EmptyActiveDatasource>
     );

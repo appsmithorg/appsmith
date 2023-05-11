@@ -177,7 +177,7 @@ function ThemeEditor() {
                     options={get(
                       selectedTheme,
                       `config.fontFamily.${fontFamilySectionName}`,
-                      {},
+                      [],
                     )}
                     sectionName={fontFamilySectionName}
                     selectedOption={get(

@@ -66,13 +66,13 @@ export const LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER = () =>
 export const LOGIN_PAGE_INVALID_CREDS_ERROR = () =>
   `It looks like you may have entered incorrect/invalid credentials. Please try again or reset password using the button below.`;
 export const LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK = () =>
-  `Reset Password`;
+  `Reset password`;
 export const NEW_TO_APPSMITH = () => `Don't have an account?`;
 export const LOGIN_PAGE_TITLE = () => `Sign in`;
 export const LOGIN_PAGE_SUBTITLE = () => `Sign in to your account`;
 
 export const LOGIN_PAGE_LOGIN_BUTTON_TEXT = () => `Sign in`;
-export const LOGIN_PAGE_FORGOT_PASSWORD_TEXT = () => `Forgot Password`;
+export const LOGIN_PAGE_FORGOT_PASSWORD_TEXT = () => `Forgot password`;
 export const LOGIN_PAGE_REMEMBER_ME_LABEL = () => `Remember`;
 export const LOGIN_PAGE_SIGN_UP_LINK_TEXT = () => `Sign up`;
 export const SIGNUP_PAGE_TITLE = () => `Create your free account`;
@@ -182,7 +182,7 @@ export const USER_DISPLAY_NAME_CHAR_CHECK_FAILED = () =>
 export const USER_DISPLAY_NAME_PLACEHOLDER = () => "Display name";
 export const USER_DISPLAY_PICTURE_PLACEHOLDER = () => "Display picture";
 export const USER_EMAIL_PLACEHOLDER = () => "Email";
-export const USER_RESET_PASSWORD = () => "Reset Password";
+export const USER_RESET_PASSWORD = () => "Reset password";
 
 export const CREATE_PASSWORD_RESET_SUCCESS = () => `Your password has been set`;
 export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = () => `Login`;
@@ -223,9 +223,9 @@ export const EDITOR_HEADER = {
 // Homepage
 export const CREATE_NEW_APPLICATION = () => `Create new`;
 export const SEARCH_APPS = () => `Search for apps...`;
-export const GETTING_STARTED = () => `GETTING STARTED`;
+export const GETTING_STARTED = () => `Getting started`;
 export const WORKSPACES_HEADING = () => `Workspaces`;
-export const WELCOME_TOUR = () => `Welcome Tour`;
+export const WELCOME_TOUR = () => `Welcome tour`;
 export const NO_APPS_FOUND = () =>
   `Whale! Whale! This name doesn't ring a bell!`;
 
@@ -305,8 +305,8 @@ export const DATASOURCE_UPDATE = (dsName: string) =>
   `${dsName} datasource updated successfully`;
 export const DATASOURCE_VALID = (dsName: string) =>
   `${dsName} datasource is valid`;
-export const EDIT_DATASOURCE = () => "EDIT DATASOURCE";
-export const SAVE_DATASOURCE = () => "SAVE AS DATASOURCE";
+export const EDIT_DATASOURCE = () => "Edit datasource";
+export const SAVE_DATASOURCE = () => "Save as datasource";
 export const SAVE_DATASOURCE_MESSAGE = () =>
   "Save the URL as a datasource to access authentication settings";
 export const EDIT_DATASOURCE_MESSAGE = () =>
@@ -565,7 +565,7 @@ export const JS_SETTINGS_CONFIRM_EXECUTION_SUBTEXT = () =>
   "Ask confirmation from the user every time before refreshing data";
 export const JS_SETTINGS_EXECUTE_TIMEOUT = () =>
   "Function Timeout (in milliseconds)";
-export const ASYNC_FUNCTION_SETTINGS_HEADING = () => "Async Function Settings";
+export const ASYNC_FUNCTION_SETTINGS_HEADING = () => "Async function settings";
 export const NO_ASYNC_FUNCTIONS = () =>
   "There is no asynchronous function in this JSObject";
 export const NO_JS_FUNCTION_TO_RUN = (JSObjectName: string) =>
@@ -730,7 +730,7 @@ export const NAME_YOUR_NEW_BRANCH = () => "Name your new branch";
 export const SWITCH_BRANCHES = () => "Switch branches";
 
 export const DOCUMENTATION = () => "Documentation";
-export const DOCUMENTATION_TOOLTIP = () => "Open Docs in Omnibar";
+export const DOCUMENTATION_TOOLTIP = () => "Open docs in omnibar";
 export const CONNECT = () => "Connect";
 export const LATEST_DP_TITLE = () => "Latest deployed preview";
 export const LATEST_DP_SUBTITLE = () => "last deployed";
@@ -1142,7 +1142,7 @@ export const DELETE_TOOLTIP = () => "Delete";
 export const SETTINGS_TOOLTIP = () => "Settings";
 
 //settings
-export const ADMIN_SETTINGS = () => "Admin Settings";
+export const ADMIN_SETTINGS = () => "Admin settings";
 export const RESTART_BANNER_BODY = () =>
   "Hang in there. This should be done soon.";
 export const RESTART_BANNER_HEADER = () => "Restarting your server";
@@ -1351,7 +1351,7 @@ export const STEP_EIGHT_SUCCESS_TEXT = () =>
 export const STEP_NINE_TITLE = () => "Final step: Test & deploy your app";
 export const CONTINUE = () => "Continue";
 export const PROCEED_TO_NEXT_STEP = () => "Proceed to next step";
-export const PROCEED = () => "Procced";
+export const PROCEED = () => "Proceed";
 export const COMPLETE = () => "Complete";
 // -- Modal --
 export const DEVIATION = () => "You are deviating from the tutorial";
@@ -1534,6 +1534,9 @@ export const PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE = () =>
 export const PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR = (name: string) =>
   `${name} is already being used.`;
 
+export const CODE_EDITOR_LOADING_ERROR = (message?: string) =>
+  `Failed to load the code editor${message ? `: ${message}` : ""}`;
+
 export const UPDATE_VIA_IMPORT_SETTING = {
   settingHeader: () => "Update through file import",
   settingDesc: () => "Update app by importing file",
@@ -1601,8 +1604,8 @@ export const APP_NAVIGATION_SETTING = {
 export const LOCK_SIDEBAR_MESSAGE = () => `Lock sidebar open`;
 export const CLOSE_SIDEBAR_MESSAGE = () => `Close sidebar`;
 
-// Datasource/New Query
-export const NEW_QUERY_BUTTON_TEXT = () => "New Query";
+// Datasource/New query
+export const NEW_QUERY_BUTTON_TEXT = () => "New query";
 export const NEW_API_BUTTON_TEXT = () => "New API";
 export const GENERATE_NEW_PAGE_BUTTON_TEXT = () => "Generate new page";
 export const RECONNECT_BUTTON_TEXT = () => "Reconnect";
@@ -1612,7 +1615,7 @@ export const DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT = () => "Don't save";
 export const GSHEET_AUTHORISED_FILE_IDS_KEY = () => "userAuthorizedSheetIds";
 export const GOOGLE_SHEETS_INFO_BANNER_MESSAGE = () =>
   "Appsmith will require access to your google drive to access google sheets.";
-export const GOOGLE_SHEETS_AUTHORIZE_DATASOURCE = () => "Authorize Datasource";
+export const GOOGLE_SHEETS_AUTHORIZE_DATASOURCE = () => "Authorize datasource";
 export const GOOGLE_SHEETS_LEARN_MORE = () => "Learn more";
 
 //Layout Conversion flow

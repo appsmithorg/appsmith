@@ -849,7 +849,7 @@ public class RestApiPluginTest {
 
         StepVerifier
                 .create(invalidsMono)
-                .assertNext(invalids -> assertIterableEquals(Set.of("Missing Client ID", "Missing Client Secret", "Missing Access Token URL"), invalids));
+                .assertNext(invalids -> assertIterableEquals(Set.of("Missing Client ID", "Missing client secret", "Missing access token URL"), invalids));
     }
 
     @Test

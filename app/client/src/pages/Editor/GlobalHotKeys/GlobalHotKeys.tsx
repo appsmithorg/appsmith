@@ -1,8 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
-import { Hotkey, Hotkeys } from "@blueprintjs/core";
-import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
+import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core";
 import {
   closePropertyPane,
   closeTableFilterPane,
@@ -144,7 +143,7 @@ class GlobalHotKeys extends React.Component<Props> {
           allowInInput
           combo="mod + plus"
           global
-          label="Create New"
+          label="Create new"
           onKeyDown={(e) =>
             this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.ACTION_OPERATION)
           }

@@ -66,8 +66,8 @@ public class FirestoreErrorMessages {
      ************************************************************************************************************************************************
      */
 
-    public static final String DS_VALIDATION_FAILED_FOR_SERVICE_ACC_CREDENTIALS_ERROR_MSG = "Validation failed for field 'Service Account Credentials'. Please check the " +
-            "value provided in the 'Service Account Credentials' field.";
+    public static final String DS_VALIDATION_FAILED_FOR_SERVICE_ACC_CREDENTIALS_ERROR_MSG = "Validation failed for field 'Service account credentials'. Please check the " +
+            "value provided in the 'Service account credentials' field.";
     public static final String DS_MISSING_PROJECT_ID_AND_CLIENTJSON_ERROR_MSG = "Missing ProjectID and ClientJSON in datasource.";
 
     public static final String DS_MISSING_PROJECT_ID_ERROR_MSG = "Missing ProjectID in datasource.";

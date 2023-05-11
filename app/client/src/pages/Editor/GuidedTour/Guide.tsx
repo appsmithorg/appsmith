@@ -7,9 +7,8 @@ import { Button, Icon, Text } from "design-system";
 import { isArray } from "lodash";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
-import type { AnimationItem } from "lottie-web";
-import lottie from "lottie-web";
-import indicator from "assets/lottie/guided-tour-tick-mark.json";
+import lazyLottie from "utils/lazyLottie";
+import tickMarkAnimationURL from "assets/lottie/guided-tour-tick-mark.json.txt";
 import {
   getCurrentStep,
   getQueryAction,
@@ -82,6 +81,9 @@ const ContentWrapper = styled.div`
   display: flex;
   gap: 50px;
   align-items: center;
+  .guided-title {
+    color: var(--ads-v2-color-fg-emphasis);
+  }
 `;
 
 const GuideButton = styled(Button)<{ isVisible?: boolean }>`
@@ -188,6 +190,9 @@ const SuccessMessageWrapper = styled.div`
     align-items: center;
     justify-content: space-between;
   }
+  .success-message {
+    color: var(--ads-v2-color-fg-emphasis);
+  }
 `;
 
 function InitialContent() {
@@ -204,7 +209,7 @@ function InitialContent() {
     <div>
       <ContentWrapper>
         <SubContentWrapper>
-          <Text kind="heading-s" renderAs="h2">
+          <Text className="guided-title" kind="heading-s" renderAs="h2">
             {createMessage(TITLE)}
           </Text>
           <Description>{createMessage(DESCRIPTION)}</Description>
@@ -265,7 +270,7 @@ function GuideStepsContent(props: {
           <div className="header">
             <TitleWrapper>
               <StepCount>{props.currentStep}</StepCount>
-              <Text kind="heading-s" renderAs="h2">
+              <Text className="guided-title" kind="heading-s" renderAs="h2">
                 {content.title}
               </Text>
             </TitleWrapper>
@@ -334,20 +339,19 @@ function CompletionContent(props: CompletionContentProps) {
 
   const tickMarkRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    let anim: AnimationItem;
     if (showSuccess) {
-      anim = lottie.loadAnimation({
-        animationData: indicator,
+      const anim = lazyLottie.loadAnimation({
+        path: tickMarkAnimationURL,
         autoplay: true,
         container: tickMarkRef?.current as HTMLDivElement,
         renderer: "svg",
         loop: false,
       });
-    }
 
-    return () => {
-      anim?.destroy();
-    };
+      return () => {
+        anim.destroy();
+      };
+    }
   }, [tickMarkRef?.current, showSuccess]);
 
   const onSuccessButtonClick = () => {
@@ -398,7 +402,13 @@ function CompletionContent(props: CompletionContentProps) {
     return (
       <SuccessMessageWrapper>
         <div className="wrapper info-wrapper">
-          {info?.icon && <Icon name={info.icon} size="lg" />}
+          {info?.icon && (
+            <Icon
+              color="var(--ads-v2-color-fg-information)"
+              name={info.icon}
+              size="lg"
+            />
+          )}
           <Description className="info">{info?.text}</Description>
           <GuideButton
             className="t--info-button"

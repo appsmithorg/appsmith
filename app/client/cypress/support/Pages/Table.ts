@@ -84,7 +84,7 @@ export class Table {
   private _searchText = "input[type='search']";
   _searchBoxCross =
     "//div[contains(@class, 't--search-input')]/following-sibling::div";
-  _addIcon = "button span[icon='add']";
+  _addIcon = "button .bp3-icon-add";
   _trashIcon = "button span[icon='trash']";
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
   _filterBtn = ".t--table-filter-toggle-btn";

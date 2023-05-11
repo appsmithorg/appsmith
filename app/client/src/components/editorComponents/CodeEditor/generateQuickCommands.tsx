@@ -1,21 +1,27 @@
 import type { Datasource } from "entities/Datasource";
 import React from "react";
 import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import ReactDOM from "react-dom";
 import sortBy from "lodash/sortBy";
 import type { SlashCommandPayload } from "entities/Action";
 import { PluginType, SlashCommand } from "entities/Action";
-import { ReactComponent as Binding } from "assets/icons/menu/binding.svg";
-import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
-import AddDatasourceIcon from "remixicon-react/AddBoxLineIcon";
 import { Colors } from "constants/Colors";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import MagicIcon from "remixicon-react/MagicLineIcon";
 import { addAISlashCommand } from "@appsmith/components/editorComponents/GPT/trigger";
 import type FeatureFlags from "entities/FeatureFlags";
+import { importRemixIcon, importSvg } from "design-system-old";
+
+const AddDatasourceIcon = importRemixIcon(
+  () => import("remixicon-react/AddBoxLineIcon"),
+);
+const MagicIcon = importRemixIcon(
+  () => import("remixicon-react/MagicLineIcon"),
+);
+const Binding = importSvg(() => import("assets/icons/menu/binding.svg"));
+const Snippet = importSvg(() => import("assets/icons/ads/snippet.svg"));
 import type { FieldEntityInformation } from "./EditorConfig";
 import { EditorModes } from "./EditorConfig";
 
@@ -157,13 +163,13 @@ export const generateQuickCommands = (
   recentEntities.reverse();
   const newBinding: CommandsCompletion = generateCreateNewCommand({
     text: "{{}}",
-    displayText: "New Binding",
+    displayText: "New binding",
     shortcut: Shortcuts.BINDING,
     triggerCompletionsPostPick: true,
   });
   const insertSnippet: CommandsCompletion = generateCreateNewCommand({
     text: "",
-    displayText: "Insert Snippet",
+    displayText: "Insert snippet",
     shortcut: Shortcuts.FUNCTION,
     action: () =>
       executeCommand({

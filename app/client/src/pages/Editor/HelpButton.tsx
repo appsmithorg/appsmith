@@ -51,7 +51,7 @@ const HELP_MENU_ITEMS: HelpItem[] = [
   },
   {
     icon: "discord",
-    label: "Join our Discord",
+    label: "Join our discord",
     link: "https://discord.gg/rBTTVJp",
   },
 ];
@@ -72,59 +72,62 @@ function HelpButton() {
   }, [user?.email]);
 
   return (
-    <Tooltip content={createMessage(HELP_RESOURCE_TOOLTIP)} placement="bottom">
-      <Menu
-        onOpenChange={(open) => {
-          if (open) {
-            AnalyticsUtil.logEvent("OPEN_HELP", { page: "Editor" });
-          }
-        }}
-      >
-        <MenuTrigger>
-          <Button kind="tertiary" size="md" startIcon="question-line">
-            Help
-          </Button>
-        </MenuTrigger>
-        <MenuContent collisionPadding={10} style={{ width: HELP_MODAL_WIDTH }}>
-          {HELP_MENU_ITEMS.map((item) => (
-            <MenuItem
-              key={item.label}
-              onClick={() => {
-                if (item.link) window.open(item.link, "_blank");
-                if (item.id === "intercom-trigger") {
-                  if (intercomAppID && window.Intercom) {
-                    window.Intercom("show");
-                  }
+    <Menu
+      onOpenChange={(open) => {
+        if (open) {
+          AnalyticsUtil.logEvent("OPEN_HELP", { page: "Editor" });
+        }
+      }}
+    >
+      <MenuTrigger>
+        <div>
+          <Tooltip
+            content={createMessage(HELP_RESOURCE_TOOLTIP)}
+            placement="bottomRight"
+          >
+            <Button kind="tertiary" size="md" startIcon="question-line">
+              Help
+            </Button>
+          </Tooltip>
+        </div>
+      </MenuTrigger>
+      <MenuContent collisionPadding={10} style={{ width: HELP_MODAL_WIDTH }}>
+        {HELP_MENU_ITEMS.map((item) => (
+          <MenuItem
+            key={item.label}
+            onClick={() => {
+              if (item.link) window.open(item.link, "_blank");
+              if (item.id === "intercom-trigger") {
+                if (intercomAppID && window.Intercom) {
+                  window.Intercom("show");
                 }
-              }}
-              startIcon={item.icon}
-            >
-              {item.label}
+              }
+            }}
+            startIcon={item.icon}
+          >
+            {item.label}
+          </MenuItem>
+        ))}
+        {appVersion.id && (
+          <>
+            <MenuSeparator />
+            <MenuItem className="menuitem-nohover">
+              <HelpFooter>
+                <span>
+                  {createMessage(
+                    APPSMITH_DISPLAY_VERSION,
+                    appVersion.edition,
+                    appVersion.id,
+                    cloudHosting,
+                  )}
+                </span>
+                <span>Released {moment(appVersion.releaseDate).fromNow()}</span>
+              </HelpFooter>
             </MenuItem>
-          ))}
-          {appVersion.id && (
-            <>
-              <MenuSeparator />
-              <MenuItem className="menuitem-nohover">
-                <HelpFooter>
-                  <span>
-                    {createMessage(
-                      APPSMITH_DISPLAY_VERSION,
-                      appVersion.edition,
-                      appVersion.id,
-                      cloudHosting,
-                    )}
-                  </span>
-                  <span>
-                    Released {moment(appVersion.releaseDate).fromNow()}
-                  </span>
-                </HelpFooter>
-              </MenuItem>
-            </>
-          )}
-        </MenuContent>
-      </Menu>
-    </Tooltip>
+          </>
+        )}
+      </MenuContent>
+    </Menu>
   );
 }
 

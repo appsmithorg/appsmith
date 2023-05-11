@@ -4,18 +4,13 @@ import {
   createMessage,
   NO_ASYNC_FUNCTIONS,
 } from "@appsmith/constants/messages";
-import {
-  AppIcon,
-  Radio,
-  RadioComponent,
-  TooltipComponent,
-} from "design-system-old";
 import type { JSAction } from "entities/JSCollection";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { RADIO_OPTIONS, SETTINGS_HEADINGS } from "./constants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { Icon, Radio, RadioGroup, Tooltip } from "design-system";
 
 type SettingsHeadingProps = {
   text: string;
@@ -40,24 +35,20 @@ const SettingRow = styled.div<{ isHeading?: boolean; noBorder?: boolean }>`
   ${(props) =>
     !props.noBorder &&
     `
-  border-bottom: solid 1px ${props.theme.colors.table.border}};
+  border-bottom: solid 1px var(--ads-v2-color-border);
   `}
 
   ${(props) =>
     props.isHeading &&
     `
-  background: #f8f8f8;
+  background: var(--ads-v2-color-bg-subtle);
   font-size: ${props.theme.typography.h5.fontSize}px;
   `};
 `;
 
-const StyledIcon = styled(AppIcon)`
+const StyledIcon = styled(Icon)`
   width: max-content;
   height: max-content;
-  & > svg {
-    width: 13px;
-    height: auto;
-  }
 `;
 
 const SettingColumn = styled.div<{ grow?: boolean; isHeading?: boolean }>`
@@ -70,7 +61,6 @@ const SettingColumn = styled.div<{ grow?: boolean; isHeading?: boolean }>`
   ${(props) =>
     props.isHeading &&
     `
-  text-transform: uppercase;
   font-weight: ${props.theme.fontWeights[2]};
   font-size: ${props.theme.fontSizes[2]}px
   margin-right: 9px;
@@ -78,10 +68,6 @@ const SettingColumn = styled.div<{ grow?: boolean; isHeading?: boolean }>`
 
   ${StyledIcon} {
     margin-left: 8px;
-  }
-
-  ${Radio} {
-    margin-right: 20px;
   }
 `;
 
@@ -94,17 +80,21 @@ const JSFunctionSettingsWrapper = styled.div`
 const SettingsContainer = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 0px ${(props) => props.theme.spaces[13] - 2}px;
   width: max-content;
   min-width: 700px;
   height: 100%;
 
   & > h3 {
     margin: 20px 0;
-    text-transform: capitalize;
     font-size: ${(props) => props.theme.fontSizes[5]}px;
     font-weight: ${(props) => props.theme.fontWeights[2]};
+    color: var(--ads-v2-color-fg-emphasis);
   }
+`;
+
+const SettingsRowWrapper = styled.div`
+  border-radius: var(--ads-v2-border-radius);
+  overflow: hidden;
 `;
 
 function SettingsHeading({ grow, hasInfo, info, text }: SettingsHeadingProps) {
@@ -112,15 +102,15 @@ function SettingsHeading({ grow, hasInfo, info, text }: SettingsHeadingProps) {
     <SettingColumn grow={grow} isHeading>
       <span>{text}</span>
       {hasInfo && info && (
-        <TooltipComponent content={createMessage(() => info)}>
-          <StyledIcon name="help" />
-        </TooltipComponent>
+        <Tooltip content={createMessage(() => info)}>
+          <StyledIcon name="question-line" size="md" />
+        </Tooltip>
       )}
     </SettingColumn>
   );
 }
 
-function SettingsItem({ action, disabled = false }: SettingsItemProps) {
+function SettingsItem({ action, disabled }: SettingsItemProps) {
   const dispatch = useDispatch();
   const [executeOnPageLoad, setExecuteOnPageLoad] = useState(
     String(!!action.executeOnLoad),
@@ -166,24 +156,40 @@ function SettingsItem({ action, disabled = false }: SettingsItemProps) {
         <span>{action.name}</span>
       </SettingColumn>
       <SettingColumn className={`${action.name}-on-page-load-setting`}>
-        <RadioComponent
-          backgroundColor="#191919"
+        <RadioGroup
           defaultValue={executeOnPageLoad}
-          disabled={disabled}
           name={`execute-on-page-load-${action.id}`}
-          onSelect={onChangeExecuteOnPageLoad}
-          options={RADIO_OPTIONS}
-        />
+          onChange={onChangeExecuteOnPageLoad}
+          orientation="horizontal"
+        >
+          {RADIO_OPTIONS.map((option) => (
+            <Radio
+              isDisabled={disabled}
+              key={option.label}
+              value={option.value}
+            >
+              {option.label}
+            </Radio>
+          ))}
+        </RadioGroup>
       </SettingColumn>
       <SettingColumn className={`${action.name}-confirm-before-execute`}>
-        <RadioComponent
-          backgroundColor="#191919"
+        <RadioGroup
           defaultValue={confirmBeforeExecute}
-          disabled={disabled}
           name={`confirm-before-execute-${action.id}`}
-          onSelect={onChangeConfirmBeforeExecute}
-          options={RADIO_OPTIONS}
-        />
+          onChange={onChangeConfirmBeforeExecute}
+          orientation="horizontal"
+        >
+          {RADIO_OPTIONS.map((option) => (
+            <Radio
+              isDisabled={disabled}
+              key={option.label}
+              value={option.value}
+            >
+              {option.label}
+            </Radio>
+          ))}
+        </RadioGroup>
       </SettingColumn>
     </SettingRow>
   );
@@ -200,26 +206,32 @@ function JSFunctionSettingsView({
     <JSFunctionSettingsWrapper>
       <SettingsContainer>
         <h3>{createMessage(ASYNC_FUNCTION_SETTINGS_HEADING)}</h3>
-        <SettingRow isHeading>
-          {SETTINGS_HEADINGS.map((setting, index) => (
-            <SettingsHeading
-              grow={index === 0}
-              hasInfo={setting.hasInfo}
-              info={setting.info}
-              key={setting.key}
-              text={setting.text}
-            />
-          ))}
-        </SettingRow>
-        {asyncActions && asyncActions.length ? (
-          asyncActions.map((action) => (
-            <SettingsItem action={action} disabled={disabled} key={action.id} />
-          ))
-        ) : (
-          <SettingRow noBorder>
-            <SettingColumn>{createMessage(NO_ASYNC_FUNCTIONS)}</SettingColumn>
+        <SettingsRowWrapper>
+          <SettingRow isHeading>
+            {SETTINGS_HEADINGS.map((setting, index) => (
+              <SettingsHeading
+                grow={index === 0}
+                hasInfo={setting.hasInfo}
+                info={setting.info}
+                key={setting.key}
+                text={setting.text}
+              />
+            ))}
           </SettingRow>
-        )}
+          {asyncActions && asyncActions.length ? (
+            asyncActions.map((action) => (
+              <SettingsItem
+                action={action}
+                disabled={disabled}
+                key={action.id}
+              />
+            ))
+          ) : (
+            <SettingRow noBorder>
+              <SettingColumn>{createMessage(NO_ASYNC_FUNCTIONS)}</SettingColumn>
+            </SettingRow>
+          )}
+        </SettingsRowWrapper>
       </SettingsContainer>
     </JSFunctionSettingsWrapper>
   );

@@ -118,7 +118,7 @@ Cypress.Commands.add(
   "validateRequest",
   (apiName, baseurl, path, verb, error = false) => {
     cy.get(".react-tabs__tab").contains("Logs").click();
-    cy.get("[data-cy=t--debugger-search]").clear().type(apiName);
+    cy.get("[data-testid=t--debugger-search]").clear().type(apiName);
 
     if (!error) {
       cy.get(".object-key").last().contains("request").click();
@@ -146,6 +146,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("EditSourceDetail", (baseUrl, v1method) => {
+  cy.EnableAllCodeEditors();
   cy.get(apiwidget.editResourceUrl)
     .first()
     .click({ force: true })
@@ -393,6 +394,8 @@ Cypress.Commands.add("createAndFillApi", (url, parameters) => {
         expect(someText).to.equal(response.response.body.data.name);
       });
   });
+
+  cy.EnableAllCodeEditors();
   cy.get(apiwidget.editResourceUrl)
     .first()
     .click({ force: true })

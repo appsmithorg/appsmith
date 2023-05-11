@@ -60,7 +60,7 @@ const CardWrapper = styled.div`
 `;
 
 const DatasourceImage = styled.img`
-  height: 28px;
+  height: 34px;
   width: auto;
   margin: 0 auto;
   max-width: 100%;
