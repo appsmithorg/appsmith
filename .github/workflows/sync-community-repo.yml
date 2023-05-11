@@ -117,6 +117,7 @@ jobs:
       - name: Notify failure on workflow run and on Slack
         if: failure()
         run: |
+          set -o errexit
           set -o nounset
           set -o xtrace
 
@@ -157,7 +158,8 @@ jobs:
             '$ARGS.named'
           )"
 
-          curl https://slack.com/api/chat.postMessage \
+          curl -v https://slack.com/api/chat.postMessage \
+            --fail-with-body \
             --header 'Authorization: Bearer ${{ secrets.SLACK_APPSMITH_ALERTS_TOKEN }}' \
             --header 'Content-Type: application/json; charset=utf-8' \
             --data-raw "$body"
