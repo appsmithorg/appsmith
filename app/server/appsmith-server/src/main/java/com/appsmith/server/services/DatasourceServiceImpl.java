@@ -34,12 +34,12 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                                  DatasourceContextService datasourceContextService,
                                  DatasourcePermission datasourcePermission,
                                  WorkspacePermission workspacePermission,
-                                 DatasourceConfigurationStorageService datasourceConfigurationStorageService) {
+                                 DatasourceStorageService datasourceStorageService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, workspaceService,
                 analyticsService, sessionUserService, pluginService, pluginExecutorHelper, policyGenerator,
                 sequenceService, newActionRepository, datasourceContextService, datasourcePermission,
-                workspacePermission, datasourceConfigurationStorageService);
+                workspacePermission, datasourceStorageService);
 
     }
 }

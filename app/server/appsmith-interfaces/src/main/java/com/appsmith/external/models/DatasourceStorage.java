@@ -19,7 +19,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Document
-public class DatasourceConfigurationStorage extends BaseDomain{
+public class DatasourceStorage extends BaseDomain{
 
     // TODO: add index
     @JsonView(Views.Public.class)

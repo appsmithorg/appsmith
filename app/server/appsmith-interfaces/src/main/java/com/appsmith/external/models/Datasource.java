@@ -56,7 +56,7 @@ public class Datasource extends BranchAwareDomain {
     // TODO: Think of a better name for the storage
     @Transient
     @JsonView(Views.Internal.class)
-    DatasourceConfigurationStorage datasourceConfigurationStorage;
+    DatasourceStorage datasourceStorage;
 
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -115,10 +115,10 @@ public class Datasource extends BranchAwareDomain {
      */
     @JsonView(Views.Public.class)
     public boolean getIsValid() {
-        if (getDatasourceConfigurationStorage() == null) {
+        if (getDatasourceStorage() == null) {
             return CollectionUtils.isEmpty(invalids);
         }
-        return getDatasourceConfigurationStorage().getIsValid();
+        return getDatasourceStorage().getIsValid();
     }
 
     /**
@@ -143,25 +143,25 @@ public class Datasource extends BranchAwareDomain {
 
 
     public Set<String> getInvalids() {
-        if (getDatasourceConfigurationStorage() == null) {
+        if (getDatasourceStorage() == null) {
             return this.invalids;
         }
-        return getDatasourceConfigurationStorage().getInvalids();
+        return getDatasourceStorage().getInvalids();
     }
 
     public Set<String> getMessages() {
-        if (getDatasourceConfigurationStorage() == null) {
+        if (getDatasourceStorage() == null) {
             return this.messages;
         }
-        return getDatasourceConfigurationStorage().getMessages();
+        return getDatasourceStorage().getMessages();
     }
 
     public DatasourceConfiguration getDatasourceConfiguration() {
-        if (getDatasourceConfigurationStorage() == null) {
+        if (getDatasourceStorage() == null) {
             return this.datasourceConfiguration;
         }
 
-        return getDatasourceConfigurationStorage().getDatasourceConfiguration();
+        return getDatasourceStorage().getDatasourceConfiguration();
     }
 
 
