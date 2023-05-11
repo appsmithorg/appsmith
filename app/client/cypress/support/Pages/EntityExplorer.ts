@@ -36,7 +36,7 @@ export class EntityExplorer {
   private _expandCollapseArrow = (entityNameinLeftSidebar: string) =>
     "//div[text()='" +
     entityNameinLeftSidebar +
-    "']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]";
+    "']/ancestor::div/span[contains(@class, 't--entity-collapse-toggle')]";
   private _expandCollapseSection = (entityNameinLeftSidebar: string) =>
     this._expandCollapseArrow(entityNameinLeftSidebar) +
     "/ancestor::div[contains(@class, 't--entity')]//div[@class='bp3-collapse']";
@@ -63,6 +63,8 @@ export class EntityExplorer {
     modalName +
     "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//div[contains(@class, 't--entity-name')][contains(text(), 'Text')]";
   private _newPageOptions = (option: string) => `[data-testid='${option}']`;
+  _openNavigationTab = (tabToOpen: string) =>
+    "//span[text()='" + tabToOpen + "']/ancestor::div";
 
   public SelectEntityByName(
     entityNameinLeftSidebar: string,
@@ -105,7 +107,7 @@ export class EntityExplorer {
   }
 
   public NavigateToSwitcher(navigationTab: "Explorer" | "Widgets") {
-    cy.contains(this.locator._segmentedControlContainer, navigationTab).click();
+    this.agHelper.GetNClick(this._openNavigationTab(navigationTab));
   }
 
   public AssertEntityPresenceInExplorer(entityNameinLeftSidebar: string) {
@@ -131,9 +133,9 @@ export class EntityExplorer {
     cy.xpath(this._expandCollapseArrow(entityName))
       .eq(index)
       .wait(500)
-      .invoke("attr", "name")
+      .invoke("attr", "id")
       .then((arrow) => {
-        if (expand && arrow == "arrow-right") {
+        if (expand && arrow == "arrow-right-s-line") {
           cy.xpath(this._expandCollapseArrow(entityName))
             .eq(index)
             .trigger("click", { force: true })
@@ -150,7 +152,7 @@ export class EntityExplorer {
           //         .wait(500);
           //     }
           //   });
-        } else if (!expand && arrow == "arrow-down") {
+        } else if (!expand && arrow == "arrow-down-s-line") {
           cy.xpath(this._expandCollapseArrow(entityName))
             .eq(index)
             .trigger("click", { force: true })
