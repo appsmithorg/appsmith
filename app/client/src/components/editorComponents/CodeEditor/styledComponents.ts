@@ -47,6 +47,7 @@ export const EditorWrapper = styled.div<{
   className?: string;
   codeEditorVisibleOverflow?: boolean;
   ctrlPressed: boolean;
+  removeHoverAndFocusStyle?: boolean;
 }>`
   width: 100%;
   ${(props) =>
@@ -75,6 +76,11 @@ export const EditorWrapper = styled.div<{
         cursor: pointer;
         border-radius: var(--ads-v2-border-radius);
         border-color: var(--ads-v2-color-border-emphasis);
+        ${(props) =>
+          props?.removeHoverAndFocusStyle &&
+          `
+          border-color: transparent;
+        `}
       }
     }
   }
@@ -85,6 +91,12 @@ export const EditorWrapper = styled.div<{
         cursor: pointer;
         border-radius: var(--ads-v2-border-radius);
         border-color: var(--ads-v2-color-border-emphasis-plus);
+
+        ${(props) =>
+          props?.removeHoverAndFocusStyle &&
+          `
+          border-color: transparent;
+        `}
       }
     }
   }
@@ -103,7 +115,11 @@ export const EditorWrapper = styled.div<{
       border-radius: var(--ads-v2-border-radius);
       ${(props) =>
         props.isFocused &&
-        `outline: var(--ads-v2-border-width-outline) solid var(--ads-v2-color-outline);
+        `outline: ${
+          props?.removeHoverAndFocusStyle
+            ? "none"
+            : "var(--ads-v2-border-width-outline) solid var(--ads-v2-color-outline)"
+        };
         outline-offset: var(--ads-v2-offset-outline);`}
       border: 1px solid
         ${(props) => {
@@ -127,6 +143,9 @@ export const EditorWrapper = styled.div<{
           color: ${(props) => props.theme.colors.textDefault};
         }
       }
+    }
+    .CodeMirror-guttermarker-subtle {
+      color: var(--ads-v2-color-fg-subtle);
     }
     .cm-s-duotone-light .CodeMirror-gutters {
       background: var(--ads-v2-color-bg-subtle);

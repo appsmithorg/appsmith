@@ -39,7 +39,6 @@ const ApiNameWrapper = styled.div<{ page?: string }>`
     props.page === "API_PANE"
       ? `  &&& .${Classes.EDITABLE_TEXT_CONTENT}, &&& .${Classes.EDITABLE_TEXT_INPUT} {
     font-size: ${props.theme.typography.h3.fontSize}px;
-    line-height: ${props.theme.typography.h3.lineHeight}px !important;
     letter-spacing: ${props.theme.typography.h3.letterSpacing}px;
     font-weight: ${props.theme.typography.h3.fontWeight};
   }`

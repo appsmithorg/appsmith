@@ -92,6 +92,7 @@ const TextContainer = styled.div<{
   minimal: boolean;
   underline?: boolean;
 }>`
+  color: var(--ads-v2-color-fg-emphasis-plus);
   display: flex;
   &&&& .${Classes.EDITABLE_TEXT} {
     & .${Classes.EDITABLE_TEXT_CONTENT} {

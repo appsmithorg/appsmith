@@ -565,7 +565,7 @@ export const JS_SETTINGS_CONFIRM_EXECUTION_SUBTEXT = () =>
   "Ask confirmation from the user every time before refreshing data";
 export const JS_SETTINGS_EXECUTE_TIMEOUT = () =>
   "Function Timeout (in milliseconds)";
-export const ASYNC_FUNCTION_SETTINGS_HEADING = () => "Async Function Settings";
+export const ASYNC_FUNCTION_SETTINGS_HEADING = () => "Async function settings";
 export const NO_ASYNC_FUNCTIONS = () =>
   "There is no asynchronous function in this JSObject";
 export const NO_JS_FUNCTION_TO_RUN = (JSObjectName: string) =>

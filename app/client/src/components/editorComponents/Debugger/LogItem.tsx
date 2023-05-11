@@ -46,7 +46,6 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       props.collapsed
         ? `transform: rotate(-90deg);`
         : `transform: rotate(0deg); `};
-    padding-right: 4px;
   }
   .debugger-time {
     ${getTypographyByKey("h6")}
@@ -157,9 +156,9 @@ const StyledButton = styled(Button)<{ isVisible: boolean }>`
 const StyledCollapse = styled(Collapse)<StyledCollapseProps>`
   margin-top: ${(props) =>
     props.isOpen && props.category === LOG_CATEGORY.USER_GENERATED
-      ? " -20px"
+      ? " -30px"
       : " 4px"};
-  margin-left: 92px;
+  margin-left: 133px;
 
   .debugger-message {
     ${getTypographyByKey("p2")}
@@ -271,13 +270,13 @@ function LogItem(props: LogItemProps) {
 
         <StyledButton
           className={`${Classes.ICON} debugger-toggle`}
-          isDisabled={collapsable}
+          isDisabled={!collapsable}
           isIconButton
-          isVisible={!collapsable}
+          isVisible={!!collapsable}
           kind="tertiary"
-          name={"expand-more"}
           onClick={() => setIsOpen(!isOpen)}
-          size="md"
+          size="sm"
+          startIcon={"expand-more"}
         />
         {!(
           props.collapsable &&
