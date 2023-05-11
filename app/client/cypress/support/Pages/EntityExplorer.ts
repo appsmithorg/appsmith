@@ -63,6 +63,10 @@ export class EntityExplorer {
     modalName +
     "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//div[contains(@class, 't--entity-name')][contains(text(), 'Text')]";
   private _newPageOptions = (option: string) => `[data-cy='${option}']`;
+  _allQueriesforDB = (dbName: string) =>
+    "//div[text()='" +
+    dbName +
+    "']/following-sibling::div[contains(@class, 't--entity')  and contains(@class, 'action')]//div[contains(@class, 't--entity-name')]";
 
   public SelectEntityByName(
     entityNameinLeftSidebar: string,
@@ -206,6 +210,16 @@ export class EntityExplorer {
       jsDelete && this.agHelper.ValidateNetworkStatus("@deleteJSCollection");
       jsDelete && this.agHelper.AssertContains("deleted successfully");
     }
+  }
+
+  public DeleteAllQueriesForDB(dsName: string) {
+    this.agHelper.GetElement(this._allQueriesforDB(dsName)).each(($el) => {
+      cy.wrap($el)
+        .invoke("text")
+        .then(($query) => {
+          this.ActionContextMenuByEntityName($query, "Delete", "Are you sure?");
+        });
+    });
   }
 
   public ActionTemplateMenuByEntityName(

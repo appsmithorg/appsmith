@@ -147,10 +147,6 @@ export class DataSources {
 
   private _curlTextArea =
     "//label[text()='Paste CURL Code Here']/parent::form/div";
-  _allQueriesforDB = (dbName: string) =>
-    "//div[text()='" +
-    dbName +
-    "']/following-sibling::div[contains(@class, 't--entity')  and contains(@class, 'action')]//div[contains(@class, 't--entity-name')]";
   _noSchemaAvailable = (dbName: string) =>
     "//div[text()='" +
     dbName +
@@ -339,7 +335,7 @@ export class DataSources {
     // we ignore
     cy.get(`${locator} .bp3-icon`)
       .invoke("attr", "class")
-      .then((className) => {
+      .then((className: any) => {
         if (className.includes("bp3-icon-chevron-down")) {
           cy.get(locator).click();
         }
