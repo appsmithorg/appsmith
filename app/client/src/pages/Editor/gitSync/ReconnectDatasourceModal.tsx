@@ -77,7 +77,7 @@ const BodyContainer = styled.div`
 `;
 
 const ContentWrapper = styled.div`
-  height: calc(100% - 96px);
+  height: calc(100% - 87px);
   display: flex;
 
   .t--json-to-form-wrapper {
@@ -153,7 +153,7 @@ const ContentWrapper = styled.div`
 `;
 
 const ListContainer = styled.div`
-  height: 100%;
+  height: inherit;
   overflow: auto;
   width: 256px;
   padding-right: 8px;
@@ -196,6 +196,7 @@ const TooltipWrapper = styled.div`
 const DBFormWrapper = styled.div`
   width: calc(100% - 256px);
   overflow: auto;
+  height: inherit;
 
   div[class^="RestAPIDatasourceForm__RestApiForm-"] {
     padding-top: 0px;
@@ -210,6 +211,10 @@ const DBFormWrapper = styled.div`
 const ModalContentWrapper = styled(ModalContent)`
   width: 100%;
 `;
+const ModalBodyWrapper = styled(ModalBody)`
+  overflow-y: hidden;
+`;
+
 enum AuthorizationStatus {
   SUCCESS = "success",
   APPSMITH_ERROR = "appsmith_error",
@@ -500,7 +505,7 @@ function ReconnectDatasourceModal() {
     <Modal onOpenChange={handleClose} open={isModalOpen}>
       <ModalContentWrapper>
         <ModalHeader> Reconnect datasources</ModalHeader>
-        <ModalBody>
+        <ModalBodyWrapper>
           <BodyContainer>
             <Title>
               {createMessage(RECONNECT_MISSING_DATASOURCE_CREDENTIALS)}
@@ -527,7 +532,7 @@ function ReconnectDatasourceModal() {
               {datasource?.isConfigured && SuccessMessages()}
             </ContentWrapper>
           </BodyContainer>
-        </ModalBody>
+        </ModalBodyWrapper>
         <ModalFooter>
           <SkipToAppButtonWrapper>
             <Tooltip content={<TooltipContent />} placement="topRight">

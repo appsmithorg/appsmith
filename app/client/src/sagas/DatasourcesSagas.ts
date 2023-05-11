@@ -690,10 +690,20 @@ function* createTempDatasourceFromFormSaga(
   const dsList: Datasource[] = yield select(getDatasources);
   const sequence = getUntitledDatasourceSequence(dsList);
 
+  let datasourceType = actionPayload?.payload?.type;
+
+  if (!actionPayload?.payload.type) {
+    const plugin: Plugin = yield select(
+      getPlugin,
+      actionPayload?.payload.pluginId,
+    );
+    datasourceType = plugin?.type;
+  }
+
   const initialPayload = {
     id: TEMP_DATASOURCE_ID,
     name: DATASOURCE_NAME_DEFAULT_PREFIX + sequence,
-    type: (actionPayload.payload as any).type,
+    type: datasourceType,
     pluginId: actionPayload.payload.pluginId,
     new: false,
     datasourceConfiguration: {
@@ -823,7 +833,14 @@ function* changeDatasourceSaga(
   } else {
     data = draft;
   }
-  yield put(initialize(DATASOURCE_DB_FORM, omit(data, ["name"])));
+  yield put(
+    initialize(
+      data?.type === PluginType.API
+        ? DATASOURCE_REST_API_FORM
+        : DATASOURCE_DB_FORM,
+      omit(data, ["name"]),
+    ),
+  );
   // on reconnect modal, it shouldn't be redirected to datasource edit page
   if (shouldNotRedirect) return;
   // this redirects to the same route, so checking first.
@@ -873,7 +890,7 @@ function* formValueChangeSaga(
       );
     }
   }
-  if (form !== DATASOURCE_DB_FORM) return;
+  if (form !== DATASOURCE_DB_FORM && form !== DATASOURCE_REST_API_FORM) return;
   if (field === "name") return;
   yield all([call(updateDraftsSaga)]);
 }

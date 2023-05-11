@@ -7,7 +7,7 @@ describe("Binding Datasource to Query", function () {
     // Navigate into the Application
     // Click on the '+' next to the Query option
     // Ensure list of  Datasource is dispalyed to user
-    // Ensure user is dispalyed with Edit datasource and New Query option
+    // Ensure user is dispalyed with Edit datasource and New query option
   });
 
   it("Adding new datasource with respect to query", function () {

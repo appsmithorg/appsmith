@@ -404,7 +404,13 @@ function CompletionContent(props: CompletionContentProps) {
     return (
       <SuccessMessageWrapper>
         <div className="wrapper info-wrapper">
-          {info?.icon && <Icon name={info.icon} size="lg" />}
+          {info?.icon && (
+            <Icon
+              color="var(--ads-v2-color-fg-information)"
+              name={info.icon}
+              size="lg"
+            />
+          )}
           <Description className="info">{info?.text}</Description>
           <GuideButton
             className="t--info-button"

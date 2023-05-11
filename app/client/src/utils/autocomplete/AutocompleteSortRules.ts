@@ -278,9 +278,9 @@ export class AutocompleteSorter {
     if (!shouldComputeBestMatch) return sortedCompletions;
     return bestMatchEndIndex > 0
       ? [
-          createCompletionHeader("Best Match"),
+          createCompletionHeader("Best match"),
           ...sortedCompletions.slice(0, bestMatchEndIndex),
-          createCompletionHeader("Search Results"),
+          createCompletionHeader("Search results"),
           ...sortedCompletions.slice(bestMatchEndIndex),
         ]
       : sortedCompletions;

@@ -22,7 +22,7 @@ public class RedisErrorMessages {
      ************************************************************************************************************************************************
      */
 
-    public static final String DS_MISSING_HOST_ADDRESS_ERROR_MSG = "Could not find host address. Please edit the 'Host Address' field to provide the desired " +
+    public static final String DS_MISSING_HOST_ADDRESS_ERROR_MSG = "Could not find host address. Please edit the 'Host address' field to provide the desired " +
             "endpoint.";
 
     public static final String DS_MISSING_PASSWORD_ERROR_MSG = "Could not find password. Please edit the 'Password' field to provide the password.";

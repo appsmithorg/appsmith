@@ -36,7 +36,7 @@ const PaginationFieldWrapper = styled.div`
 const Step = styled(Text)`
   display: block;
   margin-bottom: ${(props) => props.theme.spaces[5]}px;
-  color: ${(props) => props.theme.colors.apiPane.pagination.label};
+  color: var(--ads-v2-color-fg);
   margin-left: ${(props) => props.theme.spaces[11] + 2}px;
 `;
 
@@ -44,7 +44,7 @@ const StepTitle = styled.div`
   display: flex;
   margin-bottom: ${(props) => props.theme.spaces[4]}px;
   span {
-    color: ${(props) => props.theme.colors.apiPane.pagination.stepTitle};
+    color: var(--ads-v2-color-fg);
   }
 `;
 
@@ -57,15 +57,14 @@ const PaginationTypeView = styled.div`
 
 const PaginationSection = styled.div`
   display: flex;
-  padding: ${(props) => props.theme.spaces[8]}px
-    ${(props) => props.theme.spaces[12]}px;
+  padding: var(--ads-v2-spaces-4) 0 0 0;
 `;
 
 const Example = styled(Text)`
   display: block;
   margin-left: ${(props) => props.theme.spaces[11] + 2}px;
   margin-bottom: ${(props) => props.theme.spaces[3]}px;
-  color: ${(props) => props.theme.colors.apiPane.pagination.label};
+  color: var(--ads-v2-color-fg);
 `;
 
 const BindingKey = styled.div`
@@ -74,9 +73,9 @@ const BindingKey = styled.div`
   margin-left: ${(props) => props.theme.spaces[11] + 2}px;
   width: fit-content;
   span {
-    color: ${(props) => props.theme.colors.apiPane.pagination.label};
+    color: var(--ads-v2-color-fg);
   }
-  background: ${(props) => props.theme.colors.apiPane.pagination.bindingBg};
+  background: var(--ads-v2-color-bg);
 `;
 
 const GifContainer = styled.div`

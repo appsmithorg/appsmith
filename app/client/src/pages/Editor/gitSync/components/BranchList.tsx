@@ -131,20 +131,23 @@ function CreateNewBranch({
         alignItems: "flex-start",
         cursor: isCreatingNewBranch ? "not-allowed" : "pointer",
         display: "flex",
+        justifyContent: "space-between",
         background: hovered ? "var(--ads-v2-color-bg-muted)" : "unset",
         padding: get(theme, "spaces[5]"),
         borderRadius: "var(--ads-v2-border-radius)",
       }}
     >
-      <Icon
-        color={get(theme, "colors.gitSyncModal.closeIcon")}
-        name="git-branch"
-        size="lg"
-      />
-      <CreateNewBranchContainer className={className} ref={itemRef}>
-        <div className="large-text">{`Create branch: ${branch} `}</div>
-        <div className="small-text">{`from '${currentBranch}'`}</div>
-      </CreateNewBranchContainer>
+      <div className="flex">
+        <Icon
+          color={get(theme, "colors.gitSyncModal.closeIcon")}
+          name="git-branch"
+          size="lg"
+        />
+        <CreateNewBranchContainer className={className} ref={itemRef}>
+          <div className="large-text">{`Create branch: ${branch} `}</div>
+          <div className="small-text">{`from '${currentBranch}'`}</div>
+        </CreateNewBranchContainer>
+      </div>
 
       <SpinnerContainer isCreatingNewBranch={isCreatingNewBranch}>
         <Spinner size="sm" />

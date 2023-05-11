@@ -120,8 +120,8 @@ public class MongoPluginErrorsTest {
                             .anyMatch(error -> error.contains("It seems that you are trying to use a mongo connection" +
                                     " string URI. Please extract relevant fields and fill the form with extracted " +
                                     "values. For details, please check out the Appsmith's documentation for Mongo " +
-                                    "database. Alternatively, you may use 'Import from Connection String URI' option " +
-                                    "from the dropdown labelled 'Use Mongo Connection String URI' to use the URI " +
+                                    "database. Alternatively, you may use 'Import from connection string URI' option " +
+                                    "from the dropdown labelled 'Use mongo connection string URI' to use the URI " +
                                     "connection string directly.")));
                 })
                 .verifyComplete();
@@ -146,8 +146,8 @@ public class MongoPluginErrorsTest {
                             .anyMatch(error -> error.contains("It seems that you are trying to use a mongo connection" +
                                     " string URI. Please extract relevant fields and fill the form with extracted " +
                                     "values. For details, please check out the Appsmith's documentation for Mongo " +
-                                    "database. Alternatively, you may use 'Import from Connection String URI' option " +
-                                    "from the dropdown labelled 'Use Mongo Connection String URI' to use the URI " +
+                                    "database. Alternatively, you may use 'Import from connection string URI' option " +
+                                    "from the dropdown labelled 'Use mongo connection string URI' to use the URI " +
                                     "connection string directly.")));
                 })
                 .verifyComplete();
@@ -163,7 +163,7 @@ public class MongoPluginErrorsTest {
                 .assertNext(invalids -> {
                     assertTrue(invalids
                             .stream()
-                            .anyMatch(error -> error.contains("'Mongo Connection String URI' field is empty. Please " +
+                            .anyMatch(error -> error.contains("'Mongo Connection string URI' field is empty. Please " +
                                     "edit the 'Mongo Connection URI' field to provide a connection uri to connect with.")));
                 })
                 .verifyComplete();
@@ -182,7 +182,7 @@ public class MongoPluginErrorsTest {
                 .assertNext(invalids -> {
                     assertTrue(invalids
                             .stream()
-                            .anyMatch(error -> error.contains("Mongo Connection String URI does not seem to be in the" +
+                            .anyMatch(error -> error.contains("Mongo Connection string URI does not seem to be in the" +
                                     " correct format. Please check the URI once.")));
                 })
                 .verifyComplete();
@@ -201,7 +201,7 @@ public class MongoPluginErrorsTest {
                 .assertNext(invalids -> {
                     assertTrue(invalids
                             .stream()
-                            .anyMatch(error -> error.contains("Mongo Connection String URI does not seem to be in the" +
+                            .anyMatch(error -> error.contains("Mongo Connection string URI does not seem to be in the" +
                                     " correct format. Please check the URI once.")));
                 })
                 .verifyComplete();

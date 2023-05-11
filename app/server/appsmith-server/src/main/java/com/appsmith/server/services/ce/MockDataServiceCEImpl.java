@@ -142,11 +142,11 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
         }
 
         MockDataCredentials credentials = credentialsList.get();
-        property.setKey("Use Mongo Connection String URI");
+        property.setKey("Use mongo connection string URI");
         property.setValue("Yes");
         listProperty.add(property);
         property = new Property();
-        property.setKey("Connection String URI");
+        property.setKey("Connection string URI");
         property.setValue(credentials.getHost());
         listProperty.add(property);
         sslDetails.setAuthType(SSLDetails.AuthType.DEFAULT);

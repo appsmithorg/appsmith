@@ -34,7 +34,7 @@ describe("Validate Firestore DS", () => {
       _.dataSources.ValidateNSelectDropdown(
         "Commands",
         "List Documents",
-        "Create Document",
+        "Create document",
       );
 
       _.agHelper.EnterValue(
@@ -57,7 +57,7 @@ describe("Validate Firestore DS", () => {
       //Find the document id of the newly inserted record + Verify List all records
       _.dataSources.ValidateNSelectDropdown(
         "Commands",
-        "Create Document",
+        "Create document",
         "List Documents",
       );
       _.agHelper.EnterValue("cities", {
@@ -105,11 +105,11 @@ describe("Validate Firestore DS", () => {
 
         _.agHelper.GetNClick(_.dataSources._whereDelete(0)); //removign where clause
 
-        //Update Document
+        //Update document
         _.dataSources.ValidateNSelectDropdown(
           "Commands",
           "List Documents",
-          "Update Document",
+          "Update document",
         );
 
         _.agHelper.EnterValue(newCityPath, {
@@ -134,7 +134,7 @@ describe("Validate Firestore DS", () => {
         //Validate the update happened fine
         _.dataSources.ValidateNSelectDropdown(
           "Commands",
-          "Update Document",
+          "Update document",
           "List Documents",
         );
         _.agHelper.EnterValue("cities", {
@@ -170,7 +170,7 @@ describe("Validate Firestore DS", () => {
         _.agHelper.EnterValue(newCityPath, {
           propFieldName: "",
           directInput: false,
-          inputFieldName: "Collection/Document Path",
+          inputFieldName: "Collection/Document path",
         });
 
         _.dataSources.RunQuery();
@@ -182,7 +182,7 @@ describe("Validate Firestore DS", () => {
     });
   });
 
-  it("2. Validate Upsert [Update & Insert]/Delete Documents", () => {
+  it("2. Validate Upsert [Update & Insert]/Delete documents", () => {
     //Validating Upsert
     _.dataSources.ValidateNSelectDropdown(
       "Commands",
@@ -193,7 +193,7 @@ describe("Validate Firestore DS", () => {
     _.agHelper.EnterValue(newCityPath, {
       propFieldName: "",
       directInput: false,
-      inputFieldName: "Collection/Document Path",
+      inputFieldName: "Collection/Document path",
     });
 
     _.agHelper.EnterValue(
@@ -247,20 +247,20 @@ describe("Validate Firestore DS", () => {
     _.dataSources.ValidateNSelectDropdown(
       "Commands",
       "List Documents",
-      "Delete Document",
+      "Delete document",
     );
 
     _.agHelper.EnterValue(newCityPath, {
       propFieldName: "",
       directInput: false,
-      inputFieldName: "Collection/Document Path",
+      inputFieldName: "Collection/Document path",
     });
     _.dataSources.RunQuery(); //Delete the record
 
     //Validate Deletion
     _.dataSources.ValidateNSelectDropdown(
       "Commands",
-      "Delete Document",
+      "Delete document",
       "List Documents",
     );
     _.agHelper.EnterValue("cities", {

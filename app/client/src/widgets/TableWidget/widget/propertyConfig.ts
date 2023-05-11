@@ -65,7 +65,7 @@ export default [
           params: {
             fn: uniqueColumnNameValidation,
             expected: {
-              type: "Unique Column Names",
+              type: "Unique column names",
               example: "abc",
               autocompleteDataType: AutocompleteDataType.STRING,
             },

@@ -36,7 +36,7 @@ describe("Omnibar functionality test cases", () => {
       );
     cy.get(omnibar.categoryTitle)
       .eq(1)
-      .should("have.text", "Create New")
+      .should("have.text", "Create new")
       .next()
       .should("have.text", "Create a new Query, API or JS Object");
     cy.get(omnibar.categoryTitle)
@@ -75,7 +75,7 @@ describe("Omnibar functionality test cases", () => {
     // cy.get(omnibar.globalSearchClose).click();
   });
 
-  it("4. Verify Create New section and its data, also create a new api, new js object and new cURL import from omnibar ", function () {
+  it("4. Verify Create new section and its data, also create a new api, new js object and new cURL import from omnibar ", function () {
     cy.intercept("POST", "/api/v1/actions").as("createNewApi");
     cy.intercept("POST", "/api/v1/collections/actions").as(
       "createNewJSCollection",

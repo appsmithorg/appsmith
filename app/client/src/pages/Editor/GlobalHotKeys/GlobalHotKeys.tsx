@@ -144,7 +144,7 @@ class GlobalHotKeys extends React.Component<Props> {
           allowInInput
           combo="mod + plus"
           global
-          label="Create New"
+          label="Create new"
           onKeyDown={(e) =>
             this.onOnmnibarHotKeyDown(e, SEARCH_CATEGORY_ID.ACTION_OPERATION)
           }

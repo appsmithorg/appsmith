@@ -162,7 +162,7 @@ describe("check canvas diff from replayUtils for type of update", () => {
           sectionName: "Authentication",
           children: [
             {
-              label: "Database Name",
+              label: "Database name",
               configProperty:
                 "datasourceConfiguration.authentication.databaseName",
               controlType: "INPUT_TEXT",

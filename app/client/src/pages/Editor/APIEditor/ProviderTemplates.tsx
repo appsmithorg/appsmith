@@ -57,7 +57,7 @@ const TemplateDetailPage = styled.div`
   font-size: 20px;
   padding: 20px;
 
-  .react-tabs__tab-list {
+  .ads-v2-tabs__list {
     border-bottom-color: transparent;
     color: #4e5d78;
     font-size: 14px;
