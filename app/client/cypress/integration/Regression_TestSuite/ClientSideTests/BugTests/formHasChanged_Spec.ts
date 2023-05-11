@@ -9,7 +9,7 @@ describe("JS Function Execution", function () {
     cy.fixture("formChangeDSL.json").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    ee.NavigateToSwitcher("explorer");
+    ee.NavigateToSwitcher("Explorer");
   });
 
   it("Doesn't show lint errors for 'form.hasChanges'", () => {

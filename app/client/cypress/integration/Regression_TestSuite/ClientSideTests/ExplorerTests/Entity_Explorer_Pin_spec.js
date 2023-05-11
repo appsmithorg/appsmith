@@ -57,13 +57,13 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
   });
 
   it("Widgets visibility in widget pane", function () {
-    ee.NavigateToSwitcher("widgets");
+    ee.NavigateToSwitcher("Widgets");
     agHelper.ScrollTo(locator._widgetPane, "bottom");
     agHelper.AssertElementVisible(ee.locator._widgetPageIcon(WIDGET.VIDEO));
     ee.PinUnpinEntityExplorer(true);
     agHelper.AssertElementVisible(ee.locator._widgetPageIcon(WIDGET.VIDEO));
     ee.PinUnpinEntityExplorer(false);
-    ee.NavigateToSwitcher("explorer");
+    ee.NavigateToSwitcher("Explorer");
   });
 
   it("Unpinned explorer is to be open when any context menu is open or when an entity name is being edited", function () {

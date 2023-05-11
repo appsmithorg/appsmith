@@ -11,7 +11,7 @@ describe("Array Datatype tests", function () {
     cy.fixture("Datatypes/ArrayDTdsl").then((val: any) => {
       _.agHelper.AddDsl(val);
     });
-    _.entityExplorer.NavigateToSwitcher("widgets");
+    _.entityExplorer.NavigateToSwitcher("Widgets");
     _.appSettings.OpenPaneAndChangeThemeColors(-31, -27);
   });
 

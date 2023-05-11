@@ -14,7 +14,7 @@ describe("Tests JS Libraries", () => {
 
   it("2. Checks for naming collision", () => {
     _.entityExplorer.DragDropWidgetNVerify(WIDGET.TABLE, 200, 200);
-    _.entityExplorer.NavigateToSwitcher("explorer");
+    _.entityExplorer.NavigateToSwitcher("Explorer");
     _.entityExplorer.RenameEntityFromExplorer("Table1", "jsonwebtoken");
     _.entityExplorer.ExpandCollapseEntity("Libraries");
     _.installer.openInstaller();

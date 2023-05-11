@@ -97,7 +97,7 @@ export class CommonLocators {
     "//div[contains(@class, 't--property-control-" +
     controlToToggle +
     "')]//input[@type='checkbox']/parent::label";
-  _openNavigationTab = (tabToOpen: string) => `#switcher--${tabToOpen}`;
+  _segmentedControlContainer = ".ads-v2-segmented-control__segments-container";
   _selectWidgetDropdown = (widgetType: string) =>
     `//div[contains(@class, 't--draggable-${widgetType}')]//button`;
   _selectWidgetDropdownInDeployed = (widgetType: string) =>

@@ -73,7 +73,7 @@ describe("Tests fetch calls", () => {
   });
 
   it("3. Tests if fetch works with store value", function () {
-    explorerHelper.NavigateToSwitcher("widgets");
+    explorerHelper.NavigateToSwitcher("Widgets");
     explorerHelper.DragDropWidgetNVerify("buttonwidget", 500, 200);
     explorerHelper.SelectEntityByName("Button1");
     propertyPaneHelper.TypeTextIntoField("Label", "getUserID");

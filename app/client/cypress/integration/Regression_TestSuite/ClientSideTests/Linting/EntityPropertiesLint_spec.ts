@@ -10,7 +10,7 @@ const jsEditor = ObjectsRegistry.JSEditor,
 describe("Linting of entity properties", () => {
   before(() => {
     ee.DragDropWidgetNVerify("buttonwidget", 300, 300);
-    ee.NavigateToSwitcher("explorer");
+    ee.NavigateToSwitcher("Explorer");
   });
 
   it("1. Shows correct lint error when wrong Api property is binded", () => {

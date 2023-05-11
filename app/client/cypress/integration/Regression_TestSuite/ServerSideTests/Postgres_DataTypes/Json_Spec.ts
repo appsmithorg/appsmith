@@ -31,7 +31,7 @@ describe("Json & JsonB Datatype tests", function () {
     cy.fixture("Datatypes/JsonDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    ee.NavigateToSwitcher("widgets");
+    ee.NavigateToSwitcher("Widgets");
     appSettings.OpenPaneAndChangeThemeColors(33, 39);
   });
 
@@ -355,7 +355,7 @@ describe("Json & JsonB Datatype tests", function () {
     cy.fixture("Datatypes/JsonBDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    ee.NavigateToSwitcher("widgets");
+    ee.NavigateToSwitcher("Widgets");
     appSettings.OpenPaneAndChangeThemeColors(12, 23);
   });
 

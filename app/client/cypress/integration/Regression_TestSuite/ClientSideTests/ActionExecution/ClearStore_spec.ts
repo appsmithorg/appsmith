@@ -3,7 +3,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 describe("clearStore Action test", () => {
   before(() => {
     _.entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 100);
-    _.entityExplorer.NavigateToSwitcher("explorer");
+    _.entityExplorer.NavigateToSwitcher("Explorer");
   });
 
   it("1. Feature 11639 : Clear all store value", function () {
