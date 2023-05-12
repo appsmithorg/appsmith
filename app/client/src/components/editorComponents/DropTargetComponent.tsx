@@ -50,6 +50,7 @@ type DropTargetComponentProps = PropsWithChildren<{
   useAutoLayout?: boolean;
   isMobile?: boolean;
   mobileBottomRow?: number;
+  isListWidgetCanvas?: boolean;
 }>;
 
 const StyledDropTarget = styled.div`
@@ -253,7 +254,9 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     // If the current ref is not set to the new snaprows we've received (based on bottomRow)
     if (rowRef.current !== snapRows && !isDragging && !isResizing) {
       rowRef.current = snapRows;
-      updateHeight(dropTargetRef, snapRows);
+      if (!props.isListWidgetCanvas) {
+        updateHeight(dropTargetRef, snapRows);
+      }
 
       // If we're done dragging, and the parent has auto height enabled
       // It is possible that the auto height has not triggered yet
@@ -270,6 +273,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     props.mobileBottomRow,
     props.isMobile,
     props.parentId,
+    props.isListWidgetCanvas,
     isDragging,
     isResizing,
   ]);
@@ -302,7 +306,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const height = `${rowRef.current * GridDefaults.DEFAULT_GRID_ROW_HEIGHT}px`;
 
   const dropTargetStyles = {
-    height,
+    height: props.isListWidgetCanvas ? "auto" : height,
   };
 
   const shouldOnboard =
