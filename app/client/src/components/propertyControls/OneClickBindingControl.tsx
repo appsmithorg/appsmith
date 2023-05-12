@@ -39,7 +39,7 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
 
   private getErrorMessage = () => {
     const errorObj =
-      this.props.widgetProperties.__evaluation__.errors[
+      this.props.widgetProperties.__evaluation__?.errors?.[
         this.props.propertyName
       ];
 

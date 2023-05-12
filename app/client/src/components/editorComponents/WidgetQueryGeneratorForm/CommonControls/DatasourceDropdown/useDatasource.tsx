@@ -29,6 +29,7 @@ import type { DropdownOptionType } from "../../types";
 import { invert } from "lodash";
 import { Colors } from "constants/Colors";
 import { DropdownOption } from "./DropdownOption";
+import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
 
 export function useDatasource() {
   const {
@@ -40,6 +41,7 @@ export function useDatasource() {
     onSourceClose,
     propertyValue,
     updateConfig,
+    widgetId,
   } = useContext(WidgetQueryGeneratorFormContext);
 
   const dispatch = useDispatch();
@@ -254,6 +256,10 @@ export function useDatasource() {
     }
   }, [isMockDatasource, isDatasourceLoading, datasourceOptions]);
 
+  const isConnecting = useSelector(
+    getisOneClickBindingConnectingForWidget(widgetId),
+  );
+
   return {
     datasourceOptions,
     otherOptions,
@@ -284,5 +290,6 @@ export function useDatasource() {
     isSourceOpen,
     onSourceClose,
     error: config.datasource ? "" : errorMsg,
+    disabled: isConnecting,
   };
 }

@@ -18,6 +18,7 @@ const SectionHeader = styled.div`
 function DatasourceDropdown() {
   const {
     datasourceOptions,
+    disabled,
     error,
     isSourceOpen,
     onSourceClose,
@@ -55,6 +56,7 @@ function DatasourceDropdown() {
             );
           }
         }}
+        isDisabled={disabled}
         isValid={!error}
         onDropdownVisibleChange={(open: boolean) => {
           !open && onSourceClose();

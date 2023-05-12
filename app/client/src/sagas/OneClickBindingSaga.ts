@@ -100,6 +100,8 @@ function* BindWidgetToDatasource(
 
   const applicationId: string = yield select(getCurrentApplicationId);
 
+  const newActions: string[] = [];
+
   try {
     const defaultValues: object | undefined = yield call(
       getPulginActionDefaultValues,
@@ -156,9 +158,8 @@ function* BindWidgetToDatasource(
      *  Select query is created and bound first so table widget can
      *  create columns
      */
-    const groupedPayloadList = partition(
-      actionRequestPayloadList,
-      (d) => d.type === QUERY_TYPE.SELECT,
+    const groupedPayloadList = partition(actionRequestPayloadList, (d) =>
+      [QUERY_TYPE.SELECT, QUERY_TYPE.TOTAL_RECORD].includes(d.type),
     );
 
     for (const payloadList of groupedPayloadList) {
@@ -183,26 +184,27 @@ function* BindWidgetToDatasource(
         throw new Error("Unable to fetch newly created actions");
       }
 
-      Toaster.show({
-        text: `Successfully created action${
-          createdActions.length > 1 ? "s" : ""
-        }: ${createdActions.map((d) => d.name)}`,
-        hideProgressBar: true,
-        variant: Variant.success,
-        duration: 3000,
-      });
-
       const actionsToRun = createdActions.filter(
         (action) =>
           action.name === queryNameMap[QUERY_TYPE.SELECT] ||
           action.name === queryNameMap[QUERY_TYPE.TOTAL_RECORD],
       );
 
+      //TODO(Balaji): Need to make changes to plugin saga to execute the actions in parallel
       for (const action of actionsToRun) {
         yield put(runAction(action.id, undefined, true));
-      }
 
-      yield take(ReduxActionTypes.EXECUTE_PLUGIN_ACTION_SUCCESS);
+        const runResponse: ReduxAction<unknown> = yield take([
+          ReduxActionTypes.EXECUTE_PLUGIN_ACTION_SUCCESS,
+          ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR,
+        ]);
+
+        if (
+          runResponse.type === ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR
+        ) {
+          throw new Error("Unable to run action(s)");
+        }
+      }
 
       const { getPropertyUpdatesForQueryBinding } =
         WidgetFactory.getWidgetMethods(widget.type);
@@ -270,6 +272,8 @@ function* BindWidgetToDatasource(
       });
 
       yield take(ReduxActionTypes.SET_EVALUATED_TREE);
+
+      newActions.push(...createdQueryNames);
     }
 
     yield put({
@@ -286,6 +290,15 @@ function* BindWidgetToDatasource(
       type: ReduxActionTypes.BIND_WIDGET_TO_DATASOURCE_ERROR,
     });
   }
+
+  Toaster.show({
+    text: `Successfully created action${
+      newActions.length > 1 ? "s" : ""
+    }: ${newActions.join(", ")}`,
+    hideProgressBar: true,
+    variant: Variant.success,
+    duration: 3000,
+  });
 }
 
 export default function* oneClickBindingSaga() {

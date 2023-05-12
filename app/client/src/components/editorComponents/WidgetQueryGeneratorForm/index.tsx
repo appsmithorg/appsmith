@@ -10,7 +10,10 @@ import WidgetSpecificControls from "./WidgetSpecificControls";
 import { useDispatch, useSelector } from "react-redux";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { SlashCommand } from "entities/Action";
-import { getOneClickBindingConfigForWidget } from "selectors/oneClickBindingSelectors";
+import {
+  getisOneClickBindingConnectingForWidget,
+  getOneClickBindingConfigForWidget,
+} from "selectors/oneClickBindingSelectors";
 
 type WidgetQueryGeneratorFormContextType = {
   widgetId: string;
@@ -87,6 +90,10 @@ function WidgetQueryGeneratorForm(props: Props) {
   } = props;
 
   const formData = useSelector(getOneClickBindingConfigForWidget(widgetId));
+
+  const isConnecting = useSelector(
+    getisOneClickBindingConnectingForWidget(widgetId),
+  );
 
   let formState = {
     ...DEFAULT_CONFIG_VALUE,
@@ -185,10 +192,10 @@ function WidgetQueryGeneratorForm(props: Props) {
   ]);
 
   useEffect(() => {
-    if (!pristine) {
+    if (!pristine && propertyValue && !isConnecting) {
       updateConfig("datasource", "");
     }
-  }, [propertyValue]);
+  }, [isConnecting]);
 
   return (
     <Wrapper>

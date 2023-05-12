@@ -12,9 +12,8 @@ type Props = {
 };
 
 function ColumnDropdown(props: Props) {
-  const { error, isLoading, onSelect, options, selected, show } = useColumns(
-    props.alias,
-  );
+  const { disabled, error, isLoading, onSelect, options, selected, show } =
+    useColumns(props.alias);
 
   if (show) {
     return (
@@ -26,6 +25,7 @@ function ColumnDropdown(props: Props) {
             minWidth: "350px",
             maxHeight: "300px",
           }}
+          isDisabled={disabled}
           isLoading={isLoading}
           isValid={!error}
           onSelect={(value: string, selectedOption: DefaultOptionType) => {
