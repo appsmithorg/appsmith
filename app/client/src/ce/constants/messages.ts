@@ -1661,9 +1661,9 @@ export const USE_SNAPSHOT_TEXT = () =>
 export const SNAPSHOT_WARNING_MESSAGE = () =>
   "Any changes you made after conversion will not be present.";
 export const CONVERT_TO_FIXED_TITLE = () => "Convert to Fixed-Layout";
-export const CONVERT_TO_FIXED_BUTTON = () => "Convert to fixed-layout (BETA)";
+export const CONVERT_TO_FIXED_BUTTON = () => "Convert to Fixed-layout (BETA)";
 export const CONVERT_TO_AUTO_TITLE = () => "Convert to Auto-Layout";
-export const CONVERT_TO_AUTO_BUTTON = () => "Convert to auto-layout (BETA)";
+export const CONVERT_TO_AUTO_BUTTON = () => "Convert to Auto-layout (BETA)";
 export const SNAPSHOT_BANNER_MESSAGE = () =>
   "Confirm this layout is per expectations before you discard the snapshot. Use the snapshot to go back.";
 export const USE_SNAPSHOT_CTA = () => "Use snapshot";
