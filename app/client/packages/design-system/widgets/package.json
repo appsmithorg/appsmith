@@ -5,22 +5,19 @@
   "author": "Valera Melnikov <valera@appsmith.com>, Pawan Kumar <pawan@appsmith.com>",
   "license": "MIT",
   "scripts": {
-    "lint": "eslint --cache .",
-    "prettier": "prettier --check .",
-    "test": "jest"
+    "lint": "yarn g:lint",
+    "prettier": "yarn g:prettier",
+    "test:unit": "yarn g:jest"
   },
   "dependencies": {
     "@capsizecss/core": "^3.1.0",
     "@capsizecss/metrics": "^1.0.1",
-    "@design-system/headless": "*",
-    "@design-system/theming": "*",
+    "@design-system/headless": "workspace:^",
+    "@design-system/theming": "workspace:^",
     "@react-aria/utils": "^3.16.0",
     "colorjs.io": "^0.4.3"
   },
   "devDependencies": {
-    "@types/react": "*",
-    "@types/react-dom": "*",
-    "eslint": "^8.38.0",
     "eslint-plugin-storybook": "^0.6.10"
   },
   "peerDependencies": {
