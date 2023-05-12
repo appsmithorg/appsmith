@@ -54,7 +54,7 @@ myFun2: async () => {
     );
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify6");
 
-    agHelper.ActionContextMenuWithInPane("Prettify Code");
+    agHelper.ActionContextMenuWithInPane("Prettify code");
     agHelper.Sleep(2000); //allowing time to prettify!
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify6");
 
@@ -112,7 +112,7 @@ myFun2: async () => {
 
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify7");
 
-    agHelper.ActionContextMenuWithInPane("Prettify Code");
+    agHelper.ActionContextMenuWithInPane("Prettify code");
     agHelper.Sleep(); //allowing time to prettify!
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");
 
@@ -127,7 +127,7 @@ myFun2: async () => {
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");
   });
 
-  it("1. TC 1864 : JSEditor validation for Prettify Code with lint errors, triggered by menu option", () => {
+  it("1. TC 1864 : JSEditor validation for Prettify code with lint errors, triggered by menu option", () => {
     jsEditor.CreateJSObject(
       `export default {
 myVar1: [], myVar2: {},myFun1: () => {
@@ -154,7 +154,7 @@ return Promise.all(allFuncs).then(() => showAlert("Wonderful! all apis executed"
 
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify1");
 
-    agHelper.ActionContextMenuWithInPane("Prettify Code");
+    agHelper.ActionContextMenuWithInPane("Prettify code");
     agHelper.Sleep(2000); //allowing time to prettify!
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify1");
 
@@ -163,7 +163,7 @@ return Promise.all(allFuncs).then(() => showAlert("Wonderful! all apis executed"
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify1");
   });
 
-  it("2. TC 1916, 1917 : JSEditor validation for Prettify Code with no errors, triggered by menu option", () => {
+  it("2. TC 1916, 1917 : JSEditor validation for Prettify code with no errors, triggered by menu option", () => {
     jsEditor.CreateJSObject(
       `export default {
 myFun1: () => {
@@ -205,7 +205,7 @@ myFun2: async () => {
 
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify2");
 
-    agHelper.ActionContextMenuWithInPane("Prettify Code");
+    agHelper.ActionContextMenuWithInPane("Prettify code");
     agHelper.Sleep(2000); //allowing time to prettify!
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify2");
 
@@ -227,7 +227,7 @@ myFun2: async () => {
     agHelper.AssertContains("ran successfully", "not.exist");
   });
 
-  it("3. TC 1863 : JSEditor validation for Prettify Code with lint errors, triggered by keyboard shortcut", () => {
+  it("3. TC 1863 : JSEditor validation for Prettify code with lint errors, triggered by keyboard shortcut", () => {
     jsEditor.CreateJSObject(
       `export default {
 myVar1: [],
@@ -269,7 +269,7 @@ myFun2: async () => {
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify3");
   });
 
-  it("4. TC 1863 : JSEditor validation for Prettify Code with no errors, triggered by keyboard shortcut", () => {
+  it("4. TC 1863 : JSEditor validation for Prettify code with no errors, triggered by keyboard shortcut", () => {
     jsEditor.CreateJSObject(
       `export default {
 myVar1: [],

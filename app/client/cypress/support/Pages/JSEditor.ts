@@ -178,7 +178,7 @@ export class JSEditor {
 
     this.agHelper.AssertAutoSave();
     if (prettify) {
-      this.agHelper.ActionContextMenuWithInPane("Prettify Code");
+      this.agHelper.ActionContextMenuWithInPane("Prettify code");
       this.agHelper.AssertAutoSave();
     }
 
@@ -209,7 +209,7 @@ export class JSEditor {
         this.agHelper.Paste(el, newContent);
       });
     this.agHelper.Sleep(2000); //Settling time for edited js code
-    toPrettify && this.agHelper.ActionContextMenuWithInPane("Prettify Code");
+    toPrettify && this.agHelper.ActionContextMenuWithInPane("Prettify code");
     toVerifyAutoSave && this.agHelper.AssertAutoSave();
   }
 
