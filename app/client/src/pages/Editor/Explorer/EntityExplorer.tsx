@@ -1,6 +1,5 @@
 import React, { useRef, useCallback, useEffect } from "react";
 import styled from "styled-components";
-import { Divider } from "design-system";
 import { NonIdealState, Classes } from "@blueprintjs/core";
 import JSDependencies from "./Libraries";
 import PerformanceTracker, {
@@ -107,9 +106,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
           title="No entities found"
         />
       )}
-      <Divider />
       <Datasources />
-      <Divider />
       <JSDependencies />
     </Wrapper>
   );
