@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mockito.stubbing.Answer;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
@@ -37,10 +38,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.external.plugins.exceptions.ArangoDBErrorMessages.DS_HOSTNAME_MISSING_OR_INVALID_ERROR_MSG;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Testcontainers
 public class ArangoDBPluginTest {
@@ -311,5 +315,36 @@ public class ArangoDBPluginTest {
                 .filter(appErrorCode-> appErrorCode.length() != 11 || !appErrorCode.startsWith("PE-ARN"))
                 .collect(Collectors.toList()).size() == 0);
 
+    }
+
+    @Test
+    public void testErrorMessageOnBadHostAddress() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        dsConfig.getEndpoints().get(0).setHost("arango.bad.host");
+        Mono<DatasourceTestResult> testDsResult = pluginExecutor.testDatasource(dsConfig);
+        StepVerifier.create(testDsResult)
+                .assertNext(dsTestResult -> {
+                    assertEquals(1, dsTestResult.getInvalids().size());
+                    assertEquals(DS_HOSTNAME_MISSING_OR_INVALID_ERROR_MSG,
+                            dsTestResult.getInvalids().stream().toList().get(0));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testErrorMessageOnTestDatasourceTimeout() {
+        ArangoDatabase mockConnection = mock(ArangoDatabase.class);
+        when(mockConnection.getVersion()).thenAnswer((Answer<String>) invocation -> {
+            Thread.sleep(30*1000);
+            return "test_version";
+        });
+        Mono<DatasourceTestResult> testDsResult = pluginExecutor.testDatasource(mockConnection);
+        StepVerifier.create(testDsResult)
+                .assertNext(dsTestResult -> {
+                    assertEquals(1, dsTestResult.getInvalids().size());
+                    assertEquals(DS_HOSTNAME_MISSING_OR_INVALID_ERROR_MSG,
+                            dsTestResult.getInvalids().stream().toList().get(0));
+                })
+                .verifyComplete();
     }
 }
