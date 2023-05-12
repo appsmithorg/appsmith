@@ -2,7 +2,7 @@ const widgetsPage = require("../../../../locators/Widgets.json");
 const commonLocators = require("../../../../locators/commonlocators.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const dsl = require("../../../../fixtures/WidgetCopyPaste.json");
-const generatePage = require("../../../../locators/GeneratePage.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 describe("Widget Copy paste", function () {
@@ -103,7 +103,6 @@ describe("Widget Copy paste", function () {
 
     //paste
     cy.get("body").type(`{${modifierKey}}{v}`);
-    // cy.get(explorer.explorerSwitchId).click();
     // cy.get(explorer.entityModal).click();
     cy.get(".t--modal-widget")
       .find(widgetsPage.chartWidget)
@@ -119,7 +118,7 @@ describe("Widget Copy paste", function () {
     cy.get("body").type("{del}");
 
     //add list widget
-    cy.get(explorer.widgetSwitchId).click();
+    _.entityExplorer.NavigateToSwitcher("Widgets");
     cy.dragAndDropToCanvas("listwidgetv2", { x: 500, y: 700 });
     cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
 

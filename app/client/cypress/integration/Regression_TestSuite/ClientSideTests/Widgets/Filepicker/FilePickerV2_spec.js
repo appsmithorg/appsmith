@@ -1,8 +1,8 @@
 const explorer = require("../../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-let ee = ObjectsRegistry.EntityExplorer;
+
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const widgetName = "filepickerwidgetv2";
 
@@ -47,7 +47,7 @@ describe("File picker widget v2", () => {
       cy.get(".t--more-action-menu").first().click({ force: true });
 
       // Go back to widgets page
-      cy.get(explorer.widgetSwitchId).click();
+      _.entityExplorer.NavigateToSwitcher("Widgets");
       cy.get(widgetsPage.filepickerwidgetv2).should(
         "contain",
         "1 files selected",
@@ -61,8 +61,9 @@ describe("File picker widget v2", () => {
     cy.get(widgetsPage.filepickerwidgetv2CancelBtn).click();
     cy.get(widgetsPage.filepickerwidgetv2).should("contain", "Select Files");
     cy.get(widgetsPage.filepickerwidgetv2CloseModalBtn).click();
-    cy.get(widgetsPage.explorerSwitchId).click();
-    ee.ExpandCollapseEntity("Queries/JS");
+    _.entityExplorer.NavigateToSwitcher("Explorer");
+
+    _.entityExplorer.ExpandCollapseEntity("Queries/JS");
     cy.get(".t--entity-item:contains(Api1)").click();
     cy.focusCodeInput("[class*='t--actionConfiguration']");
     cy.wait(1000);

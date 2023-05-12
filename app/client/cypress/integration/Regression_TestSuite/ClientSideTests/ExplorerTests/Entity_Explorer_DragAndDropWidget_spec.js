@@ -5,6 +5,8 @@ const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 
+import * as _ from "../../../../support/Objects/ObjectsCore";
+
 describe("Entity explorer Drag and Drop widgets testcases", function () {
   it("Drag and drop form widget and validate", function () {
     cy.log("Login Successful");
@@ -39,7 +41,7 @@ describe("Entity explorer Drag and Drop widgets testcases", function () {
     cy.get(formWidgetsPage.formD)
       .scrollTo("bottom", { ensureScrollable: false })
       .should("be.visible");
-    cy.get(explorer.explorerSwitchId).click();
+    _.entityExplorer.NavigateToSwitcher("Explorer");
     cy.PublishtheApp();
     cy.get(publish.backToEditor).first().click();
     cy.CheckAndUnfoldEntityItem("Widgets");

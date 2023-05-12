@@ -36,7 +36,7 @@ describe("Cyclic Dependency Informational Error Messages", function () {
         _.agHelper.GetNClick(_.dataSources._templateMenuOption("Select"));
         _.dataSources.ToggleUsePreparedStatement(false);
       });
-      cy.get(widgetsPage.widgetSwitchId).click();
+      _.entityExplorer.NavigateToSwitcher("Widgets");
       cy.openPropertyPane("inputwidgetv2");
       cy.get(widgetsPage.defaultInput).type(
         "{{" + queryName + ".data[0].gender",
@@ -66,7 +66,7 @@ describe("Cyclic Dependency Informational Error Messages", function () {
       cy.get(datasource.createQuery).click();
       _.agHelper.GetNClick(_.dataSources._templateMenuOption("Select"));
       _.dataSources.ToggleUsePreparedStatement(false);
-      cy.get(widgetsPage.widgetSwitchId).click();
+      _.entityExplorer.NavigateToSwitcher("Widgets");
       cy.openPropertyPane("inputwidgetv2");
       cy.get(widgetsPage.defaultInput).type(
         "{{" + queryName + ".data[0].gender",

@@ -1,6 +1,7 @@
 const dsl = require("../../../../../fixtures/Listv2/simpleLargeListv2.json");
-const explorer = require("../../../../../locators/explorerlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("List Widget V2 Functionality", function () {
   before(() => {
@@ -52,7 +53,7 @@ describe("List Widget V2 Functionality", function () {
     "excludeForAirgap",
     "should validate that all widgets can be added to List",
     () => {
-      cy.get(explorer.widgetSwitchId).click();
+      _.entityExplorer.NavigateToSwitcher("Widgets");
 
       allowed.forEach((widget) => {
         cy.dragAndDropToWidget(widget, "listwidgetv2", { x: 350, y: 50 });
@@ -68,7 +69,7 @@ describe("List Widget V2 Functionality", function () {
     "airgap",
     "should validate that all widgets can be added to List except mapwidget - airgap",
     () => {
-      cy.get(explorer.widgetSwitchId).click();
+      _.entityExplorer.NavigateToSwitcher("Widgets");
       const airgapAllowed = allowed.filter((widget) => widget !== "mapwidget");
       airgapAllowed.forEach((widget) => {
         cy.dragAndDropToWidget(widget, "listwidgetv2", { x: 350, y: 50 });

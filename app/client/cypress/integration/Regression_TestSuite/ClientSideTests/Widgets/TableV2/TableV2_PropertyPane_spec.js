@@ -1,6 +1,4 @@
-const ObjectsRegistry =
-  require("../../../../../support/Objects/Registry").ObjectsRegistry;
-let propPane = ObjectsRegistry.PropertyPane;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
@@ -23,7 +21,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     // Drag and drop table widget
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 300, y: 200 });
     // close Widget side bar
-    cy.get(widgetsPage.explorerSwitchId).click({ force: true });
+    _.entityExplorer.NavigateToSwitcher("Explorer");
     cy.wait(2000);
     cy.SearchEntityandOpen("Table2");
     // Verify default array data
@@ -38,7 +36,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     // Drag and drop table widget
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 300, y: 200 });
     // close Widget side bar
-    cy.get(widgetsPage.explorerSwitchId).click({ force: true });
+    _.entityExplorer.NavigateToSwitcher("Explorer");
     cy.get(widgetsPage.tabedataField).should("not.be.empty");
     cy.get(`${widgetsPage.tabedataField} .CodeMirror`)
       .first()
@@ -150,7 +148,7 @@ describe("Table Widget V2 property pane feature validation", function () {
       cy.log(tabData);
       expect(tabData).to.not.equal("2736212");
       // Changing the Computed value from "id" to "Email"
-      propPane.UpdatePropertyFieldValue(
+      _.propPane.UpdatePropertyFieldValue(
         "Computed value",
         testdata.currentRowEmail,
       );
@@ -169,7 +167,7 @@ describe("Table Widget V2 property pane feature validation", function () {
       cy.log(tabData);
       expect(tabData).to.not.equal("lindsay.ferguson@reqres.in");
       // Email to "orderAmount"
-      propPane.UpdatePropertyFieldValue(
+      _.propPane.UpdatePropertyFieldValue(
         "Computed value",
         testdata.currentRowOrderAmt,
       );
@@ -184,7 +182,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     // Changing Column data type from "Number" to "Date"
     cy.changeColumnType("Date");
     // orderAmout to "Moment Date"
-    propPane.UpdatePropertyFieldValue("Computed value", testdata.momentDate);
+    _.propPane.UpdatePropertyFieldValue("Computed value", testdata.momentDate);
     cy.wait(500);
     cy.readTableV2dataPublish("1", "1").then((tabData) => {
       expect(tabData).to.not.equal("9.99");
@@ -197,7 +195,7 @@ describe("Table Widget V2 property pane feature validation", function () {
 
     cy.changeColumnType("Image");
     // "Moement "date" to "Image"
-    propPane.UpdatePropertyFieldValue("Computed value", imageVal);
+    _.propPane.UpdatePropertyFieldValue("Computed value", imageVal);
     cy.wait(500);
     // Verifying the href of the image added.
     cy.readTableV2LinkPublish("1", "0").then((hrefVal) => {
@@ -208,7 +206,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.readTableV2dataPublish("1", "1").then((actualEmail) => {
       cy.changeColumnType("URL");
       // "Image" to "url"
-      propPane.UpdatePropertyFieldValue(
+      _.propPane.UpdatePropertyFieldValue(
         "Computed value",
         testdata.currentRowEmail,
       );
@@ -381,10 +379,10 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.makeColumnEditable("orderAmount");
     cy.editColumn("orderAmount");
 
-    propPane.UpdatePropertyFieldValue("Computed Value", "{{currentIndex}}");
+    _.propPane.UpdatePropertyFieldValue("Computed Value", "{{currentIndex}}");
     cy.changeColumnType("Number");
 
-    propPane.UpdatePropertyFieldValue("Min", "{{currentIndex}}");
+    _.propPane.UpdatePropertyFieldValue("Min", "{{currentIndex}}");
     cy.get(".t--evaluatedPopup-error").should("not.exist");
 
     // Update cell with row : 1, column : orderAmount
@@ -397,8 +395,8 @@ describe("Table Widget V2 property pane feature validation", function () {
 
     // Check if currentRow works
     cy.editColumn("orderAmount");
-    propPane.UpdatePropertyFieldValue("Min", "{{currentRow.id}}");
-    propPane.UpdatePropertyFieldValue(
+    _.propPane.UpdatePropertyFieldValue("Min", "{{currentRow.id}}");
+    _.propPane.UpdatePropertyFieldValue(
       "Error Message",
       "Row at index {{currentIndex}} is not valid",
     );
@@ -415,7 +413,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.enterTableCellValue(4, 1, 8);
     cy.get(".bp3-popover-content").should("not.exist");
 
-    propPane.UpdatePropertyFieldValue(
+    _.propPane.UpdatePropertyFieldValue(
       "Error Message",
       "Row with id {{currentRow.id}} is not valid",
     );
@@ -424,12 +422,12 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.enterTableCellValue(4, 1, 5);
     cy.get(".bp3-popover-content").contains("Row with id 7 is not valid");
 
-    propPane.UpdatePropertyFieldValue("Min", "");
-    propPane.UpdatePropertyFieldValue("Error Message", "");
+    _.propPane.UpdatePropertyFieldValue("Min", "");
+    _.propPane.UpdatePropertyFieldValue("Error Message", "");
 
     // Check for currentIndex property on Regex field
     cy.changeColumnType("Plain Text");
-    propPane.UpdatePropertyFieldValue("Regex", "{{currentIndex}}2");
+    _.propPane.UpdatePropertyFieldValue("Regex", "{{currentIndex}}2");
 
     cy.get(".t--evaluatedPopup-error").should("not.exist");
     cy.editTableCell(4, 1);
@@ -439,7 +437,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.get(".bp3-popover-content").should("not.exist");
 
     // Check for currentRow property on Regex field
-    propPane.UpdatePropertyFieldValue("Regex", "{{currentRow.id}}");
+    _.propPane.UpdatePropertyFieldValue("Regex", "{{currentRow.id}}");
     cy.editTableCell(4, 1);
 
     cy.enterTableCellValue(4, 1, 7);
@@ -448,10 +446,10 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.get(".bp3-popover-content").contains("Invalid input");
     cy.enterTableCellValue(4, 1, 7);
     cy.get(".bp3-popover-content").should("not.exist");
-    propPane.UpdatePropertyFieldValue("Regex", "");
+    _.propPane.UpdatePropertyFieldValue("Regex", "");
 
     cy.get(".t--property-control-required").find(".t--js-toggle").click();
-    propPane.UpdatePropertyFieldValue("Required", "{{currentIndex == 1}}");
+    _.propPane.UpdatePropertyFieldValue("Required", "{{currentIndex == 1}}");
 
     cy.editTableCell(4, 1);
     cy.enterTableCellValue(4, 1, "");
@@ -476,7 +474,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.discardTableRow(5, 2);
 
     // Check for Required property using currentRow, row with index 1 has id 7
-    propPane.UpdatePropertyFieldValue("Required", "{{currentRow.id == 7}}");
+    _.propPane.UpdatePropertyFieldValue("Required", "{{currentRow.id == 7}}");
 
     cy.editTableCell(4, 1);
     cy.enterTableCellValue(4, 1, "");
@@ -507,7 +505,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.discardTableRow(5, 2);
 
     // Cleanup
-    propPane.UpdatePropertyFieldValue(
+    _.propPane.UpdatePropertyFieldValue(
       "Computed Value",
       '{{currentRow["orderAmount"]}}',
     );
@@ -521,7 +519,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.makeColumnEditable("orderAmount");
     cy.editColumn("orderAmount");
     cy.changeColumnType("Number");
-    propPane.UpdatePropertyFieldValue("Min", "test");
+    _.propPane.UpdatePropertyFieldValue("Min", "test");
     cy.get(".t--property-control-min .t--no-binding-prompt > span").should(
       "have.text",
       "Access the current cell using {{currentRow.columnName}}",
