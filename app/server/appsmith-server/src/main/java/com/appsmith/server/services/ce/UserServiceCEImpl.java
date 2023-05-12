@@ -53,7 +53,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
@@ -95,7 +94,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s";
-    private static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/signup?email=%s";
     public static final String INVITE_USER_EMAIL_TEMPLATE = "email/inviteUserTemplate.html";
     private static final Pattern ALLOWED_ACCENTED_CHARACTERS_PATTERN = Pattern.compile("^[\\p{L} 0-9 .\'\\-]+$");
 
@@ -619,8 +617,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     @Override
     public Mono<? extends User> createNewUserAndSendInviteEmail(String email, String originHeader,
-                                                                Workspace workspace, User inviter, String role,
-                                                                Pair<String, String> subjectAndEmailTemplate) {
+                                                                String role, Pair<String, String> subjectAndEmailTemplate,
+                                                                Map<String, String> params) {
         User newUser = new User();
         newUser.setEmail(email.toLowerCase());
 
@@ -637,14 +635,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         return userCreate(newUser, isAdminUser)
                 .flatMap(createdUser -> {
                     log.debug("Going to send email for invite user to {}", createdUser.getEmail());
-                    String inviteUrl = String.format(
-                            INVITE_USER_CLIENT_URL_FORMAT,
-                            originHeader,
-                            URLEncoder.encode(createdUser.getEmail(), StandardCharsets.UTF_8)
-                    );
-
-                    // Email template parameters initialization below.
-                    Map<String, String> params = emailTemplateService.getEmailParams(workspace, inviter, inviteUrl, true);
                     // We have sent out the emails. Just send back the saved user.
                     return updateTenantLogoInParams(params, originHeader)
                             .flatMap(updatedParams ->

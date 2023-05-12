@@ -34,9 +34,9 @@ public interface UserServiceCE extends CrudService<User, String> {
 
     Mono<User> userCreate(User user, boolean isAdminUser);
 
-    Mono<? extends User> createNewUserAndSendInviteEmail(String email, String originHeader,
-                                                         Workspace workspace, User inviter, String role,
-                                                         Pair<String, String> subjectAndEmailTemplate);
+    Mono<? extends User> createNewUserAndSendInviteEmail(String email, String originHeader, String role,
+                                                         Pair<String, String> subjectAndEmailTemplate,
+                                                         Map<String, String> params);
 
     Mono<User> updateCurrentUser(UserUpdateDTO updates, ServerWebExchange exchange);
 

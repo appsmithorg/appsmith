@@ -12,6 +12,6 @@ public interface EmailTemplateServiceCE {
 
     public Pair<String, String> getSubjectAndWorkspaceEmailTemplateForNewUser(Workspace inviterWorkspace);
 
-    public Map<String, String> getEmailParams(Workspace workspace, User inviter, String inviteUrl, boolean isNewUser);
+    public Map<String, String> getWorkspaceEmailParams( Workspace workspace, User inviter, String inviteUrl, String roleType, boolean isNewUser);
 
 }

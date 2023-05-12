@@ -122,7 +122,7 @@ public class UserServiceTest {
         String inviteUrl = "http://localhost:8080";
         String expectedUrl = inviteUrl + "/applications#" + workspace.getId();
 
-        Map<String, String> params = emailTemplateService.getEmailParams(workspace, inviter, inviteUrl, false);
+        Map<String, String> params = emailTemplateService.getWorkspaceEmailParams(workspace, inviter, inviteUrl, "Developer", false);
         assertEquals(expectedUrl, params.get("primaryLinkUrl"));
         assertEquals("inviterUserToApplication", params.get("inviterFirstName"));
         assertEquals("UserServiceTest Update Org", params.get("inviterWorkspaceName"));
@@ -139,7 +139,7 @@ public class UserServiceTest {
 
         String inviteUrl = "http://localhost:8080";
 
-        Map<String, String> params = emailTemplateService.getEmailParams(workspace, inviter, inviteUrl, true);
+        Map<String, String> params = emailTemplateService.getWorkspaceEmailParams(workspace, inviter, inviteUrl, "Developer", true);
         assertEquals(inviteUrl, params.get("primaryLinkUrl"));
         assertEquals("inviterUserToApplication", params.get("inviterFirstName"));
         assertEquals("UserServiceTest Update Org", params.get("inviterWorkspaceName"));

@@ -19,6 +19,8 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +41,8 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
     private final EmailSender emailSender;
     private final PermissionGroupPermission permissionGroupPermission;
     private final EmailTemplateService emailTemplateService;
+    private static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/signup?email=%s";
+
 
     public UserAndAccessManagementServiceCEImpl(SessionUserService sessionUserService,
                                                 PermissionGroupService permissionGroupService,
@@ -143,7 +147,8 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
 
                                 Pair<String, String> subjectAndEmailTemplate = emailTemplateService.getSubjectAndWorkspaceEmailTemplateForExistingUser(workspace);
                                 // Email template parameters initialization below.
-                                Map<String, String> params = emailTemplateService.getEmailParams(workspace, currentUser, originHeader, false);
+                                Map<String, String> params = emailTemplateService.getWorkspaceEmailParams(workspace,
+                                        currentUser, originHeader, permissionGroup.getName(), false);
 
                                 return userService.updateTenantLogoInParams(params, originHeader)
                                         .flatMap(updatedParams ->
@@ -156,11 +161,21 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                                         )
                                         .thenReturn(existingUser);
                             })
-                            .switchIfEmpty(
-                                    userService.createNewUserAndSendInviteEmail(username, originHeader, workspace,
-                                            currentUser, permissionGroup.getName(),
-                                            emailTemplateService.getSubjectAndWorkspaceEmailTemplateForNewUser(workspace))
-                            );
+                            .switchIfEmpty(Mono.defer(() -> {
+                                String inviteUrl = String.format(
+                                        INVITE_USER_CLIENT_URL_FORMAT,
+                                        originHeader,
+                                        URLEncoder.encode(username.toLowerCase(), StandardCharsets.UTF_8)
+                                );
+                                // Email template parameters initialization below.
+                                Map<String, String> params = emailTemplateService.getWorkspaceEmailParams(workspace,
+                                        currentUser, inviteUrl, permissionGroup.getName(), true);
+                                Pair<String, String> subjectAndWorkspaceEmailTemplate = emailTemplateService
+                                        .getSubjectAndWorkspaceEmailTemplateForNewUser(workspace);
+
+                                return userService.createNewUserAndSendInviteEmail(username, originHeader,
+                                        permissionGroup.getName(), subjectAndWorkspaceEmailTemplate, params);
+                            }));
                 })
                 .collectList()
                 .cache();
