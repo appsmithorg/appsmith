@@ -1,9 +1,6 @@
 const dsl = require("../../../../../fixtures/listRegressionDsl.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-
-let propPane = ObjectsRegistry.PropertyPane,
-  agHelper = ObjectsRegistry.AggregateHelper;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Binding the list widget with text widget", function () {
   //const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
@@ -36,8 +33,9 @@ describe("Binding the list widget with text widget", function () {
   });
 
   it("2. Validate text widget data based on changes in list widget Data2", function () {
-    cy.SearchEntityandOpen("List1");
-    propPane.UpdatePropertyFieldValue(
+    _.entityExplorer.SelectEntityByName("List1");
+
+    _.propPane.UpdatePropertyFieldValue(
       "Items",
       '[[{ "name": "pawan"}, { "name": "Vivek" }], [{ "name": "Ashok"}, {"name": "rahul"}]]',
     );
@@ -46,9 +44,10 @@ describe("Binding the list widget with text widget", function () {
       "response.body.responseMeta.status",
       200,
     );
-    cy.SearchEntityandOpen("Text3");
+    _.entityExplorer.SelectEntityByName("Text3");
+
     cy.wait(1000);
-    propPane.UpdatePropertyFieldValue(
+    _.propPane.UpdatePropertyFieldValue(
       "Text",
       '{{currentItem.map(item => item.name).join(", ")}}',
     );
@@ -71,8 +70,9 @@ describe("Binding the list widget with text widget", function () {
   });
 
   it("3. Validate text widget data based on changes in list widget Data3", function () {
-    cy.SearchEntityandOpen("List1");
-    propPane.UpdatePropertyFieldValue(
+    _.entityExplorer.SelectEntityByName("List1");
+
+    _.propPane.UpdatePropertyFieldValue(
       "Items",
       '[{ "name": "pawan"}, { "name": "Vivek" }]',
     );
@@ -81,9 +81,10 @@ describe("Binding the list widget with text widget", function () {
       "response.body.responseMeta.status",
       200,
     );
-    cy.SearchEntityandOpen("Text3");
+    _.entityExplorer.SelectEntityByName("Text3");
+
     cy.wait(1000);
-    propPane.UpdatePropertyFieldValue("Text", "{{currentItem.name}}");
+    _.propPane.UpdatePropertyFieldValue("Text", "{{currentItem.name}}");
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",

@@ -1,7 +1,7 @@
-const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/formSwitchDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Switch Widget within Form widget Functionality", function () {
   before(() => {
@@ -29,7 +29,8 @@ describe("Switch Widget within Form widget Functionality", function () {
 
   it("Form reset button validation with switch widget", function () {
     // Open form button
-    cy.SearchEntityandOpen("FormButton2");
+    _.entityExplorer.SelectEntityByName("FormButton2");
+
     // Click on reset widget action
     cy.selectResetWidget("onClick");
     // click on toggler from actions

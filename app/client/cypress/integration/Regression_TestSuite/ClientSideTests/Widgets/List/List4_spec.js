@@ -4,6 +4,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/listdsl.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Container Widget Functionality", function () {
   const items = JSON.parse(dsl.dsl.children[0].listData);
@@ -15,8 +16,7 @@ describe("Container Widget Functionality", function () {
 
   it("1. List-Unckeck Visible field Validation", function () {
     // Open Property pane
-    cy.CheckAndUnfoldEntityItem("Widgets");
-    cy.selectEntityByName("List1");
+    _.entityExplorer.SelectEntityByName("List1", "Widgets");
     //Uncheck the disabled checkbox and validate
     cy.UncheckWidgetProperties(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -26,8 +26,7 @@ describe("Container Widget Functionality", function () {
 
   it("2. List-Check Visible field Validation", function () {
     // Open Property pane
-    cy.CheckAndUnfoldEntityItem("Widgets");
-    cy.selectEntityByName("List1");
+    _.entityExplorer.SelectEntityByName("List1", "Widgets");
     //Check the disableed checkbox and Validate
     cy.CheckWidgetProperties(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -37,8 +36,7 @@ describe("Container Widget Functionality", function () {
 
   it("3. Toggle JS - List-Unckeck Visible field Validation", function () {
     // Open Property pane
-    cy.CheckAndUnfoldEntityItem("Widgets");
-    cy.selectEntityByName("List1");
+    _.entityExplorer.SelectEntityByName("List1", "Widgets");
     //Uncheck the disabled checkbox using JS and validate
     cy.get(widgetsPage.toggleVisible).click({ force: true });
     cy.testJsontext("visible", "false");
@@ -49,8 +47,7 @@ describe("Container Widget Functionality", function () {
 
   it("4. Toggle JS - List-Check Visible field Validation", function () {
     // Open Property pane
-    cy.CheckAndUnfoldEntityItem("Widgets");
-    cy.selectEntityByName("List1");
+    _.entityExplorer.SelectEntityByName("List1", "Widgets");
     //Check the disabled checkbox using JS and Validate
     cy.testJsontext("visible", "true");
     cy.PublishtheApp();
@@ -67,11 +64,10 @@ describe("Container Widget Functionality", function () {
 
   it("6. checks currentItem binding", function () {
     // Open property pane
-    cy.CheckAndUnfoldEntityItem("Widgets");
-    cy.CheckAndUnfoldEntityItem("List1");
-    cy.CheckAndUnfoldEntityItem("Container1");
-    cy.selectEntityByName("Text1");
-    //cy.SearchEntityandOpen("Text1");
+    _.entityExplorer.ExpandCollapseEntity("Widgets");
+    _.entityExplorer.ExpandCollapseEntity("List1");
+    _.entityExplorer.ExpandCollapseEntity("Container1");
+    _.entityExplorer.SelectEntityByName("List1");
     cy.testJsontext("text", `{{currentItem.first_name}}`);
     cy.wait(1000);
 
@@ -85,8 +81,7 @@ describe("Container Widget Functionality", function () {
 
   it("7. doesn't alter the no of items present when invalid item spacing is entered", () => {
     // Open Property pane
-    cy.CheckAndUnfoldEntityItem("Widgets");
-    cy.selectEntityByName("List1");
+    _.entityExplorer.SelectEntityByName("List1", "Widgets");
     cy.moveToStyleTab();
     // Update an invalid value to item spacing
     cy.testJsontext("itemspacing\\(" + "px" + "\\)", "-");
@@ -106,11 +101,10 @@ describe("Container Widget Functionality", function () {
 
   it("8. checks button action", function () {
     // Open property pane
-    cy.CheckAndUnfoldEntityItem("Widgets");
-    cy.CheckAndUnfoldEntityItem("List1");
-    cy.CheckAndUnfoldEntityItem("Container1");
-    cy.selectEntityByName("Button1");
-    //cy.SearchEntityandOpen("Button1");
+    _.entityExplorer.ExpandCollapseEntity("Widgets");
+    _.entityExplorer.ExpandCollapseEntity("List1");
+    _.entityExplorer.ExpandCollapseEntity("Container1");
+    _.entityExplorer.SelectEntityByName("Button1");
     cy.testJsontext("label", `{{currentItem.last_name}}`);
     cy.addAction("{{currentItem.last_name}}", "onClick");
     cy.wait(3000);
@@ -127,8 +121,8 @@ describe("Container Widget Functionality", function () {
     // Verify Clicking on list item shows message of first name
     cy.get(publishPage.backToEditor).click({ force: true });
     // Open property pane
-    cy.CheckAndUnfoldEntityItem("Widgets");
-    cy.selectEntityByName("List1");
+    _.entityExplorer.SelectEntityByName("List1", "Widgets");
+
     // Verify Action type and Message of List Item
     // Click on the onListItemClick action dropdown.
     // Write binding inside the Message code textarea
@@ -164,8 +158,8 @@ describe("Container Widget Functionality", function () {
 
   it("11. ListWidget-Copy & Delete Verification", function () {
     //Copy Chart and verify all properties
-    cy.CheckAndUnfoldEntityItem("Widgets");
-    cy.selectEntityByName("List1");
+    _.entityExplorer.SelectEntityByName("List1", "Widgets");
+
     cy.copyWidget("List1Copy", commonlocators.containerWidget);
     cy.deleteWidget();
     cy.PublishtheApp();
@@ -176,8 +170,8 @@ describe("Container Widget Functionality", function () {
 
   it("12. List widget background colour and deploy ", function () {
     // Open Property pane
-    cy.CheckAndUnfoldEntityItem("Widgets");
-    cy.selectEntityByName("List1");
+    _.entityExplorer.SelectEntityByName("List1", "Widgets");
+
     cy.moveToStyleTab();
     // Scroll down to Styles and Add background colour
     cy.selectColor("backgroundcolor");
@@ -202,8 +196,8 @@ describe("Container Widget Functionality", function () {
 
   it("13. Toggle JS - List widget background colour and deploy ", function () {
     // Open Property pane
-    cy.CheckAndUnfoldEntityItem("Widgets");
-    cy.selectEntityByName("List1");
+    _.entityExplorer.SelectEntityByName("List1", "Widgets");
+
     cy.moveToStyleTab();
     // Scroll down to Styles and Add background colour
     cy.get(widgetsPage.backgroundColorToggleNew).click({ force: true });
@@ -230,8 +224,8 @@ describe("Container Widget Functionality", function () {
 
   it("14. Add new item in the list widget array object", function () {
     // Open Property pane
-    cy.CheckAndUnfoldEntityItem("Widgets");
-    cy.selectEntityByName("List1");
+    _.entityExplorer.SelectEntityByName("List1", "Widgets");
+
     //Add the new item in the list
     cy.testJsontext("items", JSON.stringify(this.data.ListItems));
     cy.wait(2000);
@@ -241,8 +235,8 @@ describe("Container Widget Functionality", function () {
 
   it("15. Adding large item Spacing for item card", function () {
     // Open Property pane
-    cy.CheckAndUnfoldEntityItem("Widgets");
-    cy.selectEntityByName("List1");
+    _.entityExplorer.SelectEntityByName("List1", "Widgets");
+
     cy.moveToStyleTab();
     // Scroll down to Styles and Add item spacing for item card
     cy.testJsontext("itemspacing\\(" + "px" + "\\)", 12);
@@ -254,8 +248,8 @@ describe("Container Widget Functionality", function () {
 
   it("16. Renaming the widget from Property pane and Entity explorer ", function () {
     // Open Property pane
-    cy.CheckAndUnfoldEntityItem("Widgets");
-    cy.selectEntityByName("List1");
+    _.entityExplorer.SelectEntityByName("List1", "Widgets");
+
     // Change the list widget name from property pane and Verify it
     cy.widgetText(
       "List2",
@@ -265,7 +259,8 @@ describe("Container Widget Functionality", function () {
     // Change the list widget name from Entity Explorer
     cy.renameEntity("List2", "List1");
     // Mouse over to list name
-    cy.SearchEntityandOpen("List1");
+    _.entityExplorer.SelectEntityByName("List1");
+
     cy.get(widgetsPage.listWidgetName)
       .first()
       .trigger("mouseover", { force: true });

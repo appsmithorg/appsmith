@@ -1,11 +1,6 @@
 const dsl = require("../../../../fixtures/buttonRecaptchaDsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-const locator = ObjectsRegistry.CommonLocators,
-  ee = ObjectsRegistry.EntityExplorer,
-  agHelper = ObjectsRegistry.AggregateHelper,
-  propPane = ObjectsRegistry.PropertyPane;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "excludeForAirgap",
@@ -16,17 +11,17 @@ describe(
     });
 
     it.only("1. Validate the Button binding with Text Widget with Recaptcha token with empty key", function () {
-      agHelper.ClickButton("Submit");
+      _.agHelper.ClickButton("Submit");
       agHelper
-        .GetText(locator._widgetInCanvas("textwidget") + " span")
+        .GetText(_.locators._widgetInCanvas("textwidget") + " span")
         .should("be.empty");
-      ee.SelectEntityByName("Button1");
-      agHelper.SelectDropdownList("Google reCAPTCHA version", "reCAPTCHA v2");
-      agHelper.ClickButton("Submit");
+      _.entityExplorerSelectEntityByName("Button1");
+      _.agHelper.SelectDropdownList("Google reCAPTCHA version", "reCAPTCHA v2");
+      _.agHelper.ClickButton("Submit");
       agHelper
-        .GetText(locator._widgetInCanvas("textwidget") + " span")
+        .GetText(_.locators._widgetInCanvas("textwidget") + " span")
         .should("be.empty");
-      agHelper.SelectDropdownList("Google reCAPTCHA version", "reCAPTCHA v3");
+      _.agHelper.SelectDropdownList("Google reCAPTCHA version", "reCAPTCHA v3");
     });
 
     //This test to be enabled once the product bug is fixed
@@ -36,7 +31,8 @@ describe(
         .should("be.visible")
         .click({ force: true });
       cy.testCodeMirrorLast(testdata.invalidKey);
-      cy.SearchEntityandOpen("Text1");
+      _.entityExplorer.SelectEntityByName("Text1");
+
       cy.get(".t--draggable-textwidget span")
         .last()
         .invoke("text")
@@ -44,7 +40,8 @@ describe(
           cy.log(x);
           expect(x).to.be.empty;
         });
-      cy.SearchEntityandOpen("Button1");
+      _.entityExplorer.SelectEntityByName("Button1");
+
       cy.get(".t--property-control-googlerecaptchaversion .bp3-popover-target")
         .last()
         .should("be.visible")
@@ -57,7 +54,8 @@ describe(
         .should("be.visible")
         .click({ force: true });
       cy.get(".t--toast-action span").should("have.text", testdata.errorMsg);
-      cy.SearchEntityandOpen("Text1");
+      _.entityExplorer.SelectEntityByName("Text1");
+
       cy.wait(3000);
       cy.get(".t--draggable-textwidget span")
         .last()
@@ -69,42 +67,48 @@ describe(
     });
 
     it.only("2. Validate the Button binding with Text Widget with Recaptcha Token with v2Key & upward compatibilty doesnt work", function () {
-      ee.SelectEntityByName("Button1");
-      propPane.UpdatePropertyFieldValue("Google reCAPTCHA key", testdata.v2Key);
-      agHelper.ClickButton("Submit");
-      agHelper.Sleep();
+      _.entityExplorerSelectEntityByName("Button1");
+      _.propPane.UpdatePropertyFieldValue(
+        "Google reCAPTCHA key",
+        testdata.v2Key,
+      );
+      _.agHelper.ClickButton("Submit");
+      _.agHelper.Sleep();
       agHelper
-        .GetText(locator._widgetInCanvas("textwidget") + " span")
+        .GetText(_.locators._widgetInCanvas("textwidget") + " span")
         .should("be.empty");
-      ee.SelectEntityByName("Button1");
-      agHelper.SelectDropdownList("Google reCAPTCHA version", "reCAPTCHA v2");
-      agHelper.ClickButton("Submit");
-      agHelper.Sleep();
+      _.entityExplorerSelectEntityByName("Button1");
+      _.agHelper.SelectDropdownList("Google reCAPTCHA version", "reCAPTCHA v2");
+      _.agHelper.ClickButton("Submit");
+      _.agHelper.Sleep();
       agHelper
-        .GetText(locator._widgetInCanvas("textwidget") + " span")
+        .GetText(_.locators._widgetInCanvas("textwidget") + " span")
         .should("not.be.empty");
-      agHelper.SelectDropdownList("Google reCAPTCHA version", "reCAPTCHA v3");
-      agHelper.ClickButton("Submit");
-      agHelper.Sleep();
+      _.agHelper.SelectDropdownList("Google reCAPTCHA version", "reCAPTCHA v3");
+      _.agHelper.ClickButton("Submit");
+      _.agHelper.Sleep();
     });
 
     it.only("3. Validate the Button binding with Text Widget with Recaptcha Token with v3Key & v2key for backward compatible", function () {
-      ee.SelectEntityByName("Button1");
-      propPane.UpdatePropertyFieldValue("Google reCAPTCHA key", testdata.v3Key);
-      agHelper.SelectDropdownList("Google reCAPTCHA version", "reCAPTCHA v3");
-      agHelper.ClickButton("Submit");
-      agHelper.Sleep();
-      agHelper.AssertElementAbsence(
-        locator._specificToast("Google Re-Captcha token generation failed!"),
+      _.entityExplorerSelectEntityByName("Button1");
+      _.propPane.UpdatePropertyFieldValue(
+        "Google reCAPTCHA key",
+        testdata.v3Key,
+      );
+      _.agHelper.SelectDropdownList("Google reCAPTCHA version", "reCAPTCHA v3");
+      _.agHelper.ClickButton("Submit");
+      _.agHelper.Sleep();
+      _.agHelper.AssertElementAbsence(
+        _.locators._specificToast("Google Re-Captcha token generation failed!"),
         5000,
       );
       agHelper
-        .GetText(locator._widgetInCanvas("textwidget") + " span")
+        .GetText(_.locators._widgetInCanvas("textwidget") + " span")
         .should("not.be.empty");
-      ee.SelectEntityByName("Button1");
-      agHelper.SelectDropdownList("Google reCAPTCHA version", "reCAPTCHA v2");
-      agHelper.ClickButton("Submit");
-      agHelper.AssertContains("Google Re-Captcha token generation failed!"); //toast doesnt come when run in CI!
+      _.entityExplorerSelectEntityByName("Button1");
+      _.agHelper.SelectDropdownList("Google reCAPTCHA version", "reCAPTCHA v2");
+      _.agHelper.ClickButton("Submit");
+      _.agHelper.AssertContains("Google Re-Captcha token generation failed!"); //toast doesnt come when run in CI!
     });
 
     //This test to be enabled once the product bug is fixed
@@ -114,7 +118,8 @@ describe(
         .should("be.visible")
         .click({ force: true });
       cy.testCodeMirrorLast(testdata.invalidKey);
-      cy.SearchEntityandOpen("Text1");
+      _.entityExplorer.SelectEntityByName("Text1");
+
       cy.get(".t--draggable-textwidget span")
         .last()
         .invoke("text")
@@ -122,7 +127,8 @@ describe(
           cy.log(x);
           expect(x).not.to.be.empty;
         });
-      cy.SearchEntityandOpen("Button1");
+      _.entityExplorer.SelectEntityByName("Button1");
+
       cy.get(".t--property-control-googlerecaptchaversion .bp3-popover-target")
         .last()
         .should("be.visible")
@@ -134,7 +140,8 @@ describe(
         .contains("Submit")
         .should("be.visible")
         .click({ force: true });
-      cy.SearchEntityandOpen("Text1");
+      _.entityExplorer.SelectEntityByName("Text1");
+
       cy.wait(3000);
       cy.get(".t--draggable-textwidget span")
         .last()
