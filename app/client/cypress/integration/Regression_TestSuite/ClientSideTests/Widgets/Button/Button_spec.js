@@ -184,12 +184,24 @@ describe("Button Widget Functionality", function () {
     cy.get(publishPage.buttonWidget).should("be.visible");
   });
 
-  it("Button-Check recaptcha type can be selected", function () {
-    cy.selectDropdownValue(commonlocators.recaptchaVersion, "reCAPTCHA v2");
-    cy.get(commonlocators.recaptchaVersion)
-      .last()
-      .should("have.text", "reCAPTCHA v2");
-  });
+  it(
+    "excludeForAirgap",
+    "Button-Check recaptcha type can be selected",
+    function () {
+      cy.selectDropdownValue(commonlocators.recaptchaVersion, "reCAPTCHA v2");
+      cy.get(commonlocators.recaptchaVersion)
+        .last()
+        .should("have.text", "reCAPTCHA v2");
+    },
+  );
+
+  it(
+    "airgap",
+    "Button-Check recaptcha type should not exist for airgap",
+    function () {
+      cy.get(commonlocators.recaptchaVersion).should("not.exist");
+    },
+  );
 
   it("Button-Copy Verification", function () {
     //Copy button and verify all properties

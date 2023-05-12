@@ -11,14 +11,11 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   appSettings = ObjectsRegistry.AppSettings;
 
 describe("UUID Datatype tests", function () {
-  before(() => {
+  before("Importing App & setting theme", () => {
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-  });
-
-  it("0. Importing App & setting theme", () => {
     cy.fixture("Datatypes/UUIDDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
@@ -414,17 +411,7 @@ describe("UUID Datatype tests", function () {
   it("15. Verify Deletion of all created queries", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.ExpandCollapseEntity("Queries/JS");
-    ee.GetEntityNamesInSection("Queries/JS", ".t--action-entity").then(
-      (entityNames) => {
-        for (const entityName of entityNames) {
-          ee.ActionContextMenuByEntityName(
-            entityName,
-            "Delete",
-            "Are you sure?",
-          );
-        }
-      },
-    );
+    ee.DeleteAllQueriesForDB(dsName);
   });
 
   it("16. Verify Deletion of datasource", () => {
