@@ -1,1 +1,2 @@
-cypress/integration/**/**/*
+cypress/integration/Regression_TestSuite/ClientSideTests/Workspace/MemberRoles_Spec.ts
+cypress/integration/Regression_TestSuite/ServerSideTests/QueryPane/Mongo_Spec.ts
