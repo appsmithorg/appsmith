@@ -139,6 +139,7 @@ export default function OnboardingTasks() {
     if (shouldPopupShow) {
       const isAnonymousDataPopupAlreadyOpen =
         await getFirstTimeUserOnboardingTelemetryCalloutIsAlreadyShown();
+      //true if the modal was already shown else show the modal and set to already shown
       if (isAnonymousDataPopupAlreadyOpen) {
         setisAnonymousDataPopupOpen(false);
       } else {
