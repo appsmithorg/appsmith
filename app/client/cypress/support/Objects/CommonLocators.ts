@@ -70,7 +70,7 @@ export class CommonLocators {
     entityNameinLeftSidebar +
     "']/parent::div[contains(@class, 't--entity-name editing')]/input";
   _jsToggle = (controlToToggle: string) =>
-    ".t--property-control-" + controlToToggle + " .t-js-toggle";
+    ".t--property-control-" + controlToToggle + " .t--js-toggle";
   _spanButton = (btnVisibleText: string) =>
     `//span[text()="${btnVisibleText}"]/parent::button`;
   _selectPropDropdown = (ddName: string) =>
