@@ -123,8 +123,9 @@ export class JSEditor {
 
   //#region Page functions
   public NavigateToNewJSEditor() {
-    cy.get(this.locator._createNew).last().click({ force: true });
-    cy.get(this._newJSobj).click({ force: true });
+    cy.get("body").click(0, 0); //to enable click of below!
+    cy.get(this.locator._createNew).last().click();
+    cy.get(this._newJSobj).eq(0).click({ force: true });
 
     // Assert that the name of the JS Object is focused when newly created
     cy.get(this._jsObjTxt).should("be.focused").type("{enter}");
