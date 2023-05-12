@@ -1,12 +1,11 @@
+import { WIDGET } from "../../../../locators/WidgetLocators";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-const { agHelper, apiPage, entityExplorer, jsEditor, locators, propPane } = _;
+const { agHelper, apiPage, entityExplorer, propPane } = _;
 
 describe("Disable JS toggle when Action selector code is not parsable", () => {
   before(() => {
-    cy.fixture("buttondsl").then((val: any) => {
-      agHelper.AddDsl(val);
-    });
+    entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 200, 200);
     apiPage.CreateApi("Api1", "GET");
     entityExplorer.SelectEntityByName("Button1", "Widgets");
   });
