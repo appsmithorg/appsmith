@@ -40,6 +40,7 @@ import {
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
 import type { TJSLibrary } from "workers/common/JSLibrary";
+import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getFormValues } from "redux-form";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
@@ -1005,6 +1006,38 @@ export const selectJSCollectionByName = (collectionName: string) =>
       (collection) => collection.config.name === collectionName,
     );
   });
+
+export const getAllDatasourceTableKeys = createSelector(
+  (state: AppState) => getDatasourcesStructure(state),
+  (state: AppState) => getActions(state),
+  (state: AppState, dataTreePath: string | undefined) => dataTreePath,
+  (
+    datasourceStructures: ReturnType<typeof getDatasourcesStructure>,
+    actions: ReturnType<typeof getActions>,
+    dataTreePath: string | undefined,
+  ) => {
+    if (!dataTreePath || !datasourceStructures) return;
+    const { entityName } = getEntityNameAndPropertyPath(dataTreePath);
+    const action = find(actions, ({ config: { name } }) => name === entityName);
+    if (!action) return;
+    const datasource = action.config.datasource;
+    const datasourceId = "id" in datasource ? datasource.id : undefined;
+    if (!datasourceId || !(datasourceId in datasourceStructures)) return;
+    const tables: Record<string, string> = {};
+    const { tables: datasourceTable } = datasourceStructures[datasourceId];
+    if (!datasourceTable) return;
+    datasourceTable.forEach((table) => {
+      if (table?.name) {
+        tables[table.name] = "table";
+        table.columns.forEach((column) => {
+          tables[`${table.name}.${column.name}`] = column.type;
+        });
+      }
+    });
+
+    return tables;
+  },
+);
 
 export const getDatasourceScopeValue = (
   state: AppState,
