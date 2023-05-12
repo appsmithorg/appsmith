@@ -174,6 +174,13 @@ public class SnowflakePlugin extends BasePlugin {
 
             config.setMinimumIdle(MINIMUM_POOL_SIZE);
             config.setMaximumPoolSize(MAXIMUM_POOL_SIZE);
+            /**
+             * Setting the value for setInitializationFailTimeout to -1 to
+             * bypass any connection attempt and validation during startup
+             * @see https://www.javadoc.io/doc/com.zaxxer/HikariCP/latest/com/zaxxer/hikari/HikariConfig.html
+             */
+            config.setInitializationFailTimeout(-1);
+            config.setConnectionTimeout(25000);
 
             // Set authentication properties
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
@@ -185,7 +192,8 @@ public class SnowflakePlugin extends BasePlugin {
             }
 
             // Set up the connection URL
-            StringBuilder urlBuilder = new StringBuilder("jdbc:snowflake://" + datasourceConfiguration.getUrl() + ".snowflakecomputing.com?");
+            StringBuilder urlBuilder = new StringBuilder("jdbc:snowflake://" + datasourceConfiguration.getUrl() +
+                    ".snowflakecomputing.com?");
             config.setJdbcUrl(urlBuilder.toString());
 
             config.setDataSourceProperties(properties);
@@ -262,26 +270,36 @@ public class SnowflakePlugin extends BasePlugin {
         @Override
         public Mono<DatasourceTestResult> testDatasource(HikariDataSource connection) {
 
-            return Mono.fromCallable(() -> {
+            return Mono.just(connection)
+                    .flatMap(connectionPool -> {
 
                         Connection connectionFromPool;
                         try {
-                            connectionFromPool = getConnectionFromConnectionPool(connection);
-                        } catch (SQLException | StaleConnectionException e) {
+                            connectionFromPool = getConnectionFromConnectionPool(connectionPool);
+                            return Mono.just(validateWarehouseDatabaseSchema(connectionFromPool));
+                        } catch (SQLException e) {
                             // The function can throw either StaleConnectionException or SQLException. The underlying hikari
                             // library throws SQLException in case the pool is closed or there is an issue initializing
                             // the connection pool which can also be translated in our world to StaleConnectionException
                             // and should then trigger the destruction and recreation of the pool.
-                            if (e instanceof StaleConnectionException) {
-                                throw e;
-                            } else {
-                                throw new StaleConnectionException();
-                            }
+
+                            return Mono.error(new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                                    SnowflakeErrorMessages.UNABLE_TO_CREATE_CONNECTION_ERROR_MSG));
+
+                        } catch (StaleConnectionException e) {
+                            return Mono.error(new AppsmithPluginException(AppsmithPluginError.STALE_CONNECTION_ERROR,
+                                    e.getMessage()));
+                        }
+                    })
+                    .map(errorSet ->{
+                        if (!errorSet.isEmpty()) {
+                            return new DatasourceTestResult(errorSet);
                         }
 
-                        return validateWarehouseDatabaseSchema(connectionFromPool);
+                        return new DatasourceTestResult();
                     })
-                    .map(DatasourceTestResult::new);
+                    .subscribeOn(scheduler);
         }
 
         @Override
