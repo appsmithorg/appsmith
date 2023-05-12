@@ -30,7 +30,7 @@ const IconSelectorWrapper = styled.div`
     .t--icon-not-selected {
       margin: 0;
     }
-    gap: 3px;
+    gap: 2px;
   }
 
   .t--icon-selected {

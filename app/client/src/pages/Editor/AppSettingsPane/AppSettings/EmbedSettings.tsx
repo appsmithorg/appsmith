@@ -58,7 +58,7 @@ function EmbedSettings() {
             </Title>
           </div>
           <div className="px-4">
-            <div className="flex justify-between content-center pb-4">
+            <div className="flex justify-between content-center">
               <Switch
                 id="t--embed-settings-application-public"
                 isDisabled={isFetchingApplication || isChangingViewAccess}
