@@ -61,7 +61,7 @@ export default {
   applicationEditMenu: ".t--application-edit-menu",
   editingAppName: "bp3-editable-text-editing",
   portalMenuItem: ".ads-v2-menu__menu-item-children",
-  profileMenu: ".bp3-popover-wrapper.profile-menu",
+  profileMenu: ".t--profile-menu-icon",
   signOutIcon: ".t--logout-icon",
   headerAppSmithLogo: ".t--Appsmith-logo-image",
   applicationCardName: "[data-testid=t--app-card-name]",

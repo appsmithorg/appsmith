@@ -14,7 +14,7 @@ describe("SSO with Google test functionality", function () {
     cy.url().should("contain", "/settings/authentication");
     cy.get(adminSettings.googleButton)
       .should("be.visible")
-      .should("contain", "ENABLE");
+      .should("contain", "Enable");
     cy.get(adminSettings.googleButton).click();
     cy.wait(2000);
     // fill google form
@@ -37,7 +37,7 @@ describe("SSO with Google test functionality", function () {
     cy.url().should("contain", "/settings/authentication");
     cy.get(adminSettings.googleButton)
       .should("be.visible")
-      .should("contain", "ENABLE");
+      .should("contain", "Enable");
     cy.get(adminSettings.googleButton).click();
     cy.wait(2000);
     // fill google form
