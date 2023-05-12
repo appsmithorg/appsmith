@@ -18,17 +18,7 @@ public enum ArangoDBPluginError implements BasePluginError {
             ErrorType.INTERNAL_ERROR,
             "{1}",
             "{2}"
-    ),
-    ARANGO_DB_PLUGIN_ERROR(
-            500,
-            "PE-ARN-5001",
-            "{0}",
-            AppsmithErrorAction.LOG_EXTERNALLY,
-            "Query execution error",
-            ErrorType.INTERNAL_ERROR,
-            "{1}",
-            "{2}"
-    ),
+    )
     ;
     private final Integer httpErrorCode;
     private final String appErrorCode;

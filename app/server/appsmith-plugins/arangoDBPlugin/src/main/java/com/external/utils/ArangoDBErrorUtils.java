@@ -42,6 +42,11 @@ public class ArangoDBErrorUtils extends AppsmithPluginErrorUtils {
             }
         }
 
+        /**
+         * Example:
+         * Input: ArangoErrorCode: Some issue found.
+         * Output: Some issue found
+         */
         return CollectionUtils.lastElement(Arrays.asList(error.getMessage().split(":")));
     }
 

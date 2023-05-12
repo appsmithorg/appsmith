@@ -63,6 +63,7 @@ public class ArangoDBPlugin extends BasePlugin {
     private static String WRITES_EXECUTED_KEY = "writesExecuted";
     private static String WRITES_IGNORED_KEY = "writesIgnored";
     private static String RETURN_KEY = "return";
+    public static final int TEST_DATASOURCE_TIMEOUT_SECONDS = 15;
 
     public ArangoDBPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -310,7 +311,7 @@ public class ArangoDBPlugin extends BasePlugin {
                         return new DatasourceTestResult();
                     })
                     .onErrorResume(error -> Mono.just(new DatasourceTestResult(arangoDBErrorUtils.getReadableError(error))))
-                    .timeout(Duration.ofSeconds(15),
+                    .timeout(Duration.ofSeconds(TEST_DATASOURCE_TIMEOUT_SECONDS),
                             Mono.just(new DatasourceTestResult(DS_HOSTNAME_MISSING_OR_INVALID_ERROR_MSG)));
         }
 

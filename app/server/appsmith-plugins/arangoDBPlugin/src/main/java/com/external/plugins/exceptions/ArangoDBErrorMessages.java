@@ -35,7 +35,4 @@ public class ArangoDBErrorMessages {
 
     public static final String DS_CA_CERT_NOT_FOUND_ERROR_MSG = "Could not find CA certificate. Please provide a CA certificate.";
 
-    public static final String DS_UNKNOWN_HOST_ERROR_MSG = "Host address not found. Please edit the 'Host Address' " +
-            "field to provide a valid host address.";
-
 }
