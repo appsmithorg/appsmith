@@ -9,6 +9,13 @@ import java.util.Arrays;
 
 import static com.external.plugins.exceptions.ArangoDBErrorMessages.DS_HOSTNAME_MISSING_OR_INVALID_ERROR_MSG;
 
+/**
+ * This class is meant to provide helpful methods to re-format the error messages received from remote ArangoDB
+ * datasource. Example:
+ * Original error message: ArangoDBException: UnknownHostException: Something went wrong.
+ * Re-formatted error message: Could not find host address. Please edit the 'Host Address' and/or the 'Port' field to
+ * provide the desired endpoint.
+ */
 public class ArangoDBErrorUtils extends AppsmithPluginErrorUtils {
     private static ArangoDBErrorUtils arangodbErrorUtils;
 
@@ -37,6 +44,14 @@ public class ArangoDBErrorUtils extends AppsmithPluginErrorUtils {
 
         if (externalError instanceof ArangoDBException) {
             String externalErrorMessage = externalError.getMessage();
+
+            /**
+             * Example:
+             * Original error message: com.arangodb.ArangoDBException: java.net.UnknownHostException: 1656317e37af
+             * .arangodb.cloudx: nodename nor servname provided, or not known
+             * Re-formatted error message: Could not find host address. Please edit the 'Host Address' and/or the 'Port' field to
+             * provide the desired endpoint.
+             */
             if (externalErrorMessage.contains("UnknownHostException")) {
                 return DS_HOSTNAME_MISSING_OR_INVALID_ERROR_MSG;
             }

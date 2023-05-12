@@ -18,7 +18,7 @@ public enum ArangoDBPluginError implements BasePluginError {
             ErrorType.INTERNAL_ERROR,
             "{1}",
             "{2}"
-    )
+    ),
     ;
     private final Integer httpErrorCode;
     private final String appErrorCode;
