@@ -3,19 +3,23 @@ const dsl = require("../../../../fixtures/buttonApiDsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 let dataSet;
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+let apiPage = ObjectsRegistry.ApiPage,
+  ee = ObjectsRegistry.EntityExplorer;
 
 describe("Test Create Api and Bind to Button widget", function () {
   before("Test_Add users api and execute api", () => {
     cy.addDsl(dsl);
     cy.fixture("example").then(function (data) {
       dataSet = data;
-      cy.createAndFillApi(dataSet.userApi, "/random");
+      apiPage.CreateAndFillApi(dataSet.userApi + "/random");
       cy.RunAPI();
     });
   });
 
   it("1. Call the api with & without error handling", () => {
-    cy.SearchEntityandOpen("Button1");
+    ee.SelectEntityByName("Button1");
     cy.get(widgetsPage.toggleOnClick)
       .invoke("attr", "class")
       .then((classes) => {
