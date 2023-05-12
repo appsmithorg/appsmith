@@ -22,7 +22,6 @@ import {
   getCreateApplicationError,
   getIsCreatingApplication,
   getIsDeletingApplication,
-  getIsDuplicatingApplication,
   getIsFetchingApplications,
   getIsSavingWorkspaceInfo,
   getUserApplicationsWorkspaces,
@@ -986,7 +985,6 @@ export interface ApplicationProps {
   createApplicationError?: string;
   deleteApplication: (id: string) => void;
   deletingApplication: boolean;
-  duplicatingApplication: boolean;
   getAllApplication: () => void;
   userWorkspaces: any;
   currentUser?: User;
@@ -1057,7 +1055,6 @@ const mapStateToProps = (state: AppState) => ({
   isCreatingApplication: getIsCreatingApplication(state),
   createApplicationError: getCreateApplicationError(state),
   deletingApplication: getIsDeletingApplication(state),
-  duplicatingApplication: getIsDuplicatingApplication(state),
   userWorkspaces: getUserApplicationsWorkspacesList(state),
   currentUser: getCurrentUser(state),
   searchKeyword: getApplicationSearchKeyword(state),

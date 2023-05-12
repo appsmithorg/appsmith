@@ -38,7 +38,6 @@ export const initialState: ApplicationsReduxState = {
   creatingApplication: {},
   deletingApplication: false,
   forkingApplication: false,
-  duplicatingApplication: false,
   userWorkspaces: [],
   isSavingWorkspaceInfo: false,
   importingApplication: false,
@@ -668,7 +667,6 @@ export interface ApplicationsReduxState {
   createApplicationError?: string;
   deletingApplication: boolean;
   forkingApplication: boolean;
-  duplicatingApplication: boolean;
   currentApplication?: ApplicationPayload;
   userWorkspaces: Workspaces[];
   isSavingWorkspaceInfo: boolean;
