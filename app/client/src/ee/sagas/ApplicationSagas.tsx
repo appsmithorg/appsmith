@@ -16,6 +16,8 @@ import {
   initDatasourceConnectionDuringImport,
   showReconnectDatasourcesModalSaga,
   fetchUnconfiguredDatasourceList,
+  uploadNavigationLogoSaga,
+  deleteNavigationLogoSaga,
 } from "ce/sagas/ApplicationSagas";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import {
@@ -258,6 +260,14 @@ export default function* applicationSagas() {
       duplicateApplicationSaga,
     ),
     takeLatest(ReduxActionTypes.IMPORT_APPLICATION_INIT, importApplicationSaga),
+    takeLatest(
+      ReduxActionTypes.UPLOAD_NAVIGATION_LOGO_INIT,
+      uploadNavigationLogoSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.DELETE_NAVIGATION_LOGO_INIT,
+      deleteNavigationLogoSaga,
+    ),
     takeLatest(ReduxActionTypes.FETCH_RELEASES, fetchReleases),
     takeLatest(
       ReduxActionTypes.INIT_DATASOURCE_CONNECTION_DURING_IMPORT_REQUEST,

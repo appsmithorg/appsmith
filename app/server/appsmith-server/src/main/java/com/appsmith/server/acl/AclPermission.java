@@ -155,8 +155,6 @@ public enum AclPermission {
     REMOVE_USERS_FROM_USER_GROUPS("removeUsers:userGroups", UserGroup.class),
 
     // Environment Permissions
-    MANAGE_ENVIRONMENTS("manage:environments", Environment.class),
-    READ_ENVIRONMENTS("read:environments", Environment.class),
     EXECUTE_ENVIRONMENTS("execute:environments", Environment.class),
 
     // Manage tenant permissions

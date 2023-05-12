@@ -3,11 +3,12 @@ package com.appsmith.server.solutions;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.FileUtils;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
-import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
@@ -19,18 +20,32 @@ import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.ce.EnvManagerCEImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.http.codec.multipart.Part;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_OAUTH2_OIDC_CLIENT_ID;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_SSO_SAML_ENABLED;
+import static com.appsmith.server.domains.TenantConfiguration.ASSET_PREFIX;
 
 @Component
 @Slf4j
 public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
+
+    private final AssetService assetService;
+
+    private static final Set<String> ASSET_VALUE_KEYS = Set.of(
+        "APPSMITH_BRAND_LOGO",
+        "APPSMITH_BRAND_FAVICON"
+    );
+
+    private static final int MAX_LOGO_SIZE_KB = 1024;
 
     public EnvManagerImpl(SessionUserService sessionUserService,
                           UserService userService,
@@ -52,7 +67,8 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
 
         super(sessionUserService, userService, analyticsService, userRepository, policyUtils, emailSender, commonConfig,
                 emailConfig, javaMailSender, googleRecaptchaConfig, fileUtils, permissionGroupService, configService,
-                userUtils, tenantService, objectMapper, assetService);
+                userUtils, tenantService, objectMapper);
+        this.assetService = assetService;
     }
 
     /**
@@ -94,5 +110,16 @@ public class EnvManagerImpl extends EnvManagerCEImpl implements EnvManager {
         else if(isAuthenticationConfigRemoved)  {
             properties.put("action", "Removed");
         }
+    }
+
+    @Override
+    @NotNull
+    public Mono<Map.Entry<String, String>> handleFileUpload(String key, List<Part> parts) {
+        if (!ASSET_VALUE_KEYS.contains(key)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, key));
+        }
+        // TODO: Delete existing/previous logo, if present.
+        return assetService.upload(parts, MAX_LOGO_SIZE_KB, false)
+            .map(asset -> Map.entry(key, ASSET_PREFIX + asset.getId()));
     }
 }

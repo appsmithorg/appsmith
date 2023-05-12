@@ -4,132 +4,78 @@ import {
   isJSAction,
   isTrueObject,
   isWidget,
-} from "ce/workers/Evaluation/evaluationUtils";
-import { find } from "lodash";
-import { useMemo } from "react";
+} from "@appsmith/workers/Evaluation/evaluationUtils";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router";
 import { createSelector } from "reselect";
 import { getEntityInCurrentPath } from "sagas/RecentEntitiesSagas";
-import { getWidgets } from "sagas/selectors";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import {
-  getActionsForCurrentPage,
-  getJSCollectionsForCurrentPage,
-} from "selectors/entitiesSelector";
+import { getActionsForCurrentPage } from "selectors/entitiesSelector";
+import FuzzySet from "fuzzyset";
 
-export type TChatGPTPrompt = {
-  role: "user" | "system" | "assistant";
+export type TUserPrompt = {
+  role: "user";
   content: string;
-  messageId?: string;
+  task: GPTTask;
 };
+
+export type TAssistantPrompt = {
+  role: "assistant";
+  content: string;
+  messageId: string;
+  liked?: boolean;
+  task: GPTTask;
+  query: string;
+};
+
+export type TErrorPrompt = {
+  role: "error";
+  content: string;
+  task: GPTTask;
+};
+
+export type TChatGPTPrompt = TAssistantPrompt | TUserPrompt | TErrorPrompt;
 
 export type TChatGPTContext = Record<string, unknown>;
 
 export enum GPTTask {
   JS_EXPRESSION = "JS_EXPR",
-  JS_FUNCTION = "JS_FUNC",
   SQL_QUERY = "SQL",
+  REFACTOR_CODE = "REFACTOR_CODE",
 }
 
-export const GENERATE_JS_EXPRESSION = {
+export const GPT_JS_EXPRESSION = {
   id: GPTTask.JS_EXPRESSION,
-  text: "JS expression",
+  desc: "Generate a JS expression that transforms your query/API data",
+  title: "Generate JS Code",
 };
 
-export const GENERATE_JS_FUNCTION = {
-  id: GPTTask.JS_FUNCTION,
-  text: "JS function",
-};
-
-export const GENERATE_SQL_QUERY = {
+export const GPT_SQL_QUERY = {
   id: GPTTask.SQL_QUERY,
-  text: "SQL query",
+  title: "Generate SQL query",
+  desc: "Generate a SQL query",
 };
 
-export const getGPTTasks = (pathname: string) => {
-  const { pageType } = getEntityInCurrentPath(pathname);
-  if (pageType === "canvas") {
-    return [GENERATE_JS_EXPRESSION, GENERATE_JS_FUNCTION];
-  } else if (pageType === "jsEditor") {
-    return [GENERATE_JS_FUNCTION, GENERATE_JS_EXPRESSION];
-  } else {
-    return [GENERATE_SQL_QUERY, GENERATE_JS_EXPRESSION];
-  }
-};
+export const GPT_TASKS = [GPT_JS_EXPRESSION, GPT_SQL_QUERY];
 
-export const base_context = [
-  {
-    role: "system",
-    content: `Platform functions available are:
-      - storeValue(key: string, value: any, persist? = true)
-      - navigateTo(pageName: string, params?: {}, target: 'SAME_WINDOW' | 'NEW_WINDOW') -> Promise
-      - download(url: string | blob, fileName: string, mimeType?: string)
-      - setTimeout(callback: () => void, delay: number)
-      - setInterval(callback: () => void, delay: number = 0, intervalId?: string)
-      - clearInterval(intervalId: number)
-      - clearTimeout(timeoutId: number)
-      `,
-  },
-  {
-    role: "system",
-    content: `get_departments().then(() => showAlert("successfully executed", "success")).catch(e => navigateTo('www.google.com')). 
-      get_departments represents an api/query and has run method in it that executes it. This expression executes get_departments and then navigates to google.com if the API fails. 
-      If it succeeds, it shows a success alert with successfully executed message.`,
-  },
-  {
-    role: "system",
-    content:
-      "You are a coding copilot that converts natural language instruction into Javascript code to perform the required task.",
-  },
-  {
-    role: "system",
-    content:
-      "You only provide javascript code with no comments. No natural language text or explanation",
-  },
-  {
-    role: "system",
-    content:
-      "If you are asked to store or save a key:value pair. console the function signature storeValue(key: string, value: any, persist? = true)",
-  },
-  {
-    role: "system",
-    content:
-      "navigateTo allows the user to navigate between the internal pages of the App or to an external URL. function signature - navigateTo(pageName: string, params?: {}, target: 'SAME_WINDOW' | 'NEW_WINDOW') -> Promise",
-  },
-  {
-    role: "system",
-    content:
-      "Displays a temporary toast-style alert message to the user, lasting 5 seconds. The duration of the alert message can't be modified. function signature - showAlert(message: string, style: string) -> Promise",
-  },
-  {
-    role: "system",
-    content:
-      "Users have the ability to download a wide range of file formats. This action serves the purpose of downloading any data as a file. function signature - download(data: any, fileName: string, fileType?: string): Promise",
-  },
-  {
-    role: "system",
-    content: "context will be provided in the form of a JSON object",
-  },
-];
-
-const getFunctionExpressionQuery = (query: string) =>
-  `Generate a executable javascript expression to ${query}. Output code snippet only without comments or explanations. Do not use eval or new Function`;
-
-const getFunctionQuery = (query: string) =>
-  `Generate one executable javascript function to ${query} and give it a name. Wrap it inside {{ }}. If name is not mentioned in the query use myFn as the name. Output code snippet only without comments or explanations. Do not use eval or new Function`;
-
-export const getMessageContent = (
-  message: string,
-  task: string,
-  context: TChatGPTContext,
-) => {
-  const query =
-    task === GPTTask.JS_EXPRESSION
-      ? getFunctionExpressionQuery(message)
-      : getFunctionQuery(message);
-  return `Given the following context
-    ${JSON.stringify(context, null, 2)}
-    ${query}`;
+export const useGPTTasks = () => {
+  const location = useLocation();
+  const { pageType } = getEntityInCurrentPath(location.pathname);
+  return useMemo(() => {
+    const GPT_TASKS = [GPT_JS_EXPRESSION, GPT_SQL_QUERY];
+    if (pageType === "queryEditor") {
+      GPT_TASKS.reverse();
+    }
+    return GPT_TASKS;
+  }, [location.pathname]);
 };
 
 function getPotentialEntityNamesFromMessage(
@@ -140,80 +86,95 @@ function getPotentialEntityNamesFromMessage(
     .split(" ")
     .filter(Boolean)
     .map((word) => word?.toLowerCase());
-  return entityNames.filter((name) => words.includes(name?.toLowerCase()));
+  const set = FuzzySet(entityNames);
+  const exactMatches = new Set<string>();
+  const partialMatches: [number, string][] = [];
+  for (const word of words) {
+    const matches = set.get(word);
+    if (!matches) continue;
+    for (const match of matches) {
+      const [score, entityName] = match;
+      if (score === 1) {
+        exactMatches.add(entityName);
+      } else {
+        partialMatches.push([score, entityName]);
+      }
+    }
+  }
+  const pMatches = Array.from(
+    new Set(partialMatches.sort((a, b) => b[0] - a[0]).map((a) => a[1])),
+  );
+
+  return { exactMatches: Array.from(exactMatches), partialMatches: pMatches };
 }
 
-const getGPTContextGenerator = createSelector(
-  getDataTree,
-  getWidgets,
-  getActionsForCurrentPage,
-  getJSCollectionsForCurrentPage,
-  (dataTree, widgets, actions, jsCollections) => {
-    return (entityName: string) => {
-      const entity = dataTree[entityName];
-      if (isAction(entity)) {
-        const action = actions.find((a) => a.config.name === entityName);
-        return {
-          [entityName]: {
-            data: getActionData(action?.data?.body),
-            run: "() => {}",
-            type: "ACTION",
-          },
-        };
-      } else if (isWidget(entity)) {
-        const widget = find(
-          Object.values(widgets),
-          (widget) => widget.widgetName === entityName,
-        );
-        return {
-          [entityName]: { ...widget, type: "WIDGET" },
-        };
-      } else if (isJSAction(entity)) {
-        const jsAction = jsCollections.find(
-          (a) => a.config.name === entityName,
-        );
-        return {
-          [entityName]: {
-            body: jsAction?.config.body.replace(/export default/g, ""),
-            type: "JS_ACTION",
-          },
-        };
-      }
-    };
-  },
-);
+const getGPTContextGenerator = createSelector(getDataTree, (dataTree) => {
+  return (entityName: string) => {
+    const entity = dataTree[entityName];
+    const context: TChatGPTContext = {};
+    if (isAction(entity)) {
+      context[entityName] = {
+        data: getDataSkeleton(entity.data),
+        run: "() => {}",
+        type: "ACTION",
+      };
+    } else if (isWidget(entity)) {
+      const widgetSkeleton = getDataSkeleton(entity);
+      context[entityName] = { ...widgetSkeleton, type: "WIDGET" };
+    } else if (isJSAction(entity)) {
+      context[entityName] = {
+        body: entity.body.replace(/export default/g, ""),
+        type: "JS_ACTION",
+      };
+    }
+    return context;
+  };
+});
 
 export function useGPTContextGenerator() {
   const dataTree = useSelector(getDataTree);
   const contextGenerator = useSelector(getGPTContextGenerator);
+  const location = useLocation();
+  const actions = useSelector(getActionsForCurrentPage);
   const generator = useMemo(
     () => (prompt: TChatGPTPrompt) => {
       if (prompt?.role !== "user") return {};
       const query = prompt.content;
       if (!query) return {};
       const entityNames = Object.keys(dataTree);
-      const entityNamesFromMessage = getPotentialEntityNamesFromMessage(
-        query,
-        entityNames,
-      );
-      const context = entityNamesFromMessage.reduce((acc, entityName) => {
+      const { exactMatches, partialMatches } =
+        getPotentialEntityNamesFromMessage(query, entityNames);
+      const entityNamesFromMessage = exactMatches.length
+        ? exactMatches
+        : partialMatches.slice(0, 2);
+      const api_context = entityNamesFromMessage.reduce((acc, entityName) => {
         acc = { ...acc, ...contextGenerator(entityName) };
         return acc;
-      }, {});
-      return context;
+      }, {} as any);
+      const { id, pageType } = getEntityInCurrentPath(location.pathname);
+      const meta: any = {};
+      if (pageType === "queryEditor") {
+        const query = actions.find((a) => a.config.id === id);
+        const datasourceId = (query?.config?.datasource as any)?.id;
+        meta["datasourceId"] = datasourceId;
+      }
+      return {
+        api_context,
+        meta,
+      };
     },
-    [dataTree, contextGenerator],
+    [dataTree, contextGenerator, location.pathname, actions],
   );
   return generator;
 }
 
-function getActionData(data: unknown): any {
+function getDataSkeleton(data: unknown): any {
   if (!data) return {};
   if (Array.isArray(data)) {
-    return [getActionData(data[0])];
+    return [getDataSkeleton(data[0])];
   } else if (isTrueObject(data)) {
     return Object.keys(data).reduce((acc, key) => {
-      acc[key] = getActionData(data[key]);
+      acc[key] = getDataSkeleton(data[key]);
       return acc;
     }, {} as any);
   } else {
@@ -223,3 +184,159 @@ function getActionData(data: unknown): any {
 
 export const selectIsAIWindowOpen = (state: AppState) =>
   state.ai.isAIWindowOpen;
+
+export const selectEvaluatedResult = (messageId: string) => (state: AppState) =>
+  state.ai.evaluationResults[messageId];
+
+export const selectGPTMessages = (state: AppState) => state.ai.messages;
+
+export const selectIsAILoading = (state: AppState) => state.ai.isLoading;
+
+export const selectShowExamplePrompt = (state: AppState) =>
+  state.ai.showExamplePrompt;
+
+export const selectGPTTask = (state: AppState) => state.ai.task;
+
+export const isUserPrompt = (prompt: TChatGPTPrompt): prompt is TUserPrompt =>
+  prompt.role === "user";
+
+export const isAssistantPrompt = (
+  prompt: TChatGPTPrompt,
+): prompt is TAssistantPrompt => prompt.role === "assistant";
+
+export const isGPTErrorPrompt = (
+  prompt: TChatGPTPrompt,
+): prompt is TErrorPrompt => prompt.role === "error";
+
+export function useChatScroll<T>(
+  dep: T,
+): React.MutableRefObject<HTMLDivElement | null> {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.scrollTop = ref.current.scrollHeight;
+    }
+  }, [dep]);
+  return ref;
+}
+
+export function selectGPTTriggerContext(state: AppState) {
+  return state.ai.context;
+}
+
+export const selectEntityNamesForGPT = createSelector(
+  getDataTree,
+  function (dataTree) {
+    return Object.keys(dataTree).map((k) => k?.toLowerCase());
+  },
+);
+
+export function useTextAutocomplete(
+  query: string,
+  acceptSuggestion: (suggestion: string) => void,
+) {
+  const ref = useRef<HTMLTextAreaElement | null>(null);
+  const overLayRef = useRef<HTMLDivElement | null>(null);
+  const searchSpace = useSelector(selectEntityNamesForGPT);
+  const [matches, setMatches] = useState<string[]>([]);
+  const [currentMatchIndex, setCurrentMatchIndex] = useState<number>(-1);
+
+  const cycleThroughMatches = useCallback(
+    (next: boolean) => {
+      const totalMatchesCount = matches.length;
+      if (totalMatchesCount === 0) return;
+      if (next) {
+        setCurrentMatchIndex(
+          (currentMatchIndex) =>
+            (currentMatchIndex + 1 + totalMatchesCount) % totalMatchesCount,
+        );
+      } else {
+        setCurrentMatchIndex(
+          (currentMatchIndex) =>
+            (currentMatchIndex - 1 + totalMatchesCount) % totalMatchesCount,
+        );
+      }
+    },
+    [matches, currentMatchIndex],
+  );
+
+  useEffect(() => {
+    if (!ref.current) return;
+    const keysListener = (e: KeyboardEvent) => {
+      if (!overLayRef.current?.innerText) return;
+      if (e.key === "ArrowUp") {
+        cycleThroughMatches(false);
+      } else if (e.key === "ArrowDown") {
+        cycleThroughMatches(true);
+      } else if (e.key === "Tab") {
+        if (!overLayRef.current?.innerText) return;
+        acceptSuggestion(overLayRef.current?.innerText);
+        setCurrentMatchIndex(-1);
+        setMatches([]);
+      } else {
+        return;
+      }
+      e.stopPropagation();
+      e.preventDefault();
+    };
+    ref.current.addEventListener("keydown", keysListener);
+
+    return () => ref.current?.removeEventListener("keydown", keysListener);
+  }, [cycleThroughMatches, acceptSuggestion]);
+
+  useLayoutEffect(() => {
+    if (!ref.current) return;
+    if (overLayRef.current) {
+      overLayRef.current.innerText = "";
+    }
+    const text = ref.current.textContent;
+    if (!text) return;
+    const lines = text.split("\n");
+    const lastLine = lines[lines.length - 1];
+    const words = lastLine.split(" ");
+    if (!words.length) return;
+    const lastWord = words[words.length - 1];
+    const lastWordLength = lastWord.length;
+    const currentMatch = matches[currentMatchIndex];
+    if (!currentMatch) return;
+    const difference = `${currentMatch.slice(lastWordLength)}`;
+    if (overLayRef.current)
+      overLayRef.current.innerText = ref.current.textContent + difference;
+  }, [currentMatchIndex, matches]);
+
+  useLayoutEffect(() => {
+    if (ref.current) {
+      const overlay = document.createElement("div");
+      overlay.id = "autocomplete-overlay";
+      overlay.classList.add("autocomplete-overlay");
+      overLayRef.current = overlay;
+      const parent = ref.current.parentElement;
+      if (parent) {
+        parent.appendChild(overlay);
+      }
+    }
+  }, []);
+  useEffect(() => {
+    if (overLayRef.current) {
+      overLayRef.current.innerText = "";
+    }
+    if (ref.current) {
+      const text = ref.current.textContent;
+      if (!text) return;
+      const lines = text.split("\n");
+      const lastLine = lines[lines.length - 1];
+      const words = lastLine.split(" ");
+      if (!words.length) return;
+      const lastWord = words[words.length - 1];
+      if (!lastWord) return;
+      if (lastWord.length < 2) return;
+      const matches = searchSpace.filter((s) =>
+        s.startsWith(lastWord.toLowerCase()),
+      );
+      if (!matches) return;
+      setMatches(matches);
+      setCurrentMatchIndex(0);
+    }
+  }, [query]);
+  return ref;
+}

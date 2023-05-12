@@ -9,7 +9,6 @@ import PageLoadingBar from "pages/common/PageLoadingBar";
 import ErrorPageHeader from "pages/common/ErrorPageHeader";
 import type { AppState } from "@appsmith/reducers";
 import { connect, useSelector } from "react-redux";
-import { polyfillCountryFlagEmojis } from "country-flag-emoji-polyfill";
 
 import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
 import { getCurrentUser } from "actions/authActions";
@@ -30,12 +29,6 @@ import {
 import LicenseCheckPage from "./pages/setup/LicenseCheckPage";
 import { LICENSE_CHECK_PATH } from "constants/routes";
 import { requiresLicenseCheck } from "./requiresLicenseCheck";
-
-/*
-    We use this polyfill to show emoji flags
-    on windows devices, this polyfill loads a font family
-  */
-polyfillCountryFlagEmojis();
 
 const loadingIndicator = <PageLoadingBar />;
 

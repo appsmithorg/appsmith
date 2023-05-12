@@ -10,22 +10,37 @@ import { getEntityInCurrentPath } from "sagas/RecentEntitiesSagas";
 import { selectIsAIWindowOpen } from "./utils";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import { Colors } from "constants/Colors";
+import { getActionsForCurrentPage } from "selectors/entitiesSelector";
 
 export const addAISlashCommand = true;
 
 export function GPTTrigger() {
   const dispatch = useDispatch();
   const location = useLocation();
-  const page = useMemo(
-    () => getEntityInCurrentPath(location.pathname)?.pageType || "",
+  const pageInfo = useMemo(
+    () => getEntityInCurrentPath(location.pathname),
     [location.pathname],
   );
+  const { id, pageType } = pageInfo || {};
+  const actions = useSelector(getActionsForCurrentPage);
   const featureFlags = useSelector(selectFeatureFlags);
-  const hide = !["jsEditor", "canvas"].includes(page) || !featureFlags.CHAT_AI;
+  let hide =
+    !["jsEditor", "canvas", "queryEditor"].includes(pageType || "") ||
+    !featureFlags.ask_ai;
   const windowOpen = useSelector(selectIsAIWindowOpen);
+  if (pageType === "queryEditor") {
+    const action = actions.find((action) => action.config.id === id);
+    // If the action is not a SQL query, hide the AI button
+    if (action?.config.actionConfiguration.hasOwnProperty("formData")) {
+      hide = true;
+    }
+  }
 
   const toggleWindow = () => {
-    dispatch({ type: ReduxActionTypes.TOGGLE_AI_WINDOW, payload: !windowOpen });
+    dispatch({
+      type: ReduxActionTypes.TOGGLE_AI_WINDOW,
+      payload: { show: !windowOpen },
+    });
   };
   return (
     <div

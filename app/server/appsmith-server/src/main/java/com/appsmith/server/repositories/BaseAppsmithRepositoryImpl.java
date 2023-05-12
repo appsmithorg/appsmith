@@ -55,6 +55,4 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> extends B
                 .all()
                 .map(obj -> obj);
     }
-
-
 }

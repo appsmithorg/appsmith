@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions.roles;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.acl.AclPermission;
@@ -17,6 +18,7 @@ import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -24,18 +26,19 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.services.EnvironmentService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.TenantService;
-import com.appsmith.server.solutions.roles.constants.PermissionViewableName;
 import com.appsmith.server.solutions.roles.constants.RoleTab;
 import com.appsmith.server.solutions.roles.dtos.ActionCollectionResourceDTO;
 import com.appsmith.server.solutions.roles.dtos.ActionResourceDTO;
 import com.appsmith.server.solutions.roles.dtos.BaseView;
 import com.appsmith.server.solutions.roles.dtos.DatasourceResourceDTO;
 import com.appsmith.server.solutions.roles.dtos.EntityView;
+import com.appsmith.server.solutions.roles.dtos.EnvironmentResourceDTO;
 import com.appsmith.server.solutions.roles.dtos.IdPermissionDTO;
 import com.appsmith.server.solutions.roles.dtos.PageResourcesDTO;
 import com.appsmith.server.solutions.roles.dtos.RoleTabDTO;
-import com.google.common.collect.Sets;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
@@ -44,6 +47,7 @@ import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -54,8 +58,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static com.appsmith.server.solutions.roles.HelperUtil.generateBaseViewDto;
@@ -63,7 +65,7 @@ import static com.appsmith.server.solutions.roles.HelperUtil.generateLateralPerm
 import static com.appsmith.server.solutions.roles.HelperUtil.getHierarchicalLateralPermMap;
 import static com.appsmith.server.solutions.roles.HelperUtil.getLateralPermMap;
 import static com.appsmith.server.solutions.roles.HelperUtil.getRoleViewPermissionDTO;
-import static com.appsmith.server.solutions.roles.constants.AclPermissionAndViewablePermissionConstantsMaps.getPermissionViewableName;
+import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
 @Component
@@ -78,6 +80,8 @@ public class WorkspaceResources {
     private final ResponseUtils responseUtils;
     private final TenantService tenantService;
     private final PolicyGenerator policyGenerator;
+    private final EnvironmentService environmentService;
+    private final FeatureFlagService featureFlagService;
 
     public WorkspaceResources(WorkspaceRepository workspaceRepository,
                               ApplicationRepository applicationRepository,
@@ -87,7 +91,9 @@ public class WorkspaceResources {
                               DatasourceRepository datasourceRepository,
                               ResponseUtils responseUtils,
                               TenantService tenantService,
-                              PolicyGenerator policyGenerator) {
+                              PolicyGenerator policyGenerator,
+                              EnvironmentService environmentService,
+                              FeatureFlagService featureFlagService) {
 
         this.workspaceRepository = workspaceRepository;
         this.applicationRepository = applicationRepository;
@@ -98,6 +104,8 @@ public class WorkspaceResources {
         this.responseUtils = responseUtils;
         this.tenantService = tenantService;
         this.policyGenerator = policyGenerator;
+        this.environmentService = environmentService;
+        this.featureFlagService = featureFlagService;
     }
 
     public Mono<RoleTabDTO> createApplicationResourcesTabView(String permissionGroupId, CommonAppsmithObjectData dataFromRepositoryForAllTabs) {
@@ -166,11 +174,13 @@ public class WorkspaceResources {
         Flux<Datasource> datasourceFlux = dataFromRepositoryForAllTabs.getDatasourceFlux();
         Flux<NewAction> actionFlux = dataFromRepositoryForAllTabs.getActionFlux();
         Flux<NewPage> pageFlux = dataFromRepositoryForAllTabs.getPageFlux();
+        Flux<Environment> environmentFlux = dataFromRepositoryForAllTabs.getEnvironmentFlux();
         Mono<Map<String, Collection<Datasource>>> workspaceDatasourceNotDtoMapMono = dataFromRepositoryForAllTabs.getWorkspaceDatasourceMapMono();
         Mono<Map<String, Collection<Application>>> workspaceApplicationMapMono = dataFromRepositoryForAllTabs.getWorkspaceApplicationMapMono();
         Mono<Map<String, Collection<NewPage>>> applicationPageMapMono = dataFromRepositoryForAllTabs.getApplicationPageMapMono();
         Mono<Map<String, Collection<NewAction>>> pageActionNotDtoMapMono = dataFromRepositoryForAllTabs.getPageActionMapMono();
         Mono<Map<String, Collection<ActionCollection>>> pageActionCollectionNotDtoMapMono = dataFromRepositoryForAllTabs.getPageActionCollectionMapMono();
+        Mono<Map<String, Collection<Environment>>> workspaceEnvironmentNotDtoMapMono = dataFromRepositoryForAllTabs.getWorkspaceEnvironmentMapMono();
 
         Mono<Map<String, Collection<ActionResourceDTO>>> pageActionsMapMono = pageActionNotDtoMapMono
                 .map(pageActionNotDtoMap -> getPageActionsMap(pageActionNotDtoMap, RoleTab.DATASOURCES_QUERIES, permissionGroupId));
@@ -179,28 +189,49 @@ public class WorkspaceResources {
                 .map(pageActionCollectionNotDtoMap -> getPageActionCollectionMap(pageActionCollectionNotDtoMap, RoleTab.DATASOURCES_QUERIES, permissionGroupId));
 
         Mono<Map<String, Collection<DatasourceResourceDTO>>> workspaceDatasourcesDtoMap = workspaceDatasourceNotDtoMapMono
-                .map(workspaceDatasourceNotDtoMap -> getWorkspaceDatasourceMap(workspaceDatasourceNotDtoMap, RoleTab.DATASOURCES_QUERIES, permissionGroupId));
+                .map(workspaceDatasourceNotDtoMap -> getWorkspaceDatasourceMap(workspaceDatasourceNotDtoMap,
+                        RoleTab.DATASOURCES_QUERIES, permissionGroupId));
+
+        Mono<Map<String, Collection<EnvironmentResourceDTO>>> workspaceEnvironmentResourceDtoMapMono = workspaceEnvironmentNotDtoMapMono
+                .map(workspaceEnvironmentnotDtoMap -> getWorkspaceEnvironmentMap(workspaceEnvironmentnotDtoMap,
+                        RoleTab.DATASOURCES_QUERIES, permissionGroupId));
 
         // Get the permission hover map for the tab
         Mono<Map<String, Set<IdPermissionDTO>>> linkedPermissionsMono = getLinkedPermissionsForDatasourceResources(
                 RoleTab.DATASOURCES_QUERIES, workspaceFlux, workspaceDatasourceNotDtoMapMono,
-                datasourceFlux, actionFlux, pageFlux, permissionGroupId);
+                datasourceFlux, actionFlux, pageFlux, workspaceEnvironmentNotDtoMapMono, environmentFlux, permissionGroupId);
 
 
         // Get the map for disabled edit interaction
         Mono<Map<String, Set<IdPermissionDTO>>> disableMapForDatasourceResourcesMono = getDisableMapsForDatasourceResources(
-                RoleTab.DATASOURCES_QUERIES, workspaceFlux, datasourceFlux);
+                RoleTab.DATASOURCES_QUERIES, workspaceFlux, datasourceFlux, environmentFlux);
 
 
-        Mono<EntityView> entityViewMono = Mono.zip(workspaceDatasourcesDtoMap, workspaceApplicationMapMono, applicationPageMapMono, pageActionsMapMono, pageActionCollectionMapMono)
+        Mono<EntityView> entityViewMono = Mono.zip(
+                        workspaceDatasourcesDtoMap,
+                        workspaceApplicationMapMono,
+                        applicationPageMapMono,
+                        pageActionsMapMono,
+                        pageActionCollectionMapMono,
+                        workspaceEnvironmentResourceDtoMapMono)
                 .flatMapMany(tuple -> {
                     Map<String, Collection<DatasourceResourceDTO>> workspaceDatasources = tuple.getT1();
                     Map<String, Collection<Application>> workspaceApplications = tuple.getT2();
                     Map<String, Collection<NewPage>> applicationPages = tuple.getT3();
                     Map<String, Collection<ActionResourceDTO>> pageActions = tuple.getT4();
                     Map<String, Collection<ActionCollectionResourceDTO>> pageActionCollections = tuple.getT5();
+                    Map<String, Collection<EnvironmentResourceDTO>> workspaceEnvironments = tuple.getT6();
 
-                    return getWorkspaceDTOsForDatasourceResources(permissionGroupId, workspaceFlux, workspaceDatasources, workspaceApplications, applicationPages, pageActions, pageActionCollections);
+                    return getWorkspaceDTOsForDatasourceResources(
+                            permissionGroupId,
+                            workspaceFlux,
+                            workspaceDatasources,
+                            workspaceApplications,
+                            applicationPages,
+                            pageActions,
+                            pageActionCollections,
+                            workspaceEnvironments
+                    );
                 })
                 .collectList()
                 .map(workspaceDTOs -> {
@@ -231,58 +262,93 @@ public class WorkspaceResources {
                                                                   Map<String, Collection<Application>> workspaceApplicationMap,
                                                                   Map<String, Collection<NewPage>> applicationPageMap,
                                                                   Map<String, Collection<ActionResourceDTO>> pageActionsMap,
-                                                                  Map<String, Collection<ActionCollectionResourceDTO>> pageActionCollectionMap) {
-        return workspaceFlux
-                .map(workspace -> generateBaseViewDto(workspace, Workspace.class, workspace.getName(), RoleTab.DATASOURCES_QUERIES, permissionGroupId, policyGenerator))
-                .flatMap(workspaceDTO -> {
-                    // Create the empty header representations and add the respective children inside them
-                    EntityView header = new EntityView();
-                    header.setType("Header");
+                                                                  Map<String, Collection<ActionCollectionResourceDTO>> pageActionCollectionMap,
+                                                                  Map<String, Collection<EnvironmentResourceDTO>> workspaceEnvironmentMap) {
+        return featureFlagService.check(FeatureFlagEnum.DATASOURCE_ENVIRONMENTS)
+                .flatMapMany(isFeatureFlag -> workspaceFlux
+                        .map(workspace -> generateBaseViewDto(
+                                workspace,
+                                Workspace.class,
+                                workspace.getName(),
+                                RoleTab.DATASOURCES_QUERIES,
+                                permissionGroupId,
+                                policyGenerator))
+                        .flatMap(workspaceDTO -> {
+                            // Create the empty header representations and add the respective children inside them
+                            EntityView header = new EntityView();
+                            header.setType("Header");
 
-                    BaseView datasourcesView = new BaseView();
-                    datasourcesView.setName("Datasources");
-                    EntityView datasourcesEntityView = new EntityView();
-                    datasourcesEntityView.setType(Datasource.class.getSimpleName());
-                    List<DatasourceResourceDTO> datasourceResourceDTOS = (List<DatasourceResourceDTO>) workspaceDatasourceMap.get(workspaceDTO.getId());
-                    datasourcesEntityView.setEntities(datasourceResourceDTOS);
-                    datasourcesView.setChildren(Set.of(datasourcesEntityView));
+                            // Datasource View
+                            BaseView datasourcesView = new BaseView();
+                            datasourcesView.setName("Datasources");
+                            EntityView datasourcesEntityView = new EntityView();
+                            datasourcesEntityView.setType(Datasource.class.getSimpleName());
+                            List<DatasourceResourceDTO> datasourceResourceDTOS =
+                                    (List<DatasourceResourceDTO>) workspaceDatasourceMap.get(workspaceDTO.getId());
+                            datasourcesEntityView.setEntities(datasourceResourceDTOS);
+                            datasourcesView.setChildren(Set.of(datasourcesEntityView));
 
-                    BaseView applicationsView = new BaseView();
-                    applicationsView.setName("Applications");
-                    Collection<Application> applications = workspaceApplicationMap.get(workspaceDTO.getId());
+                            BaseView applicationsView = new BaseView();
+                            applicationsView.setName("Applications");
+                            Collection<Application> applications = workspaceApplicationMap.get(workspaceDTO.getId());
 
-                    Mono<List<BaseView>> applicationsDTOsMono = Mono.just(List.of());
+                            Mono<List<BaseView>> applicationsDTOsMono = Mono.just(List.of());
 
-                    // In case the workspace does not have any applications, proceed ahead by returning an empty list
-                    if (!CollectionUtils.isEmpty(applications)) {
-                        applicationsDTOsMono = getFilteredApplicationDTOMonoForDatasourceTab(
-                                getApplicationDTOs(permissionGroupId,
-                                        applicationPageMap,
-                                        pageActionsMap,
-                                        pageActionCollectionMap,
-                                        applications,
-                                        RoleTab.DATASOURCES_QUERIES)
-                        ).collectList();
-                    }
+                            // In case the workspace does not have any applications, proceed ahead by returning an empty list
+                            if (!CollectionUtils.isEmpty(applications)) {
+                                applicationsDTOsMono = getFilteredApplicationDTOMonoForDatasourceTab(
+                                        getApplicationDTOs(permissionGroupId,
+                                                applicationPageMap,
+                                                pageActionsMap,
+                                                pageActionCollectionMap,
+                                                applications,
+                                                RoleTab.DATASOURCES_QUERIES)
+                                ).collectList();
+                            }
 
-                    return applicationsDTOsMono
-                            .map(applicationDTOs -> {
-                                EntityView applicationsEntity = new EntityView();
-                                applicationsEntity.setType(Application.class.getSimpleName());
-                                applicationsEntity.setEntities(applicationDTOs);
-                                applicationsView.setChildren(Set.of(applicationsEntity));
+                            if (TRUE.equals(isFeatureFlag)) {
+                                // Environment View
+                                BaseView environmentsView = new BaseView();
+                                environmentsView.setName("Environments");
+                                EntityView environmentsEntityView = new EntityView();
+                                environmentsEntityView.setType(Environment.class.getSimpleName());
+                                List<EnvironmentResourceDTO> environmentResourceDTOS =
+                                        (List<EnvironmentResourceDTO>) workspaceEnvironmentMap.get(workspaceDTO.getId());
+                                environmentsEntityView.setEntities(environmentResourceDTOS);
+                                environmentsView.setChildren(Set.of(environmentsEntityView));
 
-                                header.setEntities(List.of(datasourcesView, applicationsView));
+                                return applicationsDTOsMono
+                                        .map(applicationDTOs -> {
+                                            EntityView applicationsEntity = new EntityView();
+                                            applicationsEntity.setType(Application.class.getSimpleName());
+                                            applicationsEntity.setEntities(applicationDTOs);
+                                            applicationsView.setChildren(Set.of(applicationsEntity));
+                                            header.setEntities(List.of(environmentsView, datasourcesView, applicationsView));
+                                            workspaceDTO.setChildren(Set.of(header));
+                                            return workspaceDTO;
+                                        });
+                            }
 
-                                workspaceDTO.setChildren(Set.of(header));
-                                return workspaceDTO;
-                            });
+                            return applicationsDTOsMono
+                                    .map(applicationDTOs -> {
+                                        EntityView applicationsEntity = new EntityView();
+                                        applicationsEntity.setType(Application.class.getSimpleName());
+                                        applicationsEntity.setEntities(applicationDTOs);
+                                        applicationsView.setChildren(Set.of(applicationsEntity));
 
-                });
+                                        header.setEntities(List.of(datasourcesView, applicationsView));
+
+                                        workspaceDTO.setChildren(Set.of(header));
+                                        return workspaceDTO;
+                                    });
+
+                        }));
     }
 
 
-    private Map<String, Collection<DatasourceResourceDTO>> getWorkspaceDatasourceMap(Map<String, Collection<Datasource>> workspaceDatasourceNotDtoMap, RoleTab roleTab, String permissionGroupId) {
+    private Map<String, Collection<DatasourceResourceDTO>> getWorkspaceDatasourceMap
+            (Map<String, Collection<Datasource>> workspaceDatasourceNotDtoMap, RoleTab roleTab, String
+                    permissionGroupId) {
         Map<String, Collection<DatasourceResourceDTO>> workspaceDatasourceMap = new HashMap<>();
         workspaceDatasourceNotDtoMap.forEach((workspaceId, datasources) -> {
             Collection<DatasourceResourceDTO> datasourceResourceDTOS = datasources.stream()
@@ -307,7 +373,9 @@ public class WorkspaceResources {
         return workspaceDatasourceMap;
     }
 
-    private Map<String, Collection<ActionCollectionResourceDTO>> getPageActionCollectionMap(Map<String, Collection<ActionCollection>> pageActionCollectionNotDtoMap, RoleTab roleTab, String permissionGroupId) {
+    private Map<String, Collection<ActionCollectionResourceDTO>> getPageActionCollectionMap
+            (Map<String, Collection<ActionCollection>> pageActionCollectionNotDtoMap, RoleTab roleTab, String
+                    permissionGroupId) {
         Map<String, Collection<ActionCollectionResourceDTO>> pageActionCollectionMap = new HashMap<>();
         pageActionCollectionNotDtoMap.forEach((pageId, actionCollections) -> {
             Collection<ActionCollectionResourceDTO> actionCollectionDTOList = actionCollections.stream()
@@ -332,7 +400,8 @@ public class WorkspaceResources {
         return pageActionCollectionMap;
     }
 
-    private Map<String, Collection<ActionResourceDTO>> getPageActionsMap(Map<String, Collection<NewAction>> pageActionNotDtoMap, RoleTab roleTab, String permissionGroupId) {
+    private Map<String, Collection<ActionResourceDTO>> getPageActionsMap
+            (Map<String, Collection<NewAction>> pageActionNotDtoMap, RoleTab roleTab, String permissionGroupId) {
         Map<String, Collection<ActionResourceDTO>> pageActionsMap = new HashMap<>();
         pageActionNotDtoMap.forEach((pageId, actions) -> {
             Collection<ActionResourceDTO> actionDTOList = actions.stream()
@@ -358,6 +427,33 @@ public class WorkspaceResources {
         return pageActionsMap;
     }
 
+    private Map<String, Collection<EnvironmentResourceDTO>> getWorkspaceEnvironmentMap(
+            Map<String, Collection<Environment>> workspaceEnvironmentNotDtoMap,
+            RoleTab roleTab,
+            String permissionGroupId) {
+        Map<String, Collection<EnvironmentResourceDTO>> workspaceEnvironmentMap = new HashMap<>();
+        workspaceEnvironmentNotDtoMap.forEach((workspaceId, environments) -> {
+            Collection<EnvironmentResourceDTO> environmentResourceDTOS = environments.stream()
+                    .sorted(Comparator.comparing(Environment::getName))
+                    .map(environment -> {
+                        EnvironmentResourceDTO environmentResourceDTO = new EnvironmentResourceDTO();
+                        environmentResourceDTO.setId(environment.getId());
+                        environmentResourceDTO.setName(environment.getName());
+                        Tuple2<List<Integer>, List<Integer>> permissionsTuple = getRoleViewPermissionDTO(
+                                roleTab,
+                                permissionGroupId,
+                                environment.getPolicies(),
+                                Environment.class,
+                                policyGenerator);
+                        environmentResourceDTO.setEnabled(permissionsTuple.getT1());
+                        environmentResourceDTO.setEditable(permissionsTuple.getT2());
+                        return environmentResourceDTO;
+                    })
+                    .collect(Collectors.toList());
+            workspaceEnvironmentMap.put(workspaceId, environmentResourceDTOS);
+        });
+        return workspaceEnvironmentMap;
+    }
 
     private Flux<BaseView> getWorkspaceDTOsForApplicationResources(String permissionGroupId,
                                                                    Flux<Workspace> workspaceFlux,
@@ -661,7 +757,8 @@ public class WorkspaceResources {
 
     private Mono<Map<String, Set<IdPermissionDTO>>> getDisableMapsForDatasourceResources(RoleTab roleTab,
                                                                                          Flux<Workspace> workspaceFlux,
-                                                                                         Flux<Datasource> datasourceFlux) {
+                                                                                         Flux<Datasource> datasourceFlux,
+                                                                                         Flux<Environment> environmentFlux) {
 
         Set<AclPermission> tabPermissions = roleTab.getPermissions();
 
@@ -670,6 +767,9 @@ public class WorkspaceResources {
 
         Set<AclPermission> datasourcePermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Datasource.class)).collect(Collectors.toSet());
         Map<AclPermission, Set<AclPermission>> datasourceLateralMap = getLateralPermMap(datasourcePermissions, policyGenerator, roleTab);
+
+        Set<AclPermission> environmentPermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Environment.class)).collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> environmentLateralMap = getLateralPermMap(environmentPermissions, policyGenerator, roleTab);
 
         ConcurrentHashMap<String, Set<IdPermissionDTO>> disableMap = new ConcurrentHashMap<>();
 
@@ -689,14 +789,45 @@ public class WorkspaceResources {
                 })
                 .then();
 
-        return Mono.when(
-                        updateWorkspaceDisableMapMono,
-                        updateDatasourceDisableMapMono
-                )
-                .then(Mono.just(disableMap))
-                .map(disableMap1 -> {
-                    disableMap1.values().removeIf(Set::isEmpty);
-                    return disableMap1;
+        return featureFlagService.check(FeatureFlagEnum.DATASOURCE_ENVIRONMENTS)
+                .flatMap(isFeatureFlag -> {
+                    if (FALSE.equals(isFeatureFlag)) {
+                        return Mono.when(
+                                        updateWorkspaceDisableMapMono,
+                                        updateDatasourceDisableMapMono
+                                )
+                                .then(Mono.just(disableMap))
+                                .map(disableMap1 -> {
+                                    disableMap1.values()
+                                            .removeIf(Set::isEmpty);
+                                    return disableMap1;
+                                });
+                    }
+
+                    Mono<Void> updateEnvironmentDisableMapMono = environmentFlux
+                            .map(environment -> {
+                                String environmentId = environment.getId();
+                                generateLateralPermissionDTOsAndUpdateMap(
+                                        environmentLateralMap,
+                                        disableMap,
+                                        environmentId,
+                                        environmentId,
+                                        Environment.class);
+                                return environmentId;
+                            })
+                            .then();
+
+                    return Mono.when(
+                                    updateWorkspaceDisableMapMono,
+                                    updateDatasourceDisableMapMono,
+                                    updateEnvironmentDisableMapMono
+                            )
+                            .then(Mono.just(disableMap))
+                            .map(disableMap1 -> {
+                                disableMap1.values()
+                                        .removeIf(Set::isEmpty);
+                                return disableMap1;
+                            });
                 });
 
     }
@@ -707,6 +838,8 @@ public class WorkspaceResources {
                                                                                                Flux<Datasource> datasourceFlux,
                                                                                                Flux<NewAction> actionFlux,
                                                                                                Flux<NewPage> pageFlux,
+                                                                                               Mono<Map<String, Collection<Environment>>> workspaceEnvironmentMapMono,
+                                                                                               Flux<Environment> environmentFlux,
                                                                                                String permissionGroupId) {
 
         Set<AclPermission> tabPermissions = roleTab.getPermissions();
@@ -716,6 +849,9 @@ public class WorkspaceResources {
 
         Set<AclPermission> datasourcePermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Datasource.class)).collect(Collectors.toSet());
         Map<AclPermission, Set<AclPermission>> datasourceHierarchicalLateralMap = getHierarchicalLateralPermMap(datasourcePermissions, policyGenerator, roleTab);
+
+        Set<AclPermission> environmentPermissions = tabPermissions.stream().filter(permission -> permission.getEntity().equals(Environment.class)).collect(Collectors.toSet());
+        Map<AclPermission, Set<AclPermission>> environmentHierarchicalLateralMap = getHierarchicalLateralPermMap(environmentPermissions, policyGenerator, roleTab);
 
         ConcurrentHashMap<String, Set<IdPermissionDTO>> hoverMap = new ConcurrentHashMap<>();
 
@@ -807,7 +943,38 @@ public class WorkspaceResources {
                     return hoverMap1;
                 });
 
-        return workspaceDatasourcesHoverMapMono.then(trimmedHoverMapMono);
+        return featureFlagService.check(FeatureFlagEnum.DATASOURCE_ENVIRONMENTS)
+                .flatMap(isFeatureFlag -> {
+                    if (FALSE.equals(isFeatureFlag)) {
+                        return workspaceDatasourcesHoverMapMono
+                                .then(trimmedHoverMapMono);
+                    }
+
+                    Mono<Boolean> workspaceEnvironmentsHoverMapMono = workspaceEnvironmentMapMono
+                            .flatMapMany(workspaceEnvironmentMap -> {
+                                return workspaceFlux
+                                        .map(workspace -> {
+                                            String workspaceId = workspace.getId();
+                                            generateLateralPermissionDTOsAndUpdateMap(workspaceHierarchicalLateralMap, hoverMap, workspaceId, workspaceId, Workspace.class);
+                                            Collection<Environment> environments = workspaceEnvironmentMap.get(workspace.getId());
+                                            if (!CollectionUtils.isEmpty(environments)) {
+                                                environments.stream()
+                                                        .forEach(environment -> {
+                                                            String environmentId = environment.getId();
+                                                            generateLateralPermissionDTOsAndUpdateMap(workspaceHierarchicalLateralMap, hoverMap, workspaceId, environmentId, Environment.class);
+                                                            generateLateralPermissionDTOsAndUpdateMap(environmentHierarchicalLateralMap, hoverMap, environmentId, environmentId, Environment.class);
+                                                        });
+                                            }
+                                            return workspace;
+                                        });
+
+                            })
+                            .then(Mono.just(TRUE));
+
+                    return workspaceDatasourcesHoverMapMono
+                            .then(workspaceEnvironmentsHoverMapMono)
+                            .then(trimmedHoverMapMono);
+                });
 
     }
 
@@ -825,6 +992,15 @@ public class WorkspaceResources {
                 .cache();
 
         Mono<Set<String>> workspaceIdsMono = workspaceFlux.mapNotNull(Workspace::getId).collect(Collectors.toSet()).cache();
+
+        Flux<Environment> environmentFlux = workspaceIdsMono
+                .flatMapMany(Flux::fromIterable)
+                .flatMap(environmentService::findByWorkspaceId)
+                .cache();
+
+        Mono<Map<String, Collection<Environment>>> workspaceEnvironmentMapMono = environmentFlux
+                .collectMultimap(Environment::getWorkspaceId, Function.identity())
+                .cache();
 
         Flux<Application> applicationFlux = workspaceIdsMono
                 .flatMapMany(applicationRepository::findDefaultApplicationsByWorkspaceIds)
@@ -897,9 +1073,11 @@ public class WorkspaceResources {
                         Datasource::getWorkspaceId, Function.identity()
                 ).cache();
 
-        CommonAppsmithObjectData commonAppsmithObjectData = new CommonAppsmithObjectData(workspaceFlux, applicationFlux,
-                pagesFlux, actionFlux, actionCollectionFlux, datasourceFlux, workspaceApplicationsMapMono,
-                applicationPagesMapMono, pageActionsMapMono, pageActionCollectionMapMono, workspaceDatasourcesMapMono);
+        CommonAppsmithObjectData commonAppsmithObjectData =
+                new CommonAppsmithObjectData(workspaceFlux, applicationFlux, pagesFlux, actionFlux,
+                        actionCollectionFlux, datasourceFlux, environmentFlux,
+                        workspaceApplicationsMapMono, applicationPagesMapMono, pageActionsMapMono,
+                        pageActionCollectionMapMono, workspaceDatasourcesMapMono, workspaceEnvironmentMapMono);
 
         return commonAppsmithObjectData;
     }

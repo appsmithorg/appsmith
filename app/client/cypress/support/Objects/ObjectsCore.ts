@@ -22,3 +22,4 @@ export const debuggerHelper = ObjectsRegistry.DebuggerHelper;
 export const templates = ObjectsRegistry.Templates;
 export const peekOverlay = ObjectsRegistry.PeekOverlay;
 export const installer = ObjectsRegistry.LibraryInstaller;
+export const onboarding = ObjectsRegistry.Onboarding;

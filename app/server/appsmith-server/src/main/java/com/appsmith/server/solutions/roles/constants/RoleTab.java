@@ -26,6 +26,7 @@ import static com.appsmith.server.acl.AclPermission.DELETE_USER_GROUPS;
 import static com.appsmith.server.acl.AclPermission.DELETE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.EXECUTE_ENVIRONMENTS;
 import static com.appsmith.server.acl.AclPermission.EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
@@ -144,7 +145,10 @@ public enum RoleTab {
                     // Page level permissions : none
 
                     // Action level permissions
-                    EXECUTE_ACTIONS
+                    EXECUTE_ACTIONS,
+
+                    // environment level permissions
+                    EXECUTE_ENVIRONMENTS
             ),
             List.of(
                     EXECUTE,

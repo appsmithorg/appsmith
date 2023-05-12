@@ -1,9 +1,11 @@
 package com.appsmith.server.solutions.roles;
 
+import com.appsmith.external.constants.CommonFieldName;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.Environment;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.ActionCollection;
@@ -32,6 +34,8 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.EnvironmentService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.PermissionGroupService;
@@ -65,6 +69,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -88,6 +93,7 @@ import static com.appsmith.server.constants.FieldName.TENANT_ROLE;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -102,6 +108,9 @@ public class WorkspaceResourcesTest {
 
     @Autowired
     WorkspaceService workspaceService;
+
+    @Autowired
+    EnvironmentService environmentService;
 
     @Autowired
     TenantResources tenantResources;
@@ -156,6 +165,9 @@ public class WorkspaceResourcesTest {
 
     @Autowired
     NewActionRepository newActionRepository;
+
+    @MockBean
+    FeatureFlagService featureFlagService;
 
     User api_user = null;
 
@@ -224,6 +236,9 @@ public class WorkspaceResourcesTest {
         actionToCreate.setPluginId(restApiPlugin.getId());
 
         createdActionDto = layoutActionService.createAction(actionToCreate).block();
+
+        // This stub has been added for featureflag placed for multiple environments
+        doReturn(Mono.just(TRUE)).when(featureFlagService).check(Mockito.any());
     }
 
     @Test
@@ -524,6 +539,8 @@ public class WorkspaceResourcesTest {
         workspace.setName("testApplicationResourcesTab_testHoverMap workspace");
         Workspace createdWorkspace1 = workspaceService.create(workspace).block();
 
+        List<Environment> environmentList = environmentService.findByWorkspaceId(createdWorkspace1.getId()).collectList().block();
+
         Datasource datasource = new Datasource();
         datasource.setName("Default Database");
         datasource.setWorkspaceId(createdWorkspace1.getId());
@@ -577,7 +594,9 @@ public class WorkspaceResourcesTest {
                 new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.EDIT)
         )));
         assertThat(roleTabDTO.getHoverMap()).contains(Map.entry(createdWorkspaceExecute, Set.of(
-                new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.EXECUTE)
+                new IdPermissionDTO(createdDatasource1.getId(), PermissionViewableName.EXECUTE),
+                new IdPermissionDTO(environmentList.get(0).getId(), PermissionViewableName.EXECUTE),
+                new IdPermissionDTO(environmentList.get(1).getId(), PermissionViewableName.EXECUTE)
         )));
         assertThat(roleTabDTO.getHoverMap()).contains(Map.entry(createdWorkspaceView, Set.of(
                 new IdPermissionDTO(createdWorkspace1.getId(), PermissionViewableName.EXECUTE),
@@ -795,11 +814,30 @@ public class WorkspaceResourcesTest {
 
                     EntityView createdHeaderEntityView = createdWorkspaceView.getChildren().stream().findFirst().get();
                     assertThat(createdHeaderEntityView.getType()).isEqualTo("Header");
-                    // Assert that two kinds of children exist in header in this tab : aka datasource and application
-                    assertThat(createdHeaderEntityView.getEntities().size()).isEqualTo(2);
+                    // Assert that three kinds of children exist in header in this tab : aka datasource, application, and Environments
+                    assertThat(createdHeaderEntityView.getEntities().size()).isEqualTo(3);
 
                     EntityView DatasourcesEntityView = createdHeaderEntityView.getEntities().stream().filter(entity -> entity.getName().equals("Datasources")).findFirst().get().getChildren().stream().findFirst().get();
                     EntityView ApplicationsEntityView = createdHeaderEntityView.getEntities().stream().filter(entity -> entity.getName().equals("Applications")).findFirst().get().getChildren().stream().findFirst().get();
+
+                    EntityView environmentsEntityView =
+                            createdHeaderEntityView.getEntities()
+                                    .stream()
+                                    .filter(entity -> entity.getName().equals("Environments"))
+                                    .findFirst()
+                                    .get()
+                                    .getChildren()
+                                    .stream()
+                                    .findFirst()
+                                    .get();
+
+                    // Two default environments are created implicitly when we create workspaces.
+
+                    List<? extends BaseView> environmentBaseViewList = environmentsEntityView.getEntities();
+                    environmentBaseViewList.sort(Comparator.comparing(BaseView::getName));
+                    assertThat(environmentBaseViewList.size()).isEqualTo(2);
+                    assertThat(environmentBaseViewList.get(0).getName()).isEqualTo(CommonFieldName.PRODUCTION_ENVIRONMENT);
+                    assertThat(environmentBaseViewList.get(1).getName()).isEqualTo(CommonFieldName.STAGING_ENVIRONMENT);
 
                     // Only one datasource was created in this workspace
                     assertThat(DatasourcesEntityView.getEntities().size()).isEqualTo(1);
@@ -888,11 +926,29 @@ public class WorkspaceResourcesTest {
 
                     EntityView createdHeaderEntityView = createdWorkspaceView.getChildren().stream().findFirst().get();
                     assertThat(createdHeaderEntityView.getType()).isEqualTo("Header");
-                    // Assert that two kinds of children exist in header in this tab : aka datasource and application
-                    assertThat(createdHeaderEntityView.getEntities().size()).isEqualTo(2);
+                    // Assert that three kinds of children exist in header in this tab : aka datasource, application, and default environments
+                    assertThat(createdHeaderEntityView.getEntities().size()).isEqualTo(3);
 
                     EntityView DatasourcesEntityView = createdHeaderEntityView.getEntities().stream().filter(entity -> entity.getName().equals("Datasources")).findFirst().get().getChildren().stream().findFirst().get();
                     EntityView ApplicationsEntityView = createdHeaderEntityView.getEntities().stream().filter(entity -> entity.getName().equals("Applications")).findFirst().get().getChildren().stream().findFirst().get();
+                    EntityView environmentsEntityView =
+                            createdHeaderEntityView.getEntities()
+                                    .stream()
+                                    .filter(entity -> entity.getName().equals("Environments"))
+                                    .findFirst()
+                                    .get()
+                                    .getChildren()
+                                    .stream()
+                                    .findFirst()
+                                    .get();
+
+                    // Two default environments are created implicitly when we create workspaces.
+
+                    List<? extends BaseView> environmentBaseViewList = environmentsEntityView.getEntities();
+                    environmentBaseViewList.sort(Comparator.comparing(BaseView::getName));
+                    assertThat(environmentBaseViewList.size()).isEqualTo(2);
+                    assertThat(environmentBaseViewList.get(0).getName().equals(CommonFieldName.PRODUCTION_ENVIRONMENT));
+                    assertThat(environmentBaseViewList.get(1).getName().equals(CommonFieldName.STAGING_ENVIRONMENT));
 
                     // Only one datasource was created in this workspace
                     assertThat(DatasourcesEntityView.getEntities().size()).isEqualTo(1);

@@ -154,12 +154,16 @@ jobs:
           if [[ "${{ inputs.airgap-enabled }}" == "true" ]]; then
             export REACT_APP_AIRGAP_ENABLED=true
           fi
+          if [[ "${{ inputs.airgap-enabled }}" == "true" ]]; then
+            export REACT_APP_VERSION_EDITION="Airgapped"
+          else
+            export REACT_APP_VERSION_EDITION="Business"
+          fi
           REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
             REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
             REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
             REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
-            REACT_APP_VERSION_EDITION="Business" \
             yarn build
 
       - name: Set the client build path env vars

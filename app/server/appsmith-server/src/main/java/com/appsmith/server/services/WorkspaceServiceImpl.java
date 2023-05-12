@@ -24,6 +24,7 @@ import reactor.core.scheduler.Scheduler;
 
 import jakarta.validation.Validator;
 
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.appsmith.server.acl.AclPermission.CREATE_WORKSPACES;
@@ -37,6 +38,8 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
     private final TenantService tenantService;
     private final UserUtils userUtils;
 
+    private final EnvironmentService environmentService;
+
     public WorkspaceServiceImpl(Scheduler scheduler,
                                 Validator validator,
                                 MongoConverter mongoConverter,
@@ -45,9 +48,6 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
                                 AnalyticsService analyticsService,
                                 PluginRepository pluginRepository,
                                 SessionUserService sessionUserService,
-                                UserWorkspaceService userWorkspaceService,
-                                UserRepository userRepository,
-                                RoleGraph roleGraph,
                                 AssetRepository assetRepository,
                                 AssetService assetService,
                                 ApplicationRepository applicationRepository,
@@ -57,15 +57,16 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
                                 WorkspacePermission workspacePermission,
                                 PermissionGroupPermission permissionGroupPermission,
                                 TenantService tenantService,
-                                UserUtils userUtils) {
+                                UserUtils userUtils,
+                                EnvironmentService environmentService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
-                pluginRepository, sessionUserService, userWorkspaceService, userRepository, roleGraph,
-                assetRepository, assetService, applicationRepository, permissionGroupService,
-                policyUtils, modelMapper, workspacePermission, permissionGroupPermission);
+                pluginRepository, sessionUserService, assetRepository, assetService, applicationRepository,
+                permissionGroupService, policyUtils, modelMapper, workspacePermission, permissionGroupPermission);
 
         this.tenantService = tenantService;
         this.userUtils = userUtils;
+        this.environmentService = environmentService;
     }
 
     @Override
@@ -119,4 +120,15 @@ public class WorkspaceServiceImpl extends WorkspaceServiceCEImpl implements Work
                 });
     }
 
+    @Override
+    protected Mono<Workspace> createWorkspaceDependents(Workspace createdWorkspace) {
+        return environmentService.createDefaultEnvironments(createdWorkspace)
+                .then(Mono.just(createdWorkspace));
+    }
+
+    @Override
+    protected Mono<Workspace> archiveWorkspaceDependents(Workspace workspace) {
+        return environmentService.archiveByWorkspaceId(workspace.getId())
+                .then(Mono.just(workspace));
+    }
 }

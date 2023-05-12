@@ -8,6 +8,7 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.dtos.EnvChangesResponseDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PermissionGroupCompactDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
@@ -21,6 +22,7 @@ import com.appsmith.server.helpers.AppsmithComparators;
 import com.appsmith.server.helpers.PermissionGroupUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.notifications.EmailSender;
+import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserGroupRepository;
@@ -53,6 +55,7 @@ import java.util.stream.Stream;
 
 import static com.appsmith.server.acl.AclPermission.TENANT_MANAGE_ALL_USERS;
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
+import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
@@ -62,11 +65,15 @@ import static com.appsmith.server.constants.FieldName.EVENT_DATA;
 import static com.appsmith.server.constants.FieldName.NUMBER_OF_ASSIGNED_USERS;
 import static com.appsmith.server.constants.FieldName.NUMBER_OF_UNASSIGNED_USERS;
 import static com.appsmith.server.constants.FieldName.CLOUD_HOSTED_EXTRA_PROPS;
+import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PERMISSION_GROUP;
+import static com.appsmith.server.constants.ce.FieldNameCE.INSTANCE_CONFIG;
 import static java.lang.Boolean.TRUE;
 
 @Component
 @Slf4j
 public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementServiceCEImpl implements UserAndAccessManagementService {
+
+    private String instanceAdminRoleId = null;
     
     private final UserGroupService userGroupService;
     private final PermissionGroupService permissionGroupService;
@@ -79,6 +86,8 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
     private final UserDataRepository userDataRepository;
     private final PermissionGroupPermission permissionGroupPermission;
     private final PermissionGroupUtils permissionGroupUtils;
+    private final EnvManager envManager;
+    private final ConfigRepository configRepository;
 
     public UserAndAccessManagementServiceImpl(SessionUserService sessionUserService,
                                               PermissionGroupService permissionGroupService,
@@ -93,7 +102,9 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                                               UserGroupRepository userGroupRepository,
                                               PermissionGroupPermission permissionGroupPermission,
                                               UserDataRepository userDataRepository,
-                                              PermissionGroupUtils permissionGroupUtils) {
+                                              PermissionGroupUtils permissionGroupUtils,
+                                              EnvManager envManager,
+                                              ConfigRepository configRepository) {
 
         super(sessionUserService, permissionGroupService, workspaceService, userRepository, analyticsService, userService, emailSender,
                 permissionGroupPermission);
@@ -108,6 +119,8 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
         this.userDataRepository = userDataRepository;
         this.permissionGroupPermission = permissionGroupPermission;
         this.permissionGroupUtils = permissionGroupUtils;
+        this.envManager = envManager;
+        this.configRepository = configRepository;
     }
 
 
@@ -239,6 +252,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
         Set<UserGroupCompactDTO> groupDTOs = updateRoleAssociationDTO.getGroups();
         Set<PermissionGroupCompactDTO> rolesAddedDTOs = updateRoleAssociationDTO.getRolesAdded();
         Set<PermissionGroupCompactDTO> rolesRemovedDTOs = updateRoleAssociationDTO.getRolesRemoved();
+        Set<String> roleIdsToBeUpdated = new HashSet<>();
 
         Flux<User> userFlux = Flux.empty();
         Flux<UserGroup> groupFlux = Flux.empty();
@@ -247,23 +261,10 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
         Mono<Boolean> isMultipleRolesFromWorkspacePresentMono = Mono.just(TRUE);
         Mono<Boolean> rolesFromSameWorkspaceExistsInUsersMono;
         Mono<Boolean> rolesFromSameWorkspaceExistsInUserGroupsMono;
+        Mono<Boolean> instanceRoleUpdatedForUsersAndEnvAdminEmailsUpdatedMono = Mono.just(TRUE);
 
-        if (!CollectionUtils.isEmpty(userDTOs)) {
-            userFlux = Flux.fromIterable(userDTOs.stream().map(UserCompactDTO::getUsername).collect(Collectors.toSet()))
-                    .flatMap(username -> {
-                        User newUser = new User();
-                        newUser.setEmail(username.toLowerCase());
-                        newUser.setIsEnabled(false);
-                        return userService.findByEmail(username)
-                                .switchIfEmpty(userService.userCreate(newUser, false));
-                    });
-
-        }
-        if (!CollectionUtils.isEmpty(groupDTOs)) {
-            groupFlux = userGroupRepository.findAllById(groupDTOs.stream().map(UserGroupCompactDTO::getId).collect(Collectors.toSet()))
-                    .cache();
-        }
         if (!CollectionUtils.isEmpty(rolesAddedDTOs)) {
+            roleIdsToBeUpdated.addAll(rolesAddedDTOs.stream().map(PermissionGroupCompactDTO::getId).collect(Collectors.toSet()));
             Flux<PermissionGroup> rolesToBeAddedFlux = permissionGroupRepository.findAllById(rolesAddedDTOs.stream().map(PermissionGroupCompactDTO::getId).collect(Collectors.toSet())).cache();
             rolesAddedFlux = UserPermissionUtils
                     .validateDomainObjectPermissionsOrError(
@@ -277,6 +278,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                     .flatMap(this::containsPermissionGroupsFromSameWorkspace);
         }
         if (!CollectionUtils.isEmpty(rolesRemovedDTOs)) {
+            roleIdsToBeUpdated.addAll(rolesRemovedDTOs.stream().map(PermissionGroupCompactDTO::getId).collect(Collectors.toSet()));
             Flux<PermissionGroup> rolesToBeRemovedFlux = permissionGroupRepository.findAllById(rolesRemovedDTOs.stream().map(PermissionGroupCompactDTO::getId).collect(Collectors.toSet())).cache();
             rolesRemovedFlux = UserPermissionUtils
                     .validateDomainObjectPermissionsOrError(
@@ -286,6 +288,21 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                             permissionGroupPermission.getUnAssignPermission(),
                             AppsmithError.ASSIGN_UNASSIGN_MISSING_PERMISSION
                     ).thenMany(rolesToBeRemovedFlux);
+        }
+        if (!CollectionUtils.isEmpty(userDTOs)) {
+            userFlux = Flux.fromIterable(userDTOs.stream().map(UserCompactDTO::getUsername).collect(Collectors.toSet()))
+                    .flatMap(username -> {
+                        User newUser = new User();
+                        newUser.setEmail(username.toLowerCase());
+                        newUser.setIsEnabled(false);
+                        return userService.findByEmail(username)
+                                .switchIfEmpty(userService.userCreate(newUser, false));
+                    });
+            instanceRoleUpdatedForUsersAndEnvAdminEmailsUpdatedMono = this.checkInstanceAdminUpdatedAndUpdateAdminEmails(roleIdsToBeUpdated);
+        }
+        if (!CollectionUtils.isEmpty(groupDTOs)) {
+            groupFlux = userGroupRepository.findAllById(groupDTOs.stream().map(UserGroupCompactDTO::getId).collect(Collectors.toSet()))
+                    .cache();
         }
 
         // Checks and throws error, if 2 or more permission groups from the same Default Workspace ID are present
@@ -338,7 +355,7 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 .then(Mono.when(rolesFromSameWorkspaceExistsInUsersMono, rolesFromSameWorkspaceExistsInUserGroupsMono))
                 .then(Mono.when(bulkAssignToRolesFlux.collectList(), bulkUnassignFromRolesFlux.collectList()))
                 .then(cleanCacheForUsersMono)
-                .thenReturn(TRUE);
+                .then(instanceRoleUpdatedForUsersAndEnvAdminEmailsUpdatedMono);
     }
 
     private Mono<PermissionGroup> bulkAssignToUsersAndGroups(PermissionGroup permissionGroup, List<User> users, List<UserGroup> groups) {
@@ -531,5 +548,33 @@ public class UserAndAccessManagementServiceImpl extends UserAndAccessManagementS
                 .filter(noDuplicateExists -> ! noDuplicateExists)
                 .hasElements()
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ROLES_FROM_SAME_WORKSPACE)));
+    }
+
+    private Mono<Boolean> checkInstanceAdminUpdatedAndUpdateAdminEmails(Set<String> permissionGroupIdSet) {
+        return getInstanceAdminRoleId()
+                .flatMap(id -> {
+                    Mono<EnvChangesResponseDTO> updateAdminEmailsInEnvMono = Mono.empty();
+                    if (permissionGroupIdSet.contains(id)) {
+                        updateAdminEmailsInEnvMono = permissionGroupRepository.findById(id)
+                                .flatMapMany(instanceAdminRole -> userRepository.findAllById(instanceAdminRole.getAssignedToUserIds()))
+                                .collectList()
+                                .flatMap(userList -> {
+                                    String adminEmails = String.join(",", userList.stream().map(User::getEmail).toList());
+                                    Map<String, String> envUpdateInstanceAdminUserEmails = Map.of(APPSMITH_ADMIN_EMAILS.name(), adminEmails);
+                                    return envManager.applyChanges(envUpdateInstanceAdminUserEmails, "");
+                                });
+                    }
+                    return updateAdminEmailsInEnvMono.thenReturn(TRUE);
+                });
+    }
+
+    private Mono<String> getInstanceAdminRoleId() {
+        if (StringUtils.hasText(instanceAdminRoleId)) {
+            return Mono.just(instanceAdminRoleId);
+        }
+        return configRepository.findByName(INSTANCE_CONFIG)
+                .map(configObj -> configObj.getConfig().getAsString(DEFAULT_PERMISSION_GROUP))
+                .doOnNext(id -> instanceAdminRoleId = id);
+
     }
 }

@@ -58,7 +58,6 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_DATASOURCES;
 
 
-
 @Component
 public class PolicyGenerator extends PolicyGeneratorCE {
 
@@ -72,12 +71,7 @@ public class PolicyGenerator extends PolicyGeneratorCE {
     }
 
     protected void createEnvironmentPolicyGraph() {
-        hierarchyGraph.addEdge(AclPermission.READ_WORKSPACES, AclPermission.READ_ENVIRONMENTS);
         hierarchyGraph.addEdge(AclPermission.WORKSPACE_EXECUTE_DATASOURCES, AclPermission.EXECUTE_ENVIRONMENTS);
-
-        lateralGraph.addEdge(AclPermission.MANAGE_ENVIRONMENTS, AclPermission.READ_ENVIRONMENTS);
-        lateralGraph.addEdge(AclPermission.MANAGE_ENVIRONMENTS, AclPermission.EXECUTE_ENVIRONMENTS);
-        lateralGraph.addEdge(AclPermission.READ_ENVIRONMENTS, AclPermission.EXECUTE_ENVIRONMENTS);
     }
 
     private void createTenantPolicyGraph() {

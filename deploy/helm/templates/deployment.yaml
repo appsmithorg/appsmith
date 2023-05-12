@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: {{ if not .Values.autoscaling.enabled }}StatefulSet{{- else }}Deployment{{- end }}
 metadata:
   name: {{ include "appsmith.fullname" . }}
   namespace: {{ include "appsmith.namespace" . }}
@@ -8,8 +8,11 @@ metadata:
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: 1
-  {{- end }}
+  serviceName: {{ include "appsmith.fullname" . }}
+  updateStrategy:
+  {{- else }}
   strategy:
+  {{- end }}
     type: {{ .Values.strategyType }}
   selector:
     matchLabels:
@@ -121,6 +124,25 @@ spec:
   {{- if not .Values.persistence.enabled }}
       - name: data
         emptyDir: {}
+  {{- else if and (not .Values.autoscaling.enabled) (.Values.persistence.enabled) }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        {{- if .Values.persistence.annotations}}
+        annotations:
+          {{- include "tplvalues.render" (dict "value" .Values.persistence.annotations "context" $) | nindent 10 }}
+        {{- end }}
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ .Values.persistence.size | quote }}
+        {{- if .Values.persistence.volumeClaimTemplates.selector }}
+        selector:
+          {{- include "tplvalues.render" (dict "value" .Values.persistence.volumeClaimTemplates.selector "context" $) | nindent 10 }}
+        {{- end }}
+        {{ include "storage.class" (dict "persistence" .Values.persistence "global" .Values.global) | nindent 8 }}
   {{- else }}
       - name: data
         persistentVolumeClaim:
