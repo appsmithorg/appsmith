@@ -599,6 +599,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     ...actionPayload.payload,
     id: actionPayload.payload.id as any,
   };
+  const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
 
   // when datasource is not yet saved by user, datasource id is temporary
   // for temporary datasource, we do not need to pass datasource id in test api call
@@ -620,6 +621,12 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
         (responseData.invalids && responseData.invalids.length) ||
         (responseData.messages && responseData.messages.length)
       ) {
+        AnalyticsUtil.logEvent("TEST_DATA_SOURCE_FAILED", {
+          datasoureId: datasource?.id,
+          pluginName: plugin?.name,
+          errorMessages: responseData.invalids,
+          messages: responseData.messages,
+        });
         if (responseData.invalids && responseData.invalids.length) {
           responseData.invalids.forEach((message: string) => {
             Toaster.show({
@@ -657,7 +664,9 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
         });
       } else {
         AnalyticsUtil.logEvent("TEST_DATA_SOURCE_SUCCESS", {
-          datasource: payload.name,
+          datasourceName: payload.name,
+          datasoureId: datasource?.id,
+          pluginName: plugin?.name,
         });
         Toaster.show({
           text: createMessage(DATASOURCE_VALID, payload.name),
@@ -681,6 +690,11 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     yield put({
       type: ReduxActionErrorTypes.TEST_DATASOURCE_ERROR,
       payload: { error, show: false },
+    });
+    AnalyticsUtil.logEvent("TEST_DATA_SOURCE_FAILED", {
+      datasoureId: datasource?.id,
+      pluginName: plugin?.name,
+      errorMessages: error,
     });
     AppsmithConsole.error({
       text: "Test Connection failed",
