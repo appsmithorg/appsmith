@@ -1352,9 +1352,9 @@ class CodeEditor extends Component<Props, State> {
 
     /**
      * AI button is to be shown when following conditions are satisfied
-     * When enabled by feature flag and repo permission
-     * When editor value is empty and editor is hovered or focused
-     * When it is ai window is not open already
+     * Enabled by feature flag and repo permissions
+     * Editor value is empty and editor is hovered or focused
+     * AI window is not open already
      */
     const showAIButton =
       this.AIEnabled && !this.props.input.value && !this.state.showAIWindow;
@@ -1383,11 +1383,11 @@ class CodeEditor extends Component<Props, State> {
         isNotHover={this.state.isFocused || this.state.isOpened}
         skin={this.props.theme === EditorTheme.DARK ? Skin.DARK : Skin.LIGHT}
       >
-        <div className="flex absolute gap-1 top-2 right-2">
+        <div className="flex absolute gap-1 top-2 right-2 z-1">
           <Button
             category="secondary"
             className={classNames(
-              "h-5 w-5 !px-1 z-10 ai-trigger invisible",
+              "h-5 !w-5 !p-0 ai-trigger invisible",
               this.state.isFocused && "!visible",
               !showAIButton && "!hidden",
             )}
@@ -1402,7 +1402,7 @@ class CodeEditor extends Component<Props, State> {
           <Button
             category="secondary"
             className={classNames(
-              "h-5 w-5 !px-2 z-10 invisible",
+              "h-5 !w-5 !p-0 commands-button invisible",
               !showSlashCommandButton && "!hidden",
             )}
             onClick={() => {

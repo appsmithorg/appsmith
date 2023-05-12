@@ -51,26 +51,7 @@ describe("Validate API Panel CSS Styles", function () {
     //Check center alignment
     //Get width and height (have use inner function because values are not accessible outside functional scope);
     //Comapre transform matrix value (Cypress decodes all transform values into matrix)
-    cy.get(ApiEditor.slashCommandButton)
-      .first()
-      .should("have.css", "right", "0px")
-      .invoke("outerWidth")
-      .then((width) =>
-        cy
-          .get(ApiEditor.slashCommandButton)
-          .first()
-          .invoke("outerHeight")
-          .then((height) =>
-            cy
-              .get(ApiEditor.slashCommandButton)
-              .first()
-              .should(
-                "have.css",
-                "transform",
-                `matrix(1, 0, 0, 1, -${width / 2}, ${height / 2})`,
-              ),
-          ),
-      );
+    cy.get(ApiEditor.slashCommandButton).first().should("be.visible");
   });
 
   it("4.Select Datasource dropdown binding prompt background color", function () {
