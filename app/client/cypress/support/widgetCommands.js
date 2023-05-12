@@ -136,7 +136,6 @@ Cypress.Commands.add("createModal", (ModalName, property) => {
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
   cy.wait(3000);
   cy.assertPageSave();
-  //cy.SearchEntityandOpen("Modal1");
   // changing the model name verify
   // cy.widgetText(
   //   ModalName,
@@ -167,7 +166,6 @@ Cypress.Commands.add("createModalWithIndex", (ModalName, index) => {
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
   cy.wait(3000);
   cy.assertPageSave();
-  //cy.SearchEntityandOpen("Modal1");
   // changing the model name verify
   // cy.widgetText(
   //   ModalName,

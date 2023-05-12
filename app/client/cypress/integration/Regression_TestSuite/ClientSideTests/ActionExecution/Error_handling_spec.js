@@ -3,23 +3,20 @@ const dsl = require("../../../../fixtures/buttonApiDsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 let dataSet;
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-let apiPage = ObjectsRegistry.ApiPage,
-  ee = ObjectsRegistry.EntityExplorer;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Button widget", function () {
   before("Test_Add users api and execute api", () => {
     cy.addDsl(dsl);
     cy.fixture("example").then(function (data) {
       dataSet = data;
-      apiPage.CreateAndFillApi(dataSet.userApi + "/random");
+      _.apiPage.CreateAndFillApi(dataSet.userApi + "/random");
       cy.RunAPI();
     });
   });
 
   it("1. Call the api with & without error handling", () => {
-    ee.SelectEntityByName("Button1");
+    _.entityExplorer.SelectEntityByName("Button1");
     cy.get(widgetsPage.toggleOnClick)
       .invoke("attr", "class")
       .then((classes) => {
@@ -51,7 +48,7 @@ describe("Test Create Api and Bind to Button widget", function () {
     cy.get(publishPage.backToEditor).click({ force: true });
 
     //With Error handling
-    cy.SearchEntityandOpen("Button1");
+    _.entityExplorer.SelectEntityByName("Button1");
 
     cy.get(".t--property-control-onclick").then(($el) => {
       cy.updateCodeInput($el, "{{Api1.run(() => {}, () => {})}}");

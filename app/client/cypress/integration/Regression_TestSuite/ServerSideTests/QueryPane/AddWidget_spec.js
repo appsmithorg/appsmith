@@ -23,7 +23,6 @@ describe("Add widget - Postgress DataSource", function () {
     cy.WaitAutoSave();
     cy.runQuery();
     cy.get(queryEditor.suggestedTableWidget).click();
-    //cy.SearchEntityandOpen("Table1");
     cy.CheckAndUnfoldEntityItem("Widgets");
     cy.selectEntityByName("Table1");
     cy.isSelectRow(1);

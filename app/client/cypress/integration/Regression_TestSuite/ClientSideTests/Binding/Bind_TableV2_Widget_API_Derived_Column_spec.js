@@ -3,22 +3,25 @@ const dsl = require("../../../../fixtures/tableV2TextPaginationDsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 
+import * as _ from "../../../../support/Objects/ObjectsCore";
+
 describe("Test Create Api and Bind to Table widget", function () {
   before(() => {
     cy.addDsl(dsl);
-  });
-  it("1. Create an API and Execute the API and bind with TableV2", function () {
     cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
     cy.RunAPI();
   });
 
-  it("2. Validate TableV2 with API data and then add a column", function () {
-    cy.SearchEntityandOpen("Table1");
+  it("1. Validate TableV2 with API data and then add a column", function () {
+    _.entityExplorer.SelectEntityByName("Table1");
+
     cy.testJsontext("tabledata", "{{Api1.data}}");
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
-    cy.SearchEntityandOpen("Text1");
+    _.entityExplorer.SelectEntityByName("Text1");
+
     cy.testJsontext("text", "{{Table1.selectedRow.url}}");
-    cy.SearchEntityandOpen("Table1");
+    _.entityExplorer.SelectEntityByName("Table1");
+
     cy.readTableV2data("0", "0").then((tabData) => {
       const tableData = tabData;
       localStorage.setItem("tableDataPage1", tableData);
@@ -41,12 +44,13 @@ describe("Test Create Api and Bind to Table widget", function () {
     cy.closePropertyPane();
   });
 
-  it("3. Check Image alignment is working as expected", function () {
-    cy.SearchEntityandOpen("Table1");
+  it("2. Check Image alignment is working as expected", function () {
+    _.entityExplorer.SelectEntityByName("Table1");
+
     cy.editColumn("avatar");
     cy.changeColumnType("Image");
     cy.closePropertyPane();
-    cy.SearchEntityandOpen("Table1");
+    _.entityExplorer.SelectEntityByName("Table1");
     cy.backFromPropertyPanel();
     cy.moveToStyleTab();
     cy.get(widgetsPage.centerAlign).first().click({ force: true });
@@ -54,14 +58,14 @@ describe("Test Create Api and Bind to Table widget", function () {
     cy.get(`.t--widget-tablewidgetv2 .tbody .image-cell-wrapper`)
       .first()
       .should("have.css", "justify-content", "center");
-    cy.SearchEntityandOpen("Table1");
+    _.entityExplorer.SelectEntityByName("Table1");
     cy.moveToStyleTab();
     cy.get(widgetsPage.rightAlign).first().click({ force: true });
     cy.closePropertyPane();
     cy.get(`.t--widget-tablewidgetv2 .tbody .image-cell-wrapper`)
       .first()
       .should("have.css", "justify-content", "flex-end");
-    cy.SearchEntityandOpen("Table1");
+    _.entityExplorer.SelectEntityByName("Table1");
     cy.moveToStyleTab();
     cy.get(widgetsPage.leftAlign).first().click({ force: true });
     cy.closePropertyPane();
@@ -70,8 +74,8 @@ describe("Test Create Api and Bind to Table widget", function () {
       .should("have.css", "justify-content", "flex-start");
   });
 
-  it("4. Update table json data and check the derived column values after update", function () {
-    cy.SearchEntityandOpen("Table1");
+  it("3. Update table json data and check the derived column values after update", function () {
+    _.entityExplorer.SelectEntityByName("Table1");
     cy.moveToContentTab();
     cy.tableV2ColumnDataValidation("id");
     cy.tableV2ColumnDataValidation("name");

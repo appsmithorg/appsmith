@@ -1,35 +1,30 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/tableV2TextPaginationDsl.json");
 
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-
-let apiPage = ObjectsRegistry.ApiPage;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget V2", function () {
-  before(() => {
+  before("Create an API and Execute the API and bind with Table V", () => {
     cy.addDsl(dsl);
-  });
-
-  it("1. Create an API and Execute the API and bind with Table V2", function () {
-    apiPage.CreateAndFillApi(
+    _.apiPage.CreateAndFillApi(
       this.data.paginationUrl + this.data.paginationParam,
     );
     cy.RunAPI();
   });
 
-  it("2. Validate Table with API data and then add a column", function () {
+  it("1. Validate Table with API data and then add a column", function () {
     // Open property pane
-    cy.SearchEntityandOpen("Table1");
+    _.entityExplorer.SelectEntityByName("Table1");
     // Change the table data to Apil data users
     cy.testJsontext("tabledata", "{{Api1.data}}");
     // Check server sided pagination
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
     // Open property pane of Text1
-    cy.SearchEntityandOpen("Text1");
+    _.entityExplorer.SelectEntityByName("Text1");
     // Change the text value to selected url
     cy.testJsontext("text", "{{Table1.selectedRow.url}}");
     // Open property pane
-    cy.SearchEntityandOpen("Table1");
+    _.entityExplorer.SelectEntityByName("Table1");
     // Copmre the table 1st index with itself
     cy.readTableV2data("0", "0").then((tabData) => {
       const tableData = tabData;
@@ -44,9 +39,9 @@ describe("Test Create Api and Bind to Table widget V2", function () {
     cy.addColumnV2("CustomColumn");
   });
 
-  it("3. Update table json data and check the column names updated and validate empty value", function () {
+  it("2. Update table json data and check the column names updated and validate empty value", function () {
     // Open property pane
-    cy.SearchEntityandOpen("Table1");
+    _.entityExplorer.SelectEntityByName("Table1");
     // Change the table data
     cy.testJsontext("tabledata", JSON.stringify(this.data.TableInputWithNull));
     cy.wait("@updateLayout");
@@ -75,7 +70,7 @@ describe("Test Create Api and Bind to Table widget V2", function () {
     });
   });
 
-  it("4. Check Selected Row(s) Resets When Table data Changes", function () {
+  it("3. Check Selected Row(s) Resets When Table data Changes", function () {
     // Select 1st row
     cy.isSelectRow(1);
     cy.openPropertyPane("tablewidgetv2");
