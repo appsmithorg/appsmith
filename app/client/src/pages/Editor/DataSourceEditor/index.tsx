@@ -106,7 +106,8 @@ interface ReduxStateProps {
   applicationId: string;
   applicationSlug: string;
   pageSlug: string;
-  fromImporting?: boolean;
+  // isInsideReconnectModal: indicates that the datasource form is rendering inside reconnect modal
+  isInsideReconnectModal?: boolean;
   isDatasourceBeingSaved: boolean;
   triggerSave: boolean;
   isFormDirty: boolean;
@@ -427,9 +428,9 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       formConfig,
       formData,
       formName,
-      fromImporting,
       history,
       isFormDirty,
+      isInsideReconnectModal,
       isSaving,
       location,
       pageId,
@@ -440,7 +441,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       viewMode,
     } = this.props;
 
-    const shouldViewMode = viewMode && !fromImporting;
+    const shouldViewMode = viewMode && !isInsideReconnectModal;
     // Check for specific form types first
     if (
       pluginDatasourceForm === DatasourceComponentTypes.RestAPIDatasourceForm &&
@@ -454,7 +455,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
             datasourceId={datasourceId}
             formData={formData}
             formName={formName}
-            hiddenHeader={fromImporting}
+            hiddenHeader={isInsideReconnectModal}
             isFormDirty={isFormDirty}
             isSaving={isSaving}
             location={location}
@@ -469,11 +470,12 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     // for saas form
     if (pluginType === "SAAS") {
       // todo check if we can remove the flag here
-      if (fromImporting) {
+      if (isInsideReconnectModal) {
         return (
           <DatasourceSaasForm
             datasourceId={datasourceId}
             hiddenHeader
+            isInsideReconnectModal={isInsideReconnectModal}
             pageId={pageId}
             pluginPackageName={pluginPackageName}
           />
@@ -498,12 +500,12 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           formConfig={formConfig}
           formData={formData}
           formName={DATASOURCE_DB_FORM}
-          hiddenHeader={fromImporting}
+          hiddenHeader={isInsideReconnectModal}
           isSaving={isSaving}
           pageId={pageId}
           pluginType={pluginType}
           setupConfig={this.setupConfig}
-          viewMode={viewMode && !fromImporting}
+          viewMode={viewMode && !isInsideReconnectModal}
         />
         {this.renderSaveDisacardModal()}
       </>
@@ -585,7 +587,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       datasourceButtonConfiguration,
       datasourceId,
       formData,
-      fromImporting,
+      isInsideReconnectModal,
       pluginId,
       showDebugger,
       triggerSave,
@@ -604,7 +606,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         }}
       >
         <CloseEditor />
-        {!fromImporting && this.renderHeader()}
+        {!isInsideReconnectModal && this.renderHeader()}
         <ResizerMainContainer>
           <ResizerContentContainer className="db-form-resizer-content">
             {this.renderForm()}
@@ -617,9 +619,10 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
                 formData={formData}
                 getSanitizedFormData={memoize(this.getSanitizedData)}
                 isFormDirty={this.props.isFormDirty}
+                isInsideReconnectModal={isInsideReconnectModal}
                 isInvalid={this.validateForm()}
-                shouldRender={!viewMode}
                 triggerSave={triggerSave}
+                viewMode={viewMode}
               />
             )}
           </ResizerContentContainer>
@@ -705,7 +708,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pluginImage: getPluginImages(state)[pluginId],
     formData,
     formName,
-    fromImporting: props.fromImporting ?? false,
+    isInsideReconnectModal: props.isInsideReconnectModal ?? false,
     pluginId,
     isSaving: datasources.loading,
     isDeleting: !!(datasource as Datasource)?.isDeleting,
@@ -714,7 +717,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     formConfig: formConfigs[pluginId] || [],
     isNewDatasource: datasourcePane.newDatasource === TEMP_DATASOURCE_ID,
     pageId: props.pageId ?? props.match?.params?.pageId,
-    viewMode: viewMode ?? !props.fromImporting,
+    viewMode: viewMode ?? !props.isInsideReconnectModal,
     pluginType: plugin?.type ?? "",
     pluginName: plugin?.name ?? "",
     pluginDatasourceForm:
@@ -739,7 +742,7 @@ const mapDispatchToProps = (
 ): DatasourcePaneFunctions => ({
   switchDatasource: (id: string) => {
     // on reconnect data modal, it shouldn't be redirected to datasource edit page
-    dispatch(switchDatasource(id, ownProps.fromImporting));
+    dispatch(switchDatasource(id, ownProps.isInsideReconnectModal));
   },
   setDatasourceViewMode: (viewMode: boolean) =>
     dispatch(setDatasourceViewMode(viewMode)),

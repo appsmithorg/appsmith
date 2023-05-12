@@ -111,11 +111,8 @@ const ContentWrapper = styled.div`
   .t--json-to-form-wrapper {
     width: 100%;
 
-    .t--json-to-form-body {
-      padding: 0 20px;
-      .t--collapse-section-container {
-        margin-top: 20px;
-      }
+    .t--collapse-section-container {
+      margin-top: 20px;
     }
 
     .t--close-editor {
@@ -240,6 +237,7 @@ const TooltipWrapper = styled.div`
 const DBFormWrapper = styled.div`
   width: calc(100% - 206px);
   overflow: auto;
+  display: flex;
 
   div[class^="RestAPIDatasourceForm__RestApiForm-"] {
     padding-top: 0px;
@@ -588,7 +586,8 @@ function ReconnectDatasourceModal() {
                 <DatasourceForm
                   applicationId={appId}
                   datasourceId={selectedDatasourceId}
-                  fromImporting
+                  // isInsideReconnectModal: indicates that the datasource form is rendering inside reconnect modal
+                  isInsideReconnectModal
                   pageId={pageId}
                 />
               </DBFormWrapper>

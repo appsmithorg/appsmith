@@ -141,6 +141,7 @@ const ViewModeWrapper = styled.div`
 
 type SaasEditorWrappperProps = RouteProps & {
   hiddenHeader?: boolean; // for reconnect modal
+  isInsideReconnectModal?: boolean; // for reconnect modal
 };
 type RouteProps = {
   datasourceId: string;
@@ -344,6 +345,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       gsheetProjectID,
       gsheetToken,
       hiddenHeader,
+      isInsideReconnectModal,
       pageId,
       plugin,
       pluginPackageName,
@@ -503,11 +505,12 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
               datasourceDeleteTrigger={this.datasourceDeleteTrigger}
               formData={formData}
               getSanitizedFormData={_.memoize(this.getSanitizedData)}
+              isInsideReconnectModal={isInsideReconnectModal}
               isInvalid={validate(this.props.requiredFields, formData)}
               pageId={pageId}
               shouldDisplayAuthMessage={!isGoogleSheetPlugin}
-              shouldRender={!viewMode}
               triggerSave={this.props.isDatasourceBeingSavedFromPopup}
+              viewMode={!!viewMode}
             />
           )}
         </form>
@@ -586,7 +589,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     isDeleting: !!datasource?.isDeleting,
     formData: formData,
     formConfig,
-    viewMode: viewMode ?? !props.fromImporting,
+    viewMode: viewMode ?? !props.isInsideReconnectModal,
     isNewDatasource: datasourcePane.newDatasource === TEMP_DATASOURCE_ID,
     pageId: props.pageId || props.match?.params?.pageId,
     plugin: plugin,

@@ -53,7 +53,8 @@ interface Props {
   getSanitizedFormData: () => Datasource;
   isInvalid: boolean;
   pageId?: string;
-  shouldRender?: boolean;
+  viewMode?: boolean;
+  isInsideReconnectModal?: boolean;
   datasourceButtonConfiguration: string[] | undefined;
   shouldDisplayAuthMessage?: boolean;
   triggerSave?: boolean;
@@ -94,13 +95,16 @@ const StyledButton = styled(ActionButton)<{ fluidWidth?: boolean }>`
   }
 `;
 
-const SaveButtonContainer = styled.div`
+const SaveButtonContainer = styled.div<{
+  isInsideReconnectModal?: boolean;
+}>`
   display: flex;
   justify-content: flex-end;
   gap: 9px;
   padding-right: 20px;
   flex: 1 1 10%;
-  border-top: 1px solid ${Colors.ALTO};
+  border-top: ${(props) =>
+    props.isInsideReconnectModal ? "none" : `1px solid ${Colors.ALTO}`};
   align-items: center;
 `;
 
@@ -122,11 +126,13 @@ function DatasourceAuth({
   getSanitizedFormData,
   isInvalid,
   pageId: pageIdProp,
-  shouldRender,
+  viewMode,
   shouldDisplayAuthMessage = true,
   triggerSave,
   isFormDirty,
+  isInsideReconnectModal,
 }: Props) {
+  const shouldRender = !viewMode || isInsideReconnectModal;
   const authType =
     formData && "authType" in formData
       ? formData?.authType
@@ -334,7 +340,7 @@ function DatasourceAuth({
         <ActionButton
           category={Category.secondary}
           className="t--test-datasource"
-          floatLeft
+          floatLeft={!isInsideReconnectModal}
           isLoading={isTesting}
           key={buttonType}
           onClick={handleDatasourceTest}
@@ -401,7 +407,7 @@ function DatasourceAuth({
           <StyledAuthMessage>Datasource not authorized</StyledAuthMessage>
         )}
       {shouldRender && (
-        <SaveButtonContainer>
+        <SaveButtonContainer isInsideReconnectModal={isInsideReconnectModal}>
           {datasourceButtonConfiguration?.map((btnConfig) =>
             datasourceButtonsComponentMap(btnConfig),
           )}
