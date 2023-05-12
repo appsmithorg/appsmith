@@ -2,6 +2,10 @@
 
 Appsmith's client (UI/frontend) uses the ReactJS library and Typescript. The application also uses libraries like react-redux and redux-saga for workflows. We use VS Code Editor as our primary editor.
 
+### Note:
+
+- There are environment-specific instructions if you are building and deploying in Windows using WSL2. You can find that section later in the article.
+
 [![How to Setup Appsmith for Client Side Development](../static/images/client-yt-video-thumbnail.jpg)](https://www.youtube.com/watch?v=FwJlVWVx0X0)
 
 ### Pre-requisites:
@@ -64,10 +68,10 @@ sudo mv mkcert /usr/local/bin
    cd app/client
    ./start-https.sh
    ```
-   
+
    Note:
 
-   - If you want to use the backend server running on your local, you do not need to pass a parameter when running `start-https.sh`. 
+   - If you want to use the backend server running on your local, you do not need to pass a parameter when running `start-https.sh`.
    - If you want to use release.app.appsmith as your backend server, please check out the section - [If you would like to hit a different Appsmith server](#if-you-would-like-to-hit-a-different-appsmith-server)
 
 ### Steps to build & run the code:
@@ -198,6 +202,19 @@ After this, you can continue Setting up from [here](#pre-requisites).
   ```
 
 - WSL network with windows can be brittle; make sure you can reach http://127.0.0.1:3000 from windows. If not, restarting wsl usually resolves the issue.
+- Sometimes, `dev.appsmith.com` will still refuse to connect. This can be seen when the nginx service was started previously, but you have shut down or restarted various components. To fix this, you can restart the nginx service:
+  ```bash
+  sudo systemctl stop nginx
+  sudo ./start-https.sh
+  ```
+  Be sure to stop and then start nginx using the included `./start-https.sh` script, NOT with `systemctl start nginx` or `systemctl restart nginx`
+
+
+#### I'm getting a 503 Application Error
+
+- If you are visiting`dev.appsmith.com:3000` and receive this error, remove the port and try again.
+- If all server components are running (client, server, mongo, redis, nginx) but you're getting a 503, restarting the nginx service can often resolve this issue. Follow instructions above to accomplish this.
+
 
 #### Docker container doesn't work
 
