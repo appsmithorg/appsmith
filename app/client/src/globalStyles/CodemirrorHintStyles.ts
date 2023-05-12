@@ -146,6 +146,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     }
 
     .CodeMirror-Tern-completion {
+      font-family: ${(props) => props.theme.fonts.code};
       display: flex;
       padding-left: ${(props) => props.theme.spaces[11]}px !important;
 
@@ -324,4 +325,23 @@ export const CodemirrorHintStyles = createGlobalStyle<{
   // .appsmith-light-theme .CodeMirror-lint-message-error {
   //   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAFlSURBVHgBrVLRTcMwELWDg8QHtJ2AfFZtJNIJgAnoCOkEZIMkIzBBwwSwAR0hSG3VzzABhahCSmKbOyVxLJQEJPp+7DvfvXe+O0L+CdrmTG37RkjpwOMV2pLSt1PGorM4TnoJpOMM06JYEinnpB2RaZqhTqQIvhzHyvP8Ba4W6UfCTXM2iuM9GkbthWT/D8kI6yTLlrVh1OpwuLVTEhLDv0NlS/mAPkVB6Rz7pAiyonB1CXCuBut1gCSQHA62W8+g9FmPwSbjySoJS38ENS+dTPbnQII2qPlAFOgx9YQM0gGhNVh0jLupgNIEqmgqKMsOUJkIQbCSD9seUinvVQzshiLAP0O639RH79LpdABEHtwJfAdZr6VeYVFE1VdKfNr2U88C/UR0sdksKvESnLEFKCS/ZWIM51yNWBHgZgnObyHgsTMbRikOh9lot0uUqy3ufTy2DMZcaNplpfoKexBDM1fk2PgGIxqcuvBfxngAAAAASUVORK5CYII=");
   // }
+  .sql-hint-label{
+    color: #6D6D6D;
+  }
+
+  .CodeMirror-hint:hover{
+    .sql-hint-label{
+      color: #090707;
+    }
+  }
+  .CodeMirror-hint-active{
+    .sql-hint-label{
+      color: #fff
+    }
+  }
+  .CodeMirror-hint-active:hover{
+    .sql-hint-label{
+      color: #fff
+    }
+  }
 `;
