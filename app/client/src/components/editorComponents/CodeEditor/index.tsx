@@ -653,10 +653,11 @@ class CodeEditor extends Component<Props, State> {
       // Api1 - done
       // [0] - done
       // ["string"] - done
-      // this keyword
+      // this keyword - done
       // storeValue()
       // Api1.run()
       // appsmith.geolocation.getCurrentLocation()
+      // local variables filter
 
       extractExpressionAtPosition(
         docContent,
