@@ -8922,7 +8922,7 @@ __metadata:
     chalk: ^4.1.1
     classnames: ^2.3.1
     clsx: ^1.2.1
-    codemirror: ^5.59.2
+    codemirror: ^5.65.13
     codemirror-graphql: ^1.2.14
     compression-webpack-plugin: ^10.0.0
     copy-to-clipboard: ^3.3.1
@@ -11394,10 +11394,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"codemirror@npm:^5.59.2":
-  version: 5.59.2
-  resolution: "codemirror@npm:5.59.2"
-  checksum: d9e49082fcfa26f4ff7be61d2b9df004c9ad3c61cc82b317283a92881b112aa52d67cce996bd31f38fe02f8c873bbbb0dc2614da05b34e7e36deeae285ff562e
+"codemirror@npm:^5.65.13":
+  version: 5.65.13
+  resolution: "codemirror@npm:5.65.13"
+  checksum: 47060461edaebecd03b3fba4e73a30cdccc0c51ce3a3a05bafae3c9cafd682101383e94d77d54081eaf1ae18da5b74343e98343c637c52cea409956469039098
   languageName: node
   linkType: hard
 
