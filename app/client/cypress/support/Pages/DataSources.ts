@@ -207,7 +207,7 @@ export class DataSources {
     this.agHelper.GetNClick(`[data-cy='t--dropdown-option-${tableName}']`);
     this.agHelper.GetNClick(this._generatePageBtn);
     this.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-    this.agHelper.GetNClick(this.locator._visibleTextSpan("GOT IT"));
+    this.agHelper.GetNClick(this.locator._visibleTextSpan("Got it"));
   }
 
   public GeneratePageWithMockDB() {
@@ -752,13 +752,11 @@ export class DataSources {
     currentValue = "",
     newValue = "",
   ) {
-    let toChange = false;
     if (currentValue)
       cy.xpath(this._visibleTextSpan(currentValue))
-        .scrollIntoView()
+        //.scrollIntoView()
         .should("be.visible", currentValue + " dropdown value not present");
-    if (newValue) toChange = true;
-    if (toChange) {
+    if (newValue != "") {
       cy.xpath(this._dropdownTitle(ddTitle)).click(); //to expand the dropdown
       cy.xpath(this._visibleTextSpan(newValue)).last().click({ force: true }); //to select the new value
     }
@@ -768,7 +766,7 @@ export class DataSources {
     this.agHelper.AssertElementVisible(this._reconnectModal);
     cy.xpath(this._activeDSListReconnectModal(dsName)).should("be.visible");
     cy.xpath(this._activeDSListReconnectModal(dbName)).should("be.visible"); //.click()
-    this.ValidateNSelectDropdown("Connection mode", "", "Read / Write");
+    this.ValidateNSelectDropdown("Connection Mode", "Read / Write");
     if (dsName == "PostgreSQL") this.FillPostgresDSForm();
     else if (dsName == "MySQL") this.FillMySqlDSForm();
     cy.get(this._saveDs).click();
