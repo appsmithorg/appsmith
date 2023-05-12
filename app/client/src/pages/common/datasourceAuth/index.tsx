@@ -353,7 +353,7 @@ function DatasourceAuth({
       [DatasourceButtonType.CANCEL]: (
         <ActionButton
           category={Category.tertiary}
-          className="t--delete-datasource"
+          className="t--cancel-edit-datasource"
           key={buttonType}
           onClick={() => {
             dispatch(setDatasourceViewMode(true));

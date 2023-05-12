@@ -244,7 +244,7 @@ const DBFormWrapper = styled.div`
     height: 100%;
   }
 
-  .t--delete-datasource {
+  .t--cancel-edit-datasource {
     display: none;
   }
 `;
