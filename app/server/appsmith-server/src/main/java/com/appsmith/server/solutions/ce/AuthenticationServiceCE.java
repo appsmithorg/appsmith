@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.OAuthResponseDTO;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -33,6 +34,6 @@ public interface AuthenticationServiceCE {
 
     Mono<OAuthResponseDTO> getAccessTokenFromCloud(String datasourceId, String appsmithToken);
 
-    Mono<Datasource> refreshAuthentication(Datasource datasource);
+    Mono<DatasourceStorage> refreshAuthentication(DatasourceStorage datasourceStorage);
 
 }

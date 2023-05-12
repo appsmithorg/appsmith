@@ -1,6 +1,8 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.helpers.Identifiable;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.ProjectProperties;
@@ -250,8 +252,8 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         return sendObjectEvent(event, object, null);
     }
 
-    public <T extends BaseDomain> Mono<T> sendObjectEvent(AnalyticsEvents event, T object, Map<String, Object> extraProperties) {
-        if (!isActive()) {
+    public <T> Mono<T> sendObjectEvent(AnalyticsEvents event, T object, Map<String, Object> extraProperties) {
+        if (!isActive() || !(object instanceof Identifiable)) {
             return Mono.just(object);
         }
 
@@ -284,7 +286,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                     // In case the user is anonymous, don't raise an event, unless it's a signup, logout, page view or action execution event.
                     boolean isEventUserSignUpOrLogout = object instanceof User && (event == AnalyticsEvents.CREATE || event == AnalyticsEvents.LOGOUT);
                     boolean isEventPageView = object instanceof NewPage && event == AnalyticsEvents.VIEW;
-                    boolean isEventActionExecution = object instanceof NewAction && event == AnalyticsEvents.EXECUTE_ACTION;
+                    boolean isEventActionExecution = object instanceof ActionDTO && event == AnalyticsEvents.EXECUTE_ACTION;
                     boolean isAvoidLoggingEvent = user.isAnonymous() && !(isEventUserSignUpOrLogout || isEventPageView || isEventActionExecution);
                     if (isAvoidLoggingEvent) {
                         return Mono.just(object);
@@ -294,7 +296,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
 
                     HashMap<String, Object> analyticsProperties = new HashMap<>();
                     analyticsProperties.put("id", id);
-                    analyticsProperties.put("oid", object.getId());
+                    analyticsProperties.put("oid", ((Identifiable) object).getId());
                     if (extraProperties != null) {
                         analyticsProperties.putAll(extraProperties);
                         // To avoid sending extra event data to analytics
@@ -320,7 +322,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
      * @param object Analytic event resource object
      * @return String
      */
-    private <T extends BaseDomain> String getEventTag(AnalyticsEvents event, T object) {
+    private <T> String getEventTag(AnalyticsEvents event, T object) {
         // In case of action execution or instance setting update, event.getEventName() only is used to support backward compatibility of event name
         List<AnalyticsEvents> nonResourceEvents = getNonResourceEvents();
         boolean isNonResourceEvent = nonResourceEvents.contains(event);

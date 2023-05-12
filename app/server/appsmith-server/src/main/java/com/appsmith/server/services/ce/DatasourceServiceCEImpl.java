@@ -3,10 +3,9 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.MustacheHelper;
-import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.MustacheBindingToken;
@@ -28,9 +27,8 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
-import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.DatasourceContextService;
-import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.SessionUserService;
@@ -51,7 +49,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
-import reactor.util.function.Tuple3;
 import reactor.util.function.Tuples;
 
 import java.time.Instant;
@@ -69,7 +66,8 @@ import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsP
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 
 @Slf4j
-public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, Datasource, String> implements DatasourceServiceCE {
+public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, Datasource, String>
+        implements DatasourceServiceCE {
 
     private final WorkspaceService workspaceService;
     private final SessionUserService sessionUserService;
@@ -82,9 +80,6 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     private final DatasourcePermission datasourcePermission;
     private final WorkspacePermission workspacePermission;
     private final DatasourceStorageService datasourceStorageService;
-
-    @Autowired
-    FeatureFlagService featureFlagService;
 
     @Autowired
     public DatasourceServiceCEImpl(Scheduler scheduler,
@@ -184,54 +179,42 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                 });
     }
 
-    public Mono<Datasource> populateHintMessages(Datasource datasource) {
+    @Override
+    public Mono<DatasourceStorage> populateHintMessages(DatasourceStorage datasourceStorage) {
 
-        if (datasource == null) {
+        if (datasourceStorage == null) {
             /*
-             * - Not throwing an exception here because we do not throw an error in case of missing datasource.
+             * - Not throwing an exception here because we do not throw an error in case of missing datasourceStorage.
              *   We try not to fail as much as possible during create and update actions.
              */
-            return Mono.just(new Datasource());
+            return Mono.just(new DatasourceStorage());
         }
 
-        if (datasource.getPluginId() == null) {
+        if (datasourceStorage.getPluginId() == null) {
             /*
-             * - Not throwing an exception here because we try not to fail as much as possible during datasource create
+             * - Not throwing an exception here because we try not to fail as much as possible during datasourceStorage create
              * and update events.
              */
-            return Mono.just(datasource);
+            return Mono.just(datasourceStorage);
         }
 
-        final Mono<Plugin> pluginMono = pluginService.findById(datasource.getPluginId());
+        final Mono<Plugin> pluginMono = pluginService.findById(datasourceStorage.getPluginId());
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN,
-                        datasource.getPluginId())));
+                        datasourceStorage.getPluginId())));
 
         /**
          * Delegate the task of generating hint messages to the concerned plugin, since only the
          * concerned plugin can correctly interpret their configuration.
          */
         return pluginExecutorMono
-                .flatMap(pluginExecutor -> pluginExecutor.getHintMessages(null,
-                        datasource.getDatasourceConfiguration()))
+                .flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
+                        .getHintMessages(null, datasourceStorage.getDatasourceConfiguration()))
                 .flatMap(tuple -> {
-                    Set datasourceHintMessages = ((Tuple2<Set, Set>) tuple).getT1();
-                    datasource.getMessages().addAll(datasourceHintMessages);
-                    return Mono.just(datasource);
+                    Set<String> datasourceHintMessages = tuple.getT1();
+                    datasourceStorage.getMessages().addAll(datasourceHintMessages);
+                    return Mono.just(datasourceStorage);
                 });
-    }
-
-    @Override
-    public Mono<Datasource> getValidDatasourceFromActionMono(ActionDTO actionDTO, AclPermission aclPermission) {
-        // Global datasource requires us to fetch the datasource from DB.
-        if (actionDTO.getDatasource() != null && actionDTO.getDatasource().getId() != null) {
-            return this.findById(actionDTO.getDatasource().getId(), aclPermission)
-                    .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
-                            FieldName.DATASOURCE,
-                            actionDTO.getDatasource().getId())));
-        }
-        // This is a nested datasource. Return as is.
-        return Mono.justOrEmpty(actionDTO.getDatasource());
     }
 
     @Override
@@ -427,7 +410,8 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasource.getPluginId())));
 
         return pluginExecutorMono
-                .flatMap(pluginExecutor -> pluginExecutor.testDatasource(datasource.getDatasourceConfiguration()));
+                .flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
+                        .testDatasource(datasource.getDatasourceConfiguration()));
     }
 
     @Override
@@ -514,7 +498,8 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                     return Mono.just(objects.getT1());
                 })
                 .flatMap(toDelete -> {
-                    return datasourceContextService.deleteDatasourceContext(datasourceContextService.createDsContextIdentifier(toDelete))
+                    DatasourceContextIdentifier datasourceContextIdentifier = datasourceContextService.initializeDatasourceContextIdentifier(toDelete);
+                    return datasourceContextService.deleteDatasourceContext(datasourceContextIdentifier)
                             .then(repository.archive(toDelete))
                             .thenReturn(toDelete);
                 })
@@ -526,12 +511,6 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                     analyticsProperties.put(FieldName.EVENT_DATA, eventData);
                     return analyticsService.sendDeleteEvent(datasource, analyticsProperties);
                 });
-    }
-
-    @Override
-    public Mono<Datasource> archiveByIdAndBranchName(String id, String branchName) {
-        // Ignore branchName as datasources are branch independent entity
-        return this.archiveById(id);
     }
 
     @Override
@@ -575,24 +554,5 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
             Datasource datasource = datasourceList.get(objects.getT1());
             datasource.setIsRecentlyCreated(true);
         }
-    }
-
-    /**
-     * This is a composite method for retrieving datasource, datasourceContextIdentifier and environmentMap
-     * See EE override for complete usage
-     * @param datasource
-     * @param environmentName
-     * @return
-     */
-    @Override
-    public Mono<Tuple3<Datasource, DatasourceContextIdentifier, Map<String, BaseDomain>>>
-    getEvaluatedDSAndDsContextKeyWithEnvMap(Datasource datasource, String environmentName) {
-        // see EE override for complete usage.
-        Mono<DatasourceContextIdentifier> datasourceContextIdentifierMono = Mono.just(datasourceContextService.createDsContextIdentifier(datasource));
-
-        // see EE override for complete usage,
-        // Here just returning an empty map, this map is not used here
-        Mono<Map<String, BaseDomain>> environmentMapMono = Mono.just(new HashMap<>());
-        return Mono.zip(Mono.just(datasource), datasourceContextIdentifierMono, environmentMapMono);
     }
 }
