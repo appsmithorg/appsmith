@@ -17,6 +17,6 @@ public class DatasourceContextServiceImpl extends DatasourceContextServiceCEImpl
                                         ConfigService configService,
                                         DatasourcePermission datasourcePermission) {
 
-        super(datasourceService, pluginService, pluginExecutorHelper, configService, datasourcePermission);
+        super(datasourceService, datasourceStorageService, pluginService, pluginExecutorHelper, configService, datasourcePermission);
     }
 }

@@ -147,17 +147,17 @@ public class DatasourceTriggerSolutionTest {
 
         Mono<TriggerResultDTO> tableNameMono = datasourceTriggerSolution.trigger(
                 datasourceId,
-                new TriggerRequestDTO(
+                null, new TriggerRequestDTO(
                         "ENTITY_SELECTOR",
                         Map.of(),
-                        ClientDataDisplayType.DROP_DOWN), null);
+                        ClientDataDisplayType.DROP_DOWN));
 
         Mono<TriggerResultDTO> columnNamesMono = datasourceTriggerSolution.trigger(
                 datasourceId,
-                new TriggerRequestDTO(
+                null, new TriggerRequestDTO(
                         "ENTITY_SELECTOR",
                         Map.of("tableName", "Table1"),
-                        ClientDataDisplayType.DROP_DOWN), null);
+                        ClientDataDisplayType.DROP_DOWN));
 
         StepVerifier.create(tableNameMono)
                 .assertNext(tablesResult -> {

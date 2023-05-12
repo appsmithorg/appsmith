@@ -35,6 +35,6 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
                                        AnalyticsService analyticsService) {
         super(newActionService, actionPermission, observationRegistry, objectMapper, repository, datasourceService,
                 pluginService, datasourceContextService, pluginExecutorHelper, newPageService, applicationService,
-                sessionUserService, authenticationValidator, datasourcePermission, analyticsService);
+                sessionUserService, authenticationValidator, datasourcePermission, analyticsService, datasourceStorageService);
     }
 }

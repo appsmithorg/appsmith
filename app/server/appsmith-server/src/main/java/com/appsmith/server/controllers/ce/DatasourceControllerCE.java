@@ -37,6 +37,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import jakarta.validation.Valid;
+
 import java.net.URI;
 import java.util.List;
 
@@ -67,7 +68,7 @@ public class DatasourceControllerCE extends BaseController<DatasourceService, Da
     @JsonView(Views.Public.class)
     @PostMapping("/test")
     public Mono<ResponseDTO<DatasourceTestResult>> testDatasource(@RequestBody Datasource datasource,
-                                                                  @RequestHeader(name = FieldName.ENVIRONMENT_NAME, required = false)
+                                                                  @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false)
                                                                   String environmentName) {
 
         log.debug("Going to test the datasource with name: {} and id: {}", datasource.getName(), datasource.getId());
@@ -79,7 +80,7 @@ public class DatasourceControllerCE extends BaseController<DatasourceService, Da
     @GetMapping("/{datasourceId}/structure")
     public Mono<ResponseDTO<DatasourceStructure>> getStructure(@PathVariable String datasourceId,
                                                                @RequestParam(required = false, defaultValue = "false") Boolean ignoreCache,
-                                                               @RequestHeader(name = FieldName.ENVIRONMENT_NAME, required = false) String environmentName) {
+                                                               @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentName) {
         log.debug("Going to get structure for datasource with id: '{}'.", datasourceId);
         return datasourceStructureSolution.getStructure(datasourceId, BooleanUtils.isTrue(ignoreCache), environmentName)
                 .map(structure -> new ResponseDTO<>(HttpStatus.OK.value(), structure, null));
@@ -126,9 +127,10 @@ public class DatasourceControllerCE extends BaseController<DatasourceService, Da
     @JsonView(Views.Public.class)
     @PutMapping("/datasource-query/{datasourceId}")
     public Mono<ResponseDTO<ActionExecutionResult>> runQueryOnDatasource(@PathVariable String datasourceId,
-                                                                         @Valid @RequestBody List<Property> pluginSpecifiedTemplates) {
+                                                                         @Valid @RequestBody List<Property> pluginSpecifiedTemplates,
+                                                                         @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug("Getting datasource metadata");
-        return datasourceStructureSolution.getDatasourceMetadata(datasourceId, pluginSpecifiedTemplates)
+        return datasourceStructureSolution.getDatasourceMetadata(datasourceId, environmentId, pluginSpecifiedTemplates)
                 .map(metadata -> new ResponseDTO<>(HttpStatus.OK.value(), metadata, null));
     }
 
@@ -136,9 +138,9 @@ public class DatasourceControllerCE extends BaseController<DatasourceService, Da
     @PostMapping("/{datasourceId}/trigger")
     public Mono<ResponseDTO<TriggerResultDTO>> trigger(@PathVariable String datasourceId,
                                                        @RequestBody TriggerRequestDTO triggerRequestDTO,
-                                                       @RequestHeader(name = FieldName.ENVIRONMENT_NAME, required = false) String environmentName) {
+                                                       @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug("Trigger received for datasource {}", datasourceId);
-        return datasourceTriggerSolution.trigger(datasourceId, triggerRequestDTO, environmentName)
+        return datasourceTriggerSolution.trigger(datasourceId, environmentId, triggerRequestDTO)
                 .map(triggerResultDTO -> new ResponseDTO<>(HttpStatus.OK.value(), triggerResultDTO, null));
     }
 

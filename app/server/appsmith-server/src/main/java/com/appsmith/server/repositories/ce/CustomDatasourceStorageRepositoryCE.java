@@ -11,4 +11,5 @@ public interface CustomDatasourceStorageRepositoryCE extends AppsmithRepository<
     Flux<DatasourceStorage> findByDatasourceId(String datasourceId);
     Flux<DatasourceStorage> findAllByDatasourceIds(List<String> datasourceIds);
     Mono<DatasourceStorage> findOneByDatasourceId(String datasourceId);
+    Mono<DatasourceStorage> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId);
 }

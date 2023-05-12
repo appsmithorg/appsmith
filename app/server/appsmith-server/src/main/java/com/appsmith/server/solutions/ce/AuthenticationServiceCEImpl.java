@@ -8,6 +8,7 @@ import com.appsmith.external.helpers.SSLHelper;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.OAuthResponseDTO;
@@ -28,6 +29,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
@@ -78,20 +80,15 @@ import static com.appsmith.external.constants.Authentication.SUCCESS;
 public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
 
     private final DatasourceService datasourceService;
-
     private final PluginService pluginService;
-
     private final RedirectHelper redirectHelper;
-
     private final NewPageService newPageService;
-
     private final CloudServicesConfig cloudServicesConfig;
-
     private final ConfigService configService;
     private final DatasourcePermission datasourcePermission;
     private final PagePermission pagePermission;
     private final PluginExecutorHelper pluginExecutorHelper;
-    private final FeatureFlagService featureFlagService;
+    private final DatasourceStorageService datasourceStorageService;
     private static final String FILE_SPECIFIC_DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
     private static final String ACCESS_TOKEN_KEY = "access_token";
 
@@ -327,9 +324,9 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
                 .flatMap(datasource -> Mono.zip(
-                            newPageService.findById(pageId, pagePermission.getReadPermission()),
-                            configService.getInstanceId(),
-                            pluginService.findById(datasource.getPluginId()))
+                                newPageService.findById(pageId, pagePermission.getReadPermission()),
+                                configService.getInstanceId(),
+                                pluginService.findById(datasource.getPluginId()))
                         .map(tuple -> {
                             IntegrationDTO integrationDTO = new IntegrationDTO();
                             integrationDTO.setInstallationKey(tuple.getT2());
@@ -495,13 +492,13 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 }));
     }
 
-    public Mono<Datasource> refreshAuthentication(Datasource datasource) {
+    public Mono<DatasourceStorage> refreshAuthentication(DatasourceStorage datasourceStorage) {
         // This method will always be called from a point where these validations have been performed
-        assert (datasource != null &&
-                datasource.getDatasourceConfiguration() != null &&
-                datasource.getDatasourceConfiguration().getAuthentication() instanceof OAuth2);
-        OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
-        return pluginService.findById(datasource.getPluginId())
+        assert (datasourceStorage != null &&
+                datasourceStorage.getDatasourceConfiguration() != null &&
+                datasourceStorage.getDatasourceConfiguration().getAuthentication() instanceof OAuth2);
+        OAuth2 oAuth2 = (OAuth2) datasourceStorage.getDatasourceConfiguration().getAuthentication();
+        return pluginService.findById(datasourceStorage.getPluginId())
                 .filter(plugin -> PluginType.SAAS.equals(plugin.getType()) || PluginType.REMOTE.equals(plugin.getType()))
                 .zipWith(configService.getInstanceId())
                 .flatMap(tuple -> {
@@ -518,7 +515,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                             .method(HttpMethod.POST)
                             .body(BodyInserters.fromValue(integrationDTO))
                             .exchange()
-                            .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)))
+                            .onErrorMap(e -> new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e))
                             .flatMap(response -> {
                                 if (response.statusCode().is2xxSuccessful()) {
                                     return response.bodyToMono(AuthenticationResponse.class);
@@ -530,15 +527,15 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                             })
                             .flatMap(authenticationResponse -> {
                                 oAuth2.setAuthenticationResponse(authenticationResponse);
-                                datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
+                                datasourceStorage.getDatasourceConfiguration().setAuthentication(oAuth2);
                                 // We return the same object instead of the update value because the updates value
                                 // will be in the encrypted form
-                                return datasourceService
-                                        .update(datasource.getId(), datasource)
-                                        .thenReturn(datasource);
+                                return datasourceStorageService
+                                        .save(datasourceStorage)
+                                        .thenReturn(datasourceStorage);
                             });
                 })
-                .switchIfEmpty(Mono.just(datasource))
+                .switchIfEmpty(Mono.just(datasourceStorage))
                 .onErrorMap(ConnectException.class,
                         error -> new AppsmithException(
                                 AppsmithError.AUTHENTICATION_FAILURE,
