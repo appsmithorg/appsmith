@@ -502,7 +502,7 @@ function getCanvasWidth(
     const factor = widget.detachFromLayout
       ? 1
       : columns / GridDefaults.DEFAULT_GRID_COLUMNS;
-    width = (width * factor - padding) * splitRatio;
+    width = width * factor * splitRatio - padding;
   }
 
   return width;
@@ -527,6 +527,10 @@ function getPadding(canvas: FlattenedWidgetProps, isMobile: boolean): number {
     canvas.canvasSplitType &&
     canvas.canvasSplitType !== "1-column"
   ) {
+    padding -= (CONTAINER_GRID_PADDING + FLEXBOX_PADDING) * 2;
+  }
+
+  if (!isMobile && canvas.canvasSplitRatio) {
     padding += (CONTAINER_GRID_PADDING + FLEXBOX_PADDING) * 2;
   }
 
