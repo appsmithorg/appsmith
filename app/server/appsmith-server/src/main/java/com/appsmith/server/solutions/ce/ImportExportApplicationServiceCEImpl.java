@@ -63,7 +63,6 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
-import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.google.gson.Gson;
@@ -96,6 +95,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
@@ -123,7 +123,6 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     private final NewPageRepository newPageRepository;
     private final NewActionService newActionService;
     private final SequenceService sequenceService;
-    private final ExamplesWorkspaceCloner examplesWorkspaceCloner;
     private final ActionCollectionRepository actionCollectionRepository;
     private final ActionCollectionService actionCollectionService;
     private final ThemeService themeService;
@@ -173,6 +172,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         //      : Sample apps where datasource config needs to be shared => Read permission
 
         boolean isGitSync = SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseFor);
+        AtomicReference<Boolean> exportWithConfiguration = new AtomicReference<>(false);
 
         // If Git-sync, then use MANAGE_APPLICATIONS, else use EXPORT_APPLICATION permission to fetch application
         AclPermission permission = isGitSync ? applicationPermission.getEditPermission() : applicationPermission.getExportPermission();
@@ -216,7 +216,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 // Explicitly setting the boolean to avoid NPE for future checks
                                 application.setExportWithConfiguration(false);
                             }
-
+                            exportWithConfiguration.set(application.getExportWithConfiguration());
                             return application;
                         });
 
@@ -261,12 +261,12 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     Instant applicationLastCommittedAt = gitApplicationMetadata != null ? gitApplicationMetadata.getLastCommittedAt() : null;
                     boolean isClientSchemaMigrated = !JsonSchemaVersions.clientVersion.equals(application.getClientSchemaVersion());
                     boolean isServerSchemaMigrated = !JsonSchemaVersions.serverVersion.equals(application.getServerSchemaVersion());
-                    examplesWorkspaceCloner.makePristine(application);
+                    application.makePristine();
                     application.sanitiseToExportDBObject();
                     applicationJson.setExportedApplication(application);
                     Set<String> dbNamesUsedInActions = new HashSet<>();
 
-                    Flux<NewPage> pageFlux = TRUE.equals(application.getExportWithConfiguration())
+                    Flux<NewPage> pageFlux = TRUE.equals(exportWithConfiguration.get())
                             ? newPageRepository.findByApplicationId(applicationId, pagePermission.getReadPermission())
                             : newPageRepository.findByApplicationId(applicationId, pagePermission.getEditPermission());
 
@@ -323,7 +323,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     put(FieldName.PAGE_LIST, updatedPageSet);
                                 }});
 
-                                Flux<Datasource> datasourceFlux = TRUE.equals(application.getExportWithConfiguration())
+                                Flux<Datasource> datasourceFlux = TRUE.equals(exportWithConfiguration.get())
                                         ? datasourceRepository.findAllByWorkspaceId(workspaceId, datasourcePermission.getReadPermission())
                                         : datasourceRepository.findAllByWorkspaceId(workspaceId, datasourcePermission.getEditPermission());
 
@@ -334,7 +334,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         datasourceIdToNameMap.put(datasource.getId(), datasource.getName()));
                                 applicationJson.setDatasourceList(datasourceList);
 
-                                Flux<ActionCollection> actionCollectionFlux = TRUE.equals(application.getExportWithConfiguration())
+                                Flux<ActionCollection> actionCollectionFlux = TRUE.equals(exportWithConfiguration.get())
                                         ? actionCollectionRepository.findByListOfPageIds(unPublishedPages, actionPermission.getReadPermission())
                                         : actionCollectionRepository.findByListOfPageIds(unPublishedPages, actionPermission.getEditPermission());
                                 return actionCollectionFlux;
@@ -390,7 +390,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 applicationJson.setActionCollectionList(actionCollections);
                                 applicationJson.getUpdatedResources().put(FieldName.ACTION_COLLECTION_LIST, updatedActionCollectionSet);
 
-                                Flux<NewAction> actionFlux = TRUE.equals(application.getExportWithConfiguration())
+                                Flux<NewAction> actionFlux = TRUE.equals(exportWithConfiguration.get())
                                         ? newActionRepository.findByListOfPageIds(unPublishedPages, actionPermission.getReadPermission())
                                         : newActionRepository.findByListOfPageIds(unPublishedPages, actionPermission.getEditPermission());
 
@@ -463,7 +463,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                                 // Save decrypted fields for datasources for internally used sample apps and templates only
                                 // when serialising for file sharing
-                                if (TRUE.equals(application.getExportWithConfiguration()) && SerialiseApplicationObjective.SHARE.equals(serialiseFor)) {
+                                if (TRUE.equals(exportWithConfiguration.get()) && SerialiseApplicationObjective.SHARE.equals(serialiseFor)) {
                                     // Save decrypted fields for datasources
                                     Map<String, DecryptedSensitiveFields> decryptedFields = new HashMap<>();
                                     applicationJson.getDatasourceList().forEach(datasource -> {
@@ -1468,7 +1468,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                         sanitizeDatasourceInActionDTO(publishedAction, datasourceMap, pluginMap, workspaceId, false);
                     }
 
-                    examplesWorkspaceCloner.makePristine(newAction);
+                    newAction.makePristine();
                     newAction.setWorkspaceId(workspaceId);
                     newAction.setApplicationId(importedApplication.getId());
                     newAction.setPluginId(pluginMap.get(newAction.getPluginId()));
@@ -1617,7 +1617,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                         parentPage = parentPage == null ? publishedCollectionPage : parentPage;
                     }
 
-                    examplesWorkspaceCloner.makePristine(actionCollection);
+                    actionCollection.makePristine();
                     actionCollection.setWorkspaceId(workspaceId);
                     actionCollection.setApplicationId(importedApplication.getId());
                     actionCollectionService.generateAndSetPolicies(parentPage, actionCollection);
