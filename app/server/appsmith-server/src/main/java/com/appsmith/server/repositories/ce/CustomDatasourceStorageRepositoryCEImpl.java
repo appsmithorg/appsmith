@@ -1,7 +1,7 @@
 package com.appsmith.server.repositories.ce;
 
-import com.appsmith.external.models.DatasourceConfigurationStorage;
-import com.appsmith.external.models.QDatasourceConfigurationStorage;
+import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.QDatasourceStorage;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -12,12 +12,12 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-public class CustomDatasourceConfigurationStorageRepositoryCEImpl
-        extends BaseAppsmithRepositoryImpl<DatasourceConfigurationStorage>
-        implements CustomDatasourceConfigurationStorageRepositoryCE {
+public class CustomDatasourceStorageRepositoryCEImpl
+        extends BaseAppsmithRepositoryImpl<DatasourceStorage>
+        implements CustomDatasourceStorageRepositoryCE {
 
     private final ReactiveMongoOperations mongoOperations;
-    public CustomDatasourceConfigurationStorageRepositoryCEImpl(ReactiveMongoOperations mongoOperations,
+    public CustomDatasourceStorageRepositoryCEImpl(ReactiveMongoOperations mongoOperations,
                                                                 MongoConverter mongoConverter,
                                                                 CacheableRepositoryHelper cacheableRepositoryHelper) {
 
@@ -30,12 +30,12 @@ public class CustomDatasourceConfigurationStorageRepositoryCEImpl
      */
 
     private static Criteria datasourceIdCriterion(String datasourceId) {
-        return Criteria.where(fieldName(QDatasourceConfigurationStorage.datasourceConfigurationStorage.datasourceId))
+        return Criteria.where(fieldName(QDatasourceStorage.datasourceStorage.datasourceId))
                 .is(datasourceId);
     }
 
     private static Criteria datasourceIdsCriterion(List<String> datasourceids) {
-        return Criteria.where(fieldName(QDatasourceConfigurationStorage.datasourceConfigurationStorage.datasourceId))
+        return Criteria.where(fieldName(QDatasourceStorage.datasourceStorage.datasourceId))
                 .in(datasourceids);
     }
 
@@ -44,17 +44,17 @@ public class CustomDatasourceConfigurationStorageRepositoryCEImpl
      */
 
     @Override
-    public Flux<DatasourceConfigurationStorage> findByDatasourceId(String datasourceId) {
+    public Flux<DatasourceStorage> findByDatasourceId(String datasourceId) {
         return queryMany(List.of(notDeleted(), datasourceIdCriterion(datasourceId)));
     }
 
     @Override
-    public Flux<DatasourceConfigurationStorage> findAllByDatasourceIds(List<String> datasourceIds) {
+    public Flux<DatasourceStorage> findAllByDatasourceIds(List<String> datasourceIds) {
         return queryMany(List.of(notDeleted(), datasourceIdsCriterion(datasourceIds)));
     }
 
     @Override
-    public Mono<DatasourceConfigurationStorage> findOneByDatasourceId(String datasourceId) {
+    public Mono<DatasourceStorage> findOneByDatasourceId(String datasourceId) {
         return queryOne(List.of(notDeleted(), datasourceIdCriterion(datasourceId)));
     }
 }

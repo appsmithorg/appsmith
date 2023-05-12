@@ -3,7 +3,7 @@ const templateLocators = require("../../../../locators/TemplatesLocators.json");
 const reconnectDatasourceLocators = require("../../../../locators/ReconnectLocators.js");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Fork a template to an workspace", () => {
+describe("excludeForAirgap", "Fork a template to an workspace", () => {
   it("1. Fork a template to an workspace", () => {
     cy.NavigateToHome();
     cy.get(templateLocators.templatesTab).click();

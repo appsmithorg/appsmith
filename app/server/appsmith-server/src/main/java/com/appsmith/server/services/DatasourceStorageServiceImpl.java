@@ -1,7 +1,7 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.repositories.DatasourceConfigurationStorageRepository;
-import com.appsmith.server.services.ce.DatasourceConfigurationStorageServiceCEImpl;
+import com.appsmith.server.repositories.DatasourceStorageRepository;
+import com.appsmith.server.services.ce.DatasourceStorageServiceCEImpl;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -11,13 +11,13 @@ import reactor.core.scheduler.Scheduler;
 
 @Service
 @Slf4j
-public class DatasourceConfigurationStorageServiceImpl extends DatasourceConfigurationStorageServiceCEImpl implements DatasourceConfigurationStorageService {
+public class DatasourceStorageServiceImpl extends DatasourceStorageServiceCEImpl implements DatasourceStorageService {
 
-    public DatasourceConfigurationStorageServiceImpl(Scheduler scheduler,
+    public DatasourceStorageServiceImpl(Scheduler scheduler,
                                                      Validator validator,
                                                      MongoConverter mongoConverter,
                                                      ReactiveMongoTemplate reactiveMongoTemplate,
-                                                     DatasourceConfigurationStorageRepository repository,
+                                                     DatasourceStorageRepository repository,
                                                      AnalyticsService analyticsService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
