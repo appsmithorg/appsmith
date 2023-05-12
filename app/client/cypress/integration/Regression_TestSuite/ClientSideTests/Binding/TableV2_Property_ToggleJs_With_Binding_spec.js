@@ -9,6 +9,8 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.addDsl(dsl);
   });
 
+  let propPaneBack = "[data-testid='t--property-pane-back-btn']";
+
   it("1. Table widget V2 toggle test for text alignment", function () {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("id");
@@ -25,7 +27,7 @@ describe("Table Widget V2 property pane feature validation", function () {
   it("2. Table widget V2 change text size and validate", function () {
     cy.readTableV2dataValidateCSS("0", "0", "font-size", "14px");
     cy.openPropertyPane("tablewidgetv2");
-    cy.get(".t--property-pane-back-btn").click({ force: true });
+    cy.get(propPaneBack).click({ force: true });
     cy.editColumn("id");
     cy.moveToStyleTab();
     cy.get(widgetsPage.toggleTextAlign).first().click({ force: true });
@@ -41,7 +43,7 @@ describe("Table Widget V2 property pane feature validation", function () {
 
   it("3. Table widget toggle test for text size", function () {
     cy.openPropertyPane("tablewidgetv2");
-    cy.get(".t--property-pane-back-btn").click({ force: true });
+    cy.get(propPaneBack).click({ force: true });
     cy.editColumn("id");
     cy.moveToStyleTab();
     cy.get(widgetsPage.toggleTextSize).first().click({ force: true });
@@ -55,7 +57,7 @@ describe("Table Widget V2 property pane feature validation", function () {
 
   it("4. Table widget toggle test for vertical Alignment", function () {
     cy.openPropertyPane("tablewidgetv2");
-    cy.get(".t--property-pane-back-btn").click({ force: true });
+    cy.get(propPaneBack).click({ force: true });
     cy.editColumn("id");
     cy.moveToStyleTab();
     cy.get(widgetsPage.toggleTextSize).first().click({ force: true });
@@ -72,7 +74,7 @@ describe("Table Widget V2 property pane feature validation", function () {
 
   it("5. Table widget V2 toggle test for style Alignment", function () {
     cy.openPropertyPane("tablewidgetv2");
-    cy.get(".t--property-pane-back-btn").click({ force: true });
+    cy.get(propPaneBack).click({ force: true });
     cy.editColumn("id");
     cy.moveToStyleTab();
     /*
@@ -93,7 +95,7 @@ describe("Table Widget V2 property pane feature validation", function () {
 
   it("6. Table widget toggle test for text color", function () {
     cy.openPropertyPane("tablewidgetv2");
-    cy.get(".t--property-pane-back-btn").click({ force: true });
+    cy.get(propPaneBack).click({ force: true });
     cy.editColumn("id");
     cy.moveToStyleTab();
     cy.get(widgetsPage.toggleVerticalAlig).first().click({ force: true });
@@ -111,7 +113,7 @@ describe("Table Widget V2 property pane feature validation", function () {
 
   it("7. Table widget toggle test for background color", function () {
     cy.openPropertyPane("tablewidgetv2");
-    cy.get(".t--property-pane-back-btn").click({ force: true });
+    cy.get(propPaneBack).click({ force: true });
     cy.editColumn("id");
     cy.moveToStyleTab();
     cy.get(widgetsPage.toggleJsColor).first().click({ force: true });

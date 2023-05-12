@@ -9,8 +9,8 @@ describe("Binding the Table and input Widget", function () {
   });
 
   it("1. Input widget test with default value from table widget", function () {
-    _.entityExplorer.SelectEntityByName("Input1");
-
+    _.entityExplorer.ExpandCollapseEntity("Widgets");
+    _.entityExplorer.SelectEntityByName("Input1", "Form1");
     cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
 
     cy.wait("@updateLayout").should(

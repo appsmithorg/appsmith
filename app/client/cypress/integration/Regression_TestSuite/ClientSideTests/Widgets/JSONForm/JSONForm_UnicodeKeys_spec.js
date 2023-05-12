@@ -5,7 +5,7 @@ import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;
 
 const fieldPrefix = ".t--jsonformfield";
-const backBtn = ".t--property-pane-back-btn";
+const backBtn = "[data-testid='t--property-pane-back-btn']";
 
 describe("JSON Form Widget Unicode keys", () => {
   afterEach(() => {

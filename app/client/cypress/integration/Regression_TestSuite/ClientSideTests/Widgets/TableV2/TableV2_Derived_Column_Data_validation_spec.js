@@ -55,7 +55,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     // Change the cell background color to green
     cy.toggleJsAndUpdate("tabledata", "Green");
     // Go back to table property pane
-    cy.get(".t--property-pane-back-btn").click({ force: true });
+    cy.get("[data-testid='t--property-pane-back-btn']").click({ force: true });
     cy.wait("@updateLayout");
     // verify the cell background color
     cy.readTableV2dataValidateCSS(

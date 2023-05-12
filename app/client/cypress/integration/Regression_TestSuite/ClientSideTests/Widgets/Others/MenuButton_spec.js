@@ -84,7 +84,7 @@ describe("Menu button Widget Functionality", () => {
     // Check the title
     cy.get(".t--property-pane-title").contains("Second Menu Item");
     // Navigate Back
-    cy.get(".t--property-pane-back-btn").click();
+    cy.get("[data-testid='t--property-pane-back-btn']").click();
   });
 
   it("3. MenuButton widget functionality to add dynamic menu items", function () {

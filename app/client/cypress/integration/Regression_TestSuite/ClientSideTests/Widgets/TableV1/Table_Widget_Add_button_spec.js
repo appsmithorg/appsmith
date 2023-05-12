@@ -107,12 +107,12 @@ describe("Table Widget property pane feature validation", function () {
   });
 
   it("5. Table widget add new icon button column", function () {
-    cy.get(".t--property-pane-back-btn").click({ force: true });
+    cy.get("[data-testid='t--property-pane-back-btn']").click({ force: true });
     // hide id column
     cy.makeColumnVisible("id");
     cy.wait(1000);
     // click on Add new Column.
-    //cy.get(".t--property-pane-back-btn").click({ force: true });
+    //cy.get("[data-testid='t--property-pane-back-btn']").click({ force: true });
     cy.get(".t--add-column-btn").click();
     //Open New Custom Column
     cy.editColumn("customColumn1");
@@ -135,7 +135,7 @@ describe("Table Widget property pane feature validation", function () {
     cy.UncheckWidgetProperties(commonlocators.disableCheckbox);
 
     //Delete Column
-    cy.get(".t--property-pane-back-btn").click({
+    cy.get("[data-testid='t--property-pane-back-btn']").click({
       force: true,
     });
     cy.deleteColumn("customColumn1");
@@ -206,7 +206,7 @@ describe("Table Widget property pane feature validation", function () {
     //  Add action to the menu Item
     cy.getAlert("onItemClick", "Successful ".concat(testdata.currentRowEmail));
     // Go back to table property pane
-    cy.get(".t--property-pane-back-btn").click({ force: true });
+    cy.get("[data-testid='t--property-pane-back-btn']").click({ force: true });
 
     // Add a Menu item 2
     cy.get(".t--add-menu-item-btn").click({
@@ -226,7 +226,7 @@ describe("Table Widget property pane feature validation", function () {
       })
       .wait(500);
     // Go back to table property pane
-    cy.get(".t--property-pane-back-btn").click({ force: true });
+    cy.get("[data-testid='t--property-pane-back-btn']").click({ force: true });
 
     // Add a Menu item 3
     cy.get(".t--add-menu-item-btn").click({
@@ -246,7 +246,7 @@ describe("Table Widget property pane feature validation", function () {
       })
       .wait(500);
     // Go back to table property pane
-    cy.get(".t--property-pane-back-btn").click({ force: true });
+    cy.get("[data-testid='t--property-pane-back-btn']").click({ force: true });
 
     // Close Property pane
     cy.openPropertyPane("tablewidget");
@@ -319,9 +319,9 @@ describe("Table Widget property pane feature validation", function () {
     //click icon button again
     cy.get(widgetsPage.tableIconBtn).last().click({ force: true });
     cy.get(commonlocators.TextInside).should("have.text", "Tobias Funke");
-    cy.get(".t--property-pane-back-btn").click({ force: true });
+    cy.get("[data-testid='t--property-pane-back-btn']").click({ force: true });
     cy.wait(500);
-    cy.get(".t--property-pane-back-btn").click({ force: true });
+    cy.get("[data-testid='t--property-pane-back-btn']").click({ force: true });
   });
 
   it("8. Table widget test on button when transparent", () => {
