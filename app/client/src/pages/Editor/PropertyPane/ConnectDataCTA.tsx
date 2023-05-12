@@ -10,6 +10,7 @@ import type { WidgetType } from "constants/WidgetConstants";
 import { integrationEditorURL } from "RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
+import { DatasourceCreateEntryPoints } from "constants/Datasource";
 
 const StyledDiv = styled.div`
   color: ${(props) => props.theme.colors.propertyPane.ctaTextColor};
@@ -66,6 +67,12 @@ function ConnectDataCTA(props: ConnectDataCTAProps) {
       widgetTitle,
       widgetId,
       widgetType,
+    });
+
+    // Event for datasource creation click
+    const entryPoint = DatasourceCreateEntryPoints.PROPERTY_PANE_CONNECT_DATA;
+    AnalyticsUtil.logEvent("ADD_DATASOURCE_CLICK", {
+      entryPoint,
     });
   };
 

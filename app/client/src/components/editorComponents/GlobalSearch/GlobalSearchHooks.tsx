@@ -34,6 +34,7 @@ import {
 import type { AppState } from "@appsmith/reducers";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { importRemixIcon } from "design-system-old";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const AddLineIcon = importRemixIcon(
   () => import("remixicon-react/AddLineIcon"),
@@ -178,13 +179,17 @@ export const getFilteredAndSortedFileOperations = (
         </EntityIcon>
       ),
       kind: SEARCH_ITEM_TYPES.actionOperation,
-      redirect: (pageId: string) => {
+      redirect: (pageId: string, entryPoint: string) => {
         history.push(
           integrationEditorURL({
             pageId,
             selectedTab: INTEGRATION_TABS.NEW,
           }),
         );
+        // Event for datasource creation click
+        AnalyticsUtil.logEvent("ADD_DATASOURCE_CLICK", {
+          entryPoint,
+        });
       },
     });
   }

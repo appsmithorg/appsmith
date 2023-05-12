@@ -77,6 +77,7 @@ import { PluginPackageName } from "entities/Action";
 import { removeFirstTimeUserOnboardingApplicationId } from "actions/onboardingActions";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { hasCreateDatasourcePermission } from "@appsmith/utils/permissionHelpers";
+import { DatasourceCreateEntryPoints } from "constants/Datasource";
 
 //  ---------- Styles ----------
 
@@ -497,6 +498,11 @@ function GeneratePageForm() {
         params: { isGeneratePageMode: "generate-page" },
       }),
     );
+    // Event for datasource creation click
+    const entryPoint = DatasourceCreateEntryPoints.GENERATE_CRUD;
+    AnalyticsUtil.logEvent("ADD_DATASOURCE_CLICK", {
+      entryPoint,
+    });
   };
 
   const generatePageAction = (data: GeneratePagePayload) => {

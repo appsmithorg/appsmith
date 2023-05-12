@@ -24,6 +24,8 @@ const Binding = importSvg(() => import("assets/icons/menu/binding.svg"));
 const Snippet = importSvg(() => import("assets/icons/ads/snippet.svg"));
 import type { FieldEntityInformation } from "./EditorConfig";
 import { EditorModes } from "./EditorConfig";
+import { DatasourceCreateEntryPoints } from "constants/Datasource";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 enum Shortcuts {
   PLUS = "PLUS",
@@ -185,11 +187,17 @@ export const generateQuickCommands = (
   const newIntegration: CommandsCompletion = generateCreateNewCommand({
     text: "",
     displayText: "New Datasource",
-    action: () =>
+    action: () => {
       executeCommand({
         actionType: SlashCommand.NEW_INTEGRATION,
         args: {},
-      }),
+      });
+      // Event for datasource creation click
+      const entryPoint = DatasourceCreateEntryPoints.CODE_EDITOR_SLASH_COMMAND;
+      AnalyticsUtil.logEvent("ADD_DATASOURCE_CLICK", {
+        entryPoint,
+      });
+    },
     shortcut: Shortcuts.PLUS,
   });
   const suggestions = entitiesForSuggestions.map((suggestion: any) => {

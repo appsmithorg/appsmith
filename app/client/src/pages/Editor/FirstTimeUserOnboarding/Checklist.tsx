@@ -52,6 +52,7 @@ import { triggerWelcomeTour } from "./Utils";
 import { builderURL, integrationEditorURL } from "RouteBuilder";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { DatasourceCreateEntryPoints } from "constants/Datasource";
 
 const Wrapper = styled.div`
   padding: ${(props) => props.theme.spaces[7]}px 55px;
@@ -405,6 +406,12 @@ export default function OnboardingChecklist() {
                     selectedTab: INTEGRATION_TABS.ACTIVE,
                   }),
                 );
+                // Event for datasource creation click
+                const entryPoint =
+                  DatasourceCreateEntryPoints.NEW_APP_CHECKLIST;
+                AnalyticsUtil.logEvent("ADD_DATASOURCE_CLICK", {
+                  entryPoint,
+                });
               }}
               tag="button"
               text={createMessage(
