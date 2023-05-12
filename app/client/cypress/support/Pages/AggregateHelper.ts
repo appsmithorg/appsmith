@@ -721,7 +721,7 @@ export class AggregateHelper {
   }
 
   public RefreshPage() {
-    cy.reload();
+    cy.reload(true);
     this.Sleep(2000);
   }
 
