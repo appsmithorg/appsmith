@@ -66,7 +66,6 @@ export const ResizerMainContainer = styled.div`
   flex-direction: column;
   height: calc(100% - 50px);
   overflow: hidden;
-  gap: 10px;
   .db-form-resizer-content {
     flex-direction: column;
   }

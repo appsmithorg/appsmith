@@ -127,6 +127,7 @@ function GraphQLEditorForm(props: Props) {
             ref={sizeableRef}
             style={{
               width: `${variableEditorWidth}px`,
+              paddingRight: "2px",
             }}
           >
             <VariableEditor actionName={actionName} theme={theme} />

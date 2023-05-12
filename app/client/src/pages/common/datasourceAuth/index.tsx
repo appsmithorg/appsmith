@@ -88,7 +88,6 @@ const SaveButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
   gap: 9px;
-  padding-right: 20px;
 `;
 
 const StyledAuthMessage = styled.div`

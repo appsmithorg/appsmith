@@ -4,6 +4,14 @@ import type { CollapsibleTabProps } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import { Tab, TabPanel, Tabs, TabsList } from "design-system";
+import styled from "styled-components";
+
+const TabPanelWrapper = styled(TabPanel)`
+  margin-top: 0;
+  & > div {
+    padding-top: var(--ads-v2-spaces-4);
+  }
+`;
 
 type EntityBottomTabsProps = {
   className?: string;
@@ -52,9 +60,9 @@ function EntityBottomTabs(
         })}
       </TabsList>
       {props.tabs.map((tab: any) => (
-        <TabPanel className="h-full" key={tab.key} value={tab.key}>
+        <TabPanelWrapper className="h-full" key={tab.key} value={tab.key}>
           {tab.panelComponent}
-        </TabPanel>
+        </TabPanelWrapper>
       ))}
     </Tabs>
   );

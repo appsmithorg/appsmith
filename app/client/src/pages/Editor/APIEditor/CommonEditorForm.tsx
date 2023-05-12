@@ -126,7 +126,7 @@ export const TabbedViewContainer = styled.div`
   overflow: auto;
   position: relative;
   height: 100%;
-  padding: 0 var(--ads-v2-spaces-7);
+
   ${FormRow} {
     min-height: auto;
     padding: ${(props) => props.theme.spaces[0]}px;
@@ -134,6 +134,10 @@ export const TabbedViewContainer = styled.div`
       margin-right: 0px;
     }
   }
+`;
+
+const TabsListWrapper = styled.div`
+  padding: 0 var(--ads-v2-spaces-7);
 `;
 
 const SettingsWrapper = styled.div`
@@ -308,6 +312,7 @@ const CenteredIcon = styled(Icon)`
 const StyledTabPanel = styled(TabPanel)`
   height: calc(100% - 50px);
   overflow: auto;
+  padding: 0 var(--ads-v2-spaces-7);
 `;
 
 function ImportedKeyValue(props: {
@@ -659,23 +664,25 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                   isGraphql ? API_EDITOR_TABS.BODY : API_EDITOR_TABS.HEADERS
                 }
               >
-                <TabsList>
-                  {Object.values(API_EDITOR_TABS).map((tab) => (
-                    <Tab
-                      key={tab}
-                      notificationCount={
-                        tab == "HEADERS"
-                          ? headersCount
-                          : tab == "PARAMS"
-                          ? paramsCount
-                          : undefined
-                      }
-                      value={tab}
-                    >
-                      {createMessage(API_EDITOR_TAB_TITLES[tab])}
-                    </Tab>
-                  ))}
-                </TabsList>
+                <TabsListWrapper>
+                  <TabsList>
+                    {Object.values(API_EDITOR_TABS).map((tab) => (
+                      <Tab
+                        key={tab}
+                        notificationCount={
+                          tab == "HEADERS"
+                            ? headersCount
+                            : tab == "PARAMS"
+                            ? paramsCount
+                            : undefined
+                        }
+                        value={tab}
+                      >
+                        {createMessage(API_EDITOR_TAB_TITLES[tab])}
+                      </Tab>
+                    ))}
+                  </TabsList>
+                </TabsListWrapper>
                 <StyledTabPanel value={API_EDITOR_TABS.HEADERS}>
                   {apiBindHelpSectionVisible &&
                     renderHelpSection(

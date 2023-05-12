@@ -91,7 +91,7 @@ const TabbedViewWrapper = styled.div`
   }
   &&& {
     .ads-v2-tabs__list {
-      padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-6);
+      padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-7);
     }
   }
 `;

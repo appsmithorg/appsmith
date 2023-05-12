@@ -167,7 +167,6 @@ export const TabbedViewContainer = styled.div`
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
   width: 100%;
-  /* padding: 0 var(--ads-v2-spaces-7); */
   .close-debugger {
     position: absolute;
     top: 0px;
@@ -273,7 +272,6 @@ const TabContainerView = styled.div`
   align-items: start;
   flex: 1;
   overflow: auto;
-  padding: 0 var(--ads-v2-spaces-7);
   ${thinScrollbar}
   a {
     font-size: 14px;
@@ -290,6 +288,14 @@ const TabContainerView = styled.div`
       overflow-y: scroll;
     }
   }
+`;
+
+const TabsListWrapper = styled.div`
+  padding: 0 var(--ads-v2-spaces-7);
+`;
+
+const TabPanelWrapper = styled(TabPanel)`
+  padding: 0 var(--ads-v2-spaces-7);
 `;
 
 const Wrapper = styled.div`
@@ -327,7 +333,7 @@ export const SegmentedControlContainer = styled.div`
 
 const DebuggerWithPadding = styled.div`
   .t--query-bottom-pane-container .ads-v2-tabs__list {
-    padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-6);
+    padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-7);
     border-top: 1px solid var(--ads-v2-color-border);
   }
 `;
@@ -937,11 +943,16 @@ export function EditorJSONtoForm(props: Props) {
                   onValueChange={setSelectedConfigTab}
                   value={selectedConfigTab || EDITOR_TABS.QUERY}
                 >
-                  <TabsList>
-                    <Tab value={EDITOR_TABS.QUERY}>Query</Tab>
-                    <Tab value={EDITOR_TABS.SETTINGS}>Settings</Tab>
-                  </TabsList>
-                  <TabPanel className="tab-panel" value={EDITOR_TABS.QUERY}>
+                  <TabsListWrapper>
+                    <TabsList>
+                      <Tab value={EDITOR_TABS.QUERY}>Query</Tab>
+                      <Tab value={EDITOR_TABS.SETTINGS}>Settings</Tab>
+                    </TabsList>
+                  </TabsListWrapper>
+                  <TabPanelWrapper
+                    className="tab-panel"
+                    value={EDITOR_TABS.QUERY}
+                  >
                     <SettingsWrapper>
                       {editorConfig && editorConfig.length > 0 ? (
                         renderConfig(editorConfig)
@@ -978,15 +989,15 @@ export function EditorJSONtoForm(props: Props) {
                         </NoDataSourceContainer>
                       )}
                     </SettingsWrapper>
-                  </TabPanel>
-                  <TabPanel value={EDITOR_TABS.SETTINGS}>
+                  </TabPanelWrapper>
+                  <TabPanelWrapper value={EDITOR_TABS.SETTINGS}>
                     <SettingsWrapper>
                       <ActionSettings
                         actionSettingsConfig={settingConfig}
                         formName={formName}
                       />
                     </SettingsWrapper>
-                  </TabPanel>
+                  </TabPanelWrapper>
                 </Tabs>
                 {documentationLink && (
                   <Tooltip

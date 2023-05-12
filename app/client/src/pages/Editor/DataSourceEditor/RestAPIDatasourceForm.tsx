@@ -121,7 +121,7 @@ const FormInputContainer = styled.div`
 const FormContainerBodyWrapper = styled(FormContainerBody)`
   .api-datasource-content-container {
     flex-direction: column;
-    padding: 0 0 0 2px;
+    padding: 0 var(--ads-v2-spaces-7);
     .t--save-and-authorize-datasource {
       margin-left: 0;
     }
