@@ -18,7 +18,8 @@ describe("Table Widget V2 property pane deafult feature validation", function ()
     // close Widget side bar
     _.entityExplorer.NavigateToSwitcher("Explorer");
     cy.wait(2000);
-    cy.SearchEntityandOpen("Table2");
+    _.entityExplorer.SelectEntityByName("Table2");
+
     // Verify default array data
     cy.wait(2000);
     cy.readTableV2dataFromSpecificIndex("0", "0", 0).then((tabData) => {
@@ -26,7 +27,7 @@ describe("Table Widget V2 property pane deafult feature validation", function ()
       cy.log("the table is" + tabValue);
       cy.get(".bp3-ui-text span").eq(1).should("have.text", tabData);
     });
-    cy.SearchEntityandOpen("Table1");
+    _.entityExplorer.SelectEntityByName("Table1");
     cy.wait(2000);
     cy.readTableV2dataFromSpecificIndex("2", "0", 1).then((tabData) => {
       const tabValue = tabData;

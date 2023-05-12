@@ -4,9 +4,7 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import apiLocators from "../../../../locators/ApiEditor";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-let apiPage = ObjectsRegistry.ApiPage;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Bind a button and Api usecase", function () {
   let apiData;
@@ -16,7 +14,7 @@ describe("Bind a button and Api usecase", function () {
   });
 
   it("1. Add an API by binding a button in its header", function () {
-    apiPage.CreateAndFillApi(this.data.userApi + "/mock-api?records=10");
+    _.apiPage.CreateAndFillApi(this.data.userApi + "/mock-api?records=10");
     cy.get(apiwidget.headerKey)
       .first()
       .click({ force: true })
@@ -42,19 +40,17 @@ describe("Bind a button and Api usecase", function () {
       });
   });
 
-  it("2. Button-Name updation", function () {
-    cy.SearchEntityandOpen("Button1");
+  it("2. Button-Name updation & API datasource binding with button name validation", function () {
+    _.entityExplorer.SelectEntityByName("Button1");
     //changing the Button Name
     cy.widgetText(
       testdata.buttonName,
       widgetsPage.buttonWidget,
       widgetsPage.widgetNameSpan,
     );
-  });
 
-  it("3. API datasource binding with button name validation", function () {
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
-    cy.SearchEntityandOpen("Api1");
+    //API datasource binding with button name validation
+    _.entityExplorer.SelectEntityByName("Api1", "Queries/JS");
     cy.get(apiwidget.headerValue)
       .first()
       .invoke("text")

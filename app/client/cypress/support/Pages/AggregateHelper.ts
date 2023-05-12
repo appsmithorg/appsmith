@@ -116,12 +116,8 @@ export class AggregateHelper {
   public RenameWithInPane(renameVal: string, IsQuery = true) {
     const name = IsQuery ? this.locator._queryName : this.locator._dsName;
     const text = IsQuery ? this.locator._queryNameTxt : this.locator._dsNameTxt;
-    this.GetElement(this.locator._body).then(($body) => {
-      if ($body.find(text).length == 0) {
-        this.GetNClick(name, 0, true);
-      }
-    });
-
+    this.Sleep(300); //for default query name to load
+    this.GetNClick(name, 0, true);
     cy.get(text)
       .clear({ force: true })
       .type(renameVal, { force: true, delay: 0 })

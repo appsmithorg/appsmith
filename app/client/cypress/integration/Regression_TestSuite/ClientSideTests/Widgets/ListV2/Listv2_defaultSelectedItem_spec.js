@@ -51,8 +51,7 @@ const verifyDefaultItem = () => {
 function setUpDataSource() {
   cy.createAndFillApi("https://api.punkapi.com/v2/beers", "");
   cy.RunAPI();
-  cy.SearchEntityandOpen("List1");
-
+  _.entityExplorer.SelectEntityByName("List1");
   cy.wait(200);
 }
 

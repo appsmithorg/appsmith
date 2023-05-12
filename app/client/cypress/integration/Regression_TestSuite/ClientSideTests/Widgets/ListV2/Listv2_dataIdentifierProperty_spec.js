@@ -3,11 +3,9 @@ const simpleListWithLargeDataDSL = require("../../../../../fixtures/Listv2/simpl
 const ListV2WithNullPrimaryKeyDSL = require("../../../../../fixtures/Listv2/ListV2WithNullPrimaryKey.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const propertyControl = ".t--property-control";
-const agHelper = ObjectsRegistry.AggregateHelper,
-  debuggerHelper = ObjectsRegistry.DebuggerHelper;
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
@@ -44,11 +42,11 @@ const data = [
 
 describe("List v2 - Data Identifier property", () => {
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   it("1. is present in the property pane", () => {
@@ -188,7 +186,7 @@ describe("List v2 - Data Identifier property", () => {
       "",
     );
     cy.RunAPI();
-    cy.SearchEntityandOpen("List1");
+    _.entityExplorer.SelectEntityByName("List1");
     cy.openPropertyPaneByWidgetName("Text2", "textwidget");
 
     cy.testJsontext("text", "{{currentIndex}}");
@@ -262,7 +260,7 @@ describe("List v2 - Data Identifier property", () => {
     );
 
     //Open debugger by clicking debugger icon in canvas.
-    debuggerHelper.ClickDebuggerIcon();
+    _.debuggerHelper.ClickDebuggerIcon();
 
     cy.get(".debugger-list").contains(
       "This data identifier is evaluating to a duplicate value. Please use an identifier that evaluates to a unique value.",

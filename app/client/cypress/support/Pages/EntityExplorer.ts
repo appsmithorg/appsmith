@@ -171,7 +171,7 @@ export class EntityExplorer {
           //         .wait(500);
           //     }
           //   });
-        } else this.agHelper.Sleep(500);
+        } else this.agHelper.Sleep(200);
       });
   }
 

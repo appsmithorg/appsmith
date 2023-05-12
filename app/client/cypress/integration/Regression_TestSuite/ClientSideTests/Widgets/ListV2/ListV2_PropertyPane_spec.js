@@ -1,6 +1,7 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("List widget V2 PropertyPane", () => {
   it("1. Validate isVisible", () => {
@@ -61,7 +62,7 @@ describe("List widget V2 PropertyPane", () => {
     // Change the list widget name from Entity Explorer
     cy.renameEntity("List2", "List1");
     // Mouse over to list name
-    cy.SearchEntityandOpen("List1");
+    _.entityExplorer.SelectEntityByName("List1");
     cy.get(widgetsPage.listWidgetName)
       .first()
       .trigger("mouseover", { force: true });
