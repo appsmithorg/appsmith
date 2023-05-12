@@ -149,12 +149,16 @@ class TernServer {
     });
   }
 
+  // called on cursor movement to hide or show arg hints
   updateArgHints(cm: CodeMirror.Editor) {
     this.closeArgHints();
 
     if (cm.somethingSelected()) return;
     const state = cm.getTokenAt(cm.getCursor()).state;
+    // innerMode() seemed to have a bug which prevented us
+    // from showing arg hints for multiple lines
     const inner = CodeMirror.innerMode(cm.getMode(), state);
+    // verifying whether the cursor is in a function call
     if (inner.mode.name != "javascript") return;
     const lex = inner.state.lexical;
     if (lex.info != "call") return;
@@ -163,6 +167,13 @@ class TernServer {
     let found = false;
     const argPos = lex.pos || 0,
       tabSize = cm.getOption("tabSize") as number;
+    
+    // looping till ten lines above to see if cursor is within ()
+    // if not exit
+
+    // loop for 10 lines not really needed since multi lines are not working anyways??
+    // perhaps limit to just one line??
+    // is this condition above enough for one liners -> if (lex.info != "call")
     for (
       line = cm.getCursor().line, e = Math.max(0, line - 9);
       line >= e;
@@ -186,10 +197,12 @@ class TernServer {
     // debugger;
 
     const start = Pos(line, ch);
+    // if cached hints is of the same position re-use
     const cache = this.cachedArgHints;
     if (cache && cache.doc == cm.getDoc() && cmpPos(start, cache.start) == 0)
       return this.showArgHints(cm, argPos, start, cache);
 
+    // else request tern server for type definition and use it to show argHints
     this.request(
       cm,
       {
@@ -212,6 +225,7 @@ class TernServer {
     );
   }
 
+  // shows arg hints UI
   showArgHints(
     cm: CodeMirror.Editor,
     pos: number,
@@ -297,6 +311,7 @@ class TernServer {
     }
   }
 
+  // return reasable representation of tern server function definition
   parseFnType(text: string) {
     const args = [];
     let pos = 3;

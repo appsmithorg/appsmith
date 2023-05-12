@@ -66,14 +66,18 @@ export const dataTreeTypeDefCreator = (
       const metaObj: Record<string, MetaArgs> = entity.meta;
       const jsOptions: Record<string, unknown> = {};
       for (const key in metaObj) {
+        // shows parameters detail on autocomplete
+        // we can do this as a phase 1 for a quick win
+        // this could be reused in peek overlay to show function def
         const functionParams = metaObj[key].arguments.reduce(
           (prev, current, currentIndex) => {
             return currentIndex === 0
-              ? `${current.name}: any`
-              : `${prev}, ${current.name}: any`;
+              ? `${current.name}: any` // identify type
+              : `${prev}, ${current.name}: any`; // identify type
           },
           "",
         );
+        // need to identify return type
         jsOptions[key] = `fn(${functionParams}) -> void`;
       }
 
