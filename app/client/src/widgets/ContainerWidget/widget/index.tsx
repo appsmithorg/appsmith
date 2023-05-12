@@ -25,7 +25,6 @@ import {
 import type { AutocompletionDefinitions } from "widgets/constants";
 import { getCanvasSplittingConfig } from "utils/autoLayout/canvasSplitProperties";
 import type { CanvasSplitTypes } from "utils/autoLayout/canvasSplitProperties";
-import { isMobile } from "react-device-detect";
 import { CanvasSplitResizer } from "../component/canvasSplitResizer";
 
 export class ContainerWidget extends BaseWidget<
@@ -248,7 +247,7 @@ export class ContainerWidget extends BaseWidget<
     const shouldRenderResizer =
       this.props.ratios &&
       this.props.positioning === Positioning.Vertical &&
-      !isMobile &&
+      !this.props.isMobile &&
       this.props.canvasSplitType === "2-column-custom" &&
       this.props.isSelected &&
       this.props.children &&

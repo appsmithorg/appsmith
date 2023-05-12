@@ -1,5 +1,4 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { ReactComponent as CanvasResizerIcon } from "assets/icons/ads/app-icons/canvas-resizer.svg";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { previewModeSelector } from "selectors/editorSelectors";
@@ -12,35 +11,35 @@ const SplitResizer = styled.div`
   height: 100%;
   display: flex;
   z-index: 10;
-  background: #d9d9d9;
+  background: #ff9b4e;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   margin-left: 2px;
   transition: width 300ms ease;
   transition: background 300ms ease;
-  .canvas-resizer-icon {
-    border-left: 2px solid;
-    border-color: #d7d7d7;
-    transition: border 300ms ease;
-    margin-left: 2px;
-    & > svg {
-      fill: #d7d7d7;
-      transition: fill 300ms ease;
-    }
+  &::before {
+    position: absolute;
+    background: "transparent";
+    content: "";
   }
+  &:before {
+    bottom: 0px;
+    top: calc(50% - 12px);
+    width: 10px;
+    height: 24px;
+    background: white;
+    border-radius: 5px;
+    border: 1px solid #ff9b4e;
+  }
+
   &:hover,
   &:active {
     width: 3px;
     transition: width 300ms ease;
-    background: #ff9b4e;
     transition: background 300ms ease;
-    .canvas-resizer-icon {
-      border-color: #ff9b4e;
-      transition: border 300ms ease;
-      & > svg {
-        fill: #ff9b4e;
-        transition: fill 300ms ease;
-      }
+    &:before {
+      background: #ff9b4e;
+      border: 1px solid white;
     }
   }
 `;
@@ -60,7 +59,6 @@ export function CanvasSplitResizer({
 }) {
   const isPreviewMode = useSelector(previewModeSelector);
   const ref = useRef<any>(null);
-  console.log({ firstCanvasWidth, firstCanvas, secondCanvas });
 
   const [resizerPosition, setResizerPosition] =
     useState<number>(firstCanvasWidth);
@@ -69,6 +67,16 @@ export function CanvasSplitResizer({
 
   useEffect(() => {
     setResizerPosition(firstCanvasWidth);
+
+    const firstCanvasElement: any = document.querySelector(
+      `[data-widgetid='${firstCanvas}']`,
+    );
+    const secondCanvasElement: any = document.querySelector(
+      `[data-widgetid='${secondCanvas}']`,
+    );
+
+    firstCanvasElement.style.width = "";
+    secondCanvasElement.style.width = "";
   }, [firstCanvasWidth]);
 
   useEffect(() => {
@@ -131,9 +139,6 @@ export function CanvasSplitResizer({
     const mouseUpHandler = function (e: any) {
       if (isDragging) {
         mouseMoveHandler(e);
-        firstCanvasElement.style.width = "";
-        secondCanvasElement.style.width = "";
-
         const totalWidth = firstWidth + secondWidth;
         const dx = getDxWithLimits(
           e.clientX - x,
@@ -183,11 +188,7 @@ export function CanvasSplitResizer({
         height: "100%",
         left: `${resizerPosition}px`,
       }}
-    >
-      <div className="canvas-resizer-icon">
-        <CanvasResizerIcon />
-      </div>
-    </SplitResizer>
+    />
   ) : null;
 }
 
