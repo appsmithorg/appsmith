@@ -96,7 +96,7 @@
 //       200,
 //     );
 
-//     cy.get("span:contains('GOT IT')").click();
+//     cy.get("span:contains('Got it')").click();
 //   });
 
 //   it.skip("Create new app and Generate CRUD page using a new datasource", function() {
@@ -174,7 +174,7 @@
 //       200,
 //     );
 
-//     cy.get("span:contains('GOT IT')").click();
+//     cy.get("span:contains('Got it')").click();
 //   });
 
 //   it.skip("Generate CRUD page from datasource ACTIVE section", function() {
@@ -221,6 +221,6 @@
 //       200,
 //     );
 
-//     cy.get("span:contains('GOT IT')").click();
+//     cy.get("span:contains('Got it')").click();
 //   });
 // });

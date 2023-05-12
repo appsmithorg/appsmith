@@ -45,8 +45,9 @@ function ThemeColorControl(props: ThemeColorControlProps) {
               >
                 <ColorBox
                   background={userDefinedColors[colorName]}
-                  // selectedColor={colorName}
                   className={selectedColor === colorName ? "selected" : ""}
+                  // selectedColor={colorName}
+                  data-testid={`theme-${colorName}`}
                   onClick={() => {
                     setAutoFocus(
                       selectedColor === colorName ? !autoFocus : true,

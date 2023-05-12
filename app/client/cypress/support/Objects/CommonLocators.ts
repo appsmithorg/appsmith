@@ -3,7 +3,9 @@ export class CommonLocators {
   _chevronUp = ".bp3-icon-chevron-up";
   _loading = "#loading";
   _spinner = ".bp3-spinner";
+  _animationSpnner = ".bp3-spinner-animation";
   _runBtnSpinner = ".cs-spinner";
+  _sidebar = ".t--sidebar";
   _queryName = ".t--action-name-edit-field span";
   _queryNameTxt = ".t--action-name-edit-field input";
   _emptyCanvasCta = "[data-testid='canvas-ctas']";
@@ -45,7 +47,7 @@ export class CommonLocators {
     this._toastMsg + ":contains('" + toastText + "')";
   //_specificToast = (toastText: string | RegExp) => this._toastMsg + ":contains("+ (typeof toastText == 'string' ? "'"+ toastText+"'" : toastText)+ ")"//not working!
   _empty = "span[name='no-response']";
-  _contextMenuInPane = "span[name='context-menu']";
+  _contextMenuInPane = "[data-testid='more-action-trigger']";
   _contextMenuSubItemDiv = (item: string) =>
     "//div[text()='" + item + "'][contains(@class, 'bp3-fill')]";
   _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']";
@@ -68,7 +70,7 @@ export class CommonLocators {
     entityNameinLeftSidebar +
     "']/parent::div[contains(@class, 't--entity-name editing')]/input";
   _jsToggle = (controlToToggle: string) =>
-    ".t--property-control-" + controlToToggle + " .t--js-toggle";
+    ".t--property-control-" + controlToToggle + " .t-js-toggle";
   _spanButton = (btnVisibleText: string) =>
     `//span[text()="${btnVisibleText}"]/parent::button`;
   _selectPropDropdown = (ddName: string) =>
@@ -97,7 +99,8 @@ export class CommonLocators {
     "//div[contains(@class, 't--property-control-" +
     controlToToggle +
     "')]//input[@type='checkbox']/parent::label";
-  _segmentedControlContainer = ".ads-v2-segmented-control__segments-container";
+  _openNavigationTab = (tabToOpen: string) =>
+    `//span[text()='${tabToOpen}']/ancestor::div`;
   _selectWidgetDropdown = (widgetType: string) =>
     `//div[contains(@class, 't--draggable-${widgetType}')]//button`;
   _selectWidgetDropdownInDeployed = (widgetType: string) =>

@@ -103,8 +103,9 @@ export class AggregateHelper {
 
     if (elementToCheckPresenceaftDslLoad)
       this.WaitUntilEleAppear(elementToCheckPresenceaftDslLoad);
-    this.Sleep(500); //settling time for dsl
+    this.Sleep(); //settling time for dsl
     cy.get(this.locator._loading).should("not.exist"); //Checks the spinner is gone & dsl loaded!
+    this.AssertElementAbsence(this.locator._animationSpnner, 20000); //Checks page is loaded with dsl!
   }
 
   public StartRoutes() {
@@ -171,7 +172,7 @@ export class AggregateHelper {
   public GetElement(selector: ElementType, timeout = 20000) {
     let locator;
     if (typeof selector == "string") {
-      cy.log(selector, "selector");
+      //cy.log(selector, "selector");
       locator =
         selector.startsWith("//") || selector.startsWith("(//")
           ? cy.xpath(selector, { timeout: timeout })
@@ -730,16 +731,12 @@ export class AggregateHelper {
     jsDelete = false,
   ) {
     cy.get(this.locator._contextMenuInPane).click();
-    cy.xpath(this.locator._contextMenuSubItemDiv(action))
-      .should("be.visible")
-      .click({ force: true });
+    this.GetNClick(this.locator._visibleTextSpan(action));
     if (action == "Delete") {
       subAction = "Are you sure?";
     }
     if (subAction) {
-      cy.xpath(this.locator._contextMenuSubItemDiv(subAction)).click({
-        force: true,
-      });
+      this.GetNClick(this.locator._visibleTextSpan(subAction));
       this.Sleep(500);
     }
     if (action == "Delete") {

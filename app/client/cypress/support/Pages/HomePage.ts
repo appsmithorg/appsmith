@@ -16,8 +16,8 @@ export class HomePage {
   private _optionsIconInWorkspace = (workspaceName: string) =>
     "//span[text()='" +
     workspaceName +
-    "']/ancestor::div[contains(@class, 't--workspace-section')]//span[contains(@class, 't--options-icon')]";
-  private _renameWorkspaceInput = "[data-testid=t--workspace-rename-input]";
+    "']/ancestor::div[contains(@class, 't--workspace-section')]//button[contains(@class, 't--options-icon')]";
+  private _renameWorkspaceInput = ".editable-text-container";
   private _workspaceList = (workspaceName: string) =>
     ".t--workspace-section:contains(" + workspaceName + ")";
   private _workspaceShareUsersIcon = (workspaceName: string) =>
@@ -109,7 +109,7 @@ export class HomePage {
 
   public CreateNewWorkspace(workspaceNewName: string) {
     let oldName = "";
-    cy.xpath(this._visibleTextSpan("New Workspace"))
+    cy.xpath(this._visibleTextSpan("New workspace"))
       .should("be.visible")
       .first()
       .click({ force: true });
@@ -404,7 +404,7 @@ export class HomePage {
   }
 
   public ImportApp(fixtureJson: string, intoWorkspaceName = "") {
-    cy.get(this._homeIcon).click();
+    cy.get(this._homeIcon).click({ force: true });
     if (intoWorkspaceName)
       this.agHelper.GetNClick(this._optionsIconInWorkspace(intoWorkspaceName));
     else this.agHelper.GetNClick(this._optionsIcon);

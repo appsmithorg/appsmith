@@ -24,11 +24,9 @@ export class EntityExplorer {
   private _contextMenu = (entityNameinLeftSidebar: string) =>
     "//div[text()='" +
     entityNameinLeftSidebar +
-    "']/ancestor::div[1]/following-sibling::div//div[contains(@class, 'entity-context-menu-icon')]";
+    "']/ancestor::div[1]/following-sibling::div//button[contains(@class, 'entity-context-menu')]";
   private _contextMenuItem = (item: string) =>
-    "//div[text()='" +
-    item +
-    "']/ancestor::a[contains(@class, 'single-select')]";
+    "//span[text()='" + item + "']/parent::div[@role='menuitem']";
   _entityNameInExplorer = (entityNameinLeftSidebar: string) =>
     "//div[contains(@class, 't--entity-name')][text()='" +
     entityNameinLeftSidebar +
@@ -36,7 +34,7 @@ export class EntityExplorer {
   private _expandCollapseArrow = (entityNameinLeftSidebar: string) =>
     "//div[text()='" +
     entityNameinLeftSidebar +
-    "']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]";
+    "']/ancestor::div/span[contains(@class, 't--entity-collapse-toggle')]";
   private _expandCollapseSection = (entityNameinLeftSidebar: string) =>
     this._expandCollapseArrow(entityNameinLeftSidebar) +
     "/ancestor::div[contains(@class, 't--entity')]//div[@class='bp3-collapse']";
@@ -44,9 +42,7 @@ export class EntityExplorer {
   private _templateMenuTrigger = (entityNameinLeftSidebar: string) =>
     "//div[contains(@class, 't--entity-name')][text()='" +
     entityNameinLeftSidebar +
-    "']/ancestor::div[contains(@class, 't--entity-item')]//div[contains(@class, 't--template-menu-trigger')]";
-  private _templateMenuItem = (menuItem: string) =>
-    "//div[contains(@class, 'bp3-popover-dismiss')][text()='" + menuItem + "']";
+    "']/ancestor::div[contains(@class, 't--entity-item')]//button[contains(@class, 't--template-menu-trigger')]";
   private _moreOptionsPopover =
     "//*[local-name()='g' and @id='Icon/Outline/more-vertical']";
   private _pageClone = ".single-select >div:contains('Clone')";
@@ -62,7 +58,15 @@ export class EntityExplorer {
     "//div[contains(@class, 't--entity-name')][text()='" +
     modalName +
     "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//div[contains(@class, 't--entity-name')][contains(text(), 'Text')]";
-  private _newPageOptions = (option: string) => `[data-testid='${option}']`;
+  private _newPageOptions = (option: string) =>
+    `//span[text()='${option}']/parent::div`;
+  _openNavigationTab = (tabToOpen: string) =>
+    "//span[text()='" + tabToOpen + "']/ancestor::div";
+  private _overlaySearch = "[data-testId='t--search-file-operation']";
+  _allQueriesforDB = (dbName: string) =>
+    "//span[text()='" +
+    dbName +
+    "']/following-sibling::div[contains(@class, 't--entity') and contains(@class, 'action')]//div[contains(@class, 't--entity-name')]";
 
   public SelectEntityByName(
     entityNameinLeftSidebar: string,
@@ -93,19 +97,19 @@ export class EntityExplorer {
 
   public AddNewPage(
     option:
-      | "add-page"
-      | "generate-page"
-      | "add-page-from-template" = "add-page",
+      | "New blank page"
+      | "Generate page with data"
+      | "Add page from template" = "New blank page",
   ) {
     this.agHelper.GetNClick(this.locator._newPage);
     this.agHelper.GetNClick(this._newPageOptions(option));
-    if (option === "add-page") {
+    if (option === "New blank page") {
       this.agHelper.ValidateNetworkStatus("@createPage", 201);
     }
   }
 
   public NavigateToSwitcher(navigationTab: "Explorer" | "Widgets") {
-    cy.contains(this.locator._segmentedControlContainer, navigationTab).click();
+    this.agHelper.GetNClick(this._openNavigationTab(navigationTab));
   }
 
   public AssertEntityPresenceInExplorer(entityNameinLeftSidebar: string) {
@@ -131,9 +135,9 @@ export class EntityExplorer {
     cy.xpath(this._expandCollapseArrow(entityName))
       .eq(index)
       .wait(500)
-      .invoke("attr", "name")
+      .invoke("attr", "id")
       .then((arrow) => {
-        if (expand && arrow == "arrow-right") {
+        if (expand && arrow == "arrow-right-s-line") {
           cy.xpath(this._expandCollapseArrow(entityName))
             .eq(index)
             .trigger("click", { force: true })
@@ -150,7 +154,7 @@ export class EntityExplorer {
           //         .wait(500);
           //     }
           //   });
-        } else if (!expand && arrow == "arrow-down") {
+        } else if (!expand && arrow == "arrow-down-s-line") {
           cy.xpath(this._expandCollapseArrow(entityName))
             .eq(index)
             .trigger("click", { force: true })
@@ -209,6 +213,16 @@ export class EntityExplorer {
     }
   }
 
+  public DeleteAllQueriesForDB(dsName: string) {
+    this.agHelper.GetElement(this._allQueriesforDB(dsName)).each(($el: any) => {
+      cy.wrap($el)
+        .invoke("text")
+        .then(($query) => {
+          this.ActionContextMenuByEntityName($query, "Delete", "Are you sure?");
+        });
+    });
+  }
+
   public ActionTemplateMenuByEntityName(
     entityNameinLeftSidebar: string,
     action: templateActions,
@@ -216,7 +230,7 @@ export class EntityExplorer {
     cy.xpath(this._templateMenuTrigger(entityNameinLeftSidebar))
       .last()
       .click({ force: true });
-    cy.xpath(this._templateMenuItem(action)).click({ force: true });
+    this.agHelper.GetNClick(this.locator._visibleTextSpan(action));
     this.agHelper.Sleep(500);
   }
 
@@ -246,13 +260,14 @@ export class EntityExplorer {
   }
 
   public CreateNewDsQuery(dsName: string, isQuery = true) {
-    cy.get(this.locator._createNew).last().click({ force: true });
+    cy.get("body").click(0, 0); //to close the evaluated pop-up
+    cy.get(this.locator._createNew).last().click();
     const searchText = isQuery ? dsName + " query" : dsName;
     this.SearchAndClickOmnibar(searchText);
   }
 
   public SearchAndClickOmnibar(searchText: string) {
-    cy.get(`[data-testId="t--search-file-operation"]`).type(searchText);
+    this.agHelper.UpdateInputValue(this._overlaySearch, searchText);
     let overlayItem = this._visibleTextSpan(searchText);
     this.agHelper.GetNClick(overlayItem);
   }

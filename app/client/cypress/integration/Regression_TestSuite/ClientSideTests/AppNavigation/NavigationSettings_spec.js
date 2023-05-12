@@ -3,6 +3,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const deployMode = ObjectsRegistry.DeployMode;
 const agHelper = ObjectsRegistry.AggregateHelper;
+const entityExplorer = ObjectsRegistry.EntityExplorer;
 
 describe("Test app's navigation settings", function () {
   it("1. Open app settings and navigation tab should be there and when the navigation tab is selected, navigation preview should be visible", () => {
@@ -50,7 +51,7 @@ describe("Test app's navigation settings", function () {
   });
 
   it("4. Change 'Orientation' back to 'Top', and 'Nav style' to 'Inline', page navigation items should appear inline", () => {
-    cy.Createpage("Page 2");
+    entityExplorer.AddNewPage();
     cy.get(appNavigationLocators.appSettingsButton).click();
     cy.get(appNavigationLocators.navigationSettingsTab).click();
     cy.get(

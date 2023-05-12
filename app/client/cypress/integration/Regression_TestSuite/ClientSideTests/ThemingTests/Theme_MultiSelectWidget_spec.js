@@ -3,7 +3,7 @@ const themelocator = require("../../../../locators/ThemeLocators.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 let themeFont;
-let propPane = ObjectsRegistry.PropertyPane,
+let themeSettings = ObjectsRegistry.ThemeSettings,
   ee = ObjectsRegistry.EntityExplorer,
   appSettings = ObjectsRegistry.AppSettings;
 
@@ -76,11 +76,11 @@ describe("Theme validation usecase for multi-select widget", function () {
 
     //Color
     cy.wait(1000);
-    propPane.ChangeThemeColor("purple", "Primary");
+    themeSettings.ChangeThemeColor("purple", "Primary");
     cy.get(themelocator.inputColor).should("have.value", "purple");
     cy.wait(1000);
 
-    propPane.ChangeThemeColor("brown", "Background");
+    themeSettings.ChangeThemeColor("brown", "Background");
     cy.get(themelocator.inputColor).should("have.value", "brown");
     cy.wait(1000);
     cy.contains("Color").click({ force: true });

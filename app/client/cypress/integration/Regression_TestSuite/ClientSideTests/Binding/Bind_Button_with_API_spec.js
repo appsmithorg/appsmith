@@ -3,7 +3,10 @@ const dsl = require("../../../../fixtures/buttonApiDsl.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const testdata = require("../../../../fixtures/testdata.json");
-import apiPage from "../../../../locators/ApiEditor";
+import apiLocators from "../../../../locators/ApiEditor";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+let apiPage = ObjectsRegistry.ApiPage;
 
 describe("Bind a button and Api usecase", function () {
   let apiData;
@@ -13,7 +16,7 @@ describe("Bind a button and Api usecase", function () {
   });
 
   it("1. Add an API by binding a button in its header", function () {
-    cy.createAndFillApi(this.data.userApi, "/mock-api?records=10");
+    apiPage.CreateAndFillApi(this.data.userApi + "/mock-api?records=10");
     cy.get(apiwidget.headerKey)
       .first()
       .click({ force: true })
@@ -23,8 +26,8 @@ describe("Bind a button and Api usecase", function () {
       .click({ force: true })
       .type("{{Button1.text", { parseSpecialCharSequences: true });
     cy.RunAPI();
-    cy.get(apiPage.jsonResponseTab).click();
-    cy.get(apiPage.responseBody)
+    cy.get(apiLocators.jsonResponseTab).click();
+    cy.get(apiLocators.responseBody)
       .contains("name")
       .siblings("span")
       .invoke("text")

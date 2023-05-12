@@ -1,6 +1,10 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/tableWidgetDsl.json");
-import apiPage from "../../../../locators/ApiEditor";
+import apiLocators from "../../../../locators/ApiEditor";
+
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+let apiPage = ObjectsRegistry.ApiPage;
 
 describe("Test Create Api and Bind to Table widget", function () {
   let apiData;
@@ -9,10 +13,10 @@ describe("Test Create Api and Bind to Table widget", function () {
   });
 
   it("1. Test_Add users api and execute api", function () {
-    cy.createAndFillApi(this.data.userApi, "/mock-api?records=10");
+    apiPage.CreateAndFillApi(this.data.userApi + "/mock-api?records=10");
     cy.RunAPI();
-    cy.get(apiPage.jsonResponseTab).click();
-    cy.get(apiPage.responseBody)
+    cy.get(apiLocators.jsonResponseTab).click();
+    cy.get(apiLocators.responseBody)
       .contains("name")
       .siblings("span")
       .invoke("text")

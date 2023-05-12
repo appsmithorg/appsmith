@@ -38,7 +38,7 @@ describe("Git sync apps", function () {
 
     cy.get(generatePage.selectDatasourceDropdown).click();
 
-    cy.contains("Connect New Datasource").click();
+    cy.contains("Connect new datasource").click();
 
     cy.get(datasource.PostgreSQL).click();
 
@@ -81,7 +81,7 @@ describe("Git sync apps", function () {
       200,
     );
 
-    cy.get("span:contains('GOT IT')").click();
+    cy.get("span:contains('Got it')").click();
 
     // connect app to git
     _.gitSync.CreateNConnectToGit(repoName);

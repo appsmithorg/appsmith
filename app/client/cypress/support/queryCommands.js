@@ -63,7 +63,7 @@ Cypress.Commands.add("NavigateToDSGeneratePage", (datasourceName) => {
 });
 
 Cypress.Commands.add("ClickGotIt", () => {
-  cy.get("span:contains('GOT IT')").click();
+  cy.get("span:contains('Got it')").click();
 });
 
 Cypress.Commands.add("fillGoogleSheetsDatasourceForm", () => {

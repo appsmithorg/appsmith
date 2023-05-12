@@ -1993,18 +1993,18 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("CreatePage", () => {
-  cy.get(pages.AddPage).first().click({ force: true });
-  cy.get("[data-testid='add-page']").click();
+  cy.get(pages.AddPage).first().click();
+  cy.xpath("//span[text()='New blank page']/parent::div").click();
 });
 
 Cypress.Commands.add("GenerateCRUD", () => {
-  cy.get(pages.AddPage).first().click({ force: true });
-  cy.get("[data-testid='generate-page']").click();
+  cy.get(pages.AddPage).first().click();
+  cy.xpath("//span[text()='Generate page with data']/parent::div").click();
 });
 
 Cypress.Commands.add("AddPageFromTemplate", () => {
-  cy.get(pages.AddPage).first().click({ force: true });
-  cy.get("[data-testid='add-page-from-template']").click();
+  cy.get(pages.AddPage).first().click();
+  cy.xpath("//span[text()='Add page from template']/parent::div").click();
 });
 
 Cypress.Commands.add(`verifyCallCount`, (alias, expectedNumberOfCalls) => {

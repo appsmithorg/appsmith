@@ -57,6 +57,7 @@ export class DataSources {
   _saveAndAuthorizeDS = ".t--save-and-authorize-datasource";
   _saveDs = ".t--save-datasource";
   _datasourceCard = ".t--datasource";
+  _dsMenuoptions = "div.t--datasource-menu-option";
   _editButton = ".t--edit-datasource";
   _reconnectDataSourceModal = "[data-testid=t--tab-RECONNECT_DATASOURCES]";
   _closeDataSourceModal = ".t--reconnect-close-btn";
@@ -84,7 +85,7 @@ export class DataSources {
   _selectTableDropdown = "[data-testid=t--table-dropdown]";
   _selectSheetNameDropdown = "[data-testid=t--sheetName-dropdown]";
   _selectTableHeaderIndexInput = "[data-testid=t--tableHeaderIndex]";
-  _dropdownOption = ".bp3-popover-content .t--dropdown-option";
+  _dropdownOption = ".rc-select-item-option-content";
   _generatePageBtn = "[data-testid=t--generate-page-form-submit]";
   _selectedRow = ".tr.selected-row";
   _activeTab = "span:contains('Active')";
@@ -153,10 +154,6 @@ export class DataSources {
 
   private _curlTextArea =
     "//label[text()='Paste CURL Code Here']/parent::form/div";
-  _allQueriesforDB = (dbName: string) =>
-    "//div[text()='" +
-    dbName +
-    "']/following-sibling::div[contains(@class, 't--entity')  and contains(@class, 'action')]//div[contains(@class, 't--entity-name')]";
   _noSchemaAvailable = (dbName: string) =>
     "//div[text()='" +
     dbName +
@@ -202,7 +199,7 @@ export class DataSources {
   }
 
   public GeneratePageWithMockDB() {
-    this.ee.AddNewPage("generate-page");
+    this.ee.AddNewPage("Generate page with data");
     this.agHelper.GetNClick(this._selectDatasourceDropdown);
     this.agHelper.GetNClick(this.locator._dropdownText, 1);
     this.agHelper.GetNClickByContains(this._mockDatasourceName, "Users");
@@ -210,7 +207,7 @@ export class DataSources {
     this.agHelper.GetNClick("[data-testid='t--dropdown-option-public.users']");
     this.agHelper.GetNClick(this._generatePageBtn);
     this.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-    this.agHelper.GetNClick(this.locator._visibleTextSpan("GOT IT"));
+    this.agHelper.GetNClick(this.locator._visibleTextSpan("Got it"));
   }
 
   public StartDataSourceRoutes() {
@@ -643,9 +640,17 @@ export class DataSources {
     this.NavigateToActiveTab();
     cy.get(this._datasourceCard)
       .contains(datasourceName)
+      .parents(this._datasourceCard)
+      .find(this._dsMenuoptions)
       .scrollIntoView()
       .should("be.visible")
       .click();
+    this.agHelper.GetNClick(
+      this.locator._visibleTextSpan("Edit"),
+      0,
+      false,
+      200,
+    );
     this.agHelper.Sleep(); //for the Datasource page to open
     //this.agHelper.ClickButton("Delete");
     this.agHelper.GetNClick(
@@ -809,7 +814,7 @@ export class DataSources {
 
       jsonHeaderString =
         isMongo == true
-          ? "Update document " + headerString + ": " + $cellData
+          ? "Update Document " + headerString + ": " + $cellData
           : "Update Row " + headerString + ": " + $cellData;
       this.agHelper
         .GetText(this.locator._jsonFormHeader)

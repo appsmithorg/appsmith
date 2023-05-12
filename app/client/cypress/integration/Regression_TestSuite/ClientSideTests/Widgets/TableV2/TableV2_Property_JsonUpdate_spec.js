@@ -1,13 +1,19 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/tableV2TextPaginationDsl.json");
 
+import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+
+let apiPage = ObjectsRegistry.ApiPage;
+
 describe("Test Create Api and Bind to Table widget V2", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
   it("1. Create an API and Execute the API and bind with Table V2", function () {
-    cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
+    apiPage.CreateAndFillApi(
+      this.data.paginationUrl + this.data.paginationParam,
+    );
     cy.RunAPI();
   });
 

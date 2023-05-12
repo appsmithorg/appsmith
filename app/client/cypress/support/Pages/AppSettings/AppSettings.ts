@@ -4,7 +4,7 @@ export class AppSettings {
   private theme = ObjectsRegistry.ThemeSettings;
 
   private locators = {
-    _appSettings: "#t--app-settings-cta",
+    _appSettings: ".t--app-settings-cta",
     _closeSettings: "#t--close-app-settings-pane",
     _themeSettingsHeader: "#t--theme-settings-header",
     _generalSettingsHeader: "#t--general-settings-header",

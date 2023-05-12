@@ -24,7 +24,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       ee.AddNewPage();
-      ee.AddNewPage("generate-page");
+      ee.AddNewPage("Generate page with data");
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
       agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
     });
@@ -67,7 +67,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     agHelper.GetNClickByContains(
       dataSources._dropdownOption,
-      "Connect New Datasource",
+      "Connect new datasource",
     );
 
     dataSources.CreateDataSource("MySql", false);

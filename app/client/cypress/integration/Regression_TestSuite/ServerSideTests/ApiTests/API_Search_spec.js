@@ -40,9 +40,9 @@ describe("API Panel Test Functionality ", function () {
 
   it("if suggested widgets section alwas appears for all 3 modes", function () {
     cy.log("Login Successful");
-    cy.createAndFillApi(testUrl1, "");
+    _.apiPage.CreateAndFillApi(testUrl1);
     cy.RunAPI();
-    cy.createAndFillApi(testUrl2, "");
+    _.apiPage.CreateAndFillApi(testUrl2);
     cy.RunAPI();
     cy.get(ApiEditor.jsonResponseTab).click();
     cy.checkIfApiPaneIsVisible();

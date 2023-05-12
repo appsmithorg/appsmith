@@ -30,7 +30,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       ee.AddNewPage();
-      ee.AddNewPage("generate-page");
+      ee.AddNewPage("Generate page with data");
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
       agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
     });
@@ -94,7 +94,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@updateLayout", 200);
 
-    agHelper.GetNClick(dataSources._visibleTextSpan("GOT IT"));
+    agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
     deployMode.DeployApp();
 
     //Validating loaded table
