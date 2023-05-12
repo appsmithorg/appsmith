@@ -58,6 +58,12 @@ function IconButton(props: {
         buttonVariant={props.buttonVariant}
         compactMode={props.compactMode}
         disabled={props.disabled}
+        /**
+         * We pass hasOnClickAction as true because Icon buttons in tables are always used as button
+         * and not Icons (which do not have hover state).
+         * Hene we pass hasOnClickAction true to enable BG color change on hover.
+         **/
+        hasOnClickAction
         icon={props.iconName}
         loading={loading}
         onClick={handleClick}

@@ -21,7 +21,6 @@ import Button from "components/editorComponents/Button";
 import ProfileDropdown from "./ProfileDropdown";
 import { Colors } from "constants/Colors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
-import { ReactComponent as TwoLineHamburger } from "assets/icons/ads/two-line-hamburger.svg";
 import MobileSideBar from "./MobileSidebar";
 import { Indices } from "constants/Layers";
 import { Icon, IconSize } from "design-system-old";
@@ -33,6 +32,11 @@ import { getCurrentApplication } from "selectors/editorSelectors";
 import { get } from "lodash";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { getAssetUrl, isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { importSvg } from "design-system-old";
+
+const TwoLineHamburger = importSvg(
+  () => import("assets/icons/ads/two-line-hamburger.svg"),
+);
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;

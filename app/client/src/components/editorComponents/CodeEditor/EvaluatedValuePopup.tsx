@@ -20,7 +20,6 @@ import type { IPopoverSharedProps } from "@blueprintjs/core";
 import { Button, Classes, Collapse, Icon } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import { UNDEFINED_VALIDATION } from "utils/validation/common";
-import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import copy from "copy-to-clipboard";
 
 import type { EvaluationError } from "utils/DynamicBindingUtils";
@@ -39,6 +38,9 @@ import { showDebugger } from "actions/debuggerActions";
 import { modText } from "utils/helpers";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getJSFunctionNavigationUrl } from "selectors/navigationSelectors";
+import { importSvg } from "design-system-old";
+
+const CopyIcon = importSvg(() => import("assets/icons/menu/copy-snippet.svg"));
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {

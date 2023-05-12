@@ -2,28 +2,30 @@ import React from "react";
 import type { BaseFieldProps } from "redux-form";
 import { Field } from "redux-form";
 import type { EditorStyleProps } from "components/editorComponents/CodeEditor";
-import CodeEditor from "components/editorComponents/CodeEditor";
-import type { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
+import type {
+  CodeEditorBorder,
+  TEditorModes,
+} from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   EditorModes,
   EditorSize,
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 
 class DynamicTextField extends React.Component<
   BaseFieldProps &
     EditorStyleProps & {
       size?: EditorSize;
       tabBehaviour?: TabBehaviour;
-      mode?: EditorModes;
+      mode?: TEditorModes;
       theme?: EditorTheme;
       hoverInteraction?: boolean;
       border?: CodeEditorBorder;
       showLightningMenu?: boolean;
       height?: string;
       disabled?: boolean;
-      lineCommentString?: string;
       evaluatedPopUpLabel?: string;
     }
 > {
@@ -33,10 +35,11 @@ class DynamicTextField extends React.Component<
       tabBehaviour: this.props.tabBehaviour || TabBehaviour.INPUT,
       theme: this.props.theme || EditorTheme.LIGHT,
       size: this.props.size || EditorSize.COMPACT,
-      lineCommentString: this.props.lineCommentString,
     };
 
-    return <Field component={CodeEditor} {...this.props} {...editorProps} />;
+    return (
+      <Field component={LazyCodeEditor} {...this.props} {...editorProps} />
+    );
   }
 }
 
