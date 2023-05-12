@@ -330,7 +330,7 @@ export const getFirstTimeUserOnboardingIntroModalVisibility = async () => {
   }
 };
 
-export const getFirstTimeUserOnboardingTelemetryCalloutVisibility =
+export const getFirstTimeUserOnboardingTelemetryCalloutIsAlreadyShown =
   async () => {
     try {
       const flag = await store.getItem(

@@ -45,7 +45,7 @@ import {
 } from "selectors/onboardingSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import {
-  getFirstTimeUserOnboardingTelemetryCalloutVisibility,
+  getFirstTimeUserOnboardingTelemetryCalloutIsAlreadyShown,
   setFirstTimeUserOnboardingTelemetryCalloutVisibility,
 } from "utils/storage";
 import { ANONYMOUS_DATA_POPOP_TIMEOUT } from "./constants";
@@ -138,7 +138,7 @@ export default function OnboardingTasks() {
       !isOnboardingCompleted;
     if (shouldPopupShow) {
       const isAnonymousDataPopupAlreadyOpen =
-        await getFirstTimeUserOnboardingTelemetryCalloutVisibility();
+        await getFirstTimeUserOnboardingTelemetryCalloutIsAlreadyShown();
       if (isAnonymousDataPopupAlreadyOpen) {
         setisAnonymousDataPopupOpen(false);
       } else {
