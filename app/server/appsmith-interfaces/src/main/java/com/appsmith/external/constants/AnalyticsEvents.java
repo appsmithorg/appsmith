@@ -78,7 +78,13 @@ public enum AnalyticsEvents {
     ACTIVATE_NEW_INSTANCE("Activate_New_Instance"),
     UPDATE_EXISTING_LICENSE("Update_Existing_License"),
 
-    DS_SCHEMA_FETCH_EVENT("DatasourceSchemaFetch")
+    DS_SCHEMA_FETCH_EVENT("DatasourceSchemaFetch"),
+    DS_SCHEMA_FETCH_EVENT_SUCCESS("DatasourceSchemaFetchSuccess"),
+    DS_SCHEMA_FETCH_EVENT_FAILED("DatasourceSchemaFetchFailed"),
+
+    DS_TEST_EVENT("TestDatasourceClicked"),
+    DS_TEST_EVENT_SUCCESS("TestDatasourceSuccess"),
+    DS_TEST_EVENT_FAILED("TestDatasourceFailed")
     ;
 
     private final String eventName;

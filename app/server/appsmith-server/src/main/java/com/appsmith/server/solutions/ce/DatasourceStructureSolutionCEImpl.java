@@ -35,6 +35,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
+import static com.appsmith.server.helpers.AnalyticsUtils.getAnalyticsProperties;
+import static com.appsmith.server.helpers.AnalyticsUtils.getAnalyticsPropertiesForFailEvent;
+
 @RequiredArgsConstructor
 @Slf4j
 public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSolutionCE {
@@ -129,17 +132,23 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                 )
                 .onErrorMap(e -> {
                     log.error("In the datasource structure error mode.", e);
-
+                    //Adding analytics event for ds structure fetch failure
+                    analyticsService.sendEvent(AnalyticsEvents.DS_SCHEMA_FETCH_EVENT_FAILED.name(),null,
+                            getAnalyticsPropertiesForFailEvent(datasource,e),false);
                     if (!(e instanceof AppsmithPluginException)) {
                         return new AppsmithPluginException(AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR, e.getMessage());
                     }
 
                     return e;
                 })
-                .flatMap(structure -> datasource.getId() == null
-                        ? Mono.empty()
-                        : datasourceConfigurationStructureService.saveStructure(datasource.getId(), structure).thenReturn(structure)
-                );
+                .flatMap(structure -> {
+                    analyticsService.sendEvent(AnalyticsEvents.DS_SCHEMA_FETCH_EVENT_SUCCESS.name(),null,
+                            getAnalyticsProperties(datasource),false);
+                    return datasource.getId() == null
+                            ? Mono.empty()
+                            : datasourceConfigurationStructureService.saveStructure(datasource.getId(),
+                            structure).thenReturn(structure);
+                });
 
 
         // This mono, when computed, will load the structure of the datasource by calling the plugin method.
@@ -214,19 +223,6 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
         }
 
         return Boolean.FALSE;
-    }
-
-    /**
-     * Creates the map of properties for schema fetch event
-     *
-     * @param datasource
-     * @return Map<String,String> of event metadata
-     */
-    private Map<String,String> getAnalyticsProperties(Datasource datasource){
-        Map<String,String> properties = new HashMap<>();
-        properties.put("dsId",datasource.getId());
-        properties.put("pluginId",datasource.getPluginId());
-        return properties;
     }
 
 }
