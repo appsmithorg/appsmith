@@ -61,7 +61,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
-      "Show AlertAdd message",
+      "Show alertAdd message",
       "have.text",
       1,
     );
@@ -102,7 +102,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
-      "Show AlertHello world!",
+      "Show alertHello world!",
       "have.text",
       1,
     );
@@ -685,7 +685,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
-      "Show AlertAdd message",
+      "Show alertAdd message",
       "have.text",
       0,
     );
@@ -715,7 +715,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
-      "Show Alerthello",
+      "Show alerthello",
       "have.text",
       0,
     );

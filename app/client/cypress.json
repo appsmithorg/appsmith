@@ -20,9 +20,5 @@
   "retries": {
     "runMode": 1,
     "openMode": 0
-  },
-  "env": {
-    "USERNAME": "yaldram@appsmith.com",
-    "PASSWORD": "arsenal0211"
   }
 }
