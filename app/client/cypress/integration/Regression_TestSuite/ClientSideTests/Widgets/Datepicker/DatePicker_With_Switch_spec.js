@@ -2,6 +2,7 @@ const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/datepicker_switchDsl.json");
 const dayjs = require("dayjs");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Switch Widget within Form widget Functionality", function () {
   before(() => {
@@ -22,7 +23,8 @@ describe("Switch Widget within Form widget Functionality", function () {
   });
 
   it("Date Widget with Reset widget being switch widget", function () {
-    cy.SearchEntityandOpen("DatePicker1");
+    _.entityExplorer.SelectEntityByName("DatePicker1");
+
     cy.get(formWidgetsPage.defaultDate).click();
     cy.SetDateToToday();
     cy.setDate(1, "ddd MMM DD YYYY");

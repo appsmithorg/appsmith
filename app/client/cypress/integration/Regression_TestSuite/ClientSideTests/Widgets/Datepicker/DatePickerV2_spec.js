@@ -4,17 +4,15 @@ const datedsl = require("../../../../../fixtures/datePickerdsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
 
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-
-let agHelper = ObjectsRegistry.AggregateHelper;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("DatePicker Widget Property pane tests with js bindings", function () {
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   before(() => {
@@ -51,7 +49,8 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
     cy.openPropertyPane("textwidget");
     cy.testJsontext("text", "{{DatePicker1.formattedDate}}");
     cy.closePropertyPane();
-    cy.SearchEntityandOpen("Text2");
+    _.entityExplorer.SelectEntityByName("Text2");
+
     cy.EnableAllCodeEditors();
     cy.testJsontext("text", "{{DatePicker1.selectedDate}}");
     cy.closePropertyPane();
@@ -216,7 +215,7 @@ describe("DatePicker Widget Property tests onFocus and onBlur", function () {
 
     cy.get(widgetsPage.datepickerInput).click({ force: true });
     cy.validateToastMessage("Focused");
-    agHelper.PressEscape();
+    _.agHelper.PressEscape();
     cy.validateToastMessage("Blurred");
   });
 });

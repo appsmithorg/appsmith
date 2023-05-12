@@ -1,5 +1,6 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/dropDownWidget_reset_check_dsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Dropdown Widget Check value does not reset on navigation", function () {
   before(() => {
@@ -18,7 +19,7 @@ describe("Dropdown Widget Check value does not reset on navigation", function ()
     cy.NavigateToAPI_Panel();
 
     //Again navigate back to the widget
-    cy.SearchEntityandOpen("Select3");
+    _.entityExplorer.SelectEntityByName("Select3");
 
     //Check for the select value again
     cy.get(

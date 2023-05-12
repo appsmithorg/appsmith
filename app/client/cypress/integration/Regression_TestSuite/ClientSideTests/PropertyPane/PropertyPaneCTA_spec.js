@@ -1,4 +1,5 @@
 const dsl = require("../../../../fixtures/TextTabledsl.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Property pane CTA to add an action", function () {
   before(() => {
@@ -15,7 +16,8 @@ describe("Property pane CTA to add an action", function () {
     cy.NavigateToAPI_Panel();
 
     cy.CreateAPI("FirstAPI");
-    cy.SearchEntityandOpen("Table1");
+    _.entityExplorer.SelectEntityByName("Table1");
+
     cy.get(".t--propertypane-connect-cta").should("not.exist");
   });
 });
