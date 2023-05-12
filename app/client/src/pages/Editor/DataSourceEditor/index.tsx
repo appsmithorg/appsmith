@@ -45,27 +45,19 @@ import {
   REST_API_AUTHORIZATION_SUCCESSFUL,
   SAVE_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
-import { Category, Toaster, Variant } from "design-system-old";
+import { Toaster, Variant } from "design-system-old";
 import { isDatasourceInViewMode } from "selectors/ui";
 import { getQueryParams } from "utils/URLUtils";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import SaveOrDiscardDatasourceModal from "./SaveOrDiscardDatasourceModal";
 import {
-  ActionWrapper,
-  EditDatasourceButton,
-  FormTitleContainer,
-  Header,
-  PluginImage,
-} from "./JSONtoForm";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import {
   hasCreateDatasourceActionPermission,
+  hasDeleteDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
-import FormTitle from "./FormTitle";
+
 import styled from "styled-components";
 import CloseEditor from "components/editorComponents/CloseEditor";
-import NewActionButton from "./NewActionButton";
 import { isDatasourceAuthorizedForQueryCreation } from "utils/editorContextUtils";
 import Debugger, {
   ResizerContentContainer,
@@ -81,9 +73,11 @@ import {
 import type { ControlProps } from "components/formControls/BaseControl";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { formValuesToDatasource } from "transformers/RestAPIDatasourceFormTransformer";
+import { DSFormHeader } from "./DSFormHeader";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
+  canDeleteDatasource: boolean;
   canManageDatasource: boolean;
   datasourceButtonConfiguration: string[] | undefined;
   datasourceId: string;
@@ -512,55 +506,6 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     );
   }
 
-  renderHeader() {
-    const {
-      canCreateDatasourceActions,
-      canManageDatasource,
-      datasource,
-      datasourceId,
-      isNewDatasource,
-      isPluginAuthorized,
-      pluginImage,
-      pluginType,
-      setDatasourceViewMode,
-      viewMode,
-    } = this.props;
-
-    const createFlow = datasourceId === TEMP_DATASOURCE_ID;
-    return (
-      <Header style={{ paddingTop: "20px", flex: "1 1 10%" }}>
-        <FormTitleContainer>
-          <PluginImage alt="Datasource" src={getAssetUrl(pluginImage)} />
-          <FormTitle
-            disabled={!createFlow && !canManageDatasource}
-            focusOnMount={isNewDatasource}
-          />
-        </FormTitleContainer>
-        {viewMode && (
-          <ActionWrapper>
-            <EditDatasourceButton
-              category={Category.secondary}
-              className="t--edit-datasource"
-              onClick={() => {
-                setDatasourceViewMode(false);
-              }}
-              text="EDIT"
-            />
-            <NewActionButton
-              datasource={datasource as Datasource}
-              disabled={!canCreateDatasourceActions || !isPluginAuthorized}
-              eventFrom="datasource-pane"
-              pluginType={pluginType}
-              style={{
-                marginLeft: "16px",
-              }}
-            />
-          </ActionWrapper>
-        )}
-      </Header>
-    );
-  }
-
   // returns normalized and trimmed datasource form data
   getSanitizedData = () => {
     if (
@@ -583,11 +528,16 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
 
   render() {
     const {
+      canCreateDatasourceActions,
+      canDeleteDatasource,
+      canManageDatasource,
       datasource,
       datasourceButtonConfiguration,
       datasourceId,
       formData,
+      isDeleting,
       isInsideReconnectModal,
+      isNewDatasource,
       pluginId,
       showDebugger,
       triggerSave,
@@ -606,7 +556,23 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         }}
       >
         <CloseEditor />
-        {!isInsideReconnectModal && this.renderHeader()}
+        {!isInsideReconnectModal && (
+          <DSFormHeader
+            canCreateDatasourceActions={canCreateDatasourceActions}
+            canDeleteDatasource={canDeleteDatasource}
+            canManageDatasource={canManageDatasource}
+            datasource={datasource}
+            datasourceId={datasourceId}
+            isDeleting={isDeleting}
+            isNewDatasource={isNewDatasource}
+            isPluginAuthorized={false}
+            isSaving={false}
+            pluginImage={""}
+            pluginType={""}
+            setDatasourceViewMode={setDatasourceViewMode}
+            viewMode={viewMode}
+          />
+        )}
         <ResizerMainContainer>
           <ResizerContentContainer className="db-form-resizer-content">
             {this.renderForm()}
@@ -683,6 +649,10 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     datasourcePermissions,
   );
 
+  const canDeleteDatasource = hasDeleteDatasourcePermission(
+    datasourcePermissions,
+  );
+
   const pagePermissions = getPagePermissions(state);
   const canCreateDatasourceActions = hasCreateDatasourceActionPermission([
     ...datasourcePermissions,
@@ -702,6 +672,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
 
   return {
     canCreateDatasourceActions,
+    canDeleteDatasource,
     canManageDatasource,
     datasourceButtonConfiguration,
     datasourceId,

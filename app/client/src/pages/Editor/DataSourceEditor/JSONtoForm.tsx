@@ -79,6 +79,7 @@ export const Header = styled.div`
 
 export const ActionWrapper = styled.div`
   display: flex;
+  gap: 16px;
 `;
 
 export const ActionButton = styled(Button)<{
