@@ -5,17 +5,21 @@ import type { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataTy
 import type { EntityNavigationData } from "selectors/navigationSelectors";
 import type { ExpectedValueExample } from "utils/validation/common";
 
-export enum EditorModes {
-  TEXT = "text/plain",
-  SQL = "sql",
-  TEXT_WITH_BINDING = "text-js",
-  JSON = "application/json",
-  JSON_WITH_BINDING = "json-js",
-  SQL_WITH_BINDING = "sql-js",
-  JAVASCRIPT = "javascript",
-  GRAPHQL = "graphql",
-  GRAPHQL_WITH_BINDING = "graphql-js",
-}
+import { editorSQLModes } from "./sql/config";
+
+export const EditorModes = {
+  TEXT: "text/plain",
+  TEXT_WITH_BINDING: "text-js",
+  JSON: "application/json",
+  JSON_WITH_BINDING: "json-js",
+  JAVASCRIPT: "javascript",
+  GRAPHQL: "graphql",
+  GRAPHQL_WITH_BINDING: "graphql-js",
+  ...editorSQLModes,
+} as const;
+
+type ValueOf<T> = T[keyof T];
+export type TEditorModes = ValueOf<typeof EditorModes>;
 
 export enum EditorTheme {
   LIGHT = "LIGHT",
@@ -34,7 +38,7 @@ export enum EditorSize {
 
 export type EditorConfig = {
   theme: EditorTheme;
-  mode: EditorModes;
+  mode: TEditorModes;
   tabBehaviour: TabBehaviour;
   size: EditorSize;
   hinting?: Array<HintHelper>;
@@ -55,7 +59,7 @@ export type FieldEntityInformation = {
   propertyPath?: string;
   blockCompletions?: Array<{ parentPath: string; subPath: string }>;
   example?: ExpectedValueExample;
-  mode?: EditorModes;
+  mode?: TEditorModes;
 };
 
 export type HintHelper = (
