@@ -70,9 +70,9 @@ export class DataSources {
   _visibleTextSpan = (spanText: string) =>
     "//span[contains(text(),'" + spanText + "')]";
   _dropdownTitle = (ddTitle: string) =>
-    "//p[contains(text(),'" +
+    "//span[contains(text(),'" +
     ddTitle +
-    "')]/ancestor::div[@class='form-config-top']/following-sibling::div[@class='t--form-control-DROP_DOWN']//div[@role='listbox']";
+    "')]/ancestor::div[@class='form-config-top']/following-sibling::div[@class='t--form-control-DROP_DOWN']//div[@data-testid='t--dropdown-actionConfiguration.formData.command.data']";
   _reconnectModal = "div.reconnect-datasource-modal";
   _activeDSListReconnectModal = (dbName: string) =>
     "//div[contains(@class, 't--ds-list')]//span[text()='" + dbName + "']";
