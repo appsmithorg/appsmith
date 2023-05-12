@@ -361,6 +361,7 @@ export class DataSources {
   }
 
   public NavigateToDSCreateNew() {
+    this.ee.HoverOnEntityItem("Datasources");
     this.agHelper.GetNClick(this._addNewDataSource);
     // cy.get(this._dsCreateNewTab)
     //   .should("be.visible")

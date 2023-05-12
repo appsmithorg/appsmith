@@ -57,6 +57,7 @@ export class AppSettings {
     this.GoToThemeSettings();
     this.theme.ChangeThemeColor(primaryColorIndex, "Primary");
     this.theme.ChangeThemeColor(backgroundColorIndex, "Background");
+    this.agHelper.Sleep();
     this.ClosePane();
   }
 
