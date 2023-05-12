@@ -180,6 +180,7 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
     <Menu className={props.className}>
       <MenuTrigger>
         <Button
+          data-testid="more-action-trigger"
           isIconButton
           kind="tertiary"
           size="md"
