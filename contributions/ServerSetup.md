@@ -378,7 +378,7 @@ mvn -B clean compile && ./build.sh -DskipTests
   `Windows Security > Virus & Threat protection (Manage Settings) > Real-time protection (disable)`
 - This issue affects the build and index processes the most. You may be able to re-enable it after you finish those steps.
 
-#### Extremely poor WSL2 performance
+#### Poor WSL2 performance
 
 - Follow the above recommendations.
 
