@@ -3,6 +3,8 @@ package com.external.utils;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.AppsmithPluginErrorUtils;
 import com.arangodb.ArangoDBException;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Arrays;
@@ -16,6 +18,7 @@ import static com.external.plugins.exceptions.ArangoDBErrorMessages.DS_HOSTNAME_
  * Re-formatted error message: Could not find host address. Please edit the 'Host Address' and/or the 'Port' field to
  * provide the desired endpoint.
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ArangoDBErrorUtils extends AppsmithPluginErrorUtils {
     private static ArangoDBErrorUtils arangodbErrorUtils;
 

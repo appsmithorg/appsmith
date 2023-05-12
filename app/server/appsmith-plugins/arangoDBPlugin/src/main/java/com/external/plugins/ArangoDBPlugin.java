@@ -310,7 +310,10 @@ public class ArangoDBPlugin extends BasePlugin {
                         connection.getVersion();
                         return new DatasourceTestResult();
                     })
-                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(arangoDBErrorUtils.getReadableError(error))))
+                    .onErrorResume(error -> {
+                        log.error("Error when testing ArangoDB datasource.", error);
+                        return Mono.just(new DatasourceTestResult(arangoDBErrorUtils.getReadableError(error)));
+                    })
                     .timeout(Duration.ofSeconds(TEST_DATASOURCE_TIMEOUT_SECONDS),
                             Mono.just(new DatasourceTestResult(DS_HOSTNAME_MISSING_OR_INVALID_ERROR_MSG)));
         }
