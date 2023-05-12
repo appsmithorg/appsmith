@@ -202,6 +202,7 @@ worker_connections=1024
 
 echo "
 worker_processes  1;
+user $(id -u -n) $(id -g -n);
 
 error_log $nginx_error_log info;
 
