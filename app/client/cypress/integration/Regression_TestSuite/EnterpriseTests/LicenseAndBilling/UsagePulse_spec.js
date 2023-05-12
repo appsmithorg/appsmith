@@ -1,6 +1,6 @@
 import homePage from "../../../../locators/HomePage";
 
-describe("Usage pulse", function () {
+describe("excludeForAirgap", "Usage pulse", function () {
   beforeEach(() => {
     cy.intercept("POST", "/api/v1/usage-pulse").as("usagePulse");
   });

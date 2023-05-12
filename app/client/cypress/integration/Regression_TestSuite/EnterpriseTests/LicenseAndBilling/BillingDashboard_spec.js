@@ -18,10 +18,22 @@ describe("License and Billing dashboard", function () {
     cy.get(LicenseLocators.billingHeader).within(() => {
       cy.get(".header-text").should("have.text", "License & Billing");
     });
-    // check both cards are visible
-    cy.get(LicenseLocators.dashboardCard).should("have.length", 2);
   });
-  it("2. Billing and usage card", function () {
+  it(
+    "excludeForAirgap",
+    "2. should have two cards - Billing and usage, License key",
+    function () {
+      cy.get(LicenseLocators.dashboardCard).should("have.length", 2);
+    },
+  );
+  it(
+    "airgap",
+    "2. should have only one cards in airgap - License key card",
+    function () {
+      cy.get(LicenseLocators.dashboardCard).should("have.length", 1);
+    },
+  );
+  it("excludeForAirgap", "3. Billing and usage card", function () {
     cy.get(LicenseLocators.dashboardCard)
       .eq(0)
       .within(() => {
@@ -40,7 +52,21 @@ describe("License and Billing dashboard", function () {
         );
       });
   });
-  it("3. License key card - ACTIVE license", function () {
+  it(
+    "airgap",
+    "3. Billing and usage card shouldn't exist in airgap",
+    function () {
+      cy.get(LicenseLocators.dashboardCard)
+        .eq(0)
+        .within(() => {
+          cy.get(LicenseLocators.dashboardCardTitle).should(
+            "have.text",
+            "License Key",
+          );
+        });
+    },
+  );
+  it("excludeForAirgap", "3. License key card - ACTIVE license", function () {
     // Mock license key and license origin from API
     cy.interceptLicenseApi({
       licenseOrigin: "SELF_SERVE",
@@ -103,7 +129,7 @@ describe("License and Billing dashboard", function () {
     cy.wait(2000);
     cy.get(".bp3-dialog").should("not.exist");
   });
-  it("4.License key card - TRIAL license", function () {
+  it("excludeForAirgap", "4.License key card - TRIAL license", function () {
     const expiry =
       (new Date("25 Feb 2023").getTime() + 2 * 24 * 60 * 60 * 1000) / 1000;
     cy.interceptLicenseApi({
@@ -115,6 +141,40 @@ describe("License and Billing dashboard", function () {
     cy.wait(2000);
     cy.get(LicenseLocators.dashboardCard)
       .eq(1)
+      .within(() => {
+        cy.get(LicenseLocators.dashboardCardTitle).should(
+          "have.text",
+          "License Key",
+        );
+        cy.get(LicenseLocators.statusText)
+          .should("have.text", "TRIAL")
+          .should("have.css", "color", "rgb(3, 179, 101)");
+        cy.get(LicenseLocators.statusBadge).should(
+          "have.css",
+          "background-color",
+          "rgb(229, 246, 236)",
+        );
+        cy.get(LicenseLocators.licenseExpirationDate).should("be.visible");
+        cy.getDateString(expiry * 1000).then((date) => {
+          cy.get(LicenseLocators.licenseExpirationDate).should(
+            "have.text",
+            `Valid until: ${date}`,
+          );
+        });
+      });
+  });
+  it("airgap", "4.License key card - TRIAL license - airgap", function () {
+    const expiry =
+      (new Date("25 Feb 2023").getTime() + 2 * 24 * 60 * 60 * 1000) / 1000;
+    cy.interceptLicenseApi({
+      licenseStatus: "ACTIVE",
+      licenseType: "TRIAL",
+      expiry,
+    });
+    cy.reload();
+    cy.wait(2000);
+    cy.get(LicenseLocators.dashboardCard)
+      .eq(0)
       .within(() => {
         cy.get(LicenseLocators.dashboardCardTitle).should(
           "have.text",

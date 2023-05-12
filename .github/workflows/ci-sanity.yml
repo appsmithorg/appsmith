@@ -97,7 +97,7 @@ jobs:
           key: ${{ github.run_id }}-failed_spec_ci_sanity-${{ github.job }}
           restore-keys: |
             ${{ github.run_id }}-failed_spec_ci_sanity-${{ github.job }}
-            
+
       # failed_spec_env will contain list of all failed specs
       # We are using environment variable instead of regular to support multiline
       - name: Get failed_spec

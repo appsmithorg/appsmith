@@ -29,14 +29,6 @@ jobs:
     with:
       pr: 0
 
-  client-build-airgap:
-    name: client-build-airgap
-    uses: ./.github/workflows/client-build.yml
-    secrets: inherit
-    with:
-      pr: 0
-      airgap-enabled: "true"
-
   rts-build:
     name: rts-build
     uses: ./.github/workflows/rts-build.yml
@@ -183,13 +175,13 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: client-build
-          path: app/client/build
+          path: app/client
 
-      - name: Download the airgapped react build artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: client-build-airgap
-          path: app/client/build_airgap
+      - name: Unpack the client build artifact
+        if: steps.run_result.outputs.run_result != 'success'
+        run: |
+          mkdir -p app/client/build
+          tar -xvf app/client/build.tar -C app/client/build
 
       - name: Download the server build artifact
         uses: actions/download-artifact@v3

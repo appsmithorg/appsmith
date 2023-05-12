@@ -175,11 +175,17 @@ jobs:
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: actions/checkout@v3
 
-      - name: Download the airgapped react build artifact
+      - name: Download the react build artifact
         uses: actions/download-artifact@v3
         with:
           name: client-build-airgap
-          path: app/client/build_airgap
+          path: app/client
+
+      - name: Unpack the client build artifact
+        if: steps.run_result.outputs.run_result != 'success'
+        run: |
+          mkdir -p app/client/build_airgap
+          tar -xvf app/client/build.tar -C app/client/build_airgap
 
       - name: Download the server build artifact
         uses: actions/download-artifact@v3

@@ -1,10 +1,10 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const templateLocators = require("../../../../locators/TemplatesLocators.json");
-const reconnectDatasourceLocators = require("../../../../locators/ReconnectLocators.js");
+import reconnectDatasourceLocators from "../../../../locators/ReconnectLocators.js";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const { AggregateHelper, HomePage } = ObjectsRegistry;
 
-describe("Fork a template to an workspace", () => {
+describe("excludeForAirgap", "Fork a template to an workspace", () => {
   it("1. Fork a template to an workspace", () => {
     cy.NavigateToHome();
     cy.get(templateLocators.templatesTab).click();
@@ -75,6 +75,7 @@ describe("Fork a template to an workspace", () => {
     });
     cy.get(templateLocators.dialogForkButton).click();
     cy.get(reconnectDatasourceLocators.Modal).should("be.visible");
+    cy.get(reconnectDatasourceLocators.ListItemIcon).should("be.visible");
     cy.get(reconnectDatasourceLocators.ListItemIcon, {
       withinSubject: null,
     })
