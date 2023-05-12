@@ -44,6 +44,11 @@ import {
   getIsFirstTimeUserOnboardingEnabled,
 } from "selectors/onboardingSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
+import {
+  getFirstTimeUserOnboardingTelemetryCalloutVisibility,
+  setFirstTimeUserOnboardingTelemetryCalloutVisibility,
+} from "utils/storage";
+import { ANONYMOUS_DATA_POPOP_TIMEOUT } from "./constants";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -104,7 +109,7 @@ const getOnboardingWidgetImg = () => `${ASSETS_CDN_URL}/onboarding-widget.svg`;
 
 export default function OnboardingTasks() {
   const [isAnonymousDataPopupOpen, setisAnonymousDataPopupOpen] =
-    useState(true);
+    useState(false);
 
   const isFirstTimeUserOnboardingEnabled = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
@@ -119,15 +124,37 @@ export default function OnboardingTasks() {
   const user = useSelector(getCurrentUser);
   const isAdmin = user?.isSuperUser || false;
   const isOnboardingCompleted = useSelector(getFirstTimeUserOnboardingComplete);
-  const showShowAnonymousDataPopup =
-    isAnonymousDataPopupOpen &&
-    !isAirgapped &&
-    isFirstTimeUserOnboardingEnabled &&
-    isAdmin &&
-    !isOnboardingCompleted;
+
+  const hideAnonymousDataPopup = () => {
+    setisAnonymousDataPopupOpen(false);
+    setFirstTimeUserOnboardingTelemetryCalloutVisibility(true);
+  };
+
+  const showShowAnonymousDataPopup = async () => {
+    const shouldPopupShow =
+      !isAirgapped() &&
+      isFirstTimeUserOnboardingEnabled &&
+      isAdmin &&
+      !isOnboardingCompleted;
+    if (shouldPopupShow) {
+      const isAnonymousDataPopupAlreadyOpen =
+        await getFirstTimeUserOnboardingTelemetryCalloutVisibility();
+      if (isAnonymousDataPopupAlreadyOpen) {
+        setisAnonymousDataPopupOpen(false);
+      } else {
+        setisAnonymousDataPopupOpen(true);
+        setTimeout(() => {
+          hideAnonymousDataPopup();
+        }, ANONYMOUS_DATA_POPOP_TIMEOUT);
+        await setFirstTimeUserOnboardingTelemetryCalloutVisibility(true);
+      }
+    } else {
+      setisAnonymousDataPopupOpen(shouldPopupShow);
+    }
+  };
 
   useEffect(() => {
-    setTimeout(() => setisAnonymousDataPopupOpen(false), 10000);
+    showShowAnonymousDataPopup();
   }, []);
 
   if (!datasources.length && !actions.length) {
@@ -291,7 +318,9 @@ export default function OnboardingTasks() {
   return (
     <Wrapper data-testid="onboarding-tasks-wrapper">
       {content}
-      {showShowAnonymousDataPopup && <AnonymousDataPopup />}
+      {isAnonymousDataPopupOpen && (
+        <AnonymousDataPopup onCloseCallout={hideAnonymousDataPopup} />
+      )}
     </Wrapper>
   );
 }
