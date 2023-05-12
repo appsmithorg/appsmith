@@ -2,6 +2,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../.././../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/tableAndTextDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget Filtered Table data in autocomplete", function () {
   before(() => {
@@ -25,7 +26,7 @@ describe("Table Widget Filtered Table data in autocomplete", function () {
   });
 
   it("Table Widget Functionality to validate filtered table data", function () {
-    cy.SearchEntityandOpen("Text1");
+    _.entityExplorer.SelectEntityByName("Text1");
     cy.testJsontext("text", "{{Table1.filteredTableData[0].task}}");
     cy.readTabledata("0", "1").then((tabData) => {
       const tableData = tabData;

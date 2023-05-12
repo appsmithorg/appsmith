@@ -1,6 +1,7 @@
 const dsl = require("../../../../fixtures/formInputTableDsl.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the Table and input Widget", function () {
   before(() => {
@@ -8,7 +9,7 @@ describe("Binding the Table and input Widget", function () {
   });
 
   it("Input widget test with default value from table widget", function () {
-    cy.SearchEntityandOpen("Input1");
+    _.entityExplorer.SelectEntityByName("Input1");
     cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
 
     cy.wait("@updateLayout").should(
@@ -19,7 +20,7 @@ describe("Binding the Table and input Widget", function () {
   });
 
   it("validation of data displayed in input widgets based on search value set", function () {
-    cy.SearchEntityandOpen("Table1");
+    _.entityExplorer.SelectEntityByName("Table1");
     cy.testJsontext("defaultsearchtext", "2736212");
 
     cy.wait("@updateLayout").isSelectRow(0);
