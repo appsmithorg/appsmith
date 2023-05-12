@@ -359,6 +359,7 @@ describe("Json & JsonB Datatype tests", function () {
 
     ee.SelectEntityByName(dsName, "Datasources");
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
+    ee.ExpandCollapseEntity(dsName);
     agHelper.AssertElementVisible(
       ee._entityNameInExplorer("public.jsonBbooks"),
     );
