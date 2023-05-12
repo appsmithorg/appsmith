@@ -32,7 +32,7 @@ import type {
   WorkspaceApplicationObject,
 } from "@appsmith/api/ApplicationApi";
 import ApplicationApi from "@appsmith/api/ApplicationApi";
-import { all, call, put, select } from "redux-saga/effects";
+import { all, call, put, select, take } from "redux-saga/effects";
 
 import { validateResponse } from "sagas/ErrorSagas";
 import { getUserApplicationsWorkspacesList } from "@appsmith/selectors/applicationSelectors";
@@ -76,6 +76,7 @@ import type { AppColorCode } from "constants/DefaultTheme";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getIsEditorInitialized,
 } from "selectors/editorSelectors";
 
 import {
@@ -657,18 +658,18 @@ export function* forkApplicationSaga(
   action: ReduxAction<ForkApplicationRequest>,
 ) {
   try {
-    const response: ApiResponse = yield call(
-      ApplicationApi.forkApplication,
-      action.payload,
-    );
+    const response: ApiResponse<{
+      application: ApplicationResponsePayload;
+      isPartialImport: boolean;
+      unConfiguredDatasourceList: Datasource[];
+    }> = yield call(ApplicationApi.forkApplication, action.payload);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put(resetCurrentApplication());
       const application: ApplicationPayload = {
+        ...response.data.application,
         // @ts-expect-error: response is of type unknown
-        ...response.data,
-        // @ts-expect-error: response is of type unknown
-        defaultPageId: getDefaultPageId(response.data.pages),
+        defaultPageId: getDefaultPageId(response.data.application.pages),
       };
       yield put({
         type: ReduxActionTypes.FORK_APPLICATION_SUCCESS,
@@ -687,6 +688,21 @@ export function* forkApplicationSaga(
         pageId: application.defaultPageId as string,
       });
       history.push(pageURL);
+
+      const isEditorInitialized: boolean = yield select(getIsEditorInitialized);
+      if (!isEditorInitialized) {
+        yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
+      }
+      if (response.data.isPartialImport) {
+        yield put(
+          showReconnectDatasourceModal({
+            application: response.data?.application,
+            unConfiguredDatasourceList:
+              response?.data.unConfiguredDatasourceList,
+            workspaceId: action.payload.workspaceId,
+          }),
+        );
+      }
     }
   } catch (error) {
     yield put({

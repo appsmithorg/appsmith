@@ -267,6 +267,7 @@ class CodeEditor extends Component<Props, State> {
   updateLintingCallback: UpdateLintingCallback | undefined;
   private editorWrapperRef = React.createRef<HTMLDivElement>();
   AIEnabled = false;
+  lineRef: React.MutableRefObject<number | null> = React.createRef();
 
   constructor(props: Props) {
     super(props);
@@ -864,7 +865,8 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleCursorMovement = (cm: CodeMirror.Editor) => {
-    this.handleCustomGutter(cm.getCursor().line, true);
+    const line = cm.getCursor().line;
+    this.handleCustomGutter(line, true);
     // ignore if disabled
     if (!this.props.input.onChange || this.props.disabled) {
       return;
@@ -883,6 +885,16 @@ class CodeEditor extends Component<Props, State> {
     } else {
       cm.setOption("matchBrackets", false);
     }
+    if (!this.props.borderLess) return;
+    if (this.lineRef.current !== null) {
+      cm.removeLineClass(
+        this.lineRef.current,
+        "background",
+        "CodeMirror-activeline-background",
+      );
+    }
+    cm.addLineClass(line, "background", "CodeMirror-activeline-background");
+    this.lineRef.current = line;
   };
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
@@ -935,7 +947,7 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  handleEditorBlur = (_: CodeMirror.Editor, event: FocusEvent) => {
+  handleEditorBlur = (cm: CodeMirror.Editor, event: FocusEvent) => {
     if (event && event.relatedTarget instanceof Element) {
       if (event.relatedTarget.classList.contains("ai-trigger")) {
         return;
@@ -953,6 +965,14 @@ class CodeEditor extends Component<Props, State> {
         line: cursor.line,
       },
     });
+    if (this.lineRef.current !== null) {
+      cm.removeLineClass(
+        this.lineRef.current,
+        "background",
+        "CodeMirror-activeline-background",
+      );
+      this.lineRef.current = null;
+    }
     if (this.props.onEditorBlur) {
       this.props.onEditorBlur();
     }
