@@ -144,7 +144,7 @@ export default function ExplorerSubMenu({
             <Text kind="heading-xs">Create new</Text>
           </div>
           <SearchInput
-            data-testId="t--search-file-operation"
+            className="t--search-file-operation"
             onChange={onChange}
             placeholder="Search datasources"
             value={query}
@@ -161,6 +161,7 @@ export default function ExplorerSubMenu({
 
               return (
                 <MenuItem
+                  className="t--file-operation"
                   key={`file-op-${idx}`}
                   onClick={() => handleClick(item)}
                 >

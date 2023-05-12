@@ -24,7 +24,7 @@ export class JSEditor {
   public propPane = ObjectsRegistry.PropertyPane;
 
   //#region Element locators
-  _runButton = "button.run-js-action";
+  _runButton = ".run-js-action";
   _settingsTab = ".tab-title:contains('Settings')";
   _codeTab = ".tab-title:contains('Code')";
   private _jsObjectParseErrorCallout =

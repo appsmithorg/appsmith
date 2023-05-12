@@ -96,7 +96,7 @@ export class AggregateHelper {
         ).then((dslDumpResp) => {
           //cy.log("Pages resposne is : " + dslDumpResp.body);
           expect(dslDumpResp.status).equal(200);
-          //this.RefreshPage();
+          this.RefreshPage();
           if (elementToCheckPresenceaftDslLoad)
             this.WaitUntilEleAppear(elementToCheckPresenceaftDslLoad);
           this.Sleep(); //settling time for dsl

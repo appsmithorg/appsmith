@@ -47,7 +47,7 @@ export class CommonLocators {
     this._toastMsg + ":contains('" + toastText + "')";
   //_specificToast = (toastText: string | RegExp) => this._toastMsg + ":contains("+ (typeof toastText == 'string' ? "'"+ toastText+"'" : toastText)+ ")"//not working!
   _empty = "span[name='no-response']";
-  _contextMenuInPane = "[data-testid='more-action-trigger']";
+  _contextMenuInPane = ".more-action-trigger";
   _contextMenuSubItemDiv = (item: string) =>
     "//div[text()='" + item + "'][contains(@class, 'bp3-fill')]";
   _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']";

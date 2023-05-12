@@ -705,8 +705,8 @@ Cypress.Commands.add("NavigateToWidgetsInExplorer", () => {
 });
 
 Cypress.Commands.add("NavigateToJSEditor", () => {
-  cy.get(explorer.createNew).click({ force: true });
-  cy.get(`[data-testId="t--search-file-operation"]`).type("New JS Object");
+  cy.get(explorer.createNew).click({ multiple: true });
+  cy.get(".t--search-file-operation").type("New JS Object");
   cy.get(".t--file-operation").eq(0).click({ force: true });
 });
 
