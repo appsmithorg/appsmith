@@ -36,7 +36,7 @@ describe("Fork a template to an workspace", () => {
   });
 
   it("3. Hide template fork button if user does not have a valid workspace to fork", () => {
-    _._.homePage.NavigateToHome();
+    _.homePage.NavigateToHome();
     // Mock user with App Viewer permission
     cy.intercept("/api/v1/applications/new", {
       fixture: "Templates/MockAppViewerUser.json",
