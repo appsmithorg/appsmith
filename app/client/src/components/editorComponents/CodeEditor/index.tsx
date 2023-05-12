@@ -20,6 +20,10 @@ import "codemirror/addon/tern/tern.css";
 import "codemirror/addon/lint/lint";
 import "codemirror/addon/lint/lint.css";
 import "codemirror/addon/comment/comment";
+import "codemirror/mode/sql/sql.js";
+import "codemirror/addon/hint/show-hint";
+import "codemirror/addon/hint/show-hint.css";
+import "codemirror/addon/hint/sql-hint";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import type { WrappedFieldInputProps } from "redux-form";
@@ -33,6 +37,7 @@ import type {
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { Skin } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import "components/editorComponents/CodeEditor/sql/customMimes";
 import "components/editorComponents/CodeEditor/modes";
 import type {
   CodeEditorBorder,
@@ -66,7 +71,10 @@ import {
   PEEKABLE_LINE,
   PEEK_STYLE_PERSIST_CLASS,
 } from "components/editorComponents/CodeEditor/MarkHelpers/entityMarker";
-import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
+import {
+  bindingHint,
+  sqlHint,
+} from "components/editorComponents/CodeEditor/hintHelpers";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
 import { Button, ScrollIndicator } from "design-system-old";
@@ -139,6 +147,7 @@ import {
 } from "./utils/saveAndAutoIndent";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { selectFeatureFlags } from "selectors/usersSelectors";
+import { getAllDatasourceTableKeys } from "selectors/entitiesSelector";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -249,7 +258,7 @@ const getEditorIdentifier = (props: EditorProps): string => {
 class CodeEditor extends Component<Props, State> {
   static defaultProps = {
     marking: [bindingMarker, entityMarker],
-    hinting: [bindingHint, commandsHelper],
+    hinting: [bindingHint, commandsHelper, sqlHint.hinter],
     lineCommentString: "//",
   };
   // this is the higlighted element for any highlighted text in the codemirror
@@ -426,6 +435,7 @@ class CodeEditor extends Component<Props, State> {
           }
         }, 200);
       }.bind(this);
+      sqlHint.setDatasourceTableKeys(this.props.datasourceTableKeys);
 
       // Finally create the Codemirror editor
       this.editor = CodeMirror(this.codeEditorTarget.current, options);
@@ -533,6 +543,9 @@ class CodeEditor extends Component<Props, State> {
           this.props.marking!, // ! since defaultProps are set
           this.props.entitiesForNavigation,
         );
+      }
+      if (this.props.datasourceTableKeys !== prevProps.datasourceTableKeys) {
+        sqlHint.setDatasourceTableKeys(this.props.datasourceTableKeys);
       }
     });
   }
@@ -1459,6 +1472,7 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
     props.dataTreePath?.split(".")[0],
   ),
   featureFlags: selectFeatureFlags(state),
+  datasourceTableKeys: getAllDatasourceTableKeys(state, props.dataTreePath),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

@@ -216,7 +216,7 @@ myFun2: async () => {
     agHelper.GetNClick(jsEditor._runButton);
     agHelper.Sleep(); // allow time to run
     //Close bottom bar after execution.
-    debuggerHelper.ClickDebuggerIcon();
+    debuggerHelper.CloseBottomBar();
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify2");
 
     // click dropdown to change function and make sure prettify has not reverted
@@ -323,7 +323,7 @@ myFun2: async () => {
     agHelper.GetNClick(jsEditor._runButton);
     agHelper.Sleep(); // allow time to run
     //Close bottom bar after execution.
-    debuggerHelper.ClickDebuggerIcon();
+    debuggerHelper.CloseBottomBar();
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4_1");
 
     // click dropdown to change function and make sure prettify has not reverted
