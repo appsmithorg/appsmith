@@ -1007,70 +1007,76 @@ export function EditorJSONtoForm(props: Props) {
                   </Tooltip>
                 )}
               </TabContainerView>
-              {renderDebugger && (
-                <DebuggerWithPadding>
-                  <TabbedViewContainer
-                    className="t--query-bottom-pane-container"
-                    ref={panelRef}
-                  >
-                    <Resizable
-                      initialHeight={responsePaneHeight}
-                      onResizeComplete={(height: number) =>
-                        setQueryResponsePaneHeight(height)
-                      }
-                      openResizer={isRunning}
-                      panelRef={panelRef}
-                      snapToHeight={ActionExecutionResizerHeight}
-                    />
-                    {isRunning && (
-                      <>
-                        <LoadingOverlayScreen theme={EditorTheme.LIGHT} />
-                        <LoadingOverlayContainer>
-                          <Text textAlign={"center"} type={TextType.P1}>
-                            {createMessage(ACTION_EXECUTION_MESSAGE, "query")}
+              {renderDebugger &&
+                selectedResponseTab !== DEBUGGER_TAB_KEYS.HEADER_TAB && (
+                  <DebuggerWithPadding>
+                    <TabbedViewContainer
+                      className="t--query-bottom-pane-container"
+                      ref={panelRef}
+                    >
+                      <Resizable
+                        initialHeight={responsePaneHeight}
+                        onResizeComplete={(height: number) =>
+                          setQueryResponsePaneHeight(height)
+                        }
+                        openResizer={isRunning}
+                        panelRef={panelRef}
+                        snapToHeight={ActionExecutionResizerHeight}
+                      />
+                      {isRunning && (
+                        <>
+                          <LoadingOverlayScreen theme={EditorTheme.LIGHT} />
+                          <LoadingOverlayContainer>
+                            <div>
+                              <Text textAlign={"center"} type={TextType.P1}>
+                                {createMessage(
+                                  ACTION_EXECUTION_MESSAGE,
+                                  "query",
+                                )}
+                              </Text>
+                              <Button
+                                className={`t--cancel-action-button`}
+                                kind="secondary"
+                                onClick={() => {
+                                  handleCancelActionExecution();
+                                }}
+                                size="md"
+                              >
+                                Cancel request
+                              </Button>
+                            </div>
+                          </LoadingOverlayContainer>
+                        </>
+                      )}
+
+                      {output && !!output.length && (
+                        <ResultsCount>
+                          <Text type={TextType.P3}>
+                            Result:
+                            <Text type={TextType.H5}>{` ${
+                              output.length
+                            } Record${output.length > 1 ? "s" : ""}`}</Text>
                           </Text>
-                          <Button
-                            className={`t--cancel-action-button`}
-                            kind="secondary"
-                            onClick={() => {
-                              handleCancelActionExecution();
-                            }}
-                            size="md"
-                          >
-                            Cancel request
-                          </Button>
-                        </LoadingOverlayContainer>
-                      </>
-                    )}
+                        </ResultsCount>
+                      )}
 
-                    {output && !!output.length && (
-                      <ResultsCount>
-                        <Text type={TextType.P3}>
-                          Result:
-                          <Text type={TextType.H5}>{` ${output.length} Record${
-                            output.length > 1 ? "s" : ""
-                          }`}</Text>
-                        </Text>
-                      </ResultsCount>
-                    )}
-
-                    <EntityBottomTabs
-                      expandedHeight={`${ActionExecutionResizerHeight}px`}
-                      onSelect={setSelectedResponseTab}
-                      selectedTabKey={selectedResponseTab}
-                      tabs={responseTabs}
-                    />
-                    <Button
-                      className="close-debugger t--close-debugger"
-                      isIconButton
-                      kind="tertiary"
-                      onClick={onClose}
-                      size="md"
-                      startIcon="close-modal"
-                    />
-                  </TabbedViewContainer>
-                </DebuggerWithPadding>
-              )}
+                      <EntityBottomTabs
+                        expandedHeight={`${ActionExecutionResizerHeight}px`}
+                        onSelect={setSelectedResponseTab}
+                        selectedTabKey={selectedResponseTab}
+                        tabs={responseTabs}
+                      />
+                      <Button
+                        className="close-debugger t--close-debugger"
+                        isIconButton
+                        kind="tertiary"
+                        onClick={onClose}
+                        size="md"
+                        startIcon="close-modal"
+                      />
+                    </TabbedViewContainer>
+                  </DebuggerWithPadding>
+                )}
             </SecondaryWrapper>
             <AIWindow className="border-t border-l" windowType="fixed" />
           </div>
