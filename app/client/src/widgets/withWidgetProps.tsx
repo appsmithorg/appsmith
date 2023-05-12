@@ -43,7 +43,10 @@ import { isAutoHeightEnabledForWidget } from "./WidgetUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { getGoogleMapsApiKey } from "ce/selectors/tenantSelectors";
 import ConfigTreeActions from "utils/configTree";
-import { getSelectedWidgetAncestry } from "../selectors/widgetSelectors";
+import {
+  getSelectedWidgetAncestry,
+  isWidgetSelected,
+} from "../selectors/widgetSelectors";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 const WIDGETS_REQUIRING_SELECTED_ANCESTRY = ["MODAL_WIDGET", "TABS_WIDGET"];
@@ -65,6 +68,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       getWidget(state, widgetId),
     );
     const metaWidget = useSelector(getMetaWidget(widgetId));
+    const isSelected = useSelector(isWidgetSelected(widgetId));
 
     const mainCanvasProps = useSelector((state: AppState) =>
       getMainCanvasProps(state),
@@ -288,7 +292,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       }
     }
 
-    return <WrappedWidget {...widgetProps} />;
+    return <WrappedWidget isSelected={isSelected} {...widgetProps} />;
   }
 
   return WrappedPropsComponent;

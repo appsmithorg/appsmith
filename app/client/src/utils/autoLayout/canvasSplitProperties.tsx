@@ -3,6 +3,7 @@ import { ReactComponent as Column100 } from "assets/icons/control/1-column.svg";
 import { ReactComponent as Column25_75 } from "assets/icons/control/2-column-25-75.svg";
 import { ReactComponent as Column50_50 } from "assets/icons/control/2-column-50-50.svg";
 import { ReactComponent as Column75_25 } from "assets/icons/control/2-column-75-25.svg";
+import { Icon } from "design-system-old";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 interface CanvasSplitOptionType {
@@ -15,13 +16,15 @@ export type CanvasSplitTypes =
   | "1-column"
   | "2-column-50-50"
   | "2-column-25-75"
-  | "2-column-75-25";
+  | "2-column-75-25"
+  | "2-column-custom";
 
-export const CanvasSplitRatio: { [key in CanvasSplitTypes]: number[] } = {
+const CanvasSplitRatio: { [key in CanvasSplitTypes]: number[] } = {
   "1-column": [1],
   "2-column-50-50": [0.5, 0.5],
   "2-column-25-75": [0.25, 0.75],
   "2-column-75-25": [0.75, 0.25],
+  "2-column-custom": [0.5, 0.5],
 };
 
 export function getCanvasSplitRatio(type: CanvasSplitTypes): number[] {
@@ -48,6 +51,11 @@ export const CanvasSplitOptions: CanvasSplitOptionType[] = [
     label: "2 Column 75-25",
     value: "2-column-75-25",
     icon: <Column75_25 />,
+  },
+  {
+    label: "2 Column custom",
+    value: "2-column-custom",
+    icon: <Icon name="code" />,
   },
 ];
 

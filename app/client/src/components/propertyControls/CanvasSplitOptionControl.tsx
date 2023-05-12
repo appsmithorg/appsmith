@@ -61,6 +61,7 @@ export const CanvasSplitOptionsControlButtonTab = ({
             canvasSplitType: value as CanvasSplitTypes,
             parentId: widgetId,
             ratios: getCanvasSplitRatio(value as CanvasSplitTypes),
+            keepOriginalRatios: true,
           },
         });
       }}

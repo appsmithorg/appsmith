@@ -389,11 +389,13 @@ export function* manageCanvasSplit(
     parentId: string;
     ratios: number[];
     canvasSplitType: CanvasSplitTypes;
+    keepOriginalRatios: boolean;
   }>,
 ) {
   try {
     const start = performance.now();
-    const { canvasSplitType, parentId, ratios } = actionPayload.payload;
+    const { canvasSplitType, keepOriginalRatios, parentId, ratios } =
+      actionPayload.payload;
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     let updatedWidgets = allWidgets;
     if (ratios.length > 1) {
@@ -403,6 +405,7 @@ export function* manageCanvasSplit(
         parentId,
         ratios,
         canvasSplitType,
+        keepOriginalRatios,
       );
     } else {
       const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);

@@ -78,7 +78,11 @@ export function* addNewCanvas(
   return {
     ...widgetsAfterAddingNewCanvas,
     [existingCanvasId]: existingCanvas,
-    [parentId]: { ...widgetsAfterAddingNewCanvas[parentId], canvasSplitType },
+    [parentId]: {
+      ...widgetsAfterAddingNewCanvas[parentId],
+      canvasSplitType,
+      ratios,
+    },
   };
 }
 
@@ -150,6 +154,7 @@ export function deleteCanvas(
       ...parent,
       children: [remainingCanvasId],
       canvasSplitType,
+      ratios: [1],
     },
   };
 
@@ -177,17 +182,22 @@ export function* updateCanvasSize(
   parentId: string,
   ratios: number[],
   canvasSplitType: CanvasSplitTypes,
+  keepOriginalRatios: boolean,
 ) {
   if (!parentId) return allWidgets;
   const parent = allWidgets[parentId];
   if (!parent || !parent.children) return allWidgets;
-  // if the parent has only one child, then add a new canvas.
+
+  const updatedRatios =
+    canvasSplitType === "2-column-custom" && keepOriginalRatios
+      ? parent.ratios
+      : ratios; // if the parent has only one child, then add a new canvas.
   if (parent.children.length < ratios.length) {
     const updatedWidgets: CanvasWidgetsReduxState = yield call(
       addNewCanvas,
       allWidgets,
       parentId,
-      ratios,
+      updatedRatios,
       canvasSplitType,
     );
     return updatedWidgets;
@@ -196,8 +206,6 @@ export function* updateCanvasSize(
   const firstCanvas = allWidgets[parent.children[0]];
   const secondCanvas = allWidgets[parent.children[1]];
   const finalRightColumn = secondCanvas.rightColumn;
-  // If the split ratio has not changed, then return the same widgets.
-  if (firstCanvas.canvasSplitRatio === ratios[0]) return allWidgets;
 
   return {
     ...allWidgets,
@@ -213,6 +221,7 @@ export function* updateCanvasSize(
     },
     [parentId]: {
       ...parent,
+      ratios: updatedRatios,
       canvasSplitType,
     },
   };

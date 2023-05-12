@@ -23,11 +23,10 @@ import {
   isAutoHeightEnabledForWidgetWithLimits,
 } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
-import {
-  getCanvasSplitRatio,
-  getCanvasSplittingConfig,
-} from "utils/autoLayout/canvasSplitProperties";
+import { getCanvasSplittingConfig } from "utils/autoLayout/canvasSplitProperties";
 import type { CanvasSplitTypes } from "utils/autoLayout/canvasSplitProperties";
+import { isMobile } from "react-device-detect";
+import { CanvasSplitResizer } from "../component/canvasSplitResizer";
 
 export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -196,7 +195,7 @@ export class ContainerWidget extends BaseWidget<
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     const canvasSplitRatio: number =
       this.props.canvasSplitType && index !== undefined && !this.props.isMobile
-        ? getCanvasSplitRatio(this.props.canvasSplitType)[index]
+        ? this.props.ratios[index]
         : 1;
     childWidget.rightColumn =
       index === undefined || index === 1
@@ -246,21 +245,51 @@ export class ContainerWidget extends BaseWidget<
       !isAutoHeightEnabledForWidgetWithLimits(this.props) &&
       this.props.positioning !== Positioning.Vertical;
 
+    const shouldRenderResizer =
+      this.props.ratios &&
+      this.props.positioning === Positioning.Vertical &&
+      !isMobile &&
+      this.props.canvasSplitType === "2-column-custom" &&
+      this.props.isSelected &&
+      this.props.children &&
+      this.props.children.length === 2;
+
+    const [firstCanvas, secondCanvas] =
+      this.props.children?.map((canvas) => canvas.widgetId) || [];
+
+    const { componentWidth } = this.getComponentDimensions();
+    const canvasSplitRatio: number =
+      this.props.canvasSplitType && !this.props.isMobile
+        ? this.props.ratios[0]
+        : 1;
+
+    const firstCanvasWidth = componentWidth * canvasSplitRatio;
+
     return (
-      <ContainerComponent
-        {...props}
-        isMobile={this.props.isMobile || false}
-        noScroll={isAutoHeightEnabled}
-      >
-        <WidgetsMultiSelectBox
-          {...this.getSnapSpaces()}
-          noContainerOffset={!!props.noContainerOffset}
-          widgetId={this.props.widgetId}
-          widgetType={this.props.type}
-        />
-        {/* without the wrapping div onClick events are triggered twice */}
-        <>{this.renderChildren()}</>
-      </ContainerComponent>
+      <>
+        <ContainerComponent
+          {...props}
+          isMobile={this.props.isMobile || false}
+          noScroll={isAutoHeightEnabled}
+        >
+          <WidgetsMultiSelectBox
+            {...this.getSnapSpaces()}
+            noContainerOffset={!!props.noContainerOffset}
+            widgetId={this.props.widgetId}
+            widgetType={this.props.type}
+          />
+          {/* without the wrapping div onClick events are triggered twice */}
+          <>{this.renderChildren()}</>
+        </ContainerComponent>
+        {shouldRenderResizer && (
+          <CanvasSplitResizer
+            firstCanvas={firstCanvas}
+            firstCanvasWidth={firstCanvasWidth}
+            parentId={this.props.widgetId}
+            secondCanvas={secondCanvas}
+          />
+        )}
+      </>
     );
   }
 
