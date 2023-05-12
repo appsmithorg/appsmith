@@ -10,7 +10,7 @@
   "signButton": ".t--sign-in",
   "backToAppsButton": ".t--app-viewer-back-to-apps-button",
   "userProfileDropdownButton": ".t--profile-menu-icon",
-  "userProfileDropdownMenu": ".t--profile-menu",
+  "userProfileDropdownMenu": ".ads-v2-menu",
   "modal": ".bp3-dialog",
   "modalClose": ".bp3-dialog .bp3-dialog-close-button",
   "navigationMenuItem": ".t--page-switch-tab",

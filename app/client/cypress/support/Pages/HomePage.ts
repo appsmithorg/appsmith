@@ -23,7 +23,7 @@ export class HomePage {
   private _workspaceShareUsersIcon = (workspaceName: string) =>
     ".t--workspace-section:contains(" +
     workspaceName +
-    ") .workspace-share-user-icons";
+    ") .ads-v2-avatar-group";
   _shareWorkspace = (workspaceName: string) =>
     ".t--workspace-section:contains(" +
     workspaceName +
@@ -37,7 +37,7 @@ export class HomePage {
     "//div[contains(@class, 'label-container')]//span[1][text()='" +
     role +
     "']";
-  private _profileMenu = ".t--profile-menu";
+  private _profileMenu = "t--profile-menu-icon";
   private _editProfileMenu = ".t--edit-profile";
   private _signout = ".t--logout-icon";
   _searchUsersInput = ".search-input";
