@@ -82,12 +82,12 @@ ff4j:
 
     - uid: AUTO_LAYOUT
       enable: true
-      description: Enable auto layout editor by email domain of user.
+      description: Enable auto layout editor for everyone
       flipstrategy:
-        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        class: org.ff4j.strategy.PonderationStrategy
         param:
-          - name: emailDomains
-            value: appsmith.com,moolya.com
+          - name: weight
+            value: 1
 
     # Put EE flags below this line, to avoid conflicts.
 
