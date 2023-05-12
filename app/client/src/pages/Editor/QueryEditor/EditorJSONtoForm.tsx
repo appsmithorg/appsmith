@@ -284,7 +284,7 @@ const TabContainerView = styled.div`
     height: 100%;
 
     & > .ads-v2-tabs__panel {
-      height: calc(100% - 70px);
+      height: calc(100% - 50px);
       overflow-y: scroll;
     }
   }
