@@ -51,6 +51,7 @@ public class SnowflakePlugin extends BasePlugin {
     private static final int MINIMUM_POOL_SIZE = 1;
 
     private static final int MAXIMUM_POOL_SIZE = 5;
+    private static final int CONNECTION_TIMEOUT_MILLISECONDS = 25000;
 
     public SnowflakePlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -180,7 +181,7 @@ public class SnowflakePlugin extends BasePlugin {
              * @see https://www.javadoc.io/doc/com.zaxxer/HikariCP/latest/com/zaxxer/hikari/HikariConfig.html
              */
             config.setInitializationFailTimeout(-1);
-            config.setConnectionTimeout(25000);
+            config.setConnectionTimeout(CONNECTION_TIMEOUT_MILLISECONDS);
 
             // Set authentication properties
             DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
