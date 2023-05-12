@@ -25,9 +25,15 @@ import {
   PluginImage,
 } from "./JSONtoForm";
 import DatasourceAuth from "pages/common/datasourceAuth";
-import { getDatasourceFormButtonConfig } from "selectors/entitiesSelector";
+import {
+  getDatasourceFormButtonConfig,
+  getPlugin,
+} from "selectors/entitiesSelector";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
-import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import {
+  DatasourceEditEntryPoints,
+  TEMP_DATASOURCE_ID,
+} from "constants/Datasource";
 import Debugger, {
   ResizerContentContainer,
   ResizerMainContainer,
@@ -36,6 +42,8 @@ import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import DatasourceInformation from "./DatasourceSection";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import type { Plugin } from "api/PluginApi";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -58,6 +66,7 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   isDatasourceBeingSavedFromPopup: boolean;
   isFormDirty: boolean;
   datasourceDeleteTrigger: () => void;
+  plugin?: Plugin | undefined;
 }
 
 type Props = DatasourceDBEditorProps &
@@ -166,6 +175,13 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
                 className="t--edit-datasource"
                 onClick={() => {
                   this.props.setDatasourceViewMode(false);
+                  // TODO: Need to add these changes in DatasourceEditor/index.tsx, as
+                  // We are combining common changes of REST and DB Plugins in index.tsx file
+                  AnalyticsUtil.logEvent("EDIT_DATASOURCE_CLICK", {
+                    datasourceId: datasourceId,
+                    pluginName: this.props?.plugin?.name,
+                    entryPoint: DatasourceEditEntryPoints.DATASOURCE_FORM_EDIT,
+                  });
                 }}
                 text="EDIT"
               />
@@ -250,6 +266,11 @@ const mapStateToProps = (state: AppState, props: any) => {
     (e) => e.id === props.datasourceId,
   ) as Datasource;
 
+  // TODO: Need to add these changes in DatasourceEditor/index.tsx, as
+  // We are combining common changes of REST and DB Plugins in index.tsx file
+  const pluginId = _.get(datasource, "pluginId", "");
+  const plugin = getPlugin(state, pluginId);
+
   const hintMessages = datasource && datasource.messages;
 
   // Debugger render flag
@@ -276,6 +297,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     isDatasourceBeingSavedFromPopup:
       state.entities.datasources.isDatasourceBeingSavedFromPopup,
     showDebugger,
+    plugin,
   };
 };
 

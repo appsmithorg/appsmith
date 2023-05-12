@@ -48,7 +48,10 @@ import {
   hasCreateDatasourceActionPermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
-import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import {
+  DatasourceEditEntryPoints,
+  TEMP_DATASOURCE_ID,
+} from "constants/Datasource";
 import {
   createTempDatasourceFromForm,
   deleteTempDSFromDraft,
@@ -72,6 +75,7 @@ import GoogleSheetFilePicker from "./GoogleSheetFilePicker";
 import DatasourceInformation from "./../DataSourceEditor/DatasourceSection";
 import styled from "styled-components";
 import { getConfigInitialValues } from "components/formControls/utils";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 interface StateProps extends JSONtoFormProps {
   applicationId: string;
@@ -356,6 +360,12 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                           datasourceId,
                         }),
                       );
+                      AnalyticsUtil.logEvent("EDIT_DATASOURCE_CLICK", {
+                        datasourceId: datasourceId,
+                        pluginName: plugin?.name,
+                        entryPoint:
+                          DatasourceEditEntryPoints.DATASOURCE_FORM_EDIT,
+                      });
                     }}
                     text="EDIT"
                   />

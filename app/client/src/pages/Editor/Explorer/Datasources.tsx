@@ -90,7 +90,7 @@ const Datasources = React.memo(() => {
         entryPoint,
       });
     },
-    [pageId, entryPoint],
+    [pageId],
   );
   const activeDatasourceId = useDatasourceIdFromURL();
   const datasourceSuggestions = useDatasourceSuggestions();
