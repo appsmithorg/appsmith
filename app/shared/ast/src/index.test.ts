@@ -641,4 +641,52 @@ describe("isFunctionPresent", () => {
 
     expect(result).toBe(false);
   });
+
+  it("should return true for shorthand arrow function", () => {
+    const code = "const myFun = () => 'value'";
+
+    const result = isFunctionPresent(code, 2);
+
+    expect(result).toBe(true);
+  });
+
+  it("should return true for IFFE function", () => {
+    const code = "(function myFun(){ console.log('hello') })()";
+
+    const result = isFunctionPresent(code, 2);
+
+    expect(result).toBe(true);
+  });
+
+  it("should return true for functions with parameters", () => {
+    const code = "function myFun(arg1, arg2){ console.log(arg1, arg2); }";
+
+    const result = isFunctionPresent(code, 2);
+
+    expect(result).toBe(true);
+  });
+
+  it("should return true for functions with parameters", () => {
+    const code = "function myFun(arg1, arg2){ console.log(arg1, arg2); }";
+
+    const result = isFunctionPresent(code, 2);
+
+    expect(result).toBe(true);
+  });
+
+  it("should return true for higher order functions", () => {
+    const code = "function myFun(cb){ const val = cb(); }";
+
+    const result = isFunctionPresent(code, 2);
+
+    expect(result).toBe(true);
+  });
+
+  it("should return true for functions with promises", () => {
+    const code = "async function myFun(promise){ const val = await promise; }";
+
+    const result = isFunctionPresent(code, 2);
+
+    expect(result).toBe(true);
+  });
 });
