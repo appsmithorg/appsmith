@@ -10,7 +10,7 @@ describe("Currency widget - ", () => {
     cy.addDsl(dsl);
   });
 
-  it("Add new dropdown widget", () => {
+  it("1. Add new dropdown widget", () => {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });
     cy.get(`.t--widget-${widgetName}`).should("exist");
@@ -22,7 +22,7 @@ describe("Currency widget - ", () => {
     );
   });
 
-  it("should check for type of value and widget", () => {
+  it("2. should check for type of value and widget", () => {
     function enterAndTest(text, expected) {
       cy.get(widgetInput).clear();
       cy.wait(300);
@@ -70,6 +70,8 @@ describe("Currency widget - ", () => {
     cy.get(".currency-change-dropdown-trigger").should("contain", "$");
 
     cy.openPropertyPane(widgetName);
+    cy.get(".t--property-control-currency").click();
+    cy.get(".t--property-control-currency").type("ind");
     cy.selectDropdownValue(
       ".t--property-control-currency",
       "INR - Indian Rupee",
@@ -78,29 +80,29 @@ describe("Currency widget - ", () => {
     cy.get(".currency-change-dropdown-trigger").should("contain", "₹");
 
     cy.openPropertyPane(widgetName);
-    cy.get(".t--property-control-allowcurrencychange label")
+    cy.get(".t--property-control-allowcurrencychange input")
       .last()
       .click({ force: true });
     cy.get(".t--input-currency-change").first().click();
     cy.get(".t--search-input input").type("gbp");
     cy.wait(500);
-    cy.get(".t--dropdown-option").last().click();
+    cy.get(".ads-dropdown-options-wrapper .t--dropdown-option").last().click();
     enterAndTest("100.22", "100.22:100.22:true:string:number:GB:GBP");
     cy.get(".t--input-currency-change").should("contain", "£");
   });
-  it("should accept 0 decimal option", () => {
+
+  it("3. should accept 0 decimal option", () => {
     cy.openPropertyPane(widgetName);
     cy.selectDropdownValue(".t--property-control-decimalsallowed ", "0");
     cy.closePropertyPane();
     cy.wait(500);
     cy.openPropertyPane(widgetName);
-    cy.get(".t--property-control-decimalsallowed  .cs-text").should(
-      "have.text",
-      "0",
-    );
+    cy.get(
+      ".t--property-control-decimalsallowed .rc-select-selection-item span",
+    ).should("have.text", "0");
   });
 
-  it("should check that widget input resets on submit", () => {
+  it("4. should check that widget input resets on submit", () => {
     cy.openPropertyPane(widgetName);
     cy.getAlert("onSubmit", "Submitted!!");
 
@@ -111,7 +113,7 @@ describe("Currency widget - ", () => {
     cy.get(widgetInput).should("contain.value", "");
   });
 
-  it("should check that widget input doesn't round off values", () => {
+  it("5. should check that widget input doesn't round off values", () => {
     function enterAndTest(text, expected) {
       cy.get(widgetInput).clear();
       cy.wait(300);
@@ -182,7 +184,7 @@ describe("Currency widget - ", () => {
     cy.get(widgetInput).should("contain.value", "1,000.90");
   });
 
-  it("should test the formatting of defaultText", () => {
+  it("6. should test the formatting of defaultText", () => {
     function enterAndTest(input, expected) {
       cy.updateCodeInput(".t--property-control-defaultvalue", input);
       cy.wait(500);
@@ -245,7 +247,7 @@ describe("Currency widget - ", () => {
     });
   });
 
-  it("Check isDirty meta property", function () {
+  it("7. Check isDirty meta property", function () {
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(
       ".t--property-control-text",
@@ -269,22 +271,10 @@ describe("Currency widget - ", () => {
     cy.get(".t--widget-textwidget").should("contain", "false");
   });
 
-  it("Should check that widget input is not showing any errors on input", function () {
+  it("8. Should check that widget input is not showing any errors on input", function () {
     cy.get(widgetInput).type("123456789");
     cy.focused().then(() => {
       cy.get(themelocators.popover).should("not.exist");
     });
-  });
-
-  it("Currency change dropdown should not close unexpectedly", function () {
-    cy.openPropertyPane(widgetName);
-
-    // Select the Currency dropdown option from property pane
-    // and enter a value that has space and returns 0 results
-    cy.get(".t--property-control-currency").click();
-    cy.get(".t--search-input input").type("gdp gdp");
-
-    // assert that the dropdown is still option
-    cy.get(".t--search-input input").should("be.visible");
   });
 });

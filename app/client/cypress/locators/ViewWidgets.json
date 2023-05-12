@@ -1,7 +1,7 @@
 {
     "imageWidget": ".t--draggable-imagewidget",
     "chartWidget": ".t--draggable-chartwidget",
-    "chartType": ".t--property-control-charttype .bp3-popover-target",
+    "chartType": ".t--property-control-charttype",
     "mapType": ".t--property-control-maptype .bp3-popover-target",
     "destin": ".appsmith_widget_01ewdomru7",
     "mapWidget": ".t--draggable-mapwidget",

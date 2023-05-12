@@ -1040,7 +1040,7 @@ Cypress.Commands.add("selectTxtSize", (text) => {
 
 Cypress.Commands.add("getAlert", (eventName, value = "hello") => {
   cy.get(`.t--add-action-${eventName}`).scrollIntoView().click({ force: true });
-  cy.get('.single-select:contains("Show Alert")').click({ force: true });
+  cy.get('.single-select:contains("Show alert")').click({ force: true });
   agHelper.EnterActionValue("Message", value);
   cy.get(".t--open-dropdown-Select-type").click({ force: true });
   cy.get(".bp3-popover-content .bp3-menu li")
@@ -1207,14 +1207,8 @@ Cypress.Commands.add("deleteWidget", () => {
 });
 
 Cypress.Commands.add("UpdateChartType", (typeOfChart) => {
-  // Command to change the chart type if the property pane of the chart widget is opened.
-  cy.get(viewWidgetsPage.chartType).last().click({ force: true });
-  cy.get(commonlocators.dropdownmenu)
-    .children()
-    .contains(typeOfChart)
-    .click({ force: true });
-
-  cy.get(viewWidgetsPage.chartType + " span.cs-text").should(
+  cy.selectDropdownValue(viewWidgetsPage.chartType, typeOfChart);
+  cy.get(`${viewWidgetsPage.chartType} .rc-select-selection-item span`).should(
     "have.text",
     typeOfChart,
   );

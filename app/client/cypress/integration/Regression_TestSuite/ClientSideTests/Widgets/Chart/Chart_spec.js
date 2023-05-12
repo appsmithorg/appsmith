@@ -68,7 +68,7 @@ describe("Chart Widget Functionality", function () {
 
   it("Pie Chart Widget Functionality", function () {
     //changing the Chart type
-    cy.UpdateChartType("Pie Chart");
+    cy.UpdateChartType("Pie chart");
 
     //Verifying X-axis labels
     cy.get(viewWidgetsPage.chartWidget).should("have.css", "opacity", "1");
@@ -86,7 +86,7 @@ describe("Chart Widget Functionality", function () {
 
   it("Line Chart Widget Functionality", function () {
     //changing the Chart type
-    cy.UpdateChartType("Line Chart");
+    cy.UpdateChartType("Line chart");
 
     //Verifying X-axis labels
     cy.get(viewWidgetsPage.chartWidget).should("have.css", "opacity", "1");
@@ -102,7 +102,7 @@ describe("Chart Widget Functionality", function () {
 
   it("Bar Chart Widget Functionality", function () {
     //changing the Chart type
-    cy.UpdateChartType("Bar Chart");
+    cy.UpdateChartType("Bar chart");
 
     //Verifying X-axis labels
     cy.get(viewWidgetsPage.chartWidget).should("have.css", "opacity", "1");
@@ -118,7 +118,7 @@ describe("Chart Widget Functionality", function () {
 
   it("Area Chart Widget Functionality", function () {
     //changing the Chart type
-    cy.UpdateChartType("Area Chart");
+    cy.UpdateChartType("Area chart");
 
     //Verifying X-axis labels
     cy.get(viewWidgetsPage.chartWidget).should("have.css", "opacity", "1");
@@ -134,7 +134,7 @@ describe("Chart Widget Functionality", function () {
 
   it("Column Chart Widget Functionality", function () {
     //changing the Chart type
-    cy.UpdateChartType("Column Chart");
+    cy.UpdateChartType("Column chart");
 
     //Verifying X-axis labels
     cy.get(viewWidgetsPage.chartWidget).should("have.css", "opacity", "1");
@@ -285,7 +285,7 @@ describe("Chart Widget Functionality", function () {
 
   it("Check Chart widget reskinning config", function () {
     cy.get(widgetsPage.toggleChartType).click({ force: true });
-    cy.UpdateChartType("Column Chart");
+    cy.UpdateChartType("Column chart");
 
     // Check plot fill color
     cy.get("g[class*='plot-group'] rect").should(
@@ -318,7 +318,7 @@ describe("Chart Widget Functionality", function () {
       '"Nunito Sans", sans-serif',
     );
 
-    cy.UpdateChartType("Pie Chart");
+    cy.UpdateChartType("Pie chart");
     cy.get("g[class$='item'] text").should(
       "have.css",
       "font-family",

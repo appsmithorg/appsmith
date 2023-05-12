@@ -96,13 +96,10 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       )?.value;
     }
 
-    if (selected) {
-      defaultSelected = selected;
-    }
-
     return (
       <div className="w-full h-full" ref={this.containerRef}>
         <Select
+          defaultValue={defaultSelected}
           filterOption
           isMultiSelect={this.props.isMultiSelect}
           onDeselect={this.onDeselect}
@@ -110,10 +107,11 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           optionFilterProp="searchText"
           placeholder={this.props.placeholderText}
           showSearch={this.props.enableSearch}
-          value={defaultSelected}
+          value={selected}
         >
           {options.map((option, index) => (
             <Option
+              className="t--dropdown-option"
               key={index}
               searchText={option.searchText}
               value={option.value}
