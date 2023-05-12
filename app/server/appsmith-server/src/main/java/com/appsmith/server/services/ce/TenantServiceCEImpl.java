@@ -8,6 +8,7 @@ import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.TenantUtils;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -121,8 +122,14 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
         // Remove fields which should not be updated from client
-        tenant.setSlug(null);
-        return repository.updateById(id, tenant, MANAGE_TENANT);
+        TenantUtils.removeRestrictedFieldFromClientUpdate(tenant);
+        return repository.findById(id, MANAGE_TENANT)
+                .flatMap(dbTenant -> {
+                    // As tenant configuration object have sensitive fields/secrets we might not send these to client
+                    // side. Copying all the available fields in DB manually not to get deleted by update operation
+                    AppsmithBeanUtils.copyNestedNonNullProperties(tenant, dbTenant);
+                    return repository.updateById(id, dbTenant, MANAGE_TENANT);
+                });
     }
 
 }
