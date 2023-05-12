@@ -1,5 +1,6 @@
 import React from "react";
-import { Button, FormGroup as StyledFormGroup } from "design-system-old";
+import { FormGroup as StyledFormGroup } from "design-system-old";
+import { Button } from "design-system";
 import FormTextField from "components/utils/ReduxFormTextField";
 import {
   WELCOME_FORM_ROLE_FIELD_NAME,
@@ -21,6 +22,7 @@ import { Field, formValueSelector, reduxForm } from "redux-form";
 import styled from "styled-components";
 import { DropdownWrapper, withDropdown } from "./common";
 import { roleOptions, useCaseOptions } from "./constants";
+import SetupForm from "./SetupForm";
 
 const ActionContainer = styled.div`
   margin-top: ${(props) => props.theme.spaces[15]}px;
@@ -43,14 +45,10 @@ type NonSuperUserFormData = {
   role_name?: string;
 };
 
-export function SuperUserForm(props: UserFormProps) {
+export function SuperUserForm() {
   return (
     <ActionContainer>
-      <StyledButton
-        className="t--welcome-form-get-started"
-        onClick={() => props.onGetStarted && props.onGetStarted()}
-        text={createMessage(WELCOME_ACTION)}
-      />
+      <SetupForm />
     </ActionContainer>
   );
 }
@@ -126,10 +124,12 @@ function NonSuperUser(
         <StyledButton
           className="t--get-started-button"
           disabled={props.invalid}
-          tag="button"
-          text={createMessage(WELCOME_ACTION)}
+          kind="primary"
+          renderAs="button"
           type="submit"
-        />
+        >
+          {createMessage(WELCOME_ACTION)}
+        </StyledButton>
       </ActionContainer>
     </StyledNonSuperUserForm>
   );
