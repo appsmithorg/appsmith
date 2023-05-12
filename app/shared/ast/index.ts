@@ -16,7 +16,6 @@ import {
   isTypeOfFunction,
   MemberExpressionData,
   IdentifierInfo,
-  extractExpressionAtPosition,
 } from "./src";
 
 // constants
@@ -61,6 +60,11 @@ import {
   checkIfThenBlockExists,
   checkIfArgumentExistAtPosition,
 } from "./src/actionCreator";
+
+// peekOverlay
+import {
+  extractExpressionAtPosition
+} from "./src/peekOverlay";
 
 // types or interfaces should be exported with type keyword, while enums can be exported like normal functions
 export type {

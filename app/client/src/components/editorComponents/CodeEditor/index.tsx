@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
@@ -60,11 +61,6 @@ import { bindingMarker } from "components/editorComponents/CodeEditor/MarkHelper
 import {
   entityMarker,
   NAVIGATE_TO_ATTRIBUTE,
-  // PEEKABLE_ATTRIBUTE,
-  PEEKABLE_CH_END,
-  PEEKABLE_CH_START,
-  PEEKABLE_LINE,
-  PEEK_STYLE_PERSIST_CLASS,
 } from "components/editorComponents/CodeEditor/MarkHelpers/entityMarker";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import BindingPrompt from "./BindingPrompt";
@@ -214,6 +210,7 @@ export type EditorProps = EditorStyleProps &
     isReadOnly?: boolean;
     isRawView?: boolean;
     isJSObject?: boolean;
+    jsObjectName?: string;
     containerHeight?: number;
     // Custom gutter
     customGutter?: CodeEditorGutter;
@@ -552,28 +549,27 @@ class CodeEditor extends Component<Props, State> {
     tokenElementPosition: DOMRect,
     dataToShow: unknown,
   ) => {
-    const line = tokenElement.getAttribute(PEEKABLE_LINE),
-      chStart = tokenElement.getAttribute(PEEKABLE_CH_START),
-      chEnd = tokenElement.getAttribute(PEEKABLE_CH_END);
+    // const line = tokenElement.getAttribute(PEEKABLE_LINE),
+    //   chStart = tokenElement.getAttribute(PEEKABLE_CH_START),
+    //   chEnd = tokenElement.getAttribute(PEEKABLE_CH_END);
 
-    this.state.peekOverlayProps?.marker?.clear();
-    let marker: CodeMirror.TextMarker | undefined;
-    if (line && chStart && chEnd) {
-      marker = this.editor.markText(
-        { ch: Number(chStart), line: Number(line) },
-        { ch: Number(chEnd), line: Number(line) },
-        {
-          className: PEEK_STYLE_PERSIST_CLASS,
-        },
-      );
-    }
+    // this.state.peekOverlayProps?.marker?.clear();
+    // let marker: CodeMirror.TextMarker | undefined;
+    // if (line && chStart && chEnd) {
+    //   marker = this.editor.markText(
+    //     { ch: Number(chStart), line: Number(line) },
+    //     { ch: Number(chEnd), line: Number(line) },
+    //     {
+    //       className: PEEK_STYLE_PERSIST_CLASS,
+    //     },
+    //   );
+    // }
 
     this.setState({
       peekOverlayProps: {
         name: peekableAttribute,
         position: tokenElementPosition,
         textWidth: tokenElementPosition.width,
-        marker,
         data: dataToShow,
         dataType: typeof dataToShow,
       },
@@ -598,11 +594,8 @@ class CodeEditor extends Component<Props, State> {
 
   showNewPeekOverlay = (tokenElement: Element) => {
     if (this.state.newPeekOverlay) {
-      if (tokenElement !== this.state.newPeekOverlay.tokenElement) {
-        this.hideNewPeekOverlay();
-      } else {
-        return;
-      }
+      if (tokenElement === this.state.newPeekOverlay.tokenElement) return;
+      this.hideNewPeekOverlay();
     }
     tokenElement.classList.add("peekaboo");
     this.setState({
@@ -653,100 +646,136 @@ class CodeEditor extends Component<Props, State> {
         left: event.clientX,
         top: event.clientY,
       });
-      // const docContent = this.editor.getValue();
-      // const hoverChIndex = this.editor.indexFromPos(tokenPos);
-      const lineContent = this.editor.getLine(tokenPos.line);
+      const docContent = this.editor.getValue();
+      const hoverChIndex = this.editor.indexFromPos(tokenPos);
 
-      // handle return keyword in line (throws ast error)
-      // handle module vs script looping
-      // performance concerns?
-      let lineExpression = extractExpressionAtPosition(
-        lineContent,
-        tokenPos.ch,
-        SourceType.script,
-      );
-      lineExpression = lineExpression.slice(0, lineExpression.length - 1);
       // console.log("on hover src element", tokenPos, tokenElement);
-      // console.log("on hover line", lineContent);
-      console.log("on hover expression", lineExpression);
+      // Api1 - done
+      // [0] - done
+      // ["string"] - done
+      // this keyword
+      // storeValue()
+      // Api1.run()
+      // appsmith.geolocation.getCurrentLocation()
 
-      if (tokenElement.classList.contains("cm-m-javascript")) {
-        if (tokenElement.classList.contains("cm-variable")) {
-          // JsObject1.data -> JsObject1
-          // storeValue("x", 123) -> storeValue
-          console.log("on hover element - variable", this.props.dynamicData);
-          this.showNewPeekOverlay(tokenElement);
-          this.showPeekOverlay(
-            lineExpression,
-            tokenElement,
-            tokenElement.getBoundingClientRect(),
-            _.get(this.props.dynamicData, lineExpression),
-          );
-        } else if (tokenElement.classList.contains("cm-property")) {
-          // object definitions const obj = { x: 123 } -> x
-          // local variables obj.x -> x (need to filter local variables)
-          // JsObject1.data -> data
-          // JsObject1.data.filter() -> filter (need identify function calls)
-          console.log("on hover element - property");
-          this.showPeekOverlay(
-            lineExpression,
-            tokenElement,
-            tokenElement.getBoundingClientRect(),
-            _.get(this.props.dynamicData, lineExpression),
-          );
-          this.showNewPeekOverlay(tokenElement);
-        } else if (tokenElement.classList.contains("cm-keyword")) {
-          // needed to handle this keyword
-          // export, default, return etc... (need to filter)
-          console.log("on hover element - keyword");
-        } else if (tokenElement.classList.contains("cm-number")) {
-          // identify array indices here
-          console.log("on hover element - number");
-        } else if (tokenElement.classList.contains("cm-string")) {
-          // identify ["x"] accessor here
-          console.log("on hover element - string");
+      extractExpressionAtPosition(
+        docContent,
+        hoverChIndex,
+        this.props.isJSObject ? SourceType.module : SourceType.script,
+        {
+          thisExpressionReplacement: this.props.jsObjectName,
+        },
+      ).then((lineExpression: string) => {
+        // performance concerns?
+
+        // console.log("on hover src element", tokenPos, tokenElement);
+        // console.log("on hover line", lineContent);
+        console.log("on hover expression", hoverChIndex, lineExpression);
+
+        if (tokenElement.classList.contains("cm-m-javascript")) {
+          if (tokenElement.classList.contains("cm-variable")) {
+            // JsObject1.data -> JsObject1
+            // storeValue("x", 123) -> storeValue
+            console.log("on hover element - variable", this.props.dynamicData);
+            this.showNewPeekOverlay(tokenElement);
+            this.showPeekOverlay(
+              lineExpression,
+              tokenElement,
+              tokenElement.getBoundingClientRect(),
+              _.get(this.props.dynamicData, lineExpression),
+            );
+          } else if (tokenElement.classList.contains("cm-property")) {
+            // object definitions const obj = { x: 123 } -> x
+            // local variables obj.x -> x (need to filter local variables)
+            // JsObject1.data -> data
+            // JsObject1.data.filter() -> filter (need identify function calls)
+            console.log("on hover element - property");
+            this.showPeekOverlay(
+              lineExpression,
+              tokenElement,
+              tokenElement.getBoundingClientRect(),
+              _.get(this.props.dynamicData, lineExpression),
+            );
+            this.showNewPeekOverlay(tokenElement);
+          } else if (tokenElement.classList.contains("cm-keyword")) {
+            // needed to handle this keyword
+            // export, default, return etc... (need to filter)
+            console.log("on hover element - keyword");
+            if (this.props.isJSObject && tokenElement.innerHTML === "this") {
+              this.showPeekOverlay(
+                lineExpression,
+                tokenElement,
+                tokenElement.getBoundingClientRect(),
+                _.get(this.props.dynamicData, lineExpression),
+              );
+              this.showNewPeekOverlay(tokenElement);
+            }
+          } else if (tokenElement.classList.contains("cm-number")) {
+            // identify array indices here
+            console.log("on hover element - number");
+            this.showPeekOverlay(
+              lineExpression,
+              tokenElement,
+              tokenElement.getBoundingClientRect(),
+              _.get(this.props.dynamicData, lineExpression),
+            );
+            this.showNewPeekOverlay(tokenElement);
+          } else if (tokenElement.classList.contains("cm-string")) {
+            // identify ["x"] accessor here
+            console.log("on hover element - string");
+            this.showPeekOverlay(
+              lineExpression,
+              tokenElement,
+              tokenElement.getBoundingClientRect(),
+              _.get(this.props.dynamicData, lineExpression),
+            );
+            this.showNewPeekOverlay(tokenElement);
+          } else {
+            this.hideNewPeekOverlay();
+            this.hidePeekOverlay();
+          }
         } else {
           this.hideNewPeekOverlay();
           this.hidePeekOverlay();
         }
-      } else {
-        this.hideNewPeekOverlay();
-        this.hidePeekOverlay();
-      }
-      console.log("------------on hover------------");
+        console.log("------------on hover------------");
+        // if (
+        //   event.target instanceof Element &&
+        //   event.target.hasAttribute(PEEKABLE_ATTRIBUTE)
+        // ) {
+        //   const tokenElement = event.target;
+        //   const tokenElementPosition = tokenElement.getBoundingClientRect();
+        //   const peekableAttribute = tokenElement.getAttribute(PEEKABLE_ATTRIBUTE);
+        //   if (peekableAttribute) {
+        //     // don't retrigger if hovering over the same token
+        //     if (
+        //       this.state.peekOverlayProps?.name === peekableAttribute &&
+        //       this.state.peekOverlayProps?.position.top ===
+        //         tokenElementPosition.top &&
+        //       this.state.peekOverlayProps?.position.left ===
+        //         tokenElementPosition.left
+        //     ) {
+        //       return;
+        //     }
+        //     const paths = peekableAttribute.split(".");
+        //     if (paths.length) {
+        //       paths.splice(1, 0, "peekData");
+        //       this.showPeekOverlay(
+        //         peekableAttribute,
+        //         tokenElement,
+        //         tokenElementPosition,
+        //         _.get(this.props.entitiesForNavigation, paths),
+        //       );
+        //     }
+        //   }
+        // } else {
+        //   this.hidePeekOverlay();
+        // }
+      });
+    } else {
+      this.hideNewPeekOverlay();
+      this.hidePeekOverlay();
     }
-    // if (
-    //   event.target instanceof Element &&
-    //   event.target.hasAttribute(PEEKABLE_ATTRIBUTE)
-    // ) {
-    //   const tokenElement = event.target;
-    //   const tokenElementPosition = tokenElement.getBoundingClientRect();
-    //   const peekableAttribute = tokenElement.getAttribute(PEEKABLE_ATTRIBUTE);
-    //   if (peekableAttribute) {
-    //     // don't retrigger if hovering over the same token
-    //     if (
-    //       this.state.peekOverlayProps?.name === peekableAttribute &&
-    //       this.state.peekOverlayProps?.position.top ===
-    //         tokenElementPosition.top &&
-    //       this.state.peekOverlayProps?.position.left ===
-    //         tokenElementPosition.left
-    //     ) {
-    //       return;
-    //     }
-    //     const paths = peekableAttribute.split(".");
-    //     if (paths.length) {
-    //       paths.splice(1, 0, "peekData");
-    //       this.showPeekOverlay(
-    //         peekableAttribute,
-    //         tokenElement,
-    //         tokenElementPosition,
-    //         _.get(this.props.entitiesForNavigation, paths),
-    //       );
-    //     }
-    //   }
-    // } else {
-    //   this.hidePeekOverlay();
-    // }
   };
 
   handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {

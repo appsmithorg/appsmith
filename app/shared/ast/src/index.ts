@@ -1,11 +1,10 @@
 import {parse, Node, SourceLocation, Options, Comment} from "acorn";
 import { ancestor, simple } from "acorn-walk";
-import { ECMA_VERSION, NodeTypes, SourceType } from './constants/ast';
+import { ECMA_VERSION, NodeTypes } from './constants/ast';
 import { has, isFinite, isString, memoize, toPath } from "lodash";
 import { isTrueObject, sanitizeScript } from "./utils";
 import { jsObjectDeclaration } from "./jsObject/index";
 import {attachComments} from "astravel";
-import * as escodegen from "escodegen";
 /*
  * Valuable links:
  *
@@ -110,6 +109,10 @@ export interface CallExpressionNode extends Node {
   arguments: ArgumentTypes[];
 }
 
+export interface ThisExpressionNode extends Node {
+  type: "ThisExpression";
+}
+
 export interface BlockStatementNode extends Node {
   type: "BlockStatement";
   body: [ Node ];
@@ -170,6 +173,10 @@ export const isIdentifierNode = (node: Node): node is IdentifierNode => {
 
 export const isMemberExpressionNode = (node: Node): node is MemberExpressionNode => {
   return node.type === NodeTypes.MemberExpression;
+};
+
+export const isThisExpressionNode = (node: Node): node is ThisExpressionNode => {
+  return node.type === NodeTypes.ThisExpression;
 };
 
 export const isBinaryExpressionNode = (node: Node): node is BinaryExpressionNode => {
@@ -750,18 +757,3 @@ const jsObjectToCode = (script: string) => {
 const jsCodeToObject = (script: string) => {
   return script.replace(jsObjectDeclaration, "export default");
 };
-
-export const extractExpressionAtPosition = (script: string, pos: number, sourceType = SourceType.script) => {
-  const ast = parse(script, { ecmaVersion: 11, sourceType });
-
-  const node = (ast as any).body.find((node: Node) => {
-  // 22, 40, 56, 86
-  if (node.start <= pos && node.end >= pos) {
-    return true;
-  }
-  });
-
-  console.log("ast node", node);
-
-  return escodegen.generate(node);
-}
