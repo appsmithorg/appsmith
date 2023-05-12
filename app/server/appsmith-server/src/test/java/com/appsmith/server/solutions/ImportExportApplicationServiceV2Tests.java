@@ -372,6 +372,8 @@ public class ImportExportApplicationServiceV2Tests {
                     assertThat(exportedApplication.getGitApplicationMetadata()).isNull();
                     assertThat(exportedApplication.getEditModeThemeId()).isNull();
                     assertThat(exportedApplication.getPublishedModeThemeId()).isNull();
+                    assertThat(exportedApplication.getExportWithConfiguration()).isNull();
+                    assertThat(exportedApplication.getForkWithConfiguration()).isNull();
                 })
                 .verifyComplete();
     }

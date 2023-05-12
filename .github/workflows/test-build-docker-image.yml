@@ -175,7 +175,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: client-build
-          path: app/client/build.tar
+          path: app/client
 
       - name: Unpack the client build artifact
         if: steps.run_result.outputs.run_result != 'success'

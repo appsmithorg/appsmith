@@ -13,7 +13,7 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 /// <reference types="Cypress" />
-
+/// <reference types='cypress-tags' />
 import "cypress-real-events/support";
 import "cypress-wait-until";
 import "cypress-network-idle";

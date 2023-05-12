@@ -258,7 +258,6 @@ const ResponseDataContainer = styled.div`
   flex: 1;
   overflow: auto;
   display: flex;
-  padding-bottom: 10px;
   flex-direction: column;
   & .CodeEditorTarget {
     overflow: hidden;

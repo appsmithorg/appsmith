@@ -819,7 +819,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     profile.setUseCase(userData.getUseCase());
                     profile.setPhotoId(userData.getProfilePhotoAssetId());
                     profile.setEnableTelemetry(!commonConfig.isTelemetryDisabled());
-                    profile.setIntercomConsentGiven(userData.isIntercomConsentGiven());
+                    // Intercom consent is defaulted to true on cloud hosting
+                    profile.setIntercomConsentGiven(commonConfig.isCloudHosting() ? true : userData.isIntercomConsentGiven());
                     profile.setSuperUser(isSuperUser);
                     profile.setConfigurable(!StringUtils.isEmpty(commonConfig.getEnvFilePath()));
 
