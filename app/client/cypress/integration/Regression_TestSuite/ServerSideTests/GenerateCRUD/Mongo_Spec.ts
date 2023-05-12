@@ -94,7 +94,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@updateLayout", 200);
 
-    agHelper.GetNClick(dataSources._visibleTextSpan("GOT IT"));
+    agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
     deployMode.DeployApp();
 
     //Validating loaded table

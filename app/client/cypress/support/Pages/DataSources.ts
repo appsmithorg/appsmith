@@ -85,7 +85,7 @@ export class DataSources {
   _selectTableDropdown = "[data-testid=t--table-dropdown]";
   _selectSheetNameDropdown = "[data-testid=t--sheetName-dropdown]";
   _selectTableHeaderIndexInput = "[data-testid=t--tableHeaderIndex]";
-  _dropdownOption = ".bp3-popover-content .t--dropdown-option";
+  _dropdownOption = ".rc-select-item-option-content";
   _generatePageBtn = "[data-testid=t--generate-page-form-submit]";
   _selectedRow = ".tr.selected-row";
   _activeTab = "span:contains('Active')";
@@ -207,7 +207,7 @@ export class DataSources {
     this.agHelper.GetNClick("[data-testid='t--dropdown-option-public.users']");
     this.agHelper.GetNClick(this._generatePageBtn);
     this.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-    this.agHelper.GetNClick(this.locator._visibleTextSpan("GOT IT"));
+    this.agHelper.GetNClick(this.locator._visibleTextSpan("Got it"));
   }
 
   public StartDataSourceRoutes() {
@@ -814,7 +814,7 @@ export class DataSources {
 
       jsonHeaderString =
         isMongo == true
-          ? "Update document " + headerString + ": " + $cellData
+          ? "Update Document " + headerString + ": " + $cellData
           : "Update Row " + headerString + ": " + $cellData;
       this.agHelper
         .GetText(this.locator._jsonFormHeader)

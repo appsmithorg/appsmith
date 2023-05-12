@@ -31,7 +31,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.GetNClick(dataSources._selectDatasourceDropdown);
     agHelper.GetNClickByContains(
       dataSources._dropdownOption,
-      "Connect New Datasource",
+      "Connect new datasource",
     );
     dataSources.CreateDataSource("Mongo", false);
 
@@ -788,7 +788,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@updateLayout", 200);
 
-    agHelper.GetNClick(dataSources._visibleTextSpan("GOT IT"));
+    agHelper.GetNClick(dataSources._visibleTextSpan("Got it"));
     deployMode.DeployApp();
 
     //Validating loaded table

@@ -78,7 +78,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function () {
       200,
     );
 
-    cy.get("span:contains('GOT IT')").click();
+    cy.get("span:contains('Got it')").click();
   });
 
   it("2. Generate CRUD page from datasource ACTIVE section", function () {
@@ -130,7 +130,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function () {
       200,
     );
 
-    cy.get("span:contains('GOT IT')").click();
+    cy.get("span:contains('Got it')").click();
   });
 
   it("3. Add new Page and generate CRUD template using existing supported datasource & Bug 9649", function () {
@@ -213,7 +213,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function () {
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
     });
-    cy.get("span:contains('GOT IT')").click();
+    cy.get("span:contains('Got it')").click();
 
     //Bug verification starts
     cy.CheckAndUnfoldEntityItem("Queries/JS");
@@ -277,6 +277,6 @@ describe("Generate New CRUD Page Inside from entity explorer", function () {
       200,
     );
 
-    cy.get("span:contains('GOT IT')").click();
+    cy.get("span:contains('Got it')").click();
   });
 });
