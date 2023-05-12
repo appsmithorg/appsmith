@@ -15,14 +15,7 @@ import history from "utils/history";
 import { Position } from "@blueprintjs/core";
 import RenderDatasourceInformation from "pages/Editor/DataSourceEditor/DatasourceSection";
 import { getQueryParams } from "utils/URLUtils";
-import {
-  Button,
-  Category,
-  Icon,
-  IconSize,
-  Menu,
-  MenuItem,
-} from "design-system-old";
+import { Button, Category, Icon, IconSize, MenuItem } from "design-system-old";
 import { deleteDatasource } from "actions/datasourceActions";
 import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
@@ -52,6 +45,11 @@ import {
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import {
+  MenuWrapper,
+  MenuComponent,
+  RedMenuItem,
+} from "components/utils/formComponents";
 
 const Wrapper = styled.div`
   padding: 15px;
@@ -72,15 +70,6 @@ const DatasourceCardMainBody = styled.div`
   flex: 1;
   flex-direction: row;
   width: 100%;
-`;
-
-const MenuComponent = styled(Menu)`
-  flex: 0;
-`;
-
-const MenuWrapper = styled.div`
-  display: flex;
-  margin: 8px 0px;
 `;
 
 const DatasourceImage = styled.img`
@@ -161,21 +150,6 @@ const MoreOptionsContainer = styled.div`
 const CollapseComponentWrapper = styled.div`
   display: flex;
   width: fit-content;
-`;
-
-const RedMenuItem = styled(MenuItem)`
-  &&,
-  && .cs-text {
-    color: ${Colors.DANGER_SOLID};
-  }
-
-  &&,
-  &&:hover {
-    svg,
-    svg path {
-      fill: ${Colors.DANGER_SOLID};
-    }
-  }
 `;
 
 type DatasourceCardProps = {
