@@ -13,6 +13,7 @@ import {
   getFormInitialValues,
   getFormValues,
   initialize,
+  isValid,
 } from "redux-form";
 import { merge, isEmpty, get, set, partition, omit } from "lodash";
 import equal from "fast-deep-equal/es6";
@@ -41,6 +42,7 @@ import {
   getPlugin,
   getEditorConfig,
   getPluginNameFromId,
+  getFormName,
 } from "selectors/entitiesSelector";
 import type {
   UpdateDatasourceSuccessAction,
@@ -379,17 +381,21 @@ function* updateDatasourceSaga(
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const plugin: Plugin = yield select(getPlugin, response?.data?.pluginId);
+      const formName: string = yield select(getFormName, plugin?.id);
+      const state: AppState = yield select();
+      const isFormValid = isValid(formName)(state);
       AnalyticsUtil.logEvent("SAVE_DATA_SOURCE", {
+        datasourceId: response?.data?.id,
         datasourceName: response.data.name,
         pluginName: plugin?.name || "",
         pluginPackageName: plugin?.packageName || "",
+        isFormValid: isFormValid,
       });
       Toaster.show({
         text: createMessage(DATASOURCE_UPDATE, response.data.name),
         variant: Variant.success,
       });
 
-      const state: AppState = yield select();
       const expandDatasourceId = state.ui.datasourcePane.expandDatasourceId;
 
       // Dont redirect if action payload has an onSuccess
@@ -769,6 +775,17 @@ function* createDatasourceFromFormSaga(
       });
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      const plugin: Plugin = yield select(getPlugin, response?.data?.pluginId);
+      const formName: string = yield select(getFormName, plugin?.id);
+      const state: AppState = yield select();
+      const isFormValid = isValid(formName)(state);
+      AnalyticsUtil.logEvent("SAVE_DATA_SOURCE", {
+        datasourceId: response?.data?.id,
+        datasourceName: response?.data?.name,
+        pluginName: plugin?.name || "",
+        pluginPackageName: plugin?.packageName || "",
+        isFormValid: isFormValid,
+      });
       yield put({
         type: ReduxActionTypes.UPDATE_DATASOURCE_REFS,
         payload: response.data,

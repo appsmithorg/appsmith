@@ -42,6 +42,12 @@ import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLib
 import type { TJSLibrary } from "workers/common/JSLibrary";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getFormValues } from "redux-form";
+import type { Plugin } from "api/PluginApi";
+import {
+  DATASOURCE_DB_FORM,
+  DATASOURCE_REST_API_FORM,
+  DATASOURCE_SAAS_FORM,
+} from "ce/constants/forms";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -1062,4 +1068,21 @@ export const getDatasourceScopeValue = (
     (option: any) => option.value === scopeValue,
   )?.label;
   return label;
+};
+
+export const getFormName = (state: AppState, pluginId: string) => {
+  const plugin: Plugin | undefined = getPlugin(state, pluginId);
+  const pluginType = plugin?.type;
+  if (!!pluginType) {
+    switch (pluginType) {
+      case PluginType.DB:
+      case PluginType.REMOTE:
+        return DATASOURCE_DB_FORM;
+      case PluginType.SAAS:
+        return DATASOURCE_SAAS_FORM;
+      case PluginType.API:
+        return DATASOURCE_REST_API_FORM;
+    }
+  }
+  return DATASOURCE_DB_FORM;
 };

@@ -48,6 +48,7 @@ import { isDatasourceInViewMode } from "selectors/ui";
 import { getQueryParams } from "utils/URLUtils";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import SaveOrDiscardDatasourceModal from "./SaveOrDiscardDatasourceModal";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 interface ReduxStateProps {
   datasourceId: string;
@@ -355,6 +356,9 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     this.props.discardTempDatasource();
     this.props.deleteTempDSFromDraft();
     this.state.navigation();
+    AnalyticsUtil.logEvent("DISCARD_DATASOURCE_CHANGES", {
+      pluginName: this.props?.pluginPackageName,
+    });
   }
 
   closeDialogAndUnblockRoutes(isNavigateBack?: boolean) {

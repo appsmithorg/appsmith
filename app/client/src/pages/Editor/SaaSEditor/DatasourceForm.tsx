@@ -243,6 +243,9 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
   onDiscard() {
     this.closeDialogAndUnblockRoutes();
     this.state.navigation();
+    AnalyticsUtil.logEvent("DISCARD_DATASOURCE_CHANGES", {
+      pluginName: this.props?.plugin?.name,
+    });
   }
 
   closeDialogAndUnblockRoutes(isNavigateBack?: boolean) {
