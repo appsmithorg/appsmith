@@ -1,3 +1,4 @@
+import { SourceType } from "../constants/ast";
 import { extractExpressionAtPosition } from "./index";
 
 describe("extractExpressionAtPositionWholeDoc", () => {
@@ -54,4 +55,61 @@ describe("extractExpressionAtPositionWholeDoc", () => {
         result = await extractExpressionAtPosition("Api1", 2)
         expect(result).toBe("Api1");
     });
+
+    it ("handles this keyword replacement", async () => {
+        let result;
+
+        result = await extractExpressionAtPosition(JsObjectWithThisKeyword, 134, SourceType.module, {
+            thisExpressionReplacement: "JsObject",
+        })
+        expect(result).toBe("JsObject");
+
+        result = await extractExpressionAtPosition(JsObjectWithThisKeyword, 153, SourceType.module, {
+            thisExpressionReplacement: "JsObject",
+        })
+        expect(result).toBe("JsObject.numArray");
+
+        result = await extractExpressionAtPosition(JsObjectWithThisKeyword, 174, SourceType.module, {
+            thisExpressionReplacement: "JsObject",
+        })
+        expect(result).toBe("JsObject.objectArray");
+
+        result = await extractExpressionAtPosition(JsObjectWithThisKeyword, 177, SourceType.module, {
+            thisExpressionReplacement: "JsObject",
+        })
+        expect(result).toBe("JsObject.objectArray[0]");
+
+        result = await extractExpressionAtPosition(JsObjectWithThisKeyword, 180, SourceType.module, {
+            thisExpressionReplacement: "JsObject",
+        })
+        expect(result).toBe("JsObject.objectArray[0].x");
+
+        result = await extractExpressionAtPosition(JsObjectWithThisKeyword, 202, SourceType.module, {
+            thisExpressionReplacement: "JsObject",
+        })
+        expect(result).toBe("JsObject.objectData['x']");
+
+        result = await extractExpressionAtPosition(JsObjectWithThisKeyword, 236, SourceType.module, {
+            thisExpressionReplacement: "JsObject",
+        })
+        expect(result).toBe("JsObject.objectData['x']['a']");
+
+        result = await extractExpressionAtPosition(JsObjectWithThisKeyword, 241, SourceType.module, {
+            thisExpressionReplacement: "JsObject",
+        })
+        expect(result).toBe("JsObject.objectData['x']['a'].b");
+    });
 });
+
+const JsObjectWithThisKeyword = `export default {
+	numArray: [1, 2, 3],
+	objectArray: [ {x: 123}, { y: "123"} ],
+	objectData: { x: 123, y: "123" },
+	myFun1: () => {
+		this;
+		this.numArray;
+		this.objectArray[0].x;
+		this.objectData["x"];
+        this.objectData["x"]["a"].b;
+	},
+}`;
