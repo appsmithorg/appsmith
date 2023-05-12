@@ -23,11 +23,14 @@ import type { AppState } from "ce/reducers";
 import { Icon } from "design-system-old";
 import { DropdownOption as Option } from "../DatasourceDropdown/DropdownOption";
 import type { DropdownOptionType } from "../../types";
+import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
 
 export function useTableOrSpreadsheet() {
   const dispatch = useDispatch();
 
-  const { config, updateConfig } = useContext(WidgetQueryGeneratorFormContext);
+  const { config, updateConfig, widgetId } = useContext(
+    WidgetQueryGeneratorFormContext,
+  );
 
   const datasourceStructure = useSelector(
     getDatasourceStructureById(config.datasource),
@@ -119,6 +122,10 @@ export function useTableOrSpreadsheet() {
     }
   }, [config.table, options]);
 
+  const isConnecting = useSelector(
+    getisOneClickBindingConnectingForWidget(widgetId),
+  );
+
   return {
     error:
       selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS
@@ -137,5 +144,6 @@ export function useTableOrSpreadsheet() {
     onSelect,
     selected,
     show: !!config.datasource,
+    disabled: isConnecting,
   };
 }

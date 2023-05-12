@@ -6,8 +6,16 @@ import { DropdownOption } from "../DatasourceDropdown/DropdownOption";
 import type { DefaultOptionType } from "rc-select/lib/Select";
 
 function TableOrSpreadsheetDropdown() {
-  const { error, isLoading, label, onSelect, options, selected, show } =
-    useTableOrSpreadsheet();
+  const {
+    disabled,
+    error,
+    isLoading,
+    label,
+    onSelect,
+    options,
+    selected,
+    show,
+  } = useTableOrSpreadsheet();
 
   if (show) {
     return (
@@ -19,6 +27,7 @@ function TableOrSpreadsheetDropdown() {
             minWidth: "350px",
             maxHeight: "300px",
           }}
+          isDisabled={disabled}
           isLoading={isLoading}
           isValid={!error}
           onSelect={(value: string, selectedOption: DefaultOptionType) => {

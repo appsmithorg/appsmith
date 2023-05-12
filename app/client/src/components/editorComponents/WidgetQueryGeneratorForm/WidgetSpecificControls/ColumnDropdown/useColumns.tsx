@@ -18,9 +18,12 @@ import {
 } from "selectors/entitiesSelector";
 import { WidgetQueryGeneratorFormContext } from "../..";
 import { DropdownOption as Option } from "../../CommonControls/DatasourceDropdown/DropdownOption";
+import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
 
 export function useColumns(alias: string) {
-  const { config, updateConfig } = useContext(WidgetQueryGeneratorFormContext);
+  const { config, updateConfig, widgetId } = useContext(
+    WidgetQueryGeneratorFormContext,
+  );
 
   const isLoading = useSelector(getIsFetchingGsheetsColumns);
 
@@ -123,6 +126,10 @@ export function useColumns(alias: string) {
     }
   }, [selectedValue, options]);
 
+  const isConnecting = useSelector(
+    getisOneClickBindingConnectingForWidget(widgetId),
+  );
+
   return {
     error:
       selectedDatasourcePluginPackageName === PluginPackageName.GOOGLE_SHEETS &&
@@ -138,5 +145,6 @@ export function useColumns(alias: string) {
       !!config.table,
     primaryColumn,
     columns: columnList,
+    disabled: isConnecting,
   };
 }
