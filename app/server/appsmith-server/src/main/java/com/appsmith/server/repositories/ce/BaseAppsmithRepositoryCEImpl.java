@@ -592,4 +592,24 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                             .one();
                 });
     }
+
+
+
+    public static Query getQuery(List<Criteria> criteria) {
+        Query query = new Query();
+        criteria.forEach(query::addCriteria);
+        return query;
+    }
+
+        /*
+    Db query methods
+     */
+
+    public Mono<T> queryOne(List<Criteria> criteria) {
+        return mongoOperations.findOne(getQuery(criteria), genericDomain);
+    }
+
+    public Flux<T> queryMany(List<Criteria> criteria) {
+        return mongoOperations.find(getQuery(criteria), genericDomain);
+    }
 }
