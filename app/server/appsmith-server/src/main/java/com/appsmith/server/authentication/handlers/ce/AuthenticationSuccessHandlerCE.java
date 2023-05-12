@@ -109,9 +109,19 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             if (isFromSignup) {
                 boolean finalIsFromSignup = isFromSignup;
                 redirectionMono = workspaceService.isCreateWorkspaceAllowed(Boolean.TRUE)
+                        .elapsed()
+                        .map(pair -> {
+                            log.debug("AuthenticationSuccessHandlerCE::Time taken to check if workspace creation allowed: {} ms", pair.getT1());
+                            return pair.getT2();
+                        })
                         .flatMap(isCreateWorkspaceAllowed -> {
                             if (isCreateWorkspaceAllowed) {
                                 return createDefaultApplication(defaultWorkspaceId, authentication)
+                                        .elapsed()
+                                        .map(pair -> {
+                                            log.debug("AuthenticationSuccessHandlerCE::Time taken to create default application: {} ms", pair.getT1());
+                                            return pair.getT2();
+                                        })
                                         .flatMap(defaultApplication ->
                                                 handleOAuth2Redirect(webFilterExchange, defaultApplication, finalIsFromSignup));
                             }
@@ -123,8 +133,13 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         } else {
             boolean finalIsFromSignup = isFromSignup;
             if (createDefaultApplication && isFromSignup) {
-                redirectionMono = createDefaultApplication(defaultWorkspaceId, authentication).flatMap(
-                        defaultApplication -> handleRedirect(webFilterExchange, defaultApplication, finalIsFromSignup)
+                redirectionMono = createDefaultApplication(defaultWorkspaceId, authentication)
+                        .elapsed()
+                        .map(pair -> {
+                            log.debug("AuthenticationSuccessHandlerCE::Time taken to create default application: {} ms", pair.getT1());
+                            return pair.getT2();
+                        })
+                        .flatMap(defaultApplication -> handleRedirect(webFilterExchange, defaultApplication, finalIsFromSignup)
                 );
             } else {
                 redirectionMono = handleRedirect(webFilterExchange, null, finalIsFromSignup);
