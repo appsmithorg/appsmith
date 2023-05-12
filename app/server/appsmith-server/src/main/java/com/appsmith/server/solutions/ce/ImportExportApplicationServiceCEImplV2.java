@@ -38,6 +38,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
+import com.appsmith.server.helpers.ImportExportUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.migrations.JsonSchemaMigration;
@@ -63,7 +64,6 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
-import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.google.gson.Gson;
@@ -75,10 +75,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.data.mongodb.MongoTransactionException;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
+import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -123,7 +126,6 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
     private final NewPageRepository newPageRepository;
     private final NewActionService newActionService;
     private final SequenceService sequenceService;
-    private final ExamplesWorkspaceCloner examplesWorkspaceCloner;
     private final ActionCollectionRepository actionCollectionRepository;
     private final ActionCollectionService actionCollectionService;
     private final ThemeService themeService;
@@ -221,8 +223,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                                 applicationLastCommittedAt.isBefore(lib.getUpdatedAt()))
                                         .map(lib -> lib.getUidString())
                                         .collect(Collectors.toList());
-                            }
-                            else {
+                            } else {
                                 updatedCustomJSLibList = unpublishedCustomJSLibList
                                         .stream()
                                         .map(lib -> lib.getUidString())
@@ -281,7 +282,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                     Instant applicationLastCommittedAt = gitApplicationMetadata != null ? gitApplicationMetadata.getLastCommittedAt() : null;
                     boolean isClientSchemaMigrated = !JsonSchemaVersions.clientVersion.equals(application.getClientSchemaVersion());
                     boolean isServerSchemaMigrated = !JsonSchemaVersions.serverVersion.equals(application.getServerSchemaVersion());
-                    examplesWorkspaceCloner.makePristine(application);
+                    application.makePristine();
                     application.sanitiseToExportDBObject();
                     applicationJson.setExportedApplication(application);
                     Set<String> dbNamesUsedInActions = new HashSet<>();
@@ -745,10 +746,15 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
         List<NewAction> importedNewActionList = importedDoc.getActionList();
         List<ActionCollection> importedActionCollectionList = importedDoc.getActionCollectionList();
 
+        Mono<Workspace> workspaceMono = workspaceService.findById(
+                workspaceId, isGitSync ? Optional.empty() : Optional.of(workspacePermission.getApplicationCreatePermission())
+        );
+
         /* We need to take care of the null case in case someone is trying to import an older app where JS libs did
         not exist */
         List<CustomJSLib> customJSLibs = importedDoc.getCustomJSLibList() == null ? new ArrayList<>() :
                 importedDoc.getCustomJSLibList();
+
         Mono<Application> installedJSLibMono = Flux.fromIterable(customJSLibs)
                 .flatMap(customJSLib -> {
                     customJSLib.setId(null);
@@ -780,14 +786,15 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
         importedApplication.setPublishedPages(null);
         // Start the stopwatch to log the execution time
         Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.IMPORT.getEventName());
-        Mono<Application> importedApplicationMono = installedJSLibMono
-                .flatMapMany(ignored -> pluginRepository.findAll())
+
+        Mono<Application> importedApplicationMono = pluginRepository.findAll()
                 .map(plugin -> {
                     final String pluginReference = StringUtils.isEmpty(plugin.getPluginName()) ? plugin.getPackageName() : plugin.getPluginName();
                     pluginMap.put(pluginReference, plugin.getId());
                     return plugin;
                 })
-                .then(workspaceService.findById(workspaceId, isGitSync ? Optional.empty() : Optional.of(workspacePermission.getApplicationCreatePermission())))
+                .then(installedJSLibMono)
+                .then(workspaceMono)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId))
                 )
@@ -834,7 +841,6 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                                     datasource.setDatasourceConfiguration(null);
                                     datasource.setPluginId(null);
                                     copyNestedNonNullProperties(datasource, existingDatasource);
-                                    existingDatasource.setStructure(null);
                                     // Don't update the datasource configuration for already available datasources
                                     existingDatasource.setDatasourceConfiguration(null);
                                     return datasourceService.update(existingDatasource.getId(), existingDatasource);
@@ -859,82 +865,82 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                 })
                 .collectMap(Datasource::getName, Datasource::getId)
                 .flatMap(map -> {
-                        datasourceMap.putAll(map);
-                        // 1. Assign the policies for the imported application
-                        // 2. Check for possible duplicate names,
-                        // 3. Save the updated application
+                            datasourceMap.putAll(map);
+                            // 1. Assign the policies for the imported application
+                            // 2. Check for possible duplicate names,
+                            // 3. Save the updated application
 
-                        return Mono.just(importedApplication)
-                                .zipWith(currUserMono)
-                                .map(objects -> {
-                                    Application application = objects.getT1();
-                                    application.setModifiedBy(objects.getT2().getUsername());
-                                    return application;
-                                })
-                                .flatMap(application -> {
-                                    importedApplication.setWorkspaceId(workspaceId);
-                                    // Application Id will be present for GIT sync
-                                    if (!StringUtils.isEmpty(applicationId)) {
-                                        return applicationService.findById(applicationId, Optional.empty())
-                                                .switchIfEmpty(
-                                                        Mono.error(new AppsmithException(
-                                                                AppsmithError.ACL_NO_RESOURCE_FOUND,
-                                                                FieldName.APPLICATION_ID,
-                                                                applicationId))
-                                                )
-                                                .flatMap(existingApplication -> {
-                                                    if (appendToApp) {
-                                                        // When we are appending the pages to the existing application
-                                                        // e.g. import template we are only importing this in unpublished
-                                                        // version. At the same time we want to keep the existing page ref
-                                                        unpublishedPages.addAll(existingApplication.getPages());
-                                                        return Mono.just(existingApplication);
-                                                    }
-                                                    importedApplication.setId(existingApplication.getId());
-                                                    // For the existing application we don't need to default value of the flag
-                                                    // The isPublic flag has a default value as false and this would be confusing to user
-                                                    // when it is reset to false during importing where the application already is present in DB
-                                                    importedApplication.setIsPublic(null);
-                                                    importedApplication.setPolicies(null);
-                                                    copyNestedNonNullProperties(importedApplication, existingApplication);
-                                                    // We are expecting the changes present in DB are committed to git directory
-                                                    // so that these won't be lost when we are pulling changes from remote and
-                                                    // rehydrate the application. We are now rehydrating the application with/without
-                                                    // the changes from remote
-                                                    // We are using the save instead of update as we are using @Encrypted
-                                                    // for GitAuth
-                                                    Mono<Application> parentApplicationMono;
-                                                    if (existingApplication.getGitApplicationMetadata() != null) {
-                                                        parentApplicationMono = applicationService.findById(
-                                                                existingApplication.getGitApplicationMetadata().getDefaultApplicationId()
-                                                        );
-                                                    } else {
-                                                        parentApplicationMono = Mono.just(existingApplication);
-                                                    }
+                            return Mono.just(importedApplication)
+                                    .zipWith(currUserMono)
+                                    .map(objects -> {
+                                        Application application = objects.getT1();
+                                        application.setModifiedBy(objects.getT2().getUsername());
+                                        return application;
+                                    })
+                                    .flatMap(application -> {
+                                        importedApplication.setWorkspaceId(workspaceId);
+                                        // Application Id will be present for GIT sync
+                                        if (!StringUtils.isEmpty(applicationId)) {
+                                            return applicationService.findById(applicationId, Optional.empty())
+                                                    .switchIfEmpty(
+                                                            Mono.error(new AppsmithException(
+                                                                    AppsmithError.ACL_NO_RESOURCE_FOUND,
+                                                                    FieldName.APPLICATION_ID,
+                                                                    applicationId))
+                                                    )
+                                                    .flatMap(existingApplication -> {
+                                                        if (appendToApp) {
+                                                            // When we are appending the pages to the existing application
+                                                            // e.g. import template we are only importing this in unpublished
+                                                            // version. At the same time we want to keep the existing page ref
+                                                            unpublishedPages.addAll(existingApplication.getPages());
+                                                            return Mono.just(existingApplication);
+                                                        }
+                                                        importedApplication.setId(existingApplication.getId());
+                                                        // For the existing application we don't need to default value of the flag
+                                                        // The isPublic flag has a default value as false and this would be confusing to user
+                                                        // when it is reset to false during importing where the application already is present in DB
+                                                        importedApplication.setIsPublic(null);
+                                                        importedApplication.setPolicies(null);
+                                                        copyNestedNonNullProperties(importedApplication, existingApplication);
+                                                        // We are expecting the changes present in DB are committed to git directory
+                                                        // so that these won't be lost when we are pulling changes from remote and
+                                                        // rehydrate the application. We are now rehydrating the application with/without
+                                                        // the changes from remote
+                                                        // We are using the save instead of update as we are using @Encrypted
+                                                        // for GitAuth
+                                                        Mono<Application> parentApplicationMono;
+                                                        if (existingApplication.getGitApplicationMetadata() != null) {
+                                                            parentApplicationMono = applicationService.findById(
+                                                                    existingApplication.getGitApplicationMetadata().getDefaultApplicationId()
+                                                            );
+                                                        } else {
+                                                            parentApplicationMono = Mono.just(existingApplication);
+                                                        }
 
-                                                    return parentApplicationMono
-                                                            .flatMap(application1 -> {
-                                                                // Set the policies from the defaultApplication
-                                                                existingApplication.setPolicies(application1.getPolicies());
-                                                                importedApplication.setPolicies(application1.getPolicies());
-                                                                return applicationService.save(existingApplication)
-                                                                        .onErrorResume(DuplicateKeyException.class, error -> {
-                                                                            if (error.getMessage() != null) {
-                                                                                return applicationPageService
-                                                                                        .createOrUpdateSuffixedApplication(
-                                                                                                existingApplication,
-                                                                                                existingApplication.getName(),
-                                                                                                0
-                                                                                        );
-                                                                            }
-                                                                            throw error;
-                                                                        });
-                                                            });
-                                                });
-                                    }
-                                    return applicationPageService.createOrUpdateSuffixedApplication(application, application.getName(), 0);
-                                });
-                    }
+                                                        return parentApplicationMono
+                                                                .flatMap(application1 -> {
+                                                                    // Set the policies from the defaultApplication
+                                                                    existingApplication.setPolicies(application1.getPolicies());
+                                                                    importedApplication.setPolicies(application1.getPolicies());
+                                                                    return applicationService.save(existingApplication)
+                                                                            .onErrorResume(DuplicateKeyException.class, error -> {
+                                                                                if (error.getMessage() != null) {
+                                                                                    return applicationPageService
+                                                                                            .createOrUpdateSuffixedApplication(
+                                                                                                    existingApplication,
+                                                                                                    existingApplication.getName(),
+                                                                                                    0
+                                                                                            );
+                                                                                }
+                                                                                throw error;
+                                                                            });
+                                                                });
+                                                    });
+                                        }
+                                        return applicationPageService.createOrUpdateSuffixedApplication(application, application.getName(), 0);
+                                    });
+                        }
                 )
                 .flatMap(savedApp -> importThemes(savedApp, importedDoc, appendToApp))
                 .flatMap(savedApp -> {
@@ -1252,8 +1258,8 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                             });
                 })
                 .onErrorResume(throwable -> {
-                    log.error("Error while importing the application, reason: {}", throwable.getMessage());
-                    return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, ""));
+                    String errorMessage = ImportExportUtils.getErrorMessage(throwable);
+                    return Mono.error(new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
                 })
                 .as(transactionalOperator::transactional);
 
@@ -1469,7 +1475,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                         sanitizeDatasourceInActionDTO(publishedAction, datasourceMap, pluginMap, workspaceId, false);
                     }
 
-                    examplesWorkspaceCloner.makePristine(newAction);
+                    newAction.makePristine();
                     newAction.setWorkspaceId(workspaceId);
                     newAction.setApplicationId(importedApplication.getId());
                     newAction.setPluginId(pluginMap.get(newAction.getPluginId()));
@@ -1620,7 +1626,7 @@ public class ImportExportApplicationServiceCEImplV2 implements ImportExportAppli
                         parentPage = parentPage == null ? publishedCollectionPage : parentPage;
                     }
 
-                    examplesWorkspaceCloner.makePristine(actionCollection);
+                    actionCollection.makePristine();
                     actionCollection.setWorkspaceId(workspaceId);
                     actionCollection.setApplicationId(importedApplication.getId());
                     actionCollectionService.generateAndSetPolicies(parentPage, actionCollection);

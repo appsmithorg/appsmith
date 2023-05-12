@@ -21,12 +21,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "widgets/constants";
 
 const ChartComponent = lazy(() =>
-  retryPromise(
-    () =>
-      import(
-        /* webpackPrefetch: true, webpackChunkName: "charts" */ "../component"
-      ),
-  ),
+  retryPromise(() => import(/* webpackChunkName: "charts" */ "../component")),
 );
 
 class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {

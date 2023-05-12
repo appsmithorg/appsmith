@@ -35,7 +35,7 @@ for i in $deployed_charts
     pr=$(echo $i | cut -c 3-);
     pr_state="$(gh pr view "$pr" --json state --jq .state)"
     echo $pr_state
-    if [[ $pr_state == "MERGED" ]]
+    if [[ $pr_state == "MERGED" || $pr_state == "CLOSED" ]]
     then
       helm uninstall $i -n $i
       kubectl delete ns $i || true

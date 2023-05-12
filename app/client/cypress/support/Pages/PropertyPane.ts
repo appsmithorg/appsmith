@@ -247,10 +247,9 @@ export class PropertyPane {
     valueToEnter: string,
     toVerifySave = true,
   ) {
-    cy.xpath(this.locator._existingFieldTextByName(propFieldName)).then(
-      ($field: any) => {
-        this.agHelper.UpdateCodeInput($field, valueToEnter);
-      },
+    this.agHelper.UpdateCodeInput(
+      this.locator._existingFieldTextByName(propFieldName),
+      valueToEnter,
     );
     toVerifySave && this.agHelper.AssertAutoSave(); //Allowing time for saving entered value
   }
@@ -316,8 +315,10 @@ export class PropertyPane {
     toVerifySave && this.agHelper.AssertAutoSave();
   }
 
-  public TypeTextIntoField(endp: string, value: string) {
-    this.RemoveText(endp);
+  public TypeTextIntoField(endp: string, value: string, removeText = true) {
+    if (removeText) {
+      this.RemoveText(endp);
+    }
     cy.get(
       this.locator._propertyControl +
         endp.replace(/ +/g, "").toLowerCase() +

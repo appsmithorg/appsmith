@@ -31,6 +31,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.data.mongodb.MongoTransactionException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.MediaType;
@@ -43,6 +44,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 
 // All the test case are for failure or exception. Test cases for valid json file is already present in ImportExportApplicationServiceTest class
 
@@ -87,7 +89,7 @@ public class ImportApplicationTransactionServiceTest {
     @BeforeEach
     public void setup() {
         Mockito
-                .when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .when(pluginExecutorHelper.getPluginExecutor(any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
 
         applicationJson = createAppJson("test_assets/ImportExportServiceTest/valid-application.json").block();
@@ -140,7 +142,7 @@ public class ImportApplicationTransactionServiceTest {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
 
-        Mockito.when(newActionService.save(Mockito.any()))
+        Mockito.when(newActionService.save(any()))
                 .thenThrow(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST));
 
         Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
@@ -150,7 +152,7 @@ public class ImportApplicationTransactionServiceTest {
         // Check  if expected exception is thrown
         StepVerifier
                 .create(resultMono)
-                .expectErrorMatches(error -> error instanceof AppsmithException && error.getMessage().equals(AppsmithError.GENERIC_JSON_IMPORT_ERROR.getMessage(createdWorkspace.getId(), "")))
+                .expectErrorMatches(error -> error instanceof AppsmithException && error.getMessage().contains(AppsmithError.GENERIC_JSON_IMPORT_ERROR.getMessage(createdWorkspace.getId(), "")))
                 .verify();
 
         // After the import application failed in the middle of execution after the application and pages are saved to DB
@@ -158,5 +160,27 @@ public class ImportApplicationTransactionServiceTest {
         assertThat(mongoTemplate.count(new Query(), Application.class)).isEqualTo(applicationCount);
         assertThat(mongoTemplate.count(new Query(), NewPage.class)).isEqualTo(pageCount);
         assertThat(mongoTemplate.count(new Query(), NewAction.class)).isEqualTo(actionCount);
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplication_transactionExceptionDuringListActionSave_omitTransactionMessagePart() {
+
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("Template Workspace");
+
+        Mockito.when(newActionRepository.findByApplicationId(any()))
+                .thenThrow(new MongoTransactionException("Command failed with error 251 (NoSuchTransaction): 'Transaction 1 has been aborted.'"));
+
+        Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
+
+        Mono<Application> resultMono = importExportApplicationService.importApplicationInWorkspace(createdWorkspace.getId(), applicationJson);
+
+        // Check  if expected exception is thrown
+        StepVerifier
+                .create(resultMono)
+                .expectErrorMatches(error -> error instanceof AppsmithException
+                        && error.getMessage().equals(AppsmithError.GENERIC_JSON_IMPORT_ERROR.getMessage(createdWorkspace.getId(), "")))
+                .verify();
     }
 }

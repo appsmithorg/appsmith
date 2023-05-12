@@ -17,6 +17,8 @@ export const APPSMITH_DISPLAY_VERSION = (
   version: string,
   cloudHosting: boolean,
 ) => `Appsmith ${!cloudHosting ? edition : ""} ${version}`;
+export const INTERCOM_CONSENT_MESSAGE = () =>
+  `Can we have your email for better support?`;
 export const YES = () => `Yes`;
 export const ARE_YOU_SURE = () => `Are you sure?`;
 export const ERROR_ADD_API_INVALID_URL = () =>
@@ -169,6 +171,19 @@ export const USERS_HAVE_ACCESS_TO_ONLY_THIS_APP = () =>
   "Users will only have access to this application";
 export const NO_USERS_INVITED = () => "You haven't invited any users yet";
 
+export const USER_PROFILE_PICTURE_UPLOAD_FAILED = () =>
+  "Unable to upload display picture.";
+export const UPDATE_USER_DETAILS_FAILED = () =>
+  "Unable to update user details.";
+export const USER_DISPLAY_PICTURE_FILE_INVALID = () =>
+  "File content doesn't seem to be an image. Please verify.";
+export const USER_DISPLAY_NAME_CHAR_CHECK_FAILED = () =>
+  "No special characters allowed except .'-";
+export const USER_DISPLAY_NAME_PLACEHOLDER = () => "Display name";
+export const USER_DISPLAY_PICTURE_PLACEHOLDER = () => "Display picture";
+export const USER_EMAIL_PLACEHOLDER = () => "Email";
+export const USER_RESET_PASSWORD = () => "Reset Password";
+
 export const CREATE_PASSWORD_RESET_SUCCESS = () => `Your password has been set`;
 export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = () => `Login`;
 
@@ -193,6 +208,7 @@ export const EDIT_APP = () => `Edit App`;
 export const FORK_APP = () => `Fork App`;
 export const SIGN_IN = () => `Sign in`;
 export const SHARE_APP = () => `Share app`;
+export const ALL_APPS = () => `All apps`;
 
 export const EDITOR_HEADER = {
   saving: () => "Saving",
@@ -350,6 +366,7 @@ export const GSHEET_AUTHORIZATION_ERROR =
   "Authorisation failed, to continue using this data source authorize now.";
 export const GSHEET_FILES_NOT_SELECTED =
   "Datasource does not have access to any files, please authorize google sheets to use this data source";
+export const FILES_NOT_SELECTED_EVENT = () => "Files not selected";
 
 export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE = () =>
   "Error saving a key in localStorage. You have exceeded the allowed storage size limit";
@@ -558,6 +575,8 @@ export const NO_JS_FUNCTION_RETURN_VALUE = (JSFunctionName: string) =>
   `${JSFunctionName} did not return any data. Did you add a return statement?`;
 
 // Import/Export Application features
+export const ERROR_IMPORTING_APPLICATION_TO_WORKSPACE = () =>
+  "Error importing application. No workspace found";
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import application";
 export const IMPORT_APPLICATION_MODAL_LABEL = () =>
   "Where would you like to import your application from?";
@@ -904,6 +923,8 @@ export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
 export const ACTION_OPERATION_DESCRIPTION = () =>
   `Create a new Query, API or JS Object`;
+export const TABLE_WIDGET_VALIDATION_ASSIST_PROMPT = () =>
+  `Access the current cell using `;
 
 export const TRIGGER_ACTION_VALIDATION_ERROR = (
   functionName: string,
@@ -1474,8 +1495,7 @@ export const APP_SETTINGS_CLOSE_TOOLTIP = () => "Close settings panel";
 
 export const GENERAL_SETTINGS_SECTION_HEADER = () => "General";
 export const GENERAL_SETTINGS_SECTION_CONTENT_HEADER = () => "General Settings";
-export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () =>
-  "App name, icon and share";
+export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () => "App name and icon";
 export const GENERAL_SETTINGS_APP_NAME_LABEL = () => "App Name";
 export const GENERAL_SETTINGS_NAME_EMPTY_MESSAGE = () =>
   "App name cannot be empty";
@@ -1510,6 +1530,20 @@ export const PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE = () =>
   "Set this page as your home page. This will override your previously set home page.";
 export const PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR = (name: string) =>
   `${name} is already being used.`;
+
+export const CODE_EDITOR_LOADING_ERROR = (message?: string) =>
+  `Failed to load the code editor${message ? `: ${message}` : ""}`;
+
+export const UPDATE_VIA_IMPORT_SETTING = {
+  settingHeader: () => "Update through file import",
+  settingDesc: () => "Update app by importing file",
+  settingLabel: () => "Import",
+  settingContent: () =>
+    "This action will override your existing application. Please exercise caution while selecting the file to import.",
+  settingActionButtonTxt: () => "Import",
+  disabledForGit: () =>
+    "This feature is not supported for apps connected to Git version control. Please use Git Pull to update and sync your app.",
+};
 
 export const IN_APP_EMBED_SETTING = {
   applicationUrl: () => "application url",
@@ -1547,17 +1581,21 @@ export const IN_APP_EMBED_SETTING = {
 export const APP_NAVIGATION_SETTING = {
   sectionHeader: () => "Navigation",
   sectionHeaderDesc: () => "Customize the navigation bar",
-  showNavbarLabel: () => "Show Navbar",
+  showNavbarLabel: () => "Show navbar",
   orientationLabel: () => "Orientation",
   navStyleLabel: () => "Variant",
   positionLabel: () => "Position",
   itemStyleLabel: () => "Item Style",
   colorStyleLabel: () => "Background color",
   logoLabel: () => "Logo",
-  logoConfigurationLabel: () => "Logo Configuration",
-  showSignInLabel: () => "Show Sign In",
+  logoConfigurationLabel: () => "Logo configuration",
+  showSignInLabel: () => "Show sign in",
   showSignInTooltip: () =>
     "Toggle to show the sign-in button for users who are not logged in.",
+  logoUploadFormatError: () => `Uploaded file must be in .PNG or .JPG formats.`,
+  logoUploadSizeError: () => `Uploaded file must be less than 1MB.`,
+  showLogoLabel: () => "Show logo",
+  showApplicationTitleLabel: () => "Show application title",
 };
 
 export const LOCK_SIDEBAR_MESSAGE = () => `Lock sidebar open`;
@@ -1571,8 +1609,7 @@ export const RECONNECT_BUTTON_TEXT = () => "RECONNECT";
 export const SAVE_BUTTON_TEXT = () => "SAVE";
 export const SAVE_AND_AUTHORIZE_BUTTON_TEXT = () => "SAVE AND AUTHORIZE";
 export const DISCARD_POPUP_DONT_SAVE_BUTTON_TEXT = () => "DON'T SAVE";
-export const GSHEET_AUTHORISED_FILE_IDS_KEY = () =>
-  "Google sheets authorised file ids key";
+export const GSHEET_AUTHORISED_FILE_IDS_KEY = () => "userAuthorizedSheetIds";
 export const GOOGLE_SHEETS_INFO_BANNER_MESSAGE = () =>
   "Appsmith will require access to your google drive to access google sheets.";
 export const GOOGLE_SHEETS_AUTHORIZE_DATASOURCE = () => "Authorize Datasource";
@@ -1621,9 +1658,9 @@ export const USE_SNAPSHOT_TEXT = () =>
 export const SNAPSHOT_WARNING_MESSAGE = () =>
   "Any changes you made after conversion will not be present.";
 export const CONVERT_TO_FIXED_TITLE = () => "Convert to Fixed Layout";
-export const CONVERT_TO_FIXED_BUTTON = () => "CONVERT TO Fixed-LAYOUT";
+export const CONVERT_TO_FIXED_BUTTON = () => "CONVERT TO Fixed-LAYOUT (BETA)";
 export const CONVERT_TO_AUTO_TITLE = () => "Convert to Auto Layout";
-export const CONVERT_TO_AUTO_BUTTON = () => "CONVERT TO AUTO-LAYOUT";
+export const CONVERT_TO_AUTO_BUTTON = () => "CONVERT TO AUTO-LAYOUT (BETA)";
 export const SNAPSHOT_BANNER_MESSAGE = () =>
   "Confirm this layout is per expectations before you discard the snapshot. Use the snapshot to go back.";
 export const USE_SNAPSHOT_CTA = () => "USE SNAPSHOT";

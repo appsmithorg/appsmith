@@ -142,7 +142,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                     }
                 })
                 .flatMap(workspace -> {
-                    makePristine(workspace);
+                    workspace.makePristine();
                     if (!CollectionUtils.isEmpty(workspace.getUserRoles())) {
                         workspace.getUserRoles().clear();
                     }
@@ -236,7 +236,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                     DefaultResources defaults = new DefaultResources();
                     defaults.setApplicationId(newPage.getApplicationId());
                     newPage.setDefaultResources(defaults);
-                    makePristine(newPage);
+                    newPage.makePristine();
                     PageDTO page = newPage.getUnpublishedPage();
 
                     if (page.getLayouts() != null) {
@@ -268,7 +268,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                                         .flatMap(newAction -> {
                                             final String originalActionId = newAction.getId();
                                             log.info("Creating clone of action {}", originalActionId);
-                                            makePristine(newAction);
+                                            newAction.makePristine();
                                             newAction.setWorkspaceId(toWorkspaceId);
                                             ActionDTO action = newAction.getUnpublishedAction();
                                             action.setCollectionId(null);
@@ -311,7 +311,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                                                         final String originalCollectionId = actionCollection.getId();
                                                         log.info("Creating clone of action collection {}", originalCollectionId);
                                                         // Sanitize them
-                                                        makePristine(actionCollection);
+                                                        actionCollection.makePristine();
                                                         actionCollection.setPublishedCollection(null);
                                                         final ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
                                                         unpublishedCollection.setPageId(savedPage.getId());
@@ -508,9 +508,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
         Mono<User> userMono = sessionUserService.getCurrentUser();
 
         return applicationPageService.setApplicationPolicies(userMono, workspaceId, application)
-                .flatMap(applicationToCreate ->
-                        createSuffixedApplication(applicationToCreate, applicationToCreate.getName(), 0)
-                );
+                .flatMap(applicationService::createDefaultApplication);
     }
 
     // forkWithConfiguration parameter if TRUE, returns the datasource with credentials else returns datasources without credentials
@@ -527,7 +525,6 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                             ? null : templateDatasource.getDatasourceConfiguration().getAuthentication();
                     if (authentication != null) {
                         authentication.setIsAuthorized(null);
-                        authentication.setAuthenticationResponse(null);
                     }
 
                     return Flux.fromIterable(existingDatasources)
@@ -536,7 +533,6 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                                         ? null : ds.getDatasourceConfiguration().getAuthentication();
                                 if (auth != null) {
                                     auth.setIsAuthorized(null);
-                                    auth.setAuthenticationResponse(null);
                                 }
                                 return ds;
                             })
@@ -544,21 +540,8 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                             .next()  // Get the first matching datasource, we don't need more than one here.
                             .switchIfEmpty(Mono.defer(() -> {
                                 // No matching existing datasource found, so create a new one.
-                                makePristine(templateDatasource);
-                                templateDatasource.setWorkspaceId(toWorkspaceId);
-                                if (!Boolean.TRUE.equals(forkWithConfiguration)){
-                                    DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-                                    dsConfig.setAuthentication(null);
-                                    if (templateDatasource.getDatasourceConfiguration() != null){
-                                        dsConfig.setConnection(templateDatasource.getDatasourceConfiguration().getConnection());
-                                    }
-                                    templateDatasource.setDatasourceConfiguration(dsConfig);
-                                }
-                                //updating the datasource isConfigured field, which will be used to return if the forking is a partialImport or not
-                                //post forking any application, datasource reconnection modal will appear based on isConfigured property
-                                //Ref: getApplicationImportDTO()
-                                templateDatasource.setIsConfigured(templateDatasource.getDatasourceConfiguration() != null && templateDatasource.getDatasourceConfiguration().getAuthentication() != null);
-                                return createSuffixedDatasource(templateDatasource);
+                                Datasource newDs = templateDatasource.fork(forkWithConfiguration, toWorkspaceId);
+                                return createSuffixedDatasource(newDs);
                             }));
                 });
     }
@@ -588,38 +571,4 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                     throw error;
                 });
     }
-
-    /**
-     * Tries to create the given application with the name, over and over again with an incremented suffix, but **only**
-     * if the error is because of a name clash.
-     * @param application Application to try create.
-     * @param name Name of the application, to which numbered suffixes will be appended.
-     * @param suffix Suffix used for appending, recursion artifact. Usually set to 0.
-     * @return A Mono that yields the created application.
-     */
-    private Mono<Application> createSuffixedApplication(Application application, String name, int suffix) {
-        final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
-        application.setName(actualName);
-        return applicationService.createDefault(application)
-                .onErrorResume(DuplicateKeyException.class, error -> {
-                    if (error.getMessage() != null
-                            // workspace_application_deleted_gitApplicationMetadata_compound_index
-                            && error.getMessage().contains("workspace_application_deleted_gitApplicationMetadata_compound_index")) {
-                        // The duplicate key error is because of the `name` field.
-                        return createSuffixedApplication(application, name, 1 + suffix);
-                    }
-                    throw error;
-                });
-    }
-
-    public void makePristine(BaseDomain domain) {
-        // Set the ID to null for this domain object so that it is saved a new document in the database (as opposed to
-        // updating an existing document). If it contains any policies, they are also reset.
-        domain.setId(null);
-        domain.setUpdatedAt(null);
-        if (domain.getPolicies() != null) {
-            domain.getPolicies().clear();
-        }
-    }
-
 }

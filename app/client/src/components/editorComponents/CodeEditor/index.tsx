@@ -20,10 +20,15 @@ import "codemirror/addon/tern/tern.css";
 import "codemirror/addon/lint/lint";
 import "codemirror/addon/lint/lint.css";
 import "codemirror/addon/comment/comment";
+import "codemirror/mode/sql/sql.js";
+import "codemirror/addon/hint/show-hint";
+import "codemirror/addon/hint/show-hint.css";
+import "codemirror/addon/hint/sql-hint";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import type { WrappedFieldInputProps } from "redux-form";
 import _, { debounce, isEqual } from "lodash";
+import scrollIntoView from "scroll-into-view-if-needed";
 
 import type {
   DataTree,
@@ -32,6 +37,7 @@ import type {
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { Skin } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import "components/editorComponents/CodeEditor/sql/customMimes";
 import "components/editorComponents/CodeEditor/modes";
 import type {
   CodeEditorBorder,
@@ -65,7 +71,10 @@ import {
   PEEKABLE_LINE,
   PEEK_STYLE_PERSIST_CLASS,
 } from "components/editorComponents/CodeEditor/MarkHelpers/entityMarker";
-import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
+import {
+  bindingHint,
+  sqlHint,
+} from "components/editorComponents/CodeEditor/hintHelpers";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
 import { Button, ScrollIndicator } from "design-system-old";
@@ -92,7 +101,7 @@ import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evalu
 import { getPluginIdToImageLocation } from "sagas/selectors";
 import type { ExpectedValueExample } from "utils/validation/common";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations, getLintTooltipDirection } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
@@ -138,6 +147,7 @@ import {
 } from "./utils/saveAndAutoIndent";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { selectFeatureFlags } from "selectors/usersSelectors";
+import { getAllDatasourceTableKeys } from "selectors/entitiesSelector";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -248,7 +258,7 @@ const getEditorIdentifier = (props: EditorProps): string => {
 class CodeEditor extends Component<Props, State> {
   static defaultProps = {
     marking: [bindingMarker, entityMarker],
-    hinting: [bindingHint, commandsHelper],
+    hinting: [bindingHint, commandsHelper, sqlHint.hinter],
     lineCommentString: "//",
   };
   // this is the higlighted element for any highlighted text in the codemirror
@@ -260,6 +270,7 @@ class CodeEditor extends Component<Props, State> {
   annotations: Annotation[] = [];
   updateLintingCallback: UpdateLintingCallback | undefined;
   private editorWrapperRef = React.createRef<HTMLDivElement>();
+  lineRef: React.MutableRefObject<number | null> = React.createRef();
 
   constructor(props: Props) {
     super(props);
@@ -389,6 +400,7 @@ class CodeEditor extends Component<Props, State> {
         editor.on("blur", this.handleEditorBlur);
         editor.on("postPick", () => this.handleAutocompleteVisibility(editor));
         editor.on("mousedown", this.handleClick);
+        editor.on("scrollCursorIntoView", this.handleScrollCursorIntoView);
         CodeMirror.on(
           editor.getWrapperElement(),
           "mousemove",
@@ -403,13 +415,15 @@ class CodeEditor extends Component<Props, State> {
 
         CodeEditor.updateMarkings(
           editor,
-          this.props.marking,
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          this.props.marking!, // ! since defaultProps are set
           this.props.entitiesForNavigation,
         );
 
         this.hinters = CodeEditor.startAutocomplete(
           editor,
-          this.props.hinting,
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          this.props.hinting!, // ! since defaultProps are set
           this.props.dynamicData,
         );
 
@@ -421,6 +435,7 @@ class CodeEditor extends Component<Props, State> {
           }
         }, 200);
       }.bind(this);
+      sqlHint.setDatasourceTableKeys(this.props.datasourceTableKeys);
 
       // Finally create the Codemirror editor
       this.editor = CodeMirror(this.codeEditorTarget.current, options);
@@ -524,9 +539,13 @@ class CodeEditor extends Component<Props, State> {
       ) {
         CodeEditor.updateMarkings(
           this.editor,
-          this.props.marking,
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          this.props.marking!, // ! since defaultProps are set
           this.props.entitiesForNavigation,
         );
+      }
+      if (this.props.datasourceTableKeys !== prevProps.datasourceTableKeys) {
+        sqlHint.setDatasourceTableKeys(this.props.datasourceTableKeys);
       }
     });
   }
@@ -586,6 +605,28 @@ class CodeEditor extends Component<Props, State> {
     (ev) => this.handleMouseOver(ev),
     PEEK_OVERLAY_DELAY,
   );
+
+  handleScrollCursorIntoView = (cm: CodeMirror.Editor, event: Event) => {
+    event.preventDefault();
+
+    const delayedWork = () => {
+      if (!this.state.isFocused) return;
+
+      const cursorElement = cm
+        .getScrollerElement()
+        .getElementsByClassName("CodeMirror-cursor")[0];
+      if (cursorElement) {
+        scrollIntoView(cursorElement, {
+          block: "nearest",
+        });
+      }
+    };
+
+    // We need to delay this because CodeMirror can fire scrollCursorIntoView as a view is being blurred
+    // and another is being focused. The blurred editor still has the focused state when this event fires.
+    // We don't want to scroll the blurred editor into view, only the focused editor.
+    setTimeout(delayedWork, 0);
+  };
 
   handleMouseOver = (event: MouseEvent) => {
     if (
@@ -698,7 +739,20 @@ class CodeEditor extends Component<Props, State> {
         }
         break;
       case "Escape":
-        if (this.state.isFocused && !this.state.hinterOpen) {
+        /*
+         * We only want focus to go out for code editors in JS pane with binding prompts
+         * This is so the esc closes the binding prompt.
+         * but this is not needed in the JS object editor, since there are no prompts there
+         * So we check for the following so the JS editor does not have this behaviour -
+         * isFocused : editor is focused
+         * hinterOpen : autocomplete hinter is closed
+         * this.isBindingPromptOpen : binding prompt (type / for commands) is closed
+         */
+        if (
+          this.state.isFocused &&
+          !this.state.hinterOpen &&
+          this.isBindingPromptOpen()
+        ) {
           this.codeEditorTarget.current?.focus();
           this.codeEditorTarget.current?.dispatchEvent(
             interactionAnalyticsEvent({ key: e.key }),
@@ -810,7 +864,8 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleCursorMovement = (cm: CodeMirror.Editor) => {
-    this.handleCustomGutter(cm.getCursor().line, true);
+    const line = cm.getCursor().line;
+    this.handleCustomGutter(line, true);
     // ignore if disabled
     if (!this.props.input.onChange || this.props.disabled) {
       return;
@@ -829,6 +884,16 @@ class CodeEditor extends Component<Props, State> {
     } else {
       cm.setOption("matchBrackets", false);
     }
+    if (!this.props.borderLess) return;
+    if (this.lineRef.current !== null) {
+      cm.removeLineClass(
+        this.lineRef.current,
+        "background",
+        "CodeMirror-activeline-background",
+      );
+    }
+    cm.addLineClass(line, "background", "CodeMirror-activeline-background");
+    this.lineRef.current = line;
   };
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
@@ -882,7 +947,7 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  handleEditorBlur = () => {
+  handleEditorBlur = (cm: CodeMirror.Editor) => {
     this.handleChange();
     this.setState({ isFocused: false });
     this.editor.setOption("matchBrackets", false);
@@ -895,6 +960,14 @@ class CodeEditor extends Component<Props, State> {
         line: cursor.line,
       },
     });
+    if (this.lineRef.current !== null) {
+      cm.removeLineClass(
+        this.lineRef.current,
+        "background",
+        "CodeMirror-activeline-background",
+      );
+      this.lineRef.current = null;
+    }
     if (this.props.onEditorBlur) {
       this.props.onEditorBlur();
     }
@@ -974,7 +1047,8 @@ class CodeEditor extends Component<Props, State> {
     if (this.editor && changeObj) {
       CodeEditor.updateMarkings(
         this.editor,
-        this.props.marking,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.props.marking!, // ! since defaultProps are set
         this.props.entitiesForNavigation,
         changeObj.from,
         changeObj.to,
@@ -1012,6 +1086,8 @@ class CodeEditor extends Component<Props, State> {
     const configTree = ConfigTreeActions.getConfigTree();
     const entityInformation: FieldEntityInformation = {
       expectedType: expected?.autocompleteDataType,
+      example: expected?.example,
+      mode: this.props.mode,
     };
 
     if (dataTreePath) {
@@ -1201,6 +1277,26 @@ class CodeEditor extends Component<Props, State> {
     };
   };
 
+  // show features like evaluatedvaluepopup or binding prompts
+  showFeatures = () => {
+    return (
+      this.state.isFocused &&
+      !this.props.hideEvaluatedValue &&
+      ("evaluatedValue" in this.props ||
+        ("dataTreePath" in this.props && !!this.props.dataTreePath))
+    );
+  };
+
+  isBindingPromptOpen = () => {
+    return (
+      showBindingPrompt(
+        this.showFeatures(),
+        this.props.input.value,
+        this.state.hinterOpen,
+      ) && !_.get(this.editor, "state.completionActive")
+    );
+  };
+
   render() {
     const {
       border,
@@ -1217,7 +1313,6 @@ class CodeEditor extends Component<Props, State> {
       height,
       hideEvaluatedValue,
       hoverInteraction,
-      input,
       showLightningMenu,
       size,
       theme,
@@ -1243,15 +1338,8 @@ class CodeEditor extends Component<Props, State> {
       isInvalid = Boolean(this.props.isInvalid);
     }
 
-    // show features like evaluatedvaluepopup or binding prompts
-    const showFeatures =
-      this.state.isFocused &&
-      !hideEvaluatedValue &&
-      ("evaluatedValue" in this.props ||
-        ("dataTreePath" in this.props && !!dataTreePath));
-
     const showEvaluatedValue =
-      showFeatures && (this.state.isDynamic || isInvalid);
+      this.showFeatures() && (this.state.isDynamic || isInvalid);
 
     return (
       <DynamicAutocompleteInputWrapper
@@ -1342,13 +1430,7 @@ class CodeEditor extends Component<Props, State> {
             >
               <BindingPrompt
                 editorTheme={this.props.theme}
-                isOpen={
-                  showBindingPrompt(
-                    showFeatures,
-                    input.value,
-                    this.state.hinterOpen,
-                  ) && !_.get(this.editor, "state.completionActive")
-                }
+                isOpen={this.isBindingPromptOpen()}
                 promptMessage={this.props.promptMessage}
                 showLightningMenu={this.props.showLightningMenu}
               />
@@ -1390,6 +1472,7 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
     props.dataTreePath?.split(".")[0],
   ),
   featureFlags: selectFeatureFlags(state),
+  datasourceTableKeys: getAllDatasourceTableKeys(state, props.dataTreePath),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
