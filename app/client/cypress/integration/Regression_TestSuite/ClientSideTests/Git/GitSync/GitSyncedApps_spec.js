@@ -38,7 +38,7 @@ describe("Git sync apps", function () {
 
     cy.get(generatePage.selectDatasourceDropdown).click();
 
-    cy.contains("Connect new datasource").click();
+    cy.contains("Connect new datasource").click({ force: true });
 
     cy.get(datasource.PostgreSQL).click();
 
