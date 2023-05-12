@@ -21,14 +21,18 @@ import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ce.NewActionServiceCE;
-import com.appsmith.server.solutions.ActionExecutionSolution;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.observation.ObservationRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.core.codec.ByteBufferDecoder;
 import org.springframework.core.codec.StringDecoder;
 import org.springframework.http.HttpMethod;
@@ -43,6 +47,7 @@ import org.springframework.http.codec.multipart.Part;
 import org.springframework.http.codec.xml.Jaxb2XmlDecoder;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.reactive.function.BodyExtractor;
 import org.springframework.web.reactive.function.BodyExtractors;
 import reactor.core.publisher.Flux;
@@ -64,17 +69,19 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
+@ExtendWith(SpringExtension.class)
+@SpringBootTest
 class ActionExecutionSolutionCEImplTest {
 
     ActionExecutionSolutionCEImpl actionExecutionSolution;
 
-    @MockBean
+    @SpyBean
     NewActionService newActionService;
     @MockBean
     ActionPermission actionPermission;
     @MockBean
     ObservationRegistry observationRegistry;
-    @MockBean
+    @SpyBean
     ObjectMapper objectMapper;
     @MockBean
     NewActionRepository repository;
@@ -122,6 +129,9 @@ class ActionExecutionSolutionCEImplTest {
                  datasourcePermission,
                  analyticsService
         );
+
+        ObservationRegistry.ObservationConfig mockObservationConfig = Mockito.mock(ObservationRegistry.ObservationConfig.class);
+        Mockito.when(observationRegistry.observationConfig()).thenReturn(mockObservationConfig);
     }
 
     @BeforeEach
@@ -244,7 +254,6 @@ class ActionExecutionSolutionCEImplTest {
         final Flux<Part> partsFlux = BodyExtractors.toParts()
                 .extract(mock, this.context);
 
-        NewActionServiceCE newActionServiceSpy = spy(newActionService);
         ActionExecutionSolutionCE executionSolutionSpy = spy(actionExecutionSolution);
 
         Mono<ActionExecutionResult> actionExecutionResultMono = executionSolutionSpy.executeAction(partsFlux, null, null);
@@ -257,7 +266,7 @@ class ActionExecutionSolutionCEImplTest {
         NewAction newAction = new NewAction();
         newAction.setId("63285a3388e48972c7519b18");
         doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any());
-        doReturn(Mono.just(newAction)).when(newActionServiceSpy).findByBranchNameAndDefaultActionId(any(), any(), any());
+        doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
 
         StepVerifier
@@ -296,7 +305,6 @@ class ActionExecutionSolutionCEImplTest {
         final Flux<Part> partsFlux = BodyExtractors.toParts()
                 .extract(mock, this.context);
 
-        NewActionServiceCE newActionServiceSpy = spy(newActionService);
         ActionExecutionSolutionCE executionSolutionSpy = spy(actionExecutionSolution);
 
         Mono<ActionExecutionResult> actionExecutionResultMono = executionSolutionSpy.executeAction(partsFlux, null, null);
@@ -309,7 +317,7 @@ class ActionExecutionSolutionCEImplTest {
         NewAction newAction = new NewAction();
         newAction.setId("63285a3388e48972c7519b18");
         doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any());
-        doReturn(Mono.just(newAction)).when(newActionServiceSpy).findByBranchNameAndDefaultActionId(any(), any(), any());
+        doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
 
         StepVerifier

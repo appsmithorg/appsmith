@@ -124,13 +124,10 @@ public class NewActionServiceCEImplTest {
     ConfigService configService;
     @MockBean
     ResponseUtils responseUtils;
-
     @MockBean
     PermissionGroupService permissionGroupService;
-
     @MockBean
     NewActionRepository newActionRepository;
-
     @MockBean
     DatasourcePermission datasourcePermission;
     @MockBean
