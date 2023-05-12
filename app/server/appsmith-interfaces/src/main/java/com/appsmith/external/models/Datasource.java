@@ -16,12 +16,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
+
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 @Document
-public class Datasource extends BranchAwareDomain {
+public class Datasource extends BranchAwareDomain implements Forkable {
 
     @Transient
     public static final String DEFAULT_NAME_PREFIX = "Untitled Datasource";
@@ -53,10 +55,9 @@ public class Datasource extends BranchAwareDomain {
     DatasourceConfiguration datasourceConfiguration;
 
     // TODO: make export import false for this one
-    // TODO: Think of a better name for the storage
     @Transient
     @JsonView(Views.Internal.class)
-    DatasourceConfigurationStorage datasourceConfigurationStorage;
+    DatasourceStorage datasourceStorage;
 
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -115,10 +116,10 @@ public class Datasource extends BranchAwareDomain {
      */
     @JsonView(Views.Public.class)
     public boolean getIsValid() {
-        if (getDatasourceConfigurationStorage() == null) {
+        if (getDatasourceStorage() == null) {
             return CollectionUtils.isEmpty(invalids);
         }
-        return getDatasourceConfigurationStorage().getIsValid();
+        return getDatasourceStorage().getIsValid();
     }
 
     /**
@@ -141,29 +142,80 @@ public class Datasource extends BranchAwareDomain {
                 .isEquals();
     }
 
+    /**
+     * This method defines the behaviour of a datasource when the application is forked from one workspace to another.
+     * It creates a new object from the source datasource object
+     * Removes the id and updated at from the object
+     * Based on forkWithConfiguration field present in the source app, it sets the authentication for the datasource
+     * Returns the new datasource object
+     */
+    @Override
+    public Datasource fork(Boolean forkWithConfiguration, String toWorkspaceId) {
+        Datasource newDs = new Datasource();
+        copyNestedNonNullProperties(this, newDs);
+        newDs.makePristine();
+        newDs.setWorkspaceId(toWorkspaceId);
+        AuthenticationDTO initialAuth = null;
+        if (newDs.getDatasourceConfiguration() != null) {
+            initialAuth = newDs.getDatasourceConfiguration().getAuthentication();
+        }
+
+        if (!Boolean.TRUE.equals(forkWithConfiguration)) {
+            DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+            dsConfig.setAuthentication(null);
+            if (newDs.getDatasourceConfiguration() != null) {
+                dsConfig.setConnection(newDs.getDatasourceConfiguration().getConnection());
+            }
+            newDs.setDatasourceConfiguration(dsConfig);
+        }
+
+        /*
+         updating the datasource "isConfigured" field, which will be used to return if the forking is a partialImport or not
+         post forking any application, datasource reconnection modal will appear based on isConfigured property
+         Ref: getApplicationImportDTO()
+         */
+
+        boolean isConfigured = (newDs.getDatasourceConfiguration() != null
+                && newDs.getDatasourceConfiguration().getAuthentication() != null);
+
+        if (initialAuth instanceof OAuth2) {
+            /*
+             This is the case for OAuth2 datasources, for example Google sheets, we don't want to copy the token to the
+             new workspace as it is user's personal token. Hence, in case of forking to a new workspace the datasource
+             needs to be re-authorised.
+             */
+            newDs.setIsConfigured(false);
+            if (isConfigured) {
+                newDs.getDatasourceConfiguration().getAuthentication().setAuthenticationResponse(null);
+            }
+        } else {
+            newDs.setIsConfigured(isConfigured);
+        }
+
+        return newDs;
+    }
 
     public Set<String> getInvalids() {
-        if (getDatasourceConfigurationStorage() == null) {
+        if (getDatasourceStorage() == null) {
             return this.invalids;
         }
-        return getDatasourceConfigurationStorage().getInvalids();
+        return getDatasourceStorage().getInvalids();
     }
 
     public Set<String> getMessages() {
-        if (getDatasourceConfigurationStorage() == null) {
+        if (getDatasourceStorage() == null) {
             return this.messages;
         }
-        return getDatasourceConfigurationStorage().getMessages();
+        return getDatasourceStorage().getMessages();
     }
 
     public DatasourceConfiguration getDatasourceConfiguration() {
-        if (getDatasourceConfigurationStorage() == null) {
+        if (getDatasourceStorage() == null) {
             return this.datasourceConfiguration;
         }
 
-        return getDatasourceConfigurationStorage().getDatasourceConfiguration();
+        return getDatasourceStorage().getDatasourceConfiguration();
     }
-
 
     public void sanitiseToExportResource(Map<String, String> pluginMap) {
         this.setPolicies(null);
