@@ -12,7 +12,7 @@ import static com.appsmith.server.migrations.DatabaseChangelog1.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
-@ChangeUnit(order = "011", id = "application-id-plugin-type-deleted-at-compound-index-for-new-action", author = " ")
+@ChangeUnit(order = "011", id = "app-id-plugin-type-index-for-new-action", author = " ")
 public class Migration011AddPluginTypeIndexToNewActionCollection {
     private final MongoTemplate mongoTemplate;
 
