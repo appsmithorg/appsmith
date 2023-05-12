@@ -359,7 +359,7 @@ mvn -B clean compile && ./build.sh -DskipTests
 
 #### Intellij says classes are missing
 
-  ```
+  ``` 
   java: cannot find symbol
   symbol:   class QApplication
   location: package com.appsmith.server.domains
