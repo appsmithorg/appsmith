@@ -1,9 +1,5 @@
 import styled from "styled-components";
-import { importRemixIcon } from "design-system-old";
-
-const LoaderIcon = importRemixIcon(
-  () => import("remixicon-react/Loader2FillIcon"),
-);
+import LoaderIcon from "remixicon-react/Loader2FillIcon";
 
 export const StyledSpinner = styled(LoaderIcon)`
   animation: spin 1s linear infinite;
