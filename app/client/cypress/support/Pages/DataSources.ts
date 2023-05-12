@@ -197,7 +197,7 @@ export class DataSources {
   }
 
   public GeneratePageWithDB(datasourceName: any, tableName: string) {
-    this.ee.AddNewPage("generate-page");
+    this.ee.AddNewPage("Generate page with data");
     this.agHelper.GetNClick(this._selectDatasourceDropdown);
     this.agHelper.GetNClickByContains(
       this.locator._dropdownText,
@@ -361,6 +361,7 @@ export class DataSources {
   }
 
   public NavigateToDSCreateNew() {
+    this.ee.HoverOnEntityItem("Datasources");
     this.agHelper.GetNClick(this._addNewDataSource);
     // cy.get(this._dsCreateNewTab)
     //   .should("be.visible")

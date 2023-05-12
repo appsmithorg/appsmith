@@ -223,13 +223,19 @@ export class EntityExplorer {
     });
   }
 
+  public HoverOnEntityItem(entityNameinLeftSidebar: string) {
+    cy.get("body").click(0, 0);
+    cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar)).realHover();
+  }
+
   public ActionTemplateMenuByEntityName(
     entityNameinLeftSidebar: string,
     action: templateActions,
   ) {
+    this.HoverOnEntityItem(entityNameinLeftSidebar);
     cy.xpath(this._templateMenuTrigger(entityNameinLeftSidebar))
-      .last()
-      .click({ force: true });
+      .first()
+      .click();
     this.agHelper.GetNClick(this.locator._visibleTextSpan(action));
     this.agHelper.Sleep(500);
   }
