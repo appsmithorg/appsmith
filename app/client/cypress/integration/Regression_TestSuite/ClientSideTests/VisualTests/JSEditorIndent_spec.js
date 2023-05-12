@@ -63,7 +63,6 @@ myFun2: async () => {
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify6");
 
     homePage.NavigateToHome();
-    homePage.DuplicateApplication(appname);
     agHelper.WaitUntilAllToastsDisappear();
     ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName("JSObject1", "Queries/JS");

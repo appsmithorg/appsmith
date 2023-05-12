@@ -48,12 +48,12 @@ describe("excludeForAirgap", "Tests JS Libraries", () => {
     _.agHelper.AssertContains("data:application/pdf;filename=generated.pdf");
   });
 
-  it("4. Checks installation in exported/duplicated app", () => {
+  it("4. Checks installation in exported/forked app", () => {
     _.homePage.NavigateToHome();
     _.homePage.ImportApp("library_export.json");
     _.agHelper.AssertContains("true");
 
-    //Checks installation in duplicated app
+    //Checks installation in forked app
     _.homePage.NavigateToHome();
     _.homePage.ForkApplication("Library_export");
 
