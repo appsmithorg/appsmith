@@ -11,7 +11,7 @@ export class ThemeSettings {
     _colorPickerV2Popover: ".t--colorpicker-v2-popover",
     _colorPickerV2Color: ".t--colorpicker-v2-color",
     _colorRingPrimary: "[data-testid='theme-primaryColor']",
-    _colorRingBackground: "[data-testid='theme-backgoundColor']",
+    _colorRingBackground: "[data-testid='theme-backgroundColor']",
     _colorInput: (option: string) =>
       "//h3[text()='" + option + " Color']//parent::div//input",
     _colorInputField: (option: string) =>

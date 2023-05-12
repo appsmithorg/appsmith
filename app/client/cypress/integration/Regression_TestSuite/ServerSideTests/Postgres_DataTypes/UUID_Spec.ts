@@ -27,6 +27,7 @@ describe("UUID Datatype tests", function () {
   });
 
   it("1. Creating supporting api's for generating random UUID's", () => {
+    ee.NavigateToSwitcher("Explorer");
     apiPage.CreateAndFillApi(
       //"https://www.uuidgenerator.net/api/version1",
       "https://www.uuidtools.com/api/generate/v1",
