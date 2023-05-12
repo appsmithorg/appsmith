@@ -9,7 +9,7 @@ const googleData = require("../fixtures/googleSource.json");
 const githubForm = require("../locators/GithubForm.json");
 const oidcform = require("../locators/OIDCForm.json");
 const oidcData = require("../fixtures/oidcSource.json");
-const adminSettings = require("../locators/AdminsSettings");
+import adminSettings from "../locators/AdminsSettings";
 
 const BASE_URL = Cypress.config().baseUrl;
 

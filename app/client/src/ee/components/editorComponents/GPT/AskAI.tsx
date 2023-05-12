@@ -1,8 +1,13 @@
-import { Button, Icon, IconSize, Spinner } from "design-system-old";
+import {
+  Button,
+  Icon,
+  IconSize,
+  Spinner,
+  importRemixIcon,
+} from "design-system-old";
 import React, { useCallback, useEffect, useRef } from "react";
 import { useState } from "react";
 import styled from "styled-components";
-import Send from "remixicon-react/SendPlaneFillIcon";
 import classNames from "classnames";
 import BetaCard from "../../../../components/editorComponents/BetaCard";
 import type { GPTTask, TChatGPTPrompt } from "./utils";
@@ -20,6 +25,8 @@ import { GPTPrompt } from "./GPTPrompt";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
+
+const Send = importRemixIcon(() => import("remixicon-react/SendPlaneFillIcon"));
 
 const QueryForm = styled.form`
   > div:focus-within {
@@ -307,5 +314,5 @@ export function AskAI() {
       ))}
     </div>
   </div>
-)} 
+)}
  */

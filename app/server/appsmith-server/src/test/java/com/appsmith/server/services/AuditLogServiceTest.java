@@ -1228,9 +1228,9 @@ public class AuditLogServiceTest {
         Application createdApplication = applicationPageService.createApplication(application, createdWorkspace.getId()).block();
         String resourceType = auditLogService.getResourceType(application);
 
-        Application forkedApplication = applicationForkingService.forkApplicationToWorkspace(createdApplication.getId(), createdDestinationWorkspace.getId()).block();
+        ApplicationImportDTO forkedApplication = applicationForkingService.forkApplicationToWorkspace(createdApplication.getId(), createdDestinationWorkspace.getId()).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "application.forked", resourceType, forkedApplication.getId(), null, null, null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "application.forked", resourceType, forkedApplication.getApplication().getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.getAuditLogs(params))
@@ -1244,9 +1244,9 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
-                    assertThat(auditLog.getResource().getId()).isEqualTo(forkedApplication.getId());
+                    assertThat(auditLog.getResource().getId()).isEqualTo(forkedApplication.getApplication().getId());
                     assertThat(auditLog.getResource().getType()).isEqualTo(resourceType);
-                    assertThat(auditLog.getResource().getName()).isEqualTo(forkedApplication.getName());
+                    assertThat(auditLog.getResource().getName()).isEqualTo(forkedApplication.getApplication().getName());
                     assertThat(auditLog.getResource().getVisibility()).isEqualTo(FieldName.PRIVATE);
 
                     // Workspace validation
@@ -1290,9 +1290,9 @@ public class AuditLogServiceTest {
         Application createdApplication = applicationPageService.createApplication(application, createdWorkspace.getId()).block();
         String resourceType = auditLogService.getResourceType(application);
 
-        Application forkedApplication = applicationForkingService.forkApplicationToWorkspace(createdApplication.getId(), createdWorkspace.getId()).block();
+        ApplicationImportDTO forkedApplication = applicationForkingService.forkApplicationToWorkspace(createdApplication.getId(), createdWorkspace.getId()).block();
 
-        MultiValueMap<String, String> params = getAuditLogRequest(null, "application.forked", resourceType, forkedApplication.getId(), null, null, null, null, null);
+        MultiValueMap<String, String> params = getAuditLogRequest(null, "application.forked", resourceType, forkedApplication.getApplication().getId(), null, null, null, null, null);
 
         StepVerifier
                 .create(auditLogService.getAuditLogs(params))
@@ -1306,9 +1306,9 @@ public class AuditLogServiceTest {
                     assertThat(auditLog.getOrigin().equals(FieldName.AUDIT_LOGS_ORIGIN_SERVER));
 
                     // Resource validation
-                    assertThat(auditLog.getResource().getId()).isEqualTo(forkedApplication.getId());
+                    assertThat(auditLog.getResource().getId()).isEqualTo(forkedApplication.getApplication().getId());
                     assertThat(auditLog.getResource().getType()).isEqualTo(resourceType);
-                    assertThat(auditLog.getResource().getName()).isEqualTo(forkedApplication.getName());
+                    assertThat(auditLog.getResource().getName()).isEqualTo(forkedApplication.getApplication().getName());
                     assertThat(auditLog.getResource().getVisibility()).isEqualTo(FieldName.PRIVATE);
 
                     // Workspace validation

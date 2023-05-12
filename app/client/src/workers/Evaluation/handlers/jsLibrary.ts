@@ -7,8 +7,8 @@ import type { Def } from "tern";
 import {
   JSLibraries,
   libraryReservedIdentifiers,
-  resetJSLibraries,
 } from "../../common/JSLibrary";
+import { resetJSLibraries } from "../../common/JSLibrary/resetJSLibraries";
 import { makeTernDefs } from "../../common/JSLibrary/ternDefinitionGenerator";
 import type { EvalWorkerSyncRequest } from "../types";
 import { dataTreeEvaluator } from "./evalTree";

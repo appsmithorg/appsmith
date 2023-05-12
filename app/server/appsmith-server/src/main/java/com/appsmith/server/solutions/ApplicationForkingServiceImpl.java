@@ -3,6 +3,7 @@ package com.appsmith.server.solutions;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ResponseUtils;
@@ -55,10 +56,12 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
                                          ActionCollectionRepository actionCollectionRepository,
                                          WorkspaceRepository workspaceRepository,
                                          PagePermission pagePermission,
-                                         ActionPermission actionPermission) {
+                                         ActionPermission actionPermission,
+                                         ImportExportApplicationService importExportApplicationService) {
 
         super(applicationService, workspaceService, examplesWorkspaceCloner, policyUtils, sessionUserService,
-                analyticsService, responseUtils, workspacePermission, applicationPermission);
+                analyticsService, responseUtils, workspacePermission, applicationPermission, importExportApplicationService);
+
         this.applicationService = applicationService;
         this.sessionUserService = sessionUserService;
         this.permissionGroupService = permissionGroupService;
@@ -73,7 +76,7 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
     }
 
     @Override
-    public Mono<Application> forkApplicationToWorkspace(String srcApplicationId, String targetWorkspaceId, String branchName) {
+    public Mono<ApplicationImportDTO> forkApplicationToWorkspace(String srcApplicationId, String targetWorkspaceId, String branchName) {
         Mono<Application> applicationMono = applicationService.findBranchedApplicationId(branchName, srcApplicationId, applicationPermission.getEditPermission())
                 .flatMap(branchedApplicationId -> applicationService.findById(branchedApplicationId, applicationPermission.getEditPermission()));
 

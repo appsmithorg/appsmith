@@ -98,13 +98,23 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "16.14.0"
-          cache: "yarn"
-          cache-dependency-path: "app/client/yarn.lock"
+
+      # actions/setup-node@v3 doesn’t work properly with Yarn 3
+      # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
+      # Restoring the cache manually instead
+      - name: Restore Yarn cache
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/cache@v3
+        with:
+          path: app/.yarn/cache
+          key: v1-yarn3-${{ hashFiles('app/yarn.lock') }}
+          restore-keys: |
+            v1-yarn3-
 
       # Install all the dependencies
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Run Eslint
         if: steps.run_result.outputs.run_result != 'success'
@@ -166,15 +176,18 @@ jobs:
             REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
             yarn build
 
+      # We may not need the client_build_dir env variable.
       - name: Set the client build path env vars
         run: |
-         if [[ '${{ inputs.airgap-enabled }}' == 'true' ]]; then
-          echo 'client_build_name=client-build-airgap' >> "$GITHUB_ENV"
-          echo 'client_build_path=app/client/build_airgap/' >> "$GITHUB_ENV"
-         else
-          echo 'client_build_name=client-build' >> "$GITHUB_ENV"
-          echo 'client_build_path=app/client/build/' >> "$GITHUB_ENV"
-          fi
+          if [[ '${{ inputs.airgap-enabled }}' == 'true' ]]; then
+           echo 'client_build_name=client-build-airgap' >> "$GITHUB_ENV"
+           echo 'client_build_path=app/client/build_airgap/' >> "$GITHUB_ENV"
+           echo 'client_build_dir=build_airgap' >> "$GITHUB_ENV"
+          else
+           echo 'client_build_name=client-build' >> "$GITHUB_ENV"
+           echo 'client_build_path=app/client/build/' >> "$GITHUB_ENV"
+           echo 'client_build_dir=build' >> "$GITHUB_ENV"
+           fi
 
       - name: Log the client build env vars
         run: |
@@ -188,12 +201,16 @@ jobs:
           path: ${{ env.client_build_path }}
           key: ${{ github.run_id }}-${{ github.job }}-client
 
+      - name: Pack the client build directory
+        run: |
+          tar -cvf ./build.tar -C ${{ env.client_build_dir }} .
+
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload react build bundle
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.client_build_name }}
-          path: ${{ env.client_build_path }}
+          path: app/client/build.tar
 
       # Set status = success
       - name: Save the status of the run

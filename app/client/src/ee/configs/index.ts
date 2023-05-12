@@ -57,10 +57,13 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
 };
 
 export const getAppsmithConfigs = (): AppsmithUIConfigs => {
-  const { APPSMITH_FEATURE_CONFIGS } = window;
+  const APPSMITH_FEATURE_CONFIGS =
+    // This code might be called both from the main thread and a web worker
+    typeof window === "undefined" ? undefined : window.APPSMITH_FEATURE_CONFIGS;
   const ENV_CONFIG = getConfigsFromEnvVars();
 
-  const airGapped = ENV_CONFIG.airGapped || APPSMITH_FEATURE_CONFIGS.airGapped;
+  const airGapped =
+    ENV_CONFIG.airGapped || APPSMITH_FEATURE_CONFIGS?.airGapped || false;
   const airGappedConfigs = airGapped ? airGapConfigVars() : {};
   return {
     ...CE_getAppsmithConfigs(),

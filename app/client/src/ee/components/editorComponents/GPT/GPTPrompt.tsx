@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo } from "react";
 import SyntaxHighlighter from "react-syntax-highlighter/dist/cjs/prism-light";
 import { marked } from "marked";
-import CopyIcon from "remixicon-react/ClipboardLineIcon";
 import { duotoneLight } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
@@ -18,19 +17,27 @@ import { GPTTask } from "./utils";
 import { GPT_TASKS } from "./utils";
 import { isGPTErrorPrompt } from "./utils";
 import { isUserPrompt, isAssistantPrompt } from "./utils";
-import { Icon, Spinner, AppIcon } from "design-system-old";
+import { Icon, Spinner, AppIcon, importRemixIcon } from "design-system-old";
 import { selectEvaluatedResult } from "./utils";
-import Play from "remixicon-react/PlayLineIcon";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { isEmpty } from "lodash";
 import classNames from "classnames";
-import LikeIcon from "remixicon-react/ThumbUpLineIcon";
-import DislikeIcon from "remixicon-react/ThumbDownLineIcon";
 import { Colors } from "constants/Colors";
 import sql from "react-syntax-highlighter/dist/cjs/languages/prism/sql";
 SyntaxHighlighter.registerLanguage("sql", sql);
+
+const Play = importRemixIcon(() => import("remixicon-react/PlayLineIcon"));
+const LikeIcon = importRemixIcon(
+  () => import("remixicon-react/ThumbUpLineIcon"),
+);
+const DislikeIcon = importRemixIcon(
+  () => import("remixicon-react/ThumbDownLineIcon"),
+);
+const CopyIcon = importRemixIcon(
+  () => import("remixicon-react/ClipboardLineIcon"),
+);
 
 const ResponseContainer = styled.div`
   background: #f5f5f5;

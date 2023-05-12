@@ -105,6 +105,14 @@ server {
     add_header Cache-Control "max-age=31104000, immutable";  # 360 days
   }
 
+  location ~ ^/app/[^/]+/[^/]+/edit\b {
+    try_files /edit.html /index.html =404;
+  }
+
+  location /app/ {
+    try_files /view.html /index.html =404;
+  }
+
   # If the path has an extension at the end, then respond with 404 status if the file not found.
   location ~ ^/(?!supervisor/|auth/).*\.[a-z]+$ {
     try_files \$uri =404;

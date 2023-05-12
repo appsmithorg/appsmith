@@ -106,12 +106,16 @@ jobs:
             yarn build
           ls -l build
 
+      - name: Pack the client build directory
+        run: |
+          tar -cvf ./build.tar -C build .
+
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload react build bundle
         uses: actions/upload-artifact@v3
         with:
           name: client-build
-          path: app/client/build/
+          path: app/client/build.tar
 
   server-build:
     needs:

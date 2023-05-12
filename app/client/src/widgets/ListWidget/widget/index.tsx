@@ -888,7 +888,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const templateBottomRow = get(
       this.props.childWidgets,
       "0.children.0.bottomRow",
-    );
+    ) as unknown as number;
     const templateHeight =
       templateBottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
