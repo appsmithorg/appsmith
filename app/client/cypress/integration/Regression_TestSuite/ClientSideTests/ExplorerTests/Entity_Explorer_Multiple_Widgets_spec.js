@@ -1,24 +1,22 @@
 const tdsl = require("../../../../fixtures/tableWidgetDsl.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/displayWidgetDsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const pageid = "MyPage";
 
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-let agHelper = ObjectsRegistry.AggregateHelper;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Entity explorer tests related to widgets and validation", function () {
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
-  it("Add a widget to default page and verify the properties", function () {
+  it("1. Add a widget to default page and verify the properties", function () {
     cy.addDsl(dsl);
     cy.OpenBindings("Text1");
     cy.get(explorer.property).last().click({ force: true });
@@ -29,7 +27,7 @@ describe("Entity explorer tests related to widgets and validation", function () 
     });
   });
 
-  it("Create another page and add another widget and verify properties", function () {
+  it("2. Create another page and add another widget and verify properties", function () {
     cy.Createpage(pageid);
     cy.addDsl(tdsl);
     cy.openPropertyPane("tablewidget");
@@ -59,11 +57,9 @@ describe("Entity explorer tests related to widgets and validation", function () 
     });
   });
 
-  it("Toggle between widgets in different pages using search functionality", function () {
-    cy.CheckAndUnfoldEntityItem("Pages");
-    cy.get(".t--entity-name").contains("Page1").click({ force: true });
-    cy.wait(2000);
-    cy.SearchEntityandOpen("Text1");
+  it("3. Toggle between widgets in different pages using search functionality", function () {
+    _.entityExplorer.SelectEntityByName("Page1", "Pages");
+    _.entityExplorer.SelectEntityByName("Text1", "Widgets");
     cy.OpenBindings("Text1");
     cy.get(explorer.property).last().click({ force: true });
     cy.get(apiwidget.propertyList).then(function ($lis) {

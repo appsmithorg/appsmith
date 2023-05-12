@@ -2,16 +2,15 @@ const dsl = require("../../../../fixtures/PageLoadDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Page Load tests", () => {
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
   });
 
   before(() => {
@@ -86,9 +85,8 @@ describe("Page Load tests", () => {
       "This is Page 1",
     );
     cy.contains("Page2").should("not.exist");
-
     cy.get(publish.backToEditor).click();
-    cy.SearchEntityandOpen("Page2");
+    _.entityExplorer.SelectEntityByName("Page2");
     cy.PublishtheApp();
     // Assert active page DSL
     cy.get(commonlocators.headingTextStyle).should(
