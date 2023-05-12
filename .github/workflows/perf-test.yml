@@ -96,6 +96,7 @@ jobs:
       - name: Save the status of the run
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
 
+
       # Set up Node.js cache yarn dependencies.
       # actions/setup-node@v3 now support caching of dependencies using actions/cache under the hood
       # https://github.com/actions/setup-node#caching-global-packages-data
