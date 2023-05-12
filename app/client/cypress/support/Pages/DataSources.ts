@@ -645,12 +645,9 @@ export class DataSources {
       .click();
     this.agHelper.Sleep(); //for the Datasource page to open
     //this.agHelper.ClickButton("Delete");
-    this.agHelper.GetNClick(
-      this.locator._visibleTextSpan("Delete"),
-      0,
-      false,
-      200,
-    );
+    this.agHelper.GetNClick(this._cancelEditDatasourceButton, 0, false, 200);
+    cy.get(this._contextMenuDatasource).click({ force: true });
+    this.agHelper.GetNClick(this._contextMenuDelete);
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Are you sure?"));
     this.agHelper.ValidateNetworkStatus("@deleteDatasource", expectedRes);
     if (expectedRes == 200)
