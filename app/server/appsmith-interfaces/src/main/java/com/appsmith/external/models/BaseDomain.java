@@ -95,4 +95,14 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
         this.setCreatedBy(null);
         this.setModifiedBy(null);
     }
+
+    public void makePristine() {
+        // Set the ID to null for this domain object so that it is saved a new document in the database (as opposed to
+        // updating an existing document). If it contains any policies, they are also reset.
+        this.setId(null);
+        this.setUpdatedAt(null);
+        if (this.getPolicies() != null) {
+            this.getPolicies().clear();
+        }
+    }
 }
