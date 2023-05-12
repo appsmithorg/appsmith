@@ -149,7 +149,7 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
       </div>
 
       <div className="flex w-full justify-between px-3 mb-[4px]">
-        <Text kind="action-m">Action</Text>
+        <Text kind="body-s">Action</Text>
         <Button
           className="t--delete cursor-pointer"
           isIconButton
