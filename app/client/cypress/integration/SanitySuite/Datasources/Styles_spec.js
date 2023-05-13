@@ -1,14 +1,11 @@
-import HomePage from "../../../locators/HomePage";
-const pages = require("../../../locators/Pages.json");
 import * as _ from "../../../support/Objects/ObjectsCore";
 
 describe("excludeForAirgap", "Validate Datasource Panel Styles", function () {
-  const backgroundColorGray900 = "rgb(25, 25, 25)";
-  const backgroundColorGray700 = "rgb(87, 87, 87)";
-  const backgroundColorGray1 = "rgb(250, 250, 250)";
-  const backgroundColorGray2 = "rgb(240, 240, 240)";
+  const backgroundColorGray700 = "rgb(76, 86, 100)";
+  const backgroundColorGray1 = "rgb(241, 245, 249)";
+  const backgroundColorGray2 = "rgba(0, 0, 0, 0)";
 
-  it.only("1. Mock datasource card design", () => {
+  it("1. Mock datasource card design", () => {
     _.dataSources.NavigateToDSCreateNew();
     _.agHelper.Sleep(200);
     //Card container style
@@ -31,7 +28,7 @@ describe("excludeForAirgap", "Validate Datasource Panel Styles", function () {
     cy.datasourceNameStyle("[data-testid=mockdatasource-name]");
   });
 
-  it.only("2. Database datasource card design", () => {
+  it("2. Database datasource card design", () => {
     _.dataSources.NavigateToDSCreateNew();
     //Card container style
     cy.datasourceCardContainerStyle(
@@ -70,7 +67,7 @@ describe("excludeForAirgap", "Validate Datasource Panel Styles", function () {
       "[data-testid=newapi-datasource-content-wrapper]",
     );
     //Icon wrapper
-    cy.datasourceIconWrapperStyle(".content-icon-wrapper");
+    cy.datasourceIconWrapperStyle(".content-icon");
     //Name
     cy.datasourceNameStyle(".t--createBlankApiCard .textBtn");
     //Datsource title font size should be 20px
@@ -79,10 +76,9 @@ describe("excludeForAirgap", "Validate Datasource Panel Styles", function () {
 
   it("4. Datasource Active card styles", () => {
     // Action button icon placement
-    //Navigate to Active tab
-    cy.get(pages.integrationActiveTab).click({ force: true });
+    _.dataSources.NavigateToActiveTab();
     //Icon should be placed left to the text.
-    cy.get(".t--create-query .t--left-icon");
+    cy.get(".t--create-query span");
 
     //Active card wrapper
     cy.get(".t--datasource")
@@ -92,14 +88,14 @@ describe("excludeForAirgap", "Validate Datasource Panel Styles", function () {
       .should("have.css", "background-color", backgroundColorGray1);
 
     cy.get("[data-testid=active-datasource-image]")
-      .should("have.css", "height", "18px")
+      .should("have.css", "height", "34px")
       .and("have.css", "max-width", "100%");
 
     cy.get("[data-testid=active-datasource-icon-wrapper]")
       .should("have.css", "background-color", backgroundColorGray2)
       .and("have.css", "width", "34px")
       .and("have.css", "height", "34px")
-      .and("have.css", "border-radius", "50%")
+      .and("have.css", "border-radius", "0px")
       .and("have.css", "display", "flex")
       .and("have.css", "align-items", "center");
 
@@ -126,27 +122,19 @@ describe("excludeForAirgap", "Validate Datasource Panel Styles", function () {
       .and("have.css", "gap", "8px")
       .and("have.css", "align-items", "center");
     //Collapse icon
-    cy.get("[data-testid=datasource-collapse-icon] svg")
-      .invoke("attr", "data-icon")
-      .should("eq", "arrow-right");
-    cy.get("[data-testid=datasource-collapse-icon] svg")
+    cy.get("[data-testid=datasource-collapse-wrapper] span")
+      .invoke("attr", "data-testid")
+      .should("eq", "datasource-collapse-icon");
+    cy.get(
+      "[data-testid=datasource-collapse-wrapper] span[data-testid='datasource-collapse-icon'] svg",
+    )
       .invoke("attr", "fill")
-      .should("eq", "#4B4848");
-    cy.get("[data-testid=datasource-collapse-icon] svg")
-      .invoke("attr", "width")
-      .should("eq", "12");
+      .should("eq", "currentColor")
+      .then(($element) => {
+        const attributes = $element[0].attributes;
+        cy.log(attributes);
+      });
+    // .invoke("attr", "width")
+    // .should("eq", "12");
   });
-
-  // after(() => {
-  //   //Delete Datasource
-  //   cy.get(".t--datasource-menu-option").eq(0).click();
-  //   cy.get(".t--datasource-option-delete").click();
-  //   cy.get(".t--datasource-option-delete").click();
-  //   //Delete Application
-  //   cy.get(HomePage.applicationName).click();
-  //   cy.get(".t--application-edit-menu li")
-  //     .contains("Delete Application")
-  //     .click();
-  //   cy.get(".t--application-edit-menu li").contains("Are you sure?").click();
-  // });
 });

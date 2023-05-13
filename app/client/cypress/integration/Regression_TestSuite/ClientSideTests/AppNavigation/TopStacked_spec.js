@@ -18,7 +18,7 @@ describe("Test Top + Stacked navigation style", function () {
       if (isPartialImport) {
         homePage.AssertNCloseImport();
       } else {
-        homePage.AssertImportToast();
+        homePage.AssertImportToast(0);
       }
     });
   });
@@ -72,7 +72,7 @@ describe("Test Top + Stacked navigation style", function () {
       .contains(pageName)
       .should("be.visible");
     cy.get(appNavigationLocators.scrollArrows).last().trigger("mousedown");
-    cy.wait(2000);
+    cy.wait(3000);
     cy.get(appNavigationLocators.scrollArrows).last().trigger("mouseup");
     cy.get(appNavigationLocators.navigationMenuItem)
       .contains(pageName)
@@ -83,7 +83,7 @@ describe("Test Top + Stacked navigation style", function () {
       .contains(pageName)
       .should("not.be.visible");
     cy.get(appNavigationLocators.scrollArrows).first().trigger("mousedown");
-    cy.wait(2000);
+    cy.wait(3000);
     cy.get(appNavigationLocators.scrollArrows).first().trigger("mouseup");
     cy.get(appNavigationLocators.navigationMenuItem)
       .contains(pageName)
@@ -141,8 +141,5 @@ describe("Test Top + Stacked navigation style", function () {
     deployMode.DeployApp();
     cy.get(appNavigationLocators.userProfileDropdownButton).click();
     cy.get(appNavigationLocators.userProfileDropdownMenu).should("exist");
-
-    // Back to editor
-    deployMode.NavigateBacktoEditor();
   });
 });

@@ -14,7 +14,7 @@
   "modal": "div[role=dialog]",
   "modalClose": "div[role=dialog] button[aria-label='Close']",
   "navigationMenuItem": ".t--page-switch-tab",
-  "appSettingsButton": "#t--app-settings-cta",
+  "appSettingsButton": ".t--app-settings-cta",
   "navigationSettingsTab": "#t--navigation-settings-header",
   "navigationPreview": ".t--navigation-preview",
   "navigationSettings": {
@@ -33,7 +33,7 @@
     },
     "colorStyleOptions": {
       "light": ".t--navigation-settings-colorStyle .t--button-group-light",
-      "theme": ".t--navigation-settings-colorStyle .t--button-group-theme"
+      "theme": ".t--navigation-settings-colorStyle .ads-v2-segmented-control-value-theme"
     }
   },
   "scrollArrows": ".scroll-arrows",
