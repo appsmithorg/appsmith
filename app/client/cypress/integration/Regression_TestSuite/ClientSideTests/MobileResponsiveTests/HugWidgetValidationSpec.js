@@ -18,7 +18,7 @@ describe("Validating Mobile Views for Hug Widget", function () {
   let phones = ["iphone-4", "samsung-s10", [390, 844], [360, 780]];
   phones.forEach((phone, index) => {
     it(`${
-      index + 1
+      index + 2
     }. ${phone} port execution for hug widget -image widget `, function () {
       if (Cypress._.isArray(phone)) {
         cy.viewport(phone[0], phone[1]);
