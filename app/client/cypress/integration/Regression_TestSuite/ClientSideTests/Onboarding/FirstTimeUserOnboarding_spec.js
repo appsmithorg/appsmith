@@ -316,7 +316,7 @@ describe("FirstTimeUserOnboarding", function () {
   it("6. onboarding flow - should check directly opening widget pane", function () {
     cy.get(OnboardingLocator.introModalBuild).click();
     cy.get(OnboardingLocator.taskDatasourceBtn).should("be.visible");
-    cy.get(OnboardingLocator.widgetPaneTrigger).click();
+    _.entityExplorer.NavigateToSwitcher("Widgets");
     cy.get(OnboardingLocator.widgetSidebar).should("be.visible");
     cy.get(OnboardingLocator.dropTarget).should("be.visible");
     cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });

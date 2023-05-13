@@ -1,5 +1,5 @@
 {
-  "introModal": ".t--onboarding-introduction-modal",
+  "introModal": ".ads-v2-modal__content",
   "introModalBuild": ".t--introduction-modal-build-button",
   "introModalWelcomeTourBtn": ".t--introduction-modal-welcome-tour-button",
   "introModalCloseBtn": ".ads-v2-modal__content-header-close-button",
