@@ -61,6 +61,7 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
         className="t--structure-template-menu-popover"
         onInteractOutside={() => setActive(false)}
         side="right"
+        style={{ maxHeight: "unset" }}
       >
         <QueryTemplates
           datasourceId={props.datasourceId}
