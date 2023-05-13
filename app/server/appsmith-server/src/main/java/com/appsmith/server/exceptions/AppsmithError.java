@@ -12,6 +12,7 @@ import java.text.MessageFormat;
 public enum AppsmithError {
     // Ref syntax for message templates: https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/text/MessageFormat.html
     INVALID_PARAMETER(400, AppsmithErrorCode.INVALID_PARAMETER.getCode(), "Please enter a valid parameter {0}.", AppsmithErrorAction.DEFAULT, "Invalid parameter", ErrorType.ARGUMENT_ERROR, null),
+    EMPTY_CURL_INPUT_STATEMENT(400, AppsmithErrorCode.EMPTY_CURL_INPUT_STATEMENT.getCode(), "Input CURL statement is empty / null. Please edit the input box to provide a valid CURL statement.", AppsmithErrorAction.DEFAULT, "Invalid parameter", ErrorType.ARGUMENT_ERROR, null),
     PLUGIN_NOT_INSTALLED(400, AppsmithErrorCode.PLUGIN_NOT_INSTALLED.getCode(), "Plugin {0} not installed", AppsmithErrorAction.DEFAULT, "Plugin not installed", ErrorType.INTERNAL_ERROR, null),
     PLUGIN_ID_NOT_GIVEN(400, AppsmithErrorCode.PLUGIN_ID_NOT_GIVEN.getCode(), "Missing plugin id. Please enter one.", AppsmithErrorAction.DEFAULT, "Missing plugin id", ErrorType.INTERNAL_ERROR, null),
     DATASOURCE_NOT_GIVEN(400, AppsmithErrorCode.DATASOURCE_NOT_GIVEN.getCode(), "Missing datasource. Add/enter/connect a datasource to create a valid action.",
@@ -70,6 +71,8 @@ public enum AppsmithError {
     INVALID_CREDENTIALS(200, AppsmithErrorCode.INVALID_CREDENTIALS.getCode(), "Invalid credentials provided. Did you input the credentials correctly?", AppsmithErrorAction.DEFAULT, "Invalid credentials", ErrorType.AUTHENTICATION_ERROR, null),
     UNAUTHORIZED_ACCESS(403, AppsmithErrorCode.UNAUTHORIZED_ACCESS.getCode(), "Unauthorized access", AppsmithErrorAction.DEFAULT, "Unauthorized access", ErrorType.AUTHENTICATION_ERROR, null),
     DUPLICATE_KEY(409, AppsmithErrorCode.DUPLICATE_KEY.getCode(), "Duplicate key error: An object with the name {0} already exists. Please use a different name or reach out to Appsmith customer support to resolve this.",
+            AppsmithErrorAction.DEFAULT, "Duplicate key", ErrorType.BAD_REQUEST, null),
+    DUPLICATE_KEY_PAGE_RELOAD(409, AppsmithErrorCode.DUPLICATE_KEY_OBJECT_CREATION.getCode(), "Duplicate key error: An object with the name {0} already exists. Please reload the page and try again.",
             AppsmithErrorAction.DEFAULT, "Duplicate key", ErrorType.BAD_REQUEST, null),
     USER_ALREADY_EXISTS_SIGNUP(409, AppsmithErrorCode.USER_ALREADY_EXISTS_SIGNUP.getCode(), "There is already an account registered with this email {0}. Please sign in instead.",
             AppsmithErrorAction.DEFAULT, "Account already exists with this email", ErrorType.BAD_REQUEST, null),

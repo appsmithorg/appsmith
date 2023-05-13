@@ -8,10 +8,14 @@ import {
 } from "selectors/appThemingSelectors";
 import { ThemeCard } from "./ThemeCard";
 import { SettingSection } from "./SettingSection";
-import ArrowLeft from "remixicon-react/ArrowLeftSLineIcon";
 import { setAppThemingModeStackAction } from "actions/appThemingActions";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
+import { importRemixIcon } from "design-system-old";
+
+const ArrowLeft = importRemixIcon(
+  () => import("remixicon-react/ArrowLeftSLineIcon"),
+);
 
 const Title = styled.h3`
   color: ${Colors.GRAY_800};

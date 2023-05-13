@@ -287,7 +287,6 @@ const ResponseDataContainer = styled.div`
   flex: 1;
   overflow: auto;
   display: flex;
-  padding-bottom: 10px;
   flex-direction: column;
   & .CodeEditorTarget {
     overflow: hidden;
@@ -531,7 +530,10 @@ function ApiResponseView(props: Props) {
                   className="t--debugger-log-state"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <ReactJson src={responseState} {...apiReactJsonProps} />
+                  <ReactJson
+                    src={getAssetUrl(responseState)}
+                    {...apiReactJsonProps}
+                  />
                 </JsonWrapper>
               )}
             </ResponseTabErrorContainer>

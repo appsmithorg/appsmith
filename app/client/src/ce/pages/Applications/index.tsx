@@ -89,7 +89,6 @@ import {
   SEARCH_APPS,
   WORKSPACES_HEADING,
 } from "@appsmith/constants/messages";
-import { ReactComponent as NoAppsFoundIcon } from "assets/svg/no-apps-icon.svg";
 
 import { setHeaderMeta } from "actions/themeActions";
 import SharedUserList from "pages/common/SharedUserList";
@@ -112,6 +111,9 @@ import {
 } from "@appsmith/utils/permissionHelpers";
 import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
+import { importSvg } from "design-system-old";
+
+const NoAppsFoundIcon = importSvg(() => import("assets/svg/no-apps-icon.svg"));
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -677,7 +679,10 @@ export function ApplicationsSection(props: any) {
         <CreateNewLabel type={TextType.H4}>
           {createMessage(NO_APPS_FOUND)}
         </CreateNewLabel>
-        <NoSearchResultImg alt="No result found" src={NoSearchImage} />
+        <NoSearchResultImg
+          alt="No result found"
+          src={getAssetUrl(NoSearchImage)}
+        />
       </CenteredWrapper>
     );
   } else {

@@ -1,7 +1,4 @@
 import React, { useCallback, useMemo, useState } from "react";
-import FileAddIcon from "remixicon-react/FileAddLineIcon";
-import Database2LineIcon from "remixicon-react/Database2LineIcon";
-import Layout2LineIcon from "remixicon-react/Layout2LineIcon";
 import { Popover2 } from "@blueprintjs/popover2";
 import {
   TooltipComponent as Tooltip,
@@ -35,6 +32,17 @@ import { selectFeatureFlags } from "selectors/usersSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getIsAutoLayout } from "selectors/editorSelectors";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { importRemixIcon } from "design-system-old";
+
+const FileAddIcon = importRemixIcon(
+  () => import("remixicon-react/FileAddLineIcon"),
+);
+const Database2LineIcon = importRemixIcon(
+  () => import("remixicon-react/Database2LineIcon"),
+);
+const Layout2LineIcon = importRemixIcon(
+  () => import("remixicon-react/Layout2LineIcon"),
+);
 
 const MenuItem = styled.div<{ active: boolean }>`
   display: flex;

@@ -6,6 +6,7 @@ const dsl = require("../../../../fixtures/containerdsl.json");
 describe("Container Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
+    cy.wait(4000); //for dsl to settle!
   });
 
   it("Container Widget Functionality", function () {

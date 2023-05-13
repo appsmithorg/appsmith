@@ -1,9 +1,10 @@
 import React from "react";
 import PreviewBox from "./PreviewBox";
 
-import AddIcon from "remixicon-react/AddFillIcon";
-
 import type { PreviewsProps } from ".";
+import { importRemixIcon } from "design-system-old";
+
+const AddIcon = importRemixIcon(() => import("remixicon-react/AddFillIcon"));
 
 const FaviconPreview = (props: PreviewsProps) => {
   const { favicon } = props;
@@ -16,7 +17,7 @@ const FaviconPreview = (props: PreviewsProps) => {
             <img
               alt="Branding Logo"
               className="w-3 h-3 t--branding-favicon"
-              src={favicon}
+              src={getAssetUrl(favicon)}
             />
             <span className="text-xs">Application Name</span>
           </div>

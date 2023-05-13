@@ -5,6 +5,7 @@ import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
@@ -141,7 +142,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                     }
                 })
                 .flatMap(workspace -> {
-                    makePristine(workspace);
+                    workspace.makePristine();
                     if (!CollectionUtils.isEmpty(workspace.getUserRoles())) {
                         workspace.getUserRoles().clear();
                     }
@@ -190,13 +191,27 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
         return datasourceFlux
                 .flatMap(datasource -> {
                     final String datasourceId = datasource.getId();
-                    final Mono<Datasource> clonerMono = cloneDatasource(datasourceId, toWorkspaceId);
+                    // forkWithConfiguration is dependent on application, here we are calling cloneDatasource
+                    // for the workspace hence Boolean.TRUE is passed as the third parameter because by default
+                    // user should have access to the datasource credentials already present in the workspace
+                    final Mono<Datasource> clonerMono = cloneDatasource(datasourceId, toWorkspaceId, Boolean.TRUE);
                     cloneDatasourceMonos.put(datasourceId, clonerMono.cache());
                     return clonerMono;
                 })
                 .thenMany(applicationFlux)
                 .flatMap(application -> {
                     application.setWorkspaceId(toWorkspaceId);
+                    // Extracting forkWithConfiguration to use below before resetting it for newly forked app
+                    //forkWithConfig by default remains FALSE for datasources used in an application
+                    Boolean forkWithConfig;
+                    if (Boolean.TRUE.equals(application.getForkWithConfiguration())){
+                        forkWithConfig = Boolean.TRUE;
+                    } else {
+                        forkWithConfig = Boolean.FALSE;
+                    }
+                    //Setting the forkWithConfiguration and exportWithConfiguration to null for newly forked app
+                    application.setForkWithConfiguration(null);
+                    application.setExportWithConfiguration(null);
 
                     final String defaultPageId = application.getPages().stream()
                             .filter(ApplicationPage::isDefault)
@@ -208,7 +223,8 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                             .flatMap(page ->
                                     Mono.zip(
                                             Mono.just(page),
-                                            Mono.just(defaultPageId.equals(page.getId()))
+                                            Mono.just(defaultPageId.equals(page.getId())),
+                                            Mono.just(forkWithConfig)
                                     )
                             );
                 })
@@ -216,10 +232,11 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                     final NewPage newPage = tuple.getT1();
                     final boolean isDefault = tuple.getT2();
                     final String templatePageId = newPage.getId();
+                    Boolean forkWithConfig = tuple.getT3();
                     DefaultResources defaults = new DefaultResources();
                     defaults.setApplicationId(newPage.getApplicationId());
                     newPage.setDefaultResources(defaults);
-                    makePristine(newPage);
+                    newPage.makePristine();
                     PageDTO page = newPage.getUnpublishedPage();
 
                     if (page.getLayouts() != null) {
@@ -251,7 +268,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                                         .flatMap(newAction -> {
                                             final String originalActionId = newAction.getId();
                                             log.info("Creating clone of action {}", originalActionId);
-                                            makePristine(newAction);
+                                            newAction.makePristine();
                                             newAction.setWorkspaceId(toWorkspaceId);
                                             ActionDTO action = newAction.getUnpublishedAction();
                                             action.setCollectionId(null);
@@ -262,7 +279,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                                                 if (datasourceInsideAction.getId() != null) {
                                                     final String datasourceId = datasourceInsideAction.getId();
                                                     if (!cloneDatasourceMonos.containsKey(datasourceId)) {
-                                                        cloneDatasourceMonos.put(datasourceId, cloneDatasource(datasourceId, toWorkspaceId).cache());
+                                                        cloneDatasourceMonos.put(datasourceId, cloneDatasource(datasourceId, toWorkspaceId, forkWithConfig).cache());
                                                     }
                                                     actionMono = cloneDatasourceMonos.get(datasourceId)
                                                             .map(newDatasource -> {
@@ -294,7 +311,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                                                         final String originalCollectionId = actionCollection.getId();
                                                         log.info("Creating clone of action collection {}", originalCollectionId);
                                                         // Sanitize them
-                                                        makePristine(actionCollection);
+                                                        actionCollection.makePristine();
                                                         actionCollection.setPublishedCollection(null);
                                                         final ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
                                                         unpublishedCollection.setPageId(savedPage.getId());
@@ -491,12 +508,11 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
         Mono<User> userMono = sessionUserService.getCurrentUser();
 
         return applicationPageService.setApplicationPolicies(userMono, workspaceId, application)
-                .flatMap(applicationToCreate ->
-                        createSuffixedApplication(applicationToCreate, applicationToCreate.getName(), 0)
-                );
+                .flatMap(applicationService::createDefaultApplication);
     }
 
-    public Mono<Datasource> cloneDatasource(String datasourceId, String toWorkspaceId) {
+    // forkWithConfiguration parameter if TRUE, returns the datasource with credentials else returns datasources without credentials
+    public Mono<Datasource> cloneDatasource(String datasourceId, String toWorkspaceId, Boolean forkWithConfiguration) {
         final Mono<List<Datasource>> existingDatasourcesMono = datasourceRepository.findAllByWorkspaceId(toWorkspaceId)
                 .collectList();
 
@@ -509,7 +525,6 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                             ? null : templateDatasource.getDatasourceConfiguration().getAuthentication();
                     if (authentication != null) {
                         authentication.setIsAuthorized(null);
-                        authentication.setAuthenticationResponse(null);
                     }
 
                     return Flux.fromIterable(existingDatasources)
@@ -518,7 +533,6 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                                         ? null : ds.getDatasourceConfiguration().getAuthentication();
                                 if (auth != null) {
                                     auth.setIsAuthorized(null);
-                                    auth.setAuthenticationResponse(null);
                                 }
                                 return ds;
                             })
@@ -526,9 +540,8 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                             .next()  // Get the first matching datasource, we don't need more than one here.
                             .switchIfEmpty(Mono.defer(() -> {
                                 // No matching existing datasource found, so create a new one.
-                                makePristine(templateDatasource);
-                                templateDatasource.setWorkspaceId(toWorkspaceId);
-                                return createSuffixedDatasource(templateDatasource);
+                                Datasource newDs = templateDatasource.fork(forkWithConfiguration, toWorkspaceId);
+                                return createSuffixedDatasource(newDs);
                             }));
                 });
     }
@@ -558,38 +571,4 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                     throw error;
                 });
     }
-
-    /**
-     * Tries to create the given application with the name, over and over again with an incremented suffix, but **only**
-     * if the error is because of a name clash.
-     * @param application Application to try create.
-     * @param name Name of the application, to which numbered suffixes will be appended.
-     * @param suffix Suffix used for appending, recursion artifact. Usually set to 0.
-     * @return A Mono that yields the created application.
-     */
-    private Mono<Application> createSuffixedApplication(Application application, String name, int suffix) {
-        final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
-        application.setName(actualName);
-        return applicationService.createDefault(application)
-                .onErrorResume(DuplicateKeyException.class, error -> {
-                    if (error.getMessage() != null
-                            // workspace_application_deleted_gitApplicationMetadata_compound_index
-                            && error.getMessage().contains("workspace_application_deleted_gitApplicationMetadata_compound_index")) {
-                        // The duplicate key error is because of the `name` field.
-                        return createSuffixedApplication(application, name, 1 + suffix);
-                    }
-                    throw error;
-                });
-    }
-
-    public void makePristine(BaseDomain domain) {
-        // Set the ID to null for this domain object so that it is saved a new document in the database (as opposed to
-        // updating an existing document). If it contains any policies, they are also reset.
-        domain.setId(null);
-        domain.setUpdatedAt(null);
-        if (domain.getPolicies() != null) {
-            domain.getPolicies().clear();
-        }
-    }
-
 }
