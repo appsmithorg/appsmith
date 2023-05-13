@@ -7,7 +7,7 @@ describe("Dropdown Widget Check value does not reset on navigation", function ()
     cy.addDsl(dsl);
   });
 
-  it("check if the dropdown value does not change on navigation", function () {
+  it("1. Check if the dropdown value does not change on navigation", function () {
     //Change the value of drop down;
     cy.wait(4000); //settling time for dsl into layout
 
