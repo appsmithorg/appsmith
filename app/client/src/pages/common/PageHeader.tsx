@@ -83,7 +83,10 @@ const TabsList = styled.div`
     var(--ads-v2-spaces-1);
 `;
 const Tab = styled.div<{ isSelected: boolean }>`
-  --tab-color: var(--ads-v2-color-fg-muted);
+  --tab-color: ${(props) =>
+    props.isSelected
+      ? "var(--ads-v2-color-fg)"
+      : "var(--ads-v2-color-fg-muted)"};
   --tab-selection-color: transparent;
   appearance: none;
   position: relative;
@@ -95,6 +98,8 @@ const Tab = styled.div<{ isSelected: boolean }>`
   color: var(--tab-color);
   min-width: fit-content;
   border-radius: var(--ads-v2-border-radius);
+  margin-bottom: 2px;
+  padding-top: 4px;
 
   &:after {
     content: "";

@@ -76,7 +76,7 @@ export default {
           value: "ITALIC",
         },
         {
-          icon: "underline",
+          icon: "text-underline",
           value: "UNDERLINE",
         },
       ],

@@ -366,6 +366,7 @@ export const GSHEET_AUTHORIZATION_ERROR =
   "Authorisation failed, to continue using this data source authorize now.";
 export const GSHEET_FILES_NOT_SELECTED =
   "Datasource does not have access to any files, please authorize google sheets to use this data source";
+export const FILES_NOT_SELECTED_EVENT = () => "Files not selected";
 
 export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE = () =>
   "Error saving a key in localStorage. You have exceeded the allowed storage size limit";
@@ -1102,7 +1103,7 @@ export const WELCOME_FORM_DATA_COLLECTION_LABEL_DISABLE = () =>
 export const WELCOME_FORM_NEWLETTER_HEADER = () => "Stay in touch";
 export const WELCOME_FORM_NEWLETTER_LABEL = () =>
   "Get updates about what we are cooking. We will not spam you.";
-export const WELCOME_FORM_SUBMIT_LABEL = () => "Make your first App";
+export const WELCOME_FORM_SUBMIT_LABEL = () => "Make your first app";
 
 //help tooltips
 export const ACCOUNT_TOOLTIP = () => "Your account";
