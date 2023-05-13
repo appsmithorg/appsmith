@@ -559,12 +559,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
-    _.agHelper.GetNAssertElementText(
-      _.propPane._pageNameSwitcher,
-      "Page Name",
-      "have.text",
-      0,
-    );
+    _.agHelper.AssertElementVisible(_.propPane._navigateToType("Page Name"));
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionOpenDropdownSelectPage,
@@ -603,12 +598,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
-    _.agHelper.GetNAssertElementText(
-      _.propPane._pageNameSwitcher,
-      "Page Name",
-      "have.text",
-      0,
-    );
+    _.agHelper.AssertElementVisible(_.propPane._navigateToType("Page Name"));
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionOpenDropdownSelectPage,
@@ -647,12 +637,7 @@ describe("JS to non-JS mode in Action Selector", () => {
     );
     _.agHelper.GetNClick(_.propPane._actionCard, 0);
 
-    _.agHelper.GetNAssertElementText(
-      _.propPane._urlSwitcher,
-      "URL",
-      "have.text",
-      0,
-    );
+    _.agHelper.AssertElementVisible(_.propPane._navigateToType("URL"));
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionPopupTextLabel,
@@ -1359,7 +1344,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
-      "Watch Geolocation",
+      "Watch geolocation",
       "have.text",
       0,
     );
@@ -1383,7 +1368,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
-      "Stop watching Geolocation",
+      "Stop watching geolocation",
       "have.text",
       0,
     );
@@ -1407,7 +1392,7 @@ describe("JS to non-JS mode in Action Selector", () => {
 
     _.agHelper.GetNAssertElementText(
       _.propPane._actionCard,
-      "Get GeolocationAdd callback",
+      "Get geolocationAdd callback",
       "have.text",
       0,
     );

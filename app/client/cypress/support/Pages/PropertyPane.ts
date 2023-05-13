@@ -80,9 +80,10 @@ export class PropertyPane {
   _actionOpenDropdownSelectModal = ".t--open-dropdown-Select-Modal";
   _selectorViewButton = ".selector-view .bp3-button-text";
   _actionOpenDropdownSelectPage = ".t--open-dropdown-Select-Page";
-  _pageNameSwitcher = "#switcher--page-name";
   _sameWindowDropdownOption = ".t--open-dropdown-Same-window";
-  _urlSwitcher = "#switcher--url";
+  _navigateToType = (type: string) =>
+    "div.tab-view span:contains('" + type + "')";
+
   _dropdownSelectType = ".t--open-dropdown-Select-type";
   _selectorViewLabel = '[data-testId="selector-view-label"]';
   _textView = ".text-view";
