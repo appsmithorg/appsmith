@@ -70,7 +70,7 @@ export class DataSources {
   _visibleTextSpan = (spanText: string) =>
     "//span[contains(text(),'" + spanText + "')]";
   _dropdownTitle = (ddTitle: string) =>
-    "//span[contains(text(),'" +
+    "//p[contains(text(),'" +
     ddTitle +
     "')]/ancestor::div[@class='form-config-top']/following-sibling::div[@class='t--form-control-DROP_DOWN']//div[@data-testid='t--dropdown-actionConfiguration.formData.command.data']";
   _reconnectModal = "[data-testid='reconnect-datasource-modal']";
@@ -91,6 +91,10 @@ export class DataSources {
   _contextMenuDatasource = "span[name='comment-context-menu']";
   _contextMenuDelete = ".t--datasource-option-delete";
   _datasourceCardGeneratePageBtn = ".t--generate-template";
+  _queryOption = (option: string) =>
+    "//div[contains(@class, 'rc-select-item-option-content') and text() = '" +
+    option +
+    "']";
   _queryTableResponse =
     "//div[@data-guided-tour-id='query-table-response']//div[@class='tbody']//div[@class ='td']";
   _queryResponseHeader = (header: string) =>
@@ -759,8 +763,9 @@ export class DataSources {
         //.scrollIntoView()
         .should("be.visible", currentValue + " dropdown value not present");
     if (newValue != "") {
-      cy.xpath(this._dropdownTitle(ddTitle)).click(); //to expand the dropdown
-      cy.xpath(this._visibleTextSpan(newValue)).last().click({ force: true }); //to select the new value
+      cy.xpath(this._dropdownTitle(ddTitle)).click();
+      //to expand the dropdown
+      cy.xpath(this._queryOption(newValue)).last().click({ force: true }); //to select the new value
     }
   }
 
