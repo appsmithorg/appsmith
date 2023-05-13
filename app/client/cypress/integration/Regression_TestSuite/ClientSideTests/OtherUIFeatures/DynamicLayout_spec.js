@@ -2,7 +2,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const pages = require("../../../../locators/Pages.json");
 
 describe("Dynamic Layout Functionality", function () {
-  it("Dynamic Layout - Change Layout", function () {
+  it("1. Dynamic Layout - Change Layout", function () {
     cy.get(commonlocators.layoutControls).last().click();
     cy.get(commonlocators.canvas).invoke("width").should("be.eq", 450);
 
