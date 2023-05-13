@@ -1,5 +1,6 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/CanvasResizeDsl.json");
+import * as _ from ".../../../support/Objects/ObjectsCore";
 
 describe("Canvas Resize", function () {
   before(() => {
@@ -10,7 +11,7 @@ describe("Canvas Resize", function () {
     cy.get(commonlocators.dropTarget).should("have.css", "height", InitHeight);
     cy.openPropertyPane("textwidget");
     cy.intercept("PUT", "/api/v1/layouts/*/pages/*").as("deleteUpdate");
-    cy.get(commonlocators.deleteWidget).click();
+    _.propPane.DeleteWidgetFromPropertyPane("Text2");
     cy.wait("@deleteUpdate").then((response) => {
       const dsl = response.response.body.data.dsl;
       cy.get(commonlocators.dropTarget).should(
