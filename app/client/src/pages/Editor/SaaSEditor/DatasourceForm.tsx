@@ -15,6 +15,7 @@ import {
   getDatasourceFormButtonConfig,
   getPlugin,
   getPluginDocumentationLinks,
+  getDatasourceScopeValue,
 } from "selectors/entitiesSelector";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import type { JSONtoFormProps } from "../DataSourceEditor/JSONtoForm";
@@ -101,6 +102,7 @@ interface StateProps extends JSONtoFormProps {
   gsheetProjectID?: string;
   documentationLink: string | undefined;
   showDebugger: boolean;
+  scopeValue?: string;
 }
 interface DatasourceFormFunctions {
   discardTempDatasource: () => void;
@@ -303,6 +305,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
       pageId,
       plugin,
       pluginPackageName,
+      scopeValue,
       showDebugger,
     } = this.props;
     const params: string = location.search;
@@ -467,6 +470,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                   getSanitizedFormData={_.memoize(this.getSanitizedData)}
                   isInvalid={this.validate()}
                   pageId={pageId}
+                  scopeValue={scopeValue}
                   shouldDisplayAuthMessage={!isGoogleSheetPlugin}
                   shouldRender={!viewMode}
                   triggerSave={this.props.isDatasourceBeingSavedFromPopup}
@@ -514,6 +518,13 @@ const mapStateToProps = (state: AppState, props: any) => {
   }
 
   merge(initialValues, datasource);
+
+  // get scopeValue to be shown in analytical events
+  const scopeValue = getDatasourceScopeValue(
+    state,
+    datasourceId,
+    DATASOURCE_SAAS_FORM,
+  );
 
   const datasourceButtonConfiguration = getDatasourceFormButtonConfig(
     state,
@@ -573,6 +584,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     gsheetToken,
     gsheetProjectID,
     showDebugger,
+    scopeValue,
   };
 };
 
