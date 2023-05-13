@@ -165,7 +165,6 @@ function RadioFieldWrapper(
                     }
                     interactionKind="hover"
                     position={Position.RIGHT}
-                    usePortal={false}
                   >
                     <Icon className="icon" name={item.tooltip.icon} size="md" />
                   </Popover2>
