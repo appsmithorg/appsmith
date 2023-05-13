@@ -643,11 +643,12 @@ export const BULK_WIDGET_ADDED = (widgetName: string) =>
 // Generate page from DB Messages
 
 export const UNSUPPORTED_PLUGIN_DIALOG_TITLE = () =>
-  `Couldn't auto-generate a page from this datasource.`;
+  `We could not auto-generate a page from this Datasource`;
 
 export const UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE = () =>
   `You can continue building your app with it using our drag & drop builder`;
-export const UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING = () => `Heads up`;
+export const UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING = () =>
+  `Issue with auto generation`;
 
 export const BUILD_FROM_SCRATCH_ACTION_SUBTITLE = () =>
   "Start from scratch and create your custom UI";
