@@ -25,21 +25,13 @@ export const TooltipStyles = createGlobalStyle<{
       }
       div.${Classes.POPOVER_ARROW} {
         display: block;
-        left: 50% !important;
-        top: -6px !important;
-        margin-left: -5px;
-        border-width: 6px 6px 0;
-        border-style: solid;
-        border-color: transparent;
-        border-top-color: var(--ads-v2-color-bg-emphasis-max);
-        transform: rotate(180deg);
-        height: 5px;
-        width: 10px;
         svg {
-          display: none;
+          path {
+            fill: var(--ads-v2-color-bg-emphasis-max)
+          }
         }
         &:before {
-          display: none;
+          box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.06), 0 4px 8px -2px rgba(0, 0, 0, 0.1);
         }
       }
   }
