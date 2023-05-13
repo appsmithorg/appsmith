@@ -73,7 +73,7 @@ function TemplatesModal() {
 
   return (
     <Modal onOpenChange={(open) => onClose(open)} open={templatesModalOpen}>
-      <ModalContentWrapper>
+      <ModalContentWrapper data-testid="t--templates-dialog-component">
         <ModalHeader>
           {!!showTemplateDetails ? (
             <TemplateModalHeader
