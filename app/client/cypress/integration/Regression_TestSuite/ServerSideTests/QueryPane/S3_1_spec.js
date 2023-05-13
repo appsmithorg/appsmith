@@ -7,6 +7,9 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const formControls = require("../../../../locators/FormControl.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { WIDGET } from "../../../../locators/WidgetLocators";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+const dataSources = ObjectsRegistry.DataSources;
 
 let datasourceName;
 
@@ -467,15 +470,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
   it("5. Validate Deletion of the Newly Created Page", () => {
     cy.NavigateToQueryEditor();
-    cy.NavigateToActiveTab();
-    cy.contains(".t--datasource-name", datasourceName).click();
-    cy.get(".t--delete-datasource").click();
-    cy.get(".t--delete-datasource").contains("Are you sure?").click();
-    cy.wait("@deleteDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      409,
-    );
+    dataSources.DeleteDatasouceFromWinthinDS(datasourceName, 409);
     cy.actionContextMenuByEntityName(
       "Assets-test.appsmith.com",
       "Delete",
@@ -695,19 +690,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
   after("Deletes the datasource", () => {
     cy.NavigateToQueryEditor();
-    cy.NavigateToActiveTab();
-    cy.contains(".t--datasource-name", datasourceName).click({ force: true });
-    cy.get(".t--delete-datasource").click();
-    cy.get(".t--delete-datasource").contains("Are you sure?").click();
-
-    // cy.wait("@deleteDatasource").should(
-    //   "have.nested.property",
-    //   "response.body.responseMeta.status",
-    //   200,
-    // );
-
-    cy.wait("@deleteDatasource").should((response) => {
-      expect(response.status).to.be.oneOf([200, 409]);
-    });
+    dataSources.DeleteDatasouceFromWinthinDS(datasourceName, 200);
   });
 });

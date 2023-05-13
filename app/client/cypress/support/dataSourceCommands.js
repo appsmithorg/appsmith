@@ -47,13 +47,7 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
       cy.contains("EDIT").click();
 
       // delete datasource
-      cy.get(".t--delete-datasource").click();
-      cy.get(".t--delete-datasource").contains("Are you sure?").click();
-      cy.wait("@deleteDatasource").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
+      dataSources.DeleteDSDirectly(200);
     });
 });
 
@@ -324,17 +318,7 @@ Cypress.Commands.add("createGoogleSheetsDatasource", () => {
 
 Cypress.Commands.add("deleteDatasource", (datasourceName) => {
   cy.NavigateToQueryEditor();
-  cy.get(pages.integrationActiveTab)
-    .should("be.visible")
-    .click({ force: true });
-  cy.contains(".t--datasource-name", datasourceName).click();
-  cy.get(".t--delete-datasource").click();
-  cy.get(".t--delete-datasource").contains("Are you sure?").click();
-  cy.wait("@deleteDatasource").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  dataSources.DeleteDatasouceFromWinthinDS(datasourceName);
 });
 
 Cypress.Commands.add("renameDatasource", (datasourceName) => {
@@ -399,21 +383,7 @@ Cypress.Commands.add("createNewAuthApiDatasource", (renameVal) => {
 Cypress.Commands.add("deleteAuthApiDatasource", (renameVal) => {
   //Navigate to active datasources panel.
   cy.get(pages.addEntityAPI).last().should("be.visible").click({ force: true });
-  cy.get(pages.integrationActiveTab)
-    .should("be.visible")
-    .click({ force: true });
-  cy.get("#loading").should("not.exist");
-  //Select the datasource to delete
-  cy.get(".t--datasource-name").contains(renameVal).click();
-  //Click on delete and later confirm
-  cy.get(".t--delete-datasource").click();
-  cy.get(".t--delete-datasource").contains("Are you sure?").click();
-  //Verify the status of deletion
-  cy.wait("@deleteDatasource").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
+  dataSources.DeleteDatasouceFromWinthinDS(renameVal);
 });
 
 Cypress.Commands.add("createGraphqlDatasource", (datasourceName) => {

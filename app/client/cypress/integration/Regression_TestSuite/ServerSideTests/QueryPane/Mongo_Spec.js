@@ -4,6 +4,9 @@ const datasource = require("../../../../locators/DatasourcesEditor.json");
 const formControls = require("../../../../locators/FormControl.json");
 import homePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+const dataSources = ObjectsRegistry.DataSources;
 
 let datasourceName;
 
@@ -274,15 +277,7 @@ describe("Validate Mongo query commands", function () {
 
   it("7. Validate Deletion of the Newly Created Page", () => {
     cy.NavigateToQueryEditor();
-    cy.NavigateToActiveTab();
-    cy.contains(".t--datasource-name", datasourceName).click();
-    cy.get(".t--delete-datasource").click();
-    cy.get(".t--delete-datasource").contains("Are you sure?").click();
-    cy.wait("@deleteDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      409,
-    );
+    dataSources.DeleteDatasouceFromWinthinDS(datasourceName, 409);
     cy.actionContextMenuByEntityName(
       "ListingAndReviews",
       "Delete",
@@ -369,19 +364,7 @@ describe("Validate Mongo query commands", function () {
 
   it("9. Delete the datasource after NewPage deletion is success", () => {
     cy.NavigateToQueryEditor();
-    cy.NavigateToActiveTab();
-    cy.contains(".t--datasource-name", datasourceName).click();
-    cy.get(".t--delete-datasource").click();
-    cy.get(".t--delete-datasource").contains("Are you sure?").click();
-    // cy.wait("@deleteDatasource").should(
-    //   "have.nested.property",
-    //   "response.body.responseMeta.status",
-    //   200,
-    // );
-
-    cy.wait("@deleteDatasource").should((response) => {
-      expect(response.status).to.be.oneOf([200, 409]);
-    });
+    dataSources.DeleteDatasouceFromWinthinDS(datasourceName, 200);
   });
 
   it("10. Bug 6375: Cyclic Dependency error occurs and the app crashes when the user generate table and chart from mongo query", function () {

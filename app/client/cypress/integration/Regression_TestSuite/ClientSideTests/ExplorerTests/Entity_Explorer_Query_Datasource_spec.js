@@ -8,7 +8,7 @@ const pages = require("../../../../locators/Pages.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let ee = ObjectsRegistry.EntityExplorer;
 
-let agHelper = ObjectsRegistry.AggregateHelper;
+let dataSources = ObjectsRegistry.DataSources;
 
 const pageid = "MyPage";
 let datasourceName;
@@ -113,16 +113,6 @@ describe("Entity explorer tests related to query and datasource", function () {
     cy.get(commonlocators.entityExplorersearch).clear({ force: true });
     cy.wait(500);
     cy.NavigateToQueryEditor();
-    cy.get(pages.integrationActiveTab)
-      .should("be.visible")
-      .click({ force: true });
-    cy.contains(".t--datasource-name", datasourceName).click();
-    cy.get(".t--delete-datasource").click();
-    cy.get(".t--delete-datasource").contains("Are you sure?").click();
-    cy.wait("@deleteDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    dataSources.DeleteDatasouceFromWinthinDS(datasourceName, 200);
   });
 });

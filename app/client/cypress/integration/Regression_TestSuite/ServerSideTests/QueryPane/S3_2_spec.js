@@ -8,7 +8,8 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const formControls = require("../../../../locators/FormControl.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer;
+  ee = ObjectsRegistry.EntityExplorer,
+  dataSources = ObjectsRegistry.DataSources;
 
 let datasourceName;
 
@@ -239,19 +240,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
   it("5. Deletes the datasource", () => {
     cy.NavigateToQueryEditor();
-    cy.NavigateToActiveTab();
-    cy.contains(".t--datasource-name", datasourceName).click({ force: true });
-    cy.get(".t--delete-datasource").click();
-    cy.get(".t--delete-datasource").contains("Are you sure?").click();
-
-    // cy.wait("@deleteDatasource").should(
-    //   "have.nested.property",
-    //   "response.body.responseMeta.status",
-    //   200,
-    // );
-
-    cy.wait("@deleteDatasource").should((response) => {
-      expect(response.status).to.be.oneOf([200, 409]);
-    });
+    dataSources.DeleteDatasouceFromWinthinDS(datasourceName, 200);
   });
 });

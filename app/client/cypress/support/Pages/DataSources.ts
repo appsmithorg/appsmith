@@ -170,7 +170,6 @@ export class DataSources {
   private _consentSubmit = "//button[text()='Submit']";
   public _datasourceModalSave = ".t--datasource-modal-save";
   public _datasourceModalDoNotSave = ".t--datasource-modal-do-not-save";
-  public _deleteDatasourceButton = ".t--delete-datasource";
   public _cancelEditDatasourceButton = ".t--cancel-edit-datasource";
   public _urlInputControl = "input[name='url']";
   _nestedWhereClauseKey = (index: number) =>
@@ -651,7 +650,10 @@ export class DataSources {
       .should("be.visible")
       .click();
     this.agHelper.Sleep(); //for the Datasource page to open
-    //this.agHelper.ClickButton("Delete");
+    this.DeleteDSDirectly(expectedRes);
+  }
+
+  public DeleteDSDirectly(expectedRes = 200) {
     this.agHelper.GetNClick(this._cancelEditDatasourceButton, 0, false, 200);
     cy.get(this._contextMenuDatasource).click({ force: true });
     this.agHelper.GetNClick(this._contextMenuDelete);
@@ -660,12 +662,6 @@ export class DataSources {
     if (expectedRes == 200)
       this.agHelper.AssertContains("datasource deleted successfully");
     else this.agHelper.AssertContains("action(s) using it.");
-  }
-
-  public DeleteDSDirectly() {
-    this.agHelper.GetNClick(this.locator._visibleTextSpan("Delete"));
-    this.agHelper.GetNClick(this.locator._visibleTextSpan("Are you sure?"));
-    this.agHelper.AssertContains("deleted successfully");
   }
 
   public NavigateToActiveTab() {
