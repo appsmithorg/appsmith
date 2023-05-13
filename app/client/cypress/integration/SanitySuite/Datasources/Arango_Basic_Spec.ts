@@ -317,19 +317,7 @@ describe("Validate Arango & CURL Import Datasources", () => {
   after("Delete collection via curl & then data source", () => {
     //Deleting all queries created on this DB
     _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-    _.agHelper
-      .GetElement(_.dataSources._allQueriesforDB(dsName))
-      .each(($el) => {
-        cy.wrap($el)
-          .invoke("text")
-          .then(($query) => {
-            _.entityExplorer.ActionContextMenuByEntityName(
-              $query,
-              "Delete",
-              "Are you sure?",
-            );
-          });
-      });
+    _.entityExplorer.DeleteAllQueriesForDB(dsName);
 
     //Deleting collection via Curl
     _.entityExplorer.CreateNewDsQuery("New cURL Import", false);

@@ -32,7 +32,6 @@ export class DataSources {
   private table = ObjectsRegistry.Table;
   private ee = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
-  private homePage = ObjectsRegistry.HomePage;
   private apiPage = ObjectsRegistry.ApiPage;
 
   private _dsCreateNewTab = "[data-cy=t--tab-CREATE_NEW]";
@@ -55,9 +54,7 @@ export class DataSources {
   _saveDs = ".t--save-datasource";
   _datasourceCard = ".t--datasource";
   _editButton = ".t--edit-datasource";
-  _reconnectDataSourceModal = "[data-cy=t--tab-RECONNECT_DATASOURCES]";
   _closeDataSourceModal = ".t--reconnect-close-btn";
-  _skiptoApplicationBtn = "//span[text()='Skip to Application']/parent::a";
   _dsEntityItem = "[data-guided-tour-id='explorer-entity-Datasources']";
   _activeDS = "[data-testid='active-datasource-name']";
   _mockDatasourceName = "[data-testid=mockdatasource-name]";
@@ -150,10 +147,6 @@ export class DataSources {
 
   private _curlTextArea =
     "//label[text()='Paste CURL Code Here']/parent::form/div";
-  _allQueriesforDB = (dbName: string) =>
-    "//div[text()='" +
-    dbName +
-    "']/following-sibling::div[contains(@class, 't--entity')  and contains(@class, 'action')]//div[contains(@class, 't--entity-name')]";
   _noSchemaAvailable = (dbName: string) =>
     "//div[text()='" +
     dbName +
@@ -196,6 +189,20 @@ export class DataSources {
   public AssertDSEditViewMode(mode: "Edit" | "View") {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
     else if (mode == "View") this.agHelper.AssertElementExist(this._editButton);
+  }
+
+  public GeneratePageWithDB(datasourceName: any, tableName: string) {
+    this.ee.AddNewPage("generate-page");
+    this.agHelper.GetNClick(this._selectDatasourceDropdown);
+    this.agHelper.GetNClickByContains(
+      this.locator._dropdownText,
+      datasourceName,
+    );
+    this.agHelper.GetNClick(this._selectTableDropdown);
+    this.agHelper.GetNClick(`[data-cy='t--dropdown-option-${tableName}']`);
+    this.agHelper.GetNClick(this._generatePageBtn);
+    this.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+    this.agHelper.GetNClick(this.locator._visibleTextSpan("GOT IT"));
   }
 
   public GeneratePageWithMockDB() {
@@ -329,7 +336,7 @@ export class DataSources {
     // we ignore
     cy.get(`${locator} .bp3-icon`)
       .invoke("attr", "class")
-      .then((className) => {
+      .then((className: any) => {
         if (className.includes("bp3-icon-chevron-down")) {
           cy.get(locator).click();
         }
@@ -748,15 +755,6 @@ export class DataSources {
     if (dsName == "PostgreSQL") this.FillPostgresDSForm();
     else if (dsName == "MySQL") this.FillMySqlDSForm();
     cy.get(this._saveDs).click();
-  }
-
-  public CloseReconnectDataSourceModal() {
-    cy.get("body").then(($ele) => {
-      if ($ele.find(this._reconnectDataSourceModal).length) {
-        this.agHelper.GetNClick(this._skiptoApplicationBtn);
-        this.homePage.NavigateToHome();
-      }
-    });
   }
 
   RunQuery({
