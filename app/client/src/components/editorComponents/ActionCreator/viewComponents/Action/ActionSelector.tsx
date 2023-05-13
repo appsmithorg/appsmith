@@ -1,4 +1,5 @@
 import { Popover2 } from "@blueprintjs/popover2";
+import styled from "styled-components";
 import { isModalOpenSelector } from "components/editorComponents/GlobalSearch";
 import type { TreeDropdownOption } from "design-system-old";
 import { Text, Button } from "design-system";
@@ -16,6 +17,11 @@ import {
 } from "../../helpers";
 import type { TActionBlock } from "../../types";
 import { getCodeFromMoustache, getSelectedFieldFromValue } from "../../utils";
+
+const ActionText = styled(Text)`
+  height: fit-content;
+  margin-top: 5px;
+`;
 
 export default function ActionSelector(props: {
   action: TActionBlock;
@@ -135,7 +141,7 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
       ref={ref}
     >
       <div className="flex mb-2 w-full justify-between px-2 mt-2">
-        <Text kind="heading-xs">
+        <Text className="mt-2" kind="heading-xs">
           {isChainedAction ? "Configure action" : label}
         </Text>
         <Button
@@ -149,7 +155,9 @@ function ActionSelectorForm(props: TActionSelectorFormProps) {
       </div>
 
       <div className="flex w-full justify-between px-3 mb-[4px]">
-        <Text kind="body-s">Action</Text>
+        <ActionText kind="body-s" renderAs="p">
+          Action
+        </ActionText>
         <Button
           className="t--delete cursor-pointer"
           isIconButton
