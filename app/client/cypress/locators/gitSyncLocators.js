@@ -29,7 +29,7 @@ export default {
   disabledConnectGitBottomBar: ".t--disabled-connect-git-bottom-bar",
   syncBranches: ".t--sync-branches",
   closeBranchList: ".t--close-branch-list",
-  learnMoreDeployKey: "//a[text()='Learn More']",
+  learnMoreDeployKey: "//span[text()='Learn More']",
   learnMoreSshUrl: ".t--learn-more-ssh-url",
   readDocument: ".t--read-document",
   gitConnectErrorLearnMore:

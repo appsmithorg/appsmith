@@ -114,7 +114,7 @@ describe("Git sync modal: connect tab", function () {
   });
 
   it("3. validates git user config", function () {
-    cy.get(gitSyncLocators.useGlobalGitConfig).click();
+    cy.get(gitSyncLocators.useGlobalGitConfig).click({ force: true });
 
     // name empty invalid
     cy.get(gitSyncLocators.gitConfigNameInput).clear();
@@ -161,7 +161,7 @@ describe("Git sync modal: connect tab", function () {
     );
 
     // check git global config
-    cy.get(gitSyncLocators.useGlobalGitConfig).click();
+    cy.get(gitSyncLocators.useGlobalGitConfig).click({ force: true });
     cy.get(gitSyncLocators.gitConfigNameInput).should("be.disabled");
     cy.get(gitSyncLocators.gitConfigEmailInput).should("be.disabled");
 
@@ -182,7 +182,7 @@ describe("Git sync modal: connect tab", function () {
   });
 
   it("4. validates submit errors", function () {
-    cy.get(gitSyncLocators.useGlobalGitConfig).click();
+    cy.get(gitSyncLocators.useGlobalGitConfig).click({ force: true });
     cy.get(gitSyncLocators.gitConfigNameInput)
       .scrollIntoView()
       .type(`{selectAll}${owner}`);
