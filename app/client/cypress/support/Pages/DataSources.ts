@@ -35,7 +35,7 @@ export class DataSources {
   private apiPage = ObjectsRegistry.ApiPage;
 
   private _dsCreateNewTab = "[data-testid=t--tab-CREATE_NEW]";
-  private _addNewDataSource = ".t--entity-add-btn.datasources";
+  private _addNewDataSource = ".t--entity-add-btn.datasources button";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
   private _collapseContainer = ".t--collapse-section-container";
@@ -366,7 +366,7 @@ export class DataSources {
 
   public NavigateToDSCreateNew() {
     this.ee.HoverOnEntityItem("Datasources");
-    this.agHelper.GetNClick(this._addNewDataSource);
+    this.agHelper.GetNClick(this._addNewDataSource, 0, true);
     // cy.get(this._dsCreateNewTab)
     //   .should("be.visible")
     //   .click({ force: true });
