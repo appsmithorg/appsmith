@@ -1248,10 +1248,7 @@ Cypress.Commands.add("updateMapType", (mapType) => {
     .contains(mapType)
     .click({ force: true });
 
-  cy.get(viewWidgetsPage.mapType + " span.cs-text").should(
-    "have.text",
-    mapType,
-  );
+  cy.get(viewWidgetsPage.mapType).should("have.text", mapType);
 });
 
 Cypress.Commands.add("createJSObject", (JSCode) => {
