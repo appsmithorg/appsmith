@@ -17,11 +17,7 @@ import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.PagePermission;
 import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.redis.core.ReactiveRedisOperations;
-import org.springframework.data.redis.core.ReactiveValueOperations;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -42,7 +38,7 @@ public class GitServiceImpl extends GitServiceCEImpl implements GitService {
                           NewActionService newActionService,
                           ActionCollectionService actionCollectionService,
                           GitFileUtils fileUtils,
-                          @Qualifier("importExportServiceCEImplV2") ImportExportApplicationService importExportApplicationService,
+                          ImportExportApplicationService importExportApplicationService,
                           GitExecutor gitExecutor,
                           ResponseUtils responseUtils,
                           EmailConfig emailConfig,
