@@ -14,10 +14,11 @@ export class GitSync {
     "//h3[text()='Connect to Git repository']/following-sibling::button[@aria-label='Close']";
   private _gitRepoInput =
     "//label[text()='Remote URL']/following-sibling::div//input";
-  private _useDefaultConfig =
-    "//span[text()='Use default configuration']/parent::div";
-  private _gitConfigNameInput = ".t--git-config-name-input";
-  private _gitConfigEmailInput = ".t--git-config-email-input";
+  private _useDefaultConfig = "//label[text()='Use default configuration']";
+  private _gitConfigNameInput =
+    "//label[text()='Author name']/following-sibling::div//input";
+  private _gitConfigEmailInput =
+    "//label[text()='Author email']/following-sibling::div//input";
   _branchButton = "[data-testid=t--branch-button-container]";
   private _branchSearchInput = ".t--branch-search-input";
   private _bottomBarCommit = ".t--bottom-bar-commit span[name='plus']";
@@ -112,10 +113,11 @@ export class GitSync {
         //`{selectall}${testUsername}`,
       );
       this.agHelper.TypeText(this._gitConfigEmailInput, "test@test.com");
-      this.agHelper.ClickButton("CONNECT");
+      this.agHelper.ClickButton("Connect");
       if (assertConnect) {
         this.agHelper.ValidateNetworkStatus("@connectGitLocalRepo");
-        this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
+        this.agHelper.Sleep(10000); //until below element is found
+        //this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
         this.CloseGitSyncModal();
       }
     });

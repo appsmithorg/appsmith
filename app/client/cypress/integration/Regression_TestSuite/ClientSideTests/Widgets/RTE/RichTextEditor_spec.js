@@ -80,9 +80,7 @@ describe("RichTextEditor Widget Functionality", function () {
       publishPage.richTextEditorWidget,
       commonlocators.disabledBtn,
     );
-  });
 
-  it("3. RichTextEditor-Disable Validation", function () {
     //Check the Disabled checkbox
     cy.CheckWidgetProperties(formWidgetsPage.disableJs);
     cy.validateDisableWidget(
@@ -97,21 +95,19 @@ describe("RichTextEditor Widget Functionality", function () {
     );
   });
 
-  it("4. RichTextEditor-check Visible field  validation", function () {
+  it("3. RichTextEditor-check Visible field  validation", function () {
     // Uncheck the visible checkbox
     cy.UncheckWidgetProperties(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publishPage.richTextEditorWidget).should("not.exist");
-  });
 
-  it("5. RichTextEditor-uncheck Visible field validation", function () {
-    // Check the visible checkbox
+    // RichTextEditor-uncheck Visible field validation
     cy.CheckWidgetProperties(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publishPage.richTextEditorWidget).should("be.visible");
   });
 
-  it("6. RichTextEditor-check Hide toolbar field validation", function () {
+  it("4. RichTextEditor-check Hide toolbar field validation", function () {
     // Check the Hide toolbar checkbox
     cy.CheckWidgetProperties(commonlocators.hideToolbarCheckbox);
     cy.validateToolbarHidden(
@@ -123,10 +119,8 @@ describe("RichTextEditor Widget Functionality", function () {
       publishPage.richTextEditorWidget,
       commonlocators.rteToolbar,
     );
-  });
 
-  it("7. RichTextEditor-uncheck Hide toolbar field validation", function () {
-    // Uncheck the Hide toolbar checkbox
+    //RichTextEditor-uncheck Hide toolbar field validation - // Uncheck the Hide toolbar checkbox
     cy.UncheckWidgetProperties(commonlocators.hideToolbarCheckbox);
     cy.validateToolbarVisible(
       formWidgetsPage.richTextEditorWidget,
@@ -139,7 +133,7 @@ describe("RichTextEditor Widget Functionality", function () {
     );
   });
 
-  it("8. Reset RichTextEditor", function () {
+  it("5. Reset RichTextEditor", function () {
     // Enable the widget
     cy.UncheckWidgetProperties(formWidgetsPage.disableJs);
 
@@ -160,7 +154,7 @@ describe("RichTextEditor Widget Functionality", function () {
     );
   });
 
-  it("9. Check isDirty meta property", function () {
+  it("6. Check isDirty meta property", function () {
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(
       ".t--property-control-text",
@@ -195,7 +189,7 @@ describe("RichTextEditor Widget Functionality", function () {
     cy.get(".t--widget-textwidget").should("contain", "false");
   });
 
-  it("10. Check if the binding is getting removed from the text and the RTE widget", function () {
+  it("7. Check if the binding is getting removed from the text and the RTE widget", function () {
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(".t--property-control-text", `{{RichtextEditor.text}}`);
     // Change defaultText of the RTE
@@ -214,7 +208,7 @@ describe("RichTextEditor Widget Functionality", function () {
     cy.get(".t--widget-textwidget").should("contain", "");
   });
 
-  it("11. Check if text does not re-appear when cut, inside the RTE widget", function () {
+  it("8. Check if text does not re-appear when cut, inside the RTE widget", function () {
     cy.window().then((win) => {
       const tinyMceId = "rte-6h8j08u7ea";
 
@@ -234,7 +228,7 @@ describe("RichTextEditor Widget Functionality", function () {
     });
   });
 
-  it("12. Check if the cursor position is at the end for the RTE widget", function () {
+  it("9. Check if the cursor position is at the end for the RTE widget", function () {
     const tinyMceId = "rte-6h8j08u7ea";
     const testString = "Test Content";
     const testStringLen = testString.length;
@@ -247,13 +241,13 @@ describe("RichTextEditor Widget Functionality", function () {
 
     // Changing the input type to markdown and again testing the cursor position
     cy.openPropertyPane("richtexteditorwidget");
-    cy.get(".t--button-group-markdown").click({ force: true });
+    cy.get("span:contains('Markdown')").click({ force: true });
     setRTEContent(testString);
     testCursorPoistion(testStringLen, tinyMceId);
     cy.get(".t--button-group-html").click({ force: true });
   });
 
-  it("13. Check if different font size texts are supported inside the RTE widget", function () {
+  it("10. Check if different font size texts are supported inside the RTE widget", function () {
     const tinyMceId = "rte-6h8j08u7ea";
     const testString = "Test Content";
 
@@ -275,19 +269,17 @@ describe("RichTextEditor Widget Functionality", function () {
     });
   });
 
-  it("14. Check if button for Underline exists within the Toolbar of RTE widget", () => {
+  it("11. Check if button for Underline exists within the Toolbar of RTE widget", () => {
     cy.get('[aria-label="Underline"]').should("exist");
-  });
 
-  it("15. Check if button for Background Color is rendered only once within the Toolbar of RTE widget", () => {
+    //Check if button for Background Color is rendered only once within the Toolbar of RTE widget
     cy.get('[aria-label="Background color"]').should("have.length", 1);
-  });
 
-  it("16. Check if button for Text Color is rendered only once within the Toolbar of RTE widget", () => {
+    //Check if button for Text Color is rendered only once within the Toolbar of RTE widget
     cy.get('[aria-label="Text color"]').should("have.length", 1);
   });
 
-  it("17. Check if able to add an emoji through toolbar", () => {
+  it("12. Check if able to add an emoji through toolbar", () => {
     cy.get('[aria-label="More..."]').click({ force: true });
     cy.wait(500);
     cy.get('[aria-label="Emoticons"]').click({ force: true });
