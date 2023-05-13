@@ -72,7 +72,7 @@ describe("Export application as a JSON file", function () {
         //cy.get(homePage.applicationCard).first().trigger("mouseover");
         cy.get(homePage.appMoreIcon).first().click({ force: true });
         cy.get(homePage.exportAppFromMenu).should("be.visible");
-        cy.get("body").click();
+        cy.xpath(homePage.workspaceHeading).click({ force: true });
         cy.get(homePage.applicationCard).first().trigger("mouseover");
         cy.get(homePage.appEditIcon).first().click({ force: true });
         cy.get(homePage.applicationName).click({ force: true });
@@ -110,7 +110,7 @@ describe("Export application as a JSON file", function () {
       cy.get(homePage.applicationCard).first().trigger("mouseover");
       cy.get(homePage.appMoreIcon).first().click({ force: true });
       cy.get(homePage.exportAppFromMenu).should("not.exist");
-      cy.get("body").click();
+      cy.xpath(homePage.workspaceHeading).click({ force: true });
       cy.get(homePage.applicationCard).first().trigger("mouseover");
       cy.get(homePage.appEditIcon).first().click({ force: true });
       cy.get(homePage.applicationName).click({ force: true });

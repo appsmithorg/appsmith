@@ -121,7 +121,7 @@ describe("Shopping cart App", function () {
     cy.assertPageSave();
 
     cy.get(appPage.dropdownChevronLeft).click();
-    cy.get(appPage.dropdownChevronLeft).click();
+    cy.get(".t--back-button").click();
   });
 
   it("2. Perform CRUD operations and validate data", function () {

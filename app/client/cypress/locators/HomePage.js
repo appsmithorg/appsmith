@@ -93,6 +93,7 @@ export default {
   workspaceNamePopoverContent: ".bp3-popover-content",
   workspaceCompleteSection: ".t--workspace-section",
   workspaceNameText: ".t--workspace-name-text",
+  workspaceHeading: "//span[text()='Workspaces']",
   optionsIcon: ".t--options-icon",
   reconnectDatasourceModal: "[data-testid='reconnect-datasource-modal']",
   importAppProgressWrapper: ".t-import-app-progress-wrapper",
