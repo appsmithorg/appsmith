@@ -101,6 +101,7 @@ export function WidgetContextMenu(props: {
       onSelect: dispatchDelete,
       label: "Delete",
       intent: "danger",
+      confirmDelete: true,
     };
 
     optionTree.push(option);
