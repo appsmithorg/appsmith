@@ -25,8 +25,8 @@ export class JSEditor {
 
   //#region Element locators
   _runButton = "button.run-js-action";
-  _settingsTab = ".tab-title:contains('Settings')";
-  _codeTab = ".tab-title:contains('Code')";
+  _settingsTab = "//span[text()='Settings']/parent::button";
+  _codeTab = "//span[text()='Code']/parent::button";
   private _jsObjectParseErrorCallout =
     "div.t--js-response-parse-error-call-out";
   private _jsFunctionExecutionParseErrorCallout =
@@ -34,7 +34,7 @@ export class JSEditor {
   private _onPageLoadRadioButton = (functionName: string, onLoad: boolean) =>
     `.${functionName}-on-page-load-setting label:contains(${
       onLoad ? "Yes" : "No"
-    }) span.checkbox`;
+    }) input`;
   private _onPageLoadRadioButtonStatus = (
     functionName: string,
     onLoad: boolean,
@@ -48,7 +48,7 @@ export class JSEditor {
   ) =>
     `.${functionName}-confirm-before-execute label:contains(${
       shouldConfirm ? "Yes" : "No"
-    }) span.checkbox`;
+    }) input`;
   private _confirmBeforeExecuteRadioButtonStatus = (
     functionName: string,
     shouldConfirm: boolean,

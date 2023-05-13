@@ -73,7 +73,7 @@ export class DataSources {
     "//span[contains(text(),'" +
     ddTitle +
     "')]/ancestor::div[@class='form-config-top']/following-sibling::div[@class='t--form-control-DROP_DOWN']//div[@data-testid='t--dropdown-actionConfiguration.formData.command.data']";
-  _reconnectModal = "div.reconnect-datasource-modal";
+  _reconnectModal = "[data-testid='reconnect-datasource-modal']";
   _activeDSListReconnectModal = (dbName: string) =>
     "//div[contains(@class, 't--ds-list')]//span[text()='" + dbName + "']";
   _runQueryBtn = ".t--run-query";
@@ -101,7 +101,9 @@ export class DataSources {
   _addIcon = "button .bp3-icon-add";
   _queryError = "[data-testid='t--query-error']";
   _queryResponse = (responseType: string) =>
-    "li[data-testid='t--tab-" + responseType + "']";
+    "//div[@data-testid='t--response-tab-segmented-control']//span[text()='" +
+    responseType +
+    "']";
   _queryRecordResult = (recordCount: number) =>
     `//div/span[text()='Result:']/span[contains(text(),' ${recordCount} Record')]`;
   _noRecordFound = "span[data-testid='no-data-table-message']";
