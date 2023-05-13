@@ -19,15 +19,21 @@ import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 
 const PromptMessage = styled.span`
   line-height: 17px;
+
+  > span {
+    font-family: var(--ads-v2-font-family-code);
+    display: inline-flex;
+    align-items: center;
+  }
 `;
 const CurlyBraces = styled.span`
   color: var(--ads-v2-color-fg);
   background-color: var(--ads-v2-color-bg-muted);
   border-radius: 2px;
   padding: 2px;
-  margin: 0px 2px;
+  margin: 0 2px 0 0;
   font-size: 10px;
-  font-weight: bold;
+  font-weight: var(--ads-v2-font-weight-bold);
 `;
 
 type InputTextProp = {
@@ -68,9 +74,12 @@ function InputText(props: InputTextProp) {
         placeholder={placeholder}
         promptMessage={
           <PromptMessage>
-            Access the current cell using <CurlyBraces>{"{{"}</CurlyBraces>
-            currentRow.columnName
-            <CurlyBraces>{"}}"}</CurlyBraces>
+            Access the current cell using{" "}
+            <span>
+              <CurlyBraces>{"{{"}</CurlyBraces>
+              currentRow.columnName
+              <CurlyBraces>{"}}"}</CurlyBraces>
+            </span>
           </PromptMessage>
         }
         size={EditorSize.EXTENDED}

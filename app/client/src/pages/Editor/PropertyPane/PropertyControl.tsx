@@ -54,6 +54,7 @@ import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTyp
 import clsx from "clsx";
 import styled from "styled-components";
 import { importSvg } from "design-system-old";
+import classNames from "classnames";
 
 const ResetIcon = importSvg(() => import("assets/icons/control/undo_2.svg"));
 
@@ -765,6 +766,9 @@ const PropertyControl = memo((props: Props) => {
                 isDisabled={!isToggleDisabled}
               >
                 <ToggleButton
+                  className={classNames("t--js-toggle", {
+                    "is-active": isDynamic,
+                  })}
                   icon="js-toggle-v2"
                   isDisabled={isToggleDisabled}
                   isSelected={isDynamic}

@@ -27,6 +27,12 @@ import {
 
 export const PromptMessage = styled.span`
   line-height: 17px;
+
+  > span {
+    font-family: var(--ads-v2-font-family-code);
+    display: inline-flex;
+    align-items: center;
+  }
 `;
 
 export const StyledCode = styled.span`
@@ -37,8 +43,9 @@ export const CurlyBraces = styled.span`
   color: var(--ads-v2-color-fg-brand);
   border-radius: 2px;
   padding: 2px;
-  margin: 0px 2px;
+  margin: 0 2px 0 0;
   font-size: 10px;
+  font-weight: var(--ads-v2-font-weight-bold);
 `;
 
 type InputTextProp = {
@@ -157,9 +164,11 @@ class TableInlineEditValidationControl extends BaseControl<TableInlineEditValida
         promptMessage={
           <PromptMessage>
             {createMessage(TABLE_WIDGET_VALIDATION_ASSIST_PROMPT)}
-            <CurlyBraces>{"{{"}</CurlyBraces>
-            <StyledCode>currentRow.columnName</StyledCode>
-            <CurlyBraces>{"}}"}</CurlyBraces>
+            <span>
+              <CurlyBraces>{"{{"}</CurlyBraces>
+              <StyledCode>currentRow.columnName</StyledCode>
+              <CurlyBraces>{"}}"}</CurlyBraces>
+            </span>
           </PromptMessage>
         }
         theme={theme}
