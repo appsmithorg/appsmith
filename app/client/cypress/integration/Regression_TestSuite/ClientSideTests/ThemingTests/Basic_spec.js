@@ -12,7 +12,6 @@ const ee = ObjectsRegistry.EntityExplorer,
 const containerShadowElement = `${widgetsPage.containerWidget} [data-testid^="container-wrapper-"]`;
 
 describe("App Theming funtionality", function () {
-  
   let themesSection = (sectionName, themeName) =>
     "//*[text()='" +
     sectionName +
