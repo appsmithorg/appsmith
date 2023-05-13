@@ -7,7 +7,7 @@ describe("JSON Form Widget Field Change", () => {
   before(() => {
     cy.addDsl(dslWithSchema);
   });
-  it("modifies field type text to number", () => {
+  it("1. modifies field type text to number", () => {
     cy.openPropertyPane("jsonformwidget");
 
     cy.get(`${fieldPrefix}-name`).find("button").should("not.exist");
@@ -15,11 +15,11 @@ describe("JSON Form Widget Field Change", () => {
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Number Input");
     cy.get(`${fieldPrefix}-name`).find("button").should("have.length", 2);
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input/);
-    cy.closePropertyPane();
+    //cy.closePropertyPane();
   });
 
-  it("modifies field type text to checkbox", () => {
-    cy.openPropertyPane("jsonformwidget");
+  it("2. modifies field type text to checkbox", () => {
+    //cy.openPropertyPane("jsonformwidget");
 
     cy.get(`${fieldPrefix}-name`)
       .find("input")
@@ -32,11 +32,11 @@ describe("JSON Form Widget Field Change", () => {
       .invoke("attr", "type")
       .should("contain", "checkbox");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input/);
-    cy.closePropertyPane();
+    //cy.closePropertyPane();
   });
 
-  it("modifies field type text to date", () => {
-    cy.openPropertyPane("jsonformwidget");
+  it("3. modifies field type text to date", () => {
+    //cy.openPropertyPane("jsonformwidget");
 
     cy.get(`${fieldPrefix}-name`).find("input").click({ force: true });
     cy.get(".bp3-popover.bp3-dateinput-popover").should("not.exist");
@@ -45,11 +45,11 @@ describe("JSON Form Widget Field Change", () => {
     cy.get(`${fieldPrefix}-name`).find("input").click({ force: true });
     cy.get(".bp3-popover.bp3-dateinput-popover").should("exist");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input/);
-    cy.closePropertyPane();
+    //cy.closePropertyPane();
   });
 
-  it("modifies field type text to switch", () => {
-    cy.openPropertyPane("jsonformwidget");
+  it("4. modifies field type text to switch", () => {
+    //cy.openPropertyPane("jsonformwidget");
 
     cy.get(`${fieldPrefix}-name`)
       .find(".bp3-control.bp3-switch")
@@ -63,27 +63,11 @@ describe("JSON Form Widget Field Change", () => {
       .should("exist");
 
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input/);
-    cy.closePropertyPane();
+    //cy.closePropertyPane();
   });
 
-  it("modifies field type text to Select", () => {
-    cy.openPropertyPane("jsonformwidget");
-
-    cy.get(`${fieldPrefix}-name label`).click({ force: true });
-    cy.get(".bp3-select-popover.select-popover-wrapper").should("not.exist");
-
-    cy.openFieldConfiguration("name");
-    cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Select/);
-
-    cy.get(`${fieldPrefix}-name label`).click({ force: true });
-    cy.get(".bp3-select-popover.select-popover-wrapper").should("exist");
-
-    cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input/);
-    cy.closePropertyPane();
-  });
-
-  it("modifies field type text to Multi-Select", () => {
-    cy.openPropertyPane("jsonformwidget");
+  it("5. modifies field type text to Multi-Select", () => {
+    //cy.openPropertyPane("jsonformwidget");
 
     cy.get(`${fieldPrefix}-name`)
       .find(".rc-select-multiple")
@@ -94,11 +78,11 @@ describe("JSON Form Widget Field Change", () => {
     cy.get(`${fieldPrefix}-name`).find(".rc-select-multiple").should("exist");
 
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input/);
-    cy.closePropertyPane();
+    //cy.closePropertyPane();
   });
 
-  it("modifies field type text to Radio-Group", () => {
-    cy.openPropertyPane("jsonformwidget");
+  it("6. modifies field type text to Radio-Group", () => {
+    //cy.openPropertyPane("jsonformwidget");
 
     cy.get(`${fieldPrefix}-name`)
       .find(".bp3-control.bp3-radio")
@@ -112,11 +96,11 @@ describe("JSON Form Widget Field Change", () => {
       .should("have.length", 2);
 
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input/);
-    cy.closePropertyPane();
+    //cy.closePropertyPane();
   });
 
-  it("modifies field type text to Array", () => {
-    cy.openPropertyPane("jsonformwidget");
+  it("7. modifies field type text to Array", () => {
+    //cy.openPropertyPane("jsonformwidget");
 
     cy.get(`${fieldPrefix}-name`)
       .find(".t--jsonformfield-array-add-btn")
@@ -132,11 +116,11 @@ describe("JSON Form Widget Field Change", () => {
     */
     cy.get('button span:contains("Add New")').first().should("be.visible");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input/);
-    cy.closePropertyPane();
+    //cy.closePropertyPane();
   });
 
-  it("modifies field type text to Object", () => {
-    cy.openPropertyPane("jsonformwidget");
+  it("8. modifies field type text to Object", () => {
+    //cy.openPropertyPane("jsonformwidget");
 
     cy.openFieldConfiguration("name");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Object");
@@ -149,11 +133,11 @@ describe("JSON Form Widget Field Change", () => {
     cy.get(`${fieldPrefix}-name`).find("input").should("exist");
 
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input/);
-    cy.closePropertyPane();
+    //cy.closePropertyPane();
   });
 
-  it("modifies field type Multi-Select to Array", () => {
-    cy.openPropertyPane("jsonformwidget");
+  it("9. modifies field type Multi-Select to Array", () => {
+    //cy.openPropertyPane("jsonformwidget");
 
     cy.get(`${fieldPrefix}-hobbies`)
       .find(".rc-select-multiple")
@@ -171,6 +155,20 @@ describe("JSON Form Widget Field Change", () => {
     });
 
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input/);
+    //cy.closePropertyPane();
+  });
+
+  it("10. modifies field type text to Select", () => {
+    //cy.openPropertyPane("jsonformwidget");
+
+    cy.get(`${fieldPrefix}-name label`).click({ force: true });
+    cy.get(".bp3-select-popover.select-popover-wrapper").should("not.exist");
+
+    cy.openFieldConfiguration("name");
+    cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Select/);
+
+    cy.get(`${fieldPrefix}-name label`).click({ force: true });
+    cy.get(".bp3-select-popover.select-popover-wrapper").should("exist");
     cy.closePropertyPane();
   });
 });

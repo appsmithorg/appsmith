@@ -132,7 +132,7 @@
   "recaptchaVersion": ".t--property-control-googlerecaptchaversion .bp3-popover-target",
   "filePickerDataFormat": ".t--property-control-dataformat .bp3-popover-target",
   "helperText": ".t--property-control-helperText",
-  "jsonFormFieldType": ".t--property-control-fieldtype .bp3-popover-target",
+  "jsonFormFieldType": ".t--property-control-fieldtype input",
   "jsonFormAddNewCustomFieldBtn": ".t--property-control-fieldconfiguration .t--add-column-btn",
   "evaluateMsg": ".t--evaluatedPopup-error",
   "globalSearchModal": ".t--global-search-modal",
