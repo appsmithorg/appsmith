@@ -41,7 +41,7 @@ export class CommonLocators {
   _imageWidget = ".t--draggable-imagewidget";
   _backToEditor = ".t--back-to-editor";
   _newPage = ".pages .t--entity-add-btn";
-  _toastMsg = "div.t--toast-action";
+  _toastMsg = "div.Toastify__toast";
   _toastContainer = "div.Toastify__toast-container";
   _specificToast = (toastText: string) =>
     this._toastMsg + ":contains('" + toastText + "')";
