@@ -365,6 +365,7 @@ export const GSHEET_AUTHORIZATION_ERROR =
   "Authorisation failed, to continue using this data source authorize now.";
 export const GSHEET_FILES_NOT_SELECTED =
   "Datasource does not have access to any files, please authorize google sheets to use this data source";
+export const FILES_NOT_SELECTED_EVENT = () => "Files not selected";
 
 export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE = () =>
   "Error saving a key in localStorage. You have exceeded the allowed storage size limit";
