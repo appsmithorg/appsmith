@@ -84,7 +84,7 @@ describe("Table widget inline editing functionality", () => {
       '[data-rbd-draggable-id="step"] .t--card-checkbox.t--checked',
     ).should("not.exist");
     cy.editColumn("step");
-    cy.get(".t--property-control-editable .bp3-switch.checked").should(
+    cy.get(".t--property-control-editable .ads-v2-switch.checked").should(
       "not.exist",
     );
     cy.get(propPaneBack).click();
@@ -106,7 +106,7 @@ describe("Table widget inline editing functionality", () => {
       '[data-rbd-draggable-id="step"] .t--card-checkbox.t--checked',
     ).should("not.exist");
     cy.editColumn("step");
-    cy.get(".t--property-control-editable .bp3-switch.checked").should(
+    cy.get(".t--property-control-editable .ads-v2-switch.checked").should(
       "not.exist",
     );
   });
@@ -285,7 +285,7 @@ describe("Table widget inline editing functionality", () => {
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
 
     cy.editColumn("step");
-    cy.get(".t--property-control-editable .bp3-switch span").click();
+    cy.get(".t--property-control-editable .ads-v2-switch").click();
     cy.get(propPaneBack).click();
     cy.get("[data-rbd-draggable-id='EditActions1']").should("exist");
     cy.get("[data-rbd-draggable-id='EditActions1'] input[type='text']").should(
@@ -296,7 +296,7 @@ describe("Table widget inline editing functionality", () => {
       "be.disabled",
     );
     cy.editColumn("step");
-    cy.get(".t--property-control-editable .bp3-switch span").click();
+    cy.get(".t--property-control-editable .ads-v2-switch").click();
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
   });
 
@@ -304,29 +304,29 @@ describe("Table widget inline editing functionality", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("step");
     cy.get("[data-rbd-draggable-id='EditActions1']").should("exist");
-    cy.get(".t--property-control-updatemode .bp3-popover-target")
+    cy.get(".t--property-control-updatemode .t--property-control-label")
       .last()
       .click();
-    cy.get(".t--button-group-CUSTOM").click({ force: true });
+    cy.get(".ads-v2-segmented-control-value-CUSTOM").click({ force: true });
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
     cy.makeColumnEditable("task");
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
-    cy.get(".t--property-control-updatemode .bp3-popover-target")
+    cy.get(".t--property-control-updatemode .t--property-control-label")
       .last()
       .click();
-    cy.get(".t--button-group-ROW_LEVEL").click({ force: true });
+    cy.get(".ads-v2-segmented-control-value-ROW_LEVEL").click({ force: true });
     cy.get("[data-rbd-draggable-id='EditActions1']").should("exist");
-    cy.get(".t--property-control-updatemode .bp3-popover-target")
+    cy.get(".t--property-control-updatemode .t--property-control-label")
       .last()
       .click();
-    cy.get(".t--button-group-CUSTOM").click({ force: true });
+    cy.get(".ads-v2-segmented-control-value-CUSTOM").click({ force: true });
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
     cy.makeColumnEditable("step");
     cy.makeColumnEditable("task");
-    cy.get(".t--property-control-updatemode .bp3-popover-target")
+    cy.get(".t--property-control-updatemode .t--property-control-label")
       .last()
       .click();
-    cy.get(".t--button-group-ROW_LEVEL").click({ force: true });
+    cy.get(".ads-v2-segmented-control-value-ROW_LEVEL").click({ force: true });
     cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
   });
 
@@ -649,7 +649,7 @@ describe("Table widget inline editing functionality", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("step");
     cy.editColumn("step");
-    cy.get(".t--property-control-cellwrapping .bp3-control-indicator")
+    cy.get(".t--property-control-cellwrapping .ads-v2-switch")
       .first()
       .click({ force: true });
     cy.editTableCell(0, 0);
@@ -675,7 +675,7 @@ describe("Table widget inline editing functionality", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("step");
     cy.editColumn("step");
-    cy.get(".t--property-control-cellwrapping .bp3-control-indicator")
+    cy.get(".t--property-control-cellwrapping .ads-v2-switch")
       .first()
       .click({ force: true });
     cy.editTableCell(0, 0);
@@ -758,7 +758,7 @@ describe("Table widget inline editing functionality", () => {
     cy.openPropertyPane("tablewidgetv2");
 
     cy.makeColumnEditable("step");
-    cy.get(".t--button-group-CUSTOM").click({ force: true });
+    cy.get(".ads-v2-segmented-control-value-CUSTOM").click({ force: true });
     cy.wait(1000);
 
     // case 1: check if updatedRowIndex is 0, when cell at row 0 is updated.
