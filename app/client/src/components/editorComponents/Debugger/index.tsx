@@ -57,9 +57,12 @@ export function DebuggerTrigger() {
   };
 
   //tooltip will always show error count as we are opening error tab on click of debugger.
-  const tooltipContent = `View details for ${totalMessageCount} ${
-    totalMessageCount > 1 ? "errors" : "error"
-  }`;
+  const tooltipContent =
+    totalMessageCount !== 0
+      ? `View details for ${totalMessageCount} ${
+          totalMessageCount > 1 ? "errors" : "error"
+        }`
+      : `No errors`;
 
   if (hideDebuggerIcon) return null;
 
