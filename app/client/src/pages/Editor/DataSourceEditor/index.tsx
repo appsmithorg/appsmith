@@ -538,7 +538,11 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       isDeleting,
       isInsideReconnectModal,
       isNewDatasource,
+      isPluginAuthorized,
+      isSaving,
       pluginId,
+      pluginImage,
+      pluginType,
       showDebugger,
       triggerSave,
       viewMode,
@@ -565,10 +569,10 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
             datasourceId={datasourceId}
             isDeleting={isDeleting}
             isNewDatasource={isNewDatasource}
-            isPluginAuthorized={false}
-            isSaving={false}
-            pluginImage={""}
-            pluginType={""}
+            isPluginAuthorized={isPluginAuthorized}
+            isSaving={isSaving}
+            pluginImage={pluginImage}
+            pluginType={pluginType}
             setDatasourceViewMode={setDatasourceViewMode}
             viewMode={viewMode}
           />
