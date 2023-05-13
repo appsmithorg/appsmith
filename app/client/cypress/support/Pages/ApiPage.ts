@@ -49,10 +49,11 @@ export class ApiPage {
   private _blankAPI = "span:contains('New Blank API')";
   private _apiVerbDropdown = ".t--apiFormHttpMethod";
   private _verbToSelect = (verb: string) =>
-    "//div[contains(@class, 't--dropdown-option')]//span[contains(text(),'" +
+    "//div[contains(@class, 'rc-select-item-option')]//div[contains(text(),'" +
     verb +
     "')]";
-  private _bodySubTab = (subTab: string) => `[data-testid='tab--${subTab}']`;
+  private _bodySubTab = (subTab: string) =>
+    `//div[@data-testid="t--api-body-tab-switch"]//span[text()='${subTab}']`;
   private _rightPaneTab = (tab: string) => `[data-testid='t--tab-${tab}']`;
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
   _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']";

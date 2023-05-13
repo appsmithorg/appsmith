@@ -128,10 +128,11 @@ describe("JSObjects OnLoad Actions tests", function () {
       //_.agHelper.AssertElementVisible(_.jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is Yes, dependent confirmation should appear aswell!
       _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
       _.agHelper.ClickButton("Yes");
+      _.agHelper.Sleep();
 
       //_.agHelper.AssertElementVisible(_.jsEditor._dialogBody("Quotes"));
-      // _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
-      // _.agHelper.ClickButton("Yes");
+      _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
+      _.agHelper.ClickButton("Yes");
 
       _.agHelper.Sleep(500);
       //_.agHelper.AssertElementVisible(_.jsEditor._dialogBody("Quotes"));
@@ -141,11 +142,11 @@ describe("JSObjects OnLoad Actions tests", function () {
       _.agHelper.Sleep(4000); //to let the api's call be finished & populate the text fields before validation!
       _.agHelper
         .GetText(_.locators._textAreainputWidgetv2InDeployed, "text", 1)
-        .then(($quote) => cy.wrap($quote).should("not.be.empty"));
+        .then(($quote: any) => cy.wrap($quote).should("not.be.empty"));
 
       _.agHelper
         .GetText(_.locators._textAreainputWidgetv2InDeployed)
-        .then(($trump) => cy.wrap($trump).should("not.be.empty"));
+        .then(($trump: any) => cy.wrap($trump).should("not.be.empty"));
     });
 
     //Resize!
