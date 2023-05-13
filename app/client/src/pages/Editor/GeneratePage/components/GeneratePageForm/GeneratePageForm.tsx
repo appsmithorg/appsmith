@@ -744,6 +744,8 @@ function GeneratePageForm() {
                     }
                   : selectedTable
               }
+              // TODO: This needs to be fixed. Removed for cypress tests to pass
+              virtual={false}
             >
               {datasourceTableOptions.map((table) => {
                 return (
@@ -816,6 +818,7 @@ function GeneratePageForm() {
                         }
                       : selectedColumn
                   }
+                  virtual={false}
                 >
                   {selectedTableColumnOptions.map((column) => {
                     return (
