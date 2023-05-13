@@ -75,7 +75,6 @@ interface DataSourceOptionType extends RenderDropdownOptionType {
 }
 function DataSourceOption({
   cypressSelector,
-  extraProps,
   isHighlighted,
   isSelectedNode,
   option: dropdownOption,
@@ -83,7 +82,6 @@ function DataSourceOption({
   optionWidth,
 }: DataSourceOptionType) {
   const { label } = dropdownOption as DropdownOption;
-  const { routeToCreateNewDatasource = () => null } = extraProps;
   const pluginImages = useSelector(getPluginImages);
   const isConnectNewDataSourceBtn =
     CONNECT_NEW_DATASOURCE_OPTION_ID === (dropdownOption as DropdownOption).id;
@@ -116,9 +114,7 @@ function DataSourceOption({
           if (isNotSupportedDatasource) {
             return;
           }
-          if (isConnectNewDataSourceBtn) {
-            routeToCreateNewDatasource(dropdownOption);
-          } else if (optionClickHandler) {
+          if (optionClickHandler) {
             optionClickHandler(dropdownOption as DropdownOption);
           }
         }}
