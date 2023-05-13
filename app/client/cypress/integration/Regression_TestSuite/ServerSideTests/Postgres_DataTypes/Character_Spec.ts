@@ -63,8 +63,7 @@ describe("Character Datatype tests", function () {
     agHelper.RenameWithInPane("updateRecord");
     dataSources.EnterQuery(query);
 
-    query = `DELETE FROM public."chartypes"
-    WHERE serialId = {{Table1.selectedRow.serialid}};`;
+    query = `DELETE FROM public."chartypes" WHERE serialId = {{Table1.selectedRow.serialid}};`;
     ee.ActionTemplateMenuByEntityName("public.chartypes", "DELETE");
     agHelper.RenameWithInPane("deleteRecord");
     dataSources.EnterQuery(query);

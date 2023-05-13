@@ -26,11 +26,11 @@ describe("Table Widget property pane feature validation", function () {
     // Verify the center text alignment
     cy.readTabledataValidateCSS("1", "0", "justify-content", "center");
     // Change the text align to right
-    cy.get(widgetsPage.rightAlign).first().click({ force: true });
+    cy.xpath(widgetsPage.rightAlign).first().click({ force: true });
     // Verify the right text alignment
     cy.readTabledataValidateCSS("1", "0", "justify-content", "flex-end");
     // Change the text align to left
-    cy.get(widgetsPage.leftAlign).first().click({ force: true });
+    cy.xpath(widgetsPage.leftAlign).first().click({ force: true });
     // verify the left text alignment
     cy.readTabledataValidateCSS("1", "0", "justify-content", "flex-start");
   });
@@ -44,13 +44,13 @@ describe("Table Widget property pane feature validation", function () {
       .first()
       .should("have.css", "text-align", "center");
     // Change the text align to right
-    cy.get(widgetsPage.rightAlign).first().click({ force: true });
+    cy.xpath(widgetsPage.rightAlign).first().click({ force: true });
     // Verify the column headings are right aligned
     cy.get(".draggable-header")
       .first()
       .should("have.css", "text-align", "right");
     // Change the text align to left
-    cy.get(widgetsPage.leftAlign).first().click({ force: true });
+    cy.xpath(widgetsPage.leftAlign).first().click({ force: true });
     // Verify the column headings are left aligned
     cy.get(".draggable-header")
       .first()

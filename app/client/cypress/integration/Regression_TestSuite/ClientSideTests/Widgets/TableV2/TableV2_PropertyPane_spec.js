@@ -241,7 +241,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.readTableV2dataValidateCSS("1", "0", "justify-content", "center", true);
 
     // Verifying Right Alignment
-    cy.get(widgetsPage.rightAlign).first().click({ force: true });
+    cy.xpath(widgetsPage.rightAlign).first().click({ force: true });
     cy.readTableV2dataValidateCSS(
       "1",
       "0",
@@ -251,7 +251,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     );
 
     // Verifying Left Alignment
-    cy.get(widgetsPage.leftAlign).first().click({ force: true });
+    cy.xpath(widgetsPage.leftAlign).first().click({ force: true });
     cy.readTableV2dataValidateCSS(
       "0",
       "0",

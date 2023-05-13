@@ -83,7 +83,9 @@ export class EntityExplorer {
     if (section) this.ExpandCollapseEntity(section); //to expand respective section
     cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar))
       .last()
-      .click(ctrlKey ? { ctrlKey } : { multiple: true });
+      .click(
+        ctrlKey ? { ctrlKey, force: true } : { multiple: true, force: true },
+      );
     this.agHelper.Sleep(500);
   }
 
@@ -231,6 +233,7 @@ export class EntityExplorer {
 
   public HoverOnEntityItem(entityNameinLeftSidebar: string) {
     this.agHelper.ClickOutside();
+    //cy.get("body").trigger("mousedown");
     cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar)).realHover();
   }
 

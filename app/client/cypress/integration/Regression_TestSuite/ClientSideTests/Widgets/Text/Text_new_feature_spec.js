@@ -120,9 +120,9 @@ describe("Text Widget color/font/alignment Functionality", function () {
   it("Test to validate text alignment", function () {
     cy.xpath(widgetsPage.textCenterAlign).first().click({ force: true });
     cy.readTextDataValidateCSS("text-align", "center");
-    cy.get(widgetsPage.rightAlign).first().click({ force: true });
+    cy.xpath(widgetsPage.rightAlign).first().click({ force: true });
     cy.readTextDataValidateCSS("text-align", "right");
-    cy.get(widgetsPage.leftAlign).first().click({ force: true });
+    cy.xpath(widgetsPage.leftAlign).first().click({ force: true });
     cy.readTextDataValidateCSS("text-align", "left");
     cy.closePropertyPane();
   });
