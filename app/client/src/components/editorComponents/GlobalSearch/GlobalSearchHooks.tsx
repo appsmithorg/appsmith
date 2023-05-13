@@ -35,6 +35,7 @@ import type { AppState } from "@appsmith/reducers";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { importRemixIcon } from "design-system-old";
 
+// TODO: check where this lint rule is from
 const AddLineIcon = importRemixIcon(
   () => import("remixicon-react/AddLineIcon"),
 );
