@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Option, Select } from "design-system";
+import { Option, Select, Text } from "design-system";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { isNil } from "lodash";
@@ -96,32 +96,57 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       )?.value;
     }
 
-    if (selected) {
-      defaultSelected = selected;
-    }
+    const isWithSubText = options.some(
+      (option) => option.subText !== undefined,
+    );
 
     return (
       <div className="w-full h-full" ref={this.containerRef}>
         <Select
-          filterOption
+          defaultValue={defaultSelected}
           isMultiSelect={this.props.isMultiSelect}
           onDeselect={this.onDeselect}
           onSelect={this.onSelect}
           optionFilterProp="searchText"
+          /**
+           * 1. show labels for label Text Size control
+           * 2. show the flag and currency value for currency inputs
+           */
+          optionLabelProp={isWithSubText ? "label" : "children"}
           placeholder={this.props.placeholderText}
           showSearch={this.props.enableSearch}
-          value={defaultSelected}
+          value={selected}
         >
           {options.map((option, index) => (
             <Option
               key={index}
+              label={option.label}
               searchText={option.searchText}
               value={option.value}
             >
+              {/* Show Flag if present */}
               {option.leftElement && (
                 <FlagWrapper>{option.leftElement}</FlagWrapper>
               )}
-              <span>{option.label}</span>
+
+              {option.subText ? (
+                this.props.hideSubText ? (
+                  // Show subText below the main text eg - DatePicker control
+                  <div className="w-full flex flex-col">
+                    <Text kind="action-m">{option.label}</Text>
+                    <Text kind="action-s">{option.subText}</Text>
+                  </div>
+                ) : (
+                  // Show subText to the right side eg - Label fontsize control
+                  <div className="w-full flex justify-between items-end">
+                    <Text kind="action-m">{option.label}</Text>
+                    <Text kind="action-s">{option.subText}</Text>
+                  </div>
+                )
+              ) : (
+                // Only show the label eg - Auto height control
+                <Text kind="action-m">{option.label}</Text>
+              )}
             </Option>
           ))}
         </Select>
