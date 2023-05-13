@@ -35,7 +35,7 @@ export const ListWrapper = styled.div`
   overflow: auto;
   height: calc(100% - ${LIST_HEADER_HEIGHT});
   ${thinScrollbar};
-  padding-bottom: 25px;
+  padding-bottom: 37px;
 `;
 
 type Props = {

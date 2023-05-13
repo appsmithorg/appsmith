@@ -47,7 +47,6 @@ import {
 } from "components/formControls/utils";
 import {
   ACTION_EDITOR_REFRESH,
-  ACTION_EXECUTION_MESSAGE,
   CREATE_NEW_DATASOURCE,
   createMessage,
   DEBUGGER_ERRORS,
@@ -87,15 +86,12 @@ import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationR
 import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
 import {
   apiReactJsonProps,
-  handleCancelActionExecution,
-  LoadingOverlayContainer,
   NoResponse,
   responseTabComponent,
   ResponseTabErrorContainer,
   ResponseTabErrorContent,
   ResponseTabErrorDefaultMessage,
 } from "components/editorComponents/ApiResponseView";
-import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   hasCreateDatasourcePermission,
@@ -130,6 +126,7 @@ import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import { AIWindow } from "@appsmith/components/editorComponents/GPT";
 import SearchSnippets from "pages/common/SearchSnippets";
+import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -174,6 +171,7 @@ export const TabbedViewContainer = styled.div`
     padding: 9px 11px;
   }
   background-color: var(--ads-v2-color-bg);
+  border-top: 1px solid var(--ads-v2-color-border);
 `;
 
 const SettingsWrapper = styled.div`
@@ -334,7 +332,6 @@ export const SegmentedControlContainer = styled.div`
 const DebuggerWithPadding = styled.div`
   .t--query-bottom-pane-container .ads-v2-tabs__list {
     padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-7);
-    border-top: 1px solid var(--ads-v2-color-border);
   }
 `;
 
@@ -1035,29 +1032,10 @@ export function EditorJSONtoForm(props: Props) {
                         snapToHeight={ActionExecutionResizerHeight}
                       />
                       {isRunning && (
-                        <>
-                          <LoadingOverlayScreen theme={EditorTheme.LIGHT} />
-                          <LoadingOverlayContainer>
-                            <div>
-                              <Text textAlign={"center"} type={TextType.P1}>
-                                {createMessage(
-                                  ACTION_EXECUTION_MESSAGE,
-                                  "query",
-                                )}
-                              </Text>
-                              <Button
-                                className={`t--cancel-action-button`}
-                                kind="secondary"
-                                onClick={() => {
-                                  handleCancelActionExecution();
-                                }}
-                                size="md"
-                              >
-                                Cancel request
-                              </Button>
-                            </div>
-                          </LoadingOverlayContainer>
-                        </>
+                        <ActionExecutionInProgressView
+                          actionType="query"
+                          theme={EditorTheme.LIGHT}
+                        />
                       )}
 
                       {output && !!output.length && (
