@@ -75,7 +75,7 @@ describe("Validate JSObj binding to Table widget", () => {
 
   it("3. Validate the List widget + Bug 12438 ", function () {
     _.entityExplorer.SelectEntityByName("List1", "Widgets");
-    _.propPane.MoveToTab("STYLE");
+    _.propPane.MoveToTab("Style");
     _.propPane.UpdatePropertyFieldValue("Item Spacing (px)", "50");
     cy.get(_.locators._textWidget).should("have.length", 6);
     _.deployMode.DeployApp(_.locators._textWidgetInDeployed);

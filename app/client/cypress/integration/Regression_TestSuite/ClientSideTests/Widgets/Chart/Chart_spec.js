@@ -14,7 +14,7 @@ describe("Chart Widget Functionality", function () {
     cy.openPropertyPane("chartwidget");
   });
 
-  it("Fill the Chart Widget Properties.", function () {
+  it("1. Fill the Chart Widget Properties.", function () {
     //changing the Chart Name
     /**
      * @param{Text} Random Text
@@ -66,7 +66,7 @@ describe("Chart Widget Functionality", function () {
     cy.PublishtheApp();
   });
 
-  it("Pie Chart Widget Functionality", function () {
+  it("2. Pie Chart Widget Functionality", function () {
     //changing the Chart type
     cy.UpdateChartType("Pie chart");
 
@@ -84,7 +84,7 @@ describe("Chart Widget Functionality", function () {
     cy.PublishtheApp();
   });
 
-  it("Line Chart Widget Functionality", function () {
+  it("3. Line Chart Widget Functionality", function () {
     //changing the Chart type
     cy.UpdateChartType("Line chart");
 
@@ -100,7 +100,7 @@ describe("Chart Widget Functionality", function () {
     cy.PublishtheApp();
   });
 
-  it("Bar Chart Widget Functionality", function () {
+  it("4. Bar Chart Widget Functionality", function () {
     //changing the Chart type
     cy.UpdateChartType("Bar chart");
 
@@ -116,7 +116,7 @@ describe("Chart Widget Functionality", function () {
     cy.PublishtheApp();
   });
 
-  it("Area Chart Widget Functionality", function () {
+  it("5. Area Chart Widget Functionality", function () {
     //changing the Chart type
     cy.UpdateChartType("Area chart");
 
@@ -132,7 +132,7 @@ describe("Chart Widget Functionality", function () {
     cy.PublishtheApp();
   });
 
-  it("Column Chart Widget Functionality", function () {
+  it("6. Column Chart Widget Functionality", function () {
     //changing the Chart type
     cy.UpdateChartType("Column chart");
 
@@ -148,7 +148,7 @@ describe("Chart Widget Functionality", function () {
     cy.PublishtheApp();
   });
 
-  it("Toggle JS - Pie Chart Widget Functionality", function () {
+  it("7. Toggle JS - Pie Chart Widget Functionality", function () {
     //changing the Chart type
     cy.get(widgetsPage.toggleChartType).click({ force: true });
     cy.testJsontext("charttype", "PIE_CHART");
@@ -167,7 +167,7 @@ describe("Chart Widget Functionality", function () {
     cy.PublishtheApp();
   });
 
-  it("Toggle JS - Line Chart Widget Functionality", function () {
+  it("8. Toggle JS - Line Chart Widget Functionality", function () {
     //changing the Chart type
     cy.testJsontext("charttype", "LINE_CHART");
 
@@ -183,7 +183,7 @@ describe("Chart Widget Functionality", function () {
     cy.PublishtheApp();
   });
 
-  it("Toggle JS - Bar Chart Widget Functionality", function () {
+  it("9. Toggle JS - Bar Chart Widget Functionality", function () {
     //changing the Chart type
     cy.testJsontext("charttype", "BAR_CHART");
 
@@ -199,7 +199,7 @@ describe("Chart Widget Functionality", function () {
     cy.PublishtheApp();
   });
 
-  it("Toggle JS - Area Chart Widget Functionality", function () {
+  it("10. Toggle JS - Area Chart Widget Functionality", function () {
     //changing the Chart type
     cy.testJsontext("charttype", "AREA_CHART");
 
@@ -215,7 +215,7 @@ describe("Chart Widget Functionality", function () {
     cy.PublishtheApp();
   });
 
-  it("Toggle JS - Column Chart Widget Functionality", function () {
+  it("11. Toggle JS - Column Chart Widget Functionality", function () {
     //changing the Chart type
     cy.testJsontext("charttype", "COLUMN_CHART");
 
@@ -231,7 +231,7 @@ describe("Chart Widget Functionality", function () {
     cy.PublishtheApp();
   });
 
-  it("Chart - Modal", function () {
+  it("12. Chart - Modal", function () {
     //creating the Modal and verify Modal name
     cy.createModal(this.data.ModalName, "onDataPointClick");
     cy.PublishtheApp();
@@ -242,21 +242,21 @@ describe("Chart Widget Functionality", function () {
     );
   });
 
-  it("Chart-Unckeck Visible field Validation", function () {
+  it("13. Chart-Unckeck Visible field Validation", function () {
     // Making the widget invisible
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.chartWidget).should("not.exist");
   });
 
-  it("Chart-Check Visible field Validation", function () {
+  it("14. Chart-Check Visible field Validation", function () {
     // Making the widget visible
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.chartWidget).should("be.visible");
   });
 
-  it("Toggle JS - Chart-Unckeck Visible field Validation", function () {
+  it("15. Toggle JS - Chart-Unckeck Visible field Validation", function () {
     //Uncheck the disabled checkbox using JS and validate
     cy.get(widgetsPage.toggleVisible).click({ force: true });
     cy.testJsontext("visible", "false");
@@ -264,26 +264,26 @@ describe("Chart Widget Functionality", function () {
     cy.get(publish.chartWidget).should("not.exist");
   });
 
-  it("Toggle JS - Chart-Check Visible field Validation", function () {
+  it("16. Toggle JS - Chart-Check Visible field Validation", function () {
     //Check the disabled checkbox using JS and Validate
     cy.testJsontext("visible", "true");
     cy.PublishtheApp();
     cy.get(publish.chartWidget).should("be.visible");
   });
 
-  it("Chart Widget Functionality To Uncheck Horizontal Scroll Visible", function () {
+  it("17. Chart Widget Functionality To Uncheck Horizontal Scroll Visible", function () {
     cy.togglebarDisable(commonlocators.allowScroll);
     cy.PublishtheApp();
     cy.get(publish.horizontalTab).should("not.exist");
   });
 
-  it("Chart Widget Functionality To Check Horizontal Scroll Visible", function () {
+  it("18. Chart Widget Functionality To Check Horizontal Scroll Visible", function () {
     cy.togglebar(commonlocators.allowScroll);
     cy.PublishtheApp();
     cy.get(publish.horizontalTab).eq(1).should("exist");
   });
 
-  it("Check Chart widget reskinning config", function () {
+  it("19. Check Chart widget reskinning config", function () {
     cy.get(widgetsPage.toggleChartType).click({ force: true });
     cy.UpdateChartType("Column chart");
 

@@ -131,7 +131,7 @@ describe("Property Pane Search", function () {
     propPane.ToggleSection("label");
     propPane.ToggleSection("general");
     propPane.ToggleSection("events");
-    propPane.MoveToTab("STYLE");
+    propPane.MoveToTab("Style");
     propPane.ToggleSection("labelstyles");
     propPane.ToggleSection("color");
 

@@ -28,8 +28,8 @@ export class PropertyPane {
   private _goBackToProperty = "button[data-testid='t--property-pane-back-btn']";
   private _copyWidget = "button.t--copy-widget";
   _deleteWidget = "button.t--delete-widget";
-  private _changeThemeBtn = ".t--change-theme-btn";
-  private _styleTabBtn = (tab: string) => "li:contains('" + tab + "')";
+  private _styleTabBtn = (tab: string) =>
+    "button[role='tab'] span:contains('" + tab + "')";
   private _themeCard = (themeName: string) =>
     "//h3[text()='" +
     themeName +
@@ -167,7 +167,7 @@ export class PropertyPane {
     this.agHelper.AssertAutoSave();
   }
 
-  public MoveToTab(tab: "CONTENT" | "STYLE") {
+  public MoveToTab(tab: "Content" | "Style") {
     this.agHelper.GetNClick(this._styleTabBtn(tab));
     this.agHelper.Sleep();
   }

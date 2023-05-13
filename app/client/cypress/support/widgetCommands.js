@@ -153,7 +153,7 @@ Cypress.Commands.add("createModal", (ModalName, property) => {
   //cy.get(".t--modal-widget" +" "+ widgetsPage.textWidget).click();
   cy.testCodeMirror(ModalName);
   cy.moveToStyleTab();
-  cy.get(widgetsPage.textCenterAlign).click({ force: true });
+  cy.xpath(widgetsPage.textCenterAlign).click({ force: true });
   cy.assertPageSave();
   cy.get(".bp3-overlay-backdrop").last().click({ force: true });
 });
@@ -184,7 +184,7 @@ Cypress.Commands.add("createModalWithIndex", (ModalName, index) => {
   //cy.get(".t--modal-widget" +" "+ widgetsPage.textWidget).click();
   cy.testCodeMirror(ModalName);
   cy.moveToStyleTab();
-  cy.get(widgetsPage.textCenterAlign).click({ force: true });
+  cy.xpath(widgetsPage.textCenterAlign).click({ force: true });
   cy.assertPageSave();
   cy.get(".bp3-overlay-backdrop").click({ force: true });
 });

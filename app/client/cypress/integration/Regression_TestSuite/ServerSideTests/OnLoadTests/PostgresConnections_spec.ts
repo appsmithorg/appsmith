@@ -50,16 +50,16 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
     cy.wrap("Postgres_2_ " + guid).as("dsName_2");
     cy.get("@dsName_2").then(($dsName) => {
       dsName_2 = $dsName;
-    });
 
-    //Create 10 queries
-    for (let i = 1; i <= 10; i++) {
-      _.dataSources.NavigateFromActiveDS(dsName_2, true);
-      _.agHelper.GetNClick(_.dataSources._templateMenu);
-      _.agHelper.RenameWithInPane("Query_" + i);
-      const userCreateQuery = `select table_name from information_schema.tables where table_schema='public' and table_type='BASE TABLE';`;
-      _.dataSources.EnterQuery(userCreateQuery);
-    }
+      //Create 10 queries
+      for (let i = 1; i <= 10; i++) {
+        _.dataSources.NavigateFromActiveDS(dsName_2, true);
+        _.agHelper.GetNClick(_.dataSources._templateMenu);
+        _.agHelper.RenameWithInPane("Query_" + i);
+        const userCreateQuery = `select table_name from information_schema.tables where table_schema='public' and table_type='BASE TABLE';`;
+        _.dataSources.EnterQuery(userCreateQuery);
+      }
+    });
   });
 
   it.skip("3. Bind queries to select widget", () => {

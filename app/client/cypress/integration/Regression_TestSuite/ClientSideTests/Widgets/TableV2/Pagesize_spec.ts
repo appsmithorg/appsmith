@@ -10,7 +10,7 @@ describe("Table widget v2", function () {
     _.entityExplorer.DragDropWidgetNVerify(WIDGET.TEXT, 300, 100);
     _.propPane.UpdatePropertyFieldValue("Text", "{{Table1.pageSize}}");
     _.entityExplorer.DragDropWidgetNVerify(WIDGET.TABLE, 500, 300);
-    _.propPane.MoveToTab("STYLE");
+    _.propPane.MoveToTab("Style");
     _.agHelper.GetNClick(_.propPane._rowHeightBtn("SHORT"));
 
     _.agHelper.GetText(getWidgetSelector(WIDGET.TEXT)).then(($text) => {
