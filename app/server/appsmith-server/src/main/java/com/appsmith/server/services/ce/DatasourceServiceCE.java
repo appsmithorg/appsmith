@@ -6,6 +6,9 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.services.CrudService;
+import jakarta.validation.constraints.NotNull;
+import org.reflections.util.QueryFunction;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -33,20 +36,17 @@ public interface DatasourceServiceCE extends CrudService<Datasource, String> {
 
     Set<MustacheBindingToken> extractKeysFromDatasource(Datasource datasource);
 
-    Mono<Datasource> validateDatasource(Datasource datasource);
-
     Mono<Datasource> save(Datasource datasource);
 
-    Flux<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission readDatasources);
+    Flux<DatasourceStorage> getAllStorages(MultiValueMap<String, String> params);
 
-    Flux<Datasource> findAllByWorkspaceId(String workspaceId, Optional<AclPermission> readDatasources);
+    Flux<DatasourceStorage> getStoragesByWorkspaceId(String workspaceId, AclPermission permission);
 
     Flux<Datasource> saveAll(List<Datasource> datasourceList);
 
-    Mono<DatasourceStorage> populateHintMessages(DatasourceStorage datasource);
+    Mono<Datasource> createWithoutPermissions(Datasource datasource);
 
     Mono<Datasource> update(String datasourceId, Datasource datasource, Boolean isUserRefreshedUpdate);
 
-    Mono<Datasource> createWithoutPermissions(Datasource datasource);
-
+    Mono<DatasourceStorage> createDatasourceStorage(String datasourceId, DatasourceStorage datasourceStorage);
 }

@@ -11,4 +11,6 @@ public interface DatasourceStorageTransferSolutionCE {
     Mono<DatasourceStorage> findByDatasourceIdAndEnvironmentIdWithPermission(String datasourceId,
                                                                              String environmentId,
                                                                              AclPermission permission);
+
+    Mono<DatasourceStorage> findByDatasourceAndEnvironmentId(Datasource datasource, String environmentId);
 }

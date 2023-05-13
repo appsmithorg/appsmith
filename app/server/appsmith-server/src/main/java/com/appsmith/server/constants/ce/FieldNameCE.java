@@ -172,5 +172,7 @@ public class FieldNameCE {
     public static final String NUMBER_OF_ASSIGNED_USERS = "numberOfAssignedUsers";
     public static final String NUMBER_OF_UNASSIGNED_USERS = "numberOfUnassignedUsers";
 
+
+    public static final String ENVIRONMENT = "environment";
     public static final String UNUSED_ENVIRONMENT_ID = "unused_env";
 }

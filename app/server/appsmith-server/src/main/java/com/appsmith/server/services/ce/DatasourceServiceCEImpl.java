@@ -4,10 +4,8 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceTestResult;
-import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.QDatasource;
@@ -115,7 +113,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     }
 
     @Override
-    public Mono<Datasource> create(@NotNull Datasource datasource) {
+    public Mono<Datasource> create(Datasource datasource) {
         return createEx(datasource, Optional.of(workspacePermission.getDatasourceCreatePermission()));
     }
 
@@ -125,6 +123,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     }
 
     private Mono<Datasource> createEx(@NotNull Datasource datasource, Optional<AclPermission> permission) {
+        // Validate incoming request
         String workspaceId = datasource.getWorkspaceId();
         if (workspaceId == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
@@ -139,7 +138,13 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
             datasource.setGitSyncId(datasource.getWorkspaceId() + "_" + new ObjectId());
         }
 
+        // Everything we create will have a storage kind of model for storing configs
+        datasource.setDatasourceConfiguration(null);
+        datasource.setHasDatasourceConfigurationStorage(true);
+
         Mono<Datasource> datasourceMono = Mono.just(datasource);
+
+        // Determine valid name for datasource
         if (!StringUtils.hasLength(datasource.getName())) {
             datasourceMono = sequenceService
                     .getNextAsSuffix(Datasource.class, " for workspace with _id : " + workspaceId)
@@ -149,19 +154,16 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                     });
         }
 
-        Mono<Datasource> datasourceWithPoliciesMono = datasourceMono
+        // Figure out policies and save
+        return datasourceMono
                 .flatMap(datasource1 -> {
                     Mono<User> userMono = sessionUserService.getCurrentUser();
                     return generateAndSetDatasourcePolicies(userMono, datasource1, permission);
-                });
-
-        return datasourceWithPoliciesMono
+                })
                 .flatMap(this::validateAndSaveDatasourceToRepository)
                 .flatMap(savedDatasource ->
                         analyticsService.sendCreateEvent(savedDatasource, getAnalyticsProperties(savedDatasource))
-                )
-                .flatMap(this::populateHintMessages)  // For REST API datasource create flow.
-                .flatMap(repository::setUserPermissionsInObject);
+                );
     }
 
     private Mono<Datasource> generateAndSetDatasourcePolicies(Mono<User> userMono, Datasource datasource, Optional<AclPermission> permission) {
@@ -176,44 +178,6 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                         datasource.setPolicies(documentPolicies);
                         return datasource;
                     });
-                });
-    }
-
-    @Override
-    public Mono<DatasourceStorage> populateHintMessages(DatasourceStorage datasourceStorage) {
-
-        if (datasourceStorage == null) {
-            /*
-             * - Not throwing an exception here because we do not throw an error in case of missing datasourceStorage.
-             *   We try not to fail as much as possible during create and update actions.
-             */
-            return Mono.just(new DatasourceStorage());
-        }
-
-        if (datasourceStorage.getPluginId() == null) {
-            /*
-             * - Not throwing an exception here because we try not to fail as much as possible during datasourceStorage create
-             * and update events.
-             */
-            return Mono.just(datasourceStorage);
-        }
-
-        final Mono<Plugin> pluginMono = pluginService.findById(datasourceStorage.getPluginId());
-        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN,
-                        datasourceStorage.getPluginId())));
-
-        /**
-         * Delegate the task of generating hint messages to the concerned plugin, since only the
-         * concerned plugin can correctly interpret their configuration.
-         */
-        return pluginExecutorMono
-                .flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
-                        .getHintMessages(null, datasourceStorage.getDatasourceConfiguration()))
-                .flatMap(tuple -> {
-                    Set<String> datasourceHintMessages = tuple.getT1();
-                    datasourceStorage.getMessages().addAll(datasourceHintMessages);
-                    return Mono.just(datasourceStorage);
                 });
     }
 
@@ -260,7 +224,41 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     }
 
     @Override
-    public Mono<Datasource> validateDatasource(Datasource datasource) {
+    public Mono<DatasourceStorage> createDatasourceStorage(String datasourceId, DatasourceStorage datasourceStorage) {
+        return this.findById(datasourceId, datasourcePermission.getEditPermission())
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
+                .flatMap(datasource -> {
+                    datasourceStorage.setTransientFields(datasource);
+                    return datasourceStorageService.create(datasourceStorage);
+                });
+    }
+
+    @Override
+    public Mono<Datasource> save(Datasource datasource) {
+        if (datasource.getGitSyncId() == null) {
+            datasource.setGitSyncId(datasource.getWorkspaceId() + "_" + Instant.now().toString());
+        }
+        return repository.save(datasource);
+    }
+
+
+    private Mono<Datasource> validateAndSaveDatasourceToRepository(Datasource datasource) {
+
+        return Mono.just(datasource)
+                .flatMap(this::validateDatasource)
+                .flatMap(unsavedDatasource -> {
+                    return repository.save(unsavedDatasource)
+                            .map(savedDatasource -> {
+                                // datasource.pluginName is a transient field. It was set by validateDatasource method
+                                // object from db will have pluginName=null so set it manually from the unsaved datasource obj
+                                savedDatasource.setPluginName(unsavedDatasource.getPluginName());
+                                return savedDatasource;
+                            });
+                })
+                .flatMap(repository::setUserPermissionsInObject);
+    }
+
+    private Mono<Datasource> validateDatasource(Datasource datasource) {
         Set<String> invalids = new HashSet<>();
         datasource.setInvalids(invalids);
 
@@ -284,68 +282,14 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                     invalids.add(AppsmithError.PLUGIN_NOT_INSTALLED.getMessage(datasource.getPluginId()));
                     return Mono.just(new Workspace());
                 }));
-
-        if (datasource.getDatasourceConfiguration() == null) {
-            invalids.add(AppsmithError.NO_CONFIGURATION_FOUND_IN_DATASOURCE.getMessage());
-        }
-
-        final Mono<Plugin> pluginMono = pluginService.findById(datasource.getPluginId()).cache();
+        final Mono<Plugin> pluginMono = pluginService.findById(datasource.getPluginId());
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasource.getPluginId())));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
+                        FieldName.PLUGIN, datasource.getPluginId())));
 
         return checkPluginInstallationAndThenReturnWorkspaceMono
                 .then(pluginExecutorMono)
-                .flatMap(pluginExecutor -> {
-                    DatasourceConfiguration datasourceConfiguration = datasource.getDatasourceConfiguration();
-                    if (datasourceConfiguration != null && !pluginExecutor.isDatasourceValid(datasourceConfiguration)) {
-                        invalids.addAll(pluginExecutor.validateDatasource(datasourceConfiguration));
-                    }
-
-                    return pluginMono.map(plugin -> {
-                        // setting the plugin name to datasource.
-                        // this is required in analytics events for datasource e.g. create ds, update ds
-                        datasource.setPluginName(plugin.getName());
-                        return datasource;
-                    });
-                });
-    }
-
-    @Override
-    public Mono<Datasource> save(Datasource datasource) {
-        if (datasource.getGitSyncId() == null) {
-            datasource.setGitSyncId(datasource.getWorkspaceId() + "_" + Instant.now().toString());
-        }
-        return repository.save(datasource);
-    }
-
-    private Datasource sanitizeDatasource(Datasource datasource) {
-        if (datasource.getDatasourceConfiguration() != null
-                && !CollectionUtils.isEmpty(datasource.getDatasourceConfiguration().getEndpoints())) {
-            for (final Endpoint endpoint : datasource.getDatasourceConfiguration().getEndpoints()) {
-                if (endpoint != null && endpoint.getHost() != null) {
-                    endpoint.setHost(endpoint.getHost().trim());
-                }
-            }
-        }
-
-        return datasource;
-    }
-
-    private Mono<Datasource> validateAndSaveDatasourceToRepository(Datasource datasource) {
-
-        return Mono.just(datasource)
-                .map(this::sanitizeDatasource)
-                .flatMap(this::validateDatasource)
-                .flatMap(unsavedDatasource -> {
-                    return repository.save(unsavedDatasource)
-                            .map(savedDatasource -> {
-                                // datasource.pluginName is a transient field. It was set by validateDatasource method
-                                // object from db will have pluginName=null so set it manually from the unsaved datasource obj
-                                savedDatasource.setPluginName(unsavedDatasource.getPluginName());
-                                return savedDatasource;
-                            });
-                })
-                .flatMap(repository::setUserPermissionsInObject);
+                .map(pluginExecutor -> datasource);
     }
 
     /**
@@ -444,35 +388,34 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     }
 
     @Override
-    public Flux<Datasource> get(MultiValueMap<String, String> params) {
-        /**
-         * Note : Currently this API is ONLY used to fetch datasources for a workspace.
-         */
-        // Remove branch name as datasources are not shared across branches
-        params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
-        if (params.getFirst(fieldName(QDatasource.datasource.workspaceId)) != null) {
-            return findAllByWorkspaceId(params.getFirst(fieldName(QDatasource.datasource.workspaceId)), datasourcePermission.getReadPermission())
-                    .collectList()
-                    .map(datasourceList -> {
-                        markRecentlyUsed(datasourceList, 3);
-                        return datasourceList;
-                    })
-                    .flatMapMany(Flux::fromIterable);
+    public Flux<DatasourceStorage> getAllStorages(MultiValueMap<String, String> params) {
+        String workspaceId = params.getFirst(fieldName(QDatasource.datasource.workspaceId));
+        if (workspaceId != null) {
+            return this.getStoragesByWorkspaceId(workspaceId, datasourcePermission.getReadPermission());
         }
 
         return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
     }
 
     @Override
-    public Flux<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission) {
-        return repository.findAllByWorkspaceId(workspaceId, permission)
-                .flatMap(this::populateHintMessages);
+    public Flux<DatasourceStorage> getStoragesByWorkspaceId(String workspaceId, AclPermission permission) {
+
+        return findAllByWorkspaceId(workspaceId, permission)
+                .collectList()
+                .map(datasourceList -> {
+                    markRecentlyUsed(datasourceList, 3);
+                    return datasourceList;
+                })
+                .flatMapMany(Flux::fromIterable)
+                .flatMap(datasource -> datasourceStorageService
+                        .findByDatasourceAndEnvironmentId(datasource, null)
+                        .flatMap(datasourceStorageService::populateHintMessages));
+
     }
 
-    @Override
-    public Flux<Datasource> findAllByWorkspaceId(String workspaceId, Optional<AclPermission> permission) {
-        return repository.findAllByWorkspaceId(workspaceId, permission)
-                .flatMap(this::populateHintMessages);
+    // TODO: Check usage and switch to datasourcestorage
+    private Flux<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission) {
+        return repository.findAllByWorkspaceId(workspaceId, permission);
     }
 
     @Override
@@ -515,7 +458,13 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
 
     @Override
     public Map<String, Object> getAnalyticsProperties(Datasource datasource) {
-        return DatasourceAnalyticsUtils.getAnalyticsProperties(datasource);
+        Map<String, Object> analyticsProperties = new HashMap<>();
+        analyticsProperties.put("orgId", datasource.getWorkspaceId());
+        analyticsProperties.put("pluginName", datasource.getPluginName());
+        analyticsProperties.put("dsName", datasource.getName());
+        analyticsProperties.put("dsIsTemplate", ObjectUtils.defaultIfNull(datasource.getIsTemplate(), ""));
+        analyticsProperties.put("dsIsMock", ObjectUtils.defaultIfNull(datasource.getIsMock(), ""));
+        return analyticsProperties;
     }
 
 

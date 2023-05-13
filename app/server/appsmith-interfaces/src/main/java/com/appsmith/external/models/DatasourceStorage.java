@@ -78,13 +78,12 @@ public class DatasourceStorage extends BaseDomain {
         this.environmentId = environmentId;
         this.datasourceConfiguration = datasource.getDatasourceConfiguration();
         this.invalids = new HashSet<>();
-        this.invalids.addAll(datasource.getInvalids());
         this.messages.addAll(datasource.getMessages());
 
         this.setTransientFields(datasource);
     }
 
-    private void setTransientFields(Datasource datasource) {
+    public void setTransientFields(Datasource datasource) {
         this.name = datasource.getName();
         this.pluginId = datasource.getPluginId();
         this.pluginName = datasource.getPluginName();
@@ -95,6 +94,8 @@ public class DatasourceStorage extends BaseDomain {
         this.isRecentlyCreated = datasource.getIsRecentlyCreated();
         this.isTemplate = datasource.getIsTemplate();
         this.isMock = datasource.getIsMock();
+
+        this.invalids.addAll(datasource.getInvalids());
     }
 
     @JsonView(Views.Public.class)
