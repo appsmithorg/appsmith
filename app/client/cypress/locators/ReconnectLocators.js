@@ -1,5 +1,5 @@
 export default {
-  Modal: ".reconnect-datasource-modal",
+  Modal: "[data-testid='reconnect-datasource-modal']",
   ClostBtn: ".t--reconnect-close-btn",
   SkipToAppBtn: ".t--skip-to-application-btn",
   ImportSuccessModal: ".t--import-app-success-modal",

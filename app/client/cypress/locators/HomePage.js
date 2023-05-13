@@ -94,7 +94,7 @@ export default {
   workspaceCompleteSection: ".t--workspace-section",
   workspaceNameText: ".t--workspace-name-text",
   optionsIcon: ".t--options-icon",
-  reconnectDatasourceModal: ".reconnect-datasource-modal",
+  reconnectDatasourceModal: "[data-testid='reconnect-datasource-modal']",
   importAppProgressWrapper: ".t-import-app-progress-wrapper",
   backtoHome: ".t--app-viewer-back-to-apps-button",
 };
