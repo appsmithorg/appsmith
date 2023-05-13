@@ -1,5 +1,6 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/filepickerDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("FilePicker Widget Functionality with different file types", function () {
   before(() => {
@@ -7,7 +8,8 @@ describe("FilePicker Widget Functionality with different file types", function (
   });
 
   it("Check file upload of type jpeg", function () {
-    cy.SearchEntityandOpen("FilePicker1");
+    _.entityExplorer.SelectEntityByName("FilePicker1");
+
     const fixturePath = "AAAFlowerVase.jpeg";
     cy.get(commonlocators.filepickerv2).click();
     cy.get(commonlocators.filePickerInput).first().attachFile(fixturePath);

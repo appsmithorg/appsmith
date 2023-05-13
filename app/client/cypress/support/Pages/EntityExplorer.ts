@@ -70,7 +70,13 @@ export class EntityExplorer {
 
   public SelectEntityByName(
     entityNameinLeftSidebar: string,
-    section: "Widgets" | "Queries/JS" | "Datasources" | "Pages" | "" = "",
+    section:
+      | "Widgets"
+      | "Queries/JS"
+      | "Datasources"
+      | "Pages"
+      | ""
+      | string = "",
     ctrlKey = false,
   ) {
     this.NavigateToSwitcher("Explorer");
@@ -171,7 +177,7 @@ export class EntityExplorer {
           //         .wait(500);
           //     }
           //   });
-        } else this.agHelper.Sleep(500);
+        } else this.agHelper.Sleep(200);
       });
   }
 

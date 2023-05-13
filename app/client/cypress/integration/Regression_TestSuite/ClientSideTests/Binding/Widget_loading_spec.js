@@ -4,9 +4,8 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const testdata = require("../../../../fixtures/testdata.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
-const dataSources = ObjectsRegistry.DataSources;
 let datasourceName;
 
 describe("Binding the multiple widgets and validating default data", function () {
@@ -27,15 +26,16 @@ describe("Binding the multiple widgets and validating default data", function ()
   it("2. Create and runs query", () => {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.get(queryLocators.templateMenu).click();
-    dataSources.EnterQuery("select * from users limit 10");
+    _.dataSources.EnterQuery("select * from users limit 10");
 
     cy.EvaluateCurrentValue("select * from users limit 10");
 
-    dataSources.RunQuery();
+    _.dataSources.RunQuery();
   });
 
   it("3. Button widget test with on action query run", function () {
-    cy.SearchEntityandOpen("Button1");
+    _.entityExplorer.SelectEntityByName("Button1");
+
     cy.executeDbQuery("Query1", "onClick");
     cy.wait("@updateLayout").should(
       "have.nested.property",
@@ -45,7 +45,8 @@ describe("Binding the multiple widgets and validating default data", function ()
   });
 
   it("4. Input widget test with default value update with query data", function () {
-    cy.SearchEntityandOpen("Input1");
+    _.entityExplorer.SelectEntityByName("Input1");
+
     cy.get(widgetsPage.defaultInput).type(testdata.defaultInputQuery);
     cy.wait("@updateLayout").should(
       "have.nested.property",

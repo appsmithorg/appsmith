@@ -766,6 +766,7 @@ export function EditorJSONtoForm(props: Props) {
             selectedTabIndex !== -1 && (
               <SegmentedControlContainer>
                 <SegmentedControl
+                  data-testid="t--response-tab-segmented-control"
                   defaultValue={segmentedControlOptions[0]?.value}
                   isFullWidth={false}
                   onChange={(value) => {

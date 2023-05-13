@@ -45,7 +45,12 @@ function EntityBottomTabs(
       <TabsList>
         {props.tabs.map((tab: any) => {
           return (
-            <Tab key={tab.key} notificationCount={tab.count} value={tab.key}>
+            <Tab
+              data-testid={"t--tab-" + tab.key}
+              key={tab.key}
+              notificationCount={tab.count}
+              value={tab.key}
+            >
               {tab.title}
             </Tab>
           );

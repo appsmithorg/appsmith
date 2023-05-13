@@ -47,7 +47,7 @@ describe("Button Group Widget Functionality", function () {
     // check the title
     cy.get(".t--property-pane-title").contains("Favorite");
     // navigate back
-    cy.get(".t--property-pane-back-btn").click();
+    cy.get("[data-testid='t--property-pane-back-btn']").click();
   });
 
   it("Verify buttons alignments", function () {

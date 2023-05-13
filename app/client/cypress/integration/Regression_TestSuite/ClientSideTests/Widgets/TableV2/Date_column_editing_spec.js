@@ -311,7 +311,7 @@ describe("Table widget date column inline editing functionality", () => {
 
   it("11. should check date cells behave as expected when adding a new row to table", () => {
     cy.openPropertyPane("tablewidgetv2");
-    cy.get(".t--property-pane-back-btn").click();
+    cy.get("[data-testid='t--property-pane-back-btn']").click();
     cy.get(
       ".t--property-pane-section-addingarow .t--property-control-allowaddingarow input[type=checkbox]+span",
     ).click();

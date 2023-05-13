@@ -25,6 +25,8 @@ describe("Canvas context Property Pane", function () {
     agHelper.RefreshPage();
   });
 
+  let propPaneBack = "[data-testid='t--property-pane-back-btn']";
+
   it("1. Code Editor should have focus while switching between widgets, pages and Editor Panes", function () {
     let propertyControlSelector = ".t--property-control-label";
     verifyPropertyPaneContext(
@@ -154,7 +156,7 @@ describe("Canvas context Property Pane", function () {
       "Table1",
     );
 
-    cy.get(".t--property-pane-back-btn").click();
+    cy.get(propPaneBack).click();
     cy.get(".t--property-pane-title").should("contain", "Table1");
   });
 
@@ -171,7 +173,7 @@ describe("Canvas context Property Pane", function () {
       "Table1",
     );
 
-    cy.get(".t--property-pane-back-btn").click();
+    cy.get(propPaneBack).click();
     cy.get(".t--property-pane-title").should("contain", "Table1");
 
     //Layered PropertyPane - Property Sections should retain state while switching between widgets, pages and Editor Panes
@@ -194,7 +196,7 @@ describe("Canvas context Property Pane", function () {
       "Table1",
     );
 
-    cy.get(".t--property-pane-back-btn").click();
+    cy.get(propPaneBack).click();
     cy.get(".t--property-pane-title").should("contain", "Table1");
 
     //Layered PropertyPane - Property Tabs and Sections should retain state while switching between widgets, pages and Editor Panes
@@ -216,7 +218,7 @@ describe("Canvas context Property Pane", function () {
       "Table1",
     );
 
-    cy.get(".t--property-pane-back-btn").click();
+    cy.get(propPaneBack).click();
     cy.get(".t--property-pane-title").should("contain", "Table1");
   });
 
@@ -234,11 +236,11 @@ describe("Canvas context Property Pane", function () {
       "Table1",
     );
 
-    cy.get(".t--property-pane-back-btn").click();
+    cy.get(propPaneBack).click();
     cy.get(".t--property-pane-title").should("contain", "status");
 
     cy.wait(500);
-    cy.get(".t--property-pane-back-btn").click();
+    cy.get(propPaneBack).click();
     cy.get(".t--property-pane-title").should("contain", "Table1");
 
     //Multi Layered PropertyPane - Toggle Property controls should have focus while switching between widgets, pages and Editor Panes
@@ -256,11 +258,11 @@ describe("Canvas context Property Pane", function () {
       "Table1",
     );
 
-    cy.get(".t--property-pane-back-btn").click();
+    cy.get(propPaneBack).click();
     cy.get(".t--property-pane-title").should("contain", "status");
 
     cy.wait(500);
-    cy.get(".t--property-pane-back-btn").click();
+    cy.get(propPaneBack).click();
     cy.get(".t--property-pane-title").should("contain", "Table1");
 
     //Multi Layered PropertyPane - Property Sections should retain state while switching between widgets, pages and Editor Panes
@@ -284,11 +286,11 @@ describe("Canvas context Property Pane", function () {
       "Table1",
     );
 
-    cy.get(".t--property-pane-back-btn").click();
+    cy.get(propPaneBack).click();
     cy.get(".t--property-pane-title").should("contain", "status");
 
     cy.wait(500);
-    cy.get(".t--property-pane-back-btn").click();
+    cy.get(propPaneBack).click();
     cy.get(".t--property-pane-title").should("contain", "Table1");
 
     //Multi Layered PropertyPane - Property Tabs and Sections should retain state while switching between widgets, pages and Editor Panes
@@ -312,11 +314,11 @@ describe("Canvas context Property Pane", function () {
       "Table1",
     );
 
-    cy.get(".t--property-pane-back-btn").click();
+    cy.get(propPaneBack).click();
     cy.get(".t--property-pane-title").should("contain", "status");
 
     cy.wait(500);
-    cy.get(".t--property-pane-back-btn").click();
+    cy.get(propPaneBack).click();
     cy.get(".t--property-pane-title").should("contain", "Table1");
   });
 });

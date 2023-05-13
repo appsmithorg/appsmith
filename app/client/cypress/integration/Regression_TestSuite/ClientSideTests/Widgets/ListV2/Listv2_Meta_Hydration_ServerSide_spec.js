@@ -3,10 +3,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
-let agHelper = ObjectsRegistry.AggregateHelper;
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
 const widgetPrefix = ".t--widget-";
@@ -75,14 +72,14 @@ function testJsontextClear(endp) {
 
 describe("List widget v2 - meta hydration tests", () => {
   before(() => {
-    agHelper.AddDsl(dsl);
+    _.agHelper.AddDsl(dsl);
   });
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   it("1. setup serverside data", () => {
@@ -91,7 +88,7 @@ describe("List widget v2 - meta hydration tests", () => {
       "",
     );
     cy.RunAPI();
-    cy.SearchEntityandOpen("List1");
+    _.entityExplorer.SelectEntityByName("List1");
 
     cy.wait(1000);
 

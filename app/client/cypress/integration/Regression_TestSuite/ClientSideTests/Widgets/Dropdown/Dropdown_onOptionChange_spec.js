@@ -14,8 +14,8 @@ describe("Dropdown Widget Functionality", function () {
   });
 
   it("1. Dropdown-Modal Validation", function () {
-    cy.CheckAndUnfoldWidgets();
-    cy.SearchEntityandOpen("Dropdown1");
+    _.entityExplorer.SelectEntityByName("Dropdown1", "Widgets");
+
     cy.EnableAllCodeEditors();
     cy.testJsontext("options", JSON.stringify(data.input));
     //creating the Modal and verify Modal name //to fix below
@@ -50,8 +50,8 @@ describe("Dropdown Widget Functionality", function () {
     // Going to HomePage where the button widget is located and opeing it's property pane.
     cy.get(formWidgetsPage.NavHomePage).click({ force: true });
     cy.reload();
-    cy.CheckAndUnfoldWidgets();
-    cy.SearchEntityandOpen("Dropdown1");
+    _.entityExplorer.SelectEntityByName("Dropdown1", "Widgets");
+
     cy.executeDbQuery("dropdownApi", "onOptionChange");
     // Filling the messages for success/failure in the onOptionChangeAction of the dropdown widget.
     cy.onClickActions("Success", "Error", "Execute a query", "dropdownApi.run");
@@ -123,7 +123,8 @@ describe("Dropdown Widget Functionality", function () {
   it("4. Toggle JS - Dropdown-Call-Query Validation", function () {
     //creating an api and calling it from the onOptionChangeAction of the button widget.
     // calling the existing api
-    cy.SearchEntityandOpen("Dropdown1");
+    _.entityExplorer.SelectEntityByName("Dropdown1");
+
     cy.get(formWidgetsPage.toggleOnOptionChange).click({ force: true });
     cy.EnableAllCodeEditors();
     cy.testJsontext(
@@ -145,7 +146,8 @@ describe("Dropdown Widget Functionality", function () {
   it("5. Toggle JS - Dropdown-CallAnApi Validation", function () {
     //creating an api and calling it from the onOptionChangeAction of the button widget.
     // calling the existing api
-    cy.SearchEntityandOpen("Dropdown1");
+    _.entityExplorer.SelectEntityByName("Dropdown1", "Widgets");
+
     cy.testJsontext(
       "onoptionchange",
       "{{dropdownApi.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",
@@ -166,7 +168,8 @@ describe("Dropdown Widget Functionality", function () {
 
   it("6. Dropdown Widget Functionality to Verify On Option Change Action", function () {
     // Open property pane
-    cy.SearchEntityandOpen("Dropdown1");
+    _.entityExplorer.SelectEntityByName("Dropdown1");
+
     // Clear the JS code
     _.propPane.UpdatePropertyFieldValue("onOptionChange", "");
     cy.get(_.locators._jsToggle("onoptionchange")).click();

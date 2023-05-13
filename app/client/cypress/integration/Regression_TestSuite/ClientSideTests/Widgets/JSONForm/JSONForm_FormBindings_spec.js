@@ -3,7 +3,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 
 const fieldPrefix = ".t--jsonformfield";
 const propertyControlPrefix = ".t--property-control";
-const backBtn = ".t--property-pane-back-btn";
+let backBtn = "[data-testid='t--property-pane-back-btn']";
 
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;

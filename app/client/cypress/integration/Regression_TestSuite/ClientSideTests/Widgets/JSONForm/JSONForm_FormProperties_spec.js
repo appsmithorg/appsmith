@@ -4,7 +4,7 @@ const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSche
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
 
-const backBtn = ".t--property-pane-back-btn";
+const backBtn = "[data-testid='t--property-pane-back-btn']";
 const fieldPrefix = ".t--jsonformfield";
 const propertyControlPrefix = ".t--property-control";
 const submitButtonStylesSection =

@@ -4,9 +4,7 @@ const dsl = require("../../../../fixtures/listwidgetdsl.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 import apiLocators from "../../../../locators/ApiEditor";
 
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-let apiPage = ObjectsRegistry.ApiPage;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to List widget", function () {
   let valueToTest;
@@ -15,7 +13,7 @@ describe("Test Create Api and Bind to List widget", function () {
   });
 
   it("1. Test_Add users api and execute api", function () {
-    apiPage.CreateAndFillApi(this.data.userApi + "/mock-api?records=10");
+    _.apiPage.CreateAndFillApi(this.data.userApi + "/mock-api?records=10");
     cy.RunAPI();
     cy.get(apiLocators.jsonResponseTab).click();
     cy.get(apiLocators.responseBody)
@@ -33,7 +31,8 @@ describe("Test Create Api and Bind to List widget", function () {
   });
 
   it("2. Test_Validate the Api data is updated on List widget", function () {
-    cy.SearchEntityandOpen("List1");
+    _.entityExplorer.SelectEntityByName("List1");
+
     cy.testJsontext("items", "{{Api1.data}}");
     cy.get(".t--draggable-textwidget span").should("have.length", 8);
     cy.get(".t--draggable-textwidget span")
@@ -73,7 +72,7 @@ describe("Test Create Api and Bind to List widget", function () {
         interception.response.body.data.body[0].name,
       ).replace(/['"]+/g, "");
     });
-    cy.SearchEntityandOpen("List1");
+    _.entityExplorer.SelectEntityByName("List1");
     cy.moveToStyleTab();
     cy.testJsontext("itemspacing\\(px\\)", "50");
     cy.get(".t--draggable-textwidget span").should("have.length", 6);

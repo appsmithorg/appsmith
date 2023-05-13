@@ -1,16 +1,15 @@
 const jsonform = require("../../../../../locators/jsonFormWidget.json");
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const jsonText = require("../../../../../fixtures/jsonTextDsl.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-let agHelper = ObjectsRegistry.AggregateHelper;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Verify syntax to create Datpicker field type", () => {
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
   });
 
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   it("1. Validate calendar on clicking date field", () => {
@@ -99,7 +98,7 @@ describe("Verify syntax to create Datpicker field type", () => {
 
   /* This part to be uncommented once the existing bug is fixed
     it("Check binding property value in Text widget", () => {
-        cy.SearchEntityandOpen("Text1");
+        _.entityExplorer.SelectEntityByName("Text1");
         cy.wait(3000);
 
     })

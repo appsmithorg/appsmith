@@ -1,6 +1,7 @@
 const dsl = require("../../../../fixtures/formInputTableV2Dsl.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Binding the multiple input Widget", function () {
   before(() => {
@@ -8,7 +9,7 @@ describe("Binding the multiple input Widget", function () {
   });
 
   it("1. Input widget test with default value from table widget v2", function () {
-    cy.SearchEntityandOpen("Input1");
+    _.entityExplorer.SelectEntityByName("Input1");
     cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
 
     cy.wait(2000);

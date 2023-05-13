@@ -15,6 +15,8 @@ describe("Table widget inline editing functionality", () => {
     cy.addDsl(dsl);
   });
 
+  let propPaneBack = "[data-testid='t--property-pane-back-btn']";
+
   it("1. should check that edit check box is present in the columns list", () => {
     cy.openPropertyPane("tablewidgetv2");
 
@@ -85,7 +87,7 @@ describe("Table widget inline editing functionality", () => {
     cy.get(".t--property-control-editable .bp3-switch.checked").should(
       "not.exist",
     );
-    cy.get(".t--property-pane-back-btn").click();
+    cy.get(propPaneBack).click();
     cy.get(
       '[data-rbd-draggable-id="step"] .t--card-checkbox input+span',
     ).click();
@@ -93,8 +95,10 @@ describe("Table widget inline editing functionality", () => {
       '[data-rbd-draggable-id="step"] .t--card-checkbox.t--checked',
     ).should("exist");
     cy.editColumn("step");
-    cy.get(".t--property-control-editable .bp3-switch.checked").should("exist");
-    cy.get(".t--property-pane-back-btn").click();
+    cy.get(".t--property-control-editable")
+      .find("input")
+      .should("have.attr", "checked");
+    cy.get(propPaneBack).click();
     cy.get(
       '[data-rbd-draggable-id="step"] .t--card-checkbox input+span',
     ).click();
@@ -112,14 +116,14 @@ describe("Table widget inline editing functionality", () => {
     cy.editColumn("step");
     cy.get(".t--property-control-editable .t--js-toggle").click();
     cy.updateCodeInput(".t--property-control-editable", `{{true === true}}`);
-    cy.get(".t--property-pane-back-btn").click();
+    cy.get(propPaneBack).click();
     cy.makeColumnEditable("step");
     cy.editColumn("step");
     cy.get(".t--property-control-editable .CodeMirror .CodeMirror-code").should(
       "contain",
       "{{true === true}}",
     );
-    cy.get(".t--property-pane-back-btn").click();
+    cy.get(propPaneBack).click();
     cy.makeColumnEditable("step");
     cy.editColumn("step");
     cy.get(".t--property-control-editable .CodeMirror .CodeMirror-code").should(
@@ -175,7 +179,7 @@ describe("Table widget inline editing functionality", () => {
         .contains(data.columnType)
         .click();
       cy.wait("@updateLayout");
-      cy.get(".t--property-pane-back-btn").click();
+      cy.get(propPaneBack).click();
       cy.get(`[data-rbd-draggable-id="step"] .t--card-checkbox input`).should(
         data.expected,
       );
@@ -282,7 +286,7 @@ describe("Table widget inline editing functionality", () => {
 
     cy.editColumn("step");
     cy.get(".t--property-control-editable .bp3-switch span").click();
-    cy.get(".t--property-pane-back-btn").click();
+    cy.get(propPaneBack).click();
     cy.get("[data-rbd-draggable-id='EditActions1']").should("exist");
     cy.get("[data-rbd-draggable-id='EditActions1'] input[type='text']").should(
       "contain.value",
@@ -471,7 +475,7 @@ describe("Table widget inline editing functionality", () => {
       cy.get(".t--property-control-onsubmit").should(data.expected);
     });
 
-    cy.get(".t--property-pane-back-btn").click();
+    cy.get(propPaneBack).click();
     cy.makeColumnEditable("step");
     cy.editColumn("step");
 

@@ -1,15 +1,14 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/newFormDsl.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("FilePicker Widget Functionality", function () {
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
     cy.addDsl(dsl);
   });
 
@@ -27,7 +26,8 @@ describe("FilePicker Widget Functionality", function () {
   });
 
   it("2. FilePicker Widget Functionality", function () {
-    cy.SearchEntityandOpen("FilePicker1");
+    _.entityExplorer.SelectEntityByName("FilePicker1");
+
     //eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     //Checking the edit props for FilePicker and also the properties of FilePicker widget
@@ -35,7 +35,8 @@ describe("FilePicker Widget Functionality", function () {
   });
 
   it("3. It checks the loading state of filepicker on call the action", function () {
-    cy.SearchEntityandOpen("FilePicker1");
+    _.entityExplorer.SelectEntityByName("FilePicker1");
+
     const fixturePath = "testFile.mov";
     cy.executeDbQuery("FirstAPI", "onFilesSelected");
     cy.get(commonlocators.filePickerButton).click();

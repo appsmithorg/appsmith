@@ -23,7 +23,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     // close Widget side bar
     _.entityExplorer.NavigateToSwitcher("Explorer");
     cy.wait(2000);
-    cy.SearchEntityandOpen("Table2");
+    _.entityExplorer.SelectEntityByName("Table2");
     // Verify default array data
     cy.get(widgetsPage.tabedataField).should("not.be.empty");
     cy.deleteWidget(widgetsPage.tableWidgetV2);
@@ -350,7 +350,7 @@ describe("Table Widget V2 property pane feature validation", function () {
       "have.text",
       "customColumn00",
     );
-    cy.get(".t--property-pane-back-btn").click();
+    cy.get("[data-testid='t--property-pane-back-btn']").click();
     cy.get('[data-rbd-draggable-id="customColumn1"] input').should(
       "have.value",
       "customColumn00",

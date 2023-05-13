@@ -1,5 +1,6 @@
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const dsl = require("../../../../../fixtures/datePicker2dsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("DatePicker Widget Property pane tests with js bindings", function () {
   before(() => {
@@ -81,11 +82,12 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
   });
 
   it("5. Text widgets binding with datepicker", function () {
-    cy.SearchEntityandOpen("Text1");
+    _.entityExplorer.SelectEntityByName("Text1");
     cy.EnableAllCodeEditors();
     cy.testJsontext("text", "{{DatePicker1.formattedDate}}");
     cy.closePropertyPane();
-    cy.SearchEntityandOpen("Text2");
+    _.entityExplorer.SelectEntityByName("Text2");
+
     cy.EnableAllCodeEditors();
     cy.testJsontext("text", "{{DatePicker1.selectedDate}}");
     cy.closePropertyPane();

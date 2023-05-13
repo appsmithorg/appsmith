@@ -189,7 +189,7 @@ describe("Table Widget V2 Functionality", function () {
       cy.get(".t--dropdown-option").should(data.expected, "step");
     });
 
-    cy.get(".t--property-pane-back-btn").click();
+    cy.get("[data-testid='t--property-pane-back-btn']").click();
     cy.makeColumnEditable("step");
     cy.get(".t--button-group-ROW_LEVEL").click();
     cy.get(".t--table-filter-columns-dropdown").click();

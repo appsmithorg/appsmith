@@ -4,7 +4,7 @@ import applicationLocators from "../../../../locators/Applications.json";
 import signupPageLocators from "../../../../locators/SignupPage.json";
 import loginPageLocators from "../../../../locators/LoginPage.json";
 import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
-import { agHelper } from "../../../../support/Objects/ObjectsCore";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let forkedApplicationDsl;
 let parentApplicationDsl;
@@ -17,7 +17,8 @@ describe("Fork application across workspaces", function () {
 
   it("1. Check if the forked application has the same dsl as the original", function () {
     const appname = localStorage.getItem("AppName");
-    cy.SearchEntityandOpen("Input1");
+    _.entityExplorer.SelectEntityByName("Input1");
+
     cy.intercept("PUT", "/api/v1/layouts/*/pages/*").as("inputUpdate");
     cy.testJsontext("defaultvalue", "A");
     cy.wait("@inputUpdate").then((response) => {
@@ -67,9 +68,9 @@ describe("Fork application across workspaces", function () {
       }
 
       cy.PublishtheApp();
-      agHelper.Sleep(2000);
+      _.agHelper.Sleep(2000);
       cy.get("button:contains('Share')").first().click({ force: true });
-      // agHelper.Sleep(1000);
+      // _.agHelper.Sleep(1000);
       // cy.get("body").then(($ele) => {
       //   if ($ele.find(homePage.enablePublicAccess).length <= 0) {
       //     cy.contains("Retry").click();

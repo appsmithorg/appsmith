@@ -1684,7 +1684,7 @@ Cypress.Commands.add("setQueryTimeout", (timeout) => {
   cy.get(queryLocators.settings).click();
   cy.xpath(queryLocators.queryTimeout).clear().type(timeout);
 
-  cy.get(queryLocators.query).click();
+  cy.get(queryLocators.query).eq(1).click();
 });
 
 //Usage: If in need to type {enter} {esc} etc then .text('sometext').type('{enter}')

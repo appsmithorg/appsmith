@@ -159,7 +159,7 @@ describe("Table widget Add new row feature's", () => {
         cy.wait("@updateLayout");
         cy.get(`[data-colindex=0][data-rowindex=0] button`).should("not.exist");
       });
-      cy.get(".t--property-pane-back-btn").click();
+      cy.get("[data-testid='t--property-pane-back-btn']").click();
     });
     it("1.11. should not hide the header section when add new row button is enabled and another header element is disabled", () => {
       cy.get(".t--discard-new-row").click({ force: true });
@@ -312,7 +312,7 @@ describe("Table widget Add new row feature's", () => {
 
     it("2.3. should test that validation is working for more than one add new row cell at a time", () => {
       propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === 1}}");
-      cy.get(".t--property-pane-back-btn").click();
+      cy.get("[data-testid='t--property-pane-back-btn']").click();
       cy.wait(500);
       cy.makeColumnEditable("task");
       cy.editColumn("task");

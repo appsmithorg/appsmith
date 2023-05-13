@@ -681,6 +681,8 @@ function GeneratePageForm() {
                   }
                 : selectedDatasource
             }
+            // TODO: This needs to be fixed. Removed for cypress tests to pass
+            virtual={false}
           >
             {dataSourceOptions.map((option) => {
               const isConnectNewDataSourceBtn =

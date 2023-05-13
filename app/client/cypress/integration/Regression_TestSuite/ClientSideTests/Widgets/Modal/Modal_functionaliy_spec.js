@@ -2,17 +2,15 @@ const dsl = require("../../../../../fixtures/ModalDsl.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const widgets = require("../../../../../locators/Widgets.json");
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer;
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Modal Widget Functionality", function () {
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
     cy.addDsl(dsl);
   });
 
@@ -23,15 +21,16 @@ describe("Modal Widget Functionality", function () {
   });
 
   it("2. Open Existing Modal from created Widgets list", () => {
-    ee.SelectEntityByName("Modal1", "Widgets");
+    _.entityExplorer.SelectEntityByName("Modal1", "Widgets");
     cy.get(".t--modal-widget").should("exist");
     cy.CreateAPI("FirstAPI");
-    ee.SelectEntityByName("Modal1", "Widgets");
+    _.entityExplorer.SelectEntityByName("Modal1", "Widgets");
     cy.get(".t--modal-widget").should("exist");
   });
 
   it("3. Display toast on close action", () => {
-    cy.SearchEntityandOpen("Modal1");
+    _.entityExplorer.SelectEntityByName("Modal1");
+
     cy.get(".t--property-control-onclose")
       .find(".t--js-toggle")
       .click({ force: true });
@@ -43,8 +42,8 @@ describe("Modal Widget Functionality", function () {
 
   it("4. Should paste modal widgets with main container as parentId", () => {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
+    _.entityExplorer.SelectEntityByName("Modal1");
 
-    cy.SearchEntityandOpen("Modal1");
     cy.wait(200);
     cy.get("body").type(`{${modifierKey}}c`);
     cy.get(commonlocators.toastBody).first().contains("Copied");
@@ -65,7 +64,8 @@ describe("Modal Widget Functionality", function () {
 
   it("5. should select modal when clicked on modal label", () => {
     //open modal
-    cy.SearchEntityandOpen("Modal1");
+    _.entityExplorer.SelectEntityByName("Modal1");
+
     cy.get(".t--modal-widget").should("exist");
 
     //select text widget inside the modal
@@ -113,7 +113,7 @@ describe("Modal Widget Functionality", function () {
     //paste
     cy.get("body").type(`{${modifierKey}}v`);
 
-    ee.ExpandCollapseEntity("Widgets", true);
+    _.entityExplorer.ExpandCollapseEntity("Widgets", true);
 
     //verify that the two modal widget should have pasted on the main canvas
     cy.get('.bp3-collapse-body > [step="0"]')

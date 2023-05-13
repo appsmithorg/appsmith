@@ -2,6 +2,7 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/tableTextPaginationDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Test Create Api and Bind to Table widget", function () {
   before(() => {
@@ -14,17 +15,17 @@ describe("Test Create Api and Bind to Table widget", function () {
     cy.RunAPI();
     //Test: Validate Table with API data and then add a column
     // Open property pane
-    cy.SearchEntityandOpen("Table1");
+    _.entityExplorer.SelectEntityByName("Table1");
     // Clear Table data and enter Apil data into table data
     cy.testJsontext("tabledata", "{{Api1.data}}");
     // Check Widget properties
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
     // Open Text1 in propert pane
-    cy.SearchEntityandOpen("Text1");
+    _.entityExplorer.SelectEntityByName("Text1");
     // Change the Text value to selected row url
     cy.testJsontext("text", "{{Table1.selectedRow.url}}");
     // Open Table1 propert pane
-    cy.SearchEntityandOpen("Table1");
+    _.entityExplorer.SelectEntityByName("Table1");
     // Compare table 1st index data with itself
     cy.readTabledata("0", "0").then((tabData) => {
       const tableData = tabData;
@@ -49,7 +50,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     // Change the cell background color to green
     cy.toggleJsAndUpdate("tabledata", "Green");
     // Go back to table property pane
-    cy.get(".t--property-pane-back-btn").click({ force: true });
+    cy.get("[data-testid='t--property-pane-back-btn']").click({ force: true });
     cy.wait("@updateLayout");
     // verify the cell background color
     cy.readTabledataValidateCSS("1", "4", "background-color", "rgb(0, 128, 0)");
@@ -70,7 +71,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     cy.closePropertyPane();
     //Test: Update table json data and check the column names updated
     // Open table propert pane
-    cy.SearchEntityandOpen("Table1");
+    _.entityExplorer.SelectEntityByName("Table1");
     cy.backFromPropertyPanel();
     // Change the table data
     cy.testJsontext("tabledata", JSON.stringify(this.data.TableInputUpdate));

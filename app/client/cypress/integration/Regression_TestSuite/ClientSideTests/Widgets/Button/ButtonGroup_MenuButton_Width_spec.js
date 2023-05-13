@@ -89,7 +89,7 @@ describe("In a button group widget, menu button width", function () {
   it("If an existing menu button width changes, its popover width should always be the same as the changed target width", () => {
     const minWidth = 12 * 12.3125;
     const widgetId = "t5l24fccio";
-    cy.get(".t--property-pane-back-btn").click();
+    cy.get("[data-testid='t--property-pane-back-btn']").click();
     // Change the first button text
     cy.get(".t--property-control-buttons input").first().type("increase width");
     cy.wait("@updateLayout").should(

@@ -1,5 +1,5 @@
 {
-  "dropdownWrapper": "[data-testid=dropdown-options-wrapper]",
+  "dropdownWrapper": ".rc-select-dropdown",
   "dropdownOption": "[data-testid='t--dropdown-option-*']",
   "removeMultiSelectOptionWithIcon": ".t--remove-option-*",
   "commandDropdown": ".t--actionConfiguration\\.formData\\.command\\.data",
