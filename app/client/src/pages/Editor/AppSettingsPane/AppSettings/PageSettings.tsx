@@ -37,7 +37,7 @@ import { getUsedActionNames } from "selectors/actionSelectors";
 import { isNameValid, resolveAsSpaceChar } from "utils/helpers";
 
 const UrlPreviewWrapper = styled.div`
-  height: 56px;
+  height: 52px;
   color: var(--ads-v2-color-fg);
   border-radius: var(--ads-v2-border-radius);
   background-color: var(--ads-v2-color-bg-subtle);
@@ -247,7 +247,7 @@ function PageSettings(props: { page: Page }) {
       {!appNeedsUpdate && (
         <UrlPreviewWrapper className="mb-2">
           <UrlPreviewScroll
-            className="py-1 pl-2 mr-0.5  text-xs break-all"
+            className="py-1 pl-2 mr-0.5 text-xs break-all"
             onCopy={() => {
               navigator.clipboard.writeText(
                 location.protocol +
@@ -256,6 +256,7 @@ function PageSettings(props: { page: Page }) {
                   pathPreview.relativePath,
               );
             }}
+            style={{ lineHeight: "1.17" }}
           >
             {location.protocol}
             {"//"}
