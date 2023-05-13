@@ -37,7 +37,7 @@ const Wrapper = styled.div`
 `;
 
 const StyledText = styled(Text)`
-  font-weight: 500;
+  font-weight: var(--ads-v2-font-weight-bold);
 `;
 
 type SettingsFormProps = {

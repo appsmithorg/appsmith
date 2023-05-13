@@ -90,6 +90,10 @@ const GroupBody = styled.div`
     width: fit-content;
     min-width: 260px;
   }
+
+  label {
+    user-select: none;
+  }
 `;
 
 const formValuesSelector = getFormValues(SETTINGS_FORM_NAME);
