@@ -800,7 +800,14 @@ export function ApplicationsSection(props: any) {
                         >
                           {hasManageWorkspacePermissions && (
                             <>
-                              <div className="px-3 py-2">
+                              <div
+                                className="px-3 py-2"
+                                onKeyDown={(e) => {
+                                  // This is to prevent the Menu component to take focus away from the input
+                                  // https://github.com/radix-ui/primitives/issues/1175
+                                  e.stopPropagation();
+                                }}
+                              >
                                 <WorkspaceRename
                                   cypressSelector="t--workspace-rename-input"
                                   defaultValue={workspace.name}
