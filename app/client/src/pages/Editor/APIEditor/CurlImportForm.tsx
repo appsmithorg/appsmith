@@ -95,6 +95,9 @@ const MainContainer = styled.div`
   height: 100%;
   flex-direction: column;
   /* padding: var(--ads-v2-spaces-7); */
+  .curl-form-resizer-content {
+    padding: 0px var(--ads-v2-spaces-7);
+  }
 `;
 interface ReduxStateProps {
   actions: ActionDataState;
@@ -140,7 +143,7 @@ class CurlImportForm extends React.Component<Props> {
           </FormRow>
         </MainConfiguration>
         <ResizerMainContainer>
-          <ResizerContentContainer>
+          <ResizerContentContainer className="curl-form-resizer-content">
             <StyledForm onSubmit={handleSubmit(curlImportSubmitHandler)}>
               <label className="inputLabel">Paste CURL Code Here</label>
               <CurlHintText>

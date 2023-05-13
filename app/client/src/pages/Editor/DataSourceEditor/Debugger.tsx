@@ -66,9 +66,6 @@ export const ResizerMainContainer = styled.div`
   flex-direction: column;
   height: calc(100% - 50px);
   overflow: hidden;
-  .db-form-resizer-content {
-    flex-direction: column;
-  }
 `;
 
 export const ResizerContentContainer = styled.div`
@@ -76,7 +73,12 @@ export const ResizerContentContainer = styled.div`
   flex: 1;
   position: relative;
   display: flex;
-  padding: 0px var(--ads-v2-spaces-7);
+  &.db-form-resizer-content,
+  &.saas-form-resizer-content,
+  &.api-datasource-content-container {
+    flex-direction: column;
+    padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-7);
+  }
 `;
 
 export default function Debugger() {

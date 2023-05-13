@@ -145,13 +145,6 @@ const ViewModeWrapper = styled.div`
   border-bottom: 1px solid var(--ads-v2-color-border);
 `;
 
-const Form = styled.form`
-  .saas-form-resizer-content {
-    padding: var(--ads-v2-spaces-7);
-    flex-direction: column;
-  }
-`;
-
 class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -342,7 +335,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
 
     return (
       <>
-        <Form
+        <form
           onSubmit={(e) => {
             e.preventDefault();
           }}
@@ -479,7 +472,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
             </ResizerContentContainer>
             {showDebugger && <Debugger />}
           </ResizerMainContainer>
-        </Form>
+        </form>
         <SaveOrDiscardDatasourceModal
           datasourceId={datasourceId}
           datasourcePermissions={datasource?.userPermissions || []}
