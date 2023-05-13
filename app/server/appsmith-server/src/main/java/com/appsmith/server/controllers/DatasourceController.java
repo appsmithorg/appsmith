@@ -20,6 +20,6 @@ public class DatasourceController extends DatasourceControllerCE {
                                 MockDataService datasourceService,
                                 DatasourceTriggerSolution datasourceTriggerSolution) {
 
-        super(service, datasourceStructureSolution, authenticationService, datasourceService, datasourceTriggerSolution);
+        super(service, datasourceStructureSolution, authenticationService, datasourceService, datasourceTriggerSolution, datasourceStorageService);
     }
 }
