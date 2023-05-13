@@ -675,9 +675,9 @@ describe("Table widget inline editing functionality", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("step");
     cy.editColumn("step");
-    cy.get(".t--property-control-cellwrapping .ads-v2-switch")
-      .first()
-      .click({ force: true });
+    cy.get(".t--property-control-cellwrapping .ads-v2-switch").click({
+      force: true,
+    });
     cy.editTableCell(0, 0);
     cy.get(
       "[data-colindex='0'][data-rowindex='0'] .t--inlined-cell-editor",
