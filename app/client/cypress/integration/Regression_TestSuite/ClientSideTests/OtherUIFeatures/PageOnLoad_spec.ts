@@ -19,7 +19,7 @@ describe("Check debugger logs state when there are onPageLoad actions", function
     cy.get(explorer.addWidget).click();
     cy.reload();
     // Wait for the debugger icon to be visible
-    cy.get(".t--debugger").should("be.visible");
+    cy.get(".t--debugger-count").should("be.visible");
     // debuggerHelper.isErrorCount(0);
     cy.wait("@postExecute");
     debuggerHelper.AssertErrorCount(1);

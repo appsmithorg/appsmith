@@ -8,8 +8,8 @@ describe("Inspect Entity", function () {
     cy.openPropertyPane("inputwidgetv2");
     cy.testJsontext("defaultvalue", "{{Button1.text}}");
 
-    cy.get(".t--debugger").click();
-    cy.contains(".react-tabs__tab", "Inspect entity").click();
+    cy.get(".t--debugger-count").click();
+    cy.contains(".ads-v2-tabs__list-tab", "Inspect entity").click();
     cy.contains(".t--dependencies-item", "Button1").click();
     cy.contains(".t--dependencies-item", "Input1");
   });

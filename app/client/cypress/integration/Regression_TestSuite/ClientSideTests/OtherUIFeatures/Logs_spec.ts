@@ -186,7 +186,7 @@ describe("Debugger logs", function () {
     );
     agHelper.RefreshPage();
     // Wait for the debugger icon to be visible
-    agHelper.AssertElementVisible(".t--debugger");
+    agHelper.AssertElementVisible(".t--debugger-count");
     debuggerHelper.ClickDebuggerIcon();
     agHelper.GetNClick(jsEditor._logsTab);
     debuggerHelper.DoesConsoleLogExist(logString);
