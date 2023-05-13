@@ -230,7 +230,7 @@ export class EntityExplorer {
   }
 
   public HoverOnEntityItem(entityNameinLeftSidebar: string) {
-    cy.get("body").click(0, 0);
+    this.agHelper.ClickOutside();
     cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar)).realHover();
   }
 
@@ -273,7 +273,7 @@ export class EntityExplorer {
   }
 
   public CreateNewDsQuery(dsName: string, isQuery = true) {
-    cy.get("body").click(0, 0); //to close the evaluated pop-up
+    this.agHelper.ClickOutside(); //to close the evaluated pop-up
     cy.get(this.locator._createNew).last().click();
     const searchText = isQuery ? dsName + " query" : dsName;
     this.SearchAndClickOmnibar(searchText);

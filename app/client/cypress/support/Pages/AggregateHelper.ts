@@ -449,6 +449,10 @@ export class AggregateHelper {
     cy.get("body").type(`{del}`, { force: true });
   }
 
+  public ClickOutside() {
+    cy.get("body").click(0, 0);
+  }
+
   public RemoveMultiSelectItems(items: string[]) {
     items.forEach(($each) => {
       cy.xpath(this.locator._multiSelectItem($each))

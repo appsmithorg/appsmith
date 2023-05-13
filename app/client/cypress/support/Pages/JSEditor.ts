@@ -121,7 +121,7 @@ export class JSEditor {
 
   //#region Page functions
   public NavigateToNewJSEditor() {
-    cy.get("body").click(0, 0); //to enable click of below!
+    this.agHelper.ClickOutside(); //to enable click of below!
     cy.get(this.locator._createNew).last().click();
     cy.get(this._newJSobj).eq(0).click({ force: true });
 

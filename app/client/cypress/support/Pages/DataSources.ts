@@ -639,7 +639,7 @@ export class DataSources {
     this.agHelper.AssertContains("datasource updated");
   }
 
-  public OpenActiveTabDSContextMenu(datasourceName: string) {
+  public ClickActiveTabDSContextMenu(datasourceName: string) {
     this.NavigateToActiveTab();
     cy.get(this._datasourceCard)
       .contains(datasourceName)
@@ -654,7 +654,7 @@ export class DataSources {
     datasourceName: string,
     expectedRes = 200,
   ) {
-    this.OpenActiveTabDSContextMenu(datasourceName);
+    this.ClickActiveTabDSContextMenu(datasourceName);
     this.agHelper.GetNClick(
       this.locator._visibleTextSpan("Delete"),
       0,
@@ -672,7 +672,7 @@ export class DataSources {
     datasourceName: string,
     expectedRes = 200,
   ) {
-    this.OpenActiveTabDSContextMenu(datasourceName);
+    this.ClickActiveTabDSContextMenu(datasourceName);
 
     this.agHelper.GetNClick(
       this.locator._visibleTextSpan("Edit"),
@@ -935,7 +935,7 @@ export class DataSources {
     queryName = "",
     sleep = 500,
   ) {
-    cy.get("body").click(0, 0); //to close the evaluated pop-up
+    this.agHelper.ClickOutside(); //to close the evaluated pop-up
     this.ee.CreateNewDsQuery(dsName);
     if (queryName) this.agHelper.RenameWithInPane(queryName);
     if (query) {
