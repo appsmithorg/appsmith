@@ -20,7 +20,7 @@ import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 const PromptMessage = styled.span`
   line-height: 17px;
 
-  > span {
+  > .code-wrapper {
     font-family: var(--ads-v2-font-family-code);
     display: inline-flex;
     align-items: center;
@@ -75,7 +75,7 @@ function InputText(props: InputTextProp) {
         promptMessage={
           <PromptMessage>
             Access the current cell using{" "}
-            <span>
+            <span className="code-wrapper">
               <CurlyBraces>{"{{"}</CurlyBraces>
               currentRow.columnName
               <CurlyBraces>{"}}"}</CurlyBraces>

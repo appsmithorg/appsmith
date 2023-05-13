@@ -27,7 +27,7 @@ import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 const PromptMessage = styled.span`
   line-height: 17px;
 
-  > span {
+  > .code-wrapper {
     font-family: var(--ads-v2-font-family-code);
     display: inline-flex;
     align-items: center;
@@ -145,9 +145,12 @@ export function InputText(props: {
         placeholder={placeholder}
         promptMessage={
           <PromptMessage>
-            Access the current form using <CurlyBraces>{"{{"}</CurlyBraces>
-            sourceData.fieldName
-            <CurlyBraces>{"}}"}</CurlyBraces>
+            Access the current form using{" "}
+            <span className="code-wrapper">
+              <CurlyBraces>{"{{"}</CurlyBraces>
+              sourceData.fieldName
+              <CurlyBraces>{"}}"}</CurlyBraces>
+            </span>
           </PromptMessage>
         }
         size={EditorSize.EXTENDED}

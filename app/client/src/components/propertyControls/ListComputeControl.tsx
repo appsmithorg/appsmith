@@ -21,7 +21,7 @@ import { getBindingTemplate } from "widgets/ListWidgetV2/constants";
 const PromptMessage = styled.span`
   line-height: 17px;
 
-  > span {
+  > .code-wrapper {
     font-family: var(--ads-v2-font-family-code);
     display: inline-flex;
     align-items: center;
@@ -74,7 +74,7 @@ export function InputText(props: {
         promptMessage={
           <PromptMessage>
             Access the current listData using{" "}
-            <span>
+            <span className="code-wrapper">
               <CurlyBraces>{"{{"}</CurlyBraces>
               currentItem.id
               <CurlyBraces>{"}}"}</CurlyBraces>
