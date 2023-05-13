@@ -36,7 +36,7 @@ describe("excludeForAirgap", "Fork a template to the current app", () => {
     cy.wait(4000);
     cy.get(template.templateDialogBox).should("be.visible");
     cy.xpath(
-      "//div[text()='Applicant Tracker-test']/parent::div//button[contains(@class, 't--fork-template')]",
+      "//h1[text()='Applicant Tracker-test']/parent::div//button[contains(@class, 't--fork-template')]",
     )
       .scrollIntoView()
       .wait(500)
@@ -80,7 +80,7 @@ describe("excludeForAirgap", "Fork a template to the current app", () => {
     // );
     cy.wait(5000);
     cy.get(template.templateDialogBox).should("be.visible");
-    cy.xpath("//div[text()='Applicant Tracker-test']").click();
+    cy.xpath("//h1[text()='Applicant Tracker-test']").click();
     _.agHelper.CheckForErrorToast("INTERNAL_SERVER_ERROR");
     cy.wait("@getTemplatePages").should(
       "have.nested.property",

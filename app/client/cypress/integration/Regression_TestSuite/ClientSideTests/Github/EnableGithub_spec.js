@@ -54,7 +54,7 @@ describe("excludeForAirgap", "SSO with Github test functionality", function () {
     // validating sso with github is enabled
     cy.get(adminSettings.loginWithGithub).should(
       "have.text",
-      "continue with Github",
+      "Continue with Github",
     );
   });
 

@@ -34,7 +34,7 @@ describe("Form Login test functionality", function () {
       cy.get("[type='email']").type(uid + "@appsmith.com");
       cy.get("[type='password']").type(uid);
       cy.get("[type='submit']").click({ force: true });
-      cy.get(".form-message-container").should(
+      cy.get(".ads-v2-callout__children").should(
         "contain",
         "Signup is restricted on this instance of Appsmith",
       );
@@ -60,7 +60,7 @@ describe("Form Login test functionality", function () {
       cy.get("[type='email']").type(uid + "@appsmith.com");
       cy.get("[type='password']").type(uid);
       cy.get("[type='submit']").click({ force: true });
-      cy.get(".form-message-container").should("not.exist");
+      cy.get(".ads-v2-callout__children").should("not.exist");
     });
   });
 

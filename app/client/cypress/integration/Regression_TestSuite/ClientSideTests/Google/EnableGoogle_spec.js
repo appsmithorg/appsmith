@@ -59,7 +59,7 @@ describe("excludeForAirgap", "SSO with Google test functionality", function () {
     // validating sso with google is enabled
     cy.get(adminSettings.loginWithGoogle).should(
       "have.text",
-      "continue with Google",
+      "Continue with Google",
     );
   });
 
@@ -74,7 +74,7 @@ describe("excludeForAirgap", "SSO with Google test functionality", function () {
     cy.url().should("contain", "/settings/authentication");
     cy.get(adminSettings.googleButton)
       .should("be.visible")
-      .should("contain", "EDIT");
+      .should("contain", "Edit");
     cy.get(adminSettings.googleButton).click();
     cy.wait(2000);
     cy.get(adminSettings.disconnectBtn)

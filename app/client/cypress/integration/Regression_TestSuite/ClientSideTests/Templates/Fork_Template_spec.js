@@ -10,7 +10,7 @@ describe("excludeForAirgap", "Fork a template to an workspace", () => {
     cy.get(templateLocators.templatesTab).click();
     cy.wait(1000);
     cy.xpath(
-      "//div[text()='Customer Support Dashboard']/parent::div//button[contains(@class, 't--fork-template')]",
+      "//h1[text()='Customer Support Dashboard']/parent::div//button[contains(@class, 't--fork-template')]",
     )
       .scrollIntoView()
       .wait(500)
@@ -63,7 +63,7 @@ describe("excludeForAirgap", "Fork a template to an workspace", () => {
     cy.get(templateLocators.templatesTab).click();
     cy.wait(1000);
     cy.xpath(
-      "//div[text()='Customer Messaging Tool']/parent::div//button[contains(@class, 't--fork-template')]",
+      "//h1[text()='Customer Messaging Tool']/parent::div//button[contains(@class, 't--fork-template')]",
     )
       .scrollIntoView()
       .wait(500)
