@@ -1132,8 +1132,8 @@ export const NOTIFICATIONS_TOOLTIP = () => "Notifications";
 
 // Navigation Menu
 export const DEPLOY_MENU_OPTION = () => "Deploy";
-export const CURRENT_DEPLOY_PREVIEW_OPTION = () => "Current Deployed Version";
-export const CONNECT_TO_GIT_OPTION = () => "Connect to Git Repository";
+export const CURRENT_DEPLOY_PREVIEW_OPTION = () => "Current deployed version";
+export const CONNECT_TO_GIT_OPTION = () => "Connect to Git repository";
 //
 export const GO_TO_PAGE = () => "Go to page";
 export const DEFAULT_PAGE_TOOLTIP = () => "Default page";
@@ -1661,10 +1661,10 @@ export const USE_SNAPSHOT_TEXT = () =>
   "Your app will look and work exactly like it used to before the conversion. Widgets, datasources, queries, JS objects added and any changes you made after conversion will not be present.";
 export const SNAPSHOT_WARNING_MESSAGE = () =>
   "Any changes you made after conversion will not be present.";
-export const CONVERT_TO_FIXED_TITLE = () => "Convert to Fixed-Layout";
-export const CONVERT_TO_FIXED_BUTTON = () => "Convert to fixed-layout (BETA)";
-export const CONVERT_TO_AUTO_TITLE = () => "Convert to Auto-Layout";
-export const CONVERT_TO_AUTO_BUTTON = () => "Convert to auto-layout (BETA)";
+export const CONVERT_TO_FIXED_TITLE = () => "Convert to Fixed layout";
+export const CONVERT_TO_FIXED_BUTTON = () => "Convert to Fixed layout (BETA)";
+export const CONVERT_TO_AUTO_TITLE = () => "Convert to Auto layout";
+export const CONVERT_TO_AUTO_BUTTON = () => "Convert to Auto layout (BETA)";
 export const SNAPSHOT_BANNER_MESSAGE = () =>
   "Confirm this layout is per expectations before you discard the snapshot. Use the snapshot to go back.";
 export const USE_SNAPSHOT_CTA = () => "Use snapshot";
