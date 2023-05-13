@@ -103,6 +103,7 @@ const HeaderWrapper = styled.div`
   flex-direction: row;
   box-shadow: none;
   border-bottom: 1px solid var(--ads-v2-color-border);
+  height: ${(props) => props.theme.smallHeaderHeight};
   & .editable-application-name {
     ${getTypographyByKey("h4")}
     color: ${(props) => props.theme.colors.header.appName};
