@@ -115,7 +115,6 @@ const Form = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
-  /* margin-top: ${({ theme }) => theme.backBanner}; */
   overflow: hidden;
   flex: 1;
 `;
@@ -534,6 +533,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       datasource,
       datasourceButtonConfiguration,
       datasourceId,
+      deleteTempDSFromDraft,
       formData,
       isDeleting,
       isInsideReconnectModal,
@@ -543,6 +543,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       pluginId,
       pluginImage,
       pluginType,
+      setDatasourceViewMode,
       showDebugger,
       triggerSave,
       viewMode,
@@ -585,7 +586,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
               <DatasourceAuth
                 datasource={datasource as Datasource}
                 datasourceButtonConfiguration={datasourceButtonConfiguration}
-                datasourceDeleteTrigger={this.datasourceDeleteTrigger}
+                deleteTempDSFromDraft={deleteTempDSFromDraft}
                 formData={formData}
                 getSanitizedFormData={memoize(this.getSanitizedData)}
                 isFormDirty={this.props.isFormDirty}
@@ -692,7 +693,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     formConfig: formConfigs[pluginId] || [],
     isNewDatasource: datasourcePane.newDatasource === TEMP_DATASOURCE_ID,
     pageId: props.pageId ?? props.match?.params?.pageId,
-    viewMode: viewMode ?? !props.isInsideReconnectModal,
+    viewMode,
     pluginType: plugin?.type ?? "",
     pluginName: plugin?.name ?? "",
     pluginDatasourceForm:
