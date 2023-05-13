@@ -13,7 +13,7 @@ export default {
   gitConfigEmailInput: ".t--git-config-email-input",
   branchSearchInput: ".t--branch-search-input",
   branchListItem: "[data-testid=t--branch-list-item]",
-  closeGitSyncModal: ".t--close-git-sync-modal",
+  closeGitSyncModal: "div[data-testid='t--git-sync-modal'] button[aria-label='Close']",
   closeRevokeModal: ".t--close-disconnect-modal",
   gitSyncModal: ".git-sync-modal",
   bottomBarCommitButton: ".t--bottom-bar-commit",

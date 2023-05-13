@@ -450,7 +450,7 @@ export class AggregateHelper {
   }
 
   public ClickOutside() {
-    cy.get("body").click(0, 0);
+    cy.get("body").click(0, 0, { force: true });
   }
 
   public RemoveMultiSelectItems(items: string[]) {
