@@ -40,7 +40,7 @@ public class EmailTemplateServiceCEImpl implements EmailTemplateServiceCE{
             }else if(roleType.startsWith(FieldNameCE.DEVELOPER)){
                 params.put("role", "a " + FieldNameCE.DEVELOPER.toLowerCase());
             }else if(roleType.startsWith(FieldNameCE.VIEWER)){
-                params.put("role", "a " + FieldNameCE.VIEWER.toLowerCase());
+                params.put("role", "an " + FieldNameCE.VIEWER.toLowerCase());
             }
         }
         if (workspace != null) {
