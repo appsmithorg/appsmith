@@ -90,6 +90,11 @@ const GroupBody = styled.div`
     width: fit-content;
     min-width: 260px;
   }
+
+  label:not(.ads-v2-checkbox):not(.ads-v2-radio) {
+    user-select: none;
+    font-weight: var(--ads-v2-font-weight-bold);
+  }
 `;
 
 const formValuesSelector = getFormValues(SETTINGS_FORM_NAME);
