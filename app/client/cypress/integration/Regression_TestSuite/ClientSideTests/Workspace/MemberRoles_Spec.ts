@@ -58,7 +58,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     // click on selet a role
     _.agHelper.Sleep(2000);
     _.agHelper.GetNClick(HomePage.selectRole);
-    cy.get(".t--dropdown-option")
+    cy.get(".rc-select-item-option")
       .should("have.length", 1)
       .and("contain.text", `App Viewer`);
     _.agHelper.GetNClick(HomePage.closeBtn);
@@ -92,7 +92,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
     _.agHelper.GetNClick(_.homePage._shareWorkspace(workspaceId));
     _.agHelper.Sleep(2000);
     _.agHelper.GetNClick(HomePage.selectRole);
-    cy.get(".t--dropdown-option")
+    cy.get(".rc-select-item-option")
       .should("have.length", 2)
       .and("contain.text", `App Viewer`, `Developer`);
     _.agHelper.GetNClick(HomePage.closeBtn);
@@ -133,10 +133,10 @@ describe("Create new workspace and invite user & validate all roles", () => {
     _.agHelper.GetNClick(_.homePage._shareWorkspace(workspaceId));
     _.agHelper.Sleep(2000);
     _.agHelper.GetNClick(HomePage.selectRole);
-    cy.get(".t--dropdown-option")
+    cy.get(".rc-select-item-option")
       .should("have.length", 3)
       .should("contain.text", `App Viewer`, `Developer`);
-    cy.get(".t--dropdown-option").should("contain.text", `Administrator`);
+    cy.get(".rc-select-item-option").should("contain.text", `Administrator`);
     _.agHelper.GetNClick(HomePage.closeBtn);
     _.agHelper.GetNClick(_.homePage._appHoverIcon("edit"));
 

@@ -32,7 +32,7 @@ export default {
   inviteUser: "//span[text()='Invite Users']",
   inviteUserMembersPage: "[data-testid=t--page-header-input]",
   email: "//input[@type='email']",
-  selectRole: "//span[text()='Select a role']",
+  selectRole: "[data-testid='t--invite-role-input']",
   adminRole: `//div[contains(@class, 'label-container')]//span[1][text()='Administrator']`,
   viewerRole:
     "//div[contains(@class, 'label-container')]//span[1][text()='App Viewer']",
@@ -55,7 +55,7 @@ export default {
   createAppFrWorkspace: ") .t--new-button",
   shareApp: ".t--application-share-btn",
   enablePublicAccess: ".t--share-public-toggle .slider",
-  closeBtn: ".bp3-dialog-close-button",
+  closeBtn: ".ads-v2-modal__content-header-close-button",
   editModeInviteModalCloseBtn: ".t--close-form-dialog",
   applicationName: ".t--application-name",
   applicationEditMenu: ".t--application-edit-menu",

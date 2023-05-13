@@ -69,7 +69,7 @@ export class HomePage {
     "[data-testid=t--workspace-leave-button]";
   private _lastWorkspaceInHomePage =
     "//div[contains(@class, 't--workspace-section')][last()]//span/span";
-  private _leaveWorkspace = "//span[text()='Leave Workspace']";
+  private _leaveWorkspace = "//span[text()='Leave workspace']";
   private _leaveWorkspaceConfirm = "//span[text()='Are you sure?']";
   _editPageLanding = "//h2[text()='Drag and drop a widget here']";
   _usersEmailList = "[data-colindex='0']";
@@ -96,7 +96,7 @@ export class HomePage {
     "']";
   _welcomeTour = ".t--welcome-tour";
   _welcomeTourBuildingButton = ".t--start-building";
-  _reconnectDataSourceModal = "[data-cy=t--tab-RECONNECT_DATASOURCES]";
+  _reconnectDataSourceModal = "[data-testid='reconnect-datasource-modal']";
   _skiptoApplicationBtn = "//span[text()='Skip to Application']/parent::a";
 
   public SwitchToAppsTab() {
@@ -361,7 +361,6 @@ export class HomePage {
     cy.get(this._appContainer)
       .contains(workspaceName)
       .closest(this._workspaceCompleteSection)
-      .find(this._workspaceName)
       .find(this._optionsIcon)
       .click({ force: true });
 

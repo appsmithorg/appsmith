@@ -116,7 +116,7 @@ describe("Form Login test functionality", function () {
       // enable form login
       cy.get(adminSettings.formloginButton)
         .should("be.visible")
-        .should("contain", "ENABLE");
+        .should("contain", "Enable");
       cy.get(adminSettings.formloginButton).click();
       cy.get(adminSettings.formLoginDisabled).click({ force: true });
       cy.wait(2000);
