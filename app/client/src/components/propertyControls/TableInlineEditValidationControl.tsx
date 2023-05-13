@@ -28,7 +28,7 @@ import {
 export const PromptMessage = styled.span`
   line-height: 17px;
 
-  > span {
+  > .code-wrapper {
     font-family: var(--ads-v2-font-family-code);
     display: inline-flex;
     align-items: center;
@@ -164,7 +164,7 @@ class TableInlineEditValidationControl extends BaseControl<TableInlineEditValida
         promptMessage={
           <PromptMessage>
             {createMessage(TABLE_WIDGET_VALIDATION_ASSIST_PROMPT)}
-            <span>
+            <span className="code-wrapper">
               <CurlyBraces>{"{{"}</CurlyBraces>
               <StyledCode>currentRow.columnName</StyledCode>
               <CurlyBraces>{"}}"}</CurlyBraces>
