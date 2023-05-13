@@ -476,9 +476,9 @@ export class HomePage {
     this.agHelper.GetNClick(this._importSuccessModalGotit, 0, true);
   }
 
-  public AssertImportToast() {
+  public AssertImportToast(timeout = 5000) {
     this.agHelper.AssertContains("Application imported successfully");
-    this.agHelper.Sleep(5000); //for imported app to settle!
+    this.agHelper.Sleep(timeout); //for imported app to settle!
     cy.get(this.locator._loading).should("not.exist");
   }
 
