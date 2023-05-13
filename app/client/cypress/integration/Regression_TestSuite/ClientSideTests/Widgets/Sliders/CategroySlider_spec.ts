@@ -24,19 +24,19 @@ describe("Category Slider spec", () => {
     // open the Property Pane
     ee.SelectEntityByName("CategorySlider1", "Widgets");
 
-    propPane.UpdatePropertyFieldValue("Default Value", "mdx");
+    propPane.UpdatePropertyFieldValue("Default value", "mdx");
 
     agHelper.VerifyEvaluatedErrorMessage(
       "Default value is missing in options. Please update the value.",
     );
 
-    propPane.UpdatePropertyFieldValue("Default Value", "");
+    propPane.UpdatePropertyFieldValue("Default value", "");
 
     agHelper.VerifyEvaluatedErrorMessage(
       "Default value is missing in options. Please update the value.",
     );
 
-    propPane.UpdatePropertyFieldValue("Default Value", "md");
+    propPane.UpdatePropertyFieldValue("Default value", "md");
 
     // agHelper.VerifyEvaluatedValue("md");
   });

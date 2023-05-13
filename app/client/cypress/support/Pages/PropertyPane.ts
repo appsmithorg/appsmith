@@ -140,7 +140,7 @@ export class PropertyPane {
       field = $filedName;
       this.agHelper.GetNClick(this._fieldConfig(field as string));
       this.agHelper.Sleep(200);
-      this.RemoveText("Default Value", false);
+      this.RemoveText("Default value", false);
       this.agHelper
         .GetText(this.locator._existingActualValueByName("Property Name"))
         .then(($propName) => {
@@ -148,8 +148,8 @@ export class PropertyPane {
           this.UpdatePropertyFieldValue("Placeholder", placeHolderText, false);
         });
       cy.focused().blur();
-      //this.RemoveText("Default Value", false);
-      //this.UpdatePropertyFieldValue("Default Value", "");
+      //this.RemoveText("Default value", false);
+      //this.UpdatePropertyFieldValue("Default value", "");
       this.NavigateBackToPropertyPane();
     });
   }

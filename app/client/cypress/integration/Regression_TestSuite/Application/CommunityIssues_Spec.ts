@@ -132,10 +132,10 @@ describe("AForce - Community Issues page validations", function () {
     table.WaitUntilTableLoad(0, 0, "v2");
   });
 
-  it.skip("5. Verify Default search text in table as per 'Default Search Text' property set + Bug 12228", () => {
+  it.skip("5. Verify Default search text in table as per 'Default search text' property set + Bug 12228", () => {
     ee.SelectEntityByName("Table1", "Widgets");
-    //propPane.EnterJSContext("Default Search Text", "Bug", false);
-    propPane.TypeTextIntoField("Default Search Text", "Bug");
+    //propPane.EnterJSContext("Default search text", "Bug", false);
+    propPane.TypeTextIntoField("Default search text", "Bug");
     deployMode.DeployApp();
     table.AssertSearchText("Bug");
     table.WaitUntilTableLoad(0, 0, "v2");
@@ -143,8 +143,8 @@ describe("AForce - Community Issues page validations", function () {
     deployMode.NavigateBacktoEditor();
 
     ee.SelectEntityByName("Table1", "Widgets");
-    //propPane.EnterJSContext("Default Search Text", "Question", false);
-    propPane.TypeTextIntoField("Default Search Text", "Question");
+    //propPane.EnterJSContext("Default search text", "Question", false);
+    propPane.TypeTextIntoField("Default search text", "Question");
 
     deployMode.DeployApp();
     table.AssertSearchText("Question");
@@ -153,8 +153,8 @@ describe("AForce - Community Issues page validations", function () {
     table.WaitUntilTableLoad(0, 0, "v2");
 
     ee.SelectEntityByName("Table1", "Widgets");
-    //propPane.EnterJSContext("Default Search Text", "Epic", false);
-    propPane.TypeTextIntoField("Default Search Text", "Epic"); //Bug 12228 - Searching based on hidden column value should not be allowed
+    //propPane.EnterJSContext("Default search text", "Epic", false);
+    propPane.TypeTextIntoField("Default search text", "Epic"); //Bug 12228 - Searching based on hidden column value should not be allowed
     deployMode.DeployApp();
     table.AssertSearchText("Epic");
     table.WaitForTableEmpty("v2");

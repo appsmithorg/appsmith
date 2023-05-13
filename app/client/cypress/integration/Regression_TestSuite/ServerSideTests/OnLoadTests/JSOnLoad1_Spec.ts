@@ -239,7 +239,7 @@ describe("JSObjects OnLoad Actions tests", function () {
 
       _.entityExplorer.SelectEntityByName("Input1", "Widgets");
       _.propPane.UpdatePropertyFieldValue(
-        "Default Value",
+        "Default value",
         "{{" + jsObjName + ".callQuotes.data}}",
       );
       cy.get(_.locators._toastMsg)
@@ -252,7 +252,7 @@ describe("JSObjects OnLoad Actions tests", function () {
 
       _.entityExplorer.SelectEntityByName("Input2");
       _.propPane.UpdatePropertyFieldValue(
-        "Default Value",
+        "Default value",
         "{{" + jsObjName + ".callTrump.data.message}}",
       );
       _.agHelper.WaitUntilToastDisappear(
@@ -274,21 +274,18 @@ describe("JSObjects OnLoad Actions tests", function () {
       // ); //When Confirmation is NO validate error toast!
 
       _.agHelper.ClickButton("No");
-      _.agHelper.AssertContains("was cancelled");
-
+      _.agHelper.AssertContains("was cancelled"); //Quotes
       //One Quotes confirmation - for API true
       // _.agHelper.AssertElementVisible(_.jsEditor._dialogBody("Quotes"));
       // _.agHelper.ClickButton("No");
       // _.agHelper.WaitUntilToastDisappear("Quotes was cancelled");
 
       _.agHelper.ClickButton("No");
-      _.agHelper.AssertContains("was cancelled");
+      _.agHelper.AssertContains("was cancelled"); //callTrump
 
       // //Another for API called via JS callQuotes()
       // _.agHelper.AssertElementVisible(_.jsEditor._dialogBody("Quotes"));
-      // _.agHelper.ClickButton("No");
-
-      _.agHelper.ClickButton("No");
+      //_.agHelper.ClickButton("No");
       //_.agHelper.WaitUntilToastDisappear('The action "Quotes" has failed');No toast appears!
 
       _.agHelper.AssertElementAbsence(
@@ -301,8 +298,8 @@ describe("JSObjects OnLoad Actions tests", function () {
       // );
       _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
       _.agHelper.ClickButton("Yes");
-
       _.agHelper.Sleep();
+
       //_.agHelper.AssertElementVisible(_.jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is Yes, dependent confirmation should appear aswell!
       _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
       _.agHelper.ClickButton("Yes");
@@ -343,8 +340,8 @@ describe("JSObjects OnLoad Actions tests", function () {
     _.agHelper.ClickButton("No"); //Ask Favour abt below
     //_.agHelper.ValidateToastMessage("callQuotes ran successfully"); //Verify this toast comes in EDIT page only
 
-    _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
-    _.agHelper.ClickButton("No");
+    // _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
+    // _.agHelper.ClickButton("No");
     _.agHelper.AssertContains("was cancelled");
     _.entityExplorer.ExpandCollapseEntity("Queries/JS");
     cy.fixture("datasources").then((datasourceFormData) => {

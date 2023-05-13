@@ -71,18 +71,16 @@ export class JSEditor {
     settingTxt +
     "']/parent::div/following-sibling::input[@type='checkbox']";
   _dialog = (dialogHeader: string) =>
-    "//div[contains(@class, 'bp3-dialog')]//h4[contains(text(), '" +
-    dialogHeader +
-    "')]";
+    "//div[@role='dialog']//h3[contains(text(), '" + dialogHeader + "')]";
   private _closeSettings = "span[icon='small-cross']";
   _dialogBody = (jsFuncName: string) =>
-    "//div[@class='bp3-dialog-body']//*[contains(text(), '" +
+    "//div[@role='dialog']//*[contains(text(), '" +
     Cypress.env("MESSAGES").QUERY_CONFIRMATION_MODAL_MESSAGE() +
     "')]//*[contains(text(),'" +
     jsFuncName +
     "')]";
   _dialogInDeployView =
-    "//div[@class='bp3-dialog-body']//*[contains(text(), '" +
+    "//div[@role='dialog']//*[contains(text(), '" +
     Cypress.env("MESSAGES").QUERY_CONFIRMATION_MODAL_MESSAGE() +
     "')]";
   _funcDropdown = ".t--formActionButtons div[role='listbox']";

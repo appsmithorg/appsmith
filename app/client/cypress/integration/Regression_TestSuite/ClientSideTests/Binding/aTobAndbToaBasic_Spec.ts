@@ -21,7 +21,7 @@ describe("Validate basic binding of Input widget to Input widget", () => {
   it("1. Input widget test with default value for atob method", () => {
     ee.SelectEntityByName("Input1", "Widgets");
     propPane.UpdatePropertyFieldValue(
-      "Default Value",
+      "Default value",
       dataSet.atobInput + "}}",
     );
     agHelper.ValidateNetworkStatus("@updateLayout");
@@ -34,7 +34,7 @@ describe("Validate basic binding of Input widget to Input widget", () => {
   it("2. Input widget test with default value for btoa method", function () {
     ee.SelectEntityByName("Input2");
     propPane.UpdatePropertyFieldValue(
-      "Default Value",
+      "Default value",
       dataSet.btoaInput + "}}",
     );
     agHelper.ValidateNetworkStatus("@updateLayout");
