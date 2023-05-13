@@ -582,35 +582,43 @@ export function ApplicationCard(props: ApplicationCardProps) {
         </MenuTrigger>
         <MenuContent>
           {hasEditPermission && (
-            <EditableText
-              className="px-3 pt-2 pb-2 t--application-name"
-              defaultValue={props.application.name}
-              editInteractionKind={EditInteractionKind.SINGLE}
-              fill
-              hideEditIcon={false}
-              isError={isErroredSavingName}
-              isInvalid={(value: string) => {
-                if (!value) {
-                  return "Name cannot be empty";
-                } else {
-                  return false;
+            <div
+              onKeyDown={(e) => {
+                // This is to prevent the Menu component to take focus away from the input
+                // https://github.com/radix-ui/primitives/issues/1175
+                e.stopPropagation();
+              }}
+            >
+              <EditableText
+                className="px-3 pt-2 pb-2 t--application-name"
+                defaultValue={props.application.name}
+                editInteractionKind={EditInteractionKind.SINGLE}
+                fill
+                hideEditIcon={false}
+                isError={isErroredSavingName}
+                isInvalid={(value: string) => {
+                  if (!value) {
+                    return "Name cannot be empty";
+                  } else {
+                    return false;
+                  }
+                }}
+                onBlur={(value: string) => {
+                  props.update &&
+                    props.update(applicationId, {
+                      name: value,
+                    });
+                }}
+                onTextChanged={(value: string) => {
+                  setLastUpdatedValue(value);
+                }}
+                placeholder={"Edit text input"}
+                savingState={
+                  isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
                 }
-              }}
-              onBlur={(value: string) => {
-                props.update &&
-                  props.update(applicationId, {
-                    name: value,
-                  });
-              }}
-              onTextChanged={(value: string) => {
-                setLastUpdatedValue(value);
-              }}
-              placeholder={"Edit text input"}
-              savingState={
-                isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
-              }
-              underline
-            />
+                underline
+              />
+            </div>
           )}
           {hasEditPermission && (
             <>
