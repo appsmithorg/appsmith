@@ -8,22 +8,12 @@ import type { SlashCommandPayload } from "entities/Action";
 import { PluginType, SlashCommand } from "entities/Action";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
-import { Colors } from "constants/Colors";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { addAISlashCommand } from "@appsmith/components/editorComponents/GPT/trigger";
 import type FeatureFlags from "entities/FeatureFlags";
-import { importRemixIcon, importSvg } from "design-system-old";
-
-const AddDatasourceIcon = importRemixIcon(
-  () => import("remixicon-react/AddBoxLineIcon"),
-);
-const MagicIcon = importRemixIcon(
-  () => import("remixicon-react/MagicLineIcon"),
-);
-const Binding = importSvg(() => import("assets/icons/menu/binding.svg"));
-const Snippet = importSvg(() => import("assets/icons/ads/snippet.svg"));
 import type { FieldEntityInformation } from "./EditorConfig";
 import { EditorModes } from "./EditorConfig";
+import { Icon } from "design-system";
 
 enum Shortcuts {
   PLUS = "PLUS",
@@ -95,28 +85,14 @@ const generateCreateNewCommand = ({
 });
 
 const iconsByType = {
-  [Shortcuts.BINDING]: (
-    <EntityIcon>
-      <Binding className="shortcut" />
-    </EntityIcon>
-  ),
+  [Shortcuts.BINDING]: <Icon className="shortcut" name="binding" />,
   [Shortcuts.PLUS]: (
-    <AddDatasourceIcon
-      className="add-datasource-icon"
-      color={Colors.DOVE_GRAY2}
-      size={18}
-    />
+    <Icon className="add-datasource-icon" name="add-box-line" size="md" />
   ),
   [Shortcuts.FUNCTION]: (
-    <EntityIcon>
-      <Snippet className="snippet-icon shortcut" />
-    </EntityIcon>
+    <Icon className="snippet-icon shortcut" name="snippet" />
   ),
-  [Shortcuts.ASK_AI]: (
-    <EntityIcon>
-      <MagicIcon className="magic" />
-    </EntityIcon>
-  ),
+  [Shortcuts.ASK_AI]: <Icon className="magic" name="magic-line" />,
 };
 
 function Command(props: { icon: any; name: string }) {
