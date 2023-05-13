@@ -39,8 +39,9 @@ function EntityBottomTabs(
   return (
     <Tabs
       className="h-full"
-      defaultValue={props.tabs[0].key}
+      defaultValue={props.selectedTabKey}
       onValueChange={onTabSelect}
+      value={props.selectedTabKey}
     >
       <TabsList>
         {props.tabs.map((tab: any) => {
