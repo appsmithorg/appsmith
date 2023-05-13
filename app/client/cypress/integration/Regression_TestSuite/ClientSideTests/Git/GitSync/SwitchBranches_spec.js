@@ -68,9 +68,7 @@ describe("Git sync:", function () {
       .last()
       .should("be.visible")
       .click({ force: true });
-    cy.get(pages.integrationCreateNew)
-      .should("be.visible")
-      .click({ force: true });
+    _.dataSources.NavigateToDSCreateNew();
     cy.CreateAPI("ParentApi1");
     cy.NavigateToJSEditor();
     cy.wait("@createNewJSCollection");
@@ -93,9 +91,9 @@ describe("Git sync:", function () {
       .last()
       .should("be.visible")
       .click({ force: true });
-    cy.get(pages.integrationCreateNew)
-      .should("be.visible")
-      .click({ force: true });
+
+    _.dataSources.NavigateToDSCreateNew();
+
     cy.CreateAPI("ChildApi1");
     cy.NavigateToJSEditor();
     cy.wait("@createNewJSCollection");

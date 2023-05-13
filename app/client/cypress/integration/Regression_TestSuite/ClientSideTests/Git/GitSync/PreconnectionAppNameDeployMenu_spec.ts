@@ -32,7 +32,7 @@ describe("Pre git connection spec:", function () {
     _.agHelper.GetNClick(homePage.connectToGitBtn);
 
     cy.get(gitSyncLocators.gitSyncModal);
-    cy.contains("Git Connection")
+    cy.contains("Git connection")
       .parent()
       .should("have.class", "react-tabs__tab--selected");
 
@@ -40,7 +40,7 @@ describe("Pre git connection spec:", function () {
 
     cy.get(gitSyncLocators.connectGitBottomBar).click();
     cy.get(gitSyncLocators.gitSyncModal);
-    cy.contains("Git Connection")
+    cy.contains("Git connection")
       .parent()
       .should("have.class", "react-tabs__tab--selected");
   });

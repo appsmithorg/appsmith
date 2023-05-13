@@ -1,8 +1,5 @@
 const testdata = require("../../../fixtures/testdata.json");
-import { ObjectsRegistry } from "../../../support/Objects/Registry";
-
-let agHelper = ObjectsRegistry.AggregateHelper,
-  locator = ObjectsRegistry.CommonLocators;
+import * as _ from "../../../support/Objects/ObjectsCore";
 
 describe("Create a rest datasource", function () {
   beforeEach(() => {
@@ -10,13 +7,10 @@ describe("Create a rest datasource", function () {
   });
 
   it("Create a rest datasource + Bug 14566", function () {
-    cy.NavigateToAPI_Panel();
-    cy.CreateAPI();
-    cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
-    cy.assertPageSave();
+    _.apiPage.CreateAndFillApi(testdata.baseUrl + testdata.methods);
     cy.get(".t--store-as-datasource").trigger("click").wait(1000);
-    agHelper.AssertElementAbsence(
-      locator._specificToast("Duplicate key error"),
+    _.agHelper.AssertElementAbsence(
+      _.locators._specificToast("Duplicate key error"),
     ); //verifying there is no error toast, Bug 14566
     cy.testSelfSignedCertificateSettingsInREST(false);
     cy.saveDatasource();

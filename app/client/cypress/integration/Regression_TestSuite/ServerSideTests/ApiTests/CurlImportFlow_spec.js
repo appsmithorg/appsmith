@@ -1,23 +1,21 @@
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const pages = require("../../../../locators/Pages.json");
 const globalSearchLocators = require("../../../../locators/GlobalSearch.json");
 import ApiEditor from "../../../../locators/ApiEditor";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Test curl import flow", function () {
-  it("Test curl import flow Run and Delete", function () {
+  it("1. Test curl import flow Run and Delete", function () {
     cy.fixture("datasources").then((datasourceFormData) => {
       localStorage.setItem("ApiPaneV2", "ApiPaneV2");
       cy.NavigateToApiEditor();
-      cy.get(pages.integrationCreateNew)
-        .should("be.visible")
-        .click({ force: true });
+      _.dataSources.NavigateToDSCreateNew();
       cy.get(ApiEditor.curlImage).click({ force: true });
       cy.get("textarea").type(
         "curl -X GET " + datasourceFormData["mockApiUrl"],
       );
       cy.importCurl();
       cy.get("@curlImport").then((response) => {
-        cy.expect(response.response.body.responseMeta.success).to.eq(true);
+        expect(response.response.body.responseMeta.success).to.eq(true);
         cy.get(apiwidget.ApiName)
           .invoke("text")
           .then((text) => {
@@ -28,17 +26,14 @@ describe("Test curl import flow", function () {
       //cy.WaitAutoSave();
       cy.RunAPI();
       cy.ResponseStatusCheck("200 OK");
-      cy.get(ApiEditor.formActionButtons).should("be.visible");
-      cy.get(ApiEditor.ApiActionMenu).first().click();
-      cy.get(ApiEditor.ApiDeleteBtn).click();
-      cy.get(ApiEditor.ApiDeleteBtn).contains("Are you sure?").click();
-      cy.wait("@deleteAction");
+      _.agHelper.ActionContextMenuWithInPane("Delete");
       cy.get("@deleteAction").then((response) => {
-        cy.expect(response.response.body.responseMeta.success).to.eq(true);
+        expect(response.response.body.responseMeta.success).to.eq(true);
       });
     });
   });
-  it("Bug:15175 Creating new cURL import query from entity explorer crashes the app", function () {
+
+  it("2. Bug:15175 Creating new cURL import query from entity explorer crashes the app", function () {
     cy.fixture("datasources").then((datasourceFormData) => {
       cy.CheckAndUnfoldEntityItem("Pages");
       cy.get(`.t--entity-name:contains("Page1")`)

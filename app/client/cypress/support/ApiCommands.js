@@ -5,9 +5,11 @@ require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 import ApiEditor from "../locators/ApiEditor";
 const pages = require("../locators/Pages.json");
-const commonlocators = require("../locators/commonlocators.json");
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
+import { ObjectsRegistry } from "./Objects/Registry";
+
+let dataSources = ObjectsRegistry.DataSources;
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -47,9 +49,7 @@ Cypress.Commands.add("ResponseTextCheck", (textTocheck) => {
 
 Cypress.Commands.add("NavigateToAPI_Panel", () => {
   cy.get(pages.addEntityAPI).last().should("be.visible").click({ force: true });
-  cy.get(pages.integrationCreateNew)
-    .should("be.visible")
-    .click({ force: true });
+  dataSources.NavigateToDSCreateNew();
   cy.get("#loading").should("not.exist");
 });
 
@@ -206,9 +206,8 @@ Cypress.Commands.add("EnterSourceDetailsWithbody", (baseUrl, v1method) => {
 
 Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
   cy.get(pages.addEntityAPI).click();
-  cy.get(pages.integrationCreateNew)
-    .should("be.visible")
-    .click({ force: true });
+  dataSources.NavigateToDSCreateNew();
+
   cy.get(apiwidget.createapi).click({ force: true });
   cy.wait("@createNewApi");
   // cy.wait("@getUser");
@@ -379,9 +378,7 @@ Cypress.Commands.add("testCreateApiButton", () => {
 
 Cypress.Commands.add("createAndFillApi", (url, parameters) => {
   cy.NavigateToApiEditor();
-  cy.get(pages.integrationCreateNew)
-    .should("be.visible")
-    .click({ force: true });
+  dataSources.NavigateToDSCreateNew();
   cy.testCreateApiButton();
   cy.get("@createNewApi").then((response) => {
     cy.get(ApiEditor.ApiNameField).should("be.visible");

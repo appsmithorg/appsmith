@@ -1,21 +1,16 @@
 const dsl = require("../../../../../fixtures/DividerDsl.json");
-const explorer = require("../../../../../locators/explorerlocators.json");
+import { WIDGET } from "../../../../../locators/WidgetLocators";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Divider Widget Functionality", function () {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Add new Divider", () => {
-    cy.get(explorer.addWidget).click();
-    cy.dragAndDropToCanvas("dividerwidget", { x: 320, y: 200 });
-    cy.get(".t--divider-widget").should("exist");
-  });
-
-  it("Open Existing Divider from created Widgets list", () => {
-    cy.get("#switcher--explorer").click({ force: true });
-    cy.GlobalSearchEntity("Widgets");
-    cy.get(".t--entity-name:contains(Divider1)").click();
-    cy.get(".t--entity-name:contains(Divider2)").click();
+  it("1. Add new Divider", () => {
+    _.entityExplorer.DragDropWidgetNVerify(WIDGET.DIVIDER, 320, 200);
+    //Open Existing Divider from created  list
+    _.entityExplorer.SelectEntityByName("Divider1");
+    _.entityExplorer.SelectEntityByName("Divider2");
   });
 });

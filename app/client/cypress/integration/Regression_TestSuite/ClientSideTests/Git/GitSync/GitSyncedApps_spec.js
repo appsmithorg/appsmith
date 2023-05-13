@@ -136,9 +136,7 @@ describe("Git sync apps", function () {
       cy.ResponseStatusCheck("200");
       cy.get(".bp3-icon-chevron-left").click();
       // curl import
-      cy.get(pages.integrationCreateNew)
-        .should("be.visible")
-        .click({ force: true });
+      _.dataSources.NavigateToDSCreateNew();
       cy.get(ApiEditor.curlImage).click({ force: true });
       cy.get("textarea").type(
         'curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST ' +

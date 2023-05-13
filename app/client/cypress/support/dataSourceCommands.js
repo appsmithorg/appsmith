@@ -59,9 +59,7 @@ Cypress.Commands.add("testSaveDeleteDatasource", () => {
 
 Cypress.Commands.add("NavigateToDatasourceEditor", () => {
   cy.get(explorer.addDBQueryEntity).last().click({ force: true });
-  cy.get(pages.integrationCreateNew)
-    .should("be.visible")
-    .click({ force: true });
+  dataSources.NavigateToDSCreateNew();
 });
 
 Cypress.Commands.add("NavigateToActiveDatasources", () => {
