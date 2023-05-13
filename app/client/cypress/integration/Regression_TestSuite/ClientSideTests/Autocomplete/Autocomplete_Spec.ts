@@ -94,22 +94,30 @@ describe("Autocomplete bug fixes", function () {
     agHelper.GetNAssertElementText(locator._hints, "parse");
   });
 
-  it("7. Installed library should show up in autocomplete", function () {
-    ee.ExpandCollapseEntity("Libraries");
-    installer.openInstaller();
-    installer.installLibrary("uuidjs", "UUID");
-    installer.closeInstaller();
-    ee.SelectEntityByName("Text1");
-    propPane.TypeTextIntoField("Text", "{{UUI");
-    agHelper.GetNAssertElementText(locator._hints, "UUID");
-  });
+  it(
+    "excludeForAirgap",
+    "7. Installed library should show up in autocomplete",
+    function () {
+      ee.ExpandCollapseEntity("Libraries");
+      installer.openInstaller();
+      installer.installLibrary("uuidjs", "UUID");
+      installer.closeInstaller();
+      ee.SelectEntityByName("Text1");
+      propPane.TypeTextIntoField("Text", "{{UUI");
+      agHelper.GetNAssertElementText(locator._hints, "UUID");
+    },
+  );
 
-  it("8. No autocomplete for Removed libraries", function () {
-    ee.RenameEntityFromExplorer("Text1Copy", "UUIDTEXT");
-    installer.uninstallLibrary("uuidjs");
-    propPane.TypeTextIntoField("Text", "{{UUID.");
-    agHelper.AssertElementAbsence(locator._hints);
-  });
+  it(
+    "excludeForAirgap",
+    "8. No autocomplete for Removed libraries",
+    function () {
+      ee.RenameEntityFromExplorer("Text1Copy", "UUIDTEXT");
+      installer.uninstallLibrary("uuidjs");
+      propPane.TypeTextIntoField("Text", "{{UUID.");
+      agHelper.AssertElementAbsence(locator._hints);
+    },
+  );
 
   it("9. Bug #20449 Cursor should be between parenthesis when function is autocompleted (Property Pane)", function () {
     ee.SelectEntityByName("Text1");

@@ -237,17 +237,7 @@ describe("Boolean & Enum Datatype tests", function () {
       //Delete queries
       _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
       _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-      _.entityExplorer
-        .GetEntityNamesInSection("Queries/JS", ".t--action-entity")
-        .then((entityNames) => {
-          for (const entityName of entityNames) {
-            _.entityExplorer.ActionContextMenuByEntityName(
-              entityName,
-              "Delete",
-              "Are you sure?",
-            );
-          }
-        });
+      _.entityExplorer.DeleteAllQueriesForDB(dsName);
 
       //Delete ds
       _.deployMode.DeployApp();
