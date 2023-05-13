@@ -20,9 +20,6 @@ const HeaderWrapper = styled.div`
     margin-left: 8px;
     cursor: pointer;
   }
-  .title-text {
-    font-weight: 500;
-  }
 `;
 
 function CopyUrlForm(props: {

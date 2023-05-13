@@ -91,9 +91,8 @@ const GroupBody = styled.div`
     min-width: 260px;
   }
 
-  label:not(.ads-v2-checkbox):not(.ads-v2-radio) {
+  label {
     user-select: none;
-    font-weight: var(--ads-v2-font-weight-bold);
   }
 `;
 
