@@ -27,6 +27,7 @@ import {
   Text,
 } from "design-system";
 import { getReadableSnapShotDetails } from "../../../utils/autoLayout/AutoLayoutUtils";
+import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
 
 export function SnapShotBannerCTA() {
   const [showModal, setShowModal] = useState(false);
@@ -38,7 +39,8 @@ export function SnapShotBannerCTA() {
   const isConversionCompleted =
     conversionState === CONVERSION_STATES.COMPLETED_SUCCESS;
 
-  const readableSnapShotDetails = useSelector(getReadableSnapShotDetails);
+  const lastUpdatedTime = useSelector(getSnapshotUpdatedTime);
+  const readableSnapShotDetails = getReadableSnapShotDetails(lastUpdatedTime);
 
   const formProps = useSnapShotForm();
 
