@@ -253,7 +253,9 @@ function JSResponseView(props: Props) {
                   <NoResponse
                     isButtonDisabled={disabled}
                     isQueryRunning={isLoading}
-                    onRunClick={() => onButtonClick}
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
+                    onRunClick={onButtonClick}
                   />
                 )}
                 {responseStatus === JSResponseState.IsExecuting && (
