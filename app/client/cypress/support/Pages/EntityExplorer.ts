@@ -231,6 +231,7 @@ export class EntityExplorer {
 
   public HoverOnEntityItem(entityNameinLeftSidebar: string) {
     this.agHelper.ClickOutside();
+    //cy.get("body").trigger("mousedown");
     cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar)).realHover();
   }
 
