@@ -361,7 +361,7 @@ function NavigationSettings() {
               {
                 value: NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT,
                 label: (
-                  <div className="inline-flex items-center">
+                  <div className="flex items-center">
                     <ColorStyleIcon
                       colorStyle={NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT}
                     />
@@ -374,7 +374,7 @@ function NavigationSettings() {
               {
                 value: NAVIGATION_SETTINGS.COLOR_STYLE.THEME,
                 label: (
-                  <div className="inline-flex items-center">
+                  <div className="flex items-center">
                     <ColorStyleIcon
                       colorStyle={NAVIGATION_SETTINGS.COLOR_STYLE.THEME}
                     />
