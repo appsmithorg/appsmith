@@ -1,6 +1,5 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { WIDGET } from "../../../../locators/WidgetLocators";
-import { locators } from "../../../../support/Objects/ObjectsCore";
 
 let repoName: any;
 describe("Git Bugs", function () {

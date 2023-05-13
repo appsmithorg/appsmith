@@ -10,7 +10,8 @@ export class GitSync {
 
   private _connectGitBottomBar = ".t--connect-git-bottom-bar";
   private _gitSyncModal = ".git-sync-modal";
-  private _closeGitSyncModal = ".t--close-git-sync-modal";
+  private _closeGitSyncModal =
+    "//h3[text()='Connect to Git repository']/following-sibling::button[@aria-label='Close']";
   private _gitRepoInput = ".t--git-repo-input";
   private _useDefaultConfig =
     "//span[text()='Use default configuration']/parent::div";
