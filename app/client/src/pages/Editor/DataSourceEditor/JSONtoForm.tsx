@@ -41,6 +41,8 @@ export const FormContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
+  overflow: hidden;
+  flex: 1;
 `;
 
 export const FormContainerBody = styled.div`
