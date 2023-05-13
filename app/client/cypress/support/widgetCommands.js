@@ -1589,11 +1589,14 @@ Cypress.Commands.add("sortColumn", (columnName, direction) => {
   cy.wait(500);
 });
 
-Cypress.Commands.add("checkIfColumnIsFrozenViaCSS", (rowNum, coumnNum) => {
-  cy.getTableV2DataSelector(rowNum, coumnNum).then((selector) => {
-    cy.get(selector).should("have.css", "position", "sticky");
-  });
-});
+Cypress.Commands.add(
+  "checkIfColumnIsFrozenViaCSS",
+  (rowNum, coumnNum, position = "sticky") => {
+    cy.getTableV2DataSelector(rowNum, coumnNum).then((selector) => {
+      cy.get(selector).should("have.css", "position", position);
+    });
+  },
+);
 
 Cypress.Commands.add(
   "checkColumnPosition",

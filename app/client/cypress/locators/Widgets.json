@@ -114,7 +114,7 @@
   "toggleTextStyle": ".t--property-control-emphasis .t--js-toggle",
   "toggleTextStyle_tablev1": ".t--property-control-fontstyle .t--js-toggle",
   "textSize": ".t--property-control-textsize .bp3-popover-target",
-  "textSizeNew": ".t--property-control-fontsize .bp3-popover-target",
+  "textSizeNew": ".t--property-control-fontsize div",
   "toggleTextSize": ".t--property-control-textsize .t--js-toggle",
   "toggleTextSizeNew": ".t--property-control-fontsize .t--js-toggle",
   "toggleVerticalAlig": ".t--property-control-verticalalignment .t--js-toggle",

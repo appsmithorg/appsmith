@@ -18,7 +18,7 @@ describe("UI to Code", () => {
   });
 
   it("1. adds an action", () => {
-    propPane.SelectPlatformFunction("onClick", "Show Alert");
+    propPane.SelectPlatformFunction("onClick", "Show alert");
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Message"),
       "Hello!",
@@ -29,7 +29,7 @@ describe("UI to Code", () => {
 
   it("2. adds multiple actions", () => {
     // Add first action
-    propPane.SelectPlatformFunction("onClick", "Show Alert");
+    propPane.SelectPlatformFunction("onClick", "Show alert");
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Message"),
       "Hello!",
@@ -39,7 +39,7 @@ describe("UI to Code", () => {
     // Add second action
     propPane.SelectPlatformFunction("onClick", "Navigate to");
     propPane.SelectActionByTitleAndValue("Navigate to", "Select page");
-    agHelper.GetNClick(locators._openNavigationTab("url"));
+    agHelper.GetNClick(_.propPane._navigateToType("URL"));
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Enter URL"),
       "https://google.com",
@@ -81,7 +81,7 @@ describe("UI to Code", () => {
     agHelper.GetNClick(propPane._actionSelectorDelete);
 
     // Assert that cards 1, 2 and 4 are present
-    agHelper.AssertElementExist(propPane._actionCardByTitle("Show Alert"));
+    agHelper.AssertElementExist(propPane._actionCardByTitle("Show alert"));
     agHelper.AssertElementExist(propPane._actionCardByTitle("Navigate to"));
     agHelper.AssertElementExist(
       propPane._actionCardByTitle("Copy to clipboard"),
@@ -94,7 +94,7 @@ describe("UI to Code", () => {
     );
 
     // Delete the first action
-    agHelper.GetNClick(propPane._actionCardByTitle("Show Alert"));
+    agHelper.GetNClick(propPane._actionCardByTitle("Show alert"));
     agHelper.GetNClick(propPane._actionSelectorDelete);
 
     // Assert that cards 2 and 4 are present
@@ -112,7 +112,7 @@ describe("UI to Code", () => {
 
   it("3. works with undo using cmd+z", () => {
     // Add first action
-    propPane.SelectPlatformFunction("onClick", "Show Alert");
+    propPane.SelectPlatformFunction("onClick", "Show alert");
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Message"),
       "Hello!",
@@ -122,7 +122,7 @@ describe("UI to Code", () => {
     // Add second action
     propPane.SelectPlatformFunction("onClick", "Navigate to");
     propPane.SelectActionByTitleAndValue("Navigate to", "Select page");
-    agHelper.GetNClick(locators._openNavigationTab("url"));
+    agHelper.GetNClick(_.propPane._navigateToType("URL"));
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Enter URL"),
       "https://google.com",
@@ -166,11 +166,11 @@ describe("UI to Code", () => {
     agHelper.GetNClick(propPane._actionSelectorDelete);
 
     // Delete the first action
-    agHelper.GetNClick(propPane._actionCardByTitle("Show Alert"));
+    agHelper.GetNClick(propPane._actionCardByTitle("Show alert"));
     agHelper.GetNClick(propPane._actionSelectorDelete);
 
     // Assert that first and third action are not present
-    agHelper.AssertElementAbsence(propPane._actionCardByTitle("Show Alert"));
+    agHelper.AssertElementAbsence(propPane._actionCardByTitle("Show alert"));
     agHelper.AssertElementAbsence(propPane._actionCardByTitle("Store value"));
 
     // Undo the last two actions
@@ -179,7 +179,7 @@ describe("UI to Code", () => {
     cy.get("body").type(agHelper.isMac ? "{meta}Z" : "{ctrl}Z");
 
     // Assert that all the cards are present
-    agHelper.AssertElementExist(propPane._actionCardByTitle("Show Alert"));
+    agHelper.AssertElementExist(propPane._actionCardByTitle("Show alert"));
     agHelper.AssertElementExist(propPane._actionCardByTitle("Navigate to"));
     agHelper.AssertElementExist(propPane._actionCardByTitle("Store value"));
     agHelper.AssertElementExist(
@@ -196,7 +196,7 @@ describe("UI to Code", () => {
 
   it("4. works with redo using cmd+y", () => {
     // Add first action
-    propPane.SelectPlatformFunction("onClick", "Show Alert");
+    propPane.SelectPlatformFunction("onClick", "Show alert");
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Message"),
       "Hello!",
@@ -206,7 +206,7 @@ describe("UI to Code", () => {
     // Add second action
     propPane.SelectPlatformFunction("onClick", "Navigate to");
     propPane.SelectActionByTitleAndValue("Navigate to", "Select page");
-    agHelper.GetNClick(locators._openNavigationTab("url"));
+    agHelper.GetNClick(_.propPane._navigateToType("URL"));
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Enter URL"),
       "https://google.com",
@@ -250,11 +250,11 @@ describe("UI to Code", () => {
     agHelper.GetNClick(propPane._actionSelectorDelete);
 
     // Delete the first action
-    agHelper.GetNClick(propPane._actionCardByTitle("Show Alert"));
+    agHelper.GetNClick(propPane._actionCardByTitle("Show alert"));
     agHelper.GetNClick(propPane._actionSelectorDelete);
 
     // Assert that first and third action are not present
-    agHelper.AssertElementAbsence(propPane._actionCardByTitle("Show Alert"));
+    agHelper.AssertElementAbsence(propPane._actionCardByTitle("Show alert"));
     agHelper.AssertElementAbsence(propPane._actionCardByTitle("Store value"));
 
     // Undo the last two actions
@@ -263,7 +263,7 @@ describe("UI to Code", () => {
     cy.get("body").type(agHelper.isMac ? "{meta}Z" : "{ctrl}Z");
 
     // Assert that all the cards are present
-    agHelper.AssertElementExist(propPane._actionCardByTitle("Show Alert"));
+    agHelper.AssertElementExist(propPane._actionCardByTitle("Show alert"));
     agHelper.AssertElementExist(propPane._actionCardByTitle("Navigate to"));
     agHelper.AssertElementExist(propPane._actionCardByTitle("Store value"));
     agHelper.AssertElementExist(
@@ -284,14 +284,14 @@ describe("UI to Code", () => {
   });
 
   it("5. can add success and error callbacks", () => {
-    propPane.SelectPlatformFunction("onClick", "Show Alert");
+    propPane.SelectPlatformFunction("onClick", "Show alert");
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Message"),
       "Hello!",
     );
     agHelper.GetNClick(propPane._actionSelectorPopupClose);
 
-    agHelper.GetNClick(propPane._actionCardByTitle("Show Alert"));
+    agHelper.GetNClick(propPane._actionCardByTitle("Show alert"));
 
     agHelper.GetNClick(propPane._actionCallbacks);
 

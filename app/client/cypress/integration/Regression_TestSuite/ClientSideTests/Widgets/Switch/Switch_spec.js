@@ -42,33 +42,29 @@ describe("Switch Widget Functionality", function () {
       this.data.switchInputName,
     );
     cy.get(publish.backToEditor).click();
-  });
 
-  it("3. Switch Functionality To Check Disabled Widget", function () {
+    //Switch Functionality To Check Disabled Widget
     cy.openPropertyPane("switchwidget");
     cy.togglebar(commonlocators.Disablejs + " " + "input");
     cy.PublishtheApp();
     cy.get(publish.switchwidget + " " + "input").should("be.disabled");
     cy.get(publish.backToEditor).click();
-  });
 
-  it("4. Switch Functionality To Check Enabled Widget", function () {
+    //Switch Functionality To Check Enabled Widget
     cy.openPropertyPane("switchwidget");
     cy.togglebarDisable(commonlocators.Disablejs + " " + "input");
     cy.PublishtheApp();
     cy.get(publish.switchwidget + " " + "input").should("be.enabled");
     cy.get(publish.backToEditor).click();
-  });
 
-  it("5. Switch Functionality To Unchecked Visible Widget", function () {
+    //Switch Functionality To Unchecked Visible Widget
     cy.openPropertyPane("switchwidget");
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publish.switchwidget + " " + "input").should("not.exist");
     cy.get(publish.backToEditor).click();
-  });
 
-  it("6. Switch Functionality To Check Visible Widget", function () {
+    // Switch Functionality To Check Visible Widget
     cy.openPropertyPane("switchwidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -76,7 +72,7 @@ describe("Switch Widget Functionality", function () {
     cy.get(publish.backToEditor).click();
   });
 
-  it("7. Switch Functionality To swap label alignment of switch", function () {
+  it("3. Switch Functionality To swap label alignment of switch", function () {
     cy.openPropertyPane("switchwidget");
     cy.get(publish.switchwidget + " " + ".t--switch-widget-label").should(
       "have.css",
@@ -84,9 +80,7 @@ describe("Switch Widget Functionality", function () {
       "left",
     );
     // align right
-    cy.get(".t--property-control-alignment .t--button-group-RIGHT")
-      .first()
-      .click();
+    cy.xpath(widgetsPage.rightAlign).first().click({ force: true });
     cy.wait(200);
     cy.PublishtheApp();
     cy.get(publish.switchwidget + " " + ".t--switch-widget-label").should(
@@ -97,14 +91,13 @@ describe("Switch Widget Functionality", function () {
     cy.get(publish.backToEditor).click();
   });
 
-  it("8. Switch Functionality To swap label position of switch", function () {
+  it("4. Switch Functionality To swap label position of switch", function () {
     cy.openPropertyPane("switchwidget");
     cy.get(publish.switchwidget + " " + ".bp3-align-left").should("exist");
     cy.get(publish.switchwidget + " " + ".bp3-align-right").should("not.exist");
-
     cy.get(commonlocators.optionposition).last().click({ force: true });
     cy.wait(200);
-    cy.get(".t--button-group-Left").click({ force: true });
+    cy.get(commonlocators.optionpositionL).last().click({ force: true });
     cy.wait(200);
     cy.PublishtheApp();
     cy.get(publish.switchwidget + " " + ".bp3-align-right").should("exist");
@@ -113,7 +106,7 @@ describe("Switch Widget Functionality", function () {
     cy.get(publish.backToEditor).click();
   });
 
-  it("9. Switch Functionality To change label color of switch", function () {
+  it("5. Switch Functionality To change label color of switch", function () {
     cy.openPropertyPane("switchwidget");
     cy.moveToStyleTab();
     cy.get(".t--property-control-fontcolor .bp3-input").type("red");
@@ -125,9 +118,8 @@ describe("Switch Widget Functionality", function () {
       "rgb(255, 0, 0)",
     );
     cy.get(publish.backToEditor).click();
-  });
 
-  it("10. Switch Functionality To change label size of switch", function () {
+    //Switch Functionality To change label size of switch
     cy.openPropertyPane("switchwidget");
     cy.moveToStyleTab();
     cy.get(widgetsPage.textSizeNew).last().click({ force: true });
@@ -141,14 +133,11 @@ describe("Switch Widget Functionality", function () {
       "30px",
     );
     cy.get(publish.backToEditor).click();
-  });
 
-  it("11. Switch Functionality To change label style of switch", function () {
+    //Switch Functionality To change label style of switch
     cy.openPropertyPane("switchwidget");
     cy.moveToStyleTab();
-    cy.get(".t--property-control-emphasis .t--button-group-BOLD").click({
-      force: true,
-    });
+    cy.get(".t--property-control-emphasis .t--button-group-BOLD").click();
     cy.PublishtheApp();
     cy.get(publish.switchwidget + " " + ".t--switch-widget-label").should(
       "have.css",
@@ -158,23 +147,23 @@ describe("Switch Widget Functionality", function () {
     cy.get(publish.backToEditor).click();
   });
 
-  it("12. Check isDirty meta property", function () {
+  it("6. Check isDirty meta property", function () {
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(".t--property-control-text", `{{Toggler.isDirty}}`);
     // Change defaultSwitchState property
     cy.openPropertyPane("switchwidget");
     cy.get(".t--property-control-defaultstate label").last().click();
     // Check if isDirty is reset to false
-    cy.get(".t--widget-textwidget").should("contain", "false");
+    cy.get(".t--widget-textwidget").scrollIntoView().should("contain", "false");
     // Interact with UI
     cy.get(`${formWidgetsPage.switchWidget} label`).first().click();
     // Check if isDirty is set to true
-    cy.get(".t--widget-textwidget").should("contain", "true");
+    cy.get(".t--widget-textwidget").scrollIntoView().should("contain", "true");
     // Change defaultSwitchState property
     cy.openPropertyPane("switchwidget");
-    cy.get(".t--property-control-defaultstate label").last().click();
+    cy.get(".t--property-control-defaultstate input").last().click();
     // Check if isDirty is reset to false
-    cy.get(".t--widget-textwidget").should("contain", "false");
+    cy.get(".t--widget-textwidget").scrollIntoView().should("contain", "false");
   });
 });
 afterEach(() => {

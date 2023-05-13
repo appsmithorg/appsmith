@@ -38,9 +38,11 @@ describe("1. Check column freeze and unfreeze mechanism in canavs mode", () => {
     it("1.1.1 Freeze column to left", () => {
       cy.openPropertyPane(WIDGET.TABLE);
       cy.openFieldConfiguration("step");
-      cy.get(".t--property-control-columnfreeze .t--button-group-left").click({
-        force: true,
-      });
+      cy.get(".t--property-control-columnfreeze span[data-value='left']").click(
+        {
+          force: true,
+        },
+      );
       cy.checkIfColumnIsFrozenViaCSS("0", "0");
 
       cy.get(getWidgetSelector(WIDGET.TEXT)).should(
@@ -53,7 +55,9 @@ describe("1. Check column freeze and unfreeze mechanism in canavs mode", () => {
       cy.get(commonlocators.editPropBackButton).click();
       cy.wait(1000);
       cy.openFieldConfiguration("action");
-      cy.get(".t--property-control-columnfreeze .t--button-group-right").click({
+      cy.get(
+        ".t--property-control-columnfreeze span[data-value='right']",
+      ).click({
         force: true,
       });
       // Check if the first cell has position sticky:
@@ -76,7 +80,7 @@ describe("1. Check column freeze and unfreeze mechanism in canavs mode", () => {
             .last()
             .click({ force: true });
         });
-      cy.get(".t--property-control-columnfreeze .t--button-group-").click({
+      cy.get(".t--property-control-columnfreeze span[data-value='']").click({
         force: true,
       });
       // Check if the first cell has position sticky:
@@ -107,7 +111,7 @@ describe("1. Check column freeze and unfreeze mechanism in canavs mode", () => {
       cy.openPropertyPane(WIDGET.TABLE);
 
       cy.get(
-        ".t--property-control-allowcolumnfreeze .bp3-switch input[type='checkbox']",
+        ".t--property-control-allowcolumnfreeze input[type='checkbox']",
       ).should("be.checked");
 
       cy.get(`[role="columnheader"] .header-menu .bp3-popover2-target`)
@@ -143,10 +147,10 @@ describe("1. Check column freeze and unfreeze mechanism in canavs mode", () => {
       cy.checkColumnPosition("step", 0);
 
       cy.freezeColumnFromDropdown("step", "left");
-      cy.checkIfColumnIsFrozenViaCSS("0", "0");
+      cy.checkIfColumnIsFrozenViaCSS("0", "0", "relative");
 
       cy.freezeColumnFromDropdown("action", "left");
-      cy.checkIfColumnIsFrozenViaCSS("0", "1");
+      cy.checkIfColumnIsFrozenViaCSS("0", "1", "relative");
     });
 
     it("1.2.3 Check if column can be unfrozen from dropdown", () => {
@@ -185,13 +189,13 @@ describe("1. Check column freeze and unfreeze mechanism in canavs mode", () => {
     it("1.2.6 Check if column freeze for user mode is disabled", () => {
       cy.openPropertyPane(WIDGET.TABLE);
       cy.get(
-        ".t--property-control-allowcolumnfreeze .bp3-switch input[type='checkbox']",
+        ".t--property-control-allowcolumnfreeze input[type='checkbox']",
       ).click({
         force: true,
       });
 
       cy.get(
-        ".t--property-control-allowcolumnfreeze .bp3-switch input[type='checkbox']",
+        ".t--property-control-allowcolumnfreeze input[type='checkbox']",
       ).should("not.be.checked");
 
       cy.get(`[role="columnheader"] .header-menu .bp3-popover2-target`)

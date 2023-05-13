@@ -19,7 +19,7 @@ export class GitSync {
     "//label[text()='Author name']/following-sibling::div//input";
   private _gitConfigEmailInput =
     "//label[text()='Author email']/following-sibling::div//input";
-  _branchButton = "[data-testid=t--branch-button-container]";
+  _branchButton = ".t--branch-button";
   private _branchSearchInput = ".t--branch-search-input";
   private _bottomBarCommit = ".t--bottom-bar-commit button";
   _bottomBarPull = ".t--bottom-bar-pull button";
