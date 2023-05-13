@@ -11,7 +11,7 @@ export class GitSync {
   private _connectGitBottomBar = ".t--connect-git-bottom-bar";
   private _gitSyncModal = ".git-sync-modal";
   private _closeGitSyncModal =
-    "//div[@data-testid='t--git-sync-modal']/following-sibling::button[@aria-label='Close']";
+    "//div[@data-testid='t--git-sync-modal']//button[@aria-label='Close']";
   private _gitRepoInput =
     "//label[text()='Remote URL']/following-sibling::div//input";
   private _useDefaultConfig = "//label[text()='Use default configuration']";
