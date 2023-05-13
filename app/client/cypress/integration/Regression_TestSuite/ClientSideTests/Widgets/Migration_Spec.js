@@ -475,13 +475,13 @@ describe("Migration Validate", function () {
     cy.get(widgetsPage.bold)
       .invoke("attr", "aria-selected")
       .then((sel) => expect(Boolean(sel)).to.be.true);
-    cy.get(widgetsPage.centerAlign)
+    cy.get(widgetsPage.textCenterAlign)
       .eq(0)
-      .invoke("attr", "aria-selected")
+      .invoke("attr", "data-selected")
       .then((sel) => expect(Boolean(sel)).to.be.true); //Text align
-    cy.get(widgetsPage.centerAlign)
+    cy.get(widgetsPage.textCenterAlign)
       .eq(1)
-      .invoke("attr", "aria-selected")
+      .invoke("attr", "data-selected")
       .then((sel) => expect(Boolean(sel)).to.be.true); //Vertical align
     cy.get(widgetsPage.textColor)
       .first()

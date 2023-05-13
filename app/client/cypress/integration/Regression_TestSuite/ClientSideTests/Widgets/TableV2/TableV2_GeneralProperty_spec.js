@@ -24,7 +24,7 @@ describe("Table Widget property pane feature validation", function () {
     cy.openPropertyPane("tablewidgetv2");
     cy.moveToStyleTab();
     // Change the text align to center
-    cy.get(widgetsPage.centerAlign).first().click({ force: true });
+    cy.xpath(widgetsPage.textCenterAlign).first().click({ force: true });
     // Verify the center text alignment
     cy.readTableV2dataValidateCSS("1", "0", "justify-content", "center");
     // Change the text align to right
@@ -41,7 +41,7 @@ describe("Table Widget property pane feature validation", function () {
     cy.openPropertyPane("tablewidgetv2");
     cy.moveToStyleTab();
     // Change the text align to center
-    cy.get(widgetsPage.centerAlign).first().click({ force: true });
+    cy.xpath(widgetsPage.textCenterAlign).first().click({ force: true });
     // Verify the column headings are center aligned
     cy.get(".draggable-header > div")
       .first()

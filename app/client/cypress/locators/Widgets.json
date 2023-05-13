@@ -86,7 +86,6 @@
   "editCreatedColumn": ".t--property-control-createdcolumns input",
   "alignOpt": ".t--dropdown-option",
   "tableCol": ".draggable-header ",
-  "centerAlign": ".t--button-group-CENTER",
   "rightAlign": ".t--button-group-RIGHT",
   "leftAlign": ".t--button-group-LEFT",
   "bold": ".t--button-group-BOLD",

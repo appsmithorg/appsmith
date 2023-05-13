@@ -53,7 +53,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     _.entityExplorer.SelectEntityByName("Table1");
     cy.backFromPropertyPanel();
     cy.moveToStyleTab();
-    cy.get(widgetsPage.centerAlign).first().click({ force: true });
+    cy.xpath(widgetsPage.textCenterAlign).first().click({ force: true });
     cy.closePropertyPane();
     cy.get(`.t--widget-tablewidgetv2 .tbody .image-cell-wrapper`)
       .first()

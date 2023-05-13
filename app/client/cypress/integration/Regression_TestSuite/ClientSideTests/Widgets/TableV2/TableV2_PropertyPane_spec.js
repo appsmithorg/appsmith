@@ -237,7 +237,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.wait("@updateLayout");
     cy.moveToStyleTab();
     // Verifying Center Alignment
-    cy.get(widgetsPage.centerAlign).first().click({ force: true });
+    cy.xpath(widgetsPage.textCenterAlign).first().click({ force: true });
     cy.readTableV2dataValidateCSS("1", "0", "justify-content", "center", true);
 
     // Verifying Right Alignment

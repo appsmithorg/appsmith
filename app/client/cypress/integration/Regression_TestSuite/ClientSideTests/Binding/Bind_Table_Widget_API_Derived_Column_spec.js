@@ -51,7 +51,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     cy.changeColumnType("Image", false);
     cy.closePropertyPane();
     _.entityExplorer.SelectEntityByName("Table1");
-    cy.get(widgetsPage.centerAlign).first().click({ force: true });
+    cy.xpath(widgetsPage.textCenterAlign).first().click({ force: true });
     cy.closePropertyPane();
     cy.get(`.t--widget-tablewidget .tbody .image-cell`)
       .first()

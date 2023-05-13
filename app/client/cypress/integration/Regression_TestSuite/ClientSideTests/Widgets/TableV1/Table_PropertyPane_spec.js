@@ -180,7 +180,7 @@ describe("Table Widget property pane feature validation", function () {
 
   it("6. Test to validate text allignment", function () {
     // Verifying Center Alignment
-    cy.get(widgetsPage.centerAlign).first().click({ force: true });
+    cy.xpath(widgetsPage.textCenterAlign).first().click({ force: true });
     cy.readTabledataValidateCSS("1", "0", "justify-content", "center", true);
 
     // Verifying Right Alignment
