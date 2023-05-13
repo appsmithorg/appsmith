@@ -72,7 +72,7 @@ export class CommonLocators {
   _jsToggle = (controlToToggle: string) =>
     ".t--property-control-" + controlToToggle + " .t--js-toggle";
   _spanButton = (btnVisibleText: string) =>
-    `//span[text()="${btnVisibleText}"]/parent::button`;
+    `//span[text()="${btnVisibleText}"]/ancestor::button`;
   _selectPropDropdown = (ddName: string) =>
     "//div[contains(@class, 't--property-control-" +
     ddName.replace(/ +/g, "").toLowerCase() +
