@@ -3,9 +3,8 @@ import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field, getFormValues } from "redux-form";
 import styled from "styled-components";
 import type { SettingComponentProps } from "./Common";
-import { FormGroup } from "./Common";
 import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
-import { Button, Checkbox } from "design-system";
+import { Button, Checkbox, Text } from "design-system";
 import { useSelector } from "react-redux";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
@@ -87,22 +86,29 @@ export function CheckboxComponent({ setting }: SettingComponentProps) {
 
   return (
     <StyledFieldCheckboxGroup>
-      <FormGroup setting={setting}>
-        <Field
-          component={FieldCheckboxWithCheckboxText({
-            label: setting.label,
-            text: setting.text || "",
-            id: setting.id,
-            isDisabled: setting.isDisabled && setting.isDisabled(settings),
-            needsUpgrade: setting.needsUpgrade,
-            labelSuffix: setting.textSuffix,
-            upgradeLogEventName: setting.upgradeLogEventName,
-            upgradeIntercomMessage: setting.upgradeIntercomMessage,
-            isPropertyDisabled: !setting.name?.toLowerCase().includes("enable"),
-          })}
-          name={setting.name}
-        />
-      </FormGroup>
+      <Text
+        className="admin-settings-form-group-label pt-4 pb-2"
+        color="var(--ads-v2-color-fg)"
+        data-testid="admin-settings-form-group-label"
+        kind="heading-xs"
+        renderAs="p"
+      >
+        {setting.label}
+      </Text>
+      <Field
+        component={FieldCheckboxWithCheckboxText({
+          label: setting.label,
+          text: setting.text || "",
+          id: setting.id,
+          isDisabled: setting.isDisabled && setting.isDisabled(settings),
+          needsUpgrade: setting.needsUpgrade,
+          labelSuffix: setting.textSuffix,
+          upgradeLogEventName: setting.upgradeLogEventName,
+          upgradeIntercomMessage: setting.upgradeIntercomMessage,
+          isPropertyDisabled: !setting.name?.toLowerCase().includes("enable"),
+        })}
+        name={setting.name}
+      />
     </StyledFieldCheckboxGroup>
   );
 }

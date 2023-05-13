@@ -38,7 +38,7 @@ export function CanvasPropertyPane() {
         <div className="px-4 space-y-2">
           {!isAutoLayout && (
             <>
-              <Title className="text-sm">Canvas Size</Title>
+              <Title className="text-sm">Canvas size</Title>
               <MainContainerLayoutControl />
             </>
           )}

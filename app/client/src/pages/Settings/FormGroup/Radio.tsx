@@ -3,7 +3,6 @@ import type { ReactElement } from "react";
 import { FieldError } from "design-system-old";
 import { Popover2 } from "@blueprintjs/popover2";
 import type { SettingComponentProps } from "./Common";
-import { FormGroup } from "./Common";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
 import styled, { createGlobalStyle } from "styled-components";
@@ -165,7 +164,6 @@ function RadioFieldWrapper(
                     }
                     interactionKind="hover"
                     position={Position.RIGHT}
-                    usePortal={false}
                   >
                     <Icon className="icon" name={item.tooltip.icon} size="md" />
                   </Popover2>
@@ -203,12 +201,20 @@ export default function RadioField({ setting }: RadioGroupProps) {
   const controlTypeProps = setting.controlTypeProps as RadioOptionProps;
 
   return (
-    <FormGroup
+    <div
       className={`t--admin-settings-radio t--admin-settings-${
         setting.name || setting.id
       }`}
-      setting={setting}
     >
+      <Text
+        className="admin-settings-form-group-label pt-2 pb-4"
+        color="var(--ads-v2-color-fg)"
+        data-testid="admin-settings-form-group-label"
+        kind="heading-xs"
+        renderAs="p"
+      >
+        {setting.label}
+      </Text>
       <Field
         component={RadioFieldWrapper}
         {...controlTypeProps}
@@ -216,6 +222,6 @@ export default function RadioField({ setting }: RadioGroupProps) {
         name={setting.name}
         parse={setting.parse}
       />
-    </FormGroup>
+    </div>
   );
 }

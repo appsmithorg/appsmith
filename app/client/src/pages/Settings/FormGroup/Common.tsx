@@ -27,11 +27,7 @@ export const StyledFormGroup = styled.div`
 `;
 
 export const StyledLabel = styled.div`
-  margin-bottom: 8px;
-  .admin-settings-form-group-label {
-    font-weight: 500;
-    user-select: none;
-  }
+  margin-bottom: 4px;
 `;
 
 export const StyledSubtext = styled(Text)`
