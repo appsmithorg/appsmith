@@ -108,6 +108,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           placeholder={this.props.placeholderText}
           showSearch={this.props.enableSearch}
           value={selected}
+          virtual={false}
         >
           {options.map((option, index) => (
             <Option
