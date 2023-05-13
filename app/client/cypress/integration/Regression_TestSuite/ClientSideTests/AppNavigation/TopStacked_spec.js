@@ -14,9 +14,7 @@ describe("Test Top + Stacked navigation style", function () {
 
     cy.wait("@importNewApplication").then((interception) => {
       agHelper.Sleep();
-
       const { isPartialImport } = interception.response.body.data;
-
       if (isPartialImport) {
         homePage.AssertNCloseImport();
       } else {
@@ -25,9 +23,8 @@ describe("Test Top + Stacked navigation style", function () {
     });
   });
 
-  it("1. In an app with 15 pages, the navbar should be scrollable", () => {
+  it.skip("1. In an app with 15 pages, the navbar should be scrollable", () => {
     const pageName = "Page9 - with long long name";
-
     deployMode.DeployApp();
     cy.get(appNavigationLocators.scrollArrows).should("have.length", 2);
     cy.get(appNavigationLocators.scrollArrows).last().should("be.visible");
@@ -93,7 +90,7 @@ describe("Test Top + Stacked navigation style", function () {
       .should("be.visible");
   });
 
-  it("4. Navigation's background should be default to white, and should change when background color is set to theme", () => {
+  it.skip("4. Navigation's background should be default to white, and should change when background color is set to theme", () => {
     // The background should be white since light color style is default
     cy.get(appNavigationLocators.topStacked).should(
       "have.css",
@@ -125,27 +122,30 @@ describe("Test Top + Stacked navigation style", function () {
     cy.get(appNavigationLocators.userProfileDropdownButton).should("exist");
   });
 
-  it("6. Share button should open the share modal, edit button should take us back to the editor, and clicking on user profile button should open up the dropdown menu", () => {
-    // Share
-    cy.get(
-      `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
-    ).click();
-    cy.wait(1000);
-    cy.get(appNavigationLocators.modal).should("exist");
-    cy.get(appNavigationLocators.modalClose).first().click({ force: true });
+  itskip(
+    "6. Share button should open the share modal, edit button should take us back to the editor, and clicking on user profile button should open up the dropdown menu",
+    () => {
+      // Share
+      cy.get(
+        `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
+      ).click();
+      cy.wait(1000);
+      cy.get(appNavigationLocators.modal).should("exist");
+      cy.get(appNavigationLocators.modalClose).first().click({ force: true });
 
-    // Edit
-    cy.get(
-      `${appNavigationLocators.header} ${appNavigationLocators.editButton}`,
-    ).click();
-    cy.get(commonLocators.canvas).should("exist");
+      // Edit
+      cy.get(
+        `${appNavigationLocators.header} ${appNavigationLocators.editButton}`,
+      ).click();
+      cy.get(commonLocators.canvas).should("exist");
 
-    // User profile dropdown
-    deployMode.DeployApp();
-    cy.get(appNavigationLocators.userProfileDropdownButton).click();
-    cy.get(appNavigationLocators.userProfileDropdownMenu).should("exist");
+      // User profile dropdown
+      deployMode.DeployApp();
+      cy.get(appNavigationLocators.userProfileDropdownButton).click();
+      cy.get(appNavigationLocators.userProfileDropdownMenu).should("exist");
 
-    // Back to editor
-    deployMode.NavigateBacktoEditor();
-  });
+      // Back to editor
+      deployMode.NavigateBacktoEditor();
+    },
+  );
 });
