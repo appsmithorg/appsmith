@@ -39,7 +39,7 @@ export class HomePage {
     "']";
   private _profileMenu = "t--profile-menu-icon";
   private _editProfileMenu = ".t--edit-profile";
-  private _signout = ".t--logout-icon";
+  private _signout = ".t--sign-out";
   _searchUsersInput = ".search-input";
 
   private _manageUsers = ".manageUsers";

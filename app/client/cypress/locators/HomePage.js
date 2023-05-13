@@ -62,7 +62,7 @@ export default {
   editingAppName: "bp3-editable-text-editing",
   portalMenuItem: ".ads-v2-menu__menu-item-children",
   profileMenu: ".t--profile-menu-icon",
-  signOutIcon: ".t--logout-icon",
+  signOutIcon: ".t--sign-out",
   headerAppSmithLogo: ".t--Appsmith-logo-image",
   applicationCardName: "[data-testid=t--app-card-name]",
   applicationIconSelector: ".t--icon-not-selected",
