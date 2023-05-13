@@ -45,7 +45,7 @@ describe("Audit logs", () => {
 
       cy.get(locators.Heading)
         .should("be.visible")
-        .should("have.text", "Introducing Audit Logs");
+        .should("have.text", "Introducing audit logs");
       cy.get(locators.SubHeadings)
         .should("be.visible")
         .should(
