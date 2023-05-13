@@ -184,7 +184,7 @@ export const generateQuickCommands = (
   });
   const newIntegration: CommandsCompletion = generateCreateNewCommand({
     text: "",
-    displayText: "New Datasource",
+    displayText: "New datasource",
     action: () =>
       executeCommand({
         actionType: SlashCommand.NEW_INTEGRATION,
