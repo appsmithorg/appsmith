@@ -92,7 +92,7 @@
   "copyWidget": ".t--copy-widget",
   "deleteWidget": ".t--delete-widget",
   "dropTarget": ".t--drop-target",
-  "toastAction": ".t--toast-action",
+  "toastAction": "div.Toastify__toast",
   "toastBody": ".Toastify__toast-body",
   "videoInner": ".t--draggable-videowidget span.t--widget-name",
   "audioInner": ".t--draggable-audiowidget span.t--widget-name",

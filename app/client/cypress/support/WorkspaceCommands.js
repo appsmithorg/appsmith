@@ -25,7 +25,7 @@ Cypress.Commands.add("renameWorkspace", (workspaceName, newWorkspaceName) => {
   cy.get(".t--applications-container")
     .contains(workspaceName)
     .closest(homePage.workspaceCompleteSection)
-    .find(homePage.workspaceNamePopover)
+    .scrollIntoView()
     .find(homePage.optionsIcon)
     .click({ force: true });
   cy.get(homePage.renameWorkspaceInput)

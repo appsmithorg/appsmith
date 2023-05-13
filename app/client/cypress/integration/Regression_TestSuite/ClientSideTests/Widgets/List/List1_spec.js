@@ -10,7 +10,7 @@ describe("Binding the list widget with text widget", function () {
     cy.verifyUpdatedWidgetName("#$%1234", "___1234");
     cy.verifyUpdatedWidgetName("56789");
     cy.get(".t--delete-widget").click({ force: true });
-    cy.get(".t--toast-action span").eq(0).contains("56789 is removed");
+    cy.get("div.Toastify__toast").eq(0).contains("56789 is removed");
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",

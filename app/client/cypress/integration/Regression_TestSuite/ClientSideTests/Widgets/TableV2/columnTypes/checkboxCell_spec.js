@@ -127,7 +127,7 @@ describe("Checkbox column type funtionality test", () => {
       agHelper.EnterActionValue("Message", "This is a test message");
       cy.get(selector).click({ force: true }); // unChecked
       cy.wait(100);
-      cy.get(".t--toast-action")
+      cy.get("div.Toastify__toast")
         .contains("This is a test message")
         .should("be.visible");
     });
