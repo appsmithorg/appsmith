@@ -26,8 +26,8 @@ export class PropertyPane {
     fieldName +
     "']/ancestor::div/following-sibling::div/div[contains(@class, 't--edit-column-btn')]";
   private _goBackToProperty = "button[data-testid='t--property-pane-back-btn']";
-  private _copyWidget = "button.t--copy-widget";
-  _deleteWidget = "button.t--delete-widget";
+  private _copyWidget = "[data-testid='t--copy-widget']";
+  _deleteWidget = "[data-testid='t--delete-widget']";
   private _styleTabBtn = (tab: string) =>
     "button[role='tab'] span:contains('" + tab + "')";
   private _themeCard = (themeName: string) =>

@@ -935,6 +935,7 @@ export class DataSources {
     queryName = "",
     sleep = 500,
   ) {
+    cy.get("body").click(0, 0); //to close the evaluated pop-up
     this.ee.CreateNewDsQuery(dsName);
     if (queryName) this.agHelper.RenameWithInPane(queryName);
     if (query) {
