@@ -7,7 +7,7 @@ import type { Stylesheet } from "entities/AppTheming";
 import React, { lazy, Suspense } from "react";
 import type ReactPlayer from "react-player";
 import { retryPromise } from "utils/AppsmithUtils";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WidgetProps, WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import type { AutocompletionDefinitions } from "widgets/constants";
