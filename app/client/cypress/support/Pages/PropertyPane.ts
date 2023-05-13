@@ -24,7 +24,7 @@ export class PropertyPane {
   _fieldConfig = (fieldName: string) =>
     "//input[@placeholder='Field label'][@value='" +
     fieldName +
-    "']/ancestor::div/following-sibling::div/div[contains(@class, 't--edit-column-btn')]";
+    "']/ancestor::div/following-sibling::div/button[contains(@class, 't--edit-column-btn')]";
   private _goBackToProperty = "button[data-testid='t--property-pane-back-btn']";
   private _copyWidget = "[data-testid='t--copy-widget']";
   _deleteWidget = "[data-testid='t--delete-widget']";
