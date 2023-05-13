@@ -45,7 +45,7 @@ describe("Validate JSObjects binding to Input widget", () => {
     cy.get("@jsObjName").then((jsObjName) => {
       jsOjbNameReceived = jsObjName;
       propPane.UpdatePropertyFieldValue(
-        "Default Value",
+        "Default value",
         "{{" + jsObjName + ".myFun1()}}",
       );
     });

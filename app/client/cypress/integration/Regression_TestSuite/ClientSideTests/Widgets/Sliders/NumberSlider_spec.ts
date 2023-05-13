@@ -82,23 +82,23 @@ describe("Number Slider spec", () => {
   });
 
   it("4. Validates Default Value", () => {
-    propPane.UpdatePropertyFieldValue("Default Value", "-10");
+    propPane.UpdatePropertyFieldValue("Default value", "-10");
 
     agHelper.VerifyEvaluatedErrorMessage(
       "This value must be greater than or equal to the min value",
     );
 
-    propPane.UpdatePropertyFieldValue("Default Value", "110");
+    propPane.UpdatePropertyFieldValue("Default value", "110");
 
     agHelper.VerifyEvaluatedErrorMessage(
       "This value must be less than or equal to the max value",
     );
 
-    propPane.UpdatePropertyFieldValue("Default Value", "asd");
+    propPane.UpdatePropertyFieldValue("Default value", "asd");
 
     agHelper.VerifyEvaluatedErrorMessage("This value must be a number");
 
-    propPane.UpdatePropertyFieldValue("Default Value", "10");
+    propPane.UpdatePropertyFieldValue("Default value", "10");
 
     // agHelper.VerifyEvaluatedValue("10");
   });

@@ -223,11 +223,11 @@
   "autoConvert": "#t--layout-conversion-cta",
   "convert": "button:contains('Convert layout')",
   "refreshApp": "button:contains('Refresh the app')",
-  "autoConversionDialog": ".ads-dialog-trigger:contains('USE SNAPSHOT')",
-  "useSnapshot": "button:contains('USE SNAPSHOT')",
-  "discardSnapshot": "span:contains('DISCARD SNAPSHOT')",
+  "autoConversionDialog": ".ads-dialog-trigger:contains('Use snapshot')",
+  "useSnapshot": "button:contains('Use snapshot')",
+  "discardSnapshot": "span:contains('Discard snapshot')",
   "desktopOption": "//span[@name='desktop']/following-sibling::span",
   "mobileOption": "//span[@name='mobile']/following-sibling::span",
-  "convertanyways": "button:contains('CONVERT ANYWAYS')",
-  "discard": "button:contains('DISCARD')"
+  "convertanyways": "button:contains('Convert always')",
+  "discard": "button:contains('Discard')"
 }

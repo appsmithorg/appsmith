@@ -136,6 +136,7 @@ function PropertyPaneView(
         tooltipContent: "Copy widget",
         icon: (
           <Button
+            data-testid="t--copy-widget"
             isIconButton
             kind="tertiary"
             onClick={onCopy}
@@ -147,6 +148,7 @@ function PropertyPaneView(
         tooltipContent: "Delete widget",
         icon: (
           <Button
+            data-testid="t--delete-widget"
             isIconButton
             kind="tertiary"
             onClick={onDelete}

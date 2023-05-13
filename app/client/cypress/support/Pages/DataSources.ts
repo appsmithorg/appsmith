@@ -397,8 +397,11 @@ export class DataSources {
     const databaseName = shouldAddTrailingSpaces
       ? datasourceFormData["postgres-databaseName"] + "  "
       : datasourceFormData["postgres-databaseName"];
-    cy.get(this._host).type(hostAddress);
-    cy.get(this._port).type(datasourceFormData["postgres-port"].toString());
+    this.agHelper.UpdateInputValue(this._host, hostAddress);
+    this.agHelper.UpdateInputValue(
+      this._port,
+      datasourceFormData["postgres-port"].toString(),
+    );
     cy.get(this._databaseName).clear().type(databaseName);
     this.ExpandSectionByName("Authentication");
     cy.get(this._username).type(
@@ -413,8 +416,11 @@ export class DataSources {
     const hostAddress = shouldAddTrailingSpaces
       ? datasourceFormData["mongo-host"] + "  "
       : datasourceFormData["mongo-host"];
-    cy.get(this._host).type(hostAddress);
-    cy.get(this._port).type(datasourceFormData["mongo-port"].toString());
+    this.agHelper.UpdateInputValue(this._host, hostAddress);
+    this.agHelper.UpdateInputValue(
+      this._port,
+      datasourceFormData["mongo-port"].toString(),
+    );
     this.ExpandSectionByName("Authentication");
     cy.get(this._databaseName)
       .clear()
@@ -428,8 +434,12 @@ export class DataSources {
     const databaseName = shouldAddTrailingSpaces
       ? datasourceFormData["mysql-databaseName"] + "  "
       : datasourceFormData["mysql-databaseName"];
-    cy.get(this._host).type(hostAddress);
-    cy.get(this._port).type(datasourceFormData["mysql-port"].toString());
+
+    this.agHelper.UpdateInputValue(this._host, hostAddress);
+    this.agHelper.UpdateInputValue(
+      this._port,
+      datasourceFormData["mysql-port"].toString(),
+    );
     cy.get(this._databaseName).clear().type(databaseName);
     this.ExpandSectionByName("Authentication");
     cy.get(this._username).type(datasourceFormData["mysql-username"]);

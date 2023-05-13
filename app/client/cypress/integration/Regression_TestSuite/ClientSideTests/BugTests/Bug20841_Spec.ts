@@ -19,7 +19,7 @@ describe("Evaluations causing error when page is cloned", function () {
     });
     _.entityExplorer.SelectEntityByName("Input1");
     _.propPane.UpdatePropertyFieldValue(
-      "Default Value",
+      "Default value",
       "{{JSObject1.myFun1()}}",
     );
 
