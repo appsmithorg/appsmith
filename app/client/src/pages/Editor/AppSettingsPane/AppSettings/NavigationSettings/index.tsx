@@ -361,11 +361,11 @@ function NavigationSettings() {
               {
                 value: NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT,
                 label: (
-                  <div className="inline-flex items-center h-full">
+                  <div className="inline-flex items-center">
                     <ColorStyleIcon
                       colorStyle={NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT}
                     />
-                    <span className="leading-none">
+                    <span>
                       {_.startCase(NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT)}
                     </span>
                   </div>
@@ -374,11 +374,11 @@ function NavigationSettings() {
               {
                 value: NAVIGATION_SETTINGS.COLOR_STYLE.THEME,
                 label: (
-                  <div className="inline-flex items-center h-full">
+                  <div className="inline-flex items-center">
                     <ColorStyleIcon
                       colorStyle={NAVIGATION_SETTINGS.COLOR_STYLE.THEME}
                     />
-                    <span className="leading-none">
+                    <span>
                       {_.startCase(NAVIGATION_SETTINGS.COLOR_STYLE.THEME)}
                     </span>
                   </div>
