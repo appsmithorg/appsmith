@@ -3,9 +3,17 @@ import type { ComponentProps } from "widgets/BaseComponent";
 import styled from "styled-components";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { createMessage, IMAGE_LOAD_ERROR } from "@appsmith/constants/messages";
-import { ReactComponent as RotateLeftIcon } from "assets/icons/widget/image/rotate-left.svg";
-import { ReactComponent as RotateRightIcon } from "assets/icons/widget/image/rotate-right.svg";
-import { ReactComponent as DownloadIcon } from "assets/icons/widget/image/download.svg";
+import { importSvg } from "design-system-old";
+
+const RotateLeftIcon = importSvg(
+  () => import("assets/icons/widget/image/rotate-left.svg"),
+);
+const RotateRightIcon = importSvg(
+  () => import("assets/icons/widget/image/rotate-right.svg"),
+);
+const DownloadIcon = importSvg(
+  () => import("assets/icons/widget/image/download.svg"),
+);
 
 export interface StyledImageProps {
   defaultImageUrl: string;

@@ -3,7 +3,7 @@ import {
   layoutConfigurations,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { partition } from "lodash";
+import { get, partition } from "lodash";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
 import { alterLayoutForDesktop } from "utils/autoLayout/AutoLayoutUtils";
@@ -13,7 +13,13 @@ import {
   Positioning,
   ResponsiveBehavior,
 } from "utils/autoLayout/constants";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
+import {
+  isDynamicValue,
+  isPathDynamicTrigger,
+} from "utils/DynamicBindingUtils";
 import WidgetFactory from "utils/WidgetFactory";
+// import { DynamicHeight } from "utils/WidgetFeatures";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { DSLWidget } from "widgets/constants";
 
@@ -163,10 +169,14 @@ export function fitChildWidgetsIntoLayers(widgets: DSLWidget[] | undefined): {
 
   //Add unhandled widgets to children
   for (const nonLayerWidget of nonLayerWidgets) {
-    const propUpdates = getPropertyUpdatesBasedOnConfig(nonLayerWidget);
+    const { propertyUpdates, removableDynamicBindingPathList } =
+      getPropertyUpdatesBasedOnConfig(nonLayerWidget);
     modifiedWidgets.push(
       unHandledWidgets.indexOf(nonLayerWidget.type) < 0
-        ? { ...convertDSLtoAuto(nonLayerWidget), ...propUpdates }
+        ? verifyDynamicPathBindingList(
+            { ...convertDSLtoAuto(nonLayerWidget), ...propertyUpdates },
+            removableDynamicBindingPathList,
+          )
         : { ...nonLayerWidget, positioning: Positioning.Fixed },
     );
 
@@ -220,18 +230,27 @@ function getNextLayer(currWidgets: DSLWidget[]): {
         ? convertDSLtoAuto(widget)
         : { ...widget, positioning: Positioning.Fixed };
 
-    const propUpdates = getPropertyUpdatesBasedOnConfig(currWidget);
+    const { propertyUpdates, removableDynamicBindingPathList } =
+      getPropertyUpdatesBasedOnConfig(currWidget);
 
     //Get Alignment of the Widget
     alignment = alignmentMap[currWidget.widgetId] || FlexLayerAlignment.Start;
     const flexVerticalAlignment = getWidgetVerticalAlignment(currWidget);
 
-    modifiedWidgetsInLayer.push({
-      ...currWidget,
-      ...propUpdates,
-      alignment,
-      flexVerticalAlignment,
-    });
+    const modifiedCurrentWidget =
+      removeNullValuesFromObject<DSLWidget>(currWidget);
+
+    modifiedWidgetsInLayer.push(
+      verifyDynamicPathBindingList(
+        {
+          ...modifiedCurrentWidget,
+          ...propertyUpdates,
+          alignment,
+          flexVerticalAlignment,
+        },
+        removableDynamicBindingPathList,
+      ),
+    );
 
     //If the widget type is not to be added in layer then add only to Children
     if (nonFlexLayerWidgets.indexOf(currWidget.type) < 0) {
@@ -710,6 +729,7 @@ function getPropertyUpdatesBasedOnConfig(widget: DSLWidget) {
   const widgetConfig = WidgetFactory.widgetConfigMap.get(widget.type);
 
   let propertyUpdates: Partial<WidgetProps> = {};
+  const removableDynamicBindingPathList: string[] = [];
 
   //get Responsive Behaviour
   propertyUpdates.responsiveBehavior =
@@ -735,7 +755,14 @@ function getPropertyUpdatesBasedOnConfig(widget: DSLWidget) {
     propertyUpdates.minWidth = widgetConfig.minWidth;
   }
 
-  return propertyUpdates;
+  //Delete Dynamic values as they fail, while saving the application layout
+  for (const propertyPath in propertyUpdates) {
+    if (widget[propertyPath] && isDynamicValue(widget[propertyPath])) {
+      removableDynamicBindingPathList.push(propertyPath);
+    }
+  }
+
+  return { propertyUpdates, removableDynamicBindingPathList };
 }
 
 function handleSpecialCaseWidgets(dsl: DSLWidget): DSLWidget {
@@ -754,7 +781,60 @@ function handleSpecialCaseWidgets(dsl: DSLWidget): DSLWidget {
     dsl.children[0].flexLayers = flexLayers;
     dsl.children[0].responsiveBehavior = ResponsiveBehavior.Fill;
     dsl.children[0].positioning = Positioning.Vertical;
+    dsl.children[0].children[0].isFlexChild = true;
+    dsl.children[0].children[0].isListItemContainer = true;
   }
 
   return dsl;
+}
+/**
+ * Removes null values from object
+ * @param object
+ * @returns
+ */
+function removeNullValuesFromObject<T extends { [key: string]: any }>(
+  object: T,
+): T {
+  const copiedObject: T = { ...object };
+
+  //remove null values and dynamic trigger paths which have "null" values
+  Object.keys(copiedObject).forEach(
+    (k) =>
+      copiedObject[k] == null ||
+      (isPathDynamicTrigger(copiedObject, k) &&
+        copiedObject[k] === "null" &&
+        delete copiedObject[k]),
+  );
+
+  return copiedObject;
+}
+
+/**
+ * remove removableDynamicBindingPathList values from DynamicBindingPathList
+ * @param widget
+ * @param removableDynamicBindingPathList
+ * @returns
+ */
+function verifyDynamicPathBindingList(
+  widget: DSLWidget,
+  removableDynamicBindingPathList: string[],
+) {
+  if (!removableDynamicBindingPathList || !widget.dynamicBindingPathList)
+    return widget;
+
+  const dynamicBindingPathList: DynamicPath[] = [];
+  for (const dynamicBindingPath of widget.dynamicBindingPathList) {
+    //if the values are not dynamic, remove from the dynamic binding path list
+    const dynamicValue = get(widget, dynamicBindingPath.key);
+    if (!dynamicValue || !isDynamicValue(dynamicValue)) {
+      continue;
+    }
+
+    if (removableDynamicBindingPathList.indexOf(dynamicBindingPath.key) < 0) {
+      dynamicBindingPathList.push(dynamicBindingPath);
+    }
+  }
+
+  widget.dynamicBindingPathList = dynamicBindingPathList;
+  return widget;
 }

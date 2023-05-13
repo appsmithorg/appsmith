@@ -1,18 +1,13 @@
-import type Color from "colorjs.io";
+import Color from "colorjs.io";
 import type { ColorTypes } from "colorjs.io/types/src/color";
-import { parse } from "../";
 
 export class ColorsAccessor {
-  private color: Color;
+  color: Color;
 
   constructor(color: ColorTypes) {
-    this.color = parse(color);
+    this.color = new Color(color);
 
     return this;
-  }
-
-  get hex() {
-    return this.color.toString({ format: "hex" });
   }
 
   /* Lightness */
@@ -21,7 +16,7 @@ export class ColorsAccessor {
   }
 
   get isVeryLight() {
-    return this.color.oklch.l > 0.9;
+    return this.color.oklch.l > 0.93;
   }
 
   /* Chroma */
@@ -43,11 +38,11 @@ export class ColorsAccessor {
   }
 
   get isGreen() {
-    return this.color.oklch.h >= 105 && this.color.oklch.h <= 165;
+    return this.color.oklch.h >= 116 && this.color.oklch.h <= 165;
   }
 
   get isYellow() {
-    return this.color.oklch.h >= 60 && this.color.oklch.h <= 75;
+    return this.color.oklch.h >= 60 && this.color.oklch.h <= 115;
   }
 
   get isRed() {

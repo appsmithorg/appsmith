@@ -94,3 +94,13 @@ export const splitCanvas = (flag: boolean) => ({
   type: ReduxActionTypes.SPLIT_CANVAS,
   payload: flag,
 });
+
+export const updatePositionsOnTabChange = (
+  widgetId: string,
+  selectedTabWidgetId: string,
+) => {
+  return {
+    type: ReduxActionTypes.UPDATE_POSITIONS_ON_TAB_CHANGE,
+    payload: { selectedTabWidgetId, widgetId },
+  };
+};

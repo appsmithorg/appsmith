@@ -1,9 +1,5 @@
 import React from "react";
-import { ReactComponent as Column100 } from "assets/icons/control/1-column.svg";
-import { ReactComponent as Column25_75 } from "assets/icons/control/2-column-25-75.svg";
-import { ReactComponent as Column50_50 } from "assets/icons/control/2-column-50-50.svg";
-import { ReactComponent as Column75_25 } from "assets/icons/control/2-column-75-25.svg";
-import { Icon } from "design-system-old";
+import { Icon, importSvg } from "design-system-old";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 interface CanvasSplitOptionType {
@@ -11,6 +7,17 @@ interface CanvasSplitOptionType {
   value: CanvasSplitTypes;
   icon: any;
 }
+
+const Column100 = importSvg(() => import("assets/icons/control/1-column.svg"));
+const Column25_75 = importSvg(
+  () => import("assets/icons/control/2-column-25-75.svg"),
+);
+const Column50_50 = importSvg(
+  () => import("assets/icons/control/2-column-50-50.svg"),
+);
+const Column75_25 = importSvg(
+  () => import("assets/icons/control/2-column-75-25.svg"),
+);
 
 export type CanvasSplitTypes =
   | "1-column"

@@ -1,10 +1,10 @@
 import type { WidgetAddChild } from "actions/pageActions";
 import { updateAndSaveLayout } from "actions/pageActions";
-import type { ReduxAction } from "ce/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "ce/constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import type { FlexLayerAlignment } from "utils/autoLayout/constants";
 import { LayoutDirection } from "utils/autoLayout/constants";
 import {
@@ -14,7 +14,7 @@ import {
 import log from "loglevel";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import { getWidgets } from "sagas/selectors";
+import { getWidgets, getWidgetsMeta } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import {
   addNewLayer,
@@ -76,12 +76,14 @@ function* addWidgetAndReorderSaga(
 
     let widgetIndex = index;
     let currLayerIndex = layerIndex;
+    let newLayer = isNewLayer;
 
     const canvasWidget = updatedWidgetsOnAddition[parentId];
 
     if (addToBottom && canvasWidget.children && canvasWidget.flexLayers) {
       widgetIndex = canvasWidget.children.length;
       currLayerIndex = canvasWidget.flexLayers.length;
+      newLayer = true;
     }
 
     const updatedWidgetsOnMove: CanvasWidgetsReduxState = yield call(
@@ -89,7 +91,7 @@ function* addWidgetAndReorderSaga(
       {
         movedWidgets: [newWidget.newWidgetId],
         index: widgetIndex,
-        isNewLayer,
+        isNewLayer: newLayer,
         parentId,
         allWidgets: updatedWidgetsOnAddition,
         alignment,
@@ -197,6 +199,7 @@ function* reorderAutolayoutChildren(params: {
   if (!movedWidgets) return widgets;
   const mainCanvasWidth: number = yield select(getCanvasWidth);
   const selectedWidgets = [...movedWidgets];
+  const metaProps: Record<string, any> = yield select(getWidgetsMeta);
 
   let updatedWidgets: CanvasWidgetsReduxState = updateRelationships(
     selectedWidgets,
@@ -205,6 +208,7 @@ function* reorderAutolayoutChildren(params: {
     false,
     isMobile,
     mainCanvasWidth,
+    metaProps,
   );
 
   // Update flexLayers for a vertical stack.
@@ -259,7 +263,6 @@ function* reorderAutolayoutChildren(params: {
   const newItems = items.filter((item) => movedWidgets.indexOf(item) === -1);
   // calculate valid position for drop
   const pos = index > newItems.length ? newItems.length : index;
-
   updatedWidgets[parentId] = {
     ...updatedWidgets[parentId],
     children: [
@@ -270,7 +273,9 @@ function* reorderAutolayoutChildren(params: {
   };
   const parentWidget =
     allWidgets[allWidgets[parentId].parentId || MAIN_CONTAINER_WIDGET_ID];
-  const isAutoLayoutContainerCanvas = parentWidget.type === "CONTAINER_WIDGET";
+  const isAutoLayoutContainerCanvas =
+    parentWidget.type === "CONTAINER_WIDGET" &&
+    !parentWidget.isListItemContainer;
   if (isAutoLayoutContainerCanvas) {
     const height =
       allWidgets[parentId].bottomRow / GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
@@ -285,6 +290,8 @@ function* reorderAutolayoutChildren(params: {
     layerIndex,
     isMobile,
     mainCanvasWidth,
+    false,
+    metaProps,
   );
 
   return widgetsAfterPositionUpdate;

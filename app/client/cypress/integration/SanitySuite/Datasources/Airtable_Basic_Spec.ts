@@ -2,7 +2,7 @@ import * as _ from "../../../support/Objects/ObjectsCore";
 import datasourceFormData from "../../../fixtures/datasources.json";
 
 let dsName: any, jsonSpecies: any, offset: any, insertedRecordId: any;
-describe("Validate Airtable Ds", () => {
+describe("excludeForAirgap", "Validate Airtable Ds", () => {
   before("Create a new Airtable DS", () => {
     _.dataSources.CreateDataSource("Airtable", true, false);
     cy.get("@dsName").then(($dsName) => {
@@ -34,7 +34,7 @@ describe("Validate Airtable Ds", () => {
 
     _.dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
-      jsonSpecies = JSON.parse(resObj.response.body.data.body);
+      jsonSpecies = resObj.response.body.data.body;
       jsonSpecies.records.forEach((record: { fields: any }) => {
         specieslist.push(record.fields.Species_ID);
       });
@@ -53,7 +53,7 @@ describe("Validate Airtable Ds", () => {
 
     _.dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
-      jsonSpecies = JSON.parse(resObj.response.body.data.body);
+      jsonSpecies = resObj.response.body.data.body;
       const hasOnlyAllowedKeys = jsonSpecies.records.every((record: any) => {
         const fieldKeys = Object.keys(record.fields);
         return (
@@ -79,7 +79,7 @@ describe("Validate Airtable Ds", () => {
     });
     _.dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
-      jsonSpecies = JSON.parse(resObj.response.body.data.body);
+      jsonSpecies = resObj.response.body.data.body;
       expect(jsonSpecies.records.length).to.eq(11); //making sure only 11 record fields are returned
     });
 
@@ -91,7 +91,7 @@ describe("Validate Airtable Ds", () => {
     });
     _.dataSources.RunQuery();
     cy.get("@postExecute").then((resObj: any) => {
-      jsonSpecies = JSON.parse(resObj.response.body.data.body);
+      jsonSpecies = resObj.response.body.data.body;
       expect(jsonSpecies.records.length).to.eq(6); //making sure only 6 record fields are returned, honouring the PageSize
 
       //Validating offset
@@ -104,7 +104,7 @@ describe("Validate Airtable Ds", () => {
       _.dataSources.RunQuery();
 
       cy.get("@postExecute").then((resObj: any) => {
-        jsonSpecies = JSON.parse(resObj.response.body.data.body);
+        jsonSpecies = resObj.response.body.data.body;
         expect(jsonSpecies.records.length).to.eq(5); //making sure only remaining records are returned
       });
     });
@@ -124,7 +124,7 @@ describe("Validate Airtable Ds", () => {
     _.dataSources.RunQuery();
 
     cy.get("@postExecute").then((resObj: any) => {
-      jsonSpecies = JSON.parse(resObj.response.body.data.body);
+      jsonSpecies = resObj.response.body.data.body;
       const allRecordsWithRodentTaxa = jsonSpecies.records.filter(
         (record: { fields: { Taxa: string } }) =>
           record.fields.Taxa === "Rodent",
@@ -158,7 +158,7 @@ describe("Validate Airtable Ds", () => {
     _.dataSources.RunQuery();
 
     cy.get("@postExecute").then((resObj: any) => {
-      jsonSpecies = JSON.parse(resObj.response.body.data.body);
+      jsonSpecies = resObj.response.body.data.body;
       const sorted = jsonSpecies.records.every(
         (record: { fields: { Species_ID: string } }, i: number) => {
           if (i === 0) {
@@ -193,7 +193,7 @@ describe("Validate Airtable Ds", () => {
     _.dataSources.RunQuery();
 
     cy.get("@postExecute").then((resObj: any) => {
-      jsonSpecies = JSON.parse(resObj.response.body.data.body);
+      jsonSpecies = resObj.response.body.data.body;
       const sorted = jsonSpecies.records.every(
         (record: { fields: { Species_ID: string } }, i: number) => {
           if (i === 0) {
@@ -232,7 +232,7 @@ describe("Validate Airtable Ds", () => {
     _.dataSources.RunQuery();
 
     cy.get("@postExecute").then((resObj: any) => {
-      jsonSpecies = JSON.parse(resObj.response.body.data.body);
+      jsonSpecies = resObj.response.body.data.body;
       const isJSONValid = jsonSpecies.records.every(
         (record: { fields: { Species_ID: any } }) => {
           const speciesID = record.fields.Species_ID;
@@ -269,7 +269,7 @@ describe("Validate Airtable Ds", () => {
     _.dataSources.RunQuery();
 
     cy.get("@postExecute").then((resObj: any) => {
-      jsonSpecies = JSON.parse(resObj.response.body.data.body);
+      jsonSpecies = resObj.response.body.data.body;
       //cy.log("jsonSpecies is"+ jsonSpecies)
       expect(jsonSpecies.records.length).to.eq(1); //making sure only inserted record is returned
 
@@ -289,7 +289,7 @@ describe("Validate Airtable Ds", () => {
       _.dataSources.RunQuery();
 
       cy.get("@postExecute").then((resObj: any) => {
-        jsonSpecies = JSON.parse(resObj.response.body.data.body);
+        jsonSpecies = resObj.response.body.data.body;
         const hasOnlyInsertedRecord = () => {
           return (
             jsonSpecies.fields.Species_ID === "SF" &&
@@ -325,7 +325,7 @@ describe("Validate Airtable Ds", () => {
       _.dataSources.RunQuery();
 
       cy.get("@postExecute").then((resObj: any) => {
-        jsonSpecies = JSON.parse(resObj.response.body.data.body);
+        jsonSpecies = resObj.response.body.data.body;
         const hasOnlyUpdatedRecord = () => {
           return (
             jsonSpecies.records[0].fields.Species_ID === "SG" &&
@@ -348,7 +348,7 @@ describe("Validate Airtable Ds", () => {
       _.dataSources.RunQuery();
 
       cy.get("@postExecute").then((resObj: any) => {
-        jsonSpecies = JSON.parse(resObj.response.body.data.body);
+        jsonSpecies = resObj.response.body.data.body;
         expect(jsonSpecies.deleted).to.be.true;
       });
     });

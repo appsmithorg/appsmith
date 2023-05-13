@@ -16,7 +16,7 @@ import {
 } from "@appsmith/constants/messages";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { GRID_DENSITY_MIGRATION_V1, ICON_NAMES } from "widgets/constants";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import BaseInputWidget from "widgets/BaseInputWidget";
 import { isNil, isNumber, merge, toString } from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
@@ -26,7 +26,7 @@ import {
   InputTypes,
   NumberInputStepButtonPosition,
 } from "widgets/BaseInputWidget/constants";
-import { getParsedText } from "./Utilities";
+import { getParsedText, isInputTypeEmailOrPassword } from "./Utilities";
 import type { Stylesheet } from "entities/AppTheming";
 import {
   isAutoHeightEnabledForWidget,
@@ -233,7 +233,7 @@ export function maxValueValidation(max: any, props: InputWidgetProps, _?: any) {
 function InputTypeUpdateHook(
   props: WidgetProps,
   propertyName: string,
-  propertyValue: unknown,
+  propertyValue: any,
 ) {
   const updates = [
     {
@@ -250,6 +250,12 @@ function InputTypeUpdateHook(
       });
     }
   }
+  //if input type is email or password default the autofill state to be true
+  // the user needs to explicity set autofill to fault disable autofill
+  updates.push({
+    propertyPath: "shouldAllowAutofill",
+    propertyValue: isInputTypeEmailOrPassword(propertyValue),
+  });
 
   return updates;
 }
@@ -672,10 +678,15 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     } else {
       conditionalProps.buttonPosition = NumberInputStepButtonPosition.NONE;
     }
-
+    const autoFillProps =
+      !this.props.shouldAllowAutofill &&
+      isInputTypeEmailOrPassword(this.props.inputType)
+        ? { autoComplete: "off" }
+        : {};
     return (
       <InputComponent
         accentColor={this.props.accentColor}
+        {...autoFillProps}
         // show label and Input side by side if true
         autoFocus={this.props.autoFocus}
         borderRadius={this.props.borderRadius}
