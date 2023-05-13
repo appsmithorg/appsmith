@@ -31,7 +31,7 @@ import { getUpdatingEntity } from "selectors/explorerSelector";
 import { getPageLoadingState } from "selectors/pageListSelectors";
 import styled from "styled-components";
 import TextLoaderIcon from "../Components/TextLoaderIcon";
-import { getUrlPreview } from "../Utils";
+import { filterAccentedAndSpecialCharacters, getUrlPreview } from "../Utils";
 import type { AppState } from "@appsmith/reducers";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import { isNameValid, resolveAsSpaceChar } from "utils/helpers";
@@ -48,8 +48,6 @@ const UrlPreviewScroll = styled.div`
   height: 48px;
   overflow-y: auto;
 `;
-
-const specialCharacterCheckRegex = /^[A-Za-z0-9\s\-]+$/g;
 
 function PageSettings(props: { page: Page }) {
   const dispatch = useDispatch();
@@ -168,6 +166,12 @@ function PageSettings(props: { page: Page }) {
     setPageName(resolveAsSpaceChar(value, 30));
   };
 
+  const onPageSlugChange = (value: string) => {
+    value.length > 0
+      ? setCustomSlug(filterAccentedAndSpecialCharacters(value))
+      : setCustomSlug(value);
+  };
+
   return (
     <>
       <div
@@ -184,10 +188,7 @@ function PageSettings(props: { page: Page }) {
           isDisabled={!canManagePages}
           label={PAGE_SETTINGS_PAGE_NAME_LABEL()}
           onBlur={savePageName}
-          onChange={
-            (value: string) => onPageNameChange(value)
-            // setPageName(resolveAsSpaceChar(value, 30))
-          }
+          onChange={(value: string) => onPageNameChange(value)}
           onKeyPress={(ev: React.KeyboardEvent) => {
             if (ev.key === "Enter") {
               savePageName();
@@ -230,11 +231,7 @@ function PageSettings(props: { page: Page }) {
           isReadOnly={appNeedsUpdate}
           label={PAGE_SETTINGS_PAGE_URL_LABEL()}
           onBlur={saveCustomSlug}
-          onChange={(value: string) =>
-            value.length > 0
-              ? specialCharacterCheckRegex.test(value) && setCustomSlug(value)
-              : setCustomSlug(value)
-          }
+          onChange={(value: string) => onPageSlugChange(value)}
           onKeyPress={(ev: React.KeyboardEvent) => {
             if (ev.key === "Enter") {
               saveCustomSlug();

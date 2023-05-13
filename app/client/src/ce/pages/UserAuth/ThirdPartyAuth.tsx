@@ -55,7 +55,13 @@ function SocialLoginButton(props: {
       size="md"
       startIcon={props.name.toLowerCase() + `-fill`}
     >
-      <div className="login-method" data-testid={`login-with-${props.name}`}>
+      <div
+        className="login-method"
+        data-testid={`login-with-${props.name}`}
+        style={{
+          minWidth: "148px",
+        }}
+      >
         {props.label ?? `Continue with ${props.name}`}
       </div>
     </Button>
