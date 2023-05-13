@@ -647,7 +647,8 @@ export const UNSUPPORTED_PLUGIN_DIALOG_TITLE = () =>
 
 export const UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE = () =>
   `You can continue building your app with it using our drag & drop builder`;
-export const UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING = () => `Auto generation`;
+export const UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING = () =>
+  `Issue with auto generation`;
 
 export const BUILD_FROM_SCRATCH_ACTION_SUBTITLE = () =>
   "Start from scratch and create your custom UI";
