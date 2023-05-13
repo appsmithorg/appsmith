@@ -19,6 +19,7 @@ type filedTypeValues =
 
 export class PropertyPane {
   private agHelper = ObjectsRegistry.AggregateHelper;
+  private entityExplorer = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
 
   _fieldConfig = (fieldName: string) =>
@@ -117,6 +118,12 @@ export class PropertyPane {
     this.agHelper.GetNClick(this._goBackToProperty);
     this.agHelper.AssertElementVisible(this._copyWidget);
     //this.agHelper.AssertElementVisible(this._deleteWidget); //extra valisation, hence commenting!
+  }
+
+  public DeleteWidgetFromPropertyPane(widgetName: string) {
+    this.entityExplorer.SelectEntityByName(widgetName, "Widgets");
+    this.agHelper.GetNClick(this._deleteWidget);
+    this.agHelper.Sleep(500);
   }
 
   public GetJSONFormConfigurationFileds() {
