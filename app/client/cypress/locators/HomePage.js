@@ -21,7 +21,7 @@ export default {
   homeIcon: ".t--appsmith-logo",
   inputAppName: "input[name=applicationName]",
   createNew: ".createnew",
-  createWorkspace: "span:contains('New Workspace')",
+  createWorkspace: "span:contains('New workspace')",
   inputWorkspaceName: "//input[@name='name']",
   submitBtn: "//span[text()='Submit']",
   workspaceMenu: "//span[text()='TestShareWorkspace']",
