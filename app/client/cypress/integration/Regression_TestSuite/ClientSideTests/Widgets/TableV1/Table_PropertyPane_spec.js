@@ -184,11 +184,11 @@ describe("Table Widget property pane feature validation", function () {
     cy.readTabledataValidateCSS("1", "0", "justify-content", "center", true);
 
     // Verifying Right Alignment
-    cy.get(widgetsPage.rightAlign).first().click({ force: true });
+    cy.xpath(widgetsPage.rightAlign).first().click({ force: true });
     cy.readTabledataValidateCSS("1", "0", "justify-content", "flex-end", true);
 
     // Verifying Left Alignment
-    cy.get(widgetsPage.leftAlign).first().click({ force: true });
+    cy.xpath(widgetsPage.leftAlign).first().click({ force: true });
     cy.readTabledataValidateCSS(
       "0",
       "0",

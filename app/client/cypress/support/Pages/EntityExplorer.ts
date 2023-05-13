@@ -83,7 +83,9 @@ export class EntityExplorer {
     if (section) this.ExpandCollapseEntity(section); //to expand respective section
     cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar))
       .last()
-      .click(ctrlKey ? { ctrlKey } : { multiple: true });
+      .click(
+        ctrlKey ? { ctrlKey, force: true } : { multiple: true, force: true },
+      );
     this.agHelper.Sleep(500);
   }
 

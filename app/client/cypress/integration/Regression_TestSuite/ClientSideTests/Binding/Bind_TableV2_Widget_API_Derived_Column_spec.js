@@ -60,14 +60,14 @@ describe("Test Create Api and Bind to Table widget", function () {
       .should("have.css", "justify-content", "center");
     _.entityExplorer.SelectEntityByName("Table1");
     cy.moveToStyleTab();
-    cy.get(widgetsPage.rightAlign).first().click({ force: true });
+    cy.xpath(widgetsPage.rightAlign).first().click({ force: true });
     cy.closePropertyPane();
     cy.get(`.t--widget-tablewidgetv2 .tbody .image-cell-wrapper`)
       .first()
       .should("have.css", "justify-content", "flex-end");
     _.entityExplorer.SelectEntityByName("Table1");
     cy.moveToStyleTab();
-    cy.get(widgetsPage.leftAlign).first().click({ force: true });
+    cy.xpath(widgetsPage.leftAlign).first().click({ force: true });
     cy.closePropertyPane();
     cy.get(`.t--widget-tablewidgetv2 .tbody .image-cell-wrapper`)
       .first()
