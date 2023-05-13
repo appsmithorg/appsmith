@@ -200,6 +200,7 @@ class CurrencyInputWidget extends BaseInputWidget<
               controlType: "DROP_DOWN",
               searchPlaceholderText: "Search by code or name",
               options: CurrencyDropdownOptions,
+              virtual: true,
               isJSConvertible: true,
               isBindProperty: true,
               isTriggerProperty: false,

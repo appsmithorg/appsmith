@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Option, Select, Text } from "design-system";
+import { Option, Select, Text, Icon } from "design-system";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { isNil } from "lodash";
@@ -96,8 +96,9 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       )?.value;
     }
 
-    const isWithSubText = options.some(
-      (option) => option.subText !== undefined,
+    // Only showLabel when we have subText or icons in the options
+    const showLabel = options.some(
+      (option) => option.subText !== undefined || option.icon !== undefined,
     );
 
     return (
@@ -112,10 +113,11 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
            * 1. show labels for label Text Size control
            * 2. show the flag and currency value for currency inputs
            */
-          optionLabelProp={isWithSubText ? "label" : "children"}
+          optionLabelProp={showLabel ? "label" : "children"}
           placeholder={this.props.placeholderText}
           showSearch={this.props.enableSearch}
           value={selected}
+          virtual={this.props.virtual || false}
         >
           {options.map((option, index) => (
             <Option
@@ -128,6 +130,8 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
               {option.leftElement && (
                 <FlagWrapper>{option.leftElement}</FlagWrapper>
               )}
+
+              {option.icon && <Icon name={option.icon} size="md" />}
 
               {option.subText ? (
                 this.props.hideSubText ? (
@@ -239,6 +243,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 export interface DropDownControlProps extends ControlProps {
   options?: any[] | ((props: ControlProps["widgetProperties"]) => any[]);
   defaultValue?: string;
+  virtual?: boolean;
   placeholderText: string;
   searchPlaceholderText: string;
   isMultiSelect?: boolean;
