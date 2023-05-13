@@ -22,12 +22,13 @@ const PromptMessage = styled.span`
   line-height: 17px;
 `;
 const CurlyBraces = styled.span`
-  color: ${(props) => props.theme.colors.codeMirror.background.hoverState};
-  background-color: #ffffff;
+  color: var(--ads-v2-color-fg);
+  background-color: var(--ads-v2-color-bg-muted);
   border-radius: 2px;
   padding: 2px;
   margin: 0px 2px;
   font-size: 10px;
+  font-weight: bold;
 `;
 
 export function InputText(props: {

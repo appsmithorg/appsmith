@@ -20,7 +20,6 @@ import {
   ORIGINAL_INDEX_KEY,
   PRIMARY_COLUMN_KEY_VALUE,
 } from "widgets/TableWidgetV2/constants";
-import { Colors } from "constants/Colors";
 import {
   createMessage,
   TABLE_WIDGET_VALIDATION_ASSIST_PROMPT,
@@ -31,11 +30,11 @@ export const PromptMessage = styled.span`
 `;
 
 export const StyledCode = styled.span`
-  color: ${Colors.PRIMARY_ORANGE};
+  color: var(--ads-v2-color-fg-brand);
 `;
 
 export const CurlyBraces = styled.span`
-  color: ${Colors.PRIMARY_ORANGE};
+  color: var(--ads-v2-color-fg-brand);
   border-radius: 2px;
   padding: 2px;
   margin: 0px 2px;
