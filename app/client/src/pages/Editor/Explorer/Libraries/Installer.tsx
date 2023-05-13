@@ -270,23 +270,25 @@ function ProgressTracker({
             <StatusIcon status={status} />
           </div>
         </div>
-        <Callout
-          kind="error"
-          links={[
-            {
-              children: createMessage(customJSLibraryMessages.REPORT_ISSUE),
-              to: "#",
-              onClick: (e) => openDoc(e, EXT_LINK.reportIssue),
-            },
-            {
-              children: createMessage(customJSLibraryMessages.LEARN_MORE),
-              onClick: (e) => openDoc(e, EXT_LINK.learnMore),
-              to: "#",
-            },
-          ]}
-        >
-          Error banner
-        </Callout>
+        {status === InstallState.Failed && (
+          <Callout
+            kind="error"
+            links={[
+              {
+                children: createMessage(customJSLibraryMessages.REPORT_ISSUE),
+                to: "#",
+                onClick: (e) => openDoc(e, EXT_LINK.reportIssue),
+              },
+              {
+                children: createMessage(customJSLibraryMessages.LEARN_MORE),
+                onClick: (e) => openDoc(e, EXT_LINK.learnMore),
+                to: "#",
+              },
+            ]}
+          >
+            <Banner />
+          </Callout>
+        )}
       </div>
     </InstallationProgressWrapper>
   );
@@ -524,7 +526,7 @@ function LibraryCard({
             className="library-name"
             endIcon="share-box-line"
             kind="secondary"
-            onClick={(e) => openDoc(e, lib.url)}
+            onClick={(e) => openDoc(e, lib.docsURL)}
             to="#"
           >
             {lib.name}

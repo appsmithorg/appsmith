@@ -1,11 +1,12 @@
 const dsl = require("../../../../fixtures/longCanvasDsl.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("reduce long canvas height on widget operation", () => {
   beforeEach(() => {
     cy.addDsl(dsl);
   });
 
-  it("should reduce canvas height when a widget is deleted", () => {
+  it("1. Should reduce canvas height when a widget is deleted", () => {
     //select a widget
     cy.wait(2000);
     cy.get(`#${dsl.dsl.children[1].widgetId}`).click({
@@ -17,8 +18,7 @@ describe("reduce long canvas height on widget operation", () => {
       const element = doc.querySelector(".appsmith_widget_0");
       const initialHeight = element.getBoundingClientRect().height;
       //delete widget
-      cy.get("body").type(`{del}`);
-
+      _.propPane.DeleteWidgetFromPropertyPane("Button1");
       //canvas height should be lesser now
       cy.wait(1000).then(() => {
         expect(element.getBoundingClientRect().height).to.be.lessThan(

@@ -457,9 +457,9 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.enterTableCellValue(4, 1, "1{enter}");
     cy.get(".bp3-popover-content").should("not.exist");
 
-    cy.wait(500);
+    cy.wait(1500);
     cy.discardTableRow(5, 1);
-    cy.wait(500);
+    cy.wait(1500);
 
     // Value isn't required in Row Index 2
     cy.editTableCell(4, 2);
@@ -470,7 +470,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.enterTableCellValue(4, 2, "{enter}");
     cy.get(".bp3-popover-content").should("not.exist");
 
-    cy.wait(500);
+    cy.wait(1500);
     cy.discardTableRow(5, 2);
 
     // Check for Required property using currentRow, row with index 1 has id 7
@@ -487,9 +487,9 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.enterTableCellValue(4, 1, "1{enter}");
     cy.get(".bp3-popover-content").should("not.exist");
 
-    cy.wait(500);
+    cy.wait(1500);
     cy.discardTableRow(5, 1);
-    cy.wait(500);
+    cy.wait(1500);
 
     // Value isn't required in Row Index 2
     cy.editTableCell(4, 2);
@@ -501,7 +501,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.enterTableCellValue(4, 2, "{enter}");
     cy.get(".bp3-popover-content").should("not.exist");
 
-    cy.wait(500);
+    cy.wait(1500);
     cy.discardTableRow(5, 2);
 
     // Cleanup

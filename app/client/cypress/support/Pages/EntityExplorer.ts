@@ -241,8 +241,9 @@ export class EntityExplorer {
     this.HoverOnEntityItem(entityNameinLeftSidebar);
     cy.xpath(this._templateMenuTrigger(entityNameinLeftSidebar))
       .first()
-      .click();
-    this.agHelper.GetNClick(this.locator._visibleTextSpan(action));
+      .click()
+      .wait(100); //for menu template to appear
+    this.agHelper.GetNClick(this.locator._visibleTextSpan(action), 0, true);
     this.agHelper.Sleep(500);
   }
 

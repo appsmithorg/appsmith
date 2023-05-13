@@ -14,9 +14,7 @@ describe("Test Top + Stacked navigation style", function () {
 
     cy.wait("@importNewApplication").then((interception) => {
       agHelper.Sleep();
-
       const { isPartialImport } = interception.response.body.data;
-
       if (isPartialImport) {
         homePage.AssertNCloseImport();
       } else {
@@ -27,7 +25,6 @@ describe("Test Top + Stacked navigation style", function () {
 
   it("1. In an app with 15 pages, the navbar should be scrollable", () => {
     const pageName = "Page9 - with long long name";
-
     deployMode.DeployApp();
     cy.get(appNavigationLocators.scrollArrows).should("have.length", 2);
     cy.get(appNavigationLocators.scrollArrows).last().should("be.visible");

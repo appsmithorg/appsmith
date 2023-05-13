@@ -19,12 +19,13 @@ type filedTypeValues =
 
 export class PropertyPane {
   private agHelper = ObjectsRegistry.AggregateHelper;
+  private entityExplorer = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
 
   _fieldConfig = (fieldName: string) =>
     "//input[@placeholder='Field label'][@value='" +
     fieldName +
-    "']/ancestor::div/following-sibling::div/div[contains(@class, 't--edit-column-btn')]";
+    "']/ancestor::div/following-sibling::div/button[contains(@class, 't--edit-column-btn')]";
   private _goBackToProperty = "button[data-testid='t--property-pane-back-btn']";
   private _copyWidget = "[data-testid='t--copy-widget']";
   _deleteWidget = "[data-testid='t--delete-widget']";
@@ -117,6 +118,12 @@ export class PropertyPane {
     this.agHelper.GetNClick(this._goBackToProperty);
     this.agHelper.AssertElementVisible(this._copyWidget);
     //this.agHelper.AssertElementVisible(this._deleteWidget); //extra valisation, hence commenting!
+  }
+
+  public DeleteWidgetFromPropertyPane(widgetName: string) {
+    this.entityExplorer.SelectEntityByName(widgetName, "Widgets");
+    this.agHelper.GetNClick(this._deleteWidget);
+    this.agHelper.Sleep(500);
   }
 
   public GetJSONFormConfigurationFileds() {

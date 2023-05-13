@@ -12,18 +12,18 @@ describe("Check for product updates button and modal", function () {
       .then((state) => {
         const { newReleasesCount, releaseItems } = state.ui.releases;
         if (Array.isArray(releaseItems) && releaseItems.length > 0) {
-          cy.get("[data-testid=t--product-updates-btn]")
-            .contains("What's New?")
+          cy.get("span.t--product-updates-btn")
+            .contains("What's new?")
             .click({ force: true });
           //eslint-disable-next-line cypress/no-unnecessary-waiting
           cy.wait(500); // modal transition
-          cy.get(".bp3-dialog-container").contains("Product Updates");
-          cy.get(".bp3-dialog-close-button").click();
+          cy.get("div[role='dialog']").contains("Product updates");
+          cy.get("div[role=dialog] button[aria-label='Close']").click();
           //eslint-disable-next-line cypress/no-unnecessary-waiting
           cy.wait(500); // modal transition
           cy.get(".bp3-dialog-container").should("not.exist");
         } else {
-          cy.get("[data-testid=t--product-updates-btn]").should("not.exist");
+          cy.get("span.t--product-updates-btn").should("not.exist");
         }
       });
   });

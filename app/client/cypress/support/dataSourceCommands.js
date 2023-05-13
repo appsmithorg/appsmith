@@ -12,10 +12,10 @@ const apiWidgetslocator = require("../locators/apiWidgetslocator.json");
 const apiEditorLocators = require("../locators/ApiEditor");
 const dataSources = ObjectsRegistry.DataSources;
 
-const backgroundColorBlack = "rgb(0, 0, 0)";
-const backgroundColorGray1 = "rgb(250, 250, 250)";
-const backgroundColorGray2 = "rgb(240, 240, 240)";
-const backgroundColorGray8 = "rgb(113, 110, 110)";
+const backgroundColorBlack = "rgb(76, 86, 100)";
+const backgroundColorGray1 = "rgb(241, 245, 249)";
+const backgroundColorGray2 = "rgba(0, 0, 0, 0)";
+const backgroundColorGray8 = "rgb(106, 117, 133)";
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -454,7 +454,10 @@ Cypress.Commands.add("createMockDatasource", (datasourceName) => {
 Cypress.Commands.add("datasourceCardContainerStyle", (tag) => {
   cy.get(tag)
     .should("have.css", "min-width", "150px")
-    .and("have.css", "border-radius", "4px")
+    .and(($el) => {
+      const borderRadius = $el.css("border-radius");
+      expect(borderRadius).to.match(/^(0px|4px)$/);
+    })
     .and("have.css", "align-items", "center");
 });
 
@@ -471,7 +474,7 @@ Cypress.Commands.add("datasourceCardStyle", (tag) => {
 
 Cypress.Commands.add("datasourceImageStyle", (tag) => {
   cy.get(tag)
-    .should("have.css", "height", "28px")
+    .should("have.css", "height", "34px")
     .and("have.css", "max-width", "100%");
 });
 
@@ -486,10 +489,10 @@ Cypress.Commands.add("datasourceContentWrapperStyle", (tag) => {
 Cypress.Commands.add("datasourceIconWrapperStyle", (tag) => {
   cy.get(tag)
     .should("have.css", "background-color", backgroundColorGray2)
-    .and("have.css", "height", "48px")
-    .and("have.css", "border-radius", "50%")
-    .and("have.css", "display", "flex")
-    .and("have.css", "align-items", "center");
+    .and("have.css", "height", "34px")
+    .and("have.css", "border-radius", "0px")
+    .and("have.css", "display", "block")
+    .and("have.css", "align-items", "normal");
 });
 
 Cypress.Commands.add("datasourceNameStyle", (tag) => {

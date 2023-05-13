@@ -35,7 +35,7 @@ export class DataSources {
   private apiPage = ObjectsRegistry.ApiPage;
 
   private _dsCreateNewTab = "[data-testid=t--tab-CREATE_NEW]";
-  private _addNewDataSource = ".t--entity-add-btn.datasources";
+  private _addNewDataSource = ".t--entity-add-btn.datasources button";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
   private _collapseContainer = ".t--collapse-section-container";
@@ -88,8 +88,6 @@ export class DataSources {
   _selectedRow = ".tr.selected-row";
   _activeTab = "span:contains('Active')";
   _selectedActiveTab = "li[aria-selected='true'] " + this._activeTab;
-  _contextMenuDatasource = "span[name='comment-context-menu']";
-  _contextMenuDelete = ".t--datasource-option-delete";
   _datasourceCardGeneratePageBtn = ".t--generate-template";
   _queryOption = (option: string) =>
     "//div[contains(@class, 'rc-select-item-option-content') and text() = '" +
@@ -368,7 +366,7 @@ export class DataSources {
 
   public NavigateToDSCreateNew() {
     this.ee.HoverOnEntityItem("Datasources");
-    this.agHelper.GetNClick(this._addNewDataSource);
+    this.agHelper.GetNClick(this._addNewDataSource, 0, true);
     // cy.get(this._dsCreateNewTab)
     //   .should("be.visible")
     //   .click({ force: true });
@@ -641,20 +639,28 @@ export class DataSources {
     this.agHelper.AssertContains("datasource updated");
   }
 
+  public OpenActiveTabDSContextMenu(datasourceName: string) {
+    this.NavigateToActiveTab();
+    cy.get(this._datasourceCard)
+      .contains(datasourceName)
+      .parents(this._datasourceCard)
+      .find(this._dsMenuoptions)
+      .scrollIntoView()
+      .should("be.visible")
+      .click();
+  }
+
   public DeleteDatasouceFromActiveTab(
     datasourceName: string,
     expectedRes = 200,
   ) {
-    this.NavigateToActiveTab();
-    cy.get(this._datasourceCard)
-      .contains(datasourceName)
-      .scrollIntoView()
-      .should("be.visible")
-      .closest(this._datasourceCard)
-      .within(() => {
-        cy.get(this._contextMenuDatasource).click({ force: true });
-      });
-    this.agHelper.GetNClick(this._contextMenuDelete);
+    this.OpenActiveTabDSContextMenu(datasourceName);
+    this.agHelper.GetNClick(
+      this.locator._visibleTextSpan("Delete"),
+      0,
+      false,
+      200,
+    );
     this.agHelper.GetNClick(this._visibleTextSpan("Are you sure?"));
     this.agHelper.ValidateNetworkStatus("@deleteDatasource", expectedRes);
     if (expectedRes == 200)
@@ -666,14 +672,8 @@ export class DataSources {
     datasourceName: string,
     expectedRes = 200,
   ) {
-    this.NavigateToActiveTab();
-    cy.get(this._datasourceCard)
-      .contains(datasourceName)
-      .parents(this._datasourceCard)
-      .find(this._dsMenuoptions)
-      .scrollIntoView()
-      .should("be.visible")
-      .click();
+    this.OpenActiveTabDSContextMenu(datasourceName);
+
     this.agHelper.GetNClick(
       this.locator._visibleTextSpan("Edit"),
       0,
