@@ -524,7 +524,7 @@ function LibraryCard({
             className="library-name"
             endIcon="share-box-line"
             kind="secondary"
-            onClick={(e) => openDoc(e, lib.url)}
+            onClick={(e) => openDoc(e, lib.docsURL)}
             to="#"
           >
             {lib.name}
