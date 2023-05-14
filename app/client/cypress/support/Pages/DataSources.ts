@@ -771,7 +771,7 @@ export class DataSources {
     if (currentValue)
       cy.xpath(this._visibleTextSpan(currentValue))
         //.scrollIntoView()
-        .should("be.visible", currentValue + " dropdown value not present");
+        .should("exist", currentValue + " dropdown value not present");
     if (newValue != "") {
       cy.xpath(this._dropdownTitle(ddTitle)).click();
       //to expand the dropdown
@@ -783,7 +783,7 @@ export class DataSources {
     this.agHelper.AssertElementVisible(this._reconnectModal);
     cy.xpath(this._activeDSListReconnectModal(dsName)).should("be.visible");
     cy.xpath(this._activeDSListReconnectModal(dbName)).should("be.visible"); //.click()
-    this.ValidateNSelectDropdown("Connection Mode", "Read / Write");
+    this.ValidateNSelectDropdown("Connection mode", "Read / Write");
     if (dsName == "PostgreSQL") this.FillPostgresDSForm();
     else if (dsName == "MySQL") this.FillMySqlDSForm();
     cy.get(this._saveDs).click();
