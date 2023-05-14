@@ -15,7 +15,7 @@ describe("excludeForAirgap", "Fork a template to the current app", () => {
     // Closes template dialog if it is already open - useful for retry
     cy.get("body").then(($ele) => {
       if ($ele.find(template.templateDialogBox).length) {
-        cy.get(template.closeButton).click();
+        cy.xpath(template.closeButton).click();
       }
     });
     cy.CheckAndUnfoldEntityItem("Pages");
@@ -87,9 +87,9 @@ describe("excludeForAirgap", "Fork a template to the current app", () => {
       "response.body.responseMeta.status",
       200,
     );
-    cy.xpath(template.selectAllPages).next().click();
+    cy.xpath(template.selectAllPages).click();
     cy.wait(1000);
-    cy.xpath("//span[text()='2 APPLICATION UPLOAD']").parent().next().click();
+    cy.xpath("//span[text()='2 Application Upload']").parent().next().click();
     // [Bug]: On forking selected pages from a template, resource not found error is shown #17270
     cy.get(template.templateViewForkButton).click();
     cy.wait("@fetchTemplate").should(

@@ -4,5 +4,6 @@ export default {
   SkipToAppBtn: ".t--skip-to-application-btn",
   ImportSuccessModal: ".t--import-app-success-modal",
   ImportSuccessModalCloseBtn: ".t--import-success-modal-got-it",
-  ListItemIcon: ".t--ds-list-icon",
+  ListItemIcon: ".ads-v2-icon",
+  DatasourceList: ".t--ds-list"
 };

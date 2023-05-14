@@ -33,7 +33,7 @@ describe("excludeForAirgap", "Fork a template to the current app", () => {
     cy.wait(1000);
     cy.get(template.templateDialogBox).should("be.visible");
     cy.xpath(
-      "//div[text()='Slack Bot']/parent::div//button[contains(@class, 't--fork-template')]",
+      "//h1[text()='Slack Bot']/parent::div//button[contains(@class, 't--fork-template')]",
     )
       .scrollIntoView()
       .wait(500)
@@ -68,7 +68,7 @@ describe("excludeForAirgap", "Fork a template to the current app", () => {
       _.entityExplorer.AddNewPage();
       _.entityExplorer.AddNewPage("Add page from template");
       cy.get(template.templateDialogBox).should("be.visible");
-      cy.xpath("//div[text()='Marketing Dashboard']").click();
+      cy.xpath("//h1[text()='Marketing Dashboard']").click();
       cy.wait(10000); // for templates page to load fully
       cy.xpath(template.selectAllPages).next().click();
       cy.wait(1000);

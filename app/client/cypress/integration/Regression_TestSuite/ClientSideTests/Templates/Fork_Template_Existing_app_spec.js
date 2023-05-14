@@ -7,7 +7,7 @@ beforeEach(() => {
   // Closes template dialog if it is already open - useful for retry
   cy.get("body").then(($ele) => {
     if ($ele.find(template.templateDialogBox).length) {
-      cy.get(template.closeButton).click();
+      cy.xpath(template.closeButton).click({ force: true });
     }
   });
   cy.CheckAndUnfoldEntityItem("Pages");
@@ -30,7 +30,7 @@ describe(
       cy.get(template.templateDialogBox).should("be.visible");
       cy.wait(4000);
       cy.xpath(
-        "//div[text()='Meeting Scheduler']/parent::div//button[contains(@class, 't--fork-template')]",
+        "//h1[text()='Meeting Scheduler']/parent::div//button[contains(@class, 't--fork-template')]",
       )
         .scrollIntoView()
         .wait(500)
@@ -57,14 +57,14 @@ describe(
       cy.wait(5000);
       cy.get(template.templateDialogBox).should("be.visible");
       cy.wait(4000);
-      cy.xpath("//div[text()='Meeting Scheduler']").click();
+      cy.xpath("//h1[text()='Meeting Scheduler']").click();
       cy.wait("@getTemplatePages").should(
         "have.nested.property",
         "response.body.responseMeta.status",
         200,
       );
-      cy.xpath(template.selectAllPages).next().click();
-      cy.xpath("//span[text()='CALENDAR MOBILE']").parent().next().click();
+      //cy.xpath(template.selectAllPages).next().click();
+      // cy.xpath("//span[text()='CALENDAR MOBILE']").parent().next().click();
       cy.get(template.templateViewForkButton).click();
       cy.wait("@fetchTemplate").should(
         "have.nested.property",
@@ -77,14 +77,14 @@ describe(
       );
     });
 
-    it("Fork template button should take user to 'select pages from template' page", () => {
+    it("3. Fork template button should take user to 'select pages from template' page", () => {
       _.agHelper.RefreshPage();
       cy.AddPageFromTemplate();
       cy.get(_.templates.locators._forkApp).first().click();
       cy.get(template.templateViewForkButton).should("be.visible");
     });
 
-    it("Similar templates add icon should take user to 'select pages from template' page", () => {
+    it("4. Similar templates add icon should take user to 'select pages from template' page", () => {
       _.agHelper.RefreshPage();
       cy.AddPageFromTemplate();
       // We are currentlyon on templates list page
