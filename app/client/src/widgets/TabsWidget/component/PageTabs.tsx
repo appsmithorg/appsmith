@@ -50,11 +50,11 @@ const StyleTabText = styled.div<{
   color: ${(props) => getComplementaryGrayscaleColor(props.backgroundColor)};
   font-weight: normal;
   height: 32px;
-  max-width: 180px;
+  max-width: 12.5rem;
   display: flex;
 
   & div {
-    max-width: 180px;
+    max-width: 12.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
