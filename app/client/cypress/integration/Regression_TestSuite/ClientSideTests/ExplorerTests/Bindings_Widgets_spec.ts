@@ -16,7 +16,7 @@ describe("Entity explorer tests related to widgets and validation", function () 
     _.entityExplorer.ExpandCollapseEntity("Widgets");
     _.entityExplorer.ExpandCollapseEntity("Container4");
     _.entityExplorer.SelectEntityByName("Text1");
-    _.entityExplorer.ActionContextMenuByEntityName("Text1", "Show Bindings");
+    _.entityExplorer.ActionContextMenuByEntityName("Text1", "Show bindings");
     cy.get(_.jsEditor._propertyList).then(function ($lis) {
       expect($lis).to.have.length(2);
       expect($lis.eq(0)).to.contain("{{Text1.isVisible}}");
@@ -32,7 +32,7 @@ describe("Entity explorer tests related to widgets and validation", function () 
     _.entityExplorer.ExpandCollapseEntity("Widgets");
     _.entityExplorer.ExpandCollapseEntity("Container3");
     _.entityExplorer.SelectEntityByName("Table1");
-    _.entityExplorer.ActionContextMenuByEntityName("Table1", "Show Bindings");
+    _.entityExplorer.ActionContextMenuByEntityName("Table1", "Show bindings");
     cy.get(_.jsEditor._propertyList).then(function ($lis) {
       expect($lis).to.have.length(13);
       expect($lis.eq(0)).to.contain("{{Table1.selectedRow}}");
@@ -55,7 +55,7 @@ describe("Entity explorer tests related to widgets and validation", function () 
     _.entityExplorer.SelectEntityByName("Page1", "Pages");
     _.entityExplorer.ExpandCollapseEntity("Widgets");
     _.entityExplorer.ExpandCollapseEntity("Container4");
-    _.entityExplorer.ActionContextMenuByEntityName("Text1", "Show Bindings");
+    _.entityExplorer.ActionContextMenuByEntityName("Text1", "Show bindings");
     cy.get(_.jsEditor._propertyList).then(function ($lis) {
       expect($lis).to.have.length(2);
       expect($lis.eq(0)).to.contain("{{Text1.isVisible}}");
