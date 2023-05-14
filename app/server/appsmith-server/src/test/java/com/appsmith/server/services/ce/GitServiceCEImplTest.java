@@ -130,6 +130,23 @@ public class GitServiceCEImplTest {
                 .when(gitService1).getApplicationCountWithPrivateRepo(Mockito.any(String.class));
 
         StepVerifier
+                .create(gitService1.isRepoLimitReached("workspaceId", true))
+                .assertNext(aBoolean -> assertEquals(true, aBoolean))
+                .verifyComplete();
+    }
+
+    // This test is to check if the limit is reached when the count of connected apps is more than the limit
+    // This happens when public visible git repo is synced with application and then the visibility is changed
+    @Test
+    public void isRepoLimitReached_connectedAppCountIsMoreThanLimit_Success() {
+        doReturn(Mono.just(3))
+                .when(gitCloudServicesUtils).getPrivateRepoLimitForOrg(Mockito.any(String.class), Mockito.any(Boolean.class));
+
+        GitServiceCE gitService1 = Mockito.spy(gitService);
+        doReturn(Mono.just(4L))
+                .when(gitService1).getApplicationCountWithPrivateRepo(Mockito.any(String.class));
+
+        StepVerifier
                 .create(gitService1.isRepoLimitReached("workspaceId", false))
                 .assertNext(aBoolean -> assertEquals(true, aBoolean))
                 .verifyComplete();

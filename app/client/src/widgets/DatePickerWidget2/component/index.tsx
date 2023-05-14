@@ -6,7 +6,7 @@ import { ControlGroup, Classes } from "@blueprintjs/core";
 import type { ComponentProps } from "widgets/BaseComponent";
 import { DateInput } from "@blueprintjs/datetime";
 import moment from "moment-timezone";
-import "../../../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
+import "@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 import type { DatePickerType } from "../constants";
 import { TimePrecision } from "../constants";
 import type { TextSize } from "constants/WidgetConstants";

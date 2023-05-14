@@ -207,6 +207,31 @@ public class MySqlPluginTest {
                         .verifyComplete();
         }
 
+    @Test
+    public void testMySqlNoPasswordExceptionMessage() {
+
+        dsConfig = createDatasourceConfiguration();
+        ((DBAuth) dsConfig.getAuthentication()).setPassword("");
+
+        Mono<ConnectionPool> connectionMono = pluginExecutor.datasourceCreate(dsConfig);
+
+        Mono<DatasourceTestResult> datasourceTestResultMono = connectionMono
+                .flatMap(connectionPool -> pluginExecutor.testDatasource(connectionPool));
+
+        String gateway = mySQLContainer.getContainerInfo().getNetworkSettings().getGateway();
+        String expectedErrorMessage = new StringBuilder("Access denied for user 'mysql'@'")
+                .append(gateway)
+                .append("'")
+                .toString();
+
+        StepVerifier
+                .create(datasourceTestResultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getInvalids().contains(expectedErrorMessage));
+                })
+                .verifyComplete();
+    }
+
         @Test
         public void testConnectMySQLContainerWithInvalidTimezone() {
 

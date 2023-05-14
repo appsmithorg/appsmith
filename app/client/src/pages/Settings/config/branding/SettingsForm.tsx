@@ -8,7 +8,6 @@ import type {
   UseFormResetField,
 } from "react-hook-form";
 import { Controller } from "react-hook-form";
-import QuestionIcon from "remixicon-react/QuestionFillIcon";
 import { Button, Size, TooltipComponent } from "design-system-old";
 
 import type { Inputs } from "./BrandingPage";
@@ -28,6 +27,11 @@ import { ImageInput } from "pages/Settings/FormGroup/ImageInput";
 import { logoImageValidator, faivconImageValidator } from "utils/BrandingUtils";
 import { useBrandingForm } from "@appsmith/pages/AdminSettings/config/branding/useBrandingForm";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { importRemixIcon } from "design-system-old";
+
+const QuestionIcon = importRemixIcon(
+  () => import("remixicon-react/QuestionFillIcon"),
+);
 
 type SettingsFormProps = {
   disabled?: boolean;

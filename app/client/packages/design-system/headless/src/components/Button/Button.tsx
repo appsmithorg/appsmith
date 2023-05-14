@@ -6,9 +6,14 @@ import { useFocusRing } from "@react-aria/focus";
 import { useHover } from "@react-aria/interactions";
 import { useFocusableRef } from "@react-spectrum/utils";
 import type { FocusableRef } from "@react-types/shared";
-import type { ButtonProps as SpectrumButtonProps } from "@react-types/button";
+import type {
+  AriaButtonProps as SpectrumAriaBaseButtonProps,
+  ButtonProps as SpectrumButtonProps,
+} from "@react-types/button";
 
-export interface ButtonProps extends SpectrumButtonProps {
+export interface ButtonProps
+  extends SpectrumButtonProps,
+    SpectrumAriaBaseButtonProps {
   className?: string;
 }
 
