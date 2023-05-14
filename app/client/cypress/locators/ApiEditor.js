@@ -31,7 +31,7 @@ export default {
   rawResponseTab: "[data-testid=t--tab-RAW]",
   datasourcesRightPane: "[data-testid=t--tab-datasources]",
   connectionsRightPane: "[data-testid=t--tab-Connections]",
-  httpDropDownOptions: ".t--dropdown-option",
+  httpDropDownOptions: ".rc-select-item",
   codeEditorWrapper: ".t--code-editor-wrapper",
   apiSearchHint: ".datasource-hint",
   slashCommandButton: ".commands-button",
