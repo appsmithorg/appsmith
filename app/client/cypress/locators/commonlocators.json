@@ -36,7 +36,7 @@
   "allowSelectAllCheckbox": ".t--property-control-allowselectall input[type='checkbox']",
   "selectAllOptions": ".t--property-control-selectalloptions input[type='checkbox']",
   "disableCheckbox": ".t--property-control-disabled input[type='checkbox']",
-  "hideToolbarCheckbox": ".t--property-control-hidetoolbar input[type='checkbox'",
+  "hideToolbarCheckbox": ".t--property-control-hidetoolbar input[type='checkbox']",
   "labelTextStyle": ".bp3-ui-text span",
   "bodyTextStyle": ".bp3-ui-text span",
   "headingTextStyle": ".bp3-ui-text span",
