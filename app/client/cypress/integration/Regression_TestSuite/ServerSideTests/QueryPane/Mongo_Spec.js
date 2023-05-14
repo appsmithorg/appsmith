@@ -275,10 +275,9 @@ describe("Validate Mongo query commands", function () {
   it("7. Validate Deletion of the Newly Created Page", () => {
     cy.NavigateToQueryEditor();
     _.dataSources.DeleteDatasouceFromActiveTab(datasourceName, 409);
-    cy.actionContextMenuByEntityName(
+    _.entityExplorer.ActionContextMenuByEntityName(
       "ListingAndReviews",
       "Delete",
-      "Are you sure?",
     );
   });
 
