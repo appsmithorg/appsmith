@@ -29,7 +29,7 @@ describe("Phone input widget - ", () => {
 
     cy.openPropertyPane(widgetName);
     cy.selectDropdownValue(
-      ".t--property-control-defaultcountrycode",
+      ".t--property-control-defaultcountrycode input",
       "Afghanistan (+93)",
     );
     cy.get(`.t--widget-${widgetName} input`).clear();
@@ -44,7 +44,7 @@ describe("Phone input widget - ", () => {
     cy.get(".t--input-country-code-change").first().click();
     cy.get(".t--search-input input").type("+91");
     cy.wait(500);
-    cy.get(".t--dropdown-option").last().click();
+    cy.get("[data-cy='t--dropdown-option-India (+91)").last().click();
     cy.get(`.t--widget-${widgetName} input`).clear();
     cy.wait(500);
     cy.get(`.t--widget-${widgetName} input`).type("9999999999");
@@ -56,7 +56,7 @@ describe("Phone input widget - ", () => {
       .click({ force: true });
 
     cy.selectDropdownValue(
-      ".t--property-control-defaultcountrycode",
+      ".t--property-control-defaultcountrycode input",
       "United States / Canada (+1)",
     );
     cy.get(`.t--widget-${widgetName} input`).clear();
@@ -66,7 +66,7 @@ describe("Phone input widget - ", () => {
 
     cy.openPropertyPane(widgetName);
     cy.selectDropdownValue(
-      ".t--property-control-defaultcountrycode",
+      ".t--property-control-defaultcountrycode input",
       "India (+91)",
     );
     cy.get(`.t--widget-${widgetName} input`).clear();
@@ -119,15 +119,19 @@ describe("Phone input widget - ", () => {
     cy.get(".t--widget-textwidget").should("contain", "false");
   });
 
-  it("Currency change dropdown should not close unexpectedly", function () {
+  it("5. Currency change dropdown should not close unexpectedly", function () {
     cy.openPropertyPane(widgetName);
 
     // Select the Currency dropdown option from property pane
     // and enter a value that has space and returns 0 results
-    cy.get(".t--property-control-defaultcountrycode").click();
-    cy.get(".t--search-input input").type("AFDB (+93)");
+    cy.get(".t--property-control-defaultcountrycode input")
+      .first()
+      .click()
+      .type("AFDB (+93)");
 
     // assert that the dropdown is still option
-    cy.get(".t--search-input input").should("be.visible");
+    cy.get(".t--property-control-defaultcountrycode input").should(
+      "be.visible",
+    );
   });
 });

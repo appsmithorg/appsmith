@@ -25,7 +25,7 @@ describe("Input widget V2 - ", () => {
     cy.wait(300);
     cy.get(widgetInput).should("contain.value", "");
 
-    cy.selectDropdownValue(".t--property-control-datatype", "Number");
+    cy.selectDropdownValue(".t--property-control-datatype input", "Number");
 
     cy.get(widgetInput).clear();
     cy.get(widgetInput).type("1.0010{enter}"); //Clicking enter submits the form here
@@ -34,7 +34,10 @@ describe("Input widget V2 - ", () => {
   });
 
   it("3. Validate DataType - TEXT can be entered into Input widget", () => {
-    cy.selectDropdownValue(".t--property-control-datatype", "Single-line text");
+    cy.selectDropdownValue(
+      ".t--property-control-datatype input",
+      "Single-line text",
+    );
     [
       {
         input: "test",
@@ -105,7 +108,7 @@ describe("Input widget V2 - ", () => {
 
   it("4. Validate DataType - NUMBER can be entered into Input widget", () => {
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(".t--property-control-datatype", "Number");
+    cy.selectDropdownValue(".t--property-control-datatype input", "Number");
     [
       {
         input: "invalid",
@@ -148,7 +151,7 @@ describe("Input widget V2 - ", () => {
     //required: off
     cy.get(".t--property-control-required label").last().click({ force: true });
 
-    cy.selectDropdownValue(".t--property-control-datatype", "Number");
+    cy.selectDropdownValue(".t--property-control-datatype input", "Number");
     [
       {
         input: "invalid",
@@ -191,7 +194,7 @@ describe("Input widget V2 - ", () => {
 
   it("5. Validate DataType - PASSWORD can be entered into Input widget", () => {
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(".t--property-control-datatype", "Password");
+    cy.selectDropdownValue(".t--property-control-datatype input", "Password");
     [
       {
         input: "test",
@@ -262,7 +265,7 @@ describe("Input widget V2 - ", () => {
 
   it("6. Validate DataType - EMAIL can be entered into Input widget", () => {
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(".t--property-control-datatype", "Email");
+    cy.selectDropdownValue(".t--property-control-datatype input", "Email");
     [
       {
         input: "test",
@@ -347,7 +350,10 @@ describe("Input widget V2 - ", () => {
 
   it("8. onSubmit should be triggered with the whole input value", () => {
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(".t--property-control-datatype", "Single-line text");
+    cy.selectDropdownValue(
+      ".t--property-control-datatype input",
+      "Single-line text",
+    );
     cy.get(".t--property-control-required label").last().click({ force: true });
     // Set onSubmit action, storing value
     cy.get(".t--property-control-onsubmit").find(".t--js-toggle").click();
@@ -397,7 +403,7 @@ describe("Input widget V2 - ", () => {
       "anotherText:anotherText:true",
     );
 
-    cy.selectDropdownValue(".t--property-control-datatype", "Number");
+    cy.selectDropdownValue(".t--property-control-datatype input", "Number");
 
     cy.updateCodeInput(".t--property-control-defaultvalue", `{{1}}`);
     // wait for evaluations
@@ -412,12 +418,15 @@ describe("Input widget V2 - ", () => {
     cy.get(".t--widget-textwidget").should("contain", "1.0001:1.0001:true");
   });
 
-  it("Check isDirty meta property", function () {
+  it("10. Check isDirty meta property", function () {
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(".t--property-control-text", `{{Input1.isDirty}}`);
     // Init isDirty
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(".t--property-control-datatype", "Single-line text");
+    cy.selectDropdownValue(
+      ".t--property-control-datatype input",
+      "Single-line text",
+    );
     cy.updateCodeInput(".t--property-control-defaultvalue", "a");
     // Check if initial value of isDirty is false
     cy.get(".t--widget-textwidget").should("contain", "false");
@@ -464,7 +473,7 @@ describe("Input widget V2 - ", () => {
     cy.get(widgetInput).should("have.attr", "autocomplete", "off");
 
     //select a non email or password option
-    cy.selectDropdownValue(".t--property-control-datatype", "text");
+    cy.selectDropdownValue(".t--property-control-datatype input", "text");
     //autofill toggle should not be present as this restores autofill to be enabled
     cy.get(".t--property-control-allowautofill input").should("not.exist");
     //autocomplete attribute should not be present in the text widget
