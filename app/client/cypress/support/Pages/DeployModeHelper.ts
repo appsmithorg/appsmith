@@ -68,7 +68,7 @@ export class DeployMode {
   }
 
   public NavigateBacktoEditor() {
-    cy.get(this.locator._backToEditor).click();
+    cy.get(this.locator._backToEditor).click({ force: true });
     this.agHelper.Sleep(2000);
     localStorage.setItem("inDeployedMode", "false");
     this.agHelper.AssertElementVisible(this.locator._dropHere); //Assert if canvas is visible after Navigating back!
