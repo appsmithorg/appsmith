@@ -38,6 +38,7 @@ function DeleteThemeModal(props: DeleteThemeModalProps) {
         onInteractOutside={(e) => {
           e.preventDefault();
         }}
+        style={{ width: "640px" }}
       >
         <ModalHeader>
           {createMessage(DELETE_CONFIRMATION_MODAL_TITLE)}
@@ -48,7 +49,7 @@ function DeleteThemeModal(props: DeleteThemeModalProps) {
         <ModalFooter>
           <div className="flex gap-3">
             <Button kind="secondary" onClick={onClose} size="md">
-              Cancel
+              No
             </Button>
             <Button kind="error" onClick={onDelete} size="md">
               Delete

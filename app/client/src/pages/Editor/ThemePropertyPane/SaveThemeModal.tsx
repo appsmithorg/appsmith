@@ -130,6 +130,7 @@ function SaveThemeModal(props: SaveThemeModalProps) {
         onInteractOutside={(e) => {
           e.preventDefault();
         }}
+        style={{ width: "640px" }}
       >
         <ModalHeader>Save theme</ModalHeader>
         <ModalBody>
