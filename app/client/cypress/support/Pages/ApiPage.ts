@@ -41,7 +41,7 @@ export class ApiPage {
   _bodyValue = (index: number) =>
     ".t--actionConfiguration\\.bodyFormData\\[0\\]\\.value\\." + index + "";
   _bodyTypeDropdown =
-    "//span[text()='Type'][@class='bp3-button-text']/parent::button";
+    "//span[text()='Type'][@class='rc-select-selection-placeholder']/ancestor::div";
   _apiRunBtn = ".t--apiFormRunBtn";
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
