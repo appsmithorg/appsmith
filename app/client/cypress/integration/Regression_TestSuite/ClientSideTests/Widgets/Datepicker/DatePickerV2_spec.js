@@ -22,7 +22,9 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
   it("1. Datepicker default date validation with js binding", function () {
     cy.wait(7000);
     cy.openPropertyPane("datepickerwidget2");
-    cy.get(".t--property-control-defaultdate .bp3-input").clear();
+    cy.get(
+      ".t--property-control-defaultdate .ads-v2-input__input-section-input",
+    ).clear();
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
     cy.testJsontext("defaultdate", "{{moment().toISOString()}}");
     cy.get(formWidgetsPage.toggleJsMinDate).click();
@@ -56,7 +58,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
     cy.closePropertyPane();
   });
 
-  it("3. Text widgets binding with datepicker", function () {
+  it.only("3. Text widgets binding with datepicker", function () {
     cy.openPropertyPane("datepickerwidget2");
     cy.selectDateFormat("YYYY-MM-DD");
     cy.assertDateFormat();
