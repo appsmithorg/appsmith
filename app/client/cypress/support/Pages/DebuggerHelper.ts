@@ -41,7 +41,7 @@ export class DebuggerHelper {
     },
     _debuggerList: ".debugger-list",
     _debuggerFilter: ".debugger-search",
-    _debuggerSelectedTab: ".react-tabs__tab--selected",
+    _debuggerSelectedTab: ".ads-v2-tabs__list-tab",
   };
 
   ClickDebuggerIcon(
@@ -112,6 +112,7 @@ export class DebuggerHelper {
 
   AssertSelectedTab(text: string) {
     this.agHelper.GetNAssertContains(this.locators._debuggerSelectedTab, text);
+    this.agHelper.AssertSelectedTab(this.locators._debuggerSelectedTab, "true");
   }
 
   DoesConsoleLogExist(

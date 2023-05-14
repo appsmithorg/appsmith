@@ -38,6 +38,7 @@ describe("Entity bottom bar", () => {
 
   it("3. Api bottom pane should be collapsable", () => {
     cy.fixture("datasources").then((datasourceFormData: any) => {
+      _.entityExplorer.NavigateToSwitcher("Explorer");
       _.apiPage.CreateAndFillApi(datasourceFormData["mockApiUrl"]);
       //Verify if bottom bar opens on clicking debugger icon in api page.
       _.debuggerHelper.ClickDebuggerIcon();

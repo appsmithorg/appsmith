@@ -661,6 +661,17 @@ export class AggregateHelper {
     }
   }
 
+  public AssertSelectedTab(propertyName: string, value: "true" | "false") {
+    let locator;
+    if (propertyName.startsWith("//")) {
+      locator = cy.xpath(propertyName);
+      locator.should("have.attr", "aria-checked", value);
+    } else if (propertyName.includes(" ")) {
+      locator = cy.get(propertyName);
+      locator.should("have.attr", "aria-checked", value);
+    }
+  }
+
   public AssertAttribute(
     selector: string,
     attribName: string,
