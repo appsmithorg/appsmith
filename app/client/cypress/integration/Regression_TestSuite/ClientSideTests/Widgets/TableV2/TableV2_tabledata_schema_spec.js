@@ -1,6 +1,7 @@
 const explorer = require("../../../../../locators/explorerlocators.json");
 import homePage from "../../../../../locators/HomePage";
 const publish = require("../../../../../locators/publishWidgetspage.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget", function () {
   it("1. Table Widget Functionality To Check with changing schema of tabledata", () => {
@@ -49,7 +50,8 @@ describe("Table Widget", function () {
     cy.get(publish.backToEditor).click().wait(1000);
     cy.wait(5000);
     cy.CheckAndUnfoldEntityItem("Widgets");
-    cy.actionContextMenuByEntityName("Switch1");
-    cy.actionContextMenuByEntityName("Table1");
+
+    _.entityExplorer.ActionContextMenuByEntityName("Switch1", "Delete");
+    _.entityExplorer.ActionContextMenuByEntityName("Table1", "Delete");
   });
 });

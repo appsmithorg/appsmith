@@ -355,7 +355,7 @@ describe("Validate Mongo query commands", function () {
       );
     });
     cy.CheckAndUnfoldEntityItem("Queries/JS");
-    cy.actionContextMenuByEntityName("Query1", "Delete", "Are you sure?");
+    _.entityExplorer.ActionContextMenuByEntityName("Query1", "Delete");
   });
 
   it("9. Delete the datasource after NewPage deletion is success", () => {
@@ -431,7 +431,7 @@ describe("Validate Mongo query commands", function () {
 
     cy.get("@dSName").then((dbName) => {
       //cy.CheckAndUnfoldEntityItem("Datasources");
-      cy.actionContextMenuByEntityName(dbName, "Refresh");
+      _.entityExplorer.ActionContextMenuByEntityName(dbName, "Refresh");
       // cy.get(`.t--entity.datasource:contains(${dbName})`)
       //   .find(explorer.collapse)
       //   .first()
@@ -566,14 +566,14 @@ describe("Validate Mongo query commands", function () {
     _.dataSources.RunQuery({ waitTimeInterval: 2000 });
     cy.CheckAndUnfoldEntityItem("Datasources");
     cy.get("@dSName").then((dbName) => {
-      cy.actionContextMenuByEntityName(dbName, "Refresh");
+      _.entityExplorer.ActionContextMenuByEntityName(dbName, "Refresh");
     });
     cy.xpath("//div[text()='NonAsciiTest']").should("not.exist"); //validating drop is successful!
 
     cy.deleteQueryUsingContext();
     cy.CheckAndUnfoldEntityItem("Widgets");
-    cy.actionContextMenuByEntityName("Table1");
-    cy.actionContextMenuByEntityName("Chart1");
+    _.entityExplorer.ActionContextMenuByEntityName("Table1", "Delete");
+    _.entityExplorer.ActionContextMenuByEntityName("Chart1", "Delete");
     cy.wait(3000); //waiting for deletion to complete! - else next case fails
   });
 });

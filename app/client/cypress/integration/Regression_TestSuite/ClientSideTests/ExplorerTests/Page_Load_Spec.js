@@ -77,7 +77,7 @@ describe("Page Load tests", () => {
 
   it("2. Hide Page and validate published app", () => {
     cy.get(publish.backToEditor).click();
-    cy.actionContextMenuByEntityName("Page1", "Hide");
+    _.entityExplorer.ActionContextMenuByEntityName("Page1", "Hide");
     cy.PublishtheApp();
     // Assert active page DSL
     cy.get(commonlocators.headingTextStyle).should(

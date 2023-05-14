@@ -1,6 +1,7 @@
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const explorer = require("../../../../../locators/explorerlocators.json");
 const dsl = require("../../../../../fixtures/tableNewDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget", function () {
   before(() => {
@@ -43,7 +44,7 @@ describe("Table Widget", function () {
     });
     cy.get(publish.backToEditor).click().wait(1000);
     cy.CheckAndUnfoldEntityItem("Widgets");
-    cy.actionContextMenuByEntityName("Switch1");
-    cy.actionContextMenuByEntityName("Table1");
+    _.entityExplorer.ActionContextMenuByEntityName("Switch1", "Delete");
+    _.entityExplorer.ActionContextMenuByEntityName("Table1", "Delete");
   });
 });
