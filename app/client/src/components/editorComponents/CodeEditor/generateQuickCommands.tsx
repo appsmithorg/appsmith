@@ -22,6 +22,7 @@ const MagicIcon = importRemixIcon(
 const Binding = importSvg(() => import("assets/icons/menu/binding.svg"));
 const Snippet = importSvg(() => import("assets/icons/ads/snippet.svg"));
 import type { FieldEntityInformation } from "./EditorConfig";
+import { APPSMITH_AI } from "ce/components/editorComponents/GPT/trigger";
 
 enum Shortcuts {
   PLUS = "PLUS",
@@ -258,7 +259,7 @@ export const generateQuickCommands = (
   if (enableAIAssistance) {
     const askGPT: CommandsCompletion = generateCreateNewCommand({
       text: "",
-      displayText: "Ask AI",
+      displayText: APPSMITH_AI,
       shortcut: Shortcuts.ASK_AI,
       triggerCompletionsPostPick: true,
     });

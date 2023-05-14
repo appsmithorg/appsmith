@@ -149,7 +149,10 @@ import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import { AIWindow } from "@appsmith/components/editorComponents/GPT";
 import classNames from "classnames";
-import { askAIEnabled } from "@appsmith/components/editorComponents/GPT/trigger";
+import {
+  APPSMITH_AI,
+  askAIEnabled,
+} from "@appsmith/components/editorComponents/GPT/trigger";
 import { getAllDatasourceTableKeys } from "selectors/entitiesSelector";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
@@ -456,7 +459,7 @@ class CodeEditor extends Component<Props, State> {
 
   handleSlashCommandSelection = (...args: any) => {
     const [command] = args;
-    if (command === "Ask AI") {
+    if (command === APPSMITH_AI) {
       this.setState({ showAIWindow: true });
     }
     this.handleAutocompleteVisibility(this.editor);
