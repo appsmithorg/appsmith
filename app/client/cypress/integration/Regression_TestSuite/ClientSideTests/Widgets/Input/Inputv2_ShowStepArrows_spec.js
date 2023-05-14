@@ -12,16 +12,12 @@ describe("Input Widget V2 showStepArrows Functionality - ", function () {
     cy.get(widgetsPage.showStepArrowsToggleCheckBox).should("not.be.checked");
 
     cy.get(widgetsPage.inputStepArrows).should("not.exist"); // This is the step arrows
-  });
-
-  it("2. Validate that dataType - NUMBER, stepArrows should be visible when showStepArrows is set to true", () => {
+    //Validate that dataType - NUMBER, stepArrows should be visible when showStepArrows is set to true
     // Enable showStepArrows to true
     cy.togglebar(widgetsPage.showStepArrowsToggleCheckBox);
 
     cy.get(widgetsPage.inputStepArrows).should("exist"); // step arrows should be visible
-  });
-
-  it("3. Toggle test case to validate that dataType - NUMBER, stepArrows should be hidden when toggle value is false", () => {
+    //Toggle test case to validate that dataType - NUMBER, stepArrows should be hidden when toggle value is false
     // click on the Js
     cy.get(widgetsPage.toggleShowStepArrows).click({ force: true });
 
@@ -29,9 +25,8 @@ describe("Input Widget V2 showStepArrows Functionality - ", function () {
     cy.testJsontext("showsteparrows", `{{false}}`);
 
     cy.get(widgetsPage.inputStepArrows).should("not.exist"); // step arrows should not be visible
-  });
 
-  it("4. Toggle test case to validate that dataType - NUMBER, stepArrows should be visible when toggle value is true", () => {
+    //Toggle test case to validate that dataType - NUMBER, stepArrows should be visible when toggle value is true
     // Add showStepArrows action and add value as true
     cy.testJsontext("showsteparrows", `{{true}}`);
 

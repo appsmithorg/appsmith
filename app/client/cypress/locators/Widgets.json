@@ -5,7 +5,7 @@
   "multiSelectWidget": ".t--draggable-multiselectwidgetv2",
   "togglebutton": "input[type='checkbox']",
   "showStepArrowsToggleCheckBox": ".t--property-control-showsteparrows input[type='checkbox']",
-  "inputPropsDataType": ".t--property-control-datatype",
+  "inputPropsDataType": ".t--property-control-datatype input",
   "inputdatatypeplaceholder": ".t--property-control-placeholder",
   "buttonWidget": ".t--draggable-buttonwidget",
   "buttonColor": ".t--property-control-buttoncolor input",
