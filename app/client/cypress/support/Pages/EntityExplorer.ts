@@ -221,6 +221,22 @@ export class EntityExplorer {
     }
   }
 
+  public DeleteWidgetFromEntityExplorer(widgetNameinLeftSidebar: string) {
+    cy.xpath(this._contextMenu(widgetNameinLeftSidebar))
+      .last()
+      .click({ force: true });
+    cy.xpath(this._contextMenuItem("Delete")).click({ force: true });
+    this.agHelper.Sleep(500);
+    this.agHelper.ValidateNetworkStatus("@updateLayout");
+    this.AssertEntityAbsenceInExplorer(widgetNameinLeftSidebar);
+  }
+
+  public ValidateDuplicateMessageToolTip(tooltipText: string) {
+    cy.get(".rc-tooltip-inner").should(($x) => {
+      expect($x).contain(tooltipText.concat(" is already being used."));
+    });
+  }
+
   public DeleteAllQueriesForDB(dsName: string) {
     this.agHelper.GetElement(this._allQueriesforDB(dsName)).each(($el: any) => {
       cy.wrap($el)
@@ -308,8 +324,13 @@ export class EntityExplorer {
       });
   }
 
-  public RenameEntityFromExplorer(entityName: string, renameVal: string) {
-    cy.xpath(this._entityNameInExplorer(entityName)).dblclick();
+  public RenameEntityFromExplorer(
+    entityName: string,
+    renameVal: string,
+    viaMenu = false,
+  ) {
+    if (viaMenu) this.ActionContextMenuByEntityName(entityName, "Edit name");
+    else cy.xpath(this._entityNameInExplorer(entityName)).dblclick();
     cy.xpath(this.locator._entityNameEditing(entityName)).type(
       renameVal + "{enter}",
     );

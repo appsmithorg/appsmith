@@ -292,7 +292,7 @@ Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
 });
 
 Cypress.Commands.add("validateMessage", (value) => {
-  cy.get(".bp3-popover-content").should(($x) => {
+  cy.get(".rc-tooltip-inner").should(($x) => {
     expect($x).contain(value.concat(" is already being used."));
   });
 });
