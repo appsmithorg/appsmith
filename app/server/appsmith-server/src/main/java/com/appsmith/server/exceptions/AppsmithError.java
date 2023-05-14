@@ -82,6 +82,7 @@ public enum AppsmithError {
     ACL_NO_RESOURCE_FOUND(404, AppsmithErrorCode.ACL_NO_RESOURCE_FOUND.getCode(), "Unable to find {0} {1}. Either the asset doesn''t exist or you don''t have required permissions",
             AppsmithErrorAction.DEFAULT, "No resource found or permission denied", ErrorType.INTERNAL_ERROR, null),
     GENERIC_BAD_REQUEST(400, AppsmithErrorCode.GENERIC_BAD_REQUEST.getCode(), "Bad request: {0}", AppsmithErrorAction.DEFAULT, "Invalid request", ErrorType.BAD_REQUEST, null),
+    GENERIC_REQUEST_BODY_PARSE_ERROR(400, AppsmithErrorCode.MALFORMED_REQUEST.getCode(), "The request could not be understood by the server due to malformed syntax.", AppsmithErrorAction.DEFAULT, "Malformed request body", ErrorType.BAD_REQUEST, null),
     VALIDATION_FAILURE(400, AppsmithErrorCode.VALIDATION_FAILURE.getCode(), "Validation Failure(s): {0}", AppsmithErrorAction.DEFAULT, "Validation failed", ErrorType.INTERNAL_ERROR, null),
     INVALID_CURL_COMMAND(400, AppsmithErrorCode.INVALID_CURL_COMMAND.getCode(), "Invalid cURL command, couldn''t import.", AppsmithErrorAction.DEFAULT, "Invalid cURL command", ErrorType.ARGUMENT_ERROR, null),
     INVALID_LOGIN_METHOD(401, AppsmithErrorCode.INVALID_LOGIN_METHOD.getCode(), "Please use {0} authentication to login to Appsmith", AppsmithErrorAction.DEFAULT, "Invalid login method", ErrorType.INTERNAL_ERROR, null),
