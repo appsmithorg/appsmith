@@ -172,12 +172,12 @@ export const CurrencyDropdownOptions = getCurrencyOptions();
 
 export const getDefaultCurrency = () => {
   return {
-    code: "US",
-    currency: "USD",
-    currency_name: "US Dollar",
-    label: "United States",
-    phone: "1",
-    symbol_native: "$",
+    code: "IN",
+    currency: "INR",
+    currency_name: "Indian Rupee",
+    label: "India",
+    phone: "91",
+    symbol_native: "₹",
   };
 };
 

@@ -48,8 +48,13 @@ const StyledButton = styled(Button)`
     color: rgb(169, 167, 167);
   }
 
-  &:hover,
+  &:hover {
+    border: 1px solid var(--ads-v2-color-border-emphasis);
+  }
+
   &:focus {
+    outline: var(--ads-v2-border-width-outline) solid
+      var(--ads-v2-color-outline);
     border: 1px solid var(--ads-v2-color-border-emphasis);
   }
 `;

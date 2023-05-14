@@ -137,7 +137,7 @@ function ThemeEditor() {
                   startIcon="context-menu"
                 />
               </MenuTrigger>
-              <MenuContent align="end">
+              <MenuContent align="end" className="t--save-theme-menu">
                 <MenuItem onClick={onOpenSaveModal} startIcon="save">
                   Save theme
                 </MenuItem>
