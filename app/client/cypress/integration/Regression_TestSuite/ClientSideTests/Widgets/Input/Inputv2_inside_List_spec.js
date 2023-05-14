@@ -49,11 +49,11 @@ describe("Input widget V2 - ", () => {
 
   it("3. Validate DataType - NUMBER can be entered into Input widget", () => {
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(".t--property-control-datatype", "Number");
+    cy.selectDropdownValue(".t--property-control-datatype input", "Number");
 
     cy.get(".t--property-control-required label").last().click({ force: true });
 
-    cy.selectDropdownValue(".t--property-control-datatype", "Number");
+    cy.selectDropdownValue(".t--property-control-datatype input", "Number");
     [
       {
         input: "invalid",
@@ -96,7 +96,7 @@ describe("Input widget V2 - ", () => {
 
   it("4. Validate DataType - PASSWORD can be entered into Input widget", () => {
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(".t--property-control-datatype", "Password");
+    cy.selectDropdownValue(".t--property-control-datatype input", "Password");
     [
       {
         input: "test",
@@ -131,7 +131,7 @@ describe("Input widget V2 - ", () => {
 
   it("5. Validate DataType - EMAIL can be entered into Input widget", () => {
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(".t--property-control-datatype", "Email");
+    cy.selectDropdownValue(".t--property-control-datatype input", "Email");
 
     cy.get(".t--property-control-required label").last().click({ force: true });
 

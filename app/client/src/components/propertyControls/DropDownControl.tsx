@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Option, Select } from "design-system";
+import { Option, Select, Text, Icon } from "design-system";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { isNil } from "lodash";
@@ -100,7 +100,6 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       <div className="w-full h-full" ref={this.containerRef}>
         <Select
           defaultValue={defaultSelected}
-          filterOption
           isMultiSelect={this.props.isMultiSelect}
           onDeselect={this.onDeselect}
           onSelect={this.onSelect}
@@ -108,19 +107,44 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           placeholder={this.props.placeholderText}
           showSearch={this.props.enableSearch}
           value={selected}
-          virtual={false}
+          virtual={this.props.virtual || false}
         >
           {options.map((option, index) => (
             <Option
               className="t--dropdown-option"
               key={index}
+              label={option.label}
               searchText={option.searchText}
               value={option.value}
             >
+              {/* Show Flag if present */}
               {option.leftElement && (
                 <FlagWrapper>{option.leftElement}</FlagWrapper>
               )}
-              <span>{option.label}</span>
+
+              {/* Show icon if present */}
+              {option.icon && (
+                <Icon className="mr-1" name={option.icon} size="md" />
+              )}
+
+              {option.subText ? (
+                this.props.hideSubText ? (
+                  // Show subText below the main text eg - DatePicker control
+                  <div className="w-full flex flex-col">
+                    <Text kind="action-m">{option.label}</Text>
+                    <Text kind="action-s">{option.subText}</Text>
+                  </div>
+                ) : (
+                  // Show subText to the right side eg - Label fontsize control
+                  <div className="w-full flex justify-between items-end">
+                    <Text kind="action-m">{option.label}</Text>
+                    <Text kind="action-s">{option.subText}</Text>
+                  </div>
+                )
+              ) : (
+                // Only show the label eg - Auto height control
+                <Text kind="action-m">{option.label}</Text>
+              )}
             </Option>
           ))}
         </Select>
@@ -213,6 +237,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 export interface DropDownControlProps extends ControlProps {
   options?: any[] | ((props: ControlProps["widgetProperties"]) => any[]);
   defaultValue?: string;
+  virtual?: boolean;
   placeholderText: string;
   searchPlaceholderText: string;
   isMultiSelect?: boolean;

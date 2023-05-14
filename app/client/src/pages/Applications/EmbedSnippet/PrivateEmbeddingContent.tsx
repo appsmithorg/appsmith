@@ -77,18 +77,19 @@ function AppSettingsContent({
   canMakeAppPublic: boolean;
 }) {
   return (
-    <div
-      className="px-4 pt-3 flex flex-col gap-1 items-start"
-      data-testid="t--upgrade-content"
-    >
-      <Text kind="heading-s">{createMessage(IN_APP_EMBED_SETTING.embed)}</Text>
-      <Text kind="action-m" renderAs="p">
-        {canMakeAppPublic
-          ? createMessage(IN_APP_EMBED_SETTING.secondaryHeadingForAppSettings)
-          : createMessage(IN_APP_EMBED_SETTING.secondaryHeading)}
+    <div className="px-4" data-testid="t--upgrade-content">
+      <Text className="pt-3 pb-3" kind="heading-xs" renderAs="p">
+        {createMessage(IN_APP_EMBED_SETTING.embed)}
       </Text>
+      <div className="flex flex-col gap-1">
+        <Text kind="action-m" renderAs="p">
+          {canMakeAppPublic
+            ? createMessage(IN_APP_EMBED_SETTING.secondaryHeadingForAppSettings)
+            : createMessage(IN_APP_EMBED_SETTING.secondaryHeading)}
+        </Text>
 
-      <EmbeddedLink />
+        <EmbeddedLink />
+      </div>
     </div>
   );
 }

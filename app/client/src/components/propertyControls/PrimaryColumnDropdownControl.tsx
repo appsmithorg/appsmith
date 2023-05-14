@@ -54,29 +54,23 @@ class PrimaryColumnDropdownControl extends BaseControl<ControlProps> {
       });
     }
 
-    let defaultSelected: SegmentedControlOption = {
-      label: "No selection.",
-      value: "",
-    };
-
     const selected: SegmentedControlOption = options.find(
       (option) => option.value === this.props.propertyValue,
     );
 
-    if (selected) {
-      defaultSelected = selected;
-    }
-
     return (
       <div className="w-full h-full" ref={this.containerRef}>
-        <Select onSelect={this.onItemSelect} value={defaultSelected} />
-        {options.map((option) => {
-          return (
-            <Option key={option.value} value={option.value}>
+        <Select
+          onSelect={this.onItemSelect}
+          placeholder="No selection."
+          value={selected ? selected.value : undefined}
+        >
+          {options.map((option) => (
+            <Option key={option.id} value={option.value}>
               {option.label}
             </Option>
-          );
-        })}
+          ))}
+        </Select>
       </div>
     );
   }
