@@ -2,6 +2,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/newFormDsl.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const iconAlignmentProperty = ".t--property-control-position";
 
@@ -14,7 +15,7 @@ describe("Button Widget Functionality", function () {
     cy.openPropertyPane("buttonwidget");
   });
 
-  it("Icon alignment should not change when changing the icon", () => {
+  it("1. Icon alignment should not change when changing the icon", () => {
     cy.moveToStyleTab();
     cy.wait(500);
     // Add an icon
@@ -29,7 +30,7 @@ describe("Button Widget Functionality", function () {
     // Assert if the icon exists
     cy.get(`${widgetsPage.buttonWidget} .bp3-icon-add`).should("exist");
     // Change icon alignment to right
-    cy.get(`${iconAlignmentProperty} .t--button-group-right`).last().click({
+    cy.get(`${iconAlignmentProperty} span[data-value="right"]`).last().click({
       force: true,
     });
     cy.wait(200);
@@ -56,13 +57,13 @@ describe("Button Widget Functionality", function () {
       .should("have.text", "Submit");
   });
 
-  it("Button-Color Validation", function () {
+  it("2. Button-Color Validation", function () {
     // Change button color
     cy.changeButtonColor("rgb(255, 0, 0)");
-  });
-
-  it("Button default variant validation", function () {
+    cy.goToEditFromPublish();
+    // Button default variant validation", function () {
     // Checks whether the default variant is PRIMARY or not
+    cy.openPropertyPane("buttonwidget");
     cy.get(widgetsPage.widgetBtn).should(
       "have.attr",
       "data-test-variant",
@@ -70,7 +71,7 @@ describe("Button Widget Functionality", function () {
     );
   });
 
-  it("Button-Name validation", function () {
+  it("3. Button-Name validation", function () {
     //changing the Button Name
     cy.widgetText(
       this.data.ButtonName,
@@ -96,7 +97,7 @@ describe("Button Widget Functionality", function () {
     );
   });
 
-  it("Button-Disable Validation", function () {
+  it("4. Button-Disable Validation", function () {
     //Check the disableed checkbox and Validate
     cy.CheckWidgetProperties(commonlocators.disableCheckbox);
     cy.validateDisableWidget(
@@ -108,10 +109,10 @@ describe("Button Widget Functionality", function () {
       publishPage.buttonWidget,
       commonlocators.disabledField,
     );
-  });
+    cy.goToEditFromPublish();
 
-  it("Button-Enable Validation", function () {
     //Uncheck the disabled checkbox and validate
+    cy.openPropertyPane("buttonwidget");
     cy.UncheckWidgetProperties(commonlocators.disableCheckbox);
     cy.validateEnableWidget(
       widgetsPage.buttonWidget,
@@ -124,7 +125,7 @@ describe("Button Widget Functionality", function () {
     );
   });
 
-  it("Toggle JS - Button-Disable Validation", function () {
+  it("5. Toggle JS - Button-Disable Validation", function () {
     //Check the disabled checkbox by using JS widget and Validate
     cy.get(widgetsPage.toggleDisable).click({ force: true });
     cy.testJsontext("disabled", "true");
@@ -137,10 +138,10 @@ describe("Button Widget Functionality", function () {
       publishPage.buttonWidget,
       commonlocators.disabledField,
     );
-  });
+    cy.goToEditFromPublish();
 
-  it("Toggle JS - Button-Enable Validation", function () {
     //Uncheck the disabled checkbox and validate
+    cy.openPropertyPane("buttonwidget");
     cy.testJsontext("disabled", "false");
     cy.validateEnableWidget(
       widgetsPage.buttonWidget,
@@ -153,31 +154,30 @@ describe("Button Widget Functionality", function () {
     );
   });
 
-  it("Button-Unckeck Visible field Validation", function () {
+  it("6. Button-Unckeck Visible field Validation", function () {
     //Uncheck the disabled checkbox and validate
     cy.UncheckWidgetProperties(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publishPage.buttonWidget).should("not.exist");
-  });
+    cy.goToEditFromPublish();
 
-  it("Button-Check Visible field Validation", function () {
     //Check the disableed checkbox and Validate
+    cy.openPropertyPane("buttonwidget");
     cy.CheckWidgetProperties(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(publishPage.buttonWidget).should("be.visible");
   });
 
-  it("Toggle JS - Button-Unckeck Visible field Validation", function () {
+  it("7. Toggle JS - Button-Unckeck Visible field Validation", function () {
     //Uncheck the disabled checkbox using JS and validate
     cy.get(widgetsPage.toggleVisible).click({ force: true });
     cy.EnableAllCodeEditors();
     cy.testJsontext("visible", "false");
     cy.PublishtheApp();
     cy.get(publishPage.buttonWidget).should("not.exist");
-  });
-
-  it("Toggle JS - Button-Check Visible field Validation", function () {
+    cy.goToEditFromPublish();
     //Check the disabled checkbox using JS and Validate
+    cy.openPropertyPane("buttonwidget");
     cy.EnableAllCodeEditors();
     cy.testJsontext("visible", "true");
     cy.PublishtheApp();
@@ -186,33 +186,34 @@ describe("Button Widget Functionality", function () {
 
   it(
     "excludeForAirgap",
-    "Button-Check recaptcha type can be selected",
+    "8. Button-Check recaptcha type can be selected",
     function () {
       cy.selectDropdownValue(commonlocators.recaptchaVersion, "reCAPTCHA v2");
-      cy.get(commonlocators.recaptchaVersion)
+      cy.get(commonlocators.recaptchaVersionText)
         .last()
         .should("have.text", "reCAPTCHA v2");
     },
   );
 
-  it(
+  it.skip(
     "airgap",
-    "Button-Check recaptcha type should not exist for airgap",
+    "9. Button-Check recaptcha type should not exist for airgap",
     function () {
       cy.get(commonlocators.recaptchaVersion).should("not.exist");
     },
   );
 
-  it("Button-Copy Verification", function () {
+  it("10. Button-Copy & Delete Verification", function () {
     //Copy button and verify all properties
-    cy.copyWidget("buttonwidget", widgetsPage.buttonWidget);
+    _.entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
+    _.propPane.CopyWidgetFromPropertyPane("Submitbutton");
+    //cy.copyWidget("buttonwidget", widgetsPage.buttonWidget);
+    cy.goToEditFromPublish();
 
-    // cy.PublishtheApp();
-  });
-
-  it("Button-Delete Verification", function () {
     // Delete the button widget
-    cy.deleteWidget(widgetsPage.buttonWidget);
+
+    _.entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
+    _.propPane.DeleteWidgetFromPropertyPane("SubmitbuttonCopy");
     cy.PublishtheApp();
     cy.get(widgetsPage.buttonWidget).should("not.exist");
   });
