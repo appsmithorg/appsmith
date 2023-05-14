@@ -31,7 +31,7 @@ export const AppsmithDefaultLayout: AppLayoutConfig = {
 
 const AppsmithLayouts: AppsmithLayoutConfigOption[] = [
   {
-    name: "Fluid Width",
+    name: "Fluid width",
     type: "FLUID",
     icon: "fluid",
   },
@@ -51,7 +51,7 @@ const AppsmithLayouts: AppsmithLayoutConfigOption[] = [
     icon: "tablet",
   },
   {
-    name: "Mobile Device",
+    name: "Mobile device",
     type: "MOBILE",
     icon: "mobile",
   },

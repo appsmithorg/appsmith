@@ -5,7 +5,6 @@ import type { Intent } from "constants/DefaultTheme";
 import { FieldError } from "design-system-old";
 import { Input } from "design-system";
 import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
-import { FormGroup } from "./Common";
 
 const renderComponent = (
   componentProps: FormTextAreaFieldProps & {
@@ -50,19 +49,21 @@ export type FormTextAreaFieldProps = {
 function FormTextAreaField(props: FormTextAreaFieldProps) {
   const { setting } = props;
   return (
-    <FormGroup
+    <div
       className={`t--admin-settings-text-area-input t--admin-settings-${
         setting.name || setting.id
       }`}
-      setting={setting}
     >
       <Field
         component={renderComponent}
+        description={setting.subText || ""}
+        isRequired={setting.isRequired}
+        label={setting.label || ""}
         name={setting.name || setting.id || ""}
         {...props}
         asyncControl
       />
-    </FormGroup>
+    </div>
   );
 }
 

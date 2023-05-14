@@ -96,6 +96,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       className={`t--entity-context-menu ${EntityClassNames.CONTEXT_MENU_CONTENT}`}
       onInteractOutside={() => handleOpenChange(false)}
       side="right"
+      style={{ maxHeight: "unset" }}
       width="220px"
     >
       {list}
