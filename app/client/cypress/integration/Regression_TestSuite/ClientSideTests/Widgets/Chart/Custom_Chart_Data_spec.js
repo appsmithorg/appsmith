@@ -6,12 +6,10 @@ describe("Chart Widget Functionality around custom chart data", function () {
   });
 
   it("1. change chart type to custom chart", function () {
-    cy.openPropertyPane("chartwidget");
-    cy.UpdateChartType("Custom Chart");
-  });
-
-  it("2. change chart value via input widget and validate", function () {
     const value1 = 40;
+    cy.openPropertyPane("chartwidget");
+    cy.UpdateChartType("Custom chart");
+    //change chart value via input widget and validate
     enterAndTest("inputwidgetv2", value1, value1);
     cy.wait(400);
     cy.get(".t--draggable-chartwidget")

@@ -1,8 +1,9 @@
-const commonlocators = require("../../../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/chartUpdatedDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Chart Widget Functionality around custom chart feature", function () {
   before(() => {
@@ -68,7 +69,7 @@ describe("Chart Widget Functionality around custom chart feature", function () {
   it("2. Custom Chart Widget Functionality", function () {
     //changing the Chart type
     //cy.get(widgetsPage.toggleChartType).click({ force: true });
-    cy.UpdateChartType("Custom Chart");
+    cy.UpdateChartType("Custom chart");
 
     cy.testJsontext(
       "customfusionchart",
@@ -113,16 +114,18 @@ describe("Chart Widget Functionality around custom chart feature", function () {
     cy.PublishtheApp(false);
   });
 
-  it("4. Chart-Copy Verification", function () {
+  it("4. Chart-Copy & Delete Verification", function () {
     //Copy Chart and verify all properties
     cy.wait(1000);
-    cy.copyWidget("chartwidget", viewWidgetsPage.chartWidget);
+    _.entityExplorer.ExpandCollapseEntity("Widgets");
+    _.entityExplorer.ExpandCollapseEntity("Container3");
+    _.propPane.CopyWidgetFromPropertyPane("Test");
     cy.PublishtheApp();
-  });
-
-  it("5. Chart-Delete Verification", function () {
-    // Delete the Chart widget
-    cy.deleteWidget(viewWidgetsPage.chartWidget);
+    //Chart-Delete Verification"
+    cy.get(publish.backToEditor).click({ force: true });
+    _.entityExplorer.ExpandCollapseEntity("Widgets");
+    _.entityExplorer.ExpandCollapseEntity("Container3");
+    _.propPane.DeleteWidgetFromPropertyPane("TestCopy");
     cy.PublishtheApp();
     cy.get(viewWidgetsPage.chartWidget).should("not.exist");
   });

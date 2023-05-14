@@ -19,6 +19,8 @@ const DEFAULT_ENTERVALUE_OPTIONS = {
 };
 export class AggregateHelper {
   private locator = ObjectsRegistry.CommonLocators;
+  public _modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
+
   public isMac = Cypress.platform === "darwin";
   private selectLine = `${
     this.isMac ? "{cmd}{shift}{leftArrow}" : "{shift}{home}"

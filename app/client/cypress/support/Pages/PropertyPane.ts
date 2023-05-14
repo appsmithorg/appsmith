@@ -120,10 +120,20 @@ export class PropertyPane {
     //this.agHelper.AssertElementVisible(this._deleteWidget); //extra valisation, hence commenting!
   }
 
+  public CopyWidgetFromPropertyPane(widgetName: string) {
+    this.entityExplorer.SelectEntityByName(widgetName, "Widgets");
+    this.agHelper.GetNClick(this._copyWidget);
+    this.agHelper.Sleep(200);
+    cy.get("body").type(`{${this.agHelper._modifierKey}}v`);
+    this.agHelper.Sleep(500);
+    this.entityExplorer.AssertEntityPresenceInExplorer(widgetName + "Copy");
+  }
+
   public DeleteWidgetFromPropertyPane(widgetName: string) {
     this.entityExplorer.SelectEntityByName(widgetName, "Widgets");
     this.agHelper.GetNClick(this._deleteWidget);
     this.agHelper.Sleep(500);
+    this.entityExplorer.AssertEntityAbsenceInExplorer(widgetName);
   }
 
   public GetJSONFormConfigurationFileds() {
