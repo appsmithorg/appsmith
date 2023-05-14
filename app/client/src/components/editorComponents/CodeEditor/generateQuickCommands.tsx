@@ -22,7 +22,7 @@ const MagicIcon = importRemixIcon(
 const Binding = importSvg(() => import("assets/icons/menu/binding.svg"));
 const Snippet = importSvg(() => import("assets/icons/ads/snippet.svg"));
 import type { FieldEntityInformation } from "./EditorConfig";
-import { APPSMITH_AI } from "ce/components/editorComponents/GPT/trigger";
+import { APPSMITH_AI } from "@appsmith/components/editorComponents/GPT/trigger";
 
 enum Shortcuts {
   PLUS = "PLUS",
