@@ -38,7 +38,7 @@ describe("Validate API request body panel", () => {
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
-  it.skip("3. Checks whether header content type is being changed when FORM_URLENCODED API body content type is selected", function () {
+  it("3. Checks whether header content type is being changed when FORM_URLENCODED API body content type is selected", function () {
     apiPage.CreateApi("FirstAPI", "POST");
     apiPage.SelectPaneTab("Body");
     apiPage.SelectSubTab("JSON");
@@ -55,7 +55,7 @@ describe("Validate API request body panel", () => {
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
-  it.skip("4. Checks whether header content type is being changed when MULTIPART_FORM_DATA API body content type is selected", function () {
+  it("4. Checks whether header content type is being changed when MULTIPART_FORM_DATA API body content type is selected", function () {
     apiPage.CreateApi("FirstAPI", "POST");
     apiPage.SelectPaneTab("Body");
     apiPage.SelectSubTab("JSON");
@@ -72,7 +72,7 @@ describe("Validate API request body panel", () => {
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
-  it.skip("5. Checks whether content type 'FORM_URLENCODED' is preserved when user selects None API body content type", function () {
+  it("5. Checks whether content type 'FORM_URLENCODED' is preserved when user selects None API body content type", function () {
     apiPage.CreateApi("FirstAPI", "POST");
     apiPage.SelectPaneTab("Body");
     apiPage.SelectSubTab("FORM_URLENCODED");
@@ -81,7 +81,7 @@ describe("Validate API request body panel", () => {
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
-  it.skip("6. Checks whether content type 'MULTIPART_FORM_DATA' is preserved when user selects None API body content type", function () {
+  it("6. Checks whether content type 'MULTIPART_FORM_DATA' is preserved when user selects None API body content type", function () {
     apiPage.CreateApi("FirstAPI", "POST");
     apiPage.SelectPaneTab("Body");
     apiPage.SelectSubTab("MULTIPART_FORM_DATA");
@@ -90,7 +90,7 @@ describe("Validate API request body panel", () => {
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
-  it.skip("7. Checks MultiPart form data for a File Type upload + Bug 12476", () => {
+  it("7. Checks MultiPart form data for a File Type upload + Bug 12476", () => {
     const imageNameToUpload = "ConcreteHouse.jpg";
     cy.fixture("multiPartFormDataDsl").then((val: any) => {
       agHelper.AddDsl(val);
@@ -155,7 +155,7 @@ describe("Validate API request body panel", () => {
     deployMode.NavigateBacktoEditor();
   });
 
-  it.skip("8. Checks MultiPart form data for a Array Type upload results in API error", () => {
+  it("8. Checks MultiPart form data for a Array Type upload results in API error", () => {
     const imageNameToUpload = "AAAFlowerVase.jpeg";
     ee.SelectEntityByName("CloudinaryUploadApi", "Queries/JS");
     apiPage.EnterBodyFormData(
