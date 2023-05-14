@@ -8,7 +8,7 @@ describe("Audio Widget Functionality", function () {
     cy.addDsl(dsl);
   });
 
-  it("Audio Widget play functionality validation", function () {
+  it("1. Audio Widget play functionality validation", function () {
     cy.openPropertyPane("audiowidget");
     cy.widgetText(
       "Audio1",
@@ -24,7 +24,7 @@ describe("Audio Widget Functionality", function () {
     );
   });
 
-  it("Audio widget pause functionality validation", function () {
+  it("2. Audio widget pause functionality validation", function () {
     cy.getAlert("onPause", "Pause success");
     cy.get(widgetsPage.autoPlay).click();
     cy.wait("@updateLayout").should(
@@ -34,7 +34,7 @@ describe("Audio Widget Functionality", function () {
     );
   });
 
-  it("Update audio url and check play and pause functionality validation", function () {
+  it("3. Update audio url and check play and pause functionality validation", function () {
     cy.testCodeMirror(testdata.audioUrl);
     cy.get(".CodeMirror textarea").first().blur();
     cy.get(widgetsPage.autoPlay).click({ force: true });
@@ -51,7 +51,7 @@ describe("Audio Widget Functionality", function () {
     );
   });
 
-  it("Checks if audio widget is reset on button click", function () {
+  it("4. Checks if audio widget is reset on button click", function () {
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
     cy.openPropertyPane("buttonwidget");
     cy.widgetText(
