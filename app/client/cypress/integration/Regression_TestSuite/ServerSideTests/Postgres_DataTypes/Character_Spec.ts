@@ -25,8 +25,8 @@ describe("Character Datatype tests", function () {
     query = `create table charTypes(serialid serial primary key, "One(1)" char, "AsMany" varchar, "Limited(4)" varchar(4), "Unlimited" text)`;
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.RenameWithInPane("createTable");
     dataSources.EnterQuery(query);
+    agHelper.RenameWithInPane("createTable");
     agHelper.FocusElement(locator._codeMirrorTextArea);
     dataSources.RunQuery();
     ee.ExpandCollapseEntity("Datasources");
@@ -38,20 +38,20 @@ describe("Character Datatype tests", function () {
   it("2. Creating SELECT query - chartypes + Bug 14493", () => {
     query = `SELECT *, char_length("AsMany") as "AsMany-Len", char_length("Unlimited") as "Unlimited-Len" FROM public."chartypes" as charT LIMIT 10;`;
     ee.ActionTemplateMenuByEntityName("public.chartypes", "SELECT");
-    agHelper.RenameWithInPane("selectRecords");
     dataSources.RunQuery();
     agHelper
       .GetText(dataSources._noRecordFound)
       .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
     dataSources.EnterQuery(query);
+    agHelper.RenameWithInPane("selectRecords");
   });
 
   it("3. Creating all queries - chartypes", () => {
     query = `INSERT INTO public."chartypes" ("One(1)", "AsMany", "Limited(4)", "Unlimited")
     VALUES ({{Insertone.text}}, {{Insertasmany.text}}, {{Insertlimited.text}}::varchar(4), {{Insertunlimited.text}});`;
     ee.ActionTemplateMenuByEntityName("public.chartypes", "INSERT");
-    agHelper.RenameWithInPane("insertRecord");
     dataSources.EnterQuery(query);
+    agHelper.RenameWithInPane("insertRecord");
 
     query = `UPDATE public."chartypes" SET
     "One(1)" = {{Updateone.text}},
@@ -60,23 +60,24 @@ describe("Character Datatype tests", function () {
     "Unlimited" = {{Updateunlimited.text}}
   WHERE serialid = {{Table1.selectedRow.serialid}};`;
     ee.ActionTemplateMenuByEntityName("public.chartypes", "UPDATE");
+    dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("updateRecord");
-    dataSources.EnterQuery(query);
-
-    query = `DELETE FROM public."chartypes" WHERE serialId = {{Table1.selectedRow.serialid}};`;
-    ee.ActionTemplateMenuByEntityName("public.chartypes", "DELETE");
-    agHelper.RenameWithInPane("deleteRecord");
-    dataSources.EnterQuery(query);
 
     query = `DELETE FROM public."chartypes"`;
     ee.ActionTemplateMenuByEntityName("public.chartypes", "DELETE");
-    agHelper.RenameWithInPane("deleteAllRecords");
     dataSources.EnterQuery(query);
+    agHelper.RenameWithInPane("deleteAllRecords");
 
     query = `drop table public."chartypes"`;
     ee.ActionTemplateMenuByEntityName("public.chartypes", "DELETE");
-    agHelper.RenameWithInPane("dropTable");
     dataSources.EnterQuery(query);
+    agHelper.RenameWithInPane("dropTable");
+
+    query = `DELETE FROM public."chartypes" WHERE serialId = {{Table1.selectedRow.serialid}};`;
+    ee.ActionTemplateMenuByEntityName("public.chartypes", "DELETE");
+    dataSources.EnterQuery(query);
+    agHelper.RenameWithInPane("deleteRecord");
+
     ee.ExpandCollapseEntity("Queries/JS", false);
     ee.ExpandCollapseEntity(dsName, false);
   });

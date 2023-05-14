@@ -1,7 +1,8 @@
 {
   "imageWidget": ".t--draggable-imagewidget",
   "chartWidget": ".t--draggable-chartwidget",
-  "chartType": ".t--property-control-charttype",
+  "chartType": ".t--property-control-charttype input",
+  "chartTypeText": ".t--property-control-charttype",
   "mapType": ".t--property-control-maptype .rc-select-selection-item",
   "destin": ".appsmith_widget_01ewdomru7",
   "mapWidget": ".t--draggable-mapwidget",

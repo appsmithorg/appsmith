@@ -81,7 +81,7 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
       });
 
       // when an entity is being edited
-      ee.ActionContextMenuByEntityName("Page1", "Edit Name");
+      ee.ActionContextMenuByEntityName("Page1", "Edit name");
       cy.get(locator._canvas).trigger("mousemove", 500, 400);
       agHelper.AssertElementVisible(ee._entityExplorer);
     },
@@ -102,7 +102,7 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
       });
 
       // when an entity is being edited
-      ee.ActionContextMenuByEntityName("Page1", "Edit Name");
+      ee.ActionContextMenuByEntityName("Page1", "Edit name");
       cy.get(locator._canvas).trigger("mousemove", 500, 400);
       agHelper.AssertElementVisible(ee._entityExplorer);
     },

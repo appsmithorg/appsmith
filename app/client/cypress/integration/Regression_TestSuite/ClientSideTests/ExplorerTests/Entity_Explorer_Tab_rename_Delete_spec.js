@@ -13,7 +13,7 @@ describe("Tab widget test", function () {
   it("Tab Widget Functionality To rename Tabs from entity explorer", function () {
     cy.GlobalSearchEntity("Tab1");
     cy.hoverAndClickParticularIndex(2);
-    cy.selectAction("Edit Name");
+    cy.selectAction("Edit name");
     //cy.RenameEntity(tabname);
     cy.get(explorer.editEntity).last().type(tabname, { force: true });
     //cy.RenameEntity(tabname);
@@ -31,7 +31,7 @@ describe("Tab widget test", function () {
   it("Tab Widget Functionality To delete Tabs from entity explorer", function () {
     cy.GlobalSearchEntity("Tab2");
     cy.hoverAndClickParticularIndex(3);
-    cy.selectAction("Edit Name");
+    cy.selectAction("Edit name");
     //cy.RenameEntity(tabname);
     cy.get(explorer.editEntity).last().type(tabname, { force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting

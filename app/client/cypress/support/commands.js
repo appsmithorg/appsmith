@@ -37,6 +37,7 @@ const propPane = ObjectsRegistry.PropertyPane;
 const agHelper = ObjectsRegistry.AggregateHelper;
 const locators = ObjectsRegistry.CommonLocators;
 const onboarding = ObjectsRegistry.Onboarding;
+const apiPage = ObjectsRegistry.ApiPage;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -515,7 +516,7 @@ Cypress.Commands.add("OpenBindings", (apiname1) => {
     .click({ force: true });
   cy.get(commonlocators.entityContextMenuContent)
     .children("li")
-    .contains("Show Bindings")
+    .contains("Show bindings")
     .click({ force: true });
 });
 
@@ -728,7 +729,9 @@ Cypress.Commands.add("NavigateToActiveTab", () => {
 });
 
 Cypress.Commands.add("selectAction", (option) => {
-  cy.get(".single-select").contains(option).click({ force: true });
+  cy.get(".ads-v2-menu__menu-item-children")
+    .contains(option)
+    .click({ force: true });
 });
 
 Cypress.Commands.add("deleteActionAndConfirm", () => {
@@ -838,7 +841,7 @@ Cypress.Commands.add(
 
     // add a success callback
     cy.get(propPane._actionAddCallback("success")).click().wait(500);
-    cy.get(locators._dropDownValue("Show Alert")).click().wait(500);
+    cy.get(locators._dropDownValue("Show alert")).click().wait(500);
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Message"),
       forSuccess,
@@ -847,7 +850,7 @@ Cypress.Commands.add(
 
     // add a failure callback
     cy.get(propPane._actionAddCallback("failure")).click().wait(500);
-    cy.get(locators._dropDownValue("Show Alert")).click().wait(500);
+    cy.get(locators._dropDownValue("Show alert")).click().wait(500);
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Message"),
       forFailure,
@@ -1084,8 +1087,8 @@ Cypress.Commands.add("startErrorRoutes", () => {
 });
 
 Cypress.Commands.add("NavigateToPaginationTab", () => {
-  cy.get(ApiEditor.apiTab).contains("Pagination").click({ force: true });
-  cy.xpath(apiwidget.paginationWithUrl).click({ force: true });
+  apiPage.SelectPaneTab("Pagination");
+  agHelper.GetNClick(ApiEditor.apiPaginationTab);
 });
 
 Cypress.Commands.add("ValidateTableData", (value) => {

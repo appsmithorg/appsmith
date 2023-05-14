@@ -467,15 +467,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
   it("5. Validate Deletion of the Newly Created Page", () => {
     cy.NavigateToQueryEditor();
-    cy.NavigateToActiveTab();
-    cy.contains(".t--datasource-name", datasourceName).click();
-    cy.get(".t--delete-datasource").click();
-    cy.get(".t--delete-datasource").contains("Are you sure?").click();
-    cy.wait("@deleteDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      409,
-    );
+    _.dataSources.DeleteDatasouceFromWinthinDS(datasourceName, 409);
     cy.actionContextMenuByEntityName(
       "Assets-test.appsmith.com",
       "Delete",

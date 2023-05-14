@@ -19,6 +19,8 @@ const DEFAULT_ENTERVALUE_OPTIONS = {
 };
 export class AggregateHelper {
   private locator = ObjectsRegistry.CommonLocators;
+  public _modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
+
   public isMac = Cypress.platform === "darwin";
   private selectLine = `${
     this.isMac ? "{cmd}{shift}{leftArrow}" : "{shift}{home}"
@@ -123,7 +125,7 @@ export class AggregateHelper {
       .type(renameVal, { force: true, delay: 0 })
       .should("have.value", renameVal)
       .blur();
-    this.Sleep();
+    this.Sleep(2000); //allow name to settle
   }
 
   public RenameWidget(oldName: string, newName: string) {

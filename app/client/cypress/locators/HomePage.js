@@ -59,7 +59,7 @@ export default {
   closeBtn: ".ads-v2-modal__content-header-close-button",
   editModeInviteModalCloseBtn: ".ads-v2-modal__content-header-close-button",
   applicationName: ".t--application-name",
-  applicationEditMenu: ".t--application-edit-menu",
+  applicationEditMenu: ".ads-v2-menu__menu-item-children",
   editingAppName: "bp3-editable-text-editing",
   portalMenuItem: ".ads-v2-menu__menu-item-children",
   profileMenu: ".t--profile-menu-icon",

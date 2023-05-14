@@ -45,7 +45,7 @@ describe("Slug URLs", () => {
     cy.get(`.t--entity-item:contains(Page1)`).within(() => {
       cy.get(".t--context-menu").click({ force: true });
     });
-    cy.selectAction("Edit Name");
+    cy.selectAction("Edit name");
     cy.get(explorer.editEntity).last().type("Page renamed", { force: true });
     cy.get("body").click(0, 0);
     cy.wait("@updatePage").should(

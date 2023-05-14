@@ -20,7 +20,7 @@ describe("Api Naming conflict on a page test", function () {
     cy.get(`.t--entity-item:contains(${secondApiName})`).within(() => {
       cy.get(".t--context-menu").click({ force: true });
     });
-    cy.selectAction("Edit Name");
+    cy.selectAction("Edit name");
     //cy.RenameEntity(tabname);
     cy.get(explorer.editEntity).last().type(firstApiName, { force: true });
     //cy.RenameEntity(firstApiName);
@@ -74,7 +74,7 @@ describe("Entity Naming conflict test", function () {
     cy.get(`.t--entity-item:contains('JSObject1')`).within(() => {
       cy.get(".t--context-menu").click({ force: true });
     });
-    cy.selectAction("Edit Name");
+    cy.selectAction("Edit name");
     cy.get(explorer.editEntity)
       .last()
       .type(firstApiName, { force: true })
@@ -86,7 +86,7 @@ describe("Entity Naming conflict test", function () {
     cy.get(`.t--entity-item:contains(${secondApiName})`).within(() => {
       cy.get(".t--context-menu").click({ force: true });
     });
-    cy.selectAction("Edit Name");
+    cy.selectAction("Edit name");
 
     cy.get(explorer.editEntity).last().type(firstApiName, { force: true });
     cy.VerifyPopOverMessage(firstApiName + " is already being used.", true);

@@ -12,7 +12,7 @@ describe("Entity explorer tests related to widgets and validation", function () 
     cy.get(".t--entity-collapse-toggle").eq(4).click({ force: true });
     cy.get(".t--entity-name").contains("Text1").trigger("mouseover");
     cy.hoverAndClickParticularIndex(4);
-    cy.selectAction("Show Bindings");
+    cy.selectAction("Show bindings");
     cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(2);
       expect($lis.eq(0)).to.contain("{{Text1.isVisible}}");
@@ -20,11 +20,11 @@ describe("Entity explorer tests related to widgets and validation", function () 
     });
     cy.get(".t--entity-name").contains("Text1").trigger("mouseover");
     cy.hoverAndClickParticularIndex(4);
-    cy.selectAction("Edit Name");
+    cy.selectAction("Edit name");
     cy.EditApiNameFromExplorer("TextUpdated");
     cy.get(".t--entity-name").contains("TextUpdated").trigger("mouseover");
     cy.hoverAndClickParticularIndex(4);
-    cy.selectAction("Show Bindings");
+    cy.selectAction("Show bindings");
     cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(2);
       expect($lis.eq(0)).to.contain("{{TextUpdated.isVisible}}");

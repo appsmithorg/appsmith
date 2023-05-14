@@ -101,13 +101,12 @@ Cypress.Commands.add("RunQueryWithoutWaitingForResolution", () => {
   cy.xpath(queryEditor.runQuery).last().click({ force: true });
 });
 
-Cypress.Commands.add("hoverAndClick", () => {
-  cy.xpath(apiwidget.popover)
-    .last()
-    .should("be.hidden")
-    .invoke("show")
-    .click({ force: true });
-  cy.xpath(apiwidget.popover).last().click({ force: true });
+Cypress.Commands.add("hoverAndClick", (entity) => {
+  cy.xpath(
+    "//div[text()='" +
+      entity +
+      "']/ancestor::div[1]/following-sibling::div//button[contains(@class, 'entity-context-menu')]",
+  ).click({ force: true });
 });
 
 Cypress.Commands.add("hoverAndClickParticularIndex", (index) => {

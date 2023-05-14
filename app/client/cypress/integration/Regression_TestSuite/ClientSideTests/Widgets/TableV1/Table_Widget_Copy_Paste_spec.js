@@ -37,7 +37,7 @@ describe("Test Suite to validate copy/paste table Widget", function () {
     cy.get(".widgets").first().click();
     cy.get(".t--entity-name").contains("Table1Copy").trigger("mouseover");
     cy.hoverAndClickParticularIndex(2);
-    cy.selectAction("Show Bindings");
+    cy.selectAction("Show bindings");
     cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(13);
       expect($lis.eq(0)).to.contain("{{Table1Copy.selectedRow}}");

@@ -44,7 +44,9 @@ describe("File picker widget v2", () => {
       cy.wait(1000);
       cy.validateEvaluatedValue("testFile.mov");
 
-      cy.get(".t--more-action-menu").first().click({ force: true });
+      cy.get("[data-testid='more-action-trigger']")
+        .first()
+        .click({ force: true });
 
       // Go back to widgets page
       _.entityExplorer.NavigateToSwitcher("Widgets");

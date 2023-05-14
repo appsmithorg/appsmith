@@ -1206,10 +1206,9 @@ Cypress.Commands.add("deleteWidget", () => {
 
 Cypress.Commands.add("UpdateChartType", (typeOfChart) => {
   cy.selectDropdownValue(viewWidgetsPage.chartType, typeOfChart);
-  cy.get(`${viewWidgetsPage.chartType} .rc-select-selection-item span`).should(
-    "have.text",
-    typeOfChart,
-  );
+  cy.get(
+    `${viewWidgetsPage.chartTypeText} .rc-select-selection-item span`,
+  ).should("have.text", typeOfChart);
 });
 
 Cypress.Commands.add("alertValidate", (text) => {

@@ -56,10 +56,11 @@ const NoBodyMessage = styled.div`
 `;
 
 interface PostDataProps {
-  displayFormat: any;
+  displayFormat: { label: string; value: string };
   dataTreePath: string;
   theme?: EditorTheme;
   apiId: string;
+  updateBodyContentType: (contentType: string, apiId: string) => void;
 }
 
 type Props = PostDataProps;
@@ -72,7 +73,7 @@ const expectedPostBody: CodeEditorExpected = {
 
 function PostBodyData(props: Props) {
   const [selectedTab, setSelectedTab] = React.useState(
-    POST_BODY_FORMAT_OPTIONS.NONE,
+    props.displayFormat?.value,
   );
   const { dataTreePath, theme } = props;
 
@@ -143,13 +144,15 @@ function PostBodyData(props: Props) {
     }
   };
 
-  const options: Array<{ label: string; value: string }> = [];
-  POST_BODY_FORMAT_TITLES.map((el) => {
-    options.push({
-      label: el.title,
-      value: el.key,
-    });
-  });
+  const options = POST_BODY_FORMAT_TITLES.map((el) => ({
+    label: el.title,
+    value: el.key,
+  }));
+
+  const postBodyDataOnChangeFn = (key: string) => {
+    setSelectedTab(key);
+    props?.updateBodyContentType(key, props.apiId);
+  };
 
   return (
     <PostBodyContainer>
@@ -157,9 +160,7 @@ function PostBodyData(props: Props) {
         data-testid="t--api-body-tab-switch"
         defaultValue={selectedTab}
         isFullWidth={false}
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        onChange={(key: string) => setSelectedTab(key)}
+        onChange={(key: string) => postBodyDataOnChangeFn(key)}
         options={options}
       />
       {tabComponentsMap(selectedTab)}

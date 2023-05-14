@@ -84,6 +84,6 @@ describe("excludeForAirgap", "Fork a template to an workspace", () => {
       })
       .first()
       .trigger("mouseover");
-    cy.get("[class$='popover-open']").should("be.visible");
+    cy.get(".ads-v2-tooltip").should("be.visible");
   });
 });

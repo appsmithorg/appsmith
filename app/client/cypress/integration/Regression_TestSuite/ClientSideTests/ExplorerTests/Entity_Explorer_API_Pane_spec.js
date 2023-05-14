@@ -46,7 +46,7 @@ describe("Entity explorer API pane related testcases", function () {
     );
     cy.ResponseStatusCheck(testdata.successStatusCode);
     ee.ExpandCollapseEntity("Queries/JS");
-    ee.ActionContextMenuByEntityName("FirstAPI", "Show Bindings");
+    ee.ActionContextMenuByEntityName("FirstAPI", "Show bindings");
     cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(5);
       expect($lis.eq(0)).to.contain("{{FirstAPI.isLoading}}");
@@ -60,7 +60,7 @@ describe("Entity explorer API pane related testcases", function () {
     ee.SelectEntityByName("Page1");
     agHelper.Sleep(); //for the selected entity to settle loading!
     ee.ExpandCollapseEntity("Queries/JS");
-    ee.ActionContextMenuByEntityName("FirstAPI", "Edit Name");
+    ee.ActionContextMenuByEntityName("FirstAPI", "Edit name");
     cy.EditApiNameFromExplorer("SecondAPI");
     cy.xpath(apiwidget.popover)
       .last()
@@ -72,7 +72,7 @@ describe("Entity explorer API pane related testcases", function () {
     cy.wait(500);
     ee.ExpandCollapseEntity("Queries/JS");
     ee.AssertEntityPresenceInExplorer("SecondAPI");
-    ee.ActionContextMenuByEntityName("SecondAPI", "Show Bindings");
+    ee.ActionContextMenuByEntityName("SecondAPI", "Show bindings");
     cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(5);
       expect($lis.eq(0)).to.contain("{{SecondAPI.isLoading}}");
