@@ -123,7 +123,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
       {/* PROPERTY PANE */}
       <div
         className={classNames({
-          [`js-property-pane-sidebar t--property-pane-sidebar flex h-full border-l transform transition duration-300 ${tailwindLayers.propertyPane}`]:
+          [`js-property-pane-sidebar t--property-pane-sidebar flex h-full border-l bg-white transform transition duration-300 ${tailwindLayers.propertyPane}`]:
             true,
           "relative ": !isPreviewMode,
           "fixed translate-x-full right-0": isPreviewMode,
