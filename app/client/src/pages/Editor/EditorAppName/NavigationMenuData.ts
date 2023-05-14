@@ -80,7 +80,7 @@ export const GetNavigationMenuData = ({
       isVisible: true,
     },
     {
-      text: "Edit Name",
+      text: "Edit name",
       onClick: editMode,
       type: MenuTypes.MENU,
       isVisible: true,

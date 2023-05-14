@@ -158,10 +158,8 @@ describe("Container Widget Functionality", function () {
 
   it("11. ListWidget-Copy & Delete Verification", function () {
     //Copy Chart and verify all properties
-    _.entityExplorer.SelectEntityByName("List1", "Widgets");
-
-    cy.copyWidget("List1Copy", commonlocators.containerWidget);
-    cy.deleteWidget();
+    _.propPane.CopyWidgetFromPropertyPane("List1");
+    _.propPane.DeleteWidgetFromPropertyPane("List1Copy");
     cy.PublishtheApp();
     // Verify the copied list widget is deleted
     cy.get(commonlocators.containerWidget).should("have.length", 2);
