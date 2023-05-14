@@ -5,9 +5,15 @@ import {
   DELETE_APP_THEME_WARNING,
   DELETE_CONFIRMATION_MODAL_TITLE,
 } from "@appsmith/constants/messages";
-import { Colors } from "constants/Colors";
-import { DialogComponent as Dialog } from "design-system-old";
-import { Button } from "design-system";
+import {
+  Button,
+  Modal,
+  ModalHeader,
+  ModalContent,
+  ModalFooter,
+  Text,
+  ModalBody,
+} from "design-system";
 
 interface DeleteThemeModalProps {
   isOpen: boolean;
@@ -15,29 +21,32 @@ interface DeleteThemeModalProps {
   onDelete(): void;
 }
 
-const deleteIconConfig = {
-  name: "delete",
-  fillColor: Colors.DANGER_SOLID,
-  hoverColor: Colors.DANGER_SOLID_HOVER,
-};
-
 function DeleteThemeModal(props: DeleteThemeModalProps) {
   const { isOpen, onClose, onDelete } = props;
 
   return (
-    <Dialog
-      canOutsideClickClose
-      headerIcon={deleteIconConfig}
-      isOpen={isOpen}
-      onClose={onClose}
-      title={createMessage(DELETE_CONFIRMATION_MODAL_TITLE)}
+    <Modal
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          onClose();
+        }
+      }}
+      open={isOpen}
     >
-      <div id="delete-theme-modal">
-        <div className="pb-8 space-y-3 ">
-          <p>{createMessage(DELETE_APP_THEME_WARNING)}</p>
-        </div>
-        <div className="">
-          <div className="flex items-center justify-end space-x-3">
+      <ModalContent
+        id="delete-theme-modal"
+        onInteractOutside={(e) => {
+          e.preventDefault();
+        }}
+      >
+        <ModalHeader>
+          {createMessage(DELETE_CONFIRMATION_MODAL_TITLE)}
+        </ModalHeader>
+        <ModalBody>
+          <Text kind="action-l">{createMessage(DELETE_APP_THEME_WARNING)}</Text>
+        </ModalBody>
+        <ModalFooter>
+          <div className="flex gap-3">
             <Button kind="secondary" onClick={onClose} size="md">
               Cancel
             </Button>
@@ -45,9 +54,9 @@ function DeleteThemeModal(props: DeleteThemeModalProps) {
               Delete
             </Button>
           </div>
-        </div>
-      </div>
-    </Dialog>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 }
 

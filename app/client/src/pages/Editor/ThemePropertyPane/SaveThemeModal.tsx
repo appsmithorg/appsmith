@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { DialogComponent as Dialog, TextInput } from "design-system-old";
-import { Button } from "design-system";
 import { saveSelectedThemeAction } from "actions/appThemingActions";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { getAppThemes } from "selectors/appThemingSelectors";
@@ -13,6 +11,16 @@ import {
   APLHANUMERIC_HYPHEN_SLASH_SPACE_ERROR,
   UNIQUE_NAME_ERROR,
 } from "@appsmith/constants/messages";
+import {
+  Button,
+  Input,
+  Text,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+} from "design-system";
 
 interface SaveThemeModalProps {
   isOpen: boolean;
@@ -109,49 +117,60 @@ function SaveThemeModal(props: SaveThemeModalProps) {
   };
 
   return (
-    <Dialog
-      canOutsideClickClose
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Save Theme"
+    <Modal
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          onClose();
+        }
+      }}
+      open={isOpen}
     >
-      <div id="save-theme-modal">
-        <form data-cy="save-theme-form" noValidate onSubmit={onSubmit}>
-          <div className="pb-6 space-y-3">
-            <p>
+      <ModalContent
+        id="save-theme-modal"
+        onInteractOutside={(e) => {
+          e.preventDefault();
+        }}
+      >
+        <ModalHeader>Save theme</ModalHeader>
+        <ModalBody>
+          <div className="flex flex-col gap-2">
+            <Text kind="action-l">
               You can save your custom themes to use across applications and use
               them when you need.
-            </p>
-            <div className="mt-6 space-y-2">
-              <h3 className="text-gray-700">Your theme name</h3>
-              <TextInput
+            </Text>
+            <form data-cy="save-theme-form" noValidate onSubmit={onSubmit}>
+              <Input
                 autoFocus
-                errorMsg={!inputValidator.isValid ? inputValidator.message : ""}
-                fill
+                errorMessage={
+                  !inputValidator.isValid ? inputValidator.message : undefined
+                }
+                isRequired
+                label="Your theme name"
                 name="name"
                 onChange={onChangeName}
                 placeholder="My theme"
-              />
-            </div>
-          </div>
-          <div className="">
-            <div className="flex items-center space-x-3">
-              <Button kind="secondary" onClick={onClose} size="md">
-                Cancel
-              </Button>
-              <Button
-                isDisabled={!name}
-                onClick={onSubmit}
                 size="md"
-                type="submit"
-              >
-                Save theme
-              </Button>
-            </div>
+              />
+            </form>
           </div>
-        </form>
-      </div>
-    </Dialog>
+        </ModalBody>
+        <ModalFooter>
+          <div className="flex gap-3">
+            <Button kind="secondary" onClick={onClose} size="md">
+              Cancel
+            </Button>
+            <Button
+              isDisabled={!name}
+              onClick={onSubmit}
+              size="md"
+              type="submit"
+            >
+              Save theme
+            </Button>
+          </div>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 }
 
