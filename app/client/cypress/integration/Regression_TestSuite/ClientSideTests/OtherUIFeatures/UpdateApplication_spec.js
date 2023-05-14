@@ -16,8 +16,6 @@ describe("Update Application", () => {
     cy.get(homePage.searchInput).type(appname);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-
-    cy.get(homePage.applicationCard).first().trigger("mouseover");
     cy.get(homePage.appMoreIcon).first().click({ force: true });
     cy.get(homePage.applicationName).type(`${appname} updated` + "{enter}");
     cy.wait("@updateApplication").should(
@@ -48,7 +46,6 @@ describe("Update Application", () => {
     cy.get(homePage.searchInput).type(appname);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.get(homePage.applicationCard).first().trigger("mouseover");
     cy.get(homePage.appEditIcon).first().click({ force: true });
     cy.get("#loading").should("not.exist");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -75,8 +72,6 @@ describe("Update Application", () => {
     cy.get(homePage.searchInput).clear();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-
-    cy.get(homePage.applicationCard).first().trigger("mouseover");
     cy.get(homePage.appMoreIcon).first().click({ force: true });
     cy.get(homePage.applicationName).type(veryLongAppName + "{enter}");
     cy.get(homePage.appsContainer).click({ force: true });
