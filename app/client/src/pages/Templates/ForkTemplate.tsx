@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import React, { useState } from "react";
 import {
   Button,
+  Icon,
   Modal,
   ModalBody,
   ModalContent,
@@ -22,6 +23,7 @@ import {
   FORK_TEMPLATE,
   SELECT_WORKSPACE,
 } from "@appsmith/constants/messages";
+import styled from "styled-components";
 
 interface ForkTemplateProps {
   children?: ReactNode;
@@ -29,6 +31,19 @@ interface ForkTemplateProps {
   onClose: (e?: React.MouseEvent<HTMLElement>) => void;
   templateId: string;
 }
+
+const HeaderContainer = styled.div`
+  gap: 8px;
+  display: flex;
+  align-items: center;
+
+  .fork-icon {
+    background-color: var(--ads-v2-color-bg-muted);
+    border-radius: 50%;
+    height: 25px;
+    width: 25px;
+  }
+`;
 
 function ForkTemplate({
   children,
@@ -56,7 +71,12 @@ function ForkTemplate({
       {children}
       <Modal onOpenChange={closeModal} open={showForkModal}>
         <ModalContent>
-          <ModalHeader>{createMessage(CHOOSE_WHERE_TO_FORK)}</ModalHeader>
+          <ModalHeader>
+            <HeaderContainer>
+              <Icon className="fork-icon" name="fork-2" size={"md"} />
+              {createMessage(CHOOSE_WHERE_TO_FORK)}
+            </HeaderContainer>
+          </ModalHeader>
           <ModalBody>
             <Select
               dropdownMatchSelectWidth
