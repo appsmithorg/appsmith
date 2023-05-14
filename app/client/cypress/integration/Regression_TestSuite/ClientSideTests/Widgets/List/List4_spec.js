@@ -67,7 +67,7 @@ describe("Container Widget Functionality", function () {
     _.entityExplorer.ExpandCollapseEntity("Widgets");
     _.entityExplorer.ExpandCollapseEntity("List1");
     _.entityExplorer.ExpandCollapseEntity("Container1");
-    _.entityExplorer.SelectEntityByName("List1");
+    _.entityExplorer.SelectEntityByName("Text1");
     cy.testJsontext("text", `{{currentItem.first_name}}`);
     cy.wait(1000);
 
