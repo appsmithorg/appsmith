@@ -1,10 +1,3 @@
-const tdsl = require("../../../../fixtures/tableWidgetDsl.json");
-const dsl = require("../../../../fixtures/displayWidgetDsl.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
-const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const explorer = require("../../../../locators/explorerlocators.json");
-const pageid = "MyPage";
-
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Entity explorer tests related to widgets and validation", function () {
@@ -17,10 +10,14 @@ describe("Entity explorer tests related to widgets and validation", function () 
   });
 
   it("1. Add a widget to default page and verify the properties", function () {
-    cy.addDsl(dsl);
-    cy.OpenBindings("Text1");
-    cy.get(explorer.property).last().click({ force: true });
-    cy.get(apiwidget.propertyList).then(function ($lis) {
+    cy.fixture("displayWidgetDsl").then((val: any) => {
+      _.agHelper.AddDsl(val);
+    });
+    _.entityExplorer.ExpandCollapseEntity("Widgets");
+    _.entityExplorer.ExpandCollapseEntity("Container4");
+    _.entityExplorer.SelectEntityByName("Text1");
+    _.entityExplorer.ActionContextMenuByEntityName("Text1", "Show Bindings");
+    cy.get(_.jsEditor._propertyList).then(function ($lis) {
       expect($lis).to.have.length(2);
       expect($lis.eq(0)).to.contain("{{Text1.isVisible}}");
       expect($lis.eq(1)).to.contain("{{Text1.text}}");
@@ -28,18 +25,15 @@ describe("Entity explorer tests related to widgets and validation", function () 
   });
 
   it("2. Create another page and add another widget and verify properties", function () {
-    cy.Createpage(pageid);
-    cy.addDsl(tdsl);
-    cy.openPropertyPane("tablewidget");
-    cy.widgetText(
-      "Table1",
-      widgetsPage.tableWidget,
-      widgetsPage.widgetNameSpan,
-    );
-    cy.GlobalSearchEntity("Table1");
-    cy.OpenBindings("Table1");
-    cy.get(explorer.property).last().click({ force: true });
-    cy.get(apiwidget.propertyList).then(function ($lis) {
+    _.entityExplorer.AddNewPage("New blank page");
+    cy.fixture("tableWidgetDsl").then((val: any) => {
+      _.agHelper.AddDsl(val);
+    });
+    _.entityExplorer.ExpandCollapseEntity("Widgets");
+    _.entityExplorer.ExpandCollapseEntity("Container3");
+    _.entityExplorer.SelectEntityByName("Table1");
+    _.entityExplorer.ActionContextMenuByEntityName("Table1", "Show Bindings");
+    cy.get(_.jsEditor._propertyList).then(function ($lis) {
       expect($lis).to.have.length(13);
       expect($lis.eq(0)).to.contain("{{Table1.selectedRow}}");
       expect($lis.eq(1)).to.contain("{{Table1.selectedRows}}");
@@ -59,10 +53,10 @@ describe("Entity explorer tests related to widgets and validation", function () 
 
   it("3. Toggle between widgets in different pages using search functionality", function () {
     _.entityExplorer.SelectEntityByName("Page1", "Pages");
-    _.entityExplorer.SelectEntityByName("Text1", "Widgets");
-    cy.OpenBindings("Text1");
-    cy.get(explorer.property).last().click({ force: true });
-    cy.get(apiwidget.propertyList).then(function ($lis) {
+    _.entityExplorer.ExpandCollapseEntity("Widgets");
+    _.entityExplorer.ExpandCollapseEntity("Container4");
+    _.entityExplorer.ActionContextMenuByEntityName("Text1", "Show Bindings");
+    cy.get(_.jsEditor._propertyList).then(function ($lis) {
       expect($lis).to.have.length(2);
       expect($lis.eq(0)).to.contain("{{Text1.isVisible}}");
       expect($lis.eq(1)).to.contain("{{Text1.text}}");
