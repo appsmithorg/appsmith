@@ -10,6 +10,7 @@ const explorer = require("../locators/explorerlocators.json");
 import { ObjectsRegistry } from "./Objects/Registry";
 
 let dataSources = ObjectsRegistry.DataSources;
+let apiPage = ObjectsRegistry.ApiPage;
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -54,18 +55,7 @@ Cypress.Commands.add("NavigateToAPI_Panel", () => {
 });
 
 Cypress.Commands.add("CreateAPI", (apiname) => {
-  cy.get(explorer.createNew).click({ force: true });
-  cy.get(explorer.blankAPI).click({ force: true });
-  cy.wait("@createNewApi");
-  cy.get(apiwidget.resourceUrl).should("be.visible");
-  if (apiname) {
-    cy.renameWithInPane(apiname);
-    cy.WaitAutoSave();
-  }
-  // Added because api name edit takes some time to
-  // reflect in api sidebar after the call passes.
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
+  apiPage.CreateApi(apiname);
 });
 
 Cypress.Commands.add("CreateSubsequentAPI", (apiname) => {
