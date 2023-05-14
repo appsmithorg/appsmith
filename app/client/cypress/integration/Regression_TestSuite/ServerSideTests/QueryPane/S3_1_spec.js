@@ -687,17 +687,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
   after("Deletes the datasource", () => {
     cy.NavigateToQueryEditor();
-    cy.NavigateToActiveTab();
-    cy.contains(".t--datasource-name", datasourceName).click({ force: true });
-    cy.get(".t--delete-datasource").click();
-    cy.get(".t--delete-datasource").contains("Are you sure?").click();
-
-    // cy.wait("@deleteDatasource").should(
-    //   "have.nested.property",
-    //   "response.body.responseMeta.status",
-    //   200,
-    // );
-
+    _.dataSources.DeleteDatasouceFromActiveTab(datasourceName, 409, false);
     cy.wait("@deleteDatasource").should((response) => {
       expect(response.status).to.be.oneOf([200, 409]);
     });

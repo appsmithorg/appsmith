@@ -653,6 +653,7 @@ export class DataSources {
   public DeleteDatasouceFromActiveTab(
     datasourceName: string,
     expectedRes = 200,
+    toValidateRes = true,
   ) {
     this.ClickActiveTabDSContextMenu(datasourceName);
     this.agHelper.GetNClick(
@@ -662,10 +663,12 @@ export class DataSources {
       200,
     );
     this.agHelper.GetNClick(this._visibleTextSpan("Are you sure?"));
-    this.agHelper.ValidateNetworkStatus("@deleteDatasource", expectedRes);
-    if (expectedRes == 200)
-      this.agHelper.AssertContains("datasource deleted successfully");
-    else this.agHelper.AssertContains("action(s) using it.");
+    if (toValidateRes) {
+      this.agHelper.ValidateNetworkStatus("@deleteDatasource", expectedRes);
+      if (expectedRes == 200)
+        this.agHelper.AssertContains("datasource deleted successfully");
+      else this.agHelper.AssertContains("action(s) using it.");
+    }
   }
 
   public DeleteDatasouceFromWinthinDS(

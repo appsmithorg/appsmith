@@ -6,20 +6,18 @@ const generatePage = require("../../../../locators/GeneratePage.json");
 const dsl = require("../../../../fixtures/snippingTableDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formControls = require("../../../../locators/FormControl.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-let agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
 
 describe("Validate CRUD queries for Amazon S3 along with UI flow verifications", function () {
   beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
+    _.agHelper.RestoreLocalStorageCache();
     cy.startRoutesForDatasource();
   });
 
   afterEach(() => {
-    agHelper.SaveLocalStorageCache();
+    _.agHelper.SaveLocalStorageCache();
   });
 
   // afterEach(function() {
@@ -209,28 +207,28 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.xpath(queryLocators.suggestedWidgetDropdown).click().wait(1000);
     cy.get(".t--draggable-selectwidget").validateWidgetExists();
 
-    ee.SelectEntityByName("Query1", "Queries/JS");
+    _.entityExplorer.SelectEntityByName("Query1", "Queries/JS");
     //cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
     cy.get(queryLocators.suggestedTableWidget).click().wait(1000);
     cy.get(commonlocators.TableV2Row).validateWidgetExists();
 
-    ee.SelectEntityByName("Query1", "Queries/JS");
+    _.entityExplorer.SelectEntityByName("Query1", "Queries/JS");
     cy.xpath(queryLocators.suggestedWidgetText).click().wait(1000);
     cy.get(commonlocators.textWidget).validateWidgetExists();
 
-    ee.SelectEntityByName("Query1", "Queries/JS");
+    _.entityExplorer.SelectEntityByName("Query1", "Queries/JS");
   });
 
   it("4. Verify 'Connect Widget [snipping]' functionality - S3 ", () => {
     cy.addDsl(dsl);
     cy.wait(3000); //dsl to settle!    cy.NavigateToActiveDSQueryPane(datasourceName);
-    ee.SelectEntityByName("Query1", "Queries/JS");
+    _.entityExplorer.SelectEntityByName("Query1", "Queries/JS");
     cy.runQuery();
     cy.clickButton("Select Widget");
     cy.xpath(queryLocators.snipeableTable).click().wait(1500); //wait for table to load!
 
     cy.get(commonlocators.TableRow).validateWidgetExists();
-    ee.SelectEntityByName("Query1", "Queries/JS");
+    _.entityExplorer.SelectEntityByName("Query1", "Queries/JS");
     cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
     cy.CheckAndUnfoldEntityItem("Widgets");
     cy.actionContextMenuByEntityName("Table1");
@@ -239,17 +237,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
   it("5. Deletes the datasource", () => {
     cy.NavigateToQueryEditor();
-    cy.NavigateToActiveTab();
-    cy.contains(".t--datasource-name", datasourceName).click({ force: true });
-    cy.get(".t--delete-datasource").click();
-    cy.get(".t--delete-datasource").contains("Are you sure?").click();
-
-    // cy.wait("@deleteDatasource").should(
-    //   "have.nested.property",
-    //   "response.body.responseMeta.status",
-    //   200,
-    // );
-
+    _.dataSources.DeleteDatasouceFromActiveTab(datasourceName, 409, false);
     cy.wait("@deleteDatasource").should((response) => {
       expect(response.status).to.be.oneOf([200, 409]);
     });

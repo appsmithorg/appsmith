@@ -2,9 +2,8 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
-let ee = ObjectsRegistry.EntityExplorer;
 let datasourceName;
 
 describe("Validate CRUD queries for Postgres along with UI flow verifications", function () {
@@ -275,16 +274,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
 
   it("9. Validate Deletion of the Newly Created Page", () => {
     cy.NavigateToQueryEditor();
-    cy.NavigateToActiveTab();
-    cy.contains(".t--datasource-name", datasourceName).click();
-    cy.get(".t--delete-datasource").click();
-    cy.get(".t--delete-datasource").contains("Are you sure?").click();
-
-    cy.wait("@deleteDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      409,
-    );
+    _.dataSources.DeleteDatasouceFromActiveTab(datasourceName, 409);
     cy.actionContextMenuByEntityName(
       "Public.users_crud",
       "Delete",
@@ -298,7 +288,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.get(queryLocators.templateMenu).click({ force: true });
     cy.typeValueNValidate(deleteTblQuery);
     cy.runQuery();
-    ee.ExpandCollapseEntity("Datasources");
+    _.entityExplorer.ExpandCollapseEntity("Datasources");
     cy.actionContextMenuByEntityName(datasourceName, "Refresh");
     cy.xpath("//div[text()='public.users_crud']").should("not.exist"); //validating drop is successful!
     cy.deleteQueryUsingContext();
@@ -333,19 +323,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
 
   it("13. Deletes the datasource", () => {
     cy.NavigateToQueryEditor();
-    cy.NavigateToActiveTab();
-    cy.contains(".t--datasource-name", datasourceName).click({ force: true });
-    cy.get(".t--delete-datasource").click({ force: true });
-    cy.get(".t--delete-datasource")
-      .contains("Are you sure?")
-      .click({ force: true });
-
-    // cy.wait("@deleteDatasource").should(
-    //   "have.nested.property",
-    //   "response.body.responseMeta.status",
-    //   200,
-    // );
-
+    _.dataSources.DeleteDatasouceFromActiveTab(datasourceName, 409, false);
     cy.wait("@deleteDatasource").should((response) => {
       expect(response.status).to.be.oneOf([200, 409]);
     });

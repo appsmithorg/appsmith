@@ -274,15 +274,7 @@ describe("Validate Mongo query commands", function () {
 
   it("7. Validate Deletion of the Newly Created Page", () => {
     cy.NavigateToQueryEditor();
-    cy.NavigateToActiveTab();
-    cy.contains(".t--datasource-name", datasourceName).click();
-    cy.get(".t--delete-datasource").click();
-    cy.get(".t--delete-datasource").contains("Are you sure?").click();
-    cy.wait("@deleteDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      409,
-    );
+    _.dataSources.DeleteDatasouceFromActiveTab(datasourceName, 409);
     cy.actionContextMenuByEntityName(
       "ListingAndReviews",
       "Delete",
@@ -369,17 +361,8 @@ describe("Validate Mongo query commands", function () {
 
   it("9. Delete the datasource after NewPage deletion is success", () => {
     cy.NavigateToQueryEditor();
-    cy.NavigateToActiveTab();
-    cy.contains(".t--datasource-name", datasourceName).click();
-    cy.get(".t--delete-datasource").click();
-    cy.get(".t--delete-datasource").contains("Are you sure?").click();
-    // cy.wait("@deleteDatasource").should(
-    //   "have.nested.property",
-    //   "response.body.responseMeta.status",
-    //   200,
-    // );
-
-    cy.wait("@deleteDatasource").should((response) => {
+    _.dataSources.DeleteDatasouceFromActiveTab(datasourceName, 409, false);
+    cy.get("@deleteDatasource").should((response) => {
       expect(response.status).to.be.oneOf([200, 409]);
     });
   });
