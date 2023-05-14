@@ -462,11 +462,11 @@ export class HomePage {
   }
 
   public DeleteWorkspace(workspaceNameToDelete: string) {
-    cy.get(this._homeIcon).click();
+    cy.get(this._homeIcon).click({ force: true });
     this.agHelper.GetNClick(
       this._optionsIconInWorkspace(workspaceNameToDelete),
     );
-    this.agHelper.GetNClick(this._wsAction("Delete Workspace")); //Are you sure?
+    this.agHelper.GetNClick(this._wsAction("Delete workspace")); //Are you sure?
     this.agHelper.GetNClick(this._wsAction("Are you sure?")); //
     this.agHelper.AssertContains("Workspace deleted successfully");
   }

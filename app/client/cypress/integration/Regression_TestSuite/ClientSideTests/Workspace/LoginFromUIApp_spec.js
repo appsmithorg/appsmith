@@ -1,6 +1,6 @@
 import homePage from "../../../../locators/HomePage";
 const pages = require("../../../../locators/Pages.json");
-
+import * as _ from "../../../../support/Objects/ObjectsCore";
 let pageid;
 
 describe("Login from UI and check the functionality", function () {
@@ -14,19 +14,14 @@ describe("Login from UI and check the functionality", function () {
       pageid = uid;
       cy.Createpage(pageid);
       cy.get(`.t--entity-name`).contains(pageid).trigger("mouseover");
-      cy.hoverAndClick();
-      cy.get(pages.deletePage).first().click({ force: true });
-      cy.get(pages.deletePageConfirm).first().click({ force: true });
+      _.entityExplorer.ActionContextMenuByEntityName(
+        pageid,
+        "Delete",
+        "Are you sure?",
+      );
       cy.wait(2000);
     });
     cy.wait("@deletePage");
     cy.get("@deletePage").should("have.property", "status", 200);
-    cy.DeleteApp(appname);
-    cy.wait("@deleteApplication");
-    cy.get("@deleteApplication").should("have.property", "status", 200);
-    // login/Logout click Appsmith logo should route to login page
-    cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.get(homePage.profileMenu).click();
-    cy.get(homePage.signOutIcon).click();
   });
 });

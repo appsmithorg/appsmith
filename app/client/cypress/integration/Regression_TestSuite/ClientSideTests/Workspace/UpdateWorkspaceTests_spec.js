@@ -4,22 +4,18 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 describe("Update Workspace", function () {
   let workspaceId;
   let newWorkspaceName;
+  let appid;
 
   it("1. Open the workspace general settings and update workspace name. The update should reflect in the workspace. It should also reflect in the workspace names on the left side and the workspace dropdown.	", function () {
     cy.NavigateToHome();
-    cy.generateUUID().then((uid) => {
+    _.homePage.NavigateToHome();
+    _.agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      appid = "App" + uid;
       workspaceId = uid;
-      localStorage.setItem("WorkspaceName", workspaceId);
-      cy.createWorkspace();
-      cy.wait("@createWorkspace").then((interception) => {
-        newWorkspaceName = interception.response.body.data.name;
-        cy.renameWorkspace(newWorkspaceName, workspaceId);
-        cy.get(homePage.workspaceSettingOption).click({ force: true });
-      });
-    });
-    cy.generateUUID().then((uid) => {
-      workspaceId = uid;
-      localStorage.setItem("WorkspaceName", workspaceId);
+      _.homePage.CreateNewWorkspace(workspaceId);
+      cy.get(homePage.workspaceSettingOption).click({ force: true });
+      //_.homePage.CreateAppInWorkspace(workspaceId, appid);
       cy.get(homePage.workspaceNameInput).click({ force: true });
       cy.get(homePage.workspaceNameInput).clear();
       cy.get(homePage.workspaceNameInput).type(workspaceId);
@@ -29,11 +25,12 @@ describe("Update Workspace", function () {
         "have.text",
         `${workspaceId}`,
       );
-    });
-    cy.NavigateToHome();
-    cy.get(homePage.leftPanelContainer).within(() => {
-      cy.get("span").should((item) => {
-        expect(item).to.contain.text(workspaceId);
+
+      cy.NavigateToHome();
+      cy.get(homePage.leftPanelContainer).within(() => {
+        cy.get("span").should((item) => {
+          expect(item).to.contain.text(workspaceId);
+        });
       });
     });
   });

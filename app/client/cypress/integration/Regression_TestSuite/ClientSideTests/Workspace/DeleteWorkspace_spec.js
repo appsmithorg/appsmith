@@ -9,7 +9,7 @@ describe("Delete workspace test spec", function () {
     cy.visit("/applications");
     _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
-      newWorkspaceName = "Deleteworkspace" + uid;
+      newWorkspaceName = "workspace" + uid;
       _.homePage.CreateNewWorkspace(newWorkspaceName);
       _.homePage.DeleteWorkspace(newWorkspaceName);
       cy.wait("@deleteWorkspaceApiCall").then((httpResponse) => {
@@ -26,7 +26,7 @@ describe("Delete workspace test spec", function () {
       newWorkspaceName = uid;
       _.homePage.CreateNewWorkspace(newWorkspaceName);
       cy.wait(500);
-      cy.contains(".cs-text", "Delete Workspace"); //only to check if Delete workspace is shown to an admin user
+      cy.contains("Delete workspace"); //only to check if Delete workspace is shown to an admin user
       _.homePage.InviteUserToWorkspace(
         newWorkspaceName,
         Cypress.env("TESTUSERNAME1"),
@@ -37,7 +37,7 @@ describe("Delete workspace test spec", function () {
       cy.visit("/applications");
       cy.openWorkspaceOptionsPopup(newWorkspaceName);
       cy.get(homePage.workspaceNamePopoverContent)
-        .contains("Delete Workspace")
+        .contains("Delete workspace")
         .should("not.exist");
       cy.LogOut();
     });
