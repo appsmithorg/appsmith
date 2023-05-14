@@ -24,7 +24,7 @@ describe("Table widget date column inline editing functionality", () => {
       ".t--property-pane-section-general .t--property-control-editable",
     ).should("exist");
     cy.get(
-      ".t--property-pane-section-general .t--property-control-editable input[type=checkbox]+span",
+      ".t--property-pane-section-general .t--property-control-editable input[type=checkbox]",
     ).click();
     cy.get(
       `${commonlocators.TableV2Head} [data-header="release_date"] svg`,
@@ -73,9 +73,7 @@ describe("Table widget date column inline editing functionality", () => {
   it("4. should check that changing property pane display format for date column changes date display format", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("release_date");
-    cy.get(".t--property-control-displayformat .bp3-popover-target")
-      .last()
-      .click();
+    cy.get(".t--property-control-displayformat .rc-select-show-arrow").click();
     cy.get(".t--dropdown-option").children().contains("Do MMM YYYY").click();
     cy.get(
       `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3)`,
@@ -83,9 +81,7 @@ describe("Table widget date column inline editing functionality", () => {
 
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("release_date");
-    cy.get(".t--property-control-displayformat .bp3-popover-target")
-      .last()
-      .click();
+    cy.get(".t--property-control-displayformat .rc-select-show-arrow").click();
     cy.get(".t--dropdown-option").children().contains("DD/MM/YYYY").click();
     cy.get(
       `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3)`,
@@ -178,7 +174,7 @@ describe("Table widget date column inline editing functionality", () => {
       ".t--property-pane-section-general .t--property-control-visible",
     ).should("exist");
     cy.get(
-      ".t--property-pane-section-general .t--property-control-visible input[type=checkbox]+span",
+      ".t--property-pane-section-general .t--property-control-visible input[type=checkbox]",
     ).click();
     cy.get(
       `${commonlocators.TableV2Head} [data-header="release_date"] .hidden-header`,
@@ -187,7 +183,7 @@ describe("Table widget date column inline editing functionality", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("release_date");
     cy.get(
-      ".t--property-pane-section-general .t--property-control-visible input[type=checkbox]+span",
+      ".t--property-pane-section-general .t--property-control-visible input[type=checkbox]",
     ).click();
     cy.get(
       `${commonlocators.TableV2Head} [data-header="release_date"] .draggable-header`,
@@ -201,7 +197,7 @@ describe("Table widget date column inline editing functionality", () => {
       ".t--property-pane-section-datesettings .t--property-control-showshortcuts",
     ).should("exist");
     cy.get(
-      ".t--property-pane-section-datesettings .t--property-control-showshortcuts input[type=checkbox]+span",
+      ".t--property-pane-section-datesettings .t--property-control-showshortcuts input[type=checkbox]",
     ).click();
     cy.get(
       `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3)`,
@@ -218,7 +214,7 @@ describe("Table widget date column inline editing functionality", () => {
       ".t--property-pane-section-datesettings .t--property-control-showshortcuts",
     ).should("exist");
     cy.get(
-      ".t--property-pane-section-datesettings .t--property-control-showshortcuts input[type=checkbox]+span",
+      ".t--property-pane-section-datesettings .t--property-control-showshortcuts input[type=checkbox]",
     ).click();
     cy.get(
       `${commonlocators.TableV2Row} .tr:nth-child(1) div:nth-child(3)`,
@@ -241,13 +237,13 @@ describe("Table widget date column inline editing functionality", () => {
     ).should("exist");
 
     cy.get(
-      ".t--property-pane-section-validation .t--property-control-mindate div:last-child .bp3-popover-wrapper",
+      ".t--property-pane-section-validation .t--property-control-mindate div:last-child .react-datepicker-wrapper",
     )
       .click()
       .clear()
       .type("2022-05-05T00:00:10.1010+05:30{enter}");
     cy.get(
-      ".t--property-pane-section-validation .t--property-control-maxdate div:last-child .bp3-popover-wrapper",
+      ".t--property-pane-section-validation .t--property-control-maxdate div:last-child .react-datepicker-wrapper",
     )
       .click()
       .clear()
@@ -263,13 +259,13 @@ describe("Table widget date column inline editing functionality", () => {
       ".bp3-transition-container .bp3-popover .bp3-popover-content",
     ).should("contain", "Date out of range");
     cy.get(
-      ".t--property-pane-section-validation .t--property-control-mindate div:last-child .bp3-popover-wrapper",
+      ".t--property-pane-section-validation .t--property-control-mindate div:last-child .react-datepicker-wrapper",
     )
       .click()
       .clear()
       .type("{enter}");
     cy.get(
-      ".t--property-pane-section-validation .t--property-control-maxdate div:last-child .bp3-popover-wrapper",
+      ".t--property-pane-section-validation .t--property-control-maxdate div:last-child .react-datepicker-wrapper",
     )
       .click()
       .clear()
@@ -283,7 +279,7 @@ describe("Table widget date column inline editing functionality", () => {
       ".t--property-pane-section-validation .t--property-control-required",
     ).should("exist");
     cy.get(
-      ".t--property-pane-section-validation .t--property-control-required input[type=checkbox]+span",
+      ".t--property-pane-section-validation .t--property-control-required input[type=checkbox]",
     ).click();
     cy.get(
       `${commonlocators.TableV2Row} .tr:nth-child(1) .td:nth-child(3)`,
@@ -313,7 +309,7 @@ describe("Table widget date column inline editing functionality", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.get("[data-testid='t--property-pane-back-btn']").click();
     cy.get(
-      ".t--property-pane-section-addingarow .t--property-control-allowaddingarow input[type=checkbox]+span",
+      ".t--property-pane-section-addingarow .t--property-control-allowaddingarow input[type=checkbox]",
     ).click();
     cy.get(".t--add-new-row").click();
     cy.get(".bp3-datepicker").should("not.exist");

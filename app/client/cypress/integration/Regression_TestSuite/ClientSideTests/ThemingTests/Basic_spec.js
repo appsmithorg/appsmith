@@ -758,8 +758,8 @@ describe("App Theming funtionality", function () {
 
     //Change Border & verify
 
-    cy.get(".t--button-group-0px").click();
-    cy.get(".t--button-group-0px")
+    cy.get(".border-t-2").eq(0).click();
+    cy.get(".border-t-2")
       .eq(0)
       .invoke("css", "border-top-left-radius")
       .then((borderRadius) => {
@@ -781,9 +781,9 @@ describe("App Theming funtionality", function () {
       });
 
     //Change Shadow & verify
-    cy.get(".t--button-group-0.10px").click({ force: true });
-    cy.get(".t--button-group-0.10px div")
-      .eq(0)
+    cy.get(".ads-v2-segmented-control-value-0").eq(2).click({ force: true });
+    cy.get(".ads-v2-segmented-control-value-0 div")
+      .eq(2)
       .invoke("css", "box-shadow")
       .then((boxshadow) => {
         cy.get(".t--widget-button2 button").should(
@@ -884,7 +884,7 @@ describe("App Theming funtionality", function () {
     cy.PublishtheApp();
 
     cy.wait(4000); //for theme to settle
-    cy.get("body").should("have.css", "font-family", "Montserrat, sans-serif"); //Font
+    cy.get("body").should("have.css", "font-family", "Inter, sans-serif"); //Font
 
     cy.xpath("//div[@id='root']//section/parent::div").should(
       "have.css",
@@ -985,9 +985,9 @@ describe("App Theming funtionality", function () {
 
     //Change Border & verify
 
-    cy.get(".t--button-group-0\\.375rem").click().wait(500);
-    cy.get(".t--button-group-0\\.375rem div")
-      .eq(0)
+    cy.get(".border-t-2").eq(1).click().wait(500);
+    cy.get(".border-t-2")
+      .eq(1)
       .invoke("css", "border-top-left-radius")
       .then((borderRadius) => {
         cy.get(".t--widget-button1 button").should(
@@ -1008,8 +1008,9 @@ describe("App Theming funtionality", function () {
       });
 
     //Change Shadow & verify
-    cy.get(".t--button-group-0.1px").click().wait(500);
-    cy.get(".t--button-group-0.1px div")
+    cy.get(".ads-v2-segmented-control-value-0").eq(0).click({ force: true });
+    cy.get(".ads-v2-segmented-control-value-0 div")
+      .eq(0)
       .invoke("css", "box-shadow")
       .then((boxshadow) => {
         cy.get(".t--widget-button1 button").should(
