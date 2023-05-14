@@ -40,7 +40,7 @@ describe("MySQL Datatype tests", function () {
       });
     });
     _.agHelper.Sleep(2000);
-    _.agHelper.WaitUntilAllToastsDisappear();
+    //_.agHelper.WaitUntilAllToastsDisappear();
 
     //This is a special case.
     //Added due to server side checks, which was handled in Datatype handling.
