@@ -98,7 +98,8 @@ describe("Test Create Api and Bind to Table widget", function () {
     /** Create Api2 of Paginate with Response URL*/
     cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
     cy.RunAPI();
-    cy.NavigateToPaginationTab();
+    _.apiPage.SelectPaneTab("Pagination");
+    _.agHelper.GetNClick(apiPage.apiPaginationTab);
     cy.get(apiPage.apiPaginationNextText).type(
       this.data.paginationUrl + testdata.nextUrl,
       {
@@ -136,7 +137,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     });
     cy.get(publishPage.backToEditor).click({ force: true });
     cy.wait(3000);
-    _.entityExplorer.SelectEntityByName("Table1");
+    _.entityExplorer.SelectEntityByName("Table1", "Widgets");
 
     cy.ValidatePaginateResponseUrlData(apiPage.apiPaginationNextTest, true);
   });
