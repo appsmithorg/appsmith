@@ -61,7 +61,7 @@ export class JSEditor {
   private _jsObjTxt = ".t--js-action-name-edit-field input";
   private _newJSobj = "span:contains('New JS Object')";
   private _bindingsClose = ".t--entity-property-close";
-  private _propertyList = ".t--entity-property";
+  private _propertyList = ".binding";
   private _responseTabAction = (funName: string) =>
     "//div[@class='function-name'][text()='" +
     funName +
@@ -252,7 +252,7 @@ export class JSEditor {
   }
 
   public RenameJSObjFromExplorer(entityName: string, renameVal: string) {
-    this.ee.ActionContextMenuByEntityName("RenamedJSObject", "Edit Name");
+    this.ee.ActionContextMenuByEntityName("RenamedJSObject", "Edit name");
     cy.xpath(this.locator._entityNameEditing(entityName)).type(
       renameVal + "{enter}",
     );
@@ -267,7 +267,7 @@ export class JSEditor {
   }
 
   public ValidateDefaultJSObjProperties(jsObjName: string) {
-    this.ee.ActionContextMenuByEntityName(jsObjName, "Show Bindings");
+    this.ee.ActionContextMenuByEntityName(jsObjName, "Show bindings");
     cy.get(this._propertyList).then(function ($lis) {
       const bindingsLength = $lis.length;
       expect(bindingsLength).to.be.at.least(4);

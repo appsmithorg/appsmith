@@ -32,7 +32,7 @@ describe("Entity Explorer showing tooltips on long names", function () {
     cy.get(`.t--entity-item:contains(${longName})`).within(() => {
       cy.get(".t--context-menu").click({ force: true });
     });
-    cy.selectAction("Edit Name");
+    cy.selectAction("Edit name");
     cy.get(explorer.editEntity)
       .last()
       .type(alternateName, { force: true })

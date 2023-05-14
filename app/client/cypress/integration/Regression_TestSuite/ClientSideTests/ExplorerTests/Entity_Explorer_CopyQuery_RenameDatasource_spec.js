@@ -48,7 +48,7 @@ describe("Entity explorer tests related to copy query", function () {
     cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
       ee.ExpandCollapseEntity("Queries/JS");
-      ee.ActionContextMenuByEntityName("Query1", "Show Bindings");
+      ee.ActionContextMenuByEntityName("Query1", "Show bindings");
       cy.get(apiwidget.propertyList).then(function ($lis) {
         expect($lis).to.have.length(5);
         expect($lis.eq(0)).to.contain("{{Query1.isLoading}}");
@@ -66,7 +66,7 @@ describe("Entity explorer tests related to copy query", function () {
     ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName("Query1");
     cy.runQuery();
-    ee.ActionContextMenuByEntityName("Query1", "Show Bindings");
+    ee.ActionContextMenuByEntityName("Query1", "Show bindings");
     cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis.eq(0)).to.contain("{{Query1.isLoading}}");
       expect($lis.eq(1)).to.contain("{{Query1.data}}");

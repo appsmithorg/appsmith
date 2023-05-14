@@ -236,7 +236,7 @@ Cypress.Commands.add("AppSetupForRename", () => {
     if (!$appName.hasClass(homePage.editingAppName)) {
       cy.get(homePage.applicationName).click({ force: true });
       cy.get(homePage.portalMenuItem)
-        .contains("Edit Name", { matchCase: false })
+        .contains("Edit name", { matchCase: false })
         .click({ force: true });
     }
   });
@@ -315,7 +315,7 @@ Cypress.Commands.add("renameEntity", (entityName, renamedEntity) => {
   cy.get(`.t--entity-item:contains(${entityName})`).within(() => {
     cy.get(".t--context-menu").click({ force: true });
   });
-  cy.selectAction("Edit Name");
+  cy.selectAction("Edit name");
   cy.get(explorer.editEntity).last().type(`${renamedEntity}`, { force: true });
 });
 Cypress.Commands.add("leaveWorkspace", (newWorkspaceName) => {

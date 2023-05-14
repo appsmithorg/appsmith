@@ -28,7 +28,7 @@ describe("API Panel Test Functionality", function () {
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.get(".t--entity-name:contains('FirstAPI')").should("be.visible");
     cy.hoverAndClick();
-    cy.selectAction("Edit Name");
+    cy.selectAction("Edit name");
     //cy.RenameEntity(tabname);
     cy.get(explorer.editEntity).last().type("SecondAPI", { force: true });
     cy.DeleteAPI();

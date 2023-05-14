@@ -28,7 +28,7 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
     cy.GlobalSearchEntity("Widgets");
     cy.get(".t--entity-name").contains("FormTest").trigger("mouseover");
     cy.hoverAndClickParticularIndex(1);
-    cy.selectAction("Show Bindings");
+    cy.selectAction("Show bindings");
     cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(3);
       expect($lis.eq(0)).to.contain("{{FormTest.isVisible}}");
@@ -58,7 +58,7 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
     cy.wait(500);
     cy.get(".t--entity-name").contains("FormTest").trigger("mouseover");
     cy.hoverAndClickParticularIndex(1);
-    cy.selectAction("Show Bindings");
+    cy.selectAction("Show bindings");
     cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(3);
       expect($lis.eq(0)).to.contain("{{FormTest.isVisible}}");

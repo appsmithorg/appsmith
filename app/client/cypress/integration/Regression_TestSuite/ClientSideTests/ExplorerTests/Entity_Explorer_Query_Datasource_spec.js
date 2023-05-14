@@ -3,12 +3,8 @@
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-const pages = require("../../../../locators/Pages.json");
 
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-let ee = ObjectsRegistry.EntityExplorer;
-
-let agHelper = ObjectsRegistry.AggregateHelper;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 const pageid = "MyPage";
 let datasourceName;
@@ -89,7 +85,7 @@ describe("Entity explorer tests related to query and datasource", function () {
     cy.EvaluateCurrentValue("select * from users");
     cy.get(".t--action-name-edit-field").click({ force: true });
 
-    ee.ActionContextMenuByEntityName("Query1", "Show Bindings");
+    _.entityExplorer.ActionContextMenuByEntityName("Query1", "Show bindings");
     cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(5);
       expect($lis.eq(0)).to.contain("{{Query1.isLoading}}");
@@ -99,30 +95,21 @@ describe("Entity explorer tests related to query and datasource", function () {
       expect($lis.eq(4)).to.contain("{{Query1.clear()}}");
     });
     cy.get(".t--entity-property-close").click(); //closing Bindings overlay
-    ee.ActionContextMenuByEntityName("Query1", "Edit Name");
+    _.entityExplorer.ActionContextMenuByEntityName("Query1", "Edit name");
     cy.EditApiNameFromExplorer("MyQuery");
-    ee.ActionContextMenuByEntityName("MyQuery", "Move to page", pageid);
+    _.entityExplorer.ActionContextMenuByEntityName(
+      "MyQuery",
+      "Move to page",
+      pageid,
+    );
     cy.wait(2000);
-    ee.ExpandCollapseEntity("Queries/JS");
-    ee.SelectEntityByName("MyQuery");
+    _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+    _.entityExplorer.SelectEntityByName("MyQuery");
     cy.wait(2000);
     cy.runQuery();
 
-    //cy.deleteQuery();
-    cy.deleteQueryUsingContext();
-    cy.get(commonlocators.entityExplorersearch).clear({ force: true });
-    cy.wait(500);
-    cy.NavigateToQueryEditor();
-    cy.get(pages.integrationActiveTab)
-      .should("be.visible")
-      .click({ force: true });
-    cy.contains(".t--datasource-name", datasourceName).click();
-    cy.get(".t--delete-datasource").click();
-    cy.get(".t--delete-datasource").contains("Are you sure?").click();
-    cy.wait("@deleteDatasource").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    //deleteQuery & DS
+    _.agHelper.ActionContextMenuWithInPane("Delete");
+    _.dataSources.DeleteDatasouceFromActiveTab(datasourceName);
   });
 });

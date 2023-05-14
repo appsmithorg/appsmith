@@ -245,7 +245,7 @@ export class HomePage {
       if (!$appName.hasClass(this._editAppName)) {
         cy.get(this._applicationName).click();
         cy.get(this._appMenu)
-          .contains("Edit Name", { matchCase: false })
+          .contains("Edit name", { matchCase: false })
           .click();
       }
     });

@@ -12,7 +12,7 @@
     "entityText": ".t--entity-name:contains('Text1')",
     "popover": "//div[contains(@class,'t--entity page')]//*[local-name()='g' and @id='Icon/Outline/more-vertical']",
     "datsourceEntityPopover": "//div[contains(@class,'t--entity datasource')]//*[local-name()='g' and @id='Icon/Outline/more-vertical']",
-    "editName": ".single-select >div:contains('Edit Name')",
+    "editName": ".single-select >div:contains('Edit name')",
     "deletePage": ".single-select >div:contains('Delete')",
     "refreshStructure": ".single-select >div:contains('Refresh')",
     "entityQuery": ".t--entity-name:contains('Datasources')",

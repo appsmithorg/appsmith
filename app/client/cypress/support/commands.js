@@ -516,7 +516,7 @@ Cypress.Commands.add("OpenBindings", (apiname1) => {
     .click({ force: true });
   cy.get(commonlocators.entityContextMenuContent)
     .children("li")
-    .contains("Show Bindings")
+    .contains("Show bindings")
     .click({ force: true });
 });
 

@@ -44,7 +44,7 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
     cy.get("body").type(`{${modifierKey}}z`, { force: true });
     ee.ExpandCollapseEntity("Widgets");
     ee.ExpandCollapseEntity("FormTest");
-    ee.ActionContextMenuByEntityName("FormTestCopy", "Show Bindings");
+    ee.ActionContextMenuByEntityName("FormTestCopy", "Show bindings");
     cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(3);
       expect($lis.eq(0)).to.contain("{{FormTestCopy.isVisible}}");
