@@ -1195,18 +1195,18 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         // which creates problem if we hit duplicate key exception
         return applicationMono
                 .flatMap(application1 ->
-                    this.createOrUpdateSuffixedApplication(application, name, 1 + suffix)
+                        this.createOrUpdateSuffixedApplication(application, name, 1 + suffix)
                 )
                 .switchIfEmpty(Mono.defer(() ->
-                    applicationWithPoliciesMono
-                            .zipWith(userMono)
-                            .flatMap(tuple -> {
-                                Application application1 = tuple.getT1();
-                                application1.setModifiedBy(tuple.getT2().getUsername()); // setting modified by to current user
-                                // We can't use create or createApplication method here as we are expecting update operation if the
-                                // _id is available with application object
-                                return applicationService.save(application);
-                            })
+                        applicationWithPoliciesMono
+                                .zipWith(userMono)
+                                .flatMap(tuple -> {
+                                    Application application1 = tuple.getT1();
+                                    application1.setModifiedBy(tuple.getT2().getUsername()); // setting modified by to current user
+                                    // We can't use create or createApplication method here as we are expecting update operation if the
+                                    // _id is available with application object
+                                    return applicationService.save(application);
+                                })
                 ));
     }
 

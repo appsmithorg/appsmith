@@ -8,6 +8,6 @@ import reactor.core.publisher.Mono;
 public interface DatasourceConfigurationStructureRepositoryCE
         extends BaseRepository<DatasourceConfigurationStructure, String>, CustomDatasourceConfigurationStructureRepository {
 
-    Mono<DatasourceConfigurationStructure> findByDatasourceId(String datasourceId);
+    Mono<DatasourceConfigurationStructure> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId);
 
 }

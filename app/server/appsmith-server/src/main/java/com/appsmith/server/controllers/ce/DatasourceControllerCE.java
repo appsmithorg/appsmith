@@ -2,6 +2,8 @@ package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.DatasourceDTO;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.TriggerRequestDTO;
@@ -14,7 +16,6 @@ import com.appsmith.server.dtos.MockDataSet;
 import com.appsmith.server.dtos.MockDataSource;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.DatasourceService;
-import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.MockDataService;
 import com.appsmith.server.solutions.AuthenticationService;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
@@ -25,6 +26,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
@@ -48,49 +51,64 @@ public class DatasourceControllerCE {
     private final MockDataService mockDataService;
     private final DatasourceTriggerSolution datasourceTriggerSolution;
     private final DatasourceService datasourceService;
-    private final DatasourceStorageService datasourceStorageService;
 
     @Autowired
     public DatasourceControllerCE(DatasourceService service,
                                   DatasourceStructureSolution datasourceStructureSolution,
                                   AuthenticationService authenticationService,
                                   MockDataService datasourceService,
-                                  DatasourceTriggerSolution datasourceTriggerSolution,
-                                  DatasourceStorageService datasourceStorageService) {
+                                  DatasourceTriggerSolution datasourceTriggerSolution) {
         this.datasourceService = service;
         this.datasourceStructureSolution = datasourceStructureSolution;
         this.authenticationService = authenticationService;
         this.mockDataService = datasourceService;
         this.datasourceTriggerSolution = datasourceTriggerSolution;
-        this.datasourceStorageService = datasourceStorageService;
     }
 
     @JsonView(Views.Public.class)
     @GetMapping("")
-    public Mono<ResponseDTO<List<DatasourceStorage>>> getAll(@RequestParam MultiValueMap<String, String> params) {
-        log.debug("Going to get all resources from base controller {}", params);
-        return datasourceService.getAllStorages(params).collectList()
+    public Mono<ResponseDTO<List<DatasourceDTO>>> getAll(@RequestParam MultiValueMap<String, String> params) {
+        log.debug("Going to get all resources from datasource controller {}", params);
+        return datasourceService.getAll(params).collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping("/test")
-    public Mono<ResponseDTO<DatasourceTestResult>> testDatasource(@RequestBody Datasource datasource,
-                                                                  @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
-
-        log.debug("Going to test the datasource with name: {} and id: {}", datasource.getName(), datasource.getId());
-        return datasourceService.testDatasource(datasource, environmentId)
-                .map(testResult -> new ResponseDTO<>(HttpStatus.OK.value(), testResult, null));
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<ResponseDTO<DatasourceDTO>> create(@Valid @RequestBody DatasourceDTO resource,
+                                                   @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+        log.debug("Going to create resource from datasource controller");
+        return datasourceService.create(resource, environmentId)
+                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping("/{datasourceId}/storage")
-    public Mono<ResponseDTO<DatasourceStorage>> createDatasourceStorage(@PathVariable String datasourceId,
-                                                                        @RequestBody DatasourceStorage datasourceStorage,
-                                                                        @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
-        log.debug("Going to create storage for datasource with id: '{}'.", datasourceId);
-        return datasourceService.createDatasourceStorage(datasourceId, datasourceStorage)
-                .map(storage -> new ResponseDTO<>(HttpStatus.OK.value(), storage, null));
+    @PutMapping("/{id}")
+    public Mono<ResponseDTO<DatasourceDTO>> update(@PathVariable String id,
+                                                   @RequestBody DatasourceDTO datasourceDTO,
+                                                   @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+        log.debug("Going to update resource from datasource controller with id: {}", id);
+        return datasourceService.update(id, datasourceDTO, environmentId, Boolean.TRUE)
+                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @DeleteMapping("/{id}")
+    public Mono<ResponseDTO<DatasourceDTO>> delete(@PathVariable String id) {
+        log.debug("Going to delete resource from datasource controller with id: {}", id);
+        return datasourceService.archiveDatasourceById(id)
+                .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("/test")
+    public Mono<ResponseDTO<DatasourceTestResult>> testDatasource(@RequestBody DatasourceDTO datasourceDTO,
+                                                                  @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+
+        log.debug("Going to test the datasource with name: {} and id: {}", datasourceDTO.getName(), datasourceDTO.getId());
+        return datasourceService.testDatasource(datasourceDTO, environmentId)
+                .map(testResult -> new ResponseDTO<>(HttpStatus.OK.value(), testResult, null));
     }
 
     @JsonView(Views.Public.class)
@@ -105,9 +123,10 @@ public class DatasourceControllerCE {
 
     @JsonView(Views.Public.class)
     @GetMapping("/{datasourceId}/pages/{pageId}/code")
-    public Mono<Void> getTokenRequestUrl(@PathVariable String datasourceId, @PathVariable String pageId, ServerWebExchange serverWebExchange) {
+    public Mono<Void> getTokenRequestUrl(@PathVariable String datasourceId, @PathVariable String pageId, ServerWebExchange serverWebExchange,
+                                         @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug("Going to retrieve token request URL for datasource with id: {} and page id: {}", datasourceId, pageId);
-        return authenticationService.getAuthorizationCodeURLForGenericOauth2(datasourceId, pageId, serverWebExchange.getRequest())
+        return authenticationService.getAuthorizationCodeURLForGenericOAuth2(datasourceId, environmentId, pageId, serverWebExchange.getRequest())
                 .flatMap(url -> {
                     serverWebExchange.getResponse().setStatusCode(HttpStatus.FOUND);
                     serverWebExchange.getResponse().getHeaders().setLocation(URI.create(url));
@@ -136,8 +155,9 @@ public class DatasourceControllerCE {
 
     @JsonView(Views.Public.class)
     @PostMapping(Url.MOCKS)
-    public Mono<ResponseDTO<Datasource>> createMockDataSet(@RequestBody MockDataSource mockDataSource) {
-        return mockDataService.createMockDataSet(mockDataSource)
+    public Mono<ResponseDTO<DatasourceDTO>> createMockDataSet(@RequestBody MockDataSource mockDataSource,
+                                                              @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+        return mockDataService.createMockDataSet(mockDataSource, environmentId)
                 .map(datasource -> new ResponseDTO<>(HttpStatus.OK.value(), datasource, null));
     }
 
@@ -150,15 +170,4 @@ public class DatasourceControllerCE {
         return datasourceTriggerSolution.trigger(datasourceId, environmentId, triggerRequestDTO)
                 .map(triggerResultDTO -> new ResponseDTO<>(HttpStatus.OK.value(), triggerResultDTO, null));
     }
-
-    @JsonView(Views.Public.class)
-    @PutMapping("/{id}")
-    public Mono<ResponseDTO<Datasource>> update(@PathVariable String id,
-                                                @RequestBody Datasource resource,
-                                                @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
-        log.debug("Going to update datasource from datasource controller with id: {}", id);
-        return datasourceService.update(id, resource, Boolean.TRUE)
-                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
-    }
-
 }

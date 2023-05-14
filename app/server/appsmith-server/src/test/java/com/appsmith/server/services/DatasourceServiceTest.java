@@ -6,6 +6,9 @@ import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceDTO;
+import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.OAuth2;
@@ -50,6 +53,7 @@ import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -191,7 +195,7 @@ public class DatasourceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void createDatasourceWithNullWorkspaceId() {
+    public void testValidateDatasource_createDatasourceWithNullWorkspaceId() {
         Datasource datasource = new Datasource();
         datasource.setName("DS-with-null-workspaceId");
         datasource.setPluginId("random plugin id");
@@ -386,7 +390,7 @@ public class DatasourceServiceTest {
                     connection1.setSsl(ssl);
                     datasourceConfiguration1.setConnection(connection1);
                     updates.setDatasourceConfiguration(datasourceConfiguration1);
-                    return datasourceService.update(datasource1.getId(), updates);
+                    return datasourceService.save(updates);
                 });
 
         StepVerifier
@@ -465,7 +469,7 @@ public class DatasourceServiceTest {
                     datasourceConfiguration1.setConnection(connection1);
                     updates.setDatasourceConfiguration(datasourceConfiguration1);
 
-                    return datasourceService.update(datasource1.getId(), updates);
+                    return datasourceService.save(updates);
                 });
 
         StepVerifier
@@ -553,14 +557,22 @@ public class DatasourceServiceTest {
         datasource.setDatasourceConfiguration(datasourceConfiguration);
         datasource.setWorkspaceId(workspaceId);
 
-        Mono<Datasource> datasourceMono = pluginMono.map(plugin -> {
-            datasource.setPluginId(plugin.getId());
-            return datasource;
-        }).flatMap(datasourceService::create);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        datasource.setDatasourceStorages(storages);
+
+        Mono<DatasourceDTO> datasourceDTOMono = pluginMono
+                .map(plugin -> {
+                    datasource.setPluginId(plugin.getId());
+                    return datasource;
+                })
+                .flatMap(datasourceService::create)
+                .map(datasourceService::convertToDatasourceDTO);
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> datasourceService.testDatasource(datasource1, null));
+        Mono<DatasourceTestResult> testResultMono = datasourceDTOMono.flatMap(datasource1 -> datasourceService.testDatasource(datasource1, null));
 
         StepVerifier
                 .create(testResultMono)
@@ -604,20 +616,28 @@ public class DatasourceServiceTest {
         auth.setPassword("test");
         datasourceConfiguration.setAuthentication(auth);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-
         datasource.setWorkspaceId(workspaceId);
 
-        Mono<Datasource> datasourceMono = pluginMono.map(plugin -> {
-            datasource.setPluginId(plugin.getId());
-            return datasource;
-        }).flatMap(datasourceService::create);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        datasource.setDatasourceStorages(storages);
+
+        Mono<DatasourceDTO> datasourceDTOMono = pluginMono
+                .map(plugin -> {
+                    datasource.setPluginId(plugin.getId());
+                    return datasource;
+                })
+                .flatMap(datasourceService::create)
+                .map(datasourceService::convertToDatasourceDTO);
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> {
-            ((DBAuth) datasource1.getDatasourceConfiguration().getAuthentication()).setPassword(null);
-            return datasourceService.testDatasource(datasource1, null);
-        });
+        Mono<DatasourceTestResult> testResultMono = datasourceDTOMono
+                .flatMap(datasource1 -> {
+                    ((DBAuth) datasource1.getDatasourceConfiguration().getAuthentication()).setPassword(null);
+                    return datasourceService.testDatasource(datasource1, null);
+                });
 
         StepVerifier
                 .create(testResultMono)
@@ -956,7 +976,7 @@ public class DatasourceServiceTest {
                     datasourceConfiguration.setAuthentication(partialAuthenticationDTO);
                     datasource1.setDatasourceConfiguration(datasourceConfiguration);
                     datasource1.setName("New Name for update to test that encryption is still correct");
-                    return datasourceService.update(original.getId(), datasource1);
+                    return datasourceService.save(datasource1);
                 });
 
         StepVerifier
@@ -1013,7 +1033,7 @@ public class DatasourceServiceTest {
                     datasourceConfiguration2.setUrl("http://test.com");
                     datasource1.setDatasourceConfiguration(datasourceConfiguration2);
                     datasource1.setName("New Name for update to test that encryption is now gone");
-                    return datasourceService.update(original.getId(), datasource1);
+                    return datasourceService.save(datasource1);
                 });
 
         StepVerifier
@@ -1160,14 +1180,22 @@ public class DatasourceServiceTest {
         datasource.setDatasourceConfiguration(datasourceConfiguration);
         datasource.setWorkspaceId(workspaceId);
 
-        Mono<Datasource> datasourceMono = pluginMono.map(plugin -> {
-            datasource.setPluginId(plugin.getId());
-            return datasource;
-        }).flatMap(datasourceService::create);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        datasource.setDatasourceStorages(storages);
+
+        Mono<DatasourceDTO> datasourceDTOMono = pluginMono
+                .map(plugin -> {
+                    datasource.setPluginId(plugin.getId());
+                    return datasource;
+                })
+                .flatMap(datasourceService::create)
+                .map(datasourceService::convertToDatasourceDTO);
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Mono<DatasourceTestResult> testResultMono = datasourceMono.flatMap(datasource1 -> datasourceService.testDatasource(datasource1, null));
+        Mono<DatasourceTestResult> testResultMono = datasourceDTOMono.flatMap(datasource1 -> datasourceService.testDatasource(datasource1, null));
 
         StepVerifier
                 .create(testResultMono)
@@ -1273,7 +1301,7 @@ public class DatasourceServiceTest {
                     datasourceConfiguration1.setConnection(connection1);
                     datasourceConfiguration1.setUrl("http://localhost");
                     updates.setDatasourceConfiguration(datasourceConfiguration1);
-                    return datasourceService.update(datasource1.getId(), updates);
+                    return datasourceService.save(updates);
                 });
 
         StepVerifier
@@ -1374,7 +1402,7 @@ public class DatasourceServiceTest {
                     datasourceConfiguration1.setEndpoints(new ArrayList<>());
                     datasourceConfiguration1.getEndpoints().add(endpoint);
                     updates.setDatasourceConfiguration(datasourceConfiguration1);
-                    return datasourceService.update(datasource1.getId(), updates);
+                    return datasourceService.save(updates);
                 });
 
         StepVerifier
@@ -1455,8 +1483,8 @@ public class DatasourceServiceTest {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add(fieldName(QDatasource.datasource.workspaceId), workspaceId);
 
-        Mono<List<Datasource>> listMono = datasourceService.saveAll(datasourceList)
-                .thenMany(datasourceService.get(params))
+        Mono<List<DatasourceDTO>> listMono = datasourceService.saveAll(datasourceList)
+                .thenMany(datasourceService.getAll(params))
                 .collectList();
 
         StepVerifier.create(listMono).assertNext(datasources -> {

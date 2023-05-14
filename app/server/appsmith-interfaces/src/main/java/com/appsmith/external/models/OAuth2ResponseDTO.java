@@ -9,8 +9,8 @@ import lombok.ToString;
 @Setter
 @ToString
 @NoArgsConstructor
-public class OAuthResponseDTO {
-    Datasource datasource;
+public class OAuth2ResponseDTO {
+    DatasourceDTO datasource;
     String token;
     String projectID;
 }

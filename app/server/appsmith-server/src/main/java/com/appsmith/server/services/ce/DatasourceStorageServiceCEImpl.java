@@ -4,13 +4,13 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -23,6 +23,7 @@ import com.appsmith.server.solutions.DatasourceStorageTransferSolution;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
@@ -30,13 +31,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
+
 @Slf4j
 public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceCE {
 
     private final DatasourceStorageRepository repository;
     private final DatasourceStorageTransferSolution datasourceStorageTransferSolution;
     private final DatasourcePermission datasourcePermission;
-    private final WorkspaceService workspaceService;
     private final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
     private final AnalyticsService analyticsService;
@@ -44,14 +46,12 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     public DatasourceStorageServiceCEImpl(DatasourceStorageRepository repository,
                                           DatasourceStorageTransferSolution datasourceStorageTransferSolution,
                                           DatasourcePermission datasourcePermission,
-                                          WorkspaceService workspaceService,
                                           PluginService pluginService,
                                           PluginExecutorHelper pluginExecutorHelper,
                                           AnalyticsService analyticsService) {
         this.repository = repository;
         this.datasourceStorageTransferSolution = datasourceStorageTransferSolution;
         this.datasourcePermission = datasourcePermission;
-        this.workspaceService = workspaceService;
         this.pluginService = pluginService;
         this.pluginExecutorHelper = pluginExecutorHelper;
         this.analyticsService = analyticsService;
@@ -84,7 +84,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
         if (datasource != null && datasource.getId() != null) {
             // This is an action with a global datasource,
             // we need to find the entry from db and populate storage
-            return this.findByDatasourceIdAndEnvironmentIdWithPermission(
+            return this.findByDatasourceIdAndEnvironmentId(
                     datasource.getId(), environmentId, datasourcePermission.getExecutePermission());
         }
 
@@ -97,16 +97,13 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     }
 
     @Override
-    public Mono<DatasourceStorage> findByDatasourceIdAndEnvironmentIdWithPermission(String datasourceId,
-                                                                                    String environmentId,
-                                                                                    AclPermission aclPermission) {
+    public Mono<DatasourceStorage> findByDatasourceIdAndEnvironmentId(String datasourceId,
+                                                                      String environmentId,
+                                                                      AclPermission aclPermission) {
         return this.findByDatasourceIdAndEnvironmentId(datasourceId, environmentId)
                 // TODO: This is a temporary call being made till storage transfer migrations are done
                 .switchIfEmpty(datasourceStorageTransferSolution
-                        .findByDatasourceIdAndEnvironmentIdWithPermission(
-                                datasourceId,
-                                environmentId,
-                                aclPermission))
+                        .transferAndGetDatasourceStorage(datasourceId, environmentId, aclPermission))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
                         FieldName.DATASOURCE, datasourceId)));
     }
@@ -117,12 +114,56 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
         return this.findByDatasourceIdAndEnvironmentId(datasource.getId(), environmentId)
                 // TODO: This is a temporary call being made till storage transfer migrations are done
                 .switchIfEmpty(datasourceStorageTransferSolution
-                        .findByDatasourceAndEnvironmentId(datasource, environmentId));
+                        .transferAndGetDatasourceStorage(datasource, environmentId));
+    }
+
+    @Override
+    public Flux<DatasourceStorage> findByDatasource(Datasource datasource) {
+        return this.findByDatasourceId(datasource.getId())
+                // TODO: This is a temporary call being made till storage transfer migrations are done
+                .switchIfEmpty(datasourceStorageTransferSolution
+                        .transferToFallbackEnvironmentAndGetDatasourceStorage(datasource));
     }
 
     @Override
     public Mono<DatasourceStorage> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId) {
         return repository.findByDatasourceIdAndEnvironmentId(datasourceId, FieldName.UNUSED_ENVIRONMENT_ID);
+    }
+
+    protected Flux<DatasourceStorage> findByDatasourceId(String datasourceId) {
+        return repository.findByDatasourceId(datasourceId);
+    }
+
+    @Override
+    public Flux<DatasourceStorage> findStrictlyByDatasourceId(String datasourceId) {
+        return repository.findByDatasourceId(datasourceId);
+    }
+
+    @Override
+    public Mono<DatasourceStorage> updateByDatasourceAndEnvironmentId(Datasource datasource, String environmentId, Boolean isUserRefreshedUpdate) {
+        return this.findByDatasourceAndEnvironmentId(datasource, environmentId)
+                .map(dbStorage -> {
+                    DatasourceStorageDTO datasourceStorageDTO = getDatasourceStorageDTOFromDatasource(datasource, environmentId);
+                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
+                    copyNestedNonNullProperties(datasourceStorage, dbStorage);
+                    if (datasourceStorage.getDatasourceConfiguration() != null && datasourceStorage.getDatasourceConfiguration().getAuthentication() == null) {
+                        if (dbStorage.getDatasourceConfiguration() != null) {
+                            dbStorage.getDatasourceConfiguration().setAuthentication(null);
+                        }
+                    }
+                    return dbStorage;
+                })
+                .flatMap(this::validateAndSaveDatasourceStorageToRepository)
+                .flatMap(datasourceStorage -> {
+                    Map<String, Object> analyticsProperties = getAnalyticsProperties(datasourceStorage);
+                    if (isUserRefreshedUpdate.equals(Boolean.TRUE)) {
+                        analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, Boolean.TRUE);
+                    } else {
+                        analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, Boolean.FALSE);
+                    }
+                    return analyticsService.sendUpdateEvent(datasourceStorage, analyticsProperties);
+                })
+                .flatMap(this::populateHintMessages);
     }
 
     @Override
@@ -244,4 +285,17 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
         }
         return analyticsProperties;
     }
+
+    @Override
+    public DatasourceStorage initializeDatasourceStorage(Datasource datasource, String environmentId) {
+        return datasourceStorageTransferSolution.initializeDatasourceStorage(datasource, environmentId);
+    }
+
+    protected DatasourceStorageDTO getDatasourceStorageDTOFromDatasource(Datasource datasource, String environmentId) {
+        if (datasource == null || datasource.getDatasourceStorages() == null) {
+            return null;
+        }
+        return datasource.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID);
+    }
+
 }

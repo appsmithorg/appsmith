@@ -1,7 +1,6 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.AuthenticationDTO;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.solutions.AuthenticationService;

@@ -16,8 +16,8 @@ import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
-import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.MemberInfoDTO;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
@@ -553,7 +553,7 @@ public class WorkspaceServiceTest {
                 .build();
 
         String[] validEmails = {"valid@email.com", "valid@email.co.in", "valid@email-assoc.co.in"};
-        for (String validEmail: validEmails) {
+        for (String validEmail : validEmails) {
             Workspace workspace = new Workspace();
             workspace.setName("Test Update Name");
             workspace.setDomain("example.com");
@@ -621,7 +621,7 @@ public class WorkspaceServiceTest {
                 "valid-website.com", "valid.12345.com", "12345.com", "https://www.valid.website.com/",
                 "http://www.valid.website.com/", "https://valid.website.complete/", "http://valid.website.com/",
                 "www.valid.website.com/", "valid.website.com/", "valid-website.com/", "valid.12345.com/", "12345.com/"};
-        for (String validWebsite: validWebsites) {
+        for (String validWebsite : validWebsites) {
             Workspace workspace = new Workspace();
             workspace.setName("Test Update Name");
             workspace.setDomain("example.com");
@@ -1531,7 +1531,7 @@ public class WorkspaceServiceTest {
         Workspace savedWorkspace = workspaceService.create(workspace).block();
 
         Mono<Workspace> deleteWorkspaceMono = workspaceService.archiveById(savedWorkspace.getId())
-                                .then(workspaceRepository.findById(savedWorkspace.getId()));
+                .then(workspaceRepository.findById(savedWorkspace.getId()));
 
         // using verifyComplete() only. If the Mono emits any data, it will fail the stepverifier
         // as it doesn't expect an onNext signal at this point.

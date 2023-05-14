@@ -1,9 +1,8 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.dtos.DatasourceDTO;
+import com.appsmith.external.dtos.RemoteDatasourceDTO;
 import com.appsmith.external.dtos.ExecutePluginDTO;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.UpdatableConnection;
 import com.appsmith.external.plugins.PluginExecutor;
@@ -31,7 +30,7 @@ import java.util.function.Function;
 @Slf4j
 public class DatasourceContextServiceCEImpl implements DatasourceContextServiceCE {
 
-    //DatasourceContextIdentifier contains datasourceId & environmentId which is mapped to  DatasourceContext
+    // DatasourceContextIdentifier contains datasourceId & environmentId which is mapped to DatasourceContext
     protected final Map<DatasourceContextIdentifier, Mono<? extends DatasourceContext<?>>> datasourceContextMonoMap;
     protected final Map<DatasourceContextIdentifier, Object> datasourceContextSynchronizationMonitorMap;
     protected final Map<DatasourceContextIdentifier, DatasourceContext<?>> datasourceContextMap;
@@ -156,16 +155,6 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         return datasourceStorageMono.thenReturn(connection);
     }
 
-    protected Mono<Datasource> retrieveDatasourceFromDB(Datasource datasource,
-                                                        DatasourceContextIdentifier datasourceContextIdentifier) {
-        if (datasourceContextIdentifier.isKeyValid()) {
-            return datasourceService.findById(datasourceContextIdentifier.getDatasourceId(),
-                    datasourcePermission.getExecutePermission());
-        } else {
-            return Mono.just(datasource);
-        }
-    }
-
     protected Mono<DatasourceContext<?>> createNewDatasourceContext(DatasourceStorage datasourceStorage,
                                                                     DatasourceContextIdentifier datasourceContextIdentifier) {
         log.debug("Datasource context doesn't exist. Creating connection.");
@@ -247,7 +236,6 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
 
     @Override
     public <T> Mono<T> retryOnce(DatasourceStorage datasourceStorage,
-                                 DatasourceContextIdentifier datasourceContextIdentifier,
                                  Function<DatasourceContext<?>, Mono<T>> task) {
 
         final Mono<T> taskRunnerMono = Mono.justOrEmpty(datasourceStorage)
@@ -258,15 +246,15 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         return taskRunnerMono
                 .onErrorResume(StaleConnectionException.class, error -> {
                     log.info("Looks like the connection is stale. Retrying with a fresh context.");
-                    return deleteDatasourceContext(datasourceContextIdentifier)
+                    return deleteDatasourceContext(datasourceStorage)
                             .then(taskRunnerMono);
                 });
     }
 
     @Override
-    public Mono<DatasourceContext<?>> deleteDatasourceContext(DatasourceContextIdentifier datasourceContextIdentifier) {
+    public Mono<DatasourceContext<?>> deleteDatasourceContext(DatasourceStorage datasourceStorage) {
 
-        String datasourceId = datasourceContextIdentifier.getDatasourceId();
+        DatasourceContextIdentifier datasourceContextIdentifier = initializeDatasourceContextIdentifier(datasourceStorage);
         if (!datasourceContextIdentifier.isKeyValid()) {
             return Mono.empty();
         }
@@ -276,15 +264,9 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
             // No resource context exists for this resource. Return void.
             return Mono.empty();
         }
-
-        return datasourceService
-                .findById(datasourceId, datasourcePermission.getExecutePermission())
-                .zipWhen(datasource1 ->
-                        pluginExecutorHelper.getPluginExecutor(pluginService.findById(datasource1.getPluginId())))
-                .map(tuple -> {
-                    final Datasource datasource = tuple.getT1();
-                    final PluginExecutor<Object> pluginExecutor = tuple.getT2();
-                    log.info("Clearing datasource context for datasource ID {}.", datasource.getId());
+        return pluginExecutorHelper.getPluginExecutor(pluginService.findById(datasourceStorage.getPluginId()))
+                .map(pluginExecutor -> {
+                    log.info("Clearing datasource context for datasource storage ID {}.", datasourceStorage.getId());
                     pluginExecutor.datasourceDestroy(datasourceContext.getConnection());
                     datasourceContextMonoMap.remove(datasourceContextIdentifier);
                     return datasourceContextMap.remove(datasourceContextIdentifier);
@@ -317,7 +299,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                     executePluginDTO.setInstallationKey(instanceId);
                     executePluginDTO.setPluginName(plugin.getPluginName());
                     executePluginDTO.setPluginVersion(plugin.getVersion());
-                    executePluginDTO.setDatasource(new DatasourceDTO(
+                    executePluginDTO.setDatasource(new RemoteDatasourceDTO(
                             datasourceStorage.getDatasourceId(),
                             datasourceStorage.getDatasourceConfiguration()));
                     datasourceContext.setConnection(executePluginDTO);

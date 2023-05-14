@@ -3,8 +3,8 @@ package com.appsmith.server.solutions.ce;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -12,8 +12,8 @@ import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
-import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
 import com.appsmith.server.solutions.ImportExportApplicationService;
@@ -28,7 +28,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
 
 @RequiredArgsConstructor
 @Slf4j
@@ -104,7 +103,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     public Mono<ApplicationImportDTO> forkApplicationToWorkspace(String srcApplicationId,
                                                                  String targetWorkspaceId,
                                                                  String branchName) {
-        if(StringUtils.isEmpty(branchName)) {
+        if (StringUtils.isEmpty(branchName)) {
             return applicationService.findById(srcApplicationId, applicationPermission.getReadPermission())
                     .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)))
                     .flatMap(application -> {

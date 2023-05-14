@@ -1,6 +1,5 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.DatasourceContextIdentifier;
@@ -28,10 +27,9 @@ public interface DatasourceContextServiceCE {
     Mono<DatasourceContext<?>> getRemoteDatasourceContext(Plugin plugin, DatasourceStorage datasourceStorage);
 
     <T> Mono<T> retryOnce(DatasourceStorage datasourceStorage,
-                          DatasourceContextIdentifier datasourceContextIdentifier,
                           Function<DatasourceContext<?>, Mono<T>> task);
 
-    Mono<DatasourceContext<?>> deleteDatasourceContext(DatasourceContextIdentifier datasourceContextIdentifier);
+    Mono<DatasourceContext<?>> deleteDatasourceContext(DatasourceStorage datasourceStorage);
 
     DatasourceContextIdentifier initializeDatasourceContextIdentifier(DatasourceStorage datasourceStorage);
 }

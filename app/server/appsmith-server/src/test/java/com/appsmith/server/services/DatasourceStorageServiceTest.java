@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.repositories.UserRepository;
@@ -37,7 +38,6 @@ public class DatasourceStorageServiceTest {
     DatasourceStorageService datasourceStorageService;
 
 
-
     @BeforeEach
     public void setup() {
         Mono<User> userMono = userRepository.findByEmail("api_user").cache();
@@ -46,30 +46,6 @@ public class DatasourceStorageServiceTest {
                         .switchIfEmpty(Mono.error(new Exception("createDefault is returning empty!!")))
                         .block();
 
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void verifyFindOneByDatasourceId() {
-        String datasourceId = "mockDatasourceId";
-        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        datasourceConfiguration.setEndpoints(List.of(new Endpoint("mockEndpoints", 000L)));
-        DatasourceStorage datasourceStorage =
-                new DatasourceStorage(datasourceId, null, datasourceConfiguration, null, null);
-
-        DatasourceStorage savedDatasourceStorage =
-                datasourceStorageService.save(datasourceStorage).block();
-
-        Mono<DatasourceStorage> datasourceStorageMono =
-                datasourceStorageService.findOneByDatasourceId(datasourceId);
-
-        StepVerifier.create(datasourceStorageMono)
-                .assertNext(datasourceStorage1 -> {
-                    assertThat(datasourceStorage1).isNotNull();
-                    assertThat(datasourceId).isEqualTo(datasourceStorage1.getDatasourceId());
-                    assertThat(datasourceStorage1.getDatasourceConfiguration().getEndpoints().size()).isEqualTo(1);
-                })
-                .verifyComplete();
     }
 
     @Test
@@ -92,19 +68,19 @@ public class DatasourceStorageServiceTest {
         datasourceStorageService.save(datasourceStorageTwo).block();
 
         Flux<DatasourceStorage> datasourceStorageFlux =
-                datasourceStorageService.findByDatasourceId(datasourceId)
+                datasourceStorageService.findStrictlyByDatasourceId(datasourceId)
                         .sort(Comparator.comparing(DatasourceStorage::getEnvironmentId));
 
         StepVerifier.create(datasourceStorageFlux)
                 .assertNext(datasourceStorage -> {
-                    assertThat(datasourceStorage).isNotNull() ;
+                    assertThat(datasourceStorage).isNotNull();
                     assertThat(datasourceId).isEqualTo(datasourceStorage.getDatasourceId());
-                    assertThat(environmentIdOne).isEqualTo(datasourceStorage.getEnvironmentId());
+                    assertThat(FieldName.UNUSED_ENVIRONMENT_ID).isEqualTo(datasourceStorage.getEnvironmentId());
                 })
                 .assertNext(datasourceStorage -> {
                     assertThat(datasourceStorage).isNotNull();
                     assertThat(datasourceId).isEqualTo(datasourceStorage.getDatasourceId());
-                    assertThat(environmentIdTwo).isEqualTo(datasourceStorage.getEnvironmentId());
+                    assertThat(FieldName.UNUSED_ENVIRONMENT_ID).isEqualTo(datasourceStorage.getEnvironmentId());
                 })
                 .verifyComplete();
     }

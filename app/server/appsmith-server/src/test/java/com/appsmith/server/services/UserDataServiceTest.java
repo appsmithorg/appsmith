@@ -176,6 +176,7 @@ public class UserDataServiceTest {
                 .expectErrorMatches(error -> error instanceof AppsmithException)
                 .verify();
     }
+
     /*
         This test uploads an invalid image (json file for which extension has been changed to .png) and validates the upload failure
      */

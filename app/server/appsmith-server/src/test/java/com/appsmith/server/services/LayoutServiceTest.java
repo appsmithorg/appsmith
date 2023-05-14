@@ -1213,7 +1213,7 @@ public class LayoutServiceTest {
                         Assertions.fail("Incorrect initialization of expected DSL");
                     }
                     assertThat(throwable.getMessage()).isEqualTo(
-                            AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE.getMessage("test_type", "testWidget", "id", "dynamicGet_IncorrectKey", pageId, layoutId.get(), oldParent,  "dynamicGet_IncorrectKey", "New element is null")
+                            AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE.getMessage("test_type", "testWidget", "id", "dynamicGet_IncorrectKey", pageId, layoutId.get(), oldParent, "dynamicGet_IncorrectKey", "New element is null")
                     );
                     return true;
                 })

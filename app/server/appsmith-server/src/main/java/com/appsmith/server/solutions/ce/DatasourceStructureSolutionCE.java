@@ -10,6 +10,5 @@ public interface DatasourceStructureSolutionCE {
     Mono<DatasourceStructure> getStructure(String datasourceId, boolean ignoreCache, String environmentName);
 
     Mono<DatasourceStructure> getStructure(DatasourceStorage datasourceStorage,
-                                           boolean ignoreCache,
-                                           String environmentName);
+                                           boolean ignoreCache);
 }

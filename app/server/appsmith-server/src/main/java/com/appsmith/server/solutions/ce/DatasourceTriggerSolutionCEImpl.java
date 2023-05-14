@@ -46,7 +46,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
     public Mono<TriggerResultDTO> trigger(String datasourceId, String environmentId, TriggerRequestDTO triggerRequestDTO) {
 
         Mono<DatasourceStorage> datasourceStorageMono = datasourceStorageService
-                .findByDatasourceIdAndEnvironmentIdWithPermission(
+                .findByDatasourceIdAndEnvironmentId(
                         datasourceId,
                         environmentId,
                         datasourcePermission.getExecutePermission())

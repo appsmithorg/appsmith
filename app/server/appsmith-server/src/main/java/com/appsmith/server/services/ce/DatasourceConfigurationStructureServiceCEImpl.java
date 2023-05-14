@@ -15,8 +15,8 @@ public class DatasourceConfigurationStructureServiceCEImpl implements Datasource
     protected final DatasourceConfigurationStructureRepository repository;
 
     @Override
-    public Mono<DatasourceConfigurationStructure> getByDatasourceId(String datasourceId) {
-        return repository.findByDatasourceId(datasourceId);
+    public Mono<DatasourceConfigurationStructure> getByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId) {
+        return repository.findByDatasourceIdAndEnvironmentId(datasourceId, environmentId);
     }
 
     @Override

@@ -1,11 +1,13 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.JSValue;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
 import com.appsmith.external.services.EncryptionService;
@@ -21,11 +23,9 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -83,6 +83,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
@@ -300,7 +301,7 @@ public class ApplicationForkingServiceTests {
                                 .findByWorkspaceId(workspace.getId(), READ_APPLICATIONS)
                                 .map(data.applications::add),
                         datasourceService
-                                .findAllByWorkspaceId(workspace.getId(), READ_DATASOURCES)
+                                .getAllByWorkspaceId(workspace.getId(), Optional.of(READ_DATASOURCES))
                                 .map(data.datasources::add),
                         getActionsInWorkspace(workspace)
                                 .map(data.actions::add)
@@ -883,7 +884,7 @@ public class ApplicationForkingServiceTests {
                 .verifyComplete();
     }
 
-    private Mono<Tuple2<Application, String>> forkApplicationSetup(Boolean forkWithConfiguration, Boolean connectDatasourceToAction){
+    private Mono<Tuple2<Application, String>> forkApplicationSetup(Boolean forkWithConfiguration, Boolean connectDatasourceToAction) {
         Workspace targetWorkspace = new Workspace();
         targetWorkspace.setName("target-org");
         targetWorkspace = workspaceService.create(targetWorkspace).block();
@@ -924,7 +925,7 @@ public class ApplicationForkingServiceTests {
 
         Datasource createdDatasource = datasourceService.create(datasource).block();
 
-        if (Boolean.TRUE.equals(connectDatasourceToAction)){
+        if (Boolean.TRUE.equals(connectDatasourceToAction)) {
             ActionDTO action = new ActionDTO();
             action.setName("forkActionTest");
             action.setPageId(srcApp.getPages().get(0).getId());
@@ -941,7 +942,7 @@ public class ApplicationForkingServiceTests {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void forkApplication_withForkWithConfigurationFalseAndDatasourceUsed_IsPartialImportTrue(){
+    public void forkApplication_withForkWithConfigurationFalseAndDatasourceUsed_IsPartialImportTrue() {
         Tuple2<Application, String> forkApplicationSetupResponse = forkApplicationSetup(false, true).block();
         Application srcApp = forkApplicationSetupResponse.getT1();
         String targetWorkspaceId = forkApplicationSetupResponse.getT2();
@@ -962,7 +963,7 @@ public class ApplicationForkingServiceTests {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void forkApplication_withForkWithConfigurationFalseAndDatasourceNotUsed_IsPartialImportFalse(){
+    public void forkApplication_withForkWithConfigurationFalseAndDatasourceNotUsed_IsPartialImportFalse() {
         Tuple2<Application, String> forkApplicationSetupResponse = forkApplicationSetup(false, false).block();
         Application srcApp = forkApplicationSetupResponse.getT1();
         String targetWorkspaceId = forkApplicationSetupResponse.getT2();
@@ -983,7 +984,7 @@ public class ApplicationForkingServiceTests {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void forkApplication_withForkWithConfigurationTrue_IsPartialImportFalse(){
+    public void forkApplication_withForkWithConfigurationTrue_IsPartialImportFalse() {
         Tuple2<Application, String> forkApplicationSetupResponse = forkApplicationSetup(true, true).block();
         Application srcApp = forkApplicationSetupResponse.getT1();
         String targetWorkspaceId = forkApplicationSetupResponse.getT2();

@@ -15,7 +15,6 @@ import java.util.zip.ZipInputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 class FileUtilsTest {
 
     private FileUtils fileUtils;
@@ -50,7 +49,7 @@ class FileUtilsTest {
 
         Map<String, String> fileNameAndContentMap = new HashMap<>(2);
 
-        while(ze != null) {
+        while (ze != null) {
             String fileName = ze.getName();
 
             ByteArrayOutputStream result = new ByteArrayOutputStream();

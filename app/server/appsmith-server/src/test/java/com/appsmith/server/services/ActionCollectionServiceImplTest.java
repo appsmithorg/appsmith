@@ -459,7 +459,7 @@ public class ActionCollectionServiceImplTest {
 
         final JsonNode jsonNode = objectMapperUtils.readFromFile(mockObjects, Views.Public.class, JsonNode.class);
 
-        String actionCollectionString  = objectMapperUtils.writeAsString(jsonNode.get("actionCollectionWithAction"), Views.Public.class);
+        String actionCollectionString = objectMapperUtils.writeAsString(jsonNode.get("actionCollectionWithAction"), Views.Public.class);
         final ActionCollection actionCollection = objectMapperUtils.readFromString(actionCollectionString, Views.Public.class, ActionCollection.class);
 
         String actionCollectionDTOWithModifiedActionsString = objectMapperUtils.writeAsString(jsonNode.get("actionCollectionDTOWithModifiedActions"), Views.Public.class);

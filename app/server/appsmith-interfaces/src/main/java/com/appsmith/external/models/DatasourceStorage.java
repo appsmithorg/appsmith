@@ -73,6 +73,25 @@ public class DatasourceStorage extends BaseDomain {
     @Transient
     Boolean isMock;
 
+    public DatasourceStorage(String datasourceId,
+                             String environmentId,
+                             DatasourceConfiguration datasourceConfiguration,
+                             Set<String> invalids,
+                             Set<String> messages) {
+
+        this.datasourceId = datasourceId;
+        this.environmentId = environmentId;
+        this.datasourceConfiguration = datasourceConfiguration;
+        this.invalids = new HashSet<>();
+        if (invalids != null) {
+            this.invalids.addAll(invalids);
+        }
+        if (messages != null) {
+            this.messages = messages;
+        }
+    }
+
+    // TODO: Get rid of this after migration
     public DatasourceStorage(Datasource datasource, String environmentId) {
         this.datasourceId = datasource.getId();
         this.environmentId = environmentId;
@@ -81,6 +100,14 @@ public class DatasourceStorage extends BaseDomain {
         this.messages.addAll(datasource.getMessages());
 
         this.setTransientFields(datasource);
+    }
+
+    public DatasourceStorage(DatasourceStorageDTO datasourceStorageDTO) {
+        this.datasourceId = datasourceStorageDTO.getDatasourceId();
+        this.environmentId = datasourceStorageDTO.getEnvironmentId();
+        this.datasourceConfiguration = datasourceStorageDTO.getDatasourceConfiguration();
+        this.invalids = datasourceStorageDTO.getInvalids();
+        this.messages = datasourceStorageDTO.getMessages();
     }
 
     public void setTransientFields(Datasource datasource) {

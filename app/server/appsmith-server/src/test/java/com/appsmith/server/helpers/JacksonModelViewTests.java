@@ -1,27 +1,24 @@
 package com.appsmith.server.helpers;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
 public class JacksonModelViewTests {
-    
+
     interface Views {
-        interface Public {}
-        interface Internal extends Public {}
+        interface Public {
+        }
+
+        interface Internal extends Public {
+        }
     }
 
     @Data

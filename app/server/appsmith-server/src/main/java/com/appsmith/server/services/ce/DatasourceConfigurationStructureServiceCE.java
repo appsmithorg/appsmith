@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono;
 
 public interface DatasourceConfigurationStructureServiceCE {
 
-    Mono<DatasourceConfigurationStructure> getByDatasourceId(String datasourceId);
+    Mono<DatasourceConfigurationStructure> getByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId);
 
     Mono<DatasourceConfigurationStructure> save(DatasourceConfigurationStructure datasourceConfigurationStructure);
 

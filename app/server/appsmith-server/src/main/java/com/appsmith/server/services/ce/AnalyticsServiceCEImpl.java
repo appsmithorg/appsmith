@@ -7,7 +7,6 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
@@ -104,12 +103,12 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                 : Mono.just(recentlyUsedWorkspaceId);
 
         return Mono.zip(
-                Mono.just(user),
-                isSuperUserMono,
-                configService.getInstanceId()
-                        .defaultIfEmpty("unknown-instance-id"),
-                recentlyUsedWorkspaceIdMono
-        )
+                        Mono.just(user),
+                        isSuperUserMono,
+                        configService.getInstanceId()
+                                .defaultIfEmpty("unknown-instance-id"),
+                        recentlyUsedWorkspaceIdMono
+                )
                 .map(tuple -> {
                     final User savedUser = tuple.getT1();
                     final boolean isSuperUser = tuple.getT2();
@@ -223,10 +222,10 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                         userIdToSend = StringUtils.defaultIfEmpty(userIdFromClient, FieldName.ANONYMOUS_USER);
                     }
                     TrackMessage.Builder messageBuilder = TrackMessage.builder(event)
-                        .userId(userIdToSend)
-                        .context(Map.of(
-                            "userAgent", userAgent
-                        ));
+                            .userId(userIdToSend)
+                            .context(Map.of(
+                                    "userAgent", userAgent
+                            ));
                     // For Installation Setup Complete event we are using `instanceId` as tracking id
                     // As this does not satisfy the email validation it's not getting hashed correctly
                     if (AnalyticsEvents.INSTALLATION_SETUP_COMPLETE.getEventName().equals(event)
@@ -333,6 +332,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
 
     /**
      * To get non resource events list
+     *
      * @return List of AnanlyticsEvents
      */
     public List<AnalyticsEvents> getNonResourceEvents() {

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 public class DatasourceContextServiceImpl extends DatasourceContextServiceCEImpl implements DatasourceContextService {
 
     public DatasourceContextServiceImpl(@Lazy DatasourceService datasourceService,
+                                        DatasourceStorageService datasourceStorageService,
                                         PluginService pluginService,
                                         PluginExecutorHelper pluginExecutorHelper,
                                         ConfigService configService,

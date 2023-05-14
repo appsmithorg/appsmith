@@ -72,6 +72,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -161,7 +162,7 @@ public class ExamplesWorkspaceClonerTests {
                                 .findByWorkspaceId(workspace.getId(), READ_APPLICATIONS)
                                 .map(data.applications::add),
                         datasourceService
-                                .findAllByWorkspaceId(workspace.getId(), READ_DATASOURCES)
+                                .getAllByWorkspaceId(workspace.getId(), Optional.of(READ_DATASOURCES))
                                 .map(data.datasources::add),
                         getActionsInWorkspace(workspace)
                                 .map(data.actions::add),
@@ -1260,7 +1261,6 @@ public class ExamplesWorkspaceClonerTests {
                 })
                 .verifyComplete();
     }
-
 
 
     private List<String> getUnpublishedActionName(List<ActionDTO> actions) {

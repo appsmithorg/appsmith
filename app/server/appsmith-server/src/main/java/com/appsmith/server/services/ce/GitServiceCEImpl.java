@@ -356,12 +356,11 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     /**
-     *
-     * @param commitDTO             information required for making a commit
-     * @param defaultApplicationId  application branch on which the commit needs to be done
-     * @param branchName            branch name for the commit flow
-     * @param doAmend               if we want to amend the commit with the earlier one, used in connect flow
-     * @param isFileLock            boolean value indicates whether the file lock is needed to complete the operation
+     * @param commitDTO            information required for making a commit
+     * @param defaultApplicationId application branch on which the commit needs to be done
+     * @param branchName           branch name for the commit flow
+     * @param doAmend              if we want to amend the commit with the earlier one, used in connect flow
+     * @param isFileLock           boolean value indicates whether the file lock is needed to complete the operation
      * @return success message
      */
     private Mono<String> commitApplication(GitCommitDTO commitDTO, String defaultApplicationId, String branchName, boolean doAmend, boolean isFileLock) {
@@ -414,7 +413,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         Mono<String> commitMono = this.getApplicationById(defaultApplicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
-                    if(Boolean.TRUE.equals(isFileLock)) {
+                    if (Boolean.TRUE.equals(isFileLock)) {
                         return addFileLock(gitData.getDefaultApplicationId())
                                 .then(Mono.just(application));
                     }
@@ -585,7 +584,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     return applicationService.update(childApplication.getId(), update)
                             // Release the file lock on git repo
                             .flatMap(application -> {
-                                if(Boolean.TRUE.equals(isFileLock)) {
+                                if (Boolean.TRUE.equals(isFileLock)) {
                                     return releaseFileLock(childApplication.getGitApplicationMetadata().getDefaultApplicationId());
                                 }
                                 return Mono.just(application);
@@ -2010,7 +2009,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     String defaultBranch = gitApplicationMetadata.getDefaultBranchName();
 
 
-                    Mono<List<Datasource>> datasourceMono = datasourceService.findAllByWorkspaceId(workspaceId, datasourcePermission.getEditPermission()).collectList();
+                    Mono<List<Datasource>> datasourceMono = datasourceService.getAllByWorkspaceId(workspaceId, Optional.of(datasourcePermission.getEditPermission())).collectList();
                     Mono<List<Plugin>> pluginMono = pluginService.getDefaultPlugins().collectList();
                     Mono<ApplicationJson> applicationJsonMono = fileUtils
                             .reconstructApplicationJsonFromGitRepo(workspaceId, application.getId(), gitApplicationMetadata.getRepoName(), defaultBranch)

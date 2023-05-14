@@ -3,8 +3,11 @@ package com.appsmith.server.solutions;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Property;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
@@ -35,12 +38,12 @@ import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -74,7 +77,11 @@ public class AuthenticationServiceTest {
     @WithUserDetails(value = "api_user")
     public void testGetAuthorizationCodeURL_missingDatasource() {
         Mono<String> authorizationCodeUrlMono = authenticationService
-                .getAuthorizationCodeURLForGenericOauth2("invalidId", "irrelevantPageId", null);
+                .getAuthorizationCodeURLForGenericOAuth2(
+                        "invalidId",
+                        FieldName.UNUSED_ENVIRONMENT_ID,
+                        "irrelevantPageId",
+                        null);
 
         StepVerifier
                 .create(authorizationCodeUrlMono)
@@ -102,13 +109,24 @@ public class AuthenticationServiceTest {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        Mono<Datasource> datasourceMono = pluginMono.map(plugin -> {
-            datasource.setPluginId(plugin.getId());
-            return datasource;
-        }).flatMap(datasourceService::create).cache();
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        datasource.setDatasourceStorages(storages);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        Mono<Datasource> datasourceMono = pluginMono
+                .map(plugin -> {
+                    datasource.setPluginId(plugin.getId());
+                    return datasource;
+                })
+                .flatMap(datasourceService::create)
+                .cache();
 
         Mono<String> authorizationCodeUrlMono = datasourceMono.map(BaseDomain::getId)
-                .flatMap(datasourceId -> authenticationService.getAuthorizationCodeURLForGenericOauth2(datasourceId, "irrelevantPageId", null));
+                .flatMap(datasourceId -> authenticationService.getAuthorizationCodeURLForGenericOAuth2(
+                        datasourceId,
+                        FieldName.UNUSED_ENVIRONMENT_ID,
+                        "irrelevantPageId",
+                        null));
 
         StepVerifier
                 .create(authorizationCodeUrlMono)
@@ -164,14 +182,25 @@ public class AuthenticationServiceTest {
         authenticationDTO.setCustomAuthenticationParameters(Set.of(new Property("key", "value")));
         datasourceConfiguration.setAuthentication(authenticationDTO);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
-        Mono<Datasource> datasourceMono = pluginMono.map(plugin -> {
-            datasource.setPluginId(plugin.getId());
-            return datasource;
-        }).flatMap(datasourceService::create).cache();
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        datasource.setDatasourceStorages(storages);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        Mono<Datasource> datasourceMono = pluginMono
+                .map(plugin -> {
+                    datasource.setPluginId(plugin.getId());
+                    return datasource;
+                })
+                .flatMap(datasourceService::create)
+                .cache();
 
         final String datasourceId1 = datasourceMono.map(BaseDomain::getId).block();
 
-        Mono<String> authorizationCodeUrlMono = authenticationService.getAuthorizationCodeURLForGenericOauth2(datasourceId1, pageDto.getId(), httpRequest);
+        Mono<String> authorizationCodeUrlMono = authenticationService.getAuthorizationCodeURLForGenericOAuth2(
+                datasourceId1,
+                FieldName.UNUSED_ENVIRONMENT_ID,
+                pageDto.getId(),
+                httpRequest);
 
         StepVerifier
                 .create(authorizationCodeUrlMono)

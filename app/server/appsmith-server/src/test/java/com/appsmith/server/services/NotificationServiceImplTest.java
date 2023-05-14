@@ -8,6 +8,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.NotificationRepository;
 import com.mongodb.client.result.UpdateResult;
+import jakarta.validation.Validator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +25,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.test.StepVerifier;
 
-import jakarta.validation.Validator;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;

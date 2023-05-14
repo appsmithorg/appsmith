@@ -10,6 +10,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceDTO;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.ParsedDataType;
@@ -17,6 +18,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.models.WidgetSuggestionDTO;
 import com.appsmith.external.models.WidgetType;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
@@ -604,7 +606,6 @@ public class ActionExecutionSolutionCETest {
                 })
                 .verifyComplete();
     }
-
 
 
     @Test
@@ -1794,7 +1795,6 @@ public class ActionExecutionSolutionCETest {
     }
 
 
-
     @Test
     @WithUserDetails(value = "api_user")
     public void executeAction_actionOnMockDatasource_success() {
@@ -1813,7 +1813,7 @@ public class ActionExecutionSolutionCETest {
         mockDataSource.setWorkspaceId(workspaceId);
         mockDataSource.setPackageName("postgres-plugin");
         mockDataSource.setPluginId(installed_plugin.getId());
-        Datasource mockDatasource = mockDataService.createMockDataSet(mockDataSource).block();
+        DatasourceDTO mockDatasource = mockDataService.createMockDataSet(mockDataSource, FieldName.UNUSED_ENVIRONMENT_ID).block();
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
@@ -1825,7 +1825,7 @@ public class ActionExecutionSolutionCETest {
         action.setActionConfiguration(actionConfiguration);
         action.setPageId(testPage.getId());
         action.setName("testActionExecuteDbQuery");
-        action.setDatasource(mockDatasource);
+        action.setDatasource(datasourceService.convertToDatasource(mockDatasource, FieldName.UNUSED_ENVIRONMENT_ID));
         ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();

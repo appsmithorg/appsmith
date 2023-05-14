@@ -139,11 +139,6 @@ public class DatasourceTriggerSolutionTest {
 
         Datasource datasource = datasourceService.findById(datasourceId, datasourcePermission.getReadPermission()).block();
         Mockito.doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(Mockito.any());
-        Mockito
-                .doReturn(Mono.zip(Mono.justOrEmpty(datasource),
-                        Mono.just(new DatasourceContextIdentifier(datasourceId, null)),
-                        Mono.just(new HashMap<>())))
-                .when(datasourceService).getEvaluatedDSAndDsContextKeyWithEnvMap(Mockito.any(Datasource.class), Mockito.any());
 
         Mono<TriggerResultDTO> tableNameMono = datasourceTriggerSolution.trigger(
                 datasourceId,
