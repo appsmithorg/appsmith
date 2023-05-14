@@ -126,11 +126,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
 
     const createFlow = datasourceId === TEMP_DATASOURCE_ID;
     return (
-      <Form
-        onSubmit={(e) => {
-          e.preventDefault();
-        }}
-      >
+      <>
         {!this.props.hiddenHeader && (
           <Header>
             <FormTitleContainer>
@@ -226,7 +222,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
           </ResizerContentContainer>
           {showDebugger && <Debugger />}
         </ResizerMainContainer>
-      </Form>
+      </>
     );
   };
 }
