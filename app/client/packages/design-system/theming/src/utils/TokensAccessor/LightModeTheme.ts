@@ -293,26 +293,41 @@ export class LightModeTheme implements ColorModeTheme {
   }
 
   private get bdNeutral() {
-    const color = this.seedColor.clone();
+    const color = this.bdAccent.clone();
 
-    if (this.seedColor.contrastAPCA(this.bg) <= -25 && !this.seedIsAchromatic) {
-      color.oklch.c = 0.016;
-      return color;
-    }
+    color.oklch.c = 0.035;
 
     if (this.seedIsAchromatic) {
-      color.oklch.l = 0.15;
       color.oklch.c = 0;
-      return color;
     }
 
-    color.oklch.l = 0.15;
-    color.oklch.c = 0.064;
+    if (this.bg.contrastAPCA(color) < 25) {
+      color.oklch.l = color.oklch.l - 0.2;
+    }
+
     return color;
   }
 
   private get bdNeutralHover() {
-    return this.bdNeutral.clone().lighten(0.06);
+    const color = this.bdNeutral.clone();
+
+    if (this.bdNeutral.oklch.l < 0.06) {
+      color.oklch.l = color.oklch.l + 0.6;
+    }
+
+    if (this.bdNeutral.oklch.l >= 0.06 && this.bdNeutral.oklch.l < 0.25) {
+      color.oklch.l = color.oklch.l + 0.4;
+    }
+
+    if (this.bdNeutral.oklch.l >= 0.25 && this.bdNeutral.oklch.l < 0.5) {
+      color.oklch.l = color.oklch.l + 0.25;
+    }
+
+    if (this.bdNeutral.oklch.l >= 0.5) {
+      color.oklch.l = color.oklch.l + 0.1;
+    }
+
+    return color;
   }
 
   private get bdFocus() {

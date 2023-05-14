@@ -90,7 +90,7 @@ jobs:
       # Set status = success
       - name: Save the status of the run
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
-      
+
       # Set up Node.js cache yarn dependencies.
       # actions/setup-node@v3 now support caching of dependencies using actions/cache under the hood
       # https://github.com/actions/setup-node#caching-global-packages-data
@@ -98,21 +98,8 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-node@v3
         with:
-          node-version: '16.14.0'
-          cache: 'yarn'
-          cache-dependency-path: 'app/client/yarn.lock'
+          node-version: "16.14.0"
 
-      # Install all the dependencies
-      - name: Install dependencies
-        if: steps.run_result.outputs.run_result != 'success'
-        run: yarn install --frozen-lockfile
-
-      - name: Installing Yarn serve
-        if: steps.run_result.outputs.run_result != 'success'
-        run: |
-          yarn global add serve
-          echo "$(yarn global bin)" >> $GITHUB_PATH
-     
       - name: Download Docker image artifact
         uses: actions/download-artifact@v3
         with:
@@ -202,22 +189,22 @@ jobs:
           repository: appsmithorg/performance-infra
           token: ${{ secrets.APPSMITH_PERF_INFRA_REPO_PAT }}
           ref: ${{ steps.perf_infra_ref.outputs.ref }}
-          path: app/client/perf
+          path: perf
 
       - name: Installing performance tests dependencies
         if: steps.run_result.outputs.run_result != 'success'
-        working-directory: app/client/perf
+        working-directory: perf
         shell: bash
         run: yarn install --frozen-lockfile
 
       - name: Change test script permissions
         if: steps.run_result.outputs.run_result != 'success'
-        working-directory: app/client/perf
+        working-directory: perf
         run: chmod +x ./start-test.sh
 
       - name: Run performance tests
         if: steps.run_result.outputs.run_result != 'success'
-        working-directory: app/client/perf
+        working-directory: perf
         shell: bash
         env:
           APPSMITH_SSL_CERTIFICATE: ${{ secrets.APPSMITH_SSL_CERTIFICATE }}
@@ -242,7 +229,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            app/client/perf/traces
+            perf/traces
           key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
           restore-keys: |
             ${{ github.run_id }}-${{ github.job }}
@@ -250,7 +237,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: performance-test-logs
-          path: app/client/perf/traces/reports
+          path: perf/traces/reports
 
       # Set status = success
       - name: Save the status of the run

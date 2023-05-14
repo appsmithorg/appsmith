@@ -66,20 +66,45 @@ describe("Entity explorer tests related to pinning and unpinning", function () {
     ee.NavigateToSwitcher("explorer");
   });
 
-  it("Unpinned explorer is to be open when any context menu is open or when an entity name is being edited", function () {
-    agHelper.AssertElementVisible(ee._entityExplorer);
-    ee.PinUnpinEntityExplorer(true);
-    const menu = Object.keys(ExplorerMenu);
-
-    Cypress._.times(menu.length, (index) => {
-      OpenExplorerMenu(menu[index]);
-      agHelper.Sleep();
+  it(
+    "excludeForAirgap",
+    "Unpinned explorer is to be open when any context menu is open or when an entity name is being edited",
+    function () {
       agHelper.AssertElementVisible(ee._entityExplorer);
-    });
+      ee.PinUnpinEntityExplorer(true);
+      const menu = Object.keys(ExplorerMenu);
 
-    // when an entity is being edited
-    ee.ActionContextMenuByEntityName("Page1", "Edit Name");
-    cy.get(locator._canvas).trigger("mousemove", 500, 400);
-    agHelper.AssertElementVisible(ee._entityExplorer);
-  });
+      Cypress._.times(menu.length, (index) => {
+        OpenExplorerMenu(menu[index]);
+        agHelper.Sleep();
+        agHelper.AssertElementVisible(ee._entityExplorer);
+      });
+
+      // when an entity is being edited
+      ee.ActionContextMenuByEntityName("Page1", "Edit Name");
+      cy.get(locator._canvas).trigger("mousemove", 500, 400);
+      agHelper.AssertElementVisible(ee._entityExplorer);
+    },
+  );
+
+  it(
+    "airgap",
+    "Unpinned explorer is to be open when any context menu is open or when an entity name is being edited",
+    function () {
+      agHelper.AssertElementVisible(ee._entityExplorer);
+      ee.PinUnpinEntityExplorer(true);
+      const menu = Object.keys(ExplorerMenu);
+
+      Cypress._.times(menu.length - 1, (index) => {
+        OpenExplorerMenu(menu[index]);
+        agHelper.Sleep();
+        agHelper.AssertElementVisible(ee._entityExplorer);
+      });
+
+      // when an entity is being edited
+      ee.ActionContextMenuByEntityName("Page1", "Edit Name");
+      cy.get(locator._canvas).trigger("mousemove", 500, 400);
+      agHelper.AssertElementVisible(ee._entityExplorer);
+    },
+  );
 });

@@ -10,21 +10,18 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   appSettings = ObjectsRegistry.AppSettings;
 
 describe("Numeric Datatype tests", function () {
-  before(() => {
+  before("Create Postgress DS, set Theme", () => {
     cy.fixture("Datatypes/NumericDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
     appSettings.OpenPaneAndChangeTheme("Moon");
-  });
-
-  it("1. Create Postgress DS", function () {
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
   });
 
-  it("2. Creating table - numerictypes", () => {
+  it("1. Creating table - numerictypes", () => {
     query = `create table numerictypes (serialId SERIAL not null primary key, bigintId bigint not null, decimalId decimal not null, numericId numeric not null)`;
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
@@ -40,7 +37,7 @@ describe("Numeric Datatype tests", function () {
     );
   });
 
-  it("3. Creating SELECT query - numerictypes + Bug 14493", () => {
+  it("2. Creating SELECT query - numerictypes + Bug 14493", () => {
     ee.ActionTemplateMenuByEntityName("public.numerictypes", "SELECT");
     agHelper.RenameWithInPane("selectRecords");
     dataSources.RunQuery();
@@ -49,7 +46,7 @@ describe("Numeric Datatype tests", function () {
       .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
   });
 
-  it("4. Creating all queries - numerictypes", () => {
+  it("3. Creating all queries - numerictypes", () => {
     query = `INSERT INTO public."numerictypes" ("bigintid", "decimalid", "numericid")
     VALUES ({{Insertbigint.text}}, {{Insertdecimal.text}}, {{Insertnumeric.text}})`;
     ee.ActionTemplateMenuByEntityName("public.numerictypes", "INSERT");
@@ -84,7 +81,7 @@ describe("Numeric Datatype tests", function () {
     ee.ExpandCollapseEntity(dsName, false);
   });
 
-  it("5. Inserting record (+ve limit) - numerictypes + Bug 14516", () => {
+  it("4. Inserting record (+ve limit) - numerictypes + Bug 14516", () => {
     ee.SelectEntityByName("Page1");
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
@@ -109,7 +106,7 @@ describe("Numeric Datatype tests", function () {
     });
   });
 
-  it("6. Inserting record (-ve limit) - numerictypes + Bug 14516", () => {
+  it("5. Inserting record (-ve limit) - numerictypes + Bug 14516", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
     agHelper.EnterInputText("Bigintid", "-922337203685477"); //-9223372036854775808
@@ -131,7 +128,7 @@ describe("Numeric Datatype tests", function () {
     });
   });
 
-  it("7. Inserting another record (+ve record) - numerictypes", () => {
+  it("6. Inserting another record (+ve record) - numerictypes", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
     agHelper.EnterInputText("Bigintid", "12233720368547758");
@@ -153,7 +150,7 @@ describe("Numeric Datatype tests", function () {
     });
   });
 
-  it("8. Updating record (permissible value) - numerictypes", () => {
+  it("7. Updating record (permissible value) - numerictypes", () => {
     table.SelectTableRow(2);
     agHelper.ClickButton("Run UpdateQuery");
     agHelper.AssertElementVisible(locator._modal);
@@ -176,7 +173,7 @@ describe("Numeric Datatype tests", function () {
     });
   });
 
-  it("9. Deleting records - numerictypes", () => {
+  it("8. Deleting records - numerictypes", () => {
     table.SelectTableRow(1);
     agHelper.ClickButton("DeleteQuery", 1);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
@@ -190,7 +187,7 @@ describe("Numeric Datatype tests", function () {
     });
   });
 
-  it("10. Updating record again - numerictypes", () => {
+  it("9. Updating record again - numerictypes", () => {
     table.SelectTableRow(1);
     agHelper.ClickButton("Run UpdateQuery");
     agHelper.AssertElementVisible(locator._modal);
@@ -213,7 +210,7 @@ describe("Numeric Datatype tests", function () {
     });
   });
 
-  it("11. Inserting another record (+ve record - to check serial column) - numerictypes", () => {
+  it("10. Inserting another record (+ve record - to check serial column) - numerictypes", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
     agHelper.EnterInputText("Bigintid", "11111720368547700");
@@ -235,7 +232,7 @@ describe("Numeric Datatype tests", function () {
     });
   });
 
-  it("12. Deleting records - numerictypes", () => {
+  it("11. Deleting records - numerictypes", () => {
     table.SelectTableRow(1);
     agHelper.ClickButton("DeleteQuery", 1);
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
@@ -247,14 +244,14 @@ describe("Numeric Datatype tests", function () {
     });
   });
 
-  it("13. Deleting all records from table - numerictypes", () => {
+  it("12. Deleting all records from table - numerictypes", () => {
     agHelper.GetNClick(locator._deleteIcon);
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
     agHelper.Sleep(2000);
     table.WaitForTableEmpty();
   });
 
-  it("14. Inserting record (+ve record - to check serial column) - numerictypes", () => {
+  it("13. Inserting record (+ve record - to check serial column) - numerictypes", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
     agHelper.EnterInputText("Bigintid", "11111720368547700");
@@ -276,7 +273,7 @@ describe("Numeric Datatype tests", function () {
     });
   });
 
-  it("15. Validate Drop of the Newly Created - numerictypes - Table from Postgres datasource", () => {
+  it("14. Validate Drop of the Newly Created - numerictypes - Table from Postgres datasource", () => {
     deployMode.NavigateBacktoEditor();
     ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName("dropTable");
@@ -295,24 +292,10 @@ describe("Numeric Datatype tests", function () {
     ee.ExpandCollapseEntity("Datasources", false);
   });
 
-  it("16. Verify Deletion of the datasource after all created queries are Deleted", () => {
+  it("15. Verify Deletion of the datasource after all created queries are Deleted", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.ExpandCollapseEntity("Queries/JS");
-    ee.ActionContextMenuByEntityName("createTable", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName(
-      "deleteAllRecords",
-      "Delete",
-      "Are you sure?",
-    );
-    ee.ActionContextMenuByEntityName("deleteRecord", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("dropTable", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("insertRecord", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName(
-      "selectRecords",
-      "Delete",
-      "Are you sure?",
-    );
-    ee.ActionContextMenuByEntityName("updateRecord", "Delete", "Are you sure?");
+    ee.DeleteAllQueriesForDB(dsName);
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
     ee.ExpandCollapseEntity("Queries/JS");
