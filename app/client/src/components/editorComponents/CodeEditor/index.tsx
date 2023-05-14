@@ -1319,7 +1319,7 @@ class CodeEditor extends Component<Props, State> {
   updateValueWithAIResponse = (value: string) => {
     if (typeof value !== "string") return;
     this.props.input?.onChange?.(value);
-    this.setEditorInput(value);
+    this.editor.setValue(value);
   };
 
   render() {
