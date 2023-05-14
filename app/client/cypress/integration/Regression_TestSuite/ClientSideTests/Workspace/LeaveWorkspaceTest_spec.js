@@ -10,10 +10,10 @@ describe("Leave workspace test spec", function () {
     cy.get("@guid").then((uid) => {
       newWorkspaceName = "LeaveWorkspace" + uid;
       _.homePage.CreateNewWorkspace(newWorkspaceName);
-      cy.get(_.homePage._homeIcon).click();
+      cy.get(_.homePage._homeIcon).click({ force: true });
       cy.openWorkspaceOptionsPopup(newWorkspaceName);
       // verify leave workspace is visible
-      cy.contains("Leave Workspace").click();
+      cy.contains("Leave workspace").click();
       cy.contains("Are you sure").click();
       cy.wait("@leaveWorkspaceApiCall").then((httpResponse) => {
         expect(httpResponse.status).to.equal(400);
@@ -37,7 +37,7 @@ describe("Leave workspace test spec", function () {
 
       cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
       cy.visit("/applications");
-      cy.leaveWorkspace(newWorkspaceName);
+      _.homePage.LeaveWorkspace(newWorkspaceName);
     });
   });
 });

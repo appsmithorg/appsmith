@@ -91,7 +91,7 @@ export default {
   cancelBtn: "//span[text()='Cancel']",
   submit: "button:contains('Submit')",
   workspaceNamePopover: ".ads-v2-button__content-icon-start",
-  workspaceNamePopoverContent: ".bp3-popover-content",
+  workspaceNamePopoverContent: ".ads-v2-menu",
   workspaceCompleteSection: ".t--workspace-section",
   workspaceNameText: ".t--workspace-name-text",
   workspaceHeading: "//span[text()='Workspaces']",

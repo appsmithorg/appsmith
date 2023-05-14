@@ -5,5 +5,5 @@
   "placeholderTxt": "//input[@placeholder='Enter email address(es)']",
   "placeholderTxtEE": "//input[@placeholder='Enter email address(es) or group(s)']",
   "closeModalPopup": ".bp3-dialog-close-button span svg",
-  "closeModalPopupMember": ".t--close-form-dialog span svg"
+  "closeModalPopupMember": ".ads-v2-modal__content-header-close-button"
 }
