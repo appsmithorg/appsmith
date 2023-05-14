@@ -61,7 +61,7 @@ export class JSEditor {
   private _jsObjTxt = ".t--js-action-name-edit-field input";
   private _newJSobj = "span:contains('New JS Object')";
   private _bindingsClose = ".t--entity-property-close";
-  private _propertyList = ".binding";
+  public _propertyList = ".binding";
   private _responseTabAction = (funName: string) =>
     "//div[@class='function-name'][text()='" +
     funName +

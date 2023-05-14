@@ -43,7 +43,7 @@ describe("Currency widget - ", () => {
     });
 
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(".t--property-control-decimalsallowed ", "1");
+    cy.selectDropdownValue(".t--property-control-decimalsallowed input", "1");
 
     [
       //[input, {{CurrencyInput1.text}}:{{CurrencyInput1.value}}:{{CurrencyInput1.isValid}}:{{typeof CurrencyInput1.text}}:{{typeof CurrencyInput1.value}}:{{CurrencyInput1.countryCode}}:{{CurrencyInput1.currencyCode}}]
@@ -56,7 +56,7 @@ describe("Currency widget - ", () => {
     });
 
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(".t--property-control-decimalsallowed ", "2");
+    cy.selectDropdownValue(".t--property-control-decimalsallowed input", "2");
 
     [
       //[input, {{CurrencyInput1.text}}:{{CurrencyInput1.value}}:{{CurrencyInput1.isValid}}:{{typeof CurrencyInput1.text}}:{{typeof CurrencyInput1.value}}:{{CurrencyInput1.countryCode}}:{{CurrencyInput1.currencyCode}}]
@@ -73,7 +73,7 @@ describe("Currency widget - ", () => {
     cy.get(".t--property-control-currency").click();
     cy.get(".t--property-control-currency").type("ind");
     cy.selectDropdownValue(
-      ".t--property-control-currency",
+      ".t--property-control-currency input",
       "INR - Indian Rupee",
     );
     enterAndTest("100.22", "100.22:100.22:true:string:number:IN:INR");
@@ -93,13 +93,14 @@ describe("Currency widget - ", () => {
 
   it("3. should accept 0 decimal option", () => {
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(".t--property-control-decimalsallowed ", "0");
+    cy.selectDropdownValue(".t--property-control-decimalsallowed input", "0");
     cy.closePropertyPane();
     cy.wait(500);
     cy.openPropertyPane(widgetName);
-    cy.get(
-      ".t--property-control-decimalsallowed .rc-select-selection-item span",
-    ).should("have.text", "0");
+    cy.get(".t--property-control-decimalsallowed span span").should(
+      "have.text",
+      "0",
+    );
   });
 
   it("4. should check that widget input resets on submit", () => {
@@ -129,7 +130,7 @@ describe("Currency widget - ", () => {
       `{{CurrencyInput1.text}}:{{CurrencyInput1.value}}`,
     );
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(".t--property-control-decimalsallowed ", "0");
+    cy.selectDropdownValue(".t--property-control-decimalsallowed input", "0");
 
     [
       //[input, {{CurrencyInput1.text}}:{{CurrencyInput1.value}}]
@@ -144,7 +145,7 @@ describe("Currency widget - ", () => {
     });
 
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(".t--property-control-decimalsallowed ", "1");
+    cy.selectDropdownValue(".t--property-control-decimalsallowed input", "1");
     [
       //[input, {{CurrencyInput1.text}}:{{CurrencyInput1.value}}]
       ["100", "100:100"],
@@ -158,7 +159,7 @@ describe("Currency widget - ", () => {
     });
 
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(".t--property-control-decimalsallowed ", "2");
+    cy.selectDropdownValue(".t--property-control-decimalsallowed input", "2");
     [
       //[input, {{CurrencyInput1.text}}:{{CurrencyInput1.value}}]
       ["100", "100:100"],
@@ -192,7 +193,7 @@ describe("Currency widget - ", () => {
     }
 
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(".t--property-control-decimalsallowed ", "0");
+    cy.selectDropdownValue(".t--property-control-decimalsallowed input", "0");
 
     [
       //[input, expected]
@@ -208,7 +209,7 @@ describe("Currency widget - ", () => {
     });
 
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(".t--property-control-decimalsallowed ", "1");
+    cy.selectDropdownValue(".t--property-control-decimalsallowed input", "1");
     [
       //[input, expected]
       ["100", "100"],
@@ -225,7 +226,7 @@ describe("Currency widget - ", () => {
     });
 
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(".t--property-control-decimalsallowed ", "2");
+    cy.selectDropdownValue(".t--property-control-decimalsallowed input", "2");
     [
       //[input, expected]
       ["100", "100"],
@@ -269,9 +270,8 @@ describe("Currency widget - ", () => {
     cy.updateCodeInput(".t--property-control-defaultvalue", "5");
     // Check if isDirty is reset to false
     cy.get(".t--widget-textwidget").should("contain", "false");
-  });
 
-  it("8. Should check that widget input is not showing any errors on input", function () {
+    //Should check that widget input is not showing any errors on input
     cy.get(widgetInput).type("123456789");
     cy.focused().then(() => {
       cy.get(themelocators.popover).should("not.exist");
