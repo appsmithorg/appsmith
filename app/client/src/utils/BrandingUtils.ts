@@ -59,7 +59,12 @@ export function createBrandColorsFromPrimaryColor(
   const disabledColor = `#${tinycolor(
     `hsl ${hue} ${saturation} ${92}}`,
   ).toHex()}`;
-  const hoverColor = darkenColor(brand);
+  const hoverColor =
+    brand === APPSMITH_BRAND_PRIMARY_COLOR
+      ? getComputedStyle(document.documentElement).getPropertyValue(
+          "--ads-v2-color-bg-brand-emphasis",
+        )
+      : darkenColor(brand);
 
   return {
     primary: brand,
