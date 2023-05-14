@@ -15,7 +15,7 @@ describe("Input Widget Multiline feature", function () {
     cy.get(commonlocators.generalSectionHeight)
       .scrollIntoView()
       .should("be.visible");
-    cy.changeLayoutHeightWithoutWait(commonlocators.autoHeight);
+    cy.selectDropdownValue(commonlocators.autoHeight, "Auto Height");
     cy.get(".t--widget-inputwidgetv2")
       .invoke("css", "height")
       .then((theight) => {
@@ -42,9 +42,7 @@ describe("Input Widget Multiline feature", function () {
     const textMsg = "Dynamic panel validation for input widget wrt height";
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.openPropertyPane("inputwidgetv2");
-    cy.get(widgetsPage.datatype).last().click({ force: true });
-    cy.get("[data-testid='t--dropdown-option-Multi-line text']").click();
-
+    cy.selectDropdownValue(widgetsPage.datatype, "Multi-line text");
     // verify height changes to auto height
 
     // verify on addding long text inside input field, widget height changes
@@ -65,7 +63,7 @@ describe("Input Widget Multiline feature", function () {
       .scrollIntoView()
       .should("be.visible");
     // cy.get(commonlocators.datatype).find('span').should('contain.text', 'Single-line text')
-    cy.changeLayoutHeightWithoutWait(commonlocators.autoHeight);
+    cy.selectDropdownValue(commonlocators.autoHeight, "Auto Height");
     cy.get(".t--widget-inputwidgetv2")
       .invoke("css", "height")
       .then((height) => {
@@ -86,7 +84,7 @@ describe("Input Widget Multiline feature", function () {
     cy.openPropertyPane("inputwidgetv2");
     cy.moveToContentTab();
     cy.get(widgetsPage.datatype).last().click({ force: true });
-    cy.changeLayoutHeightWithoutWait(commonlocators.fixed);
+    cy.selectDropdownValue(commonlocators.autoHeight, "Fixed");
     // change Label font size and verify
     cy.get(".t--widget-inputwidgetv2")
       .invoke("css", "height")
@@ -134,8 +132,7 @@ describe("Input Widget Multiline feature", function () {
     // verify toast message on enter
     cy.get(homePage.toastMessage).should("contain", "Success");
     // enter key with multiline
-    cy.get(widgetsPage.datatype).last().click({ force: true });
-    cy.get("[data-testid='t--dropdown-option-Multi-line text']").click();
+    cy.selectDropdownValue(widgetsPage.datatype, "Multi-line text");
     cy.get(".t--draggable-inputwidgetv2")
       .find("textarea")
       .first()

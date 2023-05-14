@@ -9,14 +9,14 @@ describe("Dynamic Height Width validation for Tab widget", function () {
   });
 
   function validateHeight() {
-    cy.wait(5000);
+    cy.wait(2000);
     cy.get(".t--tabid-tab1").click({ force: true });
-    cy.wait(3000);
+    cy.wait(2000);
     cy.get(".t--widget-tabswidget")
       .invoke("css", "height")
       .then((theight) => {
         cy.get(".t--tabid-tab2").click({ force: true });
-        cy.wait(3000);
+        cy.wait(2000);
         cy.wait("@updateLayout").should(
           "have.nested.property",
           "response.body.responseMeta.status",
@@ -30,11 +30,11 @@ describe("Dynamic Height Width validation for Tab widget", function () {
           });
       });
   }
-  it("Tab widget validation of height with dynamic height feature with publish mode", function () {
+  it("1. Tab widget validation of height with dynamic height feature with publish mode", function () {
     //changing the Text Name and verifying
     cy.wait(3000);
     cy.openPropertyPane("tabswidget");
-    cy.changeLayoutHeightWithoutWait(commonlocators.autoHeight);
+    cy.selectDropdownValue(commonlocators.autoHeight, "Auto Height");
     cy.get(".t--tabid-tab1").click({ force: true });
     validateHeight();
     cy.PublishtheApp();
@@ -42,14 +42,14 @@ describe("Dynamic Height Width validation for Tab widget", function () {
     cy.get(publish.backToEditor).click();
     _.agHelper.AssertElementVisible(_.locators._previewModeToggle("edit"));
     _.agHelper.GetNClick(_.locators._previewModeToggle("edit"));
-    cy.wait(5000);
+    cy.wait(2000);
     cy.get(".t--tabid-tab1").click({ force: true });
-    cy.wait(3000);
+    cy.wait(2000);
     cy.get(".t--widget-tabswidget")
       .invoke("css", "height")
       .then((theight) => {
         cy.get(".t--tabid-tab2").click({ force: true });
-        cy.wait(3000);
+        cy.wait(1000);
         //cy.get(".t--draggable-checkboxwidget .bp3-control-indicator").click({ force: true })
         cy.get(".t--widget-tabswidget")
           .invoke("css", "height")
@@ -60,16 +60,16 @@ describe("Dynamic Height Width validation for Tab widget", function () {
     // it("Tab widget validation of height with preview mode", function() {
     _.agHelper.AssertElementVisible(_.locators._previewModeToggle("preview"));
     _.agHelper.GetNClick(_.locators._previewModeToggle("preview"));
-    cy.wait(3000);
+    cy.wait(2000);
     cy.openPropertyPane("tabswidget");
-    cy.changeLayoutHeight(commonlocators.fixed);
+    cy.selectDropdownValue(commonlocators.autoHeight, "Fixed");
     cy.get(".t--tabid-tab1").click({ force: true });
-    cy.wait(3000);
+    cy.wait(2000);
     cy.get(".t--widget-tabswidget")
       .invoke("css", "height")
       .then((theight) => {
         cy.get(".t--tabid-tab2").click({ force: true });
-        cy.wait(3000);
+        cy.wait(2000);
         //cy.get(".t--draggable-checkboxwidget .bp3-control-indicator").click({ force: true })
         cy.get(".t--widget-tabswidget")
           .invoke("css", "height")
@@ -91,20 +91,20 @@ describe("Dynamic Height Width validation for Tab widget", function () {
           });
       });
     //it("Tab widget validation of height with reload", function() {
-    cy.wait(3000);
+    cy.wait(2000);
     cy.openPropertyPane("tabswidget");
     cy.get(commonlocators.generalSectionHeight).should("be.visible");
     cy.get(commonlocators.showTabsControl).click({ force: true });
-    cy.changeLayoutHeight(commonlocators.autoHeight);
-    cy.wait(3000);
+    cy.selectDropdownValue(commonlocators.autoHeight, "Auto Height");
+    cy.wait(2000);
     cy.get(".t--tabid-tab1").click({ force: true });
-    cy.wait(5000);
+    cy.wait(2000);
     cy.get(".t--widget-tabswidget")
       .invoke("css", "height")
       .then((theight) => {
         cy.get(".t--tabid-tab2").click({ force: true });
-        cy.changeLayoutHeight(commonlocators.fixed);
-        cy.wait(3000);
+        cy.selectDropdownValue(commonlocators.autoHeight, "Fixed");
+        cy.wait(2000);
         cy.reload();
         cy.openPropertyPane("tabswidget");
         cy.get(".t--widget-tabswidget")
