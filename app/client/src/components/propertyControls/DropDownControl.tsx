@@ -96,11 +96,6 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       )?.value;
     }
 
-    // Only showLabel when we have subText or icons in the options
-    const showLabel = options.some(
-      (option) => option.subText !== undefined || option.icon !== undefined,
-    );
-
     return (
       <div className="w-full h-full" ref={this.containerRef}>
         <Select
@@ -109,11 +104,6 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           onDeselect={this.onDeselect}
           onSelect={this.onSelect}
           optionFilterProp="searchText"
-          /**
-           * 1. show labels for label Text Size control
-           * 2. show the flag and currency value for currency inputs
-           */
-          optionLabelProp={showLabel ? "label" : "children"}
           placeholder={this.props.placeholderText}
           showSearch={this.props.enableSearch}
           value={selected}
@@ -131,7 +121,10 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
                 <FlagWrapper>{option.leftElement}</FlagWrapper>
               )}
 
-              {option.icon && <Icon name={option.icon} size="md" />}
+              {/* Show icon if present */}
+              {option.icon && (
+                <Icon className="mr-1" name={option.icon} size="md" />
+              )}
 
               {option.subText ? (
                 this.props.hideSubText ? (
