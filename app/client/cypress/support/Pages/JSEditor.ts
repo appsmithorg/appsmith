@@ -83,8 +83,8 @@ export class JSEditor {
     "//div[@role='dialog']//*[contains(text(), '" +
     Cypress.env("MESSAGES").QUERY_CONFIRMATION_MODAL_MESSAGE() +
     "')]";
-  _funcDropdown = ".t--formActionButtons div[role='listbox']";
-  _funcDropdownOptions = ".ads-dropdown-options-wrapper div > span div";
+  _funcDropdown = ".t--formActionButtons .function-select-dropdown";
+  _funcDropdownOptions = ".rc-virtual-list .rc-select-item-option p";
   _getJSFunctionSettingsId = (JSFunctionName: string) =>
     `${JSFunctionName}-settings`;
   _asyncJSFunctionSettings = `.t--async-js-function-settings`;

@@ -1,5 +1,4 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const commonlocators = require("../../../../../locators/commonlocators.json");
 const dsl = require("../../../../../fixtures/videoWidgetDsl.json");
 const testdata = require("../../../../../fixtures/testdata.json");
 
@@ -8,7 +7,7 @@ describe("Video Widget Functionality", function () {
     cy.addDsl(dsl);
   });
 
-  it("Video Widget play functionality validation", function () {
+  it("1. Video Widget play functionality validation", function () {
     cy.openPropertyPane("videowidget");
     cy.widgetText(
       "Video1",
@@ -29,7 +28,7 @@ describe("Video Widget Functionality", function () {
     */
   });
 
-  it("Video widget pause functionality validation", function () {
+  it("2. Video widget pause functionality validation", function () {
     cy.getAlert("onPause", "Pause success");
     cy.get(widgetsPage.autoPlay).click();
     cy.wait("@updateLayout").should(
@@ -44,7 +43,7 @@ describe("Video Widget Functionality", function () {
     */
   });
 
-  it("Update video url and check play and pause functionality validation", function () {
+  it("3. Update video url and check play and pause functionality validation", function () {
     cy.testCodeMirror(testdata.videoUrl);
     cy.get(".CodeMirror textarea").first().blur();
     cy.get(widgetsPage.autoPlay).click({ force: true });
@@ -71,7 +70,7 @@ describe("Video Widget Functionality", function () {
     */
   });
 
-  it("Checks if video widget is reset on button click", function () {
+  it("4. Checks if video widget is reset on button click", function () {
     cy.testCodeMirror(testdata.videoUrl2);
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
     cy.openPropertyPane("buttonwidget");

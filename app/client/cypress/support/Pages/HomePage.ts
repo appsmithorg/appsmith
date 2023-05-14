@@ -81,7 +81,7 @@ export class HomePage {
   private _applicationContextMenu = (applicationName: string) =>
     "//span[text()='" +
     applicationName +
-    "']/ancestor::div[contains(@class, 't--application-card')]//span[@name= 'context-menu']";
+    "']/ancestor::div[contains(@class, 't--application-card')]//button[@aria-haspopup='menu']";
   private _forkApp = '[data-testid="t--fork-app"]';
   private _duplicateApp = '[data-testid="t--duplicate"]';
   private _deleteApp = '[data-testid="t--delete-confirm"]';
@@ -486,7 +486,7 @@ export class HomePage {
     this.agHelper.GetNClick(this._applicationContextMenu(appliName));
     this.agHelper.GetNClick(this._forkApp);
     this.agHelper.AssertElementVisible(this._forkModal);
-    this.agHelper.ClickButton("FORK");
+    this.agHelper.ClickButton("Fork");
   }
 
   public DuplicateApplication(appliName: string) {

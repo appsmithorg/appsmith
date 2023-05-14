@@ -156,12 +156,12 @@ describe("JSObjects OnLoad Actions tests", function () {
     _.jsEditor.EnableDisableAsyncFuncSettings("film", true, true);
 
     _.deployMode.DeployApp();
-    for (let dialog = 1; dialog <= 5; dialog++) {
+    for (let dialog = 1; dialog <= 3; dialog++) {
       _.agHelper.ClickButton("Yes");
       _.agHelper.Sleep(500);
     }
     _.deployMode.NavigateBacktoEditor();
-    for (let dialog = 1; dialog <= 5; dialog++) {
+    for (let dialog = 1; dialog <= 3; dialog++) {
       _.agHelper.ClickButton("Yes");
       _.agHelper.Sleep(500);
     }
@@ -213,13 +213,7 @@ describe("JSObjects OnLoad Actions tests", function () {
 
     VerifyFunctionDropdown(
       ["myFun1", "myFun7"],
-      [
-        "myFun2Async",
-        "myFun3Async",
-        "myFun4Async",
-        "myFun5Async",
-        "myFun6Async",
-      ],
+      ["myFun2", "myFun3", "myFun4", "myFun5", "myFun6"],
     );
 
     cy.get("@jsObjName").then((jsObjName) => {
