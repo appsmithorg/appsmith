@@ -21,8 +21,8 @@ describe("Hide / Show page test functionality", function () {
   it("Show page test ", function () {
     cy.get(publish.backToEditor).click();
     cy.get(`.t--entity-name:contains('MyPage2')`).trigger("mouseover");
-    cy.hoverAndClick();
-    cy.get(pages.showPage).click({ force: true });
+    cy.hoverAndClick("MyPage2");
+    cy.selectAction("Show");
     cy.ClearSearch();
     cy.PublishtheApp();
     cy.get(".t--page-switch-tab").should("have.length", 3);

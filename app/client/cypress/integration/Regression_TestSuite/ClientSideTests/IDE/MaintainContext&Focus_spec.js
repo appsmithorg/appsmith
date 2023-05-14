@@ -48,7 +48,7 @@ describe("MaintainContext&Focus", function () {
     _.entityExplorer.SelectEntityByName("Rest_Api_2");
 
     cy.wait(1000);
-    cy.contains(".react-tabs__tab", "Headers").click();
+    cy.contains(".ads-v2-tabs__list", "Headers").click();
     cy.updateCodeInput(apiwidget.headerValue, "test");
     cy.wait("@saveAction");
 
@@ -101,7 +101,7 @@ describe("MaintainContext&Focus", function () {
     //Maintains focus on the API pane
     _.entityExplorer.SelectEntityByName("Graphql_Query");
 
-    cy.contains(".react-tabs__tab", "Body").should(
+    cy.contains(".ads-v2-tabs__list", "Body").should(
       "have.class",
       "react-tabs__tab--selected",
     );
@@ -113,7 +113,7 @@ describe("MaintainContext&Focus", function () {
 
     _.entityExplorer.SelectEntityByName("Rest_Api_2");
 
-    cy.contains(".react-tabs__tab", "Headers").should(
+    cy.contains(".ads-v2-tabs__list", "Headers").should(
       "have.class",
       "react-tabs__tab--selected",
     );

@@ -107,7 +107,7 @@ Cypress.Commands.add("SaveAndRunAPI", () => {
 Cypress.Commands.add(
   "validateRequest",
   (apiName, baseurl, path, verb, error = false) => {
-    cy.get(".react-tabs__tab").contains("Logs").click();
+    cy.get(".ads-v2-tabs__list").contains("Logs").click();
     cy.get("[data-testid=t--debugger-search]").clear().type(apiName);
 
     if (!error) {

@@ -729,7 +729,9 @@ Cypress.Commands.add("NavigateToActiveTab", () => {
 });
 
 Cypress.Commands.add("selectAction", (option) => {
-  cy.get(".single-select").contains(option).click({ force: true });
+  cy.get(".ads-v2-menu__menu-item-children")
+    .contains(option)
+    .click({ force: true });
 });
 
 Cypress.Commands.add("deleteActionAndConfirm", () => {
