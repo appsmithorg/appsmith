@@ -430,7 +430,9 @@ function WorkspaceInviteUsersForm(props: any) {
                     >
                       {role.value}
                     </Text>
-                    <Text kind="body-s">{role.description}</Text>
+                    {role.description && (
+                      <Text kind="body-s">{role.description}</Text>
+                    )}
                   </div>
                 </Option>
               ))}
