@@ -255,7 +255,7 @@ export const ResponseTabErrorContainer = styled.div`
   padding: 8px 16px;
   gap: 8px;
   max-height: 100%;
-  overflow: auto;
+  height: fit-content;
   background: var(--ads-v2-color-bg-error);
   border-bottom: 1px solid var(--ads-v2-color-border);
 `;

@@ -5,10 +5,13 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import { Tab, TabPanel, Tabs, TabsList } from "design-system";
 import styled from "styled-components";
+import { LIST_HEADER_HEIGHT } from "./Debugger/DebuggerLogs";
 
 const TabPanelWrapper = styled(TabPanel)`
   margin-top: 0;
+  height: calc(100% - ${LIST_HEADER_HEIGHT});
   & > div {
+    height: 100%;
     padding-top: var(--ads-v2-spaces-4);
   }
 `;
@@ -60,7 +63,7 @@ function EntityBottomTabs(
         })}
       </TabsList>
       {props.tabs.map((tab: any) => (
-        <TabPanelWrapper className="h-full" key={tab.key} value={tab.key}>
+        <TabPanelWrapper key={tab.key} value={tab.key}>
           {tab.panelComponent}
         </TabPanelWrapper>
       ))}
