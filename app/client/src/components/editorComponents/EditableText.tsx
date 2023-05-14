@@ -53,7 +53,6 @@ const EditableTextWrapper = styled.div<{
     align-items: flex-start;
     width: 100%;
     & .${Classes.EDITABLE_TEXT} {
-      border-radius: var(--ads-v2-border-radius);
       background: ${(props) =>
         props.isEditing && !props.minimal
           ? "var(--ads-v2-color-bg-subtle)"
@@ -75,9 +74,6 @@ const EditableTextWrapper = styled.div<{
       text-transform: none;
       width: 100%;
     }
-    /* .title-editable-text {
-      max-width: 284px;
-    } */
   }
 
   ${({ useFullWidth }) =>
@@ -113,9 +109,6 @@ const TextContainer = styled.div<{
         width: fit-content;
       `
         : null}
-  }
-  & span.bp3-editable-text-content {
-    /* height: auto !important; */
   }
 
   && .t--action-name-edit-icon {
