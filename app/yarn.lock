@@ -13694,11 +13694,6 @@ __metadata:
     styled-components: ^5.3.6
   checksum: 1b21812f1fff6c34843d2bf73ea1a8a28b119a5cd196426a9745c1303910ed424b6f57cb532ade9c5b6bf6073d051691d54a050bcbeccd3d631162b50904ec9d
   languageName: node
-  linkType: hard
-
-"destroy@npm:1.2.0":
-  version: 1.2.0
-  resolution: "destroy@npm:1.2.0"
   checksum: 0acb300b7478a08b92d810ab229d5afe0d2f4399272045ab22affa0d99dbaf12637659411530a6fcd597a9bdac718fc94373a61a95b4651bbc7b83684a565e38
   languageName: node
   linkType: hard

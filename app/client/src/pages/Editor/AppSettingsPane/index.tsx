@@ -40,6 +40,15 @@ function AppSettingsPane() {
       return;
     }
 
+    // When interacting with the save theme menu
+    if (
+      document
+        .querySelector(".t--save-theme-menu")
+        ?.contains(event?.target as Node)
+    ) {
+      return;
+    }
+
     dispatch(closeAppSettingsPaneAction());
   });
 

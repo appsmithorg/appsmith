@@ -242,6 +242,7 @@ const PROPERTIES = {
         enableSearch: true,
         dropdownHeight: "195px",
         controlType: "DROP_DOWN",
+        virtual: true,
         searchPlaceholderText: "Search by code or country name",
         options: ISDCodeDropdownOptions,
         hidden: (...args: HiddenFnParams) =>
@@ -259,6 +260,7 @@ const PROPERTIES = {
         enableSearch: true,
         dropdownHeight: "195px",
         controlType: "DROP_DOWN",
+        virtual: true,
         searchPlaceholderText: "Search by code or name",
         options: CurrencyDropdownOptions,
         hidden: (...args: HiddenFnParams) =>

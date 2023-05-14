@@ -118,14 +118,14 @@ export const GetNavigationMenuData = ({
       isVisible: true,
       children: [
         {
-          text: "Community Forum",
+          text: "Community forum",
           onClick: () => openExternalLink("https://community.appsmith.com/"),
           type: MenuTypes.MENU,
           isVisible: true,
           isOpensNewWindow: true,
         },
         {
-          text: "Discord Channel",
+          text: "Discord channel",
           onClick: () => openExternalLink("https://discord.gg/rBTTVJp"),
           type: MenuTypes.MENU,
           isVisible: true,
@@ -149,14 +149,14 @@ export const GetNavigationMenuData = ({
       ],
     },
     {
-      text: "Export Application",
+      text: "Export application",
       onClick: () =>
         applicationId && openExternalLink(getExportAppAPIRoute(applicationId)),
       type: MenuTypes.MENU,
       isVisible: isApplicationIdPresent && hasExportPermission,
     },
     hasDeleteApplicationPermission(currentApplication?.userPermissions) && {
-      text: "Delete Application",
+      text: "Delete application",
       confirmText: "Are you sure?",
       onClick: deleteApplication,
       type: MenuTypes.RECONFIRM,
