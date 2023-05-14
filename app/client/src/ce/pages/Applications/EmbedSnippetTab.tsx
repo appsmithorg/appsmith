@@ -26,6 +26,20 @@ export const BottomWrapper = styled.div`
   border-top: 1px solid var(--ads-v2-color-border);
 `;
 
+export const EmbedWrapper = styled.div`
+  svg {
+    path {
+      fill: var(--ads-v2-color-fg-muted);
+    }
+
+    &:hover {
+      path {
+        fill: var(--ads-v2-color-fg);
+      }
+    }
+  }
+`;
+
 export function EmbedSnippetTab({
   changeTab,
   isAppSettings,
@@ -123,52 +137,57 @@ function AppSettings() {
   const embedSnippet = useUpdateEmbedSnippet();
 
   return (
-    <div className="px-4 flex flex-col gap-6">
-      <Text className="pt-3" kind="heading-xs">
+    <EmbedWrapper className="px-4">
+      <Text className="pt-3 pb-3" kind="heading-xs" renderAs="p">
         {createMessage(IN_APP_EMBED_SETTING.embed)}
       </Text>
 
-      {embedSnippet.isSuperUser && (
-        <div className="flex justify-between">
-          <div className="flex gap-1">
-            <Icon
-              className="icon"
-              name={embedSnippet.embedSettingContent.icon}
-              size="md"
-            />
-            <StyledPropertyHelpLabel
-              label={embedSnippet.embedSettingContent.label}
-              lineHeight="1.17"
-              maxWidth="217px"
-              tooltip={embedSnippet.embedSettingContent.tooltip}
-            />
+      <div className="flex flex-col gap-6">
+        {embedSnippet.isSuperUser && (
+          <div className="flex justify-between">
+            <div className="flex gap-1">
+              <Icon
+                className="icon"
+                name={embedSnippet.embedSettingContent.icon}
+                size="md"
+              />
+              <StyledPropertyHelpLabel
+                label={embedSnippet.embedSettingContent.label}
+                lineHeight="1.17"
+                maxWidth="217px"
+                tooltip={embedSnippet.embedSettingContent.tooltip}
+              />
+            </div>
+            <Link
+              data-testid="t--change-embedding-restriction"
+              endIcon="pencil-line"
+              target="_self"
+              to={ADMIN_SETTINGS_PATH}
+            >
+              {""}
+            </Link>
           </div>
-          <Link
-            data-testid="t--change-embedding-restriction"
-            endIcon="pencil-line"
-            target="_self"
-            to={ADMIN_SETTINGS_PATH}
-          >
-            {""}
-          </Link>
-        </div>
-      )}
+        )}
 
-      <Switch
-        data-testid={"show-navigation-bar-toggle"}
-        defaultSelected={embedSnippet.currentEmbedSetting?.showNavigationBar}
-        onChange={() =>
-          embedSnippet.onChange({
-            showNavigationBar:
-              !embedSnippet.currentEmbedSetting.showNavigationBar,
-          })
-        }
-      >
-        {createMessage(IN_APP_EMBED_SETTING.showNavigationBar)}
-      </Switch>
+        <Switch
+          data-testid={"show-navigation-bar-toggle"}
+          defaultSelected={embedSnippet.currentEmbedSetting?.showNavigationBar}
+          onChange={() =>
+            embedSnippet.onChange({
+              showNavigationBar:
+                !embedSnippet.currentEmbedSetting.showNavigationBar,
+            })
+          }
+        >
+          {createMessage(IN_APP_EMBED_SETTING.showNavigationBar)}
+        </Switch>
 
-      <EmbedCodeSnippet isAppSettings snippet={embedSnippet.appViewEndPoint} />
-    </div>
+        <EmbedCodeSnippet
+          isAppSettings
+          snippet={embedSnippet.appViewEndPoint}
+        />
+      </div>
+    </EmbedWrapper>
   );
 }
 

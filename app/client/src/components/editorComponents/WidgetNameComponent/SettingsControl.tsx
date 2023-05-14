@@ -80,13 +80,13 @@ const getStyles = (
 ): CSSProperties | undefined => {
   if (isSnipingMode) {
     return {
-      background: Colors.DANUBE,
-      color: Colors.WHITE,
+      background: "var(--ads-v2-color-fg-information)",
+      color: "var(--ads-v2-color-white)",
     };
   } else if (errorCount > 0) {
     return {
-      background: "red",
-      color: Colors.WHITE,
+      background: "var(--ads-v2-color-bg-error-emphasis)",
+      color: "var(--ads-v2-color-white)",
     };
   }
 
@@ -137,7 +137,13 @@ export function SettingsControl(props: SettingsControlProps) {
             <span className="t--widget-error-count">{props.errorCount}</span>
           </>
         )}
-        {isSnipingMode && <Icon name="bind-data-control" size="md" />}
+        {isSnipingMode && (
+          <Icon
+            color="var(--ads-v2-color-white)"
+            name="arrow-right-line"
+            size="md"
+          />
+        )}
         <WidgetName className="t--widget-name">
           {isSnipingMode ? `Bind to ${props.name}` : props.name}
         </WidgetName>

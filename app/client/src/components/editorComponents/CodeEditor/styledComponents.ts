@@ -100,7 +100,9 @@ export const EditorWrapper = styled.div<{
             ? "none"
             : "var(--ads-v2-border-width-outline) solid var(--ads-v2-color-outline)"
         };
-        outline-offset: var(--ads-v2-offset-outline);`}
+        outline-offset: var(--ads-v2-offset-outline);
+        clip-path: unset !important;
+        `}
       font-family: ${(props) => props.theme.fonts.code};
       font-size: 13px;
       border: 1px solid

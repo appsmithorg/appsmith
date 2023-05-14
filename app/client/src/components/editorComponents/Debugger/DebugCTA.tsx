@@ -88,10 +88,10 @@ export function DebugButton(props: DebugButtonProps) {
   return (
     <StyledButton
       className={props.className}
-      endIcon="bug"
       kind="error"
       onClick={props.onClick}
       size="sm"
+      startIcon="bug-line"
     >
       Debug
     </StyledButton>
