@@ -1,10 +1,10 @@
 const commonlocators = require("../../../../../../locators/commonlocators.json");
-const widgetsPage = require("../../../../../../locators/Widgets.json");
 import { ObjectsRegistry } from "../../../../../../support/Objects/Registry";
 
 let dataSources = ObjectsRegistry.DataSources;
 const propertyPane = ObjectsRegistry.PropertyPane;
 const agHelper = ObjectsRegistry.AggregateHelper;
+const entityExplorer = ObjectsRegistry.EntityExplorer;
 
 describe("Table widget - Select column type functionality", () => {
   before(() => {
@@ -18,16 +18,15 @@ describe("Table widget - Select column type functionality", () => {
     cy.get(commonlocators.changeColType).last().click();
     cy.get(".t--dropdown-option").children().contains("Select").click();
     cy.wait("@updateLayout");
-  });
 
-  it("2. should check that edtiable option is present", () => {
+    //should check that edtiable option is present
     cy.get(".t--property-control-editable").should("exist");
     cy.get(".t--property-pane-section-collapse-events").should("not.exist");
-    cy.get(".t--property-control-editable .bp3-switch span").click();
+    cy.get(".t--property-control-editable input").click();
     cy.get(".t--property-pane-section-collapse-events").should("exist");
   });
 
-  it("3. should check that options given in the property pane is appearing on the table", () => {
+  it("2. should check that options given in the property pane is appearing on the table", () => {
     cy.get(".t--property-control-options").should("exist");
     cy.updateCodeInput(
       ".t--property-control-options",
@@ -70,7 +69,7 @@ describe("Table widget - Select column type functionality", () => {
     cy.get(".menu-item-active.has-focus").should("contain", "#1");
   });
 
-  it("4. should check that placeholder property is working", () => {
+  it("3. should check that placeholder property is working", () => {
     cy.updateCodeInput(
       ".t--property-control-options",
       `
@@ -103,7 +102,7 @@ describe("Table widget - Select column type functionality", () => {
     ).should("contain", "choose an item");
   });
 
-  it("5. should check that filterable property is working", () => {
+  it("4. should check that filterable property is working", () => {
     cy.updateCodeInput(
       ".t--property-control-options",
       `
@@ -123,7 +122,7 @@ describe("Table widget - Select column type functionality", () => {
       ]}}
     `,
     );
-    cy.get(".t--property-control-filterable .bp3-switch span").click();
+    cy.get(".t--property-control-filterable input").click();
     cy.editTableSelectCell(0, 0);
     cy.get(".select-popover-wrapper .bp3-input-group input").should("exist");
     cy.get(".select-popover-wrapper .bp3-input-group input").type("1", {
@@ -146,7 +145,7 @@ describe("Table widget - Select column type functionality", () => {
     cy.get(".t--canvas-artboard").click({ force: true });
   });
 
-  it("6. should check that on option select is working", () => {
+  it("5. should check that on option select is working", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("step");
     cy.get(".t--property-control-onoptionchange .t--js-toggle").click();
@@ -159,13 +158,7 @@ describe("Table widget - Select column type functionality", () => {
     cy.editTableSelectCell(0, 0);
     cy.get(".menu-item-link").contains("#3").click();
 
-    cy.get(widgetsPage.toastAction).should("be.visible");
-    cy.get(widgetsPage.toastActionText)
-      .last()
-      .invoke("text")
-      .then((text) => {
-        expect(text).to.equal("#3");
-      });
+    agHelper.ValidateToastMessage("#3");
 
     cy.get(".menu-virtual-list").should("not.exist");
     cy.readTableV2data(0, 0).then((val) => {
@@ -174,7 +167,7 @@ describe("Table widget - Select column type functionality", () => {
     cy.discardTableRow(4, 0);
   });
 
-  it("7. should check that currentRow is accessible in the select options", () => {
+  it("6. should check that currentRow is accessible in the select options", () => {
     cy.updateCodeInput(
       ".t--property-control-options",
       `
@@ -199,7 +192,7 @@ describe("Table widget - Select column type functionality", () => {
     cy.get(".menu-item-text").contains("#1").should("not.exist");
   });
 
-  it("8. should check that 'same select option in new row' property is working", () => {
+  it("7. should check that 'same select option in new row' property is working", () => {
     propertyPane.NavigateBackToPropertyPane();
 
     const checkSameOptionsInNewRowWhileEditing = () => {
@@ -207,9 +200,10 @@ describe("Table widget - Select column type functionality", () => {
 
       propertyPane.OpenTableColumnSettings("step");
 
-      cy.get(".t--property-control-sameoptionsinnewrow label")
-        .last()
-        .should("have.class", "checked");
+      cy.get(".t--property-control-sameoptionsinnewrow input").should(
+        "have.attr",
+        "checked",
+      );
 
       // Check if newrowoption is invisible when sameoptionsinnewrow is true
       cy.get(".t--property-control-newrowoptions").should("not.exist");
@@ -264,7 +258,7 @@ describe("Table widget - Select column type functionality", () => {
     checkSameOptionsWhileAddingNewRow();
   });
 
-  it("9. should check that 'new row select options' is working", () => {
+  it("8. should check that 'new row select options' is working", () => {
     const checkNewRowOptions = () => {
       // New row select options should be visible when "Same options in new row" is turned off
       propertyPane.ToggleOnOrOff("Same options in new row", "Off");
@@ -329,21 +323,19 @@ describe("Table widget - Select column type functionality", () => {
     checkNoOptionState();
   });
 
-  it("10. should check that server side filering is working", () => {
+  it("9. should check that server side filering is working", () => {
     dataSources.CreateDataSource("Postgres");
     dataSources.CreateQueryAfterDSSaved(
       "SELECT * FROM public.astronauts {{this.params.filterText ? `WHERE name LIKE '%${this.params.filterText}%'` : ''}} LIMIT 10;",
     );
-    cy.get(".t--form-control-SWITCH label")
-      .scrollIntoView()
-      .click({ force: true });
+    dataSources.ToggleUsePreparedStatement(false);
     cy.wait("@saveAction");
     cy.get(".t--run-query").click();
     cy.wait("@postExecute");
-    cy.get("#switcher--widgets").click();
+    entityExplorer.NavigateToSwitcher("Widgets");
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("step");
-    cy.get(".t--property-control-serversidefiltering .bp3-switch span").click();
+    cy.get(".t--property-control-serversidefiltering input").click();
     cy.updateCodeInput(
       ".t--property-pane-section-selectproperties",
       `

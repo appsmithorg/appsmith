@@ -32,7 +32,7 @@ describe("Entity bottom bar", () => {
     //verify if response tab is selected on execution JSFunction.
     _.debuggerHelper.AssertSelectedTab("Response");
     //verify if bottom bar is closed on switching to canvas page.
-    _.agHelper.GetNClick(OnboardingLocator.widgetPaneTrigger);
+    _.entityExplorer.NavigateToSwitcher("Widgets");
     _.debuggerHelper.AssertClosed();
   });
 
