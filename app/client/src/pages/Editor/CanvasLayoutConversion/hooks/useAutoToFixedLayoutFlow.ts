@@ -63,7 +63,7 @@ export const useAutoToFixedLayoutFlow = (
             startIcon: "desktop",
           },
           {
-            label: "Mobile Device",
+            label: "Mobile device",
             value: "MOBILE",
             startIcon: "mobile",
           },

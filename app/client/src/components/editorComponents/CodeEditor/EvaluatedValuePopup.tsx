@@ -87,6 +87,7 @@ const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
   padding-right: var(--ads-v2-spaces-2);
   background-color: ${THEME.editorBackground};
   border-radius: var(--ads-v2-border-radius);
+  border: 1px solid var(--ads-v2-color-border);
   position: relative;
   width: 100%;
   display: flex;
