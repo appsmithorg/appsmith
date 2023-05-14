@@ -675,7 +675,7 @@ export default [
                       value: "ITALIC",
                     },
                     {
-                      startIcon: "underline",
+                      startIcon: "text-underline",
                       value: "UNDERLINE",
                     },
                   ],

@@ -366,6 +366,7 @@ export const GSHEET_AUTHORIZATION_ERROR =
   "Authorisation failed, to continue using this data source authorize now.";
 export const GSHEET_FILES_NOT_SELECTED =
   "Datasource does not have access to any files, please authorize google sheets to use this data source";
+export const FILES_NOT_SELECTED_EVENT = () => "Files not selected";
 
 export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE = () =>
   "Error saving a key in localStorage. You have exceeded the allowed storage size limit";
@@ -642,11 +643,12 @@ export const BULK_WIDGET_ADDED = (widgetName: string) =>
 // Generate page from DB Messages
 
 export const UNSUPPORTED_PLUGIN_DIALOG_TITLE = () =>
-  `Couldn't auto-generate a page from this datasource.`;
+  `We could not auto-generate a page from this Datasource`;
 
 export const UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE = () =>
   `You can continue building your app with it using our drag & drop builder`;
-export const UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING = () => `Heads up`;
+export const UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING = () =>
+  `Issue with auto generation`;
 
 export const BUILD_FROM_SCRATCH_ACTION_SUBTITLE = () =>
   "Start from scratch and create your custom UI";
@@ -1102,7 +1104,7 @@ export const WELCOME_FORM_DATA_COLLECTION_LABEL_DISABLE = () =>
 export const WELCOME_FORM_NEWLETTER_HEADER = () => "Stay in touch";
 export const WELCOME_FORM_NEWLETTER_LABEL = () =>
   "Get updates about what we are cooking. We will not spam you.";
-export const WELCOME_FORM_SUBMIT_LABEL = () => "Make your first App";
+export const WELCOME_FORM_SUBMIT_LABEL = () => "Make your first app";
 
 //help tooltips
 export const ACCOUNT_TOOLTIP = () => "Your account";
@@ -1131,8 +1133,8 @@ export const NOTIFICATIONS_TOOLTIP = () => "Notifications";
 
 // Navigation Menu
 export const DEPLOY_MENU_OPTION = () => "Deploy";
-export const CURRENT_DEPLOY_PREVIEW_OPTION = () => "Current Deployed Version";
-export const CONNECT_TO_GIT_OPTION = () => "Connect to Git Repository";
+export const CURRENT_DEPLOY_PREVIEW_OPTION = () => "Current deployed version";
+export const CONNECT_TO_GIT_OPTION = () => "Connect to Git repository";
 //
 export const GO_TO_PAGE = () => "Go to page";
 export const DEFAULT_PAGE_TOOLTIP = () => "Default page";
@@ -1660,10 +1662,10 @@ export const USE_SNAPSHOT_TEXT = () =>
   "Your app will look and work exactly like it used to before the conversion. Widgets, datasources, queries, JS objects added and any changes you made after conversion will not be present.";
 export const SNAPSHOT_WARNING_MESSAGE = () =>
   "Any changes you made after conversion will not be present.";
-export const CONVERT_TO_FIXED_TITLE = () => "Convert to Fixed-Layout";
-export const CONVERT_TO_FIXED_BUTTON = () => "Convert to fixed-layout (BETA)";
-export const CONVERT_TO_AUTO_TITLE = () => "Convert to Auto-Layout";
-export const CONVERT_TO_AUTO_BUTTON = () => "Convert to auto-layout (BETA)";
+export const CONVERT_TO_FIXED_TITLE = () => "Convert to Fixed layout";
+export const CONVERT_TO_FIXED_BUTTON = () => "Convert to Fixed layout (Beta)";
+export const CONVERT_TO_AUTO_TITLE = () => "Convert to Auto layout";
+export const CONVERT_TO_AUTO_BUTTON = () => "Convert to Auto layout (Beta)";
 export const SNAPSHOT_BANNER_MESSAGE = () =>
   "Confirm this layout is per expectations before you discard the snapshot. Use the snapshot to go back.";
 export const USE_SNAPSHOT_CTA = () => "Use snapshot";
