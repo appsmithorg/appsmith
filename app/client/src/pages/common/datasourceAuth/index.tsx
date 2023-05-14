@@ -44,6 +44,7 @@ import {
   hasDeleteDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
+import { SHOW_FILE_PICKER_KEY } from "constants/routes";
 
 interface Props {
   datasource: Datasource;
@@ -57,11 +58,12 @@ interface Props {
   triggerSave?: boolean;
   isFormDirty?: boolean;
   datasourceDeleteTrigger: () => void;
+  scopeValue?: string;
 }
 
 export type DatasourceFormButtonTypes = Record<string, string[]>;
 
-enum AuthorizationStatus {
+export enum AuthorizationStatus {
   SUCCESS = "success",
   APPSMITH_ERROR = "appsmith_error",
 }
@@ -120,6 +122,7 @@ function DatasourceAuth({
   shouldDisplayAuthMessage = true,
   triggerSave,
   isFormDirty,
+  scopeValue,
 }: Props) {
   const authType =
     formData && "authType" in formData
@@ -171,25 +174,28 @@ function DatasourceAuth({
       const status = search.get("response_status");
       const queryIsImport = search.get("importForGit");
       const queryDatasourceId = search.get("datasourceId");
+      const showFilePicker = search.get(SHOW_FILE_PICKER_KEY);
       const shouldNotify =
-        !queryIsImport || (queryIsImport && queryDatasourceId === datasourceId);
+        !queryIsImport ||
+        (queryIsImport &&
+          queryDatasourceId === datasourceId &&
+          !showFilePicker);
       if (status && shouldNotify) {
         const display_message = search.get("display_message");
         const variant = Variant.danger;
-
+        const oauthReason = status;
+        AnalyticsUtil.logEvent("DATASOURCE_AUTHORIZE_RESULT", {
+          dsName,
+          oauthReason,
+          orgId,
+          pluginName,
+        });
         if (status !== AuthorizationStatus.SUCCESS) {
           const message =
             status === AuthorizationStatus.APPSMITH_ERROR
               ? OAUTH_AUTHORIZATION_APPSMITH_ERROR
               : OAUTH_AUTHORIZATION_FAILED;
           Toaster.show({ text: display_message || message, variant });
-          const oAuthStatus = status;
-          AnalyticsUtil.logEvent("UPDATE_DATASOURCE", {
-            dsName,
-            oAuthStatus,
-            orgId,
-            pluginName,
-          });
         } else {
           dispatch(getOAuthAccessToken(datasourceId));
         }
@@ -290,6 +296,12 @@ function DatasourceAuth({
         ),
       );
     }
+    AnalyticsUtil.logEvent("DATASOURCE_AUTHORIZE_CLICK", {
+      dsName,
+      orgId,
+      pluginName,
+      scopeValue,
+    });
   };
 
   const createMode = datasourceId === TEMP_DATASOURCE_ID;

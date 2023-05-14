@@ -10,6 +10,7 @@ import UpIcon from "assets/icons/ads/up-arrow.svg";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
 import type { WidgetType } from "constants/WidgetConstants";
+import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
@@ -686,7 +687,7 @@ class FilePickerWidget extends BaseWidget<
       const fileCount = this.props.selectedFiles?.length || 0;
       const fileReaderPromises = files.map((file, index) => {
         return new Promise((resolve) => {
-          if (file.size < 5000 * 1000) {
+          if (file.size < FILE_SIZE_LIMIT_FOR_BLOBS) {
             const reader = new FileReader();
             if (this.props.fileDataType === FileDataTypes.Base64) {
               reader.readAsDataURL(file.data);

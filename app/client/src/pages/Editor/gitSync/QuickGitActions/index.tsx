@@ -22,7 +22,6 @@ import {
 
 import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
-import { ReactComponent as GitCommitLine } from "assets/icons/ads/git-commit-line.svg";
 import {
   gitPullInit,
   setIsGitSyncModalOpen,
@@ -50,6 +49,11 @@ import {
   TooltipComponent as Tooltip,
 } from "design-system-old";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { importSvg } from "design-system-old";
+
+const GitCommitLine = importSvg(
+  () => import("assets/icons/ads/git-commit-line.svg"),
+);
 
 type QuickActionButtonProps = {
   className?: string;

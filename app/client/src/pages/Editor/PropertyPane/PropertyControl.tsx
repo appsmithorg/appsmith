@@ -44,9 +44,8 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { getExpectedValue } from "utils/validation/common";
 import type { ControlData } from "components/propertyControls/BaseControl";
 import type { AppState } from "@appsmith/reducers";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { TooltipComponent } from "design-system-old";
-import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
 import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
 import {
   getPropertyControlFocusElement,
@@ -57,6 +56,9 @@ import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
 import WidgetFactory from "utils/WidgetFactory";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import clsx from "clsx";
+import { importSvg } from "design-system-old";
+
+const ResetIcon = importSvg(() => import("assets/icons/control/undo_2.svg"));
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -751,68 +753,66 @@ const PropertyControl = memo((props: Props) => {
           }
           ref={controlRef}
         >
-          <ControlPropertyLabelContainer className="gap-1 flex justify-between items-center">
-            <div className="flex flex-row items-end gap-1">
-              <PropertyHelpLabel
-                label={label}
-                theme={props.theme}
-                tooltip={helpText}
-              />
-              {isConvertible && (
+          <ControlPropertyLabelContainer className="gap-1">
+            <PropertyHelpLabel
+              label={label}
+              theme={props.theme}
+              tooltip={helpText}
+            />
+            {isConvertible && (
+              <TooltipComponent
+                content={JS_TOGGLE_DISABLED_MESSAGE}
+                disabled={!isToggleDisabled}
+                hoverOpenDelay={200}
+                modifiers={tooltipModifier}
+                openOnTargetFocus={false}
+                position="auto"
+              >
+                <JSToggleButton
+                  handleClick={() =>
+                    toggleDynamicProperty(propertyName, isDynamic)
+                  }
+                  isActive={isDynamic}
+                  isToggleDisabled={isToggleDisabled}
+                />
+              </TooltipComponent>
+            )}
+            {isPropertyDeviatedFromTheme && (
+              <>
                 <TooltipComponent
-                  content={JS_TOGGLE_DISABLED_MESSAGE}
-                  disabled={!isToggleDisabled}
-                  hoverOpenDelay={200}
-                  modifiers={tooltipModifier}
+                  content="Value deviated from theme"
                   openOnTargetFocus={false}
-                  position="auto"
                 >
-                  <JSToggleButton
-                    handleClick={() =>
-                      toggleDynamicProperty(propertyName, isDynamic)
-                    }
-                    isActive={isDynamic}
-                    isToggleDisabled={isToggleDisabled}
-                  />
+                  <div className="w-2 h-2 rounded-full bg-primary-500" />
                 </TooltipComponent>
-              )}
-              {isPropertyDeviatedFromTheme && (
-                <>
+                <button
+                  className="hidden ml-auto focus:ring-2 group-hover:block reset-button"
+                  onClick={resetPropertyValueToTheme}
+                >
                   <TooltipComponent
-                    content="Value deviated from theme"
+                    boundary="viewport"
+                    content="Reset value"
                     openOnTargetFocus={false}
+                    position="top-right"
                   >
-                    <div className="w-2 h-2 rounded-full bg-primary-500" />
+                    <ResetIcon className="w-5 h-5" />
                   </TooltipComponent>
-                  <button
-                    className="hidden ml-auto focus:ring-2 group-hover:block reset-button"
-                    onClick={resetPropertyValueToTheme}
-                  >
-                    <TooltipComponent
-                      boundary="viewport"
-                      content="Reset value"
-                      openOnTargetFocus={false}
-                      position="top-right"
-                    >
-                      <ResetIcon className="w-5 h-5" />
-                    </TooltipComponent>
-                  </button>
-                </>
-              )}
-            </div>
-            <button
-              className={clsx(
-                config.controlType !== "ACTION_SELECTOR" && "hidden",
-                `${config.label}`,
-                "add-action flex items-center justify-center text-center h-7 w-7",
-                isDynamic && "hidden",
-                `t--add-action-${config.label}`,
-              )}
-              disabled={false}
-              onClick={() => setShowEmptyBlock(true)}
-            >
-              <Icon fillColor="#575757" name="plus" size="extraExtraLarge" />
-            </button>
+                </button>
+              </>
+            )}
+            {!isDynamic && config.controlType === "ACTION_SELECTOR" && (
+              <button
+                className={clsx(
+                  `${config.label}`,
+                  "add-action flex items-center justify-center text-center h-7 w-7 ml-auto",
+                  `t--add-action-${config.label}`,
+                )}
+                disabled={false}
+                onClick={() => setShowEmptyBlock(true)}
+              >
+                <Icon fillColor="#575757" name="plus" size="extraExtraLarge" />
+              </button>
+            )}
           </ControlPropertyLabelContainer>
           {PropertyControlFactory.createControl(
             config,

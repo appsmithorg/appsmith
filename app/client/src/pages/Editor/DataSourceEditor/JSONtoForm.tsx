@@ -189,7 +189,8 @@ export class JSONtoForm<
         if (checked[properties[0]]) continue;
 
         checked[properties[0]] = 1;
-        const values = _.get(formData, properties[0], []);
+        // `as []` because the controlType guarantees the type
+        const values = _.get(formData, properties[0], []) as [];
         const newValues: ({ [s: string]: unknown } | ArrayLike<unknown>)[] = [];
 
         values.forEach(
@@ -246,7 +247,14 @@ export class JSONtoForm<
     // hides features/configs that are hidden behind feature flag
     // TODO: remove hidden config property as well as this param,
     // when feature flag is removed
-    if (isHidden(this.props.formData, section.hidden, this.props?.featureFlags))
+    if (
+      isHidden(
+        this.props.formData,
+        section.hidden,
+        this.props?.featureFlags,
+        false, // viewMode is false here.
+      )
+    )
       return null;
     return (
       <Collapsible
@@ -314,8 +322,9 @@ export class JSONtoForm<
           if (
             isHidden(
               this.props.formData,
-              section.hidden,
+              propertyControlOrSection.hidden,
               this.props?.featureFlags,
+              false,
             )
           )
             return null;

@@ -1,0 +1,13 @@
+diff --git a/lib/esm/components/popover/popover.js b/lib/esm/components/popover/popover.js
+index cb7faf374a596a7a32d5a3edc55445990bfbcfe1..b09c2e1fc72c9770cc4a05071c416ed898ff9cdb 100644
+--- a/lib/esm/components/popover/popover.js
++++ b/lib/esm/components/popover/popover.js
+@@ -167,6 +167,8 @@ var Popover = /** @class */ (function (_super) {
+                 // close the popover if necessary.
+                 if (e.relatedTarget != null && !_this.isElementInPopover(e.relatedTarget)) {
+                     _this.handleMouseLeave(e);
++                } else if(e.relatedTarget === null) {
++                    _this.handleMouseLeave(e);
+                 }
+             }
+             _this.lostFocusOnSamePage = e.relatedTarget != null;

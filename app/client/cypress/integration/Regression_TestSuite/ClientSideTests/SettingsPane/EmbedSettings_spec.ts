@@ -1,3 +1,4 @@
+import { CURRENT_REPO, REPO } from "../../../../fixtures/REPO";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("In-app embed settings", () => {
@@ -14,29 +15,66 @@ describe("In-app embed settings", () => {
     _.inviteModal.CloseModal();
   }
 
-  it("1. Updating Embed size values from AppSettings should update the snippet", () => {
-    _.embedSettings.OpenEmbedSettings();
-    _.embedSettings.UpdateDimension("H", "1000px");
-    _.embedSettings.UpdateDimension("W", "900px");
-    _.embedSettings.ValidateSnippet("900px", "1000px");
-    _.appSettings.ClosePane();
+  it("1. Embed settings on App settings should show upgrade content if application is not public", () => {
+    if (CURRENT_REPO === REPO.CE) {
+      _.embedSettings.OpenEmbedSettings();
+      _.agHelper.AssertElementExist(_.inviteModal.locators._upgradeContent);
+      _.agHelper.AssertElementAbsence(
+        _.inviteModal.locators._shareSettingsButton,
+      );
+      _.agHelper.GetNAssertContains(
+        _.inviteModal.locators._upgradeContent,
+        "Appsmith Business Edition",
+      );
+      _.appSettings.ClosePane();
+    }
   });
 
-  it("2. Updating Embed size values from ShareModal should update the snippet", () => {
+  it("2. Embed settings on Share modal should show upgrade content if application is not public", () => {
+    if (CURRENT_REPO === REPO.CE) {
+      _.inviteModal.OpenShareModal();
+      _.inviteModal.SelectEmbedTab();
+      _.agHelper.AssertElementExist(_.inviteModal.locators._upgradeContent);
+      _.agHelper.AssertElementExist(
+        _.inviteModal.locators._shareSettingsButton,
+      );
+
+      _.agHelper.GetNAssertContains(
+        _.inviteModal.locators._upgradeContent,
+        "Appsmith Business Edition",
+      );
+      _.inviteModal.enablePublicAccessViaShareSettings("true");
+    }
+  });
+
+  it("3. Change embedding restriction link on Share modal should redirect to Admin settings general page", () => {
     _.inviteModal.OpenShareModal();
+    if (CURRENT_REPO === REPO.EE) {
+      _.inviteModal.enablePublicAccessViaInviteTab("true");
+    }
     _.inviteModal.SelectEmbedTab();
-    _.embedSettings.UpdateDimension("H", "720px");
-    _.embedSettings.UpdateDimension("W", "1024px");
-    _.embedSettings.ValidateSnippet("1024px", "720px");
+    cy.get(_.inviteModal.locators._restrictionChange).should(
+      "have.attr",
+      "href",
+      "/settings",
+    );
     _.inviteModal.CloseModal();
   });
 
-  it("3. Check embed preview show/hides navigation bar according to setting", () => {
+  it("4. Change embedding restriction link on App settings should redirect to Admin settings general page", () => {
+    _.embedSettings.OpenEmbedSettings();
+    cy.get(_.inviteModal.locators._restrictionChange).should(
+      "have.attr",
+      "href",
+      "/settings",
+    );
+    _.appSettings.ClosePane();
+
+    //Check embed preview show/hides navigation bar according to setting
     _.inviteModal.ValidatePreviewEmbed("true");
     _.inviteModal.ValidatePreviewEmbed("false");
-  });
 
-  it("4. Check Show/Hides Navigation bar syncs between AppSettings Pane Embed tab & Share modal", () => {
+    //Check Show/Hides Navigation bar syncs between AppSettings Pane Embed tab & Share modal
     ValidateSyncWithInviteModal("true");
     ValidateSyncWithInviteModal("false");
   });

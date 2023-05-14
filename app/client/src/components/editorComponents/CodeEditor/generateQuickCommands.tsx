@@ -1,23 +1,35 @@
 import type { Datasource } from "entities/Datasource";
 import React from "react";
 import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import ReactDOM from "react-dom";
 import sortBy from "lodash/sortBy";
 import type { SlashCommandPayload } from "entities/Action";
 import { PluginType, SlashCommand } from "entities/Action";
-import { ReactComponent as Binding } from "assets/icons/menu/binding.svg";
-import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
-import AddDatasourceIcon from "remixicon-react/AddBoxLineIcon";
 import { Colors } from "constants/Colors";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { addAISlashCommand } from "@appsmith/components/editorComponents/GPT/trigger";
+import type FeatureFlags from "entities/FeatureFlags";
+import { importRemixIcon, importSvg } from "design-system-old";
+
+const AddDatasourceIcon = importRemixIcon(
+  () => import("remixicon-react/AddBoxLineIcon"),
+);
+const MagicIcon = importRemixIcon(
+  () => import("remixicon-react/MagicLineIcon"),
+);
+const Binding = importSvg(() => import("assets/icons/menu/binding.svg"));
+const Snippet = importSvg(() => import("assets/icons/ads/snippet.svg"));
+import type { FieldEntityInformation } from "./EditorConfig";
+import { EditorModes } from "./EditorConfig";
 
 enum Shortcuts {
   PLUS = "PLUS",
   BINDING = "BINDING",
   FUNCTION = "FUNCTION",
+  ASK_AI = "ASK_AI",
 }
 
 const matchingCommands = (
@@ -100,6 +112,11 @@ const iconsByType = {
       <Snippet className="snippet-icon shortcut" />
     </EntityIcon>
   ),
+  [Shortcuts.ASK_AI]: (
+    <EntityIcon noBorder>
+      <MagicIcon className="magic" />
+    </EntityIcon>
+  ),
 };
 
 function Command(props: { icon: any; name: string }) {
@@ -117,11 +134,12 @@ function Command(props: { icon: any; name: string }) {
 
 export const generateQuickCommands = (
   entitiesForSuggestions: any[],
-  currentEntityType: string,
+  currentEntityType: ENTITY_TYPE,
   searchText: string,
   {
     datasources,
     executeCommand,
+    featureFlags,
     pluginIdToImageLocation,
     recentEntities,
   }: {
@@ -129,11 +147,17 @@ export const generateQuickCommands = (
     executeCommand: (payload: SlashCommandPayload) => void;
     pluginIdToImageLocation: Record<string, string>;
     recentEntities: string[];
+    featureFlags: FeatureFlags;
   },
-  expectedType: string,
-  entityId: any,
-  propertyPath: any,
+  entityInfo: FieldEntityInformation,
 ) => {
+  const {
+    entityId,
+    example,
+    expectedType = "string",
+    mode,
+    propertyPath,
+  } = entityInfo || {};
   const suggestionsHeader: CommandsCompletion = commandsHeader("Bind Data");
   const createNewHeader: CommandsCompletion = commandsHeader("Create a Query");
   recentEntities.reverse();
@@ -169,7 +193,7 @@ export const generateQuickCommands = (
     shortcut: Shortcuts.PLUS,
   });
   const suggestions = entitiesForSuggestions.map((suggestion: any) => {
-    const name = suggestion.name || suggestion.widgetName;
+    const name = suggestion.entityName;
     return {
       text:
         suggestion.ENTITY_TYPE === ENTITY_TYPE.ACTION
@@ -235,6 +259,35 @@ export const generateQuickCommands = (
     5,
   );
   const actionCommands = [newBinding, insertSnippet];
+
+  // Adding this hack in the interest of time.
+  // TODO: Refactor slash commands generation for easier code splitting
+  if (
+    addAISlashCommand &&
+    featureFlags.ask_ai &&
+    (currentEntityType !== ENTITY_TYPE.ACTION ||
+      mode === EditorModes.SQL ||
+      mode === EditorModes.SQL_WITH_BINDING)
+  ) {
+    const askGPT: CommandsCompletion = generateCreateNewCommand({
+      text: "",
+      displayText: "Ask AI",
+      shortcut: Shortcuts.ASK_AI,
+      action: () =>
+        executeCommand({
+          actionType: SlashCommand.ASK_AI,
+          args: {
+            entityType: currentEntityType,
+            expectedType: expectedType,
+            entityId: entityId,
+            propertyPath: propertyPath,
+            example,
+            mode,
+          },
+        }),
+    });
+    actionCommands.push(askGPT);
+  }
 
   suggestionsMatchingSearchText.push(
     ...matchingCommands(actionCommands, searchText, []),

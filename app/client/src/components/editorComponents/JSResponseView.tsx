@@ -60,6 +60,7 @@ import LogHelper from "./Debugger/ErrorLogs/components/LogHelper";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { SourceEntity, Log } from "entities/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { Colors } from "constants/Colors";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS}
@@ -74,6 +75,7 @@ const ResponseContainer = styled.div`
     overflow-y: auto;
     height: calc(100% - ${TAB_MIN_HEIGHT});
   }
+  border-top: 1px solid ${Colors.GREY_4};
 `;
 
 const ResponseTabWrapper = styled.div`
@@ -367,7 +369,9 @@ function JSResponseView(props: Props) {
 
   // close the debugger
   const onClose = () => dispatch(showDebugger(false));
-  return (
+
+  // Do not render if header tab is selected in the bottom bar.
+  return !(selectedResponseTab === DEBUGGER_TAB_KEYS.HEADER_TAB) ? (
     <ResponseContainer
       className="t--js-editor-bottom-pane-container"
       ref={panelRef}
@@ -393,7 +397,7 @@ function JSResponseView(props: Props) {
         />
       </TabbedViewWrapper>
     </ResponseContainer>
-  );
+  ) : null;
 }
 
 const mapStateToProps = (

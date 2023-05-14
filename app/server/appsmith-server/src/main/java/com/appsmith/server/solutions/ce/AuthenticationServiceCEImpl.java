@@ -8,23 +8,27 @@ import com.appsmith.external.helpers.SSLHelper;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.OAuthResponseDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.OAuth2;
+import com.appsmith.external.models.OAuthResponseDTO;
+import com.appsmith.external.models.PluginType;
+import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.external.models.PluginType;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
 import com.appsmith.server.dtos.IntegrationDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.DatasourcePermission;
@@ -86,6 +90,8 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
     private final ConfigService configService;
     private final DatasourcePermission datasourcePermission;
     private final PagePermission pagePermission;
+    private final PluginExecutorHelper pluginExecutorHelper;
+    private final FeatureFlagService featureFlagService;
     private static final String FILE_SPECIFIC_DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
     private static final String ACCESS_TOKEN_KEY = "access_token";
 
@@ -457,7 +463,15 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                             .getAuthentication()
                                             .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.SUCCESS);
                                 }
-                                return Mono.zip(Mono.just(datasource), Mono.just(accessToken), Mono.just(projectID));
+
+                                Mono<String> accessTokenMono = Mono.just(accessToken);
+                                Mono<String> projectIdMono = Mono.just(projectID);
+
+                                return pluginExecutorHelper
+                                        .getPluginExecutor(pluginService.findById(datasource.getPluginId()))
+                                        .flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
+                                                .getDatasourceMetadata(datasource.getDatasourceConfiguration()))
+                                        .then(Mono.zip(Mono.just(datasource), accessTokenMono, projectIdMono));
                             });
                 })
                 .flatMap(tuple -> {

@@ -45,6 +45,7 @@ const Container = styled.section<{
   $isAutoLayout: boolean;
   background: string;
   isPreviewingNavigation?: boolean;
+  isAppSettingsPaneWithNavigationTabOpen?: boolean;
   navigationHeight?: number;
 }>`
   width: ${({ $isAutoLayout }) =>
@@ -56,12 +57,33 @@ const Container = styled.section<{
   overflow-y: auto;
   background: ${({ background }) => background};
 
-  ${({ isPreviewingNavigation, navigationHeight }) => {
+  ${({
+    isAppSettingsPaneWithNavigationTabOpen,
+    isPreviewingNavigation,
+    navigationHeight,
+  }) => {
+    let css = ``;
+
     if (isPreviewingNavigation) {
-      return `
+      css += `
         margin-top: ${navigationHeight}px !important;
       `;
     }
+
+    if (isAppSettingsPaneWithNavigationTabOpen) {
+      /**
+       * We need to remove the scrollbar width to avoid small white space on the
+       * right of the canvas since we disable all interactions, including scroll,
+       * while the app settings pane with navigation tab is open
+       */
+      css += `
+        ::-webkit-scrollbar {
+          width: 0px;
+        }
+      `;
+    }
+
+    return css;
   }}
 
   &:before {
@@ -150,7 +172,6 @@ function CanvasContainer(props: CanvasContainerProps) {
   // calculating exact height to not allow scroll at this component,
   // calculating total height minus margin on top, top bar and bottom bar and scrollbar height at the bottom
   const heightWithTopMargin = `calc(100vh - 2rem - ${topMargin} - ${smallHeaderHeight} - ${bottomBarHeight} - ${scrollBarHeight} - ${navigationHeight}px)`;
-  const resizerTop = `calc(2rem + ${topMargin} + ${smallHeaderHeight})`;
   return (
     <>
       <Container
@@ -172,6 +193,9 @@ function CanvasContainer(props: CanvasContainerProps) {
           "mt-24": shouldShowSnapShotBanner,
         })}
         id={"canvas-viewport"}
+        isAppSettingsPaneWithNavigationTabOpen={
+          isAppSettingsPaneWithNavigationTabOpen
+        }
         isPreviewingNavigation={isPreviewingNavigation}
         key={currentPageId}
         navigationHeight={navigationHeight}
@@ -194,7 +218,6 @@ function CanvasContainer(props: CanvasContainerProps) {
       <CanvasResizer
         heightWithTopMargin={heightWithTopMargin}
         isPageInitiated={!isPageInitializing && !!widgetsStructure}
-        resizerTop={resizerTop}
         shouldHaveTopMargin={shouldHaveTopMargin}
       />
     </>

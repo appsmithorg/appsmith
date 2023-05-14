@@ -42,6 +42,9 @@ export const initialState: any = {
     },
   },
   ui: {
+    editor: {
+      isPreviewMode: false,
+    },
     appSettingsPane: {
       isOpen: false,
     },

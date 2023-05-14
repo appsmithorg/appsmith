@@ -77,9 +77,11 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                                                                                Object monitor,
                                                                                DatasourceContextIdentifier datasourceContextIdentifier) {
         synchronized (monitor) {
-            /* Destroy any stale connection to free up resource */
+            /* Destroy any connection that is stale or in error state to free up resource */
             final boolean isStale = getIsStale(datasource, datasourceContextIdentifier);
-            if (isStale) {
+            final boolean isInErrorState = getIsInErrorState(datasourceContextIdentifier);
+
+            if (isStale || isInErrorState) {
                 final Object connection = datasourceContextMap.get(datasourceContextIdentifier).getConnection();
                 if (connection != null) {
                     try {
@@ -112,9 +114,9 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                 datasourceContextMap.put(datasourceContextIdentifier, datasourceContext);
             }
 
-            Mono<Object> connectionMono = pluginExecutor.datasourceCreate(datasource.getDatasourceConfiguration()).cache();
+            Mono<Object> connectionMonoCache = pluginExecutor.datasourceCreate(datasource.getDatasourceConfiguration()).cache();
 
-            Mono<DatasourceContext<Object>> datasourceContextMonoCache = connectionMono
+            Mono<DatasourceContext<Object>> datasourceContextMonoCache = connectionMonoCache
                     .flatMap(connection -> updateDatasourceAndSetAuthentication(connection, datasource,
                                                                                 datasourceContextIdentifier))
                     .map(connection -> {
@@ -212,14 +214,26 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                 && datasource.getUpdatedAt().isAfter(datasourceContextMap.get(datasourceContextIdentifier).getCreationTime());
     }
 
-    protected boolean isValidDatasourceContextAvailable(Datasource datasource,
+    /**
+     * This function checks if the cached datasource context mono is in error state
+     * @param datasourceContextIdentifier
+     * @return boolean
+     */
+    private boolean getIsInErrorState(DatasourceContextIdentifier datasourceContextIdentifier) {
+        return datasourceContextMonoMap.get(datasourceContextIdentifier) != null
+                && datasourceContextMonoMap.get(datasourceContextIdentifier).toFuture().isCompletedExceptionally();
+    }
+
+    public boolean isValidDatasourceContextAvailable(Datasource datasource,
                                                         DatasourceContextIdentifier datasourceContextIdentifier) {
         boolean isStale = getIsStale(datasource, datasourceContextIdentifier);
+        boolean isInErrorState = getIsInErrorState(datasourceContextIdentifier);
         return datasourceContextMap.get(datasourceContextIdentifier) != null
                 // The following condition happens when there's a timeout in the middle of destroying a connection and
                 // the reactive flow interrupts, resulting in the destroy operation not completing.
                 && datasourceContextMap.get(datasourceContextIdentifier).getConnection() != null
-                && !isStale;
+                && !isStale
+                && !isInErrorState;
     }
 
     @Override
