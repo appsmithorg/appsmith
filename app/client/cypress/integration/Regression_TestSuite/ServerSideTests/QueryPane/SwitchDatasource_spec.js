@@ -75,8 +75,8 @@ describe("Switch datasource", function () {
       "response.body.data.isValid",
       true,
     );
-    cy.get(".t--switch-datasource").click();
-    cy.contains(".t--datasource-option", postgresDatasourceNameSecond)
+    cy.get(".rc-select-show-arrow").click();
+    cy.contains(".rc-select-item-option-content", postgresDatasourceNameSecond)
       .click()
       .wait(1000);
     cy.runQuery();
@@ -88,8 +88,11 @@ describe("Switch datasource", function () {
   });
 
   it("5. Confirm mongo datasource is not present in the switch datasources dropdown", function () {
-    cy.get(".t--switch-datasource").click();
-    cy.get(".t--datasource-option").should("not.have", mongoDatasourceName);
+    cy.get(".rc-select-show-arrow").click();
+    cy.get(".rc-select-item-option-content").should(
+      "not.have",
+      mongoDatasourceName,
+    );
   });
 
   it("6. Delete the query and datasources", function () {
