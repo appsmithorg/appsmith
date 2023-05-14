@@ -21,7 +21,7 @@ describe("Omnibar functionality test cases", () => {
   it("2.Verify omnibar is present across all pages and validate its fields", function () {
     cy.get(omnibar.globalSearch)
       .trigger("mouseover")
-      .should("have.css", "background-color", "rgba(0, 0, 0, 0)");
+      .should("have.css", "background-color", "rgb(255, 255, 255)");
     cy.get(omnibar.globalSearch).click({ force: true });
     // verifying all sections are present in omnibar
     cy.get(omnibar.categoryTitle)
@@ -36,10 +36,10 @@ describe("Omnibar functionality test cases", () => {
       .eq(1)
       .should("have.text", "Create new")
       .next()
-      .should("have.text", "Create a new Query, API or JS Object");
+      .should("have.text", "Create a new query, API or JS object");
     cy.get(omnibar.categoryTitle)
       .eq(2)
-      .should("have.text", "Use Snippets")
+      .should("have.text", "Use snippets")
       .next()
       .should(
         "have.text",
@@ -47,7 +47,7 @@ describe("Omnibar functionality test cases", () => {
       );
     cy.get(omnibar.categoryTitle)
       .eq(3)
-      .should("have.text", "Search Documentation")
+      .should("have.text", "Search documentation")
       .next()
       .should("have.text", "Find answers through Appsmith documentation.");
     cy.get("body").type("{esc}");
@@ -59,7 +59,7 @@ describe("Omnibar functionality test cases", () => {
     cy.get(commonlocators.errorTab).should("be.visible").click({ force: true });
     cy.wait(1000);
     // click on open documention from error tab
-    cy.get(commonlocators.debuggerContextMenu).click({ multiple: true });
+    cy.get(commonlocators.debuggerDescription).next().click({ multiple: true });
     cy.xpath(commonlocators.openDocumentationfromErrorTab)
       .first()
       .click({ force: true });
