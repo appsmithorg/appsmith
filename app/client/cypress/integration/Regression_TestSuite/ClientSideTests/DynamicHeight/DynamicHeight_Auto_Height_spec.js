@@ -14,17 +14,18 @@ describe("Dynamic Height Width validation", function () {
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });
-  it("Validate change with auto height width for widgets", function () {
+
+  it("1. Validate change with auto height width for widgets", function () {
     cy.addDsl(dsl);
     cy.wait(3000); //for dsl to settle
     cy.openPropertyPane("containerwidget");
     //cy.changeLayoutHeight(commonlocators.autoHeight);
     cy.openPropertyPane("checkboxgroupwidget");
     cy.moveToStyleTab();
-    cy.get(".t--property-control-fontsize .ur--has-border")
+    cy.get(".t--property-control-fontsize .rc-select")
       .invoke("css", "font-size")
       .then((dropdownFont) => {
-        cy.get(".t--property-control-fontsize .remixicon-icon").last().click({
+        cy.get(".t--property-control-fontsize input").last().click({
           force: true,
         });
         cy.get(".t--dropdown-option span")
@@ -42,7 +43,7 @@ describe("Dynamic Height Width validation", function () {
             }
           });
       });
-    cy.get(".t--property-control-fontsize .ur--has-border")
+    cy.get(".t--property-control-fontsize .rc-select")
       .invoke("css", "font-family")
       .then((dropdownFont) => {
         //cy.get(".t--property-control-fontsize .remixicon-icon").click({ force: true })
@@ -91,7 +92,7 @@ describe("Dynamic Height Width validation", function () {
       });
   });
 
-  it("Validate container with auto height and child widgets with fixed height", function () {
+  it("2. Validate container with auto height and child widgets with fixed height", function () {
     cy.addDsl(cdsl);
     cy.wait(3000); //for dsl to settle
     //cy.openPropertyPane("containerwidget");
@@ -100,17 +101,17 @@ describe("Dynamic Height Width validation", function () {
     cy.get(commonlocators.generalSectionHeight)
       .scrollIntoView()
       .should("be.visible");
-    cy.changeLayoutHeight(commonlocators.autoHeight);
+    cy.selectDropdownValue(commonlocators.autoHeight, "Auto Height");
     cy.openPropertyPane("inputwidgetv2");
     cy.get(commonlocators.generalSectionHeight)
       .scrollIntoView()
       .should("be.visible");
-    cy.changeLayoutHeight(commonlocators.autoHeight);
+    cy.selectDropdownValue(commonlocators.autoHeight, "Auto Height");
     cy.get(".t--widget-containerwidget")
       .invoke("css", "height")
       .then((height) => {
         cy.openPropertyPane("containerwidget");
-        cy.changeLayoutHeight(commonlocators.autoHeight);
+        cy.selectDropdownValue(commonlocators.autoHeight, "Auto Height");
         cy.wait(4000);
         cy.get(".t--widget-containerwidget")
           .invoke("css", "height")

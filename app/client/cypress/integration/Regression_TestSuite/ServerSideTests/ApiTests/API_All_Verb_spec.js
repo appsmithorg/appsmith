@@ -124,8 +124,8 @@ describe("API Panel Test Functionality", function () {
     );
     cy.ResponseStatusCheck(testdata.successStatusCode);
     cy.ResponseCheck(testdata.responsetext);
-    cy.switchToPaginationTab();
-    cy.selectPaginationType(apiwidget.paginationWithUrl);
+    apiPage.SelectPaneTab("Pagination");
+    agHelper.GetNClick(apiwidget.paginationWithUrl);
     cy.enterUrl(
       testdata.baseUrl,
       apiwidget.panigationNextUrl,
@@ -135,7 +135,7 @@ describe("API Panel Test Functionality", function () {
     cy.validateRequest("Api1", testdata.baseUrl, testdata.next, testdata.Get);
     cy.ResponseStatusCheck(testdata.successStatusCode);
     cy.ResponseCheck("Josh M Krantz");
-    cy.switchToPaginationTab();
+    apiPage.SelectPaneTab("Pagination");
     cy.enterUrl(
       testdata.baseUrl,
       apiwidget.panigationPrevUrl,

@@ -30,7 +30,7 @@
   "addPageButton": ".t--addToPageBtn",
   "apidocumentaionLink": ".t--apiDocumentationLink",
   "postbody": "(//div[contains(@class,'CodeMirror-wrap')]//textarea)[2]",
-  "paginationTab": "li:contains('Pagination')",
+  "paginationTab": "//span[text()='Pagination']",
   "apiInputTab": "li:contains('API Input')",
   "paginationOption": ".t--apiFormPaginationType div>input",
   "paginationWithTable": ".t--apiFormPaginationType label:contains('Paginate with Table Page No') input",
