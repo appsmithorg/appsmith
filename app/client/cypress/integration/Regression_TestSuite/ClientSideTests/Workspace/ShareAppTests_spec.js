@@ -4,7 +4,8 @@ import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 import homePage from "../../../../locators/HomePage";
 const publish = require("../../../../locators/publishWidgetspage.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-let HomePage = ObjectsRegistry.HomePage;
+const HomePage = ObjectsRegistry.HomePage;
+const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Create new workspace and share with a user", function () {
   let workspaceId;
@@ -13,22 +14,14 @@ describe("Create new workspace and share with a user", function () {
   let newWorkspaceName;
 
   it("1. Create workspace and then share with a user from Application share option within application", function () {
-    cy.NavigateToHome();
-    cy.generateUUID().then((uid) => {
-      workspaceId = uid;
-      appid = uid;
-      localStorage.setItem("WorkspaceName", workspaceId);
-      cy.createWorkspace();
-      cy.wait("@createWorkspace").then((interception) => {
-        newWorkspaceName = interception.response.body.data.name;
-        cy.renameWorkspace(newWorkspaceName, workspaceId);
-      });
-      cy.CreateAppForWorkspace(workspaceId, appid);
-      cy.wait("@getPagesForCreateApp").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
+    HomePage.NavigateToHome();
+    agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      workspaceId = "shareApp" + uid;
+      appid = "Share" + uid;
+      HomePage.CreateNewWorkspace(workspaceId);
+      HomePage.CreateAppInWorkspace(workspaceId, appid);
+
       cy.get("h2").contains("Drag and drop a widget here");
       cy.get(homePage.shareApp).click({ force: true });
       HomePage.InviteUserToApplication(

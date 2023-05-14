@@ -141,7 +141,7 @@ Cypress.Commands.add("shareAndPublic", (email, role) => {
 });
 
 Cypress.Commands.add("enablePublicAccess", (editMode = false) => {
-  cy.get(homePage.enablePublicAccess).first().click({ force: true });
+  cy.xpath(homePage.enablePublicAccess).first().click({ force: true });
   cy.wait("@changeAccess").should(
     "have.nested.property",
     "response.body.responseMeta.status",
