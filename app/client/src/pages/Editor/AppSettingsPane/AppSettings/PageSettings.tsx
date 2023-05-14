@@ -123,7 +123,7 @@ function PageSettings(props: { page: Page }) {
   }, [isUpdatingEntity]);
 
   const savePageName = useCallback(() => {
-    if (!canManagePages || !isPageNameValid || page.pageName === pageName)
+    if (!canManagePages || !!isPageNameValid || page.pageName === pageName)
       return;
     const payload: UpdatePageRequest = {
       id: page.pageId,
