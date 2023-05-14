@@ -174,7 +174,7 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
             <ModalContentRow className="border-b-0">
               <ModalContentTextWrapper>
                 <div>
-                  <StyledCount>1</StyledCount>
+                  <StyledCount>3</StyledCount>
                 </div>
                 <ModalContentItem>
                   <ModalContentHeader>

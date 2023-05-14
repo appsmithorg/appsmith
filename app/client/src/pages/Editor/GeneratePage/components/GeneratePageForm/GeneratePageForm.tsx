@@ -660,12 +660,16 @@ function GeneratePageForm() {
           <Label>{createMessage(GEN_CRUD_DATASOURCE_DROPDOWN_LABEL)}</Label>
           <Select
             data-testid="t--datasource-dropdown"
-            onChange={(value) =>
-              onSelectDataSource(
-                value,
-                dataSourceOptions.find((ds) => ds.value === value),
-              )
-            }
+            onChange={(value) => {
+              if (value === CONNECT_NEW_DATASOURCE_OPTION_ID) {
+                routeToCreateNewDatasource();
+              } else {
+                onSelectDataSource(
+                  value,
+                  dataSourceOptions.find((ds) => ds.value === value),
+                );
+              }
+            }}
             style={{ width: DROPDOWN_DIMENSION.WIDTH }}
             value={
               selectedDatasource?.label !== DEFAULT_DROPDOWN_OPTION?.label

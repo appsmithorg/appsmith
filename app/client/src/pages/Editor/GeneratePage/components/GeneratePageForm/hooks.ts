@@ -12,7 +12,7 @@ export const FAKE_DATASOURCE_OPTION = {
   CONNECT_NEW_DATASOURCE_OPTION: {
     id: CONNECT_NEW_DATASOURCE_OPTION_ID,
     label: "Connect new datasource",
-    value: "Connect new datasource",
+    value: CONNECT_NEW_DATASOURCE_OPTION_ID,
     data: {
       pluginId: "",
     },
