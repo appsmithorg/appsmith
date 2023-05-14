@@ -839,7 +839,7 @@ Cypress.Commands.add(
 
     // add a success callback
     cy.get(propPane._actionAddCallback("success")).click().wait(500);
-    cy.get(locators._dropDownValue("Show Alert")).click().wait(500);
+    cy.get(locators._dropDownValue("Show alert")).click().wait(500);
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Message"),
       forSuccess,
@@ -848,7 +848,7 @@ Cypress.Commands.add(
 
     // add a failure callback
     cy.get(propPane._actionAddCallback("failure")).click().wait(500);
-    cy.get(locators._dropDownValue("Show Alert")).click().wait(500);
+    cy.get(locators._dropDownValue("Show alert")).click().wait(500);
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Message"),
       forFailure,

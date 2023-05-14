@@ -123,7 +123,7 @@ describe("Checkbox column type funtionality test", () => {
 
       // Verify on check change handler
       propPane.ToggleOnOrOff("Editable");
-      propPane.SelectPlatformFunction("onCheckChange", "Show Alert");
+      propPane.SelectPlatformFunction("onCheckChange", "Show alert");
       agHelper.EnterActionValue("Message", "This is a test message");
       cy.get(selector).click({ force: true }); // unChecked
       cy.wait(100);
