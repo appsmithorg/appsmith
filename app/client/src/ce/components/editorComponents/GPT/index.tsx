@@ -9,6 +9,7 @@ export type TAIWrapperProps = {
   update?: (...args: any) => void;
   triggerContext?: CodeEditorExpected;
   enableAIAssistance: boolean;
+  dataTreePath?: string;
 };
 
 export function AIWindow(props: TAIWrapperProps) {
