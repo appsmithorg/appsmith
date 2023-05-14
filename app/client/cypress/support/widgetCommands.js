@@ -838,7 +838,7 @@ Cypress.Commands.add("evaluateErrorMessage", (value) => {
 
 Cypress.Commands.add("addAction", (value, property) => {
   cy.get(`.t--add-action-${property}`).click();
-  cy.get(`.single-select:contains('Show Alert')`).click();
+  cy.get(`.single-select:contains('Show alert')`).click();
 
   cy.enterActionValue(value, property);
 });
