@@ -1,13 +1,13 @@
 package com.appsmith.server.acl.ce;
 
 import com.appsmith.server.acl.AppsmithRole;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
 import org.jgrapht.traverse.BreadthFirstIterator;
 
-import jakarta.annotation.PostConstruct;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -42,7 +42,7 @@ public class RoleGraphCE {
         Set<AppsmithRole> childrenRoles = new LinkedHashSet<>();
         childrenRoles.add(role);
         BreadthFirstIterator<AppsmithRole, DefaultEdge> breadthFirstIterator = new BreadthFirstIterator<>(hierarchyGraph, role);
-        while(breadthFirstIterator.hasNext()) {
+        while (breadthFirstIterator.hasNext()) {
             childrenRoles.add(breadthFirstIterator.next());
         }
 

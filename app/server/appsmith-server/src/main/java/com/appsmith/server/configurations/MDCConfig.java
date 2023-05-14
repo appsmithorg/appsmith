@@ -3,6 +3,7 @@ package com.appsmith.server.configurations;
 import com.appsmith.server.filters.MDCFilter;
 import com.appsmith.server.helpers.LogHelper;
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.reactivestreams.Subscription;
 import org.slf4j.MDC;
 import org.springframework.context.annotation.Configuration;
@@ -11,7 +12,6 @@ import reactor.core.publisher.Hooks;
 import reactor.core.publisher.Operators;
 import reactor.util.context.Context;
 
-import jakarta.annotation.PreDestroy;
 import java.util.Map;
 
 @Configuration

@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceDTO;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
@@ -175,7 +176,7 @@ public class MockDataServiceTest {
                 .findFirst().get();
 
         StepVerifier
-                .create(mockDataService.createMockDataSet(mockDataSource))
+                .create(mockDataService.createMockDataSet(mockDataSource, null))
                 .assertNext(createdDatasource -> {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(pluginMono.getId());
@@ -239,7 +240,7 @@ public class MockDataServiceTest {
                 .findFirst().get();
 
         StepVerifier
-                .create(mockDataService.createMockDataSet(mockDataSource))
+                .create(mockDataService.createMockDataSet(mockDataSource, null))
                 .assertNext(createdDatasource -> {
                     assertThat(createdDatasource.getId()).isNotEmpty();
                     assertThat(createdDatasource.getPluginId()).isEqualTo(pluginMono.getId());
@@ -284,8 +285,8 @@ public class MockDataServiceTest {
         mockDataSource.setPackageName("mongo-plugin");
         mockDataSource.setPluginId(pluginMono.getId());
 
-        Mono<Datasource> datasourceMono = mockDataService.createMockDataSet(mockDataSource)
-                .flatMap(datasource -> mockDataService.createMockDataSet(mockDataSource));
+        Mono<DatasourceDTO> datasourceMono = mockDataService.createMockDataSet(mockDataSource, null)
+                .flatMap(datasource -> mockDataService.createMockDataSet(mockDataSource, null));
 
         List<PermissionGroup> permissionGroups = Mono.just(workspace)
                 .flatMapMany(savedWorkspace -> {

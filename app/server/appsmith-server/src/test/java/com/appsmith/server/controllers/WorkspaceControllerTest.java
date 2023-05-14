@@ -29,18 +29,6 @@ public class WorkspaceControllerTest {
     private WebTestClient webTestClient;
 
     @MockBean
-    private WorkspaceService workspaceService;
-
-    @MockBean
-    private UserWorkspaceService userWorkspaceService;
-
-    @MockBean
-    private UserService userService;
-
-    @MockBean
-    private CommonConfig commonConfig;
-
-    @MockBean
     UserDataService userDataService;
 
     @Test
@@ -56,7 +44,7 @@ public class WorkspaceControllerTest {
                         "        \"status\": 400,\n" +
                         "        \"success\": false,\n" +
                         "        \"error\": {\n" +
-                        "            \"code\": "+ AppsmithErrorCode.VALIDATION_FAILURE.getCode() +",\n" +
+                        "            \"code\": " + AppsmithErrorCode.VALIDATION_FAILURE.getCode() + ",\n" +
                         "            \"message\": \"Validation Failure(s): {name=Name is mandatory}\"\n" +
                         "        }\n" +
                         "    }\n" +

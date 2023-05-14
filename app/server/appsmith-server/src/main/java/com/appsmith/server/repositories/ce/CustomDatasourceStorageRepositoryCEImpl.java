@@ -16,45 +16,11 @@ public class CustomDatasourceStorageRepositoryCEImpl
         extends BaseAppsmithRepositoryImpl<DatasourceStorage>
         implements CustomDatasourceStorageRepositoryCE {
 
-    private final ReactiveMongoOperations mongoOperations;
+
     public CustomDatasourceStorageRepositoryCEImpl(ReactiveMongoOperations mongoOperations,
-                                                                MongoConverter mongoConverter,
-                                                                CacheableRepositoryHelper cacheableRepositoryHelper) {
+                                                   MongoConverter mongoConverter,
+                                                   CacheableRepositoryHelper cacheableRepositoryHelper) {
 
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
-        this.mongoOperations = mongoOperations;
-    }
-
-    /*
-    static helper methods
-     */
-
-    private static Criteria datasourceIdCriterion(String datasourceId) {
-        return Criteria.where(fieldName(QDatasourceStorage.datasourceStorage.datasourceId))
-                .is(datasourceId);
-    }
-
-    private static Criteria datasourceIdsCriterion(List<String> datasourceids) {
-        return Criteria.where(fieldName(QDatasourceStorage.datasourceStorage.datasourceId))
-                .in(datasourceids);
-    }
-
-    /*
-    Implementations of the interface
-     */
-
-    @Override
-    public Flux<DatasourceStorage> findByDatasourceId(String datasourceId) {
-        return queryMany(List.of(notDeleted(), datasourceIdCriterion(datasourceId)));
-    }
-
-    @Override
-    public Flux<DatasourceStorage> findAllByDatasourceIds(List<String> datasourceIds) {
-        return queryMany(List.of(notDeleted(), datasourceIdsCriterion(datasourceIds)));
-    }
-
-    @Override
-    public Mono<DatasourceStorage> findOneByDatasourceId(String datasourceId) {
-        return queryOne(List.of(notDeleted(), datasourceIdCriterion(datasourceId)));
     }
 }

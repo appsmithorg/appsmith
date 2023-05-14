@@ -1,6 +1,5 @@
 package com.appsmith.server.domains;
 
-import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.server.domains.ce.DatasourceContextIdentifierCE;
 import lombok.NoArgsConstructor;
 

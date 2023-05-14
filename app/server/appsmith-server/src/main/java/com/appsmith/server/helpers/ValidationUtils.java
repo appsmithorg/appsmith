@@ -30,11 +30,12 @@ public final class ValidationUtils {
      * <li>At least one email must be present. Empty string is not allowed.</li>
      * <li>Space is allowed before and after comma</li>
      * </ul>
+     *
      * @param inputString input source
      * @return true if input is valid, false otherwise
      */
     public static boolean validateEmailCsv(String inputString) {
-        if(!StringUtils.hasLength(inputString)) { // check for null and empty string
+        if (!StringUtils.hasLength(inputString)) { // check for null and empty string
             return false;
         }
         final Matcher matcher = EMAIL_CSV_PATTERN.matcher(inputString);

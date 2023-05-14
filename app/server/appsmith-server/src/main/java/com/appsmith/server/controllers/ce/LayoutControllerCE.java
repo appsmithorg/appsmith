@@ -12,7 +12,7 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutService;
 import com.appsmith.server.solutions.RefactoringSolution;
 import com.fasterxml.jackson.annotation.JsonView;
-
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,8 +25,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import reactor.core.publisher.Mono;
-
-import jakarta.validation.Valid;
 
 
 @RequestMapping(Url.LAYOUT_URL)
@@ -68,8 +66,8 @@ public class LayoutControllerCE {
     @JsonView(Views.Public.class)
     @PutMapping("/application/{applicationId}")
     public Mono<ResponseDTO<Integer>> updateMultipleLayouts(@PathVariable String applicationId,
-                                                             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
-                                                             @RequestBody @Valid UpdateMultiplePageLayoutDTO request) {
+                                                            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+                                                            @RequestBody @Valid UpdateMultiplePageLayoutDTO request) {
         log.debug("update multiple layout received for application {} branch {}", applicationId, branchName);
         return layoutActionService.updateMultipleLayouts(applicationId, branchName, request)
                 .map(updatedCount -> new ResponseDTO<>(HttpStatus.OK.value(), updatedCount, null));

@@ -6,9 +6,9 @@ import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.util.DuplicateKeyExceptionUtils;
+import com.appsmith.server.filters.MDCFilter;
 import com.appsmith.server.helpers.RedisUtils;
 import io.micrometer.core.instrument.util.StringUtils;
-import com.appsmith.server.filters.MDCFilter;
 import io.sentry.Sentry;
 import io.sentry.SentryLevel;
 import io.sentry.protocol.User;
@@ -118,7 +118,7 @@ public class GlobalExceptionHandler {
 
         String urlPath = exchange.getRequest().getPath().toString();
         String conflictingObjectName = DuplicateKeyExceptionUtils.extractConflictingObjectName(e.getCause().getMessage());
-        ResponseDTO<ErrorDTO> response =  new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(), appsmithError.getErrorType(),
+        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(), appsmithError.getErrorType(),
                 appsmithError.getMessage(conflictingObjectName), appsmithError.getTitle()));
 
         return getResponseDTOMono(urlPath, response);
@@ -241,9 +241,9 @@ public class GlobalExceptionHandler {
     }
 
     private Mono<ResponseDTO<ErrorDTO>> getResponseDTOMono(String urlPath, ResponseDTO<ErrorDTO> response) {
-        if(urlPath.contains("/git") && urlPath.contains("/app")) {
+        if (urlPath.contains("/git") && urlPath.contains("/app")) {
             String appId = urlPath.substring(urlPath.lastIndexOf('/') + 1);
-            if(StringUtils.isEmpty(appId)) {
+            if (StringUtils.isEmpty(appId)) {
                 return Mono.just(response);
             }
             return redisUtils.releaseFileLock(appId)

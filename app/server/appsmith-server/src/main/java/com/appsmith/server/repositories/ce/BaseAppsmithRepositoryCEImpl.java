@@ -594,7 +594,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
 
-
     public static Query getQuery(List<Criteria> criteria) {
         Query query = new Query();
         criteria.forEach(query::addCriteria);

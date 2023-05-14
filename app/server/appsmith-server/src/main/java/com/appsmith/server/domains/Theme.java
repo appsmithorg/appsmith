@@ -4,7 +4,6 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -65,7 +64,7 @@ public class Theme extends BaseDomain {
     @Override
     public void sanitiseToExportDBObject() {
         this.setId(null);
-        if(this.isSystemTheme()) {
+        if (this.isSystemTheme()) {
             // for system theme, we only need theme name and isSystemTheme properties so set null to others
             this.setProperties(null);
             this.setConfig(null);

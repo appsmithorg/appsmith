@@ -8,8 +8,4 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 public interface CustomDatasourceStorageRepositoryCE extends AppsmithRepository<DatasourceStorage> {
-    Flux<DatasourceStorage> findByDatasourceId(String datasourceId);
-    Flux<DatasourceStorage> findAllByDatasourceIds(List<String> datasourceIds);
-    Mono<DatasourceStorage> findOneByDatasourceId(String datasourceId);
-    Mono<DatasourceStorage> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId);
 }

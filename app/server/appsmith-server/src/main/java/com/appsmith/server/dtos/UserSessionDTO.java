@@ -53,11 +53,13 @@ public class UserSessionDTO {
     /**
      * We don't expect this class to be instantiated outside this class. Remove this constructor when needed.
      */
-    private UserSessionDTO() {}
+    private UserSessionDTO() {
+    }
 
     /**
      * Given an authentication token, typically from a Spring Security context, create a UserSession object. This
      * UserSession object can then be serialized to JSON and stored in Redis.
+     *
      * @param authentication The token to create the UserSession from. Usually an instance of UsernamePasswordAuthenticationToken or Oauth2AuthenticationToken.
      * @return A UserSession object representing the user's session, with details from the given token.
      */
@@ -93,6 +95,7 @@ public class UserSessionDTO {
     /**
      * Performs the reverse of fromToken method. Given a UserSession object, create a Spring Security authentication
      * token. This authentication token can then be wrapped in a SecurityContext and used as the user's session.
+     *
      * @return A Spring Security authentication token representing the user's session. Usually an instance of UsernamePasswordAuthenticationToken or Oauth2AuthenticationToken.
      */
     public Authentication makeToken() {

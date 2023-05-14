@@ -16,6 +16,7 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
@@ -103,6 +104,8 @@ class ActionExecutionSolutionCEImplTest {
     DatasourcePermission datasourcePermission;
     @MockBean
     AnalyticsService analyticsService;
+    @MockBean
+    private DatasourceStorageService datasourceStorageService;
 
     private BodyExtractor.Context context;
 
@@ -111,21 +114,21 @@ class ActionExecutionSolutionCEImplTest {
     @BeforeEach
     public void beforeEach() {
         actionExecutionSolution = new ActionExecutionSolutionCEImpl(
-                 newActionService,
-                 actionPermission,
-                 observationRegistry,
-                 objectMapper,
-                 repository,
-                 datasourceService,
-                 pluginService,
-                 datasourceContextService,
-                 pluginExecutorHelper,
-                 newPageService,
-                 applicationService,
-                 sessionUserService,
-                 authenticationValidator,
-                 datasourcePermission,
-                 analyticsService,
+                newActionService,
+                actionPermission,
+                observationRegistry,
+                objectMapper,
+                repository,
+                datasourceService,
+                pluginService,
+                datasourceContextService,
+                pluginExecutorHelper,
+                newPageService,
+                applicationService,
+                sessionUserService,
+                authenticationValidator,
+                datasourcePermission,
+                analyticsService,
                 datasourceStorageService);
 
         ObservationRegistry.ObservationConfig mockObservationConfig = Mockito.mock(ObservationRegistry.ObservationConfig.class);

@@ -85,7 +85,7 @@ public class AuthenticationFailureHandlerCE implements ServerAuthenticationFailu
                 url = originHeader + "/user/login?error=true";
             }
         }
-        if (redirectUrl != null && !redirectUrl.trim().isEmpty()){
+        if (redirectUrl != null && !redirectUrl.trim().isEmpty()) {
             url = url + "&" + REDIRECT_URL_QUERY_PARAM + "=" + redirectUrl;
         }
         defaultRedirectLocation = URI.create(url);

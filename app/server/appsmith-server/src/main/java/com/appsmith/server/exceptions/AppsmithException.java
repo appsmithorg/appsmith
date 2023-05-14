@@ -54,8 +54,12 @@ public class AppsmithException extends BaseException {
     }
 
     @Override
-    public String getErrorType() { return this.error.getErrorType(); }
+    public String getErrorType() {
+        return this.error.getErrorType();
+    }
 
-    public String getReferenceDoc() { return this.error.getReferenceDoc(); }
+    public String getReferenceDoc() {
+        return this.error.getReferenceDoc();
+    }
 
 }

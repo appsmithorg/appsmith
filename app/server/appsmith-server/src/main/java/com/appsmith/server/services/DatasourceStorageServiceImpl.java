@@ -14,10 +14,10 @@ public class DatasourceStorageServiceImpl extends DatasourceStorageServiceCEImpl
     public DatasourceStorageServiceImpl(DatasourceStorageRepository repository,
                                         DatasourceStorageTransferSolution datasourceStorageTransferSolution,
                                         DatasourcePermission datasourcePermission,
-                                        WorkspaceService workspaceService,
                                         PluginService pluginService,
-                                        PluginExecutorHelper pluginExecutorHelper) {
-        super(repository, datasourceStorageTransferSolution, datasourcePermission, workspaceService, pluginService,
-                pluginExecutorHelper, analyticsService);
+                                        PluginExecutorHelper pluginExecutorHelper,
+                                        AnalyticsService analyticsService) {
+        super(repository, datasourceStorageTransferSolution, datasourcePermission, pluginService, pluginExecutorHelper,
+                analyticsService);
     }
 }

@@ -77,7 +77,7 @@ public class CustomJSLib extends BranchAwareDomain {
      */
     @Override
     public boolean equals(Object o) {
-        if (! (o instanceof CustomJSLib)) {
+        if (!(o instanceof CustomJSLib)) {
             return false;
         }
 

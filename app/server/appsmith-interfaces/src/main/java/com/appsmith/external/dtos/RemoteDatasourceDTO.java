@@ -8,7 +8,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class DatasourceDTO {
+public class RemoteDatasourceDTO {
     String id;
     DatasourceConfiguration datasourceConfiguration;
 }

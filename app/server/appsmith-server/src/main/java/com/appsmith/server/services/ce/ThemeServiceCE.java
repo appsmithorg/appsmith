@@ -11,15 +11,21 @@ import reactor.core.publisher.Mono;
 
 public interface ThemeServiceCE extends CrudService<Theme, String> {
     Mono<Theme> getApplicationTheme(String applicationId, ApplicationMode applicationMode, String branchName);
+
     Flux<Theme> getApplicationThemes(String applicationId, String branchName);
+
     Flux<Theme> getSystemThemes();
+
     Mono<Theme> getSystemTheme(String themeName);
+
     Mono<Theme> updateTheme(String applicationId, String branchName, Theme resource);
+
     Mono<Theme> changeCurrentTheme(String themeId, String applicationId, String branchName);
 
     /**
      * Returns a themeId that was fetched earlier and stored to cache.
      * If cache is empty, it'll fetch from DB, store in cache and return
+     *
      * @return Default theme id as string
      */
     Mono<String> getDefaultThemeId();
@@ -27,25 +33,34 @@ public interface ThemeServiceCE extends CrudService<Theme, String> {
     /**
      * Duplicates a theme if the theme is customized one.
      * If the source theme is a system theme, it'll skip creating a new theme and return the system theme instead.
-     * @param srcThemeId ID of source theme that needs to be duplicated
+     *
+     * @param srcThemeId      ID of source theme that needs to be duplicated
      * @param destApplication Application for which theme will ll be created
      * @return newly created theme if source is not system theme, otherwise return the system theme
      */
     Mono<Theme> cloneThemeToApplication(String srcThemeId, Application destApplication);
+
     Mono<Theme> publishTheme(String applicationId);
 
     /**
      * This function creates a custom theme for an application.
+     *
      * @param applicationId
      * @param branchName
      * @param theme
      * @return
      */
     Mono<Theme> persistCurrentTheme(String applicationId, String branchName, Theme theme);
+
     Mono<Theme> getThemeById(String themeId, AclPermission permission);
+
     Mono<Theme> save(Theme theme);
+
     Mono<Theme> updateName(String id, Theme theme);
+
     Mono<Theme> getOrSaveTheme(Theme theme, Application destApplication);
+
     Mono<Application> archiveApplicationThemes(Application application);
+
     Mono<Application> importThemesToApplication(Application destinationApp, ApplicationJson sourceJson);
 }

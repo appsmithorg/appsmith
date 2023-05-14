@@ -5,6 +5,9 @@ import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceDTO;
+import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
@@ -29,6 +32,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -94,7 +98,7 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
     }
 
     @Override
-    public Mono<Datasource> createMockDataSet(MockDataSource mockDataSource) {
+    public Mono<DatasourceDTO> createMockDataSet(MockDataSource mockDataSource, String environmentId) {
 
         Mono<MockDataDTO> mockDataSet;
         if (cacheExpiryTime == null || !Instant.now().isBefore(cacheExpiryTime)) {
@@ -121,8 +125,15 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
             datasource.setName(mockDataSource.getName());
             datasource.setDatasourceConfiguration(datasourceConfiguration);
             datasource.setIsConfigured(true);
+            HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+            String trueEnvironmentId = datasourceService.getTrueEnvironmentId(environmentId);
+            DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, trueEnvironmentId);
+            storages.put(trueEnvironmentId, new DatasourceStorageDTO(datasourceStorage));
+            datasource.setDatasourceStorages(storages);
+
             return addAnalyticsForMockDataCreation(name, mockDataSource.getWorkspaceId())
-                    .then(createSuffixedDatasource(datasource));
+                    .then(createSuffixedDatasource(datasource))
+                    .map(datasource1 -> datasourceService.convertToDatasourceDTO(datasource));
         });
 
     }
@@ -206,7 +217,7 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
      * Tries to create the given datasource with the name, over and over again with an incremented suffix, but **only**
      * if the error is because of a name clash.
      *
-     * @param datasource Datasource to try create.
+     * @param datasource Datasource to try to create.
      * @param name       Name of the datasource, to which numbered suffixes will be appended.
      * @param suffix     Suffix used for appending, recursion artifact. Usually set to 0.
      * @return A Mono that yields the created datasource.

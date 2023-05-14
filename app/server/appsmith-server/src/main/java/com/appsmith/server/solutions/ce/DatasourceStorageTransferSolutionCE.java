@@ -8,9 +8,11 @@ import reactor.core.publisher.Mono;
 public interface DatasourceStorageTransferSolutionCE {
     DatasourceStorage initializeDatasourceStorage(Datasource datasource, String environmentId);
 
-    Mono<DatasourceStorage> findByDatasourceIdAndEnvironmentIdWithPermission(String datasourceId,
-                                                                             String environmentId,
-                                                                             AclPermission permission);
+    Mono<DatasourceStorage> transferAndGetDatasourceStorage(String datasourceId,
+                                                            String environmentId,
+                                                            AclPermission permission);
 
-    Mono<DatasourceStorage> findByDatasourceAndEnvironmentId(Datasource datasource, String environmentId);
+    Mono<DatasourceStorage> transferAndGetDatasourceStorage(Datasource datasource, String environmentId);
+
+    Mono<DatasourceStorage> transferToFallbackEnvironmentAndGetDatasourceStorage(Datasource datasource);
 }

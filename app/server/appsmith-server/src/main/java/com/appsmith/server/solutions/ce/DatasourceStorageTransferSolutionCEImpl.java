@@ -4,8 +4,8 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.DatasourceStorageRepository;
-import com.appsmith.server.services.DatasourceService;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,13 +15,13 @@ import reactor.util.function.Tuple2;
 @Slf4j
 public class DatasourceStorageTransferSolutionCEImpl implements DatasourceStorageTransferSolutionCE {
 
-    private final DatasourceService datasourceService;
+    private final DatasourceRepository datasourceRepository;
 
     private final DatasourceStorageRepository datasourceStorageRepository;
 
-    public DatasourceStorageTransferSolutionCEImpl(DatasourceService datasourceService,
+    public DatasourceStorageTransferSolutionCEImpl(DatasourceRepository datasourceRepository,
                                                    DatasourceStorageRepository datasourceStorageRepository) {
-        this.datasourceService = datasourceService;
+        this.datasourceRepository = datasourceRepository;
         this.datasourceStorageRepository = datasourceStorageRepository;
     }
 
@@ -33,10 +33,10 @@ public class DatasourceStorageTransferSolutionCEImpl implements DatasourceStorag
 
     @Transactional
     @Override
-    public Mono<DatasourceStorage> findByDatasourceIdAndEnvironmentIdWithPermission(String datasourceId,
-                                                                                    String environmentId,
-                                                                                    AclPermission permission) {
-        return datasourceService
+    public Mono<DatasourceStorage> transferAndGetDatasourceStorage(String datasourceId,
+                                                                   String environmentId,
+                                                                   AclPermission permission) {
+        return datasourceRepository
                 .findById(datasourceId, permission)
                 .flatMap(datasource -> transferDatasourceStorage(datasource, environmentId));
 
@@ -44,7 +44,7 @@ public class DatasourceStorageTransferSolutionCEImpl implements DatasourceStorag
 
     @Transactional
     @Override
-    public Mono<DatasourceStorage> findByDatasourceAndEnvironmentId(Datasource datasource, String environmentId) {
+    public Mono<DatasourceStorage> transferAndGetDatasourceStorage(Datasource datasource, String environmentId) {
         return this.transferDatasourceStorage(datasource, environmentId);
     }
 
@@ -54,8 +54,20 @@ public class DatasourceStorageTransferSolutionCEImpl implements DatasourceStorag
         datasource.setDatasourceConfiguration(null);
         datasource.setInvalids(null);
         datasource.setHasDatasourceConfigurationStorage(true);
-        return Mono.zip(datasourceStorageRepository.save(datasourceStorage), datasourceService.save(datasource))
+        return Mono.zip(datasourceStorageRepository.save(datasourceStorage), datasourceRepository.save(datasource))
                 .map(Tuple2::getT1);
+    }
+
+    @Transactional
+    @Override
+    public Mono<DatasourceStorage> transferToFallbackEnvironmentAndGetDatasourceStorage(Datasource datasource) {
+
+        return getFallbackEnvironmentId(datasource.getWorkspaceId())
+                .flatMap(environmentId -> transferDatasourceStorage(datasource, environmentId));
+    }
+
+    protected Mono<String> getFallbackEnvironmentId(String workspaceId) {
+        return Mono.just(FieldName.UNUSED_ENVIRONMENT_ID);
     }
 
 }

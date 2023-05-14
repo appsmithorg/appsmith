@@ -11,7 +11,6 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.DatasourceContextIdentifier;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -47,11 +46,11 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
 
     @Override
     public Mono<DatasourceStructure> getStructure(String datasourceId, boolean ignoreCache, String environmentId) {
-        return datasourceStorageService.findByDatasourceIdAndEnvironmentIdWithPermission(
+        return datasourceStorageService.findByDatasourceIdAndEnvironmentId(
                         datasourceId,
                         environmentId,
                         datasourcePermission.getExecutePermission())
-                .flatMap(datasource -> getStructure(datasource, ignoreCache, environmentId))
+                .flatMap(datasourceStorage -> getStructure(datasourceStorage, ignoreCache))
                 .onErrorMap(
                         IllegalArgumentException.class,
                         error ->
@@ -76,25 +75,24 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
 
     @Override
     public Mono<DatasourceStructure> getStructure(DatasourceStorage datasourceStorage,
-                                                  boolean ignoreCache,
-                                                  String environmentId) {
+                                                   boolean ignoreCache) {
 
         if (Boolean.FALSE.equals(datasourceStorage.getIsValid())) {
             return Mono.empty();
         }
 
-        Mono<DatasourceConfigurationStructure> configurationStructureMono = datasourceConfigurationStructureService.getByDatasourceId(datasourceStorage.getDatasourceId());
+        Mono<DatasourceConfigurationStructure> configurationStructureMono = datasourceConfigurationStructureService
+                .getByDatasourceIdAndEnvironmentId(datasourceStorage.getDatasourceId(), datasourceStorage.getEnvironmentId());
 
         Mono<DatasourceStructure> fetchAndStoreNewStructureMono = pluginExecutorHelper
                 .getPluginExecutor(pluginService.findById(datasourceStorage.getPluginId()))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasourceStorage.getPluginId())))
                 .flatMap(pluginExecutor -> {
-                    DatasourceContextIdentifier datasourceContextIdentifier = datasourceContextService.initializeDatasourceContextIdentifier(datasourceStorage);
                     return datasourceContextService
-                            .retryOnce(datasourceStorage, datasourceContextIdentifier,
+                            .retryOnce(datasourceStorage,
                                     resourceContext -> ((PluginExecutor<Object>) pluginExecutor)
                                             .getStructure(resourceContext.getConnection(),
-                                                    datasourceStorage.getDatasourceConfiguration())); // this datasourceConfiguration is unevaluated for DBAuth type.
+                                                    datasourceStorage.getDatasourceConfiguration()));
                 })
                 .timeout(Duration.ofSeconds(GET_STRUCTURE_TIMEOUT_SECONDS))
                 .onErrorMap(
@@ -166,7 +164,7 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
             3. Execute DB query from the information provided present in pluginSpecifiedTemplates
          */
         Mono<DatasourceStorage> datasourceStorageMono = datasourceStorageService
-                .findByDatasourceIdAndEnvironmentIdWithPermission(
+                .findByDatasourceIdAndEnvironmentId(
                         datasourceId,
                         environmentId,
                         datasourcePermission.getExecutePermission())

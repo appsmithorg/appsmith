@@ -1,7 +1,5 @@
 package com.appsmith.server.domains.ce;
 
-import com.appsmith.external.models.DatasourceStorage;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.DatasourceContextIdentifier;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

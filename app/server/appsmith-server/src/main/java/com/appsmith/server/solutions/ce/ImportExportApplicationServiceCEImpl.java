@@ -94,6 +94,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -324,8 +325,8 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 }});
 
                                 Flux<Datasource> datasourceFlux = TRUE.equals(exportWithConfiguration.get())
-                                        ? datasourceRepository.findAllByWorkspaceId(workspaceId, datasourcePermission.getReadPermission())
-                                        : datasourceRepository.findAllByWorkspaceId(workspaceId, datasourcePermission.getEditPermission());
+                                        ? datasourceService.getAllByWorkspaceId(workspaceId, Optional.of(datasourcePermission.getReadPermission()))
+                                        : datasourceService.getAllByWorkspaceId(workspaceId, Optional.of(datasourcePermission.getEditPermission()));
 
                                 return datasourceFlux.collectList();
                             })
@@ -823,7 +824,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     copyNestedNonNullProperties(datasource, existingDatasource);
                                     // Don't update the datasource configuration for already available datasources
                                     existingDatasource.setDatasourceConfiguration(null);
-                                    return datasourceService.update(existingDatasource.getId(), existingDatasource);
+                                    return datasourceService.save(existingDatasource);
                                 }
 
                                 // This is explicitly copied over from the map we created before
@@ -2085,7 +2086,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
     public Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String workspaceId) {
         // TODO: Investigate further why datasourcePermission.getReadPermission() is not being used.
-        Mono<List<Datasource>> listMono = datasourceService.findAllByWorkspaceId(workspaceId, datasourcePermission.getEditPermission()).collectList();
+        Mono<List<Datasource>> listMono = datasourceService
+                .getAllByWorkspaceId(workspaceId, Optional.of(datasourcePermission.getEditPermission()))
+                .collectList();
         return newActionService.findAllByApplicationIdAndViewMode(applicationId, false, actionPermission.getReadPermission(), null)
                 .collectList()
                 .zipWith(listMono)

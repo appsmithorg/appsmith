@@ -5,7 +5,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 
 import java.util.List;
 
-public interface CurlImporterServiceCE extends ApiImporterCE{
+public interface CurlImporterServiceCE extends ApiImporterCE {
 
     ActionDTO curlToAction(String command, String name) throws AppsmithException;
 

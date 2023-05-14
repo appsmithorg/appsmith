@@ -27,6 +27,7 @@ public class Notification extends BaseDomain {
 
     /**
      * This method has been added because the createdAt property in base domain has @JsonIgnore annotation
+     *
      * @return created time as a string
      */
     @JsonProperty(value = "createdAt", access = JsonProperty.Access.READ_ONLY)

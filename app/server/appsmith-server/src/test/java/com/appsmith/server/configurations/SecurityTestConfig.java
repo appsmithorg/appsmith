@@ -11,7 +11,7 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 public class SecurityTestConfig {
 
     @Bean
-    public SecurityWebFilterChain testSecurityWebFilterChain(ServerHttpSecurity http){
+    public SecurityWebFilterChain testSecurityWebFilterChain(ServerHttpSecurity http) {
         return http.csrf().disable().build();
     }
 }

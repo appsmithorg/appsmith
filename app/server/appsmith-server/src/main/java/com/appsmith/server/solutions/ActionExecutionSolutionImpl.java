@@ -7,6 +7,7 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
@@ -32,7 +33,8 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
                                        SessionUserService sessionUserService,
                                        AuthenticationValidator authenticationValidator,
                                        DatasourcePermission datasourcePermission,
-                                       AnalyticsService analyticsService) {
+                                       AnalyticsService analyticsService,
+                                       DatasourceStorageService datasourceStorageService) {
         super(newActionService, actionPermission, observationRegistry, objectMapper, repository, datasourceService,
                 pluginService, datasourceContextService, pluginExecutorHelper, newPageService, applicationService,
                 sessionUserService, authenticationValidator, datasourcePermission, analyticsService, datasourceStorageService);

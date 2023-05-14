@@ -56,7 +56,7 @@ public class Datasource extends BranchAwareDomain implements Forkable {
 
     @Transient
     @JsonView(Views.Internal.class)
-    Map<String, DatasourceStorage> datasourceStorageMap;
+    Map<String, DatasourceStorageDTO> datasourceStorages;
 
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

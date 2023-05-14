@@ -79,8 +79,8 @@ class RefactoringSolutionCEImplTest {
                 layoutActionService,
                 applicationService,
                 astService,
-                instanceConfig, 
-                analyticsService, 
+                instanceConfig,
+                analyticsService,
                 sessionUserService,
                 pagePermission,
                 actionPermission);

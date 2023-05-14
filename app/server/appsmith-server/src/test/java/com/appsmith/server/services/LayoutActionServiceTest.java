@@ -925,7 +925,7 @@ public class LayoutActionServiceTest {
         for (int i = 0; i < testPages.size(); i++) {
             PageDTO page = testPages.get(i);
             Layout layout = page.getLayouts().get(0);
-            layout.setDsl(createTestDslWithTestWidget("Layout"+(i+1)));
+            layout.setDsl(createTestDslWithTestWidget("Layout" + (i + 1)));
 
             UpdateMultiplePageLayoutDTO.UpdatePageLayoutDTO pageLayoutDTO = new UpdateMultiplePageLayoutDTO.UpdatePageLayoutDTO();
             pageLayoutDTO.setPageId(page.getId());
@@ -1235,6 +1235,7 @@ public class LayoutActionServiceTest {
 
     /**
      * Creates a DSL JSON based on the provided parameters
+     *
      * @return JSONObject of the DSL
      */
     private JSONObject createTestDslWithTestWidget(String testWidgetName) throws JsonProcessingException {

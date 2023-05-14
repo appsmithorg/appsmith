@@ -11,7 +11,6 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.PluginType;
@@ -22,7 +21,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.DatasourceContext;
-import com.appsmith.server.domains.DatasourceContextIdentifier;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -82,7 +80,6 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.constants.CommonFieldName.REDACTED_DATA;
 import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_CACHED_DATASOURCE;
 import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_DATASOURCE_CONTEXT;
-import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_DATASOURCE_CONTEXT_REMOTE;
 import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_EDITOR_CONFIG;
 import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_REQUEST_PARSING;
 import static com.appsmith.external.constants.spans.ActionSpans.ACTION_EXECUTION_SERVER_EXECUTION;
@@ -605,37 +602,21 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         return executionMono
                 .onErrorResume(StaleConnectionException.class, error -> {
                     log.info("Looks like the connection is stale. Retrying with a fresh context.");
-                    return deleteDatasourceContextForRetry(datasourceContextService.initializeDatasourceContextIdentifier(datasourceStorage))
+                    return datasourceContextService.deleteDatasourceContext(datasourceStorage)
                             .then(executionMono);
                 });
-    }
-
-    /**
-     * Deletes the datasourceContext for the given datasource
-     *
-     * @param datasourceContextIdentifier
-     * @return datasourceContextMono
-     */
-    protected Mono<DatasourceContext<?>> deleteDatasourceContextForRetry(DatasourceContextIdentifier datasourceContextIdentifier) {
-        // the environmentName argument is not consumed over here
-        // See EE override for usage of variable
-        return datasourceContextService.deleteDatasourceContext(datasourceContextIdentifier);
     }
 
     protected Function<? super Throwable, ? extends Throwable> executionExceptionMapper(ActionDTO actionDTO,
                                                                                         Integer timeoutDuration) {
         return error -> {
-            switch (error) {
-                case TimeoutException e -> {
-                    return new AppsmithPluginException(AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR,
-                            actionDTO.getName(), timeoutDuration);
-                }
-                case StaleConnectionException e -> {
-                    return new AppsmithPluginException(AppsmithPluginError.STALE_CONNECTION_ERROR);
-                }
-                default -> {
-                    return error;
-                }
+            if (error instanceof TimeoutException e) {
+                return new AppsmithPluginException(AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR,
+                        actionDTO.getName(), timeoutDuration);
+            } else if (error instanceof StaleConnectionException e) {
+                return new AppsmithPluginException(AppsmithPluginError.STALE_CONNECTION_ERROR);
+            } else {
+                return error;
             }
         };
     }

@@ -3,8 +3,8 @@ package com.appsmith.server.services;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.MemberInfoDTO;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserDataRepository;
@@ -36,11 +36,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @DirtiesContext
 @Slf4j
 public class UserWorkspaceServiceUnitTest {
-    @Autowired UserDataRepository userDataRepository;
-    @Autowired UserDataService userDataService;
-    @Autowired WorkspaceService workspaceService;
-    @Autowired PermissionGroupRepository permissionGroupRepository;
-    @Autowired UserWorkspaceService userWorkspaceService;
+    @Autowired
+    UserDataRepository userDataRepository;
+    @Autowired
+    UserDataService userDataService;
+    @Autowired
+    WorkspaceService workspaceService;
+    @Autowired
+    PermissionGroupRepository permissionGroupRepository;
+    @Autowired
+    UserWorkspaceService userWorkspaceService;
 
     ModelMapper modelMapper;
 

@@ -1,4 +1,4 @@
-    package com.appsmith.server.solutions;
+package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.InstanceConfig;
 import com.appsmith.server.helpers.ResponseUtils;

@@ -11,6 +11,7 @@ import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.UserServiceCEImpl;
 import com.appsmith.server.solutions.UserChangedHandler;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -18,12 +19,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.scheduler.Scheduler;
 
-import jakarta.validation.Validator;
-
 @Slf4j
 @Service
 public class UserServiceImpl extends UserServiceCEImpl implements UserService {
-
 
     public UserServiceImpl(Scheduler scheduler,
                            Validator validator,
