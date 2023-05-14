@@ -25,8 +25,8 @@ describe("Numeric Datatype tests", function () {
     query = `create table numerictypes (serialId SERIAL not null primary key, bigintId bigint not null, decimalId decimal not null, numericId numeric not null)`;
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.RenameWithInPane("createTable");
     dataSources.EnterQuery(query);
+    agHelper.RenameWithInPane("createTable");
     agHelper.FocusElement(locator._codeMirrorTextArea);
     dataSources.RunQuery();
     ee.ExpandCollapseEntity("Datasources");
@@ -39,19 +39,19 @@ describe("Numeric Datatype tests", function () {
 
   it("2. Creating SELECT query - numerictypes + Bug 14493", () => {
     ee.ActionTemplateMenuByEntityName("public.numerictypes", "SELECT");
-    agHelper.RenameWithInPane("selectRecords");
     dataSources.RunQuery();
     agHelper
       .GetText(dataSources._noRecordFound)
       .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
+    agHelper.RenameWithInPane("selectRecords");
   });
 
   it("3. Creating all queries - numerictypes", () => {
     query = `INSERT INTO public."numerictypes" ("bigintid", "decimalid", "numericid")
     VALUES ({{Insertbigint.text}}, {{Insertdecimal.text}}, {{Insertnumeric.text}})`;
     ee.ActionTemplateMenuByEntityName("public.numerictypes", "INSERT");
-    agHelper.RenameWithInPane("insertRecord");
     dataSources.EnterQuery(query);
+    agHelper.RenameWithInPane("insertRecord");
 
     query = `UPDATE public."numerictypes" SET
     "bigintid" = {{Updatebigint.text}},
@@ -59,24 +59,24 @@ describe("Numeric Datatype tests", function () {
     "numericid" = {{Updatenumeric.text}}
   WHERE serialid = {{Table1.selectedRow.serialid}};`;
     ee.ActionTemplateMenuByEntityName("public.numerictypes", "UPDATE");
-    agHelper.RenameWithInPane("updateRecord");
     dataSources.EnterQuery(query);
+    agHelper.RenameWithInPane("updateRecord");
+
+    query = `DELETE FROM public."numerictypes"`;
+    ee.ActionTemplateMenuByEntityName("public.numerictypes", "DELETE");
+    dataSources.EnterQuery(query);
+    agHelper.RenameWithInPane("deleteAllRecords");
+
+    query = `drop table public."numerictypes"`;
+    ee.ActionTemplateMenuByEntityName("public.numerictypes", "DELETE");
+    dataSources.EnterQuery(query);
+    agHelper.RenameWithInPane("dropTable");
 
     query = `DELETE FROM public."numerictypes"
     WHERE serialId ={{Table1.selectedRow.serialid}}`;
     ee.ActionTemplateMenuByEntityName("public.numerictypes", "DELETE");
+    dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteRecord");
-    dataSources.EnterQuery(query);
-
-    query = `DELETE FROM public."numerictypes"`;
-    ee.ActionTemplateMenuByEntityName("public.numerictypes", "DELETE");
-    agHelper.RenameWithInPane("deleteAllRecords");
-    dataSources.EnterQuery(query);
-
-    query = `drop table public."numerictypes"`;
-    ee.ActionTemplateMenuByEntityName("public.numerictypes", "DELETE");
-    agHelper.RenameWithInPane("dropTable");
-    dataSources.EnterQuery(query);
     ee.ExpandCollapseEntity("Queries/JS", false);
     ee.ExpandCollapseEntity(dsName, false);
   });

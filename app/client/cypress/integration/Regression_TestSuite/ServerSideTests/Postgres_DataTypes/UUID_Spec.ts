@@ -45,8 +45,8 @@ describe("UUID Datatype tests", function () {
     query = `CREATE table uuidtype (serialid SERIAL primary key, v1 uuid, v4 uuid, guid uuid, nil uuid);`;
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.RenameWithInPane("createTable");
     dataSources.EnterQuery(query);
+    agHelper.RenameWithInPane("createTable");
     dataSources.RunQuery();
     ee.ExpandCollapseEntity("Datasources");
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
@@ -55,43 +55,43 @@ describe("UUID Datatype tests", function () {
 
   it("3. Creating SELECT query - uuidtype + Bug 14493", () => {
     ee.ActionTemplateMenuByEntityName("public.uuidtype", "SELECT");
-    agHelper.RenameWithInPane("selectRecords");
     dataSources.RunQuery();
     agHelper
       .GetText(dataSources._noRecordFound)
       .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
+    agHelper.RenameWithInPane("selectRecords");
   });
 
   it("4. Creating all queries - uuidtype", () => {
     query = `INSERT INTO public."uuidtype" ("v1", "v4", "guid", "nil") VALUES ('{{version1.data[0]}}', '{{version4.data}}', '{{guid.data}}', '{{nill.data}}');`;
     ee.CreateNewDsQuery(dsName);
-    agHelper.RenameWithInPane("insertRecord");
     agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(query);
+    agHelper.RenameWithInPane("insertRecord");
 
     query = `UPDATE public."uuidtype" SET "v1" ='{{version1.data[0] ? version1.data[0] : Table1.selectedRow.v1}}', "v4" ='{{version4.data ? version4.data : Table1.selectedRow.v4}}', "guid" ='{{guid.data ? guid.data :  Table1.selectedRow.guid}}', "nil" ='{{nill.data ? nill.data : Table1.selectedRow.nil}}' WHERE serialid = {{Table1.selectedRow.serialid}};`;
     ee.CreateNewDsQuery(dsName);
+    agHelper.GetNClick(dataSources._templateMenu);
+    dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("updateRecord");
-    agHelper.GetNClick(dataSources._templateMenu);
-    dataSources.EnterQuery(query);
-
-    query = `DELETE FROM public."uuidtype" WHERE serialId = {{Table1.selectedRow.serialid}}`;
-    ee.CreateNewDsQuery(dsName);
-    agHelper.RenameWithInPane("deleteRecord");
-    agHelper.GetNClick(dataSources._templateMenu);
-    dataSources.EnterQuery(query);
 
     query = `DELETE FROM public."uuidtype"`;
     ee.CreateNewDsQuery(dsName);
-    agHelper.RenameWithInPane("deleteAllRecords");
     agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(query);
+    agHelper.RenameWithInPane("deleteAllRecords");
 
     query = `drop table public."uuidtype"`;
     ee.CreateNewDsQuery(dsName);
-    agHelper.RenameWithInPane("dropTable");
     agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(query);
+    agHelper.RenameWithInPane("dropTable");
+
+    query = `DELETE FROM public."uuidtype" WHERE serialId = {{Table1.selectedRow.serialid}}`;
+    ee.CreateNewDsQuery(dsName);
+    agHelper.GetNClick(dataSources._templateMenu);
+    dataSources.EnterQuery(query);
+    agHelper.RenameWithInPane("deleteRecord");
 
     ee.ExpandCollapseEntity("Queries/JS", false);
     ee.ExpandCollapseEntity(dsName, false);

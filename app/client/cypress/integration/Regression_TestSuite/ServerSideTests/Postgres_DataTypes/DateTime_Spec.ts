@@ -27,8 +27,8 @@ describe("DateTime Datatype tests", function () {
     timertz time with time zone not null default now(), intervaler interval not null);`;
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.RenameWithInPane("createTable");
     dataSources.EnterQuery(query);
+    agHelper.RenameWithInPane("createTable");
     agHelper.FocusElement(locator._codeMirrorTextArea);
     dataSources.RunQuery();
     ee.ExpandCollapseEntity("Datasources");
@@ -47,45 +47,45 @@ describe("DateTime Datatype tests", function () {
     TO_CHAR (datetimeT.dater, 'D') ||' / ' || TO_CHAR(datetimeT.dater, 'day') as "Day of the week/Weekday",
     TO_CHAR (datetimeT.dater, 'W') as "Week of Month" FROM public."datetimetypes" as datetimeT;`;
     ee.ActionTemplateMenuByEntityName("public.datetimetypes", "SELECT");
-    agHelper.RenameWithInPane("selectRecords");
     dataSources.RunQuery();
     agHelper
       .GetText(dataSources._noRecordFound)
       .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
     dataSources.EnterQuery(query);
+    agHelper.RenameWithInPane("selectRecords");
   });
 
   it("3. Creating all queries - datetimetypes", () => {
     query = `INSERT INTO public."datetimetypes" (ts, tstz, dater, timer, intervaler)
     VALUES('{{Insertts.text}}', '{{Inserttstz.text}}', '{{Insertdater.text}}', '{{Inserttimer.text}}', '{{Insertintervaler.text}}');`;
     ee.ActionTemplateMenuByEntityName("public.datetimetypes", "INSERT");
-    agHelper.RenameWithInPane("insertRecord");
     dataSources.EnterQuery(query);
+    agHelper.RenameWithInPane("insertRecord");
     dataSources.ToggleUsePreparedStatement(false);
 
     query = `UPDATE public."datetimetypes" SET
     "ts" = '{{Updatets.text}}', "tstz" = '{{Updatetstz.text}}', "dater" = '{{Updatedater.text}}', "timer" = '{{Updatetimer.text}}',
     "intervaler" = '{{Updateintervaler.text}}' WHERE serialid = {{Table1.selectedRow.serialid}};`;
     ee.ActionTemplateMenuByEntityName("public.datetimetypes", "UPDATE");
-    agHelper.RenameWithInPane("updateRecord");
     dataSources.EnterQuery(query);
+    agHelper.RenameWithInPane("updateRecord");
     dataSources.ToggleUsePreparedStatement(false);
+
+    query = `DELETE FROM public."datetimetypes"`;
+    ee.ActionTemplateMenuByEntityName("public.datetimetypes", "DELETE");
+    dataSources.EnterQuery(query);
+    agHelper.RenameWithInPane("deleteAllRecords");
+
+    query = `drop table public."datetimetypes"`;
+    ee.ActionTemplateMenuByEntityName("public.datetimetypes", "DELETE");
+    dataSources.EnterQuery(query);
+    agHelper.RenameWithInPane("dropTable");
 
     query = `DELETE FROM public."datetimetypes"
     WHERE serialId = {{Table1.selectedRow.serialid}};`;
     ee.ActionTemplateMenuByEntityName("public.datetimetypes", "DELETE");
+    dataSources.EnterQuery(query);
     agHelper.RenameWithInPane("deleteRecord");
-    dataSources.EnterQuery(query);
-
-    query = `DELETE FROM public."datetimetypes"`;
-    ee.ActionTemplateMenuByEntityName("public.datetimetypes", "DELETE");
-    agHelper.RenameWithInPane("deleteAllRecords");
-    dataSources.EnterQuery(query);
-
-    query = `drop table public."datetimetypes"`;
-    ee.ActionTemplateMenuByEntityName("public.datetimetypes", "DELETE");
-    agHelper.RenameWithInPane("dropTable");
-    dataSources.EnterQuery(query);
   });
 
   it("4. Validating interval methods", () => {
@@ -95,8 +95,8 @@ describe("DateTime Datatype tests", function () {
    justify_hours(INTERVAL '24 hours'),
    EXTRACT (MINUTE  FROM  INTERVAL '5 hours 21 minutes');`;
     ee.ActionTemplateMenuByEntityName("public.datetimetypes", "SELECT");
-    agHelper.RenameWithInPane("intervalRecords");
     dataSources.EnterQuery(query);
+    agHelper.RenameWithInPane("intervalRecords");
     dataSources.RunQuery();
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq(
