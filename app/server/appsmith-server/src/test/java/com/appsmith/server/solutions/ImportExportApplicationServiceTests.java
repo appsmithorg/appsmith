@@ -169,6 +169,8 @@ public class ImportExportApplicationServiceTests {
     PermissionGroupRepository permissionGroupRepository;
     @Autowired
     PermissionGroupService permissionGroupService;
+    @Autowired
+    CustomJSLibService customJSLibService;
 
     @BeforeEach
     public void setup() {
