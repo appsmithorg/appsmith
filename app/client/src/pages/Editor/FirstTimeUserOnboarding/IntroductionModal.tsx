@@ -122,7 +122,7 @@ export default function IntroductionModal({ close }: IntroductionModalProps) {
 
   return (
     <Modal onOpenChange={closeModal} open={modalAlwaysOpen}>
-      <ModalContent>
+      <ModalContent style={{ width: "920px" }}>
         <ModalHeader className="t--how-appsmith-works-modal-header">
           {createMessage(WELCOME_TO_APPSMITH)}
         </ModalHeader>

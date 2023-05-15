@@ -57,7 +57,7 @@ function ProductUpdatesModal(props: ProductUpdatesModalProps) {
 
   return Array.isArray(releaseItems) && releaseItems.length > 0 ? (
     <Modal onOpenChange={handleOnOpenChange} open={isOpen}>
-      <ModalContent style={{ width: "580px" }}>
+      <ModalContent style={{ width: "640px" }}>
         <ModalHeader>Product updates</ModalHeader>
         <ModalBody>
           <Container>
