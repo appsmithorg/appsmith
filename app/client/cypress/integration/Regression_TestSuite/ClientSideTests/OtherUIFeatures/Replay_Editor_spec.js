@@ -32,12 +32,14 @@ describe("Undo/Redo functionality", function () {
     cy.get(datasourceEditor.sectionAuthentication).trigger("click").wait(1000);
 
     cy.get("body").type(`{${modifierKey}}z`);
-    cy.get(
-      `${datasourceEditor.sectionAuthentication} .bp3-icon-chevron-up`,
-    ).should("exist");
+    cy.get(`${datasourceEditor.sectionAuthentication} .ads-v2-icon`).should(
+      "exist",
+    );
     cy.get(".t--application-name").click({ force: true });
-    cy.get("li:contains(Edit)").eq(1).trigger("mouseover");
-    cy.get("li:contains(Undo)").click({ multiple: true });
+    cy.get(".ads-v2-menu__menu-item-children:contains(Edit)").eq(1).click();
+    cy.get(".ads-v2-menu__menu-item-children:contains(Undo)").click({
+      multiple: true,
+    });
     cy.get(datasourceEditor.username).should("be.empty");
     cy.get(datasourceEditor.saveBtn).click({ force: true });
   });
@@ -62,7 +64,9 @@ describe("Undo/Redo functionality", function () {
     cy.wait(2000);
     cy.get("body").click(0, 0);
     cy.get("body").type(`{${modifierKey}}z`);
-    cy.get(apiwidget.headers).should("have.class", "react-tabs__tab--selected");
+    cy.get(apiwidget.headers)
+      .parent()
+      .should("have.attr", "aria-selected", "true");
     cy.get("body").type(`{${modifierKey}}z`);
 
     cy.get(`${apiwidget.resourceUrl} .CodeMirror-placeholder`).should(
@@ -113,8 +117,10 @@ describe("Undo/Redo functionality", function () {
     cy.get(".CodeMirror-code").should("have.text", "{{FirstAPI}}");
     // undo/redo through app menu
     cy.get(".t--application-name").click({ force: true });
-    cy.get("li:contains(Edit)").eq(1).trigger("mouseover");
-    cy.get("li:contains(Undo)").click({ multiple: true });
+    cy.get(".ads-v2-menu__menu-item-children:contains(Edit)").eq(1).click();
+    cy.get(".ads-v2-menu__menu-item-children:contains(Undo)").click({
+      multiple: true,
+    });
     cy.get(".CodeMirror-code").should("not.have.text", "{{FirstAPI}}");
   });
 
