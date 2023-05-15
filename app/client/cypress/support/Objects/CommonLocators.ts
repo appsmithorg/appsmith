@@ -4,7 +4,7 @@ export class CommonLocators {
   _loading = "#loading";
   _spinner = ".bp3-spinner";
   _animationSpnner = ".bp3-spinner-animation";
-  _runBtnSpinner = ".cs-spinner";
+  _runBtnSpinner = ".ads-v2-spinner";
   _sidebar = ".t--sidebar";
   _queryName = ".t--action-name-edit-field span";
   _queryNameTxt = ".t--action-name-edit-field input";
@@ -55,7 +55,7 @@ export class CommonLocators {
   _openWidget = ".widgets .t--entity-add-btn";
   _dropHere = ".t--drop-target";
   _crossBtn = "span.cancel-icon";
-  _createNew = ".t--entity-add-btn.group.files";
+  _createNew = ".t--entity-add-btn.group.files button";
   _uploadFiles = "div.uppy-Dashboard-AddFiles input";
   _uploadBtn = "button.uppy-StatusBar-actionBtn--upload";
   _errorTab = "[data-testid=t--tab-ERROR]";

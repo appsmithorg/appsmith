@@ -4,6 +4,8 @@ const dsl = require("../../../../fixtures/inputdsl.json");
 import homePage from "../../../../locators/HomePage";
 const publish = require("../../../../locators/publishWidgetspage.json");
 
+import * as _ from "../../../../support/Objects/ObjectsCore";
+
 let datasourceName;
 let currentUrl;
 
@@ -32,7 +34,7 @@ describe("Addwidget from Query and bind with other widgets", function () {
       });
       cy.onlyQueryRun();
       cy.get(queryEditor.suggestedTableWidget).click();
-      cy.createJSObject("return Query1.data;");
+      _.jsEditor.CreateJSObject("return Query1.data;");
       cy.CheckAndUnfoldEntityItem("Widgets");
       cy.get(".t--entity-name").contains("Table1").click({ force: true });
       cy.testJsontext("tabledata", "{{JSObject1.myFun1()}}");

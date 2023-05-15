@@ -49,7 +49,7 @@ describe("Git discard changes:", function () {
     cy.wait(1000);
     cy.get(`.t--entity-item:contains(${page2})`).first().click();
     cy.wait("@getPage");
-    cy.createJSObject('return "Success";');
+    _.jsEditor.CreateJSObject('return "Success";');
     cy.get(explorer.addWidget).click();
     // bind input widget to JSObject response on page2
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
@@ -59,7 +59,8 @@ describe("Git discard changes:", function () {
       .last()
       .click({ force: true })
       .type("{{JSObject1.myFun1()}}", { parseSpecialCharSequences: false });
-    cy.get("#switcher--explorer").click({ force: true });
+
+    _.entityExplorer.NavigateToSwitcher("Explorer");
     // connect app to git
     cy.generateUUID().then((uid) => {
       repoName = uid;
@@ -110,7 +111,7 @@ describe("Git discard changes:", function () {
   });
 
   it("3. Add new JSObject , discard changes verify JSObject is deleted", () => {
-    cy.createJSObject('return "Success";');
+    _.jsEditor.CreateJSObject('return "Success";');
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     // verify jsObject is not duplicated
     cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
@@ -161,7 +162,7 @@ describe("Git discard changes:", function () {
     cy.wait("@getPage");
     cy.wait(3000);
     /* create and save jsObject */
-    // cy.createJSObject('return "Success";');
+    //     _.jsEditor.CreateJSObject('return "Success";');
     // delete jsObject1
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.get(`.t--entity-item:contains(${jsObject})`).within(() => {

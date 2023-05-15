@@ -54,7 +54,7 @@ export default {
   workspaceSection: "a:contains(",
   createAppFrWorkspace: ") .t--new-button",
   shareApp: ".t--application-share-btn",
-  enablePublicAccess: "//input[@role='switch']",
+  enablePublicAccess: "//div[contains(@class, 't--share-public-toggle')]//input[@role='switch']",
   switchLabel : ".ads-v2-switch__label",
   closeBtn: ".ads-v2-modal__content-header-close-button",
   editModeInviteModalCloseBtn: ".ads-v2-modal__content-header-close-button",

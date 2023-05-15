@@ -147,7 +147,7 @@ Cypress.Commands.add("enablePublicAccess", (editMode = false) => {
     "response.body.responseMeta.status",
     200,
   );
-  cy.wait(10000);
+  cy.wait(5000);
   const closeButtonLocator = editMode
     ? homePage.editModeInviteModalCloseBtn
     : homePage.closeBtn;

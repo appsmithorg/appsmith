@@ -84,7 +84,7 @@ describe("Git sync Bug #10773", function () {
     });
     _.entityExplorer.ExpandCollapseEntity("Queries/JS", true);
     // create JS object and validate its data on Page1
-    cy.createJSObject('return "Success";');
+    _.jsEditor.CreateJSObject('return "Success";');
     cy.get(`.t--entity-name:contains("Page1")`)
       .should("be.visible")
       .click({ force: true });
@@ -180,7 +180,7 @@ describe("Git sync Bug #10773", function () {
     });
     _.entityExplorer.ExpandCollapseEntity("Queries/JS", true);
     // create JS object and validate its data on Page1
-    cy.createJSObject('return "Success";');
+    _.jsEditor.CreateJSObject('return "Success";');
     cy.get(`.t--entity-name:contains("Page1")`)
       .should("be.visible")
       .click({ force: true });

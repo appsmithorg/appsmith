@@ -45,7 +45,8 @@ describe("Modal Widget Functionality", function () {
     _.entityExplorer.SelectEntityByName("Modal1");
 
     cy.wait(200);
-    cy.get("body").type(`{${modifierKey}}c`);
+    //cy.get("body").type(`{${modifierKey}}c`);
+    _.agHelper.GetNClick(_.propPane._copyWidget);
     cy.get(commonlocators.toastBody).first().contains("Copied");
 
     cy.wait(1000); //make sure evaluated value disappears
@@ -92,7 +93,7 @@ describe("Modal Widget Functionality", function () {
     cy.dragAndDropToCanvas("modalwidget", { x: 300, y: 300 });
     cy.get(widgets.modalCloseButton).click({ force: true });
     cy.dragAndDropToCanvas("containerwidget", { x: 300, y: 300 });
-    cy.get("#switcher--explorer").click();
+    _.entityExplorer.NavigateToSwitcher("Explorer");
     cy.get(".t--entity-name").contains("Widgets").click();
 
     //select all widgets and copy
