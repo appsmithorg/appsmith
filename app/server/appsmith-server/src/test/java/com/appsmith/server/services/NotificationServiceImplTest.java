@@ -34,6 +34,7 @@ import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(SpringExtension.class)
 public class NotificationServiceImplTest {
+    NotificationService notificationService;
     @MockBean
     private Scheduler scheduler;
     @MockBean
@@ -50,8 +51,6 @@ public class NotificationServiceImplTest {
     private SessionUserService sessionUserService;
     @MockBean
     private ResponseUtils responseUtils;
-
-    NotificationService notificationService;
     private User currentUser;
 
     @BeforeEach

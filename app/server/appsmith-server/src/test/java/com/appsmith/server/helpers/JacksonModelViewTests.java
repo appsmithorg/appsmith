@@ -13,45 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Slf4j
 public class JacksonModelViewTests {
 
-    interface Views {
-        interface Public {
-        }
-
-        interface Internal extends Public {
-        }
-    }
-
-    @Data
-    public static class TestModelJsonIgnore {
-        private String name = "name";
-        @JsonIgnore
-        private String password = "password";
-        private String email = "email";
-        private String phone = "phone";
-        @JsonIgnore
-        private String address = "address";
-        private String city = "city";
-    }
-
-    private String JSON_OUT = "{\"name\":\"name\",\"email\":\"email\",\"phone\":\"phone\",\"city\":\"city\"}";
-
-    @Data
-    public static class TestModelJsonView {
-        @JsonView(Views.Public.class)
-        private String name = "name";
-        @JsonView(Views.Internal.class)
-        private String password = "password";
-        @JsonView(Views.Public.class)
-        private String email = "email";
-        @JsonView(Views.Public.class)
-        private String phone = "phone";
-        @JsonView(Views.Internal.class)
-        private String address = "address";
-        @JsonView(Views.Public.class)
-        private String city = "city";
-    }
-
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final String JSON_OUT = "{\"name\":\"name\",\"email\":\"email\",\"phone\":\"phone\",\"city\":\"city\"}";
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     public void test_whenJsonViewIsUsed_thenCorrect() throws JsonProcessingException {
@@ -127,5 +90,41 @@ public class JacksonModelViewTests {
         }
         long end = System.currentTimeMillis();
         log.info("test_withJsonIgnore_measureDeserializingPerformance: {} ms for 1000000 iterations", end - start);
+    }
+
+    interface Views {
+        interface Public {
+        }
+
+        interface Internal extends Public {
+        }
+    }
+
+    @Data
+    public static class TestModelJsonIgnore {
+        private String name = "name";
+        @JsonIgnore
+        private String password = "password";
+        private String email = "email";
+        private String phone = "phone";
+        @JsonIgnore
+        private String address = "address";
+        private String city = "city";
+    }
+
+    @Data
+    public static class TestModelJsonView {
+        @JsonView(Views.Public.class)
+        private String name = "name";
+        @JsonView(Views.Internal.class)
+        private String password = "password";
+        @JsonView(Views.Public.class)
+        private String email = "email";
+        @JsonView(Views.Public.class)
+        private String phone = "phone";
+        @JsonView(Views.Internal.class)
+        private String address = "address";
+        @JsonView(Views.Public.class)
+        private String city = "city";
     }
 }

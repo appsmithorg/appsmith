@@ -44,6 +44,7 @@ import static org.mockito.ArgumentMatchers.any;
 @ExtendWith(SpringExtension.class)
 @Slf4j
 public class EnvManagerTest {
+    EnvManager envManager;
     @MockBean
     private SessionUserService sessionUserService;
     @MockBean
@@ -70,17 +71,12 @@ public class EnvManagerTest {
     private ConfigService configService;
     @MockBean
     private PermissionGroupService permissionGroupService;
-
     @MockBean
     private UserUtils userUtils;
-
     @MockBean
     private TenantService tenantService;
-
     @MockBean
     private ObjectMapper objectMapper;
-
-    EnvManager envManager;
 
     @BeforeEach
     public void setup() {

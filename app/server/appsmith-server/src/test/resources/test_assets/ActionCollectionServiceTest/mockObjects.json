@@ -3,7 +3,7 @@
     "id": "testPageId",
     "applicationId": "testApplicationId",
     "defaultResources": {
-      "pageId" : "testPageId"
+      "pageId": "testPageId"
     },
     "unpublishedPage": {
       "name": "TestPage",

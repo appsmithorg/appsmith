@@ -256,7 +256,7 @@ public class ApplicationSnapshotServiceTest {
 
     @Test
     public void deleteSnapshot_WhenSnapshotExists_Deleted() {
-        String testAppId = "app-" + UUID.randomUUID().toString();
+        String testAppId = "app-" + UUID.randomUUID();
         ApplicationSnapshot snapshot1 = new ApplicationSnapshot();
         snapshot1.setChunkOrder(1);
         snapshot1.setApplicationId(testAppId);

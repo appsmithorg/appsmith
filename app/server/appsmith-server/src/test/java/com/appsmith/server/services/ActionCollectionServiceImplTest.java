@@ -69,24 +69,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Slf4j
 public class ActionCollectionServiceImplTest {
 
+    private final File mockObjects = new File("src/test/resources/test_assets/ActionCollectionServiceTest/mockObjects.json");
     ActionCollectionService actionCollectionService;
     LayoutCollectionService layoutCollectionService;
-    @MockBean
-    private Scheduler scheduler;
-    @MockBean
-    private Validator validator;
-    @MockBean
-    private MongoConverter mongoConverter;
-    @MockBean
-    private ReactiveMongoTemplate reactiveMongoTemplate;
-    @MockBean
-    private AnalyticsService analyticsService;
-    @MockBean
-    private SessionUserService sessionUserService;
-    @MockBean
-    private CollectionService collectionService;
-    @MockBean
-    private PolicyGenerator policyGenerator;
     @MockBean
     NewPageService newPageService;
     @MockBean
@@ -104,8 +89,22 @@ public class ActionCollectionServiceImplTest {
     ApplicationPermission applicationPermission;
     PagePermission pagePermission;
     ActionPermission actionPermission;
-
-    private final File mockObjects = new File("src/test/resources/test_assets/ActionCollectionServiceTest/mockObjects.json");
+    @MockBean
+    private Scheduler scheduler;
+    @MockBean
+    private Validator validator;
+    @MockBean
+    private MongoConverter mongoConverter;
+    @MockBean
+    private ReactiveMongoTemplate reactiveMongoTemplate;
+    @MockBean
+    private AnalyticsService analyticsService;
+    @MockBean
+    private SessionUserService sessionUserService;
+    @MockBean
+    private CollectionService collectionService;
+    @MockBean
+    private PolicyGenerator policyGenerator;
 
     @BeforeEach
     public void setUp() {

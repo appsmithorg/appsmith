@@ -126,69 +126,49 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @TestMethodOrder(MethodOrderer.MethodName.class)
 public class ImportExportApplicationServiceTests {
 
-    @Autowired
-    ImportExportApplicationService importExportApplicationService;
-
-    @Autowired
-    Gson gson;
-
-    @Autowired
-    ApplicationPageService applicationPageService;
-
-    @Autowired
-    PluginRepository pluginRepository;
-
-    @Autowired
-    ApplicationRepository applicationRepository;
-
-    @Autowired
-    DatasourceService datasourceService;
-
-    @Autowired
-    NewPageService newPageService;
-
-    @Autowired
-    NewActionService newActionService;
-
-    @Autowired
-    WorkspaceService workspaceService;
-
-    @Autowired
-    LayoutActionService layoutActionService;
-
-    @Autowired
-    LayoutCollectionService layoutCollectionService;
-
-    @Autowired
-    ActionCollectionService actionCollectionService;
-
-    @MockBean
-    PluginExecutorHelper pluginExecutorHelper;
-
-    @Autowired
-    ThemeRepository themeRepository;
-
-    @Autowired
-    ApplicationService applicationService;
-
-    @Autowired
-    PermissionGroupRepository permissionGroupRepository;
-
-    @Autowired
-    PermissionGroupService permissionGroupService;
-
-    @Autowired
-    CustomJSLibService customJSLibService;
-
     private static final String INVALID_JSON_FILE = "invalid json file";
+    private static final Map<String, Datasource> datasourceMap = new HashMap<>();
     private static Plugin installedPlugin;
     private static String workspaceId;
     private static String testAppId;
     private static Datasource jsDatasource;
-    private static final Map<String, Datasource> datasourceMap = new HashMap<>();
     private static Plugin installedJsPlugin;
     private static Boolean isSetupDone = false;
     private static String exportWithConfigurationAppId;
+    @Autowired
+    ImportExportApplicationService importExportApplicationService;
+    @Autowired
+    Gson gson;
+    @Autowired
+    ApplicationPageService applicationPageService;
+    @Autowired
+    PluginRepository pluginRepository;
+    @Autowired
+    ApplicationRepository applicationRepository;
+    @Autowired
+    DatasourceService datasourceService;
+    @Autowired
+    NewPageService newPageService;
+    @Autowired
+    NewActionService newActionService;
+    @Autowired
+    WorkspaceService workspaceService;
+    @Autowired
+    LayoutActionService layoutActionService;
+    @Autowired
+    LayoutCollectionService layoutCollectionService;
+    @Autowired
+    ActionCollectionService actionCollectionService;
+    @MockBean
+    PluginExecutorHelper pluginExecutorHelper;
+    @Autowired
+    ThemeRepository themeRepository;
+    @Autowired
+    ApplicationService applicationService;
+    @Autowired
+    PermissionGroupRepository permissionGroupRepository;
+    @Autowired
+    PermissionGroupService permissionGroupService;
 
     @BeforeEach
     public void setup() {
@@ -441,7 +421,7 @@ public class ImportExportApplicationServiceTests {
                     JSONObject testWidget = new JSONObject();
                     testWidget.put("widgetName", "firstWidget");
                     JSONArray temp = new JSONArray();
-                    temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+                    temp.add(new JSONObject(Map.of("key", "testField")));
                     testWidget.put("dynamicBindingPathList", temp);
                     testWidget.put("testField", "{{ validAction.data }}");
                     children.add(testWidget);
@@ -456,7 +436,7 @@ public class ImportExportApplicationServiceTests {
                     tableWidget.put("primaryColumns", primaryColumns);
                     final ArrayList<Object> objects = new ArrayList<>();
                     JSONArray temp2 = new JSONArray();
-                    temp2.addAll(List.of(new JSONObject(Map.of("key", "primaryColumns._id"))));
+                    temp2.add(new JSONObject(Map.of("key", "primaryColumns._id")));
                     tableWidget.put("dynamicBindingPathList", temp2);
                     children.add(tableWidget);
 
@@ -2245,7 +2225,7 @@ public class ImportExportApplicationServiceTests {
                     JSONObject testWidget = new JSONObject();
                     testWidget.put("widgetName", "firstWidget");
                     JSONArray temp = new JSONArray();
-                    temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+                    temp.add(new JSONObject(Map.of("key", "testField")));
                     testWidget.put("dynamicBindingPathList", temp);
                     testWidget.put("testField", "{{ validAction.data }}");
                     children.add(testWidget);

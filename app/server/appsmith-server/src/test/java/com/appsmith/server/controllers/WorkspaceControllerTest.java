@@ -1,18 +1,15 @@
 package com.appsmith.server.controllers;
 
-import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.RedisTestContainerConfig;
 import com.appsmith.server.configurations.SecurityTestConfig;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
 import com.appsmith.server.helpers.RedisUtils;
-import com.appsmith.server.services.UserDataService;
-import com.appsmith.server.services.UserService;
-import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.WorkspaceService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
@@ -22,14 +19,14 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
 @ExtendWith(SpringExtension.class)
-@WebFluxTest(WorkspaceController.class)
+@SpringBootTest
+@AutoConfigureWebTestClient
 @Import({SecurityTestConfig.class, RedisUtils.class, RedisTestContainerConfig.class})
 public class WorkspaceControllerTest {
+    @MockBean
+    WorkspaceService workspaceService;
     @Autowired
     private WebTestClient webTestClient;
-
-    @MockBean
-    UserDataService userDataService;
 
     @Test
     @WithMockUser

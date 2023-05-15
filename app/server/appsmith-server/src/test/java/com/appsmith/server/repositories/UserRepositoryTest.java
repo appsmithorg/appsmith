@@ -24,7 +24,7 @@ public class UserRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
-    private List<User> savedUsers = new ArrayList<>();
+    private final List<User> savedUsers = new ArrayList<>();
 
     @BeforeEach
     public void setUp() {

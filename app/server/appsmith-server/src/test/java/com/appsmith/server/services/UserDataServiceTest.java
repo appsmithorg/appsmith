@@ -48,33 +48,24 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @DirtiesContext
 public class UserDataServiceTest {
 
+    private static final String DEFAULT_GIT_PROFILE = "default";
     @Autowired
     UserService userService;
-
     @Autowired
     private UserDataService userDataService;
-
     @Autowired
     private UserDataRepository userDataRepository;
-
     @Autowired
     private AssetRepository assetRepository;
-
     @MockBean
     private UserChangedHandler userChangedHandler;
-
     @Autowired
     private AssetService assetService;
-
     @Autowired
     private ApplicationRepository applicationRepository;
-
     @Autowired
     private GitService gitService;
-
     private Mono<User> userMono;
-
-    private static final String DEFAULT_GIT_PROFILE = "default";
 
     @BeforeEach
     public void setup() {

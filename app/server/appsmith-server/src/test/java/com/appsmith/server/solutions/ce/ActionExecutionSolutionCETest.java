@@ -195,7 +195,7 @@ public class ActionExecutionSolutionCETest {
             dsl2.put("primaryColumns", primaryColumns);
             final ArrayList<Object> objects = new ArrayList<>();
             JSONArray temp2 = new JSONArray();
-            temp2.addAll(List.of(new JSONObject(Map.of("key", "primaryColumns._id"))));
+            temp2.add(new JSONObject(Map.of("key", "primaryColumns._id")));
             dsl2.put("dynamicBindingPathList", temp2);
             objects.add(dsl2);
             dsl.put("children", objects);
@@ -469,7 +469,7 @@ public class ActionExecutionSolutionCETest {
         StepVerifier.create(executionResultMono)
                 .assertNext(result -> {
                     assertThat(result.getIsExecutionSuccess()).isFalse();
-                    assertThat(result.getStatusCode()).isEqualTo(pluginException.getAppErrorCode().toString());
+                    assertThat(result.getStatusCode()).isEqualTo(pluginException.getAppErrorCode());
                     assertThat(result.getTitle()).isEqualTo(pluginException.getTitle());
                     assertThat(result.getRequest().getActionId()).isEqualTo(createdAction.getId());
                     assertThat(result.getRequest().getRequestedAt()).isBefore(Instant.now());
@@ -519,7 +519,7 @@ public class ActionExecutionSolutionCETest {
         StepVerifier.create(executionResultMono)
                 .assertNext(result -> {
                     assertThat(result.getIsExecutionSuccess()).isFalse();
-                    assertThat(result.getStatusCode()).isEqualTo(pluginException.getAppErrorCode().toString());
+                    assertThat(result.getStatusCode()).isEqualTo(pluginException.getAppErrorCode());
                     assertThat(result.getTitle()).isEqualTo(pluginException.getTitle());
                 })
                 .verifyComplete();
@@ -607,7 +607,7 @@ public class ActionExecutionSolutionCETest {
         StepVerifier.create(executionResultMono)
                 .assertNext(result -> {
                     assertThat(result.getIsExecutionSuccess()).isFalse();
-                    assertThat(result.getStatusCode()).isEqualTo(AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR.getAppErrorCode().toString());
+                    assertThat(result.getStatusCode()).isEqualTo(AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR.getAppErrorCode());
                     assertThat(result.getTitle()).isEqualTo(AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR.getTitle());
                 })
                 .verifyComplete();
@@ -1018,7 +1018,6 @@ public class ActionExecutionSolutionCETest {
                 "\t}\n" +
                 "]}";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
-        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -1124,7 +1123,6 @@ public class ActionExecutionSolutionCETest {
                 "    }\n" +
                 "]}";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
-        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -1186,7 +1184,6 @@ public class ActionExecutionSolutionCETest {
                 "       }\n" +
                 "  ]}";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
-        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -1230,7 +1227,6 @@ public class ActionExecutionSolutionCETest {
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\":[\"string1\", \"string2\", \"string3\", \"string4\"] }";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
-        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -1274,7 +1270,6 @@ public class ActionExecutionSolutionCETest {
                 "[\"string5\", \"string6\", \"string7\", \"string8\"]," +
                 "[\"string9\", \"string10\", \"string11\", \"string12\"]] }";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
-        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -1317,7 +1312,6 @@ public class ActionExecutionSolutionCETest {
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\":[] }";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
-        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -1427,7 +1421,6 @@ public class ActionExecutionSolutionCETest {
                 "    ]\n" +
                 "}}";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
-        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -1482,7 +1475,6 @@ public class ActionExecutionSolutionCETest {
                 "            \"updatedAt\": \"2020-08-12T17:29:31.980Z\"\n" +
                 "        } }";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
-        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -1545,7 +1537,6 @@ public class ActionExecutionSolutionCETest {
                 "            \"updatedAt\": \"2019-09-11T20:18:38.000Z\"\n" +
                 "        } }";
         final JsonNode arrNode = new ObjectMapper().readTree(data);
-        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -1591,7 +1582,6 @@ public class ActionExecutionSolutionCETest {
                 "    \"users\": [1, 2, 3]\n" +
                 "}}";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
-        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -1638,7 +1628,6 @@ public class ActionExecutionSolutionCETest {
                 "    \"users\": []\n" +
                 "}}";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
-        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);

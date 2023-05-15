@@ -8,6 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -58,7 +59,7 @@ class FileUtilsTest {
                 result.write(buffer, 0, length);
             }
             // StandardCharsets.UTF_8.name() > JDK 7
-            String fileContent = result.toString("UTF-8");
+            String fileContent = result.toString(StandardCharsets.UTF_8);
             result.close();
             zis.closeEntry();
             ze = zis.getNextEntry();

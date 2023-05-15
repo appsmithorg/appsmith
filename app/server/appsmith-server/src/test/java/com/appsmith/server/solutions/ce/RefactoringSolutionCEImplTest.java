@@ -35,7 +35,12 @@ import java.util.regex.Pattern;
 @Slf4j
 class RefactoringSolutionCEImplTest {
 
+    private final String preWord = "\\b(";
+    private final String postWord = ")\\b";
     RefactoringSolutionCEImpl refactoringSolutionCE;
+    PagePermission pagePermission;
+    ActionPermission actionPermission;
+    ObjectMapper mapper = new ObjectMapper();
     @MockBean
     private ObjectMapper objectMapper;
     @MockBean
@@ -58,14 +63,6 @@ class RefactoringSolutionCEImplTest {
     private AnalyticsService analyticsService;
     @MockBean
     private SessionUserService sessionUserService;
-
-    PagePermission pagePermission;
-    ActionPermission actionPermission;
-
-    ObjectMapper mapper = new ObjectMapper();
-
-    private final String preWord = "\\b(";
-    private final String postWord = ")\\b";
 
     @BeforeEach
     public void setUp() {

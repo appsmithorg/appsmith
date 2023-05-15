@@ -3,7 +3,7 @@
     "id": "testPageId",
     "applicationId": "testApplicationId",
     "defaultResources": {
-      "pageId" : "defaultTestPageId",
+      "pageId": "defaultTestPageId",
       "applicationId": "defaultApplicationId"
     }
   },
@@ -56,24 +56,24 @@
     "id": "testApplicationId",
     "pages": [
       {
-        "id" : "testPageId1",
+        "id": "testPageId1",
         "isDefault": true,
         "defaultPageId": "defaultTestPageId1"
       },
       {
-        "id" : "testPageId2",
+        "id": "testPageId2",
         "isDefault": false,
         "defaultPageId": "defaultTestPageId2"
       }
     ],
     "publishedPages": [
       {
-        "id" : "testPageId1",
+        "id": "testPageId1",
         "isDefault": false,
         "defaultPageId": "defaultTestPageId1"
       },
       {
-        "id" : "testPageId2",
+        "id": "testPageId2",
         "isDefault": true,
         "defaultPageId": "defaultTestPageId2"
       }

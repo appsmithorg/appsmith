@@ -66,70 +66,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DirtiesContext
 public class CreateDBTablePageSolutionTests {
 
-    @Autowired
-    CreateDBTablePageSolution solution;
-
-    @Autowired
-    NewActionService newActionService;
-
-    @Autowired
-    NewPageService newPageService;
-
-    @Autowired
-    WorkspaceService workspaceService;
-
-    @Autowired
-    DatasourceService datasourceService;
-
-    @Autowired
-    DatasourceConfigurationStructureService datasourceConfigurationStructureService;
-
-    @Autowired
-    ApplicationPageService applicationPageService;
-
-    @Autowired
-    PluginRepository pluginRepository;
-
-    @Autowired
-    ImportExportApplicationService importExportApplicationService;
-
-    @Autowired
-    ApplicationService applicationService;
-
-    @MockBean
-    private PluginExecutorHelper pluginExecutorHelper;
-
-    private CRUDPageResourceDTO resource = new CRUDPageResourceDTO();
-
-    private static Datasource testDatasource = new Datasource();
-
-    private static DatasourceConfigurationStructure testDatasourceConfigurationStructure = new DatasourceConfigurationStructure();
-
-    private static Workspace testWorkspace;
-
-    private static Application testApp;
-
-    private static Plugin postgreSQLPlugin;
-
-    private static DatasourceStructure structure = new DatasourceStructure();
-
     // Regex to break string in separate words
     final static String specialCharactersRegex = "[^a-zA-Z0-9,;(){}*_]+";
-
-    private final String SELECT_QUERY = "SelectQuery";
-
-    private final String FIND_QUERY = "FindQuery";
-
-    private final String LIST_QUERY = "ListFiles";
-
-    private final String UPDATE_QUERY = "UpdateQuery";
-
-    private final String INSERT_QUERY = "InsertQuery";
-
     private final static String DATA = "data";
-
-    DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-
+    private static final Datasource testDatasource = new Datasource();
+    private static final DatasourceConfigurationStructure testDatasourceConfigurationStructure = new DatasourceConfigurationStructure();
+    private static Workspace testWorkspace;
+    private static Application testApp;
+    private static Plugin postgreSQLPlugin;
+    private static final DatasourceStructure structure = new DatasourceStructure();
+    private final String SELECT_QUERY = "SelectQuery";
+    private final String FIND_QUERY = "FindQuery";
+    private final String LIST_QUERY = "ListFiles";
+    private final String UPDATE_QUERY = "UpdateQuery";
+    private final String INSERT_QUERY = "InsertQuery";
     private final Map<String, String> actionNameToBodyMap = Map.of(
             "DeleteQuery", "DELETE FROM sampleTable\n" +
                     "  WHERE \"id\" = {{data_table.triggeredRow.id}};",
@@ -171,6 +121,30 @@ public class CreateDBTablePageSolutionTests {
                     "\t\t\t\t{{insert_form.formData.field1.something}} \n" +
                     ");"
     );
+    @Autowired
+    CreateDBTablePageSolution solution;
+    @Autowired
+    NewActionService newActionService;
+    @Autowired
+    NewPageService newPageService;
+    @Autowired
+    WorkspaceService workspaceService;
+    @Autowired
+    DatasourceService datasourceService;
+    @Autowired
+    DatasourceConfigurationStructureService datasourceConfigurationStructureService;
+    @Autowired
+    ApplicationPageService applicationPageService;
+    @Autowired
+    PluginRepository pluginRepository;
+    @Autowired
+    ImportExportApplicationService importExportApplicationService;
+    @Autowired
+    ApplicationService applicationService;
+    DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+    @MockBean
+    private PluginExecutorHelper pluginExecutorHelper;
+    private final CRUDPageResourceDTO resource = new CRUDPageResourceDTO();
 
     @BeforeEach
     @WithUserDetails(value = "api_user")
@@ -593,7 +567,6 @@ public class CreateDBTablePageSolutionTests {
                                 .get(actionName)
                                 .replaceAll(specialCharactersRegex, "")
                                 .replace(structure.getTables().get(0).getName(), structure.getTables().get(1).getName());
-                        ;
                         assertThat(actionBody).isEqualTo(templateActionBody);
                     }
                     assertThat(crudPageResponseDTO.getSuccessMessage()).containsIgnoringCase(pluginName);

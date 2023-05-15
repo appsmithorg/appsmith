@@ -105,6 +105,7 @@ public class DatasourceStorage extends BaseDomain {
     }
 
     public DatasourceStorage(DatasourceStorageDTO datasourceStorageDTO) {
+        this.setId(datasourceStorageDTO.getId());
         this.datasourceId = datasourceStorageDTO.getDatasourceId();
         this.environmentId = datasourceStorageDTO.getEnvironmentId();
         this.datasourceConfiguration = datasourceStorageDTO.getDatasourceConfiguration();
