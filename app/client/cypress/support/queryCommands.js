@@ -203,7 +203,7 @@ Cypress.Commands.add(
       .should("be.visible")
       .contains(option)
       .first()
-      .click();
+      .click({ force: true });
     cy.wait(2000);
   },
 );

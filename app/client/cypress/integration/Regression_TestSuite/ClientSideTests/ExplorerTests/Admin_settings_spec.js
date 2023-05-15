@@ -292,16 +292,16 @@ describe("Admin settings page", function () {
         cy.get("a").click();
       });
       cy.wait(2000);
-      cy.get(".bp3-dialog-container").should("be.visible");
-      cy.get(".bp3-dialog-header .bp3-heading").should("be.visible");
-      cy.get(".bp3-dialog-header .bp3-heading").should(
+      cy.get(".ads-v2-modal__content").should("be.visible");
+      cy.get(".ads-v2-modal__content-header").should("be.visible");
+      cy.get(".ads-v2-modal__content-header").should(
         "contain",
         "Product Updates",
       );
-      cy.get(".bp3-dialog-close-button").should("be.visible");
-      cy.get(".bp3-dialog-close-button").click();
+      cy.get(".ads-v2-button__content-icon-start").should("be.visible");
+      cy.get(".ads-v2-button__content-icon-start").click();
       cy.wait(2000);
-      cy.get(".bp3-dialog-container").should("not.exist");
+      cy.get(".ads-v2-modal__content").should("not.exist");
     },
   );
 
