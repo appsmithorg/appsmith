@@ -93,7 +93,7 @@ function DefaultHelpMenuItem(props: {
           if (props.item.link) window.open(props.item.link, "_blank");
           if (props.item.id === "intercom-trigger") {
             if (intercomAppID && window.Intercom) {
-              if (user?.isIntercomConsentGiven) {
+              if (user?.isIntercomConsentGiven || cloudHosting) {
                 window.Intercom("show");
               } else {
                 props.showIntercomConsent(true);
