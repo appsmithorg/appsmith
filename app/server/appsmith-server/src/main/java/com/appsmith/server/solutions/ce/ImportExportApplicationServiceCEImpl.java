@@ -2129,7 +2129,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     public Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String workspaceId) {
         // TODO: Investigate further why datasourcePermission.getReadPermission() is not being used.
         Mono<List<Datasource>> listMono = datasourceService
-                .getAllByWorkspaceId(workspaceId, Optional.empty()))
+                .getAllByWorkspaceId(workspaceId, Optional.empty())
                 .collectList();
         return newActionService.findAllByApplicationIdAndViewMode(applicationId, false, Optional.empty(), Optional.empty())
                 .collectList()
