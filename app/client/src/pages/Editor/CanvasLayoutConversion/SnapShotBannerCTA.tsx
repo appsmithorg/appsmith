@@ -36,8 +36,9 @@ export function SnapShotBannerCTA() {
     (state: AppState) => state.ui.layoutConversion.conversionState,
   );
 
-  const isConversionCompleted =
-    conversionState === CONVERSION_STATES.COMPLETED_SUCCESS;
+  const hideCloseButton =
+    conversionState === CONVERSION_STATES.COMPLETED_SUCCESS ||
+    conversionState === CONVERSION_STATES.RESTORING_SNAPSHOT_SPINNER;
 
   const lastUpdatedTime = useSelector(getSnapshotUpdatedTime);
   const readableSnapShotDetails = getReadableSnapShotDetails(lastUpdatedTime);
@@ -111,7 +112,7 @@ export function SnapShotBannerCTA() {
           // Don't close Modal when pressed outside
           onInteractOutside={(e) => e.preventDefault()}
         >
-          <ModalHeader isCloseButtonVisible={!isConversionCompleted}>
+          <ModalHeader isCloseButtonVisible={!hideCloseButton}>
             {modalHeader}
           </ModalHeader>
           <ModalBody>
