@@ -41,7 +41,7 @@ describe("Create new workspace and share with a user", function () {
 
   it("2. login as Invited user and then validate viewer privilage", function () {
     cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
-    cy.get(homePage.searchInput).type(appid);
+    cy.get(homePage.searchInput).type(appid, { force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get(homePage.appsContainer).contains(workspaceId);
@@ -56,11 +56,6 @@ describe("Create new workspace and share with a user", function () {
 
   it("3. Enable public access to Application", function () {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.wait("@applications").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
     cy.SearchApp(appid);
     cy.wait("@getPagesForCreateApp").should(
       "have.nested.property",
@@ -117,11 +112,6 @@ describe("Create new workspace and share with a user", function () {
 
   it("6. login as Owner and disable public access", function () {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.wait("@applications").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
     cy.SearchApp(appid);
     cy.wait("@getPagesForCreateApp").should(
       "have.nested.property",

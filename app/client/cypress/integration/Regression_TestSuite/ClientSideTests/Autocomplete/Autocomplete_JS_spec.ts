@@ -261,31 +261,34 @@ describe("Autocomplete tests", () => {
       "Insert Document(s)",
     );
 
-    cy.xpath(_.locators._inputFieldByName("Documents")).then(($field: any) => {
-      _.agHelper.UpdateCodeInput($field, `{\n"_id": "{{appsmith}}"\n}`);
+    const documentInputSelector = _.locators._inputFieldByName("Documents");
 
-      cy.wrap($field)
-        .find(".CodeMirror")
-        .find("textarea")
-        .parents(".CodeMirror")
-        .first()
-        .then((ins: any) => {
-          const input = ins[0].CodeMirror;
-          input.focus();
-          cy.wait(200);
-          cy.get(_.locators._codeMirrorTextArea)
-            .eq(1)
-            .focus()
-            .type(
-              "{downArrow}{downArrow}{leftArrow}{leftArrow}{leftArrow}{leftArrow}",
-            )
-            .type(".");
+    _.agHelper.UpdateCodeInput(
+      documentInputSelector,
+      `{\n"_id": "{{appsmith}}"\n}`,
+    );
 
-          _.agHelper.GetNAssertElementText(_.locators._hints, "geolocation");
+    cy.xpath(documentInputSelector)
+      .find(".CodeMirror")
+      .find("textarea")
+      .parents(".CodeMirror")
+      .first()
+      .then((ins: any) => {
+        const input = ins[0].CodeMirror;
+        input.focus();
+        cy.wait(200);
+        cy.get(_.locators._codeMirrorTextArea)
+          .eq(1)
+          .focus()
+          .type(
+            "{downArrow}{downArrow}{leftArrow}{leftArrow}{leftArrow}{leftArrow}",
+          )
+          .type(".");
 
-          cy.get(".t--close-editor").click();
-        });
-    });
+        _.agHelper.GetNAssertElementText(_.locators._hints, "geolocation");
+
+        cy.get(".t--close-editor").click();
+      });
   });
 
   it("8. Multiple binding in single line", () => {
@@ -341,9 +344,9 @@ describe("Autocomplete tests", () => {
 
     // Same check in JSObject1
     _.entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
-    _.agHelper.Sleep();
     _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(5));
     _.agHelper.TypeText(_.locators._codeMirrorTextArea, "JSObject2");
+    _.agHelper.Sleep();
     _.agHelper.TypeText(_.locators._codeMirrorTextArea, ".");
 
     _.agHelper.GetNAssertElementText(

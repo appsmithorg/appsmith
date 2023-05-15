@@ -4,6 +4,8 @@ import HomePageLocators from "../../locators/HomePage";
 export class HomePage {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private locator = ObjectsRegistry.CommonLocators;
+  private entityExplorer = ObjectsRegistry.EntityExplorer;
+  private onboarding = ObjectsRegistry.Onboarding;
 
   private _username = "input[name='username']";
   private _password = "input[name='password']";
@@ -36,6 +38,7 @@ export class HomePage {
     role +
     "']";
   private _profileMenu = ".t--profile-menu";
+  private _editProfileMenu = ".t--edit-profile";
   private _signout = ".t--logout-icon";
   _searchUsersInput = ".search-input";
 
@@ -94,6 +97,8 @@ export class HomePage {
     "']";
   _welcomeTour = ".t--welcome-tour";
   _welcomeTourBuildingButton = ".t--start-building";
+  _reconnectDataSourceModal = "[data-cy=t--tab-RECONNECT_DATASOURCES]";
+  _skiptoApplicationBtn = "//span[text()='Skip to Application']/parent::a";
 
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
@@ -208,10 +213,16 @@ export class HomePage {
     this.agHelper.AssertElementVisible(this._homeAppsmithImage);
   }
 
-  public CreateNewApplication() {
+  public CreateNewApplication(skipSignposting = true) {
     cy.get(this._homePageAppCreateBtn).first().click({ force: true });
     this.agHelper.ValidateNetworkStatus("@createNewApplication", 201);
     cy.get(this.locator._loading).should("not.exist");
+
+    if (skipSignposting) {
+      this.agHelper.AssertElementVisible(this.entityExplorer._entityExplorer);
+      this.onboarding.closeIntroModal();
+      this.onboarding.skipSignposting();
+    }
   }
 
   //Maps to CreateAppForWorkspace in command.js
@@ -264,6 +275,20 @@ export class HomePage {
     this.agHelper.Sleep(); //for logout to complete!
   }
 
+  public GotoProfileMenu() {
+    this.agHelper.GetNClick(this._profileMenu);
+  }
+
+  public GotoEditProfile() {
+    cy.location().then((loc) => {
+      if (loc.pathname !== "/profile") {
+        this.NavigateToHome();
+        this.GotoProfileMenu();
+        this.agHelper.GetNClick(this._editProfileMenu);
+      }
+    });
+  }
+
   public LogintoApp(
     uname: string,
     pswd: string,
@@ -285,7 +310,7 @@ export class HomePage {
   }
 
   public FilterApplication(appName: string, workspaceId: string) {
-    cy.get(this._searchInput).type(appName);
+    cy.get(this._searchInput).type(appName, { force: true });
     this.agHelper.Sleep(2000);
     cy.get(this._appContainer).contains(workspaceId);
     cy.xpath(this.locator._spanButton("Share")).first().should("be.visible");
@@ -492,5 +517,14 @@ export class HomePage {
     this.agHelper.ValidateToastMessage(
       "You have successfully left the workspace",
     );
+  }
+
+  public CloseReconnectDataSourceModal() {
+    cy.get("body").then(($ele) => {
+      if ($ele.find(this._reconnectDataSourceModal).length) {
+        this.agHelper.GetNClick(this._skiptoApplicationBtn);
+        this.NavigateToHome();
+      }
+    });
   }
 }

@@ -176,12 +176,12 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
 
     @JsonView(Views.Public.class)
     @PostMapping("/{defaultApplicationId}/fork/{workspaceId}")
-    public Mono<ResponseDTO<Application>> forkApplication(
+    public Mono<ResponseDTO<ApplicationImportDTO>> forkApplication(
             @PathVariable String defaultApplicationId,
             @PathVariable String workspaceId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return applicationForkingService.forkApplicationToWorkspace(defaultApplicationId, workspaceId, branchName)
-                .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
+                .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 
     @JsonView(Views.Public.class)
@@ -244,7 +244,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                                                                              @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to import application in workspace with id: {}", workspaceId);
         return fileMono
-                .flatMap(file -> importExportApplicationService.extractFileAndUpdateExistingApplication(workspaceId, file, applicationId, branchName))
+                .flatMap(file -> importExportApplicationService.extractFileAndUpdateNonGitConnectedApplication(workspaceId, file, applicationId, branchName))
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 

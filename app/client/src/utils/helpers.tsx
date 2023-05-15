@@ -3,10 +3,8 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import lottie from "lottie-web";
-import confetti from "assets/lottie/binding.json";
-import welcomeConfetti from "assets/lottie/welcome-confetti.json";
-import successAnimation from "assets/lottie/success-animation.json";
+import lazyLottie from "./lazyLottie";
+import welcomeConfettiAnimationURL from "assets/lottie/welcome-confetti.json.txt";
 import {
   DATA_TREE_KEYWORDS,
   DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
@@ -36,6 +34,7 @@ import { checkContainerScrollable } from "widgets/WidgetUtils";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getContainerIdForCanvas } from "sagas/WidgetOperationUtils";
+import scrollIntoView from "scroll-into-view-if-needed";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -237,7 +236,7 @@ export const quickScrollToWidget = (
     if (el && canvas && !isElementVisibleInContainer(el, canvas)) {
       const scrollElement = getWidgetElementToScroll(widgetId, canvasWidgets);
       if (scrollElement) {
-        scrollElement.scrollIntoView({
+        scrollIntoView(scrollElement, {
           block: "center",
           inline: "nearest",
           behavior: "smooth",
@@ -247,24 +246,46 @@ export const quickScrollToWidget = (
   });
 };
 
-// Checks if the element in a container is visible or not.
-// Can be used to decide if scroll is needed
+/** Checks if a percentage of element is visible inside a container or not
+
+ The function first retrieves the bounding rectangles of both the
+ container and the element using the getBoundingClientRect() method.
+ It then calculates the visible area of the element inside the container
+ by determining the intersection between the two bounding rectangles.
+
+ The function then calculates the percentage of the element that is
+ visible by dividing the visible area by the total area of the element
+ and multiplying by 100. Finally, it returns true if the visible percentage
+ is greater than or equal to the desired percentage, and false otherwise.
+
+ Note that this function assumes that the element and the container
+ are both positioned using the CSS position property, and that the
+ container is positioned relative to its containing block. If the
+ element or the container have a different positioning, the
+ function may need to be adjusted accordingly.
+ **/
 function isElementVisibleInContainer(
   element: HTMLElement,
   container: HTMLElement,
+  percentage = 100,
 ) {
-  const elementRect = element.getBoundingClientRect();
-  const containerRect = container.getBoundingClientRect();
-  return (
-    ((elementRect.top > containerRect.top &&
-      elementRect.top < containerRect.bottom) ||
-      (elementRect.bottom < containerRect.bottom &&
-        elementRect.bottom > containerRect.top)) &&
-    ((elementRect.left > containerRect.left &&
-      elementRect.left < containerRect.right) ||
-      (elementRect.right < containerRect.right &&
-        elementRect.right > containerRect.left))
-  );
+  const elementBounds = element.getBoundingClientRect();
+  const containerBounds = container.getBoundingClientRect();
+  // Calculate the visible area of the element inside the container
+  const visibleWidth =
+    Math.min(elementBounds.right, containerBounds.right) -
+    Math.max(elementBounds.left, containerBounds.left);
+  const visibleHeight =
+    Math.min(elementBounds.bottom, containerBounds.bottom) -
+    Math.max(elementBounds.top, containerBounds.top);
+  const visibleArea = visibleWidth * visibleHeight;
+
+  // Calculate the percentage of the element that is visible
+  const elementArea = element.clientWidth * element.clientHeight;
+  const visiblePercentage = (visibleArea / elementArea) * 100;
+
+  // Return whether the visible percentage is greater than or equal to the desired percentage
+  return visiblePercentage >= percentage;
 }
 
 function getWidgetElementToScroll(
@@ -493,24 +514,13 @@ export const getSubstringBetweenTwoWords = (
   return str.substring(startIndexOfEndWord, endIndexOfStartWord);
 };
 
-export const playOnboardingAnimation = () => {
-  playLottieAnimation("#root", confetti);
-};
-
 export const playWelcomeAnimation = (container: string) => {
-  playLottieAnimation(container, welcomeConfetti);
-};
-
-export const playOnboardingStepCompletionAnimation = () => {
-  playLottieAnimation(".onboarding-step-indicator", successAnimation, {
-    "background-color": "white",
-    padding: "60px",
-  });
+  playLottieAnimation(container, welcomeConfettiAnimationURL);
 };
 
 const playLottieAnimation = (
   selector: string,
-  animation: any,
+  animationURL: string,
   styles?: any,
 ) => {
   const container: Element = document.querySelector(selector) as Element;
@@ -531,18 +541,16 @@ const playLottieAnimation = (
 
   container.appendChild(el);
 
-  const animObj = lottie.loadAnimation({
+  const animObj = lazyLottie.loadAnimation({
     container: el,
-    animationData: animation,
+    path: animationURL,
     loop: false,
   });
 
-  const duration = (animObj.totalFrames / animObj.frameRate) * 1000;
-
   animObj.play();
-  setTimeout(() => {
+  animObj.addEventListener("complete", () => {
     container.removeChild(el);
-  }, duration);
+  });
 };
 
 export const getSelectedText = () => {

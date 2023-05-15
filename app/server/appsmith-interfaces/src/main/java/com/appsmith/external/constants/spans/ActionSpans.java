@@ -13,5 +13,9 @@ public final class ActionSpans {
     public static final String ACTION_EXECUTION_VALIDATE_AUTHENTICATION = "validate.authentication";
     public static final String ACTION_EXECUTION_PLUGIN_EXECUTION = "total.plugin.execution";
     public static final String ACTION_EXECUTION_SERVER_EXECUTION = "total.server.execution";
+    public static final String GET_UNPUBLISHED_ACTION = "get.action.unpublished";
+    public static final String GET_VIEW_MODE_ACTION = "get.action.viewmode";
+    public static final String GET_ACTION_REPOSITORY_CALL = "get.action.repository.call";
+
 
 }

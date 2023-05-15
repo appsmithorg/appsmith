@@ -1095,7 +1095,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           {},
           false,
           undefined,
-          [value, props, _, moment, propertyPath, config],
+          [value, props, globalThis._, globalThis.moment, propertyPath, config],
         );
         return result;
       } catch (e) {

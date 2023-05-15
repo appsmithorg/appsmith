@@ -2279,10 +2279,10 @@ public class DatabaseChangelog1 {
 
         Query query = query(new Criteria().andOperator(
                 where(fieldName(QDatasource.datasource.pluginId)).is(mongoPlugin.getId()),
-                where(fieldName(QDatasource.datasource.structure)).exists(true)
+                where("structure").exists(true)
         ));
 
-        Update update = new Update().set(fieldName(QDatasource.datasource.structure), null);
+        Update update = new Update().set("structure", null);
 
         // Delete all the existing mongo datasource structures by setting the key to null.
         mongoOperations.updateMulti(query, update, Datasource.class);
@@ -4989,7 +4989,7 @@ public class DatabaseChangelog1 {
         /* set key formData.smartSubstitution */
         setSmartSubstitutionFieldForEachAction(firestoreActions, mongoTemplate);
     }
-    
+
     private void setSmartSubstitutionFieldForEachAction(List<NewAction> firestoreActions,
                                                         MongoTemplate mongoTemplate) {
         firestoreActions.stream()
