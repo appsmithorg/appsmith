@@ -14,56 +14,103 @@ import type {
 import { OverridingPropertyType } from "./types";
 
 import { setOverridingProperty } from "./utils";
+import { error } from "loglevel";
 
-function getSetterConfig(
-  setterConfig: Record<string, any>,
-  widget: FlattenedWidgetProps,
-) {
-  const modifiedSetterConfig: Record<string, any> = {};
-  if (setterConfig.__setters) {
-    modifiedSetterConfig.__setters = {};
-    for (const setterMethodName of Object.keys(setterConfig.__setters)) {
-      modifiedSetterConfig.__setters[setterMethodName] = {
-        path: `${widget.widgetName}.${setterConfig.__setters[setterMethodName].path}`,
-      };
-    }
-  }
-
-  if (!setterConfig.pathToSetters || !setterConfig.pathToSetters.length)
-    return modifiedSetterConfig;
-
-  const pathToSetters = setterConfig.pathToSetters;
-
-  for (const { path, property } of pathToSetters) {
-    const pathArray = path.split(".");
-    const lastElement = pathArray[pathArray.length - 1];
-
-    if (lastElement[0] !== "$") continue;
-
-    const pathToParentObj = pathArray.slice(0, -1).join(".");
-    const accessors = Object.keys(get(widget, pathToParentObj));
-
-    for (const accesskey of accessors) {
-      const fullPath = pathToParentObj + "." + accesskey;
-      const subConfigParentObj = get(widget, fullPath);
-
-      const propertyType = subConfigParentObj[property];
-      if (!propertyType) continue;
-      const subConfig = setterConfig[propertyType];
-      if (!subConfig) continue;
-      const settersMap = subConfig.__setters;
-      if (!settersMap) continue;
-
-      for (const [setterName, setterBody] of Object.entries(settersMap)) {
-        const path = (setterBody as any).path.replace(lastElement, accesskey);
-        const setterPathArray = path.split(".");
-        setterPathArray.pop();
-        setterPathArray.push(setterName);
-        const setterPath = setterPathArray.join(".");
-        modifiedSetterConfig.__setters[setterPath] = { path };
+/**
+ * 
+ * Example of setterConfig
+ * 
+ * {
+      WIDGET: {
+        TABLE_WIDGET_V2: {
+          __setters: {
+              setIsRequired: {
+                path: "isRequired"
+              },
+          },
+          "text": {
+              __setters:{
+                setIsRequired: {
+                    path: "primaryColumns.$columnId.isRequired"
+                }
+              }
+          }
+          pathToSetters: [{ path: "primaryColumns.$columnId", property: "columnType" }]
+        }
       }
     }
+
+    columnId = action
+
+    Expected output
+
+      {
+        Table2: {
+          isRequired: true,
+          __setters: {
+            setIsRequired: {
+              path: "Table2.isRequired"
+            },
+            "primaryColumns.action.setIsRequired": {
+              path: "Table2.primaryColumns.action.isRequired"
+            }
+          },
+        }
+      }  
+ */
+
+function getSetterConfig(setterConfig: Record<string, any>, widget: any) {
+  const modifiedSetterConfig: Record<string, any> = {};
+
+  try {
+    if (setterConfig.__setters) {
+      modifiedSetterConfig.__setters = {};
+      for (const setterMethodName of Object.keys(setterConfig.__setters)) {
+        modifiedSetterConfig.__setters[setterMethodName] = {
+          path: `${widget.widgetName}.${setterConfig.__setters[setterMethodName].path}`,
+        };
+      }
+    }
+
+    if (!setterConfig.pathToSetters || !setterConfig.pathToSetters.length)
+      return modifiedSetterConfig;
+
+    const pathToSetters = setterConfig.pathToSetters;
+
+    for (const { path, property } of pathToSetters) {
+      const pathArray = path.split(".");
+      const lastElement = pathArray[pathArray.length - 1];
+
+      if (lastElement[0] !== "$") continue;
+
+      const pathToParentObj = pathArray.slice(0, -1).join(".");
+      const accessors = Object.keys(get(widget, pathToParentObj));
+
+      for (const accesskey of accessors) {
+        const fullPath = pathToParentObj + "." + accesskey;
+        const subConfigParentObj = get(widget, fullPath);
+
+        const propertyType = subConfigParentObj[property];
+        if (!propertyType) continue;
+        const subConfig = setterConfig[propertyType];
+        if (!subConfig) continue;
+        const settersMap = subConfig.__setters;
+        if (!settersMap) continue;
+
+        for (const [setterName, setterBody] of Object.entries(settersMap)) {
+          const path = (setterBody as any).path.replace(lastElement, accesskey);
+          const setterPathArray = path.split(".");
+          setterPathArray.pop();
+          setterPathArray.push(setterName);
+          const setterPath = setterPathArray.join(".");
+          modifiedSetterConfig.__setters[setterPath] = { path };
+        }
+      }
+    }
+  } catch (e) {
+    error("Error while generating setter config", e);
   }
+
   return modifiedSetterConfig;
 }
 
