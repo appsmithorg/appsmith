@@ -39,7 +39,7 @@ function ReadOnlyEditor(props: Props) {
       : true,
     borderLess: true,
     folding: props.folding,
-    isReadOnly: props.isReadOnly,
+    isReadOnly: true,
     isRawView: props.isRawView,
     containerHeight: props.containerHeight,
     border: CodeEditorBorder.NONE,

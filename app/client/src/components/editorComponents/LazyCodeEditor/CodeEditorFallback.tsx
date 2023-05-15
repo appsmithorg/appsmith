@@ -9,14 +9,19 @@ import {
 } from "./styles";
 import { ContentKind } from "./types";
 import type { EditorProps } from "components/editorComponents/CodeEditor";
+import { JS_OBJECT_START_STATEMENT } from "workers/Linting/constants";
 
 export default function CodeEditorFallback({
   input,
+  isReadOnly,
   onInteracted,
   placeholder,
   showLineNumbers,
   showLoadingProgress,
-}: Pick<EditorProps, "input" | "placeholder" | "showLineNumbers"> & {
+}: Pick<
+  EditorProps,
+  "input" | "placeholder" | "showLineNumbers" | "isReadOnly"
+> & {
   onInteracted: () => void;
   showLoadingProgress: boolean;
 }) {
@@ -27,7 +32,11 @@ export default function CodeEditorFallback({
   if (!parsedValue) {
     contentKind = ContentKind.PLACEHOLDER;
     fallbackToRender = placeholder || "";
-  } else if (typeof parsedValue === "string" && parsedValue.includes("{{")) {
+  } else if (
+    typeof parsedValue === "string" &&
+    (parsedValue.includes("{{") ||
+      parsedValue.startsWith(JS_OBJECT_START_STATEMENT))
+  ) {
     contentKind = ContentKind.CODE;
     fallbackToRender = parsedValue;
   } else if (Array.isArray(parsedValue) || typeof parsedValue === "object") {
@@ -61,6 +70,7 @@ export default function CodeEditorFallback({
       <HighlighedCodeContainer
         className="LazyCodeEditor"
         contentKind={contentKind}
+        isReadOnly={isReadOnly}
         onFocus={onInteracted}
         onMouseEnter={onInteracted}
         showLineNumbers={showLineNumbers}

@@ -89,9 +89,6 @@ const ResponseContainer = styled.div`
   .react-tabs__tab-panel {
     overflow: hidden;
   }
-  .CodeMirror-code {
-    font-size: 12px;
-  }
 `;
 const ResponseMetaInfo = styled.div`
   display: flex;

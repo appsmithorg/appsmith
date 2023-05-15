@@ -129,6 +129,7 @@ export const EditorWrapper = styled.div<{
       border-radius: 0px;
       font-family: ${(props) => props.theme.fonts.code};
       font-size: 13px;
+      ${(props) => props.isReadOnly && "font-size: 12px"};
       border: 1px solid
         ${(props) => {
           switch (true) {
