@@ -29,7 +29,7 @@ module.exports = {
     "test/(.*)": "<rootDir>/test/$1",
     "@appsmith/(.*)": "<rootDir>/src/ee/$1",
     "design-system-old": "<rootDir>/../node_modules/design-system-old/build",
-    "design-system": "<rootDir>/node_modules/design-system/build",
+    "design-system": "<rootDir>/../node_modules/design-system/build",
     "^proxy-memoize$":
       "<rootDir>/../node_modules/proxy-memoize/dist/wrapper.cjs",
     // @blueprintjs packages need to be resolved to the `esnext` directory. The default `esm` directory
