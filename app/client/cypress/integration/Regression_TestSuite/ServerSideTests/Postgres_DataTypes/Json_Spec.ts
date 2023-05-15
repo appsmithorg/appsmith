@@ -696,6 +696,6 @@ describe("Json & JsonB Datatype tests", function () {
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
     ee.ExpandCollapseEntity("Queries/JS");
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+    dataSources.DeleteDatasouceFromWinthinDS(dsName, 200, true);
   });
 });

@@ -642,6 +642,7 @@ export class DataSources {
   public DeleteDatasouceFromWinthinDS(
     datasourceName: string,
     expectedRes = 200,
+    ignoreApiResult = false,
   ) {
     this.NavigateToActiveTab();
     cy.get(this._datasourceCard)
@@ -650,18 +651,20 @@ export class DataSources {
       .should("be.visible")
       .click();
     this.agHelper.Sleep(); //for the Datasource page to open
-    this.DeleteDSDirectly(expectedRes);
+    this.DeleteDSDirectly(expectedRes, ignoreApiResult);
   }
 
-  public DeleteDSDirectly(expectedRes = 200) {
+  public DeleteDSDirectly(expectedRes = 200, ignoreApiResult = false) {
     this.agHelper.GetNClick(this._cancelEditDatasourceButton, 0, false, 200);
     cy.get(this._contextMenuDatasource).click({ force: true });
     this.agHelper.GetNClick(this._contextMenuDelete);
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Are you sure?"));
-    this.agHelper.ValidateNetworkStatus("@deleteDatasource", expectedRes);
-    if (expectedRes == 200)
-      this.agHelper.AssertContains("datasource deleted successfully");
-    else this.agHelper.AssertContains("action(s) using it.");
+    if (!ignoreApiResult) {
+      this.agHelper.ValidateNetworkStatus("@deleteDatasource", expectedRes);
+      if (expectedRes == 200)
+        this.agHelper.AssertContains("datasource deleted successfully");
+      else this.agHelper.AssertContains("action(s) using it.");
+    }
   }
 
   public NavigateToActiveTab() {
