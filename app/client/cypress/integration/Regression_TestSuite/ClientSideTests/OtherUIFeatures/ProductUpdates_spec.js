@@ -21,7 +21,7 @@ describe("Check for product updates button and modal", function () {
           cy.get("div[role=dialog] button[aria-label='Close']").click();
           //eslint-disable-next-line cypress/no-unnecessary-waiting
           cy.wait(500); // modal transition
-          cy.get(".bp3-dialog-container").should("not.exist");
+          cy.get(".ads-v2-modal__content").should("not.exist");
         } else {
           cy.get("span.t--product-updates-btn").should("not.exist");
         }
