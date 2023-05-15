@@ -1,1 +1,1 @@
-cypress/integration/**/**/*
+cypress/e2e/**/**/*
