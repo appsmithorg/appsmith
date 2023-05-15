@@ -12,7 +12,7 @@ describe(
       dataSources.CreatePlugIn("Google Sheets");
       agHelper.GoBack();
       agHelper.AssertContains(
-        "SAVE AND AUTHORIZE",
+        "Save and authorize",
         "exist",
         dataSources._datasourceModalSave,
       );
@@ -24,7 +24,7 @@ describe(
       dataSources.CreatePlugIn("PostgreSQL");
       agHelper.GoBack();
       agHelper.AssertContains(
-        "SAVE",
+        "Save",
         "exist",
         dataSources._datasourceModalSave,
       );

@@ -24,7 +24,7 @@ describe("Theme validation usecases", function () {
     appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
     // reset theme
-    cy.contains("Theme Properties")
+    cy.contains("Theme properties")
       .closest("div")
       .siblings()
       .first()

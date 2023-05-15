@@ -134,7 +134,7 @@ describe("Git sync apps", function () {
       cy.wait(2000);
       cy.SaveAndRunAPI();
       cy.ResponseStatusCheck("200");
-      cy.get(".bp3-icon-chevron-left").click();
+      cy.get(".t--close-editor").click();
       // curl import
       _.dataSources.NavigateToDSCreateNew();
       cy.get(ApiEditor.curlImage).click({ force: true });
@@ -310,7 +310,7 @@ describe("Git sync apps", function () {
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     _.entityExplorer.ActionContextMenuByEntityName(
       "get_users",
-      "Move to page",
+      "Move to page", // failing here
       "Child_Page",
     );
     cy.runQuery();

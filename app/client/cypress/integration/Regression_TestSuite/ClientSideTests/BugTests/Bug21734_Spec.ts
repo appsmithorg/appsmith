@@ -12,7 +12,7 @@ describe("Bug 21734: On exiting from the Datasources page without saving changes
     ee.AddNewPage();
 
     agHelper.AssertContains(
-      "DON'T SAVE",
+      "Don't save",
       "exist",
       dataSources._datasourceModalDoNotSave,
     );
@@ -30,7 +30,7 @@ describe("Bug 21734: On exiting from the Datasources page without saving changes
 
     ee.SelectEntityByName("Page1");
     agHelper.AssertContains(
-      "DON'T SAVE",
+      "Don't save",
       "exist",
       dataSources._datasourceModalDoNotSave,
     );
