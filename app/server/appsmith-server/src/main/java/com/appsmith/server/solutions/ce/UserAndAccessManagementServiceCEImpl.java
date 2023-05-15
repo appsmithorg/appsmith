@@ -12,15 +12,12 @@ import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.*;
 import com.appsmith.server.solutions.PermissionGroupPermission;
-import kotlin.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,8 +37,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
     private final UserService userService;
     private final EmailSender emailSender;
     private final PermissionGroupPermission permissionGroupPermission;
-    private final EmailTemplateService emailTemplateService;
-    private static final String INVITE_USER_CLIENT_URL_FORMAT = "%s/user/signup?email=%s";
+    private final EmailService emailService;
 
 
     public UserAndAccessManagementServiceCEImpl(SessionUserService sessionUserService,
@@ -52,7 +48,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                                                 UserService userService,
                                                 EmailSender emailSender,
                                                 PermissionGroupPermission permissionGroupPermission,
-                                                EmailTemplateService emailTemplateService) {
+                                                EmailService emailService) {
 
         this.sessionUserService = sessionUserService;
         this.permissionGroupService = permissionGroupService;
@@ -62,7 +58,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
         this.userService = userService;
         this.emailSender = emailSender;
         this.permissionGroupPermission = permissionGroupPermission;
-        this.emailTemplateService = emailTemplateService;
+        this.emailService = emailService;
     }
 
     /**
@@ -139,43 +135,15 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                             });
 
                     return getUserFromDbAndCheckIfUserExists
-                            .flatMap(existingUser -> {
-                                // The user already existed, just send an email informing that the user has been added
-                                // to a new workspace
-                                log.debug("Going to send email to user {} informing that the user has been added to new workspace {}",
-                                        existingUser.getEmail(), workspace.getName());
-
-                                Pair<String, String> subjectAndEmailTemplate = emailTemplateService.getSubjectAndWorkspaceEmailTemplateForExistingUser(workspace);
-                                // Email template parameters initialization below.
-                                Map<String, String> params = emailTemplateService.getWorkspaceEmailParams(workspace,
-                                        currentUser, originHeader, permissionGroup.getName(), false);
-
-                                return userService.updateTenantLogoInParams(params, originHeader)
-                                        .flatMap(updatedParams ->
-                                                emailSender.sendMail(
-                                                        existingUser.getEmail(),
-                                                        subjectAndEmailTemplate.getFirst(),
-                                                        subjectAndEmailTemplate.getSecond(),
-                                                        updatedParams
-                                                )
-                                        )
-                                        .thenReturn(existingUser);
-                            })
-                            .switchIfEmpty(Mono.defer(() -> {
-                                String inviteUrl = String.format(
-                                        INVITE_USER_CLIENT_URL_FORMAT,
-                                        originHeader,
-                                        URLEncoder.encode(username.toLowerCase(), StandardCharsets.UTF_8)
-                                );
-                                // Email template parameters initialization below.
-                                Map<String, String> params = emailTemplateService.getWorkspaceEmailParams(workspace,
-                                        currentUser, inviteUrl, permissionGroup.getName(), true);
-                                Pair<String, String> subjectAndWorkspaceEmailTemplate = emailTemplateService
-                                        .getSubjectAndWorkspaceEmailTemplateForNewUser(workspace);
-
-                                return userService.createNewUserAndSendInviteEmail(username, originHeader,
-                                        permissionGroup.getName(), subjectAndWorkspaceEmailTemplate, params);
-                            }));
+                            .flatMap(existingUser -> emailService.sendWorkspaceEmail(originHeader,
+                                    workspace, currentUser, permissionGroup.getName(), existingUser, false)
+                            )
+                            .switchIfEmpty(userService.createNewUser(username, originHeader, permissionGroup.getName())
+                                    .flatMap(createdUser -> emailService.sendWorkspaceEmail(originHeader,
+                                                    workspace, currentUser, permissionGroup.getName(), createdUser, true)
+                                            .thenReturn(createdUser)
+                                    )
+                            );
                 })
                 .collectList()
                 .cache();

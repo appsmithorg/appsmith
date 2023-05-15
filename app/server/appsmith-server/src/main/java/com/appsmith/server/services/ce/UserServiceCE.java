@@ -2,7 +2,6 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.dtos.UserSignupDTO;
@@ -34,9 +33,7 @@ public interface UserServiceCE extends CrudService<User, String> {
 
     Mono<User> userCreate(User user, boolean isAdminUser);
 
-    Mono<? extends User> createNewUserAndSendInviteEmail(String email, String originHeader, String role,
-                                                         Pair<String, String> subjectAndEmailTemplate,
-                                                         Map<String, String> params);
+    Mono<? extends User> createNewUser(String email, String originHeader, String role);
 
     Mono<User> updateCurrentUser(UserUpdateDTO updates, ServerWebExchange exchange);
 

@@ -89,7 +89,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final TenantService tenantService;
     private final PermissionGroupService permissionGroupService;
     private final UserUtils userUtils;
-    private final EmailTemplateService emailTemplateService;
+    private final EmailService emailService;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
@@ -120,7 +120,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                              TenantService tenantService,
                              PermissionGroupService permissionGroupService,
                              UserUtils userUtils,
-                             EmailTemplateService emailTemplateService) {
+                             EmailService emailService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
@@ -137,7 +137,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.tenantService = tenantService;
         this.permissionGroupService = permissionGroupService;
         this.userUtils = userUtils;
-        this.emailTemplateService = emailTemplateService;
+        this.emailService = emailService;
     }
 
     @Override
@@ -648,9 +648,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     }
 
     @Override
-    public Mono<? extends User> createNewUserAndSendInviteEmail(String email, String originHeader,
-                                                                String role, Pair<String, String> subjectAndEmailTemplate,
-                                                                Map<String, String> params) {
+    public Mono<? extends User> createNewUser(String email, String originHeader,
+                                              String role) {
         User newUser = new User();
         newUser.setEmail(email.toLowerCase());
 
@@ -664,19 +663,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         boolean isAdminUser = commonConfig.getAdminEmails().contains(email.toLowerCase());
 
         // Call user service's userCreate function so that the default workspace, etc are also created along with assigning basic permissions.
-        return userCreate(newUser, isAdminUser)
-                .flatMap(createdUser -> {
-                    log.debug("Going to send email for invite user to {}", createdUser.getEmail());
-                    // We have sent out the emails. Just send back the saved user.
-                    return updateTenantLogoInParams(params, originHeader)
-                            .flatMap(updatedParams ->
-                                    emailSender.sendMail(createdUser.getEmail(),
-                                            subjectAndEmailTemplate.getFirst(),
-                                            subjectAndEmailTemplate.getSecond(),
-                                            updatedParams)
-                            )
-                            .thenReturn(createdUser);
-                });
+        return userCreate(newUser, isAdminUser);
     }
 
     @Override

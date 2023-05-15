@@ -46,11 +46,11 @@ public class UserServiceImpl extends UserServiceCEImpl implements UserService {
                            TenantService tenantService,
                            PermissionGroupService permissionGroupService,
                            UserUtils userUtils,
-                           EmailTemplateService emailTemplateService) {
+                           EmailService emailService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, workspaceService, analyticsService,
                 sessionUserService, passwordResetTokenRepository, passwordEncoder, emailSender, applicationRepository,
                 policyUtils, commonConfig, emailConfig, userChangedHandler, encryptionService, userDataService, tenantService,
-                permissionGroupService, userUtils, emailTemplateService);
+                permissionGroupService, userUtils, emailService);
     }
 }
