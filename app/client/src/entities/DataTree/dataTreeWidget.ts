@@ -15,26 +15,50 @@ import { OverridingPropertyType } from "./types";
 
 import { setOverridingProperty } from "./utils";
 
-function getSetterConfig(
-  setterConfig: Record<string, any>,
-  widgetName: string,
-) {
+function getSetterConfig(setterConfig: Record<string, any>, widget: any) {
   const modifiedSetterConfig: Record<string, any> = {};
   if (setterConfig.__setters) {
     modifiedSetterConfig.__setters = {};
     for (const setterMethodName of Object.keys(setterConfig.__setters)) {
       modifiedSetterConfig.__setters[setterMethodName] = {
-        path: `${widgetName}.${setterConfig.__setters[setterMethodName].path}`,
+        path: `${widget.widgetName}.${setterConfig.__setters[setterMethodName].path}`,
       };
     }
   }
 
-  if (setterConfig.pathToSetters && setterConfig.pathToSetters.length) {
-    const pathToSetters = setterConfig.pathToSetter;
-    for (const path of pathToSetters) {
-      const subConfig = get(setterConfig, path);
-      const subModifiedConfig = getSetterConfig(subConfig, widgetName);
-      _.set(modifiedSetterConfig, path, subModifiedConfig);
+  if (!setterConfig.pathToSetters || !setterConfig.pathToSetters.length)
+    return modifiedSetterConfig;
+
+  const pathToSetters = setterConfig.pathToSetters;
+
+  for (const { path, property } of pathToSetters) {
+    const pathArray = path.split(".");
+    const lastElement = pathArray[pathArray.length - 1];
+
+    if (lastElement[0] !== "$") continue;
+
+    const pathToParentObj = pathArray.slice(0, -1).join(".");
+    const accessors = Object.keys(get(widget, pathToParentObj));
+
+    for (const accesskey of accessors) {
+      const fullPath = pathToParentObj + "." + accesskey;
+      const subConfigParentObj = get(widget, fullPath);
+
+      const propertyType = subConfigParentObj[property];
+      if (!propertyType) continue;
+      const subConfig = setterConfig[propertyType];
+      if (!subConfig) continue;
+      const settersMap = subConfig.__setters;
+      if (!settersMap) continue;
+
+      for (const [setterName, setterBody] of Object.entries(settersMap)) {
+        const path = (setterBody as any).path.replace(lastElement, accesskey);
+        const setterPathArray = path.split(".");
+        setterPathArray.pop();
+        setterPathArray.push(setterName);
+        const setterPath = setterPathArray.join(".");
+        modifiedSetterConfig.__setters[setterPath] = { path };
+      }
     }
   }
   return modifiedSetterConfig;
@@ -166,7 +190,7 @@ const generateDataTreeWidgetWithoutMeta = (
 
   const setterConfig = getSetterConfig(
     WidgetFactory.getWidgetSetterConfig(widget.type),
-    widget.widgetName,
+    widget,
   );
 
   const dataTreeWidgetWithoutMetaProps = _.merge(
