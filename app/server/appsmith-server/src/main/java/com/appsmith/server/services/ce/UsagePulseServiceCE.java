@@ -6,5 +6,6 @@ import reactor.core.publisher.Mono;
 
 public interface UsagePulseServiceCE {
     Mono<UsagePulse> createPulse(UsagePulseDTO usagePulseDTO);
+
     Mono<UsagePulse> save(UsagePulse usagePulse);
 }

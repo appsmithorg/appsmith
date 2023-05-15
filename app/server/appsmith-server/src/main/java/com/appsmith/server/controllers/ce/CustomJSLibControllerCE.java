@@ -7,7 +7,6 @@ import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.CustomJSLibService;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -70,7 +69,7 @@ public class CustomJSLibControllerCE {
     @JsonView(Views.Public.class)
     @GetMapping("/{applicationId}/view")
     public Mono<ResponseDTO<List<CustomJSLib>>> getAllUserInstalledJSLibInApplicationForViewMode(@PathVariable String applicationId,
-                                                                                                 @RequestHeader(name =FieldName.BRANCH_NAME,
+                                                                                                 @RequestHeader(name = FieldName.BRANCH_NAME,
                                                                                                          required = false)
                                                                                                  String branchName) {
         log.debug("Going to get all published JS libs in application: {}, on branch: {}", applicationId, branchName);

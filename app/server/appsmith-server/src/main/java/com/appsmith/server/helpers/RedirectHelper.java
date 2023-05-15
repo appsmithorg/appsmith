@@ -117,6 +117,7 @@ public class RedirectHelper {
     /**
      * If redirectUrl is empty, it'll be set to DEFAULT_REDIRECT_URL.
      * If the redirectUrl does not have the base url, it'll prepend that from header origin.
+     *
      * @param redirectUrl
      * @param httpHeaders
      * @return
@@ -169,7 +170,7 @@ public class RedirectHelper {
 
     public String buildApplicationUrl(Application application, HttpHeaders httpHeaders) {
         String redirectUrl = RedirectHelper.DEFAULT_REDIRECT_URL;
-        if(application != null && application.getPages() != null && application.getPages().size() > 0) {
+        if (application != null && application.getPages() != null && application.getPages().size() > 0) {
             ApplicationPage applicationPage = application.getPages().get(0);
             redirectUrl = String.format(RedirectHelper.APPLICATION_PAGE_URL, application.getId(), applicationPage.getId());
         }

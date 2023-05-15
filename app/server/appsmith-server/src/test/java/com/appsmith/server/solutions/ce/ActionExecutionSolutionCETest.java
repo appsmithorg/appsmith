@@ -10,6 +10,9 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceDTO;
+import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.ParsedDataType;
@@ -17,6 +20,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.models.WidgetSuggestionDTO;
 import com.appsmith.external.models.WidgetType;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
@@ -191,7 +195,7 @@ public class ActionExecutionSolutionCETest {
             dsl2.put("primaryColumns", primaryColumns);
             final ArrayList<Object> objects = new ArrayList<>();
             JSONArray temp2 = new JSONArray();
-            temp2.addAll(List.of(new JSONObject(Map.of("key", "primaryColumns._id"))));
+            temp2.add(new JSONObject(Map.of("key", "primaryColumns._id")));
             dsl2.put("dynamicBindingPathList", temp2);
             objects.add(dsl2);
             dsl.put("children", objects);
@@ -227,6 +231,10 @@ public class ActionExecutionSolutionCETest {
         Plugin installed_plugin = pluginRepository.findByPackageName("restapi-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
         datasource.setDatasourceConfiguration(new DatasourceConfiguration());
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        datasource.setDatasourceStorages(storages);
     }
 
     @AfterEach
@@ -461,7 +469,7 @@ public class ActionExecutionSolutionCETest {
         StepVerifier.create(executionResultMono)
                 .assertNext(result -> {
                     assertThat(result.getIsExecutionSuccess()).isFalse();
-                    assertThat(result.getStatusCode()).isEqualTo(pluginException.getAppErrorCode().toString());
+                    assertThat(result.getStatusCode()).isEqualTo(pluginException.getAppErrorCode());
                     assertThat(result.getTitle()).isEqualTo(pluginException.getTitle());
                     assertThat(result.getRequest().getActionId()).isEqualTo(createdAction.getId());
                     assertThat(result.getRequest().getRequestedAt()).isBefore(Instant.now());
@@ -511,7 +519,7 @@ public class ActionExecutionSolutionCETest {
         StepVerifier.create(executionResultMono)
                 .assertNext(result -> {
                     assertThat(result.getIsExecutionSuccess()).isFalse();
-                    assertThat(result.getStatusCode()).isEqualTo(pluginException.getAppErrorCode().toString());
+                    assertThat(result.getStatusCode()).isEqualTo(pluginException.getAppErrorCode());
                     assertThat(result.getTitle()).isEqualTo(pluginException.getTitle());
                 })
                 .verifyComplete();
@@ -599,12 +607,11 @@ public class ActionExecutionSolutionCETest {
         StepVerifier.create(executionResultMono)
                 .assertNext(result -> {
                     assertThat(result.getIsExecutionSuccess()).isFalse();
-                    assertThat(result.getStatusCode()).isEqualTo(AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR.getAppErrorCode().toString());
+                    assertThat(result.getStatusCode()).isEqualTo(AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR.getAppErrorCode());
                     assertThat(result.getTitle()).isEqualTo(AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR.getTitle());
                 })
                 .verifyComplete();
     }
-
 
 
     @Test
@@ -661,6 +668,10 @@ public class ActionExecutionSolutionCETest {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("some url here");
         externalDatasource.setDatasourceConfiguration(datasourceConfiguration);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        externalDatasource.setDatasourceStorages(storages);
         Datasource savedDs = datasourceService.create(externalDatasource).block();
 
         ActionDTO action = new ActionDTO();
@@ -1007,7 +1018,6 @@ public class ActionExecutionSolutionCETest {
                 "\t}\n" +
                 "]}";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
-        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -1113,7 +1123,6 @@ public class ActionExecutionSolutionCETest {
                 "    }\n" +
                 "]}";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
-        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -1175,7 +1184,6 @@ public class ActionExecutionSolutionCETest {
                 "       }\n" +
                 "  ]}";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
-        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -1219,7 +1227,6 @@ public class ActionExecutionSolutionCETest {
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\":[\"string1\", \"string2\", \"string3\", \"string4\"] }";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
-        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -1263,7 +1270,6 @@ public class ActionExecutionSolutionCETest {
                 "[\"string5\", \"string6\", \"string7\", \"string8\"]," +
                 "[\"string9\", \"string10\", \"string11\", \"string12\"]] }";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
-        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -1306,7 +1312,6 @@ public class ActionExecutionSolutionCETest {
         ActionExecutionResult mockResult = new ActionExecutionResult();
         final String data = "{ \"data\":[] }";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
-        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -1416,7 +1421,6 @@ public class ActionExecutionSolutionCETest {
                 "    ]\n" +
                 "}}";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
-        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -1471,7 +1475,6 @@ public class ActionExecutionSolutionCETest {
                 "            \"updatedAt\": \"2020-08-12T17:29:31.980Z\"\n" +
                 "        } }";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
-        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -1534,7 +1537,6 @@ public class ActionExecutionSolutionCETest {
                 "            \"updatedAt\": \"2019-09-11T20:18:38.000Z\"\n" +
                 "        } }";
         final JsonNode arrNode = new ObjectMapper().readTree(data);
-        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -1580,7 +1582,6 @@ public class ActionExecutionSolutionCETest {
                 "    \"users\": [1, 2, 3]\n" +
                 "}}";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
-        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -1627,7 +1628,6 @@ public class ActionExecutionSolutionCETest {
                 "    \"users\": []\n" +
                 "}}";
         final JsonNode arrNode = new ObjectMapper().readTree(data).get("data");
-        ;
 
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody(arrNode);
@@ -1794,7 +1794,6 @@ public class ActionExecutionSolutionCETest {
     }
 
 
-
     @Test
     @WithUserDetails(value = "api_user")
     public void executeAction_actionOnMockDatasource_success() {
@@ -1813,7 +1812,7 @@ public class ActionExecutionSolutionCETest {
         mockDataSource.setWorkspaceId(workspaceId);
         mockDataSource.setPackageName("postgres-plugin");
         mockDataSource.setPluginId(installed_plugin.getId());
-        Datasource mockDatasource = mockDataService.createMockDataSet(mockDataSource).block();
+        DatasourceDTO mockDatasource = mockDataService.createMockDataSet(mockDataSource, FieldName.UNUSED_ENVIRONMENT_ID).block();
 
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         widgetTypeList.add(WidgetSuggestionHelper.getWidget(WidgetType.TEXT_WIDGET));
@@ -1825,7 +1824,7 @@ public class ActionExecutionSolutionCETest {
         action.setActionConfiguration(actionConfiguration);
         action.setPageId(testPage.getId());
         action.setName("testActionExecuteDbQuery");
-        action.setDatasource(mockDatasource);
+        action.setDatasource(datasourceService.convertToDatasource(mockDatasource, FieldName.UNUSED_ENVIRONMENT_ID));
         ActionDTO createdAction = layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();

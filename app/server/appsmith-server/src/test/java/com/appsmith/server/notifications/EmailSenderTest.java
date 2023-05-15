@@ -62,7 +62,7 @@ public class EmailSenderTest {
                 verifyNoInteractions(javaMailSender);
             } catch (Throwable exc) {
                 System.out.println("******************************");
-                System.out.println(String.format("Failed for >>> %s", invalidAddress));
+                System.out.printf("Failed for >>> %s%n", invalidAddress);
                 System.out.println("******************************");
                 throw exc;
             }

@@ -211,20 +211,20 @@ public class ApplicationSnapshotServiceTest {
             pageDTO.setApplicationId(application.getId());
             return applicationPageService.createPage(pageDTO)
                     .then(applicationSnapshotService.restoreSnapshot(application.getId(), null))
-                .then(newPageService.findApplicationPages(application.getId(), null, null, ApplicationMode.EDIT));
-    });
+                    .then(newPageService.findApplicationPages(application.getId(), null, null, ApplicationMode.EDIT));
+        });
 
         // not using Mono.zip because we want pagesBeforeSnapshot to finish first
         Mono<Tuple2<ApplicationPagesDTO, ApplicationPagesDTO>> tuple2Mono = pagesBeforeSnapshot
                 .flatMap(applicationPagesDTO -> pagesAfterSnapshot.zipWith(Mono.just(applicationPagesDTO)));
 
         StepVerifier.create(tuple2Mono)
-            .assertNext(objects -> {
-                ApplicationPagesDTO beforePages = objects.getT2();
-                ApplicationPagesDTO afterPages = objects.getT1();
-                assertThat(beforePages.getPages().size()).isEqualTo(afterPages.getPages().size());
-            })
-            .verifyComplete();
+                .assertNext(objects -> {
+                    ApplicationPagesDTO beforePages = objects.getT2();
+                    ApplicationPagesDTO afterPages = objects.getT1();
+                    assertThat(beforePages.getPages().size()).isEqualTo(afterPages.getPages().size());
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -256,7 +256,7 @@ public class ApplicationSnapshotServiceTest {
 
     @Test
     public void deleteSnapshot_WhenSnapshotExists_Deleted() {
-        String testAppId = "app-" + UUID.randomUUID().toString();
+        String testAppId = "app-" + UUID.randomUUID();
         ApplicationSnapshot snapshot1 = new ApplicationSnapshot();
         snapshot1.setChunkOrder(1);
         snapshot1.setApplicationId(testAppId);

@@ -6,7 +6,6 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UsagePulseDTO;
 import com.appsmith.server.services.UsagePulseService;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

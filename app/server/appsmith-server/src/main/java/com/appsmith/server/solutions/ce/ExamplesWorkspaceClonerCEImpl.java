@@ -2,10 +2,9 @@ package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.AuthenticationDTO;
-import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
@@ -13,11 +12,10 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -33,10 +31,10 @@ import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.NewActionService;
-import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.mongodb.client.result.UpdateResult;
@@ -73,7 +71,6 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
     private final NewActionService newActionService;
     private final LayoutActionService layoutActionService;
     private final ActionCollectionService actionCollectionService;
-    private final LayoutCollectionService layoutCollectionService;
     private final ThemeService themeService;
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
@@ -115,7 +112,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
      * given user is the same as the user in the current Spring session.
      *
      * @param templateWorkspaceId workspace ID of the workspace to create a clone of.
-     * @param user                   The user who will own the new cloned workspace.
+     * @param user                The user who will own the new cloned workspace.
      * @return Publishes the newly created workspace.
      */
     public Mono<Workspace> cloneWorkspaceForUser(
@@ -174,7 +171,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
      * Clone all applications (except deleted ones), including it's pages and actions from one workspace into
      * another. Also clones all datasources (not just the ones used by any applications) in the given workspace.
      *
-     * @param toWorkspaceId   ID of the workspace that is the target to copy objects to.
+     * @param toWorkspaceId ID of the workspace that is the target to copy objects to.
      * @return Empty Mono.
      */
     public Mono<List<String>> cloneApplications(
@@ -204,7 +201,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                     // Extracting forkWithConfiguration to use below before resetting it for newly forked app
                     //forkWithConfig by default remains FALSE for datasources used in an application
                     Boolean forkWithConfig;
-                    if (Boolean.TRUE.equals(application.getForkWithConfiguration())){
+                    if (Boolean.TRUE.equals(application.getForkWithConfiguration())) {
                         forkWithConfig = Boolean.TRUE;
                     } else {
                         forkWithConfig = Boolean.FALSE;
@@ -341,7 +338,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                                                                         // through git branch, the default and newly
                                                                         // created actionId will be same
                                                                         newActionIds
-                                                                            .put(actionIdsMap.get(oldActionId), actionIdsMap.get(oldActionId));
+                                                                                .put(actionIdsMap.get(oldActionId), actionIdsMap.get(oldActionId));
                                                                     } else {
                                                                         log.debug("Unable to find action {} while forking inside ID map: {}", oldActionId, actionIdsMap);
                                                                     }
@@ -448,7 +445,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
      * This function simply creates a clone of the Application object without cloning its children (page and actions)
      * Once the new application object is created, it adds the new application's id into the list applicationIds
      *
-     * @param application : Application to be cloned
+     * @param application    : Application to be cloned
      * @param applicationIds : List where the cloned new application's id would be stored
      * @return A flux that yields all the pages in the template application
      */
@@ -553,9 +550,10 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
     /**
      * Tries to create the given datasource with the name, over and over again with an incremented suffix, but **only**
      * if the error is because of a name clash.
+     *
      * @param datasource Datasource to try create.
-     * @param name Name of the datasource, to which numbered suffixes will be appended.
-     * @param suffix Suffix used for appending, recursion artifact. Usually set to 0.
+     * @param name       Name of the datasource, to which numbered suffixes will be appended.
+     * @param suffix     Suffix used for appending, recursion artifact. Usually set to 0.
      * @return A Mono that yields the created datasource.
      */
     private Mono<Datasource> createSuffixedDatasource(Datasource datasource, String name, int suffix) {

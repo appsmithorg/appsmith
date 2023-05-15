@@ -4,7 +4,6 @@ import com.appsmith.external.views.Views;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.services.SessionUserService;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;

@@ -2,6 +2,7 @@ package com.appsmith.server.exceptions;
 
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import jakarta.annotation.Nonnull;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
@@ -22,7 +23,6 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.reactive.result.view.ViewResolver;
 import reactor.core.publisher.Mono;
 
-import jakarta.annotation.Nonnull;
 import java.util.Map;
 import java.util.stream.Collectors;
 

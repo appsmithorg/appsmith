@@ -27,8 +27,8 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -39,6 +39,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
     private final ApplicationPermission applicationPermission;
+
     @Autowired
     public CustomApplicationRepositoryCEImpl(@NonNull ReactiveMongoOperations mongoOperations,
                                              @NonNull MongoConverter mongoConverter,
@@ -251,18 +252,18 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         query.addCriteria(where(gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultApplicationId)).is(defaultApplicationId));
         query.addCriteria(where(fieldName(QApplication.application.deleted)).ne(true));
         query.equals(where("this." + gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.branchName))
-                .equals("this." +gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultBranchName)));
+                .equals("this." + gitApplicationMetadata + "." + fieldName(QApplication.application.gitApplicationMetadata.defaultBranchName)));
 
-        return mongoOperations.findOne(query,Application.class);
+        return mongoOperations.findOne(query, Application.class);
     }
 
     @Override
     public Mono<UpdateResult> setAppTheme(String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
         Update updateObj = new Update();
-        if(StringUtils.hasLength(editModeThemeId)) {
+        if (StringUtils.hasLength(editModeThemeId)) {
             updateObj = updateObj.set(fieldName(QApplication.application.editModeThemeId), editModeThemeId);
         }
-        if(StringUtils.hasLength(publishedModeThemeId)) {
+        if (StringUtils.hasLength(publishedModeThemeId)) {
             updateObj = updateObj.set(fieldName(QApplication.application.publishedModeThemeId), publishedModeThemeId);
         }
 

@@ -122,9 +122,9 @@ public class ApplicationSnapshotServiceUnitTest {
         int chunkSize = jsonStringBytes.length / 3;
 
         List<ApplicationSnapshot> snapshots = List.of(
-                createSnapshot(branchedAppId, copyOfRange(jsonStringBytes, chunkSize*2, jsonStringBytes.length), 3),
+                createSnapshot(branchedAppId, copyOfRange(jsonStringBytes, chunkSize * 2, jsonStringBytes.length), 3),
                 createSnapshot(branchedAppId, copyOfRange(jsonStringBytes, 0, chunkSize), 1),
-                createSnapshot(branchedAppId, copyOfRange(jsonStringBytes, chunkSize, chunkSize*2), 2)
+                createSnapshot(branchedAppId, copyOfRange(jsonStringBytes, chunkSize, chunkSize * 2), 2)
         );
 
         Mockito.when(applicationSnapshotRepository.findByApplicationId(branchedAppId))

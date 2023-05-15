@@ -4,7 +4,6 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.fasterxml.jackson.annotation.JsonView;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -89,7 +88,7 @@ public class UserData extends BaseDomain {
     }
 
     @JsonView(Views.Public.class)
-    public Map<String, GitProfile> setGitProfileByKey(String key, GitProfile gitProfile){
+    public Map<String, GitProfile> setGitProfileByKey(String key, GitProfile gitProfile) {
         if (CollectionUtils.isNullOrEmpty(this.getGitProfiles())) {
             return Map.of(key, gitProfile);
         }

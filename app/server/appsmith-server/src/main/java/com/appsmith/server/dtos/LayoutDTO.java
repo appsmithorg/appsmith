@@ -1,16 +1,15 @@
 package com.appsmith.server.dtos;
 
+import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.server.domains.ScreenType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import net.minidev.json.JSONObject;
-import com.appsmith.external.exceptions.ErrorDTO;
 import org.springframework.data.annotation.Transient;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @Getter

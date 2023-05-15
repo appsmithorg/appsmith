@@ -13,7 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import reactor.core.publisher.Mono;
 
 @Slf4j
-public class CustomFormLoginServiceCEImpl implements ReactiveUserDetailsService{
+public class CustomFormLoginServiceCEImpl implements ReactiveUserDetailsService {
 
     private UserRepository repository;
 
@@ -48,9 +48,9 @@ public class CustomFormLoginServiceCEImpl implements ReactiveUserDetailsService{
                         // We can have a implementation to give which login method user should use but this will
                         // expose the sign-in source for external world and in turn to spammers
                         throw new InternalAuthenticationServiceException(
-                            AppsmithError.INVALID_LOGIN_METHOD.getMessage(
-                                WordUtils.capitalize(user.getSource().toString().toLowerCase())
-                            )
+                                AppsmithError.INVALID_LOGIN_METHOD.getMessage(
+                                        WordUtils.capitalize(user.getSource().toString().toLowerCase())
+                                )
                         );
                     }
                     return user;

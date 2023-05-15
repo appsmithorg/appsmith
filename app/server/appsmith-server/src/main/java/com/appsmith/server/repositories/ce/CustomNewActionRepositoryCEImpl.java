@@ -31,7 +31,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         implements CustomNewActionRepositoryCE {
 
     public CustomNewActionRepositoryCEImpl(ReactiveMongoOperations mongoOperations,
-                                         MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+                                           MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 

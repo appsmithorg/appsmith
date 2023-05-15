@@ -46,7 +46,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
         try {
             startupProcess.block();
-        } catch(Exception e) {
+        } catch (Exception e) {
             log.debug("Application start up encountered an error: {}", e.getMessage());
             Sentry.captureException(e);
         }

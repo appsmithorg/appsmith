@@ -2,7 +2,6 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.server.domains.User;
 import lombok.extern.slf4j.Slf4j;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,7 +24,7 @@ public class UserRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
-    private List<User> savedUsers = new ArrayList<>();
+    private final List<User> savedUsers = new ArrayList<>();
 
     @BeforeEach
     public void setUp() {
@@ -34,7 +33,7 @@ public class UserRepositoryTest {
 
     @AfterEach
     public void cleanUp() {
-        for(User savedUser : savedUsers) {
+        for (User savedUser : savedUsers) {
             userRepository.deleteById(savedUser.getId()).block();
         }
     }

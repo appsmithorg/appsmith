@@ -44,6 +44,7 @@ import static org.mockito.ArgumentMatchers.any;
 @ExtendWith(SpringExtension.class)
 @Slf4j
 public class EnvManagerTest {
+    EnvManager envManager;
     @MockBean
     private SessionUserService sessionUserService;
     @MockBean
@@ -70,17 +71,12 @@ public class EnvManagerTest {
     private ConfigService configService;
     @MockBean
     private PermissionGroupService permissionGroupService;
-
     @MockBean
     private UserUtils userUtils;
-
     @MockBean
     private TenantService tenantService;
-
     @MockBean
     private ObjectMapper objectMapper;
-
-    EnvManager envManager;
 
     @BeforeEach
     public void setup() {
@@ -373,25 +369,25 @@ public class EnvManagerTest {
                 .verify();
     }
 
-	@Test
-	public void setEnv_AndGetAll() {
-		EnvManager envManagerInner = Mockito.mock(EnvManagerImpl.class);
+    @Test
+    public void setEnv_AndGetAll() {
+        EnvManager envManagerInner = Mockito.mock(EnvManagerImpl.class);
 
-		Map<String, String> envs = new HashMap<>();
-		envs.put("APPSMITH_MONGODB_URI", "mongo-url");
-		envs.put("APPSMITH_DISABLE_TELEMETRY", "");
+        Map<String, String> envs = new HashMap<>();
+        envs.put("APPSMITH_MONGODB_URI", "mongo-url");
+        envs.put("APPSMITH_DISABLE_TELEMETRY", "");
 
-		Mockito.when(envManagerInner.getAll()).thenReturn(Mono.just(envs));
-		Mockito.when(envManagerInner.getAllNonEmpty()).thenCallRealMethod();
+        Mockito.when(envManagerInner.getAll()).thenReturn(Mono.just(envs));
+        Mockito.when(envManagerInner.getAllNonEmpty()).thenCallRealMethod();
 
 
-		Mono<Map<String, String>> envMono = envManagerInner.getAllNonEmpty();
+        Mono<Map<String, String>> envMono = envManagerInner.getAllNonEmpty();
 
-		StepVerifier.create(envMono)
-			.assertNext(map -> {
-				assertThat(map).hasSize(1);
-				assertThat(map.containsKey("APPSMITH_DISABLE_TELEMETRY")).isFalse();
-			})
-			.verifyComplete();
-	}
+        StepVerifier.create(envMono)
+                .assertNext(map -> {
+                    assertThat(map).hasSize(1);
+                    assertThat(map.containsKey("APPSMITH_DISABLE_TELEMETRY")).isFalse();
+                })
+                .verifyComplete();
+    }
 }

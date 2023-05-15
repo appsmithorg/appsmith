@@ -57,7 +57,9 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
     Flux<NewAction> findByListOfPageIds(List<String> pageIds, AclPermission permission);
 
     Flux<NewAction> findByListOfPageIds(List<String> pageIds, Optional<AclPermission> permission);
+
     Flux<NewAction> findNonJsActionsByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission aclPermission);
+
     Flux<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(String name, List<String> pageIds,
                                                                    Boolean viewMode,
                                                                    AclPermission aclPermission,

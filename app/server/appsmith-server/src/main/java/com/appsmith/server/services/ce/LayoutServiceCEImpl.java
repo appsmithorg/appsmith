@@ -68,7 +68,7 @@ public class LayoutServiceCEImpl implements LayoutServiceCE {
             return createLayout(defaultPageId, layout);
         }
         return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
-                .flatMap(branchedPage ->  createLayout(branchedPage.getId(), layout))
+                .flatMap(branchedPage -> createLayout(branchedPage.getId(), layout))
                 .map(responseUtils::updateLayoutWithDefaultResources);
     }
 
@@ -91,7 +91,7 @@ public class LayoutServiceCEImpl implements LayoutServiceCE {
             return getLayout(defaultPageId, layoutId, viewMode);
         }
         return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
-                .flatMap(branchedPage ->  getLayout(branchedPage.getId(), layoutId, viewMode))
+                .flatMap(branchedPage -> getLayout(branchedPage.getId(), layoutId, viewMode))
                 .map(responseUtils::updateLayoutWithDefaultResources);
     }
 

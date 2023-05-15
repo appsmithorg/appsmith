@@ -14,16 +14,4 @@ public class DatasourceContextIdentifier extends DatasourceContextIdentifierCE {
         super(datasourceId, environmentId);
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        // since the usage of environmentId will be mandatory in the EE version,
-        // this will have override in the EE version, which will not allow null EE values.
-        return super.equals(obj);
-    }
-
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
-
 }

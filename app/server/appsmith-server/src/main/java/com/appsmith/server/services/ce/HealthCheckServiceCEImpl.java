@@ -3,10 +3,10 @@ package com.appsmith.server.services.ce;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.Status;
 import org.springframework.boot.actuate.data.mongo.MongoReactiveHealthIndicator;
 import org.springframework.boot.actuate.data.redis.RedisReactiveHealthIndicator;
+import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.actuate.health.Status;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import reactor.core.publisher.Mono;
@@ -21,6 +21,7 @@ public class HealthCheckServiceCEImpl implements HealthCheckServiceCE {
 
     private final ReactiveRedisConnectionFactory reactiveRedisConnectionFactory;
     private final ReactiveMongoTemplate reactiveMongoTemplate;
+
     public HealthCheckServiceCEImpl(ReactiveRedisConnectionFactory reactiveRedisConnectionFactory,
                                     ReactiveMongoTemplate reactiveMongoTemplate) {
         this.reactiveRedisConnectionFactory = reactiveRedisConnectionFactory;

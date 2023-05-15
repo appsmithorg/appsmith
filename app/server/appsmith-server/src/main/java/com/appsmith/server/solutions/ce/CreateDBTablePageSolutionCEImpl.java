@@ -8,6 +8,9 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfigurationStructure;
+import com.appsmith.external.models.DatasourceDTO;
+import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceStructure.Column;
 import com.appsmith.external.models.DatasourceStructure.PrimaryKey;
@@ -34,6 +37,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.DatasourceService;
+import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
@@ -76,6 +80,7 @@ import java.util.stream.Collectors;
 public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutionCE {
 
     private final DatasourceService datasourceService;
+    private final DatasourceStorageService datasourceStorageService;
     private final NewPageService newPageService;
     private final LayoutActionService layoutActionService;
     private final ApplicationPageService applicationPageService;
@@ -150,10 +155,12 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
      *
      * @param defaultPageId   for which the template page needs to be replicated
      * @param pageResourceDTO
+     * @param environmentId
      * @return generated pageDTO from the template resource
      */
     public Mono<CRUDPageResponseDTO> createPageFromDBTable(String defaultPageId,
                                                            CRUDPageResourceDTO pageResourceDTO,
+                                                           String environmentId,
                                                            String branchName) {
 
         /*
@@ -193,25 +200,26 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
         // Fetch branched applicationId if connected to git
         Mono<NewPage> pageMono = getOrCreatePage(defaultApplicationId, defaultPageId, tableName, branchName);
 
-        Mono<Datasource> datasourceMono = datasourceService
+        Mono<DatasourceStorage> datasourceStorageMono = datasourceService
                 .findById(datasourceId, datasourcePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId))
                 )
-                .filter(Datasource::getIsValid)
+                .flatMap(datasource -> datasourceStorageService.findByDatasourceAndEnvironmentId(datasource, environmentId))
+                .filter(DatasourceStorage::getIsValid)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.INVALID_DATASOURCE, FieldName.DATASOURCE, datasourceId))
                 );
 
-        return datasourceMono
-                .zipWhen(datasource -> Mono.zip(
+        return datasourceStorageMono
+                .zipWhen(datasourceStorage -> Mono.zip(
                                 pageMono,
-                                pluginService.findById(datasource.getPluginId()),
-                        datasourceStructureSolution.getStructure(datasource, false, null)
+                                pluginService.findById(datasourceStorage.getPluginId()),
+                                datasourceStructureSolution.getStructure(datasourceStorage, false)
                         )
                 )
                 .flatMap(tuple -> {
-                    Datasource datasource = tuple.getT1();
+                    DatasourceStorage datasourceStorage = tuple.getT1();
                     NewPage page = tuple.getT2().getT1();
                     Plugin plugin = tuple.getT2().getT2();
                     DatasourceStructure datasourceStructure = tuple.getT2().getT3();
@@ -259,9 +267,10 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                     final String templateTableRef = TEMPLATE_TABLE_NAME.split("\\.", 2)[1];
                     final String tableRef = tableName.contains(".") ? tableName.split("\\.", 2)[1] : tableName;
 
-                    Datasource templateDatasource = applicationJson
+                    DatasourceDTO templateDatasource = applicationJson
                             .getDatasourceList()
                             .stream()
+                            .map(datasourceService::convertToDatasourceDTO)
                             .filter(datasource1 -> {
                                 final String pluginRef = plugin.getPluginName() == null ? plugin.getPackageName() : plugin.getPluginName();
                                 return StringUtils.equals(datasource1.getPluginId(), pluginRef)
@@ -304,7 +313,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                         Table table = getTable(datasourceStructure, tableName);
                         if (table == null) {
                             return Mono.error(
-                                    new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE_STRUCTURE, datasource.getName())
+                                    new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE_STRUCTURE, datasourceStorage.getName())
                             );
                         }
 
@@ -368,7 +377,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                     log.debug("Going to update layout for page {} and layout {}", savedPageId, layoutId);
                     return layoutActionService.updateLayout(savedPageId, page.getApplicationId(), layoutId, layout)
                             .then(Mono.zip(
-                                    Mono.just(datasource),
+                                    Mono.just(datasourceStorage),
                                     Mono.just(templateActionList),
                                     Mono.just(deletedWidgets),
                                     Mono.just(plugin),
@@ -378,14 +387,14 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                 })
                 .flatMap(tuple -> {
 
-                    Datasource datasource = tuple.getT1();
+                    DatasourceStorage datasourceStorage = tuple.getT1();
                     List<NewAction> templateActionList = tuple.getT2();
                     Set<String> deletedWidgets = tuple.getT3();
                     Plugin plugin = tuple.getT4();
                     String tableNameInAction = tuple.getT5();
                     String savedPageId = tuple.getT6();
                     log.debug("Going to clone actions from template application for page {}", savedPageId);
-                    return cloneActionsFromTemplateApplication(datasource,
+                    return cloneActionsFromTemplateApplication(datasourceStorage,
                             tableNameInAction,
                             savedPageId,
                             templateActionList,
@@ -403,7 +412,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                                         CRUDPageResponseDTO crudPage = new CRUDPageResponseDTO();
                                         crudPage.setPage(pageDTO);
                                         createSuccessMessageAndSetAsset(plugin, crudPage);
-                                        return sendGenerateCRUDPageAnalyticsEvent(crudPage, datasource, plugin.getName())
+                                        return sendGenerateCRUDPageAnalyticsEvent(crudPage, datasourceStorage, plugin.getName())
                                                 .map(res -> {
                                                     PageDTO sanitisedResponse = responseUtils.updatePageDTOWithDefaultResources(res.getPage());
                                                     crudPage.setPage(sanitisedResponse);
@@ -478,8 +487,8 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
     }
 
     /**
-     * @param datasourceStructure              resource from which table has to be filtered
-     * @param tableName                        to filter the available tables in the datasource
+     * @param datasourceStructure resource from which table has to be filtered
+     * @param tableName           to filter the available tables in the datasource
      * @return Table from the provided datasource if structure is present
      */
     private Table getTable(DatasourceStructure datasourceStructure, String tableName) {
@@ -525,7 +534,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
      * This function will clone actions from the template application and update action configuration using mapped
      * columns between the template datasource and datasource in context
      *
-     * @param datasource         datasource connected by user
+     * @param datasourceStorage  datasource storage connected by user
      * @param tableName          Table name provided by the user
      * @param pageId             Page to which actions needs to be cloned
      * @param templateActionList Actions from the template application related to specific datasource
@@ -533,7 +542,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
      * @param deletedWidgetNames Deleted column ref when template application have more # of columns than the users table
      * @return cloned and updated actions from template application actions
      */
-    private Flux<ActionDTO> cloneActionsFromTemplateApplication(Datasource datasource,
+    private Flux<ActionDTO> cloneActionsFromTemplateApplication(DatasourceStorage datasourceStorage,
                                                                 String tableName,
                                                                 String pageId,
                                                                 List<NewAction> templateActionList,
@@ -552,9 +561,9 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                 .flatMap(templateAction -> {
                     ActionDTO actionDTO = new ActionDTO();
                     ActionConfiguration templateActionConfiguration = templateAction.getUnpublishedAction().getActionConfiguration();
-                    actionDTO.setPluginId(datasource.getPluginId());
+                    actionDTO.setPluginId(datasourceStorage.getPluginId());
                     actionDTO.setId(null);
-                    actionDTO.setDatasource(datasource);
+                    actionDTO.setDatasource(new Datasource(datasourceStorage));
                     actionDTO.setPageId(pageId);
                     actionDTO.setName(templateAction.getUnpublishedAction().getName());
                     actionDTO.setDefaultResources(templateAction.getDefaultResources());
@@ -1069,7 +1078,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
         crudPage.setSuccessMessage(successMessage);
     }
 
-    private Mono<CRUDPageResponseDTO> sendGenerateCRUDPageAnalyticsEvent(CRUDPageResponseDTO crudPage, Datasource datasource, String pluginName) {
+    private Mono<CRUDPageResponseDTO> sendGenerateCRUDPageAnalyticsEvent(CRUDPageResponseDTO crudPage, DatasourceStorage datasourceStorage, String pluginName) {
         PageDTO page = crudPage.getPage();
         return sessionUserService.getCurrentUser()
                 .flatMap(currentUser -> {
@@ -1079,8 +1088,8 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                                 "pageId", page.getId(),
                                 "pageName", page.getName(),
                                 "pluginName", pluginName,
-                                "datasourceId", datasource.getId(),
-                                "organizationId", datasource.getWorkspaceId()
+                                "datasourceId", datasourceStorage.getDatasourceId(),
+                                "organizationId", datasourceStorage.getWorkspaceId()
                         );
                         return analyticsService.sendEvent(AnalyticsEvents.GENERATE_CRUD_PAGE.getEventName(), currentUser.getUsername(), data)
                                 .thenReturn(crudPage);

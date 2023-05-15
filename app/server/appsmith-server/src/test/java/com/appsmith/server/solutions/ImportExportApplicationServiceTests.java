@@ -126,69 +126,49 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @TestMethodOrder(MethodOrderer.MethodName.class)
 public class ImportExportApplicationServiceTests {
 
-    @Autowired
-    ImportExportApplicationService importExportApplicationService;
-
-    @Autowired
-    Gson gson;
-
-    @Autowired
-    ApplicationPageService applicationPageService;
-
-    @Autowired
-    PluginRepository pluginRepository;
-
-    @Autowired
-    ApplicationRepository applicationRepository;
-
-    @Autowired
-    DatasourceService datasourceService;
-
-    @Autowired
-    NewPageService newPageService;
-
-    @Autowired
-    NewActionService newActionService;
-
-    @Autowired
-    WorkspaceService workspaceService;
-
-    @Autowired
-    LayoutActionService layoutActionService;
-
-    @Autowired
-    LayoutCollectionService layoutCollectionService;
-
-    @Autowired
-    ActionCollectionService actionCollectionService;
-
-    @MockBean
-    PluginExecutorHelper pluginExecutorHelper;
-
-    @Autowired
-    ThemeRepository themeRepository;
-
-    @Autowired
-    ApplicationService applicationService;
-
-    @Autowired
-    PermissionGroupRepository permissionGroupRepository;
-
-    @Autowired
-    PermissionGroupService permissionGroupService;
-
-    @Autowired
-    CustomJSLibService customJSLibService;
-
     private static final String INVALID_JSON_FILE = "invalid json file";
+    private static final Map<String, Datasource> datasourceMap = new HashMap<>();
     private static Plugin installedPlugin;
     private static String workspaceId;
     private static String testAppId;
     private static Datasource jsDatasource;
-    private static final Map<String, Datasource> datasourceMap = new HashMap<>();
     private static Plugin installedJsPlugin;
     private static Boolean isSetupDone = false;
     private static String exportWithConfigurationAppId;
+    @Autowired
+    ImportExportApplicationService importExportApplicationService;
+    @Autowired
+    Gson gson;
+    @Autowired
+    ApplicationPageService applicationPageService;
+    @Autowired
+    PluginRepository pluginRepository;
+    @Autowired
+    ApplicationRepository applicationRepository;
+    @Autowired
+    DatasourceService datasourceService;
+    @Autowired
+    NewPageService newPageService;
+    @Autowired
+    NewActionService newActionService;
+    @Autowired
+    WorkspaceService workspaceService;
+    @Autowired
+    LayoutActionService layoutActionService;
+    @Autowired
+    LayoutCollectionService layoutCollectionService;
+    @Autowired
+    ActionCollectionService actionCollectionService;
+    @MockBean
+    PluginExecutorHelper pluginExecutorHelper;
+    @Autowired
+    ThemeRepository themeRepository;
+    @Autowired
+    ApplicationService applicationService;
+    @Autowired
+    PermissionGroupRepository permissionGroupRepository;
+    @Autowired
+    PermissionGroupService permissionGroupService;
 
     @BeforeEach
     public void setup() {
@@ -441,7 +421,7 @@ public class ImportExportApplicationServiceTests {
                     JSONObject testWidget = new JSONObject();
                     testWidget.put("widgetName", "firstWidget");
                     JSONArray temp = new JSONArray();
-                    temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+                    temp.add(new JSONObject(Map.of("key", "testField")));
                     testWidget.put("dynamicBindingPathList", temp);
                     testWidget.put("testField", "{{ validAction.data }}");
                     children.add(testWidget);
@@ -456,7 +436,7 @@ public class ImportExportApplicationServiceTests {
                     tableWidget.put("primaryColumns", primaryColumns);
                     final ArrayList<Object> objects = new ArrayList<>();
                     JSONArray temp2 = new JSONArray();
-                    temp2.addAll(List.of(new JSONObject(Map.of("key", "primaryColumns._id"))));
+                    temp2.add(new JSONObject(Map.of("key", "primaryColumns._id")));
                     tableWidget.put("dynamicBindingPathList", temp2);
                     children.add(tableWidget);
 
@@ -848,7 +828,7 @@ public class ImportExportApplicationServiceTests {
                             Application application = applicationImportDTO.getApplication();
                             return Mono.zip(
                                     Mono.just(applicationImportDTO),
-                                    datasourceService.findAllByWorkspaceId(application.getWorkspaceId(), MANAGE_DATASOURCES).collectList(),
+                                    datasourceService.getAllByWorkspaceId(application.getWorkspaceId(), Optional.of(MANAGE_DATASOURCES)).collectList(),
                                     newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
                                     newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
                                     actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(),
@@ -1070,7 +1050,7 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMono
                         .flatMap(applicationImportDTO -> Mono.zip(
                                 Mono.just(applicationImportDTO),
-                                datasourceService.findAllByWorkspaceId(applicationImportDTO.getApplication().getWorkspaceId(), MANAGE_DATASOURCES).collectList(),
+                                datasourceService.getAllByWorkspaceId(applicationImportDTO.getApplication().getWorkspaceId(), Optional.of(MANAGE_DATASOURCES)).collectList(),
                                 getActionsInApplication(applicationImportDTO.getApplication()).collectList(),
                                 newPageService.findByApplicationId(applicationImportDTO.getApplication().getId(), MANAGE_PAGES, false).collectList(),
                                 actionCollectionService.findAllByApplicationIdAndViewMode(applicationImportDTO.getApplication().getId(), false
@@ -1164,7 +1144,7 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMono
                         .flatMap(applicationImportDTO -> Mono.zip(
                                 Mono.just(applicationImportDTO),
-                                datasourceService.findAllByWorkspaceId(applicationImportDTO.getApplication().getWorkspaceId(), MANAGE_DATASOURCES).collectList(),
+                                datasourceService.getAllByWorkspaceId(applicationImportDTO.getApplication().getWorkspaceId(), Optional.of(MANAGE_DATASOURCES)).collectList(),
                                 getActionsInApplication(applicationImportDTO.getApplication()).collectList(),
                                 newPageService.findByApplicationId(applicationImportDTO.getApplication().getId(), MANAGE_PAGES, false).collectList(),
                                 actionCollectionService
@@ -1318,7 +1298,7 @@ public class ImportExportApplicationServiceTests {
                             Application application = applicationImportDTO.getApplication();
                             return Mono.zip(
                                     Mono.just(applicationImportDTO),
-                                    datasourceService.findAllByWorkspaceId(application.getWorkspaceId(), MANAGE_DATASOURCES).collectList(),
+                                    datasourceService.getAllByWorkspaceId(application.getWorkspaceId(), Optional.of(MANAGE_DATASOURCES)).collectList(),
                                     newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList(),
                                     newPageService.findByApplicationId(application.getId(), MANAGE_PAGES, false).collectList(),
                                     actionCollectionService.findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null).collectList()
@@ -2245,7 +2225,7 @@ public class ImportExportApplicationServiceTests {
                     JSONObject testWidget = new JSONObject();
                     testWidget.put("widgetName", "firstWidget");
                     JSONArray temp = new JSONArray();
-                    temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+                    temp.add(new JSONObject(Map.of("key", "testField")));
                     testWidget.put("dynamicBindingPathList", temp);
                     testWidget.put("testField", "{{ validAction.data }}");
                     children.add(testWidget);
@@ -2479,7 +2459,7 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMono
                         .flatMap(application -> Mono.zip(
                                 Mono.just(application),
-                                datasourceService.findAllByWorkspaceId(application.getWorkspaceId(), MANAGE_DATASOURCES).collectList(),
+                                datasourceService.getAllByWorkspaceId(application.getWorkspaceId(), Optional.of(MANAGE_DATASOURCES)).collectList(),
                                 newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList()
                         )))
                 .assertNext(tuple -> {
@@ -2532,7 +2512,7 @@ public class ImportExportApplicationServiceTests {
                 .create(resultMono
                         .flatMap(application -> Mono.zip(
                                 Mono.just(application),
-                                datasourceService.findAllByWorkspaceId(application.getWorkspaceId(), MANAGE_DATASOURCES).collectList(),
+                                datasourceService.getAllByWorkspaceId(application.getWorkspaceId(), Optional.of(MANAGE_DATASOURCES)).collectList(),
                                 newActionService.findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null).collectList()
                         )))
                 .assertNext(tuple -> {
@@ -3769,7 +3749,7 @@ public class ImportExportApplicationServiceTests {
      * 2. Add new page to the imported application
      * 3. User tries to import application from same application json file
      * 4. Added page will be removed
-     *
+     * <p>
      * We don't have to test all the flows for other resources like actions, JSObjects, themes as these are already
      * covered as a part of discard functionality
      */
