@@ -57,9 +57,9 @@ describe("1. CommandClickNavigation", function () {
     // TODO how to hover with cmd or ctrl to assert pointer?
 
     // Assert navigation only when cmd or ctrl is pressed
+
     _.agHelper.Sleep();
     cy.get(`[${NAVIGATION_ATTRIBUTE}="Graphql_Query"]`).click();
-
     cy.url().should("not.contain", "/api/");
 
     cy.get(`[${NAVIGATION_ATTRIBUTE}="Graphql_Query"]`).click({
