@@ -24,7 +24,7 @@ public class CustomPluginRepositoryTest {
 
     @Test
     public void findDefaultPluginIcons_WhenResultFound_OnlyDefaultInstallPluginsReturned() {
-        String randomPackageId = "plugin-" + UUID.randomUUID().toString();
+        String randomPackageId = "plugin-" + UUID.randomUUID();
         Plugin plugin = new Plugin();
         plugin.setPackageName(randomPackageId);
         plugin.setDefaultInstall(false);

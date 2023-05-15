@@ -106,68 +106,47 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DirtiesContext
 public class ApplicationForkingServiceTests {
 
+    private static String sourceAppId;
+    private static String testUserWorkspaceId;
+    private static boolean isSetupDone = false;
     @Autowired
     private ApplicationForkingService applicationForkingService;
-
     @Autowired
     private ApplicationService applicationService;
-
     @Autowired
     private DatasourceService datasourceService;
-
     @Autowired
     private WorkspaceService workspaceService;
-
     @Autowired
     private ApplicationPageService applicationPageService;
-
     @Autowired
     private SessionUserService sessionUserService;
-
     @Autowired
     private NewActionService newActionService;
-
     @Autowired
     private ActionCollectionService actionCollectionService;
-
     @Autowired
     private PluginRepository pluginRepository;
-
     @Autowired
     private EncryptionService encryptionService;
-
     @MockBean
     private PluginExecutorHelper pluginExecutorHelper;
-
     @Autowired
     private LayoutActionService layoutActionService;
-
     @Autowired
     private MongoTemplate mongoTemplate;
-
     @Autowired
     private NewPageService newPageService;
-
     @Autowired
     private UserService userService;
-
     @Autowired
     private LayoutCollectionService layoutCollectionService;
-
     @Autowired
     private ThemeService themeService;
-
     @Autowired
     private PermissionGroupService permissionGroupService;
-
     @Autowired
     private UserAndAccessManagementService userAndAccessManagementService;
-
-    private static String sourceAppId;
-
-    private static String testUserWorkspaceId;
-
-    private static boolean isSetupDone = false;
 
     @SneakyThrows
     @BeforeEach
@@ -247,7 +226,7 @@ public class ApplicationForkingServiceTests {
         JSONObject testWidget = new JSONObject();
         testWidget.put("widgetName", "firstWidget");
         JSONArray temp = new JSONArray();
-        temp.addAll(List.of(new JSONObject(Map.of("key", "testField", "key1", "testField1"))));
+        temp.add(new JSONObject(Map.of("key", "testField", "key1", "testField1")));
         testWidget.put("dynamicBindingPathList", temp);
         testWidget.put("testField", "{{ forkActionTest.data }}");
         children.add(testWidget);
@@ -255,7 +234,7 @@ public class ApplicationForkingServiceTests {
         JSONObject secondWidget = new JSONObject();
         secondWidget.put("widgetName", "secondWidget");
         temp = new JSONArray();
-        temp.addAll(List.of(new JSONObject(Map.of("key", "testField1"))));
+        temp.add(new JSONObject(Map.of("key", "testField1")));
         secondWidget.put("dynamicBindingPathList", temp);
         secondWidget.put("testField1", "{{ testCollection1.getData.data }}");
         children.add(secondWidget);
@@ -282,13 +261,6 @@ public class ApplicationForkingServiceTests {
         userAndAccessManagementService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
 
         isSetupDone = true;
-    }
-
-    private static class WorkspaceData {
-        Workspace workspace;
-        List<Application> applications = new ArrayList<>();
-        List<Datasource> datasources = new ArrayList<>();
-        List<ActionDTO> actions = new ArrayList<>();
     }
 
     public Mono<WorkspaceData> loadWorkspaceData(Workspace workspace) {
@@ -1001,5 +973,12 @@ public class ApplicationForkingServiceTests {
                 })
                 .verifyComplete();
 
+    }
+
+    private static class WorkspaceData {
+        Workspace workspace;
+        List<Application> applications = new ArrayList<>();
+        List<Datasource> datasources = new ArrayList<>();
+        List<ActionDTO> actions = new ArrayList<>();
     }
 }

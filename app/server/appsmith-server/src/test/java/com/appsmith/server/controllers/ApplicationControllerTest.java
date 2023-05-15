@@ -36,32 +36,24 @@ import java.io.IOException;
 @WebFluxTest(ApplicationController.class)
 @Import({SecurityTestConfig.class, RedisUtils.class, RedisTestContainerConfig.class})
 public class ApplicationControllerTest {
-    @Autowired
-    private WebTestClient webTestClient;
-
     @MockBean
     ApplicationService applicationService;
-
     @MockBean
     ApplicationPageService applicationPageService;
-
     @MockBean
     ApplicationFetcher applicationFetcher;
-
     @MockBean
     ApplicationForkingService applicationForkingService;
-
     @MockBean
     ImportExportApplicationService importExportApplicationService;
-
     @MockBean
     ApplicationSnapshotService applicationSnapshotService;
-
     @MockBean
     ThemeService themeService;
-
     @MockBean
     UserDataService userDataService;
+    @Autowired
+    private WebTestClient webTestClient;
 
     private String getFileName(int length) {
         StringBuilder fileName = new StringBuilder();

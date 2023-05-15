@@ -362,14 +362,21 @@ public class DatasourceContextServiceTest {
                 .block();
         assertNotNull(dsc1);
         assertTrue(dsc1.getConnection() instanceof UpdatableConnection);
-        assertTrue(((UpdatableConnection) dsc1.getConnection()).getAuthenticationDTO(new ApiKeyAuth()) instanceof DBAuth);
+        assertTrue(((UpdatableConnection) dsc1.getConnection())
+                .getAuthenticationDTO(new ApiKeyAuth()) instanceof DBAuth);
 
 
-        final DatasourceContext<?> dsc2 = (DatasourceContext) datasourceContextService.getCachedDatasourceContextMono(createdDatasourceStorage,
-                spyMockPluginExecutor, monitor, datasourceContextIdentifier).block();
+        final DatasourceContext<?> dsc2 = (DatasourceContext) datasourceContextService
+                .getCachedDatasourceContextMono(
+                        createdDatasourceStorage,
+                        spyMockPluginExecutor,
+                        monitor,
+                        datasourceContextIdentifier)
+                .block();
         assertNotNull(dsc2);
         assertTrue(dsc2.getConnection() instanceof UpdatableConnection);
-        assertTrue(((UpdatableConnection) dsc2.getConnection()).getAuthenticationDTO(new ApiKeyAuth()) instanceof BasicAuth);
+        assertTrue(((UpdatableConnection) dsc2.getConnection())
+                .getAuthenticationDTO(new ApiKeyAuth()) instanceof BasicAuth);
     }
 
     /**

@@ -76,58 +76,40 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Slf4j
 @DirtiesContext
 public class PageServiceTest {
+    static Application application = null;
+    static Application gitConnectedApplication = null;
+    static String applicationId = null;
+    static String workspaceId;
     @Autowired
     ApplicationPageService applicationPageService;
-
     @Autowired
     UserService userService;
-
     @Autowired
     LayoutService layoutService;
-
     @Autowired
     WorkspaceService workspaceService;
-
     @Autowired
     ApplicationService applicationService;
-
     @Autowired
     NewPageService newPageService;
-
     @Autowired
     NewActionService newActionService;
-
     @Autowired
     ActionCollectionService actionCollectionService;
-
     @Autowired
     PluginRepository pluginRepository;
-
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
-
     @MockBean
     PluginExecutor pluginExecutor;
-
     @Autowired
     LayoutActionService layoutActionService;
-
     @Autowired
     LayoutCollectionService layoutCollectionService;
-
     @Autowired
     ImportExportApplicationService importExportApplicationService;
-
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
-
-    static Application application = null;
-
-    static Application gitConnectedApplication = null;
-
-    static String applicationId = null;
-
-    static String workspaceId;
 
     @BeforeEach
     @WithUserDetails(value = "api_user")
@@ -559,7 +541,7 @@ public class PageServiceTest {
         dsl2.put("primaryColumns", primaryColumns);
         final ArrayList<Object> objects = new ArrayList<>();
         JSONArray temp2 = new JSONArray();
-        temp2.addAll(List.of(new JSONObject(Map.of("key", "primaryColumns._id"))));
+        temp2.add(new JSONObject(Map.of("key", "primaryColumns._id")));
         dsl2.put("dynamicBindingPathList", temp2);
         objects.add(dsl2);
         dsl.put("children", objects);

@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.DBAuth;
-import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceDTO;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.Application;

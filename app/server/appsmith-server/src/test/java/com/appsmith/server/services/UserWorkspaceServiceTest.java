@@ -49,44 +49,31 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class UserWorkspaceServiceTest {
 
     @Autowired
-    private UserWorkspaceService userWorkspaceService;
-
-    @Autowired
-    private WorkspaceRepository workspaceRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PolicyUtils policyUtils;
-
-    @Autowired
-    private ApplicationRepository applicationRepository;
-
-    @Autowired
-    private PolicyGenerator policyGenerator;
-
-    @Autowired
-    private UserDataService userDataService;
-
-    @Autowired
-    private ApplicationPageService applicationPageService;
-
-    @Autowired
     WorkspaceService workspaceService;
-
     @Autowired
     NewPageService newPageService;
-
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
-
     @Autowired
     SessionUserService sessionUserService;
-
     @Autowired
     UserService userService;
-
+    @Autowired
+    private UserWorkspaceService userWorkspaceService;
+    @Autowired
+    private WorkspaceRepository workspaceRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private PolicyUtils policyUtils;
+    @Autowired
+    private ApplicationRepository applicationRepository;
+    @Autowired
+    private PolicyGenerator policyGenerator;
+    @Autowired
+    private UserDataService userDataService;
+    @Autowired
+    private ApplicationPageService applicationPageService;
     private Workspace workspace;
     private User user;
 

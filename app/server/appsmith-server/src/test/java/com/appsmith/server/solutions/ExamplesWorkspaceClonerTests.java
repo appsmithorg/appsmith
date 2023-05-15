@@ -88,39 +88,28 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DirtiesContext
 public class ExamplesWorkspaceClonerTests {
 
-    @Autowired
-    private ExamplesWorkspaceCloner examplesWorkspaceCloner;
-
-    @Autowired
-    private ApplicationService applicationService;
-
-    @Autowired
-    private DatasourceService datasourceService;
-
-    @Autowired
-    private WorkspaceService workspaceService;
-
-    @Autowired
-    private ApplicationPageService applicationPageService;
-
-    @Autowired
-    private SessionUserService sessionUserService;
-
-    @Autowired
-    private NewActionService newActionService;
-
-    @Autowired
-    private ActionCollectionService actionCollectionService;
-
-    @Autowired
-    private PluginRepository pluginRepository;
-
-    @MockBean
-    private PluginExecutorHelper pluginExecutorHelper;
-
     @MockBean
     PluginExecutor pluginExecutor;
-
+    @Autowired
+    private ExamplesWorkspaceCloner examplesWorkspaceCloner;
+    @Autowired
+    private ApplicationService applicationService;
+    @Autowired
+    private DatasourceService datasourceService;
+    @Autowired
+    private WorkspaceService workspaceService;
+    @Autowired
+    private ApplicationPageService applicationPageService;
+    @Autowired
+    private SessionUserService sessionUserService;
+    @Autowired
+    private NewActionService newActionService;
+    @Autowired
+    private ActionCollectionService actionCollectionService;
+    @Autowired
+    private PluginRepository pluginRepository;
+    @MockBean
+    private PluginExecutorHelper pluginExecutorHelper;
     @Autowired
     private LayoutActionService layoutActionService;
 
@@ -143,14 +132,6 @@ public class ExamplesWorkspaceClonerTests {
 
     @Autowired
     private PluginService pluginService;
-
-    private static class WorkspaceData {
-        Workspace workspace;
-        List<Application> applications = new ArrayList<>();
-        List<Datasource> datasources = new ArrayList<>();
-        List<ActionDTO> actions = new ArrayList<>();
-        List<ActionCollectionDTO> actionCollections = new ArrayList<>();
-    }
 
     public Mono<WorkspaceData> loadWorkspaceData(Workspace workspace) {
         final WorkspaceData data = new WorkspaceData();
@@ -669,7 +650,7 @@ public class ExamplesWorkspaceClonerTests {
         JSONObject dsl = new JSONObject();
         dsl.put("widgetName", "testWidget");
         JSONArray temp = new JSONArray();
-        temp.addAll(List.of(new JSONObject(Map.of("key", "testField"))));
+        temp.add(new JSONObject(Map.of("key", "testField")));
         dsl.put("dynamicBindingPathList", temp);
         dsl.put("testField", "draft {{ newPageAction.data }}");
         layout.setDsl(dsl);
@@ -1262,7 +1243,6 @@ public class ExamplesWorkspaceClonerTests {
                 .verifyComplete();
     }
 
-
     private List<String> getUnpublishedActionName(List<ActionDTO> actions) {
         List<String> names = new ArrayList<>();
         for (ActionDTO action : actions) {
@@ -1291,5 +1271,13 @@ public class ExamplesWorkspaceClonerTests {
                 .flatMap(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false))
                 .flatMap(page -> actionCollectionService.getPopulatedActionCollectionsByViewMode(new LinkedMultiValueMap<>(
                         Map.of(FieldName.PAGE_ID, Collections.singletonList(page.getId()))), false));
+    }
+
+    private static class WorkspaceData {
+        Workspace workspace;
+        List<Application> applications = new ArrayList<>();
+        List<Datasource> datasources = new ArrayList<>();
+        List<ActionDTO> actions = new ArrayList<>();
+        List<ActionCollectionDTO> actionCollections = new ArrayList<>();
     }
 }

@@ -30,12 +30,11 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @DirtiesContext
 public class ResponseUtilsTest {
 
-    @Autowired
-    ResponseUtils responseUtils;
-
     private static final File mockObjects = new File("src/test/resources/test_assets/ResponseUtilsTest/mockObjects.json");
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static JsonNode jsonNode;
+    @Autowired
+    ResponseUtils responseUtils;
     Gson gson = new Gson();
 
     @SneakyThrows

@@ -28,18 +28,6 @@ public class FeatureFlagServiceTest {
     @Autowired
     FeatureFlagService featureFlagService;
 
-    @TestConfiguration
-    static class TestFeatureFlagConfig {
-
-        @Bean
-        FF4j ff4j() {
-            FF4j ff4j = new FF4j(new YamlParser(), "features/init-flags-test.yml")
-                    .audit(true)
-                    .autoCreate(false);
-            return ff4j;
-        }
-    }
-
     @Test
     @WithUserDetails(value = "api_user")
     public void testNullFeatureCheck() {
@@ -91,6 +79,18 @@ public class FeatureFlagServiceTest {
                     assertTrue(result.containsKey(FeatureFlagEnum.TEST_FEATURE_3.toString()));
                 })
                 .verifyComplete();
+    }
+
+    @TestConfiguration
+    static class TestFeatureFlagConfig {
+
+        @Bean
+        FF4j ff4j() {
+            FF4j ff4j = new FF4j(new YamlParser(), "features/init-flags-test.yml")
+                    .audit(true)
+                    .autoCreate(false);
+            return ff4j;
+        }
     }
 
 }

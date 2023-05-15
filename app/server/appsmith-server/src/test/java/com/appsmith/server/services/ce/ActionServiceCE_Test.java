@@ -212,7 +212,7 @@ public class ActionServiceCE_Test {
             dsl2.put("primaryColumns", primaryColumns);
             final ArrayList<Object> objects = new ArrayList<>();
             JSONArray temp2 = new JSONArray();
-            temp2.addAll(List.of(new JSONObject(Map.of("key", "primaryColumns._id"))));
+            temp2.add(new JSONObject(Map.of("key", "primaryColumns._id")));
             dsl2.put("dynamicBindingPathList", temp2);
             objects.add(dsl2);
             dsl.put("children", objects);
@@ -1159,9 +1159,9 @@ public class ActionServiceCE_Test {
                             "bindingPath", "{{paginatedApi.data}}"
                     ));
                     JSONArray dynamicBindingsPathList = new JSONArray();
-                    dynamicBindingsPathList.addAll(List.of(
+                    dynamicBindingsPathList.add(
                             new JSONObject(Map.of("key", "bindingPath"))
-                    ));
+                    );
 
                     obj.put("dynamicBindingPathList", dynamicBindingsPathList);
                     newLayout.setDsl(obj);

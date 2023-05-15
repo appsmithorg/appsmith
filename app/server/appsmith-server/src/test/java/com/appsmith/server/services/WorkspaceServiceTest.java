@@ -96,58 +96,40 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Slf4j
 public class WorkspaceServiceTest {
 
+    private static final String origin = "http://appsmith-local.test";
     @Autowired
     WorkspaceService workspaceService;
-
     @Autowired
     UserWorkspaceService userWorkspaceService;
-
     @Autowired
     WorkspaceRepository workspaceRepository;
-
     @Autowired
     ApplicationPageService applicationPageService;
-
     @Autowired
     ApplicationService applicationService;
-
     @Autowired
     UserService userService;
-
     @Autowired
     DatasourceService datasourceService;
-
     @Autowired
     DatasourceRepository datasourceRepository;
-
     @Autowired
     UserRepository userRepository;
-
     @Autowired
     RoleGraph roleGraph;
-
-    @Autowired
-    private AssetRepository assetRepository;
-
-
-    @Autowired
-    private PermissionGroupRepository permissionGroupRepository;
-
-    @Autowired
-    private UserAndAccessManagementService userAndAccessManagementService;
-
-    @Autowired
-    private PluginService pluginService;
-
     @Autowired
     MongoTemplate mongoTemplate;
-
+    Workspace workspace;
+    @Autowired
+    private AssetRepository assetRepository;
+    @Autowired
+    private PermissionGroupRepository permissionGroupRepository;
+    @Autowired
+    private UserAndAccessManagementService userAndAccessManagementService;
+    @Autowired
+    private PluginService pluginService;
     @MockBean
     private PluginExecutorHelper pluginExecutorHelper;
-
-    Workspace workspace;
-
-    private static String origin = "http://appsmith-local.test";
 
     @BeforeEach
     @WithUserDetails(value = "api_user")
