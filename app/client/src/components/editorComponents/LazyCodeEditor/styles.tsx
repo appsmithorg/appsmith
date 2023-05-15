@@ -12,10 +12,7 @@ export const HighlighedCodeContainer = styled("div")<{
   line-height: 21px !important;
 
   min-height: inherit;
-  padding-top: 6px !important;
-  padding-left: 10px !important;
-  padding-right: 10px !important;
-  padding-bottom: 6px !important;
+  padding: 6px;
 
   pre {
     font-family: ${(props) => props.theme.fonts.code};
@@ -27,10 +24,10 @@ export const HighlighedCodeContainer = styled("div")<{
     background: white !important;
     ${(props) => {
       if (props.isReadOnly) {
-        return "padding-left: 31px !important";
+        return "padding-left: 35px !important";
       }
       if (props.showLineNumbers) {
-        return "padding-left: 43px !important";
+        return "padding-left: 47px !important";
       }
     }};
 
