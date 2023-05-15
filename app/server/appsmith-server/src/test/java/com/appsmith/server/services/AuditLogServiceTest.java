@@ -74,6 +74,7 @@ import com.appsmith.server.helpers.WidgetSuggestionHelper;
 import com.appsmith.server.repositories.AuditLogRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.solutions.ActionExecutionSolution;
 import com.appsmith.server.solutions.ApplicationForkingService;
 import com.appsmith.server.solutions.CreateDBTablePageSolution;
 import com.appsmith.server.solutions.EnvManager;
@@ -213,6 +214,9 @@ public class AuditLogServiceTest {
 
     @Autowired
     NewActionService newActionService;
+    
+    @Autowired
+    ActionExecutionSolution actionExecutionSolution;
 
     @Autowired
     UserRepository userRepository;
@@ -2362,7 +2366,7 @@ public class AuditLogServiceTest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
-        ActionExecutionResult actionExecutionResult = newActionService.executeAction(executeActionDTO, null).block();
+        ActionExecutionResult actionExecutionResult = actionExecutionSolution.executeAction(executeActionDTO, null).block();
 
         MultiValueMap<String, String> params = getAuditLogRequest(null, "query.executed", "Query", createdAction.getId(), null, null, null, null, null);
 
@@ -2484,7 +2488,7 @@ public class AuditLogServiceTest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(true);
 
-        ActionExecutionResult actionExecutionResult = newActionService.executeAction(executeActionDTO, null).block();
+        ActionExecutionResult actionExecutionResult = actionExecutionSolution.executeAction(executeActionDTO, null).block();
 
         MultiValueMap<String, String> params = getAuditLogRequest(null, "query.executed", "Query", createdAction.getId(), null, null, null, null, null);
 
