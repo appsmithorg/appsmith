@@ -87,7 +87,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
 
   return (
     <Wrapper
-      className={`t--entity-explorer-wrapper relative overflow-y-auto px-3 ${
+      className={`t--entity-explorer-wrapper relative overflow-y-auto ${
         isActive ? "" : "hidden"
       }`}
       ref={explorerRef}
