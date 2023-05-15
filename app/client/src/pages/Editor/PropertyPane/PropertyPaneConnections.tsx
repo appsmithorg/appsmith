@@ -70,11 +70,8 @@ const OptionContentWrapper = styled.div<{
   min-width: 0;
 
   .menu-text {
-    width: 150px;
-    word-wrap: break-word;
+    width: ${(props) => (props.hasError ? "140px" : "100%")};
     letter-spacing: 0px;
-    display: flex;
-    gap: 6px;
   }
 `;
 
@@ -194,14 +191,16 @@ function OptionNode(props: any) {
           isSelected={props.isSelectedNode}
           onClick={onClick}
         >
-          <span className="menu-text">
+          <div className="flex gap-1">
             {entityInfo?.icon}
-            <Text>
-              {props.option.label}{" "}
-              {entityInfo?.datasourceName &&
-                `from ${entityInfo?.datasourceName}`}
-            </Text>
-          </span>
+            <span className="menu-text">
+              <Text>
+                {props.option.label}
+                {entityInfo?.datasourceName &&
+                  ` from ${entityInfo?.datasourceName}`}
+              </Text>
+            </span>
+          </div>
         </OptionContentWrapper>
         {!!entityInfo?.hasError && (
           <DebugButton className="debug" onClick={onClick} />

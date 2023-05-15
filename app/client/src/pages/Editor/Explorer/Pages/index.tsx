@@ -206,7 +206,7 @@ function Pages() {
   );
 
   return (
-    <RelativeContainer>
+    <RelativeContainer className="px-3">
       <StyledEntity
         addButtonHelptext={createMessage(ADD_PAGE_TOOLTIP)}
         alwaysShowRightIcon

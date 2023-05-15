@@ -90,7 +90,7 @@ export const TabsWrapper = styled.div`
 
     .tab-panel {
       overflow: auto;
-      height: calc(100% - 76px);
+      height: calc(100% - 46px);
     }
   }
 `;

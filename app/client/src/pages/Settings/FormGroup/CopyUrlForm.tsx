@@ -15,14 +15,10 @@ export const BodyContainer = styled.div`
 const HeaderWrapper = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 8px;
   color: var(--ads-v2-color-fg);
   .help-icon {
     margin-left: 8px;
     cursor: pointer;
-  }
-  .title-text {
-    font-weight: 500;
   }
 `;
 
@@ -46,41 +42,45 @@ function CopyUrlForm(props: {
   };
 
   return (
-    <div>
-      <HeaderWrapper>
-        <Text
-          className="title-text"
-          color="var(--ads-v2-color-fg)"
-          kind="body-m"
-          renderAs="label"
-        >
-          {props.title}
-        </Text>
-        {props.tooltip && (
-          <Tooltip content={props.tooltip} placement="right" trigger="hover">
-            <Icon
-              className={"help-icon"}
+    <BodyContainer>
+      <Input
+        description={`* ${props.helpText}`}
+        endIcon="duplicate"
+        endIconProps={{
+          className: "copy-icon",
+          onClick: handleCopy,
+        }}
+        isReadOnly
+        label={
+          <HeaderWrapper>
+            <Text
+              className="title-text"
               color="var(--ads-v2-color-fg)"
-              name="question-line"
-              size="md"
-            />
-          </Tooltip>
-        )}
-      </HeaderWrapper>
-      <BodyContainer>
-        <Input
-          description={`* ${props.helpText}`}
-          endIcon="duplicate"
-          endIconProps={{
-            className: "copy-icon",
-            onClick: handleCopy,
-          }}
-          isReadOnly
-          size="md"
-          value={fieldValue}
-        />
-      </BodyContainer>
-    </div>
+              kind="body-m"
+              renderAs="label"
+            >
+              {props.title}
+            </Text>
+            {props.tooltip && (
+              <Tooltip
+                content={props.tooltip}
+                placement="right"
+                trigger="hover"
+              >
+                <Icon
+                  className={"help-icon"}
+                  color="var(--ads-v2-color-fg)"
+                  name="question-line"
+                  size="md"
+                />
+              </Tooltip>
+            )}
+          </HeaderWrapper>
+        }
+        size="md"
+        value={fieldValue}
+      />
+    </BodyContainer>
   );
 }
 
