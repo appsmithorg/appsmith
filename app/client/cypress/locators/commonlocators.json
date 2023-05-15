@@ -9,7 +9,7 @@
   "dropdownAction": ".t--open-dropdown-Select-Action",
   "datatypedropdown": ".t--property-control-datatype button",
   "Alerttypedropdown": ".t--open-dropdown-Select-type",
-  "dropdownmenu": ".rc-select-item-option .rc-select-item-option-content",
+  "dropdownmenu": ".rc-select-item-option-content",
   "containerInnerText": ".t--draggable-containerwidget span.t--widget-name",
   "optionchangetextDropdown": " .t--property-control-onoptionchange .CodeMirror textarea",
   "optionchangetextDatePicker": " .t--property-control-ondateselected .CodeMirror-code",
