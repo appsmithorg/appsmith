@@ -56,7 +56,7 @@ describe("List v2 - Data Identifier property", () => {
 
     cy.get(`${propertyControl}-dataidentifier`)
       .should("exist")
-      .contains("No selection.");
+      .contains("Please select an option");
   });
 
   it("2. shows list of keys present in list data", () => {
@@ -65,13 +65,13 @@ describe("List v2 - Data Identifier property", () => {
 
     // clicking on the data identifier dropdown
     cy.get(`${propertyControl}-dataidentifier`)
-      .find(".bp3-popover-target")
+      .find(".rc-select-selection-search")
       .last()
       .click({ force: true });
     cy.wait(250);
 
     // check if all the keys are present
-    cy.get(".t--dropdown-option > span")
+    cy.get(".rc-select-item-option-content > span")
       .should("have.length", 3)
       .then(($el) => {
         // we get a list of jQuery elements
@@ -90,7 +90,7 @@ describe("List v2 - Data Identifier property", () => {
 
     // clicking on the data identifier dropdown
     cy.get(`${propertyControl}-dataidentifier`)
-      .find(".bp3-popover-target")
+      .find(".rc-select-selection-search")
       .last()
       .click({ force: true });
     cy.wait(250);
@@ -138,7 +138,7 @@ describe("List v2 - Data Identifier property", () => {
 
     // clicking on the data identifier dropdown
     cy.get(`${propertyControl}-dataidentifier`)
-      .find(".bp3-popover-target")
+      .find(".rc-select-selection-search")
       .last()
       .click({ force: true });
     cy.wait(250);
@@ -157,7 +157,7 @@ describe("List v2 - Data Identifier property", () => {
 
     // clicking on the data identifier dropdown
     cy.get(`${propertyControl}-dataidentifier`)
-      .find(".bp3-popover-target")
+      .find(".rc-select-selection-search")
       .last()
       .click({ force: true });
     cy.wait(250);
@@ -246,7 +246,7 @@ describe("List v2 - Data Identifier property", () => {
     cy.wait(250);
 
     cy.get(`${propertyControl}-dataidentifier`)
-      .find(".bp3-popover-target")
+      .find(".rc-select-selection-search")
       .last()
       .click({
         force: true,

@@ -15,16 +15,14 @@ describe("List v2- Tabs Widget", () => {
     // Disable Scroll Content
     cy.togglebarDisable(commonlocators.scrollView);
     // Check if disabled
-    cy.get(commonlocators.scrollView)
-      .parent()
-      .should("have.class", "unchecked");
+    cy.get(commonlocators.scrollView).parent().should("not.be.checked");
     // Check if Tab 1 still selected
     cy.get(".t--page-switch-tab.is-active").contains("Tab 1");
 
     // Enable Scroll Content
     cy.togglebar(commonlocators.scrollView);
     // Check if enabled
-    cy.get(commonlocators.scrollView).parent().should("have.class", "checked");
+    cy.get(commonlocators.scrollView).should("be.checked");
     // Check if Tab 1 still selected
     cy.get(".t--page-switch-tab.is-active").contains("Tab 1");
   });
