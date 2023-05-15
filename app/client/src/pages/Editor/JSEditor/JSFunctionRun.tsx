@@ -78,6 +78,7 @@ export function JSFunctionRun({
             ),
           }
         }
+        virtual={false}
       >
         {options.map((option) => (
           <Option key={option.value}>
