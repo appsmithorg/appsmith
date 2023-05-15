@@ -72,7 +72,7 @@ describe("Test Create Api and Bind to List widget", function () {
         interception.response.body.data.body[0].name,
       ).replace(/['"]+/g, "");
     });
-    _.entityExplorer.SelectEntityByName("List1");
+    _.entityExplorer.SelectEntityByName("List1", "Widgets");
     cy.moveToStyleTab();
     cy.testJsontext("itemspacing\\(px\\)", "50");
     cy.get(".t--draggable-textwidget span").should("have.length", 6);

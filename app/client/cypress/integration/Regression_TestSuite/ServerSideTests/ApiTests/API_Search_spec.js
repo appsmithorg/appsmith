@@ -9,8 +9,9 @@ const testUrl2 =
   "http://host.docker.internal:5001/v1/dynamicrecords/getstudents";
 const testUrl3 =
   "http://host.docker.internal:5001//v1/dynamicrecords/getrecordsArray";
+
 describe("API Panel Test Functionality ", function () {
-  it("Test Search API fetaure", function () {
+  it("1. Test Search API fetaure", function () {
     cy.log("Login Successful");
     cy.NavigateToAPI_Panel();
     cy.log("Navigation to API Panel screen successful");
@@ -38,7 +39,7 @@ describe("API Panel Test Functionality ", function () {
     });
   });
 
-  it("if suggested widgets section alwas appears for all 3 modes", function () {
+  it("2. if suggested widgets section alwas appears for all 3 modes", function () {
     cy.log("Login Successful");
     _.apiPage.CreateAndFillApi(testUrl1);
     cy.RunAPI();
@@ -51,7 +52,7 @@ describe("API Panel Test Functionality ", function () {
     cy.get(ApiEditor.tableResponseTab).click();
     cy.checkIfApiPaneIsVisible();
   });
-  it("Bug 14242: Appsmith crash when create an API pointing to Github hosted json", function () {
+  it("3. Bug 14242: Appsmith crash when create an API pointing to Github hosted json", function () {
     cy.NavigateToAPI_Panel();
     cy.generateUUID().then((uid) => {
       APIName = uid;

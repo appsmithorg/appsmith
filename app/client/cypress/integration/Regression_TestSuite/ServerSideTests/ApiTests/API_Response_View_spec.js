@@ -7,7 +7,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   apiPage = ObjectsRegistry.ApiPage;
 
 describe("Bug 14666: Api Response Test Functionality ", function () {
-  it("Test table loading when data is in array format", function () {
+  it("1. Test table loading when data is in array format", function () {
     cy.log("Login Successful");
     cy.NavigateToAPI_Panel();
     cy.log("Navigation to API Panel screen successful");
@@ -18,7 +18,7 @@ describe("Bug 14666: Api Response Test Functionality ", function () {
     cy.DeleteAPI();
   });
 
-  it("Test table loading when data is not in array format", function () {
+  it("2. Test table loading when data is not in array format", function () {
     cy.log("Login Successful");
     cy.NavigateToAPI_Panel();
     cy.log("Navigation to API Panel screen successful");

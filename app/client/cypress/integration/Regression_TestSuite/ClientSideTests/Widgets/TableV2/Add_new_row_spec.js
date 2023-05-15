@@ -20,7 +20,7 @@ describe("Table widget Add new row feature's", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.get(".t--property-control-allowaddingarow").should("exist");
       cy.get(
-        ".t--property-control-allowaddingarow .bp3-control.bp3-switch.unchecked",
+        ".t--property-control-allowaddingarow input",
       ).should("exist");
     });
 
