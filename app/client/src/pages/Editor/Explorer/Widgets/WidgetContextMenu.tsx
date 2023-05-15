@@ -82,7 +82,7 @@ export function WidgetContextMenu(props: {
     {
       value: "showBinding",
       onSelect: () => showBinding(props.widgetId, widget.widgetName),
-      label: "Show Bindings",
+      label: "Show bindings",
     },
   ];
 
@@ -90,7 +90,7 @@ export function WidgetContextMenu(props: {
     const option: TreeDropdownOption = {
       value: "rename",
       onSelect: editWidgetName,
-      label: "Edit Name",
+      label: "Edit name",
     };
     optionTree.push(option);
   }

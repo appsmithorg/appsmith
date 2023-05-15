@@ -8,6 +8,7 @@ import {
   getIsDeletingNavigationLogo,
   getIsUploadingNavigationLogo,
 } from "@appsmith/selectors/applicationSelectors";
+import { ContentBox } from "pages/Settings/components";
 
 type ImageInputProps = {
   value?: any;
@@ -91,15 +92,15 @@ export const ImageInput = (props: ImageInputProps) => {
   };
 
   return (
-    <div
+    <ContentBox
       className={`relative flex items-center justify-center w-full border h-28 group ${
         className ? className : ""
       }`}
     >
       {renderLogo()}
 
-      <div className="absolute inset-0 items-center justify-center hidden gap-2 bg-black group-hover:flex bg-opacity-20">
-        <Button onClick={onFileInputClick} size="sm" startIcon="upload-line">
+      <div className="absolute inset-0 items-center justify-center hidden gap-2 group-hover:flex bg-opacity-20 hover-state">
+        <Button onClick={onFileInputClick} size="md" startIcon="upload-line">
           Upload
         </Button>
       </div>
@@ -111,7 +112,7 @@ export const ImageInput = (props: ImageInputProps) => {
         ref={fileInputRef}
         type="file"
       />
-    </div>
+    </ContentBox>
   );
 };
 

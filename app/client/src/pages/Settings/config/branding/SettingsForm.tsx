@@ -30,14 +30,14 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import styled from "styled-components";
 import { HelperText } from "pages/Settings/components";
 
-const Wrapper = styled.div`
+const Wrapper = styled.form`
   .help-icon {
     cursor: pointer;
   }
 `;
 
 const StyledText = styled(Text)`
-  font-weight: 500;
+  font-weight: var(--ads-v2-font-weight-bold);
 `;
 
 type SettingsFormProps = {
@@ -60,7 +60,10 @@ function SettingsForm(props: SettingsFormProps) {
   });
 
   return (
-    <Wrapper className="flex flex-col flex-grow gap-4">
+    <Wrapper
+      className="flex flex-col flex-grow gap-4"
+      onSubmit={handleSubmit(onSubmit)}
+    >
       {/* LOGO */}
       <div className="flex flex-col gap-2">
         <StyledText
@@ -174,12 +177,7 @@ function SettingsForm(props: SettingsFormProps) {
         />
       </div>
 
-      <Button
-        isDisabled={disabled || !hasDirtyFields}
-        onClick={handleSubmit(onSubmit)}
-        size="md"
-        type="submit"
-      >
+      <Button isDisabled={disabled || !hasDirtyFields} size="md" type="submit">
         Submit
       </Button>
     </Wrapper>

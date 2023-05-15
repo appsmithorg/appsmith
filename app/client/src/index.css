@@ -120,6 +120,10 @@ add-action.disabled span {
   border-radius: var(--ads-v2-border-radius) var(--ads-v2-border-radius) 0px 0px;
 }
 
+.bp3-popover.bp3-minimal.bp3-submenu {
+  padding-right: 0px;
+}
+
 div.bp3-popover-arrow {
   display: none;
 }

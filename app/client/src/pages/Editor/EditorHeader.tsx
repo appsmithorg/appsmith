@@ -103,6 +103,7 @@ const HeaderWrapper = styled.div`
   flex-direction: row;
   box-shadow: none;
   border-bottom: 1px solid var(--ads-v2-color-border);
+  height: ${(props) => props.theme.smallHeaderHeight};
   & .editable-application-name {
     ${getTypographyByKey("h4")}
     color: ${(props) => props.theme.colors.header.appName};
@@ -167,7 +168,7 @@ const BindingBanner = styled.div`
   text-align: center;
   background: var(--ads-v2-color-fg-information);
   color: var(--ads-v2-color-white);
-  border: 1px solid var(--ads-v2-color-border);
+  border-radius: var(--ads-v2-border-radius);
   font-weight: 500;
   font-size: 15px;
   line-height: 20px;
