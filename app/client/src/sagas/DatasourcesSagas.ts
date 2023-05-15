@@ -348,7 +348,11 @@ export function* deleteDatasourceSaga(
 }
 
 function* updateDatasourceSaga(
-  actionPayload: ReduxActionWithCallbacks<Datasource, unknown, unknown>,
+  actionPayload: ReduxActionWithCallbacks<
+    Datasource & { isInsideReconnectModal: boolean },
+    unknown,
+    unknown
+  >,
 ) {
   try {
     const queryParams = getQueryParams();
@@ -412,7 +416,6 @@ function* updateDatasourceSaga(
       if (expandDatasourceId === response.data.id) {
         yield put(fetchDatasourceStructure(response.data.id, true));
       }
-      yield put(setDatasourceViewMode(true));
 
       AppsmithConsole.info({
         text: "Datasource configuration saved",
@@ -426,9 +429,14 @@ function* updateDatasourceSaga(
         },
       });
 
-      // updating form initial values to latest data, so that next time when form is opened
-      // isDirty will use updated initial values data to compare actual values with
-      yield put(initialize(DATASOURCE_DB_FORM, response.data));
+      // If the datasource is being updated from the reconnect modal, we don't want to change the view mode
+      // or update initial values as the next form open will be from the reconnect modal itself
+      if (!datasourcePayload.isInsideReconnectModal) {
+        yield put(setDatasourceViewMode(true));
+        // updating form initial values to latest data, so that next time when form is opened
+        // isDirty will use updated initial values data to compare actual values with
+        yield put(initialize(DATASOURCE_DB_FORM, response.data));
+      }
     }
   } catch (error) {
     yield put({
