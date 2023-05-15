@@ -13498,7 +13498,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"date-fns@npm:^2.29.1":
+"date-fns@npm:^2.24.0, date-fns@npm:^2.29.1, date-fns@npm:^2.29.3":
   version: 2.30.0
   resolution: "date-fns@npm:2.30.0"
   dependencies:
@@ -15082,7 +15082,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-storybook@npm:^0.6.10, eslint-plugin-storybook@npm:^0.6.8":
+"eslint-plugin-storybook@npm:^0.6.10, eslint-plugin-storybook@npm:^0.6.11, eslint-plugin-storybook@npm:^0.6.8":
   version: 0.6.12
   resolution: "eslint-plugin-storybook@npm:0.6.12"
   dependencies:
