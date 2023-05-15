@@ -4,8 +4,8 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import setupEvalEnv from "../handlers/setupEvalEnv";
 import { functionDeterminer } from "../functionDeterminer";
-import { resetJSLibraries } from "workers/common/JSLibrary";
-import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { resetJSLibraries } from "workers/common/JSLibrary/resetJSLibraries";
+import { EVAL_WORKER_ACTIONS } from "ce/workers/Evaluation/evalWorkerActions";
 
 describe("evaluateSync", () => {
   const widget: WidgetEntity = {
