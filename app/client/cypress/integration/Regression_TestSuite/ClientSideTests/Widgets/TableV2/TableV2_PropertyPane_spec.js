@@ -263,10 +263,10 @@ describe("Table Widget V2 property pane feature validation", function () {
 
   it("9. Test to validate text format", function () {
     // Validate Bold text
-    cy.get(widgetsPage.bold).click({ force: true });
+    cy.get(widgetsPage.bold).click();
     cy.readTableV2dataValidateCSS("1", "0", "font-weight", "700");
     // Validate Italic text
-    cy.get(widgetsPage.italics).click({ force: true });
+    cy.get(widgetsPage.italics).click();
     cy.readTableV2dataValidateCSS("0", "0", "font-style", "italic");
   });
 
@@ -379,7 +379,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.makeColumnEditable("orderAmount");
     cy.editColumn("orderAmount");
 
-    _.propPane.UpdatePropertyFieldValue("Computed Value", "{{currentIndex}}");
+    _.propPane.UpdatePropertyFieldValue("Computed value", "{{currentIndex}}");
     cy.changeColumnType("Number");
 
     _.propPane.UpdatePropertyFieldValue("Min", "{{currentIndex}}");
@@ -414,7 +414,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.get(".bp3-popover-content").should("not.exist");
 
     _.propPane.UpdatePropertyFieldValue(
-      "Error Message",
+      "Error message",
       "Row with id {{currentRow.id}} is not valid",
     );
 
@@ -423,7 +423,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.get(".bp3-popover-content").contains("Row with id 7 is not valid");
 
     _.propPane.UpdatePropertyFieldValue("Min", "");
-    _.propPane.UpdatePropertyFieldValue("Error Message", "");
+    _.propPane.UpdatePropertyFieldValue("Error message", "");
 
     // Check for currentIndex property on Regex field
     cy.changeColumnType("Plain Text");
@@ -506,7 +506,7 @@ describe("Table Widget V2 property pane feature validation", function () {
 
     // Cleanup
     _.propPane.UpdatePropertyFieldValue(
-      "Computed Value",
+      "Computed value",
       '{{currentRow["orderAmount"]}}',
     );
     cy.changeColumnType("Plain Text");
