@@ -57,8 +57,6 @@ public interface DatasourceServiceCE {
 
     Mono<Datasource> updateByEnvironmentId(String id, Datasource datasource, String environmentId);
 
-    Mono<DatasourceDTO> archiveDatasourceById(String id);
-
     Mono<Datasource> archiveById(String id);
 
     Map<String, Object> getAnalyticsProperties(Datasource datasource);

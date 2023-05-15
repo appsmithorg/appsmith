@@ -6,6 +6,7 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.ce.DatasourceServiceCEImpl;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.DatasourceStorageTransferSolution;
 import com.appsmith.server.solutions.WorkspacePermission;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;

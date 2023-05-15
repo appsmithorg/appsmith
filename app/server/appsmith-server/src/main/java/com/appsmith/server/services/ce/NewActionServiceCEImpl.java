@@ -1458,7 +1458,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 Datasource updatedDatasource =
                                         policyUtils.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
 
-
                                 return datasourceService.save(updatedDatasource);
                             });
                 });

@@ -32,7 +32,7 @@ public class DatasourceStorage extends BaseDomain {
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)
-    Set<String> invalids;
+    Set<String> invalids = new HashSet<>();
 
     /*
      * - To return useful hints to the user.
@@ -97,20 +97,27 @@ public class DatasourceStorage extends BaseDomain {
         this.environmentId = environmentId;
         this.datasourceConfiguration = datasource.getDatasourceConfiguration();
         this.invalids = new HashSet<>();
-        this.messages.addAll(datasource.getMessages());
+        if (datasource.getMessages() != null) {
+            this.messages.addAll(datasource.getMessages());
+        }
 
-        this.setTransientFields(datasource);
+        this.prepareTransientFields(datasource);
     }
 
     public DatasourceStorage(DatasourceStorageDTO datasourceStorageDTO) {
         this.datasourceId = datasourceStorageDTO.getDatasourceId();
         this.environmentId = datasourceStorageDTO.getEnvironmentId();
         this.datasourceConfiguration = datasourceStorageDTO.getDatasourceConfiguration();
-        this.invalids = datasourceStorageDTO.getInvalids();
-        this.messages = datasourceStorageDTO.getMessages();
+        if (datasourceStorageDTO.invalids != null) {
+            this.invalids.addAll(datasourceStorageDTO.getInvalids());
+        }
+        if (datasourceStorageDTO.getMessages() != null) {
+            this.messages.addAll(datasourceStorageDTO.getMessages());
+        }
     }
 
-    public void setTransientFields(Datasource datasource) {
+    public void prepareTransientFields(Datasource datasource) {
+        this.datasourceId = datasource.getId();
         this.name = datasource.getName();
         this.pluginId = datasource.getPluginId();
         this.pluginName = datasource.getPluginName();
@@ -122,7 +129,9 @@ public class DatasourceStorage extends BaseDomain {
         this.isTemplate = datasource.getIsTemplate();
         this.isMock = datasource.getIsMock();
 
-        this.invalids.addAll(datasource.getInvalids());
+        if (datasource.getInvalids() != null) {
+            this.invalids.addAll(datasource.getInvalids());
+        }
     }
 
     @JsonView(Views.Public.class)

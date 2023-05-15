@@ -12,6 +12,7 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.CollectionUtils;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -56,7 +57,7 @@ public class Datasource extends BranchAwareDomain implements Forkable {
 
     @Transient
     @JsonView(Views.Internal.class)
-    Map<String, DatasourceStorageDTO> datasourceStorages;
+    Map<String, DatasourceStorageDTO> datasourceStorages = new HashMap<>();
 
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -108,7 +109,7 @@ public class Datasource extends BranchAwareDomain implements Forkable {
     Boolean isMock;
 
     @JsonView(Views.Internal.class)
-    Boolean hasDatasourceConfigurationStorage;
+    Boolean hasDatasourceStorage;
 
     // This is the only way to ever create a datasource. We are treating datasource as an internal construct
     public Datasource(DatasourceStorage datasourceStorage) {
@@ -123,6 +124,10 @@ public class Datasource extends BranchAwareDomain implements Forkable {
         this.isRecentlyCreated = datasourceStorage.getIsRecentlyCreated();
         this.isTemplate = datasourceStorage.getIsTemplate();
         this.isMock = datasourceStorage.getIsMock();
+
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        this.datasourceStorages = storages;
+        storages.put(datasourceStorage.getEnvironmentId(), new DatasourceStorageDTO(datasourceStorage));
     }
 
     /**

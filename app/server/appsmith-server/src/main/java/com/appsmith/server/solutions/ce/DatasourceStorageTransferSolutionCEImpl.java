@@ -53,7 +53,7 @@ public class DatasourceStorageTransferSolutionCEImpl implements DatasourceStorag
         DatasourceStorage datasourceStorage = this.initializeDatasourceStorage(datasource, environmentId);
         datasource.setDatasourceConfiguration(null);
         datasource.setInvalids(null);
-        datasource.setHasDatasourceConfigurationStorage(true);
+        datasource.setHasDatasourceStorage(true);
         return Mono.zip(datasourceStorageRepository.save(datasourceStorage), datasourceRepository.save(datasource))
                 .map(Tuple2::getT1);
     }

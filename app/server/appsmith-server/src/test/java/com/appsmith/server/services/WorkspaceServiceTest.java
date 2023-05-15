@@ -1,6 +1,8 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
@@ -62,6 +64,7 @@ import reactor.util.function.Tuple6;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -1004,6 +1007,10 @@ public class WorkspaceServiceTest {
                     datasource.setName("test datasource");
                     datasource.setWorkspaceId(org.getId());
                     datasource.setPluginId(plugin.getId());
+                    DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+                    HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+                    storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+                    datasource.setDatasourceStorages(storages);
                     return datasourceService.create(datasource);
                 });
 

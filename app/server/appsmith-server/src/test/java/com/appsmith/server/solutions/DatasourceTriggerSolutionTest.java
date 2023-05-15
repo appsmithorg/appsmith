@@ -3,10 +3,14 @@ package com.appsmith.server.solutions;
 import com.appsmith.external.models.ClientDataDisplayType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceDTO;
+import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.DatasourceContextIdentifier;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
@@ -92,6 +96,10 @@ public class DatasourceTriggerSolutionTest {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         datasource.setDatasourceConfiguration(datasourceConfiguration);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        datasource.setDatasourceStorages(storages);
         datasource = datasourceService.create(datasource).block();
 
         datasourceId = datasource.getId();

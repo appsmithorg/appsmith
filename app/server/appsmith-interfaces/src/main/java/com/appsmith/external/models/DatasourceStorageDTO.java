@@ -23,7 +23,7 @@ public class DatasourceStorageDTO {
         this.messages = datasourceStorage.getMessages() ;
     }
 
-    public DatasourceStorageDTO(Datasource datasource, String environmentId) {
+    public DatasourceStorageDTO(DatasourceDTO datasource, String environmentId) {
         this.id = datasource.getId();
         this.datasourceId = datasource.getId();
         this.environmentId = environmentId;
