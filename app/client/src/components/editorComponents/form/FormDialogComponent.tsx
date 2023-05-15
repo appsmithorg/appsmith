@@ -55,7 +55,7 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
         onOpenChange={(isOpen) => isModalOpen && onOpenChange(isOpen)}
         open={isModalOpen}
       >
-        <ModalContent>
+        <ModalContent style={{ width: "640px" }}>
           <ModalHeader>
             <div className="text-ellipsis overflow-hidden whitespace-nowrap">
               {props.title || `Invite Users to ${props.workspace.name}`}

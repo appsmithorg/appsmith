@@ -136,12 +136,20 @@ const ContextWrapper = styled.div`
 `;
 
 const JsonWrapper = styled.div`
-  padding-top: ${(props) => props.theme.spaces[1]}px;
+  padding: ${(props) => props.theme.spaces[1] - 1}px 0
+    ${(props) => props.theme.spaces[5]}px;
   svg {
     color: var(--ads-v2-color-fg-muted) !important;
     height: 12px !important;
     width: 12px !important;
     vertical-align: baseline !important;
+  }
+  .object-key-val span,
+  .icon-container {
+    vertical-align: middle;
+  }
+  .brace-row {
+    vertical-align: bottom;
   }
 `;
 

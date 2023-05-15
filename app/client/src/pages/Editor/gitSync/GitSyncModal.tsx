@@ -119,7 +119,7 @@ function GitSyncModal(props: { isImport?: boolean }) {
       >
         <ModalContentContainer
           data-testid="t--git-sync-modal"
-          style={{ width: "600px" }}
+          style={{ width: "640px" }}
         >
           <ModalHeader>
             {MENU_ITEMS_MAP[activeTabKey]?.modalTitle ?? ""}

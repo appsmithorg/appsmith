@@ -91,7 +91,7 @@ const TabbedViewWrapper = styled.div`
   }
   &&& {
     .ads-v2-tabs__list {
-      padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-6);
+      padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-7);
     }
   }
 `;
@@ -253,7 +253,9 @@ function JSResponseView(props: Props) {
                   <NoResponse
                     isButtonDisabled={disabled}
                     isQueryRunning={isLoading}
-                    onRunClick={() => onButtonClick}
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
+                    onRunClick={onButtonClick}
                   />
                 )}
                 {responseStatus === JSResponseState.IsExecuting && (
