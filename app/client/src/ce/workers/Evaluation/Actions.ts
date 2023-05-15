@@ -15,7 +15,7 @@ import {
 import { getEntityForEvalContext } from "workers/Evaluation/getEntityForContext";
 import { klona } from "klona/full";
 import { dataTreeEvaluator } from "workers/Evaluation/handlers/evalTree";
-import { get, isEmpty } from "lodash";
+import { isEmpty } from "lodash";
 declare global {
   /** All identifiers added to the worker global scope should also
    * be included in the DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS in
@@ -35,30 +35,17 @@ export enum ExecutionType {
   TRIGGER = "TRIGGER",
 }
 
-function getEntityMethodFromConfig(
-  entityConfig: DataTreeEntityConfig,
-  entityName: string,
-) {
+function getEntityMethodFromConfig(entityConfig: DataTreeEntityConfig) {
   const setterMethodMap: Record<string, any> = {};
   // @ts-expect-error: a
   if (entityConfig.__setters) {
     // @ts-expect-error: a
     for (const setterMethodName of Object.keys(entityConfig.__setters)) {
       setterMethodMap[setterMethodName] = function () {
-        // entityConfig.__setters[setterMethodName].path
+        // @ts-expect-error: a
+        console.log(entityConfig.__setters[setterMethodName].path);
         return "WORKS";
       };
-    }
-  }
-
-  // @ts-expect-error: a
-  if (entityConfig.pathToSetters && entityConfig.pathToSetters.length) {
-    // @ts-expect-error: a
-    const pathToSetters = entityConfig.pathToSetter;
-    for (const path of pathToSetters) {
-      const subConfig = get(entityConfig, path);
-      const subMethodMap = getEntityMethodFromConfig(subConfig, entityName);
-      set(setterMethodMap, path, subMethodMap);
     }
   }
 
