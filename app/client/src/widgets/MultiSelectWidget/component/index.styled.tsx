@@ -3,7 +3,7 @@ import { Checkbox, Classes } from "@blueprintjs/core";
 import styled, { keyframes, createGlobalStyle } from "styled-components";
 import { Colors } from "constants/Colors";
 import type { LabelPosition } from "components/constants";
-import { labelLayoutStyles } from "design-system-old";
+import { labelLayoutStyles } from "@design-system/widgets-old";
 
 const rcSelectDropdownSlideUpIn = keyframes`
 	0% {

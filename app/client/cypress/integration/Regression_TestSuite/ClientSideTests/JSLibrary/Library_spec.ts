@@ -3,7 +3,7 @@ import { WIDGET } from "../../../../locators/WidgetLocators";
 import { jsEditor } from "../../../../support/Objects/ObjectsCore";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Tests JS Libraries", () => {
+describe("excludeForAirgap", "Tests JS Libraries", () => {
   it("1. Validates Library install/uninstall", () => {
     _.entityExplorer.ExpandCollapseEntity("Libraries");
     _.installer.openInstaller();
