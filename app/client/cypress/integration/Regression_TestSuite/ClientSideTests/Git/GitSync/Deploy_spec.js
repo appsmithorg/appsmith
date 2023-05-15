@@ -25,8 +25,8 @@ describe("Git sync modal: deploy tab", function () {
 
     // comment text input should not empty
     cy.get(gitSyncLocators.commitCommentInput)
-      .invoke("val")
-      .should("not.be.empty");
+      .find("textarea")
+      .should("be.disabled");
     cy.get(gitSyncLocators.commitButton).should("be.disabled");
     cy.get(gitSyncLocators.closeGitSyncModal).click();
   });
@@ -36,10 +36,9 @@ describe("Git sync modal: deploy tab", function () {
     _.agHelper.GetNClick(_.locators._publishButton);
 
     cy.get(gitSyncLocators.gitSyncModal);
-    cy.get(gitSyncLocators.gitSyncModalDeployTab).should(
-      "have.class",
-      "react-tabs__tab--selected",
-    );
+    cy.get(gitSyncLocators.gitSyncModalDeployTab)
+      .should("have.attr", "aria-selected", "true")
+      .and("not.be.empty");
 
     cy.window().then((window) => {
       cy.stub(window, "open").callsFake((url) => {

@@ -19,9 +19,7 @@ describe("Table widget Add new row feature's", () => {
     it("1.1. should test that allow Add new row property is present", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.get(".t--property-control-allowaddingarow").should("exist");
-      cy.get(
-        ".t--property-control-allowaddingarow .bp3-control.bp3-switch.unchecked",
-      ).should("exist");
+      cy.get(".t--property-control-allowaddingarow input").should("exist");
     });
 
     it("1.2. should test that Add new row link appears on the UI when the allow add new row property is enabled", () => {

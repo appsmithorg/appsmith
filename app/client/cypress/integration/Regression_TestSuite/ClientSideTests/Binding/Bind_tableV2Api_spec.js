@@ -27,6 +27,8 @@ describe("Test Create Api and Bind to Table widget V2", function () {
   });
 
   it("2. Test_Validate the Api data is updated on Table widget", function () {
+    _.entityExplorer.ExpandCollapseEntity("Widgets");
+    _.entityExplorer.ExpandCollapseEntity("Container3");
     _.entityExplorer.SelectEntityByName("Table1");
     cy.openPropertyPane("tablewidgetv2");
     cy.testJsontext("tabledata", "{{Api1.data}}");
@@ -49,6 +51,8 @@ describe("Test Create Api and Bind to Table widget V2", function () {
   });
 
   it("3. Validate onSearchTextChanged function is called when configured for search text", function () {
+    _.entityExplorer.ExpandCollapseEntity("Widgets");
+    _.entityExplorer.ExpandCollapseEntity("Container3");
     _.entityExplorer.SelectEntityByName("Table1");
     cy.openPropertyPane("tablewidgetv2");
     cy.togglebarDisable(
