@@ -1615,26 +1615,26 @@ public class DatasourceServiceTest {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add(fieldName(QDatasource.datasource.workspaceId), workspaceId);
 
-        Mono<List<DatasourceDTO>> listMono = datasourceService.saveAll(datasourceList)
-                .thenMany(datasourceService.getAll(params))
-                .collectList();
+        Mono<List<DatasourceDTO>> listMono = datasourceService.getAll(params).collectList();
 
-        StepVerifier.create(listMono).assertNext(datasources -> {
-            assertThat(datasources.size()).isEqualTo(4);
+        StepVerifier.create(listMono)
+                .assertNext(datasources -> {
+                    assertThat(datasources.size()).isEqualTo(4);
 
-            // should be sorted alphabetically
-            assertThat(datasources.get(0).getName()).isEqualTo("A");
-            assertThat(datasources.get(0).getIsRecentlyCreated()).isTrue();
+                    // should be sorted alphabetically
+                    assertThat(datasources.get(0).getName()).isEqualTo("A");
+                    assertThat(datasources.get(0).getIsRecentlyCreated()).isTrue();
 
-            assertThat(datasources.get(1).getName()).isEqualTo("B");
-            assertThat(datasources.get(1).getIsRecentlyCreated()).isTrue();
+                    assertThat(datasources.get(1).getName()).isEqualTo("B");
+                    assertThat(datasources.get(1).getIsRecentlyCreated()).isTrue();
 
-            assertThat(datasources.get(2).getName()).isEqualTo("C");
-            assertThat(datasources.get(2).getIsRecentlyCreated()).isTrue();
+                    assertThat(datasources.get(2).getName()).isEqualTo("C");
+                    assertThat(datasources.get(2).getIsRecentlyCreated()).isTrue();
 
-            assertThat(datasources.get(3).getName()).isEqualTo("D");
-            assertThat(datasources.get(3).getIsRecentlyCreated()).isNull();
-        }).verifyComplete();
+                    assertThat(datasources.get(3).getName()).isEqualTo("D");
+                    assertThat(datasources.get(3).getIsRecentlyCreated()).isNull();
+                })
+                .verifyComplete();
     }
 
     private Datasource createDatasource(String name, String workspaceId) {
