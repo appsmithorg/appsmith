@@ -69,7 +69,6 @@ const ResponseContainer = styled.div`
 
 const ResponseTabWrapper = styled.div`
   display: flex;
-  height: 100%;
   width: 100%;
   &.disable * {
     opacity: 0.8;
@@ -88,11 +87,6 @@ const TabbedViewWrapper = styled.div`
     top: 0px;
     right: 0px;
     padding: 9px 11px;
-  }
-  &&& {
-    .ads-v2-tabs__list {
-      padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-7);
-    }
   }
 `;
 

@@ -74,10 +74,6 @@ const ResponseContainer = styled.div`
   min-height: 36px;
   background-color: var(--ads-v2-color-bg);
   border-top: 1px solid var(--ads-v2-color-border);
-
-  .ads-v2-tabs__panel {
-    overflow: hidden;
-  }
   .CodeMirror-code {
     font-size: 12px;
   }
@@ -112,6 +108,10 @@ const ResponseTabWrapper = styled.div`
   flex-direction: column;
   height: 100%;
   width: 100%;
+  &.t--headers-tab {
+    padding-left: var(--ads-v2-spaces-7);
+    padding-right: var(--ads-v2-spaces-7);
+  }
 `;
 
 const TabbedViewWrapper = styled.div`
@@ -128,12 +128,6 @@ const TabbedViewWrapper = styled.div`
     ul.ads-v2-tabs__list {
       margin: 0 ${(props) => props.theme.spaces[11]}px;
       height: ${TAB_MIN_HEIGHT};
-    }
-  }
-
-  & {
-    .ads-v2-tabs__list {
-      padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-7);
     }
   }
 
@@ -254,7 +248,6 @@ export const ResponseTabErrorContainer = styled.div`
   flex-direction: column;
   padding: 8px 16px;
   gap: 8px;
-  max-height: 100%;
   height: fit-content;
   background: var(--ads-v2-color-bg-error);
   border-bottom: 1px solid var(--ads-v2-color-border);
@@ -579,7 +572,7 @@ function ApiResponseView(props: Props) {
       key: "headers",
       title: "Headers",
       panelComponent: (
-        <ResponseTabWrapper>
+        <ResponseTabWrapper className="t--headers-tab">
           {hasFailed && !isRunning && (
             <Callout
               kind="error"

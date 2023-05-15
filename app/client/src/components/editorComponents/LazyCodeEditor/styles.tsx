@@ -83,7 +83,7 @@ export const ProgressBar = styled.div`
   left: 0;
   width: 100%;
   height: 2px;
-  background-color: var(--ads-color-brand);
+  background-color: var(--ads-v2-color-bg-brand);
 
   transform-origin: left;
   animation: ${progressBarAnimation} 60s;

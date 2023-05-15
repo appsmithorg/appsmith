@@ -322,17 +322,11 @@ const SidebarWrapper = styled.div<{ show: boolean }>`
 `;
 
 export const SegmentedControlContainer = styled.div`
-  padding: 0 var(--ads-v2-spaces-4);
+  padding: 0 var(--ads-v2-spaces-7);
   display: flex;
   flex-direction: column;
   gap: var(--ads-v2-spaces-4);
   overflow: scroll;
-`;
-
-const DebuggerWithPadding = styled.div`
-  .t--query-bottom-pane-container .ads-v2-tabs__list {
-    padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-7);
-  }
 `;
 
 type QueryFormProps = {
@@ -1017,54 +1011,52 @@ export function EditorJSONtoForm(props: Props) {
               </TabContainerView>
               {renderDebugger &&
                 selectedResponseTab !== DEBUGGER_TAB_KEYS.HEADER_TAB && (
-                  <DebuggerWithPadding>
-                    <TabbedViewContainer
-                      className="t--query-bottom-pane-container"
-                      ref={panelRef}
-                    >
-                      <Resizable
-                        initialHeight={responsePaneHeight}
-                        onResizeComplete={(height: number) =>
-                          setQueryResponsePaneHeight(height)
-                        }
-                        openResizer={isRunning}
-                        panelRef={panelRef}
-                        snapToHeight={ActionExecutionResizerHeight}
+                  <TabbedViewContainer
+                    className="t--query-bottom-pane-container"
+                    ref={panelRef}
+                  >
+                    <Resizable
+                      initialHeight={responsePaneHeight}
+                      onResizeComplete={(height: number) =>
+                        setQueryResponsePaneHeight(height)
+                      }
+                      openResizer={isRunning}
+                      panelRef={panelRef}
+                      snapToHeight={ActionExecutionResizerHeight}
+                    />
+                    {isRunning && (
+                      <ActionExecutionInProgressView
+                        actionType="query"
+                        theme={EditorTheme.LIGHT}
                       />
-                      {isRunning && (
-                        <ActionExecutionInProgressView
-                          actionType="query"
-                          theme={EditorTheme.LIGHT}
-                        />
-                      )}
+                    )}
 
-                      {output && !!output.length && (
-                        <ResultsCount>
-                          <Text type={TextType.P3}>
-                            Result:
-                            <Text type={TextType.H5}>{` ${
-                              output.length
-                            } Record${output.length > 1 ? "s" : ""}`}</Text>
-                          </Text>
-                        </ResultsCount>
-                      )}
+                    {output && !!output.length && (
+                      <ResultsCount>
+                        <Text type={TextType.P3}>
+                          Result:
+                          <Text type={TextType.H5}>{` ${output.length} Record${
+                            output.length > 1 ? "s" : ""
+                          }`}</Text>
+                        </Text>
+                      </ResultsCount>
+                    )}
 
-                      <EntityBottomTabs
-                        expandedHeight={`${ActionExecutionResizerHeight}px`}
-                        onSelect={setSelectedResponseTab}
-                        selectedTabKey={selectedResponseTab}
-                        tabs={responseTabs}
-                      />
-                      <Button
-                        className="close-debugger t--close-debugger"
-                        isIconButton
-                        kind="tertiary"
-                        onClick={onClose}
-                        size="md"
-                        startIcon="close-modal"
-                      />
-                    </TabbedViewContainer>
-                  </DebuggerWithPadding>
+                    <EntityBottomTabs
+                      expandedHeight={`${ActionExecutionResizerHeight}px`}
+                      onSelect={setSelectedResponseTab}
+                      selectedTabKey={selectedResponseTab}
+                      tabs={responseTabs}
+                    />
+                    <Button
+                      className="close-debugger t--close-debugger"
+                      isIconButton
+                      kind="tertiary"
+                      onClick={onClose}
+                      size="md"
+                      startIcon="close-modal"
+                    />
+                  </TabbedViewContainer>
                 )}
             </SecondaryWrapper>
             <AIWindow className="border-t border-l" windowType="fixed" />

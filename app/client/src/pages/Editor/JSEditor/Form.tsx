@@ -94,13 +94,12 @@ const SecondaryWrapper = styled.div`
   flex: 1;
   overflow: hidden;
   &&& {
-    .ads-v2-tabs__panel {
-      height: calc(100% - 30px);
-    }
-
     .ads-v2-tabs,
     &.js-editor-tab {
       height: 100%;
+    }
+    .js-editor-tab .js-editor {
+      padding-top: var(--ads-v2-spaces-4);
     }
   }
 `;

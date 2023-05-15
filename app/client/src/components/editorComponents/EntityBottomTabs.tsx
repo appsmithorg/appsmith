@@ -11,9 +11,15 @@ const TabPanelWrapper = styled(TabPanel)`
   margin-top: 0;
   height: calc(100% - ${LIST_HEADER_HEIGHT});
   & > div {
-    height: 100%;
     padding-top: var(--ads-v2-spaces-4);
   }
+  &.ads-v2-tabs__panel {
+    overflow: auto;
+  }
+`;
+
+const TabsListWrapper = styled(TabsList)`
+  padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-7);
 `;
 
 type EntityBottomTabsProps = {
@@ -54,7 +60,7 @@ function EntityBottomTabs(
       onValueChange={onTabSelect}
       value={props.selectedTabKey}
     >
-      <TabsList>
+      <TabsListWrapper>
         {props.tabs.map((tab: any) => {
           return (
             <Tab key={tab.key} notificationCount={tab.count} value={tab.key}>
@@ -62,7 +68,7 @@ function EntityBottomTabs(
             </Tab>
           );
         })}
-      </TabsList>
+      </TabsListWrapper>
       {props.tabs.map((tab: any) => (
         <TabPanelWrapper key={tab.key} value={tab.key}>
           {tab.panelComponent}
