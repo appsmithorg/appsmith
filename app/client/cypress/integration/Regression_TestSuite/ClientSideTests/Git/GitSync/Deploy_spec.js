@@ -36,11 +36,9 @@ describe("Git sync modal: deploy tab", function () {
     _.agHelper.GetNClick(_.locators._publishButton);
 
     cy.get(gitSyncLocators.gitSyncModal);
-    cy.get(gitSyncLocators.gitSyncModalDeployTab).should(
-      "have.attr",
-      "aria-selected",
-      "true",
-    );
+    cy.get(gitSyncLocators.gitSyncModalDeployTab)
+      .should("have.attr", "aria-selected", "true")
+      .and("not.be.empty");
 
     cy.window().then((window) => {
       cy.stub(window, "open").callsFake((url) => {
