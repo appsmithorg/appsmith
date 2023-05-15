@@ -49,7 +49,7 @@ describe("Git sync:", function () {
 
     cy.get(gitSyncLocators.branchSearchInput).should(
       "have.value",
-      "special_branch-name_____________________",
+      "special&branch-name~@#$%^&*()_+={}[]><,.",
     );
 
     cy.wait(200);
@@ -63,21 +63,11 @@ describe("Git sync:", function () {
     cy.get("@gitbranchName").then((branName) => {
       parentBranchKey = branName;
     });
-    cy.Createpage("ParentPage1");
-    cy.get(pages.addEntityAPI)
-      .last()
-      .should("be.visible")
-      .click({ force: true });
+
+    _.entityExplorer.AddNewPage();
     _.dataSources.NavigateToDSCreateNew();
-    cy.CreateAPI("ParentApi1");
-    cy.NavigateToJSEditor();
-    cy.wait("@createNewJSCollection");
-    cy.get(jsActions.name).click({ force: true });
-    cy.get(jsActions.nameInput)
-      .type("{selectall}ParentJsAction1", { force: true })
-      .should("have.value", "ParentJsAction1")
-      .blur();
-    cy.wait("@renameJsAction");
+    _.apiPage.CreateApi("ParentApi1");
+    _.jsEditor.CreateJSObject();
     // Added because api name edit takes some time to
     // reflect in api sidebar after the call passes.
     // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -86,23 +76,11 @@ describe("Git sync:", function () {
     cy.get("@gitbranchName").then((branName) => {
       childBranchKey = branName;
     });
-    cy.Createpage("ChildPage1");
-    cy.get(pages.addEntityAPI)
-      .last()
-      .should("be.visible")
-      .click({ force: true });
+    _.entityExplorer.AddNewPage();
 
     _.dataSources.NavigateToDSCreateNew();
-
-    cy.CreateAPI("ChildApi1");
-    cy.NavigateToJSEditor();
-    cy.wait("@createNewJSCollection");
-    cy.get(jsActions.name).click({ force: true });
-    cy.get(jsActions.nameInput)
-      .type("{selectall}ChildJsAction1", { force: true })
-      .should("have.value", "ChildJsAction1")
-      .blur();
-    cy.wait("@renameJsAction");
+    _.apiPage.CreateApi("ChildApi1");
+    _.jsEditor.CreateJSObject();
     // Added because api name edit takes some time to
     // reflect in api sidebar after the call passes.
     // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -117,7 +95,7 @@ describe("Git sync:", function () {
       .should("be.visible")
       .should("have.class", "activePage");
 
-    cy.GlobalSearchEntity("ParentPage1");
+    cy.GlobalSearchEntity("ParentPage1"); // ask Albin
     cy.contains("ParentPage1").click();
 
     cy.get(`.t--entity-name:contains("ChildPage1")`).should("not.exist");
@@ -247,7 +225,7 @@ describe("Git sync:", function () {
       _.gitSync.CreateGitBranch(childBranchKey, true);
       //cy.createGitBranch(childBranchKey);
       cy.CheckAndUnfoldEntityItem("Pages");
-      cy.Createpage(uuid);
+      _.entityExplorer.AddNewPage();
       cy.get(gitSyncLocators.branchButton).click({ force: true });
       cy.get(gitSyncLocators.branchSearchInput).type("{selectall}master");
       cy.wait(400);

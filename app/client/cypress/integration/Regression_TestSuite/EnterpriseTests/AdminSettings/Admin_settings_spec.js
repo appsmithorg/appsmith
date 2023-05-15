@@ -34,7 +34,7 @@ describe("Admin settings page", function () {
       stubPricingPage();
       cy.get(EnterpriseAdminSettingsLocators.upgradeOidcButton)
         .should("be.visible")
-        .should("contain", "UPGRADE")
+        .should("contain", "Upgrade")
         .click();
       cy.get("@pricingPage").should("be.called");
       cy.wait(2000);
@@ -42,7 +42,7 @@ describe("Admin settings page", function () {
       stubPricingPage();
       cy.get(EnterpriseAdminSettingsLocators.upgradeSamlButton)
         .should("be.visible")
-        .should("contain", "UPGRADE")
+        .should("contain", "Upgrade")
         .click();
       cy.get("@pricingPage").should("be.called");
       cy.wait(2000);
