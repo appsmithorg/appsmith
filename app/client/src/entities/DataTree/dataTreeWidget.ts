@@ -15,7 +15,10 @@ import { OverridingPropertyType } from "./types";
 
 import { setOverridingProperty } from "./utils";
 
-function getSetterConfig(setterConfig: Record<string, any>, widget: any) {
+function getSetterConfig(
+  setterConfig: Record<string, any>,
+  widget: FlattenedWidgetProps,
+) {
   const modifiedSetterConfig: Record<string, any> = {};
   if (setterConfig.__setters) {
     modifiedSetterConfig.__setters = {};
