@@ -33,6 +33,7 @@ import {
 } from "utils/hooks/useDynamicAppLayout";
 import Canvas from "../Canvas";
 import { CanvasResizer } from "widgets/CanvasResizer";
+import type { AppState } from "ce/reducers";
 
 type CanvasContainerProps = {
   isPreviewMode: boolean;
@@ -127,6 +128,9 @@ function CanvasContainer(props: CanvasContainerProps) {
   }, []);
 
   const fontFamily = `${selectedTheme.properties.fontFamily.appFont}, sans-serif`;
+  const isAutoCanvasResizing = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+  );
 
   let node: ReactNode;
   const pageLoading = (
@@ -202,6 +206,7 @@ function CanvasContainer(props: CanvasContainerProps) {
         style={{
           height: shouldHaveTopMargin ? heightWithTopMargin : "100vh",
           fontFamily: fontFamily,
+          pointerEvents: isAutoCanvasResizing ? "none" : "auto",
         }}
       >
         <WidgetGlobaStyles
