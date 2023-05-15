@@ -10,8 +10,8 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
   WIDGET_PADDING,
   DefaultDimensionMap,
-  MAX_MODAL_WIDTH_FROM_MAIN_WIDTH,
   AUTO_LAYOUT_CONTAINER_PADDING,
+  MAX_MODAL_WIDTH_FROM_MAIN_WIDTH,
 } from "constants/WidgetConstants";
 import type {
   CanvasWidgetsReduxState,
@@ -30,12 +30,11 @@ import {
   updateWidgetPositions,
 } from "utils/autoLayout/positionUtils";
 import type { AlignmentColumnInfo } from "./autoLayoutTypes";
-import {
-  getWidgetMinMaxDimensionsInPixel,
-  getWidgetWidth,
-} from "./flexWidgetUtils";
+import { getWidgetWidth } from "./flexWidgetUtils";
 import type { DSLWidget } from "widgets/constants";
 import { getHumanizedTime, getReadableDateInFormat } from "utils/dayJsUtils";
+import WidgetFactory from "utils/WidgetFactory";
+import { isFunction } from "lodash";
 
 export type ReadableSnapShotDetails = {
   timeSince: string;
@@ -43,12 +42,30 @@ export type ReadableSnapShotDetails = {
   readableDate: string;
 };
 
+/**
+ * Update flex layers of parent canvas upon deleting a child widget.
+ * Logic:
+ * 1. Find the layer in which the deleted widget exists.
+ *   - Parse all flex layers, checking for deleted widgetId.
+ *   - If found, use the index of the flex layer to update it.
+ * 2. Update the flex layer.
+ *  - Remove the deleted widget from the children array.
+ * 3. Recalculate the dimensions of the canvas and it's widgets.
+ * @param allWidgets | CanvasWidgetsReduxState : All widgets.
+ * @param widgetId | string : id of widget to be deleted.
+ * @param parentId | string : Parent widget id.
+ * @param isMobile | boolean : Is the canvas mobile.
+ * @param mainCanvasWidth | number : Width of the main canvas.
+ * @param metaProps | Record<string, any> : Meta properties of the widget.
+ * @returns CanvasWidgetsReduxState
+ */
 export function updateFlexLayersOnDelete(
   allWidgets: CanvasWidgetsReduxState,
   widgetId: string,
   parentId: string,
   isMobile: boolean,
   mainCanvasWidth: number,
+  metaProps?: Record<string, any>,
 ): CanvasWidgetsReduxState {
   const widgets = { ...allWidgets };
   if (
@@ -90,7 +107,7 @@ export function updateFlexLayersOnDelete(
       children: updatedChildren,
     },
     ...flexLayers.slice(layerIndex + 1),
-  ];
+  ].filter((layer: FlexLayer) => layer?.children?.length);
 
   parent = {
     ...parent,
@@ -106,6 +123,8 @@ export function updateFlexLayersOnDelete(
     layerIndex,
     isMobile,
     mainCanvasWidth,
+    false,
+    metaProps,
   );
 }
 
@@ -115,6 +134,7 @@ export function alterLayoutForMobile(
   canvasWidth: number,
   mainCanvasWidth: number,
   firstTimeDSLUpdate = false,
+  metaProps?: Record<string, any>,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   const parent = widgets[parentId];
@@ -127,42 +147,18 @@ export function alterLayoutForMobile(
 
   for (const child of children) {
     const widget = { ...widgets[child] };
-    const { minWidth } = getWidgetMinMaxDimensionsInPixel(
-      widget,
-      mainCanvasWidth,
-    );
-    if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
-      widget.mobileRightColumn = GridDefaults.DEFAULT_GRID_COLUMNS;
-      widget.mobileLeftColumn = 0;
-    } else if (minWidth) {
-      const { leftColumn, rightColumn } = widget;
-      const columnSpace =
-        (canvasWidth - FLEXBOX_PADDING * 2) / GridDefaults.DEFAULT_GRID_COLUMNS;
-      if (columnSpace * (rightColumn - leftColumn) < minWidth) {
-        widget.mobileLeftColumn = 0;
-        widget.mobileRightColumn = Math.min(
-          minWidth / columnSpace,
-          GridDefaults.DEFAULT_GRID_COLUMNS,
-        );
-      }
-    } else {
-      widget.mobileLeftColumn = widget.leftColumn;
-      widget.mobileRightColumn = widget.rightColumn;
-    }
-    if (
-      widget.mobileTopRow === undefined ||
-      widget.mobileBottomRow === undefined ||
-      widget.mobileTopRow + widget.mobileBottomRow === 0
-    ) {
-      widget.mobileTopRow = widget.topRow;
-      widget.mobileBottomRow = widget.bottomRow;
-    }
+    const widgetWidth: number =
+      widget.type === "MODAL_WIDGET"
+        ? canvasWidth * MAX_MODAL_WIDTH_FROM_MAIN_WIDTH
+        : (canvasWidth * (widget.mobileRightColumn || 1)) /
+          GridDefaults.DEFAULT_GRID_COLUMNS;
     widgets = alterLayoutForMobile(
       widgets,
       child,
-      (canvasWidth * (widget.mobileRightColumn || 1)) /
-        GridDefaults.DEFAULT_GRID_COLUMNS,
+      widgetWidth,
       mainCanvasWidth,
+      firstTimeDSLUpdate,
+      metaProps,
     );
     widgets[child] = widget;
     widgets = updateWidgetPositions(
@@ -171,6 +167,7 @@ export function alterLayoutForMobile(
       true,
       mainCanvasWidth,
       firstTimeDSLUpdate,
+      metaProps,
     );
   }
   widgets = updateWidgetPositions(
@@ -179,6 +176,7 @@ export function alterLayoutForMobile(
     true,
     mainCanvasWidth,
     firstTimeDSLUpdate,
+    metaProps,
   );
   return widgets;
 }
@@ -188,6 +186,7 @@ export function alterLayoutForDesktop(
   parentId: string,
   mainCanvasWidth: number,
   firstTimeDSLUpdate = false,
+  metaProps?: Record<string, any>,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   const parent = widgets[parentId];
@@ -206,6 +205,7 @@ export function alterLayoutForDesktop(
     false,
     mainCanvasWidth,
     firstTimeDSLUpdate,
+    metaProps,
   );
   for (const child of children) {
     widgets = alterLayoutForDesktop(
@@ -213,6 +213,7 @@ export function alterLayoutForDesktop(
       child,
       mainCanvasWidth,
       firstTimeDSLUpdate,
+      metaProps,
     );
   }
   return widgets;
@@ -229,6 +230,7 @@ export function pasteWidgetInFlexLayers(
   originalWidgetId: string,
   isMobile: boolean,
   mainCanvasWidth: number,
+  metaProps?: Record<string, any>,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   const parent = widgets[parentId];
@@ -299,6 +301,8 @@ export function pasteWidgetInFlexLayers(
     flexLayerIndex,
     isMobile,
     mainCanvasWidth,
+    false,
+    metaProps,
   );
 }
 
@@ -314,6 +318,7 @@ export function addChildToPastedFlexLayers(
   widgetIdMap: Record<string, string>,
   isMobile: boolean,
   mainCanvasWidth: number,
+  metaProps?: Record<string, any>,
 ): CanvasWidgetsReduxState {
   let widgets = { ...allWidgets };
   const parent = widgets[widget.parentId];
@@ -351,6 +356,8 @@ export function addChildToPastedFlexLayers(
     parent.widgetId,
     isMobile,
     mainCanvasWidth,
+    false,
+    metaProps,
   );
 }
 
@@ -731,4 +738,18 @@ export function getReadableSnapShotDetails(
     timeTillExpiration,
     readableDate,
   };
+}
+
+export function isWidgetSizeObserved(widget: FlattenedWidgetProps): boolean {
+  const autoDimensionConfig = WidgetFactory.getWidgetAutoLayoutConfig(
+    widget.type,
+  ).autoDimension;
+
+  const shouldObserveWidth = isFunction(autoDimensionConfig)
+    ? autoDimensionConfig(widget).width
+    : autoDimensionConfig?.width;
+  const shouldObserveHeight = isFunction(autoDimensionConfig)
+    ? autoDimensionConfig(widget).height
+    : autoDimensionConfig?.height;
+  return !!shouldObserveWidth || !!shouldObserveHeight;
 }

@@ -169,7 +169,10 @@ import type { MetaState } from "reducers/entityReducers/metaReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { BlueprintOperationTypes } from "widgets/constants";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
-import { updatePositionsOfParentAndSiblings } from "utils/autoLayout/positionUtils";
+import {
+  updatePositionsOfParentAndSiblings,
+  updateWidgetPositions,
+} from "utils/autoLayout/positionUtils";
 import { getWidgetWidth } from "utils/autoLayout/flexWidgetUtils";
 import {
   FlexLayerAlignment,
@@ -246,21 +249,29 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       [widgetId],
       bottomRow,
     );
-    if (updatedCanvasBottomRow) {
+    // If it is a fixed canvas, update bottomRow directly.
+    if (
+      updatedCanvasBottomRow &&
+      appPositioningType !== AppPositioningTypes.AUTO
+    ) {
       const canvasWidget = movedWidgets[parentId];
       movedWidgets[parentId] = {
         ...canvasWidget,
         bottomRow: updatedCanvasBottomRow,
       };
     }
+    // If it is an auto layout canvas, then use positionUtils to update canvas bottomRow.
     let updatedWidgetsAfterResizing = movedWidgets;
     if (appPositioningType === AppPositioningTypes.AUTO) {
+      const metaProps: Record<string, any> = yield select(getWidgetsMeta);
       updatedWidgetsAfterResizing = updatePositionsOfParentAndSiblings(
         movedWidgets,
         parentId,
         getLayerIndexOfWidget(widgets[parentId]?.flexLayers, widgetId),
         isMobile,
         mainCanvasWidth,
+        false,
+        metaProps,
       );
     }
     log.debug("resize computations took", performance.now() - start, "ms");
@@ -1494,6 +1505,7 @@ function* pasteWidgetSaga(
     }
 
     const widgetIdMap: Record<string, string> = {};
+    const reverseWidgetIdMap: Record<string, string> = {};
     yield all(
       copiedWidgetGroups.map((copiedWidgets) =>
         call(function* () {
@@ -1541,7 +1553,6 @@ function* pasteWidgetSaga(
 
           // Get a flat list of all the widgets to be updated
           const widgetList = copiedWidgets.list;
-          const reverseWidgetIdMap: Record<string, string> = {};
           const widgetNameMap: Record<string, string> = {};
           const newWidgetList: FlattenedWidgetProps[] = [];
           // Generate new widgetIds for the flat list of all the widgets to be updated
@@ -1749,6 +1760,9 @@ function* pasteWidgetSaga(
                   !flexLayers ||
                   flexLayers.length <= 0)
               ) {
+                const metaProps: Record<string, any> = yield select(
+                  getWidgetsMeta,
+                );
                 if (widget.widgetId === widgetIdMap[copiedWidget.widgetId])
                   widgets = pasteWidgetInFlexLayers(
                     widgets,
@@ -1757,6 +1771,7 @@ function* pasteWidgetSaga(
                     reverseWidgetIdMap[widget.widgetId],
                     isMobile,
                     mainCanvasWidth,
+                    metaProps,
                   );
                 else if (widget.type !== "CANVAS_WIDGET")
                   widgets = addChildToPastedFlexLayers(
@@ -1765,6 +1780,7 @@ function* pasteWidgetSaga(
                     widgetIdMap,
                     isMobile,
                     mainCanvasWidth,
+                    metaProps,
                   );
               }
             }
@@ -1786,7 +1802,7 @@ function* pasteWidgetSaga(
       ),
     );
     //calculate the new positions of the reflowed widgets
-    const reflowedWidgets = getReflowedPositions(
+    let reflowedWidgets = getReflowedPositions(
       widgets,
       gridProps,
       reflowedMovementMap,
@@ -1806,6 +1822,15 @@ function* pasteWidgetSaga(
           ...newFlexLayers,
         ],
       };
+      const metaProps: Record<string, any> = yield select(getWidgetsMeta);
+      reflowedWidgets = updateWidgetPositions(
+        reflowedWidgets,
+        pastingIntoWidgetId,
+        isMobile,
+        mainCanvasWidth,
+        false,
+        metaProps,
+      );
     }
 
     // some widgets need to update property of parent if the parent have CHILD_OPERATIONS

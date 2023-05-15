@@ -693,9 +693,11 @@ function* runActionSaga(
     },
     state: {
       ...actionObject.actionConfiguration,
-      ...(datasourceUrl && {
-        url: datasourceUrl,
-      }),
+      ...(datasourceUrl
+        ? {
+            url: datasourceUrl,
+          }
+        : null),
     },
   });
 

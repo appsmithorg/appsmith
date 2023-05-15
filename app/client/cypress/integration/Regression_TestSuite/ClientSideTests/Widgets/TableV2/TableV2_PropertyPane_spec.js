@@ -459,9 +459,9 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.enterTableCellValue(4, 1, "1{enter}");
     cy.get(".bp3-popover-content").should("not.exist");
 
-    cy.wait(500);
+    cy.wait(1500);
     cy.discardTableRow(5, 1);
-    cy.wait(500);
+    cy.wait(1500);
 
     // Value isn't required in Row Index 2
     cy.editTableCell(4, 2);
@@ -472,7 +472,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.enterTableCellValue(4, 2, "{enter}");
     cy.get(".bp3-popover-content").should("not.exist");
 
-    cy.wait(500);
+    cy.wait(1500);
     cy.discardTableRow(5, 2);
 
     // Check for Required property using currentRow, row with index 1 has id 7
@@ -489,9 +489,9 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.enterTableCellValue(4, 1, "1{enter}");
     cy.get(".bp3-popover-content").should("not.exist");
 
-    cy.wait(500);
+    cy.wait(1500);
     cy.discardTableRow(5, 1);
-    cy.wait(500);
+    cy.wait(1500);
 
     // Value isn't required in Row Index 2
     cy.editTableCell(4, 2);
@@ -503,13 +503,28 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.enterTableCellValue(4, 2, "{enter}");
     cy.get(".bp3-popover-content").should("not.exist");
 
-    cy.wait(500);
+    cy.wait(1500);
     cy.discardTableRow(5, 2);
 
     // Cleanup
     propPane.UpdatePropertyFieldValue(
       "Computed Value",
       '{{currentRow["orderAmount"]}}',
+    );
+    cy.changeColumnType("Plain Text");
+    cy.backFromPropertyPanel();
+    cy.makeColumnEditable("orderAmount");
+  });
+
+  it("15. Verify default prompt message for min field", function () {
+    cy.openPropertyPane("tablewidgetv2");
+    cy.makeColumnEditable("orderAmount");
+    cy.editColumn("orderAmount");
+    cy.changeColumnType("Number");
+    propPane.UpdatePropertyFieldValue("Min", "test");
+    cy.get(".t--property-control-min .t--no-binding-prompt > span").should(
+      "have.text",
+      "Access the current cell using {{currentRow.columnName}}",
     );
     cy.changeColumnType("Plain Text");
     cy.backFromPropertyPanel();
