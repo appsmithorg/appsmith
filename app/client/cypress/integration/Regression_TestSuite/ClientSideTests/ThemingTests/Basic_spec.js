@@ -11,10 +11,6 @@ const ee = ObjectsRegistry.EntityExplorer,
 const containerShadowElement = `${widgetsPage.containerWidget}`;
 
 describe("App Theming funtionality", function () {
-  before(() => {
-    cy.addDsl(dsl);
-  });
-
   let themesSection = (sectionName, themeName) =>
     "//*[text()='" +
     sectionName +

@@ -1972,7 +1972,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         .then(applicationPageService.deleteApplication(application.getId())))
                                 .flatMap(application1 -> {
                                     if (error instanceof TransportException) {
-                                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, error.getMessage()));
+                                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
                                     } else if (error instanceof InvalidRemoteException) {
                                         return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "remote url"));
                                     } else if (error instanceof TimeoutException) {
