@@ -25,7 +25,7 @@ describe("Duplicate application", function () {
     cy.get(homePage.searchInput).type(appname);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.get(homePage.applicationCard).first().trigger("mouseover");
+    //  cy.get(homePage.applicationCard).first().trigger("mouseover");
     cy.get(homePage.appMoreIcon).first().click({ force: true });
     cy.get(homePage.duplicateApp).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting

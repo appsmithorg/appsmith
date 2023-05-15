@@ -39,7 +39,7 @@ describe("Update a user's name", function () {
         expect(text).to.equal(Cypress.env("USERNAME"));
       });
 
-    cy.get(".ads-v2-button__content").last().contains("Reset Password").click();
+    cy.get(".ads-v2-button__content").last().contains("Reset password").click();
     cy.wait("@resetPwd").should(
       "have.nested.property",
       "response.body.responseMeta.status",
