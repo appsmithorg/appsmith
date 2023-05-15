@@ -69,8 +69,8 @@
   "selectWidget": ".t--widget-selectwidget",
   "filterCheckbox": ".t--property-control-filterable input[type=checkbox]",
   "searchBoxDropdown": ".select-popover-wrapper div.bp3-input-group",
-  "NavHomePage": "[data-icon='home']",
-  "apiCallToast": "div.t--toast-action span[type='p1']",
+  "NavHomePage": "[data-testid='t--default-home-icon']",
+  "apiCallToast": "div.Toastify__toast-body",
   "toggleOnOptionChange": ".t--property-control-onoptionchange .t--js-toggle",
   "toggleButtonVariant": ".t--property-control-buttonvariant .t--js-toggle"
 }

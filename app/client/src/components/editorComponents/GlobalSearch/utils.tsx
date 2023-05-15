@@ -350,14 +350,14 @@ export type ActionOperation = {
 
 export const actionOperations: ActionOperation[] = [
   {
-    title: "New Blank API",
+    title: "New blank API",
     desc: "Create a new API",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     action: (pageId: string, location: EventLocation) =>
       createNewApiAction(pageId, location),
   },
   {
-    title: "New Blank GraphQL API",
+    title: "New blank GraphQL API",
     desc: "Create a new API",
     icon: <GraphQLIconV2 />,
     kind: SEARCH_ITEM_TYPES.actionOperation,
@@ -365,7 +365,7 @@ export const actionOperations: ActionOperation[] = [
       createNewApiAction(pageId, location, PluginPackageName.GRAPHQL),
   },
   {
-    title: "New JS Object",
+    title: "New JS object",
     desc: "Create a new JS Object",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     icon: JsFileIconV2(),
@@ -373,7 +373,7 @@ export const actionOperations: ActionOperation[] = [
       createNewJSCollection(pageId, from),
   },
   {
-    title: "New cURL Import",
+    title: "RL Import",
     desc: "Import a cURL Request",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     icon: <CurlIconV2 />,

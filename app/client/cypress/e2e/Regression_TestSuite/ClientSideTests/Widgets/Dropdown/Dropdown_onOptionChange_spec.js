@@ -14,6 +14,7 @@ describe("Dropdown Widget Functionality", function () {
   });
 
   it("1. Dropdown-Modal Validation", function () {
+    _.entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
     _.entityExplorer.SelectEntityByName("Dropdown1", "Widgets");
 
     cy.EnableAllCodeEditors();
@@ -48,9 +49,12 @@ describe("Dropdown Widget Functionality", function () {
     cy.SaveAndRunAPI();
 
     // Going to HomePage where the button widget is located and opeing it's property pane.
-    cy.get(formWidgetsPage.NavHomePage).click({ force: true });
-    cy.reload();
+    cy.get("[data-guided-tour-id='explorer-entity-Page1']").click({
+      force: true,
+    });
+    _.entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
     _.entityExplorer.SelectEntityByName("Dropdown1", "Widgets");
+    cy.reload();
 
     cy.executeDbQuery("dropdownApi", "onOptionChange");
     // Filling the messages for success/failure in the onOptionChangeAction of the dropdown widget.
@@ -100,9 +104,12 @@ describe("Dropdown Widget Functionality", function () {
     cy.CreateMockQuery("Query1");
 
     // Going to HomePage where the button widget is located and opeing it's property pane.
-    cy.get(formWidgetsPage.NavHomePage).click({ force: true });
-    cy.reload();
+    cy.get("[data-guided-tour-id='explorer-entity-Page1']").click({
+      force: true,
+    });
+    _.entityExplorer.NavigateToSwitcher("Widgets");
     cy.openPropertyPane("selectwidget");
+    cy.reload();
     // Adding the query in the onOptionChangeAction of the dropdown widget.
     cy.executeDbQuery("Query1", "onOptionChange");
     // Filling the messages for success/failure in the onOptionChangeAction of the dropdown widget.
@@ -123,6 +130,8 @@ describe("Dropdown Widget Functionality", function () {
   it("4. Toggle JS - Dropdown-Call-Query Validation", function () {
     //creating an api and calling it from the onOptionChangeAction of the button widget.
     // calling the existing api
+    _.entityExplorer.ExpandCollapseEntity("Widgets");
+    _.entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
     _.entityExplorer.SelectEntityByName("Dropdown1");
 
     cy.get(formWidgetsPage.toggleOnOptionChange).click({ force: true });
@@ -146,6 +155,8 @@ describe("Dropdown Widget Functionality", function () {
   it("5. Toggle JS - Dropdown-CallAnApi Validation", function () {
     //creating an api and calling it from the onOptionChangeAction of the button widget.
     // calling the existing api
+    _.entityExplorer.ExpandCollapseEntity("Widgets");
+    _.entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
     _.entityExplorer.SelectEntityByName("Dropdown1", "Widgets");
 
     cy.testJsontext(
@@ -168,6 +179,8 @@ describe("Dropdown Widget Functionality", function () {
 
   it("6. Dropdown Widget Functionality to Verify On Option Change Action", function () {
     // Open property pane
+    _.entityExplorer.ExpandCollapseEntity("Widgets");
+    _.entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
     _.entityExplorer.SelectEntityByName("Dropdown1");
 
     // Clear the JS code

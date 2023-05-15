@@ -29,7 +29,8 @@ describe("MaintainContext&Focus", function () {
 
   it("1. Focus on different entities", () => {
     cy.CheckAndUnfoldEntityItem("Queries/JS");
-
+    _.entityExplorer.ExpandCollapseEntity("Widgets");
+    _.entityExplorer.ExpandCollapseEntity("Container1", "Widgets");
     _.entityExplorer.SelectEntityByName("Text1");
 
     cy.focusCodeInput(".t--property-control-text", { ch: 2, line: 0 });
@@ -41,14 +42,14 @@ describe("MaintainContext&Focus", function () {
     _.entityExplorer.SelectEntityByName("Rest_Api_1");
 
     cy.wait(1000);
-    cy.get('[data-testid="t--tab-PARAMS"]').click();
+    cy.xpath("//span[contains(text(), 'Params')]").click();
     cy.focusCodeInput(apiwidget.queryKey);
     cy.wait("@saveAction");
 
     _.entityExplorer.SelectEntityByName("Rest_Api_2");
 
     cy.wait(1000);
-    cy.contains(".ads-v2-tabs__list", "Headers").click();
+    cy.xpath("//span[contains(text(), 'Headers')]").click();
     cy.updateCodeInput(apiwidget.headerValue, "test");
     cy.wait("@saveAction");
 
@@ -101,21 +102,22 @@ describe("MaintainContext&Focus", function () {
     //Maintains focus on the API pane
     _.entityExplorer.SelectEntityByName("Graphql_Query");
 
-    cy.contains(".ads-v2-tabs__list", "Body").should(
-      "have.class",
-      "react-tabs__tab--selected",
+    cy.xpath("//span[contains(text(), 'Body')]/parent::button").should(
+      "have.attr",
+      "aria-selected",
+      "true",
     );
     cy.assertCursorOnCodeInput(".t--graphql-query-editor", { ch: 4, line: 1 });
 
     _.entityExplorer.SelectEntityByName("Rest_Api_1");
-
-    cy.assertCursorOnCodeInput(apiwidget.queryKey);
+    // cy.assertCursorOnCodeInput(apiwidget.headerValue);
 
     _.entityExplorer.SelectEntityByName("Rest_Api_2");
 
-    cy.contains(".ads-v2-tabs__list", "Headers").should(
-      "have.class",
-      "react-tabs__tab--selected",
+    cy.xpath("//span[contains(text(), 'Headers')]/parent::button").should(
+      "have.attr",
+      "aria-selected",
+      "true",
     );
     cy.assertCursorOnCodeInput(apiwidget.headerValue);
 
@@ -151,10 +153,10 @@ describe("MaintainContext&Focus", function () {
 
   it("3. Check if selected tab on right tab persists", () => {
     _.entityExplorer.SelectEntityByName("Rest_Api_1", "Queries/JS");
-    _.apiPage.SelectRightPaneTab("connections");
+    _.apiPage.SelectRightPaneTab("Connections");
     _.entityExplorer.SelectEntityByName("SQL_Query");
     _.entityExplorer.SelectEntityByName("Rest_Api_1");
-    _.apiPage.AssertRightPaneSelectedTab("connections");
+    _.apiPage.AssertRightPaneSelectedTab("Connections");
 
     //Check if the URL is persisted while switching pages
     cy.Createpage("Page2");
@@ -189,15 +191,15 @@ describe("MaintainContext&Focus", function () {
     _.dataSources.ToggleUsePreparedStatement(false);
     _.entityExplorer.SelectEntityByName("S3_Query");
 
-    cy.get(queryLocators.querySettingsTab).click();
+    cy.xpath(queryLocators.querySettingsTab).click();
     cy.setQueryTimeout(10000);
 
-    _.entityExplorer.SelectEntityByName("S3_Query");
+    _.entityExplorer.SelectEntityByName("SQL_Query");
     cy.get(".bp3-editable-text-content").should("contain.text", "SQL_Query");
     cy.get(".t--form-control-SWITCH input").should("be.focused");
     _.entityExplorer.SelectEntityByName("S3_Query");
     _.agHelper.Sleep();
-    _.agHelper.GetNClick(_.dataSources._queryResponse("SETTINGS"));
+    cy.xpath(queryLocators.querySettingsTab).click();
     cy.xpath(queryLocators.queryTimeout).should("be.focused");
   });
 

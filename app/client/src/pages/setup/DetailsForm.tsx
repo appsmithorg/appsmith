@@ -99,7 +99,7 @@ export default function DetailsForm(
           <FormTextField
             data-testid="verifyPassword"
             name="verifyPassword"
-            placeholder="Re-enter Password"
+            placeholder="Re-enter password"
             type="password"
           />
         </StyledFormGroup>

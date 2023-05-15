@@ -8,8 +8,13 @@ import {
   MenuSub,
   MenuSubTrigger,
   MenuSubContent,
+  Tooltip,
 } from "design-system";
-import { EntityClassNames } from "./Entity";
+import {
+  createMessage,
+  ENTITY_MORE_ACTIONS_TOOLTIP,
+} from "@appsmith/constants/messages";
+import { AddButtonWrapper, EntityClassNames } from "./Entity";
 
 export type TreeDropdownOption = {
   label: string;
@@ -109,13 +114,22 @@ export default function TreeDropdown(props: TreeDropdownProps) {
         className="t--context-menu"
         onClick={() => handleOpenChange(!isOpen)}
       >
-        <Button
-          className={props.className}
-          isIconButton
-          kind="tertiary"
-          startIcon="more-vertical-control"
-          type="button"
-        />
+        <AddButtonWrapper>
+          <Tooltip
+            content={createMessage(ENTITY_MORE_ACTIONS_TOOLTIP)}
+            isDisabled={isOpen}
+            mouseLeaveDelay={0}
+            placement="right"
+          >
+            <Button
+              className={props.className}
+              isIconButton
+              kind="tertiary"
+              startIcon="more-vertical-control"
+              type="button"
+            />
+          </Tooltip>
+        </AddButtonWrapper>
       </MenuTrigger>
       {menuItems}
     </Menu>

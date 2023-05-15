@@ -146,7 +146,10 @@ function RepoLimitExceededErrorModal() {
       }}
       open={isOpen}
     >
-      <ModalContent className="t--git-repo-limited-modal">
+      <ModalContent
+        className="t--git-repo-limited-modal"
+        style={{ width: "640px" }}
+      >
         <ModalHeader isCloseButtonVisible>
           {createMessage(REPOSITORY_LIMIT_REACHED)}
         </ModalHeader>

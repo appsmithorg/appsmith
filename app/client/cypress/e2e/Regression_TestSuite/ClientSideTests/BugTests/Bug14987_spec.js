@@ -17,7 +17,7 @@ describe("Verify setting tab form controls not to have tooltip and tooltip (unde
   it("1. We make sure the label in the settings tab does not have any underline styles", function () {
     cy.NavigateToActiveDSQueryPane(datasourceName);
 
-    cy.get(queryLocators.querySettingsTab).click();
+    cy.xpath(queryLocators.querySettingsTab).click();
 
     cy.get(".label-icon-wrapper")
       .contains("Run query on page load")

@@ -264,7 +264,7 @@ function ActionSidebar({
         />
       )}
       {canEditPage && hasResponse && Object.keys(widgets).length > 1 && (
-        <Collapsible label="Connect Widget">
+        <Collapsible label="Connect widget">
           {/*<div className="description">Go to canvas and select widgets</div>*/}
           <SnipingWrapper>
             <Button

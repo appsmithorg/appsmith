@@ -191,14 +191,11 @@ const EntityIconWrapper = styled.div<{
 }>`
   height: ${({ height }) => (height ? height : "18px")};
   width: ${({ width }) => (width ? width : "18px")};
-  background: ${({ bgColor, noBackground }) =>
-    noBackground ? "transparent" : bgColor ?? "var(--ads-v2-color-bg)"};
-  border: ${({ borderColor, height, noBorder }) =>
-    noBorder
-      ? "none"
-      : `${parseInt(height ? height : "18px") * 0.0845}px solid ${
-          borderColor ?? "var(--ads-v2-color-border)"
-        }`};
+  background: ${({ bgColor }) => bgColor ?? "none"};
+  border: ${({ borderColor, height }) =>
+    borderColor
+      ? `${parseInt(height ? height : "18px") * 0.0845}px solid ${borderColor}`
+      : "none"};
   box-sizing: border-box;
   display: flex;
   align-items: center;
