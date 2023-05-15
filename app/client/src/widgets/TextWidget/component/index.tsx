@@ -6,7 +6,7 @@ import Interweave from "interweave";
 import { UrlMatcher, EmailMatcher } from "interweave-autolink";
 import type { TextSize } from "constants/WidgetConstants";
 import { DEFAULT_FONT_SIZE, FontStyleTypes } from "constants/WidgetConstants";
-import { Icon, IconSize } from "design-system-old";
+import { Icon, IconSize } from "@design-system/widgets-old";
 import { get } from "lodash";
 import equal from "fast-deep-equal/es6";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";

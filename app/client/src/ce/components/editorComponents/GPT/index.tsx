@@ -1,18 +1,21 @@
+import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import type { TEditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import React from "react";
 
 export type TAIWrapperProps = {
-  windowType: "popover" | "fixed";
-  className?: string;
-  enableOutsideClick?: boolean;
   children?: React.ReactNode;
+  isOpen?: boolean;
+  currentValue: string;
+  close: () => void;
+  update?: (...args: any) => void;
+  triggerContext?: CodeEditorExpected;
+  enableAIAssistance: boolean;
+  dataTreePath?: string;
+  mode: TEditorModes;
 };
 
 export function AIWindow(props: TAIWrapperProps) {
-  const { children, windowType } = props;
-  if (windowType === "popover") {
-    //eslint-disable-next-line
-    return <>{children}</>;
-  } else {
-    return null;
-  }
+  const { children } = props;
+  //eslint-disable-next-line
+  return <>{children}</>;
 }
