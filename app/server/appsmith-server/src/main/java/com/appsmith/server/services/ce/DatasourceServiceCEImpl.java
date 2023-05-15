@@ -486,7 +486,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 .collectList()
                 .flatMapMany(datasourceList -> {
                     markRecentlyUsed(datasourceList, 3);
-                    return Flux.fromIterable(datasourceList);
+                     return Flux.fromIterable(datasourceList);
                 });
 
     }
