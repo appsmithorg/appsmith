@@ -42,8 +42,6 @@ function getEntityMethodFromConfig(entityConfig: DataTreeEntityConfig) {
     // @ts-expect-error: a
     for (const setterMethodName of Object.keys(entityConfig.__setters)) {
       setterMethodMap[setterMethodName] = function () {
-        // @ts-expect-error: a
-        console.log(entityConfig.__setters[setterMethodName].path);
         return "WORKS";
       };
     }
@@ -83,7 +81,7 @@ export const addDataTreeToContext = (args: {
 
     const entityConfig = dataTreeEvaluator?.oldConfigTree?.[entityName];
     if (!entityConfig) continue;
-    const entityMethodMap = getEntityMethodFromConfig(entityConfig, entityName);
+    const entityMethodMap = getEntityMethodFromConfig(entityConfig);
 
     if (isEmpty(entityMethodMap)) continue;
 
