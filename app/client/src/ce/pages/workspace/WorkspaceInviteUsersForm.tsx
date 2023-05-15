@@ -414,6 +414,7 @@ function WorkspaceInviteUsersForm(props: any) {
               data-testid="t--invite-role-input"
               isDisabled={disableDropdown}
               isMultiSelect={isMultiSelectDropdown}
+              listHeight={400}
               onDeselect={onRemoveOptions}
               onSelect={onSelect}
               optionLabelProp="label"
@@ -429,7 +430,9 @@ function WorkspaceInviteUsersForm(props: any) {
                     >
                       {role.value}
                     </Text>
-                    <Text kind="body-s">{role.description}</Text>
+                    {role.description && (
+                      <Text kind="body-s">{role.description}</Text>
+                    )}
                   </div>
                 </Option>
               ))}

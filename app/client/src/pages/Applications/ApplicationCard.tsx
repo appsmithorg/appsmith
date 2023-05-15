@@ -64,7 +64,6 @@ import urlBuilder from "entities/URLRedirect/URLAssembly";
 import { toast } from "design-system";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { addItemsInContextMenu } from "@appsmith/utils";
-import "./ApplicationMenu.css";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -580,7 +579,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
             startIcon="context-menu"
           />
         </MenuTrigger>
-        <MenuContent>
+        <MenuContent side="right" style={{ maxHeight: "unset" }}>
           {hasEditPermission && (
             <div
               onKeyDown={(e) => {

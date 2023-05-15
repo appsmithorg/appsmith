@@ -383,10 +383,13 @@ export default function MemberSettings(props: PageProps) {
         return (
           <Select
             className="t--user-status"
+            dropdownMatchSelectWidth={false}
+            dropdownStyle={{ width: "400px" }}
             isLoading={
               roleChangingUserInfo &&
               roleChangingUserInfo.username === data.username
             }
+            listHeight={300}
             onSelect={(_value: string, option: any) => {
               dispatch(
                 changeWorkspaceUserRole(workspaceId, option.key, data.username),
@@ -404,7 +407,9 @@ export default function MemberSettings(props: PageProps) {
                   >
                     {role.value}
                   </Text>
-                  <Text kind="body-s">{role.description}</Text>
+                  {role.description && (
+                    <Text kind="body-s">{role.description}</Text>
+                  )}
                 </div>
               </Option>
             ))}
