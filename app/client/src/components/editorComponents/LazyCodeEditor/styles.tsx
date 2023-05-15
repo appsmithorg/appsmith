@@ -3,6 +3,7 @@ import { ContentKind } from "./types";
 
 export const HighlighedCodeContainer = styled("div")<{
   contentKind: ContentKind;
+  showLineNumbers?: boolean;
 }>`
   width: 100%;
   background-color: #fff !important;
@@ -17,12 +18,14 @@ export const HighlighedCodeContainer = styled("div")<{
   padding-bottom: 6px !important;
 
   pre {
+    font-family: ${(props) => props.theme.fonts.code}
     margin: 0 !important;
     overflow: hidden !important;
-    font-size: 14px !important;
+    font-size: 13px !important;
     font-family: monospace !important;
     padding: 0 !important;
     background: white !important;
+    ${(props) => props.showLineNumbers && "padding-left: 36px !important"};
 
     word-wrap: break-word !important;
     white-space: pre-wrap !important;
@@ -43,6 +46,7 @@ export const LazyEditorWrapper = styled("div")`
 
 export const ContentWrapper = styled("div")<{
   contentKind: ContentKind;
+  showLineNumbers?: boolean;
 }>`
   overflow: hidden;
   width: 100%;
@@ -51,6 +55,7 @@ export const ContentWrapper = styled("div")<{
   min-height: 34px;
   border: 1px solid;
   border-color: inherit;
+  ${(props) => props.showLineNumbers && "border: none"}
 `;
 
 const opacityAnimation = keyframes`

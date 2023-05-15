@@ -14,8 +14,9 @@ export default function CodeEditorFallback({
   input,
   onInteracted,
   placeholder,
+  showLineNumbers,
   showLoadingProgress,
-}: Pick<EditorProps, "input" | "placeholder"> & {
+}: Pick<EditorProps, "input" | "placeholder" | "showLineNumbers"> & {
   onInteracted: () => void;
   showLoadingProgress: boolean;
 }) {
@@ -48,7 +49,7 @@ export default function CodeEditorFallback({
   }
 
   return (
-    <ContentWrapper contentKind={contentKind}>
+    <ContentWrapper contentKind={contentKind} showLineNumbers={showLineNumbers}>
       {showLoadingProgress && (
         <ProgressContainer>
           <SpinnerContainer>
@@ -62,6 +63,7 @@ export default function CodeEditorFallback({
         contentKind={contentKind}
         onFocus={onInteracted}
         onMouseEnter={onInteracted}
+        showLineNumbers={showLineNumbers}
         tabIndex={0}
       >
         <pre>{fallbackToRender}</pre>

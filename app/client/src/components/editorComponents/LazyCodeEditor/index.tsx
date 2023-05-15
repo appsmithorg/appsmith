@@ -231,6 +231,7 @@ function LazyCodeEditor({ input, placeholder, ...otherProps }: EditorProps) {
             stateMachine.current.transition("PLACEHOLDER_INTERACTED");
           }}
           placeholder={placeholder}
+          showLineNumbers={otherProps.showLineNumbers}
           showLoadingProgress={showLoadingProgress}
         />
       </LazyEditorWrapper>
