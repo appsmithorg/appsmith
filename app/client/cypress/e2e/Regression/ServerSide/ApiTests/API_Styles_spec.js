@@ -44,14 +44,34 @@ describe("Validate API Panel CSS Styles", function () {
       .click();
   });
 
-  it("3.Slash command button shows up on hover", function () {
+  it("3.Commands help button center align", function () {
     //Get the first key component (can be any of key value component)
     //eq(1) is used because eq(0) is API serach bar.
     cy.get(ApiEditor.codeEditorWrapper).eq(1).realHover();
-    //Get the slash cmd button and check visibility
+    //Get the slash icon component and check background
+    //Check center alignment
+    //Get width and height (have use inner function because values are not accessible outside functional scope);
+    //Comapre transform matrix value (Cypress decodes all transform values into matrix)
     cy.get(ApiEditor.slashCommandButton)
-      .eq(1)
-      .should("have.css", "visibility", "visible");
+      .first()
+      .should("have.css", "right", "0px")
+      .invoke("outerWidth")
+      .then((width) =>
+        cy
+          .get(ApiEditor.slashCommandButton)
+          .first()
+          .invoke("outerHeight")
+          .then((height) =>
+            cy
+              .get(ApiEditor.slashCommandButton)
+              .first()
+              .should(
+                "have.css",
+                "transform",
+                `matrix(1, 0, 0, 1, -${width / 2}, ${height / 2})`,
+              ),
+          ),
+      );
   });
 
   it("4. Select Datasource dropdown binding prompt background color", function () {

@@ -48,7 +48,6 @@ export function InputText(props: {
   return (
     <StyledDynamicInput>
       <LazyCodeEditor
-        AIAssisted
         additionalDynamicData={props.additionalAutocomplete}
         border={CodeEditorBorder.ALL_SIDE}
         dataTreePath={dataTreePath}

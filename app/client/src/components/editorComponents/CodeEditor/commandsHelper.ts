@@ -35,7 +35,6 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
       entityInfo: FieldEntityInformation,
       {
         datasources,
-        enableAIAssistance,
         executeCommand,
         featureFlags,
         pluginIdToImageLocation,
@@ -49,7 +48,6 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
         update: (value: string) => void;
         entityId: string;
         featureFlags: FeatureFlags;
-        enableAIAssistance: boolean;
       },
     ): boolean => {
       const { entityType } = entityInfo;
@@ -76,7 +74,6 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
             pluginIdToImageLocation,
             recentEntities,
             featureFlags,
-            enableAIAssistance,
           },
           entityInfo,
         );
@@ -113,7 +110,7 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
                   selected.action();
                 } else {
                   selected.triggerCompletionsPostPick &&
-                    CodeMirror.signal(editor, "postPick", selected.displayText);
+                    CodeMirror.signal(editor, "postPick");
                 }
               });
               try {

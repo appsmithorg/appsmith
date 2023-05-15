@@ -69,6 +69,7 @@ import history from "utils/history";
 import { CursorPositionOrigin } from "reducers/uiReducers/editorContextReducer";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import styled from "styled-components";
+import { AIWindow } from "@appsmith/components/editorComponents/GPT";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { Tab, TabPanel, Tabs, TabsList } from "design-system";
 import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
@@ -443,6 +444,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                 ) : null}
               </SecondaryWrapper>
             </div>
+            <AIWindow className="border-t border-l" windowType="fixed" />
           </Wrapper>
         </Form>
       </JSObjectHotKeys>
