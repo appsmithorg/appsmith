@@ -819,8 +819,8 @@ export const CONTACT_SALES_MESSAGE_ON_INTERCOM = (workspaceName: string) =>
 export const REPOSITORY_LIMIT_REACHED = () => "Repository Limit Reached";
 export const REPOSITORY_LIMIT_REACHED_INFO = () =>
   "Adding and using upto 3 repositories is free. To add more repositories, kindly upgrade.";
-export const APPLICATION_IMPORT_SUCCESS = (username: string) =>
-  `${username}! Your application is ready to use.`;
+export const APPLICATION_IMPORT_SUCCESS = () =>
+  `Your application is ready to use.`;
 export const APPLICATION_IMPORT_SUCCESS_DESCRIPTION = () =>
   "All your datasources are configured and ready to use.";
 export const NONE_REVERSIBLE_MESSAGE = () =>
