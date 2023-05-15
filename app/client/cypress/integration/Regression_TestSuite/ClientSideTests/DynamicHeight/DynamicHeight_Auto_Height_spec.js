@@ -28,18 +28,17 @@ describe("Dynamic Height Width validation", function () {
         cy.get(".t--property-control-fontsize input").last().click({
           force: true,
         });
-        cy.get(".t--dropdown-option span")
+        cy.get(".rc-select-item-option-content")
           .should("have.length.greaterThan", 2)
           .its("length")
           .then((n) => {
-            for (let i = n - 2; i >= 0; i--) {
-              cy.get(".t--dropdown-option span")
+            for (let i = 0; i < n; i++) {
+              cy.get(".rc-select-item-option-content")
                 .eq(i)
                 .invoke("css", "font-size")
                 .then((selectedFont) => {
                   expect(dropdownFont).to.equal(selectedFont);
                 });
-              i--;
             }
           });
       });

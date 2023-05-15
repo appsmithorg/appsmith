@@ -26,14 +26,16 @@ describe("Dynamic Height Width validation list widget", function () {
     //Widgets which were not possible to be added to list widget cannot be pasted/moved into the list widget with multitreeselect
     cy.openPropertyPane("multiselecttreewidget");
     cy.get("body").type(`{${modifierKey}}c`);
+    cy.get(".Toastify__toast-body span").should("not.exist");
     cy.selectEntityByName("List1");
+    cy.moveToStyleTab();
     cy.get("body").type(`{${modifierKey}}v`);
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-    cy.get(".t--toast-action span").should(
+    cy.get(".Toastify__toast-body span").should(
       "contain.text",
       "This widget cannot be used inside the list widget.",
     );
@@ -61,8 +63,12 @@ describe("Dynamic Height Width validation list widget", function () {
         cy.get(commonlocators.generalSectionHeight).should("not.exist");
         //Widgets when moved into the list widget have no dynamic height
         cy.selectEntityByName("Text3");
+        cy.moveToStyleTab();
+
         cy.get("body").type(`{${modifierKey}}c`);
         cy.selectEntityByName("List1");
+        cy.moveToStyleTab();
+        cy.wait(500);
         cy.get("body").type(`{${modifierKey}}v`);
         cy.wait("@updateLayout").should(
           "have.nested.property",
@@ -112,6 +118,8 @@ describe("Dynamic Height Width validation list widget", function () {
         cy.wait(2000);
         cy.get("body").type(`{${modifierKey}}c`);
         cy.selectEntityByName("List1");
+        cy.moveToStyleTab();
+        cy.wait(500);
         cy.get("body").type(`{${modifierKey}}v`);
         cy.wait("@updateLayout").should(
           "have.nested.property",
@@ -130,6 +138,8 @@ describe("Dynamic Height Width validation list widget", function () {
         cy.wait(2000);
         cy.get("body").type(`{${modifierKey}}x`);
         cy.selectEntityByName("List1");
+        cy.moveToStyleTab();
+        cy.wait(500);
         cy.get("body").type(`{${modifierKey}}v`);
         cy.wait("@updateLayout").should(
           "have.nested.property",

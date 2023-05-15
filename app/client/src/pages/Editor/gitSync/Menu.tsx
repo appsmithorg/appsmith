@@ -12,7 +12,7 @@ export default function Menu(props: Props) {
     <Tabs onValueChange={props.onSelect} value={props.activeTabKey}>
       <TabsList>
         {props.options.map((tab) => (
-          <Tab key={tab.key} value={tab.key}>
+          <Tab data-testid={"t--tab-" + tab.key} key={tab.key} value={tab.key}>
             {tab.title}
           </Tab>
         ))}

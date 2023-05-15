@@ -74,6 +74,12 @@ export class DataSources {
     ddTitle +
     "')]/ancestor::div[@class='form-config-top']/following-sibling::div[@class='t--form-control-DROP_DOWN']//div[@data-testid='t--dropdown-actionConfiguration.formData.command.data']";
   _reconnectModal = "[data-testid='reconnect-datasource-modal']";
+  _dropdown = (ddTitle: string) =>
+    "//span[contains(@title, '" +
+    ddTitle +
+    "') and text() = '" +
+    ddTitle +
+    "']";
   _activeDSListReconnectModal = (dbName: string) =>
     "//div[contains(@class, 't--ds-list')]//span[text()='" + dbName + "']";
   _runQueryBtn = ".t--run-query";
@@ -768,7 +774,7 @@ export class DataSources {
 
   public ValidateNSelectDropdown(
     ddTitle: string,
-    currentValue = "",
+    currentValue: string,
     newValue = "",
   ) {
     if (currentValue)
@@ -776,7 +782,7 @@ export class DataSources {
         //.scrollIntoView()
         .should("exist", currentValue + " dropdown value not present");
     if (newValue != "") {
-      cy.xpath(this._dropdownTitle(ddTitle)).click();
+      cy.xpath(this._dropdown(currentValue)).click({ force: true });
       //to expand the dropdown
       cy.xpath(this._queryOption(newValue)).last().click({ force: true }); //to select the new value
     }
