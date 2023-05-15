@@ -305,7 +305,7 @@ describe("Canvas context Property Pane", function () {
       () => {
         cy.editColumn("status");
         cy.editColumn("menuIteme63irwbvnd", false);
-        cy.get(`.tab-title:contains("STYLE")`).eq(0).click();
+        cy.get(`.tab-title:contains("Style")`).eq(0).click();
         setPropertyPaneSectionState(propertySectionState);
       },
       () => {
