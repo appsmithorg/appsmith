@@ -368,8 +368,18 @@ export const EditorWrapper = styled.div<{
       padding: ${(props) => props.theme.spaces[2]}px 0px;
       background-color: ${(props) => props.disabled && "#eef2f5"};
       cursor: ${(props) => (props.disabled ? "not-allowed" : "text")};
+      pre.CodeMirror-line,
+      pre.CodeMirror-line-like {
+        padding: 0 ${(props) => props.theme.spaces[2]}px;
+      }
     }
   }
+
+  pre.CodeMirror-line,
+  pre.CodeMirror-line-like {
+    padding: 0 ${(props) => props.theme.spaces[3]}px;
+  }
+
   ${(props) =>
     props.className === "js-editor" &&
     `
