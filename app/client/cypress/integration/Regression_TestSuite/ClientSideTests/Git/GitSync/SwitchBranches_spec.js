@@ -95,9 +95,9 @@ describe("Git sync:", function () {
       .should("be.visible")
       .should("have.class", "activePage");
 
-    cy.GlobalSearchEntity("ParentPage1"); // ask Albin
-    cy.contains("ParentPage1").click();
+    cy.CheckAndUnfoldEntityItem("Pages");
 
+    cy.get(`.t--entity-name:contains("ParentPage1")`).click();
     cy.get(`.t--entity-name:contains("ChildPage1")`).should("not.exist");
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.get(`.t--entity-name:contains("ChildApi1")`).should("not.exist");
@@ -107,20 +107,18 @@ describe("Git sync:", function () {
   // rename entities
   it("3. makes branch specific resource updates", function () {
     cy.switchGitBranch(childBranchKey);
-    cy.CheckAndUnfoldEntityItem("Queries/JS");
-    cy.CheckAndUnfoldEntityItem("Pages");
-    cy.GlobalSearchEntity("ParentPage1");
-    cy.RenameEntity("ParentPageRenamed", true);
-    cy.GlobalSearchEntity("ParentApi1");
-    cy.RenameEntity("ParentApiRenamed");
-    // cy.GlobalSearchEntity("ChildJsAction1");
-    // cy.RenameEntity("ParentJsActionRenamed");
+    _.entityExplorer.SelectEntityByName("ParentPage1", "Pages");
+    _.entityExplorer.RenameEntityFromExplorer(
+      "ParentPage1",
+      "ParentPageRenamed",
+    );
+    _.entityExplorer.SelectEntityByName("ParentApi1", "Queries/JS");
+    _.entityExplorer.RenameEntityFromExplorer("ParentApi1", "ParentApiRenamed");
 
     cy.switchGitBranch(parentBranchKey);
 
-    cy.GlobalSearchEntity("ParentPageRenamed", true);
+    cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(`.t--entity-name:contains("ParentPageRenamed")`).should("not.exist");
-    cy.GlobalSearchEntity("ParentApiRenamed", true);
     cy.get(`.t--entity-name:contains("ParentApiRenamed")`).should("not.exist");
     // cy.get(`.t--entity-name:contains("ParentJsActionRenamed")`).should(
     //   "not.exist",
@@ -129,9 +127,7 @@ describe("Git sync:", function () {
 
   it("4. enables switching branch from the URL", () => {
     cy.url().then((url) => {
-      cy.GlobalSearchEntity("ParentPage1");
-      cy.contains("ParentPage1").click();
-      cy.contains("ParentPage1").click(); // to unfurl
+      _.entityExplorer.SelectEntityByName("ParentPage1", "Pages");
       cy.get(explorer.addWidget).click();
       cy.dragAndDropToCanvas("tablewidgetv2", { x: 200, y: 200 });
       cy.get(".t--widget-tablewidgetv2").should("exist");

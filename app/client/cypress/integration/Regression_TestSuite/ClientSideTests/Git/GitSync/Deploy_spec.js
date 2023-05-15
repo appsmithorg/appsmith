@@ -25,8 +25,8 @@ describe("Git sync modal: deploy tab", function () {
 
     // comment text input should not empty
     cy.get(gitSyncLocators.commitCommentInput)
-      .find("textarea")
-      .should("be.disabled");
+      .should("be.disabled")
+      .and("not.be.empty");
     cy.get(gitSyncLocators.commitButton).should("be.disabled");
     cy.get(gitSyncLocators.closeGitSyncModal).click();
   });
@@ -39,7 +39,6 @@ describe("Git sync modal: deploy tab", function () {
     cy.get(gitSyncLocators.gitSyncModalDeployTab)
       .should("have.attr", "aria-selected", "true")
       .and("not.be.empty");
-
     cy.window().then((window) => {
       cy.stub(window, "open").callsFake((url) => {
         expect(url.indexOf("branch=master")).to.be.at.least(0);

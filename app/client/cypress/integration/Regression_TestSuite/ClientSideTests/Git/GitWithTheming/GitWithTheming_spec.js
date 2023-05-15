@@ -1,5 +1,5 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
-
+const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe("Git with Theming:", function () {
@@ -55,17 +55,17 @@ describe("Git with Theming:", function () {
     // drag a widget and assert theme is applied
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 700 });
     //cy.get('.t--draggable-buttonwidget').closest("div").should('have.css' , 'background-color', backgroudColorChildBranch)
-    cy.xpath("(//button[@type='button'])").should(
+    cy.get(widgetsPage.widgetBtn).should(
       "have.css",
       "background-color",
       backgroudColorMaster,
-    );
+    ); //Widget Color
     cy.commitAndPush();
     cy.wait(2000);
     _.gitSync.CreateGitBranch(tempBranch);
     //cy.createGitBranch(tempBranch);
     cy.wait(1000);
-    cy.get("body").click(300, 300);
+    cy.get(".canvas").click(0, 0, { force: true });
     // change theme on tempBranch
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToThemeSettings();
@@ -85,19 +85,19 @@ describe("Git with Theming:", function () {
       });
     _.appSettings.ClosePane();
 
-    cy.xpath("(//button[@type='button'])").should(
+    cy.get(widgetsPage.widgetBtn).should(
       "have.css",
       "background-color",
       backgroudColorChildBranch,
-    );
+    ); //Widget Color
     cy.commitAndPush();
     //assert theme is applied in view mode
     cy.latestDeployPreview();
-    cy.get(".bp3-button:contains('Submit')").should(
+    cy.get(widgetsPage.widgetBtn).should(
       "have.css",
       "background-color",
       backgroudColorChildBranch,
-    );
+    ); //Widget Color
     cy.get(commonlocators.backToEditor).click();
     cy.wait(2000);
   });

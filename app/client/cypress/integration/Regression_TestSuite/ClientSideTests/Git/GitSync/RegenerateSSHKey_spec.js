@@ -23,7 +23,7 @@ describe("Git regenerate SSH key flow", function () {
   it("2. Verify error meesage is displayed when ssh key is not added to github and verify RSA SSH key regeneration flow", () => {
     cy.wait(2000);
     cy.get(gitSyncLocators.bottomBarCommitButton).click();
-    cy.get(".ads-v2-tabs__list-tab").contains("Git connection").click();
+    cy.get('[data-testid="t--tab-GIT_CONNECTION"]').click();
     cy.wait(2000);
     cy.get(gitSyncLocators.SSHKeycontextmenu).eq(2).click();
     cy.get(gitSyncLocators.regenerateSSHKeyECDSA).click();

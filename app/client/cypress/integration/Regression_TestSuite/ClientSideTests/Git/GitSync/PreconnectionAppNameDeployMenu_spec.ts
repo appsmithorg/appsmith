@@ -32,16 +32,12 @@ describe("Pre git connection spec:", function () {
     _.agHelper.GetNClick(homePage.connectToGitBtn);
 
     cy.get(gitSyncLocators.gitSyncModal);
-    cy.contains("Git connection")
-      .parent()
-      .should("have.class", "react-tabs__tab--selected");
+    cy.contains("Git connection").should("have.attr", "aria-selected", "true");
 
     cy.get(gitSyncLocators.closeGitSyncModal).click();
 
     cy.get(gitSyncLocators.connectGitBottomBar).click();
     cy.get(gitSyncLocators.gitSyncModal);
-    cy.contains("Git connection")
-      .parent()
-      .should("have.class", "react-tabs__tab--selected");
+    cy.contains("Git connection").should("have.attr", "aria-selected", "true");
   });
 });
