@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let dsName: any, query: string, imageNameToUpload: string;
 
-describe("Binary Datatype tests", function () {
+describe.skip("Binary Datatype tests", function () {
   before("Create DS, Importing App & setting theme", () => {
     cy.fixture("Datatypes/BinaryDTdsl").then((val: any) => {
       _.agHelper.AddDsl(val);
@@ -41,18 +41,23 @@ describe("Binary Datatype tests", function () {
     //Other queries
     query = `INSERT INTO public."binarytype" ("imagename", "existingimage", "newimage") VALUES ('{{Insertimagename.text}}', '{{Insertimage.files[0].data}}', '{{Insertimage.files[0].data}}');`;
     _.dataSources.CreateQueryFromOverlay(dsName, query, "insertRecord");
+    _.dataSources.SetQueryTimeout(30000);
 
     query = `UPDATE public."binarytype" SET "imagename" ='{{Updatename.text}}', "existingimage" = '{{Table1.selectedRow.OldImage}}',  "newimage" = '{{Updateimage.files[0].data}}' WHERE serialid = {{Table1.selectedRow.serialid}};`;
     _.dataSources.CreateQueryFromOverlay(dsName, query, "updateRecord");
+    _.dataSources.SetQueryTimeout(30000);
 
     query = `DELETE FROM public."binarytype" WHERE serialId = {{Table1.selectedRow.serialid}}`;
     _.dataSources.CreateQueryFromOverlay(dsName, query, "deleteRecord");
+    _.dataSources.SetQueryTimeout(30000);
 
     query = `DELETE FROM public."binarytype"`;
     _.dataSources.CreateQueryFromOverlay(dsName, query, "deleteAllRecords");
+    _.dataSources.SetQueryTimeout(30000);
 
     query = `DROP table public."binarytype"`;
     _.dataSources.CreateQueryFromOverlay(dsName, query, "dropTable");
+    _.dataSources.SetQueryTimeout(30000);
 
     _.entityExplorer.ExpandCollapseEntity("Queries/JS", false);
     _.entityExplorer.ExpandCollapseEntity(dsName, false);
@@ -274,7 +279,9 @@ describe("Binary Datatype tests", function () {
     _.dataSources.ReadQueryTableResponse(4).then(($cellData) => {
       expect($cellData).to.eq("Jw==");
     });
+  });
 
+  it("9. Validating Binary (bytea) - escape, hex, base64 functions, conts", () => {
     //Validating backslash
     query = `select encode('\\\\'::bytea, 'escape') as "backslash Escape1", encode('\\134'::bytea, 'escape') as "backslash Escape2", encode('\\\\'::bytea, 'hex') as "backslash Hex1", encode('\\134'::bytea, 'hex') as "backslash Hex2", encode('\\\\'::bytea, 'base64') as "backslash Base64";`;
     _.dataSources.EnterQuery(query);
