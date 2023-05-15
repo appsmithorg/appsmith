@@ -497,7 +497,7 @@ function ReconnectDatasourceModal() {
   return (
     <Modal onOpenChange={handleClose} open={isModalOpen}>
       <ModalContentWrapper>
-        <ModalHeader> Reconnect datasources</ModalHeader>
+        <ModalHeader>Reconnect datasources</ModalHeader>
         <ModalBodyWrapper>
           <BodyContainer>
             <Title>

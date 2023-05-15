@@ -2,7 +2,6 @@ import type { MutableRefObject } from "react";
 import React, { useCallback, useRef } from "react";
 import styled from "styled-components";
 import { Button, Icon, Spinner, toast, Tooltip } from "design-system";
-import { Colors } from "constants/Colors";
 import Entity, { AddButtonWrapper, EntityClassNames } from "../Entity";
 import {
   createMessage,
@@ -223,7 +222,6 @@ function LibraryEntity({ lib }: { lib: TJSLibrary }) {
       >
         <Icon
           className={isOpen ? "open-collapse" : ""}
-          color={Colors.GREY_7}
           name="right-arrow-2"
           size={"md"}
         />
