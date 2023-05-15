@@ -59,7 +59,7 @@ export const useFilteredFileOperations = (query = "") => {
     (plugin) => plugin.type === PluginType.API,
   );
   const newApiActionIdx = actionOperations.findIndex(
-    (op) => op.title === "New Blank API",
+    (op) => op.title === "New blank API",
   );
   if (newApiActionIdx > -1) {
     actionOperations[newApiActionIdx].pluginId = restApiPlugin?.id;
@@ -118,7 +118,7 @@ export const getFilteredAndSortedFileOperations = (
     if (showCreateQuery) {
       fileOperations.push({
         desc: "",
-        title: "CREATE A QUERY",
+        title: "Create a query",
         kind: SEARCH_ITEM_TYPES.sectionTitle,
       });
     }
@@ -171,7 +171,7 @@ export const getFilteredAndSortedFileOperations = (
   if (canCreateDatasource) {
     filteredFileOperations.push({
       desc: "Create a new datasource in the organisation",
-      title: "New Datasource",
+      title: "New datasource",
       icon: (
         <EntityIcon>
           <AddLineIcon size={22} />

@@ -19,7 +19,7 @@ describe("Autocomplete using slash command and mustache tests", function () {
         .should("have.text", "Insert snippet");
       cy.get(`${dynamicInputLocators.hints} li`)
         .last()
-        .should("have.text", "New Datasource");
+        .should("have.text", "New datasource");
     });
     cy.get(dynamicInputLocators.input)
       .first()
@@ -54,7 +54,7 @@ describe("Autocomplete using slash command and mustache tests", function () {
           .should("have.text", "Insert snippet");
         cy.get(`${dynamicInputLocators.hints} li`)
           .last()
-          .should("have.text", "New Datasource");
+          .should("have.text", "New datasource");
       });
     cy.EnableAllCodeEditors();
     cy.get(".t--property-control-onclick .CodeMirror textarea")
@@ -95,7 +95,7 @@ describe("Autocomplete using slash command and mustache tests", function () {
           .should("have.text", "Insert snippet");
         cy.get(`${dynamicInputLocators.hints} li`)
           .last()
-          .should("have.text", "New Datasource");
+          .should("have.text", "New datasource");
       });
       cy.get(dynamicInputLocators.input)
         .first()
@@ -135,7 +135,7 @@ describe("Autocomplete using slash command and mustache tests", function () {
           .should("have.text", "Insert Snippet");
         cy.get(`${dynamicInputLocators.hints} li`)
           .last()
-          .should("have.text", "New Datasource");
+          .should("have.text", "New datasource");
       });
       cy.get(dynamicInputLocators.input)
         .first()

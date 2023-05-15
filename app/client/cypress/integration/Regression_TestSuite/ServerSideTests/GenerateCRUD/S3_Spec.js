@@ -29,7 +29,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function () {
     cy.get(generatePage.generateCRUDPageActionCard).click();
     cy.get(generatePage.selectDatasourceDropdown).click();
 
-    cy.contains("Connect New Datasource").click();
+    cy.contains("Connect new datasource").click();
 
     cy.get(datasourceEditor.AmazonS3).click();
     cy.fillAmazonS3DatasourceForm();

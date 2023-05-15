@@ -114,17 +114,7 @@ type Props = DatasourceRestApiEditorProps &
 const FormInputContainer = styled.div`
   margin-top: 16px;
   .t--save-and-authorize-datasource {
-    margin-left: 20px;
-  }
-`;
-
-const FormContainerBodyWrapper = styled(FormContainerBody)`
-  .api-datasource-content-container {
-    flex-direction: column;
-    padding: 0 0 0 2px;
-    .t--save-and-authorize-datasource {
-      margin-left: 0;
-    }
+    margin-left: 0;
   }
 `;
 
@@ -347,7 +337,7 @@ class DatasourceRestAPIEditor extends React.Component<
       <FormContainer>
         {/* this is true during import flow */}
         {!hiddenHeader && <CloseEditor />}
-        <FormContainerBodyWrapper>
+        <FormContainerBody>
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -375,7 +365,7 @@ class DatasourceRestAPIEditor extends React.Component<
               {showDebugger && <Debugger />}
             </ResizerMainContainer>
           </form>
-        </FormContainerBodyWrapper>
+        </FormContainerBody>
       </FormContainer>
     );
   };
