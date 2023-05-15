@@ -74,9 +74,11 @@ Cypress.Commands.add("switchToPaginationTab", () => {
 });
 
 Cypress.Commands.add("selectDateFormat", (value) => {
-  cy.get(".t--property-control-dateformat .bp3-popover-target")
-    .last()
-    .click({ force: true });
+  cy.get(
+    ".t--property-control-dateformat .ads-v2-select > .rc-select-selector",
+  ).click({
+    force: true,
+  });
   cy.get(".t--dropdown-option")
     .children()
     .contains(value)

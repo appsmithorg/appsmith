@@ -58,7 +58,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
     cy.closePropertyPane();
   });
 
-  it.only("3. Text widgets binding with datepicker", function () {
+  it("3. Text widgets binding with datepicker", function () {
     cy.openPropertyPane("datepickerwidget2");
     cy.selectDateFormat("YYYY-MM-DD");
     cy.assertDateFormat();
@@ -90,8 +90,12 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
       '{{moment("04/05/2021 05:25", "DD/MM/YYYY HH:mm").toISOString()}}',
     );
     cy.get(formWidgetsPage.toggleJsMinDate).click();
-    cy.get(".t--property-control-mindate .bp3-input").clear();
-    cy.get(".t--property-control-mindate .bp3-input").type("2020-02-01");
+    cy.get(
+      ".t--property-control-mindate .ads-v2-input__input-section-input",
+    ).clear();
+    cy.get(
+      ".t--property-control-mindate .ads-v2-input__input-section-input",
+    ).type("2020-02-01");
     cy.selectDateFormat("D MMMM, YYYY");
     cy.get(".t--widget-datepickerwidget2 .bp3-input").should(
       "contain.value",
@@ -114,30 +118,40 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
     cy.addDsl(datedsl);
     cy.openPropertyPane("datepickerwidget2");
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
-    cy.get(".t--property-control-defaultdate .bp3-input").clear();
-    cy.get(".t--property-control-defaultdate .bp3-input").type("2020-02-01");
+    cy.get(
+      ".t--property-control-defaultdate .ads-v2-input__input-section-input",
+    ).clear();
+    cy.get(
+      ".t--property-control-defaultdate .ads-v2-input__input-section-input",
+    ).type("2020-02-01");
     cy.closePropertyPane();
     cy.openPropertyPane("datepickerwidget2");
     cy.get(formWidgetsPage.toggleJsMinDate).click({ force: true });
-    cy.get(".t--property-control-mindate .bp3-input").type("2020-01-01");
+    cy.get(
+      ".t--property-control-mindate .ads-v2-input__input-section-input",
+    ).type("2020-01-01");
     cy.get(formWidgetsPage.toggleJsMaxDate).click({ force: true });
-    cy.get(".t--property-control-maxdate .bp3-input").type("2020-02-10");
+    cy.get(
+      ".t--property-control-maxdate .ads-v2-input__input-section-input",
+    ).type("2020-02-10");
     cy.closePropertyPane();
   });
 
   it("7. Datepicker input value changes to work with selected date formats", function () {
     cy.openPropertyPane("datepickerwidget2");
-    cy.get(".t--property-control-mindate .bp3-input")
+    cy.get(".t--property-control-mindate .ads-v2-input__input-section-input")
       .clear()
       .type("2021-01-01");
     cy.closePropertyPane();
     cy.openPropertyPane("datepickerwidget2");
-    cy.get(".t--property-control-maxdate .bp3-input")
+    cy.get(".t--property-control-maxdate .ads-v2-input__input-section-input")
       .clear()
       .type("2021-10-10");
     cy.closePropertyPane();
     cy.openPropertyPane("datepickerwidget2");
-    cy.get(".t--property-control-defaultdate .bp3-input").clear();
+    cy.get(
+      ".t--property-control-defaultdate .ads-v2-input__input-section-input",
+    ).clear();
     cy.selectDateFormat("DD/MM/YYYY HH:mm");
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
     cy.testJsontext(
@@ -164,7 +178,9 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
     cy.openPropertyPane("datepickerwidget2");
     cy.testJsontextclear("defaultdate");
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
-    cy.get(".t--property-control-defaultdate .bp3-input").clear();
+    cy.get(
+      ".t--property-control-defaultdate .ads-v2-input__input-section-input",
+    ).clear();
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
     cy.testJsontext(
       "defaultdate",
@@ -186,7 +202,9 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
     cy.openPropertyPane("datepickerwidget2");
     cy.testJsontext("defaultdate", "");
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
-    cy.get(".t--property-control-defaultdate .bp3-input").clear();
+    cy.get(
+      ".t--property-control-defaultdate .ads-v2-input__input-section-input",
+    ).clear();
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
     cy.testJsontext(
       "defaultdate",
