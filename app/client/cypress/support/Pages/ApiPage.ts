@@ -54,7 +54,8 @@ export class ApiPage {
     "')]";
   private _bodySubTab = (subTab: string) =>
     `//div[@data-testid="t--api-body-tab-switch"]//span[text()='${subTab}']`;
-  private _rightPaneTab = (tab: string) => `[data-testid='t--tab-${tab}']`;
+  private _rightPaneTab = (tab: string) =>
+    "//span[contains(text(), '" + tab + "')]/parent::button";
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
   _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']";
   _noBodyMessageDiv = "#NoBodyMessageDiv";
@@ -261,9 +262,10 @@ export class ApiPage {
   }
 
   AssertRightPaneSelectedTab(tabName: RightPaneTabs) {
-    cy.get(this._rightPaneTab(tabName)).should(
-      "have.class",
-      "react-tabs__tab--selected",
+    cy.xpath(this._rightPaneTab(tabName)).should(
+      "have.attr",
+      "aria-selected",
+      "true",
     );
   }
 

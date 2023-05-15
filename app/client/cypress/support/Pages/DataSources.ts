@@ -39,6 +39,8 @@ export class DataSources {
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
   private _collapseContainer = ".t--collapse-section-container";
+  private _collapseSettings =
+    "[data-testid='t--dropdown-connection.ssl.authType']";
   private _host = "input[name='datasourceConfiguration.endpoints[0].host']";
   private _port = "input[name='datasourceConfiguration.endpoints[0].port']";
   _databaseName =
@@ -340,10 +342,7 @@ export class DataSources {
 
   public ExpandSection(index: number) {
     cy.get(this._collapseContainer).eq(index).click();
-    cy.get(this._collapseContainer)
-      .eq(index)
-      .find(this.locator._chevronUp)
-      .should("be.visible");
+    cy.get(this._collapseSettings).should("be.visible");
   }
 
   public ExpandSectionByName(sectionName: string) {
@@ -359,15 +358,11 @@ export class DataSources {
   }
 
   public AssertSectionCollapseState(index: number, collapsed = false) {
-    cy.get(this._collapseContainer)
-      .eq(index)
-      .within(() => {
-        if (collapsed) {
-          cy.get(this.locator._chevronUp).should("not.exist");
-        } else {
-          cy.get(this.locator._chevronUp).should("exist");
-        }
-      });
+    if (collapsed) {
+      cy.get(this._collapseSettings).should("not.be.visible");
+    } else {
+      cy.get(this._collapseSettings).should("be.visible");
+    }
   }
 
   public NavigateToDSCreateNew() {
