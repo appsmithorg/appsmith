@@ -1552,8 +1552,7 @@ export const IN_APP_EMBED_SETTING = {
     "This app can be embedded in all domains, including malicious ones",
   forkApplicationConfirmation: {
     title: () => "Allow developers to fork this app to their workspace?",
-    body: () =>
-      "Forking allows developers to copy your app to their workspace. The user will also get access to any connected datasources.",
+    body: () => "Forking allows developers to copy your app to their workspace",
     cancel: () => "CANCEL",
     confirm: () => "ALLOW FORKING",
   },
