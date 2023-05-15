@@ -90,6 +90,7 @@ function UpdatesModal({
         onEscapeKeyDown={(e) => e.preventDefault()}
         // Don't close Modal when pressed outside
         onInteractOutside={(e) => e.preventDefault()}
+        style={{ width: "640px" }}
       >
         <ModalHeader>Product updates</ModalHeader>
         <ModalBody id="manual-upgrades-modal">

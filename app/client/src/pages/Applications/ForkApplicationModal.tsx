@@ -133,7 +133,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
       onOpenChange={handleOnOpenChange}
       open={isModalOpen || queryParams.has("fork")}
     >
-      <ModalContent className={"fork-modal"}>
+      <ModalContent className={"fork-modal"} style={{ width: "640px" }}>
         <ModalHeader>{modalHeading}</ModalHeader>
         {isFetchingApplications ? (
           <SpinnerWrapper>
