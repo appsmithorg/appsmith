@@ -13,7 +13,7 @@ import {
   Icon,
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
-} from "design-system-old";
+} from "@design-system/widgets-old";
 import { lightenColor } from "widgets/WidgetUtils";
 
 export const StyledIcon = styled(Icon)<{ expanded: boolean }>`
