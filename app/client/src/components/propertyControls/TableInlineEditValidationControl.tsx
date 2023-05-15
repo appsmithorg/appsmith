@@ -76,6 +76,7 @@ export function InputText(props: InputTextProp) {
   return (
     <StyledDynamicInput>
       <LazyCodeEditor
+        AIAssisted
         additionalDynamicData={additionalDynamicData}
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}
