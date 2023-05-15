@@ -21,7 +21,7 @@ import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import type { JSCollection, JSAction } from "entities/JSCollection";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
-import { Button, Text } from "design-system";
+import { Text } from "design-system";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import type { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
@@ -51,6 +51,7 @@ import LogHelper from "./Debugger/ErrorLogs/components/LogHelper";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { SourceEntity, Log } from "entities/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { CloseDebugger } from "./Debugger/DebuggerTabs";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS};
@@ -70,6 +71,7 @@ const ResponseContainer = styled.div`
 const ResponseTabWrapper = styled.div`
   display: flex;
   width: 100%;
+
   &.disable * {
     opacity: 0.8;
     pointer-events: none;
@@ -81,17 +83,11 @@ const ResponseTabWrapper = styled.div`
 
 const TabbedViewWrapper = styled.div`
   height: 100%;
-
-  .close-debugger {
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    padding: 9px 11px;
-  }
 `;
 
 const ResponseViewer = styled.div`
   width: 100%;
+  padding: 0 var(--ads-v2-spaces-7);
 `;
 
 const NoReturnValueWrapper = styled.div`
@@ -335,7 +331,7 @@ function JSResponseView(props: Props) {
           tabs={tabs}
         />
 
-        <Button
+        <CloseDebugger
           className="close-debugger t--close-debugger"
           isIconButton
           kind="tertiary"

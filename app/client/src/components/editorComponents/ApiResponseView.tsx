@@ -61,6 +61,7 @@ import { getUpdateTimestamp } from "./Debugger/ErrorLogs/ErrorLogItem";
 import type { Action } from "entities/Action";
 import { SegmentedControlContainer } from "../../pages/Editor/QueryEditor/EditorJSONtoForm";
 import ActionExecutionInProgressView from "./ActionExecutionInProgressView";
+import { CloseDebugger } from "./Debugger/DebuggerTabs";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
@@ -116,14 +117,6 @@ const ResponseTabWrapper = styled.div`
 
 const TabbedViewWrapper = styled.div`
   height: 100%;
-
-  .close-debugger {
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    padding: 9px 11px;
-  }
-
   &&& {
     ul.ads-v2-tabs__list {
       margin: 0 ${(props) => props.theme.spaces[11]}px;
@@ -696,7 +689,7 @@ function ApiResponseView(props: Props) {
           selectedTabKey={selectedResponseTab}
           tabs={tabs}
         />
-        <Button
+        <CloseDebugger
           className="close-debugger t--close-debugger"
           isIconButton
           kind="tertiary"

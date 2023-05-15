@@ -19,7 +19,8 @@ const TabPanelWrapper = styled(TabPanel)`
 `;
 
 const TabsListWrapper = styled(TabsList)`
-  padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-7);
+  padding: calc(var(--ads-v2-spaces-1) + 2px) var(--ads-v2-spaces-7)
+    var(--ads-v2-spaces-1);
 `;
 
 type EntityBottomTabsProps = {

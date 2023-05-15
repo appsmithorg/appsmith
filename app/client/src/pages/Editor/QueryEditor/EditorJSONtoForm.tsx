@@ -127,6 +127,7 @@ import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import { AIWindow } from "@appsmith/components/editorComponents/GPT";
 import SearchSnippets from "pages/common/SearchSnippets";
 import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
+import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -164,12 +165,6 @@ export const TabbedViewContainer = styled.div`
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
   width: 100%;
-  .close-debugger {
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    padding: 9px 11px;
-  }
   background-color: var(--ads-v2-color-bg);
   border-top: 1px solid var(--ads-v2-color-border);
 `;
@@ -1048,7 +1043,7 @@ export function EditorJSONtoForm(props: Props) {
                       selectedTabKey={selectedResponseTab}
                       tabs={responseTabs}
                     />
-                    <Button
+                    <CloseDebugger
                       className="close-debugger t--close-debugger"
                       isIconButton
                       kind="tertiary"
