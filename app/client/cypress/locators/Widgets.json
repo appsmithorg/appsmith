@@ -158,7 +158,7 @@
   "toggleShowStepArrows": ".t--property-control-showsteparrows .t--js-toggle",
   "chartPlotGroup": "g.raphael-group-63-plot-group",
   "toggleEnableMultirowselection": ".t--property-control-enablemulti-rowselection .bp3-control-indicator",
-  "toggleEnableMultirowselection_tablev1": ".t--property-control-enablemultirowselection .bp3-control-indicator",
+  "toggleEnableMultirowselection_tablev1": ".t--property-control-enablemultirowselection input",
   "formWidget": ".t--draggable-formwidget",
   "searchField": "[type=search]",
   "defaultSelectedRowField": ".t--property-control-defaultselectedrow .CodeMirror-line",
