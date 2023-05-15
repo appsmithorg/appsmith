@@ -8,6 +8,7 @@
       "makePublic:applications"
     ],
     "name": "valid_application",
+    "slug": "valid_application_slug",
     "isPublic": false,
     "appIsExample": false,
     "color": "#EA6179",
