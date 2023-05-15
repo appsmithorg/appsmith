@@ -46,7 +46,7 @@ function ForkTemplate({
   };
 
   const closeModal = (isOpen: boolean) => {
-    if (!isOpen && isImportingTemplate) {
+    if (!isOpen && !isImportingTemplate) {
       onClose();
     }
   };
