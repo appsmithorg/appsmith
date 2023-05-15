@@ -1,5 +1,5 @@
 {
-  "extends": ["../../../.eslintrc.json"],
+  "extends": ["../../../../.eslintrc.base.json"],
   "overrides": [
     {
       "files": ["**/*.stories.*"],

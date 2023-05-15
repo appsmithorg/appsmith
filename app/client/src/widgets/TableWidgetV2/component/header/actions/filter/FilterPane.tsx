@@ -18,10 +18,14 @@ import { generateClassName } from "utils/generators";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
 import { getWidgetMetaProps } from "sagas/selectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { ReactComponent as DragHandleIcon } from "assets/icons/ads/app-icons/draghandler.svg";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { importSvg } from "design-system-old";
+
+const DragHandleIcon = importSvg(
+  () => import("assets/icons/ads/app-icons/draghandler.svg"),
+);
 
 const DragBlock = styled.div`
   height: 40px;
@@ -94,7 +98,9 @@ class TableFilterPane extends Component<Props> {
         <Popper
           borderRadius={this.props.borderRadius}
           boundaryParent={boundaryParent || "viewport"}
-          disablePopperEvents={get(this.props, "metaProps.isMoved", false)}
+          disablePopperEvents={
+            get(this.props, "metaProps.isMoved", false) as boolean
+          }
           isDraggable
           isOpen
           onPositionChange={this.handlePositionUpdate}
