@@ -1,5 +1,4 @@
-const queryLocators = require("../../../../locators/QueryEditor.json");
-const datasource = require("../../../../locators/DatasourcesEditor.json");
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
 
@@ -9,26 +8,16 @@ describe("Create a query with a empty datasource, run, save the query", function
   });
 
   it("1. Create a empty datasource", function () {
-    cy.NavigateToDatasourceEditor();
-    cy.get(datasource.PostgreSQL).click();
-    cy.testSaveDatasource(false);
-    cy.get("@saveDatasource").then((httpResponse) => {
-      datasourceName = httpResponse.response.body.data.name;
-    });
-  });
+    _.dataSources.NavigateToDSCreateNew();
+    _.dataSources.CreatePlugIn("PostgreSQL");
+    _.dataSources.SaveDatasource();
 
-  it("2. Create a query for empty/incorrect datasource and validate", () => {
-    cy.NavigateToActiveDSQueryPane(datasourceName);
-    cy.get(queryLocators.templateMenu).click();
-    cy.get(".CodeMirror textarea")
-      .first()
-      .focus()
-      .type("select * from users limit 10");
-
-    cy.EvaluateCurrentValue("select * from users limit 10");
-    cy.runQuery(false);
+    //Create a query for empty/incorrect datasource and validate
+    _.dataSources.CreateQueryAfterDSSaved("select * from users limit 10");
+    _.dataSources.RunQuery({ toValidateResponse: false });
     cy.get("[data-testid=t--query-error]").contains(
       "[Missing endpoint., Missing username for authentication.]",
     );
+    _.agHelper.ActionContextMenuWithInPane("Delete");
   });
 });

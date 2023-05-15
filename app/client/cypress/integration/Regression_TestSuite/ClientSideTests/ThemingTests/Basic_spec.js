@@ -8,7 +8,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const ee = ObjectsRegistry.EntityExplorer,
   appSettings = ObjectsRegistry.AppSettings;
 
-const containerShadowElement = `${widgetsPage.containerWidget} [data-testid^="container-wrapper-"]`;
+const containerShadowElement = `${widgetsPage.containerWidget}`;
 
 describe("App Theming funtionality", function () {
   before(() => {
@@ -23,7 +23,7 @@ describe("App Theming funtionality", function () {
     "']";
   let applyTheme = (sectionName, themeName) =>
     themesSection(sectionName, themeName) +
-    "/parent::div/following-sibling::div[contains(@class, 't--theme-card')]//div[text()='Apply Theme']";
+    "/parent::div/following-sibling::div[contains(@class, 't--theme-card')]//div[text()='Apply theme']";
   let themesDeletebtn = (sectionName, themeName) =>
     themesSection(sectionName, themeName) + "/following-sibling::button";
 
@@ -120,7 +120,7 @@ describe("App Theming funtionality", function () {
       });
 
     //Change the background color:
-    cy.get(".border-2").last().click({ force: true });
+    cy.get("[data-testid='theme-backgroundColor']").click({ force: true });
     cy.wait(500);
     cy.get(widgetsPage.colorPickerV2Popover).click({ force: true }).click();
     cy.get(widgetsPage.colorPickerV2Color)
@@ -135,9 +135,9 @@ describe("App Theming funtionality", function () {
       });
 
     // Change the shadow
-    cy.get(commonlocators.themeAppBoxShadowBtn).eq(3).click({ force: true });
-    cy.get(commonlocators.themeAppBoxShadowBtn)
-      .eq(3)
+    cy.get("[data-value='M']").eq(1).click({ force: true });
+    cy.get("[data-value='M']")
+      .eq(1)
       .invoke("css", "box-shadow")
       .then((boxShadow) => {
         cy.get(containerShadowElement).should(
@@ -150,10 +150,10 @@ describe("App Theming funtionality", function () {
     //Change the font //Commenting below since expanded by default
     //cy.contains("Font").click({ force: true });
 
-    cy.get("span[name='expand-more']").then(($elem) => {
+    cy.get(".rc-select-selection-search-input").then(($elem) => {
       cy.get($elem).click({ force: true });
       cy.wait(250);
-      cy.get(".ads-dropdown-options-wrapper div")
+      cy.get(".rc-virtual-list-holder div")
         .children()
         .eq(2)
         .then(($childElem) => {
@@ -161,7 +161,7 @@ describe("App Theming funtionality", function () {
           cy.get(widgetsPage.widgetBtn).should(
             "have.css",
             "font-family",
-            `${$childElem.children().last().text()}, sans-serif`,
+            `${$childElem.children().last().text()}"Nunito Sans", sans-serif`,
           );
         });
     });
@@ -169,7 +169,7 @@ describe("App Theming funtionality", function () {
 
   it("3. Checks if the theme can be saved", () => {
     //Click on dropDown elipses
-    cy.contains("Theme Properties")
+    cy.contains("Theme properties")
       .closest("div")
       .siblings()
       .first()
@@ -190,7 +190,7 @@ describe("App Theming funtionality", function () {
     cy.get("input[placeholder='My theme']").type("testtheme");
 
     //Click on save theme button
-    cy.get("a[type='submit']").click({ force: true });
+    cy.get("button[type='submit']").click({ force: true });
 
     cy.wait(200);
     cy.get(commonlocators.toastMsg).contains("Theme testtheme Saved");
@@ -209,10 +209,10 @@ describe("App Theming funtionality", function () {
     // cy.contains("Font")
     //   .click({ force: true })
     //   .wait(200);//Commenting below since expanded by default
-    cy.get("span[name='expand-more']").then(($elem) => {
+    cy.get(".rc-select-selection-search-input").then(($elem) => {
       cy.get($elem).click({ force: true });
       cy.wait(250);
-      cy.get(".ads-dropdown-options-wrapper div")
+      cy.get(".rc-virtual-list-holder div")
         .children()
         .eq(4)
         .then(($childElem) => {
@@ -220,12 +220,12 @@ describe("App Theming funtionality", function () {
           cy.get(widgetsPage.iconWidgetBtn).should(
             "have.css",
             "font-family",
-            `${$childElem.children().last().text()}, sans-serif`,
+            `${$childElem.children().last().text()}Inter, sans-serif`,
           );
           cy.get(widgetsPage.widgetBtn).should(
             "have.css",
             "font-family",
-            `${$childElem.children().last().text()}, sans-serif`,
+            `${$childElem.children().last().text()}Inter, sans-serif`,
           );
         });
     });
@@ -255,7 +255,7 @@ describe("App Theming funtionality", function () {
       });
 
     //Change the background color:
-    cy.get(".border-2").last().click({ force: true });
+    cy.get("[data-testid='theme-backgroundColor']").click({ force: true });
     cy.wait(500);
     cy.get(widgetsPage.colorPickerV2Popover).click({ force: true }).click();
     cy.get(widgetsPage.colorPickerV2TailwindColor)
@@ -295,9 +295,9 @@ describe("App Theming funtionality", function () {
     //#endregion
 
     //#region Change the shadow & verify widgets
-    cy.get(commonlocators.themeAppBoxShadowBtn).eq(3).click({ force: true });
-    cy.get(commonlocators.themeAppBoxShadowBtn)
-      .eq(3)
+    cy.get("[data-value='L']").eq(1).click({ force: true });
+    cy.get("[data-value='L']")
+      .eq(1)
       .invoke("css", "box-shadow")
       .then((boxShadow) => {
         cy.get(containerShadowElement).should(
@@ -310,7 +310,7 @@ describe("App Theming funtionality", function () {
     //#endregion
 
     //#region Click on dropDown elipses
-    cy.contains("Theme Properties")
+    cy.contains("Theme properties")
       .closest("div")
       .siblings()
       .first()
@@ -322,10 +322,10 @@ describe("App Theming funtionality", function () {
     //Click on save theme dropdown option & close it
     cy.contains("Save theme").click({ force: true });
     cy.wait(200);
-    cy.xpath("//*[text()='Save Theme']/following-sibling::button").click();
+    cy.get(".ads-v2-modal__content-header-close-button").click();
 
     //Click on save theme dropdown option & cancel it
-    cy.contains("Theme Properties")
+    cy.contains("Theme properties")
       .closest("div")
       .siblings()
       .first()
@@ -334,10 +334,10 @@ describe("App Theming funtionality", function () {
     cy.wait(300);
     cy.contains("Save theme").click({ force: true });
     cy.wait(200);
-    cy.xpath("//span[text()='Cancel']/parent::a").click();
+    cy.xpath("//span[text()='Cancel']/parent::div").click();
 
     //Click on save theme dropdown option, give duplicte name & save it
-    cy.contains("Theme Properties")
+    cy.contains("Theme properties")
       .closest("div")
       .siblings()
       .first()
@@ -353,7 +353,7 @@ describe("App Theming funtionality", function () {
     cy.get("input[placeholder='My theme']").clear().type("VioletYellowTheme");
 
     //Click on save theme button
-    cy.xpath("//span[text()='Save theme']/parent::a").click({ force: true });
+    cy.xpath("//span[text()='Save theme']/parent::div").click({ force: true });
 
     cy.wait(200);
     cy.get(commonlocators.toastMsg).contains("Theme VioletYellowTheme Saved");
@@ -362,7 +362,7 @@ describe("App Theming funtionality", function () {
   it("5. Verify Themes exists under respective section when ChangeTheme button is cicked in properties with Apply Theme & Trash as applicable", () => {
     //Click on change theme:
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
-    cy.xpath(applyTheme("Your Themes", "testtheme"))
+    cy.xpath(applyTheme("Your themes", "testtheme"))
       .click({ force: true })
       .wait(1000); //Changing to testtheme
 
@@ -377,27 +377,27 @@ describe("App Theming funtionality", function () {
       });
 
     //Check if the saved theme is present under 'Yours Themes' section with Trash button
-    cy.xpath(applyTheme("Your Themes", "testtheme")).should("exist");
-    cy.xpath(themesDeletebtn("Your Themes", "testtheme")).should("exist");
+    cy.xpath(applyTheme("Your themes", "testtheme")).should("exist");
+    cy.xpath(themesDeletebtn("Your themes", "testtheme")).should("exist");
 
-    cy.xpath(applyTheme("Your Themes", "VioletYellowTheme")).should("exist");
-    cy.xpath(themesDeletebtn("Your Themes", "VioletYellowTheme")).should(
+    cy.xpath(applyTheme("Your themes", "VioletYellowTheme")).should("exist");
+    cy.xpath(themesDeletebtn("Your themes", "VioletYellowTheme")).should(
       "exist",
     );
 
-    cy.xpath(applyTheme("Featured Themes", "Earth")).should("exist");
-    cy.xpath(themesDeletebtn("Featured Themes", "Earth")).should("not.exist");
+    cy.xpath(applyTheme("Featured themes", "Earth")).should("exist");
+    cy.xpath(themesDeletebtn("Featured themes", "Earth")).should("not.exist");
 
-    cy.xpath(applyTheme("Featured Themes", "Sunrise")).should("exist");
-    cy.xpath(themesDeletebtn("Featured Themes", "Sunrise")).should("not.exist");
+    cy.xpath(applyTheme("Featured themes", "Sunrise")).should("exist");
+    cy.xpath(themesDeletebtn("Featured themes", "Sunrise")).should("not.exist");
 
-    cy.xpath(applyTheme("Featured Themes", "Pacific")).should("exist");
-    cy.xpath(themesDeletebtn("Featured Themes", "Pacific")).should("not.exist");
+    cy.xpath(applyTheme("Featured themes", "Pacific")).should("exist");
+    cy.xpath(themesDeletebtn("Featured themes", "Pacific")).should("not.exist");
 
-    cy.xpath(applyTheme("Featured Themes", "Pampas")).should("exist");
-    cy.xpath(themesDeletebtn("Featured Themes", "Pampas")).should("not.exist");
+    cy.xpath(applyTheme("Featured themes", "Pampas")).should("exist");
+    cy.xpath(themesDeletebtn("Featured themes", "Pampas")).should("not.exist");
 
-    // cy.contains("Featured Themes")
+    // cy.contains("Featured themes")
     //   .siblings()
     //   .find(".t--theme-card")
     //   .siblings()
@@ -407,7 +407,7 @@ describe("App Theming funtionality", function () {
 
   it("6. Verify the custom theme can be deleted", () => {
     //Check if the saved theme is present under 'Yours Themes' section
-    // cy.contains("Your Themes")
+    // cy.contains("Your themes")
     //   .siblings()
     //   .find(".t--theme-card")
     //   .parent()
@@ -415,7 +415,7 @@ describe("App Theming funtionality", function () {
     //   .click({ force: true });
     //   cy.wait(200);
 
-    cy.xpath(themesDeletebtn("Your Themes", "testtheme"))
+    cy.xpath(themesDeletebtn("Your themes", "testtheme"))
       .click({ force: true })
       .wait(200);
     cy.contains(
@@ -427,14 +427,14 @@ describe("App Theming funtionality", function () {
     cy.get(commonlocators.toastMsg).should("not.exist");
 
     //Click on Delete theme trash icon & cancel it
-    cy.xpath(themesDeletebtn("Your Themes", "testtheme"))
+    cy.xpath(themesDeletebtn("Your themes", "testtheme"))
       .click({ force: true })
       .wait(200);
-    cy.xpath("//span[text()='Cancel']/parent::a").click();
+    cy.xpath("//span[text()='No']/parent::div").click();
     cy.get(commonlocators.toastMsg).should("not.exist");
 
     //Click on Delete theme trash icon & delete it
-    cy.xpath(themesDeletebtn("Your Themes", "testtheme"))
+    cy.xpath(themesDeletebtn("Your themes", "testtheme"))
       .click({ force: true })
       .wait(200);
     cy.contains("Delete").click({ force: true });
@@ -442,14 +442,14 @@ describe("App Theming funtionality", function () {
     //check for delete alert
     cy.wait(500);
     cy.get(commonlocators.toastMsg).contains("Theme testtheme Deleted");
-    cy.xpath(applyTheme("Your Themes", "testtheme")).should("not.exist");
+    cy.xpath(applyTheme("Your themes", "testtheme")).should("not.exist");
   });
 
   it("7. Verify user able to change between saved theme & already existing Featured themes", () => {
     //#region Pampas
-    cy.xpath(applyTheme("Featured Themes", "Pampas"))
+    cy.xpath(applyTheme("Featured themes", "Pampas"))
       .click({ force: true })
-      .wait(1000); //Changing to one of featured themes
+      .wait(1000); //Changing to one of Featured themes
     cy.contains("Applied Theme")
       // .click()
       .parent()
@@ -475,9 +475,9 @@ describe("App Theming funtionality", function () {
     //#endregion
 
     //#region Classic
-    cy.xpath(applyTheme("Featured Themes", "Classic"))
+    cy.xpath(applyTheme("Featured themes", "Classic"))
       .click({ force: true })
-      .wait(1000); //Changing to one of featured themes
+      .wait(1000); //Changing to one of Featured themes
     cy.contains("Applied Theme")
       // .click()
       .parent()
@@ -503,9 +503,9 @@ describe("App Theming funtionality", function () {
     //#endregion
 
     //#region Modern
-    cy.xpath(applyTheme("Featured Themes", "Modern"))
+    cy.xpath(applyTheme("Featured themes", "Modern"))
       .click({ force: true })
-      .wait(1000); //Changing to one of featured themes
+      .wait(1000); //Changing to one of Featured themes
     cy.contains("Applied Theme")
       // .click()
       .parent()
@@ -531,9 +531,9 @@ describe("App Theming funtionality", function () {
     //#endregion
 
     //#region Sunrise
-    cy.xpath(applyTheme("Featured Themes", "Sunrise"))
+    cy.xpath(applyTheme("Featured themes", "Sunrise"))
       .click({ force: true })
-      .wait(1000); //Changing to one of featured themes
+      .wait(1000); //Changing to one of Featured themes
     cy.contains("Applied Theme")
       // .click()
       .parent()
@@ -558,9 +558,9 @@ describe("App Theming funtionality", function () {
     //#endregion
 
     //#region Water Lily
-    cy.xpath(applyTheme("Featured Themes", "Water Lily"))
+    cy.xpath(applyTheme("Featured themes", "Water Lily"))
       .click({ force: true })
-      .wait(1000); //Changing to one of featured themes
+      .wait(1000); //Changing to one of Featured themes
     cy.contains("Applied Theme")
       // .click()
       .parent()
@@ -585,9 +585,9 @@ describe("App Theming funtionality", function () {
     //#endregion
 
     //#region Pacific
-    cy.xpath(applyTheme("Featured Themes", "Pacific"))
+    cy.xpath(applyTheme("Featured themes", "Pacific"))
       .click({ force: true })
-      .wait(1000); //Changing to one of featured themes
+      .wait(1000); //Changing to one of Featured themes
     cy.contains("Applied Theme")
       // .click()
       .parent()
@@ -612,9 +612,9 @@ describe("App Theming funtionality", function () {
     //#endregion
 
     //#region Earth
-    cy.xpath(applyTheme("Featured Themes", "Earth"))
+    cy.xpath(applyTheme("Featured themes", "Earth"))
       .click({ force: true })
-      .wait(1000); //Changing to one of featured themes
+      .wait(1000); //Changing to one of Featured themes
     cy.contains("Applied Theme")
       // .click()
       .parent()
@@ -639,9 +639,9 @@ describe("App Theming funtionality", function () {
     //#endregion
 
     //#region Moon
-    cy.xpath(applyTheme("Featured Themes", "Moon"))
+    cy.xpath(applyTheme("Featured themes", "Moon"))
       .click({ force: true })
-      .wait(1000); //Changing to one of featured themes
+      .wait(1000); //Changing to one of Featured themes
     cy.contains("Applied Theme")
       // .click()
       .parent()
@@ -666,7 +666,7 @@ describe("App Theming funtionality", function () {
     //#endregion
 
     //#region VioletYellowTheme
-    cy.xpath(applyTheme("Your Themes", "VioletYellowTheme"))
+    cy.xpath(applyTheme("Your themes", "VioletYellowTheme"))
       .click({ force: true })
       .wait(1000); //Changing to created test theme
 
@@ -700,7 +700,7 @@ describe("App Theming funtionality", function () {
 
     //cy.wait(4000); //for theme to settle
 
-    cy.get("body").should("have.css", "font-family", "Montserrat, sans-serif"); //Font
+    cy.get("body").should("have.css", "font-family", "Inter, sans-serif"); //Font
 
     cy.xpath("//div[@id='root']//section/parent::div").should(
       "have.css",
@@ -758,8 +758,8 @@ describe("App Theming funtionality", function () {
 
     //Change Border & verify
 
-    cy.get(".t--button-group-0px").click();
-    cy.get(".t--button-group-0px")
+    cy.get(".border-t-2").eq(0).click();
+    cy.get(".border-t-2")
       .eq(0)
       .invoke("css", "border-top-left-radius")
       .then((borderRadius) => {
@@ -781,9 +781,9 @@ describe("App Theming funtionality", function () {
       });
 
     //Change Shadow & verify
-    cy.get(".t--button-group-0.10px").click({ force: true });
-    cy.get(".t--button-group-0.10px div")
-      .eq(0)
+    cy.get(".ads-v2-segmented-control-value-0").eq(2).click({ force: true });
+    cy.get(".ads-v2-segmented-control-value-0 div")
+      .eq(2)
       .invoke("css", "box-shadow")
       .then((boxshadow) => {
         cy.get(".t--widget-button2 button").should(
@@ -884,7 +884,7 @@ describe("App Theming funtionality", function () {
     cy.PublishtheApp();
 
     cy.wait(4000); //for theme to settle
-    cy.get("body").should("have.css", "font-family", "Montserrat, sans-serif"); //Font
+    cy.get("body").should("have.css", "font-family", "Inter, sans-serif"); //Font
 
     cy.xpath("//div[@id='root']//section/parent::div").should(
       "have.css",
@@ -948,8 +948,8 @@ describe("App Theming funtionality", function () {
 
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
 
-    //Changing to one of featured themes & then changing individual widget properties
-    cy.xpath(applyTheme("Featured Themes", "Sunrise"))
+    //Changing to one of Featured themes & then changing individual widget properties
+    cy.xpath(applyTheme("Featured themes", "Sunrise"))
       .click({ force: true })
       .wait(2000);
 
@@ -985,9 +985,9 @@ describe("App Theming funtionality", function () {
 
     //Change Border & verify
 
-    cy.get(".t--button-group-0\\.375rem").click().wait(500);
-    cy.get(".t--button-group-0\\.375rem div")
-      .eq(0)
+    cy.get(".border-t-2").eq(1).click().wait(500);
+    cy.get(".border-t-2")
+      .eq(1)
       .invoke("css", "border-top-left-radius")
       .then((borderRadius) => {
         cy.get(".t--widget-button1 button").should(
@@ -1008,8 +1008,9 @@ describe("App Theming funtionality", function () {
       });
 
     //Change Shadow & verify
-    cy.get(".t--button-group-0.1px").click().wait(500);
-    cy.get(".t--button-group-0.1px div")
+    cy.get(".ads-v2-segmented-control-value-0").eq(0).click({ force: true });
+    cy.get(".ads-v2-segmented-control-value-0 div")
+      .eq(0)
       .invoke("css", "box-shadow")
       .then((boxshadow) => {
         cy.get(".t--widget-button1 button").should(

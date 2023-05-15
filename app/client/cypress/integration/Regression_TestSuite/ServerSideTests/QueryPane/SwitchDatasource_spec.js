@@ -12,7 +12,7 @@ describe("Switch datasource", function () {
 
   it("1. Create postgres datasource", function () {
     cy.NavigateToDatasourceEditor();
-    cy.get(datasource.PostgreSQL).click();
+    cy.get(datasource.PostgreSQL).click({ force: true });
     cy.generateUUID().then((uid) => {
       postgresDatasourceName = uid;
 
@@ -29,7 +29,7 @@ describe("Switch datasource", function () {
 
   it("2. Create another postgres datasource", function () {
     cy.NavigateToDatasourceEditor();
-    cy.get(datasource.PostgreSQL).click();
+    cy.get(datasource.PostgreSQL).click({ force: true });
     cy.generateUUID().then((uid) => {
       postgresDatasourceNameSecond = uid;
 

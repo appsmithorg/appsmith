@@ -122,7 +122,7 @@ export class JSEditor {
   //#region Page functions
   public NavigateToNewJSEditor() {
     this.agHelper.ClickOutside(); //to enable click of below!
-    cy.get(this.locator._createNew).last().click();
+    cy.get(this.locator._createNew).last().click({ force: true });
     cy.get(this._newJSobj).eq(0).click({ force: true });
 
     // Assert that the name of the JS Object is focused when newly created
@@ -351,7 +351,7 @@ export class JSEditor {
 
   public SelectFunctionDropdown(funName: string) {
     cy.get(this._funcDropdown).click();
-    this.agHelper.GetNClickByContains(this.locator._dropdownText, funName);
+    this.agHelper.GetNClickByContains(this._funcDropdownOptions, funName);
   }
 
   //#endregion

@@ -80,6 +80,8 @@ describe("RichTextEditor Widget Functionality", function () {
       publishPage.richTextEditorWidget,
       commonlocators.disabledBtn,
     );
+    cy.get(publishPage.backToEditor).click({ force: true });
+    cy.openPropertyPane("richtexteditorwidget");
 
     //Check the Disabled checkbox
     cy.CheckWidgetProperties(formWidgetsPage.disableJs);
@@ -101,6 +103,9 @@ describe("RichTextEditor Widget Functionality", function () {
     cy.PublishtheApp();
     cy.get(publishPage.richTextEditorWidget).should("not.exist");
 
+    cy.get(publishPage.backToEditor).click({ force: true });
+    cy.openPropertyPane("richtexteditorwidget");
+
     // RichTextEditor-uncheck Visible field validation
     cy.CheckWidgetProperties(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
@@ -119,6 +124,9 @@ describe("RichTextEditor Widget Functionality", function () {
       publishPage.richTextEditorWidget,
       commonlocators.rteToolbar,
     );
+
+    cy.get(publishPage.backToEditor).click({ force: true });
+    cy.openPropertyPane("richtexteditorwidget");
 
     //RichTextEditor-uncheck Hide toolbar field validation - // Uncheck the Hide toolbar checkbox
     cy.UncheckWidgetProperties(commonlocators.hideToolbarCheckbox);
@@ -241,10 +249,9 @@ describe("RichTextEditor Widget Functionality", function () {
 
     // Changing the input type to markdown and again testing the cursor position
     cy.openPropertyPane("richtexteditorwidget");
-    cy.get("span:contains('Markdown')").click({ force: true });
+    cy.get("span:contains('Markdown')").eq(0).click({ force: true });
     setRTEContent(testString);
     testCursorPoistion(testStringLen, tinyMceId);
-    cy.get(".t--button-group-html").click({ force: true });
   });
 
   it("10. Check if different font size texts are supported inside the RTE widget", function () {
@@ -299,7 +306,7 @@ describe("RichTextEditor Widget Functionality", function () {
     //trigger a backspace
     cy.get(formWidgetsPage.richTextEditorWidget + " iframe").then(($iframe) => {
       const $body = $iframe.contents().find("body");
-      cy.get($body).type("{backspace}");
+      cy.get($body).type("{backspace}", { force: true });
     });
 
     // after backspace the emoji should not be present

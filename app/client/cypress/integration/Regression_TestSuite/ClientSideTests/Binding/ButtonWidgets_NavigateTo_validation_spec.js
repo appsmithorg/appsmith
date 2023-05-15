@@ -10,10 +10,10 @@ describe("Binding the button Widgets and validating NavigateTo Page functionalit
     cy.addDsl(dsl);
   });
 
-  it("Button widget with action navigate to page", function () {
+  it("1. Button widget with action navigate to page", function () {
     cy.openPropertyPane("buttonwidget");
     _.propPane.SelectPlatformFunction("onClick", "Navigate to");
-    cy.get("#switcher--url").click();
+    _.agHelper.GetNClick(_.propPane._navigateToType("URL"));
     cy.get("label")
       .contains("Enter URL")
       .siblings("div")
@@ -25,7 +25,7 @@ describe("Binding the button Widgets and validating NavigateTo Page functionalit
     cy.wait(300);
   });
 
-  it("Button click should take the control to page link validation", function () {
+  it("2. Button click should take the control to page link validation", function () {
     cy.PublishtheApp();
     cy.wait(2000);
     cy.get(publish.buttonWidget).click();

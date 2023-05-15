@@ -54,7 +54,7 @@ describe("Navigate To feature", () => {
     });
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.SelectPlatformFunction("onClick", "Navigate to");
-    cy.get("#switcher--url").click();
+    agHelper.GetNClick(propPane._navigateToType("URL"));
     cy.get("label")
       .contains("Enter URL")
       .siblings("div")
@@ -73,7 +73,7 @@ describe("Navigate To feature", () => {
     });
     ee.SelectEntityByName("Button1", "Widgets");
     propPane.SelectPlatformFunction("onClick", "Navigate to");
-    cy.get("#switcher--url").click();
+    agHelper.GetNClick(propPane._navigateToType("URL"));
     cy.get("label")
       .contains("Enter URL")
       .siblings("div")

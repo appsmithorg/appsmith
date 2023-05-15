@@ -6,9 +6,10 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let ee = ObjectsRegistry.EntityExplorer;
 
 describe("Validate API Panel CSS Styles", function () {
-  const backgroundColorGray200 = "rgb(231, 231, 231)";
+  const backgroundColorGray200 = "rgb(227, 232, 239)";
   const backgroundColorwhite = "rgb(255, 255, 255)";
-  const fontColorGray800 = "rgb(57, 57, 57)";
+  const hover = "rgb(241, 245, 249)";
+  const fontColorGray800 = "rgb(106, 117, 133)";
 
   before(() => {
     //Create test api
@@ -39,7 +40,7 @@ describe("Validate API Panel CSS Styles", function () {
       .last()
       .should("have.css", "background-color", backgroundColorwhite)
       .realHover()
-      .should("have.css", "background-color", backgroundColorGray200)
+      .should("have.css", "background-color", hover)
       .click();
   });
 
@@ -67,13 +68,13 @@ describe("Validate API Panel CSS Styles", function () {
               .should(
                 "have.css",
                 "transform",
-                `matrix(1, 0, 0, 1, -${width / 2}, ${height / 2})`,
+                `matrix(1, 0, 0, 1, -${(width / 2).toFixed(2)}, ${height / 2})`,
               ),
           ),
       );
   });
 
-  it("4.Select Datasource dropdown binding prompt background color", function () {
+  it("4. Select Datasource dropdown binding prompt background color", function () {
     cy.generateUUID().then((appName1) => {
       cy.generateUUID().then((appName2) => {
         //Create two datasource for testing binding prompt background-color
@@ -93,7 +94,7 @@ describe("Validate API Panel CSS Styles", function () {
           .last()
           .should("have.css", "background-color", backgroundColorwhite)
           .realHover()
-          .should("have.css", "background-color", backgroundColorGray200);
+          .should("have.css", "background-color", hover);
         //Delete created test API
         cy.DeleteAPI();
         cy.wait(2000);
@@ -111,9 +112,7 @@ describe("Validate API Panel CSS Styles", function () {
   after(() => {
     //Delete Application
     cy.get(HomePage.applicationName).click();
-    cy.get(".t--application-edit-menu li")
-      .contains("Delete Application")
-      .click();
-    cy.get(".t--application-edit-menu li").contains("Are you sure?").click();
+    cy.get("div[role='menuitem']").contains("Delete application").click();
+    cy.get("div[role='menuitem']").contains("Are you sure?").click();
   });
 });

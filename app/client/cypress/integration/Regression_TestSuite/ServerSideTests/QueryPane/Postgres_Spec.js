@@ -1,5 +1,4 @@
 const queryLocators = require("../../../../locators/QueryEditor.json");
-const datasource = require("../../../../locators/DatasourcesEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
@@ -14,20 +13,10 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
   // });
 
   it("1. Creates a new Postgres datasource", function () {
-    cy.NavigateToDatasourceEditor();
-    cy.get(datasource.PostgreSQL).click();
-    cy.fillPostgresDatasourceForm();
-
-    cy.generateUUID().then((uid) => {
-      datasourceName = `Postgres CRUD ds ${uid}`;
-      cy.renameDatasource(datasourceName);
+    _.dataSources.CreateDataSource("Postgres");
+    cy.get("@dsName").then(($dsName) => {
+      datasourceName = $dsName;
     });
-
-    cy.testSaveDatasource();
-
-    // cy.get("@saveDatasource").then((httpResponse) => {
-    //   datasourceName = httpResponse.response.body.data.name;
-    // });
   });
 
   it("2. Create & runs existing table data and deletes the query", () => {
@@ -275,10 +264,9 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
   it("9. Validate Deletion of the Newly Created Page", () => {
     cy.NavigateToQueryEditor();
     _.dataSources.DeleteDatasouceFromActiveTab(datasourceName, 409);
-    cy.actionContextMenuByEntityName(
+    _.entityExplorer.ActionContextMenuByEntityName(
       "Public.users_crud",
       "Delete",
-      "Are you sure?",
     );
   });
 
@@ -289,7 +277,7 @@ describe("Validate CRUD queries for Postgres along with UI flow verifications", 
     cy.typeValueNValidate(deleteTblQuery);
     cy.runQuery();
     _.entityExplorer.ExpandCollapseEntity("Datasources");
-    cy.actionContextMenuByEntityName(datasourceName, "Refresh");
+    _.entityExplorer.ActionContextMenuByEntityName(datasourceName, "Refresh");
     cy.xpath("//div[text()='public.users_crud']").should("not.exist"); //validating drop is successful!
     cy.deleteQueryUsingContext();
   });

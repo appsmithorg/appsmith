@@ -107,7 +107,7 @@ describe("Entity explorer datasource structure", function () {
     //   .last()
     //   .click({ force: true });
     ee.ExpandCollapseEntity("Datasources");
-    cy.actionContextMenuByEntityName(datasourceName, "Refresh");
+    ee.ActionContextMenuByEntityName(datasourceName, "Refresh");
     cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -129,7 +129,7 @@ describe("Entity explorer datasource structure", function () {
     cy.typeValueNValidate(`DROP TABLE public.${tableName}`);
     cy.runQuery();
     ee.ExpandCollapseEntity("Datasources");
-    cy.actionContextMenuByEntityName(datasourceName, "Refresh");
+    ee.ActionContextMenuByEntityName(datasourceName, "Refresh");
     cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
       "response.body.responseMeta.status",

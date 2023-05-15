@@ -1,6 +1,7 @@
 const explorer = require("../../../../locators/explorerlocators.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let ee = ObjectsRegistry.EntityExplorer;
+let jsEditor = ObjectsRegistry.JSEditor;
 
 const firstApiName = "First";
 const secondApiName = "Second";
@@ -69,8 +70,7 @@ describe("Entity Naming conflict test", function () {
     cy.log("Login Successful");
     ee.ExpandCollapseEntity("Queries/JS", true);
     // create JS object and name it
-    cy.createJSObject('return "Hello World";');
-
+    jsEditor.CreateJSObject('return "Hello World";');
     cy.get(`.t--entity-item:contains('JSObject1')`).within(() => {
       cy.get(".t--context-menu").click({ force: true });
     });
@@ -89,7 +89,7 @@ describe("Entity Naming conflict test", function () {
     cy.selectAction("Edit name");
 
     cy.get(explorer.editEntity).last().type(firstApiName, { force: true });
-    cy.VerifyPopOverMessage(firstApiName + " is already being used.", true);
+    ee.ValidateDuplicateMessageToolTip(firstApiName);
     cy.get("body").click(0, 0);
     cy.wait(2000);
     cy.get(`.t--entity-item:contains(${firstApiName})`).within(() => {

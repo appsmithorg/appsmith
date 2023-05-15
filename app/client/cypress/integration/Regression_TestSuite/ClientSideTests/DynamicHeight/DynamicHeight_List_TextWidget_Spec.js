@@ -5,6 +5,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const explorer = require("../../../../locators/explorerlocators.json");
 
 const agHelper = ObjectsRegistry.AggregateHelper;
+const entityExplorer = ObjectsRegistry.EntityExplorer;
 
 describe("Dynamic Height Width validation list widget", function () {
   afterEach(() => {
@@ -69,7 +70,7 @@ describe("Dynamic Height Width validation list widget", function () {
           200,
         );
         cy.wait(2000);
-        cy.get("#switcher--explorer").click({ force: true });
+        entityExplorer.NavigateToSwitcher("Explorer");
         cy.selectEntityByName("Text3Copy");
         cy.get(commonlocators.generalSectionHeight).should("not.exist");
         cy.get("body").type(`{${modifierKey}}c`);

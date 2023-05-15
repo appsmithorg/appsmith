@@ -271,7 +271,7 @@ describe("Git sync apps", function () {
     });
     cy.wait(1000);
     // create jsObject and rename it
-    cy.createJSObject('return "Success";');
+    _.jsEditor.CreateJSObject('return "Success";');
     cy.wait(2000);
     // create postgres select query
     //cy.CheckAndUnfoldEntityItem("Datasources");

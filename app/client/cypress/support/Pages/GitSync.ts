@@ -20,11 +20,13 @@ export class GitSync {
   private _gitConfigEmailInput =
     "//label[text()='Author email']/following-sibling::div//input";
   _branchButton = ".t--branch-button";
-  private _branchSearchInput = ".t--branch-search-input";
+  private _branchSearchInput = ".t--branch-search-input input";
   private _bottomBarCommit = ".t--bottom-bar-commit button";
   _bottomBarPull = ".t--bottom-bar-pull button";
   private _branchName = (branch: string) =>
-    "//div[contains(@class, 't--branch-button')]//*[text()='" + branch + "']";
+    "//button[contains(@class, 't--branch-button')]//*[text()='" +
+    branch +
+    "']";
   _checkMergeability = "//span[contains(text(), 'Checking mergeability')]";
 
   OpenGitSyncModal() {
