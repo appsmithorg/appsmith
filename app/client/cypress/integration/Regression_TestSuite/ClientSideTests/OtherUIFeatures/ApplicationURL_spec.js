@@ -44,7 +44,7 @@ describe("Slug URLs", () => {
   it("3. Checks if page slug updates on the URL when page name changes", () => {
     _.entityExplorer.ActionContextMenuByEntityName("Page1", "Edit name");
     cy.get(explorer.editEntity).last().type("Page renamed", { force: true });
-    cy.get("body").click(0, 0);
+    cy.get("body").click(0, 0, { force: true });
     cy.wait("@updatePage").should(
       "have.nested.property",
       "response.body.responseMeta.status",

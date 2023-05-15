@@ -16,16 +16,16 @@ describe("Git regenerate SSH key flow", function () {
       repoName = repName;
       cy.regenerateSSHKey(repoName);
     });
-    cy.get("body").click(0, 0);
+    cy.get("body").click(0, 0, { force: true });
     cy.wait(2000);
   });
 
   it("2. Verify error meesage is displayed when ssh key is not added to github and verify RSA SSH key regeneration flow", () => {
     cy.wait(2000);
     cy.get(gitSyncLocators.bottomBarCommitButton).click();
-    cy.get("[data-testid=t--tab-GIT_CONNECTION]").click();
+    cy.get(".ads-v2-tabs__list-tab").contains("Git connection").click();
     cy.wait(2000);
-    cy.get(gitSyncLocators.SSHKeycontextmenu).click();
+    cy.get(gitSyncLocators.SSHKeycontextmenu).eq(2).click();
     cy.get(gitSyncLocators.regenerateSSHKeyECDSA).click();
     cy.contains(Cypress.env("MESSAGES").REGENERATE_KEY_CONFIRM_MESSAGE());
     cy.xpath(gitSyncLocators.confirmButton).click();
@@ -39,7 +39,7 @@ describe("Git regenerate SSH key flow", function () {
       400,
     );
     cy.regenerateSSHKey(repoName, true, "RSA");
-    cy.get("body").click(0, 0);
+    cy.get("body").click(0, 0, { force: true });
     cy.wait(2000);
   });
   after(() => {
