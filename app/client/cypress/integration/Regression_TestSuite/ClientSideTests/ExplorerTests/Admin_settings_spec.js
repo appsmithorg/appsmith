@@ -296,7 +296,7 @@ describe("Admin settings page", function () {
       cy.get(".ads-v2-modal__content-header").should("be.visible");
       cy.get(".ads-v2-modal__content-header").should(
         "contain",
-        "Product Updates",
+        "Product updates",
       );
       cy.get(".ads-v2-button__content-icon-start").should("be.visible");
       cy.get(".ads-v2-button__content-icon-start").click();

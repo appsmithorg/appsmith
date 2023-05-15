@@ -76,7 +76,7 @@ describe("Export application as a JSON file", function () {
         cy.get(homePage.applicationCard).first().trigger("mouseover");
         cy.get(homePage.appEditIcon).first().click({ force: true });
         cy.get(homePage.applicationName).click({ force: true });
-        cy.contains("Export Application").should("be.visible");
+        cy.contains("Export application").should("be.visible");
       });
       cy.LogOut();
     }
@@ -112,7 +112,7 @@ describe("Export application as a JSON file", function () {
       cy.get(homePage.applicationCard).first().trigger("mouseover");
       cy.get(homePage.appEditIcon).first().click({ force: true });
       cy.get(homePage.applicationName).click({ force: true });
-      cy.contains("Export Application").should("not.exist");
+      cy.contains("Export application").should("not.exist");
     });
     cy.LogOut();
   });
