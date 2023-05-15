@@ -27,6 +27,8 @@ export function evalTreeWithChanges(updatedValuePaths: string[][]) {
   let evalMetaUpdates: EvalMetaUpdates = [];
   let staleMetaIds: string[] = [];
   const pathsToClearErrorsFor: any[] = [];
+  let unevalTree: UnEvalTree = {};
+  let configTree: ConfigTree = {};
 
   if (dataTreeEvaluator) {
     const setupUpdateTreeResponse =
@@ -51,6 +53,8 @@ export function evalTreeWithChanges(updatedValuePaths: string[][]) {
       JSON.stringify(updateResponse.evalMetaUpdates),
     );
     staleMetaIds = updateResponse.staleMetaIds;
+    unevalTree = dataTreeEvaluator.getOldUnevalTree();
+    configTree = dataTreeEvaluator.oldConfigTree;
   }
 
   const evalTreeResponse: EvalTreeResponseData = {
@@ -63,7 +67,7 @@ export function evalTreeWithChanges(updatedValuePaths: string[][]) {
     logs,
     unEvalUpdates,
     isCreateFirstTree,
-    configTree: dataTreeEvaluator?.oldConfigTree as ConfigTree,
+    configTree,
     staleMetaIds,
     pathsToClearErrorsFor,
     isNewWidgetAdded: false,
@@ -72,7 +76,7 @@ export function evalTreeWithChanges(updatedValuePaths: string[][]) {
 
   const data: UpdateDataTreeMessageData = {
     workerResponse: evalTreeResponse,
-    unevalTree: dataTreeEvaluator?.getOldUnevalTree() as UnEvalTree,
+    unevalTree,
   };
 
   sendMessage.call(self, {
