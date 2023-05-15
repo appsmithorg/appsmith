@@ -7,18 +7,15 @@ import ReactJson from "react-json-view";
 import styled from "styled-components";
 import type { AppState } from "@appsmith/reducers";
 import type { ActionResponse } from "api/ActionAPI";
-import ActionAPI from "api/ActionAPI";
 import { formatBytes } from "utils/helpers";
 import type { APIEditorRouteParams } from "constants/routes";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
-import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { getActionResponses } from "selectors/entitiesSelector";
 import { isArray, isEmpty, isString } from "lodash";
 import {
-  ACTION_EXECUTION_MESSAGE,
   CHECK_REQUEST_BODY,
   createMessage,
   DEBUGGER_LOGS,
@@ -63,6 +60,7 @@ import LogHelper from "./Debugger/ErrorLogs/components/LogHelper";
 import { getUpdateTimestamp } from "./Debugger/ErrorLogs/ErrorLogItem";
 import type { Action } from "entities/Action";
 import { SegmentedControlContainer } from "../../pages/Editor/QueryEditor/EditorJSONtoForm";
+import ActionExecutionInProgressView from "./ActionExecutionInProgressView";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
@@ -135,7 +133,7 @@ const TabbedViewWrapper = styled.div`
 
   & {
     .ads-v2-tabs__list {
-      padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-6);
+      padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-7);
     }
   }
 
@@ -187,19 +185,6 @@ const ResponseBodyContainer = styled.div`
   display: grid;
 `;
 
-export const LoadingOverlayContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: var(--ads-v2-spaces-3);
-  background-color: transparent;
-  position: relative;
-  z-index: 20;
-  width: 100%;
-  height: 100%;
-  margin-top: 5px;
-`;
 interface ReduxStateProps {
   responses: Record<string, ActionResponse | undefined>;
   isRunning: Record<string, boolean>;
@@ -270,7 +255,7 @@ export const ResponseTabErrorContainer = styled.div`
   padding: 8px 16px;
   gap: 8px;
   max-height: 100%;
-  overflow: auto;
+  height: fit-content;
   background: var(--ads-v2-color-bg-error);
   border-bottom: 1px solid var(--ads-v2-color-border);
 `;
@@ -322,10 +307,6 @@ export const responseTabComponent = (
       />
     ),
   }[responseType];
-};
-
-export const handleCancelActionExecution = () => {
-  ActionAPI.abortActionExecutionTokenSource.cancel();
 };
 
 const StyledText = styled(Text)`
@@ -671,27 +652,10 @@ function ApiResponseView(props: Props) {
         snapToHeight={ActionExecutionResizerHeight}
       />
       {isRunning && (
-        <>
-          <LoadingOverlayScreen theme={props.theme} />
-          <LoadingOverlayContainer>
-            <Text textAlign={"center"} type={TextType.P1}>
-              {createMessage(ACTION_EXECUTION_MESSAGE, "API")}
-            </Text>
-            <Button
-              className={`t--cancel-action-button`}
-              kind="secondary"
-              onClick={() => {
-                handleCancelActionExecution();
-              }}
-              size="md"
-            >
-              Cancel request
-            </Button>
-          </LoadingOverlayContainer>
-        </>
+        <ActionExecutionInProgressView actionType="API" theme={props.theme} />
       )}
       <TabbedViewWrapper>
-        {response.statusCode && (
+        {response.statusCode === "2" && (
           <ResponseMetaWrapper>
             {response.statusCode && (
               <Flex>

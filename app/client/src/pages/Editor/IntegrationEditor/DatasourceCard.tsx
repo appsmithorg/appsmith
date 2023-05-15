@@ -256,10 +256,7 @@ function DatasourceCard(props: DatasourceCardProps) {
     <Wrapper
       className="t--datasource"
       key={datasource.id}
-      // TODO: We cannot support clicking on the card to edit it because this click function overrides any other within the body, and
-      // doesn't allow the "Are you sure" of the delete item in the menu to play out. Since this is also bad UX - clicking on the card
-      // should activate the primary button action, not the action of the first menu item - we're disabling it for now.
-      // onClick={editDatasource}
+      onClick={editDatasource}
     >
       <DatasourceCardMainBody>
         <DatasourceCardHeader className="t--datasource-name">

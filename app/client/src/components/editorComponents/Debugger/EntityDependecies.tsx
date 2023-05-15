@@ -113,7 +113,8 @@ const BlankStateContainer = styled.div`
   flex: 1;
   flex-direction: column;
   color: var(--ads-v2-color-fg);
-
+  overflow-y: auto;
+  padding: 8px 16px;
   span {
     margin-top: ${(props) => props.theme.spaces[9] + 1}px;
   }

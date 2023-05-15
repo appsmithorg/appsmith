@@ -28,7 +28,7 @@ const FormRowWithLabel = styled.div`
   display: flex;
   flex: 1;
   flex-direction: row;
-  align-items: center;
+  align-items: start;
   margin-bottom: 5px;
   & svg {
     cursor: pointer;
@@ -130,7 +130,7 @@ function KeyValueRow(
                 props={{
                   dataType: getType(extraData[0]?.dataType),
                   defaultValue: extraData[0]?.initialValue,
-                  keyFieldValidate: isKeyFieldValid,
+                  isKeyFieldValid: isKeyFieldValid,
                   placeholder: props.extraData
                     ? props.extraData[1]?.placeholderText
                     : "",

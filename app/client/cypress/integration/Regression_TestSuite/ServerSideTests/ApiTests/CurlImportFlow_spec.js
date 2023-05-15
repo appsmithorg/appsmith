@@ -45,7 +45,7 @@ describe("Test curl import flow", function () {
         .should("be.visible")
         .click({ force: true });
       cy.get(globalSearchLocators.createNew).click();
-      cy.xpath("//span[text()='New cURL Import']").click();
+      cy.xpath("//span[text()='New cURL import']").click();
       cy.get("textarea").type(
         'curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST ' +
           datasourceFormData["echoApiUrl"],

@@ -52,7 +52,7 @@ function EmbedSettings() {
     <div>
       {canShareWithPublic && (
         <>
-          <div className="px-4 mt-4 mb-2">
+          <div className="px-4 mt-4 mb-3">
             <Title>
               {createMessage(IN_APP_EMBED_SETTING.sectionContentHeader)}
             </Title>

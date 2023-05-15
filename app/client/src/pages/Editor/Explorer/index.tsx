@@ -78,7 +78,7 @@ function ExplorerContent() {
     <div
       className={`flex-1 flex flex-col overflow-hidden ${tailwindLayers.entityExplorer}`}
     >
-      <div className={`flex-shrink-0 px-3 mt-1 py-2 border-t`}>
+      <div className={`flex-shrink-0 px-2 mt-1 py-2 border-t`}>
         <SegmentedControl
           onChange={onChange}
           options={options}

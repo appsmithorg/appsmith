@@ -1078,6 +1078,7 @@ export const API_EDITOR_TAB_TITLES = {
 };
 export const ACTION_EXECUTION_MESSAGE = (actionType: string) =>
   `Sending the ${actionType} request`;
+export const ACTION_EXECUTION_CANCEL = () => "Cancel request";
 
 export const WELCOME_FORM_HEADER = () => "Let us get to know you better!";
 export const WELCOME_FORM_FULL_NAME = () => "Full Name";
@@ -1662,10 +1663,10 @@ export const USE_SNAPSHOT_TEXT = () =>
   "Your app will look and work exactly like it used to before the conversion. Widgets, datasources, queries, JS objects added and any changes you made after conversion will not be present.";
 export const SNAPSHOT_WARNING_MESSAGE = () =>
   "Any changes you made after conversion will not be present.";
-export const CONVERT_TO_FIXED_TITLE = () => "Convert to Fixed layout";
-export const CONVERT_TO_FIXED_BUTTON = () => "Convert to Fixed layout (Beta)";
-export const CONVERT_TO_AUTO_TITLE = () => "Convert to Auto layout";
-export const CONVERT_TO_AUTO_BUTTON = () => "Convert to Auto layout (Beta)";
+export const CONVERT_TO_FIXED_TITLE = () => "Convert to fixed layout";
+export const CONVERT_TO_FIXED_BUTTON = () => "Convert to fixed layout (Beta)";
+export const CONVERT_TO_AUTO_TITLE = () => "Convert to auto layout";
+export const CONVERT_TO_AUTO_BUTTON = () => "Convert to auto layout (Beta)";
 export const SNAPSHOT_BANNER_MESSAGE = () =>
   "Confirm this layout is per expectations before you discard the snapshot. Use the snapshot to go back.";
 export const USE_SNAPSHOT_CTA = () => "Use snapshot";
