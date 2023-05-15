@@ -100,17 +100,17 @@ describe("Dynamic Height Width validation", function () {
     cy.get(commonlocators.generalSectionHeight)
       .scrollIntoView()
       .should("be.visible");
-    cy.selectDropdownValue(commonlocators.autoHeight, "Auto Height");
+    cy.changeLayoutHeight(commonlocators.autoHeight);
     cy.openPropertyPane("inputwidgetv2");
     cy.get(commonlocators.generalSectionHeight)
       .scrollIntoView()
       .should("be.visible");
-    cy.selectDropdownValue(commonlocators.autoHeight, "Auto Height");
+    cy.changeLayoutHeight(commonlocators.autoHeight);
     cy.get(".t--widget-containerwidget")
       .invoke("css", "height")
       .then((height) => {
         cy.openPropertyPane("containerwidget");
-        cy.selectDropdownValue(commonlocators.autoHeight, "Auto Height");
+        cy.changeLayoutHeight(commonlocators.autoHeight);
         cy.wait(4000);
         cy.get(".t--widget-containerwidget")
           .invoke("css", "height")

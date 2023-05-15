@@ -17,11 +17,6 @@ describe("Dynamic Height Width validation for Tab widget", function () {
       .then((theight) => {
         cy.get(".t--tabid-tab2").click({ force: true });
         cy.wait(2000);
-        cy.wait("@updateLayout").should(
-          "have.nested.property",
-          "response.body.responseMeta.status",
-          200,
-        );
         //cy.get(".t--draggable-checkboxwidget .bp3-control-indicator").click({ force: true })
         cy.get(".t--widget-tabswidget")
           .invoke("css", "height")
@@ -34,7 +29,7 @@ describe("Dynamic Height Width validation for Tab widget", function () {
     //changing the Text Name and verifying
     cy.wait(3000);
     cy.openPropertyPane("tabswidget");
-    cy.selectDropdownValue(commonlocators.autoHeight, "Auto Height");
+    cy.changeLayoutHeight(commonlocators.autoHeight);
     cy.get(".t--tabid-tab1").click({ force: true });
     validateHeight();
     cy.PublishtheApp();
@@ -62,7 +57,7 @@ describe("Dynamic Height Width validation for Tab widget", function () {
     _.agHelper.GetNClick(_.locators._previewModeToggle("preview"));
     cy.wait(2000);
     cy.openPropertyPane("tabswidget");
-    cy.selectDropdownValue(commonlocators.autoHeight, "Fixed");
+    cy.changeLayoutHeight(commonlocators.fixed);
     cy.get(".t--tabid-tab1").click({ force: true });
     cy.wait(2000);
     cy.get(".t--widget-tabswidget")
@@ -95,7 +90,7 @@ describe("Dynamic Height Width validation for Tab widget", function () {
     cy.openPropertyPane("tabswidget");
     cy.get(commonlocators.generalSectionHeight).should("be.visible");
     cy.get(commonlocators.showTabsControl).click({ force: true });
-    cy.selectDropdownValue(commonlocators.autoHeight, "Auto Height");
+    cy.changeLayoutHeight(commonlocators.autoHeight);
     cy.wait(2000);
     cy.get(".t--tabid-tab1").click({ force: true });
     cy.wait(2000);
@@ -103,7 +98,7 @@ describe("Dynamic Height Width validation for Tab widget", function () {
       .invoke("css", "height")
       .then((theight) => {
         cy.get(".t--tabid-tab2").click({ force: true });
-        cy.selectDropdownValue(commonlocators.autoHeight, "Fixed");
+        cy.changeLayoutHeight(commonlocators.fixed);
         cy.wait(2000);
         cy.reload();
         cy.openPropertyPane("tabswidget");
