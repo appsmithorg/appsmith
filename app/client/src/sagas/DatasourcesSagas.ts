@@ -1043,6 +1043,11 @@ function* fetchDatasourceStructureSaga(
     yield select(getDatasource, action.payload.id),
     `Datasource not found for id - ${action.payload.id}`,
   );
+  const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
+  AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH", {
+    datasourceId: datasource?.id,
+    pluginName: plugin?.name,
+  });
 
   try {
     const response: ApiResponse = yield DatasourcesApi.fetchDatasourceStructure(
@@ -1060,6 +1065,11 @@ function* fetchDatasourceStructureSaga(
       });
 
       if (isEmpty(response.data)) {
+        AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH_FAILURE", {
+          datasourceId: datasource?.id,
+          pluginName: plugin?.name,
+          errorMessage: "Schema is not available",
+        });
         AppsmithConsole.warning({
           text: "Datasource structure could not be retrieved",
           source: {
@@ -1069,6 +1079,10 @@ function* fetchDatasourceStructureSaga(
           },
         });
       } else {
+        AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH_SUCCESS", {
+          datasourceId: datasource?.id,
+          pluginName: plugin?.name,
+        });
         AppsmithConsole.info({
           text: "Datasource structure retrieved",
           source: {
@@ -1078,8 +1092,21 @@ function* fetchDatasourceStructureSaga(
           },
         });
       }
+      if (!!(response.data as any)?.error) {
+        AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH_FAILURE", {
+          datasourceId: datasource?.id,
+          pluginName: plugin?.name,
+          errorCode: (response.data as any).error?.code,
+          errorMessage: (response.data as any).error?.message,
+        });
+      }
     }
   } catch (error) {
+    AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH_FAILURE", {
+      datasourceId: datasource?.id,
+      pluginName: plugin?.name,
+      errorMessage: error,
+    });
     yield put({
       type: ReduxActionErrorTypes.FETCH_DATASOURCE_STRUCTURE_ERROR,
       payload: {
@@ -1103,6 +1130,11 @@ function* refreshDatasourceStructure(action: ReduxAction<{ id: string }>) {
     yield select(getDatasource, action.payload.id),
     `Datasource is not found for it - ${action.payload.id}`,
   );
+  const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
+  AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH", {
+    datasourceId: datasource?.id,
+    pluginName: plugin?.name,
+  });
 
   try {
     const response: ApiResponse = yield DatasourcesApi.fetchDatasourceStructure(
@@ -1120,6 +1152,11 @@ function* refreshDatasourceStructure(action: ReduxAction<{ id: string }>) {
       });
 
       if (isEmpty(response.data)) {
+        AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH_FAILURE", {
+          datasourceId: datasource?.id,
+          pluginName: plugin?.name,
+          errorMessage: "Schema is not available",
+        });
         AppsmithConsole.warning({
           text: "Datasource structure could not be retrieved",
           source: {
@@ -1129,6 +1166,10 @@ function* refreshDatasourceStructure(action: ReduxAction<{ id: string }>) {
           },
         });
       } else {
+        AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH_SUCCESS", {
+          datasourceId: datasource?.id,
+          pluginName: plugin?.name,
+        });
         AppsmithConsole.info({
           text: "Datasource structure retrieved",
           source: {
@@ -1138,8 +1179,21 @@ function* refreshDatasourceStructure(action: ReduxAction<{ id: string }>) {
           },
         });
       }
+      if (!!(response.data as any)?.error) {
+        AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH_FAILURE", {
+          datasourceId: datasource?.id,
+          pluginName: plugin?.name,
+          errorCode: (response.data as any).error?.code,
+          errorMessage: (response.data as any).error?.message,
+        });
+      }
     }
   } catch (error) {
+    AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH_FAILURE", {
+      datasourceId: datasource?.id,
+      pluginName: plugin?.name,
+      errorMessage: error,
+    });
     yield put({
       type: ReduxActionErrorTypes.REFRESH_DATASOURCE_STRUCTURE_ERROR,
       payload: {
