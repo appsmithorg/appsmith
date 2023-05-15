@@ -559,10 +559,12 @@ Cypress.Commands.add(
       .first()
       .then((ins) => {
         const input = ins[0].CodeMirror;
-        expect(input.hasFocus()).to.be.true;
-        const editorCursor = input.getCursor();
-        expect(editorCursor.ch).to.equal(cursor.ch);
-        expect(editorCursor.line).to.equal(cursor.line);
+        // The input gets focused with a slight delay so we need to wait for it
+        cy.waitUntil(() => input.hasFocus()).then(() => {
+          const editorCursor = input.getCursor();
+          expect(editorCursor.ch).to.equal(cursor.ch);
+          expect(editorCursor.line).to.equal(cursor.line);
+        });
       });
   },
 );
@@ -1410,20 +1412,12 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("EnableAllCodeEditors", () => {
-  cy.wait(2000);
-  cy.get("body").then(($body) => {
-    if ($body.get(commonlocators.codeEditorWrapper)?.length > 0) {
-      let count = $body.get(commonlocators.codeEditorWrapper)?.length || 0;
-      while (count) {
-        $body
-          .get(commonlocators.codeEditorWrapper)
-          ?.eq(0)
-          .then(($el) => $el.click({ force: true }).wait(100));
-        count = $body.find(commonlocators.codeEditorWrapper)?.length || 0;
-      }
-    }
+  cy.get(commonlocators.lazyCodeEditorFallback, { timeout: 60000 }).should(
+    "not.exist",
+  );
+  cy.get(commonlocators.lazyCodeEditorRendered).each(($el) => {
+    cy.wrap($el).find(".CodeMirror").should("exist");
   });
-  cy.wait(1000);
 });
 
 Cypress.Commands.add("getTableCellHeight", (x, y) => {

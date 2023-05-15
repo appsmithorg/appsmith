@@ -3,7 +3,7 @@ import {
   layoutConfigurations,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { partition } from "lodash";
+import { get, partition } from "lodash";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import type { FlexLayer } from "utils/autoLayout/autoLayoutTypes";
 import { alterLayoutForDesktop } from "utils/autoLayout/AutoLayoutUtils";
@@ -19,6 +19,7 @@ import {
   isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import WidgetFactory from "utils/WidgetFactory";
+// import { DynamicHeight } from "utils/WidgetFeatures";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { DSLWidget } from "widgets/constants";
 
@@ -780,6 +781,8 @@ function handleSpecialCaseWidgets(dsl: DSLWidget): DSLWidget {
     dsl.children[0].flexLayers = flexLayers;
     dsl.children[0].responsiveBehavior = ResponsiveBehavior.Fill;
     dsl.children[0].positioning = Positioning.Vertical;
+    dsl.children[0].children[0].isFlexChild = true;
+    dsl.children[0].children[0].isListItemContainer = true;
   }
 
   return dsl;
@@ -822,10 +825,8 @@ function verifyDynamicPathBindingList(
   const dynamicBindingPathList: DynamicPath[] = [];
   for (const dynamicBindingPath of widget.dynamicBindingPathList) {
     //if the values are not dynamic, remove from the dynamic binding path list
-    if (
-      !widget[dynamicBindingPath.key] ||
-      !isDynamicValue(widget[dynamicBindingPath.key])
-    ) {
+    const dynamicValue = get(widget, dynamicBindingPath.key);
+    if (!dynamicValue || !isDynamicValue(dynamicValue)) {
       continue;
     }
 

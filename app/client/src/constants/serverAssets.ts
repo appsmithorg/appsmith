@@ -17,7 +17,7 @@ export const arangodbIcon = `${ASSETS_CDN_URL}/logo/arangodb.svg`;
 export const jsFileIcon = `${ASSETS_CDN_URL}/JSFile.svg`;
 export const smtpIcon = `${ASSETS_CDN_URL}/smtp-icon.svg`;
 export const graphqlIcon = `${ASSETS_CDN_URL}/logo/graphql.svg`;
-export const oracleIcon = `${ASSETS_CDN_URL}/oracle-db.jpg`;
+export const oracleIcon = `${ASSETS_CDN_URL}/oracle.svg`;
 
 // Unsupported plugin assets
 export const openaiLogo = `${ASSETS_CDN_URL}/integrations/openai-logo-png.jpg`;
@@ -26,7 +26,7 @@ export const redshiftIcon = `${ASSETS_CDN_URL}/logo/aws-redshift.svg`;
 export const hubspotIcon = `${ASSETS_CDN_URL}/integrations/HubSpot.png`;
 export const airtableIcon = `${ASSETS_CDN_URL}/integrations/airtable.svg`;
 export const twilioIcon = `${ASSETS_CDN_URL}/integrations/twilio_24.png`;
-export const twilioIcon1 = `${ASSETS_CDN_URL}/integrations/twilio_1.png`;
+export const twilioIcon1 = `${ASSETS_CDN_URL}/integrations/twilio.png`;
 export const sendgridTwilioIcon = `${ASSETS_CDN_URL}/integrations/sendgrid_twilio.jpg`;
 export const huggingFaceLogo = `${ASSETS_CDN_URL}/integrations/Hugging-Face-Logo.png`;
 export const dropboxIcon = `${ASSETS_CDN_URL}/integrations/dropbox.png`;

@@ -26,9 +26,11 @@ describe("Linting async JSFunctions bound to data fields", () => {
     });
     _.entityExplorer.SelectEntityByName("Button1", "Widgets");
     _.propPane.UpdatePropertyFieldValue("Label", "{{JSObject1.myFun2()}}");
-    cy.get(_.locators._evaluateMsg).should("be.visible");
-    cy.contains("View Source").click(); // should route to jsobject page
-    cy.get(_.locators._lintWarningElement).should("have.length", 1);
+    _.agHelper.AssertElementVisible(_.locators._evaluateMsg);
+    _.agHelper.ContainsNClick("View Source"); // should route to jsobject page
+
+    _.agHelper.AssertElementLength(_.locators._lintWarningElement, 1);
+
     MouseHoverNVerify(
       "myFun2",
       `Cannot bind async functions to data fields. Convert this to a sync function or remove references to "JSObject1.myFun2" on the following data field: Button1.text`,
@@ -45,7 +47,7 @@ describe("Linting async JSFunctions bound to data fields", () => {
         }
     }`);
 
-    cy.get(_.locators._lintWarningElement).should("not.exist");
+    _.agHelper.AssertElementAbsence(_.locators._lintWarningElement);
 
     // Add async tag from function
     _.jsEditor.EditJSObj(`export default {
@@ -58,7 +60,7 @@ describe("Linting async JSFunctions bound to data fields", () => {
         }
     }`);
 
-    cy.get(_.locators._lintWarningElement).should("have.length", 1);
+    _.agHelper.AssertElementLength(_.locators._lintWarningElement, 1);
     MouseHoverNVerify(
       "myFun2",
       `Cannot bind async functions to data fields. Convert this to a sync function or remove references to "JSObject1.myFun2" on the following data field: Button1.text`,
@@ -67,9 +69,9 @@ describe("Linting async JSFunctions bound to data fields", () => {
 
     _.entityExplorer.SelectEntityByName("Button1", "Widgets");
     _.propPane.UpdatePropertyFieldValue("Label", "{{JSObject1.myFun1()}}");
-    cy.get(_.locators._evaluateMsg).should("be.visible");
-    cy.contains("View Source").click(); // should route to jsobject page
-    cy.get(_.locators._lintWarningElement).should("have.length", 2);
+    _.agHelper.AssertElementVisible(_.locators._evaluateMsg);
+    _.agHelper.ContainsNClick("View Source"); // should route to jsobject page
+    _.agHelper.AssertElementLength(_.locators._lintWarningElement, 2);
     MouseHoverNVerify(
       "myFun1",
       `Functions bound to data fields cannot execute async code. Remove async statements highlighted below or remove references to "JSObject1.myFun1" on the following data field: Button1.text`,
@@ -102,7 +104,7 @@ describe("Linting async JSFunctions bound to data fields", () => {
     );
     _.entityExplorer.ExpandCollapseEntity("Queries/JS");
     _.entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
-    cy.get(_.locators._lintWarningElement).should("not.exist");
+    _.agHelper.AssertElementAbsence(_.locators._lintWarningElement);
   });
 
   function MouseHoverNVerify(lintOn: string, debugMsg: string, isError = true) {
