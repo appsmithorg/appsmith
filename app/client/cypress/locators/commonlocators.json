@@ -205,9 +205,9 @@
   "codeScannerVideo": ".code-scanner-camera-container video",
   "codeScannerDisabledSVGIcon": ".code-scanner-camera-container div[disabled] svg",
   "layoutHeightDropdown": ".t--property-control-height .remixicon-icon",
-  "fixed": "[data-testid='t--dropdown-option-Fixed']",
-  "autoHeight": ".t--property-control-height input",
-  "autoHeightWithLimits": "[data-testid='t--dropdown-option-Auto Height with limits']",
+  "fixed": "Fixed",
+  "autoHeight": "Auto Height",
+  "autoHeightWithLimits": "Auto Height with limits",
   "minHeight": "minheight\\(inrows\\)",
   "maxHeight": "maxheight\\(inrows\\)",
   "overlayMin": "[data-testid='t--auto-height-overlay-min']",
@@ -232,5 +232,7 @@
   "desktopOption": "//span[@name='desktop']/following-sibling::span",
   "mobileOption": "//span[@name='mobile']/following-sibling::span",
   "convertanyways": "button:contains('Convert always')",
-  "discard": "button:contains('Discard')"
+  "discard": "button:contains('Discard')",
+  "heightProperty": ".rc-select-single input",
+  "heightPropertyOption": ".rc-select-item-option-content span"
 }

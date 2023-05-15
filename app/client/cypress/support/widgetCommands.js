@@ -1526,11 +1526,13 @@ Cypress.Commands.add("openPropertyPaneWithIndex", (widgetType, index) => {
 });
 
 Cypress.Commands.add("changeLayoutHeight", (locator) => {
-  cy.get(".t--property-control-height .remixicon-icon")
+  cy.get(commonlocators.heightProperty)
     .last()
     .scrollIntoView()
     .click({ force: true });
-  cy.get(locator).click({ force: true });
+  cy.get(commonlocators.heightPropertyOption)
+    .contains(locator)
+    .click({ force: true });
   cy.wait("@updateLayout").should(
     "have.nested.property",
     "response.body.responseMeta.status",
@@ -1539,11 +1541,13 @@ Cypress.Commands.add("changeLayoutHeight", (locator) => {
 });
 
 Cypress.Commands.add("changeLayoutHeightWithoutWait", (locator) => {
-  cy.get(".t--property-control-height .remixicon-icon")
+  cy.get(commonlocators.heightProperty)
     .last()
     .scrollIntoView()
     .click({ force: true });
-  cy.get(locator).click({ force: true });
+  cy.get(commonlocators.heightPropertyOption)
+    .contains(locator)
+    .click({ force: true });
 });
 
 Cypress.Commands.add("checkMinDefaultValue", (endp, value) => {
