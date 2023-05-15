@@ -317,7 +317,37 @@ public class RoleConfigurationSolutionImpl implements RoleConfigurationSolution 
                 removed.add(aclPermission);
             }
         }
+        if (Workspace.class.equals(aClass)) {
+            populateReadWorkspacePermissionForWorkspace(added, removed, tab);
+        }
         return aClass;
+    }
+
+    private void populateReadWorkspacePermissionForWorkspace(List<AclPermission> addedPermissions,
+                                                             List<AclPermission> removedPermissions,
+                                                             RoleTab roleTab) {
+        if (RoleTab.APPLICATION_RESOURCES.equals(roleTab)) {
+            boolean anyWorkspaceApplicationPermissionAdded = getWorkspaceApplicationPermission().stream().
+                    anyMatch(addedPermissions::contains);
+
+            boolean allWorkspaceApplicationPermissionsRemoved = getWorkspaceApplicationPermission().stream()
+                    .allMatch(removedPermissions::contains);
+
+            boolean addReadWorkspacePermission = anyWorkspaceApplicationPermissionAdded || !allWorkspaceApplicationPermissionsRemoved;
+
+            if (addReadWorkspacePermission){
+                addedPermissions.add(READ_WORKSPACES);
+            } else {
+                removedPermissions.add(READ_WORKSPACES);
+            }
+        }
+    }
+
+    private Set<AclPermission> getWorkspaceApplicationPermission() {
+        return RoleTab.APPLICATION_RESOURCES.getPermissions()
+                .stream()
+                .filter(permission -> AclPermission.isPermissionForEntity(permission, Workspace.class))
+                .collect(Collectors.toSet());
     }
 
     private Flux<Boolean> updateEntityPoliciesAndSideEffects(String permissionGroupId,
