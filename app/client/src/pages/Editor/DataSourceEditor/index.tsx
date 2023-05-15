@@ -74,6 +74,7 @@ import type { ControlProps } from "components/formControls/BaseControl";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { formValuesToDatasource } from "transformers/RestAPIDatasourceFormTransformer";
 import { DSFormHeader } from "./DSFormHeader";
+import { PluginPackageName } from "entities/Action";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -665,10 +666,13 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   ]);
   // Debugger render flag
   const showDebugger = showDebuggerFlag(state);
+  const pluginPackageName = plugin?.packageName ?? "";
 
   const isPluginAuthorized =
-    plugin &&
-    isDatasourceAuthorizedForQueryCreation(formData as Datasource, plugin);
+    pluginPackageName === PluginPackageName.GOOGLE_SHEETS
+      ? plugin &&
+        isDatasourceAuthorizedForQueryCreation(formData as Datasource, plugin)
+      : true;
 
   const datasourceButtonConfiguration = getDatasourceFormButtonConfig(
     state,
@@ -698,7 +702,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pluginName: plugin?.name ?? "",
     pluginDatasourceForm:
       plugin?.datasourceComponent ?? DatasourceComponentTypes.AutoForm,
-    pluginPackageName: plugin?.packageName ?? "",
+    pluginPackageName,
     applicationId: props.applicationId ?? getCurrentApplicationId(state),
     applicationSlug,
     pageSlug,
