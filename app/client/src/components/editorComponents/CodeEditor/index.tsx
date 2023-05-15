@@ -1373,8 +1373,8 @@ class CodeEditor extends Component<Props, State> {
      * Editor value is empty and editor is hovered or focused
      * AI window is not open already
      */
-    const showAIButton = true;
-    // this.AIEnabled && !this.props.input.value && !this.state.showAIWindow;
+    const showAIButton =
+      this.AIEnabled && !this.props.input.value && !this.state.showAIWindow;
     const showSlashCommandButton =
       showLightningMenu !== false &&
       !this.state.isFocused &&
