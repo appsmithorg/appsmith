@@ -43,6 +43,7 @@ import {
   getEditorConfig,
   getPluginNameFromId,
   getFormName,
+  getFormDiffPaths,
 } from "selectors/entitiesSelector";
 import type {
   UpdateDatasourceSuccessAction,
@@ -384,12 +385,14 @@ function* updateDatasourceSaga(
       const formName: string = yield select(getFormName, plugin?.id);
       const state: AppState = yield select();
       const isFormValid = isValid(formName)(state);
+      const formDiffPaths: string[] = yield select(getFormDiffPaths, formName);
       AnalyticsUtil.logEvent("SAVE_DATA_SOURCE", {
         datasourceId: response?.data?.id,
         datasourceName: response.data.name,
         pluginName: plugin?.name || "",
         pluginPackageName: plugin?.packageName || "",
         isFormValid: isFormValid,
+        editedFields: formDiffPaths,
       });
       Toaster.show({
         text: createMessage(DATASOURCE_UPDATE, response.data.name),
@@ -793,12 +796,14 @@ function* createDatasourceFromFormSaga(
       const formName: string = yield select(getFormName, plugin?.id);
       const state: AppState = yield select();
       const isFormValid = isValid(formName)(state);
+      const formDiffPaths: string[] = yield select(getFormDiffPaths, formName);
       AnalyticsUtil.logEvent("SAVE_DATA_SOURCE", {
         datasourceId: response?.data?.id,
         datasourceName: response?.data?.name,
         pluginName: plugin?.name || "",
         pluginPackageName: plugin?.packageName || "",
         isFormValid: isFormValid,
+        editedFields: formDiffPaths,
       });
       yield put({
         type: ReduxActionTypes.UPDATE_DATASOURCE_REFS,
@@ -1607,6 +1612,21 @@ function* updateDatasourceAuthStateSaga(
   }
 }
 
+function* datasourceDiscardActionSaga(
+  actionPayload: ReduxAction<{
+    pluginId: string;
+  }>,
+) {
+  const { pluginId } = actionPayload.payload;
+  const plugin: Plugin = yield select(getPlugin, pluginId);
+  const formName: string = yield select(getFormName, pluginId);
+  const formDiffPaths: string[] = yield select(getFormDiffPaths, formName);
+  AnalyticsUtil.logEvent("DISCARD_DATASOURCE_CHANGES", {
+    pluginName: plugin?.name,
+    editedFields: formDiffPaths,
+  });
+}
+
 export function* watchDatasourcesSagas() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_DATASOURCES_INIT, fetchDatasourcesSaga),
@@ -1683,6 +1703,10 @@ export function* watchDatasourcesSagas() {
     takeEvery(
       ReduxActionTypes.UPDATE_DATASOURCE_AUTH_STATE,
       updateDatasourceAuthStateSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.DATASOURCE_DISCARD_ACTION,
+      datasourceDiscardActionSaga,
     ),
   ]);
 }

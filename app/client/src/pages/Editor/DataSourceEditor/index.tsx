@@ -18,6 +18,7 @@ import {
   createTempDatasourceFromForm,
   resetDefaultKeyValPairFlag,
   initializeDatasourceFormDefaults,
+  datasourceDiscardAction,
 } from "actions/datasourceActions";
 import {
   DATASOURCE_DB_FORM,
@@ -48,7 +49,6 @@ import { isDatasourceInViewMode } from "selectors/ui";
 import { getQueryParams } from "utils/URLUtils";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import SaveOrDiscardDatasourceModal from "./SaveOrDiscardDatasourceModal";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 
 interface ReduxStateProps {
   datasourceId: string;
@@ -207,6 +207,7 @@ export interface DatasourcePaneFunctions {
   createTempDatasource: (data: any) => void;
   resetDefaultKeyValPairFlag: () => void;
   initializeFormWithDefaults: (pluginType: string) => void;
+  datasourceDiscardAction: (pluginId: string) => void;
 }
 
 class DatasourceEditorRouter extends React.Component<Props, State> {
@@ -356,9 +357,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     this.props.discardTempDatasource();
     this.props.deleteTempDSFromDraft();
     this.state.navigation();
-    AnalyticsUtil.logEvent("DISCARD_DATASOURCE_CHANGES", {
-      pluginName: this.props?.pluginPackageName,
-    });
+    this.props.datasourceDiscardAction(this.props?.pluginId);
   }
 
   closeDialogAndUnblockRoutes(isNavigateBack?: boolean) {
@@ -551,6 +550,8 @@ const mapDispatchToProps = (
   resetDefaultKeyValPairFlag: () => dispatch(resetDefaultKeyValPairFlag()),
   initializeFormWithDefaults: (pluginType: string) =>
     dispatch(initializeDatasourceFormDefaults(pluginType)),
+  datasourceDiscardAction: (pluginId) =>
+    dispatch(datasourceDiscardAction(pluginId)),
 });
 
 export default connect(
