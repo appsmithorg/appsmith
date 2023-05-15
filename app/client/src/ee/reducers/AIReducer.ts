@@ -1,9 +1,7 @@
 import type {
-  GPTTask,
   TAssistantPrompt,
   TChatGPTPrompt,
 } from "@appsmith/components/editorComponents/GPT/utils";
-import { GPT_TASKS } from "@appsmith/components/editorComponents/GPT/utils";
 import { isAssistantPrompt } from "@appsmith/components/editorComponents/GPT/utils";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
@@ -26,7 +24,6 @@ export interface AIReduxState {
   showExamplePrompt: boolean;
   isLoading: boolean;
   context: GPTTriggerContext;
-  task: GPTTask;
 }
 
 const initialGPTState: AIReduxState = {
@@ -36,7 +33,6 @@ const initialGPTState: AIReduxState = {
   showExamplePrompt: false,
   isLoading: false,
   context: {},
-  task: GPT_TASKS[0].id,
 };
 
 const handlers = {
@@ -85,12 +81,6 @@ const handlers = {
     action: ReduxAction<boolean>,
   ) => {
     state.isLoading = action.payload;
-  },
-  [ReduxActionTypes.SET_AI_TASK]: (
-    state: AIReduxState,
-    action: ReduxAction<GPTTask>,
-  ) => {
-    state.task = action.payload;
   },
 };
 
