@@ -59,6 +59,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 
 @Slf4j
@@ -146,6 +147,9 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         if (!StringUtils.hasLength(datasource.getGitSyncId())) {
             datasource.setGitSyncId(datasource.getWorkspaceId() + "_" + new ObjectId());
         }
+        if (datasource.getDatasourceStorages() == null || datasource.getDatasourceStorages().isEmpty()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.DATASOURCE));
+        }
 
         Mono<Datasource> datasourceMono = Mono.just(datasource);
 
@@ -160,22 +164,23 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         .map(sequenceNumber -> {
                             datasource.setName(Datasource.DEFAULT_NAME_PREFIX + sequenceNumber);
                             return datasource;
-                        })
-                        .map(datasource1 -> {
-                            // Everything we create  needs to use configs from storage
-                            datasource1.setDatasourceConfiguration(null);
-                            datasource1.setHasDatasourceConfigurationStorage(true);
-                            return datasource1;
-                        })
-                        .flatMap(datasource1 -> {
-                            Mono<User> userMono = sessionUserService.getCurrentUser();
-                            return generateAndSetDatasourcePolicies(userMono, datasource1, permission);
-                        })
-                        .flatMap(this::validateAndSaveDatasourceToRepository)
-                        .flatMap(savedDatasource ->
-                                analyticsService.sendCreateEvent(savedDatasource, getAnalyticsProperties(savedDatasource))
-                        );
+                        });
             }
+            datasourceMono = datasourceMono
+                    .map(datasource1 -> {
+                        // Everything we create needs to use configs from storage
+                        datasource1.setDatasourceConfiguration(null);
+                        datasource1.setHasDatasourceStorage(true);
+                        return datasource1;
+                    })
+                    .flatMap(datasource1 -> {
+                        Mono<User> userMono = sessionUserService.getCurrentUser();
+                        return generateAndSetDatasourcePolicies(userMono, datasource1, permission);
+                    })
+                    .flatMap(this::validateAndSaveDatasourceToRepository)
+                    .flatMap(savedDatasource ->
+                            analyticsService.sendCreateEvent(savedDatasource, getAnalyticsProperties(savedDatasource))
+                    );
         }
 
         return datasourceMono
@@ -184,7 +189,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     return Flux.fromIterable(datasource.getDatasourceStorages().values())
                             .map(datasourceStorageDTO -> {
                                 DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
-                                datasourceStorage.setTransientFields(datasource1);
+                                datasourceStorage.prepareTransientFields(datasource1);
                                 return datasourceStorage;
                             })
                             .flatMap(datasourceStorage -> {
@@ -241,7 +246,10 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         return updateByEnvironmentId(id, datasource, environmentId, Boolean.FALSE);
     }
 
-    private Mono<Datasource> updateByEnvironmentId(String id, Datasource datasource, String environmentId, Boolean isUserRefreshedUpdate) {
+    private Mono<Datasource> updateByEnvironmentId(String id,
+                                                   Datasource datasource,
+                                                   String environmentId,
+                                                   Boolean isUserRefreshedUpdate) {
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -254,16 +262,26 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
 
         // Check if this is an update for only datasource related properties
-        if (environmentId != null) {
+        if (!datasource.getDatasourceStorages().isEmpty()) {
             // This is meant to be an update for storage
             return datasourceMono
                     .flatMap(dbDatasource -> datasourceStorageService
                             .updateByDatasourceAndEnvironmentId(datasource, environmentId, isUserRefreshedUpdate)
-                            .thenReturn(dbDatasource));
+                            .map(datasourceStorage -> {
+                                datasource.getDatasourceStorages()
+                                        .put(getTrueEnvironmentId(environmentId), new DatasourceStorageDTO(datasourceStorage));
+                                copyNestedNonNullProperties(datasource, dbDatasource);
+                                return dbDatasource;
+                            }));
         }
 
         // This is meant to be an update for just the datasource - like a rename
-        return this.validateAndSaveDatasourceToRepository(datasource)
+        return datasourceMono
+                .map(dbDatasource -> {
+                    copyNestedNonNullProperties(datasource, dbDatasource);
+                    return dbDatasource;
+                })
+                .flatMap(this::validateAndSaveDatasourceToRepository)
                 .flatMap(savedDatasource -> {
                     Map<String, Object> analyticsProperties = getAnalyticsProperties(savedDatasource);
                     if (isUserRefreshedUpdate.equals(Boolean.TRUE)) {
@@ -343,22 +361,24 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     @Override
     public Mono<DatasourceTestResult> testDatasource(DatasourceDTO datasourceDTO, String environmentId) {
         Datasource datasource = convertToDatasource(datasourceDTO, environmentId);
-        DatasourceStorage datasourceStorage = datasourceStorageService.initializeDatasourceStorage(datasource, environmentId);
+        DatasourceStorage datasourceStorage = datasourceStorageService
+                .getDatasourceStorageFromDatasource(datasource, environmentId);
 
-        Mono<DatasourceStorage> datasourceStorageMono = Mono.just(datasourceStorage);
+        Mono<DatasourceStorage> datasourceStorageMono = Mono.just(datasourceStorage)
+                .map(datasourceStorageService::checkEnvironment);
         // Fetch any fields that maybe encrypted from the db if the datasource being tested does not have those fields set.
         // This scenario would happen whenever an existing datasource is being tested and no changes are present in the
         // encrypted field (because encrypted fields are not sent over the network after encryption back to the client
-        if (datasourceStorage.getId() != null && datasourceStorage.getDatasourceConfiguration() != null &&
+        if (datasourceStorage.getDatasourceId() != null && datasourceStorage.getDatasourceConfiguration() != null &&
                 datasourceStorage.getDatasourceConfiguration().getAuthentication() != null) {
             datasourceStorageMono =
-                    datasourceStorageService.findByDatasourceIdAndEnvironmentId(
-                                    datasource.getId(), environmentId, datasourcePermission.getExecutePermission())
+                    this.findById(datasource.getId(), datasourcePermission.getExecutePermission())
+                            .flatMap(datasource1 -> datasourceStorageService.findByDatasourceAndEnvironmentId(datasource1, environmentId))
                             .map(datasourceStorage1 -> {
-                                AppsmithBeanUtils.copyNestedNonNullProperties(datasourceStorage, datasourceStorage1);
+                                copyNestedNonNullProperties(datasourceStorage, datasourceStorage1);
                                 return datasourceStorage1;
                             })
-                            .switchIfEmpty(Mono.just(datasourceStorage));
+                            .switchIfEmpty(datasourceStorageMono);
         }
 
         return datasourceStorageMono
@@ -453,12 +473,6 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     public Flux<Datasource> getAllByWorkspaceId(String workspaceId, Optional<AclPermission> permission) {
 
         return findAllByWorkspaceId(workspaceId, permission)
-                .collectList()
-                .map(datasourceList -> {
-                    markRecentlyUsed(datasourceList, 3);
-                    return datasourceList;
-                })
-                .flatMapMany(Flux::fromIterable)
                 .flatMap(datasource -> datasourceStorageService
                         .findByDatasource(datasource)
                         .flatMap(datasourceStorageService::populateHintMessages)
@@ -468,7 +482,12 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         .flatMap(datasourceStorages -> {
                             datasource.setDatasourceStorages(datasourceStorages);
                             return Mono.just(datasource);
-                        }));
+                        }))
+                .collectList()
+                .flatMapMany(datasourceList -> {
+                    markRecentlyUsed(datasourceList, 3);
+                    return Flux.fromIterable(datasourceList);
+                });
 
     }
 
@@ -484,13 +503,6 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 .filter(datasource -> datasource.getGitSyncId() == null)
                 .forEach(datasource -> datasource.setGitSyncId(datasource.getWorkspaceId() + "_" + Instant.now().toString()));
         return repository.saveAll(datasourceList);
-    }
-
-    // TODO: Remove the following snippet after client side API changes
-    @Override
-    public Mono<DatasourceDTO> archiveDatasourceById(String id) {
-        return this.archiveById(id)
-                .map(this::convertToDatasourceDTO);
     }
 
     @Override
@@ -619,8 +631,11 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         datasource.setIsMock(datasourceDTO.getIsMock());
 
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-        storages.put(getTrueEnvironmentId(environmentId), new DatasourceStorageDTO(datasource, environmentId));
         datasource.setDatasourceStorages(storages);
+        if (datasourceDTO.getDatasourceConfiguration() != null) {
+            storages.put(getTrueEnvironmentId(environmentId), new DatasourceStorageDTO(datasourceDTO, environmentId));
+        }
+        datasource.setHasDatasourceStorage(true);
 
         return datasource;
     }

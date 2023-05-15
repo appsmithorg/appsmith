@@ -33,6 +33,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -64,6 +65,8 @@ public class DatasourceContextServiceTest {
 
     @Autowired
     DatasourceService datasourceService;
+    @SpyBean
+    DatasourceStorageService datasourceStorageService;
 
     @SpyBean
     DatasourceRepository datasourceRepository;
@@ -89,7 +92,7 @@ public class DatasourceContextServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testDatasourceCache_afterDatasourceDeleted_doesNotReturnOldConnection() {
-        // Never require the datasource connectin to be stale
+        // Never require the datasource connection to be stale
         doReturn(false).doReturn(false).when(datasourceContextService).getIsStale(any(), any());
 
         MockPluginExecutor mockPluginExecutor = new MockPluginExecutor();
@@ -105,18 +108,27 @@ public class DatasourceContextServiceTest {
         datasourceStorage.setDatasourceConfiguration(new DatasourceConfiguration());
         datasourceStorage.setWorkspaceId("workspaceId");
 
-        DatasourceContextIdentifier datasourceContextIdentifier = new DatasourceContextIdentifier(datasourceStorage.getId(), null);
+        DatasourceContextIdentifier datasourceContextIdentifier = new DatasourceContextIdentifier(datasourceStorage.getDatasourceId(), null);
 
         Object monitor = new Object();
         // Create one instance of datasource connection
         Mono<DatasourceContext<?>> dsContextMono1 = datasourceContextService.getCachedDatasourceContextMono(datasourceStorage,
                 spyMockPluginExecutor, monitor, datasourceContextIdentifier);
 
-        doReturn(Mono.just(datasourceStorage)).when(datasourceRepository).findById("id1", datasourcePermission.getDeletePermission());
-        doReturn(Mono.just(datasourceStorage)).when(datasourceRepository).findById("id1", datasourcePermission.getExecutePermission());
+        Datasource datasource = new Datasource();
+        datasource.setId("id1");
+        datasource.setWorkspaceId("workspaceId1");
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        datasource.setDatasourceStorages(storages);
+
+        doReturn(Mono.just(datasource)).when(datasourceRepository).findById("id1", datasourcePermission.getDeletePermission());
+        doReturn(Mono.just(datasource)).when(datasourceRepository).findById("id1", datasourcePermission.getExecutePermission());
         doReturn(Mono.just(new Plugin())).when(pluginService).findById("mockPlugin");
         doReturn(Mono.just(0L)).when(newActionRepository).countByDatasourceId("id1");
-        doReturn(Mono.just(datasourceStorage)).when(datasourceRepository).archiveById("id1");
+        doReturn(Mono.just(datasource)).when(datasourceRepository).archiveById("id1");
+        doReturn(Flux.just(datasourceStorage)).when(datasourceStorageService).findStrictlyByDatasourceId("id1");
+        doReturn(Mono.just(datasourceStorage)).when(datasourceStorageService).archive(datasourceStorage);
 
         // Now delete the datasource and check if the cache retains the same instance of connection
         Mono<DatasourceContext<?>> dsContextMono2 = datasourceService.archiveById("id1")
@@ -161,6 +173,10 @@ public class DatasourceContextServiceTest {
         datasourceConfiguration.setAuthentication(authenticationDTO);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
         datasource.setWorkspaceId(workspaceId);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        datasource.setDatasourceStorages(storages);
 
         final Datasource createdDatasource = pluginMono
                 .map(plugin -> {
@@ -171,14 +187,19 @@ public class DatasourceContextServiceTest {
                 .block();
 
         assert createdDatasource != null;
-        Mono<Datasource> datasourceMono = datasourceService.findById(createdDatasource.getId());
+        Mono<DatasourceStorage> datasourceStorageMono = datasourceService.findById(createdDatasource.getId())
+                .flatMap(datasource1 -> datasourceStorageService
+                        .findByDatasourceAndEnvironmentId(datasource1, FieldName.UNUSED_ENVIRONMENT_ID));
 
         StepVerifier
-                .create(datasourceMono)
+                .create(datasourceStorageMono)
                 .assertNext(savedDatasource -> {
                     DBAuth authentication = (DBAuth) savedDatasource.getDatasourceConfiguration().getAuthentication();
                     assertEquals(password, authentication.getPassword());
-                    DBAuth encryptedAuthentication = (DBAuth) createdDatasource.getDatasourceConfiguration().getAuthentication();
+
+                    DatasourceStorageDTO datasourceStorageDTO = createdDatasource.getDatasourceStorages()
+                            .get(FieldName.UNUSED_ENVIRONMENT_ID);
+                    DBAuth encryptedAuthentication = (DBAuth) datasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
                     assertEquals(password, encryptionService.decryptString(encryptedAuthentication.getPassword()));
                 })
                 .verifyComplete();
@@ -206,6 +227,10 @@ public class DatasourceContextServiceTest {
         datasourceConfiguration.setAuthentication(authenticationDTO);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
         datasource.setWorkspaceId(workspaceId);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        datasource.setDatasourceStorages(storages);
 
         final Datasource createdDatasource = pluginMono
                 .map(plugin -> {
@@ -216,14 +241,19 @@ public class DatasourceContextServiceTest {
                 .block();
 
         assert createdDatasource != null;
-        Mono<Datasource> datasourceMono = datasourceService.findById(createdDatasource.getId());
+        Mono<DatasourceStorage> datasourceStorageMono = datasourceService.findById(createdDatasource.getId())
+                .flatMap(datasource1 -> datasourceStorageService
+                        .findByDatasourceAndEnvironmentId(datasource1, FieldName.UNUSED_ENVIRONMENT_ID));
 
         StepVerifier
-                .create(datasourceMono)
+                .create(datasourceStorageMono)
                 .assertNext(savedDatasource -> {
                     DBAuth authentication = (DBAuth) savedDatasource.getDatasourceConfiguration().getAuthentication();
                     assertNull(authentication.getPassword());
-                    DBAuth encryptedAuthentication = (DBAuth) createdDatasource.getDatasourceConfiguration().getAuthentication();
+
+                    DatasourceStorageDTO datasourceStorageDTO = createdDatasource.getDatasourceStorages()
+                            .get(FieldName.UNUSED_ENVIRONMENT_ID);
+                    DBAuth encryptedAuthentication = (DBAuth) datasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
                     assertNull(encryptedAuthentication.getPassword());
                 })
                 .verifyComplete();
@@ -248,7 +278,7 @@ public class DatasourceContextServiceTest {
         datasourceStorage.setDatasourceId("id2");
         datasourceStorage.setDatasourceConfiguration(new DatasourceConfiguration());
 
-        DatasourceContextIdentifier datasourceContextIdentifier = new DatasourceContextIdentifier(datasourceStorage.getId(), "envId");
+        DatasourceContextIdentifier datasourceContextIdentifier = new DatasourceContextIdentifier(datasourceStorage.getDatasourceId(), "envId");
 
         Object monitor = new Object();
         DatasourceContext<?> dsContext1 = (DatasourceContext<?>) datasourceContextService
@@ -319,11 +349,17 @@ public class DatasourceContextServiceTest {
 
         DatasourceStorage createdDatasourceStorage = new DatasourceStorage(datasourceStorageDTO);
 
-        DatasourceContextIdentifier datasourceContextIdentifier = new DatasourceContextIdentifier(createdDatasource.getId(), "envId");
+        DatasourceContextIdentifier datasourceContextIdentifier =
+                new DatasourceContextIdentifier(createdDatasource.getId(), FieldName.UNUSED_ENVIRONMENT_ID);
 
         Object monitor = new Object();
-        final DatasourceContext<?> dsc1 = (DatasourceContext) datasourceContextService.getCachedDatasourceContextMono(createdDatasourceStorage,
-                spyMockPluginExecutor, monitor, datasourceContextIdentifier).block();
+        final DatasourceContext<?> dsc1 = (DatasourceContext) datasourceContextService
+                .getCachedDatasourceContextMono(
+                        createdDatasourceStorage,
+                        spyMockPluginExecutor,
+                        monitor,
+                        datasourceContextIdentifier)
+                .block();
         assertNotNull(dsc1);
         assertTrue(dsc1.getConnection() instanceof UpdatableConnection);
         assertTrue(((UpdatableConnection) dsc1.getConnection()).getAuthenticationDTO(new ApiKeyAuth()) instanceof DBAuth);

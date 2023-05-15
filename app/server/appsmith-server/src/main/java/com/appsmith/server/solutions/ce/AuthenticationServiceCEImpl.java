@@ -103,7 +103,8 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
     public Mono<String> getAuthorizationCodeURLForGenericOAuth2(String datasourceId, String environmentId, String pageId, ServerHttpRequest httpRequest) {
         // This is the only database access that is controlled by ACL
         // The rest of the queries in this flow will not have context information
-        return datasourceStorageService.findByDatasourceIdAndEnvironmentId(datasourceId, environmentId, datasourcePermission.getEditPermission())
+        return datasourceService.findById(datasourceId, datasourcePermission.getEditPermission())
+                .flatMap(datasource1 -> datasourceStorageService.findByDatasourceAndEnvironmentId(datasource1, environmentId))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
                 .flatMap((datasource -> {
@@ -174,7 +175,12 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                     if (splitStates.length != 4) {
                         return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
                     } else
-                        return datasourceStorageService.findByDatasourceIdAndEnvironmentId(splitStates[1], splitStates[2]);
+                        return datasourceService
+                                .findById(splitStates[1])
+                                .flatMap(datasource1 -> datasourceStorageService
+                                        .findByDatasourceAndEnvironmentId(
+                                                datasource1,
+                                                splitStates[2]));
                 })
                 .flatMap(datasourceStorage -> {
                     OAuth2 oAuth2 = (OAuth2) datasourceStorage.getDatasourceConfiguration().getAuthentication();
@@ -315,8 +321,9 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         // If successful, then request for appsmithToken
         // Set datasource state to intermediate stage
         // Return the appsmithToken to client
-        Mono<DatasourceStorage> datasourceStorageMono = datasourceStorageService
-                .findByDatasourceIdAndEnvironmentId(datasourceId, environmentId, datasourcePermission.getEditPermission())
+        Mono<DatasourceStorage> datasourceStorageMono = datasourceService
+                .findById(datasourceId, datasourcePermission.getEditPermission())
+                .flatMap(datasource1 -> datasourceStorageService.findByDatasourceAndEnvironmentId(datasource1, environmentId))
                 .cache();
 
         final String redirectUri = redirectHelper.getRedirectDomain(request.getHeaders());
@@ -398,8 +405,10 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         // If yes, request for token and store in datasource
         // Update datasource as being authorized
         // Return control to client
-        Mono<DatasourceStorage> datasourceStorageMono = datasourceStorageService
-                .findByDatasourceIdAndEnvironmentId(datasourceId, environmentId, datasourcePermission.getEditPermission())
+        Mono<DatasourceStorage> datasourceStorageMono = datasourceService
+                .findById(datasourceId, datasourcePermission.getEditPermission())
+                .flatMap(datasource1 -> datasourceStorageService
+                        .findByDatasourceAndEnvironmentId(datasource1, environmentId))
                 .cache();
 
         return datasourceStorageMono

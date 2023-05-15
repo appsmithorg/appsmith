@@ -3,6 +3,7 @@ package com.appsmith.server.controllers.ce;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceDTO;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -95,9 +96,9 @@ public class DatasourceControllerCE {
 
     @JsonView(Views.Public.class)
     @DeleteMapping("/{id}")
-    public Mono<ResponseDTO<DatasourceDTO>> delete(@PathVariable String id) {
+    public Mono<ResponseDTO<Datasource>> delete(@PathVariable String id) {
         log.debug("Going to delete resource from datasource controller with id: {}", id);
-        return datasourceService.archiveDatasourceById(id)
+        return datasourceService.archiveById(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 

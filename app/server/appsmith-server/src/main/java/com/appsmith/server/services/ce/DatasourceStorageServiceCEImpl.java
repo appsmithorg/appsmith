@@ -1,6 +1,5 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
@@ -8,7 +7,6 @@ import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -17,7 +15,6 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.DatasourceStorageRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.PluginService;
-import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.DatasourceStorageTransferSolution;
 import lombok.extern.slf4j.Slf4j;
@@ -79,39 +76,13 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     }
 
     @Override
-    public Mono<DatasourceStorage> getDatasourceStorageForExecution(ActionDTO actionDTO, String environmentId) {
-        Datasource datasource = actionDTO.getDatasource();
-        if (datasource != null && datasource.getId() != null) {
-            // This is an action with a global datasource,
-            // we need to find the entry from db and populate storage
-            return this.findByDatasourceIdAndEnvironmentId(
-                    datasource.getId(), environmentId, datasourcePermission.getExecutePermission());
-        }
-
-        if (datasource == null) {
-            return Mono.empty();
-        } else {
-            // For embedded datasources, we are simply relying on datasource configuration property
-            return Mono.just(datasourceStorageTransferSolution.initializeDatasourceStorage(datasource, environmentId));
-        }
-    }
-
-    @Override
-    public Mono<DatasourceStorage> findByDatasourceIdAndEnvironmentId(String datasourceId,
-                                                                      String environmentId,
-                                                                      AclPermission aclPermission) {
-        return this.findByDatasourceIdAndEnvironmentId(datasourceId, environmentId)
-                // TODO: This is a temporary call being made till storage transfer migrations are done
-                .switchIfEmpty(datasourceStorageTransferSolution
-                        .transferAndGetDatasourceStorage(datasourceId, environmentId, aclPermission))
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
-                        FieldName.DATASOURCE, datasourceId)));
-    }
-
-    @Override
     public Mono<DatasourceStorage> findByDatasourceAndEnvironmentId(Datasource datasource,
                                                                     String environmentId) {
         return this.findByDatasourceIdAndEnvironmentId(datasource.getId(), environmentId)
+                .map(datasourceStorage -> {
+                    datasourceStorage.prepareTransientFields(datasource);
+                    return datasourceStorage;
+                })
                 // TODO: This is a temporary call being made till storage transfer migrations are done
                 .switchIfEmpty(datasourceStorageTransferSolution
                         .transferAndGetDatasourceStorage(datasource, environmentId));
@@ -125,8 +96,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                         .transferToFallbackEnvironmentAndGetDatasourceStorage(datasource));
     }
 
-    @Override
-    public Mono<DatasourceStorage> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId) {
+    protected Mono<DatasourceStorage> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId) {
         return repository.findByDatasourceIdAndEnvironmentId(datasourceId, FieldName.UNUSED_ENVIRONMENT_ID);
     }
 
@@ -175,7 +145,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.DATASOURCE));
         }
 
-        if (!StringUtils.hasText(datasourceStorage.getDatasourceId())) {
+        if (!StringUtils.hasText(datasourceStorage.getEnvironmentId())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ENVIRONMENT));
         }
 
@@ -217,7 +187,8 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                 .flatMap(repository::setUserPermissionsInObject);
     }
 
-    protected DatasourceStorage checkEnvironment(DatasourceStorage datasourceStorage) {
+    @Override
+    public DatasourceStorage checkEnvironment(DatasourceStorage datasourceStorage) {
         datasourceStorage.setEnvironmentId(FieldName.UNUSED_ENVIRONMENT_ID);
         return datasourceStorage;
     }
@@ -287,15 +258,23 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     }
 
     @Override
-    public DatasourceStorage initializeDatasourceStorage(Datasource datasource, String environmentId) {
-        return datasourceStorageTransferSolution.initializeDatasourceStorage(datasource, environmentId);
-    }
-
-    protected DatasourceStorageDTO getDatasourceStorageDTOFromDatasource(Datasource datasource, String environmentId) {
+    public DatasourceStorageDTO getDatasourceStorageDTOFromDatasource(Datasource datasource, String environmentId) {
         if (datasource == null || datasource.getDatasourceStorages() == null) {
             return null;
         }
         return datasource.getDatasourceStorages().get(FieldName.UNUSED_ENVIRONMENT_ID);
+    }
+
+    @Override
+    public DatasourceStorage getDatasourceStorageFromDatasource(Datasource datasource, String environmentId) {
+        if (datasource == null || datasource.getDatasourceStorages() == null) {
+            return null;
+        }
+        DatasourceStorageDTO datasourceStorageDTO = this.getDatasourceStorageDTOFromDatasource(datasource, environmentId);
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasourceStorageDTO);
+        datasourceStorage.prepareTransientFields(datasource);
+
+        return datasourceStorage;
     }
 
 }

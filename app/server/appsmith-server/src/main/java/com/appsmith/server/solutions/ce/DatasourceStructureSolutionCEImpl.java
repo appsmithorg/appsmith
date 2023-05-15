@@ -50,10 +50,11 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
 
     @Override
     public Mono<DatasourceStructure> getStructure(String datasourceId, boolean ignoreCache, String environmentId) {
-        return datasourceStorageService.findByDatasourceIdAndEnvironmentId(
-                        datasourceId,
-                        environmentId,
-                        datasourcePermission.getExecutePermission())
+        String trueEnvironmentId = datasourceService.getTrueEnvironmentId(environmentId);
+        return datasourceService.findById(datasourceId, datasourcePermission.getExecutePermission())
+                .flatMap(datasource1 -> datasourceStorageService.findByDatasourceAndEnvironmentId(
+                        datasource1,
+                        trueEnvironmentId))
                 .flatMap(datasourceStorage -> getStructure(datasourceStorage, ignoreCache))
                 .onErrorMap(
                         IllegalArgumentException.class,
@@ -79,7 +80,7 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
 
     @Override
     public Mono<DatasourceStructure> getStructure(DatasourceStorage datasourceStorage,
-                                                   boolean ignoreCache) {
+                                                  boolean ignoreCache) {
 
         if (Boolean.FALSE.equals(datasourceStorage.getIsValid())) {
             return Mono.empty();

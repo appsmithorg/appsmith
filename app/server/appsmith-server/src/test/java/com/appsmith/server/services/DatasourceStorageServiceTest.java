@@ -75,12 +75,12 @@ public class DatasourceStorageServiceTest {
                 .assertNext(datasourceStorage -> {
                     assertThat(datasourceStorage).isNotNull();
                     assertThat(datasourceId).isEqualTo(datasourceStorage.getDatasourceId());
-                    assertThat(FieldName.UNUSED_ENVIRONMENT_ID).isEqualTo(datasourceStorage.getEnvironmentId());
+                    assertThat("mockEnvironmentIdOne").isEqualTo(datasourceStorage.getEnvironmentId());
                 })
                 .assertNext(datasourceStorage -> {
                     assertThat(datasourceStorage).isNotNull();
                     assertThat(datasourceId).isEqualTo(datasourceStorage.getDatasourceId());
-                    assertThat(FieldName.UNUSED_ENVIRONMENT_ID).isEqualTo(datasourceStorage.getEnvironmentId());
+                    assertThat("mockEnvironmentIdTwo").isEqualTo(datasourceStorage.getEnvironmentId());
                 })
                 .verifyComplete();
     }

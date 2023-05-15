@@ -11,6 +11,7 @@ import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.PluginType;
@@ -40,6 +41,7 @@ import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.solutions.DatasourceStorageTransferSolution;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -113,6 +115,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     static final String EXECUTE_ACTION_DTO = "executeActionDTO";
     static final String PARAMETER_MAP = "parameterMap";
     List<Pattern> patternList = new ArrayList<>();
+    private DatasourceStorageTransferSolution datasourceStorageTransferSolution;
 
     public ActionExecutionSolutionCEImpl(NewActionService newActionService,
                                          ActionPermission actionPermission,
@@ -129,7 +132,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                          AuthenticationValidator authenticationValidator,
                                          DatasourcePermission datasourcePermission,
                                          AnalyticsService analyticsService,
-                                         DatasourceStorageService datasourceStorageService) {
+                                         DatasourceStorageService datasourceStorageService,
+                                         DatasourceStorageTransferSolution datasourceStorageTransferSolution) {
         this.newActionService = newActionService;
         this.actionPermission = actionPermission;
         this.observationRegistry = observationRegistry;
@@ -146,6 +150,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         this.datasourcePermission = datasourcePermission;
         this.analyticsService = analyticsService;
         this.datasourceStorageService = datasourceStorageService;
+        this.datasourceStorageTransferSolution = datasourceStorageTransferSolution;
 
 
         this.patternList.add(Pattern.compile(PARAM_KEY_REGEX));
@@ -486,28 +491,45 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     protected Mono<DatasourceStorage> getCachedDatasourceStorage(Mono<ActionDTO> actionDTOMono, String environmentId) {
 
         return actionDTOMono
-                .flatMap(actionDTO -> datasourceStorageService
-                        .getDatasourceStorageForExecution(actionDTO, environmentId)
-                        .flatMap(datasourceStorage -> {
-                            // For embedded datasourceStorage, validate the datasourceStorage for each execution
-                            if (datasourceStorage.getDatasourceId() == null) {
-                                return datasourceStorageService.validateDatasourceStorage(datasourceStorage);
-                            }
+                .flatMap(actionDTO -> {
+                    Mono<DatasourceStorage> datasourceStorageMono = null;
+                    Datasource datasource = actionDTO.getDatasource();
+                    if (datasource != null && datasource.getId() != null) {
+                        // This is an action with a global datasource,
+                        // we need to find the entry from db and populate storage
+                        datasourceStorageMono = datasourceService.findById(datasource.getId(), datasourcePermission.getExecutePermission())
+                                .flatMap(datasource1 -> datasourceStorageService.findByDatasourceAndEnvironmentId(
+                                        datasource1, environmentId));
+                    } else if (datasource == null) {
+                        datasourceStorageMono = Mono.empty();
+                    } else {
+                        // For embedded datasources, we are simply relying on datasource configuration property
+                        datasourceStorageMono = Mono.just(datasourceStorageTransferSolution.initializeDatasourceStorage(datasource, environmentId));
+                    }
 
-                            // The external datasourceStorage have already been validated. No need to validate again.
-                            return Mono.just(datasourceStorage);
-                        })
-                        .flatMap(datasourceStorage -> {
-                            Set<String> invalids = datasourceStorage.getInvalids();
-                            if (!CollectionUtils.isEmpty(invalids)) {
-                                log.error("Unable to execute actionId: {} because it's datasource is not valid. Cause: {}",
-                                        actionDTO.getId(), ArrayUtils.toString(invalids));
-                                return Mono.error(new AppsmithException(AppsmithError.INVALID_DATASOURCE,
-                                        datasourceStorage.getName(),
-                                        ArrayUtils.toString(invalids)));
-                            }
-                            return Mono.just(datasourceStorage);
-                        }))
+                    return datasourceStorageMono
+                            .flatMap(datasourceStorage -> {
+                                // For embedded datasourceStorage, validate the datasourceStorage for each execution
+                                if (datasourceStorage.getDatasourceId() == null) {
+                                    datasourceStorage.setDatasourceId("unused_datasource_id");
+                                    return datasourceStorageService.validateDatasourceStorage(datasourceStorage);
+                                }
+
+                                // The external datasourceStorage have already been validated. No need to validate again.
+                                return Mono.just(datasourceStorage);
+                            })
+                            .flatMap(datasourceStorage -> {
+                                Set<String> invalids = datasourceStorage.getInvalids();
+                                if (!CollectionUtils.isEmpty(invalids)) {
+                                    log.error("Unable to execute actionId: {} because it's datasource is not valid. Cause: {}",
+                                            actionDTO.getId(), ArrayUtils.toString(invalids));
+                                    return Mono.error(new AppsmithException(AppsmithError.INVALID_DATASOURCE,
+                                            datasourceStorage.getName(),
+                                            ArrayUtils.toString(invalids)));
+                                }
+                                return Mono.just(datasourceStorage);
+                            });
+                })
                 .name(ACTION_EXECUTION_CACHED_DATASOURCE)
                 .tap(Micrometer.observation(observationRegistry))
                 .cache();
@@ -574,7 +596,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                                 .name(ACTION_EXECUTION_DATASOURCE_CONTEXT)
                                 .tap(Micrometer.observation(observationRegistry)))
                         .flatMap(tuple2 -> {
-                            DatasourceStorage validatedDatasource = tuple2.getT1();
+                            DatasourceStorage datasourceStorage1 = tuple2.getT1();
                             DatasourceContext<?> resourceContext = tuple2.getT2();
                             // Now that we have the context (connection details), execute the action.
 
@@ -582,7 +604,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                             return ((PluginExecutor<Object>) pluginExecutor)
                                     .executeParameterizedWithMetrics(resourceContext.getConnection(),
                                             executeActionDTO,
-                                            validatedDatasource.getDatasourceConfiguration(),
+                                            datasourceStorage1.getDatasourceConfiguration(),
                                             actionDTO.getActionConfiguration(),
                                             observationRegistry)
                                     .map(actionExecutionResult -> {

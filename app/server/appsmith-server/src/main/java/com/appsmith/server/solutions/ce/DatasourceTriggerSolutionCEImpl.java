@@ -12,6 +12,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.DatasourceContextService;
+import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.solutions.DatasourcePermission;
@@ -35,6 +36,7 @@ import static com.appsmith.server.constants.FieldName.REQUEST_TYPE;
 @Slf4j
 public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutionCE {
 
+    private final DatasourceService datasourceService;
     private final DatasourceStorageService datasourceStorageService;
     private final PluginExecutorHelper pluginExecutorHelper;
     private final PluginService pluginService;
@@ -45,11 +47,12 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
 
     public Mono<TriggerResultDTO> trigger(String datasourceId, String environmentId, TriggerRequestDTO triggerRequestDTO) {
 
-        Mono<DatasourceStorage> datasourceStorageMono = datasourceStorageService
-                .findByDatasourceIdAndEnvironmentId(
-                        datasourceId,
-                        environmentId,
-                        datasourcePermission.getExecutePermission())
+        Mono<DatasourceStorage> datasourceStorageMono = datasourceService
+                .findById(datasourceId, datasourcePermission.getExecutePermission())
+                .flatMap(datasource1 -> datasourceStorageService
+                        .findByDatasourceAndEnvironmentId(
+                                datasource1,
+                                environmentId))
                 .cache();
 
         final Mono<Plugin> pluginMono = datasourceStorageMono

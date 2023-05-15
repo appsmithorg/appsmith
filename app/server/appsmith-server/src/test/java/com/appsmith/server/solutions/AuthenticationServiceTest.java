@@ -209,7 +209,7 @@ public class AuthenticationServiceTest {
                             "\\?client_id=ClientId" +
                             "&response_type=code" +
                             "&redirect_uri=https://mock.origin.com/api/v1/datasources/authorize" +
-                            "&state=" + String.join(",", pageDto.getId(), datasourceId1, "https://mock.origin.com") +
+                            "&state=" + String.join(",", pageDto.getId(), datasourceId1, FieldName.UNUSED_ENVIRONMENT_ID, "https://mock.origin.com") +
                             "&scope=Scope\\d%20Scope\\d" +
                             "&key=value"));
                 })
