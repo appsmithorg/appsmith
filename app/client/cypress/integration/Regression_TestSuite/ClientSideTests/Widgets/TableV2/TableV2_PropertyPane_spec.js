@@ -397,7 +397,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     cy.editColumn("orderAmount");
     _.propPane.UpdatePropertyFieldValue("Min", "{{currentRow.id}}");
     _.propPane.UpdatePropertyFieldValue(
-      "Error Message",
+      "Error message",
       "Row at index {{currentIndex}} is not valid",
     );
     cy.get(".t--evaluatedPopup-error").should("not.exist");
@@ -426,7 +426,7 @@ describe("Table Widget V2 property pane feature validation", function () {
     _.propPane.UpdatePropertyFieldValue("Error message", "");
 
     // Check for currentIndex property on Regex field
-    cy.changeColumnType("Plain Text");
+    cy.changeColumnType("Plain text");
     _.propPane.UpdatePropertyFieldValue("Regex", "{{currentIndex}}2");
 
     cy.get(".t--evaluatedPopup-error").should("not.exist");
@@ -509,7 +509,7 @@ describe("Table Widget V2 property pane feature validation", function () {
       "Computed value",
       '{{currentRow["orderAmount"]}}',
     );
-    cy.changeColumnType("Plain Text");
+    cy.changeColumnType("Plain text");
     cy.backFromPropertyPanel();
     cy.makeColumnEditable("orderAmount");
   });
@@ -524,7 +524,7 @@ describe("Table Widget V2 property pane feature validation", function () {
       "have.text",
       "Access the current cell using {{currentRow.columnName}}",
     );
-    cy.changeColumnType("Plain Text");
+    cy.changeColumnType("Plain text");
     cy.backFromPropertyPanel();
     cy.makeColumnEditable("orderAmount");
   });
