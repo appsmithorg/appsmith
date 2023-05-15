@@ -66,13 +66,12 @@ public class RedisConfig {
 
     // Lifted from below and turned it into a bean. Wish Spring provided it as a bean.
     // RedisWebSessionConfiguration.createReactiveRedisTemplate
-
     @Bean
-    ReactiveRedisTemplate<String, Object> reactiveRedisTemplate(ReactiveRedisConnectionFactory factory) {
+    ReactiveRedisTemplate<String, Object> reactiveRedisTemplate(ReactiveRedisConnectionFactory factory,
+                                                                RedisSerializer<Object> serializer) {
         RedisSerializer<String> keySerializer = new StringRedisSerializer();
-        RedisSerializer<Object> defaultSerializer = new JdkSerializationRedisSerializer(getClass().getClassLoader());
         RedisSerializationContext<String, Object> serializationContext = RedisSerializationContext
-                .<String, Object>newSerializationContext(defaultSerializer).key(keySerializer).hashKey(keySerializer)
+                .<String, Object>newSerializationContext(serializer).key(keySerializer).hashKey(keySerializer)
                 .build();
         return new ReactiveRedisTemplate<>(factory, serializationContext);
     }
