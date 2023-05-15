@@ -74,15 +74,11 @@ public class EmailServiceCEImpl implements EmailServiceCE {
     }
 
     @Override
-    public Mono<User> sendWorkspaceEmail(String originHeader, Workspace workspace, User inviter,
+    public Mono<Boolean> sendWorkspaceEmail(String originHeader, Workspace workspace, User inviter,
                                                        String permissionGroupName, User invitee, Boolean isNewUser) {
         String inviteUrl = originHeader;
         if(isNewUser){
-             inviteUrl = String.format(
-                    INVITE_USER_CLIENT_URL_FORMAT,
-                    originHeader,
-                    URLEncoder.encode(inviter.getUsername().toLowerCase(), StandardCharsets.UTF_8)
-            );
+            inviteUrl = getSignupUrl(originHeader, inviter);
         }
         Pair<String, String> subjectAndEmailTemplate = this.getSubjectAndWorkspaceEmailTemplate(workspace, isNewUser);
         Map<String, String> params = getWorkspaceEmailParams(workspace, inviter, inviteUrl, permissionGroupName, isNewUser);
@@ -95,6 +91,16 @@ public class EmailServiceCEImpl implements EmailServiceCE {
                                 updatedParams
                         )
                 )
-                .thenReturn(invitee);
+                .thenReturn(true);
+    }
+
+    private String getSignupUrl(String originHeader, User inviter) {
+        String inviteUrl;
+        inviteUrl = String.format(
+               INVITE_USER_CLIENT_URL_FORMAT,
+                originHeader,
+               URLEncoder.encode(inviter.getUsername().toLowerCase(), StandardCharsets.UTF_8)
+       );
+        return inviteUrl;
     }
 }
