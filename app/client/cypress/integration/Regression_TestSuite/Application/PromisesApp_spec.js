@@ -1,5 +1,5 @@
 import * as _ from "../../../support/Objects/ObjectsCore";
-const homePage = require("../../../locators/HomePage");
+import homePage from "../../../locators/HomePage";
 const dsl = require("../../../fixtures/promisesStoreValueDsl.json");
 const commonlocators = require("../../../locators/commonlocators.json");
 

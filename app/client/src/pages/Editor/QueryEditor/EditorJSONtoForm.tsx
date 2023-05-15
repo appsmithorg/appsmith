@@ -144,7 +144,6 @@ import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
-import { AIWindow } from "@appsmith/components/editorComponents/GPT";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -1146,71 +1145,71 @@ export function EditorJSONtoForm(props: Props) {
                   ]}
                 />
               </TabContainerView>
-              {renderDebugger && (
-                <TabbedViewContainer
-                  className="t--query-bottom-pane-container"
-                  ref={panelRef}
-                >
-                  <Resizable
-                    initialHeight={responsePaneHeight}
-                    onResizeComplete={(height: number) =>
-                      setQueryResponsePaneHeight(height)
-                    }
-                    openResizer={isRunning}
-                    panelRef={panelRef}
-                    snapToHeight={ActionExecutionResizerHeight}
-                  />
-                  {isRunning && (
-                    <>
-                      <LoadingOverlayScreen theme={EditorTheme.LIGHT} />
-                      <LoadingOverlayContainer>
-                        <div>
-                          <Text textAlign={"center"} type={TextType.P1}>
-                            {createMessage(ACTION_EXECUTION_MESSAGE, "Query")}
-                          </Text>
-                          <CancelRequestButton
-                            category={Category.secondary}
-                            className={`t--cancel-action-button`}
-                            onClick={() => {
-                              handleCancelActionExecution();
-                            }}
-                            size={Size.medium}
-                            tag="button"
-                            text="Cancel Request"
-                            type="button"
-                          />
-                        </div>
-                      </LoadingOverlayContainer>
-                    </>
-                  )}
+              {renderDebugger &&
+                selectedResponseTab !== DEBUGGER_TAB_KEYS.HEADER_TAB && (
+                  <TabbedViewContainer
+                    className="t--query-bottom-pane-container"
+                    ref={panelRef}
+                  >
+                    <Resizable
+                      initialHeight={responsePaneHeight}
+                      onResizeComplete={(height: number) =>
+                        setQueryResponsePaneHeight(height)
+                      }
+                      openResizer={isRunning}
+                      panelRef={panelRef}
+                      snapToHeight={ActionExecutionResizerHeight}
+                    />
+                    {isRunning && (
+                      <>
+                        <LoadingOverlayScreen theme={EditorTheme.LIGHT} />
+                        <LoadingOverlayContainer>
+                          <div>
+                            <Text textAlign={"center"} type={TextType.P1}>
+                              {createMessage(ACTION_EXECUTION_MESSAGE, "Query")}
+                            </Text>
+                            <CancelRequestButton
+                              category={Category.secondary}
+                              className={`t--cancel-action-button`}
+                              onClick={() => {
+                                handleCancelActionExecution();
+                              }}
+                              size={Size.medium}
+                              tag="button"
+                              text="Cancel Request"
+                              type="button"
+                            />
+                          </div>
+                        </LoadingOverlayContainer>
+                      </>
+                    )}
 
-                  {output && !!output.length && (
-                    <ResultsCount>
-                      <Text type={TextType.P3}>
-                        Result:
-                        <Text type={TextType.H5}>{` ${output.length} Record${
-                          output.length > 1 ? "s" : ""
-                        }`}</Text>
-                      </Text>
-                    </ResultsCount>
-                  )}
+                    {output && !!output.length && (
+                      <ResultsCount>
+                        <Text type={TextType.P3}>
+                          Result:
+                          <Text type={TextType.H5}>{` ${output.length} Record${
+                            output.length > 1 ? "s" : ""
+                          }`}</Text>
+                        </Text>
+                      </ResultsCount>
+                    )}
 
-                  <EntityBottomTabs
-                    expandedHeight={`${ActionExecutionResizerHeight}px`}
-                    onSelect={setSelectedResponseTab}
-                    selectedTabKey={selectedResponseTab}
-                    tabs={responseTabs}
-                  />
-                  <AdsIcon
-                    className="close-debugger t--close-debugger"
-                    name="close-modal"
-                    onClick={onClose}
-                    size={IconSize.XL}
-                  />
-                </TabbedViewContainer>
-              )}
+                    <EntityBottomTabs
+                      expandedHeight={`${ActionExecutionResizerHeight}px`}
+                      onSelect={setSelectedResponseTab}
+                      selectedTabKey={selectedResponseTab}
+                      tabs={responseTabs}
+                    />
+                    <AdsIcon
+                      className="close-debugger t--close-debugger"
+                      name="close-modal"
+                      onClick={onClose}
+                      size={IconSize.XL}
+                    />
+                  </TabbedViewContainer>
+                )}
             </SecondaryWrapper>
-            <AIWindow className="border-t border-l" windowType="fixed" />
           </div>
           <SidebarWrapper
             show={(hasDependencies || !!output) && !guidedTourEnabled}

@@ -138,6 +138,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       }
     }
     .CodeMirror-Tern-completion {
+      font-family: ${(props) => props.theme.fonts.code};
       display: flex;
       padding-left: ${(props) => props.theme.spaces[11]}px !important;
       &:hover{
@@ -284,6 +285,25 @@ export const CodemirrorHintStyles = createGlobalStyle<{
     }
     .CodeMirror-lint-mark-warning{
       background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAYAAAC09K7GAAAAAXNSR0IArs4c6QAAAB1JREFUGFdjZICC/3sY/jO6MDAygvgwDpiGcWAqASvpC745SEL8AAAAAElFTkSuQmCC");
+    }
+  }
+  .sql-hint-label{
+    color: #6D6D6D;
+  }
+
+  .CodeMirror-hint:hover{
+    .sql-hint-label{
+      color: #090707;
+    }
+  }
+  .CodeMirror-hint-active{
+    .sql-hint-label{
+      color: #fff
+    }
+  }
+  .CodeMirror-hint-active:hover{
+    .sql-hint-label{
+      color: #fff
     }
   }
 `;
