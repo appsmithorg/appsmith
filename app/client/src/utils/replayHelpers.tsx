@@ -4,7 +4,6 @@ import {
   flashElementsById,
   isMacOrIOS,
   flashElement,
-  hasClass,
   shiftText,
 } from "./helpers";
 import localStorage from "./localStorage";
@@ -16,6 +15,9 @@ import {
   BULK_WIDGET_REMOVED,
 } from "@appsmith/constants/messages";
 import { toast } from "design-system";
+// import { useDispatch } from "react-redux";
+// import { setApiPaneConfigSelectedTabIndex } from "../actions/apiPaneActions";
+// import { API_EDITOR_TABS } from "../constants/ApiEditorConstants/CommonApiConstants";
 
 /**
  * process the toast for undo/redo
@@ -131,12 +133,16 @@ export function highlightReplayElement(configProperties: Array<string> = []) {
 
 export function switchTab(replayId: string): boolean {
   if (!replayId) return false;
-  const element = document.querySelector(
-    `[data-replay-id="${replayId}"]`,
-  ) as HTMLElement;
+  const element = document.querySelector(`[id$="${replayId}"]`) as HTMLElement;
   if (!element) return false;
-  if (hasClass(element, "react-tabs__tab--selected")) return false;
+  if (element.getAttribute("data-state") == "active") return false;
+  // TODO:  this click event doesn't seem to work
   element?.click();
+  // in the absence of the click event, if we dispatch the selected tab correctly we will be fine as well.
+  // const dispatch = useDispatch();
+  // const index = Object.values(API_EDITOR_TABS).indexOf(replayId);
+  // dispatch(setApiPaneConfigSelectedTabIndex(index));
+
   return true;
 }
 
