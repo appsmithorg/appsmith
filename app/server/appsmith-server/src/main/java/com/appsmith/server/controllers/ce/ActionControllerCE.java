@@ -12,6 +12,7 @@ import com.appsmith.server.dtos.RefactorActionNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
+import com.appsmith.server.solutions.ActionExecutionSolution;
 import com.appsmith.server.solutions.RefactoringSolution;
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -45,14 +46,16 @@ public class ActionControllerCE {
     private final LayoutActionService layoutActionService;
     private final NewActionService newActionService;
     private final RefactoringSolution refactoringSolution;
+    private final ActionExecutionSolution actionExecutionSolution;
 
     @Autowired
     public ActionControllerCE(LayoutActionService layoutActionService,
                               NewActionService newActionService,
-                              RefactoringSolution refactoringSolution) {
+                              RefactoringSolution refactoringSolution, ActionExecutionSolution actionExecutionSolution) {
         this.layoutActionService = layoutActionService;
         this.newActionService = newActionService;
         this.refactoringSolution = refactoringSolution;
+        this.actionExecutionSolution = actionExecutionSolution;
     }
 
     @JsonView(Views.Public.class)
@@ -82,7 +85,7 @@ public class ActionControllerCE {
     public Mono<ResponseDTO<ActionExecutionResult>> executeAction(@RequestBody Flux<Part> partFlux,
                                                                   @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
                                                                   @RequestHeader(name = FieldName.ENVIRONMENT_NAME, required = false) String environmentName) {
-        return newActionService.executeAction(partFlux, branchName, environmentName)
+        return actionExecutionSolution.executeAction(partFlux, branchName, environmentName)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
