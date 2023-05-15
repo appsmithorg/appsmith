@@ -144,6 +144,7 @@ import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
+import { AIWindow } from "@appsmith/components/editorComponents/GPT";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -1210,6 +1211,7 @@ export function EditorJSONtoForm(props: Props) {
                   </TabbedViewContainer>
                 )}
             </SecondaryWrapper>
+            <AIWindow className="border-t border-l" windowType="fixed" />
           </div>
           <SidebarWrapper
             show={(hasDependencies || !!output) && !guidedTourEnabled}

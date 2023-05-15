@@ -36,7 +36,6 @@ class CodeEditorControl extends BaseControl<ControlProps> {
         theme={this.props.theme}
         useValidationMessage={useValidationMessage}
         {...props}
-        AIAssisted
       />
     );
   }

@@ -10,6 +10,7 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { Colors } from "constants/Colors";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { addAISlashCommand } from "@appsmith/components/editorComponents/GPT/trigger";
 import type FeatureFlags from "entities/FeatureFlags";
 import { importRemixIcon, importSvg } from "design-system-old";
 
@@ -22,7 +23,7 @@ const MagicIcon = importRemixIcon(
 const Binding = importSvg(() => import("assets/icons/menu/binding.svg"));
 const Snippet = importSvg(() => import("assets/icons/ads/snippet.svg"));
 import type { FieldEntityInformation } from "./EditorConfig";
-import { APPSMITH_AI } from "@appsmith/components/editorComponents/GPT/trigger";
+import { EditorModes } from "./EditorConfig";
 
 enum Shortcuts {
   PLUS = "PLUS",
@@ -137,8 +138,8 @@ export const generateQuickCommands = (
   searchText: string,
   {
     datasources,
-    enableAIAssistance,
     executeCommand,
+    featureFlags,
     pluginIdToImageLocation,
     recentEntities,
   }: {
@@ -147,11 +148,16 @@ export const generateQuickCommands = (
     pluginIdToImageLocation: Record<string, string>;
     recentEntities: string[];
     featureFlags: FeatureFlags;
-    enableAIAssistance: boolean;
   },
   entityInfo: FieldEntityInformation,
 ) => {
-  const { entityId, expectedType = "string", propertyPath } = entityInfo || {};
+  const {
+    entityId,
+    example,
+    expectedType = "string",
+    mode,
+    propertyPath,
+  } = entityInfo || {};
   const suggestionsHeader: CommandsCompletion = commandsHeader("Bind Data");
   const createNewHeader: CommandsCompletion = commandsHeader("Create a Query");
   recentEntities.reverse();
@@ -256,12 +262,29 @@ export const generateQuickCommands = (
 
   // Adding this hack in the interest of time.
   // TODO: Refactor slash commands generation for easier code splitting
-  if (enableAIAssistance) {
+  if (
+    addAISlashCommand &&
+    featureFlags.ask_ai &&
+    (currentEntityType !== ENTITY_TYPE.ACTION ||
+      mode === EditorModes.SQL ||
+      mode === EditorModes.SQL_WITH_BINDING)
+  ) {
     const askGPT: CommandsCompletion = generateCreateNewCommand({
       text: "",
-      displayText: APPSMITH_AI,
+      displayText: "Ask AI",
       shortcut: Shortcuts.ASK_AI,
-      triggerCompletionsPostPick: true,
+      action: () =>
+        executeCommand({
+          actionType: SlashCommand.ASK_AI,
+          args: {
+            entityType: currentEntityType,
+            expectedType: expectedType,
+            entityId: entityId,
+            propertyPath: propertyPath,
+            example,
+            mode,
+          },
+        }),
     });
     actionCommands.push(askGPT);
   }
