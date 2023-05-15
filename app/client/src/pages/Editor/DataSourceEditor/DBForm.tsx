@@ -66,9 +66,6 @@ export const Form = styled.form`
   height: ${({ theme }) => `calc(100% - ${theme.backBanner})`};
   overflow: hidden;
   flex: 1;
-  .db-form-resizer-content {
-    padding: 0 0 0 2px;
-  }
 `;
 
 const ViewModeWrapper = styled.div`

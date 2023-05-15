@@ -84,7 +84,6 @@ const ContentWrapper = styled.div`
     width: 100%;
 
     .t--json-to-form-body {
-      padding: 0 20px;
       .t--collapse-section-container {
         margin-top: 20px;
       }
