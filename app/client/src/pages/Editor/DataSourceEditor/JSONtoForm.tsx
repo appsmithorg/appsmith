@@ -44,6 +44,7 @@ export const FormContainer = styled.div`
   position: relative;
   height: 100%;
   flex-direction: column;
+  width: 100%;
 `;
 
 export const FormContainerBody = styled.div`
