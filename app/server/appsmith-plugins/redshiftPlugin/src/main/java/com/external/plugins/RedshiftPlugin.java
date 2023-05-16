@@ -372,15 +372,6 @@ public class RedshiftPlugin extends BasePlugin {
         }
 
         @Override
-        public Properties addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, Properties properties) {
-            return properties;
-        }
-        @Override
-        public Properties addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, Properties properties) {
-            return properties;
-        }
-
-        @Override
         public void datasourceDestroy(HikariDataSource connectionPool) {
             if (connectionPool != null) {
                 connectionPool.close();

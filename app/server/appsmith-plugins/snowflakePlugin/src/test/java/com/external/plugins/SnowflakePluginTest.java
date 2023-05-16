@@ -19,9 +19,6 @@ import com.zaxxer.hikari.HikariPoolMXBean;
 import lombok.extern.slf4j.Slf4j;
 import net.snowflake.client.jdbc.SnowflakeReauthenticationRequest;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.stubbing.Answer;
 import org.springframework.core.io.ClassPathResource;
@@ -52,7 +49,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
 @Slf4j
 public class SnowflakePluginTest {
@@ -60,9 +59,6 @@ public class SnowflakePluginTest {
     SnowflakePlugin.SnowflakePluginExecutor pluginExecutor = new SnowflakePlugin.SnowflakePluginExecutor();
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-
-    @Captor
-    ArgumentCaptor<List<Property>> hikariConfigArgumentCaptor;
 
     @Test
     public void testValidateDatasource_withInvalidCredentials_returnsInvalids() {

@@ -385,13 +385,5 @@ public class ArangoDBPlugin extends BasePlugin {
                     .thenReturn(structure)
                     .subscribeOn(scheduler);
         }
-        @Override
-        public Properties addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, Properties properties) {
-            return properties;
-        }
-        @Override
-        public Properties addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, Properties properties) {
-            return properties;
-        }
     }
 }

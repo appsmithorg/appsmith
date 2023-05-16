@@ -37,15 +37,6 @@ public class MockPluginExecutor implements PluginExecutor {
     }
 
     @Override
-    public Properties addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, Properties properties) {
-        return properties;
-    }
-    @Override
-    public Properties addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, Properties properties) {
-        return properties;
-    }
-
-    @Override
     public void datasourceDestroy(Object connection) {
     }
 
