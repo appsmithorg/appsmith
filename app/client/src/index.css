@@ -36,6 +36,14 @@ body.dragging * {
   outline-offset: 0 !important;
 }
 
+/**
+  Disable outline for adsv2 select component
+*/
+.ads-v2-select.rc-select-focused {
+  outline: none !important;
+  outline-offset: 0 !important;
+}
+
 body.overlay {
   opacity: 0;
   pointer-events: none;
