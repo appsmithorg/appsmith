@@ -43,7 +43,7 @@ export default {
   closeDisconnectModal: ".ads-v2-modal__content-header-close-button",
   disconnectAppNameInput: ".t--git-app-name-input",
   repoLimitExceededErrorModal: ".t--git-repo-limited-modal",
-  contactSalesButton: ".ads-v2-callout__children span",
+  gitModalLink: ".ads-v2-link",
   connectedApplication: ".t--connected-app-wrapper",
   diconnectLink: ".t--disconnect-link",
   disconnectLearnMoreLink: ".t--disconnect-learn-more",
