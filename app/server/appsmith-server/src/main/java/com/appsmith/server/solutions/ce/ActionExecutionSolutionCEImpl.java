@@ -308,6 +308,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     dto.setViewMode(executeActionDTO.getViewMode());
                     dto.setParamProperties(executeActionDTO.getParamProperties());
                     dto.setPaginationField(executeActionDTO.getPaginationField());
+                    dto.setAnalyticsProperties(executeActionDTO.getAnalyticsProperties());
                     return Mono.empty();
                 });
     }
