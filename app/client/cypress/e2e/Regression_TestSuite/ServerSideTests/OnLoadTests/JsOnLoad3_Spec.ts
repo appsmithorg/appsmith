@@ -15,6 +15,11 @@ describe("JSObjects OnLoad Actions tests", function () {
     cy.fixture("JSApiOnLoadDsl").then((val: any) => {
       _.agHelper.AddDsl(val, _.locators._widgetInCanvas("imagewidget"));
     });
+    _.entityExplorer.NavigateToSwitcher("Explorer");
+    _.dataSources.CreateDataSource("Postgres");
+    cy.get("@dsName").then(($dsName) => {
+      dsName = $dsName;
+    });
 
     _.entityExplorer.ExpandCollapseEntity("Queries/JS");
     _.apiPage.CreateAndFillApi(
@@ -122,22 +127,22 @@ describe("JSObjects OnLoad Actions tests", function () {
       //   _.jsEditor._dialogBody((jsName as string) + ".callTrump"),
       // );
       _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
-      _.agHelper.ClickButton("Yes");
-      _.agHelper.Sleep();
+      _.agHelper.GetNClick(".ads-v2-button__content-children", 1, true);
+      _.agHelper.Sleep(2000);
 
       //_.agHelper.AssertElementVisible(_.jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is Yes, dependent confirmation should appear aswell!
       _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
-      _.agHelper.ClickButton("Yes");
-      _.agHelper.Sleep();
+      _.agHelper.GetNClick(".ads-v2-button__content-children", 1, true);
+      _.agHelper.Sleep(2000);
 
       //_.agHelper.AssertElementVisible(_.jsEditor._dialogBody("Quotes"));
       _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
-      _.agHelper.ClickButton("Yes");
+      _.agHelper.GetNClick(".ads-v2-button__content-children", 1, true);
 
-      _.agHelper.Sleep(500);
+      _.agHelper.Sleep(2000);
       //_.agHelper.AssertElementVisible(_.jsEditor._dialogBody("Quotes"));
       _.agHelper.AssertElementExist(_.jsEditor._dialogInDeployView);
-      _.agHelper.ClickButton("Yes");
+      _.agHelper.GetNClick(".ads-v2-button__content-children", 1, true);
 
       _.agHelper.Sleep(4000); //to let the api's call be finished & populate the text fields before validation!
       _.agHelper
@@ -320,7 +325,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       ); //callBooks confirmation also does not appear due to 13646
 
       _.entityExplorer.SelectEntityByName("JSONForm1");
-      _.propPane.UpdatePropertyFieldValue("Source Data", "{{getBooks.data}}");
+      _.propPane.UpdatePropertyFieldValue("Source data", "{{getBooks.data}}");
       //this toast is not coming due to existing JSON date errors but its made true at API
       //_.agHelper.ValidateToastMessage("[getBooks] will be executed automatically on page load");
     });
