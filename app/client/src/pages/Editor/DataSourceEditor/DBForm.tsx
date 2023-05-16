@@ -55,6 +55,8 @@ interface DatasourceDBEditorProps extends JSONtoFormProps {
   isDatasourceBeingSavedFromPopup: boolean;
   isFormDirty: boolean;
   datasourceDeleteTrigger: () => void;
+  // isInsideReconnectModal: indicates that the datasource form is rendering inside reconnect modal
+  isInsideReconnectModal?: boolean;
 }
 
 type Props = DatasourceDBEditorProps &
@@ -211,6 +213,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
                 formData={formData}
                 getSanitizedFormData={_.memoize(this.getSanitizedData)}
                 isFormDirty={this.props.isFormDirty}
+                isInsideReconnectModal={this.props.isInsideReconnectModal}
                 isInvalid={this.validate()}
                 shouldRender={!viewMode}
                 triggerSave={this.props.isDatasourceBeingSavedFromPopup}

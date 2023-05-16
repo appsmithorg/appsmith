@@ -155,7 +155,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
             isJSConvertible: true,
             options: [
               {
-                label: "No Cap",
+                label: "No cap",
                 value: "nc",
                 icon: "cap-solid",
               },
