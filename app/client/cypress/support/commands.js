@@ -383,9 +383,7 @@ Cypress.Commands.add("SearchEntity", (apiname1, apiname2) => {
 
 Cypress.Commands.add("GlobalSearchEntity", (apiname1, dontAssertVisibility) => {
   // entity explorer search will be hidden
-  cy.get(commonlocators.searchEntityInExplorer)
-    .clear({ force: true })
-    .type(apiname1, { force: true });
+  cy.get(commonlocators.searchEntityInExplorer).type(apiname1, { force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.CheckAndUnfoldWidgets();
   cy.wait(500);

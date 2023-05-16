@@ -12,7 +12,7 @@ on:
 
 jobs:
   ci-test-limited:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-8-cores
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||
       github.event_name == 'push' ||
@@ -111,7 +111,7 @@ jobs:
         working-directory: "."
         run: |
           docker build -t cicontainer .
-
+          
       - name: Create folder
         working-directory: "."
         run: |
