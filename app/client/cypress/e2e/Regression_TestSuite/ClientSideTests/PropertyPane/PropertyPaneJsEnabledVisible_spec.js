@@ -5,7 +5,7 @@ describe("Property pane js enabled field", function () {
     cy.addDsl(dsl);
   });
 
-  it("Ensure text is visible for js enabled field when a section is collapsed by default", function () {
+  it("1. Ensure text is visible for js enabled field when a section is collapsed by default", function () {
     cy.openPropertyPane("jsonformwidget");
     cy.moveToStyleTab();
     cy.wait(500);

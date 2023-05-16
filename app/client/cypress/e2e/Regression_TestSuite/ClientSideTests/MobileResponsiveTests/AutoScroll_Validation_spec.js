@@ -3,7 +3,7 @@ let theight;
 let twidth;
 
 describe("Validating Mobile View related usecases for Autoscroll", function () {
-  it("Capture the height/width of autofill widgets in webview", function () {
+  it("1. Capture the height/width of autofill widgets in webview", function () {
     cy.get(commonlocators.autoConvert).click({
       force: true,
     });
@@ -38,8 +38,8 @@ describe("Validating Mobile View related usecases for Autoscroll", function () {
     [390, 844],
     [360, 780],
   ];
-  phones.forEach((phone) => {
-    it(`${phone} port execution for autoscroll`, function () {
+  phones.forEach((phone, index) => {
+    it(`${index + 2}. ${phone} port execution for autoscroll`, function () {
       if (Cypress._.isArray(phone)) {
         cy.viewport(phone[0], phone[1]);
       } else {

@@ -9,16 +9,15 @@ describe("Pages", function () {
   let veryLongPageName = `abcdefghijklmnopqrstuvwxyz1234`;
   let apiName = "someApi";
 
-  it("1. Clone page", function () {
+  it("1. Clone page & check tooltip for long name", function () {
     //cy.NavigateToAPI_Panel();
     _.apiPage.CreateApi(apiName);
     _.entityExplorer.SelectEntityByName("Page1", "Pages");
     _.entityExplorer.ClonePage("Page1");
     _.entityExplorer.SelectEntityByName("Page1 Copy", "Pages");
     _.entityExplorer.SelectEntityByName(apiName, "Queries/JS"); //Verify api also cloned along with PageClone
-  });
 
-  it("2. Creates a page with long name and checks if it shows tooltip on hover", () => {
+    //Creates a page with long name and checks if it shows tooltip on hover
     cy.get("body").click(0, 0);
     cy.Createpage(veryLongPageName);
     cy.PublishtheApp();
@@ -30,7 +29,7 @@ describe("Pages", function () {
     });
   });
 
-  it("3. Check for Refrsh page and validate and 404 is showing correct route", () => {
+  it("2. Check for Refrsh page and validate and 404 is showing correct route", () => {
     //Automated as part Bug19654
     cy.get(publish.backToEditor).click();
     cy.reload();

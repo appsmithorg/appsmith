@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 import formControls from "../../../../locators/FormControl.json";
 
 describe("Mongo Form to Native conversion works", () => {
-  it("Form to Native conversion works.", () => {
+  it("1. Form to Native conversion works.", () => {
     const expectedOutput = `{\n  \"find\": \"listingAndReviews\",\n  \"filter\": {beds : {$lte: 2}},\n  \"sort\": {number_of_reviews: -1},\n  \"limit\": 10,\n  \"batchSize\": 10\n}\n`;
 
     _.dataSources.CreateDataSource("Mongo", true, true);

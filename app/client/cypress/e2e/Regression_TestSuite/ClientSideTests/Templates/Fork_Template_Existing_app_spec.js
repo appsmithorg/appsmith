@@ -82,9 +82,7 @@ describe(
       cy.AddPageFromTemplate();
       cy.get(_.templates.locators._forkApp).first().click();
       cy.get(template.templateViewForkButton).should("be.visible");
-    });
-
-    it("4. Similar templates add icon should take user to 'select pages from template' page", () => {
+      //Similar templates add icon should take user to 'select pages from template'
       _.agHelper.RefreshPage();
       cy.AddPageFromTemplate();
       // We are currentlyon on templates list page
