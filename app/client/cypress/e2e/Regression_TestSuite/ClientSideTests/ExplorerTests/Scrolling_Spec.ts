@@ -26,12 +26,12 @@ describe("Entity explorer context menu should hide on scrolling", function () {
           _.entityExplorer.ExpandCollapseEntity("public.users");
           _.entityExplorer.ExpandCollapseEntity("movies");
           _.agHelper.GetNClick(_.locators._createNew);
-          _.agHelper.AssertElementVisible("div[role='menu']");
+          _.agHelper.AssertElementVisible(_.entityExplorer._adsPopup);
           _.agHelper.ScrollTo(
             _.entityExplorer._entityExplorerWrapper,
             "bottom",
           );
-          _.agHelper.AssertElementVisible("div[role='menu']");
+          _.agHelper.AssertElementVisible(_.entityExplorer._adsPopup);
         });
       });
     },
@@ -65,12 +65,12 @@ describe("Entity explorer context menu should hide on scrolling", function () {
           _.entityExplorer.ExpandCollapseEntity("public.users");
           _.entityExplorer.ExpandCollapseEntity("listingAndReviews");
           _.agHelper.GetNClick(_.locators._createNew);
-          _.agHelper.AssertElementVisible("div[role='menu']");
+          _.agHelper.AssertElementVisible(_.entityExplorer._adsPopup);
           _.agHelper.ScrollTo(
             _.entityExplorer._entityExplorerWrapper,
             "bottom",
           );
-          _.agHelper.AssertElementVisible("div[role='menu']");
+          _.agHelper.AssertElementVisible(_.entityExplorer._adsPopup);
         });
       });
     },
