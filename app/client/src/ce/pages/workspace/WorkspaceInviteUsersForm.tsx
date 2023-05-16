@@ -394,6 +394,7 @@ function WorkspaceInviteUsersForm(props: any) {
           <div style={{ width: "60%" }}>
             <TagListField
               autofocus
+              className="ml-0.5"
               customError={(err: string) => errorHandler(err)}
               data-testid="t--invite-email-input"
               intent="success"

@@ -20,7 +20,7 @@ import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
 import equal from "fast-deep-equal";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { updateApplication } from "@appsmith/actions/applicationActions";
-import { Spinner } from "design-system-old";
+import { Spinner } from "design-system";
 import LogoInput from "@appsmith/pages/Editor/NavigationSettings/LogoInput";
 import SwitchSettingForLogoConfiguration from "./SwitchSettingForLogoConfiguration";
 
@@ -202,7 +202,7 @@ function NavigationSettings() {
   if (!navigationSetting) {
     return (
       <div className="px-4 py-10 w-full flex justify-center">
-        <Spinner size="extraExtraExtraExtraLarge" />
+        <Spinner size="lg" />
       </div>
     );
   }

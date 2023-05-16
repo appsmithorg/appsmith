@@ -61,6 +61,7 @@ import { getUpdateTimestamp } from "./Debugger/ErrorLogs/ErrorLogItem";
 import type { Action } from "entities/Action";
 import { SegmentedControlContainer } from "../../pages/Editor/QueryEditor/EditorJSONtoForm";
 import ActionExecutionInProgressView from "./ActionExecutionInProgressView";
+import { CloseDebugger } from "./Debugger/DebuggerTabs";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
@@ -74,10 +75,6 @@ const ResponseContainer = styled.div`
   min-height: 36px;
   background-color: var(--ads-v2-color-bg);
   border-top: 1px solid var(--ads-v2-color-border);
-
-  .ads-v2-tabs__panel {
-    overflow: hidden;
-  }
   .CodeMirror-code {
     font-size: 12px;
   }
@@ -103,7 +100,7 @@ const ResponseMetaWrapper = styled.div`
   display: flex;
   position: absolute;
   right: ${(props) => props.theme.spaces[17] + 1}px;
-  top: ${(props) => props.theme.spaces[2] + 1}px;
+  top: ${(props) => props.theme.spaces[2] + 3}px;
   z-index: 6;
 `;
 
@@ -112,18 +109,14 @@ const ResponseTabWrapper = styled.div`
   flex-direction: column;
   height: 100%;
   width: 100%;
+  &.t--headers-tab {
+    padding-left: var(--ads-v2-spaces-7);
+    padding-right: var(--ads-v2-spaces-7);
+  }
 `;
 
 const TabbedViewWrapper = styled.div`
   height: 100%;
-
-  .close-debugger {
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    padding: 9px 11px;
-  }
-
   &&& {
     ul.ads-v2-tabs__list {
       margin: 0 ${(props) => props.theme.spaces[11]}px;
@@ -254,7 +247,6 @@ export const ResponseTabErrorContainer = styled.div`
   flex-direction: column;
   padding: 8px 16px;
   gap: 8px;
-  max-height: 100%;
   height: fit-content;
   background: var(--ads-v2-color-bg-error);
   border-bottom: 1px solid var(--ads-v2-color-border);
@@ -579,7 +571,7 @@ function ApiResponseView(props: Props) {
       key: "headers",
       title: "Headers",
       panelComponent: (
-        <ResponseTabWrapper>
+        <ResponseTabWrapper className="t--headers-tab">
           {hasFailed && !isRunning && (
             <Callout
               kind="error"
@@ -655,7 +647,7 @@ function ApiResponseView(props: Props) {
         <ActionExecutionInProgressView actionType="API" theme={props.theme} />
       )}
       <TabbedViewWrapper>
-        {response.statusCode === "2" && (
+        {response.statusCode && (
           <ResponseMetaWrapper>
             {response.statusCode && (
               <Flex>
@@ -703,7 +695,7 @@ function ApiResponseView(props: Props) {
           selectedTabKey={selectedResponseTab}
           tabs={tabs}
         />
-        <Button
+        <CloseDebugger
           className="close-debugger t--close-debugger"
           isIconButton
           kind="tertiary"
