@@ -205,6 +205,7 @@ export class EntityExplorer {
   ) {
     this.agHelper.Sleep();
     cy.xpath(this._contextMenu(entityNameinLeftSidebar))
+      .scrollIntoView()
       .last()
       .click({ force: true });
     cy.xpath(this._contextMenuItem(action)).click({ force: true });

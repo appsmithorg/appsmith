@@ -1,4 +1,5 @@
 import React from "react";
+// import ReactDOM from "react-dom";
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import moment from "moment-timezone";
@@ -7,6 +8,13 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 import { DatePicker } from "design-system";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
+
+// const Container = (props: any) => {
+//   return ReactDOM.createPortal(
+//     props.children,
+//     document.getElementById("date-picker-control"),
+//   );
+// };
 
 class DatePickerControl extends BaseControl<
   DatePickerControlProps,
@@ -86,10 +94,11 @@ class DatePickerControl extends BaseControl<
           onChange={this.onDateSelected}
           parseDate={this.parseDate}
           placeholder="YYYY-MM-DD HH:mm"
+          portalId="date-picker-control"
+          selected={value}
           showActionsBar
           tabIndex={-1}
           timePrecision={TimePrecision.MINUTE}
-          value={value}
         />
       </div>
     );

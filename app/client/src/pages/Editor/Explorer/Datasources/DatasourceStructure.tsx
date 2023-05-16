@@ -13,12 +13,18 @@ import { getDatasource } from "selectors/entitiesSelector";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { Menu, MenuTrigger, Button, Tooltip, MenuContent } from "design-system";
 import { SHOW_TEMPLATES, createMessage } from "ce/constants/messages";
+import styled from "styled-components";
 
 type DatasourceStructureProps = {
   dbStructure: DatasourceTable;
   step: number;
   datasourceId: string;
 };
+
+const StyledMenuContent = styled(MenuContent)`
+  min-width: 220px;
+  max-height: 200px;
+`;
 
 export function DatasourceStructure(props: DatasourceStructureProps) {
   const dbStructure = props.dbStructure;
@@ -56,19 +62,18 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
           />
         </MenuTrigger>
       </Tooltip>
-      <MenuContent
+      <StyledMenuContent
         align="start"
         className="t--structure-template-menu-popover"
         onInteractOutside={() => setActive(false)}
         side="right"
-        style={{ maxHeight: "unset" }}
       >
         <QueryTemplates
           datasourceId={props.datasourceId}
           onSelect={() => setActive(false)}
           templates={dbStructure.templates}
         />
-      </MenuContent>
+      </StyledMenuContent>
     </Menu>
   ) : null;
 

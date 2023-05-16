@@ -36,9 +36,7 @@ describe("Checkbox Widget Functionality", function () {
     );
 
     // align right
-    cy.get(".t--property-control-alignment .t--button-group-RIGHT")
-      .first()
-      .click();
+    cy.get("[data-value='RIGHT']").first().click();
     cy.get(publish.checkboxWidget + " " + ".t--checkbox-widget-label").should(
       "have.css",
       "text-align",
@@ -63,7 +61,7 @@ describe("Checkbox Widget Functionality", function () {
     cy.get(publish.checkboxWidget + " " + ".bp3-align-left").should("exist");
     cy.get(commonlocators.optionposition).last().click({ force: true });
     cy.wait(200);
-    cy.get(".t--button-group-Left").click({ force: true });
+    cy.get("[data-value='Left']").click({ force: true });
     cy.wait(200);
     cy.PublishtheApp();
 
@@ -108,9 +106,7 @@ describe("Checkbox Widget Functionality", function () {
   it("6. Checkbox Functionality To change label style of checkbox", function () {
     cy.openPropertyPane("checkboxwidget");
     cy.moveToStyleTab();
-    cy.get(".t--property-control-emphasis .t--button-group-BOLD").click({
-      force: true,
-    });
+    cy.get(".t--property-control-emphasis .t--button-group-BOLD").click();
     cy.PublishtheApp();
     cy.get(publish.checkboxWidget + " " + ".t--checkbox-widget-label").should(
       "have.css",

@@ -81,7 +81,10 @@ class RequestConfirmationModal extends React.Component<Props> {
             onOpenChange={() => this.handleClose(modalInfo)}
             open={modalInfo?.modalOpen}
           >
-            <ModalContent style={{ width: "600px" }}>
+            <ModalContent
+              data-testid="t--query-run-confirmation-modal"
+              style={{ width: "600px" }}
+            >
               <ModalHeader>Confirmation dialog</ModalHeader>
               <ModalBody>
                 {createMessage(QUERY_CONFIRMATION_MODAL_MESSAGE)}{" "}

@@ -1,14 +1,22 @@
 const explorer = require("../../../../locators/explorerlocators.json");
 
+let COLUMN_SPACE = 0;
+
 describe("Label feature", () => {
   before(() => {
     cy.get(explorer.addWidget).click();
+    cy.get("#canvas-viewport").invoke("width", `640px`);
+    // 72 - gutter width
+    // 5 - scrollbar width
+    // 12 - container padding
+    // 64 - total number of columns
+    COLUMN_SPACE = (640 - 12 - 5 - 72) / 64;
   });
 
   it("CheckboxGroupWidget label properties: Text, Position, Alignment, Width", () => {
     const options = {
       widgetName: "checkboxgroupwidget",
-      parentColumnSpace: 11.9375,
+      parentColumnSpace: COLUMN_SPACE,
       containerSelector: "[data-testid='checkboxgroup-container']",
       isCompact: true,
       labelText: "Name",
@@ -21,7 +29,7 @@ describe("Label feature", () => {
   it("CurrencyInputWidget label properties: Text, Position, Alignment, Width", () => {
     const options = {
       widgetName: "currencyinputwidget",
-      parentColumnSpace: 11.9375,
+      parentColumnSpace: COLUMN_SPACE,
       containerSelector: "[data-testid='input-container']",
       isCompact: true,
       labelText: "Name",
@@ -34,7 +42,7 @@ describe("Label feature", () => {
   it("DatePickerWidget2 label properties: Text, Position, Alignment, Width", () => {
     const options = {
       widgetName: "datepickerwidget2",
-      parentColumnSpace: 11.9375,
+      parentColumnSpace: COLUMN_SPACE,
       containerSelector: "[data-testid='datepicker-container']",
       isCompact: true,
       labelText: "Name",
@@ -47,7 +55,7 @@ describe("Label feature", () => {
   it("InputWidgetV2 label properties: Text, Position, Alignment, Width", () => {
     const options = {
       widgetName: "inputwidgetv2",
-      parentColumnSpace: 11.9375,
+      parentColumnSpace: COLUMN_SPACE,
       containerSelector: "[data-testid='input-container']",
       isCompact: true,
       labelText: "Name",
@@ -60,7 +68,7 @@ describe("Label feature", () => {
   it("MultiSelectTreeWidget label properties: Text, Position, Alignment, Width", () => {
     const options = {
       widgetName: "multiselecttreewidget",
-      parentColumnSpace: 11.9375,
+      parentColumnSpace: COLUMN_SPACE,
       containerSelector: "[data-testid='multitreeselect-container']",
       isCompact: true,
       labelText: "Name",
@@ -73,7 +81,7 @@ describe("Label feature", () => {
   it("MultiSelectWidgetV2 label properties: Text, Position, Alignment, Width", () => {
     const options = {
       widgetName: "multiselectwidgetv2",
-      parentColumnSpace: 11.9375,
+      parentColumnSpace: COLUMN_SPACE,
       containerSelector: "[data-testid='multiselect-container']",
       isCompact: true,
       labelText: "Name",
@@ -86,7 +94,7 @@ describe("Label feature", () => {
   it("PhoneInputWidget label properties: Text, Position, Alignment, Width", () => {
     const options = {
       widgetName: "phoneinputwidget",
-      parentColumnSpace: 11.9375,
+      parentColumnSpace: COLUMN_SPACE,
       containerSelector: "[data-testid='input-container']",
       isCompact: true,
       labelText: "Name",
@@ -99,7 +107,7 @@ describe("Label feature", () => {
   it("RadioGroupWidget label properties: Text, Position, Alignment, Width", () => {
     const options = {
       widgetName: "radiogroupwidget",
-      parentColumnSpace: 11.9375,
+      parentColumnSpace: COLUMN_SPACE,
       containerSelector: "[data-testid='radiogroup-container']",
       isCompact: true,
       labelText: "Name",
@@ -112,7 +120,7 @@ describe("Label feature", () => {
   it("RichTextEditorWidget label properties: Text, Position, Alignment, Width", () => {
     const options = {
       widgetName: "richtexteditorwidget",
-      parentColumnSpace: 11.9375,
+      parentColumnSpace: COLUMN_SPACE,
       containerSelector: "[data-testid='rte-container']",
       isCompact: false,
       labelText: "Name",
@@ -125,7 +133,7 @@ describe("Label feature", () => {
   it("SelectWidget label properties: Text, Position, Alignment, Width", () => {
     const options = {
       widgetName: "selectwidget",
-      parentColumnSpace: 11.9375,
+      parentColumnSpace: COLUMN_SPACE,
       containerSelector: "[data-testid='select-container']",
       isCompact: true,
       labelText: "Name",
@@ -138,7 +146,7 @@ describe("Label feature", () => {
   it("SingleSelectTreeWidget label properties: Text, Position, Alignment, Width", () => {
     const options = {
       widgetName: "singleselecttreewidget",
-      parentColumnSpace: 11.9375,
+      parentColumnSpace: COLUMN_SPACE,
       containerSelector: "[data-testid='treeselect-container']",
       isCompact: true,
       labelText: "Name",
@@ -151,7 +159,7 @@ describe("Label feature", () => {
   it("SwitchGroupWidget label properties: Text, Position, Alignment, Width", () => {
     const options = {
       widgetName: "switchgroupwidget",
-      parentColumnSpace: 11.9375,
+      parentColumnSpace: COLUMN_SPACE,
       containerSelector: "[data-testid='switchgroup-container']",
       isCompact: true,
       labelText: "Name",
