@@ -158,6 +158,11 @@ describe("Git sync apps", function () {
             expect(someText).to.equal(response.response.body.data.name);
           });
       });
+      cy.get("body").then(($ele) => {
+        if ($ele.find(".t--close-editor").length) {
+          cy.get(".t--close-editor").click();
+        }
+      });
       cy.get(explorer.addWidget).click();
       // bind input widgets to the api calls responses
       cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
@@ -310,11 +315,16 @@ describe("Git sync apps", function () {
     cy.CheckAndUnfoldEntityItem("Queries/JS");
     _.entityExplorer.ActionContextMenuByEntityName(
       "get_users",
-      "Move to page", // failing here
+      "Move to page",
       "Child_Page",
     );
     cy.runQuery();
     cy.wait(2000);
+    cy.get("body").then(($ele) => {
+      if ($ele.find(".t--close-editor").length) {
+        cy.get(".t--close-editor").click();
+      }
+    });
     cy.get(`.t--entity-name:contains(${newPage} Copy)`)
       .trigger("mouseover")
       .click({ force: true });
@@ -324,6 +334,11 @@ describe("Git sync apps", function () {
       "Child_Page",
     );
     cy.wait(2000);
+    cy.get("body").then(($ele) => {
+      if ($ele.find(".t--close-editor").length) {
+        cy.get(".t--close-editor").click();
+      }
+    });
     cy.get(explorer.addWidget).click({ force: true });
     // bind input widgets to the jsObject and query response
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
@@ -445,7 +460,7 @@ describe("Git sync apps", function () {
     cy.wait(2000);
     // verify commit input box is disabled
     cy.get(homePage.publishButton).click();
-    cy.get(".t--commit-comment-input")
+    cy.get(gitSyncLocators.commitCommentInput)
       .should("be.disabled")
       .and("have.text", "No changes to commit");
     cy.get(gitSyncLocators.closeGitSyncModal).click();

@@ -75,7 +75,7 @@ describe("Repo Limit Exceeded Error Modal", function () {
           windowOpenSpy.restore();
         });
       });
-      cy.get(gitSyncLocators.gitModalLink).contains("Learn More").click();
+      cy.get(gitSyncLocators.gitModalLink).contains("Learn more").click();
 
       cy.get(gitSyncLocators.connectedApplication).should("have.length", 3);
       cy.get(gitSyncLocators.diconnectLink).first().click();
