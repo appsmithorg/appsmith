@@ -256,7 +256,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     Map<String, String> params = new HashMap<>();
                     params.put("resetUrl", resetUrl);
 
-                    return updateTenantLogoInParams(params, resetUserPasswordDTO.getBaseUrl())
+                    return emailService.updateTenantLogoInParams(params, resetUserPasswordDTO.getBaseUrl())
                             .flatMap(updatedParams ->
                                     emailSender.sendMail(email, "Appsmith Password Reset", FORGOT_PASSWORD_EMAIL_TEMPLATE, updatedParams)
                             );
@@ -588,7 +588,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         Map<String, String> params = new HashMap<>();
         params.put("primaryLinkUrl", originHeader);
 
-        return updateTenantLogoInParams(params, originHeader)
+        return emailService.updateTenantLogoInParams(params, originHeader)
                 .flatMap(updatedParams -> emailSender.sendMail(
                         user.getEmail(),
                         "Welcome to Appsmith",
@@ -801,10 +801,5 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     @Override
     public Flux<User> getAllByEmails(Set<String> emails, AclPermission permission) {
         return repository.findAllByEmails(emails);
-    }
-
-    @Override
-    public Mono<Map<String, String>> updateTenantLogoInParams(Map<String, String> params, String origin) {
-        return Mono.just(params);
     }
 }

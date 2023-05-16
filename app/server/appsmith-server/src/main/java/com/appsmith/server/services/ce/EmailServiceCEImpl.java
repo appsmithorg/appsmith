@@ -32,10 +32,10 @@ public class EmailServiceCEImpl implements EmailServiceCE {
     public Pair<String, String> getSubjectAndWorkspaceEmailTemplate(Workspace inviterWorkspace, Boolean isNewUser) {
         if(isNewUser){
             String emailSubject = String.format("You’re invited to the workspace %s. \uD83E\uDD73 ", inviterWorkspace.getName());
-            return new Pair<>(INVITE_WORKSPACE_TEMPLATE_CE, emailSubject);
+            return new Pair<>(emailSubject, INVITE_WORKSPACE_TEMPLATE_CE);
         }else {
             String emailSubject = String.format("You’re invited to the workspace %s. \uD83E\uDD73 ", inviterWorkspace.getName());
-            return new Pair<>(INVITE_EXISTING_USER_TO_WORKSPACE_TEMPLATE_CE, emailSubject);
+            return new Pair<>(emailSubject, INVITE_EXISTING_USER_TO_WORKSPACE_TEMPLATE_CE);
         }
     }
 
@@ -78,7 +78,7 @@ public class EmailServiceCEImpl implements EmailServiceCE {
                                                        String permissionGroupName, User invitee, Boolean isNewUser) {
         String inviteUrl = originHeader;
         if(isNewUser){
-            inviteUrl = getSignupUrl(originHeader, inviter);
+            inviteUrl = getSignupUrl(originHeader, invitee);
         }
         Pair<String, String> subjectAndEmailTemplate = this.getSubjectAndWorkspaceEmailTemplate(workspace, isNewUser);
         Map<String, String> params = getWorkspaceEmailParams(workspace, inviter, inviteUrl, permissionGroupName, isNewUser);
@@ -94,12 +94,12 @@ public class EmailServiceCEImpl implements EmailServiceCE {
                 .thenReturn(true);
     }
 
-    private String getSignupUrl(String originHeader, User inviter) {
+    public String getSignupUrl(String originHeader, User invitee) {
         String inviteUrl;
         inviteUrl = String.format(
                INVITE_USER_CLIENT_URL_FORMAT,
                 originHeader,
-               URLEncoder.encode(inviter.getUsername().toLowerCase(), StandardCharsets.UTF_8)
+               URLEncoder.encode(invitee.getUsername().toLowerCase(), StandardCharsets.UTF_8)
        );
         return inviteUrl;
     }
