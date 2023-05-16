@@ -33,7 +33,11 @@ export function EvaluatedValueDebugButton(props: {
 }) {
   return (
     <Wrapper>
-      <ContextualMenu entity={props.entity} error={props.error}>
+      <ContextualMenu
+        enableTooltip={false}
+        entity={props.entity}
+        error={props.error}
+      >
         <EVDebugButton endIcon="down-arrow" kind="error" size="sm">
           Debug
         </EVDebugButton>

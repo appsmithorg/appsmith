@@ -9,7 +9,6 @@ import PaneCountSwitcher from "pages/common/PaneCountSwitcher";
 import { useSelector } from "react-redux";
 import { isMultiPaneActive } from "selectors/multiPaneSelectors";
 import { Button } from "design-system";
-import { GPTTrigger } from "@appsmith/components/editorComponents/GPT/trigger";
 
 const Container = styled.div`
   width: 100%;
@@ -35,7 +34,6 @@ export default function BottomBar(props: { className?: string }) {
     <Container className={props.className ?? ""}>
       <QuickGitActions />
       <Wrapper>
-        <GPTTrigger />
         <ManualUpgrades showTooltip>
           <Button
             className="t--upgrade"

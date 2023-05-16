@@ -115,7 +115,7 @@
 //     cy.get(generatePage.generateCRUDPageActionCard).click();
 //     cy.get(generatePage.selectDatasourceDropdown).click();
 
-//     cy.contains("Connect New Datasource").click();
+//     cy.contains("Connect new datasource").click();
 
 //     cy.get(datasource.MsSQL).click();
 //     cy.fillMsSQLDatasourceForm();

@@ -3,6 +3,6 @@
     "docHint": ".t--docHit",
     "filterButton": ".t--filter-button",
     "category": ".t--global-search-category",
-    "blankDatasource": "span:contains('New Datasource')",
+    "blankDatasource": "span:contains('New datasource')",
     "fileOperation": ".t--file-operation"
 }

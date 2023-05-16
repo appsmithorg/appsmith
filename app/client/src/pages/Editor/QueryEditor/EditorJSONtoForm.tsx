@@ -47,7 +47,6 @@ import {
 } from "components/formControls/utils";
 import {
   ACTION_EDITOR_REFRESH,
-  ACTION_EXECUTION_MESSAGE,
   CREATE_NEW_DATASOURCE,
   createMessage,
   DEBUGGER_ERRORS,
@@ -87,15 +86,12 @@ import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationR
 import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
 import {
   apiReactJsonProps,
-  handleCancelActionExecution,
-  LoadingOverlayContainer,
   NoResponse,
   responseTabComponent,
   ResponseTabErrorContainer,
   ResponseTabErrorContent,
   ResponseTabErrorDefaultMessage,
 } from "components/editorComponents/ApiResponseView";
-import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   hasCreateDatasourcePermission,
@@ -128,8 +124,8 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
-import { AIWindow } from "@appsmith/components/editorComponents/GPT";
 import SearchSnippets from "pages/common/SearchSnippets";
+import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -167,7 +163,6 @@ export const TabbedViewContainer = styled.div`
   // Minimum height of bottom tabs as it can be resized
   min-height: 36px;
   width: 100%;
-  /* padding: 0 var(--ads-v2-spaces-7); */
   .close-debugger {
     position: absolute;
     top: 0px;
@@ -175,6 +170,7 @@ export const TabbedViewContainer = styled.div`
     padding: 9px 11px;
   }
   background-color: var(--ads-v2-color-bg);
+  border-top: 1px solid var(--ads-v2-color-border);
 `;
 
 const SettingsWrapper = styled.div`
@@ -273,7 +269,6 @@ const TabContainerView = styled.div`
   align-items: start;
   flex: 1;
   overflow: auto;
-  padding: 0 var(--ads-v2-spaces-7);
   ${thinScrollbar}
   a {
     font-size: 14px;
@@ -286,10 +281,18 @@ const TabContainerView = styled.div`
     height: 100%;
 
     & > .ads-v2-tabs__panel {
-      height: calc(100% - 70px);
+      height: calc(100% - 50px);
       overflow-y: scroll;
     }
   }
+`;
+
+const TabsListWrapper = styled.div`
+  padding: 0 var(--ads-v2-spaces-7);
+`;
+
+const TabPanelWrapper = styled(TabPanel)`
+  padding: 0 var(--ads-v2-spaces-7);
 `;
 
 const Wrapper = styled.div`
@@ -327,8 +330,7 @@ export const SegmentedControlContainer = styled.div`
 
 const DebuggerWithPadding = styled.div`
   .t--query-bottom-pane-container .ads-v2-tabs__list {
-    padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-6);
-    border-top: 1px solid var(--ads-v2-color-border);
+    padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-7);
   }
 `;
 
@@ -937,11 +939,16 @@ export function EditorJSONtoForm(props: Props) {
                   onValueChange={setSelectedConfigTab}
                   value={selectedConfigTab || EDITOR_TABS.QUERY}
                 >
-                  <TabsList>
-                    <Tab value={EDITOR_TABS.QUERY}>Query</Tab>
-                    <Tab value={EDITOR_TABS.SETTINGS}>Settings</Tab>
-                  </TabsList>
-                  <TabPanel className="tab-panel" value={EDITOR_TABS.QUERY}>
+                  <TabsListWrapper>
+                    <TabsList>
+                      <Tab value={EDITOR_TABS.QUERY}>Query</Tab>
+                      <Tab value={EDITOR_TABS.SETTINGS}>Settings</Tab>
+                    </TabsList>
+                  </TabsListWrapper>
+                  <TabPanelWrapper
+                    className="tab-panel"
+                    value={EDITOR_TABS.QUERY}
+                  >
                     <SettingsWrapper>
                       {editorConfig && editorConfig.length > 0 ? (
                         renderConfig(editorConfig)
@@ -978,15 +985,15 @@ export function EditorJSONtoForm(props: Props) {
                         </NoDataSourceContainer>
                       )}
                     </SettingsWrapper>
-                  </TabPanel>
-                  <TabPanel value={EDITOR_TABS.SETTINGS}>
+                  </TabPanelWrapper>
+                  <TabPanelWrapper value={EDITOR_TABS.SETTINGS}>
                     <SettingsWrapper>
                       <ActionSettings
                         actionSettingsConfig={settingConfig}
                         formName={formName}
                       />
                     </SettingsWrapper>
-                  </TabPanel>
+                  </TabPanelWrapper>
                 </Tabs>
                 {documentationLink && (
                   <Tooltip
@@ -1024,24 +1031,10 @@ export function EditorJSONtoForm(props: Props) {
                         snapToHeight={ActionExecutionResizerHeight}
                       />
                       {isRunning && (
-                        <>
-                          <LoadingOverlayScreen theme={EditorTheme.LIGHT} />
-                          <LoadingOverlayContainer>
-                            <Text textAlign={"center"} type={TextType.P1}>
-                              {createMessage(ACTION_EXECUTION_MESSAGE, "query")}
-                            </Text>
-                            <Button
-                              className={`t--cancel-action-button`}
-                              kind="secondary"
-                              onClick={() => {
-                                handleCancelActionExecution();
-                              }}
-                              size="md"
-                            >
-                              Cancel request
-                            </Button>
-                          </LoadingOverlayContainer>
-                        </>
+                        <ActionExecutionInProgressView
+                          actionType="query"
+                          theme={EditorTheme.LIGHT}
+                        />
                       )}
 
                       {output && !!output.length && (
@@ -1073,7 +1066,6 @@ export function EditorJSONtoForm(props: Props) {
                   </DebuggerWithPadding>
                 )}
             </SecondaryWrapper>
-            <AIWindow className="border-t border-l" windowType="fixed" />
           </div>
           <SidebarWrapper
             show={(hasDependencies || !!output) && !guidedTourEnabled}

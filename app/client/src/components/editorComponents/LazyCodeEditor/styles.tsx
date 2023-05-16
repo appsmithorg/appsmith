@@ -98,6 +98,6 @@ export const ProgressBar = styled.div`
 
 export const SpinnerContainer = styled.div`
   position: absolute;
-  top: 8px;
+  top: 10px;
   right: 8px;
 `;

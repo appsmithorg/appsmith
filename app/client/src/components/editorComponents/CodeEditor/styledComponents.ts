@@ -80,36 +80,6 @@ export const EditorWrapper = styled.div<{
   flex: 1;
   flex-direction: row;
   text-transform: none;
-  &:hover {
-    && {
-      .cm-s-duotone-light.CodeMirror {
-        cursor: pointer;
-        border-radius: var(--ads-v2-border-radius);
-        border-color: var(--ads-v2-color-border-emphasis);
-        ${(props) =>
-          props?.removeHoverAndFocusStyle &&
-          `
-          border-color: transparent;
-        `}
-      }
-    }
-  }
-  &:focus,
-  &:focus-visible {
-    && {
-      .cm-s-duotone-light.CodeMirror {
-        cursor: pointer;
-        border-radius: var(--ads-v2-border-radius);
-        border-color: var(--ads-v2-color-border-emphasis-plus);
-
-        ${(props) =>
-          props?.removeHoverAndFocusStyle &&
-          `
-          border-color: transparent;
-        `}
-      }
-    }
-  }
 
   && {
     .CodeMirror-cursor {
@@ -506,8 +476,8 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
         }
       }
     }
-    .commands-button {
-      display: flex;
+    button {
+      visibility: visible;
     }
   }
   border-radius: var(--ads-v2-border-radius);
@@ -516,20 +486,5 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
   }
   .lightning-menu {
     z-index: 1 !important;
-  }
-  .commands-button {
-    z-index: 2;
-    position: absolute;
-    right: 0;
-    height: 20px;
-    bottom: 18px;
-    transform: translate(-50%, 50%);
-    display: none;
-    border: none;
-    font-weight: bold;
-    font-size: 14px;
-    font-style: italic;
-    margin: 0 !important;
-    top: -2px;
   }
 `;

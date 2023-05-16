@@ -82,7 +82,7 @@ class RequestConfirmationModal extends React.Component<Props> {
             open={modalInfo?.modalOpen}
           >
             <ModalContent style={{ width: "600px" }}>
-              <ModalHeader>Confirmation Dialog</ModalHeader>
+              <ModalHeader>Confirmation dialog</ModalHeader>
               <ModalBody>
                 {createMessage(QUERY_CONFIRMATION_MODAL_MESSAGE)}{" "}
                 <b>{modalInfo.name}</b> ?

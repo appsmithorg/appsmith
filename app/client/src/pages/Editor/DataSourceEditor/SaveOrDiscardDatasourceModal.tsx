@@ -46,7 +46,7 @@ function SaveOrDiscardDatasourceModal(props: SaveOrDiscardModalProps) {
 
   return (
     <Modal onOpenChange={onClose} open={isOpen}>
-      <ModalContent>
+      <ModalContent style={{ width: "600px" }}>
         <ModalHeader>
           {createMessage(DELETE_CONFIRMATION_MODAL_TITLE)}
         </ModalHeader>

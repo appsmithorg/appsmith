@@ -458,7 +458,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               onOpenChange={(isOpen) => setShowModal(isOpen)}
               open={showModal}
             >
-              <ModalContent>
+              <ModalContent style={{ width: "640px" }}>
                 <ModalHeader>Application Invite</ModalHeader>
                 <ModalBody>
                   <Tabs

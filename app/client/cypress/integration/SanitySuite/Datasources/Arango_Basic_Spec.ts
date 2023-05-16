@@ -320,7 +320,7 @@ describe("Validate Arango & CURL Import Datasources", () => {
     _.entityExplorer.DeleteAllQueriesForDB(dsName);
 
     //Deleting collection via Curl
-    _.entityExplorer.CreateNewDsQuery("New cURL Import", false);
+    _.entityExplorer.CreateNewDsQuery("New cURL import", false);
     cy.fixture("datasources").then((datasourceFormData) => {
       let curlDeleteCol =
         `curl --request DELETE --url http://` +
