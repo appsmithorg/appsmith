@@ -273,9 +273,6 @@ configure_supervisord() {
   fi
 
   cp -f "$SUPERVISORD_CONF_PATH/application_process/"*.conf /etc/supervisor/conf.d
-  
-  # Copy Supervisor Listiner confs to conf.d
-  cp -f "$SUPERVISORD_CONF_PATH/event_listeners/"*.conf /etc/supervisor/conf.d
 
   # Disable services based on configuration
   if [[ -z "${DYNO}" ]]; then
