@@ -186,7 +186,7 @@ describe("List widget V2 page number and page size", () => {
 
       //.1: Click on Write query area
       cy.get(queryLocators.templateMenu).click();
-      cy.get(queryLocators.query).click({ force: true });
+      cy.xpath(queryLocators.query).click({ force: true });
 
       // writing query to get the schema
       cy.get(".CodeMirror textarea")
@@ -249,7 +249,7 @@ describe("List widget V2 page number and page size", () => {
 
       //.1: Click on Write query area
       cy.get(queryLocators.templateMenu).click();
-      cy.get(queryLocators.query).click({ force: true });
+      cy.xpath(queryLocators.query).click({ force: true });
 
       // writing query to get the schema
       cy.get(".CodeMirror textarea")

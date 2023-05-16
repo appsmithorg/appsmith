@@ -288,7 +288,7 @@ describe("Git sync apps", function () {
     cy.get(queryLocators.queryNameField).type("get_users");
     cy.get(queryLocators.switch).last().click({ force: true });
     cy.get(queryLocators.templateMenu).click();
-    cy.get(queryLocators.query).click({ force: true });
+    cy.xpath(queryLocators.query).click({ force: true });
     // writing query to get the schema
     cy.get(".CodeMirror textarea")
       .first()
