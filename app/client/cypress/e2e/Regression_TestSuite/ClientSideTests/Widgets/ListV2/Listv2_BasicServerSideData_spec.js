@@ -359,7 +359,7 @@ describe("List widget v2 - Basic server side data tests", () => {
 
       //.1: Click on Write query area
       cy.get(queryLocators.templateMenu).click();
-      cy.get(queryLocators.query).click({
+      cy.xpath(queryLocators.query).click({
         force: true,
       });
 
@@ -417,7 +417,7 @@ describe("List widget v2 - Basic server side data tests", () => {
 
       //.1: Click on Write query area
       cy.get(queryLocators.templateMenu).click();
-      cy.get(queryLocators.query).click({
+      cy.xpath(queryLocators.query).click({
         force: true,
       });
 

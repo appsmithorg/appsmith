@@ -26,7 +26,7 @@ describe("API Panel Test Functionality", function () {
     cy.get(queryLocators.templateMenu).click();
     cy.get(queryLocators.settings).click({ force: true });
     cy.get(queryLocators.switch).last().click({ force: true });
-    cy.get(queryLocators.query).click({ force: true });
+    cy.xpath(queryLocators.query).click({ force: true });
     cy.get(".CodeMirror textarea")
       .first()
       .focus()

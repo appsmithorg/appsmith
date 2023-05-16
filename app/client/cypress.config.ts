@@ -23,11 +23,14 @@ export default defineConfig({
     openMode: 0,
   },
   e2e: {
+    setupNodeEvents(on, config) {
+      return require("./cypress/plugins/index.js")(on, config);
+    },
     env: {
       USERNAME: "xxxx",
       PASSWORD: "xxx",
     },
     baseUrl: "https://dev.appsmith.com/",
-    specPattern: "cypress/e2e/**/*.{js,ts}"
+    specPattern: "cypress/e2e/**/*.{js,ts}",
   },
 });
