@@ -2,6 +2,7 @@ import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 import {
   encodedWordDoc,
   encodedXlsxDoc,
+  encodedXlsDoc,
 } from "../../../../../fixtures/exampleEncodedDocs";
 const ee = ObjectsRegistry.EntityExplorer,
   locator = ObjectsRegistry.CommonLocators,
@@ -64,14 +65,31 @@ describe("DocumentViewer Widget Functionality", () => {
     );
     deployMode.NavigateBacktoEditor();
   });
-  it("6. Should show a xlsx document correctly", () => {
+  it("6. Should show a xlsx/xls document correctly and should be able to render different documents without having to add the widget again", () => {
     ee.SelectEntityByName("DocumentViewer1", "Widgets");
     propPane.UpdatePropertyFieldValue("Document link", encodedXlsxDoc);
     deployMode.DeployApp();
     //"456" is pressent in the encoded xlsx doc
     cy.get(locator._widgetInDeployed("documentviewerwidget")).should(
       "contain",
-      "456",
+      "r1a",
+    );
+    cy.get(locator._widgetInDeployed("documentviewerwidget"))
+      .get('button:contains("Copy of Sheet1")')
+      .click();
+    cy.get(locator._widgetInDeployed("documentviewerwidget")).should(
+      "contain",
+      "SHEET 2r1a",
+    );
+    deployMode.NavigateBacktoEditor();
+
+    ee.SelectEntityByName("DocumentViewer1", "Widgets");
+    propPane.UpdatePropertyFieldValue("Document Link", encodedXlsDoc);
+    deployMode.DeployApp();
+    //"456" is pressent in the encoded xlsx doc
+    cy.get(locator._widgetInDeployed("documentviewerwidget")).should(
+      "contain",
+      "First Name",
     );
     deployMode.NavigateBacktoEditor();
   });
@@ -94,5 +112,6 @@ describe("DocumentViewer Widget Functionality", () => {
       "contain",
       "invalid base64 data",
     );
+    deployMode.NavigateBacktoEditor();
   });
 });
