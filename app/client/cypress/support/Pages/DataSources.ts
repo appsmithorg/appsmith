@@ -1055,7 +1055,7 @@ export class DataSources {
     this.agHelper.AssertElementVisible(this._datasourceModalSave);
     if (save) {
       this.agHelper.GetNClick(
-        this.locator._visibleTextSpan("SAVE"),
+        this.locator._visibleTextSpan("Save"),
         0,
         false,
         0,
@@ -1064,7 +1064,7 @@ export class DataSources {
       this.agHelper.AssertContains("datasource created");
     } else
       this.agHelper.GetNClick(
-        this.locator._visibleTextSpan("Don't Save"),
+        this.locator._visibleTextSpan("Don't save"),
         0,
         false,
         0,
