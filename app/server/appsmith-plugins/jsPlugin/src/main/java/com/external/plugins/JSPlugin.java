@@ -10,7 +10,6 @@ import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import reactor.core.publisher.Mono;
 
-import java.util.Properties;
 import java.util.Set;
 
 public class JSPlugin extends BasePlugin {

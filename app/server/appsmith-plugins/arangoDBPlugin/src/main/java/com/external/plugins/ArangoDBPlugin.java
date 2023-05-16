@@ -24,7 +24,6 @@ import com.arangodb.entity.CollectionEntity;
 import com.arangodb.model.CollectionsReadOptions;
 import com.external.plugins.exceptions.ArangoDBErrorMessages;
 import com.external.plugins.exceptions.ArangoDBPluginError;
-import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;

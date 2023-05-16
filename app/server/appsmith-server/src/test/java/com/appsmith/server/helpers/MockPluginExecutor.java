@@ -10,7 +10,6 @@ import com.appsmith.external.plugins.PluginExecutor;
 import reactor.core.publisher.Mono;
 
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
 
 public class MockPluginExecutor implements PluginExecutor {

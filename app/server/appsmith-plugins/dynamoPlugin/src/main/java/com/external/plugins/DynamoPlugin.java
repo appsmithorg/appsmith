@@ -15,7 +15,6 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.external.plugins.exceptions.DynamoErrorMessages;
 import com.external.plugins.exceptions.DynamoPluginError;
-import java.util.Properties;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;

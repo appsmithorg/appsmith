@@ -29,7 +29,6 @@ import com.external.constants.FieldName;
 import com.external.plugins.exceptions.GSheetsPluginError;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
