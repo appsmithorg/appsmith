@@ -52,14 +52,6 @@ const DataSourcesIconV2 = importSvg(
 const CurlIcon = importSvg(() => import("assets/images/Curl-logo.svg"));
 const JSIconV2 = importSvg(() => import("assets/icons/menu/js-icon.svg"));
 const QueryMain = importSvg(() => import("assets/icons/menu/query-main.svg"));
-const PageIcon = importRemixIcon(() => import("remixicon-react/PagesLineIcon"));
-const WidgetsIcon = importRemixIcon(
-  () => import("remixicon-react/FunctionLineIcon"),
-);
-const CurrentPageIcon = importRemixIcon(
-  () => import("remixicon-react/CheckLineIcon"),
-);
-const EyeOff = importRemixIcon(() => import("remixicon-react/EyeOffLineIcon"));
 const SortIcon = importRemixIcon(
   () => import("remixicon-react/ArrowUpDownLineIcon"),
 );
@@ -91,7 +83,7 @@ export const MenuIcons: {
 } = {
   WIDGETS_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
-      <WidgetsIcon />
+      <DSIcon name="widget" size="md" />
     </IconWrapper>
   ),
   JS_ICON: (props: IconProps) => (
@@ -121,12 +113,12 @@ export const MenuIcons: {
   ),
   PAGES_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
-      <PageIcon />
+      <DSIcon name="page-line" size="md" />
     </IconWrapper>
   ),
   PAGE_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
-      <PageIcon />
+      <DSIcon name="page-line" size="md" />
     </IconWrapper>
   ),
   DATASOURCES_ICON: (props: IconProps) => (
@@ -211,7 +203,7 @@ export const MenuIcons: {
   ),
   EYES_OFF_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
-      <EyeOff />
+      <DSIcon name="eye-off" size="md" />
     </IconWrapper>
   ),
   QUERY_MAIN: (props: IconProps) => (
@@ -221,7 +213,7 @@ export const MenuIcons: {
   ),
   CURRENT_PAGE_ICON: (props: IconProps) => (
     <IconWrapper {...props}>
-      <CurrentPageIcon />
+      <DSIcon name="check-line" size="md" />
     </IconWrapper>
   ),
   SORT_ICON: (props: IconProps) => (

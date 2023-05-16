@@ -32,6 +32,15 @@ import { Button } from "design-system";
 
 const TABS_HEADER_HEIGHT = 36;
 
+export const CloseDebugger = styled(Button)`
+  &.close-debugger {
+    position: absolute;
+    top: 3px;
+    right: 0px;
+    padding: 9px 11px;
+  }
+`;
+
 const Container = styled.div`
   ${ResizerCSS};
   position: absolute;
@@ -46,13 +55,6 @@ const Container = styled.div`
   }
   .ads-v2-tabs__panel {
     height: calc(100% - ${TABS_HEADER_HEIGHT}px);
-  }
-
-  .close-debugger {
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    padding: 9px 11px;
   }
 `;
 
@@ -123,7 +125,7 @@ function DebuggerTabs() {
         selectedTabKey={selectedTab}
         tabs={DEBUGGER_TABS}
       />
-      <Button
+      <CloseDebugger
         className="close-debugger t--close-debugger"
         isIconButton
         kind="tertiary"
