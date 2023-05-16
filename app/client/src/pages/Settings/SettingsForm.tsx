@@ -42,10 +42,10 @@ import {
   MaxWidthWrapper,
 } from "./components";
 import { BackButton } from "components/utils/helperComponents";
-import { getThirdPartyAuths } from "@appsmith/selectors/tenantSelectors";
-import { getAppsmithConfigs } from "@appsmith/configs";
-
-const { disableLoginForm } = getAppsmithConfigs();
+import {
+  getIsFormLoginEnabled,
+  getThirdPartyAuths,
+} from "@appsmith/selectors/tenantSelectors";
 
 type FormProps = {
   settings: Record<string, string>;
@@ -81,11 +81,12 @@ export function SettingsForm(
   const pageTitle = getSettingLabel(
     details?.title || (subCategory ?? category),
   );
+  const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
   const socialLoginList = useSelector(getThirdPartyAuths);
 
   const onSave = () => {
     if (checkMandatoryFileds()) {
-      if (saveAllowed(props.settings, socialLoginList)) {
+      if (saveAllowed(props.settings, isFormLoginEnabled, socialLoginList)) {
         AnalyticsUtil.logEvent("ADMIN_SETTINGS_SAVE", {
           method: pageTitle,
         });
@@ -174,7 +175,7 @@ export function SettingsForm(
   const disconnect = (currentSettings: AdminConfig) => {
     const updatedSettings: any = {};
     const connectedMethodsCount =
-      socialLoginList.length + (disableLoginForm ? 0 : 1);
+      socialLoginList.length + (isFormLoginEnabled ? 1 : 0);
     if (connectedMethodsCount >= 2) {
       _.forEach(currentSettings, (setting: Setting) => {
         if (
