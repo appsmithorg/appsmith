@@ -147,6 +147,7 @@ export function* updateDataTreeHandler(
     staleMetaIds,
     pathsToClearErrorsFor,
     isNewWidgetAdded,
+    undefinedEvalValuesMap,
   } = evalTreeResponse;
 
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
@@ -205,6 +206,7 @@ export function* updateDataTreeHandler(
         isCreateFirstTree,
         isNewWidgetAdded,
         configTree,
+        undefinedEvalValuesMap,
       );
     }
 

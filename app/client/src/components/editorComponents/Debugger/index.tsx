@@ -13,13 +13,14 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import {
+  getDebuggerSelectedTab,
   getMessageCount,
   hideDebuggerIconSelector,
   showDebuggerFlag,
 } from "selectors/debuggerSelectors";
 import { getTypographyByKey, TooltipComponent } from "design-system-old";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
-import { BottomBarCTAStyles } from "pages/Editor/BottomBar/styles";
+import { BottomBarCTAStyles } from "ce/components/BottomBar/styles";
 import { Colors } from "constants/Colors";
 
 function Debugger() {
@@ -86,24 +87,29 @@ export function DebuggerTrigger() {
   const showDebugger = useSelector(
     (state: AppState) => state.ui.debugger.isOpen,
   );
+  const selectedTab = useSelector(getDebuggerSelectedTab);
   const messageCounters = useSelector(getMessageCount);
   const totalMessageCount = messageCounters.errors + messageCounters.warnings;
   const hideDebuggerIcon = useSelector(hideDebuggerIconSelector);
   dispatch(setErrorCount(totalMessageCount));
 
   const onClick = (e: any) => {
-    //Removed canavs condition
-    //Because we want to show debugger in all pages.
-    //Updated in PR #21753 and commit id ee87fa2
-    dispatch(showDebuggerAction(!showDebugger));
+    // If debugger is already open and selected tab is error tab then we will close debugger.
+    if (showDebugger && selectedTab === DEBUGGER_TAB_KEYS.ERROR_TAB) {
+      dispatch(showDebuggerAction(false));
+    } else {
+      // If debugger is not open then we will open debugger and show error tab.
+      if (!showDebugger) {
+        dispatch(showDebuggerAction(true));
+      }
+      // Select error tab if debugger is open and selected tab is not error tab.
+      // And also when we are opening debugger.
+      dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+    }
     if (!showDebugger)
       AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
         source: "CANVAS",
       });
-    //Removed as this logic was confusing
-    // Now on click of debugger we will always show error tab.
-    dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
-
     stopEventPropagation(e);
   };
 

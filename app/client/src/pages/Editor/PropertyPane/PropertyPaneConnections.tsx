@@ -41,7 +41,7 @@ import {
   interactionAnalyticsEvent,
   INTERACTION_ANALYTICS_EVENT,
 } from "utils/AppsmithUtils";
-import type { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover/popoverSharedProps";
+import type { PopoverPosition } from "@blueprintjs/core";
 import equal from "fast-deep-equal";
 import { mapValues, pick } from "lodash";
 import { createSelector } from "reselect";

@@ -8,14 +8,14 @@ import type { DropdownOption } from "../constants";
 import type { IItemRendererProps } from "@blueprintjs/select";
 import { Select } from "@blueprintjs/select";
 import _ from "lodash";
-import "../../../../node_modules/@blueprintjs/select/lib/css/blueprint-select.css";
+import "@blueprintjs/select/lib/css/blueprint-select.css";
 import { BlueprintCSSTransform } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import type { TextSize } from "constants/WidgetConstants";
 import Fuse from "fuse.js";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import type { LabelPosition } from "components/constants";
-import { Icon } from "design-system-old";
+import { Icon } from "@design-system/widgets-old";
 import LabelWithTooltip, {
   labelLayoutStyles,
 } from "widgets/components/LabelWithTooltip";
