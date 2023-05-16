@@ -42,8 +42,6 @@ import {
   getPlugin,
   getEditorConfig,
   getPluginNameFromId,
-  getFormName,
-  getFormDiffPaths,
 } from "selectors/entitiesSelector";
 import type {
   UpdateDatasourceSuccessAction,
@@ -80,7 +78,7 @@ import {
 } from "@appsmith/constants/forms";
 import { validateResponse } from "./ErrorSagas";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getFormData } from "selectors/formSelectors";
+import { getFormData, getFormDiffPaths } from "selectors/formSelectors";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { Toaster, Variant } from "design-system-old";
 import { getConfigInitialValues } from "components/formControls/utils";
@@ -90,6 +88,7 @@ import {
   createMessage,
   DATASOURCE_CREATE,
   DATASOURCE_DELETE,
+  DATASOURCE_SCHEMA_NOT_AVAILABLE,
   DATASOURCE_UPDATE,
   DATASOURCE_VALID,
   FILES_NOT_SELECTED_EVENT,
@@ -134,6 +133,7 @@ import { getUntitledDatasourceSequence } from "utils/DatasourceSagaUtils";
 import { fetchPluginFormConfig } from "actions/pluginActions";
 import { addClassToDocumentBody } from "pages/utils";
 import { AuthorizationStatus } from "pages/common/datasourceAuth";
+import { getFormName } from "utils/editorContextUtils";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -382,7 +382,7 @@ function* updateDatasourceSaga(
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const plugin: Plugin = yield select(getPlugin, response?.data?.pluginId);
-      const formName: string = yield select(getFormName, plugin?.id);
+      const formName: string = getFormName(plugin);
       const state: AppState = yield select();
       const isFormValid = isValid(formName)(state);
       const formDiffPaths: string[] = yield select(getFormDiffPaths, formName);
@@ -697,7 +697,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     AnalyticsUtil.logEvent("TEST_DATA_SOURCE_FAILED", {
       datasoureId: datasource?.id,
       pluginName: plugin?.name,
-      errorMessages: error,
+      errorMessages: (error as any)?.message,
     });
     AppsmithConsole.error({
       text: "Test Connection failed",
@@ -793,7 +793,7 @@ function* createDatasourceFromFormSaga(
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const plugin: Plugin = yield select(getPlugin, response?.data?.pluginId);
-      const formName: string = yield select(getFormName, plugin?.id);
+      const formName: string = getFormName(plugin);
       const state: AppState = yield select();
       const isFormValid = isValid(formName)(state);
       const formDiffPaths: string[] = yield select(getFormDiffPaths, formName);
@@ -1073,7 +1073,7 @@ function* fetchDatasourceStructureSaga(
         AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH_FAILURE", {
           datasourceId: datasource?.id,
           pluginName: plugin?.name,
-          errorMessage: "Schema is not available",
+          errorMessage: createMessage(DATASOURCE_SCHEMA_NOT_AVAILABLE),
         });
         AppsmithConsole.warning({
           text: "Datasource structure could not be retrieved",
@@ -1110,7 +1110,7 @@ function* fetchDatasourceStructureSaga(
     AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH_FAILURE", {
       datasourceId: datasource?.id,
       pluginName: plugin?.name,
-      errorMessage: error,
+      errorMessage: (error as any)?.message,
     });
     yield put({
       type: ReduxActionErrorTypes.FETCH_DATASOURCE_STRUCTURE_ERROR,
@@ -1160,7 +1160,7 @@ function* refreshDatasourceStructure(action: ReduxAction<{ id: string }>) {
         AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH_FAILURE", {
           datasourceId: datasource?.id,
           pluginName: plugin?.name,
-          errorMessage: "Schema is not available",
+          errorMessage: createMessage(DATASOURCE_SCHEMA_NOT_AVAILABLE),
         });
         AppsmithConsole.warning({
           text: "Datasource structure could not be retrieved",
@@ -1197,7 +1197,7 @@ function* refreshDatasourceStructure(action: ReduxAction<{ id: string }>) {
     AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_FETCH_FAILURE", {
       datasourceId: datasource?.id,
       pluginName: plugin?.name,
-      errorMessage: error,
+      errorMessage: (error as any)?.message,
     });
     yield put({
       type: ReduxActionErrorTypes.REFRESH_DATASOURCE_STRUCTURE_ERROR,
@@ -1619,7 +1619,7 @@ function* datasourceDiscardActionSaga(
 ) {
   const { pluginId } = actionPayload.payload;
   const plugin: Plugin = yield select(getPlugin, pluginId);
-  const formName: string = yield select(getFormName, pluginId);
+  const formName: string = getFormName(plugin);
   const formDiffPaths: string[] = yield select(getFormDiffPaths, formName);
   AnalyticsUtil.logEvent("DISCARD_DATASOURCE_CHANGES", {
     pluginName: plugin?.name,

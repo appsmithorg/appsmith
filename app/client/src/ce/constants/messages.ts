@@ -1614,6 +1614,7 @@ export const GOOGLE_SHEETS_INFO_BANNER_MESSAGE = () =>
   "Appsmith will require access to your google drive to access google sheets.";
 export const GOOGLE_SHEETS_AUTHORIZE_DATASOURCE = () => "Authorize Datasource";
 export const GOOGLE_SHEETS_LEARN_MORE = () => "Learn more";
+export const DATASOURCE_SCHEMA_NOT_AVAILABLE = () => "Schema is not available";
 
 //Layout Conversion flow
 export const CONVERT = () => "CONVERT";

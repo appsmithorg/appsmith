@@ -7,13 +7,14 @@ import type {
   FormEvaluationState,
 } from "reducers/evaluationReducers/formEvaluationReducer";
 import { createSelector } from "reselect";
-import { isEmpty, replace } from "lodash";
+import { isArray, isEmpty, replace } from "lodash";
 import { getDataTree } from "./dataTreeSelectors";
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import type { Action } from "entities/Action";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getActionIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers";
 import { extractConditionalOutput } from "components/formControls/utils";
+import { diff } from "deep-diff";
 
 export type GetFormData = {
   initialValues: Record<string, unknown>;
@@ -107,3 +108,22 @@ export const getConfigErrors = createSelector(
     return configErrors;
   },
 );
+
+export const getFormDiffPaths = (
+  state: AppState,
+  formName: string,
+): string[] => {
+  const difference = diff(
+    getFormInitialValues(formName)(state),
+    getFormValues(formName)(state),
+  );
+  const diffPaths: string[] = [];
+  if (!!difference) {
+    difference.forEach((diff) => {
+      if (!!diff.path && isArray(diff.path)) {
+        diffPaths.push(diff.path.join("."));
+      }
+    });
+  }
+  return diffPaths;
+};

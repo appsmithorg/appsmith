@@ -13,7 +13,7 @@ import type {
 import { isEmbeddedRestDatasource } from "entities/Datasource";
 import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
-import { find, get, isArray, sortBy } from "lodash";
+import { find, get, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -41,14 +41,7 @@ import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
 import type { TJSLibrary } from "workers/common/JSLibrary";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { getFormInitialValues, getFormValues } from "redux-form";
-import type { Plugin } from "api/PluginApi";
-import {
-  DATASOURCE_DB_FORM,
-  DATASOURCE_REST_API_FORM,
-  DATASOURCE_SAAS_FORM,
-} from "ce/constants/forms";
-import { diff } from "deep-diff";
+import { getFormValues } from "redux-form";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -1069,40 +1062,4 @@ export const getDatasourceScopeValue = (
     (option: any) => option.value === scopeValue,
   )?.label;
   return label;
-};
-
-export const getFormName = (state: AppState, pluginId: string) => {
-  const plugin: Plugin | undefined = getPlugin(state, pluginId);
-  const pluginType = plugin?.type;
-  if (!!pluginType) {
-    switch (pluginType) {
-      case PluginType.DB:
-      case PluginType.REMOTE:
-        return DATASOURCE_DB_FORM;
-      case PluginType.SAAS:
-        return DATASOURCE_SAAS_FORM;
-      case PluginType.API:
-        return DATASOURCE_REST_API_FORM;
-    }
-  }
-  return DATASOURCE_DB_FORM;
-};
-
-export const getFormDiffPaths = (
-  state: AppState,
-  formName: string,
-): string[] => {
-  const difference = diff(
-    getFormInitialValues(formName)(state),
-    getFormValues(formName)(state),
-  );
-  const diffPaths: string[] = [];
-  if (!!difference) {
-    difference.forEach((diff) => {
-      if (!!diff.path && isArray(diff.path)) {
-        diffPaths.push(diff.path.join("."));
-      }
-    });
-  }
-  return diffPaths;
 };

@@ -1,5 +1,10 @@
 import type { Plugin } from "api/PluginApi";
-import { PluginPackageName } from "entities/Action";
+import {
+  DATASOURCE_DB_FORM,
+  DATASOURCE_REST_API_FORM,
+  DATASOURCE_SAAS_FORM,
+} from "ce/constants/forms";
+import { PluginPackageName, PluginType } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
 import { AuthenticationStatus, AuthType } from "entities/Datasource";
 export function isCurrentFocusOnInput() {
@@ -120,4 +125,20 @@ export function getDatasourcePropertyValue(
   }
 
   return null;
+}
+
+export function getFormName(plugin: Plugin): string {
+  const pluginType = plugin?.type;
+  if (!!pluginType) {
+    switch (pluginType) {
+      case PluginType.DB:
+      case PluginType.REMOTE:
+        return DATASOURCE_DB_FORM;
+      case PluginType.SAAS:
+        return DATASOURCE_SAAS_FORM;
+      case PluginType.API:
+        return DATASOURCE_REST_API_FORM;
+    }
+  }
+  return DATASOURCE_DB_FORM;
 }
