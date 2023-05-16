@@ -71,6 +71,8 @@ export class DataSources {
   _createQuery = ".t--create-query";
   _visibleTextSpan = (spanText: string) =>
     "//span[contains(text(),'" + spanText + "')]";
+  _dsOptionMenuItem = (text: string) =>
+    "//div[@role='menuitem']//span[text()='" + text + "']";
   _dropdownTitle = (ddTitle: string) =>
     "//p[contains(text(),'" +
     ddTitle +
@@ -660,13 +662,8 @@ export class DataSources {
     expectedRes = 200 || 409 || [200 | 409],
   ) {
     this.ClickActiveTabDSContextMenu(datasourceName);
-    this.agHelper.GetNClick(
-      this.locator._visibleTextSpan("Delete"),
-      0,
-      false,
-      200,
-    );
-    this.agHelper.GetNClick(this._visibleTextSpan("Are you sure?"));
+    this.agHelper.GetNClick(this._dsOptionMenuItem("Delete"), 0, false, 200);
+    this.agHelper.GetNClick(this._dsOptionMenuItem("Are you sure?"));
     this.ValidateDSDeletion(expectedRes);
   }
 

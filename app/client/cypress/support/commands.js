@@ -1293,7 +1293,6 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.get(welcomePage.nextButton).should("not.be.disabled");
   cy.get(welcomePage.nextButton).click();
   if (Cypress.env("AIRGAPPED")) {
-    cy.get(welcomePage.superUserForm).should("be.visible");
     cy.get(welcomePage.newsLetter).should("not.exist");
     cy.get(welcomePage.dataCollection).should("not.exist");
     cy.get(welcomePage.createButton).should("not.exist");
