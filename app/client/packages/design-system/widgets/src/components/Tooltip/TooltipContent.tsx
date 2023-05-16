@@ -1,19 +1,21 @@
 import React, { forwardRef } from "react";
 
 import { Text } from "../Text";
+import type {
+  TooltipContentRef as HeadlessTooltipContentRef,
+  TooltipContentProps as HeadlessTooltipContentProps,
+} from "@design-system/headless";
 import { StyledTooltipContent } from "./index.styled";
 
-type TooltipContentRef = React.Ref<HTMLDivElement>;
-type TooltipContentProps = React.HTMLAttributes<HTMLDivElement>;
-
-const PORTAL_ID = "canvas";
+// (TODO) [Pawan] Move this constant to a common place
+const PORTAL_ID = "wds-theme-provider";
 
 export const TooltipContent = forwardRef(
-  (props: TooltipContentProps, ref: TooltipContentRef) => {
-    const { children, ...rest } = props;
+  (props: HeadlessTooltipContentProps, ref: HeadlessTooltipContentRef) => {
+    const { children, portalId = PORTAL_ID, ...rest } = props;
 
     return (
-      <StyledTooltipContent portalId={PORTAL_ID} ref={ref} {...rest}>
+      <StyledTooltipContent portalId={portalId} ref={ref} {...rest}>
         {typeof children === "string" ? <Text>{children}</Text> : children}
       </StyledTooltipContent>
     );

@@ -7,9 +7,14 @@ import {
 
 import { useTooltipContext } from "./TooltipContext";
 
+export type TooltipContentProps = React.HTMLAttributes<HTMLDivElement> & {
+  portalId?: string;
+};
+export type TooltipContentRef = React.Ref<HTMLDivElement>;
+
 export const TooltipContent = React.forwardRef(function TooltipContent(
-  props: React.HTMLProps<HTMLDivElement> & { portalId?: string },
-  propRef: React.Ref<HTMLDivElement>,
+  props: TooltipContentProps,
+  propRef: TooltipContentRef,
 ) {
   const context = useTooltipContext();
   const ref = useMergeRefs([context.refs.setFloating, propRef]);
