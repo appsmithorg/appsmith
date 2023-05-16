@@ -100,6 +100,7 @@ const Tab = styled.div<{ isSelected: boolean }>`
   border-radius: var(--ads-v2-border-radius);
   margin-bottom: 2px;
   padding-top: 4px;
+  border-bottom: var(--ads-v2-color-border-brand);
 
   &:after {
     content: "";
