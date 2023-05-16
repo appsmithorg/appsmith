@@ -14,13 +14,11 @@ import {
 import { logoutUser, updateUserDetails } from "actions/userActions";
 import UserProfileImagePicker from "./UserProfileImagePicker";
 import { Wrapper, FieldWrapper, LabelWrapper } from "./StyledComponents";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { ALL_LANGUAGE_CHARACTERS_REGEX } from "constants/Regex";
 import { createMessage } from "design-system-old/build/constants/messages";
 import { notEmptyValidator } from "design-system-old";
-
-const { disableLoginForm } = getAppsmithConfigs();
+import { getIsFormLoginEnabled } from "@appsmith/selectors/tenantSelectors";
 
 const nameValidator = (
   value: string,
@@ -46,6 +44,7 @@ const nameValidator = (
 
 function General() {
   const user = useSelector(getCurrentUser);
+  const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
   const [name, setName] = useState(user?.name);
   const dispatch = useDispatch();
   const forgotPassword = async () => {
@@ -127,7 +126,7 @@ function General() {
             justifyContent: "flex-end",
           }}
         >
-          {!disableLoginForm && (
+          {!isFormLoginEnabled && (
             <Button
               kind="secondary"
               onClick={forgotPassword}

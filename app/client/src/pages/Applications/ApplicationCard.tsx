@@ -264,8 +264,6 @@ type ApplicationCardProps = {
   workspaceId: string;
 };
 
-const ContextDropdownWrapper = styled.div``;
-
 const CircleAppIcon = styled(AppIcon)`
   padding: 12px;
   background-color: #fff;
@@ -569,10 +567,11 @@ export function ApplicationCard(props: ApplicationCardProps) {
   };
 
   const ContextMenu = (
-    <ContextDropdownWrapper>
+    <>
       <Menu className="more" onOpenChange={handleMenuOnClose} open={isMenuOpen}>
         <MenuTrigger>
           <Button
+            className="m-0.5"
             isIconButton
             kind="tertiary"
             size="sm"
@@ -665,7 +664,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
         isModalOpen={isForkApplicationModalopen}
         setModalClose={setForkApplicationModalOpen}
       />
-    </ContextDropdownWrapper>
+    </>
   );
 
   const editedByText = () => {

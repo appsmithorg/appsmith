@@ -234,6 +234,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
         }
       }
     }
+
     .CodeMirror-Tern-hint-doc {
       display: none;
       &.visible {
@@ -250,34 +251,42 @@ export const CodemirrorHintStyles = createGlobalStyle<{
         overflow: scroll;
       }
     }
-    .CodeMirror-lint-tooltip {
-      border: none;
-      background: var(--ads-v2-color-bg);
-      box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
-      padding: 7px 12px;
-      border-radius: var(--ads-v2-border-radius);
+  }
 
-      &.${LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS} {
-        transform: translate(-100%);
-      }
-    }
+  .CodeMirror-lint-tooltip {
+    border: 1px solid var(--ads-v2-color-border) !important;
+    border-radius: var(--ads-v2-border-radius);
+    background: var(--ads-v2-color-bg) !important;
+    box-shadow: 0px 12px 28px -6px rgba(0, 0, 0, 0.32);
+    padding: 7px 12px;
+    color: var(--ads-v2-color-fg);
 
-    .CodeMirror-lint-message {
-      margin-top: 5px;
-      margin-bottom: 5px;
-      font-family: ${(props) => props.theme.fonts.text};
-      color: var(--ads-v2-color-fg);
-      background-position: 0 2.8px;
-      padding-left: 20px;
-    }
-    .CodeMirror-lint-mark-warning {
-      background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAYAAAC09K7GAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9sJFhQXEbhTg7YAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAMklEQVQI12NkgIIvJ3QXMjAwdDN+OaEbysDA4MPAwNDNwMCwiOHLCd1zX07o6kBVGQEAKBANtobskNMAAAAASUVORK5CYII=);
-    }
+    display: flex;
+    align-items: center;
+    gap: var(--ads-v2-spaces-3);
 
-    .CodeMirror-lint-message-error {
-      background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAFlSURBVHgBrVLRTcMwELWDg8QHtJ2AfFZtJNIJgAnoCOkEZIMkIzBBwwSwAR0hSG3VzzABhahCSmKbOyVxLJQEJPp+7DvfvXe+O0L+CdrmTG37RkjpwOMV2pLSt1PGorM4TnoJpOMM06JYEinnpB2RaZqhTqQIvhzHyvP8Ba4W6UfCTXM2iuM9GkbthWT/D8kI6yTLlrVh1OpwuLVTEhLDv0NlS/mAPkVB6Rz7pAiyonB1CXCuBut1gCSQHA62W8+g9FmPwSbjySoJS38ENS+dTPbnQII2qPlAFOgx9YQM0gGhNVh0jLupgNIEqmgqKMsOUJkIQbCSD9seUinvVQzshiLAP0O639RH79LpdABEHtwJfAdZr6VeYVFE1VdKfNr2U88C/UR0sdksKvESnLEFKCS/ZWIM51yNWBHgZgnObyHgsTMbRikOh9lot0uUqy3ufTy2DMZcaNplpfoKexBDM1fk2PgGIxqcuvBfxngAAAAASUVORK5CYII=");
+    &.${LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS} {
+      transform: translate(-100%);
     }
   }
+
+  .CodeMirror-lint-message {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    font-family: ${(props) => props.theme.fonts.text};
+    color: var(--ads-v2-color-fg);
+    background-position: 0 !important;
+    padding-left: 24px !important;
+  }
+
+  .CodeMirror-lint-mark-warning {
+    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAADCAYAAAC09K7GAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9sJFhQXEbhTg7YAAAAZdEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAAMklEQVQI12NkgIIvJ3QXMjAwdDN+OaEbysDA4MPAwNDNwMCwiOHLCd1zX07o6kBVGQEAKBANtobskNMAAAAASUVORK5CYII=");
+  }
+
+  .CodeMirror-lint-message-error {
+    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAFlSURBVHgBrVLRTcMwELWDg8QHtJ2AfFZtJNIJgAnoCOkEZIMkIzBBwwSwAR0hSG3VzzABhahCSmKbOyVxLJQEJPp+7DvfvXe+O0L+CdrmTG37RkjpwOMV2pLSt1PGorM4TnoJpOMM06JYEinnpB2RaZqhTqQIvhzHyvP8Ba4W6UfCTXM2iuM9GkbthWT/D8kI6yTLlrVh1OpwuLVTEhLDv0NlS/mAPkVB6Rz7pAiyonB1CXCuBut1gCSQHA62W8+g9FmPwSbjySoJS38ENS+dTPbnQII2qPlAFOgx9YQM0gGhNVh0jLupgNIEqmgqKMsOUJkIQbCSD9seUinvVQzshiLAP0O639RH79LpdABEHtwJfAdZr6VeYVFE1VdKfNr2U88C/UR0sdksKvESnLEFKCS/ZWIM51yNWBHgZgnObyHgsTMbRikOh9lot0uUqy3ufTy2DMZcaNplpfoKexBDM1fk2PgGIxqcuvBfxngAAAAASUVORK5CYII=");
+  }
+
   .sql-hint-label{
     color: #6D6D6D;
   }
@@ -287,11 +296,13 @@ export const CodemirrorHintStyles = createGlobalStyle<{
       color: #090707;
     }
   }
+
   .CodeMirror-hint-active{
     .sql-hint-label{
       color: #fff
     }
   }
+
   .CodeMirror-hint-active:hover{
     .sql-hint-label{
       color: #fff
