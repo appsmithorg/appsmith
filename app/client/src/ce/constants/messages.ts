@@ -602,8 +602,9 @@ export const ADD_MISSING_DATASOURCES = () => "Add missing Datasources";
 export const SKIP_TO_APPLICATION_TOOLTIP_HEADER = () =>
   "This action is irreversible.";
 export const SKIP_TO_APPLICATION_TOOLTIP_DESCRIPTION = () =>
-  `You can always reconnect the datasources later but until then the application might be unuseable.`;
-export const SKIP_TO_APPLICATION = () => "Skip to application";
+  `Skip this step to configure datasources later`;
+export const SKIP_TO_APPLICATION = () => "Go to application";
+export const SKIP_CONFIGURATION = () => "Skip configuration";
 export const SELECT_A_METHOD_TO_ADD_CREDENTIALS = () =>
   "Select a method to add credentials";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
@@ -818,8 +819,8 @@ export const CONTACT_SALES_MESSAGE_ON_INTERCOM = (workspaceName: string) =>
 export const REPOSITORY_LIMIT_REACHED = () => "Repository Limit Reached";
 export const REPOSITORY_LIMIT_REACHED_INFO = () =>
   "Adding and using upto 3 repositories is free. To add more repositories, kindly upgrade.";
-export const APPLICATION_IMPORT_SUCCESS = (username: string) =>
-  `${username}! Your application is ready to use.`;
+export const APPLICATION_IMPORT_SUCCESS = () =>
+  `Your application is ready to use.`;
 export const APPLICATION_IMPORT_SUCCESS_DESCRIPTION = () =>
   "All your datasources are configured and ready to use.";
 export const NONE_REVERSIBLE_MESSAGE = () =>
