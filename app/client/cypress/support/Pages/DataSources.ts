@@ -71,6 +71,8 @@ export class DataSources {
   _createQuery = ".t--create-query";
   _visibleTextSpan = (spanText: string) =>
     "//span[contains(text(),'" + spanText + "')]";
+  _dsOptionMenuItem = (text: string) =>
+    "//div[@role='menuitem']//span[text()='" + text + "']";
   _dropdownTitle = (ddTitle: string) =>
     "//p[contains(text(),'" +
     ddTitle +
@@ -216,7 +218,9 @@ export class DataSources {
       datasourceName,
     );
     this.agHelper.GetNClick(this._selectTableDropdown);
-    this.agHelper.GetNClick(`[data-cy='t--dropdown-option-${tableName}']`);
+    cy.get(
+      `div[role="listbox"] p[kind="span"]:contains("${tableName}")`,
+    ).click();
     this.agHelper.GetNClick(this._generatePageBtn);
     this.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Got it"));
@@ -228,7 +232,9 @@ export class DataSources {
     this.agHelper.GetNClick(this.locator._dropdownText, 1);
     this.agHelper.GetNClickByContains(this._mockDatasourceName, "Users");
     this.agHelper.GetNClick(this._selectTableDropdown);
-    this.agHelper.GetNClick("[data-testid='t--dropdown-option-public.users']");
+    cy.get(
+      `div[role="listbox"] p[kind="span"]:contains("public.city")`,
+    ).click();
     this.agHelper.GetNClick(this._generatePageBtn);
     this.agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Got it"));
@@ -656,13 +662,8 @@ export class DataSources {
     expectedRes = 200 || 409 || [200 | 409],
   ) {
     this.ClickActiveTabDSContextMenu(datasourceName);
-    this.agHelper.GetNClick(
-      this.locator._visibleTextSpan("Delete"),
-      0,
-      false,
-      200,
-    );
-    this.agHelper.GetNClick(this._visibleTextSpan("Are you sure?"));
+    this.agHelper.GetNClick(this._dsOptionMenuItem("Delete"), 0, false, 200);
+    this.agHelper.GetNClick(this._dsOptionMenuItem("Are you sure?"));
     this.ValidateDSDeletion(expectedRes);
   }
 

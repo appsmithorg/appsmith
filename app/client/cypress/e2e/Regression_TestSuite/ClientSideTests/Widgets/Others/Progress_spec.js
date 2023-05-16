@@ -60,7 +60,7 @@ describe("Progress Widget", function () {
   // Circular progress
   it("Property: type, Change type to Circular", function () {
     // Switch to circular mode
-    cy.get(".t--button-group-circular").click({ force: true });
+    cy.get("[data-value='circular']").click({ force: true });
     cy.get("[data-testid='circular']").should("exist");
   });
   it("Property: isIndeterminate, Toggle infinite loading", function () {

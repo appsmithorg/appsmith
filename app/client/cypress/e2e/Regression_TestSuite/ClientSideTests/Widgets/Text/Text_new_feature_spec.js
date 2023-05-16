@@ -31,7 +31,7 @@ describe("Text Widget color/font/alignment Functionality", function () {
       "https://app.appsmith.com",
     );
     // disable parsing as link
-    cy.get(".t--property-control-disablelink .bp3-switch").click({
+    cy.get(".t--property-control-disablelink input").click({
       force: true,
     });
     cy.wait("@updateLayout");
@@ -67,13 +67,13 @@ describe("Text Widget color/font/alignment Functionality", function () {
   it("Test to validate text format", function () {
     cy.moveToStyleTab();
     //Changing the Text Style's and validating
-    cy.get(widgetsPage.italics).click({ force: true });
+    cy.get(widgetsPage.italics).click();
     cy.readTextDataValidateCSS("font-style", "italic");
-    cy.get(widgetsPage.bold).click({ force: true });
+    cy.get(widgetsPage.bold).click();
     cy.readTextDataValidateCSS("font-weight", "400");
-    cy.get(widgetsPage.bold).click({ force: true });
+    cy.get(widgetsPage.bold).click();
     cy.readTextDataValidateCSS("font-weight", "700");
-    cy.get(widgetsPage.italics).click({ force: true });
+    cy.get(widgetsPage.italics).click();
     cy.readTextDataValidateCSS("font-style", "normal");
     cy.closePropertyPane();
   });
@@ -129,7 +129,7 @@ describe("Text Widget color/font/alignment Functionality", function () {
 
   it("Test to validate enable scroll feature", function () {
     cy.moveToContentTab();
-    cy.get(".t--button-group-SCROLL").click({ force: true });
+    cy.get("[data-value='SCROLL']").click({ force: true });
     cy.wait("@updateLayout");
     cy.get(commonlocators.headingTextStyle).trigger("mouseover", {
       force: true,
@@ -147,6 +147,6 @@ describe("Text Widget color/font/alignment Functionality", function () {
       "10px",
     );
     cy.selectColor("bordercolor");
-    cy.readTextDataValidateCSS("border-color", "rgb(228, 228, 231)");
+    cy.readTextDataValidateCSS("border-color", "rgb(205, 213, 223)");
   });
 });

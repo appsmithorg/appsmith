@@ -54,7 +54,7 @@ describe("Chart Widget Skeleton Loading Functionality", function () {
 
       //Step 6.1: Click on Write query area
       cy.get(queryLocators.templateMenu).click();
-      cy.get(queryLocators.query).click({ force: true });
+      cy.xpath(queryLocators.query).click({ force: true });
 
       // Step6.2: writing query to get the schema
       cy.get(".CodeMirror textarea")
@@ -142,7 +142,7 @@ describe("Chart Widget Skeleton Loading Functionality", function () {
       cy.get(queryLocators.switch).last().click({ force: true });
 
       cy.get(queryLocators.templateMenu).click();
-      cy.get(queryLocators.query).click({ force: true });
+      cy.xpath(queryLocators.query).click({ force: true });
 
       cy.get(".CodeMirror textarea")
         .first()

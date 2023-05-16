@@ -51,6 +51,7 @@ export class EntityExplorer {
   private _visibleTextSpan = (spanText: string) =>
     "//span[text()='" + spanText + "']";
   _createNewPopup = ".bp3-overlay-content";
+  _adsPopup = "div[role='menu']";
   _entityExplorerWrapper = ".t--entity-explorer-wrapper";
   _pinEntityExplorer = ".t--pin-entity-explorer";
   _entityExplorer = ".t--entity-explorer";

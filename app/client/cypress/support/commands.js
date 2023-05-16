@@ -1293,7 +1293,6 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.get(welcomePage.nextButton).should("not.be.disabled");
   cy.get(welcomePage.nextButton).click();
   if (Cypress.env("AIRGAPPED")) {
-    cy.get(welcomePage.superUserForm).should("be.visible");
     cy.get(welcomePage.newsLetter).should("not.exist");
     cy.get(welcomePage.dataCollection).should("not.exist");
     cy.get(welcomePage.createButton).should("not.exist");
@@ -1682,7 +1681,7 @@ Cypress.Commands.add("setQueryTimeout", (timeout) => {
   cy.get(queryLocators.settings).click();
   cy.xpath(queryLocators.queryTimeout).clear().type(timeout);
 
-  cy.get(queryLocators.query).eq(1).click();
+  cy.xpath(queryLocators.query).eq(1).click();
 });
 
 //Usage: If in need to type {enter} {esc} etc then .text('sometext').type('{enter}')
