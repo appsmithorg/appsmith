@@ -469,11 +469,11 @@ export function EditorHeader(props: EditorHeaderProps) {
                       <Tab data-testid="t--tab-INVITE" value="invite">
                         {createMessage(INVITE_TAB)}
                       </Tab>
-                      <Tab value="embed">
+                      <Tab data-tesid="t--tab-EMBED" value="embed">
                         {createMessage(IN_APP_EMBED_SETTING.embed)}
                       </Tab>
                     </TabsList>
-                    <TabPanel data-tesid="t--tab-EMBED" value="invite">
+                    <TabPanel value="invite">
                       <AppInviteUsersForm
                         applicationId={applicationId}
                         placeholder={createMessage(
