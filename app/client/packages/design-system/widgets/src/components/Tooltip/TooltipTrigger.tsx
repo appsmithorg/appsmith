@@ -1,11 +1,11 @@
 import * as React from "react";
 
-import { Button } from "../Button";
-import { StyledTooltipTrigger } from "./index.styled";
 import type {
   TooltipTriggerProps as HeadlessTooltipTriggerProps,
   TooltipTriggerRef as HeadlessTooltipTriggerRef,
 } from "@design-system/headless";
+import { Button } from "../Button";
+import { StyledTooltipTrigger } from "./index.styled";
 
 export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
   props: HeadlessTooltipTriggerProps,
@@ -21,6 +21,7 @@ export const TooltipTrigger = React.forwardRef(function TooltipTrigger(
     );
   }
 
+  // if asChild is not passed, use the WDS button as the trigger
   return (
     <StyledTooltipTrigger asChild>
       {/** @ts-expect-error Types conflict */}

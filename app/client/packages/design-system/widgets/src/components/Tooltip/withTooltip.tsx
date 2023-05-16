@@ -6,6 +6,13 @@ type WithTooltip = {
   tooltip?: string;
 };
 
+/**
+ * HOC that adds a tooltip to a component
+ * e.g - const ButtonWithTooltip = withTooltip(Button);
+ *
+ * @param WrappedComponent
+ * @returns
+ */
 export function withTooltip<T extends WithTooltip = WithTooltip>(
   WrappedComponent: React.ComponentType<T>,
 ) {
