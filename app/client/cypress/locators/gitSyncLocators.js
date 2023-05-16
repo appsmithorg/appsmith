@@ -59,6 +59,7 @@ export default {
   regenerateSSHKeyECDSA: ".t--regenerate-sshkey-ECDSA",
   regenerateSSHKeyRSA: ".t--regenerate-sshkey-RSA",
   confirmButton: "//span[text()='Yes']",
+  errorCallout: ".t--git-connection-error span",
   mergeConflicts:
     "//span[contains(text(), 'There are uncommitted changes present in your local branch master. Please commit them first and try again')]",
 };
