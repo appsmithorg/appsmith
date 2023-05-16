@@ -40,6 +40,8 @@ jobs:
 
   ci-test-limited:
     needs: [ build-docker-image ]
+    # Only run if the build step is successful
+    if: success()
     name: ci-test-limited
     uses: ./.github/workflows/ci-test-limited.yml
     secrets: inherit
