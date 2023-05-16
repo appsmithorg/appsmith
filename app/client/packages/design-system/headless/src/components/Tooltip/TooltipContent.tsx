@@ -8,7 +8,7 @@ import {
 import { useTooltipContext } from "./TooltipContext";
 
 export const TooltipContent = React.forwardRef(function TooltipContent(
-  props: React.HTMLProps<HTMLDivElement>,
+  props: React.HTMLProps<HTMLDivElement> & { portalId?: string },
   propRef: React.Ref<HTMLDivElement>,
 ) {
   const context = useTooltipContext();
@@ -16,15 +16,16 @@ export const TooltipContent = React.forwardRef(function TooltipContent(
 
   if (!context.open) return null;
 
-  const { children, ...rest } = context.getFloatingProps(props);
+  const { portalId, ...rest } = props;
+  const { children, ...floatingProps } = context.getFloatingProps(rest);
 
   return (
-    <FloatingPortal id="canvas">
+    <FloatingPortal id={portalId}>
       <div
         data-tooltip-content=""
         ref={ref}
         style={context.floatingStyles}
-        {...rest}
+        {...floatingProps}
       >
         {children}
         <FloatingArrow
