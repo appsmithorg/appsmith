@@ -160,7 +160,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@appsmithorg/design-system@npm:2.1.9-alpha.2, ddesign-system@npm:@appsmithorg/design-system@2.1.9-alpha.2":
+"@appsmithorg/design-system@npm:2.1.9-alpha.2, design-system@npm:@appsmithorg/design-system@2.1.9-alpha.2":
   version: 2.1.9-alpha.2
   resolution: "@appsmithorg/design-system@npm:2.1.9-alpha.2"
   dependencies:
@@ -9660,7 +9660,6 @@ __metadata:
     cypress-wait-until: ^1.7.2
     cypress-xpath: ^1.4.0
     dayjs: ^1.10.6
-    ddesign-system: "npm:@appsmithorg/design-system@2.1.9-alpha.2"
     deep-diff: ^1.0.2
     design-system: "npm:@appsmithorg/design-system@2.1.9"
     design-system-old: "npm:@appsmithorg/design-system-old@1.1.7"

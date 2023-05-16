@@ -20,7 +20,7 @@ import {
   getIsFetchingGsheetSpreadsheets,
 } from "selectors/datasourceSelectors";
 import type { AppState } from "ce/reducers";
-import { Icon } from "ddesign-system";
+import { Icon } from "design-system";
 import { DropdownOption as Option } from "../DatasourceDropdown/DropdownOption";
 import type { DropdownOptionType } from "../../types";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
