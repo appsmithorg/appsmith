@@ -18,7 +18,6 @@ interface Props {
   height: string;
   folding: boolean;
   showLineNumbers?: boolean;
-  isReadOnly?: boolean;
   isRawView?: boolean;
   containerHeight?: number;
 }
