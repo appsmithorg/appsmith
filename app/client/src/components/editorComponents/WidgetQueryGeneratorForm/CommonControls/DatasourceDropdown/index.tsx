@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useState } from "react";
 import { Bold, ErrorMessage, SelectWrapper } from "../../styles";
 import { useDatasource } from "./useDatasource";
-import { Select, Option, Icon } from "ddesign-system";
+import { Select, Option, Icon } from "design-system";
 import { DropdownOption } from "./DropdownOption";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";

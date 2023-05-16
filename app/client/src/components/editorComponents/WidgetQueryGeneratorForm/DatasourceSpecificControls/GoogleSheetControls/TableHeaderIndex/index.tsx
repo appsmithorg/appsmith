@@ -15,7 +15,7 @@ import {
 } from "../../../styles";
 import styled from "styled-components";
 import { useTableHeaderIndex } from "./useTableHeader";
-import { Input } from "ddesign-system";
+import { Input } from "design-system";
 
 const RoundBg = styled.div`
   width: 16px;
