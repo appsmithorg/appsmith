@@ -1064,7 +1064,7 @@ export class DataSources {
       this.agHelper.AssertContains("datasource created");
     } else
       this.agHelper.GetNClick(
-        this.locator._visibleTextSpan("DON'T SAVE"),
+        this.locator._visibleTextSpan("Don't Save"),
         0,
         false,
         0,
