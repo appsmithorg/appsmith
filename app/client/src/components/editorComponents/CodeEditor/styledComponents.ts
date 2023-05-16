@@ -59,6 +59,10 @@ export const EditorWrapper = styled.div<{
   ctrlPressed: boolean;
   removeHoverAndFocusStyle?: boolean;
 }>`
+  // Bottom border was getting clipped
+  .CodeMirror.cm-s-duotone-light.CodeMirror-wrap {
+    clip-path: none !important;
+  }
   width: 100%;
   ${(props) =>
     (props.size === EditorSize.COMPACT ||
@@ -93,7 +97,7 @@ export const EditorWrapper = styled.div<{
     .cm-s-duotone-light.CodeMirror {
       padding: 0 6px;
       border-radius: var(--ads-v2-border-radius);
-      ${(props) =>
+      /* ${(props) =>
         props.isFocused &&
         `outline: ${
           props?.removeHoverAndFocusStyle
@@ -102,7 +106,8 @@ export const EditorWrapper = styled.div<{
         };
         outline-offset: var(--ads-v2-offset-outline);
         clip-path: unset !important;
-        `}
+        `} */
+      ${(props) => props.isFocused && `clip-path: unset !important;`}
       font-family: ${(props) => props.theme.fonts.code};
       font-size: 13px;
       border: 1px solid
@@ -114,12 +119,14 @@ export const EditorWrapper = styled.div<{
               return "var(--ads-v2-color-border)";
             case props.hasError:
               return "var(--ads-v2-color-border-error)";
+
             case props.isFocused:
-              return "var(--ads-v2-color-border-emphasis)";
+              return "var(--ads-v2-color-border-emphasis-plus) !important";
             default:
               return "var(--ads-v2-color-border)";
           }
         }};
+
       background: var(--ads-v2-color-bg);
       color: var(--ads-v2-color-fg);
       & {
@@ -361,12 +368,13 @@ export const EditorWrapper = styled.div<{
   .CodeEditorTarget {
     width: 100%;
 
+    &:hover {
+      .CodeMirror.cm-s-duotone-light {
+        border-color: var(--ads-v2-color-border-emphasis);
+      }
+    }
+
     &:focus {
-      border-radius: var(--ads-v2-border-radius);
-      border: 1px solid var(--ads-v2-color-border-emphasis-plus);
-      outline: var(--ads-v2-border-width-outline) solid
-        var(--ads-v2-color-outline);
-      outline-offset: var(--ads-v2-offset-outline);
       .CodeMirror.cm-s-duotone-light {
         border: none;
       }
