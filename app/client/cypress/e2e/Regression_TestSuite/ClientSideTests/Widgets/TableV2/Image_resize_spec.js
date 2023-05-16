@@ -14,17 +14,17 @@ describe("Table Widget Image Resize feature validation", function () {
     cy.editColumn("image");
     cy.moveToStyleTab();
 
-    cy.get(".t--button-group-MEDIUM").click();
+    cy.get("[data-value='MEDIUM']").click();
     cy.getTableV2DataSelector("1", "3").then((selector) => {
       cy.get(`${selector} img`).should("have.css", "height", "64px");
     });
 
-    cy.get(".t--button-group-LARGE").click();
+    cy.get("[data-value='LARGE']").click();
     cy.getTableV2DataSelector("1", "3").then((selector) => {
       cy.get(`${selector} img`).should("have.css", "height", "128px");
     });
 
-    cy.get(".t--button-group-DEFAULT").click();
+    cy.get("[data-value='DEFAULT']").click();
     cy.getTableV2DataSelector("1", "3").then((selector) => {
       cy.get(`${selector} img`).should("have.css", "height", "32px");
     });
@@ -36,7 +36,7 @@ describe("Table Widget Image Resize feature validation", function () {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("title");
     cy.moveToContentTab();
-    cy.get(".t--property-control-cellwrapping .bp3-switch").click();
+    cy.get(".t--property-control-cellwrapping input").click();
     cy.closePropertyPane();
 
     cy.getTableV2DataSelector("1", "3").then((selector) => {
@@ -47,17 +47,17 @@ describe("Table Widget Image Resize feature validation", function () {
     cy.editColumn("image");
     cy.moveToStyleTab();
 
-    cy.get(".t--button-group-MEDIUM").click();
+    cy.get("[data-value='MEDIUM']").click();
     cy.getTableV2DataSelector("1", "3").then((selector) => {
       cy.get(`${selector} img`).should("have.css", "height", "64px");
     });
 
-    cy.get(".t--button-group-LARGE").click();
+    cy.get("[data-value='LARGE']").click();
     cy.getTableV2DataSelector("1", "3").then((selector) => {
       cy.get(`${selector} img`).should("have.css", "height", "128px");
     });
 
-    cy.get(".t--button-group-DEFAULT").click();
+    cy.get("[data-value='DEFAULT']").click();
     cy.getTableV2DataSelector("1", "3").then((selector) => {
       cy.get(`${selector} img`).should("have.css", "height", "32px");
     });
