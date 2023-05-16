@@ -15,7 +15,7 @@ describe("Input Widget Multiline feature", function () {
     cy.get(commonlocators.generalSectionHeight)
       .scrollIntoView()
       .should("be.visible");
-    cy.selectDropdownValue(commonlocators.autoHeight, "Auto Height");
+    cy.selectDropdownValue(commonlocators.heightDropdown, "Auto Height");
     cy.get(".t--widget-inputwidgetv2")
       .invoke("css", "height")
       .then((theight) => {
@@ -63,7 +63,7 @@ describe("Input Widget Multiline feature", function () {
       .scrollIntoView()
       .should("be.visible");
     // cy.get(commonlocators.datatype).find('span').should('contain.text', 'Single-line text')
-    cy.selectDropdownValue(commonlocators.autoHeight, "Auto Height");
+    cy.selectDropdownValue(commonlocators.heightDropdown, "Auto Height");
     cy.get(".t--widget-inputwidgetv2")
       .invoke("css", "height")
       .then((height) => {
@@ -84,7 +84,7 @@ describe("Input Widget Multiline feature", function () {
     cy.openPropertyPane("inputwidgetv2");
     cy.moveToContentTab();
     cy.get(widgetsPage.datatype).last().click({ force: true });
-    cy.selectDropdownValue(commonlocators.autoHeight, "Fixed");
+    cy.selectDropdownValue(commonlocators.heightDropdown, "Fixed");
     // change Label font size and verify
     cy.get(".t--widget-inputwidgetv2")
       .invoke("css", "height")
