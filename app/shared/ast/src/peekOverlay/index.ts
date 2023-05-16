@@ -4,16 +4,24 @@ import { ECMA_VERSION, SourceType } from "../constants/ast";
 import { getExpressionStringAtPos, isPositionWithinNode } from "../peekOverlay/utils";
 
 export class PeekOverlayExpressionIdentifier {
-    parsedNode?: Node;
-    options: PeekOverlayExpressionIdentifierOptions;
+    private parsedScript?: Node;
+    private options: PeekOverlayExpressionIdentifierOptions;
     
-    constructor(options: PeekOverlayExpressionIdentifierOptions, script?: string, ) {
+    constructor(options: PeekOverlayExpressionIdentifierOptions, script?: string) {
         this.options = options;
-        if (script) this.scriptUpdated(script);``
+        if (script) this.updateScript(script);
     }
 
-    scriptUpdated(script: string) {
-        this.parsedNode = parse(script, { ecmaVersion: ECMA_VERSION, sourceType: this.options.sourceType });
+    hasParsedScript() {
+        return !!this.parsedScript;
+    }
+
+    updateScript(script: string) {
+        this.parsedScript = parse(script, { ecmaVersion: ECMA_VERSION, sourceType: this.options.sourceType });
+    }
+
+    clearScript() {
+        this.parsedScript = undefined;
     }
 
     extractExpressionAtPosition(
@@ -21,13 +29,13 @@ export class PeekOverlayExpressionIdentifier {
     ): Promise<string> {
         return new Promise((resolve, reject) => {
 
-            if (!this.parsedNode) {
+            if (!this.parsedScript) {
                 throw "PeekOverlayExpressionIdentifier - No valid script found";
             }
 
             let nodeFound: Node | undefined;
 
-            simple(this.parsedNode, {
+            simple(this.parsedScript, {
                 MemberExpression(node: Node) {
                     if (!nodeFound && isPositionWithinNode(node, pos)) {
                         nodeFound = node;

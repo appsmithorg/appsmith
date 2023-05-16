@@ -633,6 +633,12 @@ class CodeEditor extends Component<Props, State> {
       // update script when required on hover
       // Api1.data.users[x].id
 
+      if (!this.peekOverlayExpressionIdentifier.hasParsedScript()) {
+        this.peekOverlayExpressionIdentifier.updateScript(
+          this.editor.getValue(),
+        );
+      }
+
       this.peekOverlayExpressionIdentifier
         .extractExpressionAtPosition(hoverChIndex)
         .then((lineExpression: string) => {
@@ -1042,7 +1048,7 @@ class CodeEditor extends Component<Props, State> {
       );
     }
 
-    this.peekOverlayExpressionIdentifier.scriptUpdated(value);
+    this.peekOverlayExpressionIdentifier.clearScript();
   };
 
   handleDebouncedChange = _.debounce(this.handleChange, 600);

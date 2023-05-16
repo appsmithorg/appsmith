@@ -1,5 +1,5 @@
 import { Node } from "acorn";
-import { CallExpressionNode, ExpressionStatement, IdentifierNode, MemberExpressionNode, isCallExpressionNode, isExpressionStatementNode, isMemberExpressionNode, isThisExpressionNode } from "../index";
+import { ExpressionStatement, IdentifierNode, MemberExpressionNode, isCallExpressionNode, isExpressionStatementNode, isIdentifierNode, isMemberExpressionNode, isThisExpressionNode } from "../index";
 import { PeekOverlayExpressionIdentifierOptions } from "peekOverlay";
 import * as escodegen from "escodegen";
 import { NodeTypes } from "../constants/ast";
@@ -11,15 +11,14 @@ export const getExpressionStringAtPos =
         node: Node,
         pos: number,
         options?: PeekOverlayExpressionIdentifierOptions
-    ): string => {
-        if (!isPositionWithinNode(node, pos)) return "";
+    ): string | undefined => {
+        if (!isPositionWithinNode(node, pos)) return;
         if (isMemberExpressionNode(node)) {
             return getExpressionAtPosFromMemberExpression(node, pos, options);
         }
         else if (isExpressionStatementNode(node)) {
             return getExpressionAtPosFromExpressionStatement(node, pos, options);
         }
-        return "";
     };
 
 const getExpressionAtPosFromMemberExpression = 
@@ -27,7 +26,7 @@ const getExpressionAtPosFromMemberExpression =
         node: MemberExpressionNode, 
         pos: number, 
         options?: PeekOverlayExpressionIdentifierOptions
-    ): string => {
+    ): string | undefined => {
         if (options?.thisExpressionReplacement) {
             node = replaceThisinMemberExpression(node, options);
         }
@@ -41,10 +40,13 @@ const getExpressionAtPosFromMemberExpression =
         }
         // position is within the property node
         else {
+            if (isLocalVariableNode(objectNode)) return;
             const propertyNode = node.property;
-            return isMemberExpressionNode(propertyNode) ? 
-                getExpressionAtPosFromMemberExpression(propertyNode, pos)
-                : escodegen.generate(node)
+            if (isMemberExpressionNode(propertyNode)) {
+                return getExpressionAtPosFromMemberExpression(propertyNode, pos);
+            } else if(!isLocalVariableNode(node)) {
+                return escodegen.generate(node)
+            }
         }
     }
 
@@ -53,7 +55,7 @@ const getExpressionAtPosFromExpressionStatement =
         node: ExpressionStatement, 
         pos: number, 
         options?: PeekOverlayExpressionIdentifierOptions
-    ): string => {
+    ): string | undefined => {
         if (isThisExpressionNode(node.expression) && options?.thisExpressionReplacement) {
             node.expression = thisReplacementNode(node.expression, options);
         }
@@ -90,4 +92,7 @@ const thisReplacementNode = (node: Node, options: PeekOverlayExpressionIdentifie
 };
 
 const stringRemoveLastCharacter = (value: string) => value.slice(0, value.length - 1);
+
+const isLocalVariableNode = (node: Node) => 
+    isMemberExpressionNode(node) && node.computed && isIdentifierNode(node.property)
   

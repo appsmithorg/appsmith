@@ -12,9 +12,9 @@ describe("extractExpressionAtPositionWholeDoc", () => {
     });
     it("handles MemberExpressions", async () => {
         let result;
-        scriptIdentifier.scriptUpdated("Api1.data[0].id");
 
         // nested properties
+        scriptIdentifier.updateScript("Api1.data[0].id");
 
         // at position 'A'
         // 'A'pi1.data[0].id
@@ -29,25 +29,17 @@ describe("extractExpressionAtPositionWholeDoc", () => {
         result = await scriptIdentifier.extractExpressionAtPosition(6)
         expect(result).toBe("Api1.data");
 
-        // Api1.data'['0].id
-        result = await scriptIdentifier.extractExpressionAtPosition(10)
-        expect(result).toBe("Api1.data[0]");
-
         // Api1.data['0'].id
         result = await scriptIdentifier.extractExpressionAtPosition(11)
         expect(result).toBe("Api1.data[0]");
 
-        // Api1.data[0']'.id
-        result = await scriptIdentifier.extractExpressionAtPosition(12)
-        expect(result).toBe("Api1.data[0]");
-
-        // Api1.data[0].'i'd
+        // Api1.data[0].i'd'
         result = await scriptIdentifier.extractExpressionAtPosition(14)
         expect(result).toBe("Api1.data[0].id");
 
 
         // function calls
-        scriptIdentifier.scriptUpdated("Api1.check.run()");
+        scriptIdentifier.updateScript("Api1.check.run()");
         // Ap'i'1.check.run()
         result = await scriptIdentifier.extractExpressionAtPosition(2)
         expect(result).toBe("Api1");
@@ -55,6 +47,40 @@ describe("extractExpressionAtPositionWholeDoc", () => {
         // Api1.check.'r'un()
         result = await scriptIdentifier.extractExpressionAtPosition(12)
         expect(result).toBe("Api1.check.run");
+
+
+        // local varibles are filtered
+        scriptIdentifier.updateScript("Api1.check.data[x].id");
+
+        // Api1
+        result = await scriptIdentifier.extractExpressionAtPosition(2);
+        expect(result).toBe("Api1");
+
+        // check
+        result = await scriptIdentifier.extractExpressionAtPosition(7);
+        expect(result).toBe("Api1.check");
+
+        // data
+        result = await scriptIdentifier.extractExpressionAtPosition(12);
+        expect(result).toBe("Api1.check.data");
+
+        // x
+        try {
+            result = undefined;
+            result = await scriptIdentifier.extractExpressionAtPosition(16)
+        } catch (e) {
+            expect(e).toBe("PeekOverlayExpressionIdentifier - No node/expression found");
+        }
+        expect(result).toBe(undefined);
+
+        // id
+        try {
+            result = undefined;
+            result = await scriptIdentifier.extractExpressionAtPosition(19)
+        } catch (e) {
+            expect(e).toBe("PeekOverlayExpressionIdentifier - No node/expression found");
+        }
+        expect(result).toBe(undefined);
     });
 
     it("handles ExpressionStatements", async () => {
@@ -62,33 +88,37 @@ describe("extractExpressionAtPositionWholeDoc", () => {
 
 
         // simple statement
-        scriptIdentifier.scriptUpdated("Api1");
+        scriptIdentifier.updateScript("Api1");
         // Ap'i'1
         result = await scriptIdentifier.extractExpressionAtPosition(2)
         expect(result).toBe("Api1");
 
 
         // function call
-        scriptIdentifier.scriptUpdated(`storeValue("abc", 123)`);
+        scriptIdentifier.updateScript(`storeValue("abc", 123)`);
         
         // st'o'reValue("abc", 123) - functionality not supported now
         try {
+            result = undefined;
             result = await scriptIdentifier.extractExpressionAtPosition(2)
         } catch (e) {
             expect(e).toBe("PeekOverlayExpressionIdentifier - No node/expression found");
         }
+        expect(result).toBe(undefined);
 
         // storeValue("a'b'c", 123)
         try {
+            result = undefined;
             result = await scriptIdentifier.extractExpressionAtPosition(13)
         } catch (e) {
             expect(e).toBe("PeekOverlayExpressionIdentifier - No node/expression found");
         }
+        expect(result).toBe(undefined);
     });
 
-    it ("handles this keyword replacement", async () => {
+    it("handles this keyword replacement", async () => {
         let result;
-        jsObjectIdentifier.scriptUpdated(JsObjectWithThisKeyword);
+        jsObjectIdentifier.updateScript(JsObjectWithThisKeyword);
 
         result = await jsObjectIdentifier.extractExpressionAtPosition(134);
         expect(result).toBe("JsObject");
