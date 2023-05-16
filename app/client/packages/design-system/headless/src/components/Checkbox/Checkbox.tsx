@@ -7,8 +7,8 @@ import { useFocusableRef } from "@react-spectrum/utils";
 import SubtractIcon from "remixicon-react/SubtractLineIcon";
 import React, { forwardRef, useContext, useRef } from "react";
 import { useVisuallyHidden } from "@react-aria/visually-hidden";
-import type { FocusableRef, StyleProps } from "@react-types/shared";
 import type { SpectrumCheckboxProps } from "@react-types/checkbox";
+import type { FocusableRef, StyleProps } from "@react-types/shared";
 import { useCheckbox, useCheckboxGroupItem } from "@react-aria/checkbox";
 
 import { CheckboxGroupContext } from "./context";
@@ -88,11 +88,7 @@ export const Checkbox = forwardRef((props: CheckboxProps, ref: CheckboxRef) => {
         ref={inputRef}
       />
       <span aria-hidden="true" data-icon="" role="presentation">
-<<<<<<< HEAD
-        {isIndeterminate ? <SubtractIcon size={14} /> : icon}
-=======
         {isIndeterminate ? <SubtractIcon size={ICON_SIZE} /> : icon}
->>>>>>> b7e2cee6c867a8255c874c952caf3de4d8293644
       </span>
       {children}
     </label>

@@ -16,7 +16,7 @@ export const StyledContainer = styled.div<ButtonGroupProps>`
 
   & [data-button] {
     // increasing z index to make sure the focused button is on top of the others
-    &:not([data-disabled]):focus {
+    &[data-focused]:not([data-disabled]) {
       z-index: 1;
     }
 

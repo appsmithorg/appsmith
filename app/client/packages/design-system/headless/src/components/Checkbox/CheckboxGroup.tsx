@@ -1,8 +1,8 @@
 import React, { forwardRef } from "react";
-import type { DOMRef } from "@react-types/shared";
 import { useDOMRef } from "@react-spectrum/utils";
-import { useCheckboxGroup } from "@react-aria/checkbox";
+import type { DOMRef } from "@react-types/shared";
 import type { StyleProps } from "@react-types/shared";
+import { useCheckboxGroup } from "@react-aria/checkbox";
 import { useCheckboxGroupState } from "@react-stately/checkbox";
 import type { SpectrumCheckboxGroupProps } from "@react-types/checkbox";
 

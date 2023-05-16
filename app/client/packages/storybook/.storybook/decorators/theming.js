@@ -96,7 +96,7 @@ export const theming = (Story, args) => {
   }, [args.globals.borderRadius]);
 
   return (
-    <StyledThemeProvider theme={theme}>
+    <StyledThemeProvider theme={theme} id="canvas">
       <GlobalStyles />
       <Story fontFamily={args.globals.fontFamily} />
     </StyledThemeProvider>

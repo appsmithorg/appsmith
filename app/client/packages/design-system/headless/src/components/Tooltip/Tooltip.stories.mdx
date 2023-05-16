@@ -8,7 +8,7 @@ import { Tooltip, TooltipTrigger, TooltipContent } from "./";
   args={{
     placement: "bottom",
     open: undefined,
-    onOpenChange: undefined
+    onOpenChange: undefined,
   }}
 />
 
@@ -18,7 +18,7 @@ export const Template = (args) => {
       <TooltipTrigger>My trigger</TooltipTrigger>
       <TooltipContent>My tooltip</TooltipContent>
     </Tooltip>
-  )
+  );
 };
 
 # Tooltip
@@ -29,7 +29,34 @@ A tooltip is a small pop-up that appears when a user places their cursor over an
   <Story name="Tooltip">{Template.bind({})}</Story>
 </Canvas>
 
+# Placement
+
+The placement of the tooltip can be changed by passing the `placement` prop.
+
+<Canvas>
+  <Story name="Tooltip placement">
+    <Tooltip placement="left">
+      <TooltipTrigger>Left</TooltipTrigger>
+      <TooltipContent>My tooltip</TooltipContent>
+    </Tooltip>
+    <Tooltip placement="top">
+      <TooltipTrigger>Top</TooltipTrigger>
+      <TooltipContent>My tooltip</TooltipContent>
+    </Tooltip>
+    <Tooltip placement="bottom">
+      <TooltipTrigger>Bottom</TooltipTrigger>
+      <TooltipContent>My tooltip</TooltipContent>
+    </Tooltip>
+    <Tooltip placement="right">
+      <TooltipTrigger>Right</TooltipTrigger>
+      <TooltipContent>My tooltip</TooltipContent>
+    </Tooltip>
+  </Story>
+</Canvas>
+
 # Disabled
+
+If the trigger is disabled, the tooltip will not be displayed.
 
 <Canvas>
   <Story name="Tooltip disabled">
