@@ -2,7 +2,7 @@ export class CommonLocators {
   _body = "body";
   _chevronUp = ".bp3-icon-chevron-up";
   _loading = "#loading";
-  _spinner = ".bp3-spinner";
+  _spinner = ".ads-v2-spinner";
   _animationSpnner = ".bp3-spinner-animation";
   _runBtnSpinner = ".ads-v2-spinner";
   _sidebar = ".t--sidebar";

@@ -173,8 +173,8 @@ describe.skip("Git sync:", function () {
 
     cy.wait("@gitPull");
 
-    cy.get(".bp3-spinner").should("exist");
-    cy.get(".bp3-spinner").should("not.exist");
+    cy.get(".ads-v2-spinner").should("exist");
+    cy.get(".ads-v2-spinner").should("not.exist");
 
     cy.get(widgetsPage.inputWidget);
 

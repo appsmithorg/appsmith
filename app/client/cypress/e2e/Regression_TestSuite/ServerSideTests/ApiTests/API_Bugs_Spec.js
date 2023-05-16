@@ -21,7 +21,7 @@ describe("Rest Bugs tests", function () {
   it("1. Bug 5550: Not able to run APIs in parallel", function () {
     cy.addDsl(dslParallel);
     cy.wait(8000); //settling time for dsl!
-    cy.get(".bp3-spinner").should("not.exist");
+    cy.get(".ads-v2-spinner").should("not.exist");
 
     //Api 1
     apiPage.CreateAndFillApi(
@@ -155,7 +155,7 @@ describe("Rest Bugs tests", function () {
   it("3. Bug 4775: No Cyclical dependency when Api returns an error", function () {
     cy.addDsl(dslTable);
     cy.wait(5000); //settling time for dsl!
-    cy.get(".bp3-spinner").should("not.exist");
+    cy.get(".ads-v2-spinner").should("not.exist");
     //Api 1
     apiPage.CreateAndFillApi(
       "https://api.coinbase.com/v2/currencies",

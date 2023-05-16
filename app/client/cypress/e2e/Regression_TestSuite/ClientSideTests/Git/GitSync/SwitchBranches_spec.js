@@ -65,6 +65,7 @@ describe("Git sync:", function () {
     });
 
     _.entityExplorer.AddNewPage();
+    _.entityExplorer.RenameEntityFromExplorer("Page2", "ParentPage1");
     _.dataSources.NavigateToDSCreateNew();
     _.apiPage.CreateApi("ParentApi1");
     _.jsEditor.CreateJSObject();
@@ -77,7 +78,7 @@ describe("Git sync:", function () {
       childBranchKey = branName;
     });
     _.entityExplorer.AddNewPage();
-
+    _.entityExplorer.RenameEntityFromExplorer("Page2", "ChildPage1");
     _.dataSources.NavigateToDSCreateNew();
     _.apiPage.CreateApi("ChildApi1");
     _.jsEditor.CreateJSObject();
@@ -137,27 +138,18 @@ describe("Git sync:", function () {
       urlObject.searchParams.set(branchQueryKey, childBranchKey);
       cy.visit(urlObject.toString());
 
-      cy.get(".bp3-spinner").should("exist");
-      cy.get(".bp3-spinner").should("not.exist");
+      cy.get(".ads-v2-spinner").should("exist");
+      cy.get(".ads-v2-spinner").should("not.exist");
 
       cy.get(".t--widget-tablewidgetv2").should("not.exist");
 
       cy.commitAndPush();
 
-      cy.get(homePage.deployPopupOptionTrigger).click();
-
-      cy.get(homePage.currentDeployedPreviewBtn)
-        .invoke("removeAttr", "target")
-        .click();
-
-      cy.wait("@getPagesForViewApp").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
+      cy.latestDeployPreview();
 
       cy.get(".t--widget-tablewidgetv2").should("not.exist");
-
+      //cy.get(commonLocators.backToEditor).click();
+      cy.wait(2000);
       cy.url().then((url) => {
         const urlObject = new URL(url);
         urlObject.searchParams.set(branchQueryKey, parentBranchKey);
@@ -168,7 +160,7 @@ describe("Git sync:", function () {
           "response.body.responseMeta.status",
           200,
         );
-
+        cy.get(".t--page-switch-tab").contains("ParentPage1").click();
         cy.get(".t--widget-tablewidgetv2").should("exist");
       });
     });
@@ -238,7 +230,7 @@ describe("Git sync:", function () {
   });
 
   it("7. branch list search", function () {
-    cy.get(".bp3-spinner").should("not.exist");
+    cy.get(".ads-v2-spinner").should("not.exist");
     cy.get(commonLocators.canvas).click({ force: true });
     let parentBKey, childBKey;
     _.gitSync.CreateGitBranch("parentBranch", true);
