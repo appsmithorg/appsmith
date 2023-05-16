@@ -360,10 +360,7 @@ describe("Validate Mongo query commands", function () {
 
   it("9. Delete the datasource after NewPage deletion is success", () => {
     cy.NavigateToQueryEditor();
-    _.dataSources.DeleteDatasouceFromActiveTab(datasourceName, 409, false);
-    cy.get("@deleteDatasource").should((response) => {
-      expect(response.status).to.be.oneOf([200, 409]);
-    });
+    _.dataSources.DeleteDatasouceFromActiveTab(datasourceName, [200 | 409]);
   });
 
   it("10. Bug 6375: Cyclic Dependency error occurs and the app crashes when the user generate table and chart from mongo query", function () {

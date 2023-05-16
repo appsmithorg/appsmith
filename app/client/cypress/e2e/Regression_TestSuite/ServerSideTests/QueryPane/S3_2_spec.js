@@ -236,9 +236,6 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
   it("5. Deletes the datasource", () => {
     cy.NavigateToQueryEditor();
-    _.dataSources.DeleteDatasouceFromActiveTab(datasourceName, 409, false);
-    cy.wait("@deleteDatasource").should((response) => {
-      expect(response.status).to.be.oneOf([200, 409]);
-    });
+    _.dataSources.DeleteDatasouceFromActiveTab(datasourceName, [200 | 409]);
   });
 });
