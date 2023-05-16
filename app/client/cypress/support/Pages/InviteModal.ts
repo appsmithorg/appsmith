@@ -12,7 +12,7 @@ export class InviteModal {
     _inviteTab: "[data-testid='t--tab-INVITE']",
     _embedTab: "[data-testid='t--tab-EMBED']",
     _shareButton: ".t--application-share-btn",
-    _closeButton: ".t--close-form-dialog",
+    _closeButton: ".ads-v2-modal__content-header-close-button",
     _previewEmbed: "[data-testid='preview-embed']",
     _shareSettingsButton: "[data-testid='t--share-settings-btn']",
     _upgradeButton: "[data-testid='t--upgrade-btn']",
