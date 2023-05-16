@@ -205,7 +205,9 @@ describe("Button Widget Functionality", function () {
 
   it("10. Button-Copy & Delete Verification", function () {
     //Copy button and verify all properties
-    _.entityExplorer.ExpandCollapseEntity("Container3", "Widgets");
+    _.agHelper.Sleep();
+    _.entityExplorer.ExpandCollapseEntity("Widgets");
+    _.entityExplorer.ExpandCollapseEntity("Container3");
     _.propPane.CopyWidgetFromPropertyPane("Submitbutton");
     //cy.copyWidget("buttonwidget", widgetsPage.buttonWidget);
     cy.goToEditFromPublish();
