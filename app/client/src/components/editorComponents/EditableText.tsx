@@ -91,6 +91,7 @@ const TextContainer = styled.div<{
 }>`
   color: var(--ads-v2-color-fg-emphasis-plus);
   display: flex;
+  align-items: center;
   &&&& .${Classes.EDITABLE_TEXT} {
     & .${Classes.EDITABLE_TEXT_CONTENT} {
       &:hover {
