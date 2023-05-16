@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
@@ -61,6 +60,7 @@ import { bindingMarker } from "components/editorComponents/CodeEditor/MarkHelper
 import {
   entityMarker,
   NAVIGATE_TO_ATTRIBUTE,
+  PEEK_STYLE_PERSIST_CLASS,
 } from "components/editorComponents/CodeEditor/MarkHelpers/entityMarker";
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import BindingPrompt from "./BindingPrompt";
@@ -128,6 +128,7 @@ import {
   PeekOverlayPopUp,
   PEEK_OVERLAY_DELAY,
 } from "./PeekOverlayPopup/PeekOverlayPopup";
+import { SourceType, PeekOverlayExpressionIdentifier } from "@shared/ast";
 import ConfigTreeActions from "utils/configTree";
 import {
   getSaveAndAutoIndentKey,
@@ -135,7 +136,6 @@ import {
 } from "./utils/saveAndAutoIndent";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { selectFeatureFlags } from "selectors/usersSelectors";
-import { SourceType, PeekOverlayExpressionIdentifier } from "@shared/ast";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -555,7 +555,7 @@ class CodeEditor extends Component<Props, State> {
       if (tokenElement === this.state.peekOverlayProps.tokenElement) return;
       this.hidePeekOverlay();
     }
-    tokenElement.classList.add("peekaboo");
+    tokenElement.classList.add(PEEK_STYLE_PERSIST_CLASS);
     const paths = _.toPath(expression);
     this.setState({
       peekOverlayProps: {
@@ -574,7 +574,9 @@ class CodeEditor extends Component<Props, State> {
 
   hidePeekOverlay = () => {
     if (this.state.peekOverlayProps) {
-      this.state.peekOverlayProps.tokenElement.classList.remove("peekaboo");
+      this.state.peekOverlayProps.tokenElement.classList.remove(
+        PEEK_STYLE_PERSIST_CLASS,
+      );
       this.setState({
         peekOverlayProps: undefined,
       });
