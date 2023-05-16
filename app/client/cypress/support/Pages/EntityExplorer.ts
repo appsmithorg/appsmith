@@ -207,19 +207,14 @@ export class EntityExplorer {
     this.agHelper.Sleep(500);
   }
 
-  public DragDropWidgetNVerify(
-    widgetType: string,
-    x = 200,
-    y = 200,
-    dropTargetId = "",
-  ) {
+  public DragDropWidgetNVerify(widgetType: string, x = 200, y = 200) {
     this.NavigateToSwitcher("widgets");
     this.agHelper.Sleep();
     cy.get(this.locator._widgetPageIcon(widgetType))
       .first()
       .trigger("dragstart", { force: true })
       .trigger("mousemove", x, y, { force: true });
-    cy.get(dropTargetId ? dropTargetId : this.locator._dropHere)
+    cy.get(this.locator._dropHere)
       .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
       .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
       .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
@@ -227,13 +222,7 @@ export class EntityExplorer {
     if (widgetType === "modalwidget") {
       cy.get(".t--modal-widget").should("exist");
     } else {
-      if (dropTargetId) {
-        cy.get(
-          `${dropTargetId} ${this.locator._widgetInCanvas(widgetType)}`,
-        ).should("exist");
-      } else {
-        cy.get(this.locator._widgetInCanvas(widgetType)).should("exist");
-      }
+      cy.get(this.locator._widgetInCanvas(widgetType)).should("exist");
     }
   }
 

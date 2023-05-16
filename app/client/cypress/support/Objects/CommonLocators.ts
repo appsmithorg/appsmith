@@ -1,6 +1,5 @@
 export class CommonLocators {
   _body = "body";
-  _canvasViewport = "#canvas-viewport";
   _chevronUp = ".bp3-icon-chevron-up";
   _loading = "#loading";
   _spinner = ".bp3-spinner";
@@ -187,8 +186,4 @@ export class CommonLocators {
   _ds_uppy_fileInput = ".uppy-Dashboard-input";
   _ds_uppy_crop_confirm = ".uppy-ImageCropper-controls .uppy-c-btn";
   _ds_uppy_upload_btn = ".uppy-StatusBar-actionBtn--upload";
-
-  _autoConvert = "#t--layout-conversion-cta";
-  _convert = "button:contains('CONVERT')";
-  _refreshApp = "button:contains('REFRESH THE APP')";
 }
