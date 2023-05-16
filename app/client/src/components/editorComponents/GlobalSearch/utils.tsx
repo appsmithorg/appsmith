@@ -373,7 +373,7 @@ export const actionOperations: ActionOperation[] = [
       createNewJSCollection(pageId, from),
   },
   {
-    title: "RL Import",
+    title: "New cURL import",
     desc: "Import a cURL Request",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     icon: <CurlIconV2 />,
