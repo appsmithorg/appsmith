@@ -127,7 +127,13 @@ export default function Debugger() {
   //TODO: move this to a common place
   const onClose = () => dispatch(showDebugger(false));
 
-  return (
+  // Do not render if response tab and header tab is selected in the bottom bar.
+  const shouldRender = !(
+    selectedResponseTab === DEBUGGER_TAB_KEYS.RESPONSE_TAB ||
+    selectedResponseTab === DEBUGGER_TAB_KEYS.HEADER_TAB
+  );
+
+  return shouldRender ? (
     <TabbedViewContainer
       className="t--datasource-bottom-pane-container"
       ref={panelRef}
@@ -154,5 +160,5 @@ export default function Debugger() {
         size={IconSize.XL}
       />
     </TabbedViewContainer>
-  );
+  ) : null;
 }

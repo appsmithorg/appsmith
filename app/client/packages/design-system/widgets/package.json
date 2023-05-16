@@ -5,8 +5,9 @@
   "author": "Valera Melnikov <valera@appsmith.com>, Pawan Kumar <pawan@appsmith.com>",
   "license": "MIT",
   "scripts": {
-    "lint:ci": "eslint --cache .",
-    "prettier:ci": "prettier --check ."
+    "lint": "eslint --cache .",
+    "prettier": "prettier --check .",
+    "test": "jest"
   },
   "dependencies": {
     "@capsizecss/core": "^3.1.0",
@@ -17,6 +18,9 @@
     "colorjs.io": "^0.4.3"
   },
   "devDependencies": {
+    "@types/react": "*",
+    "@types/react-dom": "*",
+    "eslint": "^8.38.0",
     "eslint-plugin-storybook": "^0.6.10"
   },
   "peerDependencies": {

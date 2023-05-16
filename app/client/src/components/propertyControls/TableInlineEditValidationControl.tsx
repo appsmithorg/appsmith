@@ -4,7 +4,6 @@ import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
-import CodeEditor from "components/editorComponents/CodeEditor";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   EditorModes,
@@ -16,17 +15,27 @@ import styled from "styled-components";
 import { isString } from "utils/helpers";
 import { JSToString, stringToJS } from "./utils";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import {
   ORIGINAL_INDEX_KEY,
   PRIMARY_COLUMN_KEY_VALUE,
 } from "widgets/TableWidgetV2/constants";
+import { Colors } from "constants/Colors";
+import {
+  createMessage,
+  TABLE_WIDGET_VALIDATION_ASSIST_PROMPT,
+} from "@appsmith/constants/messages";
 
-const PromptMessage = styled.span`
+export const PromptMessage = styled.span`
   line-height: 17px;
 `;
+
+export const StyledCode = styled.span`
+  color: ${Colors.PRIMARY_ORANGE};
+`;
+
 export const CurlyBraces = styled.span`
-  color: ${(props) => props.theme.colors.codeMirror.background.hoverState};
-  background-color: #ffffff;
+  color: ${Colors.PRIMARY_ORANGE};
   border-radius: 2px;
   padding: 2px;
   margin: 0px 2px;
@@ -60,7 +69,8 @@ export function InputText(props: InputTextProp) {
   } = props;
   return (
     <StyledDynamicInput>
-      <CodeEditor
+      <LazyCodeEditor
+        AIAssisted
         additionalDynamicData={additionalDynamicData}
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}
@@ -146,6 +156,14 @@ class TableInlineEditValidationControl extends BaseControl<TableInlineEditValida
         expected={expected}
         label={label}
         onChange={this.onTextChange}
+        promptMessage={
+          <PromptMessage>
+            {createMessage(TABLE_WIDGET_VALIDATION_ASSIST_PROMPT)}
+            <CurlyBraces>{"{{"}</CurlyBraces>
+            <StyledCode>currentRow.columnName</StyledCode>
+            <CurlyBraces>{"}}"}</CurlyBraces>
+          </PromptMessage>
+        }
         theme={theme}
         value={value}
       />

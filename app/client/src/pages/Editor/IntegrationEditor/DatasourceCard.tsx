@@ -12,7 +12,7 @@ import {
 import styled from "styled-components";
 import type { AppState } from "@appsmith/reducers";
 import history from "utils/history";
-import { Position } from "@blueprintjs/core/lib/esm/common/position";
+import { Position } from "@blueprintjs/core";
 import RenderDatasourceInformation from "pages/Editor/DataSourceEditor/DatasourceSection";
 import { getQueryParams } from "utils/URLUtils";
 import {
@@ -249,7 +249,6 @@ function DatasourceCard(props: DatasourceCardProps) {
           datasourceId: datasource.id,
           params: {
             from: "datasources",
-            viewMode: "false",
             ...getQueryParams(),
           },
         }),
