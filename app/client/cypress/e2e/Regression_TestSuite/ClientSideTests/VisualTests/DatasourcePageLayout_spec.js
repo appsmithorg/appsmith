@@ -1,12 +1,8 @@
-const datasource = require("../../../../locators/DatasourcesEditor.json");
-const postgres = "PostgreSQL";
-const mongo = "MongoDB";
-const mySQL = "MysQL";
 describe("Visual tests for datasources", () => {
   // for any changes in UI, update the screenshot in snapshot folder, to do so:
   //  1. Delete the required screenshot which you want to update.
   //  2. Run test in headless mode with any browser
-  //      command: "npx cypress run --spec cypress/integration/<path>  --browser chrome"
+  //      command: "npx cypress run --spec cypress/e2e/Regression_TestSuite/ClientSideTests/VisualTests/DatasourcePageLayout_spec.js  --browser chrome"
   //  3. New screenshot will be generated in the snapshot folder.
   it("1. Layout validation for datasource page", () => {
     cy.NavigateToHome();

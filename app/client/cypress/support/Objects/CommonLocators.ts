@@ -189,4 +189,5 @@ export class CommonLocators {
   _ds_uppy_fileInput = ".uppy-Dashboard-input";
   _ds_uppy_crop_confirm = ".uppy-ImageCropper-controls .uppy-c-btn";
   _ds_uppy_upload_btn = ".uppy-StatusBar-actionBtn--upload";
+  _goBack = this._visibleTextSpan("Back") + "/parent::a";
 }
