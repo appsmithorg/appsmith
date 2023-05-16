@@ -655,7 +655,7 @@ function ApiResponseView(props: Props) {
         <ActionExecutionInProgressView actionType="API" theme={props.theme} />
       )}
       <TabbedViewWrapper>
-        {response.statusCode === "2" && (
+        {response.statusCode && (
           <ResponseMetaWrapper>
             {response.statusCode && (
               <Flex>
