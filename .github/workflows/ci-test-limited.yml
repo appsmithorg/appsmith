@@ -72,46 +72,15 @@ jobs:
           echo "$specs_to_run" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
-      - name: Download the client build artifact
-        if: steps.run_result.outputs.run_result != 'success'
+      - name: Download Docker image artifact
         uses: actions/download-artifact@v3
         with:
-          name: client-build
-          path: app/client
+          name: cicontainer
 
-      - name: Unpack the client build artifact
-        if: steps.run_result.outputs.run_result != 'success'
+      - name: Load Docker image from tar file
         run: |
-          mkdir -p app/client/build
-          tar -xvf app/client/build.tar -C app/client/build
-
-      - name: Download the server build artifact
-        if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/download-artifact@v3
-        with:
-          name: server-build
-          path: app/server/dist/
-
-      - name: Download the rts build artifact
-        if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/download-artifact@v3
-        with:
-          name: rts-dist
-          path: app/rts/dist
-
-      - name: Un-tar the rts folder
-        run: |
-          tar -xvf app/rts/dist/rts-dist.tar -C app/rts/
-          echo "Cleaning up the tar files"
-          rm app/rts/dist/rts-dist.tar
-
-      # We don't use Depot Docker builds because it's faster for local Docker images to be built locally.
-      # It's slower and more expensive to build these Docker images on Depot and download it back to the CI node.
-      - name: Build docker image
-        if: steps.run_result.outputs.run_result != 'success'
-        working-directory: "."
-        run: |
-          docker build -t cicontainer .
+          gunzip cicontainer.tar.gz
+          docker load -i cicontainer.tar
 
       - name: Create folder
         working-directory: "."
