@@ -809,7 +809,7 @@ export function ApplicationsSection(props: any) {
                                 }}
                               >
                                 <WorkspaceRename
-                                  data-testid="t--workspace-rename-input"
+                                  className="t--workspace-rename-input"
                                   defaultValue={workspace.name}
                                   editInteractionKind={
                                     EditInteractionKind.SINGLE
