@@ -67,7 +67,7 @@ describe("Switch column type funtionality test", () => {
   });
 
   it("3. Check the horizontal, vertical alignment of switch, and the cell background color", () => {
-    cy.get(".t--propertypane").contains("STYLE").click({ force: true });
+    cy.get(".t--propertypane").contains("Style").click({ force: true });
     // Check horizontal alignment
     cy.get(".t--property-control-horizontalalignment .t--button-group-CENTER")
       .first()
@@ -97,7 +97,7 @@ describe("Switch column type funtionality test", () => {
   });
 
   it("4. Verify disabled(editable off), enabled states and interactions on switch", () => {
-    cy.get(".t--propertypane").contains("CONTENT").click({ force: true });
+    cy.get(".t--propertypane").contains("Content").click({ force: true });
     cy.getTableV2DataSelector("0", "4").then(($elemClass) => {
       const selector = $elemClass + switchSelector;
 
