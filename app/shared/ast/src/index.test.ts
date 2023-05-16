@@ -1,5 +1,5 @@
 import { parseJSObject } from "../index";
-import { extractIdentifierInfoFromCode } from "../src/index";
+import { extractIdentifierInfoFromCode, isFunctionPresent } from "../src/index";
 
 describe("getAllIdentifiers", () => {
   it("works properly", () => {
@@ -375,7 +375,7 @@ describe("parseJSObjectWithAST", () => {
           keyEndColumn: 7,
         },
         arguments: [],
-        isMarkedAsync: false
+        isMarkedAsync: false,
       },
       {
         key: "myFun2",
@@ -463,7 +463,7 @@ describe("parseJSObjectWithAST", () => {
           keyEndColumn: 7,
         },
         arguments: [],
-        isMarkedAsync: false
+        isMarkedAsync: false,
       },
       {
         key: "myFun2",
@@ -606,5 +606,87 @@ describe("parseJSObjectWithAST", () => {
     ];
     const { parsedObject } = parseJSObject(body);
     expect(parsedObject).toStrictEqual(expectedParsedObject);
+  });
+});
+
+describe("isFunctionPresent", () => {
+  it("should return true if function is present", () => {
+    const code = "function myFun(){}";
+
+    const result = isFunctionPresent(code, 2);
+
+    expect(result).toBe(true);
+  });
+
+  it("should return true if arrow function is present", () => {
+    const code = "const myFun = () => {}";
+
+    const result = isFunctionPresent(code, 2);
+
+    expect(result).toBe(true);
+  });
+
+  it("should return false if function is absent", () => {
+    const code = "const a = { key: 'value' }";
+
+    const result = isFunctionPresent(code, 2);
+
+    expect(result).toBe(false);
+  });
+
+  it("should return false for a string", () => {
+    const code = "Hello world {{appsmith.store.name}}!!";
+
+    const result = isFunctionPresent(code, 2);
+
+    expect(result).toBe(false);
+  });
+
+  it("should return true for shorthand arrow function", () => {
+    const code = "const myFun = () => 'value'";
+
+    const result = isFunctionPresent(code, 2);
+
+    expect(result).toBe(true);
+  });
+
+  it("should return true for IFFE function", () => {
+    const code = "(function myFun(){ console.log('hello') })()";
+
+    const result = isFunctionPresent(code, 2);
+
+    expect(result).toBe(true);
+  });
+
+  it("should return true for functions with parameters", () => {
+    const code = "function myFun(arg1, arg2){ console.log(arg1, arg2); }";
+
+    const result = isFunctionPresent(code, 2);
+
+    expect(result).toBe(true);
+  });
+
+  it("should return true for functions with parameters", () => {
+    const code = "function myFun(arg1, arg2){ console.log(arg1, arg2); }";
+
+    const result = isFunctionPresent(code, 2);
+
+    expect(result).toBe(true);
+  });
+
+  it("should return true for higher order functions", () => {
+    const code = "function myFun(cb){ const val = cb(); }";
+
+    const result = isFunctionPresent(code, 2);
+
+    expect(result).toBe(true);
+  });
+
+  it("should return true for functions with promises", () => {
+    const code = "async function myFun(promise){ const val = await promise; }";
+
+    const result = isFunctionPresent(code, 2);
+
+    expect(result).toBe(true);
   });
 });
