@@ -21,7 +21,7 @@ const options = Object.keys(borderRadiusOptions).map((optionKey) => ({
       <div
         className="w-5 h-5 border-t-2 border-l-2"
         style={{
-          borderColor: "var(--ads-v2-color-border)",
+          borderColor: "var(--ads-v2-color-fg)",
           borderTopLeftRadius: borderRadiusOptions[optionKey],
         }}
       />

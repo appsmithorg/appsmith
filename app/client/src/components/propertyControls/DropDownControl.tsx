@@ -104,6 +104,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           onDeselect={this.onDeselect}
           onSelect={this.onSelect}
           optionFilterProp="label"
+          optionLabelProp={this.props.hideSubText ? "label" : "children"}
           placeholder={this.props.placeholderText}
           showSearch={this.props.enableSearch}
           value={selected}
