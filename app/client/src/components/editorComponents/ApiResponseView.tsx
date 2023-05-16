@@ -103,7 +103,7 @@ const ResponseMetaWrapper = styled.div`
   display: flex;
   position: absolute;
   right: ${(props) => props.theme.spaces[17] + 1}px;
-  top: ${(props) => props.theme.spaces[2] + 1}px;
+  top: ${(props) => props.theme.spaces[2] + 3}px;
   z-index: 6;
 `;
 
