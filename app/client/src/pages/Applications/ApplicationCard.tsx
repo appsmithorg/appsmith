@@ -276,6 +276,9 @@ const CircleAppIcon = styled(AppIcon)`
   svg {
     width: 100%;
     height: 100%;
+    path {
+      fill: var(--ads-v2-color-fg);
+    }
   }
 `;
 
@@ -301,8 +304,13 @@ const IconScrollWrapper = styled.div`
     border: var(--ads-v2-border-color);
     svg {
       path {
-        fill: var(--ads-app-icon-normal-color);
+        fill: var(--ads-v2-color-fg);
       }
+    }
+  }
+  svg {
+    path {
+      fill: var(--ads-v2-color-fg);
     }
   }
 `;
