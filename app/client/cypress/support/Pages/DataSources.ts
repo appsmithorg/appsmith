@@ -941,11 +941,11 @@ export class DataSources {
   ) {
     this.agHelper.ClickOutside(); //to close the evaluated pop-up
     this.ee.CreateNewDsQuery(dsName);
-    if (queryName) this.agHelper.RenameWithInPane(queryName);
     if (query) {
       this.agHelper.GetNClick(this._templateMenu);
       this.EnterQuery(query, sleep);
     }
+    if (queryName) this.agHelper.RenameWithInPane(queryName);
   }
 
   public UpdateGraphqlQueryAndVariable(options?: {

@@ -41,9 +41,9 @@ describe("Button Widget Functionality", function () {
     cy.SaveAndRunAPI();
 
     // Going to HomePage where the button widget is located and opening it's property pane.
-    cy.get(widgetsPage.NavHomePage).click({ force: true });
-    cy.reload();
-    cy.openPropertyPane("buttonwidget");
+    _.entityExplorer.ExpandCollapseEntity("Widgets");
+    _.entityExplorer.ExpandCollapseEntity("Container3");
+    _.entityExplorer.SelectEntityByName("Button1");
 
     // Adding the api in the onClickAction of the button widget.
     cy.executeDbQuery("buttonApi", "onClick");

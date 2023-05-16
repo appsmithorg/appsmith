@@ -111,9 +111,9 @@ describe("Checkbox Group Widget Functionality", function () {
     cy.moveToStyleTab();
     // check default value
     cy.get(".t--property-control-alignment").should("exist");
-    cy.get(".t--property-control-alignment span[type='p1']").should(
+    cy.get(".t--property-control-alignment .rc-select-selector").should(
       "have.text",
-      "No selection.",
+      "Please select an option",
     );
 
     cy.get(
@@ -121,7 +121,7 @@ describe("Checkbox Group Widget Functionality", function () {
     ).should("have.css", "justify-content", "space-between");
 
     // change alignment
-    cy.get(".t--property-control-alignment span[type='p1']").click({
+    cy.get(".t--property-control-alignment .rc-select-selector").click({
       force: true,
     });
     cy.wait(200);

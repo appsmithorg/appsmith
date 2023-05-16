@@ -125,7 +125,8 @@ export class AggregateHelper {
       .type(renameVal, { force: true, delay: 0 })
       .should("have.value", renameVal)
       .blur();
-    this.Sleep(2000); //allow name to settle
+    this.AssertElementAbsence(this.locator._runBtnSpinner, 10000);
+    //this.Sleep(2000); //allow name to settle
   }
 
   public RenameWidget(oldName: string, newName: string) {

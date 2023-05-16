@@ -55,9 +55,10 @@ describe("Button Group Widget Functionality", function () {
     cy.editColumn("groupButton2");
     cy.moveToStyleTab();
     // placement text
-    cy.get(
-      ".t--property-control-placement .bp3-popover-target span[type='p1']",
-    ).should("have.text", "Center");
+    cy.get(".t--property-control-placement .rc-select-selection-item").should(
+      "have.text",
+      "Center",
+    );
     // 1st btn
     cy.get(firstButton).should("have.css", "justify-content", "center");
     cy.get(menuButton).should("have.css", "justify-content", "center");
@@ -66,7 +67,7 @@ describe("Button Group Widget Functionality", function () {
   it("Update Placement and Verify buttons alignments", function () {
     // check first button placement
     cy.selectDropdownValue(
-      ".t--property-control-placement .bp3-popover-target",
+      ".t--property-control-placement .rc-select-selection-item",
       "Between",
     );
     // 1st btn
@@ -75,7 +76,7 @@ describe("Button Group Widget Functionality", function () {
       .should("have.css", "justify-content", "space-between");
     // update dropdown value
     cy.selectDropdownValue(
-      ".t--property-control-placement .bp3-popover-target",
+      ".t--property-control-placement .rc-select-selection-item",
       "Start",
     );
     cy.get(firstButton).last().should("have.css", "justify-content", "start");
@@ -85,16 +86,12 @@ describe("Button Group Widget Functionality", function () {
 
   it("Update icon alignment and Verify buttons alignments", function () {
     // align right
-    cy.get(".t--property-control-position .t--button-group-left")
-      .first()
-      .click();
+    cy.get("[data-value='left']").first().click();
     cy.wait(200);
     // 1st btn
     cy.get(firstButton).eq(1).should("have.css", "flex-direction", "row");
     // align left
-    cy.get(".t--property-control-position .t--button-group-right")
-      .last()
-      .click();
+    cy.get("[data-value='right']").last().click();
     cy.wait(200);
     // 1st btn
     cy.get(firstButton)

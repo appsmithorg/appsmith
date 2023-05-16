@@ -1,7 +1,7 @@
 import { defineConfig } from "cypress";
 
 export default defineConfig({
-  watchForFileChanges: false,
+  // watchForFileChanges: false,
   defaultCommandTimeout: 20000,
   requestTimeout: 21000,
   responseTimeout: 20000,
@@ -16,8 +16,8 @@ export default defineConfig({
     json: false,
   },
   chromeWebSecurity: false,
-  viewportHeight: 1100,
-  viewportWidth: 1400,
+  viewportHeight: 1200,
+  viewportWidth: 1600,
   retries: {
     runMode: 1,
     openMode: 0,

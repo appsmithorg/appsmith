@@ -2,6 +2,7 @@ const apiwidget = require("../../../../../locators/apiWidgetslocator.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/tableNewDsl.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Test Suite to validate copy/paste table Widget", function () {
   before(() => {
@@ -33,11 +34,15 @@ describe("Test Suite to validate copy/paste table Widget", function () {
     cy.get('.t--widget-propertypane-toggle [name="warning"]').should(
       "not.exist",
     );
-    cy.GlobalSearchEntity("Table1Copy");
-    cy.get(".widgets").first().click();
-    cy.get(".t--entity-name").contains("Table1Copy").trigger("mouseover");
-    cy.hoverAndClickParticularIndex(2);
-    cy.selectAction("Show bindings");
+    cy.get(commonlocators.toastAction).should("not.be.visible");
+    cy.wait(2000);
+    //cy.GlobalSearchEntityTableV1("Table1Copy");
+    cy.CheckAndUnfoldWidgets();
+    _.entityExplorer.ActionContextMenuByEntityName(
+      "Table1Copy",
+      "Show bindings",
+    );
+    cy.wait(200);
     cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(13);
       expect($lis.eq(0)).to.contain("{{Table1Copy.selectedRow}}");

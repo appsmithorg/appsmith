@@ -9,7 +9,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
 
   it("1. Datepicker default date validation with js binding and default date", function () {
     cy.openPropertyPane("datepickerwidget2");
-    cy.get(".t--property-control-defaultdate .bp3-input").clear();
+    cy.get(".t--property-control-defaultdate input").clear();
     cy.get(formWidgetsPage.toggleJsDefaultDate).click();
     cy.EnableAllCodeEditors();
     cy.testJsontext(
@@ -21,10 +21,9 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
   it("2. Datepicker default time picker validation by Time precision", function () {
     // default value in property pane
     cy.openPropertyPane("datepickerwidget2");
-    cy.get(".t--property-control-timeprecision span[type='p1']").should(
-      "have.text",
-      "Minute",
-    );
+    cy.get(
+      ".t--property-control-timeprecision .rc-select-selection-item",
+    ).should("have.text", "Minute");
 
     // default in date picker
     cy.get(".t--widget-datepickerwidget2 input").click();
@@ -41,9 +40,9 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
   it("3. Hide Time picker from Datepicker", function () {
     // default value in property pane
     cy.openPropertyPane("datepickerwidget2");
-    cy.get(".t--property-control-timeprecision .bp3-popover-target")
+    cy.get(".t--property-control-timeprecision .rc-select-selection-item")
       .last()
-      .click();
+      .click({ force: true });
     cy.get(".t--dropdown-option").children().contains("None").click();
     cy.wait("@updateLayout");
     // default in date picker
@@ -63,9 +62,9 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
     // default value in property pane
     cy.openPropertyPane("datepickerwidget2");
 
-    cy.get(".t--property-control-timeprecision .bp3-popover-target")
+    cy.get(".t--property-control-timeprecision .rc-select-selection-item")
       .last()
-      .click();
+      .click({ force: true });
     cy.get(".t--dropdown-option").children().contains("Second").click();
     cy.wait("@updateLayout");
     // default in date picker
@@ -134,6 +133,5 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
   it("9. Datepicker default date validation with js binding", function () {
     cy.PublishtheApp();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(10000);
   });
 });

@@ -18,7 +18,7 @@ describe("Rest Bugs tests", function () {
     agHelper.SaveLocalStorageCache();
   });
 
-  it("Bug 5550: Not able to run APIs in parallel", function () {
+  it("1. Bug 5550: Not able to run APIs in parallel", function () {
     cy.addDsl(dslParallel);
     cy.wait(8000); //settling time for dsl!
     cy.get(".bp3-spinner").should("not.exist");
@@ -129,7 +129,7 @@ describe("Rest Bugs tests", function () {
     //     })
   });
 
-  it("Bug 6863: Clicking on 'debug' crashes the appsmith application", function () {
+  it("2. Bug 6863: Clicking on 'debug' crashes the appsmith application", function () {
     cy.startErrorRoutes();
     cy.CreatePage();
     cy.wait("@createPage").should(
@@ -152,7 +152,7 @@ describe("Rest Bugs tests", function () {
       });
   });
 
-  it("Bug 4775: No Cyclical dependency when Api returns an error", function () {
+  it("3. Bug 4775: No Cyclical dependency when Api returns an error", function () {
     cy.addDsl(dslTable);
     cy.wait(5000); //settling time for dsl!
     cy.get(".bp3-spinner").should("not.exist");
