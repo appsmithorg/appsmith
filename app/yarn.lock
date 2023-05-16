@@ -9097,6 +9097,7 @@ __metadata:
     webpack-merge: ^5.8.0
     webpack-retry-chunk-load-plugin: ^3.1.1
     workbox-webpack-plugin: ^6.5.3
+    xlsx: "https://cdn.sheetjs.com/xlsx-0.19.3/xlsx-0.19.3.tgz"
     yjs: ^13.5.12
     zipcelx: ^1.6.2
   languageName: unknown
@@ -30896,6 +30897,15 @@ __metadata:
   version: 4.0.0
   resolution: "xdg-basedir@npm:4.0.0"
   checksum: 0073d5b59a37224ed3a5ac0dd2ec1d36f09c49f0afd769008a6e9cd3cd666bd6317bd1c7ce2eab47e1de285a286bad11a9b038196413cd753b79770361855f3c
+  languageName: node
+  linkType: hard
+
+"xlsx@https://cdn.sheetjs.com/xlsx-0.19.3/xlsx-0.19.3.tgz":
+  version: 0.19.3
+  resolution: "xlsx@https://cdn.sheetjs.com/xlsx-0.19.3/xlsx-0.19.3.tgz"
+  bin:
+    xlsx: ./bin/xlsx.njs
+  checksum: d8ad11182aea27253e7efdf64a655410aa115787b13fdd990a20c2ddf258f0211da9eaf3fcbba6d9dafee5e850ceaddbeee1c8ab59d5c6b073cf3a80cacebcb9
   languageName: node
   linkType: hard
 

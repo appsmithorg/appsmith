@@ -309,6 +309,7 @@
     "ts-jest-mock-import-meta": "^0.12.0",
     "ts-loader": "^9.4.1",
     "webpack-merge": "^5.8.0",
-    "workbox-webpack-plugin": "^6.5.3"
+    "workbox-webpack-plugin": "^6.5.3",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.3/xlsx-0.19.3.tgz"
   }
 }
