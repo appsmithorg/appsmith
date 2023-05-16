@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import type { NavigationSetting } from "constants/AppConstants";
 import { TooltipComponent } from "design-system-old";
-import { isEllipsisActive, truncateString } from "utils/helpers";
+import { isEllipsisActive } from "utils/helpers";
 import { StyledMenuItemText } from "./MenuText.styled";
 
 type MenuTextProps = {
@@ -39,9 +39,7 @@ const MenuText = ({ name, navColorStyle, primaryColor }: MenuTextProps) => {
         primaryColor={primaryColor}
       >
         <div className="relative flex items-center justify-center flex-grow menu-item-text">
-          <span ref={tabNameRef}>
-            {ellipsisActive ? truncateString(name, 24) : name}
-          </span>
+          <span ref={tabNameRef}>{name}</span>
         </div>
       </StyledMenuItemText>
     </TooltipComponent>
