@@ -63,7 +63,7 @@ describe("1. CommandClickNavigation", function () {
 
     // Assert navigation only when cmd or ctrl is pressed
     agHelper.Sleep();
-    cy.get(`[${NAVIGATION_ATTRIBUTE}="Graphql_Query"]`).click();
+    cy.get(`[${NAVIGATION_ATTRIBUTE}="Graphql_Query"]`).click({ force: true });
 
     cy.url().should("not.contain", "/api/");
 

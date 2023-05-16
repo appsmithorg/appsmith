@@ -43,6 +43,7 @@ export const FormContainer = styled.div`
   height: 100%;
   overflow: hidden;
   flex: 1;
+  width: 100%;
 `;
 
 export const FormContainerBody = styled.div`
