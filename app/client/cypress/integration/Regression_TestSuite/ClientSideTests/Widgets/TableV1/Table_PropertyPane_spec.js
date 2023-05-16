@@ -201,6 +201,8 @@ describe("Table Widget property pane feature validation", function () {
   it("7. Test to validate text format", function () {
     // Validate Bold text
     cy.get(widgetsPage.bold).click({ force: true });
+    cy.wait(2000);
+    cy.reload();
     cy.readTabledataValidateCSS("1", "0", "font-weight", "700");
     // Validate Italic text
     cy.get(widgetsPage.italics).click({ force: true });
