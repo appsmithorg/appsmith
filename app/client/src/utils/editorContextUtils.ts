@@ -4,9 +4,11 @@ import {
   DATASOURCE_REST_API_FORM,
   DATASOURCE_SAAS_FORM,
 } from "ce/constants/forms";
+import { diff } from "deep-diff";
 import { PluginPackageName, PluginType } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
 import { AuthenticationStatus, AuthType } from "entities/Datasource";
+import { isArray } from "lodash";
 export function isCurrentFocusOnInput() {
   return (
     ["input", "textarea"].indexOf(
@@ -141,4 +143,17 @@ export function getFormName(plugin: Plugin): string {
     }
   }
   return DATASOURCE_DB_FORM;
+}
+
+export function getFormDiffPaths(initialValues: any, currentValues: any) {
+  const difference = diff(initialValues, currentValues);
+  const diffPaths: string[] = [];
+  if (!!difference) {
+    difference.forEach((diff) => {
+      if (!!diff.path && isArray(diff.path)) {
+        diffPaths.push(diff.path.join("."));
+      }
+    });
+  }
+  return diffPaths;
 }

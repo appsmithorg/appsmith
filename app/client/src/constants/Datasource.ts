@@ -15,6 +15,8 @@ export const DatasourceCreateEntryPoints = {
   ONBOARDING: "ONBOARDING",
   NEW_APP_CHECKLIST: "NEW_APP_CHECKLIST",
   CODE_EDITOR_SLASH_COMMAND: "CODE_EDITOR_SLASH_COMMAND",
+  OMNIBAR: "OMNIBAR",
+  SUBMENU: "SUBMENU",
 };
 
 export const DatasourceEditEntryPoints = {

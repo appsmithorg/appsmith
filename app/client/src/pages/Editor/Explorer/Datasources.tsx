@@ -86,7 +86,7 @@ const Datasources = React.memo(() => {
         }),
       );
       // Event for datasource creation click
-      AnalyticsUtil.logEvent("ADD_DATASOURCE_CLICK", {
+      AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
         entryPoint,
       });
     },

@@ -78,7 +78,8 @@ import {
 } from "@appsmith/constants/forms";
 import { validateResponse } from "./ErrorSagas";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getFormData, getFormDiffPaths } from "selectors/formSelectors";
+import type { GetFormData } from "selectors/formSelectors";
+import { getFormData } from "selectors/formSelectors";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { Toaster, Variant } from "design-system-old";
 import { getConfigInitialValues } from "components/formControls/utils";
@@ -133,7 +134,7 @@ import { getUntitledDatasourceSequence } from "utils/DatasourceSagaUtils";
 import { fetchPluginFormConfig } from "actions/pluginActions";
 import { addClassToDocumentBody } from "pages/utils";
 import { AuthorizationStatus } from "pages/common/datasourceAuth";
-import { getFormName } from "utils/editorContextUtils";
+import { getFormDiffPaths, getFormName } from "utils/editorContextUtils";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<{ workspaceId?: string } | undefined>,
@@ -385,7 +386,11 @@ function* updateDatasourceSaga(
       const formName: string = getFormName(plugin);
       const state: AppState = yield select();
       const isFormValid = isValid(formName)(state);
-      const formDiffPaths: string[] = yield select(getFormDiffPaths, formName);
+      const formData: GetFormData = yield select(getFormData, formName);
+      const formDiffPaths: string[] = getFormDiffPaths(
+        formData.initialValues,
+        formData.values,
+      );
       AnalyticsUtil.logEvent("SAVE_DATA_SOURCE", {
         datasourceId: response?.data?.id,
         datasourceName: response.data.name,
@@ -796,7 +801,11 @@ function* createDatasourceFromFormSaga(
       const formName: string = getFormName(plugin);
       const state: AppState = yield select();
       const isFormValid = isValid(formName)(state);
-      const formDiffPaths: string[] = yield select(getFormDiffPaths, formName);
+      const formData: GetFormData = yield select(getFormData, formName);
+      const formDiffPaths: string[] = getFormDiffPaths(
+        formData.initialValues,
+        formData.values,
+      );
       AnalyticsUtil.logEvent("SAVE_DATA_SOURCE", {
         datasourceId: response?.data?.id,
         datasourceName: response?.data?.name,
@@ -1620,7 +1629,11 @@ function* datasourceDiscardActionSaga(
   const { pluginId } = actionPayload.payload;
   const plugin: Plugin = yield select(getPlugin, pluginId);
   const formName: string = getFormName(plugin);
-  const formDiffPaths: string[] = yield select(getFormDiffPaths, formName);
+  const formData: GetFormData = yield select(getFormData, formName);
+  const formDiffPaths: string[] = getFormDiffPaths(
+    formData.initialValues,
+    formData.values,
+  );
   AnalyticsUtil.logEvent("DISCARD_DATASOURCE_CHANGES", {
     pluginName: plugin?.name,
     editedFields: formDiffPaths,

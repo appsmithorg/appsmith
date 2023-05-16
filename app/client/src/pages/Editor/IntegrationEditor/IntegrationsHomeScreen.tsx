@@ -483,7 +483,7 @@ class IntegrationsHomeScreen extends React.Component<
             this.onSelectPrimaryMenu(PRIMARY_MENU_IDS.CREATE_NEW);
             // Event for datasource creation click
             const entryPoint = DatasourceCreateEntryPoints.ACTIVE_DATASOURCE;
-            AnalyticsUtil.logEvent("ADD_DATASOURCE_CLICK", {
+            AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
               entryPoint,
             });
           }}

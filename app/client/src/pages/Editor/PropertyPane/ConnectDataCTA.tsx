@@ -71,7 +71,7 @@ function ConnectDataCTA(props: ConnectDataCTAProps) {
 
     // Event for datasource creation click
     const entryPoint = DatasourceCreateEntryPoints.PROPERTY_PANE_CONNECT_DATA;
-    AnalyticsUtil.logEvent("ADD_DATASOURCE_CLICK", {
+    AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
       entryPoint,
     });
   };

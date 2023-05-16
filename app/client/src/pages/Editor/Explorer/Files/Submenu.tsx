@@ -31,6 +31,7 @@ import { useCloseMenuOnScroll } from "../hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
 import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
 import { importSvg } from "design-system-old";
+import { DatasourceCreateEntryPoints } from "constants/Datasource";
 
 const SearchIcon = importSvg(() => import("assets/icons/ads/search.svg"));
 const CrossIcon = importSvg(() => import("assets/icons/ads/cross.svg"));
@@ -131,9 +132,9 @@ export default function ExplorerSubMenu({
     (item: any) => {
       if (item.kind === SEARCH_ITEM_TYPES.sectionTitle) return;
       if (item.action) {
-        dispatch(item.action(pageId, "SUBMENU"));
+        dispatch(item.action(pageId, DatasourceCreateEntryPoints.SUBMENU));
       } else if (item.redirect) {
-        item.redirect(pageId, "SUBMENU");
+        item.redirect(pageId, DatasourceCreateEntryPoints.SUBMENU);
       }
       setShow(false);
     },
