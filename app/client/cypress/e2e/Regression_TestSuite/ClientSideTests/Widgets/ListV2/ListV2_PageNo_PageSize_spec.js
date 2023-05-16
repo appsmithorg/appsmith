@@ -113,7 +113,9 @@ describe("List widget V2 page number and page size", () => {
       .should("have.text", "PageSize 4");
 
     cy.openPropertyPane("textwidget");
+    cy.wait(2000);
     cy.testJsontext("text", `Page Number {{List1.pageNo}}`);
+    cy.wait(2000);
     cy.wait("@updateLayout");
     cy.get(commonlocators.bodyTextStyle)
       .first()
@@ -127,7 +129,7 @@ describe("List widget V2 page number and page size", () => {
       .should("have.text", "Page Number 2");
 
     cy.openPropertyPane("listwidgetv2");
-    cy.get(".t--delete-widget").click({ force: true });
+    cy.get(commonlocators.deleteWidget).click({ force: true });
   });
 
   it("2. List widget V2 with server side pagination", () => {
