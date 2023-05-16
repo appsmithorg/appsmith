@@ -31,6 +31,7 @@ describe("Explorer hidden widget Selection", () => {
   });
 
   it("3. Switches tabs when selecting a tab", () => {
+    _.entityExplorer.ExpandCollapseEntity("Tabs1");
     _.entityExplorer.SelectEntityByName("UnselectedTab", "Widgets");
 
     // Assert correct tab is open
@@ -39,6 +40,7 @@ describe("Explorer hidden widget Selection", () => {
   });
 
   it("4. Switches tabs when selecting a widget inside other tab", () => {
+    _.entityExplorer.ExpandCollapseEntity("UnselectedTab");
     _.entityExplorer.SelectEntityByName("Button6", "Widgets");
 
     // Assert correct tab is open and button selected
@@ -57,6 +59,7 @@ describe("Explorer hidden widget Selection", () => {
     cy.get(commonLocators.propertyPaneTitle).should("contain", "Button6");
   });
   it("6. Switches tabs when selecting a widget inside hidden tab", () => {
+    _.entityExplorer.ExpandCollapseEntity("Tab 3");
     _.entityExplorer.SelectEntityByName("Button7", "Widgets");
 
     // Assert button is selected
@@ -66,6 +69,15 @@ describe("Explorer hidden widget Selection", () => {
   });
 
   it("7. Assert the overkill", () => {
+    _.entityExplorer.ExpandCollapseEntity("Overkill_Modal");
+    _.entityExplorer.ExpandCollapseEntity("Tabs2");
+    _.entityExplorer.ExpandCollapseEntity("Tab 2");
+    _.entityExplorer.ExpandCollapseEntity("Tabs3");
+    _.entityExplorer.ExpandCollapseEntity("Canvas9");
+    _.entityExplorer.ExpandCollapseEntity("Tabs4");
+    _.entityExplorer.ExpandCollapseEntity("Canvas11");
+    _.entityExplorer.ExpandCollapseEntity("Tabs5");
+    _.entityExplorer.ExpandCollapseEntity("Canvas13");
     _.entityExplorer.SelectEntityByName("OverKillText", "Widgets");
 
     // Assert that widget is seen
