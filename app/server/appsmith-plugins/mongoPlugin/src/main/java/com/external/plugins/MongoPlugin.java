@@ -49,7 +49,6 @@ import com.mongodb.connection.ConnectionPoolSettings;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoDatabase;
-import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.codecs.BsonTypeClassMap;
@@ -715,6 +714,7 @@ public class MongoPlugin extends BasePlugin {
                     })
                     .subscribeOn(scheduler);
         }
+
 
         @Override
         public void datasourceDestroy(MongoClient mongoClient) {
