@@ -15,9 +15,9 @@ import {
   BULK_WIDGET_REMOVED,
 } from "@appsmith/constants/messages";
 import { toast } from "design-system";
-// import { useDispatch } from "react-redux";
-// import { setApiPaneConfigSelectedTabIndex } from "../actions/apiPaneActions";
-// import { API_EDITOR_TABS } from "../constants/ApiEditorConstants/CommonApiConstants";
+import { setApiPaneConfigSelectedTabIndex } from "../actions/apiPaneActions";
+import { API_EDITOR_TABS } from "../constants/ApiEditorConstants/CommonApiConstants";
+import store from "../store";
 
 /**
  * process the toast for undo/redo
@@ -136,12 +136,10 @@ export function switchTab(replayId: string): boolean {
   const element = document.querySelector(`[id$="${replayId}"]`) as HTMLElement;
   if (!element) return false;
   if (element.getAttribute("data-state") == "active") return false;
-  // TODO:  this click event doesn't seem to work
-  element?.click();
-  // in the absence of the click event, if we dispatch the selected tab correctly we will be fine as well.
-  // const dispatch = useDispatch();
-  // const index = Object.values(API_EDITOR_TABS).indexOf(replayId);
-  // dispatch(setApiPaneConfigSelectedTabIndex(index));
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const index = Object.values(API_EDITOR_TABS).indexOf(replayId);
+  store.dispatch(setApiPaneConfigSelectedTabIndex(index));
 
   return true;
 }
