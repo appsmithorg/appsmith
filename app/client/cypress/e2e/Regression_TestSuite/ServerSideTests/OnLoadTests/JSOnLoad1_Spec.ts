@@ -47,7 +47,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       );
       _.deployMode.DeployApp();
       _.agHelper.AssertElementVisible(
-        _.jsEditor._dialog("Confirmation Dialog"),
+        _.jsEditor._dialog("Confirmation dialog"),
       );
       _.agHelper.AssertElementVisible(
         _.jsEditor._dialogBody((jsName as string) + ".getEmployee"),
@@ -63,7 +63,7 @@ describe("JSObjects OnLoad Actions tests", function () {
   });
 
   it("2. Tc 54, 55 - Verify OnPage Load - auto enabled from above case for JSOBject", function () {
-    _.agHelper.AssertElementVisible(_.jsEditor._dialog("Confirmation Dialog"));
+    _.agHelper.AssertElementVisible(_.jsEditor._dialog("Confirmation dialog"));
     _.agHelper.AssertElementVisible(
       _.jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     );
@@ -77,7 +77,7 @@ describe("JSObjects OnLoad Actions tests", function () {
   it("3. Tc 56 - Verify OnPage Load - Enabled & Before Function calling Enabled for JSOBject & User clicks No & then Yes in Confirmation dialog", function () {
     _.deployMode.DeployApp(); //Adding this check since GetEmployee failure toast is always coming & making product flaky
     //_.agHelper.WaitUntilAllToastsDisappear();
-    _.agHelper.AssertElementVisible(_.jsEditor._dialog("Confirmation Dialog"));
+    _.agHelper.AssertElementVisible(_.jsEditor._dialog("Confirmation dialog"));
     _.agHelper.AssertElementVisible(
       _.jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     );
@@ -87,7 +87,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     _.agHelper.WaitUntilAllToastsDisappear();
 
     _.agHelper.RefreshPage();
-    _.agHelper.AssertElementVisible(_.jsEditor._dialog("Confirmation Dialog"));
+    _.agHelper.AssertElementVisible(_.jsEditor._dialog("Confirmation dialog"));
     _.agHelper.AssertElementVisible(
       _.jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     );
@@ -98,7 +98,7 @@ describe("JSObjects OnLoad Actions tests", function () {
       expect(cellData).to.be.equal("2");
     });
     _.deployMode.NavigateBacktoEditor();
-    _.agHelper.AssertElementVisible(_.jsEditor._dialog("Confirmation Dialog"));
+    _.agHelper.AssertElementVisible(_.jsEditor._dialog("Confirmation dialog"));
     _.agHelper.AssertElementVisible(
       _.jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     );
@@ -113,7 +113,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     //_.jsEditor.RunJSObj(); //Even running JS functin before delpoying does not help
     //_.agHelper.Sleep(2000);
     _.deployMode.DeployApp();
-    _.agHelper.AssertElementAbsence(_.jsEditor._dialog("Confirmation Dialog"));
+    _.agHelper.AssertElementAbsence(_.jsEditor._dialog("Confirmation dialog"));
     _.agHelper.AssertElementAbsence(
       _.jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     );
@@ -145,7 +145,7 @@ describe("JSObjects OnLoad Actions tests", function () {
   it("6. Tc 55 - Verify OnPage Load - Enabling & Before Function calling Enabling for JSOBject & deleting testdata", function () {
     // _.deployMode.DeployApp(_.locators._widgetInDeployed("tablewidget"), false);
     // _.agHelper.WaitUntilAllToastsDisappear();    //incase toast appears, GetEmployee failure toast is appearing
-    // _.agHelper.AssertElementVisible(_.jsEditor._dialog("Confirmation Dialog"));
+    // _.agHelper.AssertElementVisible(_.jsEditor._dialog("Confirmation dialog"));
     // _.agHelper.AssertElementVisible(
     //   _.jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     // );
@@ -156,7 +156,7 @@ describe("JSObjects OnLoad Actions tests", function () {
     // });
     // //_.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
     // _.deployMode.NavigateBacktoEditor();
-    // _.agHelper.AssertElementVisible(_.jsEditor._dialog("Confirmation Dialog"));
+    // _.agHelper.AssertElementVisible(_.jsEditor._dialog("Confirmation dialog"));
     // _.agHelper.AssertElementVisible(
     //   _.jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     // );
