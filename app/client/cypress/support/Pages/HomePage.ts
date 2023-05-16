@@ -41,7 +41,7 @@ export class HomePage {
   _searchUsersInput = ".search-input";
 
   private _manageUsers = ".manageUsers";
-  public _closeBtn = ".bp3-dialog-close-button";
+  public _closeBtn = ".ads-v2-modal__content-header-close-button";
   private _appHome = "//a[@href='/applications']";
   _applicationCard = ".t--application-card";
   _homeIcon = ".t--appsmith-logo";
