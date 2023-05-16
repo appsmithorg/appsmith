@@ -31,7 +31,7 @@ describe("Entity explorer context menu should hide on scrolling", function () {
             _.entityExplorer._entityExplorerWrapper,
             "bottom",
           );
-          _.agHelper.AssertElementVisible(_.entityExplorer._adsPopup);
+          _.agHelper.AssertElementAbsence(_.entityExplorer._adsPopup);
         });
       });
     },
@@ -70,7 +70,7 @@ describe("Entity explorer context menu should hide on scrolling", function () {
             _.entityExplorer._entityExplorerWrapper,
             "bottom",
           );
-          _.agHelper.AssertElementVisible(_.entityExplorer._adsPopup);
+          _.agHelper.AssertElementAbsence(_.entityExplorer._adsPopup);
         });
       });
     },
