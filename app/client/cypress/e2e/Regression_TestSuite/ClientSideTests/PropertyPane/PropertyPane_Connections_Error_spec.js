@@ -5,7 +5,7 @@ describe("Property pane connections error state", function () {
     cy.addDsl(dsl);
   });
 
-  it("Check if the connection shows an error state when a connection has an error", function () {
+  it("1. Check if the connection shows an error state when a connection has an error", function () {
     cy.openPropertyPane("tablewidget");
 
     cy.testJsontext("tabledata", "{{error}}");

@@ -1,8 +1,7 @@
 const dsl = require("../../../../fixtures/DynamicHeightDefaultHeightdsl.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Dynamic Height Width validation", function () {
-  it("Validate change with auto height width for widgets", function () {
+  it("1. Validate change with auto height width for widgets", function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     cy.addDsl(dsl);
     cy.wait(3000); //for dsl to settle

@@ -4,18 +4,10 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const explorer = require("../../../../locators/explorerlocators.json");
 
-const agHelper = ObjectsRegistry.AggregateHelper;
 const entityExplorer = ObjectsRegistry.EntityExplorer;
 
 describe("Dynamic Height Width validation list widget", function () {
-  afterEach(() => {
-    agHelper.SaveLocalStorageCache();
-  });
-
-  beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
-  });
-  it("Validate change with auto height width for list widgets", function () {
+  it("1. Validate change with auto height width for list widgets", function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     const textMsg = "Dynamic panel validation for text widget wrt height";
     cy.addDsl(dsl);

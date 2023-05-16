@@ -11,7 +11,7 @@ describe("MySQL noise test", function () {
     cy.startRoutesForDatasource();
   });
 
-  it("Verify after killing MySQL session, app should not crash", function () {
+  it("1. Verify after killing MySQL session, app should not crash", function () {
     cy.NavigateToDatasourceEditor();
     cy.get(datasourceEditor.MySQL).click();
     cy.generateUUID().then((uid) => {

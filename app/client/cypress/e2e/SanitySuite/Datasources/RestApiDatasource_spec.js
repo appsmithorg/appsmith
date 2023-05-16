@@ -6,7 +6,7 @@ describe("Create a rest datasource", function () {
     cy.startRoutesForDatasource();
   });
 
-  it("Create a rest datasource + Bug 14566", function () {
+  it("1. Create a rest datasource + Bug 14566", function () {
     _.apiPage.CreateAndFillApi(testdata.baseUrl + testdata.methods);
     cy.get(".t--store-as-datasource").trigger("click").wait(1000);
     _.agHelper.AssertElementAbsence(
