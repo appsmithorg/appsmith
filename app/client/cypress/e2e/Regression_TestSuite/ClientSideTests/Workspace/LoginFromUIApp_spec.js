@@ -1,10 +1,8 @@
-import homePage from "../../../../locators/HomePage";
-const pages = require("../../../../locators/Pages.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 let pageid;
 
 describe("Login from UI and check the functionality", function () {
-  it("Login/create page/delete page/delete app from UI", function () {
+  it("1. Login/create page/delete page/delete app from UI", function () {
     const appname = localStorage.getItem("AppName");
     cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     cy.SearchApp(appname);
