@@ -33,11 +33,11 @@ export default {
   inviteUserMembersPage: "[data-testid=t--page-header-input]",
   email: "//input[@type='email']",
   selectRole: "[data-testid='t--invite-role-input']",
-  adminRole: `//div[contains(@class, 'label-container')]//span[1][text()='Administrator']`,
+  adminRole: `//div[contains(@class, 'rc-select-item-option-content')]//span[1][text()='Administrator']`,
   viewerRole:
-    "//div[contains(@class, 'label-container')]//span[1][text()='App Viewer']",
+    "//div[contains(@class, 'rc-select-item-option-content')]//span[1][text()='App Viewer']",
   developerRole:
-    "//div[contains(@class, 'label-container')]//span[1][text()='Developer']",
+    "//div[contains(@class, 'rc-select-item-option-content')]//span[1][text()='Developer']",
   inviteBtn: "//button//span[text()='Invite']",
   manageUsers: ".manageUsers",
   DeleteBtn: "[data-testid=t--deleteUser]",
