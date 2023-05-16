@@ -1,10 +1,11 @@
-import {parse, Node, SourceLocation, Options, Comment} from "acorn";
+import type { Node, SourceLocation, Options, Comment } from "acorn";
+import { parse } from "acorn";
 import { ancestor, simple } from "acorn-walk";
-import { ECMA_VERSION, NodeTypes } from './constants/ast';
+import { ECMA_VERSION, NodeTypes } from "./constants/ast";
 import { has, isFinite, isString, memoize, toPath } from "lodash";
 import { isTrueObject, sanitizeScript } from "./utils";
 import { jsObjectDeclaration } from "./jsObject/index";
-import {attachComments} from "astravel";
+import { attachComments } from "astravel";
 /*
  * Valuable links:
  *
@@ -26,7 +27,15 @@ import {attachComments} from "astravel";
 
 type Pattern = IdentifierNode | AssignmentPatternNode;
 type Expression = Node;
-export type ArgumentTypes = LiteralNode | ArrowFunctionExpressionNode | ObjectExpression | MemberExpressionNode | CallExpressionNode | BinaryExpressionNode | BlockStatementNode | IdentifierNode;
+export type ArgumentTypes =
+  | LiteralNode
+  | ArrowFunctionExpressionNode
+  | ObjectExpression
+  | MemberExpressionNode
+  | CallExpressionNode
+  | BinaryExpressionNode
+  | BlockStatementNode
+  | IdentifierNode;
 // doc: https://github.com/estree/estree/blob/master/es5.md#memberexpression
 export interface MemberExpressionNode extends Node {
   type: NodeTypes.MemberExpression;
@@ -115,7 +124,7 @@ export interface ThisExpressionNode extends Node {
 
 export interface BlockStatementNode extends Node {
   type: "BlockStatement";
-  body: [ Node ];
+  body: [Node];
 }
 
 type NodeList = {
@@ -140,10 +149,10 @@ export interface ExpressionStatement extends Node {
 
 export interface Program extends Node {
   type: "Program";
-  body: [ Directive | Statement ];
+  body: [Directive | Statement];
 }
 
-export interface Statement extends Node {}
+export type Statement = Node;
 
 export interface Directive extends ExpressionStatement {
   expression: LiteralNode;
@@ -171,17 +180,23 @@ export const isIdentifierNode = (node: Node): node is IdentifierNode => {
   return node.type === NodeTypes.Identifier;
 };
 
-export const isMemberExpressionNode = (node: Node): node is MemberExpressionNode => {
+export const isMemberExpressionNode = (
+  node: Node,
+): node is MemberExpressionNode => {
   return node.type === NodeTypes.MemberExpression;
 };
 
-export const isThisExpressionNode = (node: Node): node is ThisExpressionNode => {
+export const isThisExpressionNode = (
+  node: Node,
+): node is ThisExpressionNode => {
   return node.type === NodeTypes.ThisExpression;
 };
 
-export const isBinaryExpressionNode = (node: Node): node is BinaryExpressionNode => {
+export const isBinaryExpressionNode = (
+  node: Node,
+): node is BinaryExpressionNode => {
   return node.type === NodeTypes.BinaryExpression;
-}
+};
 
 export const isVariableDeclarator = (
   node: Node,
@@ -197,7 +212,7 @@ const isFunctionExpression = (node: Node): node is FunctionExpressionNode => {
   return node.type === NodeTypes.FunctionExpression;
 };
 export const isArrowFunctionExpression = (
-  node: Node
+  node: Node,
 ): node is ArrowFunctionExpressionNode => {
   return node.type === NodeTypes.ArrowFunctionExpression;
 };
@@ -218,15 +233,21 @@ export const isPropertyNode = (node: Node): node is PropertyNode => {
   return node.type === NodeTypes.Property;
 };
 
-export const isCallExpressionNode = (node: Node): node is CallExpressionNode => {
+export const isCallExpressionNode = (
+  node: Node,
+): node is CallExpressionNode => {
   return node.type === NodeTypes.CallExpression;
 };
 
-export const isBlockStatementNode = (node: Node): node is BlockStatementNode => {
+export const isBlockStatementNode = (
+  node: Node,
+): node is BlockStatementNode => {
   return node.type === NodeTypes.BlockStatement;
-}
+};
 
-export const isExpressionStatementNode = (node: Node): node is ExpressionStatement => {
+export const isExpressionStatementNode = (
+  node: Node,
+): node is ExpressionStatement => {
   return node.type === NodeTypes.ExpressionStatement;
 };
 
@@ -265,7 +286,7 @@ export const wrapCode = (code: string) => {
 //Tech-debt: should upgrade this to better logic
 //Used slice for a quick resolve of critical bug
 const unwrapCode = (code: string) => {
-  let unwrapedCode = code.slice(32);
+  const unwrapedCode = code.slice(32);
   return unwrapedCode.slice(0, -10);
 };
 
@@ -286,9 +307,12 @@ const getFunctionalParamNamesFromNode = (
 export const getAST = (code: string, options?: AstOptions) =>
   parse(code, { ...options, ecmaVersion: ECMA_VERSION });
 
-export const attachCommentsToAst = (ast: Node, commentArray: Array<Comment>) => {
+export const attachCommentsToAst = (
+  ast: Node,
+  commentArray: Array<Comment>,
+) => {
   return attachComments(ast, commentArray);
-}
+};
 /**
  * An AST based extractor that fetches all possible references in a given
  * piece of code. We use this to get any references to the global entities in Appsmith
@@ -321,7 +345,7 @@ export const extractIdentifierInfoFromCode = (
     */
     const wrappedCode = wrapCode(sanitizedScript);
     ast = getAST(wrappedCode);
-    let { references, functionalParams, variableDeclarations }: NodeList =
+    const { functionalParams, references, variableDeclarations }: NodeList =
       ancestorWalk(ast);
     const referencesArr = Array.from(references).filter((reference) => {
       // To remove references derived from declared variables and function params,
@@ -370,16 +394,16 @@ export const entityRefactorFromCode = (
   //Difference in length of oldName and newName
   const nameLengthDiff: number = newName.length - oldName.length;
   //Offset index used for deciding location of oldName.
-  let refactorOffset: number = 0;
+  let refactorOffset = 0;
   //Count of refactors on the script
-  let refactorCount: number = 0;
+  let refactorCount = 0;
   try {
     ast = getAST(script);
-    let {
-      references,
+    const {
       functionalParams,
-      variableDeclarations,
       identifierList,
+      references,
+      variableDeclarations,
     }: NodeList = ancestorWalk(ast);
     const identifierArray = Array.from(
       identifierList,
@@ -413,7 +437,7 @@ export const entityRefactorFromCode = (
             const propertyNode = identifier.property;
             //Flag variable : true if property should be updated
             //false if property should not be updated
-            let propertyCondFlag =
+            const propertyCondFlag =
               oldNameArr.length > 1 &&
               propertyNode &&
               oldNameArr[1] === propertyNode.name;
@@ -497,7 +521,10 @@ const constructFinalMemberExpIdentifier = (
   } else {
     const propertyAccessor = getPropertyAccessor(node.property);
     const nestedChild = `${propertyAccessor}${child}`;
-    return constructFinalMemberExpIdentifier(node.object as MemberExpressionNode, nestedChild);
+    return constructFinalMemberExpIdentifier(
+      node.object as MemberExpressionNode,
+      nestedChild,
+    );
   }
 };
 
@@ -564,7 +591,7 @@ export const extractInvalidTopLevelMemberExpressionsFromCode = (
   }
   simple(ast, {
     MemberExpression(node: Node) {
-      const { object, property, computed } = node as MemberExpressionNode;
+      const { computed, object, property } = node as MemberExpressionNode;
       // We are only interested in top-level MemberExpression nodes
       // Eg. for Api1.data.name, we are only interested in Api1.data
       if (!isIdentifierNode(object)) return;

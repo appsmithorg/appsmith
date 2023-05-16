@@ -60,12 +60,12 @@ import {
   DynamicAutocompleteInputWrapper,
   EditorWrapper,
   IconContainer,
+  PEEK_STYLE_PERSIST_CLASS,
 } from "components/editorComponents/CodeEditor/styledComponents";
 import { bindingMarker } from "components/editorComponents/CodeEditor/MarkHelpers/bindingMarker";
 import {
   entityMarker,
   NAVIGATE_TO_ATTRIBUTE,
-  PEEK_STYLE_PERSIST_CLASS,
 } from "components/editorComponents/CodeEditor/MarkHelpers/entityMarker";
 import {
   bindingHint,
@@ -658,19 +658,6 @@ class CodeEditor extends Component<Props, State> {
       });
       const hoverChIndex = this.editor.indexFromPos(tokenPos);
 
-      // Api1 - done
-      // [0] - done
-      // ["string"] - done
-      // this keyword - done
-      // filter eval data - done
-      // Api1.run() - done
-      // appsmith.geolocation.getCurrentLocation() - done
-      // local variables filter - handled by class filter
-      // storeValue("abc", 123) - done
-      // storeValue() - handled later
-      // update script when required on hover
-      // Api1.data.users[x].id
-
       if (!this.peekOverlayExpressionIdentifier.hasParsedScript()) {
         this.peekOverlayExpressionIdentifier.updateScript(
           this.editor.getValue(),
@@ -680,34 +667,29 @@ class CodeEditor extends Component<Props, State> {
       this.peekOverlayExpressionIdentifier
         .extractExpressionAtPosition(hoverChIndex)
         .then((lineExpression: string) => {
-          console.log("on hover src element", tokenPos, tokenElement);
-          // console.log("on hover expression", hoverChIndex, lineExpression);
-
           if (lineExpression) {
-            if (tokenElement.classList.contains("cm-variable")) {
+            if (
               // global variables and functions
               // JsObject1, storeValue()
-              this.showPeekOverlay(lineExpression, tokenElement);
-            } else if (tokenElement.classList.contains("cm-property")) {
+              tokenElement.classList.contains("cm-variable") ||
               // properties and function calls
               // JsObject.myFun(), Api1.data
+              tokenElement.classList.contains("cm-property") ||
+              // array indices - [0]
+              tokenElement.classList.contains("cm-number") ||
+              // string accessor - ["x"]
+              tokenElement.classList.contains("cm-string")
+            ) {
               this.showPeekOverlay(lineExpression, tokenElement);
             } else if (tokenElement.classList.contains("cm-keyword")) {
               // this keyword for jsObjects
               if (this.props.isJSObject && tokenElement.innerHTML === "this") {
                 this.showPeekOverlay(lineExpression, tokenElement);
               }
-            } else if (tokenElement.classList.contains("cm-number")) {
-              // array indices - [0]
-              this.showPeekOverlay(lineExpression, tokenElement);
-            } else if (tokenElement.classList.contains("cm-string")) {
-              // string accessor - ["x"]
-              this.showPeekOverlay(lineExpression, tokenElement);
             } else {
               this.hidePeekOverlay();
             }
           }
-          console.log("------------on hover------------");
         });
     } else {
       this.hidePeekOverlay();

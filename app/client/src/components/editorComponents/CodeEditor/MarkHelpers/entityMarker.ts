@@ -12,13 +12,6 @@ const hasReference = (token: CodeMirror.Token) => {
   return token.type === "variable" || tokenString === "this";
 };
 
-export const PEEKABLE_CLASSNAME = "peekable-entity-highlight";
-export const PEEKABLE_ATTRIBUTE = "peek-data";
-export const PEEKABLE_LINE = "peek-line";
-export const PEEKABLE_CH_START = "peek-ch-start";
-export const PEEKABLE_CH_END = "peek-ch-end";
-export const PEEK_STYLE_PERSIST_CLASS = "peek-style-persist";
-
 export const entityMarker: MarkHelper = (
   editor: CodeMirror.Editor,
   entityNavigationData,
@@ -70,7 +63,7 @@ const addMarksForLine = (
         editor.markText(
           { ch: token.start, line: lineNo },
           { ch: token.end, line: lineNo },
-          getMarkOptions(data, token, lineNo),
+          getMarkOptions(data),
         );
       }
       addMarksForChildren(
@@ -104,7 +97,7 @@ const addMarksForChildren = (
         editor.markText(
           { ch: token.start, line: lineNo },
           { ch: token.end, line: lineNo },
-          getMarkOptions(childLink, token, lineNo),
+          getMarkOptions(childLink),
         );
       }
       addMarksForChildren(childNodes[token.string], lineNo, token.end, editor);
@@ -112,26 +105,13 @@ const addMarksForChildren = (
   }
 };
 
-const getMarkOptions = (
-  data: NavigationData,
-  token: CodeMirror.Token,
-  lineNo: number,
-): CodeMirror.TextMarkerOptions => {
+const getMarkOptions = (data: NavigationData): CodeMirror.TextMarkerOptions => {
   return {
-    // className: `${data.navigable ? NAVIGATION_CLASSNAME : ""} ${
-    //   data.peekable ? PEEKABLE_CLASSNAME : ""
-    // }`,
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     attributes: {
       ...(data.navigable && {
         [NAVIGATE_TO_ATTRIBUTE]: `${data.name}`,
-      }),
-      ...(data.peekable && {
-        [PEEKABLE_ATTRIBUTE]: data.name,
-        [PEEKABLE_CH_START]: token.start,
-        [PEEKABLE_CH_END]: token.end,
-        [PEEKABLE_LINE]: lineNo,
       }),
     },
     atomic: false,
@@ -141,10 +121,6 @@ const getMarkOptions = (
 
 const clearMarkers = (markers: CodeMirror.TextMarker[]) => {
   markers.forEach((marker) => {
-    if (
-      marker.className?.includes(NAVIGATION_CLASSNAME) ||
-      marker.className?.includes(PEEKABLE_CLASSNAME)
-    )
-      marker.clear();
+    if (marker.className?.includes(NAVIGATION_CLASSNAME)) marker.clear();
   });
 };
