@@ -2,31 +2,30 @@ import type { EntityDefinitionsOptions } from "@appsmith/utils/autocomplete/Enti
 import type { DataTree, WidgetEntity } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { isFunction } from "lodash";
-import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { builderURL } from "RouteBuilder";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
 import { createNavData } from "./common";
 import WidgetFactory from "utils/WidgetFactory";
 
 export const getWidgetChildrenNavData = (
-  widget: FlattenedWidgetProps,
+  widgetName: string,
+  widgetType: string,
   dataTree: DataTree,
   pageId: string,
 ) => {
   const peekData: Record<string, unknown> = {};
   const childNavData: EntityNavigationData = {};
-  const dataTreeWidget: WidgetEntity = dataTree[
-    widget.widgetName
-  ] as WidgetEntity;
-  if (widget.type === "FORM_WIDGET") {
+  const dataTreeWidget: WidgetEntity = dataTree[widgetName] as WidgetEntity;
+  if (widgetType === "FORM_WIDGET") {
     const children: EntityNavigationData = {};
     const formChildren: EntityNavigationData = {};
     if (dataTreeWidget) {
-      Object.keys(dataTreeWidget.data || {}).forEach((widgetName) => {
-        const childWidgetId = (dataTree[widgetName] as WidgetEntity).widgetId;
-        formChildren[widgetName] = createNavData({
-          id: `${widget.widgetName}.data.${widgetName}`,
-          name: widgetName,
+      Object.keys(dataTreeWidget.data || {}).forEach((childWidgetName) => {
+        const childWidgetId = (dataTree[childWidgetName] as WidgetEntity)
+          .widgetId;
+        formChildren[childWidgetName] = createNavData({
+          id: `${widgetName}.data.${childWidgetName}`,
+          name: childWidgetName,
           type: ENTITY_TYPE.WIDGET,
           url: builderURL({ pageId, hash: childWidgetId }),
           peekable: false,
@@ -36,7 +35,7 @@ export const getWidgetChildrenNavData = (
       });
     }
     children.data = createNavData({
-      id: `${widget.widgetName}.data`,
+      id: `${widgetName}.data`,
       name: "data",
       type: ENTITY_TYPE.WIDGET,
       url: undefined,
@@ -65,8 +64,8 @@ export const getWidgetChildrenNavData = (
         const data = dataTreeWidget[prop];
         peekData[prop] = data;
         childNavData[prop] = createNavData({
-          id: `${widget.widgetName}.${prop}`,
-          name: `${widget.widgetName}.${prop}`,
+          id: `${widgetName}.${prop}`,
+          name: `${widgetName}.${prop}`,
           type: ENTITY_TYPE.WIDGET,
           url: undefined,
           peekable: true,

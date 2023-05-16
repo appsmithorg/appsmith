@@ -1,16 +1,15 @@
 import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import type { ActionData } from "reducers/entityReducers/actionsReducer";
 import type { EntityNavigationData } from "selectors/navigationSelectors";
 import { createNavData } from "./common";
 import type { ActionEntity } from "entities/DataTree/types";
 
 export const getActionChildrenNavData = (
-  action: ActionData,
+  actionName: string,
   dataTree: DataTree,
 ) => {
-  const dataTreeAction = dataTree[action.config.name] as ActionEntity;
+  const dataTreeAction = dataTree[actionName] as ActionEntity;
   if (dataTreeAction) {
     const definitions = entityDefinitions.ACTION(dataTreeAction, {});
     const peekData: Record<string, unknown> = {};
@@ -20,8 +19,8 @@ export const getActionChildrenNavData = (
         if (key === "data" || key === "isLoading" || key === "responseMeta") {
           peekData[key] = dataTreeAction[key];
           childNavData[key] = createNavData({
-            id: `${action.config.name}.${key}`,
-            name: `${action.config.name}.${key}`,
+            id: `${actionName}.${key}`,
+            name: `${actionName}.${key}`,
             type: ENTITY_TYPE.ACTION,
             url: undefined,
             peekable: true,
@@ -32,8 +31,8 @@ export const getActionChildrenNavData = (
           // eslint-disable-next-line @typescript-eslint/no-empty-function
           peekData[key] = function () {}; // tern inference required here
           childNavData[key] = createNavData({
-            id: `${action.config.name}.${key}`,
-            name: `${action.config.name}.${key}`,
+            id: `${actionName}.${key}`,
+            name: `${actionName}.${key}`,
             type: ENTITY_TYPE.ACTION,
             url: undefined,
             peekable: true,

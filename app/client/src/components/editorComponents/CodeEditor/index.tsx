@@ -135,7 +135,7 @@ import {
 } from "./utils/saveAndAutoIndent";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { selectFeatureFlags } from "selectors/usersSelectors";
-import { SourceType, extractExpressionAtPosition } from "@shared/ast";
+import { SourceType, PeekOverlayExpressionIdentifier } from "@shared/ast";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -234,15 +234,10 @@ type State = {
   ctrlPressed: boolean;
   peekOverlayProps:
     | (PeekOverlayStateProps & {
-        marker?: CodeMirror.TextMarker;
+        tokenElement: Element;
       })
     | undefined;
   isDynamic: boolean;
-  newPeekOverlay:
-    | {
-        tokenElement: Element;
-      }
-    | undefined;
 };
 
 const getEditorIdentifier = (props: EditorProps): string => {
@@ -263,6 +258,7 @@ class CodeEditor extends Component<Props, State> {
   hinters: Hinter[] = [];
   annotations: Annotation[] = [];
   updateLintingCallback: UpdateLintingCallback | undefined;
+  private peekOverlayExpressionIdentifier: PeekOverlayExpressionIdentifier;
   private editorWrapperRef = React.createRef<HTMLDivElement>();
 
   constructor(props: Props) {
@@ -276,9 +272,19 @@ class CodeEditor extends Component<Props, State> {
       changeStarted: false,
       ctrlPressed: false,
       peekOverlayProps: undefined,
-      newPeekOverlay: undefined,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
+    this.peekOverlayExpressionIdentifier = new PeekOverlayExpressionIdentifier(
+      props.isJSObject
+        ? {
+            sourceType: SourceType.module,
+            thisExpressionReplacement: props.jsObjectName,
+          }
+        : {
+            sourceType: SourceType.script,
+          },
+      props.input.value,
+    );
   }
 
   componentDidMount(): void {
@@ -543,76 +549,42 @@ class CodeEditor extends Component<Props, State> {
     this.editor.clearHistory();
   }
 
-  showPeekOverlay = (
-    peekableAttribute: string,
-    tokenElement: Element,
-    tokenElementPosition: DOMRect,
-    dataToShow: unknown,
-  ) => {
-    // const line = tokenElement.getAttribute(PEEKABLE_LINE),
-    //   chStart = tokenElement.getAttribute(PEEKABLE_CH_START),
-    //   chEnd = tokenElement.getAttribute(PEEKABLE_CH_END);
-
-    // this.state.peekOverlayProps?.marker?.clear();
-    // let marker: CodeMirror.TextMarker | undefined;
-    // if (line && chStart && chEnd) {
-    //   marker = this.editor.markText(
-    //     { ch: Number(chStart), line: Number(line) },
-    //     { ch: Number(chEnd), line: Number(line) },
-    //     {
-    //       className: PEEK_STYLE_PERSIST_CLASS,
-    //     },
-    //   );
-    // }
-
+  showPeekOverlay = (expression: string, tokenElement: Element) => {
+    const tokenElementPosition = tokenElement.getBoundingClientRect();
+    if (this.state.peekOverlayProps) {
+      if (tokenElement === this.state.peekOverlayProps.tokenElement) return;
+      this.hidePeekOverlay();
+    }
+    tokenElement.classList.add("peekaboo");
+    const paths = _.toPath(expression);
     this.setState({
       peekOverlayProps: {
-        name: peekableAttribute,
+        objectName: paths[0],
+        propertyPath: paths.slice(1),
         position: tokenElementPosition,
+        tokenElement,
         textWidth: tokenElementPosition.width,
-        data: dataToShow,
-        dataType: typeof dataToShow,
       },
     });
 
     AnalyticsUtil.logEvent("PEEK_OVERLAY_OPENED", {
-      property: peekableAttribute,
+      property: expression,
     });
   };
 
   hidePeekOverlay = () => {
-    this.state.peekOverlayProps?.marker?.clear();
-    this.setState({
-      peekOverlayProps: undefined,
-    });
+    if (this.state.peekOverlayProps) {
+      this.state.peekOverlayProps.tokenElement.classList.remove("peekaboo");
+      this.setState({
+        peekOverlayProps: undefined,
+      });
+    }
   };
 
   debounceHandleMouseOver = debounce(
     (ev) => this.handleMouseOver(ev),
     PEEK_OVERLAY_DELAY,
   );
-
-  showNewPeekOverlay = (tokenElement: Element) => {
-    if (this.state.newPeekOverlay) {
-      if (tokenElement === this.state.newPeekOverlay.tokenElement) return;
-      this.hideNewPeekOverlay();
-    }
-    tokenElement.classList.add("peekaboo");
-    this.setState({
-      newPeekOverlay: {
-        tokenElement,
-      },
-    });
-  };
-
-  hideNewPeekOverlay = () => {
-    if (this.state.newPeekOverlay) {
-      this.state.newPeekOverlay.tokenElement.classList.remove("peekaboo");
-      this.setState({
-        newPeekOverlay: undefined,
-      });
-    }
-  };
 
   handleScrollCursorIntoView = (cm: CodeMirror.Editor, event: Event) => {
     event.preventDefault();
@@ -646,135 +618,51 @@ class CodeEditor extends Component<Props, State> {
         left: event.clientX,
         top: event.clientY,
       });
-      const docContent = this.editor.getValue();
       const hoverChIndex = this.editor.indexFromPos(tokenPos);
 
-      // console.log("on hover src element", tokenPos, tokenElement);
       // Api1 - done
       // [0] - done
       // ["string"] - done
       // this keyword - done
+      // filter eval data - done
+      // Api1.run() - done
+      // appsmith.geolocation.getCurrentLocation() - done
+      // local variables filter - handled by class filter
+      // Api1.data.users[x].id
       // storeValue()
-      // Api1.run()
-      // appsmith.geolocation.getCurrentLocation()
-      // local variables filter
+      // storeValue("abc", 123)
 
-      extractExpressionAtPosition(
-        docContent,
-        hoverChIndex,
-        this.props.isJSObject ? SourceType.module : SourceType.script,
-        {
-          thisExpressionReplacement: this.props.jsObjectName,
-        },
-      ).then((lineExpression: string) => {
-        // performance concerns?
+      this.peekOverlayExpressionIdentifier
+        .extractExpressionAtPosition(hoverChIndex)
+        .then((lineExpression: string) => {
+          // console.log("on hover src element", tokenPos, tokenElement);
+          // console.log("on hover expression", hoverChIndex, lineExpression);
 
-        // console.log("on hover src element", tokenPos, tokenElement);
-        // console.log("on hover line", lineContent);
-        console.log("on hover expression", hoverChIndex, lineExpression);
-
-        if (tokenElement.classList.contains("cm-m-javascript")) {
           if (tokenElement.classList.contains("cm-variable")) {
-            // JsObject1.data -> JsObject1
-            // storeValue("x", 123) -> storeValue
-            console.log("on hover element - variable", this.props.dynamicData);
-            this.showNewPeekOverlay(tokenElement);
-            this.showPeekOverlay(
-              lineExpression,
-              tokenElement,
-              tokenElement.getBoundingClientRect(),
-              _.get(this.props.dynamicData, lineExpression),
-            );
+            // global variables and functions
+            // JsObject1, storeValue()
+            this.showPeekOverlay(lineExpression, tokenElement);
           } else if (tokenElement.classList.contains("cm-property")) {
-            // object definitions const obj = { x: 123 } -> x
-            // local variables obj.x -> x (need to filter local variables)
-            // JsObject1.data -> data
-            // JsObject1.data.filter() -> filter (need identify function calls)
-            console.log("on hover element - property");
-            this.showPeekOverlay(
-              lineExpression,
-              tokenElement,
-              tokenElement.getBoundingClientRect(),
-              _.get(this.props.dynamicData, lineExpression),
-            );
-            this.showNewPeekOverlay(tokenElement);
+            // properties and function calls
+            // JsObject.myFun(), Api1.data
+            this.showPeekOverlay(lineExpression, tokenElement);
           } else if (tokenElement.classList.contains("cm-keyword")) {
-            // needed to handle this keyword
-            // export, default, return etc... (need to filter)
-            console.log("on hover element - keyword");
+            // this keyword for jsObjects
             if (this.props.isJSObject && tokenElement.innerHTML === "this") {
-              this.showPeekOverlay(
-                lineExpression,
-                tokenElement,
-                tokenElement.getBoundingClientRect(),
-                _.get(this.props.dynamicData, lineExpression),
-              );
-              this.showNewPeekOverlay(tokenElement);
+              this.showPeekOverlay(lineExpression, tokenElement);
             }
           } else if (tokenElement.classList.contains("cm-number")) {
-            // identify array indices here
-            console.log("on hover element - number");
-            this.showPeekOverlay(
-              lineExpression,
-              tokenElement,
-              tokenElement.getBoundingClientRect(),
-              _.get(this.props.dynamicData, lineExpression),
-            );
-            this.showNewPeekOverlay(tokenElement);
+            // array indices - [0]
+            this.showPeekOverlay(lineExpression, tokenElement);
           } else if (tokenElement.classList.contains("cm-string")) {
-            // identify ["x"] accessor here
-            console.log("on hover element - string");
-            this.showPeekOverlay(
-              lineExpression,
-              tokenElement,
-              tokenElement.getBoundingClientRect(),
-              _.get(this.props.dynamicData, lineExpression),
-            );
-            this.showNewPeekOverlay(tokenElement);
+            // string accessor - ["x"]
+            this.showPeekOverlay(lineExpression, tokenElement);
           } else {
-            this.hideNewPeekOverlay();
             this.hidePeekOverlay();
           }
-        } else {
-          this.hideNewPeekOverlay();
-          this.hidePeekOverlay();
-        }
-        console.log("------------on hover------------");
-        // if (
-        //   event.target instanceof Element &&
-        //   event.target.hasAttribute(PEEKABLE_ATTRIBUTE)
-        // ) {
-        //   const tokenElement = event.target;
-        //   const tokenElementPosition = tokenElement.getBoundingClientRect();
-        //   const peekableAttribute = tokenElement.getAttribute(PEEKABLE_ATTRIBUTE);
-        //   if (peekableAttribute) {
-        //     // don't retrigger if hovering over the same token
-        //     if (
-        //       this.state.peekOverlayProps?.name === peekableAttribute &&
-        //       this.state.peekOverlayProps?.position.top ===
-        //         tokenElementPosition.top &&
-        //       this.state.peekOverlayProps?.position.left ===
-        //         tokenElementPosition.left
-        //     ) {
-        //       return;
-        //     }
-        //     const paths = peekableAttribute.split(".");
-        //     if (paths.length) {
-        //       paths.splice(1, 0, "peekData");
-        //       this.showPeekOverlay(
-        //         peekableAttribute,
-        //         tokenElement,
-        //         tokenElementPosition,
-        //         _.get(this.props.entitiesForNavigation, paths),
-        //       );
-        //     }
-        //   }
-        // } else {
-        //   this.hidePeekOverlay();
-        // }
-      });
+          console.log("------------on hover------------");
+        });
     } else {
-      this.hideNewPeekOverlay();
       this.hidePeekOverlay();
     }
   };
@@ -1150,6 +1038,8 @@ class CodeEditor extends Component<Props, State> {
         changeObj.to,
       );
     }
+
+    this.peekOverlayExpressionIdentifier.scriptUpdated(value);
   };
 
   handleDebouncedChange = _.debounce(this.handleChange, 600);

@@ -66,7 +66,7 @@ export const getEntitiesForNavigation = createSelector(
       );
       const config = getActionConfig(action.config.pluginType);
       // dataTree used to get entityDefinitions and peekData
-      const result = getActionChildrenNavData(action, dataTree);
+      const result = getActionChildrenNavData(action.config.name, dataTree);
       if (!config) return;
       navigationData[action.config.name] = createNavData({
         id: action.config.id,
@@ -100,7 +100,12 @@ export const getEntitiesForNavigation = createSelector(
 
     Object.values(widgets).forEach((widget) => {
       // dataTree to get entityDefinitions, for url (can use getWidgetByName?) and peekData
-      const result = getWidgetChildrenNavData(widget, dataTree, pageId);
+      const result = getWidgetChildrenNavData(
+        widget.widgetName,
+        widget.type,
+        dataTree,
+        pageId,
+      );
       navigationData[widget.widgetName] = createNavData({
         id: widget.widgetId,
         name: widget.widgetName,

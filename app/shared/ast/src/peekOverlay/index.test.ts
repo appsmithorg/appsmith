@@ -1,102 +1,99 @@
 import { SourceType } from "../constants/ast";
-import { extractExpressionAtPosition } from "./index";
+import { PeekOverlayExpressionIdentifier } from "./index";
 
 describe("extractExpressionAtPositionWholeDoc", () => {
+    const scriptIdentifier = new PeekOverlayExpressionIdentifier({
+        sourceType: SourceType.script,
+    });
+
+    const jsObjectIdentifier = new PeekOverlayExpressionIdentifier({
+        sourceType: SourceType.module,
+        thisExpressionReplacement: "JsObject",
+    });
     it("handles MemberExpressions", async () => {
         let result;
+        scriptIdentifier.scriptUpdated("Api1.data[0].id");
 
         // nested properties
 
         // at position 'A'
         // 'A'pi1.data[0].id
-        result = await extractExpressionAtPosition("Api1.data[0].id", 0)
+        result = await scriptIdentifier.extractExpressionAtPosition(0)
         expect(result).toBe("Api1");
 
         // Ap'i'1.data[0].id
-        result = await extractExpressionAtPosition("Api1.data[0].id", 2)
+        result = await scriptIdentifier.extractExpressionAtPosition(2)
         expect(result).toBe("Api1");
 
         // Api1.'d'ata[0].id
-        result = await extractExpressionAtPosition("Api1.data[0].id", 6)
+        result = await scriptIdentifier.extractExpressionAtPosition(6)
         expect(result).toBe("Api1.data");
 
         // Api1.data'['0].id
-        result = await extractExpressionAtPosition("Api1.data[0].id", 10)
+        result = await scriptIdentifier.extractExpressionAtPosition(10)
         expect(result).toBe("Api1.data[0]");
 
         // Api1.data['0'].id
-        result = await extractExpressionAtPosition("Api1.data[0].id", 11)
+        result = await scriptIdentifier.extractExpressionAtPosition(11)
         expect(result).toBe("Api1.data[0]");
 
         // Api1.data[0']'.id
-        result = await extractExpressionAtPosition("Api1.data[0].id", 12)
+        result = await scriptIdentifier.extractExpressionAtPosition(12)
         expect(result).toBe("Api1.data[0]");
 
         // Api1.data[0].'i'd
-        result = await extractExpressionAtPosition("Api1.data[0].id", 14)
+        result = await scriptIdentifier.extractExpressionAtPosition(14)
         expect(result).toBe("Api1.data[0].id");
 
 
         // function calls
+        scriptIdentifier.scriptUpdated("Api1.run()");
         // Ap'i'1.run()
-        result = await extractExpressionAtPosition("Api1.run()", 2)
+        result = await scriptIdentifier.extractExpressionAtPosition(2)
         expect(result).toBe("Api1");
 
         // Api1.'r'un()
-        result = await extractExpressionAtPosition("Api1.run()", 6)
+        result = await scriptIdentifier.extractExpressionAtPosition(6)
         expect(result).toBe("Api1.run");
     });
 
     it("handles ExpressionStatements", async () => {
         let result;
 
+        scriptIdentifier.scriptUpdated("Api1");
+
         // simple statement
         // Ap'i'1
-        result = await extractExpressionAtPosition("Api1", 2)
+        result = await scriptIdentifier.extractExpressionAtPosition(2)
         expect(result).toBe("Api1");
     });
 
     it ("handles this keyword replacement", async () => {
         let result;
+        jsObjectIdentifier.scriptUpdated(JsObjectWithThisKeyword);
 
-        result = await extractExpressionAtPosition(JsObjectWithThisKeyword, 134, SourceType.module, {
-            thisExpressionReplacement: "JsObject",
-        })
+        result = await jsObjectIdentifier.extractExpressionAtPosition(134);
         expect(result).toBe("JsObject");
 
-        result = await extractExpressionAtPosition(JsObjectWithThisKeyword, 153, SourceType.module, {
-            thisExpressionReplacement: "JsObject",
-        })
+        result = await jsObjectIdentifier.extractExpressionAtPosition(153);
         expect(result).toBe("JsObject.numArray");
 
-        result = await extractExpressionAtPosition(JsObjectWithThisKeyword, 174, SourceType.module, {
-            thisExpressionReplacement: "JsObject",
-        })
+        result = await jsObjectIdentifier.extractExpressionAtPosition(174);
         expect(result).toBe("JsObject.objectArray");
 
-        result = await extractExpressionAtPosition(JsObjectWithThisKeyword, 177, SourceType.module, {
-            thisExpressionReplacement: "JsObject",
-        })
+        result = await jsObjectIdentifier.extractExpressionAtPosition(177);
         expect(result).toBe("JsObject.objectArray[0]");
 
-        result = await extractExpressionAtPosition(JsObjectWithThisKeyword, 180, SourceType.module, {
-            thisExpressionReplacement: "JsObject",
-        })
+        result = await jsObjectIdentifier.extractExpressionAtPosition(180);
         expect(result).toBe("JsObject.objectArray[0].x");
 
-        result = await extractExpressionAtPosition(JsObjectWithThisKeyword, 202, SourceType.module, {
-            thisExpressionReplacement: "JsObject",
-        })
+        result = await jsObjectIdentifier.extractExpressionAtPosition(202);
         expect(result).toBe("JsObject.objectData['x']");
 
-        result = await extractExpressionAtPosition(JsObjectWithThisKeyword, 236, SourceType.module, {
-            thisExpressionReplacement: "JsObject",
-        })
+        result = await jsObjectIdentifier.extractExpressionAtPosition(236);
         expect(result).toBe("JsObject.objectData['x']['a']");
 
-        result = await extractExpressionAtPosition(JsObjectWithThisKeyword, 241, SourceType.module, {
-            thisExpressionReplacement: "JsObject",
-        })
+        result = await jsObjectIdentifier.extractExpressionAtPosition(241);
         expect(result).toBe("JsObject.objectData['x']['a'].b");
     });
 });
