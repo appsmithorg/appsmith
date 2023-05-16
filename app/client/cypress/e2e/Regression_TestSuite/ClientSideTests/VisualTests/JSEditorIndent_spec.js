@@ -1,20 +1,9 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
-let jsEditor = ObjectsRegistry.JSEditor,
-  agHelper = ObjectsRegistry.AggregateHelper,
-  ee = ObjectsRegistry.EntityExplorer,
-  homePage = ObjectsRegistry.HomePage,
-  debuggerHelper = ObjectsRegistry.DebuggerHelper;
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("JSEditor Indendation - Visual tests", () => {
-  // for any changes in UI, update the screenshot in snapshot folder, to do so:
-  //  1. Delete the required screenshot which you want to update.
-  //  2. Run test in headless mode with any browser except chrome.(to maintain same resolution in CI)
-  //  3. New screenshot will be generated in the snapshot folder.
-
   it("6. TC 1933 - jSEditor prettify verification on cloned application", () => {
     const appname = localStorage.getItem("AppName");
-    jsEditor.CreateJSObject(
+    _.jsEditor.CreateJSObject(
       `export default {
 myFun1: () => {
 console.log("hi");
@@ -54,24 +43,24 @@ myFun2: async () => {
     );
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify6");
 
-    agHelper.ActionContextMenuWithInPane("Prettify code");
-    agHelper.Sleep(2000); //allowing time to prettify!
+    _.agHelper.ActionContextMenuWithInPane("Prettify code");
+    _.agHelper.Sleep(2000); //allowing time to prettify!
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify6");
 
     // taking a snap after clicking inside the editor to make sure prettify has not reverted
-    agHelper.GetNClick(jsEditor._lineinJsEditor(26));
+    _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(26));
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify6");
 
-    homePage.NavigateToHome();
-    homePage.DuplicateApplication(appname);
-    agHelper.WaitUntilAllToastsDisappear();
-    ee.ExpandCollapseEntity("Queries/JS");
-    ee.SelectEntityByName("JSObject1", "Queries/JS");
+    _.homePage.NavigateToHome();
+    _.homePage.DuplicateApplication(appname);
+    _.agHelper.WaitUntilAllToastsDisappear();
+    _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+    _.entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify6");
   });
 
-  it("7. TC 1933 - JSEditor prettify verification on cloned page", () => {
-    jsEditor.CreateJSObject(
+  it.only("7. TC 1933 - JSEditor prettify verification on cloned page", () => {
+    _.jsEditor.CreateJSObject(
       `export default {
   myFun1: () => {
   console.log("hi");
@@ -112,23 +101,23 @@ myFun2: async () => {
 
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify7");
 
-    agHelper.ActionContextMenuWithInPane("Prettify code");
-    agHelper.Sleep(); //allowing time to prettify!
+    _.agHelper.ActionContextMenuWithInPane("Prettify code");
+    _.agHelper.Sleep(); //allowing time to prettify!
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");
 
     // taking a snap after clicking inside the editor to make sure prettify has not reverted
-    agHelper.GetNClick(jsEditor._lineinJsEditor(26));
+    _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(26));
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");
 
-    ee.ClonePage("Page1");
-    ee.ExpandCollapseEntity("Queries/JS");
-    ee.SelectEntityByName("JSObject1", "Queries/JS");
-    agHelper.Sleep(3000);
+    _.entityExplorer.ClonePage("Page1");
+    _.entityExplorer.ExpandCollapseEntity("Queries/JS");
+    _.entityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
+    _.agHelper.Sleep(3000);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");
   });
 
   it("1. TC 1864 : JSEditor validation for Prettify code with lint errors, triggered by menu option", () => {
-    jsEditor.CreateJSObject(
+    _.jsEditor.CreateJSObject(
       `export default {
 myVar1: [], myVar2: {},myFun1: () => {
 let allFuncs = [
@@ -154,17 +143,17 @@ return Promise.all(allFuncs).then(() => showAlert("Wonderful! all apis executed"
 
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify1");
 
-    agHelper.ActionContextMenuWithInPane("Prettify code");
-    agHelper.Sleep(2000); //allowing time to prettify!
+    _.agHelper.ActionContextMenuWithInPane("Prettify code");
+    _.agHelper.Sleep(2000); //allowing time to prettify!
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify1");
 
     // taking a snap after clicking inside the editor to make sure prettify has not reverted
-    agHelper.GetNClick("div.CodeMirror");
+    _.agHelper.GetNClick("div.CodeMirror");
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify1");
   });
 
   it("2. TC 1916, 1917 : JSEditor validation for Prettify code with no errors, triggered by menu option", () => {
-    jsEditor.CreateJSObject(
+    _.jsEditor.CreateJSObject(
       `export default {
 myFun1: () => {
 console.log("hi");
@@ -205,30 +194,29 @@ myFun2: async () => {
 
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify2");
 
-    agHelper.ActionContextMenuWithInPane("Prettify code");
-    agHelper.Sleep(2000); //allowing time to prettify!
+    _.agHelper.ActionContextMenuWithInPane("Prettify code");
+    _.agHelper.Sleep(2000); //allowing time to prettify!
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify2");
 
     // taking a snap after clicking inside the editor to make sure prettify has not reverted
-    agHelper.GetNClick(jsEditor._lineinJsEditor(26));
+    _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(26));
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify2");
 
     // click run button and take a snap to make sure prettify did not revert
-    agHelper.GetNClick(jsEditor._runButton);
-    agHelper.Sleep(); // allow time to run
+    _.agHelper.GetNClick(_.jsEditor._runButton);
+    _.agHelper.Sleep(); // allow time to run
     //Close bottom bar after execution.
-    debuggerHelper.CloseBottomBar();
+    _.debuggerHelper.CloseBottomBar();
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify2");
 
     // click dropdown to change function and make sure prettify has not reverted
-    agHelper.GetNClick("[name='expand-more']", 0, true, 100);
-    agHelper.ContainsNClick("myFun2");
+    _.jsEditor.SelectFunctionDropdown("myFun2");
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify2");
-    agHelper.AssertContains("ran successfully", "not.exist");
+    _.agHelper.AssertContains("ran successfully", "not.exist");
   });
 
   it("3. TC 1863 : JSEditor validation for Prettify code with lint errors, triggered by keyboard shortcut", () => {
-    jsEditor.CreateJSObject(
+    _.jsEditor.CreateJSObject(
       `export default {
 myVar1: [],
 myVar2: {},
@@ -264,13 +252,12 @@ myFun2: async () => {
       .matchImageSnapshot("jsObjAfterPrettify3");
 
     // taking a snap after clicking inside the editor to make sure prettify has not reverted
-    agHelper.GetNClick("div.CodeMirror");
-
+    _.agHelper.GetNClick("div.CodeMirror");
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify3");
   });
 
   it("4. TC 1863 : JSEditor validation for Prettify code with no errors, triggered by keyboard shortcut", () => {
-    jsEditor.CreateJSObject(
+    _.jsEditor.CreateJSObject(
       `export default {
 myVar1: [],
 myVar2: {},
@@ -317,26 +304,24 @@ myFun2: async () => {
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4");
 
     // taking a snap after clicking inside the editor to make sure prettify has not reverted
-    agHelper.GetNClick(jsEditor._lineinJsEditor(26));
+    _.agHelper.GetNClick(_.jsEditor._lineinJsEditor(26));
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4_1");
 
     // click run button and take a snap to make sure prettify did not revert
-    agHelper.GetNClick(jsEditor._runButton);
-    agHelper.Sleep(); // allow time to run
+    _.agHelper.GetNClick(_.jsEditor._runButton);
+    _.agHelper.Sleep(); // allow time to run
     //Close bottom bar after execution.
-    debuggerHelper.CloseBottomBar();
+    _.debuggerHelper.CloseBottomBar();
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4_1");
 
     // click dropdown to change function and make sure prettify has not reverted
-    // click dropdown to change function and make sure prettify has not reverted
-    agHelper.GetNClick("[name='expand-more']", 0, true, 100);
-    agHelper.ContainsNClick("myFun2");
+    _.jsEditor.SelectFunctionDropdown("myFun2");
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4_1");
-    agHelper.AssertContains("ran successfully", "not.exist");
+    _.agHelper.AssertContains("ran successfully", "not.exist");
   });
 
   it("5. TC 1862 - JSEditor validation for goLineStartSmart with no errors, triggered by keyboard shortcut", () => {
-    jsEditor.CreateJSObject(`const a = 1826;`, {
+    _.jsEditor.CreateJSObject(`const a = 1826;`, {
       paste: false,
       completeReplace: true,
       toRun: false,
