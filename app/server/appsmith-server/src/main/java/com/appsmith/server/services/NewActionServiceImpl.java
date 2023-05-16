@@ -30,15 +30,12 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                                 AnalyticsService analyticsService,
                                 DatasourceService datasourceService,
                                 PluginService pluginService,
-                                DatasourceContextService datasourceContextService,
                                 PluginExecutorHelper pluginExecutorHelper,
                                 MarketplaceService marketplaceService,
                                 PolicyGenerator policyGenerator,
                                 NewPageService newPageService,
                                 ApplicationService applicationService,
-                                SessionUserService sessionUserService,
                                 PolicyUtils policyUtils,
-                                AuthenticationValidator authenticationValidator,
                                 ConfigService configService,
                                 ResponseUtils responseUtils,
                                 PermissionGroupService permissionGroupService,
@@ -49,9 +46,9 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                                 ObservationRegistry observationRegistry) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
-                datasourceService, pluginService, datasourceContextService, pluginExecutorHelper, marketplaceService,
-                policyGenerator, newPageService, applicationService, sessionUserService, policyUtils,
-                authenticationValidator, configService, responseUtils, permissionGroupService, datasourcePermission,
+                datasourceService, pluginService, pluginExecutorHelper, marketplaceService,
+                policyGenerator, newPageService, applicationService, policyUtils,
+                configService, responseUtils, permissionGroupService, datasourcePermission,
                 applicationPermission, pagePermission, actionPermission, observationRegistry);
 
     }

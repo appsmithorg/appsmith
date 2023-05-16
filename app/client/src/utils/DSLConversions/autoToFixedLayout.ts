@@ -202,8 +202,8 @@ function processMobileCanvasChildren(
       ...currWidget,
       topRow: getTopRow(currWidget, true),
       bottomRow: getBottomRow(currWidget, true),
-      leftColumn: getLeftColumn(currWidget, true),
-      rightColumn: getRightColumn(currWidget, true),
+      leftColumn: Math.floor(getLeftColumn(currWidget, true)),
+      rightColumn: Math.floor(getRightColumn(currWidget, true)),
     };
 
     currWidgets = convertAutoWidgetToFixed(currWidgets, childId, true);
@@ -261,8 +261,8 @@ function processCanvasChildren(
       ...currWidget,
       topRow: getTopRow(currWidget, false),
       bottomRow: getBottomRow(currWidget, false),
-      leftColumn,
-      rightColumn,
+      leftColumn: Math.floor(leftColumn),
+      rightColumn: Math.floor(rightColumn),
     };
 
     currWidgets = convertAutoWidgetToFixed(currWidgets, childId, false);
