@@ -12,10 +12,6 @@ const ee = ObjectsRegistry.EntityExplorer,
 const containerShadowElement = `${widgetsPage.containerWidget} [data-testid^="container-wrapper-"]`;
 
 describe("App Theming funtionality", function () {
-  before(() => {
-    cy.addDsl(dsl);
-  });
-
   let themesSection = (sectionName, themeName) =>
     "//*[text()='" +
     sectionName +
@@ -64,7 +60,7 @@ describe("App Theming funtionality", function () {
     appSettings.ClosePane();
 
     // drop a button & container widget and click on body
-    cy.get(explorer.widgetSwitchId).click();
+    cy.get(explorer.widgetSwitchId).click({ force: true });
     cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 200 });
     cy.dragAndDropToCanvas("containerwidget", { x: 200, y: 50 });
     cy.assertPageSave();

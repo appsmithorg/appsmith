@@ -7,6 +7,7 @@ import type {
   IconName,
   MaybeElement,
   IButtonProps,
+  IAnchorButtonProps,
 } from "@blueprintjs/core";
 import {
   AnchorButton as BlueprintAnchorButton,
@@ -71,7 +72,7 @@ const StyledButton = styled((props: IButtonProps & Partial<ButtonProps>) => (
   ${buttonStyles}
 `;
 const StyledAnchorButton = styled(
-  (props: IButtonProps & Partial<ButtonProps>) => (
+  (props: IAnchorButtonProps & Partial<ButtonProps>) => (
     <BlueprintAnchorButton
       {...omit(props, ["iconAlignment", "fluid", "filled", "outline"])}
     />

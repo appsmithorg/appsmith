@@ -8,7 +8,7 @@ import { find } from "lodash";
 import React from "react";
 import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type { WidgetProperties } from "selectors/propertyPaneSelectors";
-import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import WidgetFactory from "utils/WidgetFactory";
 import type { WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";

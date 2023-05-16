@@ -42,6 +42,7 @@ export const FormContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
+  width: 100%;
 `;
 
 export const FormContainerBody = styled.div`
@@ -189,7 +190,8 @@ export class JSONtoForm<
         if (checked[properties[0]]) continue;
 
         checked[properties[0]] = 1;
-        const values = _.get(formData, properties[0], []);
+        // `as []` because the controlType guarantees the type
+        const values = _.get(formData, properties[0], []) as [];
         const newValues: ({ [s: string]: unknown } | ArrayLike<unknown>)[] = [];
 
         values.forEach(
