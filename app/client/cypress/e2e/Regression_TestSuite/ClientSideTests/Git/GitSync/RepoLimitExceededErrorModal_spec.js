@@ -60,7 +60,9 @@ describe("Repo Limit Exceeded Error Modal", function () {
       cy.get(gitSyncLocators.repoLimitExceededErrorModal).contains(
         Cypress.env("MESSAGES").CONTACT_SUPPORT_TO_UPGRADE(),
       );
-      cy.get(gitSyncLocators.contactSalesButton).should("exist");
+      cy.get(gitSyncLocators.contactSalesButton)
+        .find(span)
+        .should("contain.text", "Contact Support");
       cy.get(gitSyncLocators.repoLimitExceededErrorModal).contains(
         Cypress.env("MESSAGES").REVOKE_CAUSE_APPLICATION_BREAK(),
       );

@@ -11,7 +11,8 @@ export default {
   openRepoButton: ".t--open-repo-button",
   gitConfigNameInput: ".t--git-config-name-input input",
   gitConfigEmailInput: ".t--git-config-email-input input",
-  branchSearchInput: ".t--branch-search-input .ads-v2-input__input-section-input",
+  branchSearchInput:
+    ".t--branch-search-input .ads-v2-input__input-section-input",
   branchListItem: "[data-testid=t--branch-list-item]",
   closeGitSyncModal: ".ads-v2-modal__content-header-close-button",
   closeRevokeModal: ".t--close-disconnect-modal",
@@ -42,7 +43,7 @@ export default {
   closeDisconnectModal: ".ads-v2-modal__content-header-close-button",
   disconnectAppNameInput: ".t--git-app-name-input",
   repoLimitExceededErrorModal: ".t--git-repo-limited-modal",
-  contactSalesButton: ".t--contact-sales-button",
+  contactSalesButton: ".ads-v2-callout__children span",
   connectedApplication: ".t--connected-app-wrapper",
   diconnectLink: ".t--disconnect-link",
   disconnectLearnMoreLink: ".t--disconnect-learn-more",
