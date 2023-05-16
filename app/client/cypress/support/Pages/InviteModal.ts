@@ -25,7 +25,7 @@ export class InviteModal {
   }
 
   public SelectEmbedTab() {
-    this.agHelper.GetNClick(this.locators._embedTab);
+    this.agHelper.ClickButton("Embed");
   }
 
   public OpenShareModal() {
@@ -54,7 +54,7 @@ export class InviteModal {
         );
       }
     });
-    cy.wait(10000);
+    cy.wait(5000);
     cy.get(HomePage.editModeInviteModalCloseBtn).first().click({ force: true });
   }
 
