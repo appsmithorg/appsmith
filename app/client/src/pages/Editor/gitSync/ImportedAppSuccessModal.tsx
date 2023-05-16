@@ -24,7 +24,7 @@ const BodyContainer = styled.div`
 `;
 
 const StyledModalContent = styled(ModalContent)`
-  width: 600px;
+  width: 640px;
 `;
 
 function ImportedApplicationSuccessModal() {
