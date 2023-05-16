@@ -23,7 +23,7 @@ describe("Widget error state", function () {
     //Check if the current value is shown in the debugger
 
     _.debuggerHelper.ClickDebuggerIcon();
-    cy.contains(".react-tabs__tab", "Errors").click();
+    cy.get("[data-testid=t--tab-ERROR]").click();
     //This feature is disabled in updated error log - epic 17720
     // _.debuggerHelper.LogStateContains("Test");
   });
@@ -36,7 +36,11 @@ describe("Widget error state", function () {
     cy.get(widgetLocators.buttonWidget).click();
 
     cy.get(".t--toast-debug-button").click();
-    cy.contains(".react-tabs__tab--selected", "Errors");
+    cy.get("[data-testid='t--tab-ERROR']").should(
+      "have.attr",
+      "aria-selected",
+      "true",
+    );
 
     // All errors should be expanded by default
     //Updated count to 1 as the decision not to show triggerexecution/uncaughtpromise error in - epic 17720
