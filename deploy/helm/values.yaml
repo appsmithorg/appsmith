@@ -1,6 +1,6 @@
 ## Redis parameters
 redis:
-  enabled: true
+  enabled: false
   auth:
     enabled: false
   master:
@@ -10,7 +10,7 @@ redis:
     nodeSelector: {}
 
 mongodb:
-  enabled: true
+  enabled: false
   service:
     nameOverride: appsmith-mongodb
   auth:
