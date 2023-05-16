@@ -57,10 +57,10 @@ public class DatasourceStorageServiceTest {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setEndpoints(List.of(new Endpoint("mockEndpoints", 000L)));
         DatasourceStorage datasourceStorageOne =
-                new DatasourceStorage(datasourceId, environmentIdOne, datasourceConfiguration, null, null);
+                new DatasourceStorage(datasourceId, environmentIdOne, datasourceConfiguration, null, null, null);
 
         DatasourceStorage datasourceStorageTwo =
-                new DatasourceStorage(datasourceId, environmentIdTwo, datasourceConfiguration, null, null);
+                new DatasourceStorage(datasourceId, environmentIdTwo, datasourceConfiguration, null, null, null);
 
 
         datasourceStorageService.save(datasourceStorageOne).block();

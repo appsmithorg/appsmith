@@ -5,6 +5,7 @@ import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
@@ -29,7 +30,6 @@ import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
-import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
@@ -52,6 +52,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
@@ -128,6 +129,8 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
             return Mono.empty();
         }
 
+        String environmentId = datasourceService.getDefaultEnvironmentId();
+
         return workspaceRepository
                 .findById(templateWorkspaceId)
                 .doOnSuccess(workspace -> {
@@ -156,29 +159,32 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                     return Mono
                             .when(
                                     userService.update(user.getId(), userUpdate),
-                                    cloneApplications(newWorkspace.getId(), applicationFlux, datasourceFlux)
+                                    cloneApplications(newWorkspace.getId(), applicationFlux, datasourceFlux, environmentId)
                             )
                             .thenReturn(newWorkspace);
                 })
                 .doOnError(error -> log.error("Error cloning examples workspace.", error));
     }
 
-    public Mono<List<String>> cloneApplications(String toWorkspaceId, Flux<Application> applicationFlux) {
-        return cloneApplications(toWorkspaceId, applicationFlux, Flux.empty());
+    public Mono<List<String>> cloneApplications(String toWorkspaceId,
+                                                Flux<Application> applicationFlux,
+                                                String environmentId) {
+        return cloneApplications(toWorkspaceId, applicationFlux, Flux.empty(), environmentId);
     }
 
     /**
-     * Clone all applications (except deleted ones), including it's pages and actions from one workspace into
+     * Clone all applications (except deleted ones), including its pages and actions from one workspace into
      * another. Also clones all datasources (not just the ones used by any applications) in the given workspace.
      *
      * @param toWorkspaceId ID of the workspace that is the target to copy objects to.
+     * @param environmentId
      * @return Empty Mono.
      */
     public Mono<List<String>> cloneApplications(
             String toWorkspaceId,
             Flux<Application> applicationFlux,
-            Flux<Datasource> datasourceFlux
-    ) {
+            Flux<Datasource> datasourceFlux,
+            String environmentId) {
         final List<NewPage> clonedPages = new ArrayList<>();
         final List<String> newApplicationIds = new ArrayList<>();
 
@@ -191,7 +197,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                     // forkWithConfiguration is dependent on application, here we are calling cloneDatasource
                     // for the workspace hence Boolean.TRUE is passed as the third parameter because by default
                     // user should have access to the datasource credentials already present in the workspace
-                    final Mono<Datasource> clonerMono = cloneDatasource(datasourceId, toWorkspaceId, Boolean.TRUE);
+                    final Mono<Datasource> clonerMono = cloneDatasource(datasourceId, toWorkspaceId, Boolean.TRUE, environmentId);
                     cloneDatasourceMonos.put(datasourceId, clonerMono.cache());
                     return clonerMono;
                 })
@@ -276,7 +282,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
                                                 if (datasourceInsideAction.getId() != null) {
                                                     final String datasourceId = datasourceInsideAction.getId();
                                                     if (!cloneDatasourceMonos.containsKey(datasourceId)) {
-                                                        cloneDatasourceMonos.put(datasourceId, cloneDatasource(datasourceId, toWorkspaceId, forkWithConfig).cache());
+                                                        cloneDatasourceMonos.put(datasourceId, cloneDatasource(datasourceId, toWorkspaceId, forkWithConfig, environmentId).cache());
                                                     }
                                                     actionMono = cloneDatasourceMonos.get(datasourceId)
                                                             .map(newDatasource -> {
@@ -509,35 +515,46 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
     }
 
     // forkWithConfiguration parameter if TRUE, returns the datasource with credentials else returns datasources without credentials
-    public Mono<Datasource> cloneDatasource(String datasourceId, String toWorkspaceId, Boolean forkWithConfiguration) {
-        final Mono<List<Datasource>> existingDatasourcesMono = datasourceRepository.findAllByWorkspaceId(toWorkspaceId)
+    public Mono<Datasource> cloneDatasource(String datasourceId,
+                                            String toWorkspaceId,
+                                            Boolean forkWithConfiguration,
+                                            String environmentId) {
+        final Mono<List<Datasource>> existingDatasourcesMono = datasourceService
+                .getAllByWorkspaceId(toWorkspaceId, Optional.empty())
                 .collectList();
 
-        return Mono.zip(datasourceRepository.findById(datasourceId), existingDatasourcesMono)
+        return Mono.zip(datasourceService.findByIdAndEnvironmentId(datasourceId, environmentId),
+                        existingDatasourcesMono)
                 .flatMap(tuple -> {
                     final Datasource templateDatasource = tuple.getT1();
                     final List<Datasource> existingDatasources = tuple.getT2();
 
-                    final AuthenticationDTO authentication = templateDatasource.getDatasourceConfiguration() == null
-                            ? null : templateDatasource.getDatasourceConfiguration().getAuthentication();
+                    DatasourceStorageDTO datasourceStorageDTO = templateDatasource.getDatasourceStorages().get(environmentId);
+
+                    final AuthenticationDTO authentication = datasourceStorageDTO.getDatasourceConfiguration() == null
+                            ? null : datasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
                     if (authentication != null) {
                         authentication.setIsAuthorized(null);
                     }
 
                     return Flux.fromIterable(existingDatasources)
-                            .map(ds -> {
-                                final AuthenticationDTO auth = ds.getDatasourceConfiguration() == null
-                                        ? null : ds.getDatasourceConfiguration().getAuthentication();
+                            .filter(templateDatasource::softEquals)
+                            .filter(existingDatasource -> {
+                                DatasourceStorageDTO storageDTO = existingDatasource.getDatasourceStorages().get(environmentId);
+                                final AuthenticationDTO auth = storageDTO.getDatasourceConfiguration() == null
+                                        ? null : storageDTO.getDatasourceConfiguration().getAuthentication();
                                 if (auth != null) {
                                     auth.setIsAuthorized(null);
                                 }
-                                return ds;
+                                return datasourceStorageDTO.softEquals(storageDTO);
                             })
-                            .filter(templateDatasource::softEquals)
                             .next()  // Get the first matching datasource, we don't need more than one here.
                             .switchIfEmpty(Mono.defer(() -> {
                                 // No matching existing datasource found, so create a new one.
                                 Datasource newDs = templateDatasource.fork(forkWithConfiguration, toWorkspaceId);
+                                DatasourceStorageDTO storageDTO = newDs.getDatasourceStorages().get(environmentId)
+                                        .fork(forkWithConfiguration, toWorkspaceId);
+                                newDs.getDatasourceStorages().put(environmentId, storageDTO);
                                 return createSuffixedDatasource(newDs);
                             }));
                 });

@@ -200,7 +200,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     public Mono<ApplicationImportDTO> importApplicationFromTemplate(String templateId, String workspaceId) {
         return getApplicationJsonFromTemplate(templateId)
                 .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson))
-                .flatMap(application -> importExportApplicationService.getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application))
+                .flatMap(application -> importExportApplicationService
+                        .getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application, environmentId))
                 .flatMap(applicationImportDTO -> {
                     Application application = applicationImportDTO.getApplication();
                     ApplicationTemplate applicationTemplate = new ApplicationTemplate();
@@ -283,7 +284,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                     return importExportApplicationService.mergeApplicationJsonWithApplication(organizationId, applicationId, branchName, applicationJson, pagesToImport);
                 })
                 .flatMap(application -> importExportApplicationService.getApplicationImportDTO(
-                        application.getId(), application.getWorkspaceId(), application)
+                        application.getId(), application.getWorkspaceId(), application, environmentId)
                 )
                 .flatMap(applicationImportDTO -> {
                     responseUtils.updateApplicationWithDefaultResources(applicationImportDTO.getApplication());

@@ -5,7 +5,6 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.external.models.DatasourceDTO;
-import com.appsmith.server.services.CrudService;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -32,6 +31,10 @@ public interface DatasourceServiceCE {
     Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, Optional<AclPermission> permission);
 
     Mono<Datasource> findById(String id, AclPermission aclPermission);
+
+    Mono<Datasource> findByIdWithStorages(String id);
+
+    Mono<Datasource> findByIdAndEnvironmentId(String id, String environmentId);
 
     Mono<Datasource> findById(String id);
 
@@ -69,4 +72,6 @@ public interface DatasourceServiceCE {
 
     // TODO: Remove the following snippet after client side API changes
     String getTrueEnvironmentId(String environmentId);
+
+    String getDefaultEnvironmentId();
 }

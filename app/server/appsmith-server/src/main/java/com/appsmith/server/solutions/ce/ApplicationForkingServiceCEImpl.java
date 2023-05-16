@@ -8,10 +8,10 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -36,20 +36,27 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     private final ApplicationService applicationService;
     private final WorkspaceService workspaceService;
     private final ExamplesWorkspaceCloner examplesWorkspaceCloner;
-    private final PolicyUtils policyUtils;
     private final SessionUserService sessionUserService;
     private final AnalyticsService analyticsService;
     private final ResponseUtils responseUtils;
     private final WorkspacePermission workspacePermission;
     private final ApplicationPermission applicationPermission;
     private final ImportExportApplicationService importExportApplicationService;
+    private final DatasourceService datasourceService;
 
-    public Mono<ApplicationImportDTO> forkApplicationToWorkspace(String srcApplicationId, String targetWorkspaceId) {
-        final Mono<Application> sourceApplicationMono = applicationService.findById(srcApplicationId, applicationPermission.getReadPermission())
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)));
+    @Override
+    public Mono<ApplicationImportDTO> forkApplicationToWorkspaceWithEnvironment(String srcApplicationId,
+                                                                                String targetWorkspaceId
+            , String environmentId) {
+        final Mono<Application> sourceApplicationMono = applicationService
+                .findById(srcApplicationId, applicationPermission.getReadPermission())
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
+                        FieldName.APPLICATION, srcApplicationId)));
 
-        final Mono<Workspace> targetWorkspaceMono = workspaceService.findById(targetWorkspaceId, workspacePermission.getApplicationCreatePermission())
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, targetWorkspaceId)));
+        final Mono<Workspace> targetWorkspaceMono = workspaceService
+                .findById(targetWorkspaceId, workspacePermission.getApplicationCreatePermission())
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND,
+                        FieldName.WORKSPACE, targetWorkspaceId)));
 
         Mono<User> userMono = sessionUserService.getCurrentUser();
 
@@ -77,8 +84,8 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
                     return examplesWorkspaceCloner.cloneApplications(
                             targetWorkspace.getId(),
-                            Flux.fromIterable(Collections.singletonList(application))
-                    );
+                            Flux.fromIterable(Collections.singletonList(application)),
+                            environmentId);
                 })
                 .flatMap(applicationIds -> {
                     final String newApplicationId = applicationIds.get(0);
@@ -86,7 +93,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                             .flatMap(application ->
                                     sendForkApplicationAnalyticsEvent(srcApplicationId, targetWorkspaceId, application, eventData));
                 })
-                .flatMap(application -> importExportApplicationService.getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application));
+                .flatMap(application -> importExportApplicationService.getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application, environmentId));
 
         // Fork application is currently a slow API because it needs to create application, clone all the pages, and then
         // copy all the actions and collections. This process may take time and the client may cancel the request.
@@ -103,6 +110,8 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     public Mono<ApplicationImportDTO> forkApplicationToWorkspace(String srcApplicationId,
                                                                  String targetWorkspaceId,
                                                                  String branchName) {
+
+        final String defaultEnvironmentId = datasourceService.getDefaultEnvironmentId();
         if (StringUtils.isEmpty(branchName)) {
             return applicationService.findById(srcApplicationId, applicationPermission.getReadPermission())
                     .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)))
@@ -112,18 +121,18 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                         if (!Optional.ofNullable(application.getGitApplicationMetadata()).isEmpty()
                                 && !application.getGitApplicationMetadata().getBranchName().equals(application.getGitApplicationMetadata().getDefaultBranchName())) {
                             return applicationService.findBranchedApplicationId(
-                                    application.getGitApplicationMetadata().getDefaultBranchName(),
-                                    srcApplicationId,
-                                    applicationPermission.getReadPermission()
-                            ).flatMap(appId -> forkApplicationToWorkspace(appId, targetWorkspaceId));
+                                            application.getGitApplicationMetadata().getDefaultBranchName(),
+                                            srcApplicationId,
+                                            applicationPermission.getReadPermission())
+                                    .flatMap(appId -> forkApplicationToWorkspaceWithEnvironment(appId, targetWorkspaceId, defaultEnvironmentId));
                         }
-                        return forkApplicationToWorkspace(application.getId(), targetWorkspaceId);
+                        return forkApplicationToWorkspaceWithEnvironment(application.getId(), targetWorkspaceId, defaultEnvironmentId);
                     });
         }
         return applicationService.findBranchedApplicationId(branchName, srcApplicationId, applicationPermission.getReadPermission())
-                .flatMap(branchedApplicationId -> forkApplicationToWorkspace(branchedApplicationId, targetWorkspaceId))
+                .flatMap(branchedApplicationId -> forkApplicationToWorkspaceWithEnvironment(branchedApplicationId, targetWorkspaceId, defaultEnvironmentId))
                 .map(applicationImportDTO -> responseUtils.updateApplicationWithDefaultResources(applicationImportDTO.getApplication()))
-                .flatMap(application -> importExportApplicationService.getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application));
+                .flatMap(application -> importExportApplicationService.getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application, defaultEnvironmentId));
 
     }
 

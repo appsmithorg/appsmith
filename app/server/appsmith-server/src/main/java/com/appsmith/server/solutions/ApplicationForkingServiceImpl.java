@@ -1,9 +1,9 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ce.ApplicationForkingServiceCEImpl;
@@ -13,19 +13,18 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEImpl implements ApplicationForkingService {
-
     public ApplicationForkingServiceImpl(ApplicationService applicationService,
                                          WorkspaceService workspaceService,
                                          ExamplesWorkspaceCloner examplesWorkspaceCloner,
-                                         PolicyUtils policyUtils,
                                          SessionUserService sessionUserService,
                                          AnalyticsService analyticsService,
                                          ResponseUtils responseUtils,
                                          WorkspacePermission workspacePermission,
                                          ApplicationPermission applicationPermission,
-                                         ImportExportApplicationService importExportApplicationService) {
-
-        super(applicationService, workspaceService, examplesWorkspaceCloner, policyUtils, sessionUserService,
-                analyticsService, responseUtils, workspacePermission, applicationPermission, importExportApplicationService);
+                                         ImportExportApplicationService importExportApplicationService,
+                                         DatasourceService datasourceService) {
+        super(applicationService, workspaceService, examplesWorkspaceCloner, sessionUserService, analyticsService,
+                responseUtils, workspacePermission, applicationPermission, importExportApplicationService,
+                datasourceService);
     }
 }

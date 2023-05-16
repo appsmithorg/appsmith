@@ -6,6 +6,8 @@ import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.SSLDetails;
@@ -291,7 +293,7 @@ public class ApplicationForkingServiceTests {
         final Mono<ApplicationImportDTO> resultMono = workspaceService.create(targetWorkspace)
                 .map(Workspace::getId)
                 .flatMap(targetWorkspaceId ->
-                        applicationForkingService.forkApplicationToWorkspace(sourceAppId, targetWorkspaceId)
+                        applicationForkingService.forkApplicationToWorkspaceWithEnvironment(sourceAppId, targetWorkspaceId, defaultEnvironmentId)
                 );
 
         StepVerifier.create(resultMono
@@ -388,7 +390,7 @@ public class ApplicationForkingServiceTests {
         // TODO: Investigate working of applicationForkingService.forkApplicationToWorkspace() further and fix the timeoutException.
         Workspace workspace = workspaceService.create(targetWorkspace).block();
         testUserWorkspaceId = workspace.getId();
-        Application targetApplication = applicationForkingService.forkApplicationToWorkspace(sourceAppId, testUserWorkspaceId).block().getApplication();
+        Application targetApplication = applicationForkingService.forkApplicationToWorkspaceWithEnvironment(sourceAppId, testUserWorkspaceId, defaultEnvironmentId).block().getApplication();
         final Mono<Application> resultMono = Mono.just(targetApplication);
 
         StepVerifier.create(resultMono)
@@ -403,7 +405,7 @@ public class ApplicationForkingServiceTests {
     @WithUserDetails(value = "api_user")
     public void test3_failForkApplicationWithInvalidPermission() {
 
-        final Mono<ApplicationImportDTO> resultMono = applicationForkingService.forkApplicationToWorkspace(sourceAppId, testUserWorkspaceId);
+        final Mono<ApplicationImportDTO> resultMono = applicationForkingService.forkApplicationToWorkspaceWithEnvironment(sourceAppId, testUserWorkspaceId, defaultEnvironmentId);
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
@@ -420,7 +422,7 @@ public class ApplicationForkingServiceTests {
         targetWorkspace = workspaceService.create(targetWorkspace).block();
 
         // Trigger the fork application flow
-        applicationForkingService.forkApplicationToWorkspace(sourceAppId, targetWorkspace.getId())
+        applicationForkingService.forkApplicationToWorkspaceWithEnvironment(sourceAppId, targetWorkspace.getId(), defaultEnvironmentId)
                 .timeout(Duration.ofMillis(10))
                 .subscribe();
 
@@ -538,7 +540,7 @@ public class ApplicationForkingServiceTests {
         Workspace destWorkspace = new Workspace();
         destWorkspace.setName("ws_dest_" + uniqueString);
         Workspace createdDestWorkspace = workspaceService.create(destWorkspace).block();
-        Application forkedApplication = applicationForkingService.forkApplicationToWorkspace(createdSrcApplication.getId(), createdDestWorkspace.getId()).block().getApplication();
+        Application forkedApplication = applicationForkingService.forkApplicationToWorkspaceWithEnvironment(createdSrcApplication.getId(), createdDestWorkspace.getId(), defaultEnvironmentId).block().getApplication();
 
         Theme forkedApplicationEditModeTheme = themeService.getApplicationTheme(forkedApplication.getId(), ApplicationMode.EDIT, null).block();
         Theme forkedApplicationPublishedModeTheme = themeService.getApplicationTheme(forkedApplication.getId(), ApplicationMode.PUBLISHED, null).block();
@@ -599,7 +601,7 @@ public class ApplicationForkingServiceTests {
         destWorkspace.setName("ws_dest_" + uniqueString);
         Workspace createdDestWorkspace = workspaceService.create(destWorkspace).block();
 
-        Application forkedApplication = applicationForkingService.forkApplicationToWorkspace(createdSrcApplication.getId(), createdDestWorkspace.getId()).block().getApplication();
+        Application forkedApplication = applicationForkingService.forkApplicationToWorkspaceWithEnvironment(createdSrcApplication.getId(), createdDestWorkspace.getId(), defaultEnvironmentId).block().getApplication();
         Theme forkedApplicationTheme = themeService.getApplicationTheme(forkedApplication.getId(), ApplicationMode.EDIT, null).block();
 
         Mono<Tuple3<Theme, Application, Application>> tuple3Mono = Mono.zip(Mono.just(forkedApplicationTheme), Mono.just(forkedApplication), Mono.just(createdSrcApplication));
@@ -654,7 +656,7 @@ public class ApplicationForkingServiceTests {
         destWorkspace.setName("ws_dest_" + uniqueString);
         Workspace createdDestWorkspace = workspaceService.create(destWorkspace).block();
 
-        Application forkedApplication = applicationForkingService.forkApplicationToWorkspace(createdSrcApplication.getId(), createdDestWorkspace.getId()).block().getApplication();
+        Application forkedApplication = applicationForkingService.forkApplicationToWorkspaceWithEnvironment(createdSrcApplication.getId(), createdDestWorkspace.getId(), defaultEnvironmentId).block().getApplication();
 
         Theme forkedApplicationEditModeTheme = themeService.getApplicationTheme(forkedApplication.getId(), ApplicationMode.EDIT, null).block();
         Theme forkedApplicationPublishedModeTheme = themeService.getApplicationTheme(forkedApplication.getId(), ApplicationMode.PUBLISHED, null).block();
@@ -723,7 +725,7 @@ public class ApplicationForkingServiceTests {
         final String pageId = Objects.requireNonNull(applicationPageService.createPage(pageDTO).block()).getId();
         applicationPageService.publish(originalAppId, true).block();
         applicationPageService.deleteUnpublishedPage(pageId).block();
-        Application resultApplication = applicationForkingService.forkApplicationToWorkspace(pageDTO.getApplicationId(), targetWorkspaceId).block().getApplication();
+        Application resultApplication = applicationForkingService.forkApplicationToWorkspaceWithEnvironment(pageDTO.getApplicationId(), targetWorkspaceId, defaultEnvironmentId).block().getApplication();
         final Mono<Application> resultMono = Mono.just(resultApplication);
 
         StepVerifier.create(resultMono
@@ -813,7 +815,7 @@ public class ApplicationForkingServiceTests {
         Workspace destWorkspace = new Workspace();
         destWorkspace.setName("ws_dest_" + uniqueString);
         Workspace createdDestWorkspace = workspaceService.create(destWorkspace).block();
-        Application resultApplication = applicationForkingService.forkApplicationToWorkspace(createdBranchApplication.getGitApplicationMetadata().getDefaultApplicationId(), createdDestWorkspace.getId()).block().getApplication();
+        Application resultApplication = applicationForkingService.forkApplicationToWorkspaceWithEnvironment(createdBranchApplication.getGitApplicationMetadata().getDefaultApplicationId(), createdDestWorkspace.getId(), defaultEnvironmentId).block().getApplication();
 
         Mono<Application> applicationMono = Mono.just(resultApplication);
 
@@ -843,7 +845,7 @@ public class ApplicationForkingServiceTests {
         Application srcApp = applicationPageService.createApplication(application, srcWorkspace.getId()).block();
         srcApp.setForkWithConfiguration(true);
         srcApp.setExportWithConfiguration(true);
-        Application resultApplication = applicationForkingService.forkApplicationToWorkspace(srcApp.getId(), targetWorkspaceId).block().getApplication();
+        Application resultApplication = applicationForkingService.forkApplicationToWorkspaceWithEnvironment(srcApp.getId(), targetWorkspaceId, defaultEnvironmentId).block().getApplication();
         final Mono<Application> resultMono = Mono.just(resultApplication);
 
         StepVerifier.create(resultMono)
@@ -892,6 +894,11 @@ public class ApplicationForkingServiceTests {
         datasourceConfiguration.setAuthentication(auth);
         datasource.setDatasourceConfiguration(datasourceConfiguration);
 
+        DatasourceStorage datasourceStorage = new DatasourceStorage(datasource, FieldName.UNUSED_ENVIRONMENT_ID);
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(FieldName.UNUSED_ENVIRONMENT_ID, new DatasourceStorageDTO(datasourceStorage));
+        datasource.setDatasourceStorages(storages);
+
         Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
         datasource.setPluginId(installed_plugin.getId());
 
@@ -919,7 +926,7 @@ public class ApplicationForkingServiceTests {
         Application srcApp = forkApplicationSetupResponse.getT1();
         String targetWorkspaceId = forkApplicationSetupResponse.getT2();
 
-        Mono<ApplicationImportDTO> resultMono = applicationForkingService.forkApplicationToWorkspace(srcApp.getId(), targetWorkspaceId);
+        Mono<ApplicationImportDTO> resultMono = applicationForkingService.forkApplicationToWorkspaceWithEnvironment(srcApp.getId(), targetWorkspaceId, defaultEnvironmentId);
 
         StepVerifier.create(resultMono)
                 .assertNext(forkedApplicationImportDTO -> {
@@ -940,7 +947,7 @@ public class ApplicationForkingServiceTests {
         Application srcApp = forkApplicationSetupResponse.getT1();
         String targetWorkspaceId = forkApplicationSetupResponse.getT2();
 
-        Mono<ApplicationImportDTO> resultMono = applicationForkingService.forkApplicationToWorkspace(srcApp.getId(), targetWorkspaceId);
+        Mono<ApplicationImportDTO> resultMono = applicationForkingService.forkApplicationToWorkspaceWithEnvironment(srcApp.getId(), targetWorkspaceId, defaultEnvironmentId);
 
         StepVerifier.create(resultMono)
                 .assertNext(forkedApplicationImportDTO -> {
@@ -961,7 +968,7 @@ public class ApplicationForkingServiceTests {
         Application srcApp = forkApplicationSetupResponse.getT1();
         String targetWorkspaceId = forkApplicationSetupResponse.getT2();
 
-        Mono<ApplicationImportDTO> resultMono = applicationForkingService.forkApplicationToWorkspace(srcApp.getId(), targetWorkspaceId);
+        Mono<ApplicationImportDTO> resultMono = applicationForkingService.forkApplicationToWorkspaceWithEnvironment(srcApp.getId(), targetWorkspaceId, defaultEnvironmentId);
 
         StepVerifier.create(resultMono)
                 .assertNext(forkedApplicationImportDTO -> {

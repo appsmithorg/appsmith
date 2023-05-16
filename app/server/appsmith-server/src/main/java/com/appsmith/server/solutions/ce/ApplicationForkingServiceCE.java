@@ -5,7 +5,7 @@ import reactor.core.publisher.Mono;
 
 public interface ApplicationForkingServiceCE {
 
-    Mono<ApplicationImportDTO> forkApplicationToWorkspace(String srcApplicationId, String targetWorkspaceId);
+    Mono<ApplicationImportDTO> forkApplicationToWorkspaceWithEnvironment(String srcApplicationId, String targetWorkspaceId, String environmentId);
 
     Mono<ApplicationImportDTO> forkApplicationToWorkspace(String srcApplicationId,
                                                           String targetWorkspaceId,

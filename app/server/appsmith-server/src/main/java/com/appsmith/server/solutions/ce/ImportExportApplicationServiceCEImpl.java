@@ -11,6 +11,7 @@ import com.appsmith.external.models.BearerTokenAuth;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.OAuth2;
@@ -596,7 +597,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
      * @return saved application in DB
      */
     public Mono<ApplicationImportDTO> extractFileAndSaveApplication(String workspaceId, Part filePart) {
-        return this.extractFileAndUpdateNonGitConnectedApplication(workspaceId, filePart, null,null);
+        return this.extractFileAndUpdateNonGitConnectedApplication(workspaceId, filePart, null, null);
     }
 
     /**
@@ -684,7 +685,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             });
                 })
                 // Add un-configured datasource to the list to response
-                .flatMap(application -> getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application));
+                .flatMap(application -> getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application, environmentId));
 
         return Mono.create(sink -> importedApplicationMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())
@@ -2154,12 +2155,20 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     }
 
     @Override
-    public Mono<ApplicationImportDTO> getApplicationImportDTO(String applicationId, String workspaceId, Application application) {
+    public Mono<ApplicationImportDTO> getApplicationImportDTO(String applicationId,
+                                                              String workspaceId,
+                                                              Application application,
+                                                              String environmentId) {
         return findDatasourceByApplicationId(applicationId, workspaceId)
                 .map(datasources -> {
                     ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
                     applicationImportDTO.setApplication(application);
-                    Boolean isUnConfiguredDatasource = datasources.stream().anyMatch(datasource -> Boolean.FALSE.equals(datasource.getIsConfigured()));
+                    Boolean isUnConfiguredDatasource = datasources.stream()
+                            .anyMatch(datasource -> {
+                                DatasourceStorageDTO datasourceStorageDTO =
+                                        datasource.getDatasourceStorages().get(environmentId);
+                                return Boolean.FALSE.equals(datasourceStorageDTO.getIsConfigured());
+                            });
                     if (Boolean.TRUE.equals(isUnConfiguredDatasource)) {
                         applicationImportDTO.setIsPartialImport(true);
                         applicationImportDTO.setUnConfiguredDatasourceList(datasources);

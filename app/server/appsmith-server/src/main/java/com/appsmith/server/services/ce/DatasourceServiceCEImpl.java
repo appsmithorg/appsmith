@@ -1,7 +1,5 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceDTO;
@@ -444,6 +442,34 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     }
 
     @Override
+    public Mono<Datasource> findByIdWithStorages(String id) {
+        return repository.findById(id)
+                .flatMap(datasource -> {
+                    return datasourceStorageService.findByDatasource(datasource)
+                            .collectMap(datasourceStorage -> datasourceStorage.getEnvironmentId(),
+                                    datasourceStorage -> new DatasourceStorageDTO(datasourceStorage))
+                            .map(storages -> {
+                                datasource.setDatasourceStorages(storages);
+                                return datasource;
+                            });
+                });
+    }
+
+    @Override
+    public Mono<Datasource> findByIdAndEnvironmentId(String id, String environmentId) {
+        return repository.findById(id)
+                .flatMap(datasource -> {
+                    return datasourceStorageService.findByDatasourceAndEnvironmentId(datasource, environmentId)
+                            .map(storage -> {
+                                HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+                                storages.put(environmentId, new DatasourceStorageDTO(storage));
+                                datasource.setDatasourceStorages(storages);
+                                return datasource;
+                            });
+                });
+    }
+
+    @Override
     public Mono<Datasource> findById(String id) {
         return repository.findById(id);
     }
@@ -472,7 +498,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     @Override
     public Flux<Datasource> getAllByWorkspaceId(String workspaceId, Optional<AclPermission> permission) {
 
-        return findAllByWorkspaceId(workspaceId, permission)
+        return repository.findAllByWorkspaceId(workspaceId, permission)
                 .flatMap(datasource -> datasourceStorageService
                         .findByDatasource(datasource)
                         .flatMap(datasourceStorageService::populateHintMessages)
@@ -486,14 +512,9 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 .collectList()
                 .flatMapMany(datasourceList -> {
                     markRecentlyUsed(datasourceList, 3);
-                     return Flux.fromIterable(datasourceList);
+                    return Flux.fromIterable(datasourceList);
                 });
 
-    }
-
-    // TODO: Check usage and switch to datasourcestorage
-    private Flux<Datasource> findAllByWorkspaceId(String workspaceId, Optional<AclPermission> permission) {
-        return repository.findAllByWorkspaceId(workspaceId, permission);
     }
 
     @Override
@@ -648,6 +669,11 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     // TODO: Remove the following snippet after client side API changes
     @Override
     public String getTrueEnvironmentId(String environmentId) {
+        return FieldName.UNUSED_ENVIRONMENT_ID;
+    }
+
+    @Override
+    public String getDefaultEnvironmentId() {
         return FieldName.UNUSED_ENVIRONMENT_ID;
     }
 }

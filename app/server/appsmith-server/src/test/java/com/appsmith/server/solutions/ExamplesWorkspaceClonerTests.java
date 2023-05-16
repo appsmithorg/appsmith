@@ -390,7 +390,7 @@ public class ExamplesWorkspaceClonerTests {
                                 app.setName(originalName);
                                 return app;
                             })
-                            .flatMap(app -> examplesWorkspaceCloner.cloneApplications(workspaceId, Flux.fromArray(new Application[]{app})))
+                            .flatMap(app -> examplesWorkspaceCloner.cloneApplications(workspaceId, Flux.fromArray(new Application[]{app}), FieldName.UNUSED_ENVIRONMENT_ID))
                             .then();
                     // Clone this application into the same workspace thrice.
                     return cloneMono
@@ -941,8 +941,8 @@ public class ExamplesWorkspaceClonerTests {
                                         })
                                         .flatMap(app -> examplesWorkspaceCloner.cloneApplications(
                                                 targetOrg1.getId(),
-                                                Flux.fromArray(new Application[]{app})
-                                        ))
+                                                Flux.fromArray(new Application[]{app}),
+                                                FieldName.UNUSED_ENVIRONMENT_ID))
                                         .then();
 
                                 return clonerMono
@@ -1171,8 +1171,8 @@ public class ExamplesWorkspaceClonerTests {
                                         })
                                         .flatMap(app -> examplesWorkspaceCloner.cloneApplications(
                                                 targetOrg1.getId(),
-                                                Flux.fromArray(new Application[]{app})
-                                        ))
+                                                Flux.fromArray(new Application[]{app}),
+                                                FieldName.UNUSED_ENVIRONMENT_ID))
                                         .then();
 
                                 return clonerMono

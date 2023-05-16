@@ -21,11 +21,11 @@ public interface ExamplesWorkspaceClonerCE {
             Flux<Datasource> datasourceFlux
     );
 
-    Mono<List<String>> cloneApplications(String toWorkspaceId, Flux<Application> applicationFlux);
+    Mono<List<String>> cloneApplications(String toWorkspaceId, Flux<Application> applicationFlux, String environmentId);
 
     Mono<List<String>> cloneApplications(
             String toWorkspaceId,
             Flux<Application> applicationFlux,
-            Flux<Datasource> datasourceFlux
-    );
+            Flux<Datasource> datasourceFlux,
+            String environmentId);
 }
