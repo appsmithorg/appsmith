@@ -525,6 +525,8 @@ function ReconnectDatasourceModal() {
                     applicationId={appId}
                     datasourceId={selectedDatasourceId}
                     fromImporting
+                    // isInsideReconnectModal: indicates that the datasource form is rendering inside reconnect modal
+                    isInsideReconnectModal
                     pageId={pageId}
                   />
                 </DBFormWrapper>
