@@ -3,7 +3,6 @@ package com.external.plugins;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
-import com.appsmith.external.factories.DataSourceConnectionFactory;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -139,58 +138,6 @@ public class SnowflakePlugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
-        /**
-         * This function is blocking in nature which connects to the database and creates a connection pool
-         *
-         * @param datasourceConfiguration
-         * @return connection pool
-         */
-        private static HikariDataSource createConnectionPool(DatasourceConfiguration datasourceConfiguration,Properties properties) throws AppsmithPluginException {
-
-            HikariConfig config = new HikariConfig();
-
-            config.setDriverClassName(JDBC_DRIVER);
-
-            config.setMinimumIdle(MINIMUM_POOL_SIZE);
-            config.setMaximumPoolSize(MAXIMUM_POOL_SIZE);
-            /**
-             * Setting the value for setInitializationFailTimeout to -1 to
-             * bypass any connection attempt and validation during startup
-             * @see https://www.javadoc.io/doc/com.zaxxer/HikariCP/latest/com/zaxxer/hikari/HikariConfig.html
-             */
-            config.setInitializationFailTimeout(-1);
-            config.setConnectionTimeout(CONNECTION_TIMEOUT_MILLISECONDS);
-
-            // Set authentication properties
-            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-            if (authentication.getUsername() != null) {
-                config.setUsername(authentication.getUsername());
-            }
-            if (authentication.getPassword() != null) {
-                config.setPassword(authentication.getPassword());
-            }
-
-            // Set up the connection URL
-            StringBuilder urlBuilder = new StringBuilder("jdbc:snowflake://" + datasourceConfiguration.getUrl() +
-                    ".snowflakecomputing.com?");
-            config.setJdbcUrl(urlBuilder.toString());
-
-            config.setDataSourceProperties(properties);
-
-            // Now create the connection pool from the configuration
-            HikariDataSource datasource = null;
-            try {
-                datasource = new HikariDataSource(config);
-            } catch (HikariPool.PoolInitializationException e) {
-                throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                        e.getMessage()
-                );
-            }
-
-            return datasource;
-        }
-
         @Override
         public Mono<HikariDataSource> createConnectionClient(DatasourceConfiguration datasourceConfiguration, Properties properties) {
             return Mono.fromCallable(() -> {
@@ -200,6 +147,9 @@ public class SnowflakePlugin extends BasePlugin {
 
                 config.setMinimumIdle(Integer.parseInt(properties.get("minimumIdle").toString()));
                 config.setMaximumPoolSize(Integer.parseInt(properties.get("maximunPoolSize").toString()));
+
+                config.setInitializationFailTimeout(Long.parseLong(properties.get("initializationFailTimeout").toString()));
+                config.setConnectionTimeout(Long.parseLong(properties.get("connectionTimeoutMillis").toString()));
 
                 // Set authentication properties
                 DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
@@ -211,7 +161,8 @@ public class SnowflakePlugin extends BasePlugin {
                 }
 
                 // Set up the connection URL
-                StringBuilder urlBuilder = new StringBuilder("jdbc:snowflake://" + datasourceConfiguration.getUrl() + ".snowflakecomputing.com?");
+                StringBuilder urlBuilder = new StringBuilder("jdbc:snowflake://" +
+                        datasourceConfiguration.getUrl() + ".snowflakecomputing.com?");
                 config.setJdbcUrl(urlBuilder.toString());
 
                 config.setDataSourceProperties(properties);
@@ -237,6 +188,13 @@ public class SnowflakePlugin extends BasePlugin {
             properties.setProperty("minimumIdle", String.valueOf(MINIMUM_POOL_SIZE));
             properties.setProperty("maximunPoolSize", String.valueOf(MAXIMUM_POOL_SIZE));
             properties.setProperty(SNOWFLAKE_DB_LOGIN_TIMEOUT_PROPERTY_KEY, String.valueOf(SNOWFLAKE_DB_LOGIN_TIMEOUT_VALUE_SEC));
+            /**
+             * Setting the value for setInitializationFailTimeout to -1 to
+             * bypass any connection attempt and validation during startup
+             * @see https://www.javadoc.io/doc/com.zaxxer/HikariCP/latest/com/zaxxer/hikari/HikariConfig.html
+             */
+            properties.setProperty("initializationFailTimeout", String.valueOf(-1));
+            properties.setProperty("connectionTimeoutMillis", String.valueOf(CONNECTION_TIMEOUT_MILLISECONDS));
             return properties;
         }
 
