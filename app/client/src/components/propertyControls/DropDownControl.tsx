@@ -103,19 +103,15 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           isMultiSelect={this.props.isMultiSelect}
           onDeselect={this.onDeselect}
           onSelect={this.onSelect}
-          optionFilterProp="searchText"
+          optionFilterProp="label"
+          optionLabelProp={this.props.hideSubText ? "label" : "children"}
           placeholder={this.props.placeholderText}
           showSearch={this.props.enableSearch}
           value={selected}
           virtual={this.props.virtual || false}
         >
           {options.map((option, index) => (
-            <Option
-              key={index}
-              label={option.label}
-              searchText={option.searchText}
-              value={option.value}
-            >
+            <Option key={index} label={option.label} value={option.value}>
               {/* Show Flag if present */}
               {option.leftElement && (
                 <FlagWrapper>{option.leftElement}</FlagWrapper>

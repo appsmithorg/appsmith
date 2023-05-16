@@ -41,11 +41,13 @@ const StyledEditableContainer = styled.div`
   max-width: calc(100% - 52px);
   flex-grow: 1;
   border-radius: var(--ads-v2-border-radius);
+  border: 1px solid transparent;
 
   :focus-within {
-    outline: var(--ads-v2-border-width-outline) solid
+    /* outline: var(--ads-v2-border-width-outline) solid
       var(--ads-v2-color-outline);
-    outline-offset: var(--ads-v2-offset-outline);
+    outline-offset: var(--ads-v2-offset-outline); */
+    border-color: var(--ads-v2-color-border-emphasis-plus);
   }
 `;
 
