@@ -151,6 +151,7 @@ import {
   askAIEnabled,
 } from "@appsmith/components/editorComponents/GPT/trigger";
 import { getAllDatasourceTableKeys } from "selectors/entitiesSelector";
+import { debug } from "loglevel";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -690,6 +691,9 @@ class CodeEditor extends Component<Props, State> {
               this.hidePeekOverlay();
             }
           }
+        })
+        .catch((e) => {
+          debug(e);
         });
     } else {
       this.hidePeekOverlay();
