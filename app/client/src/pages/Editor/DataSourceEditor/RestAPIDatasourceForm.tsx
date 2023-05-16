@@ -14,7 +14,7 @@ import type { AppState } from "@appsmith/reducers";
 import type { ApiActionConfig } from "entities/Action";
 import { PluginType } from "entities/Action";
 import type { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { Button, toast } from "design-system";
+import { Button, Callout, toast } from "design-system";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { createActionRequest } from "actions/pluginActionActions";
 import {
@@ -41,7 +41,6 @@ import Collapsible from "./Collapsible";
 import _ from "lodash";
 import FormLabel from "components/editorComponents/FormLabel";
 import CopyToClipBoard from "components/designSystems/appsmith/CopyToClipBoard";
-import { Callout, Variant } from "design-system-old";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
@@ -421,7 +420,9 @@ class DatasourceRestAPIEditor extends React.Component<
       <>
         {messages &&
           messages.map((msg, i) => (
-            <Callout fill key={i} text={msg} variant={Variant.warning} />
+            <Callout key={i} kind="warning">
+              {msg}
+            </Callout>
           ))}
         {this.renderGeneralSettings()}
         {this.renderAuthFields()}
