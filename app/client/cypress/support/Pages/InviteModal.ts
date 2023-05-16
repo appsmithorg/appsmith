@@ -29,7 +29,7 @@ export class InviteModal {
   }
 
   public OpenShareModal() {
-    this.agHelper.GetNClick(this.locators._shareButton);
+    this.agHelper.GetNClick(this.locators._shareButton, 0, true);
   }
 
   public CloseModal() {
