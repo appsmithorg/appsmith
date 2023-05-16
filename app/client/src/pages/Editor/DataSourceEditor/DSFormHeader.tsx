@@ -108,12 +108,12 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
             <MenuComponent
               menuItemWrapperWidth="160px"
               onClose={onCloseMenu}
-              position={Position.BOTTOM_RIGHT}
+              position={Position.LEFT}
               target={
                 <MoreOptionsContainer>
                   <Icon
                     fillColor={Colors.GRAY2}
-                    name="comment-context-menu"
+                    name="context-menu"
                     size={IconSize.XXXL}
                   />
                 </MoreOptionsContainer>

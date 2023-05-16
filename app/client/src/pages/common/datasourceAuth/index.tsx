@@ -301,7 +301,7 @@ function DatasourceAuth({
           onClick={handleDatasourceTest}
           size="medium"
           tag="button"
-          text="Test"
+          text="Test Configuration"
           variant={Variant.info}
         />
       ),
