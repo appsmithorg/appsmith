@@ -35,6 +35,7 @@
     "init-husky": "cd ../.. && husky install app/client/.husky"
   },
   "dependencies": {
+    "@appsmithorg/design-system": "2.1.9-alpha.2",
     "@blueprintjs/core": "^3.43.0",
     "@blueprintjs/datetime": "^3.23.6",
     "@blueprintjs/icons": "3.22.0",
@@ -79,6 +80,7 @@
     "craco-babel-loader": "^1.0.4",
     "cypress-log-to-output": "^1.1.2",
     "dayjs": "^1.10.6",
+    "ddesign-system": "npm:@appsmithorg/design-system@2.1.9-alpha.2",
     "deep-diff": "^1.0.2",
     "design-system": "npm:@appsmithorg/design-system@2.1.9",
     "design-system-old": "npm:@appsmithorg/design-system-old@1.1.7",

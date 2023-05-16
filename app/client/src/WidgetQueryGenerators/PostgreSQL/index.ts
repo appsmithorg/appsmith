@@ -6,7 +6,6 @@ import type {
   WidgetQueryGenerationFormConfig,
   ActionConfigurationPostgreSQL,
 } from "../types";
-
 export default abstract class PostgreSQL extends BaseQueryGenerator {
   private static buildSelect(
     widgetConfig: WidgetQueryGenerationConfig,
