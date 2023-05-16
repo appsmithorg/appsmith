@@ -93,15 +93,7 @@ describe("Git sync Bug #10773", function () {
       "be.visible",
     );
     // clone the page1 and validate data binding
-    cy.get(".t--entity-name:contains(Page1)")
-      .trigger("mouseover")
-      .click({ force: true });
-    cy.xpath(apiwidget.popover)
-      .first()
-      .should("be.hidden")
-      .invoke("show")
-      .click({ force: true });
-    cy.get(pages.clonePage).click({ force: true });
+    _.entityExplorer.ActionContextMenuByEntityName("Page1", "Clone");
     cy.wait("@clonePage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -152,16 +144,7 @@ describe("Git sync Bug #10773", function () {
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
       "be.visible",
     );
-    cy.get(".t--entity-name:contains(Page1)")
-      .first()
-      .trigger("mouseover")
-      .click({ force: true });
-    cy.xpath(apiwidget.popover)
-      .first()
-      .should("be.hidden")
-      .invoke("show")
-      .click({ force: true });
-    cy.get(pages.clonePage).click({ force: true });
+    _.entityExplorer.ActionContextMenuByEntityName("Page1", "Clone");
     cy.wait("@clonePage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -189,15 +172,7 @@ describe("Git sync Bug #10773", function () {
       "be.visible",
     );
     // clone the page1 and validate data binding
-    cy.get(".t--entity-name:contains(Page1)")
-      .trigger("mouseover")
-      .click({ force: true });
-    cy.xpath(apiwidget.popover)
-      .first()
-      .should("be.hidden")
-      .invoke("show")
-      .click({ force: true });
-    cy.get(pages.clonePage).click({ force: true });
+    _.entityExplorer.ActionContextMenuByEntityName("Page1", "Clone");
     cy.wait("@clonePage").should(
       "have.nested.property",
       "response.body.responseMeta.status",
