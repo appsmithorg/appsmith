@@ -25,10 +25,15 @@ export class PeekOverlayExpressionIdentifier {
   }
 
   updateScript(script: string) {
-    this.parsedScript = parse(script, {
-      ecmaVersion: ECMA_VERSION,
-      sourceType: this.options.sourceType,
-    });
+    try {
+      this.parsedScript = parse(script, {
+        ecmaVersion: ECMA_VERSION,
+        sourceType: this.options.sourceType,
+      });
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(e);
+    }
   }
 
   clearScript() {

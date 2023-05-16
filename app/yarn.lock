@@ -8966,6 +8966,7 @@ __metadata:
     "@sentry/react": ^6.2.4
     "@sentry/tracing": ^6.2.4
     "@sentry/webpack-plugin": ^1.18.9
+    "@shared/ast": "workspace:^"
     "@tanstack/virtual-core": ^3.0.0-beta.18
     "@testing-library/jest-dom": 5.16.1
     "@testing-library/react": 12.1.2
