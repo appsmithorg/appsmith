@@ -75,6 +75,7 @@ import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { formValuesToDatasource } from "transformers/RestAPIDatasourceFormTransformer";
 import { DSFormHeader } from "./DSFormHeader";
 import { PluginPackageName } from "entities/Action";
+import DSDataFilter from "@appsmith/components/DSDataFilter";
 
 interface ReduxStateProps {
   canCreateDatasourceActions: boolean;
@@ -127,10 +128,20 @@ type Props = ReduxStateProps &
     pageId: string;
   }>;
 
+type DatasourceFilterState = {
+  id: string;
+  name: string;
+  userPermissions: string[];
+};
+
 /*
   **** State Variables Description ****
   showDialog: flag used to show/hide the datasource discard popup
   routesBlocked: flag used to identity if routes are blocked or not
+  readUrlParams: flag used to identity if url params are read or not
+  requiredFields: object containing the required fields for the datasource form
+  configDetails: object containing the details of the datasource form
+  filterParams: object containing the details of the datasource filter
   unblock: on blocking routes using history.block, it returns a function which can be used to unblock the routes
   navigation: function that navigates to path that we want to transition to, after discard action on datasource discard dialog popup
 */
@@ -140,6 +151,7 @@ type State = {
   readUrlParams: boolean;
   requiredFields: Record<string, ControlProps>;
   configDetails: Record<string, string>;
+  filterParams: DatasourceFilterState;
 
   unblock(): void;
   navigation(): void;
@@ -166,6 +178,11 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       readUrlParams: false,
       requiredFields: {},
       configDetails: {},
+      filterParams: {
+        id: "",
+        name: "",
+        userPermissions: [],
+      },
       unblock: () => {
         return undefined;
       },
@@ -401,6 +418,17 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     }
   }
 
+  updateFilter = (id: string, name: string, userPermissions: string[]) => {
+    this.setState({
+      ...this.state,
+      filterParams: {
+        id,
+        name,
+        userPermissions,
+      },
+    });
+  };
+
   renderSaveDisacardModal() {
     return (
       <SaveOrDiscardDatasourceModal
@@ -580,6 +608,10 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           />
         )}
         <ResizerMainContainer>
+          <DSDataFilter
+            pluginType={pluginType}
+            updateFilter={this.updateFilter}
+          />
           <ResizerContentContainer className="db-form-resizer-content">
             {this.renderForm()}
             {/* Render datasource form call-to-actions */}
