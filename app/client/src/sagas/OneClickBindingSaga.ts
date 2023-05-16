@@ -202,7 +202,7 @@ function* BindWidgetToDatasource(
         if (
           runResponse.type === ReduxActionErrorTypes.EXECUTE_PLUGIN_ACTION_ERROR
         ) {
-          throw new Error("Unable to run action(s)");
+          throw new Error(`Unable to run action: ${action.name}`);
         }
       }
 
