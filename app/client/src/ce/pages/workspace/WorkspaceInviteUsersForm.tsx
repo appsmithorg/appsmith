@@ -444,6 +444,7 @@ function WorkspaceInviteUsersForm(props: any) {
               isDisabled={!valid || selectedOption.length === 0}
               isLoading={submitting && !(submitFailed && !anyTouched)}
               size="md"
+              type="submit"
             >
               Invite
             </Button>

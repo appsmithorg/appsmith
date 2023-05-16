@@ -40,7 +40,10 @@ function DeleteConfirmationModal(props: DeleteConfirmationProps) {
 
   return (
     <Modal onOpenChange={onOpenChange} open={isOpen}>
-      <ModalContent className={"t--member-delete-confirmation-modal"}>
+      <ModalContent
+        className={"t--member-delete-confirmation-modal"}
+        style={{ width: "600px" }}
+      >
         <ModalHeader>{DELETE_CONFIRMATION_MODAL_TITLE()}</ModalHeader>
         <ModalBody>
           <Text kind="body-m">

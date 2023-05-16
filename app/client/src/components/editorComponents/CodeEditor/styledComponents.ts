@@ -476,8 +476,8 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
         }
       }
     }
-    .commands-button {
-      display: flex;
+    button {
+      visibility: visible;
     }
   }
   border-radius: var(--ads-v2-border-radius);
@@ -486,20 +486,5 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
   }
   .lightning-menu {
     z-index: 1 !important;
-  }
-  .commands-button {
-    z-index: 2;
-    position: absolute;
-    right: 0;
-    height: 20px;
-    bottom: 18px;
-    transform: translate(-50%, 50%);
-    display: none;
-    border: none;
-    font-weight: bold;
-    font-size: 14px;
-    font-style: italic;
-    margin: 0 !important;
-    top: -2px;
   }
 `;

@@ -84,7 +84,7 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
             onOpenChange={(isOpen) => setShowModal(isOpen)}
             open={showModal}
           >
-            <ModalContent>
+            <ModalContent style={{ width: "640px" }}>
               <ModalHeader>{props.add.title}</ModalHeader>
               <ModalBody>{props.add.form}</ModalBody>
             </ModalContent>

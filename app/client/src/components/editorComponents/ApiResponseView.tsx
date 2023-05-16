@@ -125,6 +125,12 @@ const TabbedViewWrapper = styled.div`
   }
 
   & {
+    .ads-v2-tabs__list {
+      padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-7);
+    }
+  }
+
+  & {
     .ads-v2-tabs__panel {
       height: calc(100% - ${TAB_MIN_HEIGHT});
     }
@@ -241,6 +247,7 @@ export const ResponseTabErrorContainer = styled.div`
   flex-direction: column;
   padding: 8px 16px;
   gap: 8px;
+  max-height: 100%;
   height: fit-content;
   background: var(--ads-v2-color-bg-error);
   border-bottom: 1px solid var(--ads-v2-color-border);

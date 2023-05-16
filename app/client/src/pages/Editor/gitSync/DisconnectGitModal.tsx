@@ -56,7 +56,7 @@ function DisconnectGitModal() {
       }}
       open={isModalOpen}
     >
-      <ModalContent>
+      <ModalContent style={{ width: "640px" }}>
         <ModalHeader>
           {createMessage(GIT_REVOKE_ACCESS, disconnectingApp.name)}
         </ModalHeader>
