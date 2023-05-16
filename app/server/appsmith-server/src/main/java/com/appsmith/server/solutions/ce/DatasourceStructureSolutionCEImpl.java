@@ -133,8 +133,6 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                 )
                 .onErrorMap(e -> {
                     log.error("In the datasource structure error mode.", e);
-                    analyticsService.sendObjectEvent(AnalyticsEvents.DS_SCHEMA_FETCH_EVENT_SUCCESS,
-                            datasource, getAnalyticsPropertiesForTestEventStatus(datasource,true,e));
                     if (!(e instanceof AppsmithPluginException)) {
                         return new AppsmithPluginException(AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR, e.getMessage());
                     }
