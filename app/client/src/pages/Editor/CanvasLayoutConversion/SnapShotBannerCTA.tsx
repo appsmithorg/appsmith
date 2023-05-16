@@ -111,6 +111,7 @@ export function SnapShotBannerCTA() {
           onEscapeKeyDown={(e) => e.preventDefault()}
           // Don't close Modal when pressed outside
           onInteractOutside={(e) => e.preventDefault()}
+          style={{ width: "640px" }}
         >
           <ModalHeader isCloseButtonVisible={!hideCloseButton}>
             {modalHeader}

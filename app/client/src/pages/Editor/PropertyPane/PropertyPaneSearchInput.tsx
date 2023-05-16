@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 import styled from "styled-components";
 import { SearchInput } from "design-system";
 import { useSelector } from "react-redux";
@@ -13,9 +13,24 @@ const SearchInputWrapper = styled.div`
   position: sticky;
   top: 42px;
   z-index: 3;
-  height: 35px;
-  padding: 0 1rem;
+  margin: 0 1rem;
+  margin-bottom: 2px;
   background: var(--ads-v2-color-white);
+  border-radius: var(--ads-v2-border-radius);
+  border: 1px solid var(--ads-v2-color-border);
+  :focus-within {
+    outline: var(--ads-v2-border-width-outline) solid
+      var(--ads-v2-color-outline);
+    outline-offset: var(--ads-v2-offset-outline);
+    border-color: var(--ads-v2-color-border-emphasis-plus);
+  }
+`;
+
+const StyledSearchInput = styled(SearchInput)`
+  input {
+    border: none;
+    outline: none;
+  }
 `;
 
 type PropertyPaneSearchInputProps = {
@@ -25,6 +40,7 @@ type PropertyPaneSearchInputProps = {
 
 export function PropertyPaneSearchInput(props: PropertyPaneSearchInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const shouldFocusSearch = useSelector(getShouldFocusPropertySearch);
   const shouldFocusPanelSearch = useSelector(getShouldFocusPanelPropertySearch);
   const isPanel = !!props.isPanel;
@@ -42,7 +58,7 @@ export function PropertyPaneSearchInput(props: PropertyPaneSearchInputProps) {
           //checking for active element
           //inside timeout to have updated active element
           if (!isCurrentFocusOnInput()) {
-            inputRef.current?.focus();
+            wrapperRef.current?.focus();
           }
         },
         // Layered panels like Column Panel's transition takes 300ms.
@@ -52,13 +68,43 @@ export function PropertyPaneSearchInput(props: PropertyPaneSearchInputProps) {
     }
   }, [shouldFocusSearch, shouldFocusPanelSearch, isPanel]);
 
+  const handleInputKeydown = useCallback((e: KeyboardEvent) => {
+    switch (e.key) {
+      case "Escape":
+        wrapperRef.current?.focus();
+        break;
+    }
+  }, []);
+
+  const handleWrapperKeydown = useCallback((e: React.KeyboardEvent) => {
+    switch (e.key) {
+      case "Enter":
+        inputRef.current?.focus();
+        break;
+    }
+  }, []);
+
+  useEffect(() => {
+    inputRef.current?.addEventListener("keydown", handleInputKeydown);
+
+    return () => {
+      inputRef.current?.removeEventListener("keydown", handleInputKeydown);
+    };
+  }, []);
+
   return (
-    <SearchInputWrapper>
-      <SearchInput
+    <SearchInputWrapper
+      className="t--property-pane-search-input-wrapper"
+      onKeyDown={handleWrapperKeydown}
+      ref={wrapperRef}
+      tabIndex={0}
+    >
+      <StyledSearchInput
         className="propertyPaneSearch t--property-pane-search-input-wrapper"
         onChange={props.onTextChange}
         placeholder={PROPERTY_SEARCH_INPUT_PLACEHOLDER}
         ref={inputRef}
+        tabIndex={-1}
       />
     </SearchInputWrapper>
   );

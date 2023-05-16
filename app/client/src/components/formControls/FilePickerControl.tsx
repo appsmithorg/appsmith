@@ -109,7 +109,7 @@ function RenderFilePicker(props: RenderFilePickerProps) {
           }}
           open={isOpen}
         >
-          <ModalContent>
+          <ModalContent style={{ width: "640px" }}>
             <ModalBody>
               <FilePickerWrapper>
                 <FilePickerV2

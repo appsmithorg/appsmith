@@ -124,7 +124,6 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
-import { AIWindow } from "@appsmith/components/editorComponents/GPT";
 import SearchSnippets from "pages/common/SearchSnippets";
 import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
 
@@ -1067,7 +1066,6 @@ export function EditorJSONtoForm(props: Props) {
                   </DebuggerWithPadding>
                 )}
             </SecondaryWrapper>
-            <AIWindow className="border-t border-l" windowType="fixed" />
           </div>
           <SidebarWrapper
             show={(hasDependencies || !!output) && !guidedTourEnabled}
