@@ -1,6 +1,10 @@
-import {
+import type {
   ObjectExpression,
   PropertyNode,
+  MemberExpressionData,
+  IdentifierInfo,
+} from "./src";
+import {
   isIdentifierNode,
   isVariableDeclarator,
   isObjectExpression,
@@ -14,20 +18,15 @@ import {
   extractInvalidTopLevelMemberExpressionsFromCode,
   getFunctionalParamsFromNode,
   isTypeOfFunction,
-  MemberExpressionData,
-  IdentifierInfo,
+  isFunctionPresent,
 } from "./src";
 
 // constants
 import { ECMA_VERSION, SourceType, NodeTypes } from "./src/constants";
 
 // JSObjects
-import {
-  parseJSObject,
-  isJSFunctionProperty,
-  TParsedJSProperty,
-  JSPropertyPosition,
-} from "./src/jsObject";
+import type { TParsedJSProperty, JSPropertyPosition } from "./src/jsObject";
+import { parseJSObject, isJSFunctionProperty } from "./src/jsObject";
 
 // action creator
 import {
@@ -62,10 +61,8 @@ import {
 } from "./src/actionCreator";
 
 // peekOverlay
-import {
-  PeekOverlayExpressionIdentifier,
-  PeekOverlayExpressionIdentifierOptions,
-} from "./src/peekOverlay";
+import type { PeekOverlayExpressionIdentifierOptions } from "./src/peekOverlay";
+import { PeekOverlayExpressionIdentifier } from "./src/peekOverlay";
 
 // types or interfaces should be exported with type keyword, while enums can be exported like normal functions
 export type {
@@ -77,53 +74,54 @@ export type {
   JSPropertyPosition,
 };
 
-  export {
-    isIdentifierNode,
-    isVariableDeclarator,
-    isObjectExpression,
-    isLiteralNode,
-    isPropertyNode,
-    isPropertyAFunctionNode,
-    isCallExpressionNode,
-    getAST,
-    extractIdentifierInfoFromCode,
-    entityRefactorFromCode,
-    extractInvalidTopLevelMemberExpressionsFromCode,
-    getFunctionalParamsFromNode,
-    isTypeOfFunction,
-    parseJSObject,
-    ECMA_VERSION,
-    SourceType,
-    NodeTypes,
-    getTextArgumentAtPosition,
-    getEnumArgumentAtPosition,
-    getModalName,
-    setModalName,
-    setTextArgumentAtPosition,
-    setEnumArgumentAtPosition,
-    getFuncExpressionAtPosition,
-    getFunction,
-    replaceActionInQuery,
-    setCallbackFunctionField,
-    getActionBlocks,
-    getFunctionBodyStatements,
-    getMainAction,
-    getFunctionName,
-    setObjectAtPosition,
-    getThenCatchBlocksFromQuery,
-    setThenBlockInQuery,
-    setCatchBlockInQuery,
-    getFunctionArguments,
-    getFunctionNameFromJsObjectExpression,
-    getCallExpressions,
-    canTranslateToUI,
-    getFunctionParams,
-    getQueryParam,
-    setQueryParam,
-    checkIfThenBlockExists,
-    checkIfCatchBlockExists,
-    checkIfArgumentExistAtPosition,
-    isJSFunctionProperty,
-    PeekOverlayExpressionIdentifier
-  };  export type { PeekOverlayExpressionIdentifierOptions };
-
+export {
+  isIdentifierNode,
+  isVariableDeclarator,
+  isObjectExpression,
+  isLiteralNode,
+  isPropertyNode,
+  isPropertyAFunctionNode,
+  isCallExpressionNode,
+  getAST,
+  extractIdentifierInfoFromCode,
+  entityRefactorFromCode,
+  extractInvalidTopLevelMemberExpressionsFromCode,
+  getFunctionalParamsFromNode,
+  isTypeOfFunction,
+  parseJSObject,
+  ECMA_VERSION,
+  SourceType,
+  NodeTypes,
+  getTextArgumentAtPosition,
+  getEnumArgumentAtPosition,
+  getModalName,
+  setModalName,
+  setTextArgumentAtPosition,
+  setEnumArgumentAtPosition,
+  getFuncExpressionAtPosition,
+  getFunction,
+  replaceActionInQuery,
+  setCallbackFunctionField,
+  getActionBlocks,
+  getFunctionBodyStatements,
+  getMainAction,
+  getFunctionName,
+  setObjectAtPosition,
+  getThenCatchBlocksFromQuery,
+  setThenBlockInQuery,
+  setCatchBlockInQuery,
+  getFunctionArguments,
+  getFunctionNameFromJsObjectExpression,
+  getCallExpressions,
+  canTranslateToUI,
+  getFunctionParams,
+  getQueryParam,
+  setQueryParam,
+  checkIfThenBlockExists,
+  checkIfCatchBlockExists,
+  checkIfArgumentExistAtPosition,
+  isJSFunctionProperty,
+  isFunctionPresent,
+  PeekOverlayExpressionIdentifier,
+};
+export type { PeekOverlayExpressionIdentifierOptions };
