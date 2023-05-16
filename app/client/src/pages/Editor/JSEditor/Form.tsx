@@ -373,8 +373,18 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                     value={selectedConfigTab}
                   >
                     <TabsList>
-                      <Tab value={JSEditorTab.CODE}>Code</Tab>
-                      <Tab value={JSEditorTab.SETTINGS}>Settings</Tab>
+                      <Tab
+                        data-testid={`t--js-editor-` + JSEditorTab.CODE}
+                        value={JSEditorTab.CODE}
+                      >
+                        Code
+                      </Tab>
+                      <Tab
+                        data-testid={`t--js-editor-` + JSEditorTab.SETTINGS}
+                        value={JSEditorTab.SETTINGS}
+                      >
+                        Settings
+                      </Tab>
                     </TabsList>
                     <TabPanel value={JSEditorTab.CODE}>
                       <div className="js-editor-tab">
