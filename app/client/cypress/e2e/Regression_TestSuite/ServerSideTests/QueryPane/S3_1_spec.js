@@ -71,7 +71,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.runAndDeleteQuery();
   });
 
-  it("2. Validate Create/List Files/Read files in bucket command for new file, Verify possible error msgs, run & delete the query", () => {
+  it("2. Validate Create file in bucket command for new file, Verify possible error msgs, run & delete the query", () => {
     //Create File
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.setQueryTimeout(30000);
@@ -152,10 +152,9 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
     });
+  });
 
-    //List file
-    //  cy.NavigateToActiveDSQueryPane(datasourceName);
-    //   cy.setQueryTimeout(30000);
+  it("3. Validate List Files in bucket command for new file, Verify possible error msgs, run & delete the query", () => {
     cy.ValidateAndSelectDropdownOption(
       formControls.commandDropdown,
       "Create a new file",
@@ -173,6 +172,10 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
 
     cy.typeValueNValidate("Auto", formControls.s3ListPrefix);
     cy.onlyQueryRun();
+
+    _.agHelper.GetNClick(_.dataSources._queryResponse("TABLE"));
+    _.agHelper.GetNClick(_.dataSources._queryResponse("JSON"));
+
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
       expect(response.body.data.body[0].fileName).to.contains("Auto");
@@ -193,6 +196,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       "No",
       "Yes",
     );
+
     cy.onlyQueryRun();
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
@@ -200,6 +204,18 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       expect(response.body.data.body[0].signedUrl).to.exist;
       expect(response.body.data.body[0].url).to.exist;
     });
+
+    //_.agHelper.GetNClick(_.debuggerHelper.locators._closeButton);
+
+    // cy.get(formControls.s3ListUnSignedUrl)
+    // .scrollIntoView()
+    // .should("be.visible")
+    // .click({ multiple: true });
+
+    // cy.get(formControls.dropdownWrapper)
+    // .should("be.visible")
+    // .eq(1)
+    // .click({ force: true });
 
     cy.ValidateAndSelectDropdownOption(
       formControls.s3ListUnSignedUrl,
@@ -214,7 +230,9 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       expect(response.body.data.body[0].url).to.not.exist;
     });
     //cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
+  });
 
+  it("4. Validate Read files in bucket command for new file, Verify possible error msgs, run & delete the query", () => {
     //Read File
 
     //cy.NavigateToActiveDSQueryPane(datasourceName);
@@ -304,7 +322,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
   });
 
-  it("3. Validate Delete file command for new file & Validating List Files in bucket command after new file is deleted, Verify possible error msgs, run & delete the query", () => {
+  it("5. Validate Delete file command for new file & Validating List Files in bucket command after new file is deleted, Verify possible error msgs, run & delete the query", () => {
     cy.NavigateToActiveDSQueryPane(datasourceName);
     //cy.renameWithInPane(queryName);
     cy.setQueryTimeout(30000);
@@ -369,7 +387,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.deleteQueryUsingContext(); //exeute actions & 200 response is verified in this method
   });
 
-  it("4. Create new file in bucket for UI Operations & Verify Search, Delete operations from NewPage UI created in S3 ds & Bug 8686, 8684", function () {
+  it("6. Create new file in bucket for UI Operations & Verify Search, Delete operations from NewPage UI created in S3 ds & Bug 8686, 8684", function () {
     //Creating new file in bucket
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.ValidateAndSelectDropdownOption(
@@ -465,7 +483,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.get("span:contains('CRUDNewPageFile')").should("not.exist"); //verify Deletion of file is success from UI also
   });
 
-  it("5. Validate Deletion of the Newly Created Page", () => {
+  it("7. Validate Deletion of the Newly Created Page", () => {
     cy.NavigateToQueryEditor();
     _.dataSources.DeleteDatasouceFromWinthinDS(datasourceName, 409);
     _.entityExplorer.ActionContextMenuByEntityName(
@@ -474,7 +492,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     );
   });
 
-  it("6. Bug 9069, 9201, 6975, 9922, 3836, 6492, 11833: Upload/Update query is failing in S3 crud pages", function () {
+  it("8. Bug 9069, 9201, 6975, 9922, 3836, 6492, 11833: Upload/Update query is failing in S3 crud pages", function () {
     cy.NavigateToDSGeneratePage(datasourceName);
     cy.wait(5000); //for buckets to populate
     //Verifying List of Files from UI
@@ -619,7 +637,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     // );
   });
 
-  it("7. Verify 'Add to widget [Widget Suggestion]' functionality - S3", () => {
+  it("9. Verify 'Add to widget [Widget Suggestion]' functionality - S3", () => {
     _.entityExplorer.SelectEntityByName("Page1");
     cy.NavigateToActiveDSQueryPane(datasourceName);
 
@@ -656,7 +674,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     });
   });
 
-  it("8. Verify 'Connect Widget [snipping]' functionality - S3 ", () => {
+  it("10. Verify 'Connect Widget [snipping]' functionality - S3 ", () => {
     _.entityExplorer.DragDropWidgetNVerify(WIDGET.TABLE, 200, 200);
     cy.NavigateToActiveDSQueryPane(datasourceName);
     _.agHelper.GetObjectName().then(($queryName) => {
@@ -685,7 +703,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
   });
 
   after("Deletes the datasource", () => {
-    cy.NavigateToQueryEditor();
-    _.dataSources.DeleteDatasouceFromActiveTab(datasourceName, [200 | 409]);
+    // cy.NavigateToQueryEditor();
+    // _.dataSources.DeleteDatasouceFromActiveTab(datasourceName, [200 | 409]);
   });
 });

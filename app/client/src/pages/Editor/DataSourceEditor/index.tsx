@@ -70,6 +70,8 @@ interface ReduxStateProps {
   applicationSlug: string;
   pageSlug: string;
   fromImporting?: boolean;
+  // isInsideReconnectModal: indicates that the datasource form is rendering inside reconnect modal
+  isInsideReconnectModal?: boolean;
   isDatasourceBeingSaved: boolean;
   triggerSave: boolean;
   isFormDirty: boolean;
@@ -176,6 +178,7 @@ class DataSourceEditor extends React.Component<Props> {
       fromImporting,
       isDeleting,
       isFormDirty,
+      isInsideReconnectModal,
       isNewDatasource,
       isSaving,
       isTesting,
@@ -198,6 +201,7 @@ class DataSourceEditor extends React.Component<Props> {
         hiddenHeader={fromImporting}
         isDeleting={isDeleting}
         isFormDirty={isFormDirty}
+        isInsideReconnectModal={isInsideReconnectModal}
         isNewDatasource={isNewDatasource}
         isSaving={isSaving}
         isTesting={isTesting}

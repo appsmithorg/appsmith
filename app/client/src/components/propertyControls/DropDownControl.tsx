@@ -103,7 +103,8 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           isMultiSelect={this.props.isMultiSelect}
           onDeselect={this.onDeselect}
           onSelect={this.onSelect}
-          optionFilterProp="searchText"
+          optionFilterProp="label"
+          optionLabelProp={this.props.hideSubText ? "label" : "children"}
           placeholder={this.props.placeholderText}
           showSearch={this.props.enableSearch}
           value={selected}
@@ -114,7 +115,6 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
               className="t--dropdown-option"
               key={index}
               label={option.label}
-              searchText={option.searchText}
               value={option.value}
             >
               {/* Show Flag if present */}

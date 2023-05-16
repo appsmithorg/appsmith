@@ -63,8 +63,10 @@ function ConversionButton() {
     dispatch(setConversionStart(CONVERSION_STATES.START));
   };
 
-  const isConversionCompleted =
-    conversionState === CONVERSION_STATES.COMPLETED_SUCCESS;
+  const hideCloseButton =
+    conversionState === CONVERSION_STATES.COMPLETED_SUCCESS ||
+    conversionState === CONVERSION_STATES.CONVERSION_SPINNER ||
+    conversionState === CONVERSION_STATES.SNAPSHOT_SPINNER;
 
   return (
     <>
@@ -85,7 +87,7 @@ function ConversionButton() {
           onInteractOutside={(e) => e.preventDefault()}
           style={{ width: "640px" }}
         >
-          <ModalHeader isCloseButtonVisible={!isConversionCompleted}>
+          <ModalHeader isCloseButtonVisible={!hideCloseButton}>
             <div className="flex items-center gap-3">
               {createMessage(titleText)}
               <BetaCard />
