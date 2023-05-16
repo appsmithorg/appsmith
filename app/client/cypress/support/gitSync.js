@@ -153,8 +153,8 @@ Cypress.Commands.add("createGitBranch", (branch) => {
   cy.wait(3000);
   cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${branch}{enter}`);
   // increasing timeout to reduce flakyness
-  cy.get(".bp3-spinner", { timeout: 30000 }).should("exist");
-  cy.get(".bp3-spinner", { timeout: 30000 }).should("not.exist");
+  cy.get(".ads-v2-spinner", { timeout: 30000 }).should("exist");
+  cy.get(".ads-v2-spinner", { timeout: 30000 }).should("not.exist");
 });
 
 Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
@@ -165,8 +165,8 @@ Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
   cy.get(gitSyncLocators.branchListItem).contains(branch).click();
   if (!expectError) {
     // increasing timeout to reduce flakyness
-    cy.get(".bp3-spinner", { timeout: 30000 }).should("exist");
-    cy.get(".bp3-spinner", { timeout: 30000 }).should("not.exist");
+    cy.get(".ads-v2-spinner", { timeout: 30000 }).should("exist");
+    cy.get(".ads-v2-spinner", { timeout: 30000 }).should("not.exist");
   }
 
   cy.wait(2000);

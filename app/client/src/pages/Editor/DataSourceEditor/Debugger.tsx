@@ -29,7 +29,7 @@ import {
   getResponsePaneHeight,
 } from "selectors/debuggerSelectors";
 import { ActionExecutionResizerHeight } from "../APIEditor/constants";
-import { Button } from "design-system";
+import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs";
 
 export const TabbedViewContainer = styled.div`
   ${ResizerCSS}
@@ -52,12 +52,6 @@ export const TabbedViewContainer = styled.div`
     .ads-v2-tabs__panel {
       height: calc(100% - ${LIST_HEADER_HEIGHT});
     }
-  }
-  .close-debugger {
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    padding: 9px 11px;
   }
   background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
   border-top: 1px solid var(--ads-v2-color-border);
@@ -157,7 +151,7 @@ export default function Debugger() {
         tabs={DEBUGGER_TABS}
       />
 
-      <Button
+      <CloseDebugger
         className="close-debugger t--close-debugger"
         isIconButton
         kind="tertiary"

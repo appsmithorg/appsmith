@@ -105,13 +105,13 @@ describe("getFilteredAndSortedFileOperations", () => {
 
     expect(fileOptions[2]).toEqual(
       expect.objectContaining({
-        title: "New app datasource query",
+        title: "New App datasource query",
       }),
     );
 
     expect(fileOptions[3]).toEqual(
       expect.objectContaining({
-        title: "New other datasource query",
+        title: "New Other datasource query",
       }),
     );
   });
@@ -167,13 +167,13 @@ describe("getFilteredAndSortedFileOperations", () => {
 
     expect(fileOptions[2]).toEqual(
       expect.objectContaining({
-        title: "New other datasource query",
+        title: "New Other datasource query",
       }),
     );
 
     expect(fileOptions[3]).toEqual(
       expect.objectContaining({
-        title: "New app datasource query",
+        title: "New App datasource query",
       }),
     );
   });
@@ -216,7 +216,7 @@ describe("getFilteredAndSortedFileOperations", () => {
 
     expect(fileOptions[0]).toEqual(
       expect.objectContaining({
-        title: "New app datasource query",
+        title: "New App datasource query",
       }),
     );
   });
