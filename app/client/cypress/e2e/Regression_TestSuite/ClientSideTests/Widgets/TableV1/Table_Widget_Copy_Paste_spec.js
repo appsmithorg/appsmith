@@ -36,7 +36,6 @@ describe("Test Suite to validate copy/paste table Widget", function () {
     );
     cy.get(commonlocators.toastAction).should("not.be.visible");
     cy.wait(2000);
-    //cy.GlobalSearchEntityTableV1("Table1Copy");
     cy.CheckAndUnfoldWidgets();
     _.entityExplorer.ActionContextMenuByEntityName(
       "Table1Copy",
