@@ -41,6 +41,8 @@ public class ExecuteActionDTO {
 
     Map<String, String> invertParameterMap; // e.g. {"k1":"Text1.text","k2":"Table1.data", "k3": "Api1.data"}
 
+    Map<String, Object> analyticsProperties;
+
     @JsonIgnore
     long totalReadableByteCount;
 
