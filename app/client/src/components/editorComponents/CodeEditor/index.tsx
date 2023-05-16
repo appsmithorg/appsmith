@@ -1421,7 +1421,7 @@ class CodeEditor extends Component<Props, State> {
               "h-5 !w-5 !p-0 commands-button invisible",
               !showSlashCommandButton && "!hidden",
             )}
-            kind="secondary"
+            kind="tertiary"
             onClick={() => {
               const newValue =
                 typeof this.props.input.value === "string"

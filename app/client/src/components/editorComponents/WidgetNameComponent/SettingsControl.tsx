@@ -85,8 +85,8 @@ const getStyles = (
     };
   } else if (errorCount > 0) {
     return {
-      background: "var(--ads-v2-color-bg-error-emphasis)",
-      color: "var(--ads-v2-color-white)",
+      background: "var(--ads-v2-color-fg-error)",
+      color: "var(--ads-v2-color-bg-error)",
     };
   }
 

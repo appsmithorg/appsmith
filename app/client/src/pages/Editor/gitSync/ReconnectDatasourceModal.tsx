@@ -9,8 +9,6 @@ import {
 } from "@appsmith/selectors/applicationSelectors";
 
 import { useDispatch, useSelector } from "react-redux";
-import { Text, TextType } from "design-system-old";
-import { Button, toast } from "design-system";
 import { Colors } from "constants/Colors";
 
 import styled from "styled-components";
@@ -23,6 +21,7 @@ import {
   RECONNECT_DATASOURCE_SUCCESS_MESSAGE2,
   RECONNECT_MISSING_DATASOURCE_CREDENTIALS,
   RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION,
+  SKIP_CONFIGURATION,
   SKIP_TO_APPLICATION,
   SKIP_TO_APPLICATION_TOOLTIP_DESCRIPTION,
 } from "@appsmith/constants/messages";
@@ -60,12 +59,17 @@ import {
   Modal,
   ModalBody,
   ModalContent,
-  ModalFooter,
   ModalHeader,
-  Tooltip,
+  toast,
+  Button,
+  Text,
 } from "design-system";
 
 const Section = styled.div`
+  display: flex;
+  align-items: center;
+  flex: 1;
+  justify-content: center;
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
   width: calc(100% - 206px);
 `;
@@ -77,8 +81,11 @@ const BodyContainer = styled.div`
 `;
 
 const ContentWrapper = styled.div`
-  height: calc(100% - 87px);
+  height: calc(100% - 16px);
   display: flex;
+  margin-top: 24px;
+  border-top: 1px solid var(--ads-v2-color-border);
+  padding-top: 16px;
 
   .t--json-to-form-wrapper {
     width: 100%;
@@ -114,7 +121,7 @@ const ContentWrapper = styled.div`
     }
 
     .t--collapse-section-container {
-      width: 816px;
+      width: 100%;
 
       & > div {
         color: ${Colors.BLACK};
@@ -184,19 +191,20 @@ const Message = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[6]}px;
 `;
 
-const SkipToAppButtonWrapper = styled.div``;
-
-const TooltipWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  /* width: 320px; */
-`;
-
 const DBFormWrapper = styled.div`
-  width: calc(100% - 256px);
-  overflow: auto;
+  overflow: hidden;
   height: inherit;
+  flex: 1;
+  display: flex;
+  border-left: 1px solid var(--ads-v2-color-border);
+  border-right: 1px solid var(--ads-v2-color-border);
+  margin-right: 12px;
+  width: calc(100% - 256px - 256px);
 
+  > div {
+    width: 100%;
+    height: calc(100% - 20px);
+  }
   div[class^="RestAPIDatasourceForm__RestApiForm-"] {
     padding-top: 0px;
     height: 100%;
@@ -213,21 +221,15 @@ const ModalContentWrapper = styled(ModalContent)`
 const ModalBodyWrapper = styled(ModalBody)`
   overflow-y: hidden;
 `;
+const SkipToAppWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 256px;
+`;
 
 enum AuthorizationStatus {
   SUCCESS = "success",
   APPSMITH_ERROR = "appsmith_error",
-}
-
-function TooltipContent() {
-  return (
-    <TooltipWrapper>
-      <span style={{ marginBottom: "4px" }}>
-        {createMessage(SKIP_TO_APPLICATION)}
-      </span>
-      <span>{createMessage(SKIP_TO_APPLICATION_TOOLTIP_DESCRIPTION)}</span>
-    </TooltipWrapper>
-  );
 }
 
 function SuccessMessages() {
@@ -510,50 +512,56 @@ function ReconnectDatasourceModal() {
             <Title>
               {createMessage(RECONNECT_MISSING_DATASOURCE_CREDENTIALS)}
             </Title>
-            <Section>
-              <Text type={TextType.P1}>
-                {createMessage(
-                  RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION,
-                )}
-              </Text>
-            </Section>
+
+            <Text>
+              {createMessage(
+                RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION,
+              )}
+            </Text>
             <ContentWrapper>
               <ListContainer>{mappedDataSources}</ListContainer>
-              {shouldShowDBForm && (
-                <DBFormWrapper>
+
+              <DBFormWrapper>
+                {shouldShowDBForm && (
                   <DatasourceForm
                     applicationId={appId}
                     datasourceId={selectedDatasourceId}
                     fromImporting
+                    // isInsideReconnectModal: indicates that the datasource form is rendering inside reconnect modal
+                    isInsideReconnectModal
                     pageId={pageId}
                   />
-                </DBFormWrapper>
-              )}
-              {datasource?.isConfigured && SuccessMessages()}
+                )}
+                {datasource?.isConfigured && SuccessMessages()}
+              </DBFormWrapper>
+
+              <SkipToAppWrapper>
+                <Text kind="heading-s">
+                  {createMessage(SKIP_CONFIGURATION)}
+                </Text>
+                <Text>
+                  {createMessage(SKIP_TO_APPLICATION_TOOLTIP_DESCRIPTION)}
+                </Text>
+                <Button
+                  UNSAFE_width={"100px"}
+                  className="t--skip-to-application-btn mt-5"
+                  href={appURL}
+                  kind="secondary"
+                  onClick={() => {
+                    AnalyticsUtil.logEvent(
+                      "RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK",
+                    );
+                    localStorage.setItem("importedAppPendingInfo", "null");
+                  }}
+                  renderAs="a"
+                  size="md"
+                >
+                  {createMessage(SKIP_TO_APPLICATION)}
+                </Button>
+              </SkipToAppWrapper>
             </ContentWrapper>
           </BodyContainer>
         </ModalBodyWrapper>
-        <ModalFooter>
-          <SkipToAppButtonWrapper>
-            <Tooltip content={<TooltipContent />} placement="topRight">
-              <Button
-                className="t--skip-to-application-btn"
-                href={appURL}
-                kind="secondary"
-                onClick={() => {
-                  AnalyticsUtil.logEvent(
-                    "RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK",
-                  );
-                  localStorage.setItem("importedAppPendingInfo", "null");
-                }}
-                renderAs="a"
-                size="md"
-              >
-                {createMessage(SKIP_TO_APPLICATION)}
-              </Button>
-            </Tooltip>
-          </SkipToAppButtonWrapper>
-        </ModalFooter>
       </ModalContentWrapper>
     </Modal>
   );

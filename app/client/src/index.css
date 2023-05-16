@@ -28,13 +28,20 @@ body.dragging * {
 }
 
 /**
-  over-riding the outline that comes from
-  blueprint. Please don't add important, we 
-  are using outline in adsv2 components.
+  Disable outline completely from all components
 */
-:focus {
-  outline: none;
-  outline-offset: 0;
+:focus,
+:focus-visible {
+  outline: none !important;
+  outline-offset: 0 !important;
+}
+
+/**
+  Disable outline for adsv2 select component
+*/
+.ads-v2-select.rc-select-focused {
+  outline: none !important;
+  outline-offset: 0 !important;
 }
 
 body.overlay {
