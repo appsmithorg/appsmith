@@ -8,9 +8,9 @@ describe("Text Widget Truncate Functionality", function () {
 
   it("Check default overflow property is No overflow", function () {
     cy.openPropertyPane("textwidget");
-    cy.get(".t--button-group-NONE")
+    cy.get("[data-value='NONE']")
       .last()
-      .should("have.attr", "aria-selected", "true");
+      .should("have.attr", "data-selected", "true");
     cy.closePropertyPane();
   });
 
@@ -34,7 +34,7 @@ describe("Text Widget Truncate Functionality", function () {
   it("Enable Truncate Text option and Validate", function () {
     cy.wait(2000);
     cy.get("body").type("{esc}");
-    cy.get(".t--button-group-TRUNCATE").click({ force: true });
+    cy.get("[data-value='TRUNCATE']").click({ force: true });
     cy.wait("@updateLayout");
     cy.get(
       `.appsmith_widget_${dsl.dsl.children[0].widgetId} .t--widget-textwidget-truncate`,

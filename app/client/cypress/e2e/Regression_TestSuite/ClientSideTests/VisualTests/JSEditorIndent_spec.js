@@ -59,7 +59,7 @@ myFun2: async () => {
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify6");
   });
 
-  it.only("7. TC 1933 - JSEditor prettify verification on cloned page", () => {
+  it("7. TC 1933 - JSEditor prettify verification on cloned page", () => {
     _.jsEditor.CreateJSObject(
       `export default {
   myFun1: () => {
