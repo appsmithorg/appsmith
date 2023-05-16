@@ -57,6 +57,7 @@ export interface WidgetEntityConfig
     WidgetConfig {
   defaultMetaProps: Array<string>;
   type: string;
+  __setters?: Record<string, any>;
 }
 
 export interface AppsmithEntity extends Omit<AppDataState, "store"> {
