@@ -6,7 +6,4 @@ module.exports = merge(common, {
   optimization: {
     minimize: false,
   },
-  babel: {
-    plugins: ["babel-plugin-styled-components"],
-  },
 });
