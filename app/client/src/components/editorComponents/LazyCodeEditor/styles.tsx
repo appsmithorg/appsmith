@@ -1,5 +1,6 @@
 import styled, { keyframes } from "styled-components";
 import { ContentKind } from "./types";
+import { CodeEditorColors } from "../CodeEditor/styledComponents";
 
 export const HighlighedCodeContainer = styled("div")<{
   contentKind: ContentKind;
@@ -37,7 +38,7 @@ export const HighlighedCodeContainer = styled("div")<{
 
     color: ${({ contentKind }) =>
       contentKind === ContentKind.CODE
-        ? "#304eaa"
+        ? CodeEditorColors.KEYWORD
         : contentKind === ContentKind.PLACEHOLDER
         ? "#858282"
         : "inherit"} !important;
