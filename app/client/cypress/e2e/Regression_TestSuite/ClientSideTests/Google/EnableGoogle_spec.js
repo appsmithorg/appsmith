@@ -48,7 +48,7 @@ describe("excludeForAirgap", "SSO with Google test functionality", function () {
     // adding wait for server to restart
     cy.waitUntil(() =>
       cy
-        .contains("Google Authentication", { timeout: 180000 })
+        .contains("Google authentication", { timeout: 180000 })
         .should("be.visible"),
     );
     cy.wait(1000);
@@ -90,7 +90,7 @@ describe("excludeForAirgap", "SSO with Google test functionality", function () {
     // adding wait for server to restart
     cy.waitUntil(() =>
       cy
-        .contains("Google Authentication", { timeout: 180000 })
+        .contains("Google authentication", { timeout: 180000 })
         .should("be.visible"),
     );
     cy.wait(1000);
