@@ -1,17 +1,17 @@
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
 import type { User } from "constants/userConstants";
 
+const { disableLoginForm } = getAppsmithConfigs();
+
 /* settings is the updated & unsaved settings on Admin settings page */
-export const saveAllowed = (
-  settings: any,
-  isFormLoginEnabled: boolean,
-  socialLoginList: string[],
-) => {
+export const saveAllowed = (settings: any, socialLoginList: string[]) => {
   const connectedMethodsCount =
-    socialLoginList.length + (isFormLoginEnabled ? 1 : 0);
+    socialLoginList.length + (disableLoginForm ? 0 : 1);
   if (connectedMethodsCount === 1) {
-    const checkFormLogin =
-        !("APPSMITH_FORM_LOGIN_DISABLED" in settings) && isFormLoginEnabled,
+    const checkFormLogin = !(
+        "APPSMITH_FORM_LOGIN_DISABLED" in settings || disableLoginForm
+      ),
       checkGoogleAuth =
         settings["APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"] !== "" &&
         socialLoginList.includes("google"),

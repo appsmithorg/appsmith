@@ -1,4 +1,5 @@
 /// <reference types="cypress" />
+
 const fs = require("fs");
 const path = require("path");
 const dotenv = require("dotenv");
@@ -10,7 +11,7 @@ const cypressLogToOutput = require("cypress-log-to-output");
 const {
   addMatchImageSnapshotPlugin,
 } = require("cypress-image-snapshot/plugin");
-const { tagify } = require("cypress-tags");
+
 // ***********************************************************
 // This example plugins/index.js can be used to load plugins
 //
@@ -56,6 +57,7 @@ module.exports = (on, config) => {
   // on("task", {
   //   isFileExist,
   // });
+
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
   on("before:browser:launch", (browser = {}, launchOptions) => {
@@ -157,6 +159,5 @@ module.exports = (on, config) => {
 };
 
 module.exports = (on, config) => {
-  on("file:preprocessor", tagify(config));
   addMatchImageSnapshotPlugin(on, config);
 };

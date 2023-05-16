@@ -1,5 +1,6 @@
 import React from "react";
-import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core";
+import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
+import { Hotkey, Hotkeys } from "@blueprintjs/core";
 import type { SelectEvent } from "components/editorComponents/GlobalSearch/utils";
 
 type Props = {

@@ -12,7 +12,6 @@ export class LightModeTheme implements ColorModeTheme {
   private readonly seedIsAchromatic: boolean;
   private readonly seedIsCold: boolean;
   private readonly seedIsVeryLight: boolean;
-  private readonly seedIsYellow: boolean;
 
   constructor(private color: ColorTypes) {
     const {
@@ -22,7 +21,6 @@ export class LightModeTheme implements ColorModeTheme {
       isAchromatic,
       isCold,
       isVeryLight,
-      isYellow,
       lightness,
     } = new ColorsAccessor(color);
     this.seedColor = seedColor;
@@ -32,7 +30,6 @@ export class LightModeTheme implements ColorModeTheme {
     this.seedIsAchromatic = isAchromatic;
     this.seedIsCold = isCold;
     this.seedIsVeryLight = isVeryLight;
-    this.seedIsYellow = isYellow;
   }
 
   public getColors = () => {
@@ -100,32 +97,12 @@ export class LightModeTheme implements ColorModeTheme {
   private get bgAccentHover() {
     const color = this.bgAccent.clone();
 
-    if (this.seedLightness < 0.06) {
-      color.oklch.l = this.seedLightness + 0.28;
+    if (this.seedLightness < 0.18) {
+      color.oklch.l = this.seedLightness + 0.3;
     }
 
-    if (this.seedLightness > 0.06 && this.seedLightness < 0.14) {
-      color.oklch.l = this.seedLightness + 0.2;
-    }
-
-    if (
-      this.seedLightness >= 0.14 &&
-      this.seedLightness < 0.25 &&
-      this.seedIsCold
-    ) {
-      color.oklch.l = this.seedLightness + 0.1;
-    }
-
-    if (
-      this.seedLightness >= 0.14 &&
-      this.seedLightness < 0.21 &&
-      !this.seedIsCold
-    ) {
-      color.oklch.l = this.seedLightness + 0.13;
-    }
-
-    if (this.seedLightness >= 0.21 && this.seedLightness < 0.4) {
-      color.oklch.l = this.seedLightness + 0.09;
+    if (this.seedLightness >= 0.18 && this.seedLightness < 0.4) {
+      color.oklch.l = this.seedLightness + 0.15;
     }
 
     if (this.seedLightness >= 0.4 && this.seedLightness < 0.7) {
@@ -136,13 +113,7 @@ export class LightModeTheme implements ColorModeTheme {
       color.oklch.l = this.seedLightness + 0.03;
     }
 
-    if (this.seedIsVeryLight && this.seedIsYellow) {
-      color.oklch.l = 0.945;
-      color.oklch.c = this.seedChroma * 0.93;
-      color.oklch.h = this.seedHue;
-    }
-
-    if (this.seedIsVeryLight && !this.seedIsYellow) {
+    if (this.seedIsVeryLight) {
       color.oklch.l = 0.95;
       color.oklch.c = this.seedChroma * 1.15;
       color.oklch.h = this.seedHue;
@@ -293,41 +264,26 @@ export class LightModeTheme implements ColorModeTheme {
   }
 
   private get bdNeutral() {
-    const color = this.bdAccent.clone();
+    const color = this.seedColor.clone();
 
-    color.oklch.c = 0.035;
+    if (this.seedColor.contrastAPCA(this.bg) <= -25 && !this.seedIsAchromatic) {
+      color.oklch.c = 0.016;
+      return color;
+    }
 
     if (this.seedIsAchromatic) {
+      color.oklch.l = 0.15;
       color.oklch.c = 0;
+      return color;
     }
 
-    if (this.bg.contrastAPCA(color) < 25) {
-      color.oklch.l = color.oklch.l - 0.2;
-    }
-
+    color.oklch.l = 0.15;
+    color.oklch.c = 0.064;
     return color;
   }
 
   private get bdNeutralHover() {
-    const color = this.bdNeutral.clone();
-
-    if (this.bdNeutral.oklch.l < 0.06) {
-      color.oklch.l = color.oklch.l + 0.6;
-    }
-
-    if (this.bdNeutral.oklch.l >= 0.06 && this.bdNeutral.oklch.l < 0.25) {
-      color.oklch.l = color.oklch.l + 0.4;
-    }
-
-    if (this.bdNeutral.oklch.l >= 0.25 && this.bdNeutral.oklch.l < 0.5) {
-      color.oklch.l = color.oklch.l + 0.25;
-    }
-
-    if (this.bdNeutral.oklch.l >= 0.5) {
-      color.oklch.l = color.oklch.l + 0.1;
-    }
-
-    return color;
+    return this.bdNeutral.clone().lighten(0.06);
   }
 
   private get bdFocus() {

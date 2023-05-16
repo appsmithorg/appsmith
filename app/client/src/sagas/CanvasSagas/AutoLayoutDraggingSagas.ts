@@ -14,7 +14,7 @@ import {
 import log from "loglevel";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import { getWidgets, getWidgetsMeta } from "sagas/selectors";
+import { getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import {
   addNewLayer,
@@ -199,7 +199,6 @@ function* reorderAutolayoutChildren(params: {
   if (!movedWidgets) return widgets;
   const mainCanvasWidth: number = yield select(getCanvasWidth);
   const selectedWidgets = [...movedWidgets];
-  const metaProps: Record<string, any> = yield select(getWidgetsMeta);
 
   let updatedWidgets: CanvasWidgetsReduxState = updateRelationships(
     selectedWidgets,
@@ -208,7 +207,6 @@ function* reorderAutolayoutChildren(params: {
     false,
     isMobile,
     mainCanvasWidth,
-    metaProps,
   );
 
   // Update flexLayers for a vertical stack.
@@ -263,6 +261,7 @@ function* reorderAutolayoutChildren(params: {
   const newItems = items.filter((item) => movedWidgets.indexOf(item) === -1);
   // calculate valid position for drop
   const pos = index > newItems.length ? newItems.length : index;
+
   updatedWidgets[parentId] = {
     ...updatedWidgets[parentId],
     children: [
@@ -273,9 +272,7 @@ function* reorderAutolayoutChildren(params: {
   };
   const parentWidget =
     allWidgets[allWidgets[parentId].parentId || MAIN_CONTAINER_WIDGET_ID];
-  const isAutoLayoutContainerCanvas =
-    parentWidget.type === "CONTAINER_WIDGET" &&
-    !parentWidget.isListItemContainer;
+  const isAutoLayoutContainerCanvas = parentWidget.type === "CONTAINER_WIDGET";
   if (isAutoLayoutContainerCanvas) {
     const height =
       allWidgets[parentId].bottomRow / GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
@@ -290,8 +287,6 @@ function* reorderAutolayoutChildren(params: {
     layerIndex,
     isMobile,
     mainCanvasWidth,
-    false,
-    metaProps,
   );
 
   return widgetsAfterPositionUpdate;

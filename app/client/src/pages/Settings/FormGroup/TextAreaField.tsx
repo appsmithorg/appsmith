@@ -10,7 +10,7 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { EditorProps } from "components/editorComponents/CodeEditor";
-import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
+import CodeEditor from "components/editorComponents/CodeEditor";
 
 const renderComponent = (
   componentProps: FormTextAreaFieldProps &
@@ -22,7 +22,7 @@ const renderComponent = (
   const theme = EditorTheme.LIGHT;
   return (
     <>
-      <LazyCodeEditor
+      <CodeEditor
         height={"156px"}
         hideEvaluatedValue
         showLightningMenu={false}

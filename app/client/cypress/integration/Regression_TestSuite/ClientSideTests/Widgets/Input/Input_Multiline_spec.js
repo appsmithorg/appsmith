@@ -4,7 +4,7 @@ import {
   WIDGET,
   PROPERTY_SELECTOR,
 } from "../../../../../locators/WidgetLocators";
-import homePage from "../../../../../locators/HomePage";
+const homePage = require("../../../../../locators/HomePage");
 
 describe("Input Widget Multiline feature", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";

@@ -2,7 +2,6 @@ package com.appsmith.external.models;
 
 import com.appsmith.external.annotations.encryption.Encrypted;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,7 +13,6 @@ import java.time.Instant;
 @ToString
 @Getter
 @Setter
-@EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthenticationResponse implements AppsmithDomain {

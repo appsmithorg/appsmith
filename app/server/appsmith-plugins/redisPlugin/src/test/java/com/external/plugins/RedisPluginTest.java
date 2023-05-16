@@ -121,6 +121,7 @@ public class RedisPluginTest {
                 pluginExecutor.validateDatasource(invalidDatasourceConfiguration)
         );
     }
+
     @Test
     public void itShouldValidateDatasource() {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
@@ -152,28 +153,6 @@ public class RedisPluginTest {
                 .verifyComplete();
     }
 
-    @Test
-    public void itShouldThrowErrorIfHostnameIsInvalid() {
-
-        String invalidHost = "invalidHost";
-        String errorMessage = "Failed connecting to " + invalidHost + ":" + port;
-
-        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        Endpoint endpoint = new Endpoint();
-        endpoint.setHost(invalidHost);
-        endpoint.setPort(Long.valueOf(port));
-
-        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
-        Mono<DatasourceTestResult> datasourceTestResultMono = pluginExecutor.testDatasource(datasourceConfiguration);
-
-        StepVerifier.create(datasourceTestResultMono)
-                .assertNext(datasourceTestResult -> {
-                    assertNotNull(datasourceTestResult);
-                    assertFalse(datasourceTestResult.isSuccess());
-                    assertTrue(datasourceTestResult.getInvalids().contains(errorMessage));
-                })
-                .verifyComplete();
-    }
     @Test
     public void itShouldThrowErrorIfEmptyBody() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();

@@ -17,10 +17,7 @@ import EditorContextProvider from "components/editorComponents/EditorContextProv
 import AppViewerPageContainer from "./AppViewerPageContainer";
 import { editorInitializer } from "utils/editor/EditorUtils";
 import * as Sentry from "@sentry/react";
-import {
-  getCurrentPageDescription,
-  getViewModePageList,
-} from "selectors/editorSelectors";
+import { getViewModePageList } from "selectors/editorSelectors";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { getSearchQuery } from "utils/helpers";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
@@ -37,9 +34,6 @@ import { initAppViewer } from "actions/initActions";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import useWidgetFocus from "utils/hooks/useWidgetFocus/useWidgetFocus";
-import HtmlTitle from "./AppViewerHtmlTitle";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -86,10 +80,6 @@ function AppViewer(props: Props) {
   const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
   const prevValues = usePrevious({ branch, location: props.location, pageId });
   const { hideWatermark } = getAppsmithConfigs();
-  const pageDescription = useSelector(getCurrentPageDescription);
-  const currentApplicationDetails: ApplicationPayload | undefined = useSelector(
-    getCurrentApplication,
-  );
 
   const focusRef = useWidgetFocus();
 
@@ -180,10 +170,6 @@ function AppViewer(props: Props) {
         <WidgetGlobaStyles
           fontFamily={selectedTheme.properties.fontFamily.appFont}
           primaryColor={selectedTheme.properties.colors.primaryColor}
-        />
-        <HtmlTitle
-          description={pageDescription}
-          name={currentApplicationDetails?.name}
         />
         <AppViewerBodyContainer
           backgroundColor={selectedTheme.properties.colors.backgroundColor}

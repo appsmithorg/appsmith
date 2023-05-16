@@ -1,6 +1,6 @@
 import { ECMA_VERSION } from "@shared/ast";
 import type { LintOptions } from "jshint";
-import isEntityFunction from "./utils/isEntityFunction";
+import { isEntityFunction } from "./utils";
 
 export const lintOptions = (globalData: Record<string, boolean>) =>
   ({

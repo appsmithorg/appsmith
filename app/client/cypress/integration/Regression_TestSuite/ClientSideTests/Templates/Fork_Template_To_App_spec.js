@@ -5,7 +5,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 let appId, newWorkspaceName;
 
-describe("excludeForAirgap", "Fork a template to the current app", () => {
+describe("Fork a template to the current app", () => {
   afterEach(() => {
     _.agHelper.SaveLocalStorageCache();
   });

@@ -32,6 +32,7 @@ public enum FeatureFlagEnum {
     CONTEXT_SWITCHING,
     DATASOURCE_ENVIRONMENTS,
     AUTO_LAYOUT,
+    LAZY_CANVAS_RENDERING,
     ONE_CLICK_BINDING,
 
     // Add EE flags below this line, to avoid conflicts.

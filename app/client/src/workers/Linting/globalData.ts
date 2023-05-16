@@ -1,7 +1,7 @@
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import { isEmpty } from "lodash";
 import type { EvalContext } from "workers/Evaluation/evaluate";
-import getEvaluationContext from "./utils/getEvaluationContext";
+import { getEvaluationContext } from "./utils";
 
 class GlobalData {
   globalDataWithFunctions: EvalContext = {};

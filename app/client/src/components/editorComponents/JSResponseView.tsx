@@ -369,9 +369,7 @@ function JSResponseView(props: Props) {
 
   // close the debugger
   const onClose = () => dispatch(showDebugger(false));
-
-  // Do not render if header tab is selected in the bottom bar.
-  return !(selectedResponseTab === DEBUGGER_TAB_KEYS.HEADER_TAB) ? (
+  return (
     <ResponseContainer
       className="t--js-editor-bottom-pane-container"
       ref={panelRef}
@@ -397,7 +395,7 @@ function JSResponseView(props: Props) {
         />
       </TabbedViewWrapper>
     </ResponseContainer>
-  ) : null;
+  );
 }
 
 const mapStateToProps = (

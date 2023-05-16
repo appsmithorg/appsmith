@@ -10,18 +10,21 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   appSettings = ObjectsRegistry.AppSettings;
 
 describe("Character Datatype tests", function () {
-  before("Create Postgress DS", () => {
+  before(() => {
     cy.fixture("Datatypes/CharacterDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
     appSettings.OpenPaneAndChangeTheme("Pacific");
+  });
+
+  it("1. Create Postgress DS", function () {
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
   });
 
-  it("1. Creating table - chartypes", () => {
+  it("2. Creating table - chartypes", () => {
     query = `create table charTypes(serialid serial primary key, "One(1)" char, "AsMany" varchar, "Limited(4)" varchar(4), "Unlimited" text)`;
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
@@ -35,7 +38,7 @@ describe("Character Datatype tests", function () {
     agHelper.AssertElementVisible(ee._entityNameInExplorer("public.chartypes"));
   });
 
-  it("2. Creating SELECT query - chartypes + Bug 14493", () => {
+  it("3. Creating SELECT query - chartypes + Bug 14493", () => {
     query = `SELECT *, char_length("AsMany") as "AsMany-Len", char_length("Unlimited") as "Unlimited-Len" FROM public."chartypes" as charT LIMIT 10;`;
     ee.ActionTemplateMenuByEntityName("public.chartypes", "SELECT");
     agHelper.RenameWithInPane("selectRecords");
@@ -46,7 +49,7 @@ describe("Character Datatype tests", function () {
     dataSources.EnterQuery(query);
   });
 
-  it("3. Creating all queries - chartypes", () => {
+  it("4. Creating all queries - chartypes", () => {
     query = `INSERT INTO public."chartypes" ("One(1)", "AsMany", "Limited(4)", "Unlimited")
     VALUES ({{Insertone.text}}, {{Insertasmany.text}}, {{Insertlimited.text}}::varchar(4), {{Insertunlimited.text}});`;
     ee.ActionTemplateMenuByEntityName("public.chartypes", "INSERT");
@@ -82,7 +85,7 @@ describe("Character Datatype tests", function () {
     ee.ExpandCollapseEntity(dsName, false);
   });
 
-  it("4. Inserting record (null values) - chartypes", () => {
+  it("5. Inserting record (null values) - chartypes", () => {
     ee.SelectEntityByName("Page1");
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
@@ -107,7 +110,7 @@ describe("Character Datatype tests", function () {
     });
   });
 
-  it("5. Inserting record (not null values) - chartypes", () => {
+  it("6. Inserting record (not null values) - chartypes", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
     agHelper.EnterInputText("One_1_", "a");
@@ -141,7 +144,7 @@ describe("Character Datatype tests", function () {
     });
   });
 
-  it("6. Inserting another record (not null values) - chartypes", () => {
+  it("7. Inserting another record (not null values) - chartypes", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
     agHelper.EnterInputText("One_1_", "<");
@@ -175,7 +178,7 @@ describe("Character Datatype tests", function () {
     });
   });
 
-  it("7. Updating record (emtying some field) - chartypes", () => {
+  it("8. Updating record (emtying some field) - chartypes", () => {
     table.SelectTableRow(2);
     agHelper.ClickButton("Run UpdateQuery");
     agHelper.AssertElementVisible(locator._modal);
@@ -206,7 +209,7 @@ describe("Character Datatype tests", function () {
     });
   });
 
-  it("8. Deleting records - chartypes", () => {
+  it("9. Deleting records - chartypes", () => {
     table.SelectTableRow(1);
     agHelper.ClickButton("DeleteQuery", 1);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
@@ -220,7 +223,7 @@ describe("Character Datatype tests", function () {
     });
   });
 
-  it("9. Updating record (null inserted record) - chartypes", () => {
+  it("10. Updating record (null inserted record) - chartypes", () => {
     agHelper.ClickButton("Run UpdateQuery");
     agHelper.AssertElementVisible(locator._modal);
     //agHelper.EnterInputText("One_1_", "&");
@@ -255,7 +258,7 @@ describe("Character Datatype tests", function () {
     });
   });
 
-  it("10. Inserting another record (+ve record - to check serial column) - chartypes", () => {
+  it("11. Inserting another record (+ve record - to check serial column) - chartypes", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
     agHelper.EnterInputText("One_1_", "e");
@@ -288,7 +291,7 @@ describe("Character Datatype tests", function () {
     });
   });
 
-  it("11. Deleting records - chartypes", () => {
+  it("12. Deleting records - chartypes", () => {
     table.SelectTableRow(1);
     agHelper.ClickButton("DeleteQuery", 1);
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
@@ -300,14 +303,14 @@ describe("Character Datatype tests", function () {
     });
   });
 
-  it("12. Deleting all records from table - chartypes", () => {
+  it("13. Deleting all records from table - chartypes", () => {
     agHelper.GetNClick(locator._deleteIcon);
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
     agHelper.Sleep(2000);
     table.WaitForTableEmpty();
   });
 
-  it("13. Inserting record (null record - to check serial column) - chartypes", () => {
+  it("14. Inserting record (null record - to check serial column) - chartypes", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
     agHelper.ClickButton("Insert");
@@ -329,7 +332,7 @@ describe("Character Datatype tests", function () {
     });
   });
 
-  it("14. Validate Drop of the Newly Created - chartypes - Table from Postgres datasource", () => {
+  it("15. Validate Drop of the Newly Created - chartypes - Table from Postgres datasource", () => {
     deployMode.NavigateBacktoEditor();
     ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName("dropTable");
@@ -346,10 +349,24 @@ describe("Character Datatype tests", function () {
     ee.ExpandCollapseEntity("Datasources", false);
   });
 
-  it("15. Verify Deletion of the datasource after all created queries are Deleted", () => {
+  it("16. Verify Deletion of the datasource after all created queries are Deleted", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.ExpandCollapseEntity("Queries/JS");
-    ee.DeleteAllQueriesForDB(dsName);
+    ee.ActionContextMenuByEntityName("createTable", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName(
+      "deleteAllRecords",
+      "Delete",
+      "Are you sure?",
+    );
+    ee.ActionContextMenuByEntityName("deleteRecord", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("dropTable", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("insertRecord", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName(
+      "selectRecords",
+      "Delete",
+      "Are you sure?",
+    );
+    ee.ActionContextMenuByEntityName("updateRecord", "Delete", "Are you sure?");
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
     ee.ExpandCollapseEntity("Queries/JS");

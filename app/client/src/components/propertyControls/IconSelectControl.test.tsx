@@ -120,16 +120,16 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
     }, waitForParamsForSearchFocus);
-    expect(
-      document.querySelector("a.bp3-active")?.children[0].classList,
-    ).toMatchSnapshot();
+    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
+      "bp3-icon-(none)",
+    );
     // used to shift the focus from search
     userEvent.keyboard("{ArrowDown}");
 
     userEvent.keyboard("{ArrowDown}");
-    expect(
-      document.querySelector("a.bp3-active")?.children[0].classList,
-    ).toMatchSnapshot();
+    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
+      "bp3-icon-add-row-bottom",
+    );
   });
 
   it("Pressing '{ArrowUp}' should navigate the icon selection upwards", async () => {
@@ -139,23 +139,23 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
     }, waitForParamsForSearchFocus);
-    expect(
-      document.querySelector("a.bp3-active")?.children[0].classList,
-    ).toMatchSnapshot();
+    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
+      "bp3-icon-(none)",
+    );
     // used to shift the focus from search
     userEvent.keyboard("{ArrowDown}");
 
     userEvent.keyboard("{ArrowDown}");
     userEvent.keyboard("{ArrowDown}");
     userEvent.keyboard("{ArrowDown}");
-    expect(
-      document.querySelector("a.bp3-active")?.children[0].classList,
-    ).toMatchSnapshot();
+    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
+      "bp3-icon-align-right",
+    );
 
     userEvent.keyboard("{ArrowUp}");
-    expect(
-      document.querySelector("a.bp3-active")?.children[0].classList,
-    ).toMatchSnapshot();
+    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
+      "bp3-icon-airplane",
+    );
   });
 
   it("Pressing '{ArrowRight}' should navigate the icon selection towards right", async () => {
@@ -165,16 +165,16 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
     }, waitForParamsForSearchFocus);
-    expect(
-      document.querySelector("a.bp3-active")?.children[0].classList,
-    ).toMatchSnapshot();
+    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
+      "bp3-icon-(none)",
+    );
     // used to shift the focus from search
     userEvent.keyboard("{ArrowDown}");
 
     userEvent.keyboard("{ArrowRight}");
-    expect(
-      document.querySelector("a.bp3-active")?.children[0].classList,
-    ).toMatchSnapshot();
+    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
+      "bp3-icon-add",
+    );
   });
 
   it("Pressing '{ArrowLeft}' should navigate the icon selection towards left", async () => {
@@ -184,23 +184,23 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
     }, waitForParamsForSearchFocus);
-    expect(
-      document.querySelector("a.bp3-active")?.children[0].classList,
-    ).toMatchSnapshot();
+    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
+      "bp3-icon-(none)",
+    );
     // used to shift the focus from search
     userEvent.keyboard("{ArrowDown}");
 
     userEvent.keyboard("{ArrowRight}");
     userEvent.keyboard("{ArrowRight}");
     userEvent.keyboard("{ArrowRight}");
-    expect(
-      document.querySelector("a.bp3-active")?.children[0].classList,
-    ).toMatchSnapshot();
+    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
+      "bp3-icon-add-column-right",
+    );
 
     userEvent.keyboard("{ArrowLeft}");
-    expect(
-      document.querySelector("a.bp3-active")?.children[0].classList,
-    ).toMatchSnapshot();
+    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
+      "bp3-icon-add-column-left",
+    );
   });
 
   it("Pressing '{Enter}' or ' ' should select the icon", async () => {
@@ -214,20 +214,24 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
     }, waitForParamsForSearchFocus);
-    expect(
-      document.querySelector("a.bp3-active")?.children[0].classList,
-    ).toMatchSnapshot();
+    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
+      "bp3-icon-(none)",
+    );
     // used to shift the focus from search
     userEvent.keyboard("{ArrowDown}");
 
     userEvent.keyboard("{ArrowDown}");
     userEvent.keyboard("{ArrowRight}");
-    expect(
-      document.querySelector("a.bp3-active")?.children[0].classList,
-    ).toMatchSnapshot();
+    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
+      "bp3-icon-add-row-top",
+    );
     userEvent.keyboard(" ");
     expect(handleOnSelect).toHaveBeenCalledTimes(1);
-    expect(handleOnSelect.mock.calls[0]).toMatchSnapshot();
+    expect(handleOnSelect).toHaveBeenLastCalledWith(
+      "iconName",
+      "add-row-top",
+      true,
+    );
     await waitForElementToBeRemoved(screen.getByRole("list"));
 
     userEvent.keyboard("{Enter}");
@@ -235,14 +239,18 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
     }, waitForParamsForSearchFocus);
-    expect(
-      document.querySelector("a.bp3-active")?.children[0].classList,
-    ).toMatchSnapshot();
+    expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
+      "bp3-icon-add-row-top",
+    );
     userEvent.keyboard("{ArrowDown}");
     userEvent.keyboard("{ArrowRight}");
     userEvent.keyboard(" ");
     expect(handleOnSelect).toHaveBeenCalledTimes(2);
-    expect(handleOnSelect.mock.calls[1]).toMatchSnapshot();
+    expect(handleOnSelect).toHaveBeenLastCalledWith(
+      "iconName",
+      "add-to-artifact",
+      true,
+    );
   });
 });
 

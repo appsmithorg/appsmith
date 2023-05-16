@@ -7,8 +7,9 @@ import { Button, getTypographyByKey, Icon, IconSize } from "design-system-old";
 import { isArray } from "lodash";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
-import lazyLottie from "utils/lazyLottie";
-import tickMarkAnimationURL from "assets/lottie/guided-tour-tick-mark.json.txt";
+import type { AnimationItem } from "lottie-web";
+import lottie from "lottie-web";
+import indicator from "assets/lottie/guided-tour-tick-mark.json";
 import {
   getCurrentStep,
   getQueryAction,
@@ -373,19 +374,20 @@ function CompletionContent(props: CompletionContentProps) {
 
   const tickMarkRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    let anim: AnimationItem;
     if (showSuccess) {
-      const anim = lazyLottie.loadAnimation({
-        path: tickMarkAnimationURL,
+      anim = lottie.loadAnimation({
+        animationData: indicator,
         autoplay: true,
         container: tickMarkRef?.current as HTMLDivElement,
         renderer: "svg",
         loop: false,
       });
-
-      return () => {
-        anim.destroy();
-      };
     }
+
+    return () => {
+      anim?.destroy();
+    };
   }, [tickMarkRef?.current, showSuccess]);
 
   const onSuccessButtonClick = () => {

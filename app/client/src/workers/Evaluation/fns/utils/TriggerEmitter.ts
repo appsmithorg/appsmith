@@ -148,10 +148,9 @@ TriggerEmitter.on(
 );
 
 export const fnInvokeLogHandler = priorityBatchedActionHandler((data) => {
-  const set = new Set([...data]);
   WorkerMessenger.ping({
     method: MAIN_THREAD_ACTION.LOG_JS_FUNCTION_EXECUTION,
-    data: [...set],
+    data,
   });
 });
 

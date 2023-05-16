@@ -24,8 +24,8 @@ describe("Usage pulse", () => {
         "/signup",
         "/settings",
         "/generate-page",
-      ].forEach(async (url) => {
-        expect(await UsagePulse.isTrackableUrl(url)).toBeFalsy();
+      ].forEach((url) => {
+        expect(UsagePulse.isTrackableUrl(url)).toBeFalsy();
       });
     });
   });

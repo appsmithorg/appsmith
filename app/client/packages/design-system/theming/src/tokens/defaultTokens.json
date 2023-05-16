@@ -9,8 +9,7 @@
     "1": "0 0 0 0 rgba(0, 0, 0, 0.2)"
   },
   "borderWidth": {
-    "1": "1px",
-    "2": "2px"
+    "1": "1px"
   },
   "opacity": {
     "disabled": 0.3

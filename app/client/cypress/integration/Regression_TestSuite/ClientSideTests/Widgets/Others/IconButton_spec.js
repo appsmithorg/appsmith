@@ -21,7 +21,6 @@ describe("Icon Button Widget Functionality", function () {
   });
 
   it("2. add space into buttonVariant and validate", function () {
-    cy.EnableAllCodeEditors();
     cy.get(".t--property-control-buttonvariant .CodeMirror  textarea")
       .first()
       .focus()

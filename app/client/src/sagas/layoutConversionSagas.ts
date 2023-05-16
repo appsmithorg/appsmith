@@ -1,6 +1,5 @@
 import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { AppState } from "@appsmith/reducers";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -22,10 +21,7 @@ import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import { saveAllPagesSaga } from "./PageSagas";
 import { updateApplicationLayout } from "@appsmith/actions/applicationActions";
-import {
-  getCurrentApplicationId,
-  getPageList,
-} from "selectors/editorSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
@@ -37,10 +33,8 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
   let appId = "";
   let snapshotSaveSuccess = false;
   try {
-    const pageList: Page[] = yield select(getPageList);
-    const pageWidgetsList: PageWidgetsReduxState = yield select(getPageWidgets);
-
     appId = yield select(getCurrentApplicationId);
+    const pageWidgetsList: PageWidgetsReduxState = yield select(getPageWidgets);
 
     const notEmptyApp = isNotEmptyApp(pageWidgetsList);
 
@@ -61,9 +55,8 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
     const pageLayouts = [];
 
     //Convert all the pages into Fixed layout by iterating over the list
-    for (const page of pageList) {
-      const pageId = page?.pageId;
-      const { dsl: normalizedDSL, layoutId } = pageWidgetsList[pageId];
+    for (const [pageId, page] of Object.entries(pageWidgetsList)) {
+      const { dsl: normalizedDSL, layoutId } = page;
 
       const fixedLayoutDSL = convertNormalizedDSLToFixed(
         normalizedDSL,
@@ -127,10 +120,8 @@ function* convertFromFixedToAutoSaga() {
   let appId = "";
   let snapshotSaveSuccess = false;
   try {
-    const pageList: Page[] = yield select(getPageList);
-    const pageWidgetsList: PageWidgetsReduxState = yield select(getPageWidgets);
-
     appId = yield select(getCurrentApplicationId);
+    const pageWidgetsList: PageWidgetsReduxState = yield select(getPageWidgets);
 
     const notEmptyApp = isNotEmptyApp(pageWidgetsList);
 
@@ -150,9 +141,8 @@ function* convertFromFixedToAutoSaga() {
 
     const pageLayouts = [];
 
-    for (const page of pageList) {
-      const pageId = page?.pageId;
-      const { dsl: normalizedDSL, layoutId } = pageWidgetsList[pageId];
+    for (const [pageId, page] of Object.entries(pageWidgetsList)) {
+      const { dsl: normalizedDSL, layoutId } = page;
 
       const fixedDSL: DSLWidget = CanvasWidgetsNormalizer.denormalize(
         MAIN_CONTAINER_WIDGET_ID,

@@ -27,7 +27,6 @@ import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
-import com.appsmith.server.services.DatasourceStorageService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.PluginService;
@@ -80,7 +79,6 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     private final DatasourceContextService datasourceContextService;
     private final DatasourcePermission datasourcePermission;
     private final WorkspacePermission workspacePermission;
-    private final DatasourceStorageService datasourceStorageService;
 
     @Autowired
     FeatureFlagService featureFlagService;
@@ -101,8 +99,7 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
                                    NewActionRepository newActionRepository,
                                    DatasourceContextService datasourceContextService,
                                    DatasourcePermission datasourcePermission,
-                                   WorkspacePermission workspacePermission,
-                                   DatasourceStorageService datasourceStorageService) {
+                                   WorkspacePermission workspacePermission) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workspaceService = workspaceService;
@@ -115,7 +112,6 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
         this.datasourceContextService = datasourceContextService;
         this.datasourcePermission = datasourcePermission;
         this.workspacePermission = workspacePermission;
-        this.datasourceStorageService = datasourceStorageService;
     }
 
     @Override

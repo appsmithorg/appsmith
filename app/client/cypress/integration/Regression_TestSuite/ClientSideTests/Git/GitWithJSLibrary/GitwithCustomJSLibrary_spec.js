@@ -6,7 +6,7 @@ const mainBranch = "master";
 const tempBranch = "feat/tempBranch";
 let repoName;
 
-describe("excludeForAirgap", "Tests JS Library with Git", () => {
+describe("Tests JS Library with Git", () => {
   before(() => {
     cy.NavigateToHome();
     cy.createWorkspace();

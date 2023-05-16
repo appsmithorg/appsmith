@@ -310,7 +310,7 @@ export const getCanvasSnapRows = (
       : bottomRow;
   const totalRows = Math.floor(bottom / GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
 
-  return isAutoLayoutActive ? totalRows : totalRows - 1;
+  return totalRows - 1;
 };
 
 export const getSnapColumns = (): number => {

@@ -37,6 +37,8 @@ export interface AppsmithUIConfigs {
   };
 
   enableRapidAPI: boolean;
+  disableLoginForm: boolean;
+  disableSignup: boolean;
   enableMixpanel: boolean;
   enableTNCPP: boolean;
 

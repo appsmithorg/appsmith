@@ -1,10 +1,7 @@
 import CodeMirror from "codemirror";
-import type {
-  FieldEntityInformation,
-  HintHelper,
-} from "components/editorComponents/CodeEditor/EditorConfig";
+import type { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { generateQuickCommands } from "./generateQuickCommands";
 import type { Datasource } from "entities/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -32,10 +29,9 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
   return {
     showHint: (
       editor: CodeMirror.Editor,
-      entityInfo: FieldEntityInformation,
+      { entityId, entityType, expectedType, propertyPath },
       {
         datasources,
-        enableAIAssistance,
         executeCommand,
         featureFlags,
         pluginIdToImageLocation,
@@ -49,10 +45,8 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
         update: (value: string) => void;
         entityId: string;
         featureFlags: FeatureFlags;
-        enableAIAssistance: boolean;
       },
     ): boolean => {
-      const { entityType } = entityInfo;
       const currentEntityType =
         entityType || ENTITY_TYPE.ACTION || ENTITY_TYPE.JSACTION;
       entitiesForSuggestions = entitiesForSuggestions.filter((entity: any) => {
@@ -76,9 +70,10 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
             pluginIdToImageLocation,
             recentEntities,
             featureFlags,
-            enableAIAssistance,
           },
-          entityInfo,
+          expectedType || "string",
+          entityId,
+          propertyPath,
         );
         let currentSelection: CommandsCompletion = {
           origin: "",
@@ -113,7 +108,7 @@ export const commandsHelper: HintHelper = (editor, data: DataTree) => {
                   selected.action();
                 } else {
                   selected.triggerCompletionsPostPick &&
-                    CodeMirror.signal(editor, "postPick", selected.displayText);
+                    CodeMirror.signal(editor, "postPick");
                 }
               });
               try {

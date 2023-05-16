@@ -1,8 +1,6 @@
 import CodeMirror from "codemirror";
 import { getPlatformOS } from "utils/helpers";
-import type { TEditorModes } from "../EditorConfig";
 import { EditorModes } from "../EditorConfig";
-import { isSqlMode } from "../sql/config";
 import { KEYBOARD_SHORTCUTS_BY_PLATFORM } from "./keyboardShortcutConstants";
 
 export const getCodeCommentKeyMap = () => {
@@ -10,8 +8,14 @@ export const getCodeCommentKeyMap = () => {
   return KEYBOARD_SHORTCUTS_BY_PLATFORM[platformOS].codeComment;
 };
 
-export function getLineCommentString(editorMode: TEditorModes) {
-  return isSqlMode(editorMode) ? "--" : "//";
+export function getLineCommentString(mode: EditorModes) {
+  switch (mode) {
+    case EditorModes.SQL:
+    case EditorModes.SQL_WITH_BINDING:
+      return "--";
+    default:
+      return "//";
+  }
 }
 
 // Most of the code below is copied from https://github.com/codemirror/codemirror5/blob/master/addon/comment/comment.js
@@ -52,11 +56,10 @@ const noOptions: CodeMirror.CommentOptions = {};
 /**
  * Gives index of the first non whitespace character in the line
  **/
-function firstNonWhitespace(str: string, mode: TEditorModes) {
+function firstNonWhitespace(str: string, mode: EditorModes) {
   const found = str.search(
-    (
-      [EditorModes.JAVASCRIPT, EditorModes.TEXT_WITH_BINDING] as TEditorModes[]
-    ).includes(mode) && str.includes(JS_FIELD_BEGIN)
+    [EditorModes.JAVASCRIPT, EditorModes.TEXT_WITH_BINDING].includes(mode) &&
+      str.includes(JS_FIELD_BEGIN)
       ? JS_FIELD_BEGIN
       : nonWhitespace,
   );
@@ -124,7 +127,7 @@ function performLineCommenting(
                   // we need to explicitly check if the SQL comment string is passed, make the mode SQL
                   commentString === getLineCommentString(EditorModes.SQL)
                     ? EditorModes.SQL
-                    : (mode.name as TEditorModes),
+                    : (mode.name as EditorModes),
                 ),
               );
 

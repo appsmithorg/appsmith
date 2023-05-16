@@ -8,7 +8,6 @@
     "outDir": "dist",
     "allowJs": true,
     "baseUrl": ".",
-    "skipLibCheck": true,
     "paths": {
       "@constants/*": ["./src/constants/*"],
       "@services/*": ["./src/services/*"],

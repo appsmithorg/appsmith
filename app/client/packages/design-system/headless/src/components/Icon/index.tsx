@@ -1,1 +1,0 @@
-export { Icon } from "./Icon";

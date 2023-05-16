@@ -1,5 +1,5 @@
-import homePage from "../../../locators/HomePage";
-import reconnectDatasourceModal from "../../../locators/ReconnectLocators";
+const homePage = require("../../../locators/HomePage");
+const reconnectDatasourceModal = require("../../../locators/ReconnectLocators");
 const datasource = require("../../../locators/DatasourcesEditor.json");
 
 describe("Reconnect Datasource Modal validation while importing application", function () {

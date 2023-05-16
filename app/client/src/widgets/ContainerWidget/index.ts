@@ -8,7 +8,6 @@ import {
 } from "utils/autoLayout/constants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import IconSVG from "./icon.svg";
-import type { ContainerWidgetProps } from "./widget";
 import Widget from "./widget";
 
 export const CONFIG = {
@@ -76,10 +75,9 @@ export const CONFIG = {
         },
       },
     ],
-    disableResizeHandles: (props: ContainerWidgetProps<WidgetProps>) => ({
-      // Disables vertical resize handles for all container widgets except for the List item container
-      vertical: !props.isListItemContainer,
-    }),
+    disableResizeHandles: {
+      vertical: true,
+    },
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

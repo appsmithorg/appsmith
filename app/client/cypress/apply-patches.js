@@ -5,8 +5,9 @@ const fs = require("fs/promises");
 const path = require("path");
 
 async function applyPatches() {
-  const patchesDir = path.join(__dirname, "patches");
-  const patches = await fs.readdir(patchesDir);
+  const patchesDir = path.join("patches");
+  const patchesAbsDir = path.join(process.cwd(), patchesDir);
+  const patches = await fs.readdir(patchesAbsDir);
   const installDir = getVersionDir();
 
   console.log(`\n> Applying patches on to ${chalk.cyan(installDir)}\n`);
@@ -15,10 +16,10 @@ async function applyPatches() {
     if (!filename.endsWith(".patch")) {
       continue;
     }
-    const fullpath = path.join(patchesDir, filename);
+    const fullpath = path.join(patchesAbsDir, filename);
     const enc = "utf8";
     const patch = await fs.readFile(fullpath, enc);
-    const relativeFilename = path.relative(__dirname, fullpath);
+    const relativeFilename = path.join(patchesDir, filename);
     console.log(`>> Applying patch ${chalk.cyan(relativeFilename)}`);
     await Diff.applyPatches(patch, {
       loadFile: (index, callback) => {

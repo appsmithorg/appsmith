@@ -12,7 +12,7 @@ const apiPage = ObjectsRegistry.ApiPage;
 const locators = ObjectsRegistry.CommonLocators;
 
 describe("MaintainContext&Focus", function () {
-  before("Import the test application", () => {
+  it("1. Import the test application", () => {
     homePage.NavigateToHome();
     cy.intercept("GET", "/api/v1/users/features", {
       fixture: "featureFlags.json",
@@ -34,7 +34,7 @@ describe("MaintainContext&Focus", function () {
     });
   });
 
-  it("1. Focus on different entities", () => {
+  it("2. Focus on different entities", () => {
     cy.CheckAndUnfoldEntityItem("Queries/JS");
 
     cy.SearchEntityandOpen("Text1");
@@ -87,8 +87,7 @@ describe("MaintainContext&Focus", function () {
     cy.wait("@saveAction");
   });
 
-  it("2. Maintains focus on property/Api/Query/Js Pane", () => {
-    //Maintains focus on the property pane
+  it("3. Maintains focus on the property pane", () => {
     cy.get(`.t--entity-name:contains("Page1")`).click();
 
     cy.get(".t--widget-name").should("have.text", "Text1");
@@ -96,8 +95,9 @@ describe("MaintainContext&Focus", function () {
       ch: 2,
       line: 0,
     });
+  });
 
-    //Maintains focus on the API pane
+  it("4. Maintains focus on Api Pane", () => {
     cy.SearchEntityandOpen("Graphql_Query");
     cy.contains(".react-tabs__tab", "Body").should(
       "have.class",
@@ -114,8 +114,9 @@ describe("MaintainContext&Focus", function () {
       "react-tabs__tab--selected",
     );
     cy.assertCursorOnCodeInput(apiwidget.headerValue);
+  });
 
-    //Maintains focus on Query panes
+  it("5. Maintains focus on Query panes", () => {
     cy.SearchEntityandOpen("SQL_Query");
     cy.assertCursorOnCodeInput(".t--actionConfiguration\\.body", {
       ch: 5,
@@ -131,8 +132,9 @@ describe("MaintainContext&Focus", function () {
     cy.assertCursorOnCodeInput(
       ".t--actionConfiguration\\.formData\\.collection\\.data",
     );
+  });
 
-    //Maintains focus on JS Objects
+  it("6. Maintains focus on JS Objects", () => {
     cy.SearchEntityandOpen("JSObject1");
     cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 4 });
 
@@ -140,14 +142,15 @@ describe("MaintainContext&Focus", function () {
     cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 2 });
   });
 
-  it("3. Check if selected tab on right tab persists", () => {
+  it("7. Check if selected tab on right tab persists", () => {
     ee.SelectEntityByName("Rest_Api_1", "Queries/JS");
     apiPage.SelectRightPaneTab("connections");
     ee.SelectEntityByName("SQL_Query");
     ee.SelectEntityByName("Rest_Api_1");
     apiPage.AssertRightPaneSelectedTab("connections");
+  });
 
-    //Check if the URL is persisted while switching pages
+  it("8. Check if the URL is persisted while switching pages", () => {
     cy.Createpage("Page2");
 
     ee.SelectEntityByName("Page1", "Pages");
@@ -163,7 +166,7 @@ describe("MaintainContext&Focus", function () {
     );
   });
 
-  it("4. Datasource edit mode has to be maintained", () => {
+  it("9. Datasource edit mode has to be maintained", () => {
     ee.SelectEntityByName("Appsmith", "Datasources");
     dataSources.EditDatasource();
     dataSources.ExpandSection(0);
@@ -175,7 +178,7 @@ describe("MaintainContext&Focus", function () {
     dataSources.AssertSectionCollapseState(0, false);
   });
 
-  it("5. Maintain focus of form control inputs", () => {
+  it("10. Maintain focus of form control inputs", () => {
     ee.SelectEntityByName("SQL_Query");
     dataSources.ToggleUsePreparedStatement(false);
     cy.SearchEntityandOpen("S3_Query");
@@ -191,7 +194,7 @@ describe("MaintainContext&Focus", function () {
     cy.xpath(queryLocators.queryTimeout).should("be.focused");
   });
 
-  it("6. Bug 21999 Maintain focus of code editor when Escape is pressed with autcomplete open", () => {
+  it("11. Bug 21999 Maintain focus of code editor when Escape is pressed with autcomplete open", () => {
     cy.SearchEntityandOpen("JSObject1");
     cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 4 });
     cy.get(locators._codeMirrorTextArea).type("showA");

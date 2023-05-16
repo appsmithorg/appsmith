@@ -176,12 +176,12 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
 
     @JsonView(Views.Public.class)
     @PostMapping("/{defaultApplicationId}/fork/{workspaceId}")
-    public Mono<ResponseDTO<ApplicationImportDTO>> forkApplication(
+    public Mono<ResponseDTO<Application>> forkApplication(
             @PathVariable String defaultApplicationId,
             @PathVariable String workspaceId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return applicationForkingService.forkApplicationToWorkspace(defaultApplicationId, workspaceId, branchName)
-                .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
+                .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
     @JsonView(Views.Public.class)

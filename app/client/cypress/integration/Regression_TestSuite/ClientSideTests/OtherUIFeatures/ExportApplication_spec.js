@@ -32,10 +32,10 @@ describe("Export application as a JSON file", function () {
       const url = anchor.prop("href");
       cy.request(url).then(({ headers }) => {
         expect(headers).to.have.property("content-type", "application/json");
-        expect(headers)
-          .to.have.property("content-disposition")
-          .that.includes("attachment;")
-          .and.includes(`filename*=UTF-8''${appname}.json`);
+        expect(headers).to.have.property(
+          "content-disposition",
+          `attachment; filename*=UTF-8''${appname}.json`,
+        );
       });
     });
     cy.LogOut();

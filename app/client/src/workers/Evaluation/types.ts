@@ -56,5 +56,4 @@ export interface EvalTreeResponseData {
   staleMetaIds: string[];
   pathsToClearErrorsFor: any[];
   isNewWidgetAdded: boolean;
-  undefinedEvalValuesMap: Record<string, boolean>;
 }

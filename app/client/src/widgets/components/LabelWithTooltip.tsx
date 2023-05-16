@@ -4,13 +4,11 @@ import { Alignment, Classes, Label } from "@blueprintjs/core";
 
 import { LabelPosition } from "components/constants";
 import { FontStyleTypes } from "constants/WidgetConstants";
-import { TooltipComponent as Tooltip } from "@design-system/widgets-old";
+import { TooltipComponent as Tooltip } from "design-system-old";
 import { isEllipsisActive } from "utils/helpers";
 import { Colors } from "constants/Colors";
 import { IconWrapper } from "constants/IconConstants";
-import { importSvg } from "design-system-old";
-
-const HelpIcon = importSvg(() => import("assets/icons/control/help.svg"));
+import { ReactComponent as HelpIcon } from "assets/icons/control/help.svg";
 
 export interface LabelWithTooltipProps {
   alignment?: Alignment;

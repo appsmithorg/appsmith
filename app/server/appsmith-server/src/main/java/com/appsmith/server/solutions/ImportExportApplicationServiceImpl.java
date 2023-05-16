@@ -9,6 +9,7 @@ import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.services.CustomJSLibService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewActionService;
@@ -41,6 +42,7 @@ public class ImportExportApplicationServiceImpl extends ImportExportApplicationS
                                               NewPageRepository newPageRepository,
                                               NewActionService newActionService,
                                               SequenceService sequenceService,
+                                              ExamplesWorkspaceCloner examplesWorkspaceCloner,
                                               ActionCollectionRepository actionCollectionRepository,
                                               ActionCollectionService actionCollectionService,
                                               ThemeService themeService,
@@ -56,7 +58,7 @@ public class ImportExportApplicationServiceImpl extends ImportExportApplicationS
 
         super(datasourceService, sessionUserService, newActionRepository, datasourceRepository, pluginRepository,
                 workspaceService, applicationService, newPageService, applicationPageService, newPageRepository,
-                newActionService, sequenceService, actionCollectionRepository,
+                newActionService, sequenceService, examplesWorkspaceCloner, actionCollectionRepository,
                 actionCollectionService, themeService, analyticsService, customJSLibService, datasourcePermission,
                 workspacePermission, applicationPermission, pagePermission, actionPermission, gson, transactionalOperator);
     }

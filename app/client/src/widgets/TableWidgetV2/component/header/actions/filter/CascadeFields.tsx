@@ -17,14 +17,9 @@ import { RenderOptionWrapper } from "../../../TableStyledWrappers";
 import DatePickerComponent from "widgets/DatePickerWidget2/component";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import { ColumnTypes, ReadOnlyColumnTypes } from "../../../../constants";
-import { importRemixIcon } from "design-system-old";
 
-const CloseIcon = importRemixIcon(
-  () => import("remixicon-react/CloseCircleFillIcon"),
-);
-const ArrowDownIcon = importRemixIcon(
-  () => import("remixicon-react/ArrowDownSLineIcon"),
-);
+import CloseIcon from "remixicon-react/CloseCircleFillIcon";
+import ArrowDownIcon from "remixicon-react/ArrowDownSLineIcon";
 
 const LabelWrapper = styled.div`
   width: 95px;

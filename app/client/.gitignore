@@ -12,8 +12,6 @@
 
 # production
 /build
-# used to pack build artifacts in CI
-build.tar
 /build_airgap
 
 # misc

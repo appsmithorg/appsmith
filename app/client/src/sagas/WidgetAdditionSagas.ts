@@ -44,7 +44,6 @@ import { ResponsiveBehavior } from "utils/autoLayout/constants";
 import { isStack } from "../utils/autoLayout/AutoLayoutUtils";
 import {
   getCanvasWidth,
-  getIsAutoLayout,
   getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
 import { getWidgetMinMaxDimensionsInPixel } from "utils/autoLayout/flexWidgetUtils";
@@ -456,10 +455,9 @@ function* addNewTabChildSaga(
     label: newTabLabel,
     widgetId: newTabWidgetId,
   });
-  const isAutoLayout: boolean = yield select(getIsAutoLayout);
   const updatedWidgets: CanvasWidgetsReduxState = yield call(
     getUpdateDslAfterCreatingChild,
-    isAutoLayout ? { ...newTabProps, topRow: 0 } : newTabProps,
+    newTabProps,
   );
   updatedWidgets[widgetId]["tabsObj"] = tabs;
   yield put(updateAndSaveLayout(updatedWidgets));

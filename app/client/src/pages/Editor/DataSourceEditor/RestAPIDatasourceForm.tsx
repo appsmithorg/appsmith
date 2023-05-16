@@ -57,10 +57,6 @@ import DatasourceAuth, {
 } from "pages/common/datasourceAuth";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { hasManageDatasourcePermission } from "@appsmith/utils/permissionHelpers";
-import type {
-  ClientCredentials,
-  AuthorizationCode,
-} from "entities/Datasource/RestAPIForm";
 import { getPlugin } from "../../../selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
 import Debugger, {
@@ -711,13 +707,10 @@ class DatasourceRestAPIEditor extends React.Component<
   };
 
   renderOauth2 = () => {
-    const authentication = this.props.formData.authentication as
-      | ClientCredentials
-      | AuthorizationCode
-      | undefined;
+    const { authentication } = this.props.formData;
     if (!authentication) return;
     let content;
-    switch (authentication.grantType) {
+    switch (_.get(authentication, "grantType")) {
       case GrantType.AuthorizationCode:
         content = this.renderOauth2AuthorizationCode();
         break;

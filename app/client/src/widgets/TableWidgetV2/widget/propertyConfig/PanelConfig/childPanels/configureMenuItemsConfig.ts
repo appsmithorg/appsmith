@@ -1,5 +1,5 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import { ICON_NAMES } from "widgets/MenuButtonWidget/constants";
 import {
   booleanForEachRowValidation,

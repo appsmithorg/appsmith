@@ -366,7 +366,6 @@ export const GSHEET_AUTHORIZATION_ERROR =
   "Authorisation failed, to continue using this data source authorize now.";
 export const GSHEET_FILES_NOT_SELECTED =
   "Datasource does not have access to any files, please authorize google sheets to use this data source";
-export const FILES_NOT_SELECTED_EVENT = () => "Files not selected";
 
 export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE = () =>
   "Error saving a key in localStorage. You have exceeded the allowed storage size limit";
@@ -923,8 +922,6 @@ export const NAV_DESCRIPTION = () =>
   `Navigate to any page, widget or file across this project.`;
 export const ACTION_OPERATION_DESCRIPTION = () =>
   `Create a new Query, API or JS Object`;
-export const TABLE_WIDGET_VALIDATION_ASSIST_PROMPT = () =>
-  `Access the current cell using `;
 
 export const TRIGGER_ACTION_VALIDATION_ERROR = (
   functionName: string,
@@ -1530,9 +1527,6 @@ export const PAGE_SETTINGS_SET_AS_HOMEPAGE_TOOLTIP_NON_HOME_PAGE = () =>
   "Set this page as your home page. This will override your previously set home page.";
 export const PAGE_SETTINGS_ACTION_NAME_CONFLICT_ERROR = (name: string) =>
   `${name} is already being used.`;
-
-export const CODE_EDITOR_LOADING_ERROR = (message?: string) =>
-  `Failed to load the code editor${message ? `: ${message}` : ""}`;
 
 export const UPDATE_VIA_IMPORT_SETTING = {
   settingHeader: () => "Update through file import",

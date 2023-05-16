@@ -4,8 +4,10 @@ import type {
   Completion,
   DataTreeDefEntityInformation,
 } from "./CodemirrorTernService";
-import { createCompletionHeader } from "./CodemirrorTernService";
-import { AutocompleteDataType } from "./AutocompleteDataType";
+import {
+  AutocompleteDataType,
+  createCompletionHeader,
+} from "./CodemirrorTernService";
 
 interface AutocompleteRule {
   computeScore(completion: Completion): number;

@@ -10,14 +10,11 @@ import { get } from "lodash";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { useHistory } from "react-router";
 import styled from "styled-components";
+import AppsLineIcon from "remixicon-react/AppsLineIcon";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { TooltipComponent, importRemixIcon } from "design-system-old";
-
-const AppsLineIcon = importRemixIcon(
-  () => import("remixicon-react/AppsLineIcon"),
-);
+import { TooltipComponent } from "design-system-old";
 
 type BackToAppsButtonProps = {
   currentApplicationDetails?: ApplicationPayload;

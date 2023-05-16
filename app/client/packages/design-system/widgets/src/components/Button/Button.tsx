@@ -1,5 +1,4 @@
 import React, { forwardRef } from "react";
-import { Icon as HeadlessIcon } from "@design-system/headless";
 import type {
   ButtonProps as HeadlessButtonProps,
   ButtonRef as HeadlessButtonRef,
@@ -21,7 +20,6 @@ export interface ButtonProps extends Omit<HeadlessButtonProps, "className"> {
   fontFamily?: fontFamilyTypes;
   isFitContainer?: boolean;
   isFocused?: boolean;
-  icon?: React.ReactNode;
   iconPosition?: "start" | "end";
 }
 
@@ -30,8 +28,6 @@ export const Button = forwardRef(
     const {
       children,
       fontFamily,
-      icon,
-      iconPosition = "start",
       isFitContainer = false,
       isLoading,
       // eslint-disable-next-line -- TODO add onKeyUp when the bug is fixedhttps://github.com/adobe/react-spectrum/issues/4350
@@ -42,28 +38,19 @@ export const Button = forwardRef(
 
     const renderChildren = () => {
       if (isLoading) {
-        return (
-          <HeadlessIcon>
-            <Spinner />
-          </HeadlessIcon>
-        );
+        return <Spinner />;
       }
 
       return (
-        <>
-          {icon}
-          <Text fontFamily={fontFamily} lineClamp={1}>
-            {children}
-          </Text>
-        </>
+        <Text fontFamily={fontFamily} lineClamp={1}>
+          {children}
+        </Text>
       );
     };
 
     return (
       <StyledButton
-        data-button=""
         data-fit-container={isFitContainer ? "" : undefined}
-        data-icon-position={iconPosition === "start" ? undefined : "end"}
         data-loading={isLoading ? "" : undefined}
         data-variant={variant}
         ref={ref}

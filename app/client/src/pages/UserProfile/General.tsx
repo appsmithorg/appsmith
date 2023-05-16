@@ -22,10 +22,12 @@ import {
 import { logoutUser, updateUserDetails } from "actions/userActions";
 import UserProfileImagePicker from "./UserProfileImagePicker";
 import { Wrapper, FieldWrapper, LabelWrapper } from "./StyledComponents";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { ALL_LANGUAGE_CHARACTERS_REGEX } from "constants/Regex";
 import { createMessage } from "design-system-old/build/constants/messages";
-import { getIsFormLoginEnabled } from "@appsmith/selectors/tenantSelectors";
+
+const { disableLoginForm } = getAppsmithConfigs();
 
 const ForgotPassword = styled.a`
   margin-top: 12px;
@@ -61,7 +63,6 @@ const nameValidator = (
 
 function General() {
   const user = useSelector(getCurrentUser);
-  const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
   const [name, setName] = useState(user?.name);
   const dispatch = useDispatch();
   const forgotPassword = async () => {
@@ -135,7 +136,7 @@ function General() {
         <div style={{ flexDirection: "column", display: "flex" }}>
           {<Text type={TextType.P1}>{user?.email}</Text>}
 
-          {isFormLoginEnabled && (
+          {!disableLoginForm && (
             <ForgotPassword onClick={forgotPassword}>
               {createMessage(USER_RESET_PASSWORD)}
             </ForgotPassword>

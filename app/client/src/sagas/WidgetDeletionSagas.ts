@@ -27,12 +27,7 @@ import { getSelectedWidgets } from "selectors/ui";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
 import type { WidgetProps } from "widgets/BaseWidget";
-import {
-  getSelectedWidget,
-  getWidget,
-  getWidgets,
-  getWidgetsMeta,
-} from "./selectors";
+import { getSelectedWidget, getWidget, getWidgets } from "./selectors";
 import type { WidgetsInTree } from "./WidgetOperationUtils";
 import {
   getAllWidgetsInTree,
@@ -103,7 +98,6 @@ function* deleteTabChildSaga(
       // Update flex layers of a canvas upon deletion of a widget.
       const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
       const mainCanvasWidth: number = yield select(getCanvasWidth);
-      const metaProps: Record<string, any> = yield select(getWidgetsMeta);
       const widgetsAfterUpdatingFlexLayers: CanvasWidgetsReduxState =
         yield call(
           updateFlexLayersOnDelete,
@@ -112,7 +106,6 @@ function* deleteTabChildSaga(
           tabWidget.parentId,
           isMobile,
           mainCanvasWidth,
-          metaProps,
         );
       yield put(updateAndSaveLayout(widgetsAfterUpdatingFlexLayers));
       yield call(postDelete, widgetId, label, otherWidgetsToDelete);
@@ -235,7 +228,6 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
         const { finalWidgets, otherWidgetsToDelete, widgetName } = updatedObj;
         const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
         const mainCanvasWidth: number = yield select(getCanvasWidth);
-        const metaProps: Record<string, any> = yield select(getWidgetsMeta);
         // Update flex layers of a canvas upon deletion of a widget.
         const widgetsAfterUpdatingFlexLayers: CanvasWidgetsReduxState =
           updateFlexLayersOnDelete(
@@ -244,7 +236,6 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
             parentId,
             isMobile,
             mainCanvasWidth,
-            metaProps,
           );
         yield put(updateAndSaveLayout(widgetsAfterUpdatingFlexLayers));
         yield put(generateAutoHeightLayoutTreeAction(true, true));
@@ -319,7 +310,6 @@ function* deleteAllSelectedWidgetsSaga(
     if (parentId) {
       const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
       const mainCanvasWidth: number = yield select(getCanvasWidth);
-      const metaProps: Record<string, any> = yield select(getWidgetsMeta);
       for (const widgetId of selectedWidgets) {
         widgetsAfterUpdatingFlexLayers = yield call(
           updateFlexLayersOnDelete,
@@ -328,7 +318,6 @@ function* deleteAllSelectedWidgetsSaga(
           parentId,
           isMobile,
           mainCanvasWidth,
-          metaProps,
         );
       }
     }

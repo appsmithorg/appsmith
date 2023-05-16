@@ -1,4 +1,5 @@
 import type { AppState } from "@appsmith/reducers";
+import { ReactComponent as DragHandleIcon } from "assets/icons/ads/app-icons/draghandler.svg";
 import { Colors } from "constants/Colors";
 import type { Placement, PopperOptions } from "popper.js";
 import PopperJS from "popper.js";
@@ -9,11 +10,6 @@ import styled, { ThemeProvider } from "styled-components";
 import { generateReactKey } from "utils/generators";
 // import { PopperDragHandle } from "./PropertyPane/PropertyPaneConnections";
 import { draggableElement } from "./utils";
-import { importSvg } from "design-system-old";
-
-const DragHandleIcon = importSvg(
-  () => import("assets/icons/ads/app-icons/draghandler.svg"),
-);
 
 export type PopperProps = {
   boundaryParent?: Element | PopperJS.Boundary;

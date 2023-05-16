@@ -2,17 +2,6 @@ import type { Server, Def } from "tern";
 import tern from "tern";
 import type { CallbackFn } from "utils/autocomplete/types";
 import { TernWorkerAction } from "utils/autocomplete/types";
-import ecma from "constants/defs/ecmascript.json";
-import lodash from "constants/defs/lodash.json";
-import base64 from "constants/defs/base64-js.json";
-import moment from "constants/defs/moment.json";
-import xmlJs from "constants/defs/xmlParser.json";
-import forge from "constants/defs/forge.json";
-import browser from "constants/defs/browser.json";
-import {
-  GLOBAL_DEFS,
-  GLOBAL_FUNCTIONS,
-} from "@appsmith/utils/autocomplete/EntityDefinitions";
 
 let server: Server;
 
@@ -23,7 +12,7 @@ self.onmessage = function (e) {
   const data = e.data;
   switch (data.type) {
     case TernWorkerAction.INIT:
-      return startServer(data.plugins, data.scripts);
+      return startServer(data.defs, data.plugins, data.scripts);
     case TernWorkerAction.ADD_FILE:
       return server.addFile(data.name, data.text);
     case TernWorkerAction.DELETE_FILE:
@@ -50,23 +39,13 @@ function getFile(file: string, c: CallbackFn) {
   pending[nextId] = c;
 }
 
-function startServer(plugins = {}, scripts?: string[]) {
+function startServer(defs: Def[], plugins = {}, scripts?: string[]) {
   if (scripts) self.importScripts.apply(null, scripts);
 
   server = new tern.Server({
     getFile: getFile,
     async: true,
-    defs: [
-      ecma,
-      browser,
-      GLOBAL_FUNCTIONS,
-      GLOBAL_DEFS,
-      lodash,
-      base64,
-      moment,
-      xmlJs,
-      forge,
-    ] as Def[],
+    defs: defs,
     plugins: plugins,
   });
 }

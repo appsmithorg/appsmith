@@ -409,24 +409,12 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         return userWithTenantMono
                 .flatMap(this::validateObject)
                 .flatMap(repository::save)
-                .elapsed().map(pair -> {
-                    log.debug("UserServiceCEImpl::Time taken to save user: {} ms", pair.getT1());
-                    return pair.getT2();
-                })
                 .flatMap(savedUser -> addUserPolicies(savedUser, isAdminUser))
-                .elapsed().map(pair -> {
-                    log.debug("UserServiceCEImpl::Time taken to create user role: {} ms", pair.getT1());
-                    return pair.getT2();
-                })
                 .then(Mono.zip(
                         repository.findByEmail(user.getUsername()),
                         userDataService.getForUserEmail(user.getUsername())
                 ))
-                .flatMap(tuple -> analyticsService.identifyUser(tuple.getT1(), tuple.getT2()))
-                .elapsed().map(pair -> {
-                    log.debug("UserServiceCEImpl::Time taken to identify user: {} ms", pair.getT1());
-                    return pair.getT2();
-                });
+                .flatMap(tuple -> analyticsService.identifyUser(tuple.getT1(), tuple.getT2()));
     }
 
     private Mono<User> addUserPolicies(User savedUser, Boolean isAdminUser) {
@@ -515,11 +503,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                 userSignupDTO.setUser(savedUser);
 
                                 return workspaceService.createDefault(new Workspace(), savedUser)
-                                        .elapsed()
-                                        .map(pair -> {
-                                            log.debug("UserServiceCEImpl::Time taken to create default workspace: {} ms", pair.getT1());
-                                            return pair.getT2();
-                                        })
                                         .map(workspace -> {
                                             log.debug("Created blank default workspace for user '{}'.", savedUser.getEmail());
                                             userSignupDTO.setDefaultWorkspaceId(workspace.getId());
@@ -533,12 +516,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                             .flatMap(userSignupDTO -> findByEmail(userSignupDTO.getUser().getEmail()).map(user1 -> {
                                 userSignupDTO.setUser(user1);
                                 return userSignupDTO;
-                            }))
-                            .elapsed()
-                            .map(pair -> {
-                                log.debug("UserServiceCEImpl::Time taken to find created user: {} ms", pair.getT1());
-                                return pair.getT2();
-                            });
+                            }));
                 }))
                 .flatMap(userSignupDTO -> {
                             User savedUser = userSignupDTO.getUser();
@@ -579,12 +557,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         }
 
         // No special configurations found, allow signup for the new user.
-        return userCreate(user, isAdminUser)
-                .elapsed()
-                .map(pair -> {
-                    log.debug("UserServiceCEImpl::Time taken for create user: {} ms", pair.getT1());
-                    return pair.getT2();
-                });
+        return userCreate(user, isAdminUser);
     }
 
     public Mono<User> sendWelcomeEmail(User user, String originHeader) {
@@ -597,11 +570,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                         "Welcome to Appsmith",
                         WELCOME_USER_EMAIL_TEMPLATE,
                         updatedParams))
-                .elapsed()
-                .map(pair -> {
-                    log.debug("UserServiceCEImpl::Time taken to send email: {} ms", pair.getT1());
-                    return pair.getT2();
-                })
                 .onErrorResume(error -> {
                     // Swallowing this exception because we don't want this to affect the rest of the flow.
                     log.error(
@@ -819,8 +787,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     profile.setUseCase(userData.getUseCase());
                     profile.setPhotoId(userData.getProfilePhotoAssetId());
                     profile.setEnableTelemetry(!commonConfig.isTelemetryDisabled());
-                    // Intercom consent is defaulted to true on cloud hosting
-                    profile.setIntercomConsentGiven(commonConfig.isCloudHosting() ? true : userData.isIntercomConsentGiven());
+                    profile.setIntercomConsentGiven(userData.isIntercomConsentGiven());
                     profile.setSuperUser(isSuperUser);
                     profile.setConfigurable(!StringUtils.isEmpty(commonConfig.getEnvFilePath()));
 

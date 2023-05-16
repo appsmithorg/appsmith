@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import type { IconProps } from "constants/IconConstants";
 import { IconWrapper } from "constants/IconConstants";
+import { ReactComponent as LightningIcon } from "assets/icons/control/lightning.svg";
 import { Popover, Position } from "@blueprintjs/core";
 import Entity, { EntityClassNames } from "../Entity";
 import { datasourceTableIcon } from "../ExplorerIcons";
@@ -17,11 +18,6 @@ import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { getDatasource } from "selectors/entitiesSelector";
 import { getPagePermissions } from "selectors/editorSelectors";
-import { importSvg } from "design-system-old";
-
-const LightningIcon = importSvg(
-  () => import("assets/icons/control/lightning.svg"),
-);
 
 const Wrapper = styled(EntityTogglesWrapper)`
   &&&& {

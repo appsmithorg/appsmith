@@ -3,10 +3,15 @@ import React from "react";
 import type { WidgetProps } from "./BaseWidget";
 import type BaseWidget from "./BaseWidget";
 import { REQUEST_IDLE_CALLBACK_TIMEOUT } from "constants/AppConstants";
+import { useSelector } from "react-redux";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 export function withLazyRender(Widget: typeof BaseWidget) {
   return function WrappedComponent(props: WidgetProps) {
-    const [deferRender, setDeferRender] = useState(true);
+    const features = useSelector(selectFeatureFlags);
+    const [deferRender, setDeferRender] = useState(
+      !!features.LAZY_CANVAS_RENDERING,
+    );
     const wrapperRef = useRef<HTMLDivElement>(null);
     let idleCallbackId: number;
     let observer: IntersectionObserver;

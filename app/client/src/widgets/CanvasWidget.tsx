@@ -176,7 +176,7 @@ class CanvasWidget extends ContainerWidget {
     height = snapRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
     const style: CSSProperties = {
       width: "100%",
-      height: this.props.isListWidgetCanvas ? "auto" : `${height}px`,
+      height: `${height}px`,
       background: "none",
       position: "relative",
     };

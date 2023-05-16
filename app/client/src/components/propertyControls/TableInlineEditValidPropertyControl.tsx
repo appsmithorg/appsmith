@@ -7,16 +7,10 @@ import {
 } from "widgets/TableWidgetV2/constants";
 import TableInlineEditValidationControlProperty, {
   CurlyBraces,
-  StyledCode,
   InputText,
-  PromptMessage,
 } from "./TableInlineEditValidationControl";
 import { isString } from "lodash";
 import { JSToString, stringToJS } from "./utils";
-import {
-  createMessage,
-  TABLE_WIDGET_VALIDATION_ASSIST_PROMPT,
-} from "@appsmith/constants/messages";
 
 const bindingPrefix = `{{
   (
@@ -84,12 +78,11 @@ class TableInlineEditValidPropertyControl extends TableInlineEditValidationContr
         label={label}
         onChange={this.onTextChange}
         promptMessage={
-          <PromptMessage>
-            {createMessage(TABLE_WIDGET_VALIDATION_ASSIST_PROMPT)}
-            <CurlyBraces>{"{{"}</CurlyBraces>
-            <StyledCode>currentRow.columnName</StyledCode>
+          <>
+            Access the current cell using <CurlyBraces>{"{{"}</CurlyBraces>
+            currentRow.columnName
             <CurlyBraces>{"}}"}</CurlyBraces>
-          </PromptMessage>
+          </>
         }
         theme={theme}
         value={value}

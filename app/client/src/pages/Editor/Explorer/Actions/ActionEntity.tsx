@@ -81,7 +81,7 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
       action={switchToAction}
       active={props.isActive}
       canEditEntityName={canManageAction}
-      className="action t--action-entity"
+      className="action"
       contextMenu={contextMenu}
       entityId={action.id}
       icon={icon}

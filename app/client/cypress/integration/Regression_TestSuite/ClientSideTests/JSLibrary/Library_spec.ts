@@ -1,31 +1,36 @@
 import HomePage from "../../../../locators/HomePage";
 import { WIDGET } from "../../../../locators/WidgetLocators";
 import { jsEditor } from "../../../../support/Objects/ObjectsCore";
-import * as _ from "../../../../support/Objects/ObjectsCore";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-describe("excludeForAirgap", "Tests JS Libraries", () => {
+const explorer = ObjectsRegistry.EntityExplorer;
+const installer = ObjectsRegistry.LibraryInstaller;
+const aggregateHelper = ObjectsRegistry.AggregateHelper;
+const homePage = ObjectsRegistry.HomePage;
+const deployMode = ObjectsRegistry.DeployMode;
+const debuggerHelper = ObjectsRegistry.DebuggerHelper;
+
+describe("Tests JS Libraries", () => {
   it("1. Validates Library install/uninstall", () => {
-    _.entityExplorer.ExpandCollapseEntity("Libraries");
-    _.installer.openInstaller();
-    _.installer.installLibrary("uuidjs", "UUID");
-    _.installer.uninstallLibrary("uuidjs");
-    _.installer.assertUnInstall("uuidjs");
+    explorer.ExpandCollapseEntity("Libraries");
+    installer.openInstaller();
+    installer.installLibrary("uuidjs", "UUID");
+    installer.uninstallLibrary("uuidjs");
+    installer.assertUnInstall("uuidjs");
   });
-
   it("2. Checks for naming collision", () => {
-    _.entityExplorer.DragDropWidgetNVerify(WIDGET.TABLE, 200, 200);
-    _.entityExplorer.NavigateToSwitcher("explorer");
-    _.entityExplorer.RenameEntityFromExplorer("Table1", "jsonwebtoken");
-    _.entityExplorer.ExpandCollapseEntity("Libraries");
-    _.installer.openInstaller();
-    _.installer.installLibrary("jsonwebtoken", "jsonwebtoken", false);
-    _.agHelper.AssertContains("Name collision detected: jsonwebtoken");
+    explorer.DragDropWidgetNVerify(WIDGET.TABLE, 200, 200);
+    explorer.NavigateToSwitcher("explorer");
+    explorer.RenameEntityFromExplorer("Table1", "jsonwebtoken");
+    explorer.ExpandCollapseEntity("Libraries");
+    installer.openInstaller();
+    installer.installLibrary("jsonwebtoken", "jsonwebtoken", false);
+    aggregateHelper.AssertContains("Name collision detected: jsonwebtoken");
   });
-
   it("3. Checks jspdf library", () => {
-    _.entityExplorer.ExpandCollapseEntity("Libraries");
-    _.installer.openInstaller();
-    _.installer.installLibrary("jspdf", "jspdf");
+    explorer.ExpandCollapseEntity("Libraries");
+    installer.openInstaller();
+    installer.installLibrary("jspdf", "jspdf");
     jsEditor.CreateJSObject(
       `export default {
       myFun1: () => {
@@ -44,38 +49,38 @@ describe("excludeForAirgap", "Tests JS Libraries", () => {
       },
     );
     jsEditor.RunJSObj();
-    _.debuggerHelper.ClickResponseTab();
-    _.agHelper.AssertContains("data:application/pdf;filename=generated.pdf");
+    debuggerHelper.ClickResponseTab();
+    aggregateHelper.AssertContains(
+      "data:application/pdf;filename=generated.pdf",
+    );
   });
-
-  it("4. Checks installation in exported/duplicated app", () => {
-    _.homePage.NavigateToHome();
-    _.homePage.ImportApp("library_export.json");
-    _.agHelper.AssertContains("true");
-
-    //Checks installation in duplicated app
-    _.homePage.NavigateToHome();
-    _.homePage.DuplicateApplication("Library_export");
-    _.agHelper.AssertContains("true");
-
-    //Deploy app and check installation
-    _.deployMode.DeployApp();
-    _.agHelper.AssertContains("true");
-    _.deployMode.NavigateBacktoEditor();
-    _.agHelper.AssertContains("true");
+  it("4. Checks installation in exported app", () => {
+    homePage.NavigateToHome();
+    homePage.ImportApp("library_export.json");
+    aggregateHelper.AssertContains("true");
   });
-
-  it("5. Tests library access and installation in public apps", () => {
+  it("5. Checks installation in duplicated app", () => {
+    homePage.NavigateToHome();
+    homePage.DuplicateApplication("Library_export");
+    aggregateHelper.AssertContains("true");
+  });
+  it("6. Deploy app and check installation", () => {
+    deployMode.DeployApp();
+    aggregateHelper.AssertContains("true");
+    deployMode.NavigateBacktoEditor();
+    aggregateHelper.AssertContains("true");
+  });
+  it("7. Tests library access and installation in public apps", () => {
     let appURL = "";
     cy.get(HomePage.shareApp).click();
     //@ts-expect-error no type access
     cy.enablePublicAccess(true);
-    _.deployMode.DeployApp();
+    deployMode.DeployApp();
     cy.url().then((url) => {
       appURL = url;
-      _.homePage.LogOutviaAPI();
+      homePage.LogOutviaAPI();
       cy.visit(appURL);
-      _.agHelper.AssertContains("true");
+      aggregateHelper.AssertContains("true");
     });
   });
 });

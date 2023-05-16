@@ -270,10 +270,12 @@ function* safeCrashSagaRequest(action: ReduxAction<{ code?: ERROR_CODES }>) {
     code === ERROR_CODES.PAGE_NOT_FOUND
   ) {
     const queryParams = new URLSearchParams(window.location.search);
+    const embedQueryParam = queryParams.get("embed");
     const ssoTriggerQueryParam = queryParams.get("ssoTrigger");
-    const ssoLoginUrl = ssoTriggerQueryParam
-      ? getLoginUrl(ssoTriggerQueryParam || "")
-      : null;
+    const ssoLoginUrl =
+      embedQueryParam === "true" && ssoTriggerQueryParam
+        ? getLoginUrl(ssoTriggerQueryParam || "")
+        : null;
     if (ssoLoginUrl) {
       window.location.href = `${ssoLoginUrl}?redirectUrl=${encodeURIComponent(
         window.location.href,

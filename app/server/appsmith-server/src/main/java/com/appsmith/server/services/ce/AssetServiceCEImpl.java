@@ -58,8 +58,6 @@ public class AssetServiceCEImpl implements AssetServiceCE {
 
     private Boolean checkImageTypeValidation(DataBuffer dataBuffer, MediaType contentType) throws IOException {
         BufferedImage bufferedImage = ImageIO.read(dataBuffer.asInputStream());
-        // Resetting the position of the cursor
-        dataBuffer.readPosition(0);
         if (bufferedImage == null) {
             /*
                 This is true for SVG and ICO images.

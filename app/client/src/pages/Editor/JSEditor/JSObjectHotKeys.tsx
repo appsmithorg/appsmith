@@ -1,5 +1,6 @@
 import React from "react";
-import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core";
+import { Hotkey, Hotkeys } from "@blueprintjs/core";
+import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
 import { JS_OBJECT_HOTKEYS_CLASSNAME } from "./constants";
 
 type Props = {
@@ -24,8 +25,8 @@ class JSObjectHotKeys extends React.Component<Props> {
   }
 
   render() {
-    /*
-    Blueprint's v3 decorated component must return a single DOM element in its render() method, not a custom React component.
+    /* 
+    Blueprint's v3 decorated component must return a single DOM element in its render() method, not a custom React component. 
     This constraint allows HotkeysTarget to inject event handlers without creating an extra wrapper element.
     */
     return (

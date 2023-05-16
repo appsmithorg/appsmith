@@ -60,7 +60,6 @@ export interface ApplicationResponsePayload {
   gitApplicationMetadata: GitApplicationMetadata;
   slug: string;
   applicationVersion: ApplicationVersion;
-  isPublic?: boolean;
 }
 
 export interface FetchApplicationPayload {

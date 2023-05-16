@@ -6,7 +6,9 @@
   "license": "MIT",
   "scripts": {
     "storybook": "start-storybook -p 6006",
-    "build": "build-storybook"
+    "build": "build-storybook",
+    "lint:ci": "echo 'No lint specified'",
+    "prettier:ci": "echo 'No prettier specified'"
   },
   "devDependencies": {
     "@babel/core": "^7.20.12",

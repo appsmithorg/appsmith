@@ -3,8 +3,10 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import lazyLottie from "./lazyLottie";
-import welcomeConfettiAnimationURL from "assets/lottie/welcome-confetti.json.txt";
+import lottie from "lottie-web";
+import confetti from "assets/lottie/binding.json";
+import welcomeConfetti from "assets/lottie/welcome-confetti.json";
+import successAnimation from "assets/lottie/success-animation.json";
 import {
   DATA_TREE_KEYWORDS,
   DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
@@ -514,13 +516,24 @@ export const getSubstringBetweenTwoWords = (
   return str.substring(startIndexOfEndWord, endIndexOfStartWord);
 };
 
+export const playOnboardingAnimation = () => {
+  playLottieAnimation("#root", confetti);
+};
+
 export const playWelcomeAnimation = (container: string) => {
-  playLottieAnimation(container, welcomeConfettiAnimationURL);
+  playLottieAnimation(container, welcomeConfetti);
+};
+
+export const playOnboardingStepCompletionAnimation = () => {
+  playLottieAnimation(".onboarding-step-indicator", successAnimation, {
+    "background-color": "white",
+    padding: "60px",
+  });
 };
 
 const playLottieAnimation = (
   selector: string,
-  animationURL: string,
+  animation: any,
   styles?: any,
 ) => {
   const container: Element = document.querySelector(selector) as Element;
@@ -541,16 +554,18 @@ const playLottieAnimation = (
 
   container.appendChild(el);
 
-  const animObj = lazyLottie.loadAnimation({
+  const animObj = lottie.loadAnimation({
     container: el,
-    path: animationURL,
+    animationData: animation,
     loop: false,
   });
 
+  const duration = (animObj.totalFrames / animObj.frameRate) * 1000;
+
   animObj.play();
-  animObj.addEventListener("complete", () => {
+  setTimeout(() => {
     container.removeChild(el);
-  });
+  }, duration);
 };
 
 export const getSelectedText = () => {

@@ -43,10 +43,7 @@ import {
 } from "actions/autoHeightActions";
 import type { WidgetSelectionRequest } from "actions/widgetSelectionActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import {
-  updatePositionsOnTabChange,
-  updateWidgetDimensionAction,
-} from "actions/autoLayoutActions";
+import { updateWidgetDimensionAction } from "actions/autoLayoutActions";
 
 export type EditorContextType<TCache = unknown> = {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
@@ -96,7 +93,6 @@ export type EditorContextType<TCache = unknown> = {
   deleteMetaWidgets?: (deletePayload: DeleteMetaWidgetsPayload) => void;
   updateMetaWidgetProperty?: (payload: UpdateMetaWidgetPropertyPayload) => void;
   selectWidgetRequest?: WidgetSelectionRequest;
-  updatePositionsOnTabChange?: (widgetId: string, selectedTab: string) => void;
 };
 export const EditorContext: Context<EditorContextType> = createContext({});
 
@@ -123,7 +119,6 @@ const COMMON_API_METHODS: EditorContextTypeKey[] = [
   "updateWidgetDimension",
   "checkContainersForAutoHeight",
   "selectWidgetRequest",
-  "updatePositionsOnTabChange",
 ];
 
 const PAGE_MODE_API_METHODS: EditorContextTypeKey[] = [...COMMON_API_METHODS];
@@ -224,7 +219,6 @@ const mapDispatchToProps = {
   updateMetaWidgetProperty,
   deleteMetaWidgets,
   selectWidgetRequest: selectWidgetInitAction,
-  updatePositionsOnTabChange: updatePositionsOnTabChange,
 };
 
 export default connect(null, mapDispatchToProps)(EditorContextProvider);

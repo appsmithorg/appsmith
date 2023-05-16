@@ -1,9 +1,18 @@
 const dsl = require("../../../../fixtures/conversionFrAutoLayoutDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+const agHelper = ObjectsRegistry.AggregateHelper;
 let testHeight;
 
 describe("Auto conversion algorithm usecases for fixed Layout", function () {
-  it("1. Validate basic conversion algorithm usecases fixed layout Desktop", function () {
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
+  });
+
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+  it("Validate basic conversion algorithm usecases fixed layout Desktop", function () {
     cy.addDsl(dsl);
     cy.wait(5000); //for dsl to settle
     //cy.openPropertyPane("containerwidget");

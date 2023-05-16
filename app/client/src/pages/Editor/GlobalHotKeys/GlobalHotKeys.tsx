@@ -1,7 +1,8 @@
 import React from "react";
 import { connect } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
-import { Hotkey, Hotkeys, HotkeysTarget } from "@blueprintjs/core";
+import { Hotkey, Hotkeys } from "@blueprintjs/core";
+import { HotkeysTarget } from "@blueprintjs/core/lib/esnext/components/hotkeys/hotkeysTarget.js";
 import {
   closePropertyPane,
   closeTableFilterPane,

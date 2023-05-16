@@ -237,7 +237,56 @@ describe("Boolean & Enum Datatype tests", function () {
       //Delete queries
       _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
       _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-      _.entityExplorer.DeleteAllQueriesForDB(dsName);
+      _.entityExplorer.ActionContextMenuByEntityName(
+        "createEnum",
+        "Delete",
+        "Are you sure?",
+      );
+      _.entityExplorer.ActionContextMenuByEntityName(
+        "createTable",
+        "Delete",
+        "Are you sure?",
+      );
+      _.entityExplorer.ActionContextMenuByEntityName(
+        "deleteAllRecords",
+        "Delete",
+        "Are you sure?",
+      );
+      _.entityExplorer.ActionContextMenuByEntityName(
+        "deleteRecord",
+        "Delete",
+        "Are you sure?",
+      );
+      _.entityExplorer.ActionContextMenuByEntityName(
+        "dropTable",
+        "Delete",
+        "Are you sure?",
+      );
+      _.entityExplorer.ActionContextMenuByEntityName(
+        "dropEnum",
+        "Delete",
+        "Are you sure?",
+      );
+      _.entityExplorer.ActionContextMenuByEntityName(
+        "getEnum",
+        "Delete",
+        "Are you sure?",
+      );
+      _.entityExplorer.ActionContextMenuByEntityName(
+        "insertRecord",
+        "Delete",
+        "Are you sure?",
+      );
+      _.entityExplorer.ActionContextMenuByEntityName(
+        "selectRecords",
+        "Delete",
+        "Are you sure?",
+      );
+      _.entityExplorer.ActionContextMenuByEntityName(
+        "updateRecord",
+        "Delete",
+        "Are you sure?",
+      );
 
       //Delete ds
       _.deployMode.DeployApp();

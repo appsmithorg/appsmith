@@ -44,10 +44,14 @@ public interface ImportExportApplicationServiceCE {
      * @param branchName    If application is connected to git update the branched app
      * @return saved application in DB
      */
-    Mono<ApplicationImportDTO> extractFileAndUpdateNonGitConnectedApplication(String workspaceId,
+    default Mono<ApplicationImportDTO> extractFileAndUpdateNonGitConnectedApplication(String workspaceId,
                                                                                       Part filePart,
                                                                                       String applicationId,
-                                                                                      String branchName);
+                                                                                      String branchName) {
+
+        // Returning empty mono for ImportExportServiceV2 as this method is not needed for git execution
+        return Mono.empty();
+    }
 
     Mono<Application> mergeApplicationJsonWithApplication(String workspaceId,
                                                           String applicationId,

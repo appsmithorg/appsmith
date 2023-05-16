@@ -71,7 +71,6 @@ export function updateRelationships(
   onlyUpdateFlexLayers = false,
   isMobile = false,
   mainCanvasWidth: number,
-  metaProps?: Record<string, any>,
 ): CanvasWidgetsReduxState {
   const widgets = { ...allWidgets };
   // Check if parent has changed
@@ -120,8 +119,6 @@ export function updateRelationships(
         id,
         isMobile,
         mainCanvasWidth,
-        false,
-        metaProps,
       );
       return updatedWidgets;
     }

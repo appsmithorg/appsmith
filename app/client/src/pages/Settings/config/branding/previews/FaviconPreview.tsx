@@ -1,10 +1,9 @@
 import React from "react";
 import PreviewBox from "./PreviewBox";
 
-import type { PreviewsProps } from ".";
-import { importRemixIcon } from "design-system-old";
+import AddIcon from "remixicon-react/AddFillIcon";
 
-const AddIcon = importRemixIcon(() => import("remixicon-react/AddFillIcon"));
+import type { PreviewsProps } from ".";
 
 const FaviconPreview = (props: PreviewsProps) => {
   const { favicon } = props;

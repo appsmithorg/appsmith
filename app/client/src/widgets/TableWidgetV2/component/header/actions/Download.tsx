@@ -13,11 +13,7 @@ import styled, { createGlobalStyle } from "styled-components";
 import ActionItem from "./ActionItem";
 import { transformTableDataIntoCsv } from "./Utilities";
 import zipcelx from "zipcelx";
-import { importSvg } from "design-system-old";
-
-const DownloadIcon = importSvg(
-  () => import("assets/icons/control/download-data-icon.svg"),
-);
+import { ReactComponent as DownloadIcon } from "assets/icons/control/download-data-icon.svg";
 
 const DropDownWrapper = styled.div`
   display: flex;

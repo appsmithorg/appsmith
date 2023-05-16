@@ -261,34 +261,31 @@ describe("Autocomplete tests", () => {
       "Insert Document(s)",
     );
 
-    const documentInputSelector = _.locators._inputFieldByName("Documents");
+    cy.xpath(_.locators._inputFieldByName("Documents")).then(($field: any) => {
+      _.agHelper.UpdateCodeInput($field, `{\n"_id": "{{appsmith}}"\n}`);
 
-    _.agHelper.UpdateCodeInput(
-      documentInputSelector,
-      `{\n"_id": "{{appsmith}}"\n}`,
-    );
+      cy.wrap($field)
+        .find(".CodeMirror")
+        .find("textarea")
+        .parents(".CodeMirror")
+        .first()
+        .then((ins: any) => {
+          const input = ins[0].CodeMirror;
+          input.focus();
+          cy.wait(200);
+          cy.get(_.locators._codeMirrorTextArea)
+            .eq(1)
+            .focus()
+            .type(
+              "{downArrow}{downArrow}{leftArrow}{leftArrow}{leftArrow}{leftArrow}",
+            )
+            .type(".");
 
-    cy.xpath(documentInputSelector)
-      .find(".CodeMirror")
-      .find("textarea")
-      .parents(".CodeMirror")
-      .first()
-      .then((ins: any) => {
-        const input = ins[0].CodeMirror;
-        input.focus();
-        cy.wait(200);
-        cy.get(_.locators._codeMirrorTextArea)
-          .eq(1)
-          .focus()
-          .type(
-            "{downArrow}{downArrow}{leftArrow}{leftArrow}{leftArrow}{leftArrow}",
-          )
-          .type(".");
+          _.agHelper.GetNAssertElementText(_.locators._hints, "geolocation");
 
-        _.agHelper.GetNAssertElementText(_.locators._hints, "geolocation");
-
-        cy.get(".t--close-editor").click();
-      });
+          cy.get(".t--close-editor").click();
+        });
+    });
   });
 
   it("8. Multiple binding in single line", () => {

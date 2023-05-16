@@ -1,21 +1,8 @@
 import React from "react";
-import { IconWrapper } from "@design-system/widgets-old";
 import { fireEvent, render } from "@testing-library/react";
 
 import type { SelectButtonProps } from "./SelectButton";
 import SelectButton from "./SelectButton";
-
-// It is necessary to make a mock of the Icon component as the error falls due to React.lazy in importIconImpl
-jest.mock("@design-system/widgets-old", () => {
-  const originalModule = jest.requireActual("@design-system/widgets-old");
-  return {
-    __esModule: true,
-    ...originalModule,
-    Icon: (props: any) => {
-      return <IconWrapper {...props} />;
-    },
-  };
-});
 
 const defaultProps: SelectButtonProps = {
   disabled: false,
@@ -32,17 +19,17 @@ const renderComponent = (props: SelectButtonProps = defaultProps) => {
 };
 
 describe("SelectButton", () => {
-  it("should not fire click event when disabled", () => {
+  it("should not clear value when disabled", () => {
     const { getByTestId, getByText } = renderComponent({
       ...defaultProps,
       disabled: true,
     });
-    fireEvent.click(getByTestId("selectbutton.btn.main"));
-    expect(defaultProps.togglePopoverVisibility).not.toBeCalled();
+    fireEvent.click(getByTestId("selectbutton.btn.cancel"));
+    expect(defaultProps.handleCancelClick).not.toBeCalled();
     expect(getByText("0")).toBeTruthy();
   });
 
-  it("should render correctly", async () => {
+  it("should render correctly", () => {
     const { getByText } = renderComponent();
     expect(getByText("0")).toBeTruthy();
   });

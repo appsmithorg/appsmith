@@ -40,6 +40,7 @@ import PageLoadingBar from "pages/common/PageLoadingBar";
 import ErrorPageHeader from "pages/common/ErrorPageHeader";
 import type { AppState } from "@appsmith/reducers";
 import { connect, useSelector } from "react-redux";
+import { polyfillCountryFlagEmojis } from "country-flag-emoji-polyfill";
 
 import * as Sentry from "@sentry/react";
 import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
@@ -65,6 +66,12 @@ import {
 } from "@appsmith/selectors/tenantSelectors";
 import useBrandingTheme from "utils/hooks/useBrandingTheme";
 import RouteChangeListener from "RouteChangeListener";
+
+/*
+    We use this polyfill to show emoji flags
+    on windows devices, this polyfill loads a font family
+  */
+polyfillCountryFlagEmojis();
 
 export const SentryRoute = Sentry.withSentryRouting(Route);
 

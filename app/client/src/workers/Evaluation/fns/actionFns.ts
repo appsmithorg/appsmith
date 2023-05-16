@@ -1,9 +1,8 @@
 import { isTrueObject } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { promisify } from "./utils/Promisify";
-import type { ActionEntity } from "entities/DataTree/types";
 
 function runFnDescriptor(
-  this: ActionEntity,
+  this: any,
   onSuccessOrParams?: (data: any) => unknown | Record<string, unknown>,
   onError?: (e: string) => unknown,
   params = {},
@@ -31,7 +30,7 @@ export type TRunDescription = ReturnType<typeof runFnDescriptor>;
 export type TRunActionType = TRunDescription["type"];
 
 export default async function run(
-  this: ActionEntity,
+  this: any,
   onSuccessOrParams?: (data: any) => unknown | Record<string, unknown>,
   onError?: (e: string) => unknown,
   params = {},
@@ -39,13 +38,6 @@ export default async function run(
   const executor = promisify(runFnDescriptor.bind(this));
   try {
     const response = await executor(onSuccessOrParams, onError, params);
-
-    // @ts-expect-error: globalThis type is not defined
-    const action = globalThis[this.name];
-    if (action) {
-      action.data = response[0];
-    }
-
     if (typeof onSuccessOrParams === "function") {
       onSuccessOrParams.apply(this, response);
       return;
@@ -65,7 +57,7 @@ export default async function run(
   }
 }
 
-function clearFnDescriptor(this: ActionEntity) {
+function clearFnDescriptor(this: any) {
   return {
     type: "CLEAR_PLUGIN_ACTION" as const,
     payload: {
@@ -78,6 +70,6 @@ export type TClearArgs = Parameters<typeof clearFnDescriptor>;
 export type TClearDescription = ReturnType<typeof clearFnDescriptor>;
 export type TClearActionType = TClearDescription["type"];
 
-export async function clear(this: ActionEntity) {
+export async function clear(this: any) {
   return promisify(clearFnDescriptor.bind(this))();
 }

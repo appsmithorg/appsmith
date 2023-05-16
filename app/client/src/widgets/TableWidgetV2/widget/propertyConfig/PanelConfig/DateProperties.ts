@@ -3,7 +3,7 @@ import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { get } from "lodash";
 import { allowedFirstDayOfWeekRange } from "../../propertyUtils";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 
 export default {
   sectionName: "Date Settings",

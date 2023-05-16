@@ -192,9 +192,6 @@ public class Application extends BaseDomain {
     @JsonView(Views.Public.class)
     Boolean exportWithConfiguration;
 
-    //forkWithConfiguration represents whether credentials are shared or not while forking an app
-    @JsonView(Views.Public.class)
-    Boolean forkWithConfiguration;
 
     @JsonView(Views.Internal.class)
     @Deprecated
@@ -257,8 +254,6 @@ public class Application extends BaseDomain {
         this.setIsManualUpdate(false);
         this.setDefaultPermissionGroup(null);
         this.setPublishedCustomJSLibs(new HashSet<>());
-        this.setExportWithConfiguration(null);
-        this.setForkWithConfiguration(null);
         super.sanitiseToExportDBObject();
     }
 

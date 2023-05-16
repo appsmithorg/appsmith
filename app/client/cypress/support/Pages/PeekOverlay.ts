@@ -14,8 +14,6 @@ export class PeekOverlay {
       ".pushed-content.object-container .object-content .object-key-val",
     _rjv_firstLevelBraces:
       ".pretty-json-container > .object-content:first-of-type > .object-key-val:first-of-type > span",
-    _fileOperation: (operation: string) =>
-      `.t--file-operation:contains("${operation}")`,
   };
   private readonly agHelper = ObjectsRegistry.AggregateHelper;
 

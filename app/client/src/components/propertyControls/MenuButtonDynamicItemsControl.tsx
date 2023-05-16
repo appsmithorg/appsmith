@@ -3,6 +3,7 @@ import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
+import CodeEditor from "components/editorComponents/CodeEditor";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   EditorModes,
@@ -19,7 +20,6 @@ import {
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
 import { getUniqueKeysFromSourceData } from "widgets/MenuButtonWidget/widget/helper";
-import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -58,8 +58,7 @@ function InputText(props: InputTextProp) {
   } = props;
   return (
     <StyledDynamicInput>
-      <LazyCodeEditor
-        AIAssisted
+      <CodeEditor
         additionalDynamicData={additionalDynamicData}
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}
@@ -165,7 +164,7 @@ class MenuButtonDynamicItemsControl extends BaseControl<MenuButtonDynamicItemsCo
         } else if (${widgetName}.primaryColumns.${columnName}.sourceData.length) {
           primaryColumnData = ${widgetName}.primaryColumns.${columnName}.sourceData;
         }
-
+        
         return primaryColumnData.map((currentItem, currentIndex) => `;
     } else {
       return `{{${widgetName}.sourceData.map((currentItem, currentIndex) => ( `;

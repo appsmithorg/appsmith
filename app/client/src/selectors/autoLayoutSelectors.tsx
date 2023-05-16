@@ -1,7 +1,7 @@
 import type { AppState } from "@appsmith/reducers";
 import { FLEXBOX_PADDING, GridDefaults } from "constants/WidgetConstants";
 import { createSelector } from "reselect";
-import { getCanvasAndMetaWidgets } from "sagas/selectors";
+import { getWidgets } from "sagas/selectors";
 import type {
   AlignmentColumnInfo,
   FlexBoxAlignmentColumnInfo,
@@ -15,7 +15,7 @@ export const getIsCurrentlyConvertingLayout = (state: AppState) =>
   state.ui.layoutConversion.isConverting;
 
 export const getFlexLayers = (parentId: string) => {
-  return createSelector(getCanvasAndMetaWidgets, (widgets): FlexLayer[] => {
+  return createSelector(getWidgets, (widgets): FlexLayer[] => {
     const parent = widgets[parentId];
     if (!parent) return [];
     return parent?.flexLayers || [];
@@ -52,7 +52,7 @@ export const isCurrentCanvasDragging = (widgetId: string) => {
 
 export const getTotalTopOffset = (widgetId: string) => {
   return createSelector(
-    getCanvasAndMetaWidgets,
+    getWidgets,
     getIsAutoLayoutMobileBreakPoint,
     (widgets, isMobile): number => {
       let widget = widgets[widgetId];
@@ -76,7 +76,7 @@ export const getTotalTopOffset = (widgetId: string) => {
 
 export const getParentOffsetTop = (widgetId: string) =>
   createSelector(
-    getCanvasAndMetaWidgets,
+    getWidgets,
     getIsAutoLayoutMobileBreakPoint,
     (widgets, isMobile): number => {
       const widget = widgets[widgetId];
@@ -92,7 +92,7 @@ export const getParentOffsetTop = (widgetId: string) =>
 
 export const getAlignmentColumns = (widgetId: string, layerIndex: number) =>
   createSelector(
-    getCanvasAndMetaWidgets,
+    getWidgets,
     getIsAutoLayoutMobileBreakPoint,
     getFlexLayers(widgetId),
     (widgets, isMobile, flexLayers): AlignmentColumnInfo => {
@@ -103,7 +103,7 @@ export const getAlignmentColumns = (widgetId: string, layerIndex: number) =>
 
 export const getColumnsForAllLayers = (widgetId: string) =>
   createSelector(
-    getCanvasAndMetaWidgets,
+    getWidgets,
     getIsAutoLayoutMobileBreakPoint,
     getFlexLayers(widgetId),
     (widgets, isMobile, flexLayers): FlexBoxAlignmentColumnInfo => {

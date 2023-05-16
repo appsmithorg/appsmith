@@ -1,10 +1,3 @@
-// Mocks for static fields set on the `CodeMirror` object
-const MockCodemirrorNamespace = {
-  Pos: jest.fn(),
-  on: jest.fn(),
-};
-
-// Mocks for fields of the CodeMirror instance
 export const MockCodemirrorEditor = {
   setOption: jest.fn(),
   options: {
@@ -17,7 +10,6 @@ export const MockCodemirrorEditor = {
   closeHint: jest.fn(),
   getRange: jest.fn(),
   getDoc: jest.fn(),
-  constructor: MockCodemirrorNamespace,
 };
 
 export const mockCodemirrorRender = () => {

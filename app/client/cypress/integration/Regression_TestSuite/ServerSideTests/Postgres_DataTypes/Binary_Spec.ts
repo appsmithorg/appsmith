@@ -380,7 +380,41 @@ describe("Binary Datatype tests", function () {
   //     //Delete all queries
   //     _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
   //     _.entityExplorer.ExpandCollapseEntity("Queries/JS");
-  //      _.entityExplorer.DeleteAllQueriesForDB(dsName);
+  //     _.entityExplorer.ActionContextMenuByEntityName(
+  //       "createTable",
+  //       "Delete",
+  //       "Are you sure?",
+  //     );
+  //     _.entityExplorer.ActionContextMenuByEntityName(
+  //       "deleteAllRecords",
+  //       "Delete",
+  //       "Are you sure?",
+  //     );
+  //     _.entityExplorer.ActionContextMenuByEntityName(
+  //       "deleteRecord",
+  //       "Delete",
+  //       "Are you sure?",
+  //     );
+  //     _.entityExplorer.ActionContextMenuByEntityName(
+  //       "dropTable",
+  //       "Delete",
+  //       "Are you sure?",
+  //     );
+  //     _.entityExplorer.ActionContextMenuByEntityName(
+  //       "insertRecord",
+  //       "Delete",
+  //       "Are you sure?",
+  //     );
+  //     _.entityExplorer.ActionContextMenuByEntityName(
+  //       "selectRecords",
+  //       "Delete",
+  //       "Are you sure?",
+  //     );
+  //     _.entityExplorer.ActionContextMenuByEntityName(
+  //       "updateRecord",
+  //       "Delete",
+  //       "Are you sure?",
+  //     );
 
   //     //Delete DS
   //     _.deployMode.DeployApp();

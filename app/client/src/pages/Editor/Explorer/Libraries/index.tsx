@@ -23,6 +23,7 @@ import {
 } from "selectors/entitiesSelector";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import { Collapse } from "@blueprintjs/core";
+import { ReactComponent as CopyIcon } from "assets/icons/menu/copy-snippet.svg";
 import useClipboard from "utils/hooks/useClipboard";
 import {
   toggleInstaller,
@@ -36,9 +37,6 @@ import { hasCreateActionPermission } from "@appsmith/utils/permissionHelpers";
 import recommendedLibraries from "./recommendedLibraries";
 import { useTransition, animated } from "react-spring";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { importSvg } from "design-system-old";
-
-const CopyIcon = importSvg(() => import("assets/icons/menu/copy-snippet.svg"));
 
 const docsURLMap = recommendedLibraries.reduce((acc, lib) => {
   acc[lib.url] = lib.docsURL;

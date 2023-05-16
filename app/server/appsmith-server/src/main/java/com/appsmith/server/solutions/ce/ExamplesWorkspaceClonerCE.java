@@ -29,4 +29,9 @@ public interface ExamplesWorkspaceClonerCE {
             Flux<Application> applicationFlux,
             Flux<Datasource> datasourceFlux
     );
+
+    Mono<Datasource> cloneDatasource(String datasourceId, String toWorkspaceId);
+
+    void makePristine(BaseDomain domain);
+
 }

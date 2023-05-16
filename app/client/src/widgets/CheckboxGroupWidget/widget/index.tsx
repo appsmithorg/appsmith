@@ -11,7 +11,7 @@ import type { Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { compact, xor } from "lodash";
 import { default as React } from "react";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { AutocompleteDataType } from "utils/autocomplete/CodemirrorTernService";
 import type { DerivedPropertiesMap } from "utils/WidgetFactory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
@@ -25,7 +25,6 @@ import type { OptionProps, SelectAllState } from "../constants";
 import { SelectAllStates } from "../constants";
 import type { AutocompletionDefinitions } from "widgets/constants";
 import { isAutoLayout } from "utils/autoLayout/flexWidgetUtils";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
@@ -540,9 +539,6 @@ class CheckboxGroupWidget extends BaseWidget<
               GRID_DENSITY_MIGRATION_V1 >
             1
           )
-        }
-        isAutoLayout={
-          this.props.appPositioningType === AppPositioningTypes.AUTO
         }
         isDisabled={this.props.isDisabled}
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}

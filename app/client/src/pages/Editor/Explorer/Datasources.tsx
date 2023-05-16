@@ -23,6 +23,7 @@ import {
   EMPTY_DATASOURCE_MAIN_TEXT,
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
+import ArrowRightLineIcon from "remixicon-react/ArrowRightLineIcon";
 import { Colors } from "constants/Colors";
 import {
   useDatasourceIdFromURL,
@@ -39,11 +40,6 @@ import {
   hasCreateDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
-import { importRemixIcon } from "design-system-old";
-
-const ArrowRightLineIcon = importRemixIcon(
-  () => import("remixicon-react/ArrowRightLineIcon"),
-);
 
 const ShowAll = styled.div`
   padding: 0.25rem 1.5rem;

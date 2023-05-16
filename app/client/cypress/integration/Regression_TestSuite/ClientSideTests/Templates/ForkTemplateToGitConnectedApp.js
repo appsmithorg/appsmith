@@ -5,10 +5,10 @@ let repoName;
 let newWorkspaceName;
 let branchName = "test/template";
 const jsObject = "Utils";
-import homePage from "../../../../locators/HomePage";
+const homePage = require("../../../../locators/HomePage");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("excludeForAirgap", "Fork a template to the current app", () => {
+describe("Fork a template to the current app", () => {
   before(() => {
     cy.NavigateToHome();
     cy.createWorkspace();

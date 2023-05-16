@@ -13,13 +13,9 @@ import {
 } from "@appsmith/pages/AdminSettings/config/types";
 import BrandingBadge from "pages/AppViewer/BrandingBadge";
 import { TagInput } from "design-system-old";
+import QuestionFillIcon from "remixicon-react/QuestionFillIcon";
 import localStorage from "utils/localStorage";
 import isUndefined from "lodash/isUndefined";
-import { importRemixIcon } from "design-system-old";
-
-const QuestionFillIcon = importRemixIcon(
-  () => import("remixicon-react/QuestionFillIcon"),
-);
 
 export const APPSMITH_INSTANCE_NAME_SETTING_SETTING: Setting = {
   id: "APPSMITH_INSTANCE_NAME",

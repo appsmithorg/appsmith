@@ -1,5 +1,4 @@
-export const askAIEnabled = false;
-export const APPSMITH_AI = "Ask AI";
+export const addAISlashCommand = false;
 
 export function GPTTrigger() {
   return null;

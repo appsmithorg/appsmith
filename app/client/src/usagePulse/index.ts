@@ -1,5 +1,4 @@
 import {
-  getAppViewerPageIdFromPath,
   isEditorPath,
   isViewerPath,
 } from "@appsmith/pages/Editor/Explorer/helpers";
@@ -12,11 +11,6 @@ import {
   PULSE_INTERVAL,
   USER_ACTIVITY_LISTENER_EVENTS,
 } from "@appsmith/constants/UsagePulse";
-import PageApi from "api/PageApi";
-import { APP_MODE } from "entities/App";
-import type { FetchApplicationResponse } from "ce/api/ApplicationApi";
-import type { AxiosResponse } from "axios";
-import { getFirstTimeUserOnboardingIntroModalVisibility } from "utils/storage";
 
 class UsagePulse {
   static userAnonymousId: string | undefined;
@@ -29,35 +23,8 @@ class UsagePulse {
    * Function to check if the given URL is trakable or not.
    * app builder and viewer urls are trackable
    */
-  static async isTrackableUrl(path: string) {
-    if (isViewerPath(path)) {
-      if (UsagePulse.isAnonymousUser) {
-        /*
-          In App view mode for non-logged in user, first we must have to check if the app is public or not.
-          If it is private app with non-logged in user, we do not send pulse at this point instead we redirect to the login page.
-          And for login page no usage pulse is required.
-        */
-        const response: AxiosResponse<FetchApplicationResponse, any> =
-          await PageApi.fetchAppAndPages({
-            pageId: getAppViewerPageIdFromPath(path),
-            mode: APP_MODE.PUBLISHED,
-          });
-        const { data } = response.data || {};
-        if (data?.application && !data.application.isPublic) {
-          return false;
-        }
-      }
-      return true;
-    } else if (isEditorPath(path)) {
-      /*
-        During onboarding we show the Intro Modal and let user use the app for the first time.
-        During this exploration period, we do no send usage pulse.
-      */
-      const isFirstTimeOnboarding =
-        await getFirstTimeUserOnboardingIntroModalVisibility();
-      if (!isFirstTimeOnboarding) return true;
-    }
-    return false;
+  static isTrackableUrl(path: string) {
+    return isEditorPath(path) || isViewerPath(path);
   }
 
   static sendPulse() {
@@ -92,9 +59,9 @@ class UsagePulse {
    * Function to register a history change event and trigger
    * a callback and unlisten when the user goes to a trackable URL
    */
-  static async watchForTrackableUrl(callback: () => void) {
-    UsagePulse.unlistenRouteChange = history.listen(async () => {
-      if (await UsagePulse.isTrackableUrl(window.location.pathname)) {
+  static watchForTrackableUrl(callback: () => void) {
+    UsagePulse.unlistenRouteChange = history.listen(() => {
+      if (UsagePulse.isTrackableUrl(window.location.pathname)) {
         UsagePulse.unlistenRouteChange();
         setTimeout(callback, 0);
       }
@@ -132,12 +99,12 @@ class UsagePulse {
    * triggers a pulse and schedules the pulse , if user is on a trackable url, otherwise
    * registers listeners to wait for the user to go to a trackable url
    */
-  static async track() {
-    if (await UsagePulse.isTrackableUrl(window.location.pathname)) {
+  static track() {
+    if (UsagePulse.isTrackableUrl(window.location.pathname)) {
       UsagePulse.sendPulse();
       UsagePulse.scheduleNextActivityListeners();
     } else {
-      await UsagePulse.watchForTrackableUrl(UsagePulse.track);
+      UsagePulse.watchForTrackableUrl(UsagePulse.track);
     }
   }
 

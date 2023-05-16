@@ -7,6 +7,8 @@ import { Text, TextType } from "design-system-old";
 import { AuthType } from "entities/Datasource/RestAPIForm";
 import { formValueSelector } from "redux-form";
 import type { AppState } from "@appsmith/reducers";
+import { ReactComponent as SheildSuccess } from "assets/icons/ads/shield-success.svg";
+import { ReactComponent as SheildError } from "assets/icons/ads/shield-error.svg";
 import {
   EDIT_DATASOURCE_MESSAGE,
   OAUTH_2_0,
@@ -20,14 +22,6 @@ import {
   hasCreateDatasourcePermission,
   hasManageDatasourcePermission,
 } from "@appsmith/utils/permissionHelpers";
-import { importSvg } from "design-system-old";
-
-const SheildSuccess = importSvg(
-  () => import("assets/icons/ads/shield-success.svg"),
-);
-const SheildError = importSvg(
-  () => import("assets/icons/ads/shield-error.svg"),
-);
 interface ReduxStateProps {
   datasource: EmbeddedRestDatasource | Datasource;
 }
@@ -76,7 +70,7 @@ type Props = ReduxStateProps;
 
 function ApiAuthentication(props: Props): JSX.Element {
   const { datasource } = props;
-  const authType: string = get(
+  const authType = get(
     datasource,
     "datasourceConfiguration.authentication.authenticationType",
     "",

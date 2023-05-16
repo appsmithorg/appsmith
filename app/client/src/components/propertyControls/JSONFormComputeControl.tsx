@@ -22,7 +22,7 @@ import {
   getBindingTemplate,
   ROOT_SCHEMA_KEY,
 } from "widgets/JSONFormWidget/constants";
-import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
+import CodeEditor from "components/editorComponents/LazyCodeEditorWrapper";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -125,8 +125,7 @@ export function InputText(props: {
   } = props;
   return (
     <StyledDynamicInput>
-      <LazyCodeEditor
-        AIAssisted
+      <CodeEditor
         additionalDynamicData={additionalDynamicData}
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}

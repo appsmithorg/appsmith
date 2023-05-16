@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
 import com.appsmith.server.services.ce.ApplicationSnapshotServiceCEImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -13,7 +12,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ApplicationSnapshotServiceImpl extends ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotService {
 
-    public ApplicationSnapshotServiceImpl(ApplicationSnapshotRepository applicationSnapshotRepository, ApplicationService applicationService, ImportExportApplicationService importExportApplicationService, ApplicationPermission applicationPermission, Gson gson, ResponseUtils responseUtils) {
-        super(applicationSnapshotRepository, applicationService, importExportApplicationService, applicationPermission, gson, responseUtils);
+    public ApplicationSnapshotServiceImpl(ApplicationSnapshotRepository applicationSnapshotRepository, ApplicationService applicationService, ImportExportApplicationService importExportApplicationService, ApplicationPermission applicationPermission, Gson gson) {
+        super(applicationSnapshotRepository, applicationService, importExportApplicationService, applicationPermission, gson);
     }
 }
