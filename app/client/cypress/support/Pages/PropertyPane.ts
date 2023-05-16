@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../Objects/Registry";
+import { CONVERT_TO_AUTO_BUTTON } from "../../../src/ce/constants/messages";
 
 type filedTypeValues =
   | "Array"
@@ -428,5 +429,19 @@ export class PropertyPane {
     cy.get(this.locator._jsToggle(property.toLowerCase())).click();
     this.UpdatePropertyFieldValue(property, "");
     cy.get(this.locator._jsToggle(property.toLowerCase())).click();
+  }
+
+  /**
+   * Converts the layout to auto layout if not already converted
+   */
+  public ConvertToAutoLayout() {
+    const convertCTA = cy.get(this.locator._autoConvert);
+    convertCTA.invoke("text").then((text: string) => {
+      if (text === CONVERT_TO_AUTO_BUTTON()) {
+        convertCTA.click();
+        cy.get(this.locator._convert).click();
+        cy.get(this.locator._refreshApp).click();
+      }
+    });
   }
 }
