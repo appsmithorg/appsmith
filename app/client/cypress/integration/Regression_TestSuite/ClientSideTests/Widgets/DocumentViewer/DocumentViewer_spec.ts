@@ -2,6 +2,7 @@ import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 import {
   encodedWordDoc,
   encodedXlsxDoc,
+  encodedXlsDoc,
 } from "../../../../../fixtures/exampleEncodedDocs";
 const ee = ObjectsRegistry.EntityExplorer,
   locator = ObjectsRegistry.CommonLocators,
@@ -94,5 +95,18 @@ describe("DocumentViewer Widget Functionality", () => {
       "contain",
       "invalid base64 data",
     );
+    deployMode.NavigateBacktoEditor();
+  });
+
+  it.only("8. Should show a xls document correctly", () => {
+    ee.SelectEntityByName("DocumentViewer1", "Widgets");
+    propPane.UpdatePropertyFieldValue("Document Link", encodedXlsDoc);
+    deployMode.DeployApp();
+    //"456" is pressent in the encoded xlsx doc
+    cy.get(locator._widgetInDeployed("documentviewerwidget")).should(
+      "contain",
+      "First Name",
+    );
+    deployMode.NavigateBacktoEditor();
   });
 });
