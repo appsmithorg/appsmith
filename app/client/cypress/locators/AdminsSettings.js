@@ -26,7 +26,7 @@ export default {
   formSignupDisabled: "[data-testid='APPSMITH_SIGNUP_DISABLED']",
   formLoginDisabled: "[data-testid='APPSMITH_FORM_LOGIN_DISABLED']",
   embedSettings: ".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS",
-  upgrade: "//span[text()='UPGRADE']",
+  upgrade: "//span[text()='Upgrade']",
   accessControl:
     "[data-testid='t--enterprise-settings-category-item-access-control']",
   auditLogs: "[data-testid='t--enterprise-settings-category-item-audit-logs']",

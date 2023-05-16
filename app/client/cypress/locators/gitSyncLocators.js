@@ -43,7 +43,7 @@ export default {
   closeDisconnectModal: ".ads-v2-modal__content-header-close-button",
   disconnectAppNameInput: ".t--git-app-name-input",
   repoLimitExceededErrorModal: ".t--git-repo-limited-modal",
-  contactSalesButton: ".ads-v2-callout__children span",
+  gitModalLink: ".ads-v2-link",
   connectedApplication: ".t--connected-app-wrapper",
   diconnectLink: ".t--disconnect-link",
   disconnectLearnMoreLink: ".t--disconnect-learn-more",
@@ -59,6 +59,7 @@ export default {
   regenerateSSHKeyECDSA: ".t--regenerate-sshkey-ECDSA",
   regenerateSSHKeyRSA: ".t--regenerate-sshkey-RSA",
   confirmButton: "//span[text()='Yes']",
+  errorCallout: ".t--git-connection-error span",
   mergeConflicts:
     "//span[contains(text(), 'There are uncommitted changes present in your local branch master. Please commit them first and try again')]",
 };

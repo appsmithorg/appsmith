@@ -1,17 +1,19 @@
 import homePage from "../../../../locators/HomePage";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Visual regression tests", () => {
   // for any changes in UI, update the screenshot in snapshot folder, to do so:
   //  1. Delete the required screenshot which you want to update.
   //  2. Run test in headless mode with any browser
-  //      command: "npx cypress run --spec cypress/integration/Regression_TestSuite/ClientSideTests/LayoutValidation/AppPageLayout_spec.js  --browser chrome"
+  //      command: "npx cypress run --spec cypress/e2e/Regression_TestSuite/ClientSideTests/VisualTests/AppPageLayout_spec.js  --browser chrome"
   //  3. New screenshot will be generated in the snapshot folder.
 
   it("1. Layout validation for app page in edit mode", () => {
-    cy.visit("/applications");
-    cy.wait(3000);
-    cy.get(".t--applications-container .createnew").should("be.visible");
-    cy.get(".t--applications-container .createnew").first().click();
+    _.homePage.NavigateToHome();
+    //cy.visit("/applications");
+    //cy.wait(3000);
+    _.homePage.CreateNewApplication();
+    //cy.get(".createnew").should("be.visible").first().click();
     cy.wait(3000);
     // taking screenshot of app home page in edit mode
     cy.get("#root").matchImageSnapshot("apppage");
@@ -23,7 +25,7 @@ describe("Visual regression tests", () => {
     cy.get("#root").matchImageSnapshot("quickPageWizard");
 
     //Layout Validation for App builder Page
-    cy.get(".bp3-icon-chevron-left").click();
+    _.agHelper.GoBack();
     cy.wait(2000);
     // taking screenshot of app builder page
     cy.get("#root").matchImageSnapshot("emptyAppBuilder");
@@ -49,7 +51,7 @@ describe("Visual regression tests", () => {
     cy.xpath("//h1").should("have.text", "Sign in");
     cy.get(".bp3-label").first().should("have.text", "Email ");
     cy.get(".bp3-label").last().should("have.text", "Password ");
-    cy.xpath('//span[text()="sign in"]').should("be.visible");
+    cy.xpath('//span[text()="Sign in"]').should("be.visible");
     cy.get(".bp3-label").first().click();
     cy.matchImageSnapshot("loginpage");
   });

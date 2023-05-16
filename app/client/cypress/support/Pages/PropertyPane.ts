@@ -394,7 +394,7 @@ export class PropertyPane {
   // Checks if the property exists in search results
   public AssertIfPropertyOrSectionExists(
     section: string,
-    tab: "CONTENT" | "STYLE",
+    tab: "Content" | "Style",
     property?: string,
   ) {
     this.agHelper.AssertElementExist(

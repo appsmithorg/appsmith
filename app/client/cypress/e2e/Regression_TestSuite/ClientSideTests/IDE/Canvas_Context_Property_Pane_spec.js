@@ -133,7 +133,7 @@ describe("Canvas context Property Pane", function () {
 
     verifyPropertyPaneContext(
       () => {
-        cy.get(`.tab-title:contains("STYLE")`).eq(0).click();
+        cy.get(`.tab-title:contains("Style")`).eq(0).click();
         setPropertyPaneSectionState(propertySectionState);
       },
       () => {
@@ -209,7 +209,7 @@ describe("Canvas context Property Pane", function () {
     verifyPropertyPaneContext(
       () => {
         cy.editColumn("step");
-        cy.get(`.tab-title:contains("STYLE")`).eq(0).click();
+        cy.get(`.tab-title:contains("Style")`).eq(0).click();
         setPropertyPaneSectionState(propertySectionState);
       },
       () => {
@@ -369,7 +369,7 @@ function verifyPropertyPaneContext(
   cy.get(".t--property-pane-title").should("contain", widgetName);
 
   if (isStyleTab) {
-    cy.get(`.tab-title:contains("STYLE")`).eq(0).click();
+    cy.get(`.tab-title:contains("Style")`).eq(0).click();
   }
 
   //Focus Callback
