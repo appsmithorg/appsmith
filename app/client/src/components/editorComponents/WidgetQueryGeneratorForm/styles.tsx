@@ -1,5 +1,5 @@
 import { Colors } from "constants/Colors";
-import { Button } from "design-system";
+import { Button } from "design-system-new";
 import styled, { createGlobalStyle } from "styled-components";
 import { DROPDOWN_TRIGGER_DIMENSION } from "./constants";
 
