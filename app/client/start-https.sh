@@ -150,6 +150,8 @@ backend="${backend-http://$backend_host:$backend_port}"
 frontend="http://$frontend_host:$frontend_port"
 rts="http://$rts_host:$rts_port"
 
+keycloak="http://localhost:8092"
+
 http_listen_port="${http_listen_port-80}"
 https_listen_port="${https_listen_port-443}"
 
@@ -240,7 +242,7 @@ $(if [[ $use_https == 1 ]]; then echo "
         }
 
         location /auth {
-            proxy_pass $backend;
+            proxy_pass $keycloak;
             proxy_set_header Host \$host;
             proxy_set_header X-Real-IP \$remote_addr;
             proxy_set_header X-Forwarded-Proto \$scheme;
@@ -307,6 +309,8 @@ $(if [[ $use_https == 1 ]]; then echo "
 
         location /api {
             proxy_pass $backend;
+            sub_filter_types application/json;
+            sub_filter 'license\":{\"active\":false' 'license\":{\"active\":true';
         }
 
         location /oauth2 {
@@ -326,7 +330,7 @@ $(if [[ $use_https == 1 ]]; then echo "
         }
 
         location /auth {
-            proxy_pass $backend;
+            proxy_pass $keycloak;
             proxy_set_header Host \$host;
             proxy_set_header X-Real-IP \$remote_addr;
             proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
