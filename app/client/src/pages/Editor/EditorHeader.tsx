@@ -473,7 +473,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                         {createMessage(IN_APP_EMBED_SETTING.embed)}
                       </Tab>
                     </TabsList>
-                    <TabPanel data-tesid="t--tab--EMBED" value="invite">
+                    <TabPanel data-tesid="t--tab-EMBED" value="invite">
                       <AppInviteUsersForm
                         applicationId={applicationId}
                         placeholder={createMessage(
