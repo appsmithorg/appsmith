@@ -126,6 +126,17 @@ unset_unused_variables() {
   fi
 }
 
+mount_nfs() {
+  # Mount a NFS if the NFS env variables are set
+  if [[ ! -z ${NFS_IP} && ! -z ${NFS_NAME} ]]; then
+      echo "Mounting NFS"
+      apt-get update && apt-get install -y nfs-common nfs-kernel-server
+      echo "Mount file share ${NFS_IP}:/${NFS_NAME} to ${stacks_path}"
+      mount -o nolock ${NFS_IP}:/${NFS_NAME} ${stacks_path}
+      echo "Mounting result: $?"
+  fi
+}
+
 check_mongodb_uri() {
   echo "Checking APPSMITH_MONGODB_URI"
   isUriLocal=1
@@ -397,6 +408,7 @@ init_loading_pages(){
 # Main Section
 init_loading_pages
 init_env_file
+mount_nfs
 setup_proxy_variables
 unset_unused_variables
 
