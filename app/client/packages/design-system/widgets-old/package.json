@@ -6,16 +6,8 @@
   "author": "Valera Melnikov <valera@appsmith.com>, Pawan Kumar <pawan@appsmith.com>",
   "license": "Apache-2.0",
   "scripts": {
-    "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook",
-    "create-story": "./create_story.sh",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test-storybook": "test-storybook",
-    "test-storybook:ci": "concurrently -k -s first -n \"SB,TEST\" -c \"magenta,blue\" \"yarn build-storybook --quiet && npx http-server storybook-static --port 6006 --silent\" \"wait-on tcp:6006 && yarn test-storybook\"",
-    "chromatic": "chromatic --project-token=CHROMATIC_PROJECT_TOKEN",
-    "lint:ci": "eslint --cache .",
-    "prettier:ci": "prettier --check ."
+    "lint": "eslint --cache .",
+    "prettier": "prettier --check ."
   },
   "devDependencies": {
     "@svgr/webpack": "5.5.0",
