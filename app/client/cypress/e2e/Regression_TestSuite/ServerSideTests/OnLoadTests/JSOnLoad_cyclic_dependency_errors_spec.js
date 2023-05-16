@@ -153,7 +153,7 @@ describe("Cyclic Dependency Informational Error Messages", function () {
     // Case 6: When updating Datasource query
     _.entityExplorer.SelectEntityByName(queryName, "Queries/JS");
     // update query and check no cyclic dependency issue should occur
-    cy.get(queryLocators.query).click({ force: true });
+    cy.xpath(queryLocators.query).click({ force: true });
     cy.get(".CodeMirror textarea").first().focus().type(" ", {
       force: true,
       parseSpecialCharSequences: false,
