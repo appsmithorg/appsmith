@@ -63,6 +63,7 @@ export const registerWidget = (Widget: any, config: WidgetConfiguration) => {
     config.properties.stylesheetConfig,
     config.properties.autocompleteDefinitions,
     config.autoLayout,
+    config.properties.setterConfig,
   );
   configureWidget(config);
 };
