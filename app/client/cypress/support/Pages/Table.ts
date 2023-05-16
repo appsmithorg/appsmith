@@ -561,5 +561,6 @@ export class Table {
       JSON.stringify(sampleTableData),
       true,
     );
+    ObjectsRegistry.Table.ChangeColumnType("action", "Button", "v2");
   }
 }
