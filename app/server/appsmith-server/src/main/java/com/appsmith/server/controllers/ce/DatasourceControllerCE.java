@@ -95,6 +95,16 @@ public class DatasourceControllerCE {
     }
 
     @JsonView(Views.Public.class)
+    @PutMapping("/{id}//datasource-storages")
+    public Mono<ResponseDTO<Datasource>> updateDatasourceStorages(@PathVariable String id,
+                                                                  @RequestBody Datasource datasource,
+                                                                  @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+        log.debug("Going to update resource from datasource controller with id: {}", id);
+        return datasourceService.updateDatasourceStorages(datasource, Boolean.TRUE)
+                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
+    }
+
+    @JsonView(Views.Public.class)
     @DeleteMapping("/{id}")
     public Mono<ResponseDTO<Datasource>> delete(@PathVariable String id) {
         log.debug("Going to delete resource from datasource controller with id: {}", id);

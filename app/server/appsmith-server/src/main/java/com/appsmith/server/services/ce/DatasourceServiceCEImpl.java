@@ -1,6 +1,5 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceDTO;
@@ -226,29 +225,17 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     // TODO: Remove the following snippet after client side API changes
     @Override
     public Mono<DatasourceDTO> update(String id, DatasourceDTO datasourceDTO, String environmentId) {
+        // since there was no datasource update differentiator between server invoked due to refresh token,
+        // and user invoked. Hence the update is overloaded to provide the boolean for key diff.
+        // adding a default false value here, the value is true only when
+        // the user calls the update event from datasource controller, else it's false.
         return this.update(id, datasourceDTO, environmentId, Boolean.FALSE);
     }
 
     @Override
     public Mono<DatasourceDTO> update(String id, DatasourceDTO datasourceDTO, String environmentId, Boolean isUserRefreshedUpdate) {
         Datasource datasource = convertToDatasource(datasourceDTO, environmentId);
-        return this.updateByEnvironmentId(id, datasource, environmentId, isUserRefreshedUpdate)
-                .map(this::convertToDatasourceDTO);
-    }
 
-    @Override
-    public Mono<Datasource> updateByEnvironmentId(String id, Datasource datasource, String environmentId) {
-        // since there was no datasource update differentiator between server invoked due to refresh token,
-        // and user invoked. Hence the update is overloaded to provide the boolean for key diff.
-        // adding a default false value here, the value is true only when
-        // the user calls the update event from datasource controller, else it's false.
-        return updateByEnvironmentId(id, datasource, environmentId, Boolean.FALSE);
-    }
-
-    private Mono<Datasource> updateByEnvironmentId(String id,
-                                                   Datasource datasource,
-                                                   String environmentId,
-                                                   Boolean isUserRefreshedUpdate) {
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -256,23 +243,10 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         // Since policies are a server only concept, first set the empty set (set by constructor) to null
         datasource.setPolicies(null);
 
-        Mono<Datasource> datasourceMono = repository.findById(id, datasourcePermission.getEditPermission())
+        Mono<Datasource> datasourceMono = findByIdWithStorages(id) // This will be removed once we have done our transition
+                .then(repository.findById(id, datasourcePermission.getEditPermission()))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, id)));
 
-
-        // Check if this is an update for only datasource related properties
-        if (!datasource.getDatasourceStorages().isEmpty()) {
-            // This is meant to be an update for storage
-            return datasourceMono
-                    .flatMap(dbDatasource -> datasourceStorageService
-                            .updateByDatasourceAndEnvironmentId(datasource, environmentId, isUserRefreshedUpdate)
-                            .map(datasourceStorage -> {
-                                datasource.getDatasourceStorages()
-                                        .put(getTrueEnvironmentId(environmentId), new DatasourceStorageDTO(datasourceStorage));
-                                copyNestedNonNullProperties(datasource, dbDatasource);
-                                return dbDatasource;
-                            }));
-        }
 
         // This is meant to be an update for just the datasource - like a rename
         return datasourceMono
@@ -289,8 +263,33 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         analyticsProperties.put(FieldName.IS_DATASOURCE_UPDATE_USER_INVOKED_KEY, Boolean.FALSE);
                     }
                     return analyticsService.sendUpdateEvent(savedDatasource, analyticsProperties);
-                });
+                })
+                .map(this::convertToDatasourceDTO);
+    }
 
+
+    @Override
+    public Mono<Datasource> updateDatasourceStorages(Datasource datasource, Boolean IsUserRefreshedUpdate) {
+        String datasourceId = datasource.getId();
+
+        Mono<Map<String, DatasourceStorageDTO>> savedStoragesMono =
+                Flux.fromIterable(datasource.getDatasourceStorages().keySet())
+                        .flatMap(environmentId -> datasourceStorageService
+                                .updateByDatasourceAndEnvironmentId(datasource, environmentId, Boolean.TRUE))
+                        .collectMap(datasourceStorage -> datasourceStorage.getEnvironmentId(),
+                                datasourceStorage -> new DatasourceStorageDTO(datasourceStorage));
+
+
+        // querying for each of the datasource
+        Mono<Datasource> datasourceMono = repository.findById(datasourceId, datasourcePermission.getEditPermission())
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)));
+
+
+        return datasourceMono.flatMap(datasource1 -> savedStoragesMono
+                        .map(storages -> {
+                            datasource1.setDatasourceStorages(storages);
+                            return datasource1;
+                        }));
     }
 
     @Override
@@ -427,6 +426,34 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     @Override
     public Mono<Datasource> findById(String id, AclPermission aclPermission) {
         return repository.findById(id, aclPermission);
+    }
+
+    @Override
+    public Mono<Datasource> findByIdWithStorages(String id) {
+        return repository.findById(id)
+                .flatMap(datasource -> {
+                    return datasourceStorageService.findByDatasource(datasource)
+                            .collectMap(datasourceStorage -> datasourceStorage.getEnvironmentId(),
+                                    datasourceStorage -> new DatasourceStorageDTO(datasourceStorage))
+                            .map(storages -> {
+                                datasource.setDatasourceStorages(storages);
+                                return datasource;
+                            });
+                });
+    }
+
+    @Override
+    public Mono<Datasource> findByIdAndEnvironmentId(String id, String environmentId) {
+        return repository.findById(id)
+                .flatMap(datasource -> {
+                    return datasourceStorageService.findByDatasourceAndEnvironmentId(datasource, environmentId)
+                            .map(storage -> {
+                                HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+                                storages.put(environmentId, new DatasourceStorageDTO(storage));
+                                datasource.setDatasourceStorages(storages);
+                                return datasource;
+                            });
+                });
     }
 
     @Override
