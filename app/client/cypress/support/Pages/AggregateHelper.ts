@@ -322,6 +322,11 @@ export class AggregateHelper {
       "response.body.responseMeta.status",
       expectedStatus,
     );
+
+    //To improve below:
+    // cy.wait(aliasName, { timeout: timeout }).should((response: any) => {
+    //   expect(response.status).to.be.oneOf([expectedStatus]);
+    // });
   }
 
   public ValidateNetworkDataAssert(

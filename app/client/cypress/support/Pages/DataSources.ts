@@ -653,8 +653,7 @@ export class DataSources {
 
   public DeleteDatasouceFromActiveTab(
     datasourceName: string,
-    expectedRes = 200,
-    toValidateRes = true,
+    expectedRes = 200 || 409 || [200 | 409],
   ) {
     this.ClickActiveTabDSContextMenu(datasourceName);
     this.agHelper.GetNClick(
@@ -664,17 +663,26 @@ export class DataSources {
       200,
     );
     this.agHelper.GetNClick(this._visibleTextSpan("Are you sure?"));
+    this.ValidateDSDeletion(expectedRes);
+  }
+
+  public ValidateDSDeletion(expectedRes = 200) {
+    let toValidateRes = expectedRes == 200 || expectedRes == 409 ? true : false;
     if (toValidateRes) {
-      this.agHelper.ValidateNetworkStatus("@deleteDatasource", expectedRes);
       if (expectedRes == 200)
         this.agHelper.AssertContains("datasource deleted successfully");
       else this.agHelper.AssertContains("action(s) using it.");
+      this.agHelper.ValidateNetworkStatus("@deleteDatasource", expectedRes);
+    } else {
+      cy.wait("@deleteDatasource").should((response: any) => {
+        expect(response.status).to.be.oneOf([200, 409]);
+      });
     }
   }
 
   public DeleteDatasouceFromWinthinDS(
     datasourceName: string,
-    expectedRes = 200,
+    expectedRes = 200 || 409 || [200 | 409],
   ) {
     this.ClickActiveTabDSContextMenu(datasourceName);
 
@@ -693,16 +701,13 @@ export class DataSources {
       200,
     );
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Are you sure?"));
-    this.agHelper.ValidateNetworkStatus("@deleteDatasource", expectedRes);
-    if (expectedRes == 200)
-      this.agHelper.AssertContains("datasource deleted successfully");
-    else this.agHelper.AssertContains("action(s) using it.");
+    this.ValidateDSDeletion(expectedRes);
   }
 
-  public DeleteDSDirectly() {
+  public DeleteDSDirectly(expectedRes = 200) {
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Delete"));
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Are you sure?"));
-    this.agHelper.AssertContains("deleted successfully");
+    this.ValidateDSDeletion(expectedRes);
   }
 
   public NavigateToActiveTab() {
