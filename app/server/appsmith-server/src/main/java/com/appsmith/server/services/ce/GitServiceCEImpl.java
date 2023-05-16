@@ -127,7 +127,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final NewActionService newActionService;
     private final ActionCollectionService actionCollectionService;
     private final GitFileUtils fileUtils;
-    private final @Qualifier("importExportServiceCEImplV2") ImportExportApplicationService importExportApplicationService;
+    private final ImportExportApplicationService importExportApplicationService;
     private final GitExecutor gitExecutor;
     private final ResponseUtils responseUtils;
     private final EmailConfig emailConfig;
@@ -331,7 +331,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     /**
      * This method will make a commit to local repo
-     * This is used directly from client and we need to acquire file lock before starting to keep the application in a sane state
+     * This is used directly from client, and we need to acquire file lock before starting to keep the application in a sane state
      *
      * @param commitDTO            information required for making a commit
      * @param defaultApplicationId application branch on which the commit needs to be done
@@ -427,31 +427,25 @@ public class GitServiceCEImpl implements GitServiceCE {
                     }
                     // Check if the repo is public for current application and if the user have changed the access after
                     // the connection
-                    final Boolean isRepoPrivate = defaultGitMetadata.getIsRepoPrivate();
-                    Mono<Application> applicationMono;
-                    if (Boolean.FALSE.equals(isRepoPrivate)) {
-                        applicationMono = GitUtils.isRepoPrivate(defaultGitMetadata.getBrowserSupportedRemoteUrl())
-                                .flatMap(isPrivate -> {
-                                    defaultGitMetadata.setIsRepoPrivate(isPrivate);
-                                    if (!isPrivate.equals(defaultGitMetadata.getIsRepoPrivate())) {
-                                        return applicationService.save(defaultApplication);
-                                    } else {
-                                        return Mono.just(defaultApplication);
-                                    }
-                                });
-                    } else {
-                        return Mono.just(defaultApplication);
-                    }
-
-                    // Check if the private repo count is less than the allowed repo count
                     final String workspaceId = defaultApplication.getWorkspaceId();
-                    return applicationMono
-                            .then(isRepoLimitReached(workspaceId, false))
-                            .flatMap(isRepoLimitReached -> {
-                                if (Boolean.FALSE.equals(isRepoLimitReached)) {
+                    return GitUtils.isRepoPrivate(defaultGitMetadata.getBrowserSupportedRemoteUrl())
+                            .flatMap(isPrivate -> {
+                                // Check the repo limit if the visibility status is updated, or it is private
+                                if (!isPrivate.equals(defaultGitMetadata.getIsRepoPrivate()) || isPrivate.equals(Boolean.TRUE)) {
+                                    defaultGitMetadata.setIsRepoPrivate(isPrivate);
+                                    defaultApplication.setGitApplicationMetadata(defaultGitMetadata);
+                                    return applicationService.save(defaultApplication)
+                                            // Check if the private repo count is less than the allowed repo count
+                                            .flatMap(application -> isRepoLimitReached(workspaceId, false))
+                                            .flatMap(isRepoLimitReached -> {
+                                                if (Boolean.FALSE.equals(isRepoLimitReached)) {
+                                                    return Mono.just(defaultApplication);
+                                                }
+                                                throw new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR);
+                                            });
+                                } else {
                                     return Mono.just(defaultApplication);
                                 }
-                                throw new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR);
                             });
                 })
                 .then(applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, applicationPermission.getEditPermission()))
@@ -1333,7 +1327,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             )
                             // We need to handle the case specifically for default branch of Appsmith
                             // if user switches default branch and tries to delete the default branch we do not delete resource from db
-                            // This is an exception only for the above case and in such case if the user tries to checkout the branch again
+                            // This is an exception only for the above case and in such case if the user tries to check out the branch again
                             // It results in an error as the resources are already present in db
                             // So we just rehydrate from the file system to the existing resource on the db
                             .onErrorResume(throwable -> {
@@ -1631,9 +1625,9 @@ public class GitServiceCEImpl implements GitServiceCE {
     @Override
     public Mono<MergeStatusDTO> mergeBranch(String defaultApplicationId, GitMergeDTO gitMergeDTO) {
         /*
-         * 1.Dehydrate the application from Mongodb so that the file system has latest application data for both the source and destination branch application
+         * 1.Dehydrate the application from Mongodb so that the file system has the latest application data for both the source and destination branch application
          * 2.Do git checkout destinationBranch ---> git merge sourceBranch after the rehydration
-         *   On Merge conflict - create new branch and push the changes to remote and ask the user to resolve it on github/gitlab UI
+         *   On Merge conflict - create new branch and push the changes to remote and ask the user to resolve it on Github/Gitlab UI
          * 3.Then rehydrate from the file system to mongodb so that the latest changes from remote are rendered to the application
          * 4.Get the latest application mono from the mongodb and send it back to client
          * */
@@ -1978,7 +1972,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         .then(applicationPageService.deleteApplication(application.getId())))
                                 .flatMap(application1 -> {
                                     if (error instanceof TransportException) {
-                                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, error.getMessage()));
+                                        return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION));
                                     } else if (error instanceof InvalidRemoteException) {
                                         return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "remote url"));
                                     } else if (error instanceof TimeoutException) {
@@ -2380,20 +2374,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     @Override
     public Mono<Long> getApplicationCountWithPrivateRepo(String workspaceId) {
-        return applicationService.getGitConnectedApplicationsByWorkspaceId(workspaceId)
-                .flatMap(application -> {
-                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
-                    final Boolean isRepoPrivate = gitData.getIsRepoPrivate();
-                    return GitUtils.isRepoPrivate(application.getGitApplicationMetadata().getBrowserSupportedRemoteUrl())
-                            .flatMap(isPrivate -> {
-                                if (!isRepoPrivate.equals(gitData.getIsRepoPrivate())) {
-                                    // Repo accessibility is changed
-                                    return applicationService.save(application);
-                                }
-                                return Mono.just(application);
-                            });
-                })
-                .then(applicationService.getGitConnectedApplicationsCountWithPrivateRepoByWorkspaceId(workspaceId));
+        return applicationService.getGitConnectedApplicationsCountWithPrivateRepoByWorkspaceId(workspaceId);
     }
 
     /**
@@ -2559,8 +2540,16 @@ public class GitServiceCEImpl implements GitServiceCE {
                     }
                     return this.getApplicationCountWithPrivateRepo(workspaceId)
                             .map(privateRepoCount -> {
-                                if (limit > privateRepoCount) {
-                                    return Boolean.FALSE;
+                                // isClearCache is false for the commit flow
+                                // isClearCache is true for the connect & import flow
+                                if (!isClearCache) {
+                                    if (privateRepoCount <= limit) {
+                                        return Boolean.FALSE;
+                                    }
+                                } else {
+                                    if (privateRepoCount < limit) {
+                                        return Boolean.FALSE;
+                                    }
                                 }
                                 return Boolean.TRUE;
                             });

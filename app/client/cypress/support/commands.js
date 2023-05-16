@@ -196,7 +196,7 @@ Cypress.Commands.add("DeleteApp", (appName) => {
     200,
   );
   cy.get('button span[icon="chevron-down"]').should("be.visible");
-  cy.get(homePage.searchInput).type(appName, { force: true });
+  cy.get(homePage.searchInput).clear().type(appName, { force: true });
   cy.get(homePage.applicationCard).trigger("mouseover");
   cy.get(homePage.appMoreIcon)
     .should("have.length", 1)
@@ -354,7 +354,7 @@ Cypress.Commands.add("NavigateToWidgets", (pageName) => {
 });
 
 Cypress.Commands.add("SearchApp", (appname) => {
-  cy.get(homePage.searchInput).type(appname);
+  cy.get(homePage.searchInput).type(appname, { force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
   cy.get(homePage.applicationCard)
@@ -1294,15 +1294,27 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.get(welcomePage.useCaseDropdownOption).eq(1).click();
   cy.get(welcomePage.nextButton).should("not.be.disabled");
   cy.get(welcomePage.nextButton).click();
-  cy.get(welcomePage.newsLetter).should("be.visible");
+  if (Cypress.env("AIRGAPPED")) {
+    cy.get(welcomePage.newsLetter).should("not.exist");
+    cy.get(welcomePage.dataCollection).should("not.exist");
+    cy.get(welcomePage.createButton).should("not.exist");
+  } else {
+    cy.get(welcomePage.newsLetter).should("be.visible");
+    cy.get(welcomePage.dataCollection).should("be.visible");
+    cy.get(welcomePage.createButton).should("be.visible");
+    cy.get(welcomePage.createButton).trigger("mouseover").click();
+    cy.wait("@createSuperUser").then((interception) => {
+      expect(interception.request.body).contains(
+        "allowCollectingAnonymousData=true",
+      );
+      expect(interception.request.body).contains("signupForNewsletter=true");
+    });
+  }
   //cy.get(welcomePage.newsLetter).trigger("mouseover").click();
   //cy.get(welcomePage.newsLetter).find("input").uncheck();//not working
-  cy.get(welcomePage.dataCollection).should("be.visible");
   //cy.get(welcomePage.dataCollection).trigger("mouseover").click();
   //cy.wait(1000); //for toggles to settle
-  cy.get(welcomePage.createButton).should("be.visible");
 
-  cy.get(welcomePage.createButton).trigger("mouseover").click();
   //Seeing issue with above also, trying multiple click as below
   //cy.get(welcomePage.createButton).click({ multiple: true });
   //cy.get(welcomePage.createButton).trigger("click");
@@ -1323,13 +1335,6 @@ Cypress.Commands.add("createSuperUser", () => {
   //   $jQueryButton.trigger("click"); // click on the button using jQuery
   // });
 
-  //uncommenting below to analyse
-  cy.wait("@createSuperUser").then((interception) => {
-    expect(interception.request.body).contains(
-      "allowCollectingAnonymousData=true",
-    );
-    expect(interception.request.body).contains("signupForNewsletter=true");
-  });
   cy.LogOut();
   cy.wait(2000);
 });
