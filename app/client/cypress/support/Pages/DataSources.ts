@@ -173,16 +173,16 @@ export class DataSources {
   // Authenticated API locators
   private _authApiDatasource = ".t--createAuthApiDatasource";
   private _authType = "[data-testid=authType]";
-  private _oauth2 = ".t--dropdown-option:contains('OAuth 2.0')";
+  private _oauth2 = ".rc-select-item-option:contains('OAuth 2.0')";
   private _accessTokenUrl =
     "[data-testid='authentication.accessTokenUrl'] input";
   private _scope = "[data-testid='authentication.scopeString'] input";
   private _clientID = "[data-testid='authentication.clientId'] input";
   private _clientSecret = "[data-testid='authentication.clientSecret'] input";
   private _clientCredentails =
-    ".t--dropdown-option:contains('Client Credentials')";
+    ".rc-select-item-option:contains('Client Credentials')";
   private _authorizationCode =
-    ".t--dropdown-option:contains('Authorization Code')";
+    ".rc-select-item-option:contains('Authorization Code')";
   private _grantType = "[data-testid='authentication.grantType']";
   private _authorizationURL =
     "[data-testid='authentication.authorizationUrl'] input";
