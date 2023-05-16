@@ -717,16 +717,6 @@ public class MongoPlugin extends BasePlugin {
         }
 
         @Override
-        public Properties addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, Properties properties) {
-            return properties;
-        }
-        @Override
-        public Properties addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, Properties properties) {
-            return properties;
-        }
-
-
-        @Override
         public void datasourceDestroy(MongoClient mongoClient) {
             if (mongoClient != null) {
                 mongoClient.close();

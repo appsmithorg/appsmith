@@ -69,9 +69,13 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
         return this.datasourceCreate(datasourceConfiguration);
     }
 
-    Properties addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, Properties properties);
+    default Properties addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+        return properties;
+    }
 
-    Properties addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, Properties properties);
+    default Properties addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, Properties properties) {
+        return properties;
+    }
 
     /**
      * This function is used to bring down/destroy the connection to the data source.

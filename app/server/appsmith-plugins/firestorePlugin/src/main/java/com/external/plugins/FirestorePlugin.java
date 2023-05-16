@@ -913,15 +913,6 @@ public class FirestorePlugin extends BasePlugin {
         }
 
         @Override
-        public Properties addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, Properties properties) {
-            return properties;
-        }
-        @Override
-        public Properties addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, Properties properties) {
-            return properties;
-        }
-
-        @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration){
 
             return datasourceCreate(datasourceConfiguration)

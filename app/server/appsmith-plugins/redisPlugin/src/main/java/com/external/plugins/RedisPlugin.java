@@ -253,15 +253,6 @@ public class RedisPlugin extends BasePlugin {
         }
 
         @Override
-        public Properties addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, Properties properties) {
-            return properties;
-        }
-        @Override
-        public Properties addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, Properties properties) {
-            return properties;
-        }
-
-        @Override
         public void datasourceDestroy(JedisPool jedisPool) {
             // Schedule on elastic thread pool and subscribe immediately.
             Mono.fromSupplier(() -> {

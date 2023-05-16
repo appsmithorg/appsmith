@@ -888,15 +888,6 @@ public class AmazonS3Plugin extends BasePlugin {
         }
 
         @Override
-        public Properties addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, Properties properties) {
-            return properties;
-        }
-        @Override
-        public Properties addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, Properties properties) {
-            return properties;
-        }
-
-        @Override
         public void datasourceDestroy(AmazonS3 connection) {
             if (connection != null) {
                 Mono.fromCallable(() -> {

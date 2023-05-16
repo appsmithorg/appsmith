@@ -555,15 +555,6 @@ public class MySqlPlugin extends BasePlugin {
         }
 
         @Override
-        public Properties addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, Properties properties) {
-            return properties;
-        }
-        @Override
-        public Properties addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, Properties properties) {
-            return properties;
-        }
-
-        @Override
         public void datasourceDestroy(ConnectionPool connectionPool) {
             if (connectionPool != null) {
                 connectionPool.disposeLater()

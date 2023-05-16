@@ -101,13 +101,4 @@ public class BaseRestApiPluginExecutor implements PluginExecutor<APIConnection>,
         /* Use the default hint message flow for REST API based plugins */
         return hintMessageUtils.getHintMessages(actionConfiguration, datasourceConfiguration);
     }
-
-    @Override
-    public Properties addPluginSpecificProperties(DatasourceConfiguration datasourceConfiguration, Properties properties) {
-        return properties;
-    }
-    @Override
-    public Properties addAuthParamsToConnectionConfig(DatasourceConfiguration datasourceConfiguration, Properties properties) {
-        return properties;
-    }
 }
