@@ -6,13 +6,11 @@ describe("Binding the multiple widgets and validating default data", function ()
     cy.addDsl(dsl);
   });
 
-  it("Dropdown widget test with invalid binding value", function () {
+  it("1. Dropdown widget test with invalid binding value", function () {
     cy.openPropertyPane("selectwidget");
     cy.testJsontext("options", JSON.stringify(testdata.defaultdataBinding));
     cy.evaluateErrorMessage(testdata.dropdownErrorMsg);
-  });
-
-  it("Table widget test with invalid binding value", function () {
+    //Table widget test with invalid binding value
     cy.openPropertyPane("tablewidget");
     cy.testJsontext("tabledata", JSON.stringify(testdata.defaultdataBinding));
     cy.evaluateErrorMessage(testdata.tableWidgetErrorMsg);

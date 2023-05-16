@@ -8,7 +8,7 @@ describe("Binding the multiple widgets and validating default data", function ()
     cy.addDsl(dsl);
   });
 
-  it("Input widget test with default value from table widget", function () {
+  it("1. Input widget test with default value from table widget", function () {
     cy.openPropertyPane("inputwidgetv2");
     cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
 
@@ -17,10 +17,7 @@ describe("Binding the multiple widgets and validating default data", function ()
       "response.body.responseMeta.status",
       200,
     );
-  });
-
-  //To be enabled once the single select multi select issues are resolved
-  it("Dropdown widget test with default value from table widget", function () {
+    //Dropdown widget test with default value from table widget
     cy.openPropertyPane("selectwidget");
     cy.testJsontext("options", JSON.stringify(testdata.deafultDropDownWidget));
 
@@ -31,7 +28,7 @@ describe("Binding the multiple widgets and validating default data", function ()
     );
   });
 
-  it("validation of default data displayed in all widgets based on row selected", function () {
+  it("2. validation of default data displayed in all widgets based on row selected", function () {
     cy.isSelectRow(1);
     cy.readTabledataPublish("1", "0").then((tabData) => {
       const tabValue = tabData;

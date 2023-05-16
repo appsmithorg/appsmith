@@ -12,9 +12,7 @@ describe("Test Create Api and Bind to Table widget", function () {
   it("1. Create an API and Execute the API and bind with Table", function () {
     cy.createAndFillApi(this.data.paginationUrl, this.data.paginationParam);
     cy.RunAPI();
-  });
-
-  it("2. Validate Table with API data and then add a column", function () {
+    //Validate Table with API data and then add a column
     _.entityExplorer.SelectEntityByName("Table1", "Widgets");
     cy.testJsontext("tabledata", "{{Api1.data}}");
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
@@ -45,7 +43,7 @@ describe("Test Create Api and Bind to Table widget", function () {
     cy.closePropertyPane();
   });
 
-  it("3. Check Image alignment is working as expected", function () {
+  it("2. Check Image alignment is working as expected", function () {
     _.entityExplorer.SelectEntityByName("Table1", "Widgets");
     cy.editColumn("avatar");
     cy.changeColumnType("Image", false);
@@ -70,7 +68,7 @@ describe("Test Create Api and Bind to Table widget", function () {
       .should("have.css", "background-position", "0% 50%");
   });
 
-  it("4. Update table json data and check the derived column values after update", function () {
+  it("3. Update table json data and check the derived column values after update", function () {
     _.entityExplorer.SelectEntityByName("Table1", "Widgets");
     cy.backFromPropertyPanel();
     cy.tableColumnDataValidation("id");

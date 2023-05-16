@@ -22,16 +22,14 @@ describe("Table Widget and Navigate to functionality validation", function () {
     cy.wait(2000); //dsl to settle!
   });
 
-  it("Create MyPage and valdiate if its successfully created", function () {
+  it("1. Create MyPage and valdiate if its successfully created", function () {
     cy.Createpage(pageid);
     cy.addDsl(dsl2);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
-  });
-
-  it("Table Widget Functionality with multiple page", function () {
+    //Table Widget Functionality with multiple page
     cy.get(`.t--entity-name:contains("Page1")`)
       .should("be.visible")
       .click({ force: true });
@@ -49,9 +47,7 @@ describe("Table Widget and Navigate to functionality validation", function () {
       .contains(pageid)
       .click({ force: true });
     cy.assertPageSave();
-  });
-
-  it("Validate NavigateTo Page functionality ", function () {
+    //Validate NavigateTo Page functionality
     cy.wait(2000);
     cy.PublishtheApp();
     cy.get(widgetsPage.chartWidget).should("not.exist");

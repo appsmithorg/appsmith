@@ -4,7 +4,7 @@ const jsEditor = ObjectsRegistry.JSEditor,
   agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("JS Execution of Higher-order-functions", function () {
-  it("Completes execution properly", function () {
+  it("1. Completes execution properly", function () {
     const JSObjectWithHigherOrderFunction = `export default{
         myFun1: ()=>{
             return (name)=>name

@@ -21,9 +21,7 @@ describe("Binding the multiple widgets and validating default data", function ()
     cy.get("@saveDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
-  });
-
-  it("2. Create and runs query", () => {
+    //Create and runs query
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.get(queryLocators.templateMenu).click();
     _.dataSources.EnterQuery("select * from users limit 10");
@@ -33,7 +31,7 @@ describe("Binding the multiple widgets and validating default data", function ()
     _.dataSources.RunQuery();
   });
 
-  it("3. Button widget test with on action query run", function () {
+  it("2. Button widget test with on action query run", function () {
     _.entityExplorer.SelectEntityByName("Button1");
 
     cy.executeDbQuery("Query1", "onClick");
@@ -42,9 +40,7 @@ describe("Binding the multiple widgets and validating default data", function ()
       "response.body.responseMeta.status",
       200,
     );
-  });
-
-  it("4. Input widget test with default value update with query data", function () {
+    //Input widget test with default value update with query data
     _.entityExplorer.SelectEntityByName("Input1");
 
     cy.get(widgetsPage.defaultInput).type(testdata.defaultInputQuery);
@@ -55,7 +51,7 @@ describe("Binding the multiple widgets and validating default data", function ()
     );
   });
 
-  it("5. Publish App and validate loading functionalty", function () {
+  it("3. Publish App and validate loading functionalty", function () {
     cy.PublishtheApp();
     //eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);

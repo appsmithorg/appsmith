@@ -7,7 +7,7 @@ describe("Binding prompt", function () {
     cy.addDsl(dsl);
   });
 
-  it("Show binding prompt when there are no bindings in the editor", () => {
+  it("1. Show binding prompt when there are no bindings in the editor", () => {
     cy.openPropertyPane("inputwidgetv2");
     cy.testJsontext("defaultvalue", " ");
     cy.get(dynamicInput.bindingPrompt).should("be.visible");
