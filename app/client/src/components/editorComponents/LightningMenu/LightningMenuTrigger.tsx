@@ -7,8 +7,7 @@ import {
 import type { Theme } from "constants/DefaultTheme";
 import { Skin } from "constants/DefaultTheme";
 import styled from "styled-components";
-import { TooltipComponent as Tooltip } from "design-system-old";
-import { Icon } from "design-system";
+import { Icon, Tooltip } from "design-system";
 
 const LightningIconWrapper = styled.span<{
   background: string;
@@ -84,12 +83,8 @@ export function LightningMenuTrigger(props: LightningMenuTriggerProps) {
       skin={props.skin}
     >
       <Tooltip
-        autoFocus={false}
         content={createMessage(LIGHTNING_MENU_DATA_TOOLTIP)}
-        hoverOpenDelay={1000}
-        minWidth={"180px"}
-        openOnTargetFocus={false}
-        position="left"
+        placement="left"
       >
         <Icon name="lightning" size="md" />
       </Tooltip>

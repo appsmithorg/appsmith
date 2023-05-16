@@ -19,7 +19,9 @@ import Resizable, {
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import Errors from "components/editorComponents/Debugger/Errors";
-import DebbuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
+import DebbuggerLogs, {
+  LIST_HEADER_HEIGHT,
+} from "components/editorComponents/Debugger/DebuggerLogs";
 import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
 import {
   getDebuggerSelectedTab,
@@ -48,7 +50,7 @@ export const TabbedViewContainer = styled.div`
         props.theme.colors.apiPane.responseBody.bg};
     }
     .ads-v2-tabs__panel {
-      height: calc(100% - 36px);
+      height: calc(100% - ${LIST_HEADER_HEIGHT});
     }
   }
   .close-debugger {
@@ -66,10 +68,6 @@ export const ResizerMainContainer = styled.div`
   flex-direction: column;
   height: calc(100% - 50px);
   overflow: hidden;
-  gap: 10px;
-  .db-form-resizer-content {
-    flex-direction: column;
-  }
 `;
 
 export const ResizerContentContainer = styled.div`
@@ -77,7 +75,12 @@ export const ResizerContentContainer = styled.div`
   flex: 1;
   position: relative;
   display: flex;
-  padding: 0px var(--ads-v2-spaces-7);
+  &.db-form-resizer-content,
+  &.saas-form-resizer-content,
+  &.api-datasource-content-container {
+    flex-direction: column;
+    padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-7);
+  }
 `;
 
 export default function Debugger() {

@@ -55,7 +55,7 @@ function ForkTemplate({
     <>
       {children}
       <Modal onOpenChange={closeModal} open={showForkModal}>
-        <ModalContent>
+        <ModalContent style={{ width: "640px" }}>
           <ModalHeader>{createMessage(CHOOSE_WHERE_TO_FORK)}</ModalHeader>
           <ModalBody>
             <Select

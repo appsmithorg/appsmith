@@ -84,7 +84,6 @@ const ContentWrapper = styled.div`
     width: 100%;
 
     .t--json-to-form-body {
-      padding: 0 20px;
       .t--collapse-section-container {
         margin-top: 20px;
       }
@@ -505,7 +504,7 @@ function ReconnectDatasourceModal() {
   return (
     <Modal onOpenChange={handleClose} open={isModalOpen}>
       <ModalContentWrapper data-testid="reconnect-datasource-modal">
-        <ModalHeader> Reconnect datasources</ModalHeader>
+        <ModalHeader>Reconnect datasources</ModalHeader>
         <ModalBodyWrapper>
           <BodyContainer>
             <Title>

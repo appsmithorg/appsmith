@@ -5,6 +5,7 @@ const QueryWrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
+  padding-left: 2px;
   /* This CSS is adopted from GraphiQL to maintain the consistency with the GraphiQL playground */
   /* COLORS */
 

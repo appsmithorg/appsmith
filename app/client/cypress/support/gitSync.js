@@ -83,7 +83,7 @@ Cypress.Commands.add(
         },
       });
 
-      cy.get(gitSyncLocators.useGlobalGitConfig).click();
+      cy.get(gitSyncLocators.useGlobalGitConfig).click({ force: true });
 
       cy.get(gitSyncLocators.gitConfigNameInput).type(
         `{selectall}${testUsername}`,
@@ -286,7 +286,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("merge", (destinationBranch) => {
   agHelper.AssertElementExist(gitSync._bottomBarPull);
-  cy.get(gitSyncLocators.bottomBarMergeButton).click();
+  cy.get(gitSyncLocators.bottomBarMergeButton).click({ force: true });
   //cy.wait(6000); // wait for git status call to finish
   /*cy.wait("@gitStatus").should(
     "have.nested.property",
@@ -299,7 +299,7 @@ Cypress.Commands.add("merge", (destinationBranch) => {
     0,
     false,
   );
-  cy.wait(3000);
+  cy.wait(6000);
   cy.get(gitSyncLocators.mergeBranchDropdownDestination).click();
   cy.get(commonLocators.dropdownmenu).contains(destinationBranch).click();
   agHelper.AssertElementAbsence(gitSync._checkMergeability, 35000);
@@ -375,7 +375,7 @@ Cypress.Commands.add(
         },
       });
 
-      cy.get(gitSyncLocators.useGlobalGitConfig).click();
+      cy.get(gitSyncLocators.useGlobalGitConfig).click({ force: true });
 
       cy.get(gitSyncLocators.gitConfigNameInput).type(
         `{selectall}${testUsername}`,

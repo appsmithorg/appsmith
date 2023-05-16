@@ -207,7 +207,7 @@ export class EntityExplorer {
       .last()
       .click({ force: true });
     cy.xpath(this._contextMenuItem(action)).click({ force: true });
-    this.agHelper.Sleep(300);
+    this.agHelper.Sleep(1000);
     if (action == "Delete") {
       subAction = "Are you sure?";
     }
@@ -262,7 +262,7 @@ export class EntityExplorer {
       .first()
       .click()
       .wait(100); //for menu template to appear
-    this.agHelper.GetNClick(this.locator._visibleTextSpan(action), 0, true);
+    this.agHelper.GetNClick(this._contextMenuItem(action), 0, true);
     this.agHelper.Sleep(500);
   }
 

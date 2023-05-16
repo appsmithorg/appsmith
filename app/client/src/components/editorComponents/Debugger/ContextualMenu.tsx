@@ -110,6 +110,7 @@ type ContextualMenuProps = {
   error: Message;
   children: JSX.Element;
   entity?: FieldEntityInformation | SourceEntity;
+  enableTooltip?: boolean;
 };
 
 const searchAction: Record<
@@ -183,13 +184,20 @@ const searchAction: Record<
   },
 };
 
-const ContextualMenu = (props: ContextualMenuProps) => {
+const ContextualMenu = ({
+  enableTooltip = true,
+  ...props
+}: ContextualMenuProps) => {
   const options = getOptions(props.error.type, props.error.subType);
   const dispatch = useDispatch();
 
   return (
     <Menu className="t--debugger-contextual-error-menu">
-      <Tooltip content={createMessage(TROUBLESHOOT_ISSUE)} placement="bottom">
+      <Tooltip
+        content={createMessage(TROUBLESHOOT_ISSUE)}
+        isDisabled={!enableTooltip}
+        placement="bottom"
+      >
         <MenuTrigger>{props.children}</MenuTrigger>
       </Tooltip>
 

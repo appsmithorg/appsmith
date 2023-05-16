@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
 import React, { memo, useCallback, useEffect, useRef, useState } from "react";
+import styled from "styled-components";
 import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -35,6 +36,18 @@ type PropertyPaneTitleProps = {
     tooltipPosition?: TooltipPlacement;
   }>;
 };
+
+const StyledEditableContainer = styled.div`
+  max-width: calc(100% - 52px);
+  flex-grow: 1;
+  border-radius: var(--ads-v2-border-radius);
+
+  :focus-within {
+    outline: var(--ads-v2-border-width-outline) solid
+      var(--ads-v2-color-outline);
+    outline-offset: var(--ads-v2-offset-outline);
+  }
+`;
 
 /* eslint-disable react/display-name */
 const PropertyPaneTitle = memo(function PropertyPaneTitle(
@@ -176,10 +189,9 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
         />
       )}
       {/* EDITABLE TEXT */}
-      <div
+      <StyledEditableContainer
         className="flex-grow"
         onKeyDown={handleTabKeyDown}
-        style={{ maxWidth: `calc(100% - 52px)` }}
       >
         <EditableText
           className="flex-grow text-lg font-semibold t--property-pane-title"
@@ -197,7 +209,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
           valueTransform={!props.isPanelTitle ? removeSpecialChars : undefined}
           wrapperRef={containerRef}
         />
-      </div>
+      </StyledEditableContainer>
 
       {/* ACTIONS */}
       <div className="flex items-center space-x-1">

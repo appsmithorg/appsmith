@@ -1797,7 +1797,7 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
   const containerSelector = `${widgetSelector} ${options.containerSelector}`;
   const labelPositionSelector = ".t--property-control-position";
   const labelAlignmentRightSelector =
-    ".t--property-control-alignment .t--button-group-right";
+    ".t--property-control-alignment .ads-v2-segmented-control__segments-container-segment[data-value='right']";
   const labelWidth = options.labelWidth;
 
   // Drag a widget
@@ -1812,17 +1812,17 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
   cy.get(labelSelector).first().contains(labelText);
 
   // Set the label position: Auto
-  cy.get(".t--button-group-Auto").click({ force: true });
+  cy.get(".ads-v2-segmented-control-value-Auto").click({ force: true });
   // Assert label position: Auto
   cy.get(containerSelector).should("have.css", "flex-direction", "column");
 
   // Change the label position to Top
-  cy.get(".t--button-group-Top").click({ force: true });
+  cy.get(".ads-v2-segmented-control-value-Top").click({ force: true });
   // Assert label position: Top
   cy.get(containerSelector).should("have.css", "flex-direction", "column");
 
   // Change the label position to Left
-  cy.get(".t--button-group-Left").click({ force: true });
+  cy.get(".ads-v2-segmented-control-value-Left").click({ force: true });
   // Assert label position: Left
   cy.get(containerSelector).should("have.css", "flex-direction", "row");
 
@@ -1832,18 +1832,23 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
   cy.get(labelSelector).first().should("have.css", "text-align", "right");
 
   // Set the label width to labelWidth cols
-  cy.get(`[class*='t--property-control-width'] .bp3-input`)
+  cy.get(
+    `[class*='t--property-control-width'] .ads-v2-input__input-section-input`,
+  )
     .first()
     .focus()
     .clear()
     .type(`${labelWidth}`);
   cy.wait(300);
+  cy.log(parentColumnSpace).log("albin");
   // Assert the label width
   cy.get(labelContainer)
     .first()
     .should("have.css", "width", `${parentColumnSpace * labelWidth}px`);
   // Increase the label width
-  cy.get(`[class*='t--property-control-width'] .bp3-button-group > .bp3-button`)
+  cy.get(
+    `[class*='t--property-control-width'] .ads-v2-input__input-section-icon-start`,
+  )
     .first()
     .click();
   // Assert the increased label width
@@ -1852,7 +1857,9 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
     .first()
     .should("have.css", "width", `${parentColumnSpace * (labelWidth + 1)}px`);
   // Decrease the label width
-  cy.get(`[class*='t--property-control-width'] .bp3-button-group > .bp3-button`)
+  cy.get(
+    `[class*='t--property-control-width'] .ads-v2-input__input-section-icon-end`,
+  )
     .last()
     .click();
   cy.wait(300);

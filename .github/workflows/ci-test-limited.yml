@@ -12,8 +12,8 @@ on:
 
 jobs:
   ci-test-limited:
-    runs-on: ubuntu-latest
-    timeout-minutes: 42
+    runs-on: ubuntu-latest-8-cores
+    #timeout-minutes: 50
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||
       github.event_name == 'push' ||
@@ -277,7 +277,7 @@ jobs:
           record: true
           install: false
           parallel: true
-          config-file: cypress_ci.json
+          config-file: cypress_ci.config.ts
           group: "Electrons on Github Action Fat Container"
           spec: ${{ env.specs_to_run }}
           working-directory: app/client
