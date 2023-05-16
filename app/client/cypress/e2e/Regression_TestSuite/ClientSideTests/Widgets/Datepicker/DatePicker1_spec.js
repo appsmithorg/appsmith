@@ -21,10 +21,9 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
   it("2. Datepicker default time picker validation by Time precision", function () {
     // default value in property pane
     cy.openPropertyPane("datepickerwidget2");
-    cy.get(".t--property-control-timeprecision .rc-select-selection-item").should(
-      "have.text",
-      "Minute",
-    );
+    cy.get(
+      ".t--property-control-timeprecision .rc-select-selection-item",
+    ).should("have.text", "Minute");
 
     // default in date picker
     cy.get(".t--widget-datepickerwidget2 input").click();
@@ -43,7 +42,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
     cy.openPropertyPane("datepickerwidget2");
     cy.get(".t--property-control-timeprecision .rc-select-selection-item")
       .last()
-      .click({force:true});
+      .click({ force: true });
     cy.get(".t--dropdown-option").children().contains("None").click();
     cy.wait("@updateLayout");
     // default in date picker
@@ -65,7 +64,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
 
     cy.get(".t--property-control-timeprecision .rc-select-selection-item")
       .last()
-      .click({force:true});
+      .click({ force: true });
     cy.get(".t--dropdown-option").children().contains("Second").click();
     cy.wait("@updateLayout");
     // default in date picker
@@ -134,6 +133,5 @@ describe("DatePicker Widget Property pane tests with js bindings", function () {
   it("9. Datepicker default date validation with js binding", function () {
     cy.PublishtheApp();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(10000);
   });
 });
