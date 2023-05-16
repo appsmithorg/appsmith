@@ -112,6 +112,10 @@ export class DataSources {
   _refreshIcon = "button .bp3-icon-refresh";
   _addIcon = "button .bp3-icon-add";
   _queryError = "[data-testid='t--query-error']";
+  _queryEditorTabs = (responseType: string) =>
+    "//button[@role='tab' or @role='tablist']//span[text()='" +
+    responseType +
+    "']";
   _queryResponse = (responseType: string) =>
     "//div[@data-testid='t--response-tab-segmented-control']//span[text()='" +
     responseType +
@@ -1018,12 +1022,12 @@ export class DataSources {
   }
 
   public SetQueryTimeout(queryTimeout = 20000) {
-    this.agHelper.GetNClick(this._queryResponse("SETTINGS"));
+    this.agHelper.GetNClick(this._queryEditorTabs("Settings"));
     cy.xpath(this._queryTimeout)
       .clear()
       .type(queryTimeout.toString(), { delay: 0 }); //Delay 0 to work like paste!
     this.agHelper.AssertAutoSave();
-    this.agHelper.GetNClick(this._queryResponse("QUERY"));
+    this.agHelper.GetNClick(this._queryEditorTabs("Query"));
   }
 
   //Update with new password in the datasource conf page
