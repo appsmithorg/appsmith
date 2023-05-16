@@ -13,6 +13,8 @@
   "userProfileDropdownMenu": ".ads-v2-menu",
   "modal": "div[role=dialog]",
   "modalClose": "div[role=dialog] button[aria-label='Close']",
+  "modalHeader": ".ads-v2-modal__content-header",
+  "modalBody": ".ads-v2-modal__content-body",
   "navigationMenuItem": ".t--page-switch-tab",
   "appSettingsButton": ".t--app-settings-cta",
   "navigationSettingsTab": "#t--navigation-settings-header",
