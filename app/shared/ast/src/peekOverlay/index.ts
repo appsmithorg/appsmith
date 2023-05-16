@@ -39,10 +39,11 @@ export class PeekOverlayExpressionIdentifier {
                     }
                 },
             });
-
-            nodeFound ? 
-                resolve(getExpressionStringAtPos(nodeFound, pos, this.options)) 
-                : reject("PeekOverlayExpressionIdentifier - No node found");
+            if (nodeFound) {
+                const expressionFound = getExpressionStringAtPos(nodeFound, pos, this.options);
+                expressionFound && resolve(expressionFound);
+            }
+            reject("PeekOverlayExpressionIdentifier - No node/expression found");
         });
     }
 }

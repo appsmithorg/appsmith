@@ -1,5 +1,5 @@
 import { Node } from "acorn";
-import { ExpressionStatement, IdentifierNode, MemberExpressionNode, isExpressionStatementNode, isMemberExpressionNode, isThisExpressionNode } from "../index";
+import { CallExpressionNode, ExpressionStatement, IdentifierNode, MemberExpressionNode, isCallExpressionNode, isExpressionStatementNode, isMemberExpressionNode, isThisExpressionNode } from "../index";
 import { PeekOverlayExpressionIdentifierOptions } from "peekOverlay";
 import * as escodegen from "escodegen";
 import { NodeTypes } from "../constants/ast";
@@ -28,7 +28,6 @@ const getExpressionAtPosFromMemberExpression =
         pos: number, 
         options?: PeekOverlayExpressionIdentifierOptions
     ): string => {
-        if (!isPositionWithinNode(node, pos)) return "";
         if (options?.thisExpressionReplacement) {
             node = replaceThisinMemberExpression(node, options);
         }
@@ -55,13 +54,14 @@ const getExpressionAtPosFromExpressionStatement =
         pos: number, 
         options?: PeekOverlayExpressionIdentifierOptions
     ): string => {
-        if (!isPositionWithinNode(node, pos)) return "";
         if (isThisExpressionNode(node.expression) && options?.thisExpressionReplacement) {
             node.expression = thisReplacementNode(node.expression, options);
         }
         const expressionNode = node.expression;
         if (isMemberExpressionNode(expressionNode)) {
             return getExpressionAtPosFromMemberExpression(expressionNode, pos, options);
+        } else if (isCallExpressionNode(expressionNode)) {
+            return "";
         }
         // remove ; from expression statement
         return stringRemoveLastCharacter(escodegen.generate(node))

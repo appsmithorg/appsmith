@@ -628,37 +628,40 @@ class CodeEditor extends Component<Props, State> {
       // Api1.run() - done
       // appsmith.geolocation.getCurrentLocation() - done
       // local variables filter - handled by class filter
+      // storeValue("abc", 123) - done
+      // storeValue() - handled later
+      // update script when required on hover
       // Api1.data.users[x].id
-      // storeValue()
-      // storeValue("abc", 123)
 
       this.peekOverlayExpressionIdentifier
         .extractExpressionAtPosition(hoverChIndex)
         .then((lineExpression: string) => {
-          // console.log("on hover src element", tokenPos, tokenElement);
+          console.log("on hover src element", tokenPos, tokenElement);
           // console.log("on hover expression", hoverChIndex, lineExpression);
 
-          if (tokenElement.classList.contains("cm-variable")) {
-            // global variables and functions
-            // JsObject1, storeValue()
-            this.showPeekOverlay(lineExpression, tokenElement);
-          } else if (tokenElement.classList.contains("cm-property")) {
-            // properties and function calls
-            // JsObject.myFun(), Api1.data
-            this.showPeekOverlay(lineExpression, tokenElement);
-          } else if (tokenElement.classList.contains("cm-keyword")) {
-            // this keyword for jsObjects
-            if (this.props.isJSObject && tokenElement.innerHTML === "this") {
+          if (lineExpression) {
+            if (tokenElement.classList.contains("cm-variable")) {
+              // global variables and functions
+              // JsObject1, storeValue()
               this.showPeekOverlay(lineExpression, tokenElement);
+            } else if (tokenElement.classList.contains("cm-property")) {
+              // properties and function calls
+              // JsObject.myFun(), Api1.data
+              this.showPeekOverlay(lineExpression, tokenElement);
+            } else if (tokenElement.classList.contains("cm-keyword")) {
+              // this keyword for jsObjects
+              if (this.props.isJSObject && tokenElement.innerHTML === "this") {
+                this.showPeekOverlay(lineExpression, tokenElement);
+              }
+            } else if (tokenElement.classList.contains("cm-number")) {
+              // array indices - [0]
+              this.showPeekOverlay(lineExpression, tokenElement);
+            } else if (tokenElement.classList.contains("cm-string")) {
+              // string accessor - ["x"]
+              this.showPeekOverlay(lineExpression, tokenElement);
+            } else {
+              this.hidePeekOverlay();
             }
-          } else if (tokenElement.classList.contains("cm-number")) {
-            // array indices - [0]
-            this.showPeekOverlay(lineExpression, tokenElement);
-          } else if (tokenElement.classList.contains("cm-string")) {
-            // string accessor - ["x"]
-            this.showPeekOverlay(lineExpression, tokenElement);
-          } else {
-            this.hidePeekOverlay();
           }
           console.log("------------on hover------------");
         });

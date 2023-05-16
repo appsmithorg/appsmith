@@ -47,25 +47,43 @@ describe("extractExpressionAtPositionWholeDoc", () => {
 
 
         // function calls
-        scriptIdentifier.scriptUpdated("Api1.run()");
-        // Ap'i'1.run()
+        scriptIdentifier.scriptUpdated("Api1.check.run()");
+        // Ap'i'1.check.run()
         result = await scriptIdentifier.extractExpressionAtPosition(2)
         expect(result).toBe("Api1");
 
-        // Api1.'r'un()
-        result = await scriptIdentifier.extractExpressionAtPosition(6)
-        expect(result).toBe("Api1.run");
+        // Api1.check.'r'un()
+        result = await scriptIdentifier.extractExpressionAtPosition(12)
+        expect(result).toBe("Api1.check.run");
     });
 
     it("handles ExpressionStatements", async () => {
         let result;
 
-        scriptIdentifier.scriptUpdated("Api1");
 
         // simple statement
+        scriptIdentifier.scriptUpdated("Api1");
         // Ap'i'1
         result = await scriptIdentifier.extractExpressionAtPosition(2)
         expect(result).toBe("Api1");
+
+
+        // function call
+        scriptIdentifier.scriptUpdated(`storeValue("abc", 123)`);
+        
+        // st'o'reValue("abc", 123) - functionality not supported now
+        try {
+            result = await scriptIdentifier.extractExpressionAtPosition(2)
+        } catch (e) {
+            expect(e).toBe("PeekOverlayExpressionIdentifier - No node/expression found");
+        }
+
+        // storeValue("a'b'c", 123)
+        try {
+            result = await scriptIdentifier.extractExpressionAtPosition(13)
+        } catch (e) {
+            expect(e).toBe("PeekOverlayExpressionIdentifier - No node/expression found");
+        }
     });
 
     it ("handles this keyword replacement", async () => {
