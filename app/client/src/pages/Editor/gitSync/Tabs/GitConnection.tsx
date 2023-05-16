@@ -89,6 +89,7 @@ const RemoteUrlInfoWrapper = styled.div`
   margin-bottom: 4px;
   display: flex;
   .learn-more-link {
+    padding-left: 2px;
     > span {
       font-size: 12px;
     }

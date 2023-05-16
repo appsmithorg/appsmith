@@ -15,6 +15,7 @@ import {
   ENTITY_MORE_ACTIONS_TOOLTIP,
 } from "@appsmith/constants/messages";
 import { AddButtonWrapper, EntityClassNames } from "./Entity";
+import styled from "styled-components";
 
 export type TreeDropdownOption = {
   label: string;
@@ -34,6 +35,10 @@ type TreeDropdownProps = {
   className?: string;
   setConfirmDelete?: (val: boolean) => void;
 };
+
+const StyledMenuSubContent = styled(MenuSubContent)`
+  max-height: 200px;
+`;
 
 export default function TreeDropdown(props: TreeDropdownProps) {
   const { optionTree } = props;
@@ -72,9 +77,9 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       return (
         <MenuSub>
           <MenuSubTrigger>{option.label}</MenuSubTrigger>
-          <MenuSubContent width="220px">
+          <StyledMenuSubContent width="220px">
             {option.children.map(renderTreeOption)}
-          </MenuSubContent>
+          </StyledMenuSubContent>
         </MenuSub>
       );
     }

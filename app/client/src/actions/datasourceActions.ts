@@ -40,10 +40,15 @@ export const updateDatasource = (
   payload: Datasource,
   onSuccess?: ReduxAction<unknown>,
   onError?: ReduxAction<unknown>,
-): ReduxActionWithCallbacks<Datasource, unknown, unknown> => {
+  isInsideReconnectModal?: boolean,
+): ReduxActionWithCallbacks<
+  Datasource & { isInsideReconnectModal: boolean },
+  unknown,
+  unknown
+> => {
   return {
     type: ReduxActionTypes.UPDATE_DATASOURCE_INIT,
-    payload,
+    payload: { ...payload, isInsideReconnectModal: !!isInsideReconnectModal },
     onSuccess,
     onError,
   };

@@ -38,7 +38,7 @@ const DsTitle = styled.div`
   display: flex;
   margin-bottom: ${(props) => props.theme.spaces[1]}px;
   .t--ds-list-title {
-    max-width: 200px;
+    max-width: 160px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

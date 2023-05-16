@@ -1,12 +1,4 @@
 import styled from "styled-components";
-import { DialogComponent as Dialog } from "design-system-old";
-import { Classes } from "@blueprintjs/core";
-
-const StyledDialog = styled(Dialog)`
-  && .${Classes.DIALOG_BODY} {
-    padding-top: 0px;
-  }
-`;
 
 const ButtonWrapper = styled.div`
   display: flex;
@@ -20,4 +12,4 @@ const SpinnerWrapper = styled.div`
   justify-content: center;
 `;
 
-export { StyledDialog, ButtonWrapper, SpinnerWrapper };
+export { ButtonWrapper, SpinnerWrapper };
