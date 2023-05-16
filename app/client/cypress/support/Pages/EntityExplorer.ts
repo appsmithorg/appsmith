@@ -262,7 +262,7 @@ export class EntityExplorer {
       .first()
       .click()
       .wait(100); //for menu template to appear
-    this.agHelper.GetNClick(this.locator._visibleTextSpan(action), 0, true);
+    this.agHelper.GetNClick(this._contextMenuItem(action), 0, true);
     this.agHelper.Sleep(500);
   }
 
