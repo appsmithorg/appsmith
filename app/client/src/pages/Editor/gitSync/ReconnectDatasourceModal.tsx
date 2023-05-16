@@ -81,9 +81,11 @@ const BodyContainer = styled.div`
 `;
 
 const ContentWrapper = styled.div`
-  height: calc(100% - 87px);
+  height: calc(100% - 16px);
   display: flex;
   margin-top: 24px;
+  border-top: 1px solid var(--ads-v2-color-border);
+  padding-top: 16px;
 
   .t--json-to-form-wrapper {
     width: 100%;
@@ -190,11 +192,19 @@ const Message = styled.div`
 `;
 
 const DBFormWrapper = styled.div`
-  overflow: auto;
+  overflow: hidden;
   height: inherit;
   flex: 1;
   display: flex;
+  border-left: 1px solid var(--ads-v2-color-border);
+  border-right: 1px solid var(--ads-v2-color-border);
+  margin-right: 12px;
+  width: calc(100% - 256px - 256px);
 
+  > div {
+    width: 100%;
+    height: calc(100% - 20px);
+  }
   div[class^="RestAPIDatasourceForm__RestApiForm-"] {
     padding-top: 0px;
     height: 100%;
@@ -214,7 +224,7 @@ const ModalBodyWrapper = styled(ModalBody)`
 const SkipToAppWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  min-width: 200px;
+  width: 256px;
 `;
 
 enum AuthorizationStatus {
