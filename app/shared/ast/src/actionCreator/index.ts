@@ -1266,15 +1266,24 @@ export function compareCodeBlockASTs(firstBlock: string, secondBlock: string, ev
     try {
         const sanitizedFirstBlock = sanitizeScript(firstBlock, evaluationVersion);
         const sanitizedSecondBlock = sanitizeScript(secondBlock, evaluationVersion);
+        let firstBlockCommentArray: Comment[] = [];
+        let secondBlockCommentArray: Comment[] = [];
+
         const firstAST = getAST(sanitizedFirstBlock, {
             locations: true,
             ranges: true,
+            onComment: firstBlockCommentArray,
         });
         const secondAST = getAST(sanitizedSecondBlock, {
             locations: true,
             ranges: true,
+            onComment: secondBlockCommentArray,
         });
-        return generate(firstAST) === generate(secondAST);
+
+        const firstBlockAstWithComments = attachCommentsToAst(firstAST, firstBlockCommentArray);
+        const secondBlockAstWithComments = attachCommentsToAst(secondAST, secondBlockCommentArray);
+
+        return generate(firstBlockAstWithComments, { comments: true }) === generate(secondBlockAstWithComments, { comments: true });
     } catch(e) {
         return false;
     }

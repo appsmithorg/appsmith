@@ -11,6 +11,7 @@ import {
   setTextArgumentAtPosition,
   getEnumArgumentAtPosition,
   canTranslateToUI,
+  compareCodeBlockASTs,
 } from "./index";
 
 describe("getFuncExpressionAtPosition", () => {
@@ -389,4 +390,51 @@ describe("Test canTranslateToUI methoda", () => {
         expect(result).toEqual(expected);
       },
   );
+});
+
+describe("compareCodeBlockASTs", () => {
+  it("should return true for same code blocks", () => {
+    const firstBlock = `Api1.run().then(() => {
+      showAlert("", '');
+    });`;
+
+    const secondBlock = `Api1.run().then(() => {
+      showAlert("", '');
+    });`;
+
+    const result = compareCodeBlockASTs(firstBlock, secondBlock, 2);
+
+    expect(result).toEqual(true);
+  });
+
+  it("should return true for same code blocks with spaces", () => {
+    const firstBlock = `Api1.run().then(() => 
+    {
+        showAlert("",
+           '');
+    });`;
+
+    const secondBlock = `Api1.run().then(() => {
+      showAlert("", '');
+    });`;
+
+    const result = compareCodeBlockASTs(firstBlock, secondBlock, 2);
+
+    expect(result).toEqual(true);
+  });
+
+  it("should return false for same code blocks with comments in one block", () => {
+    const firstBlock = `Api1.run().then(() => {
+      // comment
+      showAlert("", '');
+    });`;
+
+    const secondBlock = `Api1.run().then(() => {
+      showAlert("", '');
+    });`;
+
+    const result = compareCodeBlockASTs(firstBlock, secondBlock, 2);
+
+    expect(result).toEqual(false);
+  });
 });

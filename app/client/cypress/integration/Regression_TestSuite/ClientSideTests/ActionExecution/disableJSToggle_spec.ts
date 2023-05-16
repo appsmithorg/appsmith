@@ -105,4 +105,24 @@ describe("Disable JS toggle when Action selector code is not parsable", () => {
     agHelper.Sleep(200);
     propPane.AssertJSToggleDisabled("onClick");
   });
+
+  it("4. Test case", () => {
+    const codeSnippet = `{{Api1.run().then(() => {
+      Api1;
+    })}}`;
+
+    propPane.EnterJSContext("onClick", codeSnippet);
+    agHelper.Sleep(200);
+    propPane.AssertJSToggleDisabled("onClick");
+  });
+
+  it("5. Test case", () => {
+    const codeSnippet = `{{Api1.run().then(() => {
+      return Api1.data;
+    })}}`;
+
+    propPane.EnterJSContext("onClick", codeSnippet);
+    agHelper.Sleep(200);
+    propPane.AssertJSToggleDisabled("onClick");
+  });
 });
