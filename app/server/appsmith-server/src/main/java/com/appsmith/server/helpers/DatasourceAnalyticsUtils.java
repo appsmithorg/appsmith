@@ -6,13 +6,11 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.OAuth2;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
-public class AnalyticsUtils {
+public class DatasourceAnalyticsUtils {
 
     public static Map<String, Object> getAnalyticsProperties(Datasource datasource) {
         Map<String, Object> analyticsProperties = new HashMap<>();

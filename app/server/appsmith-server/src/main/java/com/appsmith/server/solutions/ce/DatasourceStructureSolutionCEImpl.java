@@ -34,8 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
-import static com.appsmith.server.helpers.AnalyticsUtils.getAnalyticsProperties;
-import static com.appsmith.server.helpers.AnalyticsUtils.getAnalyticsPropertiesForTestEventStatus;
+import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsProperties;
+import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsPropertiesForTestEventStatus;
 
 @RequiredArgsConstructor
 @Slf4j
