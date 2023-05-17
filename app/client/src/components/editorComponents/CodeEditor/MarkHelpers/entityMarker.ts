@@ -25,7 +25,6 @@ export const entityMarker: MarkHelper = (
   from,
   to,
 ) => {
-  const startTime = performance.now();
   let markers: CodeMirror.TextMarker[] = [];
   if (from && to) {
     const toLine = editor.getLine(to.line);
@@ -47,17 +46,18 @@ export const entityMarker: MarkHelper = (
       });
     }
   } else {
+    const startTime = performance.now();
     markers = editor.getAllMarks();
     clearMarkers(markers);
 
     editor.eachLine((line: CodeMirror.LineHandle) => {
       addMarksForLine(editor, line, entityNavigationData);
     });
+    const endTime = performance.now();
+    console.log("Marking time", endTime - startTime);
+    console.log("Marking count", editor.getAllMarks().length);
+    console.log("---------Marking");
   }
-  const endTime = performance.now();
-  console.log(from && to, "Marking time", endTime - startTime);
-  console.log("Marking count", editor.getAllMarks().length);
-  console.log("---------Marking");
 };
 
 const addMarksForLine = (
