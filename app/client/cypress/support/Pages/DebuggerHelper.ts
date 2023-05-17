@@ -40,7 +40,7 @@ export class DebuggerHelper {
       [PageType.DataSources]: ".t--datasource-bottom-pane-container",
     },
     _debuggerList: ".debugger-list",
-    _debuggerFilter: ".debugger-search",
+    _debuggerFilter: "input[data-testid=t--debugger-search]",
     _debuggerSelectedTab: ".ads-v2-tabs__list-tab",
   };
 
@@ -130,7 +130,7 @@ export class DebuggerHelper {
     );
   }
 
-  filter(text: string) {
+  DebuggerLogsFilter(text: string) {
     this.agHelper.RemoveCharsNType(this.locators._debuggerFilter, -1, text);
   }
 
