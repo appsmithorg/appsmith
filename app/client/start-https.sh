@@ -153,6 +153,11 @@ rts="http://$rts_host:$rts_port"
 http_listen_port="${http_listen_port-80}"
 https_listen_port="${https_listen_port-443}"
 
+if [[ $backend =~ /$ ]]; then
+    echo "The backend endpoint ($backend) ends with a '/'. This will change Nginx's behavior in unintended ways." >&2
+    echo "Exiting. Please run again, removing the trailing slash(es) for the backend." >&2
+    exit 1
+fi
 
 if [[ -n ${env_file-} && ! -f $env_file ]]; then
     echo "I got --env-file as '$env_file', but I cannot access it." >&2
