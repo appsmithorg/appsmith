@@ -84,6 +84,7 @@ export class DataSources {
   _activeTab = "span:contains('Active')";
   _selectedActiveTab = "li[aria-selected='true'] " + this._activeTab;
   _contextMenuDatasource = "span[name='comment-context-menu']";
+  _contextMenuDSReviewPage = "span[name='comment-context-menu']";
   _contextMenuDelete = ".t--datasource-option-delete";
   _datasourceCardGeneratePageBtn = ".t--generate-template";
   _queryTableResponse =
@@ -657,7 +658,7 @@ export class DataSources {
     expectedRes: number | number[] = 200 || 409 || [200 | 409],
   ) {
     this.agHelper.GetNClick(this._cancelEditDatasourceButton, 0, false, 200);
-    cy.get(this._contextMenuDatasource).click({ force: true });
+    cy.get(this._contextMenuDSReviewPage).click({ force: true });
     this.agHelper.GetNClick(this._contextMenuDelete);
     this.agHelper.GetNClick(this.locator._visibleTextSpan("Are you sure?"));
     this.ValidateDSDeletion(expectedRes);
