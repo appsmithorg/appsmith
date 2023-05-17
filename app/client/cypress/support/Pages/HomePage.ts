@@ -88,7 +88,7 @@ export class HomePage {
   private _deleteApp = '[data-testid="t--delete-confirm"]';
   private _deleteAppConfirm = '[data-testid="t--delete"]';
   private _wsAction = (action: string) =>
-    "//span[text()='" + action + "']/ancestor::a";
+    ".ads-v2-menu__menu-item-children:contains('" + action + "')";
   private _homeTab = ".t--apps-tab";
   private _templatesTab = ".t--templates-tab";
   private _workSpaceByName = (wsName: string) =>

@@ -768,7 +768,7 @@ export class AggregateHelper {
       subAction = "Are you sure?";
     }
     if (subAction) {
-      this.GetNClick(this.locator._visibleTextSpan(subAction));
+      this.GetNClick(this.locator._visibleTextSpan(subAction), 0, true);
       this.Sleep(500);
     }
     if (action == "Delete") {
