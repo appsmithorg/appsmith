@@ -58,10 +58,6 @@ describe("Select widget", () => {
     cy.togglebar(
       '.t--property-control-serversidefiltering input[type="checkbox"]',
     );
-    // open the select widget
-    cy.get(formWidgetsPage.selectWidget)
-      .find(widgetLocators.dropdownSingleSelect)
-      .click({ force: true });
     // search for option Red in the search input
     cy.get(commonlocators.selectInputSearch).type("Red");
     // Select the Red option from dropdown list
