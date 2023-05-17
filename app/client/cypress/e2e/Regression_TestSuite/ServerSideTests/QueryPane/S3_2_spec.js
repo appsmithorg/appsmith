@@ -223,7 +223,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.wait(3000); //dsl to settle!    cy.NavigateToActiveDSQueryPane(datasourceName);
     _.entityExplorer.SelectEntityByName("Query1", "Queries/JS");
     cy.runQuery();
-    cy.clickButton("Select Widget");
+    cy.clickButton("Select widget");
     cy.xpath(queryLocators.snipeableTable).click().wait(1500); //wait for table to load!
 
     cy.get(commonlocators.TableRow).validateWidgetExists();

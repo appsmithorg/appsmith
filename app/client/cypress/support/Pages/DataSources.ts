@@ -138,9 +138,9 @@ export class DataSources {
   _graphqlQueryEditor = ".t--graphql-query-editor";
   _graphqlVariableEditor = ".t--graphql-variable-editor";
   _graphqlPagination = {
-    _limitVariable: ".t--apiFormPaginationLimitVariable",
+    _limitVariable: ".t--apiFormPaginationLimitVariable .rc-select-selector",
     _limitValue: ".t--apiFormPaginationLimitValue .CodeMirror textarea",
-    _offsetVariable: ".t--apiFormPaginationOffsetVariable",
+    _offsetVariable: ".t--apiFormPaginationOffsetVariable .rc-select-selector",
     _offsetValue: ".t--apiFormPaginationOffsetValue .CodeMirror textarea",
     _prevLimitVariable: ".t--apiFormPaginationPrevLimitVariable",
     _prevLimitValue: ".t--apiFormPaginationPrevLimitValue .CodeMirror textarea",
@@ -159,7 +159,7 @@ export class DataSources {
     "//input[@id='global-search'][@value='" + inputText + "']";
   _gsScopeDropdown =
     "[data-testid='datasourceConfiguration.authentication.scopeString']";
-  _gsScopeOptions = ".ads-dropdown-options-wrapper div > span div span";
+  _gsScopeOptions = ".ads-v2-select__dropdown .rc-select-item-option";
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
@@ -992,7 +992,7 @@ export class DataSources {
       cy.get(this._graphqlPagination._limitVariable).click({
         force: true,
       });
-      cy.get(this._graphqlPagination._limitVariable)
+      cy.get(".rc-select-item-option")
         .contains(options.limit.variable)
         .click({ force: true });
 
@@ -1008,7 +1008,7 @@ export class DataSources {
       cy.get(this._graphqlPagination._offsetVariable).click({
         force: true,
       });
-      cy.get(this._graphqlPagination._offsetVariable)
+      cy.get(".rc-select-item-option")
         .contains(options.offset.variable)
         .click({ force: true });
 
