@@ -64,7 +64,7 @@ const addMarksForLine = (
     const tokenString = token.string;
     if (hasReference(token) && tokenString in entityNavigationData) {
       const data = entityNavigationData[tokenString];
-      if (data.navigable || data.peekable) {
+      if (data.navigable) {
         editor.markText(
           { ch: token.start, line: lineNo },
           { ch: token.end, line: lineNo },
@@ -98,7 +98,7 @@ const addMarksForChildren = (
     );
     if (token.string in childNodes) {
       const childLink = childNodes[token.string];
-      if (childLink.navigable || childLink.peekable) {
+      if (childLink.navigable) {
         editor.markText(
           { ch: token.start, line: lineNo },
           { ch: token.end, line: lineNo },
@@ -112,6 +112,7 @@ const addMarksForChildren = (
 
 const getMarkOptions = (data: NavigationData): CodeMirror.TextMarkerOptions => {
   return {
+    className: `${data.navigable ? NAVIGATION_CLASSNAME : ""}`,
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     attributes: {

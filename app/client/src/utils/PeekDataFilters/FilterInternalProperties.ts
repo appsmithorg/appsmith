@@ -1,10 +1,10 @@
 import { ENTITY_TYPE } from "design-system-old";
-import { getActionChildrenNavData } from "./ActionChildren";
-import { getAppsmithNavData } from "./AppsmithNavData";
-import { getWidgetChildrenNavData } from "./WidgetChildren";
+import { getActionChildrenPeekData } from "./Action";
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
 import type { JSCollectionDataState } from "reducers/entityReducers/jsActionsReducer";
-import { getJsChildrenNavData } from "./JsChildren";
+import { getWidgetChildrenPeekData } from "./Widget";
+import { getJsActionPeekData } from "./JsAction";
+import { getAppsmithPeekData } from "./Appsmith";
 
 export const filterInternalProperties = (
   objectName: string,
@@ -16,25 +16,21 @@ export const filterInternalProperties = (
   const entityType: ENTITY_TYPE = data.ENTITY_TYPE;
   switch (entityType) {
     case ENTITY_TYPE.ACTION:
-      return getActionChildrenNavData(objectName, dataTree)?.peekData;
+      return getActionChildrenPeekData(objectName, dataTree)?.peekData;
     case ENTITY_TYPE.APPSMITH:
-      return getAppsmithNavData(data).peekData;
+      return getAppsmithPeekData(dataTree).peekData;
     case ENTITY_TYPE.JSACTION:
       const jsAction = jsActions.find(
         (jsAction) => jsAction.config.id === data.actionId,
       );
       // using temp-id because we don't use the nav data here
       return jsAction
-        ? getJsChildrenNavData(jsAction, "temp-id", dataTree)?.peekData
+        ? getJsActionPeekData(jsAction, "temp-id", dataTree)?.peekData
         : data;
     case ENTITY_TYPE.WIDGET:
       // using temp-id because we don't use the nav data here
-      return getWidgetChildrenNavData(
-        objectName,
-        data.type,
-        dataTree,
-        "temp-id",
-      )?.peekData;
+      return getWidgetChildrenPeekData(objectName, data.type, dataTree)
+        ?.peekData;
     default:
       return data;
   }
