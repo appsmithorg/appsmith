@@ -147,10 +147,10 @@ describe("1. Check column freeze and unfreeze mechanism in canavs mode", () => {
       cy.checkColumnPosition("step", 0);
 
       cy.freezeColumnFromDropdown("step", "left");
-      cy.checkIfColumnIsFrozenViaCSS("0", "0", "relative");
+      cy.checkIfColumnIsFrozenViaCSS("0", "0", "sticky");
 
       cy.freezeColumnFromDropdown("action", "left");
-      cy.checkIfColumnIsFrozenViaCSS("0", "1", "relative");
+      cy.checkIfColumnIsFrozenViaCSS("0", "1", "sticky");
     });
 
     it("1.2.3 Check if column can be unfrozen from dropdown", () => {
@@ -210,6 +210,7 @@ describe("1. Check column freeze and unfreeze mechanism in canavs mode", () => {
 
       // Check in publish mode.
       cy.PublishtheApp();
+      cy.wait(3000);
       cy.get(`[role="columnheader"] .header-menu .bp3-popover2-target`)
         .first()
         .click({

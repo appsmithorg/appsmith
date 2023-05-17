@@ -25,9 +25,7 @@ describe("Verify various Table property bugs", function () {
     );
     agHelper.ValidateNetworkStatus("@updateLayout", 200);
     agHelper.PressEscape();
-  });
-
-  it("2. Bug 13299 - Verify Display Text does not contain garbage value for URL column type when empty", function () {
+    //Bug 13299 - Verify Display Text does not contain garbage value for URL column type when empty
     ee.SelectEntityByName("Table1", "Widgets");
     table.ChangeColumnType("image", "URL");
     propPane.UpdatePropertyFieldValue(
@@ -69,7 +67,7 @@ describe("Verify various Table property bugs", function () {
     deployMode.NavigateBacktoEditor();
   });
 
-  it("3. Bug 13299 - Verify Display Text does not contain garbage value for URL column type when null", function () {
+  it("2. Bug 13299 - Verify Display Text does not contain garbage value for URL column type when null", function () {
     ee.SelectEntityByName("Table1", "Widgets");
     agHelper.GetNClick(table._columnSettings("image"));
 
@@ -110,7 +108,7 @@ describe("Verify various Table property bugs", function () {
     deployMode.NavigateBacktoEditor();
   });
 
-  it("4. Bug 13299 - Verify Display Text does not contain garbage value for URL column type when undefined", function () {
+  it("3. Bug 13299 - Verify Display Text does not contain garbage value for URL column type when undefined", function () {
     ee.SelectEntityByName("Table1", "Widgets");
     agHelper.GetNClick(table._columnSettings("image"));
 
@@ -151,7 +149,7 @@ describe("Verify various Table property bugs", function () {
     deployMode.NavigateBacktoEditor();
   });
 
-  it("should allow ISO 8601 format date and not throw a disallowed validation error", () => {
+  it("4. should allow ISO 8601 format date and not throw a disallowed validation error", () => {
     ee.SelectEntityByName("Table1", "Widgets");
     propPane.UpdatePropertyFieldValue(
       "Table data",
@@ -161,8 +159,8 @@ describe("Verify various Table property bugs", function () {
 
     propPane.OpenTableColumnSettings("dateValue");
     // select date option from column type setting field
-    cy.get(".t--property-control-columntype").click();
-    cy.get('[data-testid="t--dropdown-option-Date"]').click();
+
+    propPane.SelectPropertiesDropDown("Column type", "Date");
 
     // select ISO 8601 date format
     cy.get(".t--property-control-originaldateformat").click();
