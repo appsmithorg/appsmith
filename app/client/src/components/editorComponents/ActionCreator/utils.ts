@@ -492,7 +492,7 @@ export function actionToCode(
 
     // Set callback function field only if there is a callback code
     const withSuccessCallback =
-      existingSuccessCallback || existingErrorCallback
+      (existingSuccessCallback || existingErrorCallback) && successCallbackCode
         ? setCallbackFunctionField(
             code,
             `(${
@@ -516,7 +516,7 @@ export function actionToCode(
 
     // Set callback function field only if there is a callback code
     const withErrorCallback =
-      existingSuccessCallback || existingErrorCallback
+      (existingSuccessCallback || existingErrorCallback) && errorCallbackCode
         ? setCallbackFunctionField(
             withThenCallback,
             `(${

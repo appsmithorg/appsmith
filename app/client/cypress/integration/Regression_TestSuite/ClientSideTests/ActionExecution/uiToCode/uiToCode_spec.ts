@@ -347,7 +347,7 @@ describe("UI to Code", () => {
 
     propPane.ValidateJSFieldValue(
       "onClick",
-      `{{Api1.run().then(() => {  Api2.run().then(() => {    showAlert("Heeeeello");  }).catch(() => {    showAlert("Wooooorld");  });}).catch(() => {});}}`,
+      `{{Api1.run().then(() => {  Api2.run().then(() => {    showAlert("Heeeeello");  }).catch(() => {    showAlert("Wooooorld");  });});}}`,
     );
   });
 
@@ -371,25 +371,25 @@ describe("UI to Code", () => {
     propPane.SelectActionByTitleAndValue("Execute a query", "Api2.run");
     cy.get(
       jsEditor._lineinPropertyPaneJsEditor(
-        2,
+        3,
         propPane._actionSelectorFieldContentByLabel("Params"),
       ),
-    ).type("val: 1");
+    ).type(agHelper.isMac ? "{meta} /" : "{ctrl} /");
 
     agHelper.GetNClick(propPane._actionSelectorPopupClose);
 
     propPane.ValidateJSFieldValue(
       "onClick",
-      `{{Api1.run().then(() => {  Api2.run({    val: 1    // "key": "value",  }).then(() => {    showAlert("Hello");  }).catch(() => {    showAlert("World");  });}).catch(() => {});}}`,
+      `{{Api1.run().then(() => {  Api2.run({    "key": "value"  }).then(() => {    showAlert("Hello");  }).catch(() => {    showAlert("World");  });});}}`,
     );
   });
 
   it("8. adds actions to callback function is argument if exists already", () => {
     propPane.EnterJSContext(
       "onClick",
-      `Api1.run(() => {
+      `{{Api1.run(() => {
         showAlert("Hello");
-       })
+       })}}
        `,
     );
     jsEditor.DisableJSContext("onClick");
@@ -405,7 +405,7 @@ describe("UI to Code", () => {
 
     propPane.ValidateJSFieldValue(
       "onClick",
-      `{{Api1.run(() => {  showAlert("Hello");  storeValue("", "");}, () => {});}}`,
+      `{{Api1.run(() => {  showAlert("Hello");  storeValue("", "");});}}`,
     );
   });
 
