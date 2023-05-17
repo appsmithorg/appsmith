@@ -8,7 +8,7 @@ let datasourceName;
 describe("SQL Autocompletion", function () {
   it("Shows autocompletion hints", function () {
     cy.NavigateToDatasourceEditor();
-    cy.get(datasource.PostgreSQL).click();
+    cy.get(datasource.PostgreSQL).click({ force: true });
     cy.fillPostgresDatasourceForm();
 
     cy.generateUUID().then((uid) => {
