@@ -81,16 +81,3 @@ If the trigger is disabled, the tooltip will not be displayed.
     </Tooltip>
   </Story>
 </Canvas>
-
-# With Tooltip HOC
-
-The `withTooltip` HOC can be used to wrap a component with a tooltip. The tooltip will be displayed when the user hovers over the wrapped component.
-
-<Canvas>
-  <Story name="Tooltip HOC">
-    {() => {
-      const MyButton = withTooltip(Button);
-      return <MyButton tooltip="My Tooltip">My button</MyButton>;
-    }}
-  </Story>
-</Canvas>
