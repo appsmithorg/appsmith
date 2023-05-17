@@ -48,7 +48,6 @@
     "@mantine/hooks": "^5.10.1",
     "@sentry/react": "^6.2.4",
     "@sentry/tracing": "^6.2.4",
-    "@shared/ast": "workspace:^",
     "@tanstack/virtual-core": "^3.0.0-beta.18",
     "@tinymce/tinymce-react": "^3.13.0",
     "@types/google.maps": "^3.51.0",
