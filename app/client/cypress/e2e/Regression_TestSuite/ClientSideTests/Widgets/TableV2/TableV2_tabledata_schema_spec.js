@@ -51,7 +51,7 @@ describe("Table Widget", function () {
     cy.wait(5000);
     cy.CheckAndUnfoldEntityItem("Widgets");
 
-    _.entityExplorer.ActionContextMenuByEntityName("Switch1", "Delete");
-    _.entityExplorer.ActionContextMenuByEntityName("Table1", "Delete");
+    _.entityExplorer.DeleteWidgetFromEntityExplorer("Switch1");
+    _.entityExplorer.DeleteWidgetFromEntityExplorer("Table1");
   });
 });
