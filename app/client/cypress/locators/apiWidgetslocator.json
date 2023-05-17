@@ -5,7 +5,7 @@
   "createapi": ".t--createBlankApiCard",
   "createAuthApiDatasource": ".t--createAuthApiDatasource",
   "apiTxt": ".t--action-name-edit-field input",
-  "popover": "//*[local-name()='g' and @id='Icon/Outline/more-vertical']",
+  "popover": "//button[contains(@class, 'entity-context-menu')]",
   "moveTo": ".single-select >div:contains('Move to')",
   "copyTo": ".single-select >div:contains('Copy to page')",
   "home": ".single-select >div:contains('Page1')",
