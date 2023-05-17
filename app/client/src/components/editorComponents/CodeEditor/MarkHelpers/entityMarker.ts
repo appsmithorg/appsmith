@@ -18,6 +18,7 @@ export const entityMarker: MarkHelper = (
   from,
   to,
 ) => {
+  const startTime = performance.now();
   let markers: CodeMirror.TextMarker[] = [];
   if (from && to) {
     const toLine = editor.getLine(to.line);
@@ -46,6 +47,8 @@ export const entityMarker: MarkHelper = (
       addMarksForLine(editor, line, entityNavigationData);
     });
   }
+  const endTime = performance.now();
+  console.log(from && to, "Marking time", endTime - startTime);
 };
 
 const addMarksForLine = (
