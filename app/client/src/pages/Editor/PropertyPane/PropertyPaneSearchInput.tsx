@@ -9,19 +9,23 @@ import {
 import { isCurrentFocusOnInput } from "utils/editorContextUtils";
 import { PROPERTY_SEARCH_INPUT_PLACEHOLDER } from "@appsmith/constants/messages";
 
-const SearchInputWrapper = styled.div`
+const Container = styled.div`
   position: sticky;
   top: 42px;
   z-index: 3;
-  margin: 0 1rem;
   margin-bottom: 2px;
   background: var(--ads-v2-color-white);
+  height: 35px;
+`;
+
+const SearchInputWrapper = styled.div`
+  margin: 0 1rem;
   border-radius: var(--ads-v2-border-radius);
   border: 1px solid var(--ads-v2-color-border);
   :focus-within {
-    outline: var(--ads-v2-border-width-outline) solid
+    /* outline: var(--ads-v2-border-width-outline) solid
       var(--ads-v2-color-outline);
-    outline-offset: var(--ads-v2-offset-outline);
+    outline-offset: var(--ads-v2-offset-outline); */
     border-color: var(--ads-v2-color-border-emphasis-plus);
   }
 `;
@@ -93,19 +97,21 @@ export function PropertyPaneSearchInput(props: PropertyPaneSearchInputProps) {
   }, []);
 
   return (
-    <SearchInputWrapper
-      className="t--property-pane-search-input-wrapper"
-      onKeyDown={handleWrapperKeydown}
-      ref={wrapperRef}
-      tabIndex={0}
-    >
-      <StyledSearchInput
-        className="propertyPaneSearch t--property-pane-search-input-wrapper"
-        onChange={props.onTextChange}
-        placeholder={PROPERTY_SEARCH_INPUT_PLACEHOLDER}
-        ref={inputRef}
-        tabIndex={-1}
-      />
-    </SearchInputWrapper>
+    <Container tabIndex={-1}>
+      <SearchInputWrapper
+        className="t--property-pane-search-input-wrapper"
+        onKeyDown={handleWrapperKeydown}
+        ref={wrapperRef}
+        tabIndex={0}
+      >
+        <StyledSearchInput
+          className="propertyPaneSearch t--property-pane-search-input-wrapper"
+          onChange={props.onTextChange}
+          placeholder={PROPERTY_SEARCH_INPUT_PLACEHOLDER}
+          ref={inputRef}
+          tabIndex={-1}
+        />
+      </SearchInputWrapper>
+    </Container>
   );
 }

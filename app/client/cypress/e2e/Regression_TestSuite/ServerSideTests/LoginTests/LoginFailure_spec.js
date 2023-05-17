@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 const loginPage = require("../../../../locators/LoginPage.json");
 
 describe("Login failure", function () {
-  it("preserves redirectUrl param on login failure", function () {
+  it("1. Preserves redirectUrl param on login failure", function () {
     let appUrl;
     _.deployMode.DeployApp();
     cy.location()

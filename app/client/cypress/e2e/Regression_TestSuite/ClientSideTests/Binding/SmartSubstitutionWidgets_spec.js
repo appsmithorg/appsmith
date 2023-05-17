@@ -30,9 +30,7 @@ describe("Text-Table Binding Functionality", function () {
         cy.wrap(cellData).should("equal", "Product2");
       });
     });
-  });
-
-  it("2. Update chart data and assert", function () {
+    //Update chart data and assert
     cy.openPropertyPane("chartwidget");
     cy.get(".t--property-control-chart-series-data-control").then(($el) => {
       cy.updateCodeInput($el, updateData);
@@ -48,7 +46,7 @@ describe("Text-Table Binding Functionality", function () {
     });
   });
 
-  it("3. Publish and assert", function () {
+  it("2. Publish and assert", function () {
     cy.PublishtheApp(false);
     cy.readTabledata("1", "0").then((cellData) => {
       cy.wrap(cellData).should("equal", "Product2");

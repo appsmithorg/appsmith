@@ -55,7 +55,8 @@ const TopLayer = styled.div`
 
 const OptionWrapper = styled.div<{ hasError: boolean; fillIconColor: boolean }>`
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  /* align-items: center; */
   width: 100%;
   overflow: hidden;
 `;
@@ -68,11 +69,7 @@ const OptionContentWrapper = styled.div<{
   align-items: center;
   flex: 1;
   min-width: 0;
-
-  .menu-text {
-    width: ${(props) => (props.hasError ? "140px" : "100%")};
-    letter-spacing: 0px;
-  }
+  gap: 10px;
 `;
 
 type PropertyPaneConnectionsProps = {
@@ -191,19 +188,16 @@ function OptionNode(props: any) {
           isSelected={props.isSelectedNode}
           onClick={onClick}
         >
-          <div className="flex gap-1">
-            {entityInfo?.icon}
-            <span className="menu-text">
-              <Text>
-                {props.option.label}
-                {entityInfo?.datasourceName &&
-                  ` from ${entityInfo?.datasourceName}`}
-              </Text>
-            </span>
-          </div>
+          {entityInfo?.icon}
+
+          <Text>
+            {props.option.label}
+            {entityInfo?.datasourceName &&
+              ` from ${entityInfo?.datasourceName}`}
+          </Text>
         </OptionContentWrapper>
         {!!entityInfo?.hasError && (
-          <DebugButton className="debug" onClick={onClick} />
+          <DebugButton className="debug ml-6" onClick={onClick} />
         )}
       </OptionWrapper>
     </MenuItem>

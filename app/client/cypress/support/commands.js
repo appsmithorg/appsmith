@@ -1293,7 +1293,6 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.get(welcomePage.nextButton).should("not.be.disabled");
   cy.get(welcomePage.nextButton).click();
   if (Cypress.env("AIRGAPPED")) {
-    cy.get(welcomePage.superUserForm).should("be.visible");
     cy.get(welcomePage.newsLetter).should("not.exist");
     cy.get(welcomePage.dataCollection).should("not.exist");
     cy.get(welcomePage.createButton).should("not.exist");
@@ -1681,8 +1680,7 @@ Cypress.Commands.add("VerifyErrorMsgPresence", (errorMsgToVerifyAbsence) => {
 Cypress.Commands.add("setQueryTimeout", (timeout) => {
   cy.get(queryLocators.settings).click();
   cy.xpath(queryLocators.queryTimeout).clear().type(timeout);
-
-  cy.xpath(queryLocators.query).eq(1).click();
+  cy.xpath(queryLocators.query).click();
 });
 
 //Usage: If in need to type {enter} {esc} etc then .text('sometext').type('{enter}')
@@ -1840,17 +1838,18 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
     .clear()
     .type(`${labelWidth}`);
   cy.wait(300);
-  cy.log(parentColumnSpace).log("albin");
+  cy.log(labelWidth).log("labelwidth");
   // Assert the label width
   cy.get(labelContainer)
     .first()
     .should("have.css", "width", `${parentColumnSpace * labelWidth}px`);
   // Increase the label width
   cy.get(
-    `[class*='t--property-control-width'] .ads-v2-input__input-section-icon-start`,
+    `[class*='t--property-control-width'] .ads-v2-input__input-section-icon-end`,
   )
     .first()
     .click();
+  cy.log(parentColumnSpace).log("labelWidthIncreased");
   // Assert the increased label width
   cy.wait(300);
   cy.get(labelContainer)
@@ -1858,7 +1857,7 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
     .should("have.css", "width", `${parentColumnSpace * (labelWidth + 1)}px`);
   // Decrease the label width
   cy.get(
-    `[class*='t--property-control-width'] .ads-v2-input__input-section-icon-end`,
+    `[class*='t--property-control-width'] .ads-v2-input__input-section-icon-start`,
   )
     .last()
     .click();

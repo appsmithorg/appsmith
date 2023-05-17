@@ -47,7 +47,7 @@ export class ApiPage {
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
   _responseBody = ".CodeMirror-code  span.cm-string.cm-property";
   private _blankAPI = "span:contains('New blank API')";
-  private _apiVerbDropdown = ".t--apiFormHttpMethod";
+  private _apiVerbDropdown = ".t--apiFormHttpMethod div";
   private _verbToSelect = (verb: string) =>
     "//div[contains(@class, 'rc-select-item-option')]//div[contains(text(),'" +
     verb +

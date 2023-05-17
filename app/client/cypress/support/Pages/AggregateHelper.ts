@@ -563,7 +563,7 @@ export class AggregateHelper {
   }
 
   public GoBack() {
-    this.GetNClick(this.locator._visibleTextSpan("Back"));
+    this.GetNClick(this.locator._goBack);
   }
 
   public SelectNRemoveLineText(selector: string) {

@@ -11,7 +11,6 @@ export class EmbedSettings {
     _restrictedText: "Embedding restricted",
     _disabledText: "Embedding disabled",
     _showNavigationBar: "[data-testid='show-navigation-bar-toggle']",
-    _controlIndicator: ".bp3-control-indicator",
   };
 
   public OpenEmbedSettings() {
@@ -41,10 +40,7 @@ export class EmbedSettings {
     const input = this.agHelper.GetElement(this.locators._showNavigationBar);
     input.invoke("attr", "checked").then((value) => {
       if (value !== check) {
-        this.agHelper.GetSiblingNClick(
-          this.locators._showNavigationBar,
-          this.locators._controlIndicator,
-        );
+        this.agHelper.GetNClick(this.locators._showNavigationBar);
         this.agHelper.ValidateNetworkStatus("@updateApplication");
       }
     });

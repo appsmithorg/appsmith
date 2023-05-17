@@ -2,7 +2,7 @@ const dsl = require("../../../../fixtures/dynamicHeightFormSwitchdsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Dynamic Height Width validation", function () {
-  it("Validate change with auto height width for Form/Switch", function () {
+  it("1. Validate change with auto height width for Form/Switch", function () {
     cy.addDsl(dsl);
     cy.wait(3000); //for dsl to settle
     cy.openPropertyPane("formwidget");

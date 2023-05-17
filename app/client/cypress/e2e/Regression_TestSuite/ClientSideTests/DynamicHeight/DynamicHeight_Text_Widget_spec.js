@@ -5,7 +5,7 @@ describe("Dynamic Height Width validation for text widget", function () {
   before(() => {
     cy.addDsl(dsl);
   });
-  it("Text widget validation of height with dynamic height feature", function () {
+  it("1. Text widget validation of height with dynamic height feature", function () {
     const textMsg = "Dynamic panel validation for text widget wrt height";
     //changing the Text Name and verifying
     cy.openPropertyPane("textwidget");

@@ -11,7 +11,7 @@ describe("JS data update on button click", function () {
     agHelper.AddDsl(dsl);
   });
 
-  it("Populates js function data when triggered via button click", function () {
+  it("1. Populates js function data when triggered via button click", function () {
     apiPage.CreateAndFillApi(
       "https://jsonplaceholder.typicode.com/posts",
       "Api1",
@@ -21,7 +21,7 @@ describe("JS data update on button click", function () {
         myVar1: [],
         myVar2: {},
         myFun1: async () => {
-            //write code here	
+            //write code here
        const data = await Api1.run()
          return "myFun1 Data"
         },

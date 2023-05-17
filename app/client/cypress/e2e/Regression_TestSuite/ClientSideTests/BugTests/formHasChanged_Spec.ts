@@ -12,7 +12,7 @@ describe("JS Function Execution", function () {
     ee.NavigateToSwitcher("Explorer");
   });
 
-  it("Doesn't show lint errors for 'form.hasChanges'", () => {
+  it("1. Doesn't show lint errors for 'form.hasChanges'", () => {
     ee.SelectEntityByName("Button1", "Widgets");
     agHelper.Sleep(4000);
     agHelper.AssertElementAbsence(locator._lintErrorElement);

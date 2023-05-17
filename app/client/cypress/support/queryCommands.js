@@ -94,7 +94,7 @@ Cypress.Commands.add("runQuery", (expectedRes = true) => {
 
 Cypress.Commands.add("onlyQueryRun", () => {
   cy.xpath(queryEditor.runQuery).last().click({ force: true }).wait(1000);
-  cy.get(".cs-spinner").should("not.exist");
+  cy.get(".ads-v2-spinner").should("not.exist");
 });
 
 Cypress.Commands.add("RunQueryWithoutWaitingForResolution", () => {

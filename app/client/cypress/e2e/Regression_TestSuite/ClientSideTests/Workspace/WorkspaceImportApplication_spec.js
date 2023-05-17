@@ -10,7 +10,7 @@ describe("Workspace Import Application", function () {
     cy.addDsl(dsl);
   });
 
-  it("Can Import Application from json", function () {
+  it("1. Can Import Application from json", function () {
     cy.NavigateToHome();
     appname = localStorage.getItem("AppName");
     cy.get(homePage.searchInput).type(appname);

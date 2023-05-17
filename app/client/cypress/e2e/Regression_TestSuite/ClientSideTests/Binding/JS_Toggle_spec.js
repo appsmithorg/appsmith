@@ -5,7 +5,7 @@ describe("JS Toggle tests", () => {
     cy.addDsl(dsl);
   });
 
-  it("switches the toggle to Button widget", () => {
+  it("1. switches the toggle to Button widget", () => {
     cy.openPropertyPane("buttonwidget");
     cy.get(".t--property-control-visible").find(".t--js-toggle").click();
 

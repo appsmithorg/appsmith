@@ -34,7 +34,7 @@ describe("Git with Theming:", function () {
     // cy.connectToGitRepo(repoName);
     //});
   });
-  it("Bug #13860 Theming is not getting applied on view mode when the app is connected to Git", function () {
+  it("1. Bug #13860 Theming is not getting applied on view mode when the app is connected to Git", function () {
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToThemeSettings();
     // apply theme on master branch and deploy

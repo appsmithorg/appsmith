@@ -19,9 +19,7 @@ describe("Binding the multiple input Widget", function () {
       "response.body.responseMeta.status",
       200,
     );
-  });
-
-  it("2. Validation of data displayed in all widgets based on row selected", function () {
+    // Validation of data displayed in all widgets based on row selected
     cy.isSelectRow(1);
     cy.readTabledataPublish("1", "0").then((tabData) => {
       const tabValue = tabData;

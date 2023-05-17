@@ -7,6 +7,7 @@ const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const themelocator = require("../../../../locators/ThemeLocators.json");
 
 const appSettings = ObjectsRegistry.AppSettings;
+const theme = ObjectsRegistry.ThemeSettings;
 
 let themeBackgroudColor;
 let themeFont;
@@ -42,26 +43,28 @@ describe("Theme validation usecases", function () {
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait(5000);
+    cy.wait(2000);
     cy.contains("Border").click({ force: true });
 
     //Shadow validation
     //cy.contains("Shadow").click({ force: true });
-    cy.shadowMouseover(0, "none");
-    cy.shadowMouseover(1, "S");
-    cy.shadowMouseover(2, "M");
-    cy.shadowMouseover(3, "L");
-    cy.get(themelocator.shadow).eq(3).click({ force: true });
+    cy.shadowMouseover("none");
+    cy.shadowMouseover("S");
+    cy.shadowMouseover("M");
+    cy.shadowMouseover("L");
+    cy.xpath(theme.locators._boxShadow("L")).click({ force: true });
     cy.wait("@updateTheme").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait(5000);
+    cy.wait(2000);
     cy.contains("Shadow").click({ force: true });
 
     //Font
-    cy.get("span[name='expand-more']").then(($elem) => {
+    cy.xpath(
+      "//p[text()='App font']/following-sibling::section//div//input",
+    ).then(($elem) => {
       cy.get($elem).click({ force: true });
       cy.wait(250);
       cy.fixture("fontData").then(function (testdata) {
@@ -69,30 +72,31 @@ describe("Theme validation usecases", function () {
       });
 
       cy.get(themelocator.fontsSelected)
-        .eq(10)
-        .should("have.text", "Nunito Sans");
+        //.eq(10)
+        .should("contain.text", "Nunito Sans");
 
-      cy.get(".ads-dropdown-options-wrapper div")
-        .children()
+      cy.get(".rc-virtual-list .rc-select-item-option")
+        .find(".leading-normal")
         .eq(2)
         .then(($childElem) => {
           cy.get($childElem).click({ force: true });
           cy.get(".t--draggable-buttonwidget button :contains('Sub')").should(
             "have.css",
             "font-family",
-            `${$childElem.children().last().text()}, sans-serif`,
+            `Poppins, sans-serif`,
           );
-          themeFont = `${$childElem.children().last().text()}, sans-serif`;
+          //themeFont = `${$childElem.children().last().text()}, sans-serif`;
+          themeFont = `Poppins, sans-serif`;
 
           cy.contains("Font").click({ force: true });
 
           //Color
           //cy.contains("Color").click({ force: true });
           cy.wait(2000);
-          cy.colorMouseover(0, "Primary Color");
-          cy.validateColor(0, "#553DE9");
+          cy.colorMouseover(0, "Primary color");
+          cy.validateColor("Primary", "#553DE9");
           cy.colorMouseover(1, "Background color");
-          cy.validateColor(1, "#F8FAFC");
+          cy.validateColor("Background", "#F8FAFC");
 
           cy.get(themelocator.inputColor).click({ force: true });
           cy.chooseColor(0, themelocator.greenColor);

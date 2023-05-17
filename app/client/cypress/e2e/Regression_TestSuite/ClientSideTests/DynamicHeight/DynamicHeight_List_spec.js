@@ -1,17 +1,8 @@
 const dsl = require("../../../../fixtures/dynamicHeightListDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Dynamic Height Width validation", function () {
-  afterEach(() => {
-    agHelper.SaveLocalStorageCache();
-  });
-
-  beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
-  });
-  it("Validate change with auto height width for widgets", function () {
+  it("1. Validate change with auto height width for widgets", function () {
     const textMsg = "Dynamic panel validation for text widget wrt height";
     cy.addDsl(dsl);
     cy.wait(3000); //for dsl to settle

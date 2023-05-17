@@ -25,18 +25,14 @@ describe("Loadash basic test with input Widget", () => {
       dataSet.defaultInputBinding + "}}",
     );
     agHelper.ValidateNetworkStatus("@updateLayout");
-  });
-
-  it("2. Input widget test with default value for btoa method", function () {
+    //Input widget test with default value for btoa method
     ee.SelectEntityByName("Input2");
     propPane.UpdatePropertyFieldValue(
       "Default value",
       dataSet.loadashInput + "}}",
     );
     agHelper.ValidateNetworkStatus("@updateLayout");
-  });
-
-  it("3. Publish and validate the data displayed in input widgets value for aToB and bToa", function () {
+    //Publish and validate the data displayed in input widgets value for aToB and bToa
     deployMode.DeployApp(locator._widgetInputSelector("inputwidgetv2"));
     cy.get(locator._widgetInputSelector("inputwidgetv2"))
       .first()

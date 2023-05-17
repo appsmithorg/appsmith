@@ -42,6 +42,9 @@ const IconSelectorWrapper = styled.div`
 
   .t--icon-not-selected {
     background-color: transparent;
+    svg path {
+      fill: var(--ads-v2-color-fg);
+    }
   }
 `;
 

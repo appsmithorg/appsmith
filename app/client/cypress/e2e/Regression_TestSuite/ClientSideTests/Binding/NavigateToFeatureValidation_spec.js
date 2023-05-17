@@ -1,27 +1,16 @@
 const widgetsPage = require("../../../../locators/Widgets.json");
-const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/navigateTotabledsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const dsl2 = require("../../../../fixtures/navigateToInputDsl.json");
 const pageid = "MyPage";
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-let agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Table Widget with Input Widget and Navigate to functionality validation", function () {
-  beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
-  });
-
-  afterEach(() => {
-    agHelper.SaveLocalStorageCache();
-  });
-
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Table Widget Functionality with multiple page", function () {
+  it("1. Table Widget Functionality with multiple page", function () {
     cy.openPropertyPane("tablewidget");
     cy.widgetText(
       "Table1",
@@ -29,9 +18,7 @@ describe("Table Widget with Input Widget and Navigate to functionality validatio
       widgetsPage.widgetNameSpan,
     );
     cy.testJsontext("tabledata", JSON.stringify(testdata.TablePagination));
-  });
-
-  it("Create MyPage and valdiate if its successfully created", function () {
+    //Create MyPage and valdiate if its successfully created
     cy.Createpage(pageid);
     cy.addDsl(dsl2);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -40,7 +27,7 @@ describe("Table Widget with Input Widget and Navigate to functionality validatio
     cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
   });
 
-  it("Validate NavigateTo Page functionality ", function () {
+  it("2. Validate NavigateTo Page functionality ", function () {
     cy.get(`.t--entity-name:contains("Page1")`)
       .should("be.visible")
       .click({ force: true });

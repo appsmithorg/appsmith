@@ -247,6 +247,7 @@ export default function Group({
                     key={setting.name || setting.id}
                   >
                     <CopyUrlForm
+                      fieldName={setting.fieldName || ""}
                       helpText={setting.helpText}
                       title={setting.label || ""}
                       tooltip={

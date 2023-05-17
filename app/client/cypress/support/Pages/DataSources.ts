@@ -71,6 +71,8 @@ export class DataSources {
   _createQuery = ".t--create-query";
   _visibleTextSpan = (spanText: string) =>
     "//span[contains(text(),'" + spanText + "')]";
+  _dsOptionMenuItem = (text: string) =>
+    "//div[@role='menuitem']//span[text()='" + text + "']";
   _dropdownTitle = (ddTitle: string) =>
     "//p[contains(text(),'" +
     ddTitle +
@@ -110,6 +112,10 @@ export class DataSources {
   _refreshIcon = "button .bp3-icon-refresh";
   _addIcon = "button .bp3-icon-add";
   _queryError = "[data-testid='t--query-error']";
+  _queryEditorTabs = (responseType: string) =>
+    "//button[@role='tab' or @role='tablist']//span[text()='" +
+    responseType +
+    "']";
   _queryResponse = (responseType: string) =>
     "//div[@data-testid='t--response-tab-segmented-control']//span[text()='" +
     responseType +
@@ -171,16 +177,16 @@ export class DataSources {
   // Authenticated API locators
   private _authApiDatasource = ".t--createAuthApiDatasource";
   private _authType = "[data-testid=authType]";
-  private _oauth2 = ".t--dropdown-option:contains('OAuth 2.0')";
+  private _oauth2 = ".rc-select-item-option:contains('OAuth 2.0')";
   private _accessTokenUrl =
     "[data-testid='authentication.accessTokenUrl'] input";
   private _scope = "[data-testid='authentication.scopeString'] input";
   private _clientID = "[data-testid='authentication.clientId'] input";
   private _clientSecret = "[data-testid='authentication.clientSecret'] input";
   private _clientCredentails =
-    ".t--dropdown-option:contains('Client Credentials')";
+    ".rc-select-item-option:contains('Client Credentials')";
   private _authorizationCode =
-    ".t--dropdown-option:contains('Authorization Code')";
+    ".rc-select-item-option:contains('Authorization Code')";
   private _grantType = "[data-testid='authentication.grantType']";
   private _authorizationURL =
     "[data-testid='authentication.authorizationUrl'] input";
@@ -660,13 +666,8 @@ export class DataSources {
     expectedRes = 200 || 409 || [200 | 409],
   ) {
     this.ClickActiveTabDSContextMenu(datasourceName);
-    this.agHelper.GetNClick(
-      this.locator._visibleTextSpan("Delete"),
-      0,
-      false,
-      200,
-    );
-    this.agHelper.GetNClick(this._visibleTextSpan("Are you sure?"));
+    this.agHelper.GetNClick(this._dsOptionMenuItem("Delete"), 0, false, 200);
+    this.agHelper.GetNClick(this._dsOptionMenuItem("Are you sure?"));
     this.ValidateDSDeletion(expectedRes);
   }
 
@@ -1021,12 +1022,12 @@ export class DataSources {
   }
 
   public SetQueryTimeout(queryTimeout = 20000) {
-    this.agHelper.GetNClick(this._queryResponse("SETTINGS"));
+    this.agHelper.GetNClick(this._queryEditorTabs("Settings"));
     cy.xpath(this._queryTimeout)
       .clear()
       .type(queryTimeout.toString(), { delay: 0 }); //Delay 0 to work like paste!
     this.agHelper.AssertAutoSave();
-    this.agHelper.GetNClick(this._queryResponse("QUERY"));
+    this.agHelper.GetNClick(this._queryEditorTabs("Query"));
   }
 
   //Update with new password in the datasource conf page

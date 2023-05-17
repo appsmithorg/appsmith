@@ -25,18 +25,14 @@ describe("Validate basic binding of Input widget to Input widget", () => {
       dataSet.defaultInputBinding + "}}",
     );
     agHelper.ValidateNetworkStatus("@updateLayout");
-  });
-
-  it("2. Binding second input widget with first input widget and validating", function () {
+    //Binding second input widget with first input widget and validating
     ee.SelectEntityByName("Input2");
     propPane.UpdatePropertyFieldValue(
       "Default value",
       dataSet.momentInput + "}}",
     );
     agHelper.ValidateNetworkStatus("@updateLayout");
-  });
-
-  it("3. Publish widget and validate the data displayed in input widgets", function () {
+    //Publish widget and validate the data displayed in input widgets
     let currentTime = new Date();
     deployMode.DeployApp(locator._widgetInputSelector("inputwidgetv2"));
     cy.get(locator._widgetInputSelector("inputwidgetv2"))

@@ -69,14 +69,6 @@ describe("Embed settings options", function () {
     deployMode.NavigateBacktoEditor();
   });
 
-  beforeEach(() => {
-    agHelper.RestoreLocalStorageCache();
-  });
-
-  afterEach(() => {
-    agHelper.SaveLocalStorageCache();
-  });
-
   describe("Wrapper to get access to the alias in all tests", () => {
     it("1. Allow embedding everywhere", function () {
       cy.log(this.deployUrl);

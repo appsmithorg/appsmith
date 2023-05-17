@@ -208,6 +208,7 @@
   "fixed": "Fixed",
   "autoHeight": "Auto Height",
   "autoHeightWithLimits": "Auto Height with limits",
+  "heightDropdown":"[data-guided-tour-iid='dynamicHeight'] input",
   "minHeight": "minheight\\(inrows\\)",
   "maxHeight": "maxheight\\(inrows\\)",
   "overlayMin": "[data-testid='t--auto-height-overlay-min']",

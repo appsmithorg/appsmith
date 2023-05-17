@@ -67,11 +67,11 @@ class IconTabControl extends BaseControl<IconTabControlProps> {
   render() {
     return (
       <StyledSegmentedControl
-        defaultValue={this.props.propertyValue}
         isFullWidth={this.props.fullWidth}
         onChange={this.selectOption}
         options={this.props.options}
         ref={this.componentRef}
+        value={this.props.propertyValue}
       />
     );
   }

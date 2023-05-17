@@ -17,9 +17,7 @@ describe("Binding the Table and input Widget", function () {
       "response.body.responseMeta.status",
       200,
     );
-  });
-
-  it("2. validation of data displayed in input widgets based on search value set", function () {
+    // validation of data displayed in input widgets based on search value set
     _.entityExplorer.SelectEntityByName("Table1");
     cy.get(".t--property-control-allowsearching input").click({ force: true });
     cy.testJsontext("defaultsearchtext", "2736212");

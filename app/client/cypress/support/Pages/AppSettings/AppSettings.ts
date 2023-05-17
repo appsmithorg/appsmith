@@ -19,7 +19,7 @@ export class AppSettings {
   };
 
   public OpenAppSettings() {
-    this.agHelper.GetNClick(this.locators._appSettings);
+    this.agHelper.GetNClick(this.locators._appSettings, 0, true);
   }
 
   public ClosePane() {

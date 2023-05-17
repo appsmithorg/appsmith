@@ -10,7 +10,7 @@ describe("Duplicate application", function () {
     cy.addDsl(dsl);
   });
 
-  it("Check whether the duplicate application has the same dsl as the original", function () {
+  it("1. Check whether the duplicate application has the same dsl as the original", function () {
     const appname = localStorage.getItem("AppName");
     _.entityExplorer.SelectEntityByName("Input1");
 

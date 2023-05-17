@@ -3,7 +3,7 @@ const themelocator = require("../../../../locators/ThemeLocators.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 let themeFont;
-let themeSettings = ObjectsRegistry.ThemeSettings,
+let theme = ObjectsRegistry.ThemeSettings,
   ee = ObjectsRegistry.EntityExplorer,
   appSettings = ObjectsRegistry.AppSettings;
 
@@ -34,11 +34,11 @@ describe("Theme validation usecase for multi-select widget", function () {
     //Shadow validation
     //cy.contains("Shadow").click({ force: true });
     cy.wait(2000);
-    cy.shadowMouseover(0, "none");
-    cy.shadowMouseover(1, "S");
-    cy.shadowMouseover(2, "M");
-    cy.shadowMouseover(3, "L");
-    cy.get(themelocator.shadow).eq(3).click({ force: true });
+    cy.shadowMouseover("none");
+    cy.shadowMouseover("S");
+    cy.shadowMouseover("M");
+    cy.shadowMouseover("L");
+    cy.xpath(theme.locators._boxShadow("L")).click({ force: true });
     cy.wait("@updateTheme").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -48,7 +48,9 @@ describe("Theme validation usecase for multi-select widget", function () {
     cy.contains("Shadow").click({ force: true });
 
     //Font
-    cy.get("span[name='expand-more']").then(($elem) => {
+    cy.xpath(
+      "//p[text()='App font']/following-sibling::section//div//input",
+    ).then(($elem) => {
       cy.get($elem).click({ force: true });
       cy.wait(250);
       cy.fixture("fontData").then(function (testdata) {
@@ -56,31 +58,31 @@ describe("Theme validation usecase for multi-select widget", function () {
       });
 
       cy.get(themelocator.fontsSelected)
-        .eq(10)
-        .should("have.text", "Nunito Sans");
+        //.eq(10)
+        .should("contain.text", "Nunito Sans");
 
-      cy.get(".ads-dropdown-options-wrapper div")
-        .children()
-        .eq(2)
+      cy.get(".rc-virtual-list .rc-select-item-option")
+        .find(".leading-normal")
+        .eq(3)
         .then(($childElem) => {
           cy.get($childElem).click({ force: true });
           cy.get(".t--draggable-multiselectwidgetv2:contains('more')").should(
             "have.css",
             "font-family",
-            `${$childElem.children().last().text()}, sans-serif`,
+            `Inter, sans-serif`,
           );
-          themeFont = $childElem.children().last().text();
+          themeFont = `Inter, sans-serif`;
         });
     });
     cy.contains("Font").click({ force: true });
 
     //Color
     cy.wait(1000);
-    themeSettings.ChangeThemeColor("purple", "Primary");
+    theme.ChangeThemeColor("purple", "Primary");
     cy.get(themelocator.inputColor).should("have.value", "purple");
     cy.wait(1000);
 
-    themeSettings.ChangeThemeColor("brown", "Background");
+    theme.ChangeThemeColor("brown", "Background");
     cy.get(themelocator.inputColor).should("have.value", "brown");
     cy.wait(1000);
     cy.contains("Color").click({ force: true });

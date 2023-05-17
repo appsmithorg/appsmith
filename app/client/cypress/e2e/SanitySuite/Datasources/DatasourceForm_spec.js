@@ -28,14 +28,12 @@ describe("Datasource form related tests", function () {
     cy.get(".t--headers-array .t--delete-field")
       .children()
       .should("have.length", 2);
-  });
-
-  it("2. Check if save button is disabled", function () {
+    // Check if save button is disabled
     cy.get(".t--save-datasource").should("not.be.disabled");
     dataSource.SaveDSFromDialog();
   });
 
-  it("3. Check if saved api as a datasource does not fail on cloning", function () {
+  it("2. Check if saved api as a datasource does not fail on cloning", function () {
     cy.NavigateToAPI_Panel();
     ee.ExpandCollapseEntity("Queries/JS");
     cy.get(".t--entity-name").contains("Api").trigger("mouseover");

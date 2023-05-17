@@ -6,7 +6,7 @@ describe("Entity explorer tests related to widgets and validation", function () 
     cy.addDsl(dsl);
   });
 
-  it("Widget edit/delete/copy to clipboard validation", function () {
+  it("1. Widget edit/delete/copy to clipboard validation", function () {
     cy.CheckAndUnfoldEntityItem("Widgets");
     cy.selectEntityByName("Container4");
     cy.get(".t--entity-collapse-toggle").eq(4).click({ force: true });

@@ -27,6 +27,7 @@ function CopyUrlForm(props: {
   title: string;
   helpText?: string;
   tooltip?: string;
+  fieldName?: string;
 }) {
   const fieldValue = useMemo(
     () => `${window.location.origin}${props.value}`,
@@ -77,6 +78,7 @@ function CopyUrlForm(props: {
             )}
           </HeaderWrapper>
         }
+        name={props.fieldName}
         size="md"
         value={fieldValue}
       />

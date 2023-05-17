@@ -60,9 +60,10 @@ describe("Repo Limit Exceeded Error Modal", function () {
       cy.get(gitSyncLocators.repoLimitExceededErrorModal).contains(
         Cypress.env("MESSAGES").CONTACT_SUPPORT_TO_UPGRADE(),
       );
-      cy.get(gitSyncLocators.contactSalesButton)
-        .find(span)
-        .should("contain.text", "Contact Support");
+      cy.get(gitSyncLocators.gitModalLink).should(
+        "contain.text",
+        "Contact Support",
+      );
       cy.get(gitSyncLocators.repoLimitExceededErrorModal).contains(
         Cypress.env("MESSAGES").REVOKE_CAUSE_APPLICATION_BREAK(),
       );
@@ -74,7 +75,7 @@ describe("Repo Limit Exceeded Error Modal", function () {
           windowOpenSpy.restore();
         });
       });
-      cy.get(gitSyncLocators.learnMoreOnRepoLimitModal).click();
+      cy.get(gitSyncLocators.gitModalLink).contains("Learn more").click();
 
       cy.get(gitSyncLocators.connectedApplication).should("have.length", 3);
       cy.get(gitSyncLocators.diconnectLink).first().click();

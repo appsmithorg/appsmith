@@ -1,4 +1,3 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 
@@ -6,7 +5,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let ee = ObjectsRegistry.EntityExplorer;
 
 describe("API Panel Test Functionality ", function () {
-  it("Test API copy/Move/delete feature", function () {
+  it("1. Test API copy/Move/delete feature", function () {
     cy.Createpage("SecondPage");
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("FirstAPI");

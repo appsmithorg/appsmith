@@ -53,7 +53,7 @@ describe("Bug #14299 - The data from the query does not show up on the widget", 
     );
   });
 
-  it("2. Deploy & Verify _.table is populated even when moment returns Null", () => {
+  it("2. Deploy & Verify table is populated even when moment returns Null", () => {
     _.deployMode.DeployApp();
     _.table.WaitUntilTableLoad();
     _.table.AssertSelectedRow(0);
@@ -123,7 +123,7 @@ describe("Bug #14299 - The data from the query does not show up on the widget", 
       );
       _.deployMode.NavigateBacktoEditor();
       _.entityExplorer.ExpandCollapseEntity("Datasources");
-      _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 200); //ProductLines, Employees pages are still using this ds
+      _.dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
     },
   );
 });

@@ -55,6 +55,7 @@ function DeleteConfirmationModal(props: DeleteConfirmationProps) {
             Cancel
           </Button>
           <Button
+            data-testid="t--workspace-leave-button"
             isLoading={isDeletingUser}
             kind="error"
             onClick={onConfirm}

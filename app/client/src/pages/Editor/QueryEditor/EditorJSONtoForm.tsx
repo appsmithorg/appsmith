@@ -931,8 +931,18 @@ export function EditorJSONtoForm(props: Props) {
                 >
                   <TabsListWrapper>
                     <TabsList>
-                      <Tab value={EDITOR_TABS.QUERY}>Query</Tab>
-                      <Tab value={EDITOR_TABS.SETTINGS}>Settings</Tab>
+                      <Tab
+                        data-testid={`t--query-editor-` + EDITOR_TABS.QUERY}
+                        value={EDITOR_TABS.QUERY}
+                      >
+                        Query
+                      </Tab>
+                      <Tab
+                        data-testid={`t--query-editor-` + EDITOR_TABS.SETTINGS}
+                        value={EDITOR_TABS.SETTINGS}
+                      >
+                        Settings
+                      </Tab>
                     </TabsList>
                   </TabsListWrapper>
                   <TabPanelWrapper

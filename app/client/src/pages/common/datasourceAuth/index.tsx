@@ -52,6 +52,7 @@ interface Props {
   isInvalid: boolean;
   pageId?: string;
   shouldRender?: boolean;
+  isInsideReconnectModal?: boolean;
   datasourceButtonConfiguration: string[] | undefined;
   shouldDisplayAuthMessage?: boolean;
   triggerSave?: boolean;
@@ -113,6 +114,7 @@ function DatasourceAuth({
   triggerSave,
   isFormDirty,
   scopeValue,
+  isInsideReconnectModal,
 }: Props) {
   const authType =
     formData && "authType" in formData
@@ -256,9 +258,16 @@ function DatasourceAuth({
     if (datasource.id === TEMP_DATASOURCE_ID) {
       dispatch(createDatasourceFromForm(getSanitizedFormData()));
     } else {
-      dispatch(setDatasourceViewMode(true));
-      // we dont need to redirect it to active ds list instead ds would be shown in view only mode
-      dispatch(updateDatasource(getSanitizedFormData()));
+      // If the datasource is being saved from the reconnect modal, we don't want to redirect to the active datasource list
+      if (!isInsideReconnectModal) dispatch(setDatasourceViewMode(true));
+      dispatch(
+        updateDatasource(
+          getSanitizedFormData(),
+          undefined,
+          undefined,
+          isInsideReconnectModal,
+        ),
+      );
     }
   };
 
