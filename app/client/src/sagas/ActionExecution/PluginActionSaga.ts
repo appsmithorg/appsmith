@@ -151,12 +151,6 @@ type FilePickerInstumentationObject = {
   fileSizes: Array<number>;
 };
 
-enum ActionResult {
-  SUCCESS = "SUCCESS",
-  ERROR = "ERROR",
-  CANCELLED = "CANCELLED",
-}
-
 export const getActionTimeout = (
   state: AppState,
   actionId: string,
@@ -747,11 +741,6 @@ function* runActionSaga(
         text: createMessage(ACTION_EXECUTION_CANCELLED, actionObject.name),
         variant: Variant.danger,
       });
-      AnalyticsUtil.logEvent("RUN_QUERY_CLICK", {
-        actionId: id,
-        dataSourceSize: 1,
-        result: ActionResult.CANCELLED,
-      });
       return;
     }
     log.error(e);
@@ -860,11 +849,6 @@ function* runActionSaga(
         show: false,
       },
     });
-    AnalyticsUtil.logEvent("RUN_QUERY_CLICK", {
-      actionId: id,
-      dataSourceSize: 1,
-      result: ActionResult.ERROR,
-    });
     return;
   }
 
@@ -888,11 +872,6 @@ function* runActionSaga(
   yield put({
     type: ReduxActionTypes.RUN_ACTION_SUCCESS,
     payload: { [actionId]: payload },
-  });
-  AnalyticsUtil.logEvent("RUN_QUERY_CLICK", {
-    actionId: id,
-    dataSourceSize: 1,
-    result: ActionResult.SUCCESS,
   });
   if (payload.isExecutionSuccess) {
     AppsmithConsole.info({
