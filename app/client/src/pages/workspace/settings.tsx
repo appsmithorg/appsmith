@@ -250,7 +250,11 @@ export default function Settings() {
             <TabsList>
               {tabArr.map((tab) => {
                 return (
-                  <Tab key={tab.key} value={tab.key}>
+                  <Tab
+                    data-testid={`t--tab-${tab.key}`}
+                    key={tab.key}
+                    value={tab.key}
+                  >
                     <div className="tab-item">{tab.title}</div>
                   </Tab>
                 );

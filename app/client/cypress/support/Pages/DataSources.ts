@@ -525,6 +525,7 @@ export class DataSources {
 
   public ImportCurlNRun(value: string) {
     this.agHelper.UpdateTextArea(this._curlTextArea, value);
+    this.agHelper.Sleep(500); //Clicking import after value settled
     this.agHelper.ClickButton("Import");
     this.apiPage.RunAPI();
   }
