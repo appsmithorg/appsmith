@@ -363,6 +363,7 @@ export const Entity = forwardRef(
             } t--entity-item`}
             data-guided-tour-id={`explorer-entity-${props.name}`}
             data-guided-tour-iid={props.name}
+            data-testid={`t--entity-item-${props.name}`}
             disabled={!!props.disabled}
             highlight={!!props.highlight}
             id={"entity-" + props.entityId}
