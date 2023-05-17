@@ -126,6 +126,7 @@ describe("Fork application across workspaces", function () {
     homePageHelper.InviteUserToWorkspaceFromApp(
       Cypress.env("TESTUSERNAME1"),
       "App Viewer",
+      false,
     );
     inviteModal.CloseModal();
 
