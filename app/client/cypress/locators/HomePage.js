@@ -83,7 +83,7 @@ export default {
   workspaceHeaderName: "[data-testid='t--page-title']",
   leftPanelContainer: "[data-testid=t--left-panel]",
   themeText: "label div",
-  shareUserIcons: ".workspace-share-user-icons",
+  shareUserIcons: ".t--workspace-share-user-icons",
   toastMessage: "div.Toastify__toast",
   uploadLogo: "//div/form/input",
   removeLogo: ".remove-button a span",
