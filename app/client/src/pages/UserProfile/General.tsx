@@ -126,7 +126,7 @@ function General() {
             justifyContent: "flex-end",
           }}
         >
-          {!isFormLoginEnabled && (
+          {isFormLoginEnabled && (
             <Button
               kind="secondary"
               onClick={forgotPassword}
