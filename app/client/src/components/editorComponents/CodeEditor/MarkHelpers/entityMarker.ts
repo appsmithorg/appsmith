@@ -56,6 +56,8 @@ export const entityMarker: MarkHelper = (
   }
   const endTime = performance.now();
   console.log(from && to, "Marking time", endTime - startTime);
+  console.log("Marking count", editor.getAllMarks().length);
+  console.log("---------Marking");
 };
 
 const addMarksForLine = (
