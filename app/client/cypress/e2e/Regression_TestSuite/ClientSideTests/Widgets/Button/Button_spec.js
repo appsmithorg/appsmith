@@ -195,7 +195,7 @@ describe("Button Widget Functionality", function () {
     },
   );
 
-  it.skip(
+  it(
     "airgap",
     "9. Button-Check recaptcha type should not exist for airgap",
     function () {

@@ -34,7 +34,9 @@ describe("Button Widget Functionality - Validate tooltip visibility", function (
 
   it("Validate show/hide tooltip feature for a disabled button on deploy", function () {
     // Disable the button
-    cy.get(".t--property-control-disabled .bp3-switch").click({ force: true });
+    cy.get(".t--property-control-disabled .ads-v2-switch").click({
+      force: true,
+    });
     cy.validateDisableWidget(
       widgetsPage.buttonWidget,
       commonlocators.disabledField,
