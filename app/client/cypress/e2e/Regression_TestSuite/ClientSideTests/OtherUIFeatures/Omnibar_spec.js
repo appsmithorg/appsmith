@@ -81,7 +81,7 @@ describe("Omnibar functionality test cases", () => {
     cy.get(omnibar.categoryTitle).eq(1).click();
 
     // create new api, js object and cURL import from omnibar
-    cy.get(omnibar.createNew).contains("New JS Object").click();
+    cy.get(omnibar.createNew).contains("New JS object").click();
     cy.wait(1000);
     cy.wait("@createNewJSCollection");
     cy.wait(1000);

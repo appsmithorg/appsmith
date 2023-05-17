@@ -862,9 +862,9 @@ Cypress.Commands.add("selectWidgetForReset", (value) => {
 });
 
 Cypress.Commands.add("SetDateToToday", () => {
-  cy.get(formWidgetsPage.datepickerFooterPublish)
-    .contains("Today")
-    .click({ force: true });
+  cy.get(".react-datepicker .react-datepicker__day--today").click({
+    force: true,
+  });
   cy.assertPageSave();
 });
 

@@ -109,7 +109,7 @@
   "blueColor": "//div[@color='#3366FF']",
   "toggleJsColor": ".t--property-control-textcolor .t--js-toggle",
   "backgroundColor": ".t--property-control-cellbackground input",
-  "toggleJsBcgColor": ".t--property-control-cellbackground .t--js-toggle",
+  "toggleJsBcgColor": ".t--property-control-cellbackgroundcolor .t--js-toggle",
   "toggleTextAlign": ".t--property-control-textalign .t--js-toggle",
   "toggleTextStyle": ".t--property-control-emphasis .t--js-toggle",
   "toggleTextStyle_tablev1": ".t--property-control-fontstyle .t--js-toggle",

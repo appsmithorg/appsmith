@@ -16,7 +16,7 @@ describe("Datasource form related tests", function () {
     cy.CreateAPI(); //Not giving name to enable for cypress re-attempt
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
 
-    cy.get(".t--store-as-datasource").trigger("click").wait(1000);
+    cy.get(".t--store-as-datasource").click();
 
     agHelper.AssertElementAbsence(
       locator._specificToast("Duplicate key error"),
@@ -36,10 +36,7 @@ describe("Datasource form related tests", function () {
   it("2. Check if saved api as a datasource does not fail on cloning", function () {
     cy.NavigateToAPI_Panel();
     ee.ExpandCollapseEntity("Queries/JS");
-    cy.get(".t--entity-name").contains("Api").trigger("mouseover");
-    cy.hoverAndClickParticularIndex(1);
-    cy.get('.single-select:contains("Copy to page")').click();
-    cy.get('.single-select:contains("Page1")').click({ force: true });
+    ee.ActionContextMenuByEntityName("Api1", "Copy to page", "Page1");
     agHelper.AssertContains("action copied to page Page1 successfully");
   });
 });
