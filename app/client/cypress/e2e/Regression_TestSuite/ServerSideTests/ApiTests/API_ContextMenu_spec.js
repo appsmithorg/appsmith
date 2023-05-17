@@ -16,7 +16,7 @@ describe("API Panel Test Functionality ", function () {
     ee.ActionContextMenuByEntityName("FirstAPI", "Copy to page", "SecondPage");
     ObjectsRegistry.AggregateHelper.AssertNewTabOpened(() => {
       // click on learn how link
-      cy.get(".t--learn-how-apis-link").click();
+      cy.get(".ads-v2-link span").contains("Learn how").click();
     });
     cy.get("body").click(0, 0);
     ee.ActionContextMenuByEntityName("FirstAPICopy", "Move to page", "Page1");

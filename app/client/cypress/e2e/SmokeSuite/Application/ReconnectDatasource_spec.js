@@ -32,12 +32,10 @@ describe("Reconnect Datasource Modal validation while importing application", fu
             }).should("be.visible");
             cy.get(".t--ds-list .t--ds-list-title").should(
               "have.text",
-              "Untitled datasource",
+              "Untitled Datasource",
             );
             // not configured yet
-            cy.get(".t--ds-list .t--ds-list-icon")
-              .invoke("attr", "name")
-              .should("eq", "info");
+            cy.get(".t--ds-list .ads-v2-icon").should("be.visible");
             // check db type
             cy.get(".t--ds-list").contains("PostgreSQL");
             // check the postgres form config with default value
@@ -55,7 +53,7 @@ describe("Reconnect Datasource Modal validation while importing application", fu
               "[data-testid='datasourceConfiguration.connection.ssl.authType']",
             ).should("contain", "Default");
 
-            cy.ReconnectDatasource("Untitled datasource");
+            cy.ReconnectDatasource("Untitled Datasource");
             cy.wait(1000);
             cy.fillPostgresDatasourceForm();
             cy.testDatasource(true);
@@ -85,9 +83,9 @@ describe("Reconnect Datasource Modal validation while importing application", fu
           const name = uuid();
           appName = `app${name}`;
           cy.get(homePage.applicationName).click({ force: true });
-          cy.get(`${homePage.applicationEditMenu} li:nth-child(3) a`).click({
-            force: true,
-          });
+          cy.get(".ads-v2-menu__menu-item-children:contains(Edit)")
+            .eq(0)
+            .click();
           cy.wait(2000);
           cy.get(homePage.applicationName)
             // .clear()
