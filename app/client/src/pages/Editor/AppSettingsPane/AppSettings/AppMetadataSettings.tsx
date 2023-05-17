@@ -1,17 +1,12 @@
 import {
   APP_METADATA_SETTING,
-  UPDATE_VIA_IMPORT_SETTING,
   createMessage,
 } from "@appsmith/constants/messages";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
-import { Button, Text, TextType, TextInput } from "design-system-old";
-import ImportApplicationModal from "pages/Applications/ImportApplicationModal";
+import { Text, TextInput, TextType } from "design-system-old";
 
 import React from "react";
-import { useSelector } from "react-redux";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { getIsGitConnected } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
+import SwitchSetting from "./NavigationSettings/SwitchSetting";
 
 const SettingWrapper = styled.div`
   display: flex;
@@ -23,60 +18,82 @@ const SettingWrapper = styled.div`
   .import-btn {
     width: 40%;
   }
-`;
-
-const StyledText = styled(Text)`
-  color: var(--appsmith-color-black-800);
-
-  &.setting-header {
-    font-weight: 500;
+  textarea {
+    border: 1px solid var(--appsmith-color-black-300);
+    border-radius: 4px;
+    padding: 8px;
+    resize: vertical;
   }
 `;
 
 export function AppMetadataSettings() {
-  const appId = useSelector(getCurrentApplicationId);
-  const workspace = useSelector(getCurrentAppWorkspace);
-  const isGitConnected = useSelector(getIsGitConnected);
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
-
-  function handleClose() {
-    setIsModalOpen(false);
-  }
   return (
-    <>
-      <SettingWrapper>
-        <Text type={TextType.P1}>
-          {APP_METADATA_SETTING.descriptionLabel()}
-        </Text>
-
-        <TextInput />
-        <StyledText className="setting-header" type={TextType.P1}>
-          {createMessage(UPDATE_VIA_IMPORT_SETTING.settingHeader)}
-        </StyledText>
-        <StyledText type={TextType.P3}>
-          {isGitConnected
-            ? createMessage(UPDATE_VIA_IMPORT_SETTING.disabledForGit)
-            : createMessage(UPDATE_VIA_IMPORT_SETTING.settingContent)}
-        </StyledText>
-        <Button
-          className="import-btn"
-          cypressSelector="t--app-setting-import-btn"
-          disabled={isGitConnected}
-          onClick={() => setIsModalOpen(true)}
-          size="small"
-          tag="button"
-          text={createMessage(
-            UPDATE_VIA_IMPORT_SETTING.settingActionButtonTxt,
-          ).toLocaleUpperCase()}
-        />
-      </SettingWrapper>
-      <ImportApplicationModal
-        appId={appId}
-        isModalOpen={isModalOpen}
-        onClose={handleClose}
-        toApp
-        workspaceId={workspace?.id}
+    <SettingWrapper>
+      <Text type={TextType.P1}>{APP_METADATA_SETTING.descriptionLabel()}</Text>
+      <textarea
+        rows={4}
+        value={
+          "Fulfill the orders placed by customers. Pick items from warehouse, print invoices and labels, ship items, track delivery and returns."
+        }
       />
-    </>
+
+      <Text type={TextType.P1}>{APP_METADATA_SETTING.tagsLabel()}</Text>
+      <TextInput fill value={"Order Management"} />
+
+      <Text type={TextType.P1}>{APP_METADATA_SETTING.categoryLabel()}</Text>
+      <TextInput fill value={"Operations"} />
+
+      <Text type={TextType.P1}>
+        {APP_METADATA_SETTING.imageUrlOnWebsiteLabel()}
+      </Text>
+      <TextInput
+        fill
+        value={
+          "https://s3.us-east-2.amazonaws.com/template.appsmith.com/order-fulfillment-tracker.png"
+        }
+      />
+      <hr />
+
+      <Text type={TextType.H1}>{APP_METADATA_SETTING.forWebsiteLabel()}</Text>
+
+      <SwitchSetting
+        keyName="showNavbar"
+        label={createMessage(APP_METADATA_SETTING.isFeaturedOnWebsiteLabel)}
+        updateSetting={() => {
+          return false;
+        }}
+        value
+      />
+
+      <Text type={TextType.P1}>
+        {APP_METADATA_SETTING.excerptOnWebsiteLabel()}
+      </Text>
+      <TextInput
+        fill
+        value={
+          "Fulfill the orders placed by customers. Pick items from warehouse, print invoices and labels, ship items, track delivery and returns."
+        }
+      />
+
+      <Text type={TextType.P1}>
+        {APP_METADATA_SETTING.mdTextOnWebsiteLabel()}
+      </Text>
+      <textarea
+        rows={4}
+        value={
+          "* Track Order Metrics\n * QR Scanner to pick and pack products\n * Order status tracker \n * Invoice & Delivery Label pdf printer\n * Manage products, returns and customers"
+        }
+      />
+
+      <Text type={TextType.P1}>
+        {APP_METADATA_SETTING.imageUrlOnWebsiteLabel()}
+      </Text>
+      <TextInput
+        fill
+        value={
+          "https://s3.us-east-2.amazonaws.com/template.appsmith.com/order-fulfillment-tracker.png"
+        }
+      />
+    </SettingWrapper>
   );
 }

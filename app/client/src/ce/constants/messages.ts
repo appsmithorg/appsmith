@@ -1602,6 +1602,14 @@ export const APP_METADATA_SETTING = {
   sectionHeader: () => "Metadata",
   sectionHeaderDesc: () => "Customize if app is template",
   descriptionLabel: () => "Description",
+  tagsLabel: () => "Tags",
+  categoryLabel: () => "Category",
+  imageUrlOnPlatformLabel: () => "Image URL",
+  forWebsiteLabel: () => "Specific to website",
+  isFeaturedOnWebsiteLabel: () => "Featured",
+  excerptOnWebsiteLabel: () => "Excerpt",
+  mdTextOnWebsiteLabel: () => "Markdown description",
+  imageUrlOnWebsiteLabel: () => "Image URL",
 };
 
 export const LOCK_SIDEBAR_MESSAGE = () => `Lock sidebar open`;
