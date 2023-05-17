@@ -115,7 +115,7 @@ describe("Property Pane Search", function () {
     // Verify if the property is visible
     propPane.AssertIfPropertyOrSectionExists(
       "pagination",
-      "CONTENT",
+      "Content",
       "onpagechange",
     );
 
@@ -180,7 +180,7 @@ describe("Property Pane Search", function () {
     propPane.AssertIfPropertyOrSectionExists("sorting", "Content", "onsort");
     propPane.AssertIfPropertyOrSectionExists(
       "sorting",
-      "CONTENT",
+      "Content",
       "columnsorting",
     );
   });
