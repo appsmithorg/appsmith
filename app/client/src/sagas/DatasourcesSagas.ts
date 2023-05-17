@@ -897,7 +897,7 @@ function* updateDraftsSaga() {
     getFormValues(DATASOURCE_DB_FORM),
   );
 
-  if (!values.id) return;
+  if (!values?.id) return;
   const datasource: Datasource | undefined = yield select(
     getDatasource,
     // @ts-expect-error: values is of type unknown
