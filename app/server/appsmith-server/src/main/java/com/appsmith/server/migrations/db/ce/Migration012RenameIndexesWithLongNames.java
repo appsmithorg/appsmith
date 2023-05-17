@@ -25,9 +25,9 @@ import static com.appsmith.server.migrations.DatabaseChangelog1.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
-@ChangeUnit(order = "010", id = "rename-indexes-with-long-names")
+@ChangeUnit(order = "012", id = "rename-indexes-with-long-names")
 @RequiredArgsConstructor
-public class Migration010RenameIndexesWithLongNames {
+public class Migration012RenameIndexesWithLongNames {
 
     private final MongoTemplate mongoTemplate;
 
@@ -71,10 +71,10 @@ public class Migration010RenameIndexesWithLongNames {
         }
 
         // update-git-indexes
-        DatabaseChangelog2.doAddIndexesForGit(mongoTemplate); // This method is idempotent and only does indexes.
         dropIndexIfExists(mongoTemplate, ActionCollection.class, "defaultApplicationId_gitSyncId_deleted_compound_index");
         dropIndexIfExists(mongoTemplate, NewAction.class, "defaultApplicationId_gitSyncId_deleted_compound_index");
         dropIndexIfExists(mongoTemplate, NewPage.class, "defaultApplicationId_gitSyncId_deleted_compound_index");
+        DatabaseChangelog2.doAddIndexesForGit(mongoTemplate);
 
         // organization-to-workspace-indexes-recreate
         if (dropIndexIfExists(mongoTemplate, Application.class, "workspace_application_deleted_gitApplicationMetadata_compound_index")) {
@@ -92,6 +92,11 @@ public class Migration010RenameIndexesWithLongNames {
         DatabaseChangelog2.doAddPermissionGroupIndex(mongoTemplate); // Idempotent index-only migration, do it again.
 
         // create-index-default-domain-id-default-domain-type
+        dropIndexIfExists(
+            mongoTemplate,
+            PermissionGroup.class,
+            "permission_group_domainId_domainType_deleted_deleted_compound_index"
+        );
         Index newIndexDefaultDomainIdDefaultDomainTypeDeletedDeletedAt = makeIndex(
             fieldName(QPermissionGroup.permissionGroup.defaultDomainId),
             fieldName(QPermissionGroup.permissionGroup.defaultDomainType),
@@ -99,18 +104,13 @@ public class Migration010RenameIndexesWithLongNames {
             fieldName(QPermissionGroup.permissionGroup.deletedAt)
         ).named(Migration008CreateIndexDefaultDomainIdDefaultDomainTypeDropIndexDefaultWorkspaceId.newPermissionGroupIndexNameDefaultDomainIdDefaultDomainType);
         ensureIndexes(mongoTemplate, PermissionGroup.class, newIndexDefaultDomainIdDefaultDomainTypeDeletedDeletedAt);
-        dropIndexIfExists(
-            mongoTemplate,
-            PermissionGroup.class,
-            "permission_group_domainId_domainType_deleted_deleted_compound_index"
-        );
 
         // remove-structure-from-within-datasource
+        dropIndexIfExists(mongoTemplate, DatasourceConfigurationStructure.class, "dsConfigStructure_datasourceId_envId_compound_index");
         DatabaseChangelog1.ensureIndexes(mongoTemplate, DatasourceConfigurationStructure.class,
             DatabaseChangelog1.makeIndex("datasourceId", "envId")
                 .unique().named("dsConfigStructure_dsId_envId")
         );
-        dropIndexIfExists(mongoTemplate, DatasourceConfigurationStructure.class, "dsConfigStructure_datasourceId_envId_compound_index");
     }
 
 }
