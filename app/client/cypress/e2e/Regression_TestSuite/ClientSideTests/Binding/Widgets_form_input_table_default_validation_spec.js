@@ -9,6 +9,7 @@ describe("Binding the multiple input Widget", function () {
   });
 
   it("1. Input widget test with default value from table widget", function () {
+    _.entityExplorer.ExpandCollapseEntity("Form1");
     _.entityExplorer.SelectEntityByName("Input1");
 
     cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
