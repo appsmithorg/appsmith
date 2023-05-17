@@ -48,7 +48,7 @@ describe("Test Create Api and Bind to Button widget", function () {
   });
 
   it("2. Selects clear interval function, Fill clearInterval action creator and test code generated", () => {
-    _.entityExplorer.SelectEntityByName("Button1");
+    _.entityExplorer.SelectEntityByName("Button1", "Widgets");
     _.jsEditor.DisableJSContext("onClick");
     cy.get(".action-block-tree").click({ force: true });
     cy.get(".t--action-selector-popup .t--delete").click({ force: true });

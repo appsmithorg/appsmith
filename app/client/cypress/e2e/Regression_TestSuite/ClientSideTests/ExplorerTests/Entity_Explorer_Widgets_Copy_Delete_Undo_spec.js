@@ -3,6 +3,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const dsl = require("../../../../fixtures/formWidgetdsl.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
+const _ = require("../../../../support/Objects/ObjectsCore");
 
 before(() => {
   cy.addDsl(dsl);
@@ -25,10 +26,7 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
   });
 
   it("2. Delete Widget from sidebar and Undo action validation", function () {
-    cy.GlobalSearchEntity("Widgets");
-    cy.get(".t--entity-name").contains("FormTest").trigger("mouseover");
-    cy.hoverAndClickParticularIndex(1);
-    cy.selectAction("Show bindings");
+    _.entityExplorer.ActionContextMenuByEntityName("FormTest", "Show bindings");
     cy.get(apiwidget.propertyList).then(function ($lis) {
       expect($lis).to.have.length(3);
       expect($lis.eq(0)).to.contain("{{FormTest.isVisible}}");
@@ -38,6 +36,7 @@ describe("Test Suite to validate copy/delete/undo functionalites", function () {
     cy.get(".t--entity-name").contains("FormTest").trigger("mouseover");
     cy.hoverAndClickParticularIndex(1);
     cy.selectAction("Delete");
+
     //cy.DeleteWidgetFromSideBar();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
