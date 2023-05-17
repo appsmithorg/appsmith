@@ -49,7 +49,7 @@ describe("File picker widget v2", () => {
         .click({ force: true });
 
       // Go back to widgets page
-      _.entityExplorer.NavigateToSwitcher("Widgets");
+      _.entityExplorer.NavigateToSwitcher("Widgets", 0, true);
       cy.get(widgetsPage.filepickerwidgetv2).should(
         "contain",
         "1 files selected",
