@@ -131,7 +131,7 @@
   "dataType": ".t--property-control-datatype input",
   "recaptchaVersion": ".t--property-control-googlerecaptchaversion input",
   "recaptchaVersionText": ".t--property-control-googlerecaptchaversion span.rc-select-selection-item span",
-  "filePickerDataFormat": ".t--property-control-dataformat input",
+  "filePickerDataFormat": ".t--property-control-dataformat .rc-select-selection-item",
   "helperText": ".t--property-control-helperText",
   "jsonFormFieldType": ".t--property-control-fieldtype input",
   "jsonFormAddNewCustomFieldBtn": ".t--property-control-fieldconfiguration .t--add-column-btn",
