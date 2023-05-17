@@ -135,12 +135,12 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
                             });
 
                     return getUserFromDbAndCheckIfUserExists
-                            .flatMap(existingUser -> emailService.sendWorkspaceEmail(originHeader,
+                            .flatMap(existingUser -> emailService.sendInviteWorkspaceEmail(originHeader,
                                     workspace, currentUser, permissionGroup.getName(), existingUser, false)
                                     .thenReturn(existingUser)
                             )
                             .switchIfEmpty(userService.createNewUser(username, originHeader, permissionGroup.getName())
-                                    .flatMap(createdUser -> emailService.sendWorkspaceEmail(originHeader,
+                                    .flatMap(createdUser -> emailService.sendInviteWorkspaceEmail(originHeader,
                                                     workspace, currentUser, permissionGroup.getName(), createdUser, true)
                                             .thenReturn(createdUser)
                                     )

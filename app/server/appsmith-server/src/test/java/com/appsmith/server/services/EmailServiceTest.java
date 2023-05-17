@@ -1,24 +1,15 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.services.EncryptionService;
-import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
-import com.appsmith.server.solutions.DatasourcePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.StringUtils;
@@ -27,13 +18,9 @@ import reactor.test.StepVerifier;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
-import static com.appsmith.server.constants.ce.FieldNameCE.APPLICATION;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEVELOPER;
 import static com.appsmith.server.constants.ce.FieldNameCE.VIEWER;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,8 +47,7 @@ public class EmailServiceTest {
     PermissionGroupService permissionGroupService;
 
     private static String workspaceId;
-    private static Application app;
-    private static String workspaceName = "EmailServiceTest";
+    private static final String workspaceName = "EmailServiceTest";
 
 
     @BeforeEach
@@ -69,7 +55,7 @@ public class EmailServiceTest {
     public void setup() {
         User apiUser = userService.findByEmail("api_user").block();
         Workspace toCreate = new Workspace();
-        toCreate.setName("EmailServiceTest");
+        toCreate.setName(workspaceName);
 
         if (!StringUtils.hasLength(workspaceId)) {
             Workspace workspace = workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
@@ -80,9 +66,7 @@ public class EmailServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void checkWorkspaceInviteEmailForNewUser() {
-        Workspace workspace = new Workspace();
-        workspace.setName("UserServiceTest Update Org");
-        workspace.setId(UUID.randomUUID().toString());
+        Workspace workspace = workspaceService.findById(workspaceId, READ_WORKSPACES).block();
 
         User inviter = new User();
         inviter.setName("inviterUserToApplication");
@@ -103,7 +87,7 @@ public class EmailServiceTest {
                 .blockFirst();
 
         assertThat(permissionGroup).isNotNull();
-        Mono<Map<String, String>> paramsMono = emailService.sendWorkspaceEmail(originHeader, workspace, inviter,
+        Mono<Map<String, String>> paramsMono = emailService.sendInviteWorkspaceEmail(originHeader, workspace, inviter,
                 permissionGroup.getName(), invitee, true);
 
         StepVerifier.create(paramsMono)
@@ -111,7 +95,7 @@ public class EmailServiceTest {
                     assertThat(params).isNotEmpty();
                     assertThat(params.get("role")).contains(DEVELOPER.toLowerCase());
                     assertThat(params.get("inviterFirstName")).isEqualTo("inviterUserToApplication");
-                    assertThat(params.get("inviterWorkspaceName")).isEqualTo(workspace.getName());
+                    assertThat(params.get("inviterWorkspaceName")).isEqualTo(workspaceName);
                     assertThat(params.get("primaryLinkUrl")).isEqualTo( signupInviteUrl);
                 })
                 .verifyComplete();
@@ -120,9 +104,7 @@ public class EmailServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void checkWorkspaceInviteEmailForExistingUser() {
-        Workspace workspace = new Workspace();
-        workspace.setName("UserServiceTest Update Org");
-        workspace.setId(UUID.randomUUID().toString());
+        Workspace workspace = workspaceService.findById(workspaceId, READ_WORKSPACES).block();
 
         User inviter = new User();
         inviter.setName("inviterUserToApplication");
@@ -138,7 +120,7 @@ public class EmailServiceTest {
                 .blockFirst();
 
         assertThat(permissionGroup).isNotNull();
-        Mono<Map<String, String>> paramsMono = emailService.sendWorkspaceEmail(originHeader, workspace, inviter,
+        Mono<Map<String, String>> paramsMono = emailService.sendInviteWorkspaceEmail(originHeader, workspace, inviter,
                 permissionGroup.getName(), invitee, false);
 
         StepVerifier.create(paramsMono)
@@ -146,8 +128,8 @@ public class EmailServiceTest {
                     assertThat(params).isNotEmpty();
                     assertThat(params.get("role")).contains(VIEWER.toLowerCase());
                     assertThat(params.get("inviterFirstName")).isEqualTo("inviterUserToApplication");
-                    assertThat(params.get("inviterWorkspaceName")).isEqualTo(workspace.getName());
-                    assertThat(params.get("primaryLinkUrl")).isEqualTo(originHeader + "/applications#" + workspace.getId());
+                    assertThat(params.get("inviterWorkspaceName")).isEqualTo(workspaceName);
+                    assertThat(params.get("primaryLinkUrl")).isEqualTo(originHeader + "/applications#" + workspaceId);
                 })
                 .verifyComplete();
     }

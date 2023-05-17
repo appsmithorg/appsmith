@@ -28,7 +28,8 @@ public class EmailServiceCEImpl implements EmailServiceCE {
 
 
 
-    private Pair<String, String> getSubjectAndWorkspaceEmailTemplate(Workspace inviterWorkspace, Boolean isNewUser) {
+    @Override
+    public Pair<String, String> getSubjectAndWorkspaceEmailTemplate(Workspace inviterWorkspace, Boolean isNewUser) {
         if(isNewUser){
             String emailSubject = String.format("You’re invited to the workspace %s. \uD83E\uDD73 ", inviterWorkspace.getName());
             return new Pair<>(emailSubject, INVITE_WORKSPACE_TEMPLATE_CE);
@@ -72,8 +73,8 @@ public class EmailServiceCEImpl implements EmailServiceCE {
     }
 
     @Override
-    public Mono<Map<String, String>> sendWorkspaceEmail(String originHeader, Workspace workspace, User inviter,
-                                                       String permissionGroupName, User invitee, Boolean isNewUser) {
+    public Mono<Map<String, String>> sendInviteWorkspaceEmail(String originHeader, Workspace workspace, User inviter,
+                                                              String permissionGroupName, User invitee, Boolean isNewUser) {
         String inviteUrl = originHeader;
         if(isNewUser){
             inviteUrl = getSignupUrl(originHeader, invitee);
