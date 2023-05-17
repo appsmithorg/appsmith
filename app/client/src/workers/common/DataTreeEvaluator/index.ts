@@ -456,20 +456,7 @@ export default class DataTreeEvaluator {
       localUnEvalTree,
       stringifiedLocalUnEvalTreeJSCollection,
     );
-    const temp = ["setValue", "setDisabled", "setRequired", "setVisibility"];
 
-    temp.forEach((t) => {
-      set(
-        oldUnEvalTreeWithStrigifiedJSFunctions,
-        `Input1.${t}`,
-        oldUnEvalTreeWithStrigifiedJSFunctions["Input1"][t].toString(),
-      );
-      set(
-        localUnEvalTreeWithStrigifiedJSFunctions,
-        `Input1.${t}`,
-        oldUnEvalTreeWithStrigifiedJSFunctions["Input1"][t].toString(),
-      );
-    });
     const differences: Diff<DataTree, DataTree>[] =
       diff(
         oldUnEvalTreeWithStrigifiedJSFunctions,

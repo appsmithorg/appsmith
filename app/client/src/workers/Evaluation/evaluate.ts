@@ -11,9 +11,6 @@ import { DOM_APIS } from "./SetupDOM";
 import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
 import { errorModifier, FoundPromiseInSyncEvalError } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
-import { dataTreeEvaluator } from "./handlers/evalTree";
-import { set } from "lodash";
-import { klona } from "klona/full";
 
 export type EvalResult = {
   result: any;
@@ -228,30 +225,7 @@ export function setEvalContext({
     isTriggerBased,
   });
 
-  Object.assign(self, klona(evalContext));
-
-  // eslint-disable-next-line
-  // @ts-ignore
-  set(self, "Input1.setValue", function (value: string) {
-    if (!dataTreeEvaluator) return;
-
-    return dataTreeEvaluator?.applySetterMethod("Input1.meta.inputText", value);
-  });
-  set(self, "Input1.setVisibility", function (value: boolean) {
-    if (!dataTreeEvaluator) return;
-
-    return dataTreeEvaluator?.applySetterMethod("Input1.isVisible", value);
-  });
-  set(self, "Input1.setRequired", function (value: boolean) {
-    if (!dataTreeEvaluator) return;
-
-    return dataTreeEvaluator?.applySetterMethod("Input1.isRequired", value);
-  });
-  set(self, "Input1.setDisabled", function (value: boolean) {
-    if (!dataTreeEvaluator) return;
-
-    return dataTreeEvaluator?.applySetterMethod("Input1.isDisabled", value);
-  });
+  Object.assign(self, evalContext);
 }
 
 export default function evaluateSync(
