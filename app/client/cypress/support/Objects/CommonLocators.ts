@@ -147,6 +147,8 @@ export class CommonLocators {
     `//label[contains(@class, 't--input-widget-label')][text()='${fieldName}']/ancestor::div[@data-testid='input-container']//${
       input ? "input" : "textarea"
     }`;
+  _confirmationdialogbtn = (btnText: string) =>
+    `//div[@data-testid='t--query-run-confirmation-modal']//span[text()='${btnText}']`;
   _deleteIcon = "button .bp3-icon-delete";
   _datePickerValue = "div[data-testid='datepicker-container'] input";
   _switchToggle = (switchName: string) =>
