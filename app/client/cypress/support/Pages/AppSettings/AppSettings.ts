@@ -15,7 +15,7 @@ export class AppSettings {
 
   public errorMessageSelector = (fieldId: string) => {
     fieldId = fieldId[0] === "#" ? fieldId.slice(1, fieldId.length) : fieldId;
-    return `//input[@id='${fieldId}']/following-sibling::div/span`;
+    return `//input[@id='${fieldId}']/parent::div/following-sibling::span`;
   };
 
   public OpenAppSettings() {
