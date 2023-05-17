@@ -78,6 +78,7 @@ export type EventName =
   | "DUPLICATE_API_CLICK"
   | "RUN_QUERY"
   | "RUN_QUERY_CLICK"
+  | "RUN_ACTION_RESULT"
   | "RUN_QUERY_SHORTCUT"
   | "DELETE_QUERY"
   | "SAVE_QUERY"
