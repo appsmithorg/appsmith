@@ -67,9 +67,9 @@ describe("Checkbox column type funtionality test", () => {
   });
 
   it("3. Check the horizontal, vertical alignment of checkbox, and the cell background color", () => {
-    cy.get(".t--propertypane").contains("STYLE").click({ force: true });
+    cy.moveToStyleTab();
     // Check horizontal alignment
-    cy.get(".t--property-control-horizontalalignment .t--button-group-CENTER")
+    cy.get("[data-value='CENTER']")
       .first()
       .click();
 
@@ -78,7 +78,7 @@ describe("Checkbox column type funtionality test", () => {
     });
 
     // Check vertical alignment
-    cy.get(".t--property-control-verticalalignment .t--button-group-BOTTOM")
+    cy.get("[data-value='BOTTOM']")
       .first()
       .click();
 
@@ -97,7 +97,7 @@ describe("Checkbox column type funtionality test", () => {
   });
 
   it("4. Verify disabled(editable off), enabled states and interactions on checkbox", () => {
-    cy.get(".t--propertypane").contains("CONTENT").click({ force: true });
+    cy.moveToContentTab();
     cy.getTableV2DataSelector("0", "4").then(($elemClass) => {
       const selector = $elemClass + checkboxSelector;
 

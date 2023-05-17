@@ -21,7 +21,7 @@ describe("Table Widget text wrapping functionality", function () {
     // Enable cell wrapping and check that height is more than 28px
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("image");
-    cy.get(".t--property-control-cellwrapping .bp3-control-indicator")
+    cy.get(".t--property-control-cellwrapping input")
       .first()
       .click({ force: true });
     cy.wait(1000);
@@ -65,7 +65,7 @@ describe("Table Widget text wrapping functionality", function () {
     cy.openPropertyPane("tablewidgetv2");
     cy.wait(2000);
     cy.editColumn("email");
-    cy.get(".t--property-control-cellwrapping .bp3-control-indicator").click({
+    cy.get(".t--property-control-cellwrapping input").click({
       force: true,
     });
     cy.wait(1000);
@@ -119,7 +119,7 @@ describe("Table Widget text wrapping functionality", function () {
       cy.get(".t--dropdown-option")
         .children()
         .contains(data.columnType)
-        .click();
+        .click({force: true});
       cy.wait("@updateLayout");
       cy.get(".t--property-control-cellwrapping").should(data.expected);
     });
@@ -136,14 +136,14 @@ describe("Table Widget text wrapping functionality", function () {
       cy.getTableCellHeight(0, 0).then((height) => {
         expect(height).to.equal("28px");
       });
-      cy.get(".t--property-control-cellwrapping .bp3-control-indicator")
+      cy.get(".t--property-control-cellwrapping input")
         .first()
         .click();
       cy.wait(1000);
       cy.getTableCellHeight(0, 0).then((height) => {
         expect(height).to.not.equal("28px");
       });
-      cy.get(".t--property-control-cellwrapping .bp3-control-indicator")
+      cy.get(".t--property-control-cellwrapping input")
         .first()
         .click();
     });
@@ -158,7 +158,7 @@ describe("Table Widget text wrapping functionality", function () {
       .then((value) => {
         pageSizeBeforeWrapping = value;
       });
-    cy.get(".t--property-control-cellwrapping .bp3-control-indicator")
+    cy.get(".t--property-control-cellwrapping input")
       .first()
       .click();
     cy.wait(1000);
