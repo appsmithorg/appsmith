@@ -1122,7 +1122,11 @@ export class DataSources {
   }
 
   public FillMongoDatasourceFormWithURI(uri: string) {
-    this.ValidateNSelectDropdown("Use mongo connection string URI", "", "Yes");
+    this.ValidateNSelectDropdown(
+      "Use mongo connection string URI",
+      "No",
+      "Yes",
+    );
     this.agHelper.UpdateInputValue(
       this.locator._inputFieldByName("Connection string URI") + "//input",
       uri,
