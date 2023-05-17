@@ -15,6 +15,7 @@ import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.EmailDto;
 import com.appsmith.server.dtos.EmailTokenDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.Permission;
@@ -94,7 +95,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
     private static final String FORGOT_PASSWORD_CLIENT_URL_FORMAT = "%s/user/resetPassword?token=%s";
-    public static final String INVITE_USER_EMAIL_TEMPLATE = "email/inviteUserTemplate.html";
     private static final Pattern ALLOWED_ACCENTED_CHARACTERS_PATTERN = Pattern.compile("^[\\p{L} 0-9 .\'\\-]+$");
 
 
@@ -255,10 +255,15 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
                     Map<String, String> params = new HashMap<>();
                     params.put("resetUrl", resetUrl);
-
+                    EmailDto subjectAndEmailTemplate = emailService.getSubjectAndForgotPasswordEmailTemplate();
                     return emailService.updateTenantLogoInParams(params, resetUserPasswordDTO.getBaseUrl())
                             .flatMap(updatedParams ->
-                                    emailSender.sendMail(email, "Appsmith Password Reset", FORGOT_PASSWORD_EMAIL_TEMPLATE, updatedParams)
+                                    emailSender.sendMail(
+                                            email,
+                                            subjectAndEmailTemplate.getSubject(),
+                                            subjectAndEmailTemplate.getEmailTemplate(),
+                                            updatedParams
+                                    )
                             );
                 })
                 .thenReturn(true);
