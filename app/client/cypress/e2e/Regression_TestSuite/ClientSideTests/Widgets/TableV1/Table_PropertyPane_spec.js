@@ -239,7 +239,7 @@ describe("Table Widget property pane feature validation", function () {
     cy.readTabledataValidateCSS("1", "0", "color", "rgb(128, 0, 128)");
 
     // Changing Cell backgroud color to rgb(126, 34, 206) and validate
-    cy.selectColor("cellbackground");
+    cy.selectColor("cellbackgroundcolor");
     cy.readTabledataValidateCSS(
       "0",
       "0",
@@ -249,7 +249,7 @@ describe("Table Widget property pane feature validation", function () {
     );
     // Changing Cell backgroud color to PURPLE and validate using JS
     cy.get(widgetsPage.toggleJsBcgColor).click();
-    cy.updateCodeInput(".t--property-control-cellbackground", "purple");
+    cy.updateCodeInput(".t--property-control-cellbackgroundcolor", "purple");
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS(
       "0",
