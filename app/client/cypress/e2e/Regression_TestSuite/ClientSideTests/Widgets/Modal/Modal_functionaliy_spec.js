@@ -90,7 +90,7 @@ describe("Modal Widget Functionality", function () {
 
     cy.get(explorer.addWidget).click();
     //add an additional modal widget and a container widget
-    cy.dragAndDropToCanvas("modalwidget", { x: 300, y: 300 });
+    _.entityExplorer.DragDropWidgetNVerify("modalwidget", 300, 300);
     cy.get(widgets.modalCloseButton).click({ force: true });
     cy.dragAndDropToCanvas("containerwidget", { x: 300, y: 300 });
     _.entityExplorer.NavigateToSwitcher("Explorer");
@@ -117,9 +117,11 @@ describe("Modal Widget Functionality", function () {
     _.entityExplorer.ExpandCollapseEntity("Widgets", true);
 
     //verify that the two modal widget should have pasted on the main canvas
-    cy.get('.bp3-collapse-body > [step="0"]')
-      .eq(1)
-      .children()
-      .should("have.length", 6);
+    _.agHelper.AssertElementVisible(
+      _.entityExplorer._entityNameInExplorer("Modal1"),
+    );
+    _.agHelper.AssertElementVisible(
+      _.entityExplorer._entityNameInExplorer("Modal1Copy"),
+    );
   });
 });
