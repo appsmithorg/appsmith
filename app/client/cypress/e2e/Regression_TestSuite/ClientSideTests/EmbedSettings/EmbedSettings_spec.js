@@ -101,8 +101,6 @@ describe("Embed settings options", function () {
       cy.get(".t--admin-settings-APPSMITH_ALLOWED_FRAME_ANCESTORS").within(
         () => {
           cy.get("input").eq(1).click();
-          cy.get(".bp3-tag-remove").eq(1).click();
-          cy.get(".bp3-tag-remove").eq(0).click();
           cy.get(".bp3-input-ghost").type(window.location.origin).blur();
         },
       );
