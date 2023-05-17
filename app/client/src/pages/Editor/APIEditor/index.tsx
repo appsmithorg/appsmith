@@ -133,6 +133,9 @@ class ApiEditor extends React.Component<Props> {
       this.props.pages,
       this.props.match.params.pageId,
     );
+    const pluginName = this.props.plugins.find(
+      (plugin) => plugin.id === this.props.pluginId,
+    )?.name;
     PerformanceTracker.startTracking(PerformanceTransactionName.RUN_API_CLICK, {
       apiId: this.props.match.params.apiId,
     });
@@ -140,6 +143,9 @@ class ApiEditor extends React.Component<Props> {
       apiName: this.props.apiName,
       apiID: this.props.match.params.apiId,
       pageName: pageName,
+      datasourceId: (this.props?.apiAction as any)?.datasource?.id,
+      pluginName: pluginName,
+      isMock: false, // as mock db exists only for postgres and mongo plugins
     });
     this.props.runAction(this.props.match.params.apiId, paginationField);
   };

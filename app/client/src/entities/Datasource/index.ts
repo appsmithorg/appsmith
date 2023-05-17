@@ -78,6 +78,7 @@ interface BaseDatasource {
   isConfigured?: boolean;
   userPermissions?: string[];
   isDeleting?: boolean;
+  isMock?: boolean;
 }
 
 export const isEmbeddedRestDatasource = (

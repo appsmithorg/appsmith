@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { connect } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { getPluginTemplates } from "selectors/entitiesSelector";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Container = styled.div`
   display: flex;
@@ -95,6 +96,9 @@ class TemplateMenu extends React.Component<Props> {
                 onClick={(e) => {
                   const template = this.fetchTemplate(templateKey);
                   createTemplate(template);
+                  AnalyticsUtil.logEvent("QUERY_TEMPLATE_SELECTED", {
+                    templateType: templateKey,
+                  });
                   e.stopPropagation();
                 }}
               >

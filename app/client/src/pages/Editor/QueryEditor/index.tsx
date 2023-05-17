@@ -100,6 +100,7 @@ type ReduxStateProps = {
   actionId: string;
   actionObjectDiff?: any;
   isSaas: boolean;
+  datasourceId?: string;
 };
 
 type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
@@ -148,6 +149,12 @@ class QueryEditor extends React.Component<Props> {
 
   handleRunClick = () => {
     const { dataSources } = this.props;
+    const datasource = dataSources.find(
+      (datasource) => datasource.id === this.props.datasourceId,
+    );
+    const pluginName = this.props.plugins.find(
+      (plugin) => plugin.id === this.props.pluginId,
+    )?.name;
     PerformanceTracker.startTracking(
       PerformanceTransactionName.RUN_QUERY_CLICK,
       { actionId: this.props.actionId },
@@ -155,6 +162,9 @@ class QueryEditor extends React.Component<Props> {
     AnalyticsUtil.logEvent("RUN_QUERY_CLICK", {
       actionId: this.props.actionId,
       dataSourceSize: dataSources.length,
+      pluginName: pluginName,
+      datasourceId: datasource?.id,
+      isMock: !!datasource?.isMock,
     });
     this.props.runAction(this.props.actionId);
   };
@@ -328,6 +338,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     uiComponent,
     applicationId: getCurrentApplicationId(state),
     actionObjectDiff,
+    datasourceId: action.datasource?.id,
   };
 };
 
