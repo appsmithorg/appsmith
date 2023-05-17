@@ -10,7 +10,7 @@ import {
   PoweredBy,
 } from "react-instantsearch-dom";
 import "instantsearch.css/themes/algolia.css";
-import { connect } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { HelpIcons } from "icons/HelpIcons";
 import { HelpBaseURL } from "constants/HelpConstants";
@@ -29,7 +29,18 @@ import { Colors } from "constants/Colors";
 import {
   createMessage,
   APPSMITH_DISPLAY_VERSION,
+  INTERCOM_CONSENT_MESSAGE,
 } from "@appsmith/constants/messages";
+import {
+  IconSize,
+  Icon as ADSIcon,
+  Button,
+  Category,
+  Size,
+} from "design-system-old";
+import { updateIntercomProperties } from "utils/bootIntercom";
+import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
+import { updateIntercomConsent, updateUserDetails } from "actions/userActions";
 
 const { algolia, appVersion, cloudHosting, intercomAppID } =
   getAppsmithConfigs();
@@ -42,44 +53,9 @@ const ChatIcon = HelpIcons.CHAT;
 const DiscordIcon = HelpIcons.DISCORD;
 
 const StyledOpenLinkIcon = styled(OenLinkIcon)<{ color?: string }>`
-  position: absolute;
-  right: 14px;
-  top: 1px;
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   display: none;
-`;
-
-const StyledDocumentIcon = styled(DocumentIcon)`
-  margin-left: 14px;
-  margin-right: 10.8px;
-  margin-top: 1px;
-  position: absolute;
-`;
-
-const StyledGithubIcon = styled(GithubIcon)`
-  margin-left: 14px;
-  margin-right: 10.8px;
-  margin-top: 1px;
-  position: absolute;
-`;
-
-const StyledChatIcon = styled(ChatIcon)`
-  &&& {
-    margin-left: 14px;
-    margin-right: 10.8px;
-    margin-top: 1px;
-    position: absolute;
-  }
-`;
-
-const StyledDiscordIcon = styled(DiscordIcon)`
-  &&& {
-    margin-left: 12px;
-    margin-right: 10.8px;
-    margin-top: 1px;
-    position: absolute;
-  }
 `;
 
 function Hit(props: { hit: { path: string } }) {
@@ -91,7 +67,7 @@ function Hit(props: { hit: { path: string } }) {
       }}
     >
       <div className="hit-name t--docHitTitle">
-        <StyledDocumentIcon color="#4b4848" height={14} width={11.2} />
+        <DocumentIcon color="#4b4848" height={14} width={11.2} />
         <Highlight attribute="title" hit={props.hit} />
         <StyledOpenLinkIcon
           className="t--docOpenLink open-link"
@@ -105,7 +81,9 @@ function Hit(props: { hit: { path: string } }) {
 function DefaultHelpMenuItem(props: {
   item: { label: string; link?: string; id?: string; icon: React.ReactNode };
   onSelect: () => void;
+  showIntercomConsent: (val: boolean) => void;
 }) {
+  const user = useSelector(getCurrentUser);
   return (
     <li className="ais-Hits-item">
       <div
@@ -115,10 +93,14 @@ function DefaultHelpMenuItem(props: {
           if (props.item.link) window.open(props.item.link, "_blank");
           if (props.item.id === "intercom-trigger") {
             if (intercomAppID && window.Intercom) {
-              window.Intercom("show");
+              if (user?.isIntercomConsentGiven || cloudHosting) {
+                window.Intercom("show");
+              } else {
+                props.showIntercomConsent(true);
+              }
             }
+            props.onSelect();
           }
-          props.onSelect();
         }}
       >
         <div className="hit-name t--docHitTitle">
@@ -127,8 +109,8 @@ function DefaultHelpMenuItem(props: {
           <StyledOpenLinkIcon
             className="t--docOpenLink open-link"
             color={"#4b4848"}
-            height={12}
-            width={12}
+            height={14}
+            width={14}
           />
         </div>
       </div>
@@ -187,7 +169,7 @@ const SearchContainer = styled.div`
     margin-bottom: 1em;
     width: 100%;
     margin: 0;
-    padding: 5px;
+    padding: 8px 16px;
     border: 0;
     cursor: pointer;
     box-shadow: none;
@@ -201,10 +183,15 @@ const SearchContainer = styled.div`
   }
 
   .hit-name {
-    font-size: 14px;
+    font-size: 12px;
     line-height: 16px;
+    letter-spacing: -0.195px;
+    height: 16px;
     color: #4b4848;
-    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
   }
 
   .ais-SearchBox-reset {
@@ -237,12 +224,10 @@ const SearchContainer = styled.div`
   }
 
   .ais-Highlight {
-    margin-left: 36px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     width: calc(100% - 36px);
-    display: inline-block;
   }
 
   .ais-Highlight-highlighted {
@@ -295,12 +280,33 @@ const HelpBody = styled.div<{ hideSearch?: boolean }>`
   ${(props) =>
     props.hideSearch
       ? `
-    padding: ${props.theme.spaces[2]}px;
+    padding: 0;
   `
       : `
     padding-top: 68px;
   `}
   flex: 5;
+`;
+const ConsentContainer = styled.div`
+  padding: 10px 18px;
+`;
+const ActionsRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+`;
+const ConsentText = styled.div`
+  margin-bottom: 16px;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--appsmith-color-black-700);
+`;
+const ConsentButton = styled(Button)`
+  font-size: 11px;
+  font-weight: 600;
+  width: 94px;
 `;
 
 type Props = {
@@ -311,7 +317,7 @@ type Props = {
   hideMinimizeBtn?: boolean;
   user?: User;
 };
-type State = { showResults: boolean };
+type State = { showResults: boolean; showIntercomConsent: boolean };
 
 type HelpItem = {
   label: string;
@@ -322,17 +328,17 @@ type HelpItem = {
 
 const HELP_MENU_ITEMS: HelpItem[] = [
   {
-    icon: <StyledDocumentIcon color="#4b4848" height={14} width={14} />,
+    icon: <DocumentIcon color="#4b4848" height={16} width={16} />,
     label: "Documentation",
     link: "https://docs.appsmith.com/",
   },
   {
-    icon: <StyledGithubIcon color="#4b4848" height={14} width={14} />,
+    icon: <GithubIcon color="#4b4848" height={16} width={16} />,
     label: "Report a bug",
     link: "https://github.com/appsmithorg/appsmith/issues/new/choose",
   },
   {
-    icon: <StyledDiscordIcon color="#4b4848" height={14} width={14} />,
+    icon: <DiscordIcon color="#4b4848" height={16} width={16} />,
     label: "Join our Discord",
     link: "https://discord.gg/rBTTVJp",
   },
@@ -340,10 +346,52 @@ const HELP_MENU_ITEMS: HelpItem[] = [
 
 if (intercomAppID && window.Intercom) {
   HELP_MENU_ITEMS.push({
-    icon: <StyledChatIcon color="#4b4848" height={14} width={14} />,
+    icon: <ChatIcon color="#4b4848" height={16} width={16} />,
     label: "Chat with us",
     id: "intercom-trigger",
   });
+}
+
+function IntercomConsent({
+  showIntercomConsent,
+}: {
+  showIntercomConsent: (val: boolean) => void;
+}) {
+  const user = useSelector(getCurrentUser);
+  const instanceId = useSelector(getInstanceId);
+  const dispatch = useDispatch();
+
+  const sendUserDataToIntercom = () => {
+    updateIntercomProperties(instanceId, user);
+    dispatch(
+      updateUserDetails({
+        intercomConsentGiven: true,
+      }),
+    );
+    dispatch(updateIntercomConsent());
+    window.Intercom("show");
+    showIntercomConsent(false);
+  };
+  return (
+    <ConsentContainer>
+      <ActionsRow>
+        <ADSIcon
+          fillColor={Colors.GRAY}
+          name="arrow-left"
+          onClick={() => showIntercomConsent(false)}
+          size={IconSize.MEDIUM}
+        />
+      </ActionsRow>
+      <ConsentText>{createMessage(INTERCOM_CONSENT_MESSAGE)}</ConsentText>
+      <ConsentButton
+        category={Category.primary}
+        fill
+        onClick={sendUserDataToIntercom}
+        size={Size.medium}
+        text="CONTINUE"
+      />
+    </ConsentContainer>
+  );
 }
 
 class DocumentationSearch extends React.Component<Props, State> {
@@ -351,6 +399,7 @@ class DocumentationSearch extends React.Component<Props, State> {
     super(props);
     this.state = {
       showResults: props.defaultRefinement.length > 0,
+      showIntercomConsent: false,
     };
   }
 
@@ -409,16 +458,25 @@ class DocumentationSearch extends React.Component<Props, State> {
             <HelpBody hideSearch={this.props.hideSearch}>
               {this.state.showResults ? (
                 <Hits hitComponent={Hit as any} />
-              ) : (
+              ) : !this.state.showIntercomConsent ? (
                 <ul className="ais-Hits-list">
                   {HELP_MENU_ITEMS.map((item) => (
                     <DefaultHelpMenuItem
                       item={item}
                       key={item.label}
                       onSelect={this.handleClose}
+                      showIntercomConsent={(val: boolean) =>
+                        this.setState({ showIntercomConsent: val })
+                      }
                     />
                   ))}
                 </ul>
+              ) : (
+                <IntercomConsent
+                  showIntercomConsent={(val: boolean) =>
+                    this.setState({ showIntercomConsent: val })
+                  }
+                />
               )}
             </HelpBody>
             {appVersion.id && (

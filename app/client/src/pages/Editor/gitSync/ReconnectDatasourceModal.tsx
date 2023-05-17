@@ -64,7 +64,10 @@ import { useQuery } from "../utils";
 import ListItemWrapper from "./components/DatasourceListItem";
 import { getDefaultPageId } from "@appsmith/sagas/ApplicationSagas";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { getOAuthAccessToken } from "actions/datasourceActions";
+import {
+  getOAuthAccessToken,
+  loadFilePickerAction,
+} from "actions/datasourceActions";
 import { builderURL } from "RouteBuilder";
 import localStorage from "utils/localStorage";
 import type { Theme } from "constants/DefaultTheme";
@@ -332,21 +335,23 @@ function ReconnectDatasourceModal() {
     const status = queryParams.get("response_status");
     const display_message = queryParams.get("display_message");
     const variant = Variant.danger;
-
+    const oauthReason = status;
+    const isReconnectDS = true;
+    AnalyticsUtil.logEvent("DATASOURCE_AUTHORIZE_RESULT", {
+      dsName,
+      oauthReason,
+      orgId,
+      pluginName,
+      isReconnectDS,
+    });
     if (status !== AuthorizationStatus.SUCCESS) {
       const message =
         status === AuthorizationStatus.APPSMITH_ERROR
           ? OAUTH_AUTHORIZATION_APPSMITH_ERROR
           : OAUTH_AUTHORIZATION_FAILED;
       Toaster.show({ text: display_message || message, variant });
-      const oAuthStatus = status;
-      AnalyticsUtil.logEvent("UPDATE_DATASOURCE", {
-        dsName,
-        oAuthStatus,
-        orgId,
-        pluginName,
-      });
     } else if (queryDatasourceId) {
+      dispatch(loadFilePickerAction());
       dispatch(getOAuthAccessToken(queryDatasourceId));
     }
     AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {

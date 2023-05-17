@@ -42,6 +42,7 @@ export const FormContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
+  width: 100%;
 `;
 
 export const FormContainerBody = styled.div`
@@ -50,8 +51,17 @@ export const FormContainerBody = styled.div`
   width: 100%;
   height: 100%;
   flex-grow: 1;
-  overflow-y: auto;
-  padding: 20px;
+  overflow: hidden;
+  padding: 20px 0;
+  .t--section-general {
+    padding: 0 20px;
+  }
+  .api-datasource-content-container {
+    flex-direction: column;
+  }
+  form {
+    height: 100%;
+  }
 `;
 
 export const FormTitleContainer = styled.div`
@@ -66,8 +76,7 @@ export const Header = styled.div`
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid ${Colors.ALTO};
-  padding-bottom: 24px;
-  //margin-top: 16px;
+  padding: 0 20px 24px 20px;
 `;
 
 export const ActionWrapper = styled.div`
@@ -78,7 +87,6 @@ export const ActionButton = styled(Button)`
   &&& {
     width: auto;
     min-width: 74px;
-    margin-right: 9px;
     min-height: 32px;
 
     & > span {
@@ -182,7 +190,8 @@ export class JSONtoForm<
         if (checked[properties[0]]) continue;
 
         checked[properties[0]] = 1;
-        const values = _.get(formData, properties[0], []);
+        // `as []` because the controlType guarantees the type
+        const values = _.get(formData, properties[0], []) as [];
         const newValues: ({ [s: string]: unknown } | ArrayLike<unknown>)[] = [];
 
         values.forEach(
@@ -239,7 +248,14 @@ export class JSONtoForm<
     // hides features/configs that are hidden behind feature flag
     // TODO: remove hidden config property as well as this param,
     // when feature flag is removed
-    if (isHidden(this.props.formData, section.hidden, this.props?.featureFlags))
+    if (
+      isHidden(
+        this.props.formData,
+        section.hidden,
+        this.props?.featureFlags,
+        false, // viewMode is false here.
+      )
+    )
       return null;
     return (
       <Collapsible
@@ -307,8 +323,9 @@ export class JSONtoForm<
           if (
             isHidden(
               this.props.formData,
-              section.hidden,
+              propertyControlOrSection.hidden,
               this.props?.featureFlags,
+              false,
             )
           )
             return null;

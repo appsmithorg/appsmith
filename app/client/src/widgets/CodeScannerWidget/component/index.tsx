@@ -8,7 +8,6 @@ import CloseIcon from "assets/icons/ads/cross.svg";
 import { getBrowserInfo, getPlatformOS, PLATFORM_OS } from "utils/helpers";
 import { Button, Icon, Menu, MenuItem, Position } from "@blueprintjs/core";
 import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
-import { ReactComponent as CameraOfflineIcon } from "assets/icons/widget/camera/camera-offline.svg";
 import { getCurrentApplicationLayout } from "selectors/editorSelectors";
 import { useSelector } from "react-redux";
 import log from "loglevel";
@@ -27,8 +26,15 @@ import {
 } from "components/constants";
 import { ScannerLayout } from "../constants";
 import type { ThemeProp } from "widgets/constants";
-import { ReactComponent as FlipImageIcon } from "assets/icons/widget/codeScanner/flip.svg";
 import { usePageVisibility } from "react-page-visibility";
+import { importSvg } from "design-system-old";
+
+const CameraOfflineIcon = importSvg(
+  () => import("assets/icons/widget/camera/camera-offline.svg"),
+);
+const FlipImageIcon = importSvg(
+  () => import("assets/icons/widget/codeScanner/flip.svg"),
+);
 
 const CodeScannerGlobalStyles = createGlobalStyle<{
   borderRadius?: string;
@@ -145,6 +151,10 @@ const overlayerMixin = css`
 export interface DisabledOverlayerProps {
   disabled: boolean;
 }
+
+const CodeScannerContainer = styled.div`
+  height: 100%;
+`;
 
 const DisabledOverlayer = styled.div<DisabledOverlayerProps>`
   ${overlayerMixin};
@@ -581,7 +591,7 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
   );
 
   return (
-    <>
+    <CodeScannerContainer onClick={(e) => e.stopPropagation()}>
       {props.scannerLayout !== ScannerLayout.ALWAYS_ON &&
         (!props.tooltip ? (
           baseButtonWrapper
@@ -602,7 +612,7 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
         ))}
 
       {renderComponent()}
-    </>
+    </CodeScannerContainer>
   );
 }
 export interface CodeScannerComponentProps extends ComponentProps {

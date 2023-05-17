@@ -14,6 +14,7 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { PluginType } from "entities/Action";
 import { getPlugins } from "selectors/entitiesSelector";
 import EntityLink, { DebuggerLinkUI } from "../../EntityLink";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const EntityLinkWrapper = styled.div`
   display: flex;
@@ -65,7 +66,7 @@ export default function LogEntityLink(props: LogItemProps) {
             <EntityIcon height={"16px"} width={"16px"}>
               <img
                 alt="entityIcon"
-                src={pluginGroups[props.iconId].iconLocation}
+                src={getAssetUrl(pluginGroups[props.iconId].iconLocation)}
               />
             </EntityIcon>
           );
@@ -76,7 +77,7 @@ export default function LogEntityLink(props: LogItemProps) {
     // this case is highly unlikely to happen.
     return <img alt="icon" src={undefined} />;
   };
-
+  const plugin = props.iconId ? pluginGroups[props.iconId] : undefined;
   return (
     <div>
       {props.source && (
@@ -94,6 +95,8 @@ export default function LogEntityLink(props: LogItemProps) {
             errorType={props.logType}
             id={props.source.id}
             name={props.source.name}
+            plugin={plugin}
+            pluginType={props.source.pluginType}
             type={props.source.type}
             uiComponent={DebuggerLinkUI.ENTITY_NAME}
           />

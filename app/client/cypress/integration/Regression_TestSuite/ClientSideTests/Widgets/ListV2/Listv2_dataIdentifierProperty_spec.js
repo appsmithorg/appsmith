@@ -6,7 +6,8 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
 const propertyControl = ".t--property-control";
-const agHelper = ObjectsRegistry.AggregateHelper;
+const agHelper = ObjectsRegistry.AggregateHelper,
+  debuggerHelper = ObjectsRegistry.DebuggerHelper;
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
@@ -260,10 +261,9 @@ describe("List v2 - Data Identifier property", () => {
       1,
     );
 
-    // click on debugger icon
-    cy.get(commonlocators.debugger).should("be.visible").click({
-      force: true,
-    });
+    //Open debugger by clicking debugger icon in canvas.
+    debuggerHelper.ClickDebuggerIcon();
+
     cy.get(".debugger-list").contains(
       "This data identifier is evaluating to a duplicate value. Please use an identifier that evaluates to a unique value.",
     );

@@ -1,32 +1,29 @@
 import type { AppState } from "@appsmith/reducers";
 import { find, get, pick, set } from "lodash";
 import { createSelector } from "reselect";
-
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type {
   DataTree,
   DataTreeEntity,
   WidgetEntity,
 } from "entities/DataTree/dataTreeFactory";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { AppPositioningTypes } from "reducers/entityReducers/pageListReducer";
 import type {
   PropertyPaneReduxState,
   SelectedPropertyPanel,
 } from "reducers/uiReducers/propertyPaneReducer";
 import { getWidgets } from "sagas/selectors";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import { Positioning } from "utils/autoLayout/constants";
 import {
   EVALUATION_PATH,
   isPathDynamicProperty,
   isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { generateClassName } from "utils/generators";
-import { getGoogleMapsApiKey } from "ce/selectors/tenantSelectors";
+import { getGoogleMapsApiKey } from "@appsmith/selectors/tenantSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
 import { getCanvasWidgets } from "./entitiesSelector";
+import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
+import { getCurrentAppPositioningType } from "./editorSelectors";
 
 export type WidgetProperties = WidgetProps & {
   [EVALUATION_PATH]?: DataTreeEntity;
@@ -74,20 +71,14 @@ const getCurrentWidgetName = createSelector(
 
 export const getWidgetPropsForPropertyPane = createSelector(
   getCurrentWidgetProperties,
-  getWidgets,
+  getCurrentAppPositioningType,
   getDataTree,
   (
     widget: WidgetProps | undefined,
-    widgets,
+    appPositioningType,
     evaluatedTree: DataTree,
   ): WidgetProps | undefined => {
     if (!widget) return undefined;
-    const appPositioningType =
-      widgets && widgets[MAIN_CONTAINER_WIDGET_ID]
-        ? widgets[MAIN_CONTAINER_WIDGET_ID].positioning === Positioning.Vertical
-          ? AppPositioningTypes.AUTO
-          : AppPositioningTypes.FIXED
-        : AppPositioningTypes.FIXED;
     const evaluatedWidget = find(evaluatedTree, {
       widgetId: widget.widgetId,
     }) as WidgetEntity;

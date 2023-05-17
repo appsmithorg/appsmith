@@ -286,11 +286,18 @@ export function* evalErrorHandler(
         break;
       }
       case EvalErrorTypes.CLONE_ERROR: {
-        Sentry.captureException(new Error(error.message), {
-          extra: {
-            request: error.context,
-          },
-        });
+        /*
+         * https://github.com/appsmithorg/appsmith/issues/2654
+         * This code is being commented out to prevent these errors from going to Sentry
+         * till we come up with a more definitive solution to prevent this error
+         * Proposed solution - adding lint errors to editor to prevent these from happening
+         * */
+
+        // Sentry.captureException(new Error(error.message), {
+        //   extra: {
+        //     request: error.context,
+        //   },
+        // });
         break;
       }
       case EvalErrorTypes.PARSE_JS_ERROR: {
@@ -323,6 +330,7 @@ export function* logSuccessfulBindings(
   isCreateFirstTree: boolean,
   isNewWidgetAdded: boolean,
   configTree: ConfigTree,
+  undefinedEvalValuesMap: Record<string, boolean>,
 ) {
   const appMode: APP_MODE | undefined = yield select(getAppMode);
   if (appMode === APP_MODE.PUBLISHED) return;
@@ -341,6 +349,10 @@ export function* logSuccessfulBindings(
       | ActionEntityConfig;
     if (isAction(entity) || isWidget(entity)) {
       const unevalValue = get(unEvalTree, evaluatedPath);
+      let isUndefined = false;
+
+      isUndefined = get(undefinedEvalValuesMap, evaluatedPath) || false;
+
       const entityType = isAction(entity)
         ? entityConfig.pluginType
         : entity.type;
@@ -375,14 +387,6 @@ export function* logSuccessfulBindings(
       const hasErrors = errors.length > 0;
       if (!hasErrors) {
         if (!isCreateFirstTree) {
-          // we only aim to log binding success which were added by user
-          // for first evaluation, bindings are not added by user hence skipping it.
-          AnalyticsUtil.logEvent("BINDING_SUCCESS", {
-            unevalValue,
-            entityType,
-            propertyPath,
-          });
-
           /**Log the binding only if it doesn't already exist */
           if (
             !successfulBindingPaths[evaluatedPath] ||
@@ -393,9 +397,11 @@ export function* logSuccessfulBindings(
               unevalValue,
               entityType,
               propertyPath,
+              isUndefined,
             });
           }
         }
+
         successfulBindingPaths[evaluatedPath] = unevalValue;
       } else {
         /**Remove the binding from the map so that in case it is added again, we log it*/

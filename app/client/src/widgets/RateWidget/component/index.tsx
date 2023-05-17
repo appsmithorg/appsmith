@@ -7,7 +7,7 @@ import _ from "lodash";
 
 import type { RateSize } from "../constants";
 import { RATE_SIZES } from "../constants";
-import { TooltipComponent } from "design-system-old";
+import { TooltipComponent } from "@design-system/widgets-old";
 import type { ComponentProps } from "widgets/BaseComponent";
 
 /*
@@ -30,6 +30,15 @@ export const RateContainer = styled.div<RateContainerProps>`
   justify-content: center;
   align-content: flex-start;
   overflow: auto;
+
+  .auto-layout && {
+    min-height: 32px;
+    overflow: unset;
+
+    > span {
+      flex-wrap: nowrap;
+    }
+  }
 
   > span {
     display: flex !important;

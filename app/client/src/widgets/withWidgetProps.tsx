@@ -25,8 +25,9 @@ import {
   getMetaWidget,
   getFlattenedChildCanvasWidgets,
   previewModeSelector,
+  getIsAutoLayoutMobileBreakPoint,
+  getCanvasWidth,
 } from "selectors/editorSelectors";
-import { getIsMobile } from "selectors/mainCanvasSelectors";
 import {
   createCanvasWidget,
   createLoadingWidget,
@@ -41,7 +42,7 @@ import {
 } from "utils/autoLayout/constants";
 import { isAutoHeightEnabledForWidget } from "./WidgetUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
-import { getGoogleMapsApiKey } from "ce/selectors/tenantSelectors";
+import { getGoogleMapsApiKey } from "@appsmith/selectors/tenantSelectors";
 import ConfigTreeActions from "utils/configTree";
 import { getSelectedWidgetAncestry } from "../selectors/widgetSelectors";
 
@@ -64,6 +65,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     const canvasWidget = useSelector((state: AppState) =>
       getWidget(state, widgetId),
     );
+
+    const mainCanvasWidth = useSelector(getCanvasWidth);
     const metaWidget = useSelector(getMetaWidget(widgetId));
 
     const mainCanvasProps = useSelector((state: AppState) =>
@@ -85,8 +88,9 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       getMetaWidgetChildrenStructure(widgetId, type, hasMetaWidgets),
       equal,
     );
-    const isMobile = useSelector(getIsMobile);
+    const isMobile = useSelector(getIsAutoLayoutMobileBreakPoint);
     const appPositioningType = useSelector(getCurrentAppPositioningType);
+    const isAutoLayout = appPositioningType === AppPositioningTypes.AUTO;
 
     const configTree = ConfigTreeActions.getConfigTree();
     const evaluatedWidgetConfig = configTree[
@@ -196,12 +200,10 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         widgetProps.onReset = props.onReset;
         if ("isFormValid" in props) widgetProps.isFormValid = props.isFormValid;
       }
-
       if (defaultAutoLayoutWidgets.includes(props.type)) {
-        widgetProps.positioning =
-          appPositioningType && appPositioningType === AppPositioningTypes.AUTO
-            ? Positioning.Vertical
-            : Positioning.Fixed;
+        widgetProps.positioning = isAutoLayout
+          ? Positioning.Vertical
+          : Positioning.Fixed;
       }
 
       widgetProps.children = children;
@@ -237,6 +239,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetProps.topRow === widgetProps.bottomRow &&
       renderMode === RenderModes.CANVAS &&
       !isPreviewMode;
+
+    widgetProps.maincanvasWidth = mainCanvasWidth;
 
     // We don't render invisible widgets in view mode
     if (shouldCollapseWidgetInViewOrPreviewMode) {

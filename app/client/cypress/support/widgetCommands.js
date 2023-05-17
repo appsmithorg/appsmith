@@ -496,6 +496,16 @@ Cypress.Commands.add("testJsontextclear", (endp) => {
   });
 });
 
+Cypress.Commands.add("testJsonTextClearMultiline", (endp) => {
+  const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
+
+  cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
+    .first()
+    .focus({ force: true })
+    .type(`{${modifierKey}}{a}`, { force: true })
+    .type(`{${modifierKey}}{del}`, { force: true });
+});
+
 Cypress.Commands.add("getCodeInput", ($selector, value) => {
   cy.EnableAllCodeEditors();
   cy.get($selector)
@@ -549,10 +559,12 @@ Cypress.Commands.add(
       .first()
       .then((ins) => {
         const input = ins[0].CodeMirror;
-        expect(input.hasFocus()).to.be.true;
-        const editorCursor = input.getCursor();
-        expect(editorCursor.ch).to.equal(cursor.ch);
-        expect(editorCursor.line).to.equal(cursor.line);
+        // The input gets focused with a slight delay so we need to wait for it
+        cy.waitUntil(() => input.hasFocus()).then(() => {
+          const editorCursor = input.getCursor();
+          expect(editorCursor.ch).to.equal(cursor.ch);
+          expect(editorCursor.line).to.equal(cursor.line);
+        });
       });
   },
 );
@@ -1400,20 +1412,12 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("EnableAllCodeEditors", () => {
-  cy.wait(2000);
-  cy.get("body").then(($body) => {
-    if ($body.get(commonlocators.codeEditorWrapper)?.length > 0) {
-      let count = $body.get(commonlocators.codeEditorWrapper)?.length || 0;
-      while (count) {
-        $body
-          .get(commonlocators.codeEditorWrapper)
-          ?.eq(0)
-          .then(($el) => $el.click({ force: true }).wait(100));
-        count = $body.find(commonlocators.codeEditorWrapper)?.length || 0;
-      }
-    }
+  cy.get(commonlocators.lazyCodeEditorFallback, { timeout: 60000 }).should(
+    "not.exist",
+  );
+  cy.get(commonlocators.lazyCodeEditorRendered).each(($el) => {
+    cy.wrap($el).find(".CodeMirror").should("exist");
   });
-  cy.wait(1000);
 });
 
 Cypress.Commands.add("getTableCellHeight", (x, y) => {
@@ -1577,6 +1581,17 @@ Cypress.Commands.add("freezeColumnFromDropdown", (columnName, direction) => {
   );
   cy.get(".bp3-menu")
     .contains(`Freeze column ${direction}`)
+    .click({ force: true });
+
+  cy.wait(500);
+});
+
+Cypress.Commands.add("sortColumn", (columnName, direction) => {
+  cy.get(`[data-header=${columnName}] .header-menu .bp3-popover2-target`).click(
+    { force: true },
+  );
+  cy.get(".bp3-menu")
+    .contains(`Sort column ${direction}`)
     .click({ force: true });
 
   cy.wait(500);

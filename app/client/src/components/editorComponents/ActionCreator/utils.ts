@@ -22,7 +22,7 @@ import {
 } from "@shared/ast";
 import type { TreeDropdownOption } from "design-system-old";
 import type { TActionBlock } from "./types";
-import { AppsmithFunction } from "./constants";
+import { AppsmithFunction, DEFAULT_LABELS } from "./constants";
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
 import store from "store";
 import { selectEvaluationVersion } from "@appsmith/selectors/applicationSelectors";
@@ -573,4 +573,20 @@ export function paramGetter(code: string, argNum?: number) {
   argNum = argNum || 0;
   const requiredValue = getCodeFromMoustache(code);
   return getQueryParam(requiredValue, argNum, getEvaluationVersion());
+}
+
+export function sortSubMenuOptions(options: TreeDropdownOption[]) {
+  return (options as TreeDropdownOption[]).sort(
+    (a: TreeDropdownOption, b: TreeDropdownOption) => {
+      // Makes default labels like "New modal" show up on top
+      if (DEFAULT_LABELS.includes(a.label)) {
+        return -1;
+      } else if (DEFAULT_LABELS.includes(b.label)) {
+        return 1;
+      } else {
+        // numeric - true handles A10 being shown after A2
+        return a.label.localeCompare(b.label, "en", { numeric: true });
+      }
+    },
+  );
 }

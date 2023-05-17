@@ -4,11 +4,11 @@ import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
-import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.constants.Constraint;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
@@ -22,30 +22,31 @@ import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.WorkspacePermission;
+import com.mongodb.DBObject;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
-
-import jakarta.validation.Validator;
 
 import java.util.Arrays;
 import java.util.List;
@@ -69,6 +70,7 @@ import static com.appsmith.server.constants.PatternConstants.EMAIL_PATTERN;
 import static com.appsmith.server.constants.PatternConstants.WEBSITE_PATTERN;
 import static com.appsmith.server.helpers.PermissionUtils.collateAllPermissions;
 import static com.appsmith.server.helpers.TextUtils.generateDefaultRoleNameForResource;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -77,9 +79,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     private final PluginRepository pluginRepository;
     private final SessionUserService sessionUserService;
-    private final UserWorkspaceService userWorkspaceService;
-    private final UserRepository userRepository;
-    private final RoleGraph roleGraph;
     private final AssetRepository assetRepository;
     private final AssetService assetService;
     private final ApplicationRepository applicationRepository;
@@ -99,9 +98,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                                   AnalyticsService analyticsService,
                                   PluginRepository pluginRepository,
                                   SessionUserService sessionUserService,
-                                  UserWorkspaceService userWorkspaceService,
-                                  UserRepository userRepository,
-                                  RoleGraph roleGraph,
                                   AssetRepository assetRepository,
                                   AssetService assetService,
                                   ApplicationRepository applicationRepository,
@@ -114,9 +110,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.pluginRepository = pluginRepository;
         this.sessionUserService = sessionUserService;
-        this.userWorkspaceService = userWorkspaceService;
-        this.userRepository = userRepository;
-        this.roleGraph = roleGraph;
         this.assetRepository = assetRepository;
         this.assetService = assetService;
         this.applicationRepository = applicationRepository;
@@ -178,12 +171,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         // Does the user have permissions to create a workspace?
         Mono<Boolean> createWorkspaceAllowedMono = isCreateWorkspaceAllowed(isDefault);
 
-        if (workspace.getEmail() == null) {
-            workspace.setEmail(user.getEmail());
-        }
-
-        workspace.setSlug(TextUtils.makeSlug(workspace.getName()));
-        workspace.setTenantId(user.getTenantId());
+        // Populate all the required fields for a valid workspace
+        prepareWorkspaceToCreate(workspace, user);
 
         return createWorkspaceAllowedMono
                 .flatMap(isCreateWorkspaceAllowed -> {
@@ -206,25 +195,27 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                         }))
                 // Save the workspace in the db
                 .flatMap(repository::save)
-                .flatMap(createdWorkspace -> enrichWorkspaceWithDependents(createdWorkspace, user))
+                .zipWhen(createdWorkspace -> generateDefaultPermissionGroups(createdWorkspace, user))
+                .flatMap(tuple -> {
+                    Workspace createdWorkspace = tuple.getT1();
+                    Set<PermissionGroup> permissionGroups = tuple.getT2();
+                    return addPoliciesAndSaveWorkspace(permissionGroups, createdWorkspace);
+                })
+                .flatMap(this::createWorkspaceDependents)
                 .flatMap(analyticsService::sendCreateEvent);
     }
 
-    protected Mono<Workspace> enrichWorkspaceWithDependents(Workspace createdWorkspace, User user) {
-        // Generate the default permission groups & policy for the current user
-        return generateDefaultPermissionGroups(createdWorkspace, user)
-                .flatMap(permissionGroups -> enrichDependents(permissionGroups,createdWorkspace)
-                        .then(addPoliciesAndSaveWorkspace(permissionGroups, createdWorkspace)));
+    protected void prepareWorkspaceToCreate(Workspace workspace, User user) {
+        if (workspace.getEmail() == null) {
+            workspace.setEmail(user.getEmail());
+        }
+
+        workspace.setSlug(TextUtils.makeSlug(workspace.getName()));
+        workspace.setTenantId(user.getTenantId());
     }
 
-    /**
-     * returns the created workspace without any Operations
-     * See EE overrides for complete usage
-     * @param permissionGroups
-     * @param createdWorkspace
-     * @return Mono of the createdWorkspace
-     */
-    protected Mono<Workspace> enrichDependents(Set<PermissionGroup> permissionGroups, Workspace createdWorkspace) {
+    protected Mono<Workspace> createWorkspaceDependents(Workspace createdWorkspace) {
+        // Nothing to create
         return Mono.just(createdWorkspace);
     }
 
@@ -327,10 +318,11 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .collect(Collectors.toSet());
 
 
-        Set<Permission> permissions = collateAllPermissions(workspacePermissions,
-                                                            assignPermissionGroupPermissions,
-                                                            readPermissionGroupPermissions,
-                                                            unassignPermissionGroupPermissions);
+        Set<Permission> permissions = collateAllPermissions(
+                workspacePermissions,
+                assignPermissionGroupPermissions,
+                readPermissionGroupPermissions,
+                unassignPermissionGroupPermissions);
         adminPermissionGroup.setPermissions(permissions);
 
         // Assign the user creating the permission group to this permission group
@@ -348,8 +340,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .map(permissionGroup -> new Permission(permissionGroup.getId(), ASSIGN_PERMISSION_GROUPS))
                 .collect(Collectors.toSet());
         permissions = collateAllPermissions(workspacePermissions,
-                                            assignPermissionGroupPermissions,
-                                            readPermissionGroupPermissions);
+                assignPermissionGroupPermissions,
+                readPermissionGroupPermissions);
         developerPermissionGroup.setPermissions(permissions);
 
         // App Viewer Permissions
@@ -365,8 +357,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .collect(Collectors.toSet());
 
         permissions = collateAllPermissions(workspacePermissions,
-                                            assignPermissionGroupPermissions,
-                                            readPermissionGroupPermissions);
+                assignPermissionGroupPermissions,
+                readPermissionGroupPermissions);
         viewerPermissionGroup.setPermissions(permissions);
 
         Mono<Set<PermissionGroup>> savedPermissionGroupsMono = Flux.fromIterable(permissionGroups)
@@ -394,7 +386,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         return Mono.zip(
                         savedPermissionGroupsMono,
                         cleanPermissionGroupCacheForCurrentUser
-                       )
+                )
                 .map(tuple -> tuple.getT1());
     }
 
@@ -402,8 +394,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
         return generateDefaultPermissionGroupsWithoutPermissions(workspace)
                 // Generate the permissions per permission group
-                .flatMap(permissionGroups -> generatePermissionsForDefaultPermissionGroups(permissionGroups, workspace,
-                                                                                           user));
+                .flatMap(permissionGroups -> generatePermissionsForDefaultPermissionGroups(permissionGroups, workspace, user));
     }
 
     /**
@@ -464,8 +455,21 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                     return workspaceFromDb;
                 })
                 .flatMap(this::validateObject)
-                .flatMap(repository::save)
-                .flatMap(analyticsService::sendUpdateEvent);
+                .then(Mono.defer(() -> {
+                    Query query = new Query(Criteria.where(fieldName(QWorkspace.workspace.id)).is(id));
+                    DBObject update = getDbObject(resource);
+                    Update updateObj = new Update();
+                    Map<String, Object> updateMap = update.toMap();
+                    updateMap.forEach(updateObj::set);
+                    return mongoTemplate.updateFirst(query, updateObj, resource.getClass())
+                            .flatMap(updateResult -> {
+                                if (updateResult.getMatchedCount() == 0) {
+                                    return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, id));
+                                }
+                                return repository.findById(id)
+                                        .flatMap(analyticsService::sendUpdateEvent);
+                            });
+                }));
     }
 
     @Override
@@ -526,11 +530,11 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
                     // populate array with admin at index 0, developer at index 1 and viewer at index 2
                     list.forEach(item -> {
-                        if(item.getName().startsWith(FieldName.ADMINISTRATOR)) {
+                        if (item.getName().startsWith(FieldName.ADMINISTRATOR)) {
                             permissionGroupInfoDTOArray[0] = item;
-                        } else if(item.getName().startsWith(FieldName.DEVELOPER)) {
+                        } else if (item.getName().startsWith(FieldName.DEVELOPER)) {
                             permissionGroupInfoDTOArray[1] = item;
-                        } else if(item.getName().startsWith(FieldName.VIEWER)) {
+                        } else if (item.getName().startsWith(FieldName.VIEWER)) {
                             permissionGroupInfoDTOArray[2] = item;
                         }
                     });
@@ -620,6 +624,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                                     .flatMap(permissionGroupService::deleteWithoutPermission)
                                     .then(Mono.just(workspace));
                         })
+                        .flatMap(this::archiveWorkspaceDependents)
                         .flatMap(repository::archive)
                         .flatMap(analyticsService::sendDeleteEvent);
             } else {
@@ -628,11 +633,16 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         });
     }
 
-    private void validateIncomingWorkspace(Workspace workspace){
-        if (StringUtils.hasLength(workspace.getEmail()) && ! Pattern.matches(EMAIL_PATTERN, workspace.getEmail())) {
+    protected Mono<Workspace> archiveWorkspaceDependents(Workspace workspace) {
+        // Nothing to archive
+        return Mono.just(workspace);
+    }
+
+    private void validateIncomingWorkspace(Workspace workspace) {
+        if (StringUtils.hasLength(workspace.getEmail()) && !Pattern.matches(EMAIL_PATTERN, workspace.getEmail())) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, EMAIL);
         }
-        if (StringUtils.hasLength(workspace.getWebsite()) && ! Pattern.matches(WEBSITE_PATTERN, workspace.getWebsite())) {
+        if (StringUtils.hasLength(workspace.getWebsite()) && !Pattern.matches(WEBSITE_PATTERN, workspace.getWebsite())) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, WEBSITE);
         }
     }

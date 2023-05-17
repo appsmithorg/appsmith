@@ -5,6 +5,7 @@ export enum PageType {
   API,
   Query,
   JsEditor,
+  DataSources,
 }
 
 export class DebuggerHelper {
@@ -12,12 +13,12 @@ export class DebuggerHelper {
   private commonLocators = ObjectsRegistry.CommonLocators;
 
   // ActionExecutionResizerHeight -> in repo
-  private readonly bottomPaneHeight = 307;
+  private readonly bottomPaneHeight = 330;
   // from design system
   private readonly TAB_MIN_HEIGHT = 36;
 
   public readonly locators = {
-    _debuggerIcon: ".t--debugger svg",
+    _debuggerIcon: ".t--debugger",
     _debuggerToggle: "[data-cy=t--debugger-toggle]",
     _debuggerDownStreamErrMsg: "[data-cy=t--debugger-downStreamErrorMsg]",
     _tabsContainer: ".t--debugger-tabs-container",
@@ -36,9 +37,11 @@ export class DebuggerHelper {
       [PageType.API]: ".t--api-bottom-pane-container",
       [PageType.Query]: ".t--query-bottom-pane-container",
       [PageType.JsEditor]: ".t--js-editor-bottom-pane-container",
+      [PageType.DataSources]: ".t--datasource-bottom-pane-container",
     },
     _debuggerList: ".debugger-list",
     _debuggerFilter: ".debugger-search",
+    _debuggerSelectedTab: ".react-tabs__tab--selected",
   };
 
   ClickDebuggerIcon(
@@ -77,17 +80,8 @@ export class DebuggerHelper {
     this.agHelper.GetNClick(this.commonLocators._responseTab);
   }
 
-  Close(pageType: PageType) {
-    switch (pageType) {
-      case PageType.Canvas:
-        this.agHelper.GetNClick(this.locators._closeButton);
-        break;
-      case PageType.API:
-      case PageType.Query:
-      case PageType.JsEditor:
-        this.agHelper.GetNClick(this.commonLocators._bottomPaneCollapseIcon);
-        break;
-    }
+  CloseBottomBar() {
+    this.agHelper.GetNClick(this.locators._closeButton);
   }
 
   AssertOpen(pageType: PageType) {
@@ -103,6 +97,7 @@ export class DebuggerHelper {
         );
         break;
       case PageType.Query:
+      case PageType.DataSources:
         this.agHelper.AssertHeight(
           this.locators._bottomPaneContainer[pageType],
           this.bottomPaneHeight - 1, // -1 to offset error
@@ -111,25 +106,12 @@ export class DebuggerHelper {
     }
   }
 
-  AssertClosed(pageType: PageType) {
-    switch (pageType) {
-      case PageType.Canvas:
-        this.agHelper.AssertElementAbsence(this.locators._tabsContainer);
-        break;
-      case PageType.API:
-      case PageType.JsEditor:
-        this.agHelper.AssertHeight(
-          this.locators._bottomPaneContainer[pageType],
-          this.TAB_MIN_HEIGHT,
-        );
-        break;
-      case PageType.Query:
-        this.agHelper.AssertHeight(
-          this.locators._bottomPaneContainer[pageType],
-          this.TAB_MIN_HEIGHT - 1, // -1 to offset error
-        );
-        break;
-    }
+  AssertClosed() {
+    this.agHelper.AssertElementAbsence(this.locators._tabsContainer);
+  }
+
+  AssertSelectedTab(text: string) {
+    this.agHelper.GetNAssertContains(this.locators._debuggerSelectedTab, text);
   }
 
   DoesConsoleLogExist(
@@ -161,9 +143,7 @@ export class DebuggerHelper {
   }
 
   AssertErrorCount(count: number) {
-    count > 0
-      ? this.agHelper.GetNAssertContains(this.locators._errorCount, count)
-      : this.agHelper.AssertElementAbsence(this.locators._errorCount);
+    this.agHelper.GetNAssertContains(this.locators._errorCount, count);
   }
 
   ClearLogs() {

@@ -41,7 +41,6 @@ import {
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-configured.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { DropdownOption, TextProps } from "design-system-old";
 import {
@@ -68,7 +67,12 @@ import { useHistory } from "react-router-dom";
 import { Tooltip } from "@blueprintjs/core";
 import { isEllipsisActive } from "utils/helpers";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
+import { importSvg } from "design-system-old";
 import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
+
+const NoEmailConfigImage = importSvg(
+  () => import("assets/images/email-not-configured.svg"),
+);
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -197,6 +201,8 @@ export const Loading = styled(Spinner)`
   padding-top: 10px;
   margin: auto;
   width: 100%;
+  height: 100%;
+  overflow: hidden;
 `;
 
 export const MailConfigContainer = styled.div`
@@ -510,7 +516,7 @@ function WorkspaceInviteUsersForm(props: any) {
             width={InviteButtonWidth}
           />
         </StyledInviteFieldGroup>
-        <LabelText type={TextType.P0}>
+        <LabelText data-testid="helper-message" type={TextType.P0}>
           <Icon name="user-3-line" size={IconSize.MEDIUM} />
           {createMessage(USERS_HAVE_ACCESS_TO_ALL_APPS)}
         </LabelText>
@@ -519,7 +525,7 @@ function WorkspaceInviteUsersForm(props: any) {
         ) : (
           <>
             {allUsers.length === 0 && (
-              <MailConfigContainer>
+              <MailConfigContainer data-testid="no-users-content">
                 <NoEmailConfigImage />
                 <span>{createMessage(NO_USERS_INVITED)}</span>
               </MailConfigContainer>

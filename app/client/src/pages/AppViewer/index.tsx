@@ -17,9 +17,11 @@ import EditorContextProvider from "components/editorComponents/EditorContextProv
 import AppViewerPageContainer from "./AppViewerPageContainer";
 import { editorInitializer } from "utils/editor/EditorUtils";
 import * as Sentry from "@sentry/react";
-import { getViewModePageList } from "selectors/editorSelectors";
+import {
+  getCurrentPageDescription,
+  getViewModePageList,
+} from "selectors/editorSelectors";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import webfontloader from "webfontloader";
 import { getSearchQuery } from "utils/helpers";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { useSelector } from "react-redux";
@@ -35,6 +37,9 @@ import { initAppViewer } from "actions/initActions";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import useWidgetFocus from "utils/hooks/useWidgetFocus/useWidgetFocus";
+import HtmlTitle from "./AppViewerHtmlTitle";
+import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -81,6 +86,10 @@ function AppViewer(props: Props) {
   const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
   const prevValues = usePrevious({ branch, location: props.location, pageId });
   const { hideWatermark } = getAppsmithConfigs();
+  const pageDescription = useSelector(getCurrentPageDescription);
+  const currentApplicationDetails: ApplicationPayload | undefined = useSelector(
+    getCurrentApplication,
+  );
 
   const focusRef = useWidgetFocus();
 
@@ -158,17 +167,7 @@ function AppViewer(props: Props) {
    * loads font for canvas based on theme
    */
   useEffect(() => {
-    if (selectedTheme.properties.fontFamily.appFont !== DEFAULT_FONT_NAME) {
-      webfontloader.load({
-        google: {
-          families: [
-            `${selectedTheme.properties.fontFamily.appFont}:300,400,500,700`,
-          ],
-        },
-      });
-    }
-
-    document.body.style.fontFamily = appFontFamily;
+    document.body.style.fontFamily = `${appFontFamily}, sans-serif`;
 
     return function reset() {
       document.body.style.fontFamily = "inherit";
@@ -181,6 +180,10 @@ function AppViewer(props: Props) {
         <WidgetGlobaStyles
           fontFamily={selectedTheme.properties.fontFamily.appFont}
           primaryColor={selectedTheme.properties.colors.primaryColor}
+        />
+        <HtmlTitle
+          description={pageDescription}
+          name={currentApplicationDetails?.name}
         />
         <AppViewerBodyContainer
           backgroundColor={selectedTheme.properties.colors.backgroundColor}

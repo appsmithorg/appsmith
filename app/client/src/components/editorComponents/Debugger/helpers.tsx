@@ -56,6 +56,8 @@ export function BlankState(props: {
 }
 
 export enum DEBUGGER_TAB_KEYS {
+  RESPONSE_TAB = "response",
+  HEADER_TAB = "headers",
   ERROR_TAB = "ERROR",
   LOGS_TAB = "LOGS_TAB",
   INSPECT_TAB = "INSPECT_TAB",

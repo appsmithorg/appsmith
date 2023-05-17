@@ -65,6 +65,7 @@ export type JSON = Obj | Obj[];
 export type FieldComponentBaseProps = {
   defaultValue?: string | number;
   isDisabled: boolean;
+  shouldAllowAutofill?: boolean;
   isRequired?: boolean;
   isVisible: boolean;
   label: string;

@@ -28,8 +28,6 @@ import RestAPIDatasourceForm from "./RestAPIDatasourceForm";
 import type { Datasource } from "entities/Datasource";
 import type { RouteComponentProps } from "react-router";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import { setGlobalSearchQuery } from "actions/globalSearchActions";
-import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import { DatasourceComponentTypes } from "api/PluginApi";
 import DatasourceSaasForm from "../SaaSEditor/DatasourceForm";
 
@@ -50,6 +48,8 @@ import { isDatasourceInViewMode } from "selectors/ui";
 import { getQueryParams } from "utils/URLUtils";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import SaveOrDiscardDatasourceModal from "./SaveOrDiscardDatasourceModal";
+import styled from "styled-components";
+import DSDataFilter from "@appsmith/components/DSDataFilter";
 
 interface ReduxStateProps {
   datasourceId: string;
@@ -90,6 +90,19 @@ type Props = ReduxStateProps &
     pageId: string;
   }>;
 
+const DSEditorWrapper = styled.div`
+  height: calc(100vh - ${(props) => props.theme.headerHeight});
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+`;
+
+type DatasourceFilterState = {
+  id: string;
+  name: string;
+  userPermissions: string[];
+};
+
 /*
   **** State Variables Description ****
   showDialog: flag used to show/hide the datasource discard popup
@@ -101,6 +114,7 @@ type State = {
   showDialog: boolean;
   routesBlocked: boolean;
   readUrlParams: boolean;
+  filterParams: DatasourceFilterState;
 
   unblock(): void;
   navigation(): void;
@@ -166,7 +180,6 @@ class DataSourceEditor extends React.Component<Props> {
       isNewDatasource,
       isSaving,
       isTesting,
-      openOmnibarReadMore,
       pageId,
       pluginId,
       pluginImages,
@@ -189,7 +202,6 @@ class DataSourceEditor extends React.Component<Props> {
         isNewDatasource={isNewDatasource}
         isSaving={isSaving}
         isTesting={isTesting}
-        openOmnibarReadMore={openOmnibarReadMore}
         pageId={pageId}
         pluginImage={pluginImages[pluginId]}
         pluginType={pluginType}
@@ -203,7 +215,6 @@ class DataSourceEditor extends React.Component<Props> {
 export interface DatasourcePaneFunctions {
   switchDatasource: (id: string) => void;
   setDatasourceViewMode: (viewMode: boolean) => void;
-  openOmnibarReadMore: (text: string) => void;
   discardTempDatasource: () => void;
   deleteTempDSFromDraft: () => void;
   toggleSaveActionFlag: (flag: boolean) => void;
@@ -220,6 +231,11 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       showDialog: false,
       routesBlocked: false,
       readUrlParams: false,
+      filterParams: {
+        id: "",
+        name: "",
+        userPermissions: [],
+      },
       unblock: () => {
         return undefined;
       },
@@ -386,6 +402,17 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     }
   }
 
+  updateFilter = (id: string, name: string, userPermissions: string[]) => {
+    this.setState({
+      ...this.state,
+      filterParams: {
+        id,
+        name,
+        userPermissions,
+      },
+    });
+  };
+
   renderSaveDisacardModal() {
     return (
       <SaveOrDiscardDatasourceModal
@@ -471,15 +498,23 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     // Default to old flow
     // Todo: later refactor to make this "AutoForm"
     return (
-      <>
-        <DataSourceEditor
-          {...this.props}
-          datasourceDeleteTrigger={this.datasourceDeleteTrigger}
-          datasourceId={datasourceId}
-          pageId={pageId}
-        />
-        {this.renderSaveDisacardModal()}
-      </>
+      <DSEditorWrapper>
+        {!viewMode && (
+          <DSDataFilter
+            pluginType={this.props.pluginType}
+            updateFilter={this.updateFilter}
+          />
+        )}
+        <>
+          <DataSourceEditor
+            {...this.props}
+            datasourceDeleteTrigger={this.datasourceDeleteTrigger}
+            datasourceId={datasourceId}
+            pageId={pageId}
+          />
+          {this.renderSaveDisacardModal()}
+        </>
+      </DSEditorWrapper>
     );
   }
 }
@@ -542,10 +577,6 @@ const mapDispatchToProps = (
   },
   setDatasourceViewMode: (viewMode: boolean) =>
     dispatch(setDatasourceViewMode(viewMode)),
-  openOmnibarReadMore: (text: string) => {
-    dispatch(setGlobalSearchQuery(text));
-    dispatch(toggleShowGlobalSearchModal());
-  },
   discardTempDatasource: () => dispatch(removeTempDatasource()),
   deleteTempDSFromDraft: () => dispatch(deleteTempDSFromDraft()),
   toggleSaveActionFlag: (flag) => dispatch(toggleSaveActionFlag(flag)),

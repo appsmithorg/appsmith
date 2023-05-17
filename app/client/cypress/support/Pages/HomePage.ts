@@ -4,6 +4,8 @@ import HomePageLocators from "../../locators/HomePage";
 export class HomePage {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private locator = ObjectsRegistry.CommonLocators;
+  private entityExplorer = ObjectsRegistry.EntityExplorer;
+  private onboarding = ObjectsRegistry.Onboarding;
 
   private _username = "input[name='username']";
   private _password = "input[name='password']";
@@ -36,6 +38,7 @@ export class HomePage {
     role +
     "']";
   private _profileMenu = ".t--profile-menu";
+  private _editProfileMenu = ".t--edit-profile";
   private _signout = ".t--logout-icon";
   _searchUsersInput = ".search-input";
 
@@ -43,10 +46,10 @@ export class HomePage {
   public _closeBtn = ".bp3-dialog-close-button";
   private _appHome = "//a[@href='/applications']";
   _applicationCard = ".t--application-card";
-  private _homeIcon = ".t--appsmith-logo";
+  _homeIcon = ".t--appsmith-logo";
   private _homeAppsmithImage = "a.t--appsmith-logo";
   private _appContainer = ".t--applications-container";
-  private _homePageAppCreateBtn = this._appContainer + " .createnew";
+  _homePageAppCreateBtn = this._appContainer + " .createnew";
   private _existingWorkspaceCreateNewApp = (existingWorkspaceName: string) =>
     `//span[text()='${existingWorkspaceName}']/ancestor::div[contains(@class, 't--workspace-section')]//button[contains(@class, 't--new-button')]`;
   private _applicationName = ".t--application-name";
@@ -92,6 +95,10 @@ export class HomePage {
     "//div[contains(@class, 't--applications-container')]//span[text()='" +
     wsName +
     "']";
+  _welcomeTour = ".t--welcome-tour";
+  _welcomeTourBuildingButton = ".t--start-building";
+  _reconnectDataSourceModal = "[data-cy=t--tab-RECONNECT_DATASOURCES]";
+  _skiptoApplicationBtn = "//span[text()='Skip to Application']/parent::a";
 
   public SwitchToAppsTab() {
     this.agHelper.GetNClick(this._homeTab);
@@ -206,10 +213,16 @@ export class HomePage {
     this.agHelper.AssertElementVisible(this._homeAppsmithImage);
   }
 
-  public CreateNewApplication() {
+  public CreateNewApplication(skipSignposting = true) {
     cy.get(this._homePageAppCreateBtn).first().click({ force: true });
     this.agHelper.ValidateNetworkStatus("@createNewApplication", 201);
     cy.get(this.locator._loading).should("not.exist");
+
+    if (skipSignposting) {
+      this.agHelper.AssertElementVisible(this.entityExplorer._entityExplorer);
+      this.onboarding.closeIntroModal();
+      this.onboarding.skipSignposting();
+    }
   }
 
   //Maps to CreateAppForWorkspace in command.js
@@ -262,6 +275,20 @@ export class HomePage {
     this.agHelper.Sleep(); //for logout to complete!
   }
 
+  public GotoProfileMenu() {
+    this.agHelper.GetNClick(this._profileMenu);
+  }
+
+  public GotoEditProfile() {
+    cy.location().then((loc) => {
+      if (loc.pathname !== "/profile") {
+        this.NavigateToHome();
+        this.GotoProfileMenu();
+        this.agHelper.GetNClick(this._editProfileMenu);
+      }
+    });
+  }
+
   public LogintoApp(
     uname: string,
     pswd: string,
@@ -283,7 +310,7 @@ export class HomePage {
   }
 
   public FilterApplication(appName: string, workspaceId: string) {
-    cy.get(this._searchInput).type(appName);
+    cy.get(this._searchInput).type(appName, { force: true });
     this.agHelper.Sleep(2000);
     cy.get(this._appContainer).contains(workspaceId);
     cy.xpath(this.locator._spanButton("Share")).first().should("be.visible");
@@ -323,7 +350,6 @@ export class HomePage {
     cy.get(this._leaveWorkspaceConfirmModal).should("be.visible");
     cy.get(this._leaveWorkspaceConfirmButton).click({ force: true });
     cy.wait(4000);
-    this.NavigateToHome();
   }
 
   public OpenMembersPageForWorkspace(workspaceName: string) {
@@ -356,12 +382,19 @@ export class HomePage {
   ) {
     this.OpenMembersPageForWorkspace(workspaceName);
     cy.log(workspaceName, email, currentRole);
+    this.agHelper.UpdateInput(this._searchUsersInput, email);
+    cy.get(".search-highlight").should("exist").contains(email);
     this.agHelper.Sleep(2000);
     cy.xpath(this._userRoleDropDown(currentRole))
       .first()
       .click({ force: true });
     this.agHelper.Sleep();
     //cy.xpath(this._userRoleDropDown(email)).first().click({force: true});
+    if (CURRENT_REPO === REPO.EE) {
+      this.agHelper.AssertElementExist(
+        this._visibleTextSpan("Assign Custom Role"),
+      );
+    }
     cy.xpath(this._visibleTextSpan(`${newRole}`))
       .last()
       .parent("div")
@@ -484,5 +517,14 @@ export class HomePage {
     this.agHelper.ValidateToastMessage(
       "You have successfully left the workspace",
     );
+  }
+
+  public CloseReconnectDataSourceModal() {
+    cy.get("body").then(($ele) => {
+      if ($ele.find(this._reconnectDataSourceModal).length) {
+        this.agHelper.GetNClick(this._skiptoApplicationBtn);
+        this.NavigateToHome();
+      }
+    });
   }
 }

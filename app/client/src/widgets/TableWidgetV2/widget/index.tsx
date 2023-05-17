@@ -25,7 +25,8 @@ import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
-import type { ReactTableFilter, StickyType } from "../component/Constants";
+import { SORT_ORDER } from "../component/Constants";
+import type { StickyType, ReactTableFilter } from "../component/Constants";
 import { AddNewRowActions, DEFAULT_FILTER } from "../component/Constants";
 import type {
   EditableCell,
@@ -45,6 +46,7 @@ import {
   InlineEditingSaveOptions,
   ORIGINAL_INDEX_KEY,
   TABLE_COLUMN_ORDER_KEY,
+  PaginationDirection,
 } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
 import {
@@ -76,7 +78,10 @@ import type { IconName } from "@blueprintjs/icons";
 import { IconNames } from "@blueprintjs/icons";
 import { Colors } from "constants/Colors";
 import equal from "fast-deep-equal/es6";
-import { sanitizeKey } from "widgets/WidgetUtils";
+import {
+  sanitizeKey,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
 import PlainTextCell from "../component/cellComponents/PlainTextCell";
 import { ButtonCell } from "../component/cellComponents/ButtonCell";
 import { MenuButtonCell } from "../component/cellComponents/MenuButtonCell";
@@ -103,6 +108,9 @@ import type {
   transformDataWithEditableCell,
 } from "./reactTableUtils/transformDataPureFn";
 import { getMemoiseTransformDataWithEditableCell } from "./reactTableUtils/transformDataPureFn";
+import type { ExtraDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import type { AutocompletionDefinitions } from "widgets/constants";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -167,6 +175,44 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       isAddRowInProgress: false,
       newRowContent: undefined,
       newRow: undefined,
+      previousPageVisited: false,
+      nextPageVisited: false,
+    };
+  }
+
+  static getAutocompleteDefinitions(): AutocompletionDefinitions {
+    return (widget: TableWidgetProps, extraDefsToDefine?: ExtraDef) => {
+      const config = {
+        "!doc":
+          "The Table is the hero widget of Appsmith. You can display data from an API in a table, trigger an action when a user selects a row and even work with large paginated data sets",
+        "!url": "https://docs.appsmith.com/widget-reference/table",
+        selectedRow: generateTypeDef(widget.selectedRow, extraDefsToDefine),
+        selectedRows: generateTypeDef(widget.selectedRows, extraDefsToDefine),
+        selectedRowIndices: generateTypeDef(widget.selectedRowIndices),
+        triggeredRow: generateTypeDef(widget.triggeredRow),
+        updatedRow: generateTypeDef(widget.updatedRow),
+        selectedRowIndex: "number",
+        tableData: generateTypeDef(widget.tableData, extraDefsToDefine),
+        pageNo: "number",
+        pageSize: "number",
+        isVisible: DefaultAutocompleteDefinitions.isVisible,
+        searchText: "string",
+        totalRecordsCount: "number",
+        sortOrder: {
+          column: "string",
+          order: ["asc", "desc"],
+        },
+        updatedRows: generateTypeDef(widget.updatedRows, extraDefsToDefine),
+        updatedRowIndices: generateTypeDef(widget.updatedRowIndices),
+        triggeredRowIndex: generateTypeDef(widget.triggeredRowIndex),
+        pageOffset: generateTypeDef(widget.pageOffset),
+        tableHeaders: generateTypeDef(widget.tableHeaders),
+        newRow: generateTypeDef(widget.newRow),
+        isAddRowInProgress: "bool",
+        previousPageVisited: generateTypeDef(widget.previousPageVisited),
+        nextPageVisited: generateTypeDef(widget.nextPageButtonClicked),
+      };
+      return config;
     };
   }
 
@@ -405,6 +451,21 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           // Maintain original columnOrder and keep new columns at the end
           let newColumnOrder = _.intersection(columnOrder, newColumnIds);
           newColumnOrder = _.union(newColumnOrder, newColumnIds);
+
+          const compareColumns = (a: string, b: string) => {
+            const aSticky = tableColumns[a].sticky || "none";
+            const bSticky = tableColumns[b].sticky || "none";
+
+            if (aSticky === bSticky) {
+              return 0;
+            }
+
+            return SORT_ORDER[aSticky] - SORT_ORDER[bSticky];
+          };
+
+          // Sort the column order to retain the position of frozen columns
+          newColumnOrder.sort(compareColumns);
+
           propertiesToAdd["columnOrder"] = newColumnOrder;
         }
 
@@ -576,20 +637,24 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     if (!pageNo) {
       pushBatchMetaUpdates("pageNo", 1);
+      this.updatePaginationDirectionFlags(PaginationDirection.INITIAL);
     }
 
     //check if pageNo does not excede the max Page no, due to change of totalRecordsCount
-    if (serverSidePaginationEnabled && totalRecordsCount) {
-      const maxAllowedPageNumber = Math.ceil(totalRecordsCount / pageSize);
-
-      if (pageNo > maxAllowedPageNumber) {
-        pushBatchMetaUpdates("pageNo", maxAllowedPageNumber);
-      }
-    } else if (
-      serverSidePaginationEnabled !== prevProps.serverSidePaginationEnabled
-    ) {
+    if (serverSidePaginationEnabled !== prevProps.serverSidePaginationEnabled) {
       //reset pageNo when serverSidePaginationEnabled is toggled
       pushBatchMetaUpdates("pageNo", 1);
+      this.updatePaginationDirectionFlags(PaginationDirection.INITIAL);
+    } else {
+      //check if pageNo does not excede the max Page no, due to change of totalRecordsCount or change of pageSize
+      if (serverSidePaginationEnabled && totalRecordsCount) {
+        const maxAllowedPageNumber = Math.ceil(totalRecordsCount / pageSize);
+
+        if (pageNo > maxAllowedPageNumber) {
+          pushBatchMetaUpdates("pageNo", maxAllowedPageNumber);
+          this.updatePaginationDirectionFlags(PaginationDirection.NEXT_PAGE);
+        }
+      }
     }
 
     /*
@@ -614,6 +679,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     if (pageSize !== prevProps.pageSize) {
       if (onPageSizeChange) {
+        this.updatePaginationDirectionFlags(PaginationDirection.INITIAL);
         pushBatchMetaUpdates("pageNo", 1, {
           triggerPropertyName: "onPageSizeChange",
           dynamicString: onPageSizeChange,
@@ -623,6 +689,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         });
       } else {
         pushBatchMetaUpdates("pageNo", 1);
+        this.updatePaginationDirectionFlags(PaginationDirection.INITIAL);
       }
     }
   };
@@ -744,6 +811,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     // Reset Page only when a filter is added
     if (!isEmpty(xorWith(filters, [DEFAULT_FILTER], equal))) {
       pushBatchMetaUpdates("pageNo", 1);
+      this.updatePaginationDirectionFlags(PaginationDirection.INITIAL);
     }
     commitBatchMetaUpdates();
   };
@@ -1063,6 +1131,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     }
 
     pushBatchMetaUpdates("pageNo", 1);
+    this.updatePaginationDirectionFlags(PaginationDirection.INITIAL);
+
     pushBatchMetaUpdates("searchText", searchKey, {
       triggerPropertyName: "onSearchTextChanged",
       dynamicString: onSearchTextChanged,
@@ -1215,6 +1285,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   updatePageNumber = (pageNo: number, event?: EventType) => {
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
 
+    const paginationDirection =
+      event == EventType.ON_NEXT_PAGE
+        ? PaginationDirection.NEXT_PAGE
+        : PaginationDirection.PREVIOUS_PAGE;
+    this.updatePaginationDirectionFlags(paginationDirection);
+
     if (event) {
       pushBatchMetaUpdates("pageNo", pageNo, {
         triggerPropertyName: "onPageChange",
@@ -1233,9 +1309,39 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     commitBatchMetaUpdates();
   };
 
+  updatePaginationDirectionFlags = (direction?: PaginationDirection) => {
+    const { pushBatchMetaUpdates } = this.props;
+
+    let previousButtonFlag = false;
+    let nextButtonFlag = false;
+
+    if (direction) {
+      switch (direction) {
+        case PaginationDirection.INITIAL: {
+          previousButtonFlag = false;
+          nextButtonFlag = false;
+          break;
+        }
+        case PaginationDirection.NEXT_PAGE: {
+          nextButtonFlag = true;
+          break;
+        }
+        case PaginationDirection.PREVIOUS_PAGE: {
+          previousButtonFlag = true;
+          break;
+        }
+      }
+    }
+
+    pushBatchMetaUpdates("previousPageVisited", previousButtonFlag);
+    pushBatchMetaUpdates("nextPageVisited", nextButtonFlag);
+  };
+
   handleNextPageClick = () => {
     const pageNo = (this.props.pageNo || 1) + 1;
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+
+    this.updatePaginationDirectionFlags(PaginationDirection.NEXT_PAGE);
 
     pushBatchMetaUpdates("pageNo", pageNo, {
       triggerPropertyName: "onPageChange",
@@ -1282,6 +1388,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
 
     if (pageNo >= 1) {
+      this.updatePaginationDirectionFlags(PaginationDirection.PREVIOUS_PAGE);
       pushBatchMetaUpdates("pageNo", pageNo, {
         triggerPropertyName: "onPageChange",
         dynamicString: this.props.onPageChange,
@@ -2321,7 +2428,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     // New row gets added at the top of page 1 when client side pagination enabled
     if (!this.props.serverSidePaginationEnabled) {
-      pushBatchMetaUpdates("pageNo", 1);
+      this.updatePaginationDirectionFlags(PaginationDirection.INITIAL);
     }
 
     //Since we're adding a newRowContent thats not part of tableData, the index changes

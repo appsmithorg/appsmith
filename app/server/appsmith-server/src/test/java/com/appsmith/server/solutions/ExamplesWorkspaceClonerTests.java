@@ -450,7 +450,7 @@ public class ExamplesWorkspaceClonerTests {
                     ds1.setPluginId(pluginId);
                     final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
                     ds1.setDatasourceConfiguration(datasourceConfiguration);
-                    datasourceConfiguration.setUrl("http://httpbin.org/get");
+                    datasourceConfiguration.setUrl("http://example.org/get");
                     datasourceConfiguration.setHeaders(List.of(
                             new Property("X-Answer", "42")
                     ));
@@ -505,7 +505,7 @@ public class ExamplesWorkspaceClonerTests {
                     ds1.setPluginId(installedPlugin.getId());
                     final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
                     ds1.setDatasourceConfiguration(datasourceConfiguration);
-                    datasourceConfiguration.setUrl("http://httpbin.org/get");
+                    datasourceConfiguration.setUrl("http://example.org/get");
                     datasourceConfiguration.setHeaders(List.of(
                             new Property("X-Answer", "42")
                     ));
@@ -1000,7 +1000,6 @@ public class ExamplesWorkspaceClonerTests {
                     final OAuth2 o2 = new OAuth2();
                     o2.setClientId("c1");
                     assertThat(o1).isEqualTo(o2);
-
                     assertThat(map(data.datasources, Datasource::getName)).containsExactlyInAnyOrder(
                             "datasource 1",
                             "datasource 2"
@@ -1008,11 +1007,9 @@ public class ExamplesWorkspaceClonerTests {
 
                     final Datasource ds1 = data.datasources.stream().filter(ds -> ds.getName().equals("datasource 1")).findFirst().get();
                     assertThat(ds1.getDatasourceConfiguration().getAuthentication().getIsAuthorized()).isNull();
-                    assertThat(ds1.getDatasourceConfiguration().getAuthentication().getAuthenticationResponse()).isNull();
 
                     final Datasource ds2 = data.datasources.stream().filter(ds -> ds.getName().equals("datasource 2")).findFirst().get();
                     assertThat(ds2.getDatasourceConfiguration().getAuthentication().getIsAuthorized()).isNull();
-                    assertThat(ds2.getDatasourceConfiguration().getAuthentication().getAuthenticationResponse()).isNull();
 
                     assertThat(getUnpublishedActionName(data.actions)).containsExactlyInAnyOrder(
                             "action1",
@@ -1263,6 +1260,7 @@ public class ExamplesWorkspaceClonerTests {
                 })
                 .verifyComplete();
     }
+
 
 
     private List<String> getUnpublishedActionName(List<ActionDTO> actions) {

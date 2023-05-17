@@ -98,12 +98,15 @@ export function* validateResponse(
   if (!response.responseMeta && !response.status) {
     throw Error(getErrorMessage(0));
   }
+
   if (!response.responseMeta && response.status) {
     throw Error(getErrorMessage(response.status, response.resourceType));
   }
+
   if (response.responseMeta.success) {
     return true;
   }
+
   if (
     SERVER_ERROR_CODES.INCORRECT_BINDING_LIST_OF_WIDGET.includes(
       response.responseMeta.error.code,
@@ -267,12 +270,10 @@ function* safeCrashSagaRequest(action: ReduxAction<{ code?: ERROR_CODES }>) {
     code === ERROR_CODES.PAGE_NOT_FOUND
   ) {
     const queryParams = new URLSearchParams(window.location.search);
-    const embedQueryParam = queryParams.get("embed");
     const ssoTriggerQueryParam = queryParams.get("ssoTrigger");
-    const ssoLoginUrl =
-      embedQueryParam === "true" && ssoTriggerQueryParam
-        ? getLoginUrl(ssoTriggerQueryParam || "")
-        : null;
+    const ssoLoginUrl = ssoTriggerQueryParam
+      ? getLoginUrl(ssoTriggerQueryParam || "")
+      : null;
     if (ssoLoginUrl) {
       window.location.href = `${ssoLoginUrl}?redirectUrl=${encodeURIComponent(
         window.location.href,

@@ -1,7 +1,8 @@
 /* eslint-disable no-console */
-import { WorkerErrorTypes } from "ce/workers/common/types";
+import { WorkerErrorTypes } from "@appsmith/workers/common/types";
 import { uniqueId } from "lodash";
 import { MessageType, sendMessage } from "utils/MessageUtil";
+import { getErrorMessage } from "workers/Evaluation/errorModifier";
 type TPromiseResponse =
   | {
       data: any;
@@ -82,6 +83,10 @@ export class WorkerMessenger {
               {
                 type: WorkerErrorTypes.CLONE_ERROR,
                 message: (e as Error)?.message,
+                errorMessage: getErrorMessage(
+                  e as Error,
+                  WorkerErrorTypes.CLONE_ERROR,
+                ),
                 context: JSON.stringify(data),
               },
             ],

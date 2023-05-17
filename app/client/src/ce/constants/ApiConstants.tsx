@@ -2,6 +2,7 @@ export const REQUEST_TIMEOUT_MS = 20000;
 export const DEFAULT_ACTION_TIMEOUT = 10000;
 export const DEFAULT_EXECUTE_ACTION_TIMEOUT_MS = 15000;
 export const DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS = 30000;
+export const DEFAULT_ENV_NAME = "";
 
 export enum API_STATUS_CODES {
   REQUEST_NOT_AUTHORISED = 401,
@@ -41,3 +42,6 @@ export const SUPER_USER_SUBMIT_PATH = `${SIGNUP_SUBMIT_PATH}/super`;
 
 export const getExportAppAPIRoute = (applicationId: string) =>
   `/api/v1/applications/export/${applicationId}`;
+
+export const getSnapShotAPIRoute = (applicationId: string) =>
+  `/v1/applications/snapshot/${applicationId}`;

@@ -1,7 +1,7 @@
 import HomePage from "../../../locators/HomePage";
 const pages = require("../../../locators/Pages.json");
 
-describe("Validate Datasource Panel Styles", function () {
+describe("excludeForAirgap", "Validate Datasource Panel Styles", function () {
   const backgroundColorGray900 = "rgb(25, 25, 25)";
   const backgroundColorGray700 = "rgb(87, 87, 87)";
   const backgroundColorGray1 = "rgb(250, 250, 250)";
@@ -83,20 +83,18 @@ describe("Validate Datasource Panel Styles", function () {
     cy.datasourceIconWrapperStyle(".content-icon-wrapper");
     //Name
     cy.datasourceNameStyle(".t--createBlankApiCard .textBtn");
+    //Datsource title font size should be 20px
+    cy.get(".sectionHeadings").should("have.css", "font-size", "20px");
   });
 
-  it("4. Datasource title font size", () => {
-    cy.get(".t--integrationsHomePage").should("have.css", "font-size", "20px");
-  });
-
-  it("5. Action button icon placement", () => {
+  it("4. Action button icon placement", () => {
     //Navigate to Active tab
     cy.get(pages.integrationActiveTab).click({ force: true });
     //Icon should be placed left to the text.
     cy.get(".t--create-query .t--left-icon");
   });
 
-  it("6. Datasource Active card styles", () => {
+  it("5. Datasource Active card styles", () => {
     //Active card wrapper
     cy.get(".t--datasource")
       .should("have.css", "padding", "15px")
@@ -131,7 +129,7 @@ describe("Validate Datasource Panel Styles", function () {
       .and("have.css", "align-items", "center");
   });
 
-  it("7. Collapse component styles", () => {
+  it("6. Collapse component styles", () => {
     //Collapse wrapper
     cy.get("[data-testid=datasource-collapse-wrapper]")
       .should("have.css", "color", backgroundColorGray700)

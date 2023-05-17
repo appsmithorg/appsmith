@@ -1,31 +1,27 @@
-import { getAppsmithConfigs } from "@appsmith/configs";
 import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
 import type { User } from "constants/userConstants";
-const { disableLoginForm, enableGithubOAuth, enableGoogleOAuth } =
-  getAppsmithConfigs();
-
-export const connectedMethods = [
-  enableGoogleOAuth,
-  enableGithubOAuth,
-  !disableLoginForm,
-].filter(Boolean);
 
 /* settings is the updated & unsaved settings on Admin settings page */
-export const saveAllowed = (settings: any) => {
-  if (connectedMethods.length === 1) {
-    const checkFormLogin = !(
-        "APPSMITH_FORM_LOGIN_DISABLED" in settings || disableLoginForm
-      ),
+export const saveAllowed = (
+  settings: any,
+  isFormLoginEnabled: boolean,
+  socialLoginList: string[],
+) => {
+  const connectedMethodsCount =
+    socialLoginList.length + (isFormLoginEnabled ? 1 : 0);
+  if (connectedMethodsCount === 1) {
+    const checkFormLogin =
+        !("APPSMITH_FORM_LOGIN_DISABLED" in settings) && isFormLoginEnabled,
       checkGoogleAuth =
         settings["APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"] !== "" &&
-        enableGoogleOAuth,
+        socialLoginList.includes("google"),
       checkGithubAuth =
         settings["APPSMITH_OAUTH2_GITHUB_CLIENT_ID"] !== "" &&
-        enableGithubOAuth;
+        socialLoginList.includes("github");
 
     return checkFormLogin || checkGoogleAuth || checkGithubAuth;
   } else {
-    return connectedMethods.length >= 2;
+    return connectedMethodsCount >= 2;
   }
 };
 

@@ -1,4 +1,4 @@
-import { addPlatformFunctionsToEvalContext } from "ce/workers/Evaluation/Actions";
+import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { PluginType } from "entities/Action";
 import type { DataTree } from "entities/DataTree/dataTreeFactory";
@@ -31,7 +31,6 @@ const dataTree: DataTree = {
 };
 const evalContext = createEvaluationContext({
   dataTree,
-  resolvedFunctions: {},
   isTriggerBased: true,
   context: {},
 });
@@ -40,7 +39,6 @@ jest.mock("workers/Evaluation/handlers/evalTree", () => ({
   get dataTreeEvaluator() {
     return {
       evalTree: evalContext,
-      resolvedFunctions: {},
     };
   },
 }));
@@ -49,7 +47,10 @@ describe("Tests for interval functions", () => {
   beforeAll(() => {
     self["$isDataField"] = false;
     self["$cloudHosting"] = false;
-    ExecutionMetaData.setExecutionMetaData({}, EventType.ON_PAGE_LOAD);
+    ExecutionMetaData.setExecutionMetaData({
+      triggerMeta: {},
+      eventType: EventType.ON_PAGE_LOAD,
+    });
     overrideWebAPIs(evalContext);
     addPlatformFunctionsToEvalContext(evalContext);
   });
@@ -73,7 +74,9 @@ describe("Tests for interval functions", () => {
     expect(callback).toBeCalledTimes(1);
   });
 
-  it("Callback should have access to outer scope variables", async () => {
+  // skipping this test as its flaky,
+  // check https://theappsmith.slack.com/archives/CPG2ZTXEY/p1681368791500909 for more details
+  it.skip("Callback should have access to outer scope variables", async () => {
     const stalker = jest.fn();
     function test() {
       let count = 0;

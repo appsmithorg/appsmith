@@ -4,7 +4,7 @@ import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import log from "loglevel";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
-import type { ReduxAction } from "ce/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import type { BackgroundTheme } from "sagas/ThemeSaga";
 import { changeAppBackground } from "sagas/ThemeSaga";
@@ -15,9 +15,10 @@ import {
   setSelectedWidgets,
 } from "actions/widgetSelectionActions";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { contextSwitchingSaga } from "ce/sagas/ContextSwitchingSaga";
+import { contextSwitchingSaga } from "sagas/ContextSwitchingSaga";
 import { getSafeCrash } from "selectors/errorSelectors";
 import { flushErrors } from "actions/errorActions";
+import type { NavigationMethod } from "utils/history";
 
 let previousPath: string;
 
@@ -36,7 +37,7 @@ export function* handleRouteChange(
       yield fork(appBackgroundHandler);
       const entityInfo = identifyEntityFromPath(pathname);
       yield fork(updateRecentEntitySaga, entityInfo);
-      yield fork(setSelectedWidgetsSaga);
+      yield fork(setSelectedWidgetsSaga, state?.invokedBy);
     }
   } catch (e) {
     log.error("Error in focus change", e);
@@ -85,7 +86,7 @@ function* logNavigationAnalytics(payload: RouteChangeActionPayload) {
   });
 }
 
-function* setSelectedWidgetsSaga() {
+function* setSelectedWidgetsSaga(invokedBy?: NavigationMethod) {
   const pathname = window.location.pathname;
   const entityInfo = identifyEntityFromPath(pathname);
   let widgets: string[] = [];
@@ -96,6 +97,6 @@ function* setSelectedWidgetsSaga() {
       lastSelectedWidget = widgets[widgets.length - 1];
     }
   }
-  yield put(setSelectedWidgets(widgets));
+  yield put(setSelectedWidgets(widgets, invokedBy));
   yield put(setLastSelectedWidget(lastSelectedWidget));
 }

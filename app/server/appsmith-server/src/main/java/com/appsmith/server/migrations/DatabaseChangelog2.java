@@ -8,6 +8,7 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.QBaseDomain;
+import com.appsmith.external.models.QBranchAwareDomain;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
@@ -815,7 +816,7 @@ public class DatabaseChangelog2 {
         dropIndexIfExists(mongoTemplate, NewAction.class, "defaultApplicationId_gitSyncId_compound_index");
         dropIndexIfExists(mongoTemplate, ActionCollection.class, "defaultApplicationId_gitSyncId_compound_index");
 
-        String defaultResources = fieldName(QBaseDomain.baseDomain.defaultResources);
+        String defaultResources = fieldName(QBranchAwareDomain.branchAwareDomain.defaultResources);
         ensureIndexes(mongoTemplate, ActionCollection.class,
                 makeIndex(
                         defaultResources + "." + FieldName.APPLICATION_ID,
@@ -2811,12 +2812,12 @@ public class DatabaseChangelog2 {
     @ChangeSet(order = "042", id = "add-oracle-plugin", author = "")
     public void addOraclePlugin(MongoTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
-        plugin.setName("Oracle Plugin");
+        plugin.setName("Oracle");
         plugin.setType(PluginType.DB);
         plugin.setPackageName("oracle-plugin");
         plugin.setUiComponent("DbEditorForm");
         plugin.setResponseType(Plugin.ResponseType.TABLE);
-        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/oracle-db.jpg");
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/oracle.svg");
         plugin.setDocumentationLink("https://docs.appsmith.com/datasource-reference/querying-oracle");
         plugin.setDefaultInstall(true);
         try {
@@ -2825,5 +2826,13 @@ public class DatabaseChangelog2 {
             log.warn(plugin.getPackageName() + " already present in database.");
         }
         installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
+    }
+
+    @ChangeSet(order = "043", id = "update-oracle-plugin-name", author = "")
+    public void updateOraclePluginName(MongoTemplate mongoTemplate) {
+        Plugin oraclePlugin = mongoTemplate.findOne(query(where("packageName").is("oracle-plugin")), Plugin.class);
+        oraclePlugin.setName("Oracle");
+        oraclePlugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/oracle.svg");
+        mongoTemplate.save(oraclePlugin);
     }
 }

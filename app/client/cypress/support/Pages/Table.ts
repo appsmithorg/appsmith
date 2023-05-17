@@ -32,14 +32,15 @@ export class Table {
   public locator = ObjectsRegistry.CommonLocators;
   public propPane = ObjectsRegistry.PropertyPane;
 
-  private _tableWrap = "//div[@class='tableWrap']";
+  private _tableWrap = "//div[contains(@class,'tableWrap')]";
   private _tableHeader =
-    this._tableWrap + "//div[@class='thead']//div[@class='tr'][1]";
+    this._tableWrap +
+    "//div[contains(@class,'thead')]//div[contains(@class,'tr')][1]";
   private _columnHeader = (columnName: string) =>
     this._tableWrap +
-    "//div[@class='thead']//div[@class='tr'][1]//div[@role='columnheader']//span[text()='" +
+    "//div[contains(@class,'thead')]//div[contains(@class,'tr')][1]//div[@role='columnheader']//div[contains(text(),'" +
     columnName +
-    "']/parent::div/parent::div/parent::div";
+    "')]/parent::div/parent::div";
   private _tableWidgetVersion = (version: "v1" | "v2") =>
     `.t--widget-tablewidget${version == "v1" ? "" : version}`;
   private _nextPage = (version: "v1" | "v2") =>
@@ -83,7 +84,7 @@ export class Table {
   private _searchText = "input[type='search']";
   _searchBoxCross =
     "//div[contains(@class, 't--search-input')]/following-sibling::div";
-  _addIcon = "button span[icon='add']";
+  _addIcon = "button .bp3-icon-add";
   _trashIcon = "button span[icon='trash']";
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
   _filterBtn = ".t--table-filter-toggle-btn";
@@ -350,11 +351,15 @@ export class Table {
     cy.get(this._searchText).eq(index).type(searchTxt);
   }
 
+  public resetSearch() {
+    this.agHelper.GetNClick(this._searchBoxCross);
+  }
+
   public RemoveSearchTextNVerify(
     cellDataAfterSearchRemoved: string,
     tableVersion: "v1" | "v2" = "v1",
   ) {
-    this.agHelper.GetNClick(this._searchBoxCross);
+    this.resetSearch();
     this.ReadTableRowColumnData(0, 0, tableVersion).then(
       (aftSearchRemoved: any) => {
         expect(aftSearchRemoved).to.eq(cellDataAfterSearchRemoved);
@@ -394,6 +399,12 @@ export class Table {
     //this.agHelper.ClickButton("APPLY")
   }
 
+  public RemoveFilter(toClose = true, removeOne = false, index = 0) {
+    if (removeOne) this.agHelper.GetNClick(this._removeFilter, index);
+    else this.agHelper.GetNClick(this._clearAllFilter);
+    if (toClose) this.CloseFilter();
+  }
+
   public RemoveFilterNVerify(
     cellDataAfterFilterRemoved: string,
     toClose = true,
@@ -401,9 +412,7 @@ export class Table {
     index = 0,
     tableVersion: "v1" | "v2" = "v1",
   ) {
-    if (removeOne) this.agHelper.GetNClick(this._removeFilter, index);
-    else this.agHelper.GetNClick(this._clearAllFilter);
-    if (toClose) this.CloseFilter();
+    this.RemoveFilter(toClose, removeOne, index);
     this.ReadTableRowColumnData(0, 0, tableVersion).then(
       (aftFilterRemoved: any) => {
         expect(aftFilterRemoved).to.eq(cellDataAfterFilterRemoved);
